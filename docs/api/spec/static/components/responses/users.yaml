@@ -56,3 +56,32 @@ UsersBulkImport:
               properties:
                 item:
                   $ref: '#/components/schemas/User'
+
+UserNodes:
+  description: Request successful. Response contains the Nodes for the User.
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '#/components/schemas/Iterable'
+          - type: object
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Node'
+
+UserSecurityEvents:
+  description: Request successful. Response contains the Security Events for the User.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/SecurityEvent'
+          status:
+            $ref: '#/components/schemas/Status'
+

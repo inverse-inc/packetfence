@@ -2,7 +2,7 @@ user_id:
   name: user_id
   in: path
   required: true
-  description: The user ID
+  description: The users `PRIMARY_KEY`
   schema:
     type: string
 

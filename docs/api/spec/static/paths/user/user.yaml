@@ -1,0 +1,54 @@
+/api/v1/user/{user_id}/nodes:
+  get:
+    summary: Get Nodes for a User.
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/cursor"
+      - allOf:
+        - $ref: "#/components/parameters/limit"
+        - in: query
+    responses:
+      '200':
+        $ref: "#/components/responses/UserNodes"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/user/{user_id}/security_events:
+  get:
+    summary: Get Security Events for a User.
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    responses:
+      '200':
+        $ref: "#/components/responses/UserSecurityEvents"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/user/{user_id}/unassign_nodes:
+  post:
+    summary: Unassign all Nodes for a User.
+    parameters:
+      - $ref: "#/components/parameters/user_id"
+    responses:
+      '200':
+        $ref: "#/components/responses/Count"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
