@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
@@ -23,14 +21,9 @@ type RadiusAuditLog struct {
 	Ctx *context.Context
 }
 
-func NewRadiusAuditLog() *RadiusAuditLog {
-	DB, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
-	ctx := context.Background()
-	if err != nil {
-		log.LoggerWContext(ctx).Warn(err.Error())
-	}
+func NewRadiusAuditLog(ctx context.Context, db *gorm.DB) *RadiusAuditLog {
 	return &RadiusAuditLog{
-		DB:  DB,
+		DB:  db,
 		Ctx: &ctx,
 	}
 }
