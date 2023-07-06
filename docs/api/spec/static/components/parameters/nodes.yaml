@@ -1,0 +1,20 @@
+node_id:
+  name: node_id
+  in: path
+  required: true
+  description: The nodes `PRIMARY_KEY`
+  allowReserved: true
+  style: form
+  explode: false
+  schema:
+    type: string
+
+locationlog_id:
+  name: locationlog_id
+  in: path
+  required: true
+  description: The locationlogs `PRIMARY_KEY`
+  schema:
+    type: string
+
+

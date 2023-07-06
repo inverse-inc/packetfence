@@ -14,6 +14,14 @@ limit:
     type: int
   description: The maximum amount of entries to get.
 
+sort:
+  in: query|body
+  name: sort
+  required: false
+  schema:
+    type: string
+  description: The sort and order of the paginated entries.
+
 fields:
   in: body
   name: fields
