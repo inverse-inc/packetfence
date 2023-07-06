@@ -14,7 +14,7 @@ export const useStore = $store => {
 
 export const useServices = () => computed(() => {
   return {
-    message: i18n.t('Creating or modifying the syslog forwarders requires to restart the rsyslog system service.'),
+    message: i18n.t('Creating or modifying the fencing requires to restart the rsyslog system service.'),
     services: ['pfdns', 'iptables'],
   }
 })
