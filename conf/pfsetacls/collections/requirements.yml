@@ -1,5 +1,9 @@
 collections:
     - name: arubanetworks.aoscx
+      version: 4.2.1
     - name: cisco.ios
+      version: 4.6.1
     - name: community.network
+      version: 5.0.0
     - name: cisco.asa
+      version: 4.0.1
