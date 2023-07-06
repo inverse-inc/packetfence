@@ -1,4 +1,6 @@
-FROM golang:bullseye
+ARG KNK_REGISTRY_URL
+ARG IMAGE_TAG
+FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     SEMAPHORE_CONFIG_PATH="${SEMAPHORE_CONFIG_PATH:-/etc/semaphore}" \
@@ -7,8 +9,7 @@ ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
 # hadolint ignore=DL3013
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 
-RUN apt update
-RUN apt install -y gcc g++ make git mariadb-client-10.5 python3 pip python3-openssl openssl ca-certificates curl libcurl4-openssl-dev openssh-client tini nodejs bash rsync && \
+RUN apt update && apt install -y gcc g++ make git mariadb-client-10.5 python3 pip python3-openssl openssl ca-certificates curl libcurl4-openssl-dev openssh-client tini nodejs bash rsync && \
     apt install -y python3-dev libffi-dev python3-paramiko &&\
     rm -rf /var/cache/apt/*
 
