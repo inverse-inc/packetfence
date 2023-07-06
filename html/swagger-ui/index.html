@@ -49,6 +49,13 @@
           syntaxHighlight: {
             theme: 'monokai'
           },
+          requestInterceptor: function (req) {
+            // fix url (not query params) issue where OAS 'allowReserved: true' still urlEncodes ':' as '%3A'
+            let [url, query] = req.url.split('?', 2)
+            url = url.replaceAll('%3A', ':')
+            req.url = [url, query].join('?')
+            return req
+          },
           tagsSorter: function(a, b) {
             if (a == 'default')
               return -1
