@@ -952,6 +952,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/proxysql-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfldapexplorer-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
