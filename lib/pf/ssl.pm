@@ -338,9 +338,9 @@ sub generate_csr {
     my @san_dns = "DNS: $info->{common_name}";
 
     if (defined($info->{subject_alt_names})) {
-	foreach my $san_dns (split('\s*,\s*', $info->{subject_alt_names})) {
-	    push @san_dns, "DNS: ".$san_dns;
-	}
+        foreach my $san_dns (split('\s*,\s*', $info->{subject_alt_names})) {
+            push @san_dns, "DNS: ".$san_dns;
+        }
     }
 
     $csr->add_ext(Crypt::OpenSSL::PKCS10::NID_subject_alt_name, join(',', @san_dns));
