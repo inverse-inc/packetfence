@@ -197,7 +197,7 @@ sub handle_response {
         }
     };
     if($@){
-        return ($FALSE, "Can't validate Identity provider return message : ".$@->{message});
+        return ($FALSE, "Can't validate Identity provider return message : " . (ref($@) ? $@->{message} : $@));
     }
 
     return ($result, $msg);
