@@ -1,21 +1,15 @@
-/user/{user_id}/node/{node_id}/locationlogs:
-  description: pf::UnifiedApi::Controller::Users::Nodes::Locationlogs
+/api/v1/user/{user_id}/node/{node_id}/locationlogs:
+  parameters:
+    - $ref: "#/components/parameters/user_id"
+    - $ref: "#/components/parameters/node_id"
   get:
     description: List items
     operationId: api.v1.Users.Nodes.Locationlogs.list
     parameters:
-    - $ref: '#/components/parameters/cursor'
-    - $ref: '#/components/parameters/limit'
-    - $ref: '#/components/parameters/fields'
-    - $ref: '#/components/parameters/sort'
-    - in: path
-      name: user_id
-      schema:
-        type: string
-    - in: path
-      name: node_id
-      schema:
-        type: string
+      - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/sort'
     responses:
       '200':
         content:
@@ -23,22 +17,15 @@
             schema:
               $ref: '#/components/schemas/UsersNodesLocationlogsList'
         description: List
-      '400':
+      '404':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Users
   post:
     description: Create an item
     operationId: api.v1.Users.Nodes.Locationlogs.create
-    parameters:
-    - in: path
-      name: user_id
-      schema:
-        type: string
-    - in: path
-      name: node_id
-      schema:
-        type: string
     requestBody:
       content:
         application/json:
@@ -48,9 +35,11 @@
     responses:
       '201':
         $ref: '#/components/responses/Created'
-      '400':
+      '404':
         $ref: '#/components/responses/BadRequest'
       '409':
         $ref: '#/components/responses/Duplicate'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Users
