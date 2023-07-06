@@ -6,12 +6,12 @@ pf::Switch::Cisco::Catalyst_2970 - Object oriented module to access and configur
 
 =head1 STATUS
 
-This module is currently only a placeholder, see pf::Switch::Cisco::Catalyst_2960.
+This module is currently only a placeholder, see pf::Switch::Cisco::Cisco_IOS_15_0.
 
 =head1 BUGS AND LIMITATIONS
 
-Because a lot of code is shared with the 2960 make sure to check the BUGS AND LIMITATIONS section of 
-L<pf::Switch::Cisco::Catalyst_2960> also.
+Because a lot of code is shared with the Cisco_IOS_15_0 make sure to check the BUGS AND LIMITATIONS section of 
+L<pf::Switch::Cisco::Cisco_IOS_15_0> also.
 
 =head1 SNMP
 
@@ -23,7 +23,7 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use base ('pf::Switch::Cisco::Catalyst_2960');
+use base ('pf::Switch::Cisco::Cisco_IOS_15_0');
 
 sub description { 'Cisco Catalyst 2970' }
 

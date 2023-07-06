@@ -32,7 +32,7 @@ Developed and tested on SG300 running 1.1.2.0
 use strict;
 use warnings;
 
-use base ('pf::Switch::Cisco::Catalyst_2960');
+use base ('pf::Switch::Cisco::Cisco_IOS_15_0');
 use pf::util qw(clean_mac);
 use pf::log;
 use pf::SwitchSupports qw(
@@ -47,7 +47,7 @@ sub description { 'Cisco SG300' }
 
 # CAPABILITIES
 # access technology supported
-# inherited from cisco 2960
+# inherited from Cisco_IOS_15_0
 #
 
 =head2 getVoipVsa

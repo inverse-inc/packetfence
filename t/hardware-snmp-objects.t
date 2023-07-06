@@ -62,7 +62,7 @@ my @whitelist = (
     'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed', 'cachedSNMPTable', 'parseRequestUsername', 'getCiscoAvPairAttribute', 'supportsVPN', 'vpnAttributes', 'parseVPNRequest', 'canDoCliAccess', 'fingerbank_dynamic_acl',
     '_parentRoleForVlan','_parentRoleForWebAuthUrl','_parentRoleForRole',
     'find_user_by_psk', 'returnAuthorizeProbe', 'returnVpnRoleAttributes', 'shouldUseConnectorForRadiusDeauth', 'radius_deauth_connection_info', 'getVpnByName', '_parentRoleForVpn', 'radius_cache_distributed', 'setRadiusSession', 'useDownloadableACLs', 'defaultACLsLimit', 'defaultDownloadableACLsLimit', 'DownloadableACLsLimit', 'ACLsLimit', 'checkRoleACLs', 'checkRolesACLs', 'acl_chewer', 'makeACLsError',
-    'returnAccessListAttribute', 'returnInAccessListAttribute', 'returnOutAccessListAttribute',
+    'returnAccessListAttribute', 'returnInAccessListAttribute', 'returnOutAccessListAttribute', 'compute_action',
 );
 
 my @missing_subs;

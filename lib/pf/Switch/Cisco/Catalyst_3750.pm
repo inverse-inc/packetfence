@@ -8,7 +8,7 @@ pf::Switch::Cisco::Catalyst_3750
 
 Object oriented module to access and configure Cisco Catalyst 3750 switches
 
-This module implements a few things but for the most part refer to L<pf::Switch::Cisco::Catalyst_2960>.
+This module implements a few things but for the most part refer to L<pf::Switch::Cisco::Cisco_IOS_15_0>.
 
 =head1 STATUS
 

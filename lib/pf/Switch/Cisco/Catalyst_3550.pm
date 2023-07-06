@@ -6,14 +6,14 @@ pf::Switch::Cisco::Catalyst_3550 - Object oriented module to access and configur
 
 =head1 STATUS
 
-This module is currently only a placeholder, see pf::Switch::Cisco::Catalyst_2960.
+This module is currently only a placeholder, see pf::Switch::Cisco::Cisco_IOS_15_0.
 
 IOS 12.2(44)SE6 is known to work.
 
 =head1 BUGS AND LIMITATIONS
 
-Because a lot of code is shared with the 2960 make sure to check the BUGS AND LIMITATIONS section of 
-L<pf::Switch::Cisco::Catalyst_2960> also.
+Because a lot of code is shared with the Cisco_IOS_15_0 make sure to check the BUGS AND LIMITATIONS section of 
+L<pf::Switch::Cisco::Cisco_IOS_15_0> also.
 
 =over 
 
@@ -43,7 +43,7 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use base ('pf::Switch::Cisco::Catalyst_2960');
+use base ('pf::Switch::Cisco::Cisco_IOS_15_0');
 use pf::SwitchSupports qw(
     -DownloadableListBasedEnforcement
 );
@@ -57,7 +57,7 @@ sub description { 'Cisco Catalyst 3550' }
 =item NasPortToIfIndex
 
 Translate RADIUS NAS-Port into switch's ifIndex.
-This switch's NAS-Port behavior is different than the 2960.
+This switch's NAS-Port behavior is different than the Cisco_IOS_15_0.
 
 We considered changing the dependency chain to the 2950 but we think we 
 have less chances of breaking things if we just do the proper translation 

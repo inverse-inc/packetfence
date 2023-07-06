@@ -82,17 +82,17 @@ isa_ok($switch, 'pf::Switch');
 
 #Test using mac address as an id
 $switch = pf::SwitchFactory->instantiate('01:01:01:01:01:01');
-isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960',"mac address style switch id");
+isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0',"mac address style switch id");
 
 #Test using mac address
 $switch = pf::SwitchFactory->instantiate({ switch_mac => "01:01:01:01:01:02", switch_ip => "192.168.1.2", controllerIp => "1.1.1.1"});
-isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
+isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0');
 is($switch->{_id}, '01:01:01:01:01:02', "Proper id is set");
 is($switch->{_ip}, '192.168.1.2',       "Proper ip address is set");
 is($switch->{_controllerIp}, '1.1.1.1', "Proper controllerIp address is set");
 
 $switch = pf::SwitchFactory->instantiate({ switch_mac => "01:01:01:01:01:03", switch_ip => "192.168.1.2", controllerIp => "1.1.1.1"});
-isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
+isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0');
 is($switch->{_controllerIp}, '1.2.3.4', "Do not override  controllerIp address if set");
 
 $switch = pf::SwitchFactory->instantiate({ switch_mac => "ff:01:01:01:01:04", switch_ip => "192.168.0.1", controllerIp => "1.1.1.1"});
@@ -111,18 +111,18 @@ is('pf::Switch::Cisco::Catalyst_2960G', ref $switch,"Got the proper switch type 
 is($switch->{_id}, '172.16.3.2', "Proper id is set for 172.16.3.2");
 
 $switch = pf::SwitchFactory->instantiate('172.16.0.1');
-isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
-is("pf::Switch::Cisco::Catalyst_2960",ref $switch, "Got the correct switch type for 172.16.0.1");
+isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0');
+is("pf::Switch::Cisco::Cisco_IOS_15_0",ref $switch, "Got the correct switch type for 172.16.0.1");
 is($switch->{_id}, '172.16.0.1', "Proper id is set for 172.16.0.1");
 
 $switch = pf::SwitchFactory->instantiate({ switch_mac => "ff:01:01:01:01:04", switch_ip => "172.16.0.1"});
-isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
-is("pf::Switch::Cisco::Catalyst_2960",ref $switch, "Got the correct switch type for 172.16.0.1");
+isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0');
+is("pf::Switch::Cisco::Cisco_IOS_15_0",ref $switch, "Got the correct switch type for 172.16.0.1");
 is($switch->{_id}, '172.16.0.1', "Proper id is set for 172.16.0.1");
 
 $switch = pf::SwitchFactory->instantiate('192.168.190.217');
-isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
-is("pf::Switch::Cisco::Catalyst_2960",ref $switch, "Got the correct switch type for 192.168.190.217");
+isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0');
+is("pf::Switch::Cisco::Cisco_IOS_15_0",ref $switch, "Got the correct switch type for 192.168.190.217");
 is($switch->{_id}, '192.168.190.217', "Proper id is set for 192.168.190.217");
 
 $switch = pf::SwitchFactory->instantiate('172.16.8.25');

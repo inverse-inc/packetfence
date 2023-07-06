@@ -27,12 +27,12 @@ use Test::NoWarnings;
 use pf::pfcron::task::option82_query;
 use pf::option82;
 use pf::Switch::TestOption82;
-use pf::Switch::Cisco::Catalyst_2950;
+use pf::Switch::Cisco::Cisco_IOS_12_x;
 
 {
     no warnings qw(redefine);
     #improve speed
-    local *pf::Switch::Cisco::Catalyst_2950::getRelayAgentInfoOptRemoteIdSub = sub { undef };
+    local *pf::Switch::Cisco::Cisco_IOS_12_x::getRelayAgentInfoOptRemoteIdSub = sub { undef };
     my $task = pf::pfcron::task::option82_query->new(
          {
              status   => "enabled",

@@ -7,7 +7,7 @@ pf::Switch::Cisco::Catalyst_3560
 
 Object oriented module to access and configure Cisco Catalyst 3560 switches
 
-This module is currently only a placeholder, see pf::Switch::Cisco::Catalyst_2960.
+This module is currently only a placeholder, see pf::Switch::Cisco::Cisco_IOS_15_0.
 
 =head1 SUPPORT STATUS
 
@@ -33,8 +33,8 @@ The hardware should support it.
 
 =head1 BUGS AND LIMITATIONS
 
-Because a lot of code is shared with the 2950 make sure to check the BUGS AND LIMITATIONS section of
-L<pf::Switch::Cisco::Catalyst_2950> also.
+Because a lot of code is shared with the Cisco_IOS_12_x make sure to check the BUGS AND LIMITATIONS section of
+L<pf::Switch::Cisco::Cisco_IOS_12_x> also.
 
 =over
 
@@ -73,7 +73,7 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
 );
-use base ('pf::Switch::Cisco::Catalyst_2960');
+use base ('pf::Switch::Cisco::Cisco_IOS_15_0');
 use pf::SwitchSupports qw(
     -DownloadableListBasedEnforcement
 );

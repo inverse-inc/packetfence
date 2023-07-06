@@ -1,8 +1,8 @@
-package pf::Switch::Cisco::Catalyst_2950;
+package pf::Switch::Cisco::Cisco_IOS;
 
 =head1 NAME
 
-pf::Switch::Cisco::Catalyst_2950 - Object oriented module to access and configure Cisco Catalyst 2950 switches
+pf::Switch::Cisco::Cisco_IOS - Object oriented module to access and configure Cisco Catalyst 2950 switches
 
 =head1 STATUS
 
@@ -103,7 +103,7 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 use pf::locationlog;
-sub description { 'Cisco Catalyst 2950' }
+sub description { 'Cisco IOS' }
 
 # importing switch constants
 use pf::Switch::constants;
@@ -125,7 +125,7 @@ Warning: The list of subroutine is incomplete
 # special features
 use pf::SwitchSupports qw(
     FloatingDevice
-    WiredDot1x
+    -WiredDot1x
     -RadiusDynamicVlanAssignment
     RadiusVoip
     Lldp

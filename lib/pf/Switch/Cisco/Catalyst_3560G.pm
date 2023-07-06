@@ -30,7 +30,7 @@ The hardware should support it.
 =head1 BUGS AND LIMITATIONS
 
 Because a lot of code is shared with the 2950 make sure to check the BUGS AND LIMITATIONS section of
-L<pf::Switch::Cisco::Catalyst_2950> also.
+L<pf::Switch::Cisco::Cisco_IOS_12_x> also.
 
 =over
 

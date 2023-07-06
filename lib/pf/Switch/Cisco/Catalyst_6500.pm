@@ -17,8 +17,8 @@ Known to work on IOS 12.2(18)SXF17b.
 
 =head1 BUGS AND LIMITATIONS
 
-Because a lot of code is shared with the 2960 make sure to check the BUGS AND LIMITATIONS section of 
-L<pf::Switch::Cisco::Catalyst_2960> also.
+Because a lot of code is shared with the Cisco_IOS_15_0 make sure to check the BUGS AND LIMITATIONS section of 
+L<pf::Switch::Cisco::Cisco_IOS_15_0> also.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -38,7 +38,7 @@ use Net::SNMP;
 use pf::Switch::constants;
 use pf::util;
 
-use base ('pf::Switch::Cisco::Catalyst_2960');
+use base ('pf::Switch::Cisco::Cisco_IOS_15_0');
 
 sub description { 'Cisco Catalyst 6500 Series' }
 
