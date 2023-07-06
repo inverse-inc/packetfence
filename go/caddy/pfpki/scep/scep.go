@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	scepserver "github.com/inverse-inc/scep/server"
 )
 

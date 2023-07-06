@@ -6,8 +6,8 @@ import (
 	"net"
 	"regexp"
 
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/timedlock"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"

@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 var apiPrefix = "/api/v1"

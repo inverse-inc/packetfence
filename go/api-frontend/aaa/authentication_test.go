@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 func TestTokenAuthenticationMiddlewareIsAuthenticated(t *testing.T) {

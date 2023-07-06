@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/inconshreveable/log15"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
 func getLogBackend() log15.Handler {

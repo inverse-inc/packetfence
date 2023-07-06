@@ -1,7 +1,7 @@
 package firewallsso
 
 import (
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"testing"
 )
 

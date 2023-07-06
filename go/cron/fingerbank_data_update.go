@@ -2,9 +2,9 @@ package maint
 
 import (
 	"context"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/cluster"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
-	"github.com/inverse-inc/packetfence/go/log"
 )
 
 func NewFingerbankDataUpdate(config map[string]interface{}) JobSetupConfig {

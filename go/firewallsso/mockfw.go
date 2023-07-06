@@ -2,7 +2,7 @@ package firewallsso
 
 import (
 	"context"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 // A mock FW for use in unit tests
