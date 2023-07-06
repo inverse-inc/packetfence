@@ -36,6 +36,7 @@ our @SyslogInfo = (
             '($syslogtag == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
             '$programname == "pfipset"',
             '$programname == "pfpki-docker-wrapper"',
+            '$programname == "pfldapexplorer-docker-wrapper"',
             '($programname == "httpd.aaa-docker-wrapper" and $msg contains "httpd.aaa")',
             '($programname == "httpd.portal-docker-wrapper" and $msg contains "httpd.portal")',
             '($programname == "httpd.webservices-docker-wrapper" and $msg contains "httpd.webservices")',
