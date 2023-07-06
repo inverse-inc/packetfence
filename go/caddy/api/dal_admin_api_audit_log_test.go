@@ -79,7 +79,9 @@ func removeDBTestEntries(t *testing.T, id int64) error {
 
 func dalAdminApiAuditLog() http.HandlerFunc {
 	router := httprouter.New()
-	NewAdminApiAuditLog().AddToRouter(router)
+	ctx := context.Background()
+	dbs, _ := gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+	NewAdminApiAuditLog(ctx, dbs).AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
 			// We always default to application/json
