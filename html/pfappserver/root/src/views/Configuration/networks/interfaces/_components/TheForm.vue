@@ -49,12 +49,6 @@
       :options="daemonOptions"
     />
 
-    <form-group-dns v-show="isType('inlinel2')"
-      namespace="dns"
-      :column-label="$i18n.t('DNS')"
-      :text="$i18n.t('The DNS server(s) of your network. (comma limited)')"
-    />
-
     <form-group-dhcpd-enabled v-show="isType('dns-enforcement', 'inlinel2', 'vlan-isolation', 'vlan-registration')"
       namespace="dhcpd_enabled"
       :column-label="$i18n.t('Enable DHCP Server')"
@@ -121,7 +115,6 @@ import {
   FormGroupAdditionalListeneningDaemons,
   FormGroupCoa,
   FormGroupDhcpdEnabled,
-  FormGroupDns,
   FormGroupHighAvailability,
   FormGroupIdentifier,
   FormGroupIpAddress,
@@ -143,7 +136,6 @@ const components = {
   FormGroupAdditionalListeneningDaemons,
   FormGroupCoa,
   FormGroupDhcpdEnabled,
-  FormGroupDns,
   FormGroupHighAvailability,
   FormGroupIdentifier,
   FormGroupIpAddress,
