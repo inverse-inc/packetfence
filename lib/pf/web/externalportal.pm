@@ -201,7 +201,10 @@ sub _setup_session {
         my $params = $req->param // {};
         foreach my $key (keys %$params) {
             $logger->debug("Adding additionnal session parameter for url detected : $key : ".$req->param($key));
-            $portalSession->session->param("ecwp-original-param-$key", $req->param($key));
+            $portalSession->session->param(
+                -name => "ecwp-original-param-$key",
+                -value => $req->param($key)
+            );
         }
     }
 

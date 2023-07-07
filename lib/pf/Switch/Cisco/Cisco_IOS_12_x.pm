@@ -1262,6 +1262,18 @@ sub returnRadiusAccessAccept {
     return [$status, %$radius_reply_ref];
 }
 
+=head2 returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role be returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
+
 =head2 identifyConnectionType
 
 Determine Connection Type based on radius attributes

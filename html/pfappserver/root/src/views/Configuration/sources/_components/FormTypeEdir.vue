@@ -156,7 +156,22 @@ const components = {
   FormGroupWriteTimeout,
 }
 
-import { useForm as setup, useFormProps as props } from '../_composables/useForm'
+import {
+  useForm as setupForm,
+  useFormProps as props
+} from '../_composables/useForm'
+import {provide} from '@vue/composition-api';
+import BaseRuleFormGroupLdapConditions
+  from '@/views/Configuration/sources/_components/BaseRuleFormGroupLdapConditions';
+import useLdapAttributes
+  from '@/views/Configuration/sources/_components/ldapCondition/useLdapAttributes';
+
+function setup(props){
+  const schema = setupForm(props)
+  provide('conditionsComponent', BaseRuleFormGroupLdapConditions)
+  useLdapAttributes(props)
+  return schema
+}
 
 // @vue/component
 export default {

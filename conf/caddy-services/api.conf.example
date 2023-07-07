@@ -64,6 +64,11 @@
     transparent
   }
 
+  # ldapexplorer API access
+  proxy /api/v1/ldap/search {$PF_SERVICES_URL_PFLDAPEXPLORER} {
+    transparent
+  }
+
   # pfpki API access
   proxy /api/v1/pki/ {$PF_SERVICES_URL_PFPKI} {
     transparent

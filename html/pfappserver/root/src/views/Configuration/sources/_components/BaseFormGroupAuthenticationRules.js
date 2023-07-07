@@ -1,18 +1,20 @@
-import { computed, inject, provide } from '@vue/composition-api'
-import { useNamespaceMetaAllowed } from '@/composables/useMeta'
+import {computed, inject, provide} from '@vue/composition-api'
+import {useNamespaceMetaAllowed} from '@/composables/useMeta'
 import BaseFormGroupRules from './BaseFormGroupRules'
-import { authenticationRuleActionsFromSourceType } from '../config'
+import {authenticationRuleActionsFromSourceType} from '../config'
 
 const setup = () => {
   const sourceType = inject('sourceType', null)
 
   const actions = computed(() => authenticationRuleActionsFromSourceType(sourceType.value).map(type => {
-    const { value: namespace } = type
+    const {value: namespace} = type
     const options = useNamespaceMetaAllowed(`${namespace}_action`)
-    return { ...type, options }
+    return {...type, options}
   }))
+
   provide('actions', actions)
 }
+
 
 export default {
   name: 'base-form-group-authentication-rules',

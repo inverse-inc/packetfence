@@ -16508,6 +16508,22 @@ msgstr ""
 msgid "Type to search results."
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/MultiselectFacade.vue
+msgid "LDAP connection failed"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/MultiselectFacade.vue
+msgid "Make sure that you provided correct IP/credentials"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseRuleFormGroupLdapConditions.js
+msgid "Add LDAP Condition"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseRuleFormGroupLdapConditions.js
+msgid "Add Packetfence Condition"
+msgstr ""
+
 #: html/pfappserver/root/src/globals/pfField.js:153
 #: html/pfappserver/root/src/views/Configuration/radius/general/schema.js:5
 msgid "Types"

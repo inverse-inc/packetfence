@@ -1,7 +1,7 @@
 # Copyright (C) Inverse inc.
 # English translations for PacketFence package.
 # This file is distributed under the same license as the PacketFence package.
-# 
+#
 # Translators:
 # GurVan, 2019
 # Maxime Andre <andmaxime+transifex@gmail.com>, 2019
@@ -14,7 +14,7 @@
 # lzammit <lzammit@inverse.ca>, 2022
 # jgoimard <jgoimard@inverse.ca>, 2022
 # Christopher <chuguet@inverse.ca>, 2023
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: 12.2.0\n"
@@ -18619,6 +18619,22 @@ msgstr "Type à rechercher"
 #: html/pfappserver/root/src/components/new/BaseInputChosen.vue:92
 msgid "Type to search results."
 msgstr "Tapez pour les résultats de la recherche."
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/MultiselectFacade.vue
+msgid "LDAP connection failed"
+msgstr "La connexion LDAP a échoué"
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/MultiselectFacade.vue
+msgid "Make sure that you provided correct IP/credentials"
+msgstr "Assurez-vous d'avoir fourni des informations d'identification et une adresse IP"
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseRuleFormGroupLdapConditions.js
+msgid "Add LDAP Condition"
+msgstr "Ajouter une condition LDAP"
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseRuleFormGroupLdapConditions.js
+msgid "Add Packetfence Condition"
+msgstr "Ajouter une condition Packetfence"
 
 #: html/pfappserver/root/src/globals/pfField.js:153
 #: html/pfappserver/root/src/views/Configuration/radius/general/schema.js:5
