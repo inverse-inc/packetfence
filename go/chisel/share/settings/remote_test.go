@@ -1,11 +1,19 @@
 package settings
 
-import "testing"
+import (
+	"testing"
+)
 
 func testString(t *testing.T, name, got, expected string) {
 	if got != expected {
 		t.Fatalf("%s got %s : expected %s", name, got, expected)
 	}
+}
+
+func TestDecodeRemote(t *testing.T) {
+	remote, err := DecodeRemote("R:0:389")
+	_ = err
+	testString(t, "LocalPort", remote.LocalPort, "0")
 }
 
 func TestL4Proto(t *testing.T) {
