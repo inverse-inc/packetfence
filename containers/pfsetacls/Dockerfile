@@ -1,6 +1,4 @@
-ARG KNK_REGISTRY_URL
-ARG IMAGE_TAG
-FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
+FROM golang:bullseye
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     SEMAPHORE_CONFIG_PATH="${SEMAPHORE_CONFIG_PATH:-/etc/semaphore}" \
