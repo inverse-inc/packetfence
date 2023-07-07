@@ -93,13 +93,7 @@ sub startup {
     }
 
     $self->hook(before_server_start => \&before_server_start);
-    $self->hook(after_dispatch => \&after_dispatch);
     return;
-}
-
-sub after_dispatch {
-    my ($c) = @_;
-    $c->after_dispatch;
 }
 
 sub before_server_start {
@@ -155,6 +149,8 @@ sub after_dispatch_cb {
     if (++$app->{requests_handled} >= $max) {
         kill 'QUIT', $$;
     }
+
+    $c->after_dispatch;
     return;
 }
 
