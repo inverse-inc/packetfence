@@ -19,10 +19,25 @@ use pf::ConfigStore::Roles;
 
 has roles => ( is => 'rw', builder => '_build_roles');
 
+our @ROLES;
+
 sub _build_roles {
     my ($self) = @_;
-    my $cs = pf::ConfigStore::Roles->new;
-    return [sort { $a->{name} cmp $b->{name}  } @{$cs->readAll('name')}];
+    return _get_roles();
+}
+
+sub _get_roles {
+    unless (@ROLES) {
+        my $cs = pf::ConfigStore::Roles->new;
+        @ROLES = sort { $a->{name} cmp $b->{name}  } @{$cs->readAll('name')};
+    }
+
+    return [@ROLES];
+}
+
+sub _clear_roles {
+    print STDERR "clear roles\n";
+    @ROLES = ();
 }
 
 =head1 AUTHOR
