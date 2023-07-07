@@ -7,11 +7,11 @@ import (
 	"github.com/inverse-inc/packetfence/go/common"
 )
 
-const sample = `[{"ip":"1.1.1.1","mac":"11:22:33:44:55:66","qname":"a.a","qtype":"A","scope":"a","answer":"answer"}]`
+const DNS_SAMPLE = `[{"ip":"1.1.1.1","mac":"11:22:33:44:55:66","qname":"a.a","qtype":"A","scope":"a","answer":"answer"}]`
 
-func TestFlushRadiusAuditLog(t *testing.T) {
+func TestFlushDNSAuditLog(t *testing.T) {
 	var entries []common.DNSAuditLog = make([]common.DNSAuditLog, 1)
-	json.Unmarshal([]byte(sample), &entries)
+	json.Unmarshal([]byte(DNS_SAMPLE), &entries)
 	job := NewFlushDNSAuditLog(map[string]interface{}{
 		"batch":       100.0,
 		"type":        "flush_radius_audit_log_job",
