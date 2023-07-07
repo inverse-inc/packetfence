@@ -36,7 +36,6 @@ sub _get_roles {
 }
 
 sub _clear_roles {
-    print STDERR "clear roles\n";
     @ROLES = ();
 }
 
