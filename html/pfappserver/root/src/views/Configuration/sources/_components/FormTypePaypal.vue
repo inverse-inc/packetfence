@@ -6,94 +6,100 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Name')"
-      :disabled="!isNew && !isClone"
+                           :column-label="$i18n.t('Name')"
+                           :disabled="!isNew && !isClone"
     />
 
     <form-group-description namespace="description"
-      :column-label="$i18n.t('Description')"
+                            :column-label="$i18n.t('Description')"
     />
 
     <form-group-currency namespace="currency"
-      :column-label="$i18n.t('Currency')"
+                         :column-label="$i18n.t('Currency')"
     />
 
     <form-group-send-email-confirmation namespace="send_email_confirmation"
-      :column-label="$i18n.t('Send billing confirmation')"
+                                        :column-label="$i18n.t('Send billing confirmation')"
+                                        enabled-value="enabled"
+                                        disabled-value="disabled"
     />
 
     <form-group-test-mode namespace="test_mode"
-      :column-label="$i18n.t('Test mode')"
+                          :column-label="$i18n.t('Test mode')"
+                          :enabled-value="1"
+                          :disabled-value="0"
     />
 
     <form-group-identity-token namespace="identity_token"
-      :column-label="$i18n.t('Identity token')"
+                               :column-label="$i18n.t('Identity token')"
     />
 
     <form-group-cert-identifier namespace="cert_id"
-      :column-label="$i18n.t('Cert ID')"
+                                :column-label="$i18n.t('Cert ID')"
     />
 
     <form-group-cert-file namespace="cert_file"
-      :column-label="$i18n.t('Certificate File')"
-      :title="$i18n.t('Upload Certificate File')"
-      :text="$i18n.t('The path to the certificate you submitted to Paypal.')"
+                          :column-label="$i18n.t('Certificate File')"
+                          :title="$i18n.t('Upload Certificate File')"
+                          :text="$i18n.t('The path to the certificate you submitted to Paypal.')"
     />
 
     <form-group-key-file namespace="key_file"
-      :column-label="$i18n.t('Key File')"
-      :title="$i18n.t('Upload Key File')"
-      :text="$i18n.t('The path to the associated key of the certificate you submitted to Paypal.')"
+                         :column-label="$i18n.t('Key File')"
+                         :title="$i18n.t('Upload Key File')"
+                         :text="$i18n.t('The path to the associated key of the certificate you submitted to Paypal.')"
     />
 
     <form-group-paypal-cert-file namespace="paypal_cert_file"
-      :column-label="$i18n.t('Paypal Certificate File')"
-      :title="$i18n.t('Upload Paypal Certificate File')"
-      :text="$i18n.t('The path to the Paypal certificate you downloaded.')"
+                                 :column-label="$i18n.t('Paypal Certificate File')"
+                                 :title="$i18n.t('Upload Paypal Certificate File')"
+                                 :text="$i18n.t('The path to the Paypal certificate you downloaded.')"
     />
 
     <form-group-email-address namespace="email_address"
-      :column-label="$i18n.t('Email address')"
-      :text="$i18n.t('The email address associated to your paypal account.')"
+                              :column-label="$i18n.t('Email address')"
+                              :text="$i18n.t('The email address associated to your paypal account.')"
     />
 
     <form-group-payment-type namespace="payment_type"
-      :column-label="$i18n.t('Payment type')"
+                             :column-label="$i18n.t('Payment type')"
     />
 
     <form-group-domains namespace="domains"
-      :column-label="$i18n.t('Authorized domains')"
-      :text="$i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.')"
+                        :column-label="$i18n.t('Authorized domains')"
+                        :text="$i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.')"
     />
 
     <form-group-create-local-account namespace="create_local_account"
-      :column-label="$i18n.t('Create Local Account')"
-      :text="$i18n.t('Create a local account on the PacketFence system based on the username provided.')"
+                                     :column-label="$i18n.t('Create Local Account')"
+                                     :text="$i18n.t('Create a local account on the PacketFence system based on the username provided.')"
+                                     enabled-value="yes"
+                                     disabled-value="no"
     />
 
     <form-group-hash-passwords namespace="hash_passwords"
-      :column-label="$i18n.t('Database passwords hashing method')"
-      :text="$i18n.t('The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.')"
+                               :column-label="$i18n.t('Database passwords hashing method')"
+                               :text="$i18n.t('The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.')"
     />
 
     <form-group-password-length namespace="password_length"
-      :column-label="$i18n.t('Password length')"
-      :text="$i18n.t('The length of the password to generate.')"
+                                :column-label="$i18n.t('Password length')"
+                                :text="$i18n.t('The length of the password to generate.')"
     />
 
     <form-group-local-account-logins namespace="local_account_logins"
-      :column-label="$i18n.t('Amount of logins for the local account')"
-      :text="$i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.')"
+                                     :column-label="$i18n.t('Amount of logins for the local account')"
+                                     :text="$i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.')"
     />
 
     <form-group-local-account-expiration namespace="local_account_expiration"
-      :column-label="$i18n.t('Local account expiration')"
-      :text="$i18n.t('The amount of time after which the local account will expire. A value of 0 will use the access duration that is found via the authentication rules for the user.')"
+                                         :column-label="$i18n.t('Local account expiration')"
+                                         :text="$i18n.t('The amount of time after which the local account will expire. A value of 0 will use the access duration that is found via the authentication rules for the user.')"
     />
   </base-form>
 </template>
 <script>
-import { BaseForm } from '@/components/new/'
+import {BaseForm} from '@/components/new/'
 import {
   FormGroupCertFile,
   FormGroupCertIdentifier,
@@ -138,7 +144,7 @@ const components = {
   FormGroupTestMode,
 }
 
-import { useForm as setup, useFormProps as props } from '../_composables/useForm'
+import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
 // @vue/component
 export default {

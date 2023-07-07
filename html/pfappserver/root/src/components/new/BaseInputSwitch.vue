@@ -106,7 +106,6 @@ export const setup = (props, context) => {
     value,
   } = useInputValue(metaProps, context)
 
-  //TODO reuse this in ldap selector
   const onChange = (value) => {
     setFormNamespace(props.namespace.split('.'), unref(form), value)
   }
