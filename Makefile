@@ -88,7 +88,7 @@ configurations_hard:
 # server certs and keys
 # the | in the prerequisites ensure the target is not created if it already exists
 # see https://www.gnu.org/software/make/manual/make.html#Prerequisite-Types
-conf/ssl/server.pem: | conf/ssl/server.key conf/ssl/server.crt conf/ssl/server.pem 
+conf/ssl/server.pem: | conf/ssl/server.key conf/ssl/server.crt conf/ssl/server.pem
 	cat conf/ssl/server.crt conf/ssl/server.key > conf/ssl/server.pem
 
 conf/ssl/server.crt: | conf/ssl/server.crt
