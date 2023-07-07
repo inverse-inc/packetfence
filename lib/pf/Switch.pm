@@ -747,8 +747,6 @@ sub getAccessListByName {
         $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    print STDERR Dumper($acls);
-
     return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
 
     # otherwise log and return undef
