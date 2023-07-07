@@ -101,6 +101,7 @@ use pf::config qw(
     $PORT
     $WIRED_802_1X
     $WIRED_MAC_AUTH
+    %ConfigRoles
 );
 use pf::locationlog;
 sub description { 'Cisco IOS v12.2' }
