@@ -101,6 +101,7 @@ use pf::config qw(
     $PORT
     $WIRED_802_1X
     $WIRED_MAC_AUTH
+    %ConfigRoles
 );
 use pf::locationlog;
 sub description { 'Cisco IOS v12.2' }
@@ -1215,7 +1216,7 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( $args->{'compute_acl'} && isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac})) && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} )){
             if ($access_list) {
                 my $acl_num = 101;
                 while($access_list =~ /([^\n]+)\n?/g){

@@ -423,6 +423,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
 %{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfldapexplorer.service %{buildroot}%{_unitdir}/packetfence-pfldapexplorer.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -935,6 +936,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetacls-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-acct-docker-wrapper
@@ -1243,6 +1245,13 @@ fi
 %config(noreplace)      /usr/local/pf/conf/template_switches.conf
                         /usr/local/pf/conf/template_switches.conf.defaults
 %dir                    /usr/local/pf/conf/uploads
+%dir                    /usr/local/pf/conf/pfsetacls
+                        /usr/local/pf/conf/pfsetacls/acl.cfg
+                        /usr/local/pf/conf/pfsetacls/ansible.cfg
+                        /usr/local/pf/conf/pfsetacls/inventory.cfg
+                        /usr/local/pf/conf/pfsetacls/switch_acls.yml
+%dir                    /usr/local/pf/conf/pfsetacls/collections
+                        /usr/local/pf/conf/pfsetacls/collections/requirements.yml
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*

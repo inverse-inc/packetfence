@@ -1,0 +1,15 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=pfsetacls
+
+set -a
+. /usr/local/pf/var/conf/$name.env
+set +a
+
+args=`base_args $name`
+args="$args -v /usr/local/pf/var/conf/pfsetacls/:/opt/semaphore/"
+args="$args -p 3000:3000"
+
+run $name "$args"

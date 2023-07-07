@@ -162,28 +162,6 @@
                 <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
               </b-card-header>
               <div class="card-body pb-0">
-                <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
-                  namespace="UseDownloadableACLs"
-                  :column-label="$i18n.t('Downloadable ACLs')"
-                  :text="$i18n.t('Enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
-                />
-
-                <form-group-downloadable-acls-limit v-show="supports(['DownloadableListBasedEnforcement'])"
-                  namespace="DownloadableACLsLimit"
-                  :column-label="$i18n.t('Maximum ACLs per switch')"
-                  :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch.')"
-                />
-
-                <form-group-acls-limit namespace="ACLsLimit"
-                  :column-label="$i18n.t('Maximum ACLs per RADIUS reply')"
-                  :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"
-                />
-
-                <form-group-toggle-access-list-map namespace="AccessListMap"
-                  :column-label="$i18n.t('Role by Access List')"
-                  :text="$i18n.t('Defining an ACL will supersede the one defined directly in the role configuration.')"
-                />
-
                 <template v-if="isAccessListMap">
                   <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" :namespace="`${role}AccessList`"
                     :column-label="role"
@@ -399,6 +377,32 @@
         />
 
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
+
+        <form-group-push-acls v-show="supports(['PushACLs'])"
+          namespace="PushACLs"
+          :column-label="$i18n.t('Push ACLs')"
+          :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
+        />
+
+        <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
+          namespace="UseDownloadableACLs"
+          :column-label="$i18n.t('Downloadable ACLs')"
+          :text="$i18n.t('Enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
+        />
+
+        <form-group-downloadable-acls-limit v-show="supports(['DownloadableListBasedEnforcement'])"
+          namespace="DownloadableACLsLimit"
+          :column-label="$i18n.t('Maximum ACLs per switch')"
+          :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch.')"
+        />
+
+        <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement'])"
+          :column-label="$i18n.t('Maximum ACLs per RADIUS reply')"
+          :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"
+        />
+
+      </base-form-tab>
       <base-form-tab :title="$i18n.t('Members')" v-if="!isNew && !isClone">
 
         <b-card no-body class="mb-3">
@@ -535,6 +539,7 @@ import {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupPushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
@@ -611,6 +616,7 @@ const components = {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupPushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,

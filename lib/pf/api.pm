@@ -80,6 +80,7 @@ use pf::constants::realm;
 use DateTime::Format::MySQL;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use pf::Redis;
+use pf::acls_push;
 
 my $logger = pf::log::get_logger();
 
@@ -1898,6 +1899,24 @@ sub send_email : Queue {
 sub send_mime_lite : Queue {
     my ($class, $mime, @args) = @_;
     return pf::config::util::send_mime_lite($mime, @args);
+}
+
+=head2 push_acls
+
+Contact the Semaphore api to launch the upload of the acls on the equipment.
+
+=cut
+
+sub push_acls : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(switch_id);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,\@found);
+
+    my $push_acls = pf::acls_push->new();
+    $push_acls->push_acls( $postdata{'switch_id'} );
+
+    return $pf::config::TRUE;
 }
 
 =head1 AUTHOR

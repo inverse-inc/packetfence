@@ -21,6 +21,8 @@ use Net::IP;
 use Net::SNMP;
 use pf::log;
 use Try::Tiny;
+use Switch;
+use Template;
 
 our $VERSION = 2.10;
 
@@ -41,6 +43,8 @@ use pf::config qw(
 use Errno qw(EINTR);
 use pf::file_paths qw(
     $control_dir
+    $conf_dir
+    $var_dir
 );
 use pf::dal;
 use pf::locationlog;
@@ -87,9 +91,11 @@ use pf::SwitchSupports qw(
     -WirelessDot1x
     -WirelessMacAuth
     -OutAcl
-
+    -PushACLs
      RadiusDynamicVlanAssignment
 );
+use pf::api::queue_cluster;
+use File::Find;
 
 #
 # %TRAP_NORMALIZERS
@@ -174,6 +180,7 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
+        '_PushACLs'                     => 'disabled',
         '_UseDownloadableACLs'          => 'disabled',
         '_DownloadableACLsLimit'        => 0,
         '_ACLsLimit'                    => 0,
@@ -740,7 +747,31 @@ sub getAccessListByName {
         $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    return $self->acl_chewer(join("\n", @$acls, @$fb_acl)) if @$acls || @$fb_acl;
+    print STDERR Dumper($acls);
+
+    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+
+    # otherwise log and return undef
+    $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
+    return;
+}
+
+sub getRoleAccessListByName {
+    my ($self, $access_list_name, $mac) = @_;
+    my $logger = $self->logger;
+
+    return if !exists $ConfigRoles{$access_list_name};
+    my $role = $ConfigRoles{$access_list_name};
+    return if !exists $role->{acls};
+    my $acls = $role->{acls} // [];
+
+    # Change to a check for FB ACL enabled
+    my $fb_acl = [];
+    if( isenabled($role->{fingerbank_dynamic_access_list})) {
+        $fb_acl = $self->fingerbank_dynamic_acl($mac);
+    }
+
+    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
@@ -2838,7 +2869,6 @@ sub returnRadiusAccessAccept {
     my $kick = $self->handleRadiusDeny($args);
     return $kick if (defined($kick));
 
-    # Inline Vs. VLAN enforcement
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         if(defined($args->{'vlan'}) && $args->{'vlan'} ne "" && $args->{'vlan'} ne 0){
@@ -2859,7 +2889,10 @@ sub returnRadiusAccessAccept {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
             $role = $self->getRoleByName($args->{'user_role'});
         }
-        if ( defined($role) && $role ne "" ) {
+        if ( (defined($role) && $role ne "") || $self->usePushACLs ) {
+            if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !exists $self->{'_access_lists'}->{$args->{'user_role'}}) {
+                $role = $args->{'user_role'};
+            }
             $radius_reply_ref = {
                 %$radius_reply_ref,
                 $self->returnRoleAttributes($role),
@@ -2890,6 +2923,19 @@ Return the specific role attribute of the switch.
 =cut
 
 sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => $role);
+}
+
+
+=item returnPushAclsRoleAttributes
+
+
+Return the specifics in and out attribute of the switch
+
+=cut
+
+sub returnPushAclsRoleAttributes {
     my ($self, $role) = @_;
     return ($self->returnRoleAttribute() => $role);
 }
@@ -3946,6 +3992,12 @@ sub useDownloadableACLs {
         isenabled($self->{_UseDownloadableACLs});
 }
 
+sub usePushACLs {
+    my ($self) = @_;
+    return $self->supportsPushACLs() &&
+        isenabled($self->{_PushACLs});
+}
+
 sub defaultACLsLimit {
     20
 }
@@ -4044,13 +4096,13 @@ sub checkRolesACLs {
     return undef;
 }
 
-=head2 acl_chewer
+=head2 format_acl
 
-Format ACL to match with the expected switch format.
+Parse ACL to match with the expected switch format.
 
 =cut
 
-sub acl_chewer {
+sub format_acl {
     my ($self, $acl) = @_;
 
     my $acls = "ip access-list extended packetfence\n";
@@ -4061,35 +4113,36 @@ sub acl_chewer {
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
             my $raw_acl = $2;
-            if ($self->supportsOutAcl && $direction eq "out|") {
+            if (($self->supportsOutAcl || $self->usePushACLs) && $direction eq "out|") {
                 $acls .= $raw_acl."\n";
-                $direction[$i] = $direction;
+                $direction[$i] = "out";
             } elsif ($direction eq "in|") {
                 $acls .= $raw_acl."\n";
-                $direction[$i] = $direction;
+                $direction[$i] = "in";
             } else {
                 next;
             }
         } else {
             $acls .= $acl_line."\n";
-            $direction[$i] = "";
+            $direction[$i] = "in";
         }
         $i++;
     }
     my $p = Cisco::AccessList::Parser->new();
     my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
-    $i = 0;
-    my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        $acl->{'protocol'} =~ s/\(\d*\)//;
-        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
-        } else {
-            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
-        }
-        $i++;
-    }
-    return $acl_chewed;
+    return ($acl_ref, @direction);
+}
+
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    return $acl;
 }
 
 =head2 returnAccessListAttribute
@@ -4149,6 +4202,108 @@ sub compute_action {
     $$args->{'compute_acl'} = (exists($$args->{'compute_acl'}) ? $$args->{'compute_acl'} : $TRUE );
     $$args->{'compute_url'} = (exists($$args->{'compute_url'}) ? $$args->{'compute_url'} : $TRUE );
     $$args->{'compute_vpn'} = (exists($$args->{'compute_vpn'}) ? $$args->{'compute_vpn'} : $TRUE );
+}
+
+=head2
+
+Generate Ansible configuration to push ACLs
+
+=cut
+
+sub generateAnsibleConfiguration {
+    my ($self) = @_;
+    my %vars;
+    umask(0002);
+    my $tt = Template->new(
+        ABSOLUTE => 1,
+    );
+
+    return if ($self->{_id} =~ /.*\/.*/ or $self->{_id} =~ /.*\:.*/ or $self->{_id} eq 'default' or $self->{_id} eq '100.64.0.1' or $self->{_id} eq '127.0.0.1');
+    my $switch_id = $self->{_id};
+    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_PushACLs'}));
+
+    my $switch_ip = $switch_id;
+    $switch_id =~ s/\./_/g;
+
+    if (! -e "$var_dir/conf/pfsetacls") {
+        mkdir("$var_dir/conf/pfsetacls") or die "Can't create $var_dir/conf/pfsetacls/:$!";
+    }
+    if (! -e "$var_dir/conf/pfsetacls/$switch_id") {
+        mkdir("$var_dir/conf/pfsetacls/$switch_id") or die "Can't create $var_dir/conf/pfsetacls/$switch_id:$!";
+    }
+    if (! -e "$var_dir/conf/pfsetacls/$switch_id/collections") {
+        mkdir("$var_dir/conf/pfsetacls/$switch_id/collections") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/collections:$!";
+    }
+    $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
+    $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
+    $vars{'switches'}{$switch_id}{'cliUser'} = $self->{'_cliUser'};
+    $vars{'switches'}{$switch_id}{'cliPwd'} = $self->{'_cliPwd'};
+    $vars{'switches'}{$switch_id}{'type'} = $self->{'_type'};
+    $vars{'switches'}{$switch_id}{'id'} = $switch_ip;
+    switch($self->{'_type'}) {
+            case /Cisco::ASA/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.asa" }
+            case /Cisco::WLC/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
+            case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
+            case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
+    }
+
+    foreach my $role (keys %ConfigRoles) {
+        my $acls = $self->getRoleAccessListByName($role);
+        next if !defined($acls);
+        my $out_acls;
+        my $in_acls;
+        while($acls =~ /([^\n]+)\n?/g) {
+            my $acl_line = $1;
+            if ($acl_line =~ /^(out\|)(.*)/) {
+                $out_acls .= $2."\n";
+            } elsif ($acl_line =~ /^(in\|)(.*)/) {
+                $in_acls .= $2."\n";
+            } else {
+                $in_acls .= $acl_line."\n";
+            }
+        }
+        my $implicit_acl = $self->implicit_acl();
+        if ((!defined($in_acls) || $in_acls eq "") && $implicit_acl) {
+            $vars{'switches'}{$switch_id}{'acls'}{$role} = $implicit_acl;
+        } elsif (defined($in_acls)) {
+            $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
+        }
+        if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
+            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
+        } elsif (defined($out_acls)) {
+            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+        }
+    }
+
+    $tt->process("$conf_dir/pfsetacls/acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/$switch_id.cfg") or die $tt->error();
+
+    $tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/inventory.yml") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/ansible.cfg") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
+    find(\&pf::util::chown_pf, "$var_dir/conf/pfsetacls/$switch_id/");
+    if (-e "$var_dir/conf/pfsetacls/$switch_id/ansible.log") { unlink "$var_dir/conf/pfsetacls/$switch_id/ansible.log" };
+    my %args;
+    $args{'switch_id'} = $switch_ip;
+    #Send in the cluster queue
+    pf::api::queue_cluster->new(
+        queue => "general",
+        jsonrpc_args => {
+            connect_timeout_ms => 500,
+            timeout_ms => 500,
+        }
+    )->notify('push_acls', %args);
+}
+
+=head2 implicit_acl
+
+Return implicit acl
+
+=cut
+
+sub implicit_acl {
+    my ($self) = @_;
+    return $FALSE;
 }
 
 =back

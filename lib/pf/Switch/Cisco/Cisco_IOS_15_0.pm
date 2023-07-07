@@ -122,6 +122,7 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
     $WEBAUTH_WIRED
+    %ConfigRoles
 );
 use pf::Switch::constants;
 use pf::util;
@@ -500,6 +501,24 @@ sub returnRoleAttributes {
     return ($self->returnRoleAttribute() => $role.".in");
 }
 
+=item returnPushAclsRoleAttributes
+
+
+Return the specifics in and out attribute of the switch
+
+=cut
+
+sub returnPushAclsRoleAttributes {
+    my ($self, $role) = @_;
+    my %reply = (
+        $self->returnRoleAttribute() => $role.".in",
+        # Doesn't work for now
+        #$self->returnRoleAttribute() => $role."out.out",
+    );
+    return %reply;
+}
+
+
 sub disableMABByIfIndex {
     my ( $self, $ifIndex ) = @_;
     my $logger = get_logger();
@@ -590,7 +609,6 @@ sub parseExternalPortalRequest {
 
     return \%params;
 }
-
 
 =head1 AUTHOR
 

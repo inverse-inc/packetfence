@@ -114,6 +114,26 @@ A second RADIUS request is made with the ACL name as a value of the username and
 
 To enable it you need first to enable the RADIUS filter in the PacketFence authorize section. To do that go in Configuration -> System Configuration -> RADIUS -> General and enable "Use RADIUS filters in packetfence authorize" then restart the `radiusd-auth` service.
 
+===== Push ACLs
+
+Push ACLs is a method to write directly the ACLs on the equipment if compatible (needs ssh credentials and admin privileges on the switch).
+In this senario if the PushACLs is enable on the switch then PacketFence will take the ACL defined in each role configuration (Policies and Access Control -> Roles, and ACL in Cisco format), format it to be compatible with the equipment and will use ansible to push them on the switch (User role will create a User ACL on the equipment).
+Once this ACL is define on the switch, the RADIUS reply will contain an attribute that tell the switch to apply this ACL on the session.
+Per example in the case of Cisco, the attribute used is Filter-ID = User
+
+Role per Switch role needs to be enable and PacketFence will return the role name and not the role value.
+
+Dynamic/Downloadable ACLs can be combined with Push ACLs but in certain conditions.
+If an ACL is defined in the role in the switch configuration then this one will take precedence on the Push ACL.
+If the ACL in the role configuration is empty but you have an ACL defined in the role config then PacketFence will only return the attribute to assign the ACL (no RADIUS reply containing the ACL).
+
+Here an example of what happen when you have a Cisco WLC where you enabled PushACLs and you defined the ACL as following:
+
+image::PushACLs-role.png[role configuration, 400]
+
+it will create or replace the User ACL like that:
+
+image::PushACLs-Cisco-WLC.png[Cisco WLC ACL, 400]
 
 ===== Port-security and SNMP
 

@@ -26,6 +26,7 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
     $WEBAUTH_WIRED
+    %ConfigRoles
 );
 
 use Try::Tiny;
@@ -341,7 +342,7 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac})) && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} )){
             if ($access_list) {
                 if ($self->useDownloadableACLs) {
                     my $mac = $args->{'mac'};
@@ -592,6 +593,31 @@ sub identifyConnectionType {
         $connection->isMacAuth($FALSE);
         $connection->transport("Virtual");
     }
+}
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    my $logger = $self->logger;
+    my ($acl_ref , @direction) = $self->format_acl($acl);
+
+    my $i = 0;
+    my $acl_chewed;
+    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+        } else {
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+        }
+        $i++;
+    }
+    return $acl_chewed;
 }
 
 =head1 AUTHOR
