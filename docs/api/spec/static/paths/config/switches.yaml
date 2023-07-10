@@ -1,0 +1,25 @@
+/api/v1/config/switch/{switch_id}/invalidate_cache:
+  post:
+    description: Invalidate cache for a specific switch
+    parameters:
+    - in: path
+      name: switch_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/Status'
+        description: Request successful. Switch cache is invalidated.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+
+    tags:
+    - Config/Switches
