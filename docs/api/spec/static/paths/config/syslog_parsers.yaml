@@ -1,4 +1,4 @@
-/config/syslog_parsers/dry_run:
+/api/v1/config/syslog_parsers/dry_run:
   description: pf::UnifiedApi::Controller::Config::SyslogParsers
   post:
     description: List items
@@ -19,3 +19,5 @@
         application/json:
           schema:
             $ref: '#/components/schemas/ConfigSyslogParser'
+    tags:
+    - Config/SyslogParsers
