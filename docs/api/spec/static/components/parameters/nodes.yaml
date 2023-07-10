@@ -2,7 +2,7 @@ node_id:
   name: node_id
   in: path
   required: true
-  description: The nodes `PRIMARY_KEY`
+  description: The nodes `PRIMARY_KEY` (MAC Address)
   allowReserved: true
   style: form
   explode: false

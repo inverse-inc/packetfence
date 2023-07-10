@@ -1,0 +1,29 @@
+/api/v1/ip4logs/open/{node_id}:
+  get:
+    description: Show open IP4 logs for a device
+    parameters:
+      - $ref: '#/components/parameters/node_id'
+    responses:
+      '200':
+        $ref: "#/components/responses/Ip4logsOpen"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Ip4logs
+
+/api/v1/ip4logs/history/{node_id}:
+  get:
+    description: Show IP4 log history for a device
+    parameters:
+      - $ref: '#/components/parameters/node_id'
+    responses:
+      '200':
+        $ref: "#/components/responses/Ip4logsHistory"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Ip4logs

@@ -1,0 +1,25 @@
+Ip4logsOpen:
+  description: Request successful. Response contains the open IP4 log.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          item:
+            $ref: '#/components/schemas/Ip4log'
+          status:
+            $ref: '#/components/schemas/Status'
+
+Ip4logsHistory:
+  description: Request successful. Response contains the IP4 log history.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ip4log'
+          status:
+            $ref: '#/components/schemas/Status'
