@@ -133,7 +133,7 @@ my %SQLTYPES_TO_OPENAPI = (
     LONGBLOB  => { type => 'string' },
     TEXT      => { type => 'string' },
     VARCHAR   => { type => 'string' },
-    DATETIME  => { type => 'string', format => 'date' },
+    DATETIME  => { type => 'string', format => 'date-time', example => '1970-01-01 00:00:00' },
     TIMESTAMP => { type => 'string' },
     CHAR      => { type => 'string' },
     ENUM      => { type => 'string' },
@@ -302,7 +302,7 @@ The OpenAPI Operation Repsonses for the get action
 sub getResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
-        "200" => {
+        '200' => {
             content => {
                 "application/json" => {
                     schema => {
@@ -316,10 +316,13 @@ sub getResponses {
                 }
             },
         },
-        "400" => {
+        '401' => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        '404' => {
             "\$ref" => "#/components/responses/BadRequest"
         },
-        "422" => {
+        '422' => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
@@ -469,7 +472,7 @@ The OpenAPI Operation Repsonses for the list action
 sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
-        "200" => {
+        '200' => {
             content => {
                 "application/json" => {
                     schema => {
@@ -478,10 +481,16 @@ sub listResponses {
                 }
             },
         },
-        "400" => {
+        '401' => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        '404' => {
             "\$ref" => "#/components/responses/BadRequest"
         },
-        "422" => {
+        '409' => {
+            "\$ref" => '#/components/responses/Duplicate'
+        },
+        '422' => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
@@ -548,13 +557,16 @@ The OpenAPI Operation Repsonses for the update action
 sub updateResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
-        "200" => {
+        '200' => {
             "\$ref" => "#/components/responses/Message"
         },
-        "400" => {
+        '401' => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        '404' => {
             "\$ref" => "#/components/responses/BadRequest"
         },
-        "422" => {
+        '422' => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
