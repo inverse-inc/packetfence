@@ -1,0 +1,74 @@
+/api/v1/config/connection_profile/{connection_profile_id}/files:
+  get:
+    description: Get files for a connection profile
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: connection_profile_id
+      schema:
+        enum:
+        - default
+        type: string
+    responses:
+      '200':
+        $ref: "#/components/responses/ConfigConnectionProfileFilesRoot"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Config/ConnectionProfiles
+
+/api/v1/config/connection_profile/{connection_profile_id}/files/{file_name}:
+  parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: connection_profile_id
+      required: true
+      schema:
+        enum:
+        - default
+        type: string
+    - description: File name
+      in: path
+      name: file_name
+      required: true
+      schema:
+        type: string
+  delete:
+    description: Delete a file for a connection profile
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Config/ConnectionProfiles
+  patch:
+    description: Replace a file for a connection profile
+    requestBody:
+      $ref: '#/components/requestBodies/ConfigConnectionProfileFile'
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Config/ConnectionProfiles
+  put:
+    description: Upload a file for a connection profile
+    requestBody:
+      $ref: '#/components/requestBodies/ConfigConnectionProfileFile'
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Config/ConnectionProfiles
