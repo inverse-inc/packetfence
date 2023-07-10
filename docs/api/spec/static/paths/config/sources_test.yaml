@@ -1,4 +1,4 @@
-/config/sources/test:
+/api/v1/config/sources/test:
   description: pf::UnifiedApi::Controller::Config::Sources
   post:
     description: Test Source
@@ -21,3 +21,5 @@
         application/json:
           schema:
               $ref: '#/components/schemas/ConfigSource'
+    tags:
+      - Config/Sources
