@@ -1,0 +1,29 @@
+/api/v1/ip6logs/open/{node_id}:
+  get:
+    description: Show open IP6 logs for a device
+    parameters:
+      - $ref: '#/components/parameters/node_id'
+    responses:
+      '200':
+        $ref: "#/components/responses/Ip6logsOpen"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Ip6logs
+
+/api/v1/ip6logs/history/{node_id}:
+  get:
+    description: Show IP6 log history for a device
+    parameters:
+      - $ref: '#/components/parameters/node_id'
+    responses:
+      '200':
+        $ref: "#/components/responses/Ip6logsHistory"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Ip6logs
