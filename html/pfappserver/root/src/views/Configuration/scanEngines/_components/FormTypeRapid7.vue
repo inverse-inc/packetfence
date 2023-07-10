@@ -6,80 +6,88 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Name')"
+                           :column-label="$i18n.t('Name')"
     />
 
     <form-group-host namespace="host"
-      :column-label="$i18n.t('Host')"
+                     :column-label="$i18n.t('Host')"
     />
 
     <form-group-username namespace="username"
-      :column-label="$i18n.t('Username')"
+                         :column-label="$i18n.t('Username')"
     />
 
     <form-group-password namespace="password"
-      :column-label="$i18n.t('Password')"
+                         :column-label="$i18n.t('Password')"
     />
 
     <form-group-port namespace="port"
-      :column-label="$i18n.t('Port of the service')"
-      :text="$i18n.t('If you use an alternative port, please specify.')"
+                     :column-label="$i18n.t('Port of the service')"
+                     :text="$i18n.t('If you use an alternative port, please specify.')"
     />
 
     <form-group-verify-hostname namespace="verify_hostname"
-      :column-label="$i18n.t('Verify Hostname')"
-      :text="$i18n.t('Verify hostname of server when connecting to the API.')"
+                                :column-label="$i18n.t('Verify Hostname')"
+                                :text="$i18n.t('Verify hostname of server when connecting to the API.')"
+                                enabled-value="enabled"
+                                disabled-value="disabled"
     />
 
     <form-group-engine-identifier namespace="engine_id"
-      :column-label="$i18n.t('Scan Engine')"
-      :text="$i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.')"
+                                  :column-label="$i18n.t('Scan Engine')"
+                                  :text="$i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.')"
 
     />
 
     <form-group-template-identifier namespace="template_id"
-      :column-label="$i18n.t('Scan Template')"
-      :text="$i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.')"
+                                    :column-label="$i18n.t('Scan Template')"
+                                    :text="$i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.')"
     />
 
     <form-group-site-identifier namespace="site_id"
-      :column-label="$i18n.t('Site')"
-      :text="$i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.')"
+                                :column-label="$i18n.t('Site')"
+                                :text="$i18n.t('After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.')"
     />
 
     <form-group-categories namespace="categories"
-      :column-label="$i18n.t('Roles')"
-      :text="$i18n.t('Nodes with the selected roles will be affected.')"
+                           :column-label="$i18n.t('Roles')"
+                           :text="$i18n.t('Nodes with the selected roles will be affected.')"
     />
 
     <form-group-oses namespace="oses"
-      :column-label="$i18n.t('OS')"
-      :text="$i18n.t('Nodes with the selected OS will be affected.')"
+                     :column-label="$i18n.t('OS')"
+                     :text="$i18n.t('Nodes with the selected OS will be affected.')"
     />
 
     <form-group-duration namespace="duration"
-      :column-label="$i18n.t('Duration')"
-      :text="$i18n.t('Approximate duration of a scan. User being scanned on registration are presented a progress bar for this duration, afterwards the browser refreshes until scan is complete.')"
+                         :column-label="$i18n.t('Duration')"
+                         :text="$i18n.t('Approximate duration of a scan. User being scanned on registration are presented a progress bar for this duration, afterwards the browser refreshes until scan is complete.')"
     />
 
     <form-group-pre-registration namespace="pre_registration"
-      :column-label="$i18n.t('Scan before registration')"
-      :text="$i18n.t('If this option is enabled, the PF system will scan host before the registration.')"
+                                 :column-label="$i18n.t('Scan before registration')"
+                                 :text="$i18n.t('If this option is enabled, the PF system will scan host before the registration.')"
+                                 :enabled-value="1"
+                                 :disabled-value="0"
     />
 
     <form-group-registration namespace="registration"
-      :column-label="$i18n.t('Scan on registration')"
-      :text="$i18n.t('If this option is enabled, the PF system will scan each host after registration is complete.')"
+                             :column-label="$i18n.t('Scan on registration')"
+                             :text="$i18n.t('If this option is enabled, the PF system will scan each host after registration is complete.')"
+                             :enabled-value="1"
+                             :disabled-value="0"
     />
 
     <form-group-post-registration namespace="post_registration"
-      :column-label="$i18n.t('Scan after registration')"
-      :text="$i18n.t('If this option is enabled, the PF system will scan host after on the production VLAN.')"
+                                  :column-label="$i18n.t('Scan after registration')"
+                                  :text="$i18n.t('If this option is enabled, the PF system will scan host after on the production VLAN.')"
+                                  :enabled-value="1"
+                                  :disabled-value="0"
     />
   </base-form>
 </template>
 <script>
-import { BaseForm } from '@/components/new/'
+import {BaseForm} from '@/components/new/'
 import {
   FormGroupCategories,
   FormGroupDuration,
@@ -118,7 +126,7 @@ const components = {
   FormGroupVerifyHostname
 }
 
-import { useForm as setup, useFormProps as props } from '../_composables/useForm'
+import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
 // @vue/component
 export default {
