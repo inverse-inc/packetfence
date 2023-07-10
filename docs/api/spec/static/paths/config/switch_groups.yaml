@@ -1,0 +1,25 @@
+/api/v1/config/switch_group/{switch_group_id}/members:
+  get:
+    description: Get the members of a switch group
+    parameters:
+    - in: path
+      name: switch_group_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSwitchGroupMembers'
+        description: Request successful. Response contains a list of resources.
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config/SwitchGroups

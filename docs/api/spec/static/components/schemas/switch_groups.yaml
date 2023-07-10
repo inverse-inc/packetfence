@@ -1,0 +1,9 @@
+ConfigSwitchGroupMembers:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/components/schemas/ConfigSwitch'
+    status:
+      $ref: '#/components/schemas/Status'
