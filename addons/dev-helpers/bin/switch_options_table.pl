@@ -54,12 +54,12 @@ for my $g (@groups) {
           $switch_info->{"wired_wireless"}="true";
         } elsif ($supports =~ /Wireless/){
           $switch_info->{"wireless"}="true";
-        } elsif ($supports =~ /Wired/ || $supports =~ /RadiusDynamicVlanAssignment/){
+        } elsif ($supports =~ /Wired/){
           $switch_info->{"wired"}="true";
         } else {
           print("$name \t$supports\n");
         }
-        for my $supportedItem (qw(WiredMacAuth WiredDot1x WirelessMacAuth WirelessDot1x RadiusDynamicVlanAssignment ExternalPortal MABFloatingDevices WebFormRegistration AccessListBasedEnforcement RadiusVoip FloatingDevice Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement)) {
+        for my $supportedItem (qw(WiredMacAuth WiredDot1x WirelessMacAuth WirelessDot1x PushACLs ExternalPortal MABFloatingDevices WebFormRegistration AccessListBasedEnforcement RadiusVoip FloatingDevice Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement)) {
             next if !$supportsLookup{$supportedItem};
             if ($switch_info->{is_template}) {
                 $switch_info->{$supportedItem} = "true";
@@ -87,7 +87,7 @@ for my $g (@groups) {
 #
 # Create the table
 #
-my @list_of_types=("SNMP", "WiredMacAuth", "WiredDot1x","WirelessMacAuth", "WirelessDot1x", "ExternalPortal", "RadiusDynamicVlanAssignment", "AccessListBasedEnforcement", "RoleBasedEnforcement", "RadiusVoip", "MABFloatingDevices", "FloatingDevice" );
+my @list_of_types=("SNMP", "WiredMacAuth", "WiredDot1x","WirelessMacAuth", "WirelessDot1x", "ExternalPortal", "PushACLs", "AccessListBasedEnforcement", "RoleBasedEnforcement", "RadiusVoip", "MABFloatingDevices", "FloatingDevice" );
 
 my %list_of_types_trans=("SNMP"=>"SNMP",
                          "WiredMacAuth"=>"Wired MAC Auth",
@@ -95,7 +95,7 @@ my %list_of_types_trans=("SNMP"=>"SNMP",
                          "WirelessMacAuth"=>"Wireless MAC Auth",
                          "WirelessDot1x"=>"Wireless 802.1x",
                          "ExternalPortal"=>"Web Auth",
-                         "RadiusDynamicVlanAssignment"=>"RADIUS Dynamic VLAN",
+                         "PushACLs"=>"ACLs precreation",
                          "AccessListBasedEnforcement"=>"RADIUS Dynamic ACL",
                          "RoleBasedEnforcement"=>"RADIUS Dynamic Role",
                          "RadiusVoip"=>"RADIUS VOIP",
