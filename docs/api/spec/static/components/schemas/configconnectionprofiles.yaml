@@ -1,0 +1,40 @@
+ConfigConnectionProfileFilesRoot:
+  allOf:
+    - $ref: '#/components/schemas/ConfigConnectionProfileFilesDir'
+    - $ref: '#/components/schemas/ConfigConnectionProfileFilesFile'
+
+ConfigConnectionProfileFilesDir:
+  type: object
+  properties:
+    entries:
+      type: array
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/ConfigConnectionProfileFilesDir'
+          - $ref: '#/components/schemas/ConfigConnectionProfileFilesFile'
+    type:
+      type: string
+      value: dir
+
+ConfigConnectionProfileFilesFile:
+  type: object
+  properties:
+    mtime:
+      description: Unix timestamp of last modified time
+      type: integer
+    name:
+      description: File name or path
+      type: string
+    not_deletable:
+      description: File can not be removed
+      type: boolean
+    not_revertible:
+      description: File can not be reverted
+      type: boolean
+    size:
+      description: File size in bytes
+      type: integer
+    type:
+      description: Entry type
+      type: string
+      value: file
