@@ -10,13 +10,11 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/redisclient"
 )
 
 type FlushRadiusAuditLogJob struct {
 	Task
-	Batch   int
+	Batch   int64
 	Timeout time.Duration
 	redis   *redis.Client
 }
@@ -24,26 +22,10 @@ type FlushRadiusAuditLogJob struct {
 func NewFlushRadiusAuditLogJob(config map[string]interface{}) JobSetupConfig {
 	return &FlushRadiusAuditLogJob{
 		Task:    SetupTask(config),
-		Batch:   int(config["batch"].(float64)),
+		Batch:   int64(config["batch"].(float64)),
 		Timeout: time.Duration((config["timeout"].(float64))) * time.Second,
 		redis:   redisClient(),
 	}
-}
-
-func redisClient() *redis.Client {
-	ctx := context.Background()
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &redisclient.Config)
-	var network string
-	if redisclient.Config.RedisArgs.Server[0] == '/' {
-		network = "unix"
-	} else {
-		network = "tcp"
-	}
-
-	return redis.NewClient(&redis.Options{
-		Addr:    redisclient.Config.RedisArgs.Server,
-		Network: network,
-	})
 }
 
 func (j *FlushRadiusAuditLogJob) Run() {
@@ -53,7 +35,13 @@ func (j *FlushRadiusAuditLogJob) Run() {
 	ctx := context.Background()
 	for {
 		i++
-		data := j.redis.LPopCount(ctx, "RADIUS_AUDIT_LOG", j.Batch)
+		var data *redis.StringSliceCmd
+		j.redis.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+			data = pipe.LRange(ctx, "RADIUS_AUDIT_LOG", 0, j.Batch-1)
+			pipe.LTrim(ctx, "RADIUS_AUDIT_LOG", j.Batch, -1)
+			return nil
+		})
+
 		if err := data.Err(); err != nil {
 			log.LogError(ctx, fmt.Sprintf("%s error running: %s", j.Name(), err.Error()))
 			break
