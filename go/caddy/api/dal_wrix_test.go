@@ -71,7 +71,10 @@ func removeDBTestEntriesWrix(t *testing.T, id string) error {
 func dalWrix() http.HandlerFunc {
 	router := httprouter.New()
 	ctx := context.Background()
-	dbs, _ := gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+	dbs, err := gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+	if err != nil {
+		fmt.Println("error occured while connecting to mysql, ", err.Error())
+	}
 
 	NewWrix(ctx, dbs).AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
