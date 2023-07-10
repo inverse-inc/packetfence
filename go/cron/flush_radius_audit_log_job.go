@@ -53,7 +53,7 @@ func (j *FlushRadiusAuditLogJob) Run() {
 	ctx := context.Background()
 	for {
 		i++
-		data := j.redis.LPopCount(ctx, "", j.Batch)
+		data := j.redis.LPopCount(ctx, "RADIUS_AUDIT_LOG", j.Batch)
 		if err := data.Err(); err != nil {
 			log.LogError(ctx, fmt.Sprintf("%s error running: %s", j.Name(), err.Error()))
 			break
