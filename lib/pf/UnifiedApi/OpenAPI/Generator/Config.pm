@@ -103,7 +103,7 @@ sub resourceParameters {
         for my $section ($ini->Sections) {
             push @$enum, $section;
         };
-        $parameter->{schema}->{enum} = \@$enum;
+        $parameter->{schema}->{enum} = [sort @$enum];
     }
     push @$parameters, $parameter;
     return $parameters;
