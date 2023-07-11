@@ -59,7 +59,7 @@ if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then
     # Backup complete PacketFence installation except logs
     current_tgz=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
     if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
-        tar -czf $current_tgz --exclude=$PF_DIRECTORY'logs/*' --exclude=$PF_DIRECTORY'var/*' --exclude=$PF_DIRECTORY'.git/*' --exclude=$PF_DIRECTORY'conf/certmanager/*' $PF_DIRECTORY
+        tar -czf $current_tgz --exclude='logs/*' --exclude='var/*' --exclude='.git/*' --exclude='conf/certmanager/*' --directory $PF_DIRECTORY .
         BACKUPRC=$?
         if (( $BACKUPRC > 0 )); then
             echo "ERROR: PacketFence files backup was not successful" >&2
