@@ -94,6 +94,7 @@ sub resourceParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
     my $parameter = $self->path_parameter($c->primary_key);
+    $parameter->{required} = JSON::MaybeXS::true;
     $parameter->{description} = '`PRIMARY KEY`';
     if (ref($c) =~ /Config::.*(?<!Subtype)$/ && $c->config_store->importConfigFile) {
         my $ini = Config::IniFiles->new(
