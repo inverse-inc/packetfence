@@ -15,6 +15,6 @@ Search:
       description: The total count for pagination.
     cursor:
       type: string
-      description: The cursor pointer to fetch paginated results (from `previousCursor` and `nextCursor`).
+      description: The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).
     query:
       $ref: '#/components/schemas/Query'

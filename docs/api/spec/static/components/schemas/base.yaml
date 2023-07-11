@@ -37,7 +37,7 @@ ErrorsWithMessage:
 Iterable:
   type: object
   properties:
-    previousCursor:
+    prevCursor:
       description: The cursor to access paginated data for the previous page.
       type: string
     nextCursor:
