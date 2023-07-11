@@ -61,7 +61,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
  * Content Keeper firewall SSO support
  * Added support for Unifi OS controllers (#7368)
- * Added support for downloadable ACLs on Cisco and Dell switches
+ * Added support for downloadable ACLs on Cisco and Dell switches (Also visible in Packetfence Supported network devices webpage https://www.packetfence.org/about.html#/material)
 
 === Enhancements
 
