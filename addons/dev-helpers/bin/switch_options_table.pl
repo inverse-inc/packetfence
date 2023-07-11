@@ -57,7 +57,7 @@ for my $g (@groups) {
         } elsif ($supports =~ /Wired/ || $supports =~ /RadiusDynamicVlanAssignment/ || $supports =~ /Cdp/){
           $switch_info->{"wired"}="true";
         } else {
-          print("$name \t$supports\n");
+          print("<!-- SWITCH WITH ISSUE: $name \t$supports -->\n");
         }
         for my $supportedItem (qw(WiredMacAuth WiredDot1x WirelessMacAuth WirelessDot1x PushACLs ExternalPortal MABFloatingDevices WebFormRegistration AccessListBasedEnforcement RadiusVoip FloatingDevice Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement)) {
             next if !$supportsLookup{$supportedItem};
