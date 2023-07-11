@@ -2,9 +2,12 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
+	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -67,7 +70,13 @@ func removeDBTestEntriesRadiusAuditLog(t *testing.T, id int64) error {
 
 func dalRadiusAuditLog() http.HandlerFunc {
 	router := httprouter.New()
-	NewRadiusAuditLog().AddToRouter(router)
+	ctx := context.Background()
+	dbs, err := gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+	if err != nil {
+		fmt.Println("error occured while connecting to mysql, ", err.Error())
+	}
+
+	NewRadiusAuditLog(ctx, dbs).AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
 			// We always default to application/json

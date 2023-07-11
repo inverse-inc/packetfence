@@ -2,7 +2,10 @@ package api
 
 import (
 	"context"
+	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/jinzhu/gorm"
 	"net/http"
+	"time"
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -58,12 +61,32 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 
 	router.POST("/api/v1/nodes/fingerbank_communications", apiHandler.nodeFingerbankCommunications)
 
-	NewAdminApiAuditLog().AddToRouter(router)
-	NewAuthLog().AddToRouter(router)
-	NewDnsAuditLog().AddToRouter(router)
-	NewRadacctLog().AddToRouter(router)
-	NewRadiusAuditLog().AddToRouter(router)
-	NewWrix().AddToRouter(router)
+	done := false
+	var DB *gorm.DB
+	var err error
+	for !done {
+		DB, err = gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+		if err != nil {
+			log.LoggerWContext(ctx).Warn(err.Error())
+		} else {
+			done = true
+		}
+		time.Sleep(time.Duration(5) * time.Second)
+	}
+
+	go func() {
+		for {
+			DB.DB().Ping()
+			time.Sleep(5 * time.Second)
+		}
+	}()
+
+	NewAdminApiAuditLog(ctx, DB).AddToRouter(router)
+	NewAuthLog(ctx, DB).AddToRouter(router)
+	NewDnsAuditLog(ctx, DB).AddToRouter(router)
+	NewRadacctLog(ctx, DB).AddToRouter(router)
+	NewRadiusAuditLog(ctx, DB).AddToRouter(router)
+	NewWrix(ctx, DB).AddToRouter(router)
 
 	apiHandler.router = router
 	return apiHandler, nil
