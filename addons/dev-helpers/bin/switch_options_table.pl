@@ -54,7 +54,7 @@ for my $g (@groups) {
           $switch_info->{"wired_wireless"}="true";
         } elsif ($supports =~ /Wireless/){
           $switch_info->{"wireless"}="true";
-        } elsif ($supports =~ /Wired/){
+        } elsif ($supports =~ /Wired/ || $supports =~ /RadiusDynamicVlanAssignment/ || $supports =~ /Cdp/){
           $switch_info->{"wired"}="true";
         } else {
           print("$name \t$supports\n");
