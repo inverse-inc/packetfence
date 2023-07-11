@@ -1,0 +1,104 @@
+NodesBulk:
+  description: Request successful. Response contains the bulk nodes.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          status:
+            $ref: '#/components/schemas/Status'
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                mac:
+                  type: string
+                  description: The nodes `PRIMARY_KEY` (MAC Address).
+                status:
+                  type: string
+
+NodesBulkImport:
+  description: Request successful. Response contains the bulk nodes.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                item:
+                  $ref: '#/components/schemas/Node'
+
+NodesPerDeviceClass:
+  description: Request successful. Response contains the count of nodes per device class.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                count:
+                  type: integer
+                device_class:
+                  type: string
+          status:
+           $ref: '#/components/schemas/Status'
+
+NodesNetworkCommunications:
+  description: Request successful. Response contains the network communication for bulk nodes.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: object
+            description: The nodes `PRIMARY_KEY` (MAC Address).
+            additionalProperties:
+              type: object
+              properties:
+                all_hosts_cache:
+                  type: object
+
+NodesNetworkGraph:
+  description: Request successful. Response contains the network graph for bulk nodes.
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '#/components/schemas/Iterable'
+          - type: object
+            properties:
+              status:
+                $ref: '#/components/schemas/Status'
+              network_graph:
+                type: object
+                properties:
+                  label:
+                    type: string
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NetworkGraphLink'
+                  metric:
+                    type: string
+                    nullable: true
+                  nodes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NetworkGraphNode'
+                  protocol:
+                    type: string
+                  type:
+                    type: string
+                  version:
+                    type: string
+

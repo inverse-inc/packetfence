@@ -1,0 +1,238 @@
+/api/v1/nodes/bulk_apply_bypass_role:
+  post:
+    summary: Apply Bypass Role to bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulkBypassRole"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_apply_bypass_vlan:
+  post:
+    summary: Apply Bypass VLAN to bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulkBypassVlan"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_apply_role:
+  post:
+    summary: Apply Role to bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulkRole"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_apply_security_event:
+  post:
+    summary: Apply Security Event to bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulkSecurityEvent"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_close_security_events:
+  post:
+    summary: Close all Security Events for bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_deregister:
+  post:
+    summary: Deregister bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_fingerbank_refresh:
+  post:
+    summary: Refresh Fingerbank Profiling for bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_import:
+  post:
+    summary: Import bulk nodes.
+    requestBody:
+      allOf:
+        - $ref: "#/components/requestBodies/BulkImport"
+        - $ref: "#/components/requestBodies/NodesBulkImport"
+    responses:
+      '200':
+        allOf:
+          - $ref: "#/components/responses/BulkImport"
+          - $ref: "#/components/responses/NodesBulkImport"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_register:
+  post:
+    summary: Register bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_reevaluate_access:
+  post:
+    summary: Reevaluate Access for bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_restart_switchport:
+  post:
+    summary: Restart Switch Ports for bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/fingerbank_communications:
+  post:
+    summary: Get network communication of bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesNetworkCommunications"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesNetworkCommunications"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/network_graph:
+  post:
+    description: Get graph of network layout for bulk nodes.
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Search'
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesNetworkGraph"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/per_device_class:
+  get:
+    summary: Get count of nodes per device class.
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesPerDeviceClass"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - Nodes

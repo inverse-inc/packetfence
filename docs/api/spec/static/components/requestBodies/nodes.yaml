@@ -1,0 +1,101 @@
+NodesBulk:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: string
+              description: The nodes `PRIMARY_KEY` (MAC Address).
+
+NodesBulkSecurityEvent:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: string
+              description: The nodes `PRIMARY_KEY` (MAC Address).
+          security_event_id:
+            type: string
+            description: The security events `PRIMARY_KEY`.
+
+NodesBulkRole:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: string
+              description: The nodes `PRIMARY_KEY` (MAC Address).
+          category_id:
+            type: string
+            description: The roles `PRIMARY_KEY`.
+
+NodesBulkBypassRole:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: string
+              description: The nodes `PRIMARY_KEY` (MAC Address).
+          bypass_role_id:
+            type: string
+            description: The roles `PRIMARY_KEY`.
+
+NodesBulkBypassVlan:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: string
+              description: The nodes `PRIMARY_KEY` (MAC Address).
+          bypass_vlan:
+            type: string
+            description: The VLAN.
+
+NodesBulkImport:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Node'
+
+NodesNetworkCommunications:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          nodes:
+            type: array
+            items:
+              type: string
+              description: The nodes `PRIMARY_KEY` (MAC Address).

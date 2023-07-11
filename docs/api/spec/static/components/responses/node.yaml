@@ -1,0 +1,41 @@
+NodeFingerbankInfo:
+  description: Request successful. Response contains the node fingerbank info.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          status:
+            $ref: '#/components/schemas/Status'
+          item:
+            type: object
+            properties:
+              device_hierarchy_ids:
+                type: array
+                items:
+                  type: string
+              device_hierarchy_names:
+                type: array
+                items:
+                  type: string
+              device_name:
+                type: string
+              score:
+                type: integer
+                min: 0
+                max: 100
+              version:
+                type: string
+
+NodeApplySecurityEvent:
+  description: Request successful. The Security Event has been applied to this node.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          id:
+            description: The security events `PRIMARY_KEY`.
+            type: string
+          status:
+            $ref: '#/components/schemas/Status'
