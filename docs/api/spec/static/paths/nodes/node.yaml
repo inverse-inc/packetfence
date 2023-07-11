@@ -1,0 +1,150 @@
+/api/v1/node/{node_id}/apply_security_event:
+  put:
+    summary: Apply Security Event to node.
+    parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: node_id
+        schema:
+          type: string
+    requestBody:
+      $ref: "#/components/requestBodies/NodeSecurityEvent"
+    responses:
+      '200':
+        $ref: "#/components/responses/Status"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/node/{node_id}/close_security_event:
+  put:
+    summary: Apply Security Event to node.
+    parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: node_id
+        schema:
+          type: string
+    requestBody:
+      $ref: "#/components/requestBodies/NodeSecurityEvent"
+    responses:
+      '200':
+        $ref: "#/components/responses/Status"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/node/{node_id}/fingerbank_info:
+  get:
+    summary: Get Fingerbank Profiling of node.
+    parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: node_id
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: "#/components/responses/NodeFingerbankInfo"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/node/{node_id}/fingerbank_refresh:
+  put:
+    summary: Refresh Fingerbank Profiling of node.
+    parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: node_id
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: "#/components/responses/Status"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/node/{node_id}/rapid7:
+  get:
+    summary: Get rapid7 of node.
+    parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: node_id
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: "#/components/responses/NodeRapid7"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/node/{node_id}/reevaluate_access:
+  put:
+    summary: Reevaluate Access for node.
+    parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: node_id
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: "#/components/responses/Status"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/node/{node_id}/restart_switchport:
+  put:
+    summary: Restart Switch Port for node.
+    parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: node_id
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: "#/components/responses/Status"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes

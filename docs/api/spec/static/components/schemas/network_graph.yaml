@@ -1,0 +1,17 @@
+NetworkGraphLink:
+  type: object
+  properties:
+    source:
+      type: string
+    target:
+      type: string
+
+NetworkGraphNode:
+  type: object
+  properties:
+    id:
+      type: string
+    type:
+      type: string
+    properties:
+      $ref: '#/components/schemas/Node'

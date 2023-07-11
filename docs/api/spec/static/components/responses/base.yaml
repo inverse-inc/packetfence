@@ -27,6 +27,15 @@ Message:
     application/json:
       schema:
         $ref: "#/components/schemas/Message"
+Status:
+  description: Request successful. Response contains a status response code.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          status:
+            $ref: "#/components/schemas/Status"
 StatusOnly:
   description: Request successful. Response contains a status response code.
   content:

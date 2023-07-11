@@ -9,7 +9,7 @@ UsersBulk:
             type: array
             items:
               type: string
-              description: User Identifier `PRIMARY_KEY`
+              description: The users `PRIMARY_KEY` (pid).
 
 UsersBulkBypassRole:
   required: true
@@ -25,7 +25,7 @@ UsersBulkBypassRole:
             type: array
             items:
               type: string
-              description: User Identifier `PRIMARY_KEY`
+              description: The users `PRIMARY_KEY` (pid).
 
 UsersBulkRole:
   required: true
@@ -41,7 +41,7 @@ UsersBulkRole:
             type: array
             items:
               type: string
-              description: User Identifier `PRIMARY_KEY`
+              description: The users `PRIMARY_KEY` (pid).
 
 UsersBulkSecurityEvent:
   required: true
@@ -57,7 +57,7 @@ UsersBulkSecurityEvent:
             type: array
             items:
               type: string
-              description: User Identifier `PRIMARY_KEY`
+              description: The users `PRIMARY_KEY` (pid).
 
 UsersBulkImport:
   required: true
