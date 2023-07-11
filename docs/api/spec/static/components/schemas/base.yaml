@@ -45,7 +45,7 @@ Iterable:
       type: string
     total_count:
       type: integer
-      description: The total count of the query.
+      description: The total count of paginated items.
 
 Flags:
   type: object
