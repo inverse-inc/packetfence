@@ -245,31 +245,6 @@ sub dalToOpSort {
     };
 }
 
-sub dalToOpLimit {
-    return {
-        name => 'limit',
-        schema => {
-            type => 'integer',
-            minimum => 1,
-            maximum => 1000,
-            enum => [1, 5, 10, 25, 50, 100, 250, 500, 1000],
-            example => 1,
-        },
-        description => 'Maximum number of items to return.',
-    };
-}
-
-sub dalToOpCursor {
-    return {
-        name => 'cursor',
-        schema => {
-            type => 'string',
-            example => '0'
-        },
-        description => 'Unique identifier to offset the paginated items using `sort` and `limit` (from `nextCursor` or `previousCursor`).',
-    };
-}
-
 sub dalToExampleQuery {
     my ($self, $dal) = @_;
     my $meta = $dal->get_meta();
@@ -286,8 +261,8 @@ sub operationParametersLookup {
         list => [
             { allOf => [ $self->dalToOpFields($c->dal), { in => 'query' } ] },
             { allOf => [ $self->dalToOpSort($c->dal), { in => 'query' } ] },
-            { allOf => [ $self->dalToOpLimit($c->dal), { in => 'query' } ] },
-            { allOf => [ $self->dalToOpCursor($c->dal), { in => 'query' } ] },
+            { allOf => [ { "\$ref" => "#/components/parameters/limit" }, { in => 'query' } ] },
+            { allOf => [ { "\$ref" => "#/components/parameters/cursor" }, { in => 'query' } ] },
         ]
     }
 }

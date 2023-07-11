@@ -4,14 +4,28 @@ cursor:
   required: false
   schema:
     type: string
-  description: The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)
+    example: 0
+  description: The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).
 
 limit:
   in: query|body
   name: limit
   required: false
   schema:
-    type: int
+    type: integer
+    min: 1
+    max: 1000
+    enum:
+      - 1
+      - 5
+      - 10
+      - 25
+      - 50
+      - 100
+      - 250
+      - 500
+      - 1000
+    example: 1
   description: The maximum amount of entries to get.
 
 sort:
