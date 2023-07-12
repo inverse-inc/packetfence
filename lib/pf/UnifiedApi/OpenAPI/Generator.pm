@@ -22,6 +22,7 @@ use Pod::Select qw(podselect);
 use Pod::Markdown;
 use Pod::Text;
 use Lingua::EN::Inflexion qw(noun);
+use JSON::MaybeXS ();
 
 =head2 generatePath
 
@@ -485,6 +486,7 @@ sub path_parameter {
     return {
         description => '`PRIMARY KEY`',
         in          => 'path',
+        required    => JSON::MaybeXS::true,
         schema      => { type => 'string' },
         name        => $name,
         (defined $description ? (description => $description) : ()),
