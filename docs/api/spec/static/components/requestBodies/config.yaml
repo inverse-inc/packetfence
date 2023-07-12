@@ -28,3 +28,18 @@ ConfigConditionParse:
     application/json:
       schema:
         $ref: "#/components/schemas/ConfigConditionParse"
+
+ConfigConnectionProfileFile:
+  required: true
+  content:
+    application/x-www-form-urlencoded:
+      schema:
+        description: base64 encoded
+        type: string
+        format: byte # base64-encoded
+
+ConfigDomainJoin:
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigDomainJoin"
