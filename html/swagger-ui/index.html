@@ -35,6 +35,7 @@
       window.onload = () => {
         const ui = SwaggerUIBundle({
           url: '/static/doc/api/spec/openapi.json',
+          deepLinking: true,
           dom_id: '#swagger-ui',
           defaultModelsExpandDepth: 99,
           defaultModelExpandDepth: 3,
