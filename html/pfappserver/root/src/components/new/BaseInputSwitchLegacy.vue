@@ -11,9 +11,13 @@
         'size-lg': size === 'lg',
         'switch-enabled' : rangeValue === 1,
       }"
-      :index="value"
+      :index="inputValue"
       @click.stop
     >
+      <div v-if="label !== false" v-t="label"
+      class="base-input-range-label col-form-label text-nowrap mr-2" :class="{
+        'text-black-50': isLocked
+      }" />
       <div style="pointer-events: none;">
         <span :class="[
           'handle',
@@ -32,6 +36,8 @@
              :min="0"
              :disabled="isLocked"
              @mouseup="onClick"
+             @focus="onFocus"
+             @blur="onBlur"
       />
     </div>
   </div>
@@ -45,20 +51,15 @@ import {computed, inject, unref} from '@vue/composition-api';
 import _ from 'lodash'
 
 export const useSwitchProps = {
-  onChange: {
-    type: Function
-  },
-  label: {
+  label : {
     default: null,
     type: String
   },
-  isFocus: {
-    default: false,
-    type: Boolean
+  enabledValue: {
+    default: true
   },
-  isLocked: {
-    default: false,
-    type: Boolean
+  disabledValue: {
+    default: false
   },
   size: {
     type: String,
@@ -66,34 +67,80 @@ export const useSwitchProps = {
     validator: value => ['sm', 'md', 'lg'].includes(value)
   },
   value: {
-    default: false
+    default: null
+  },
+  disabled: {
+    type: Boolean
   },
   icon: {
     type: String
   },
+  color: {  // override default colors via JS
+    type: String
+  },
+  hints: { // dots/pills in range for hints (eg: [1, [1-2], 2])
+    type: Array,
+    default: () => ([])
+  }
 }
 
 export const props = {
   ...useInputProps,
+  ...useInputMetaProps,
   ...useInputValidatorProps,
+  ...useInputValueProps,
   ...useSwitchProps,
 }
 
-export const setup = (props) => {
+export const setup = (props, context) => {
+
+  const form = inject('form')
+
+  const metaProps = useInputMeta(props, context)
+
+  const {
+    placeholder,
+    readonly,
+    tabIndex,
+    text,
+    type,
+    isFocus,
+    isLocked,
+    onFocus,
+    onBlur
+  } = useInput(metaProps, context)
+
+  const {
+    value,
+  } = useInputValue(metaProps, context)
+
+  const onChange = (value) => {
+    setFormNamespace(props.namespace.split('.'), unref(form), value)
+  }
 
   const rangeValue = computed(() => {
-    return props.value ? 1 : 0
+    return _.isEqual(unref(value), props.enabledValue) ? 1 : 0
   })
 
   const toggle = () => {
-    if (unref(rangeValue) === 1) {
-      props.onChange(false)
+    if (_.isEqual(unref(value), props.enabledValue)) {
+      onChange(props.disabledValue)
     } else {
-      props.onChange(true)
+      onChange(props.enabledValue)
     }
   }
 
   return {
+    inputPlaceholder: placeholder,
+    inputReadonly: readonly,
+    inputTabIndex: tabIndex,
+    inputText: text,
+    inputType: type,
+    isFocus,
+    isLocked,
+    onFocus,
+    onBlur,
+    inputValue: value,
     rangeValue,
     onClick: toggle,
   }
@@ -137,7 +184,6 @@ export default {
 }
 
 div.base-input-switch-wrapper {
-  display: flex;
   border: none;
 }
 
