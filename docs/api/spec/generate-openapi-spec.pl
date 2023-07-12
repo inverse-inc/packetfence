@@ -23,8 +23,9 @@ merge_yaml_into_paths($spec->{paths}, "deprecated/paths");
 merge_yaml_into_paths($spec->{paths}, "static/paths");
 
 my $components = hash_yaml_dir("components");
+my $components_deprecated = hash_yaml_dir("deprecated/components");
 my $components_static = hash_yaml_dir("static/components");
-$spec->{components} = merge($components, $components_static);
+$spec->{components} = merge($components, $components_static, $components_deprecated);
 
 common_parameters(
     $spec,
