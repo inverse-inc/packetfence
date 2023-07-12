@@ -1,107 +1,107 @@
-/dhcp/mac/{mac}:
-    parameters:
-    - name: mac
-      in: path
-      required: true
-      schema :
-        type: string
-    get:
-        summary: Get an IPv4 address by MAC address
-        description: Performs a dhcp lookup and returns the IP address leased for the given MAC address
-        responses:
-            '200':
-                $ref: "#/components/responses/DhcpMacIp"
-    delete:
-        summary: Expire a dhcp lease
-        description: Expires the dhcp lease for a specific MAC address
-        responses:
-            '200':
-                $ref: "#/components/responses/DhcpMacResponse"
-    
-/dhcp/ip/{ip}:
-    parameters:
-    - name: ip
-      in: path
-      required: true
-      schema :
-        type: string
-    get:
-        summary: Get a MAC address by IPv4 address
-        description: Performs a dhcp lookup and returns the MAC address for the given IP address lease
-        responses:
-            '200':
-                $ref: "#/components/responses/DhcpMacIp"
-    
-/dhcp/stats/{interface}:
-    parameters:
-    - name: interface
-      in: path
-      required: true
-      schema :
-        type: string
-    get:
-        summary: Get interface statistics
-        description: Shows detailed dhcp statistics for the given interface
-        responses:
-            '200':
-                $ref: "#/components/responses/DhcpInterfaceStats"
-    
-/dhcp/options/network/{network}:
-    parameters:
-    - name: network
-      in: path
-      required: true
-      schema :
-        type: string
-    post:
-        summary: Add options by network
-        description: Add dhcp options for a Network
-        responses:
-            '200':
-                $ref: "#/components/responses/DhcpNetworkResponse"
-            '400':
-                $ref: "#/components/responses/BadRequest"
-    delete:
-        summary: Delete options by network
-        description: Removes dhcp options for a Network
-        responses:
-            '200':
-                $ref: "#/components/responses/DhcpNetworkResponse"
-            '400':
-                $ref: "#/components/responses/BadRequest"
-    
-/dhcp/options/mac/{mac}:
-    parameters:
-    - name: mac
-      in: path
-      required: true
-      schema :
-        type: string
-    post:
-        summary: Add options by MAC address
-        description: Add dhcp options to a MAC address
-        parameters:
-        - name: mac
-          in: path
-          required: true
-          schema :
-            type: string
-        responses:
-            '200':
-                $ref: "#/components/responses/DhcpMacResponse"
-            '400':
-                $ref: "#/components/responses/BadRequest"
-    delete:
-        summary: Delete options by MAC address
-        description: Removes dhcp options for a MAC address
-        parameters:
-        - name: mac
-          in: path
-          required: true
-          schema :
-            type: string
-        responses:
-            '200':
-                $ref: "#/components/responses/DhcpMacResponse"
-            '400':
-                $ref: "#/components/responses/BadRequest"
+/api/v1/dhcp/mac/{mac}:
+  parameters:
+    - $ref: "#/components/parameters/mac"
+  get:
+    summary: Get an IPv4 address by MAC address
+    description: Performs a DHCP lookup and returns the IP address leased for the given MAC address
+    responses:
+      '200':
+        $ref: "#/components/responses/DhcpMacIp"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $DHCP
+  delete:
+    summary: Expire a DHCP lease
+    description: Expires the DHCP lease for a specific MAC address
+    responses:
+      '200':
+        $ref: "#/components/responses/DhcpMacResponse"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $DHCP
+
+/api/v1/dhcp/ip/{ip}:
+  parameters:
+    - $ref: "#/components/parameters/ip"
+  get:
+    summary: Get a MAC address by IPv4 address
+    description: Performs a DHCP lookup and returns the MAC address for the given IP address lease
+    responses:
+      '200':
+        $ref: "#/components/responses/DhcpMacIp"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $DHCP
+
+/api/v1/dhcp/stats/{interface}:
+  parameters:
+    - $ref: "#/components/parameters/interface"
+  get:
+    summary: Get interface statistics
+    description: Shows detailed DHCP statistics for the given interface
+    responses:
+      '200':
+        $ref: "#/components/responses/DhcpInterfaceStats"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $DHCP
+
+/api/v1/dhcp/options/network/{network}:
+  parameters:
+    - $ref: "#/components/parameters/network"
+  post:
+    summary: Add options by network
+    description: Add DHCP options for a Network
+    responses:
+      '200':
+        $ref: "#/components/responses/DhcpNetworkResponse"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $DHCP
+  delete:
+    summary: Delete options by network
+    description: Removes DHCP options for a Network
+    responses:
+      '200':
+        $ref: "#/components/responses/DhcpNetworkResponse"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $DHCP
+
+/api/v1/dhcp/options/mac/{mac}:
+  parameters:
+    - $ref: "#/components/parameters/mac"
+  post:
+    summary: Add options by MAC address
+    description: Add DHCP options to a MAC address
+    responses:
+      '200':
+        $ref: "#/components/responses/DhcpMacResponse"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $DHCP
+  delete:
+    summary: Delete options by MAC address
+    description: Removes DHCP options for a MAC address
+    responses:
+      '200':
+        $ref: "#/components/responses/DhcpMacResponse"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $DHCP

@@ -1,6 +1,6 @@
 /api/v1/user/{user_id}/nodes:
   get:
-    summary: Get Nodes for a User.
+    summary: Get all Nodes for a User.
     parameters:
       - $ref: "#/components/parameters/user_id"
       - $ref: "#/components/parameters/cursor"
