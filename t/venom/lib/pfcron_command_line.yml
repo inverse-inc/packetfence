@@ -1,0 +1,10 @@
+executor: pfcron_command_line 
+input:
+  unit_command: ""
+  sudo: ""
+steps:
+- type: exec
+  script: '{{.input.sudo}} /usr/local/pf/sbin/pfcron {{.input.unit_command }}'
+
+output:
+  pfcron_command_line_systemout: "{{.result.systemout}}"
