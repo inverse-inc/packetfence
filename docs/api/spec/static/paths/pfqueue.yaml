@@ -15,4 +15,4 @@
       '404':
         $ref: "#/components/responses/ErrorMessage"
     tags:
-      - $Async
+      - Async
