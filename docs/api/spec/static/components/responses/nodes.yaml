@@ -61,12 +61,29 @@ NodesNetworkCommunications:
         properties:
           items:
             type: object
-            description: The nodes `PRIMARY_KEY` (MAC Address).
+            description: Key contains the nodes `PRIMARY_KEY` (MAC Address).
             additionalProperties:
               type: object
               properties:
                 all_hosts_cache:
                   type: object
+                  description: Key contains the hostname.
+                  additionalProperties:
+                    type: object
+                    description: Key contains the protocol:port.
+                    additionalProperties:
+                      type: integer
+                      description: The total number of packets.
+      example:
+        items:
+          d34db4c0ffee:
+            all_hosts_cache:
+              www.inverse.ca:
+                tcp:80: 123
+                tcp:443: 456
+              www.akamai.com:
+                tcp:53: 123
+                upd:53: 456
 
 NodesNetworkGraph:
   description: Request successful. Response contains the network graph for bulk nodes.
