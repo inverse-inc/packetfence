@@ -385,6 +385,7 @@ sub searchRequestBody {
     my $sorts = $self->dalToSorts($c->dal);
     my $query = $self->dalToExampleQuery($c->dal);
     return {
+        required => JSON::MaybeXS::true,
         content => {
             "application/json" => {
                 schema => {
