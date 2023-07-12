@@ -1,4 +1,4 @@
-/user/{user_id}/password/search:
+/api/v1/user/{user_id}/password/search:
   description: pf::UnifiedApi::Controller::Users::Password
   post:
     operationId: api.v1.Users.Password.search
@@ -24,3 +24,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Users
