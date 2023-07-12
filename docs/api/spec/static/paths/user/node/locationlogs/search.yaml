@@ -3,20 +3,14 @@
   post:
     operationId: api.v1.Users.Nodes.Locationlogs.search
     parameters:
-    - in: path
-      name: user_id
-      schema:
-        type: string
-    - in: path
-      name: node_id
-      schema:
-        type: string
+    - $ref: "#/components/parameters/user_id"
+    - $ref: "#/components/parameters/node_id"
     requestBody:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Search'
-      description: Search for items
+      description: Search for locationlogs.
     responses:
       '200':
         content:
