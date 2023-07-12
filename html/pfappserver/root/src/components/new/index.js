@@ -79,6 +79,7 @@ import BaseTableSortable from './BaseTableSortable'
 import BaseUpload from './BaseUpload'
 import BaseView from './BaseView'
 import BaseFormGroupSwitch from './BaseFormGroupSwitch.vue';
+import BaseLabel from './BaseLabel.vue';
 
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
 
@@ -139,6 +140,7 @@ export {
   BaseInputToggle, BaseInputToggleProps,
   BaseInputToggleAdvancedMode,
   BaseInputToggleFalseTrue,
+  BaseLabel,
 
   // bootstrap wrappers
   BaseInputGroupDate,
