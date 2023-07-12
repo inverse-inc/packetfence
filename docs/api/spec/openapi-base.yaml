@@ -48,10 +48,14 @@ tags:
     description: Runs tasks asyncronously.
   - name: $Cluster
     description: Manage PacketFence cluster.
+  - name: $DHCP
+    description: Manage PacketFence Authoritative DNS server.
   - name: $Email
     description: Send email using SMTP configuration.
   - name: $Fingerbank
     description: Fingerbank device discovery.
+  - name: $Ipset
+    description: Manage PacketFence Ipset firewall.
   - name: $LiveLogs
     description: Tail logs in real time.
   - name: $PKI

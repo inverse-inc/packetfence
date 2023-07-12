@@ -1,4 +1,4 @@
-/ipset/mark_layer3:
+/api/v1/ipset/mark_layer3:
   post:
     summary: ...
     description: ...
@@ -18,8 +18,12 @@
         $ref: "#/components/responses/IpsetIp"
       '400':
         $ref: "#/components/responses/BadRequest"
-        
-/ipset/mark_layer2:
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
+
+/api/v1/ipset/mark_layer2:
   post:
     summary: ...
     description: ...
@@ -40,8 +44,12 @@
         $ref: "#/components/responses/IpsetMac"
       '400':
         $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
 
-/ipset/unmark_mac:
+/api/v1/ipset/unmark_mac:
   post:
     summary: ...
     description: ...
@@ -58,8 +66,12 @@
         $ref: "#/components/responses/IpsetMac"
       '400':
         $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
 
-/ipset/umark_ip:
+/api/v1/ipset/umark_ip:
   post:
     summary: ...
     description: ...
@@ -76,8 +88,12 @@
         $ref: "#/components/responses/IpsetIp"
       '400':
         $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
 
-/ipset/mark_ip_layer2:
+/api/v1/ipset/mark_ip_layer2:
   post:
     summary: Mark IP layer2
     description: Mark IP layer2
@@ -96,8 +112,12 @@
         $ref: "#/components/responses/IpsetIp"
       '400':
         $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
 
-/ipset/mark_ip_layer3:
+/api/v1/ipset/mark_ip_layer3:
   post:
     summary: Mark IP layer3
     description: Mark IP layer3
@@ -116,8 +136,12 @@
         $ref: "#/components/responses/IpsetIp"
       '400':
         $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
 
-/ipset/passthrough:
+/api/v1/ipset/passthrough:
   post:
     summary: Passthrough
     description: Passthrough
@@ -135,8 +159,12 @@
         $ref: "#/components/responses/IpsetIp"
       '400':
         $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
 
-/ipset/passthrough_isolation:
+/api/v1/ipset/passthrough_isolation:
   post:
     summary: Passthrough Isolation
     description: Passthrough Isolation
@@ -154,8 +182,12 @@
         $ref: "#/components/responses/IpsetIp"
       '400':
         $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
 
-/ipset/add_ip/{set_name}:
+/api/v1/ipset/add_ip/{set_name}:
   post:
     summary: Add an IP to a specific ipset
     description: Add an IP to a specific ipset
@@ -173,8 +205,12 @@
         $ref: "#/components/responses/IpsetIp"
       '400':
         $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
 
-/ipset/remove_ip/{set_name}:
+/api/v1/ipset/remove_ip/{set_name}:
   post:
     summary: Removes an IP from a specific ipset
     description: Removes an IP from a specific ipset
@@ -192,3 +228,7 @@
         $ref: "#/components/responses/IpsetIp"
       '400':
         $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Ipset
