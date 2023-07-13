@@ -3,8 +3,7 @@
     <div
       class="base-input-switch"
       :class="{
-        'is-focus': isFocus,
-        'is-blur': !isFocus,
+        'is-focus': focus,
         'is-disabled': isLocked,
         'size-sm': size === 'sm',
         'size-md': size === 'md',
@@ -31,30 +30,21 @@
              :max="1"
              :min="0"
              :disabled="isLocked"
+             @focus="() => setFocus(true)"
+             @focusout="() => setFocus(false)"
              @mouseup="onClick"
       />
     </div>
   </div>
 </template>
 <script>
-import {useInput, useInputProps} from '@/composables/useInput'
-import {useInputMeta, useInputMetaProps} from '@/composables/useMeta'
+import {useInputProps} from '@/composables/useInput'
 import {useInputValidatorProps} from '@/composables/useInputValidator'
-import {setFormNamespace, useInputValue, useInputValueProps} from '@/composables/useInputValue'
-import {computed, inject, unref} from '@vue/composition-api';
-import _ from 'lodash'
+import {computed, ref, unref} from '@vue/composition-api';
 
 export const useSwitchProps = {
   onChange: {
     type: Function
-  },
-  label: {
-    default: null,
-    type: String
-  },
-  isFocus: {
-    default: false,
-    type: Boolean
   },
   isLocked: {
     default: false,
@@ -85,6 +75,11 @@ export const setup = (props) => {
     return props.value ? 1 : 0
   })
 
+  const focus = ref(false)
+  const setFocus = (focusVal) => {
+    focus.value = focusVal
+  }
+
   const toggle = () => {
     if (unref(rangeValue) === 1) {
       props.onChange(false)
@@ -96,6 +91,8 @@ export const setup = (props) => {
   return {
     rangeValue,
     onClick: toggle,
+    focus,
+    setFocus,
   }
 }
 
