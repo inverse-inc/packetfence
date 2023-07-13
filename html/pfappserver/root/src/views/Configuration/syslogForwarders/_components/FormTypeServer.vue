@@ -6,34 +6,36 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Syslog Name')"
-      :disabled="!isNew && !isClone"
+                           :column-label="$i18n.t('Syslog Name')"
+                           :disabled="!isNew && !isClone"
     />
 
     <form-group-proto namespace="proto"
-      :column-label="$i18n.t('Protocol')"
+                      :column-label="$i18n.t('Protocol')"
     />
 
     <form-group-host namespace="host"
-      :column-label="$i18n.t('Host')"
+                     :column-label="$i18n.t('Host')"
     />
 
     <form-group-port namespace="port"
-      :column-label="$i18n.t('Port')"
+                     :column-label="$i18n.t('Port')"
     />
 
     <form-group-all-logs namespace="all_logs"
-      :column-label="$i18n.t('All logs')"
+                         :column-label="$i18n.t('All logs')"
     />
 
     <form-group-logs v-show="form.all_logs === 'disabled'"
-      namespace="logs"
-      :column-label="$i18n.t('Logs')"
+                     namespace="logs"
+                     :column-label="$i18n.t('Logs')"
+                     enabled-value="enabled"
+                     disabled-value="disabled"
     />
   </base-form>
 </template>
 <script>
-import { BaseForm } from '@/components/new/'
+import {BaseForm} from '@/components/new/'
 import {
   FormGroupAllLogs,
   FormGroupHost,
@@ -42,6 +44,7 @@ import {
   FormGroupPort,
   FormGroupProto
 } from './'
+import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
 const components = {
   BaseForm,
@@ -53,8 +56,6 @@ const components = {
   FormGroupPort,
   FormGroupProto
 }
-
-import { useForm as setup, useFormProps as props } from '../_composables/useForm'
 
 // @vue/component
 export default {

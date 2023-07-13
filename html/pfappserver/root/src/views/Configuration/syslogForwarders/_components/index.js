@@ -5,7 +5,7 @@ import {
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -14,7 +14,7 @@ export {
   BaseViewCollectionItem              as BaseView,
   BaseFormButtonBar                   as FormButtonBar,
 
-  BaseFormGroupToggleDisabledEnabled  as FormGroupAllLogs,
+  BaseFormGroupSwitch                 as FormGroupAllLogs,
   BaseFormGroupInput                  as FormGroupHost,
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupChosenMultiple         as FormGroupLogs,
