@@ -1,0 +1,7 @@
+ConfigFilterEnginesDNSFilterWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigFilterEnginesDNSFilter'
+    status:
+      type: integer
+  type: object

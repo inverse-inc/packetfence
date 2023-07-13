@@ -1,0 +1,285 @@
+/api/v1/wrix_locations/search:
+  description: pf::UnifiedApi::Controller::WrixLocations
+  post:
+    description: Search all items.
+    operationId: api.v1.WrixLocations.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          example:
+            cursor: 0
+            fields: &1
+            - Location_Country_Name
+            - UTC_Timezone
+            - SSID_1X
+            - English_Location_City
+            - English_Location_Name
+            - Location_Identifier
+            - Service_Provider_Brand
+            - id
+            - Open_Wednesday
+            - SSID_Broadcasted
+            - Open_Thursday
+            - Location_Phone_Number
+            - WEP_Key_Entry_Method
+            - Open_Monday
+            - Location_State_Province_Name
+            - WEP_Key_Size
+            - Latitude
+            - Provider_Identifier
+            - WEP_Key
+            - Location_Address1
+            - Location_Address2
+            - Sub_Location_Type
+            - Security_Protocol_1X
+            - SSID_Open_Auth
+            - Open_Friday
+            - MAC_Address
+            - Location_URL
+            - Location_Type
+            - Restricted_Access
+            - Open_Saturday
+            - Open_Sunday
+            - Client_Support
+            - SSID_1X_Broadcasted
+            - Coverage_Area
+            - Longitude
+            - Location_Zip_Postal_Code
+            - Open_Tuesday
+            limit: 25
+            query:
+              op: and
+              values:
+              - op: or
+                values:
+                - field: Location_Country_Name
+                  op: contains
+                  value: foo
+                - field: UTC_Timezone
+                  op: contains
+                  value: foo
+                - field: SSID_1X
+                  op: contains
+                  value: foo
+                - field: English_Location_City
+                  op: contains
+                  value: foo
+                - field: English_Location_Name
+                  op: contains
+                  value: foo
+                - field: Location_Identifier
+                  op: contains
+                  value: foo
+                - field: Service_Provider_Brand
+                  op: contains
+                  value: foo
+                - field: id
+                  op: contains
+                  value: foo
+                - field: Open_Wednesday
+                  op: contains
+                  value: foo
+                - field: SSID_Broadcasted
+                  op: contains
+                  value: foo
+                - field: Open_Thursday
+                  op: contains
+                  value: foo
+                - field: Location_Phone_Number
+                  op: contains
+                  value: foo
+                - field: WEP_Key_Entry_Method
+                  op: contains
+                  value: foo
+                - field: Open_Monday
+                  op: contains
+                  value: foo
+                - field: Location_State_Province_Name
+                  op: contains
+                  value: foo
+                - field: WEP_Key_Size
+                  op: contains
+                  value: foo
+                - field: Latitude
+                  op: contains
+                  value: foo
+                - field: Provider_Identifier
+                  op: contains
+                  value: foo
+                - field: WEP_Key
+                  op: contains
+                  value: foo
+                - field: Location_Address1
+                  op: contains
+                  value: foo
+                - field: Location_Address2
+                  op: contains
+                  value: foo
+                - field: Sub_Location_Type
+                  op: contains
+                  value: foo
+                - field: Security_Protocol_1X
+                  op: contains
+                  value: foo
+                - field: SSID_Open_Auth
+                  op: contains
+                  value: foo
+                - field: Open_Friday
+                  op: contains
+                  value: foo
+                - field: MAC_Address
+                  op: contains
+                  value: foo
+                - field: Location_URL
+                  op: contains
+                  value: foo
+                - field: Location_Type
+                  op: contains
+                  value: foo
+                - field: Restricted_Access
+                  op: contains
+                  value: foo
+                - field: Open_Saturday
+                  op: contains
+                  value: foo
+                - field: Open_Sunday
+                  op: contains
+                  value: foo
+                - field: Client_Support
+                  op: contains
+                  value: foo
+                - field: SSID_1X_Broadcasted
+                  op: contains
+                  value: foo
+                - field: Coverage_Area
+                  op: contains
+                  value: foo
+                - field: Longitude
+                  op: contains
+                  value: foo
+                - field: Location_Zip_Postal_Code
+                  op: contains
+                  value: foo
+                - field: Open_Tuesday
+                  op: contains
+                  value: foo
+            sort:
+            - id ASC
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Search'
+            - properties:
+                cursor:
+                  required: false
+                  type: string
+                fields:
+                  items:
+                    enum: *1
+                    type: string
+                  required: true
+                  type: array
+                limit:
+                  maximum: 1000
+                  minimum: 1
+                  required: false
+                  type: integer
+                sort:
+                  items:
+                    enum:
+                    - Location_Country_Name ASC
+                    - Location_Country_Name DESC
+                    - UTC_Timezone ASC
+                    - UTC_Timezone DESC
+                    - SSID_1X ASC
+                    - SSID_1X DESC
+                    - English_Location_City ASC
+                    - English_Location_City DESC
+                    - English_Location_Name ASC
+                    - English_Location_Name DESC
+                    - Location_Identifier ASC
+                    - Location_Identifier DESC
+                    - Service_Provider_Brand ASC
+                    - Service_Provider_Brand DESC
+                    - id ASC
+                    - id DESC
+                    - Open_Wednesday ASC
+                    - Open_Wednesday DESC
+                    - SSID_Broadcasted ASC
+                    - SSID_Broadcasted DESC
+                    - Open_Thursday ASC
+                    - Open_Thursday DESC
+                    - Location_Phone_Number ASC
+                    - Location_Phone_Number DESC
+                    - WEP_Key_Entry_Method ASC
+                    - WEP_Key_Entry_Method DESC
+                    - Open_Monday ASC
+                    - Open_Monday DESC
+                    - Location_State_Province_Name ASC
+                    - Location_State_Province_Name DESC
+                    - WEP_Key_Size ASC
+                    - WEP_Key_Size DESC
+                    - Latitude ASC
+                    - Latitude DESC
+                    - Provider_Identifier ASC
+                    - Provider_Identifier DESC
+                    - WEP_Key ASC
+                    - WEP_Key DESC
+                    - Location_Address1 ASC
+                    - Location_Address1 DESC
+                    - Location_Address2 ASC
+                    - Location_Address2 DESC
+                    - Sub_Location_Type ASC
+                    - Sub_Location_Type DESC
+                    - Security_Protocol_1X ASC
+                    - Security_Protocol_1X DESC
+                    - SSID_Open_Auth ASC
+                    - SSID_Open_Auth DESC
+                    - Open_Friday ASC
+                    - Open_Friday DESC
+                    - MAC_Address ASC
+                    - MAC_Address DESC
+                    - Location_URL ASC
+                    - Location_URL DESC
+                    - Location_Type ASC
+                    - Location_Type DESC
+                    - Restricted_Access ASC
+                    - Restricted_Access DESC
+                    - Open_Saturday ASC
+                    - Open_Saturday DESC
+                    - Open_Sunday ASC
+                    - Open_Sunday DESC
+                    - Client_Support ASC
+                    - Client_Support DESC
+                    - SSID_1X_Broadcasted ASC
+                    - SSID_1X_Broadcasted DESC
+                    - Coverage_Area ASC
+                    - Coverage_Area DESC
+                    - Longitude ASC
+                    - Longitude DESC
+                    - Location_Zip_Postal_Code ASC
+                    - Location_Zip_Postal_Code DESC
+                    - Open_Tuesday ASC
+                    - Open_Tuesday DESC
+                    type: string
+                  required: true
+                  type: array
+              required:
+              - fields
+      required: true
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WrixLocationsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - WrixLocations

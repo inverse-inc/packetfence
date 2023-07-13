@@ -1,0 +1,165 @@
+/api/v1/classes/search:
+  description: pf::UnifiedApi::Controller::Classes
+  post:
+    description: Search all items.
+    operationId: api.v1.Classes.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          example:
+            cursor: 0
+            fields: &1
+            - vlan
+            - button_text
+            - external_command
+            - enabled
+            - security_event_id
+            - window
+            - redirect_url
+            - target_category
+            - max_enable_url
+            - max_enables
+            - auto_enable
+            - grace_period
+            - priority
+            - delay_by
+            - vclose
+            - template
+            - description
+            limit: 25
+            query:
+              op: and
+              values:
+              - op: or
+                values:
+                - field: vlan
+                  op: contains
+                  value: foo
+                - field: button_text
+                  op: contains
+                  value: foo
+                - field: external_command
+                  op: contains
+                  value: foo
+                - field: enabled
+                  op: contains
+                  value: foo
+                - field: security_event_id
+                  op: contains
+                  value: foo
+                - field: window
+                  op: contains
+                  value: foo
+                - field: redirect_url
+                  op: contains
+                  value: foo
+                - field: target_category
+                  op: contains
+                  value: foo
+                - field: max_enable_url
+                  op: contains
+                  value: foo
+                - field: max_enables
+                  op: contains
+                  value: foo
+                - field: auto_enable
+                  op: contains
+                  value: foo
+                - field: grace_period
+                  op: contains
+                  value: foo
+                - field: priority
+                  op: contains
+                  value: foo
+                - field: delay_by
+                  op: contains
+                  value: foo
+                - field: vclose
+                  op: contains
+                  value: foo
+                - field: template
+                  op: contains
+                  value: foo
+                - field: description
+                  op: contains
+                  value: foo
+            sort:
+            - security_event_id ASC
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Search'
+            - properties:
+                cursor:
+                  required: false
+                  type: string
+                fields:
+                  items:
+                    enum: *1
+                    type: string
+                  required: true
+                  type: array
+                limit:
+                  maximum: 1000
+                  minimum: 1
+                  required: false
+                  type: integer
+                sort:
+                  items:
+                    enum:
+                    - vlan ASC
+                    - vlan DESC
+                    - button_text ASC
+                    - button_text DESC
+                    - external_command ASC
+                    - external_command DESC
+                    - enabled ASC
+                    - enabled DESC
+                    - security_event_id ASC
+                    - security_event_id DESC
+                    - window ASC
+                    - window DESC
+                    - redirect_url ASC
+                    - redirect_url DESC
+                    - target_category ASC
+                    - target_category DESC
+                    - max_enable_url ASC
+                    - max_enable_url DESC
+                    - max_enables ASC
+                    - max_enables DESC
+                    - auto_enable ASC
+                    - auto_enable DESC
+                    - grace_period ASC
+                    - grace_period DESC
+                    - priority ASC
+                    - priority DESC
+                    - delay_by ASC
+                    - delay_by DESC
+                    - vclose ASC
+                    - vclose DESC
+                    - template ASC
+                    - template DESC
+                    - description ASC
+                    - description DESC
+                    type: string
+                  required: true
+                  type: array
+              required:
+              - fields
+      required: true
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassesList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Classes

@@ -1,0 +1,7 @@
+ConfigRadiusdTLSProfileWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigRadiusdTLSProfile'
+    status:
+      type: integer
+  type: object

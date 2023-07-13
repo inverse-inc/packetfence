@@ -1,0 +1,7 @@
+ConfigFilterEnginesRADIUSFilterWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigFilterEnginesRADIUSFilter'
+    status:
+      type: integer
+  type: object
