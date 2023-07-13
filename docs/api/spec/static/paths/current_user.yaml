@@ -9,7 +9,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Session
+      - Session
 
 /api/v1/current_user/allowed_user_access_durations:
   get:
@@ -22,7 +22,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Session
+      - Session
 
 /api/v1/current_user/allowed_user_access_levels:
   get:
@@ -35,7 +35,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Session
+      - Session
 
 /api/v1/current_user/allowed_user_actions:
   get:
@@ -48,7 +48,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Session
+      - Session
 
 /api/v1/current_user/allowed_user_roles:
   get:
@@ -61,7 +61,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Session
+      - Session
 
 /api/v1/current_user/allowed_user_unreg_date:
   get:
@@ -74,4 +74,4 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Session
+      - Session

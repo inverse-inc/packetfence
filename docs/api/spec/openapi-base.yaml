@@ -44,35 +44,41 @@ security:
   - bearerAuth: []
 
 tags:
-  - name: $Async
+  - name: Async
     description: Runs tasks asyncronously.
-  - name: $Cluster
+  - name: Cluster
     description: Manage PacketFence cluster.
-  - name: $DHCP
+  - name: DHCP
     description: Manage PacketFence Authoritative DNS server.
-  - name: $Email
+  - name: Email
     description: Send email using SMTP configuration.
-  - name: $Fingerbank
+  - name: Fingerbank
     description: Fingerbank device discovery.
-  - name: $Ipset
+  - name: Ipset
     description: Manage PacketFence Ipset firewall.
-  - name: $LiveLogs
+  - name: LiveLogs
     description: Tail logs in real time.
-  - name: $PKI
-    description: PacketFence Public Key Infrastructure.
-  - name: $RADIUS
-    description: RADIUS Helpers.
-  - name: $SecurityEvents
-    description: Manage Security Events and Violations.
-  - name: $Services
-    description: Manage PacketFence services.
-  - name: $Session
-    description: Manage session, get the current users' allowed roles and actions.
-  - name: $SSO
-    description: Single-Sign-On status.
-  - name: $System
-    description: System summary.
-  - name: $Locales
+  - name: Locales
     description: Locale translations.
+  - name: Nodes
+    description: Manage PacketFence nodes/devices.
+  - name: Pfqueue
+    description: PacketFence Queue.
+  - name: PKI
+    description: PacketFence Public Key Infrastructure.
+  - name: RADIUS
+    description: RADIUS Helpers.
+  - name: SecurityEvents
+    description: Manage Security Events and Violations.
+  - name: Services
+    description: Manage PacketFence services.
+  - name: Session
+    description: Manage session, get the current users' allowed roles and actions.
+  - name: SSO
+    description: Single-Sign-On status.
+  - name: System
+    description: System summary.
+  - name: Users
+    description: Manage PacketFence users/persons.
 
 

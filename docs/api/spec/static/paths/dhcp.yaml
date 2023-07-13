@@ -10,7 +10,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $DHCP
+      - DHCP
   delete:
     summary: Expire a DHCP lease
     description: Expires the DHCP lease for a specific MAC address
@@ -20,7 +20,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $DHCP
+      - DHCP
 
 /api/v1/dhcp/ip/{ip}:
   parameters:
@@ -34,7 +34,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $DHCP
+      - DHCP
 
 /api/v1/dhcp/stats/{interface}:
   parameters:
@@ -48,7 +48,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $DHCP
+      - DHCP
 
 /api/v1/dhcp/options/network/{network}:
   parameters:
@@ -64,7 +64,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $DHCP
+      - DHCP
   delete:
     summary: Delete options by network
     description: Removes DHCP options for a Network
@@ -76,7 +76,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $DHCP
+      - DHCP
 
 /api/v1/dhcp/options/mac/{mac}:
   parameters:
@@ -92,7 +92,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $DHCP
+      - DHCP
   delete:
     summary: Delete options by MAC address
     description: Removes DHCP options for a MAC address
@@ -104,4 +104,4 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $DHCP
+      - DHCP

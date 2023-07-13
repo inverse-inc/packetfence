@@ -25,7 +25,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Fingerbank
+      - Fingerbank
   post:
     summary: Create local combination.
     parameters:
@@ -42,7 +42,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Fingerbank
+      - Fingerbank
 
 /api/v1/fingerbank/{scope}/combinations/search:
   parameters:
@@ -61,7 +61,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Fingerbank
+      - Fingerbank
 
 /api/v1/fingerbank/{scope}/combination/{combination_id}:
   parameters:
@@ -85,7 +85,7 @@
       '404':
         $ref: '#/components/responses/NotFound'
     tags:
-      - $Fingerbank
+      - Fingerbank
   patch:
     summary: Update local combination.
     requestBody:
@@ -98,7 +98,7 @@
       '404':
         $ref: '#/components/responses/NotFound'
     tags:
-      - $Fingerbank
+      - Fingerbank
   delete:
     summary: Delete local combination.
     responses:
@@ -109,4 +109,4 @@
       '404':
         $ref: '#/components/responses/NotFound'
     tags:
-      - $Fingerbank
+      - Fingerbank

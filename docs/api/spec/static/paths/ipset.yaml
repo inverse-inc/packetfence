@@ -21,7 +21,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset
 
 /api/v1/ipset/mark_layer2:
   post:
@@ -47,7 +47,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset
 
 /api/v1/ipset/unmark_mac:
   post:
@@ -69,7 +69,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset
 
 /api/v1/ipset/umark_ip:
   post:
@@ -91,7 +91,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset
 
 /api/v1/ipset/mark_ip_layer2:
   post:
@@ -115,7 +115,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset
 
 /api/v1/ipset/mark_ip_layer3:
   post:
@@ -139,7 +139,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset
 
 /api/v1/ipset/passthrough:
   post:
@@ -162,7 +162,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset
 
 /api/v1/ipset/passthrough_isolation:
   post:
@@ -185,7 +185,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset
 
 /api/v1/ipset/add_ip/{set_name}:
   post:
@@ -208,7 +208,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset
 
 /api/v1/ipset/remove_ip/{set_name}:
   post:
@@ -231,4 +231,4 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Ipset
+      - Ipset

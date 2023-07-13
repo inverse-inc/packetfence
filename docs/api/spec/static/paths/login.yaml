@@ -30,4 +30,4 @@
       '403':
         $ref: "#/components/responses/Forbidden"
     tags:
-      - $Session
+      - Session

@@ -15,5 +15,5 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Session
+      - Session
 
