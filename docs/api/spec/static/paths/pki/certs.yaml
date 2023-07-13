@@ -5,7 +5,7 @@
       '200':
         $ref: '#/components/responses/PkiCertsList'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - PKI
   post:
@@ -16,7 +16,7 @@
       '200':
         $ref: '#/components/responses/PkiCertCreate'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -35,7 +35,7 @@
       '200':
         $ref: '#/components/responses/PkiCertsSearch'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -59,7 +59,7 @@
       '200':
         $ref: '#/components/responses/PkiCert'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - PKI
 
@@ -94,7 +94,7 @@
       '200':
         $ref: '#/components/responses/PkiCertRevoke'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '422':
         $ref: '#/components/responses/NotFound'
     tags:
@@ -121,7 +121,7 @@
       '200':
         $ref: '#/components/responses/PkiCertDownload'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
     tags:
@@ -141,7 +141,7 @@
       '200':
         $ref: '#/components/responses/PkiCertEmail'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
     tags:

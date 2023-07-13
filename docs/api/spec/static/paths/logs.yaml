@@ -5,7 +5,7 @@
       '200':
         $ref: "#/components/responses/LogsMeta"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
     tags:
@@ -18,7 +18,7 @@
       '200':
         $ref: "#/components/responses/LogsCreate"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
     tags:
@@ -37,7 +37,7 @@
       '200':
         $ref: "#/components/responses/LogsDelete"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
     tags:
@@ -49,7 +49,7 @@
       '200':
         $ref: "#/components/responses/LogsTail"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
     tags:
@@ -69,7 +69,7 @@
       '200':
         $ref: "#/components/responses/LogsTouch"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
     tags:

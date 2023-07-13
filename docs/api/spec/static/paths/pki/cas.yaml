@@ -5,7 +5,7 @@
       '200':
         $ref: '#/components/responses/PkiCasList'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - PKI
   post:
@@ -16,7 +16,7 @@
       '200':
         $ref: '#/components/responses/PkiCaCreate'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -35,7 +35,7 @@
       '200':
         $ref: '#/components/responses/PkiCasSearch'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -59,7 +59,7 @@
       '200':
         $ref: '#/components/responses/PkiCa'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - PKI
 
@@ -79,6 +79,6 @@
       '200':
         $ref: '#/components/responses/PkiCasList'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - PKI

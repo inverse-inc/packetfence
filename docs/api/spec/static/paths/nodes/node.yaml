@@ -13,7 +13,7 @@
       '200':
         $ref: "#/components/responses/Status"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':
@@ -36,7 +36,7 @@
       '200':
         $ref: "#/components/responses/Status"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':
@@ -57,7 +57,7 @@
       '200':
         $ref: "#/components/responses/NodeFingerbankInfo"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':
@@ -78,7 +78,7 @@
       '200':
         $ref: "#/components/responses/Status"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':
@@ -99,7 +99,7 @@
       '200':
         $ref: "#/components/responses/NodeRapid7"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':
@@ -120,7 +120,7 @@
       '200':
         $ref: "#/components/responses/Status"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':
@@ -141,7 +141,7 @@
       '200':
         $ref: "#/components/responses/Status"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':

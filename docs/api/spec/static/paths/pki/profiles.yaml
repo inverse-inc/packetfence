@@ -5,7 +5,7 @@
       '200':
         $ref: '#/components/responses/PkiProfilesList'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - PKI
   post:
@@ -16,7 +16,7 @@
       '200':
         $ref: '#/components/responses/PkiProfileCreate'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -35,7 +35,7 @@
       '200':
         $ref: '#/components/responses/PkiProfilesSearch'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -59,7 +59,7 @@
       '200':
         $ref: '#/components/responses/PkiProfile'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - PKI
   patch:
@@ -77,7 +77,7 @@
       '200':
         $ref: '#/components/responses/PkiProfileUpdate'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '405':
         $ref: '#/components/responses/NotFound'
     tags:
@@ -95,7 +95,7 @@
       '200':
         $ref: '#/components/responses/PkiProfileDelete'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '405':
         $ref: '#/components/responses/NotFound'
     tags:
@@ -117,7 +117,7 @@
       '200':
         $ref: '#/components/responses/PkiProfileSignCsr'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
       '500':

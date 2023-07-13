@@ -9,7 +9,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
@@ -26,7 +26,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
@@ -43,7 +43,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
@@ -60,7 +60,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
@@ -81,7 +81,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
@@ -98,7 +98,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
@@ -115,7 +115,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
@@ -132,7 +132,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
@@ -149,7 +149,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
     tags:
@@ -164,7 +164,7 @@
       '200':
         $ref: "#/components/responses/UsersBulkSecurityEvents"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':

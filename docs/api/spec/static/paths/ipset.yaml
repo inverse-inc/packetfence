@@ -19,7 +19,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset
 
@@ -45,7 +45,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset
 
@@ -67,7 +67,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset
 
@@ -89,7 +89,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset
 
@@ -113,7 +113,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset
 
@@ -137,7 +137,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset
 
@@ -160,7 +160,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset
 
@@ -183,7 +183,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset
 
@@ -206,7 +206,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset
 
@@ -229,6 +229,6 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Ipset

@@ -7,7 +7,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsSearch"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -20,7 +20,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsPerDeviceClass"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -33,7 +33,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsPerDeviceClass"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -47,7 +47,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsPerDeviceClass"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -60,7 +60,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsPerId"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -73,7 +73,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsPerId"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -86,7 +86,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsPerId"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -99,7 +99,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsTotal"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -112,7 +112,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsTotal"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -125,7 +125,7 @@
       '200':
         $ref: "#/components/responses/SecurityEventsTotal"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:

@@ -6,7 +6,7 @@
       '200':
         $ref: "#/components/responses/ConfigSystemDnsServers"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - Config/System
   put:
@@ -19,7 +19,7 @@
       '400':
         $ref: '#/components/responses/BadRequest'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -34,7 +34,7 @@
       '200':
         $ref: "#/components/responses/ConfigSystemGateway"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - Config/System
   put:
@@ -47,7 +47,7 @@
       '400':
         $ref: '#/components/responses/BadRequest'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -63,7 +63,7 @@
       '200':
         $ref: "#/components/responses/ConfigSystemHostname"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - Config/System
   put:
@@ -76,7 +76,7 @@
       '400':
         $ref: '#/components/responses/BadRequest'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -93,7 +93,7 @@
       '200':
         $ref: '#/components/responses/ConfigConditionFlatten'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -116,7 +116,7 @@
       '200':
         $ref: '#/components/responses/ConfigConditionParse'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':

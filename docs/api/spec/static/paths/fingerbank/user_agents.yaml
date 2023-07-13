@@ -23,7 +23,7 @@
       '200':
         $ref: '#/components/responses/FingerbankUserAgents'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank
   post:
@@ -40,7 +40,7 @@
       '200':
         $ref: '#/components/responses/Created'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank
 
@@ -59,7 +59,7 @@
       '200':
         $ref: '#/components/responses/FingerbankUserAgentsSearch'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank
 
@@ -81,7 +81,7 @@
       '200':
         $ref: '#/components/responses/FingerbankUserAgent'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
     tags:
@@ -94,7 +94,7 @@
       '200':
         $ref: '#/components/responses/Updated'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
     tags:
@@ -105,7 +105,7 @@
       '200':
         $ref: '#/components/responses/Deleted'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
     tags:

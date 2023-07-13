@@ -2807,7 +2807,7 @@
                   }
                }
             },
-            "description" : "Unauthorized access because of invalid credentials."
+            "description" : "Unauthorized access to the resource because of invalid credentials."
          },
          "UnprocessableEntity" : {
             "content" : {
@@ -42300,7 +42300,7 @@
                   "description" : "Request successful. Response contains the cluster configuration."
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Cluster configuration.",
@@ -42323,7 +42323,7 @@
                   "description" : "Request successful. Response contains the cluster members."
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Cluster members.",
@@ -44080,7 +44080,7 @@
                   "description" : "Item"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -44134,7 +44134,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -44183,7 +44183,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -44227,7 +44227,7 @@
                   "description" : "Item"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -44270,7 +44270,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -44309,7 +44309,7 @@
                   }
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -45072,7 +45072,7 @@
                   "$ref" : "#/components/responses/ConfigConnectionProfileFilesRoot"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -45091,7 +45091,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -45134,7 +45134,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -45154,7 +45154,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -46229,7 +46229,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -46263,7 +46263,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -46294,7 +46294,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -46328,7 +46328,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -50977,7 +50977,7 @@
                   "$ref" : "#/components/responses/ConfigConditionFlatten"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -51537,7 +51537,7 @@
                   "description" : "Deleted an interface"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -51580,7 +51580,7 @@
                   "description" : "Item"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -51606,7 +51606,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -51637,7 +51637,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -51675,7 +51675,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -51711,7 +51711,7 @@
                   "description" : "Item"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "tags" : [
@@ -51734,7 +51734,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -53673,7 +53673,7 @@
                   "$ref" : "#/components/responses/ConfigConditionParse"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -61471,6 +61471,9 @@
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
                },
+               "401" : {
+                  "$ref" : "#/components/responses/Unauthorized"
+               },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
                }
@@ -62252,7 +62255,7 @@
                   "description" : "Request successful. Switch cache is invalidated."
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -62497,7 +62500,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -64147,6 +64150,9 @@
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
                },
+               "401" : {
+                  "$ref" : "#/components/responses/Unauthorized"
+               },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
                }
@@ -64267,7 +64273,7 @@
                   "$ref" : "#/components/responses/ConfigSystemDnsServers"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get system DNS servers.",
@@ -64287,7 +64293,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -64309,7 +64315,7 @@
                   "$ref" : "#/components/responses/ConfigSystemGateway"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get system Gateway.",
@@ -64329,7 +64335,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -64351,7 +64357,7 @@
                   "$ref" : "#/components/responses/ConfigSystemHostname"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get system Hostname.",
@@ -64371,7 +64377,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -68680,7 +68686,7 @@
                   "$ref" : "#/components/responses/CurrentUserAllowedNodeRoles"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -68699,7 +68705,7 @@
                   "$ref" : "#/components/responses/CurrentUserAllowedAccessDurations"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -68718,7 +68724,7 @@
                   "$ref" : "#/components/responses/CurrentUserAllowedAccessLevels"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -68737,7 +68743,7 @@
                   "$ref" : "#/components/responses/CurrentUserAllowedActions"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -68756,7 +68762,7 @@
                   "$ref" : "#/components/responses/CurrentUserAllowedUserRoles"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -68775,7 +68781,7 @@
                   "$ref" : "#/components/responses/CurrentUserAllowedUnregDate"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -68795,7 +68801,7 @@
                   "$ref" : "#/components/responses/DhcpMacIp"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get a MAC address by IPv4 address",
@@ -68817,7 +68823,7 @@
                   "$ref" : "#/components/responses/DhcpMacResponse"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Expire a DHCP lease",
@@ -68832,7 +68838,7 @@
                   "$ref" : "#/components/responses/DhcpMacIp"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get an IPv4 address by MAC address",
@@ -68857,7 +68863,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Delete options by MAC address",
@@ -68880,7 +68886,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Add options by MAC address",
@@ -68900,7 +68906,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Delete options by network",
@@ -68923,7 +68929,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Add options by network",
@@ -68940,7 +68946,7 @@
                   "$ref" : "#/components/responses/DhcpInterfaceStats"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get interface statistics",
@@ -70242,7 +70248,7 @@
                   "$ref" : "#/components/responses/EmailMailer"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/ErrorsWithMessage"
@@ -70264,7 +70270,7 @@
                   "$ref" : "#/components/responses/EmailPreview"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/ErrorsWithMessage"
@@ -70289,7 +70295,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/ErrorsWithMessage"
@@ -70315,7 +70321,7 @@
                   "$ref" : "#/components/responses/FingerbankAccountInfo"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Account information.",
@@ -70331,7 +70337,7 @@
                   "$ref" : "#/components/responses/FingerbankDeviceClasses"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get all device classes.",
@@ -70347,7 +70353,7 @@
                   "$ref" : "#/components/responses/FingerbankNba"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Can use endpoints for Network Behavioural Analysis.",
@@ -70363,7 +70369,7 @@
                   "$ref" : "#/components/responses/FingerbankUpdateUpstreamDb"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Update upstream database.",
@@ -70379,7 +70385,7 @@
                   "$ref" : "#/components/responses/Deleted"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70396,7 +70402,7 @@
                   "$ref" : "#/components/responses/FingerbankCombination"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70434,7 +70440,7 @@
                   "$ref" : "#/components/responses/Updated"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70484,7 +70490,7 @@
                   "$ref" : "#/components/responses/FingerbankCombinations"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get combinations.",
@@ -70511,7 +70517,7 @@
                   "$ref" : "#/components/responses/Created"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Create local combination.",
@@ -70540,7 +70546,7 @@
                   "$ref" : "#/components/responses/FingerbankCombinationsSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Search local combinations.",
@@ -70556,7 +70562,7 @@
                   "$ref" : "#/components/responses/Deleted"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70573,7 +70579,7 @@
                   "$ref" : "#/components/responses/FingerbankDevice"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70611,7 +70617,7 @@
                   "$ref" : "#/components/responses/Updated"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70661,7 +70667,7 @@
                   "$ref" : "#/components/responses/FingerbankDevices"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get devices.",
@@ -70688,7 +70694,7 @@
                   "$ref" : "#/components/responses/Created"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Create local device.",
@@ -70717,7 +70723,7 @@
                   "$ref" : "#/components/responses/FingerbankDevicesSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Search local devices.",
@@ -70733,7 +70739,7 @@
                   "$ref" : "#/components/responses/Deleted"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70750,7 +70756,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcp6Enterprise"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70788,7 +70794,7 @@
                   "$ref" : "#/components/responses/Updated"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70838,7 +70844,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcp6Enterprises"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get DHCPv6 Enterprises.",
@@ -70865,7 +70871,7 @@
                   "$ref" : "#/components/responses/Created"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Create local DHCPv6 Enterprise.",
@@ -70894,7 +70900,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcp6EnterprisesSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Search local DHCPv6 Enterprises.",
@@ -70910,7 +70916,7 @@
                   "$ref" : "#/components/responses/Deleted"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70927,7 +70933,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcp6Fingerprint"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -70965,7 +70971,7 @@
                   "$ref" : "#/components/responses/Updated"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71015,7 +71021,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcp6Fingerprints"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get DHCPv6 Fingerprints.",
@@ -71042,7 +71048,7 @@
                   "$ref" : "#/components/responses/Created"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Create local DHCPv6 Fingerprint.",
@@ -71071,7 +71077,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcp6FingerprintsSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Search local DHCPv6 Fingerprints.",
@@ -71087,7 +71093,7 @@
                   "$ref" : "#/components/responses/Deleted"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71104,7 +71110,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcpFingerprint"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71142,7 +71148,7 @@
                   "$ref" : "#/components/responses/Updated"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71192,7 +71198,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcpFingerprints"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get DHCP Fingerprints.",
@@ -71219,7 +71225,7 @@
                   "$ref" : "#/components/responses/Created"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Create local DHCP Fingerprint.",
@@ -71248,7 +71254,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcpFingerprintsSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Search local DHCP Fingerprints.",
@@ -71264,7 +71270,7 @@
                   "$ref" : "#/components/responses/Deleted"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71281,7 +71287,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcpVendor"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71319,7 +71325,7 @@
                   "$ref" : "#/components/responses/Updated"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71369,7 +71375,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcpVendors"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get DHCP Vendors.",
@@ -71396,7 +71402,7 @@
                   "$ref" : "#/components/responses/Created"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Create local DHCP Vendor.",
@@ -71425,7 +71431,7 @@
                   "$ref" : "#/components/responses/FingerbankDhcpVendorsSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Search local DHCP Vendors.",
@@ -71441,7 +71447,7 @@
                   "$ref" : "#/components/responses/Deleted"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71458,7 +71464,7 @@
                   "$ref" : "#/components/responses/FingerbankMacVendor"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71496,7 +71502,7 @@
                   "$ref" : "#/components/responses/Updated"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71546,7 +71552,7 @@
                   "$ref" : "#/components/responses/FingerbankMacVendors"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get MAC Vendors.",
@@ -71573,7 +71579,7 @@
                   "$ref" : "#/components/responses/Created"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Create local MAC Vendor.",
@@ -71602,7 +71608,7 @@
                   "$ref" : "#/components/responses/FingerbankMacVendorsSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Search local MAC Vendors.",
@@ -71618,7 +71624,7 @@
                   "$ref" : "#/components/responses/Deleted"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71635,7 +71641,7 @@
                   "$ref" : "#/components/responses/FingerbankUserAgent"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71673,7 +71679,7 @@
                   "$ref" : "#/components/responses/Updated"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -71723,7 +71729,7 @@
                   "$ref" : "#/components/responses/FingerbankUserAgents"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get User Agents.",
@@ -71750,7 +71756,7 @@
                   "$ref" : "#/components/responses/Created"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Create local User Agent.",
@@ -71779,7 +71785,7 @@
                   "$ref" : "#/components/responses/FingerbankUserAgentsSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Search local User Agents.",
@@ -72102,7 +72108,7 @@
                   "$ref" : "#/components/responses/Ip4logsHistory"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -72126,7 +72132,7 @@
                   "$ref" : "#/components/responses/Ip4logsOpen"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -72593,7 +72599,7 @@
                   "$ref" : "#/components/responses/Ip6logsHistory"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -72617,7 +72623,7 @@
                   "$ref" : "#/components/responses/Ip6logsOpen"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -72804,7 +72810,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Add an IP to a specific ipset",
@@ -72839,7 +72845,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Mark IP layer2",
@@ -72874,7 +72880,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Mark IP layer3",
@@ -72909,7 +72915,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "...",
@@ -72944,7 +72950,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "...",
@@ -72979,7 +72985,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Passthrough",
@@ -73014,7 +73020,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Passthrough Isolation",
@@ -73052,7 +73058,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Removes an IP from a specific ipset",
@@ -73087,7 +73093,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "...",
@@ -73122,7 +73128,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "...",
@@ -73637,7 +73643,7 @@
                   "$ref" : "#/components/responses/LocationLogsSsids"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -73710,7 +73716,7 @@
                   "$ref" : "#/components/responses/LogsMeta"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -73730,7 +73736,7 @@
                   "$ref" : "#/components/responses/LogsCreate"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -73749,7 +73755,7 @@
                   "$ref" : "#/components/responses/LogsDelete"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -73766,7 +73772,7 @@
                   "$ref" : "#/components/responses/LogsTail"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -73805,7 +73811,7 @@
                   "$ref" : "#/components/responses/LogsTouch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -73988,7 +73994,7 @@
                   "$ref" : "#/components/responses/Status"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -74023,7 +74029,7 @@
                   "$ref" : "#/components/responses/Status"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -74055,7 +74061,7 @@
                   "$ref" : "#/components/responses/NodeFingerbankInfo"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -74087,7 +74093,7 @@
                   "$ref" : "#/components/responses/Status"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -74119,7 +74125,7 @@
                   "$ref" : "#/components/responses/NodeRapid7"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -74151,7 +74157,7 @@
                   "$ref" : "#/components/responses/Status"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -74183,7 +74189,7 @@
                   "$ref" : "#/components/responses/Status"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -74854,7 +74860,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -74879,7 +74885,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -74904,7 +74910,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -74929,7 +74935,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -74954,7 +74960,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -74979,7 +74985,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -75004,7 +75010,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -75043,7 +75049,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -75068,7 +75074,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -75093,7 +75099,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -75118,7 +75124,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -75143,7 +75149,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -75175,7 +75181,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -75193,7 +75199,7 @@
                   "$ref" : "#/components/responses/NodesPerDeviceClass"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get count of nodes per device class.",
@@ -75599,7 +75605,7 @@
                   "$ref" : "#/components/responses/PfQueue"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/ErrorMessage"
@@ -75642,7 +75648,7 @@
                   "$ref" : "#/components/responses/PkiCasList"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Re-Sign PKI Certificate Authority.",
@@ -75669,7 +75675,7 @@
                   "$ref" : "#/components/responses/PkiCa"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get PKI Certificate Authority.",
@@ -75685,7 +75691,7 @@
                   "$ref" : "#/components/responses/PkiCasList"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get PKI Certificate Authorities.",
@@ -75702,7 +75708,7 @@
                   "$ref" : "#/components/responses/PkiCaCreate"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -75730,7 +75736,7 @@
                   "$ref" : "#/components/responses/PkiCasSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -75766,7 +75772,7 @@
                   "$ref" : "#/components/responses/PkiCert"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get PKI Certificate.",
@@ -75803,7 +75809,7 @@
                   "$ref" : "#/components/responses/PkiCertDownload"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -75833,7 +75839,7 @@
                   "$ref" : "#/components/responses/PkiCertEmail"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -75872,7 +75878,7 @@
                   "$ref" : "#/components/responses/PkiCertRevoke"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -75891,7 +75897,7 @@
                   "$ref" : "#/components/responses/PkiCertsList"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get PKI Certificates.",
@@ -75908,7 +75914,7 @@
                   "$ref" : "#/components/responses/PkiCertCreate"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -75936,7 +75942,7 @@
                   "$ref" : "#/components/responses/PkiCertsSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -75972,7 +75978,7 @@
                   "$ref" : "#/components/responses/PkiProfileDelete"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "405" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -76000,7 +76006,7 @@
                   "$ref" : "#/components/responses/PkiProfile"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get PKI Profile.",
@@ -76028,7 +76034,7 @@
                   "$ref" : "#/components/responses/PkiProfileUpdate"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "405" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -76061,7 +76067,7 @@
                   "$ref" : "#/components/responses/PkiProfileSignCsr"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -76083,7 +76089,7 @@
                   "$ref" : "#/components/responses/PkiProfilesList"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get PKI Profiles.",
@@ -76100,7 +76106,7 @@
                   "$ref" : "#/components/responses/PkiProfileCreate"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -76128,7 +76134,7 @@
                   "$ref" : "#/components/responses/PkiProfilesSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -76164,7 +76170,7 @@
                   "$ref" : "#/components/responses/PkiRevokedCert"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get PKI Revoked Certificate.",
@@ -76180,7 +76186,7 @@
                   "$ref" : "#/components/responses/PkiRevokedCertsList"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get PKI Revoked Certificates.",
@@ -76199,7 +76205,7 @@
                   "$ref" : "#/components/responses/PkiRevokedCertsSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -76237,7 +76243,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -76267,7 +76273,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -76309,7 +76315,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -76335,7 +76341,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -76355,6 +76361,9 @@
             "responses" : {
                "200" : {
                   "$ref" : "#/components/responses/QueueStats"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Show stats of pfqueue",
@@ -76377,7 +76386,7 @@
                   "$ref" : "#/components/responses/RadiusAttributesSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Search RADIUS Attributes.",
@@ -77604,7 +77613,7 @@
                   "$ref" : "#/components/responses/SecurityEventsPerDeviceClass"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77623,7 +77632,7 @@
                   "$ref" : "#/components/responses/SecurityEventsPerDeviceClass"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77642,7 +77651,7 @@
                   "$ref" : "#/components/responses/SecurityEventsPerDeviceClass"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77661,7 +77670,7 @@
                   "$ref" : "#/components/responses/SecurityEventsPerId"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77680,7 +77689,7 @@
                   "$ref" : "#/components/responses/SecurityEventsPerId"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77699,7 +77708,7 @@
                   "$ref" : "#/components/responses/SecurityEventsPerId"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77721,7 +77730,7 @@
                   "$ref" : "#/components/responses/SecurityEventsSearch"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77740,7 +77749,7 @@
                   "$ref" : "#/components/responses/SecurityEventsTotal"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77759,7 +77768,7 @@
                   "$ref" : "#/components/responses/SecurityEventsTotal"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77778,7 +77787,7 @@
                   "$ref" : "#/components/responses/SecurityEventsTotal"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77805,7 +77814,7 @@
                   "$ref" : "#/components/responses/ServiceDisable"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77832,7 +77841,7 @@
                   "$ref" : "#/components/responses/ServiceEnable"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77877,7 +77886,7 @@
                   "$ref" : "#/components/responses/ServiceAsync"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77919,7 +77928,7 @@
                   "$ref" : "#/components/responses/ServiceAsync"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77953,7 +77962,7 @@
                   "description" : "Service details."
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -77998,7 +78007,7 @@
                   "$ref" : "#/components/responses/ServiceAsync"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -78033,7 +78042,7 @@
                   "description" : "List of services"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "List all available services.",
@@ -78063,7 +78072,7 @@
                   "$ref" : "#/components/responses/ServicesClusterServer"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "List service statuses on a specific cluster member.",
@@ -78084,7 +78093,7 @@
                   "description" : "List of servers."
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "List servers and the services of each member in the cluster.",
@@ -78112,7 +78121,7 @@
                   "description" : "Request successful. Response contains a list of all services."
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "List services statuses on the local cluster member.",
@@ -78585,7 +78594,7 @@
                   "$ref" : "#/components/responses/SsoStatus"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get SSO (Single Sign On) status.",
@@ -78606,7 +78615,7 @@
                   "$ref" : "#/components/responses/SystemSummary"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get system summary.",
@@ -78670,7 +78679,7 @@
                   "$ref" : "#/components/responses/Locale"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Get translation using locale.",
@@ -78686,7 +78695,7 @@
                   "$ref" : "#/components/responses/Locales"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "List all translations.",
@@ -79042,7 +79051,7 @@
                   "description" : "Item deleted"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -79076,7 +79085,7 @@
                   "description" : "Get item"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -79117,7 +79126,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -79147,7 +79156,7 @@
                   "$ref" : "#/components/responses/Message"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -79191,7 +79200,7 @@
                   "description" : "List"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -79230,7 +79239,7 @@
                   "$ref" : "#/components/responses/Created"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -79284,7 +79293,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -79320,7 +79329,7 @@
                   "$ref" : "#/components/responses/UserNodes"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -79742,7 +79751,7 @@
                   "description" : "Deleted password entry"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                }
             },
             "summary" : "Allows to delete a password entry for a user",
@@ -79771,7 +79780,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -79806,7 +79815,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -79836,7 +79845,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "409" : {
                   "$ref" : "#/components/responses/Duplicate"
@@ -79869,7 +79878,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -79918,6 +79927,9 @@
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
                },
+               "401" : {
+                  "$ref" : "#/components/responses/Unauthorized"
+               },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
                }
@@ -79939,7 +79951,7 @@
                   "$ref" : "#/components/responses/UserSecurityEvents"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -79966,7 +79978,7 @@
                   "$ref" : "#/components/responses/Count"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -80268,7 +80280,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -80293,7 +80305,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -80318,7 +80330,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -80340,7 +80352,7 @@
                   "$ref" : "#/components/responses/UsersBulkSecurityEvents"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "404" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -80368,7 +80380,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -80393,7 +80405,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -80418,7 +80430,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -80457,7 +80469,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -80482,7 +80494,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
@@ -80507,7 +80519,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                },
                "401" : {
-                  "$ref" : "#/components/responses/Forbidden"
+                  "$ref" : "#/components/responses/Unauthorized"
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"

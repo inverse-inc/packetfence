@@ -8,7 +8,7 @@
       '200':
         $ref: '#/components/responses/FingerbankAccountInfo'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank
 
@@ -19,7 +19,7 @@
       '200':
         $ref: '#/components/responses/FingerbankDeviceClasses'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank
 
@@ -30,7 +30,7 @@
       '200':
         $ref: '#/components/responses/FingerbankNba'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank
 
@@ -41,6 +41,6 @@
       '200':
         $ref: '#/components/responses/FingerbankUpdateUpstreamDb'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank

@@ -61,7 +61,7 @@ BadRequest:
       schema:
         $ref: "#/components/schemas/ErrorsWithMessage"
 Unauthorized:
-  description: Unauthorized access because of invalid credentials.
+  description: Unauthorized access to the resource because of invalid credentials.
   content:
     application/json:
       schema:

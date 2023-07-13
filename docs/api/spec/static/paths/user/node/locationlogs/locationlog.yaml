@@ -10,7 +10,7 @@
       '204':
         description: Item deleted
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -32,7 +32,7 @@
               type: object
         description: Get item
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -51,7 +51,7 @@
       '200':
         $ref: '#/components/responses/Message'
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -70,7 +70,7 @@
       '200':
         $ref: '#/components/responses/Message'
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: '#/components/responses/BadRequest'
       '422':

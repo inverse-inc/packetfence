@@ -7,7 +7,7 @@
       '200':
         $ref: "#/components/responses/EmailPreview"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/ErrorsWithMessage"
       '500':
@@ -24,7 +24,7 @@
       '200':
         $ref: "#/components/responses/Message"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/ErrorsWithMessage"
       '500':
@@ -41,7 +41,7 @@
       '200':
         $ref: "#/components/responses/EmailMailer"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '422':
         $ref: "#/components/responses/ErrorsWithMessage"
     tags:
