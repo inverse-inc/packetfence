@@ -25,21 +25,7 @@ merge_yaml_into_paths($spec->{paths}, "static/paths");
 my $components = hash_yaml_dir("components");
 my $components_deprecated = hash_yaml_dir("deprecated/components");
 my $components_static = hash_yaml_dir("static/components");
-$spec->{components} = merge($components, $components_static, $components_deprecated);
-
-common_parameters(
-    $spec,
-    {
-        'required' => 0,
-        'in'       => 'header',
-        'name'     => 'X-PacketFence-Tenant-Id',
-        'schema'   => {
-            'type' => 'string'
-        },
-        'description' =>
-'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
-    }
-);
+$spec->{components} = merge($components, merge($components_deprecated, $components_static));
 
 insert_search_parameters($spec);
 
