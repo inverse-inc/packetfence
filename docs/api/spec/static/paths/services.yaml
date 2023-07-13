@@ -13,7 +13,7 @@
             schema:
               $ref: "#/components/schemas/ServicesList"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - Services
 
@@ -30,7 +30,7 @@
             schema:
               $ref: "#/components/schemas/ServicesStatus"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - Services
 
@@ -43,7 +43,7 @@
       '200':
         description: List of servers.
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - Services
 
@@ -62,7 +62,7 @@
       '200':
         $ref: "#/components/responses/ServicesClusterServer"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - Services
 
@@ -80,7 +80,7 @@
             schema:
               $ref: "#/components/schemas/ServiceStatus"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -106,7 +106,7 @@
       '202':
         $ref: "#/components/responses/ServiceAsync"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -132,7 +132,7 @@
       '202':
         $ref: "#/components/responses/ServiceAsync"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -159,7 +159,7 @@
       '202':
         $ref: "#/components/responses/ServiceAsync"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -176,7 +176,7 @@
       '200':
         $ref: "#/components/responses/ServiceEnable"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -193,7 +193,7 @@
       '200':
         $ref: "#/components/responses/ServiceDisable"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:

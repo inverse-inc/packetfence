@@ -20,7 +20,7 @@
       '200':
         $ref: '#/components/responses/Message'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -45,7 +45,7 @@
             schema:
               $ref: '#/components/schemas/ConfigCertificateReturnValue'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -75,7 +75,7 @@
       '200':
         $ref: '#/components/responses/Message'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -104,7 +104,7 @@
               $ref: '#/components/schemas/ConfigCertificate'
         description: Item
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -138,7 +138,7 @@
       '200':
         $ref: '#/components/responses/Message'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -169,7 +169,7 @@
               $ref: '#/components/schemas/ConfigCertificateInfo'
         description: Item
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
     tags:

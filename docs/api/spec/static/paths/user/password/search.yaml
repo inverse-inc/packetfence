@@ -22,6 +22,8 @@
         description: List
       '400':
         $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
     tags:

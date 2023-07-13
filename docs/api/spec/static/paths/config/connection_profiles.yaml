@@ -13,7 +13,7 @@
       '200':
         $ref: "#/components/responses/ConfigConnectionProfileFilesRoot"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -41,7 +41,7 @@
       '200':
         $ref: "#/components/responses/Message"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -54,7 +54,7 @@
       '200':
         $ref: "#/components/responses/Message"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -67,7 +67,7 @@
       '200':
         $ref: "#/components/responses/Message"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:

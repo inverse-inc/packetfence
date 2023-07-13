@@ -8,7 +8,7 @@
       '400':
         $ref: '#/components/responses/BadRequest'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -31,7 +31,7 @@
       '400':
         $ref: '#/components/responses/BadRequest'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
     tags:
@@ -50,7 +50,7 @@
       '400':
         $ref: '#/components/responses/BadRequest'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -76,7 +76,7 @@
       '400':
         $ref: '#/components/responses/BadRequest'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':

@@ -7,7 +7,7 @@
       '200':
         $ref: "#/components/responses/Ip4logsOpen"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -22,7 +22,7 @@
       '200':
         $ref: "#/components/responses/Ip4logsHistory"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:

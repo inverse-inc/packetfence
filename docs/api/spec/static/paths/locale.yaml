@@ -5,7 +5,7 @@
       '200':
         $ref: "#/components/responses/Locales"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - Locales
 
@@ -28,6 +28,6 @@
       '200':
         $ref: "#/components/responses/Locale"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - Locales

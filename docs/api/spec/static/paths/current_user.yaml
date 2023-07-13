@@ -5,7 +5,7 @@
       '200':
         $ref: "#/components/responses/CurrentUserAllowedNodeRoles"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -18,7 +18,7 @@
       '200':
         $ref: "#/components/responses/CurrentUserAllowedAccessDurations"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -31,7 +31,7 @@
       '200':
         $ref: "#/components/responses/CurrentUserAllowedAccessLevels"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -44,7 +44,7 @@
       '200':
         $ref: "#/components/responses/CurrentUserAllowedActions"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -57,7 +57,7 @@
       '200':
         $ref: "#/components/responses/CurrentUserAllowedUserRoles"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
@@ -70,7 +70,7 @@
       '200':
         $ref: "#/components/responses/CurrentUserAllowedUnregDate"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:

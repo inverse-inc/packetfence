@@ -9,7 +9,7 @@
               $ref: '#/components/schemas/ConfigInterfacesList'
         description: Item
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - Config/Interfaces
   post:
@@ -23,7 +23,7 @@
       '200':
         $ref: '#/components/responses/Message'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
     tags:
@@ -45,7 +45,7 @@
               $ref: '#/components/schemas/ConfigInterfaceGet'
         description: Item
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
     tags:
@@ -61,7 +61,7 @@
       '200':
         $ref: '#/components/responses/Message'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -79,7 +79,7 @@
       '200':
         description: Deleted an interface
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '412':
@@ -101,7 +101,7 @@
       '200':
         $ref: '#/components/responses/Message'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '412':
@@ -123,7 +123,7 @@
       '200':
         $ref: '#/components/responses/Message'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
       '412':

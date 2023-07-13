@@ -5,7 +5,7 @@
       '200':
         $ref: "#/components/responses/LocationLogsSsids"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/NotFound"
     tags:

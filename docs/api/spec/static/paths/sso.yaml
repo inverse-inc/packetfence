@@ -7,6 +7,6 @@
       '200':
         $ref: "#/components/responses/SsoStatus"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
     tags:
       - SSO

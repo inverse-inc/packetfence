@@ -11,7 +11,7 @@
       '200':
         $ref: "#/components/responses/UserNodes"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':
@@ -28,7 +28,7 @@
       '200':
         $ref: "#/components/responses/UserSecurityEvents"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':
@@ -45,7 +45,7 @@
       '200':
         $ref: "#/components/responses/Count"
       '401':
-        $ref: "#/components/responses/Forbidden"
+        $ref: "#/components/responses/Unauthorized"
       '404':
         $ref: "#/components/responses/BadRequest"
       '422':

@@ -8,7 +8,7 @@
       '200':
         $ref: "#/components/responses/DhcpMacIp"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - DHCP
   delete:
@@ -18,7 +18,7 @@
       '200':
         $ref: "#/components/responses/DhcpMacResponse"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - DHCP
 
@@ -32,7 +32,7 @@
       '200':
         $ref: "#/components/responses/DhcpMacIp"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - DHCP
 
@@ -46,7 +46,7 @@
       '200':
         $ref: "#/components/responses/DhcpInterfaceStats"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - DHCP
 
@@ -62,7 +62,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - DHCP
   delete:
@@ -74,7 +74,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - DHCP
 
@@ -90,7 +90,7 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - DHCP
   delete:
@@ -102,6 +102,6 @@
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - DHCP

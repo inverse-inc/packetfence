@@ -17,7 +17,7 @@
                   $ref: '#/components/schemas/Status'
         description: Request successful. Switch cache is invalidated.
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
       '404':
         $ref: '#/components/responses/NotFound'
     tags:

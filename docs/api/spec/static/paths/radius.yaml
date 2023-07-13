@@ -10,6 +10,6 @@
       '200':
         $ref: '#/components/responses/RadiusAttributesSearch'
       '401':
-        $ref: '#/components/responses/Forbidden'
+        $ref: '#/components/responses/Unauthorized'
     tags:
       - RADIUS
