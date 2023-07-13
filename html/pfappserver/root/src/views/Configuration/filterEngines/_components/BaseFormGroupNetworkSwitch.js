@@ -16,7 +16,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-form-group-switch',
+  name: 'base-form-group-network-switch',
   extends: BaseFormGroupChosenOne,
   props
 }
