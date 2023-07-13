@@ -18,14 +18,11 @@
     :invalid-feedback="inputInvalidFeedback"
     :valid-feedback="inputValidFeedback"
   >
-    <base-input-switch :namespace="namespace"
-      :disabled="isLocked"
-      :size="size"
-      :enabled-value="enabledValue"
-      :disabled-value="disabledValue"
-      @input="onInput"
-      @focus="onFocus"
-      @blur="onBlur"
+    <base-input-switch :disabled="isLocked"
+                       :size="size"
+                       :onChange="onChange"
+                       :value="inputValue"
+                       @blur="onBlur"
     />
     <template v-slot:prepend v-if="$slots.prepend">
       <slot name="prepend"></slot>
@@ -36,13 +33,19 @@
   </base-form-group>
 </template>
 <script>
-import { useFormGroupProps } from '@/composables/useFormGroup'
-import { useInput, useInputProps } from '@/composables/useInput'
-import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
-import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
-import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
+import {useFormGroupProps} from '@/composables/useFormGroup'
+import {useInput, useInputProps} from '@/composables/useInput'
+import {useInputMeta, useInputMetaProps} from '@/composables/useMeta'
+import {useInputValidator, useInputValidatorProps} from '@/composables/useInputValidator'
+import {
+  getFormNamespace,
+  setFormNamespace,
+  useInputValue,
+  useInputValueProps
+} from '@/composables/useInputValue'
 import BaseFormGroup from './BaseFormGroup'
-import BaseInputSwitch, {useSwitchProps} from './BaseInputSwitch.vue'
+import BaseInputSwitch from './BaseInputSwitch.vue'
+import {computed, inject, unref} from '@vue/composition-api';
 
 const components = {
   BaseFormGroup,
@@ -50,12 +53,23 @@ const components = {
 }
 
 export const props = {
+  enabledValue: {
+    type: [String, Number, Boolean],
+    default: true
+  },
+  disabledValue: {
+    type: [String, Number, Boolean],
+    default: false
+  },
   size: {
     type: String,
     default: 'md',
     validator: value => ['sm', 'md', 'lg'].includes(value)
   },
-  ...useSwitchProps,
+  isFocus: {
+    default: false,
+    type: Boolean
+  },
   ...useFormGroupProps,
   ...useInputProps,
   ...useInputMetaProps,
@@ -70,7 +84,6 @@ export const setup = (props, context) => {
     tabIndex,
     text,
     isLocked,
-    onFocus,
     onBlur
   } = useInput(metaProps, context)
 
@@ -85,13 +98,25 @@ export const setup = (props, context) => {
     validFeedback
   } = useInputValidator(metaProps, value)
 
+  const form = inject('form')
+  const onChange = (switchValue) => {
+    if (switchValue) {
+      setFormNamespace(props.namespace.split('.'), unref(form), props.enabledValue)
+    } else {
+      setFormNamespace(props.namespace.split('.'), unref(form), props.disabledValue)
+    }
+  }
+  const inputValue = computed(() =>
+    getFormNamespace(props.namespace.split('.'), unref(form)) === props.enabledValue
+  )
+
   return {
     // useInput
     inputTabIndex: tabIndex,
     inputText: text,
-    inputValue: value,
+    inputValue,
+    onChange,
     isLocked,
-    onFocus,
     onBlur,
     onInput,
 
