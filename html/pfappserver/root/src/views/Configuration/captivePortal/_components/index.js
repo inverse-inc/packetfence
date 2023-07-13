@@ -3,7 +3,7 @@ import {
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import { BaseFormGroupIntervalUnit } from '@/views/Configuration/_components/new/'
 import { BaseViewResource } from '../../_components/new/'
@@ -13,9 +13,9 @@ import TheView from './TheView'
 export {
   BaseFormButtonBar                   as FormButtonBar,
 
-  BaseFormGroupToggleDisabledEnabled  as FormGroupExposeFingerbankInfoAllTemplates,
+  BaseFormGroupSwitch                 as FormGroupExposeFingerbankInfoAllTemplates,
   BaseFormGroupInput                  as FormGroupIpAddress,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupNetworkDetection,
+  BaseFormGroupSwitch                 as FormGroupNetworkDetection,
   BaseFormGroupInput                  as FormGroupNetworkDetectionIp,
   BaseFormGroupIntervalUnit           as FormGroupNetworkDetectionInitialDelay,
   BaseFormGroupIntervalUnit           as FormGroupNetworkDetectionRetryDelay,
@@ -23,12 +23,12 @@ export {
   BaseFormGroupInput                  as FormGroupImagePath,
   BaseFormGroupInputNumber            as FormGroupRequestTimeout,
   BaseFormGroupTextarea               as FormGroupLoadbalancersIp,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupSecureRedirect,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupStatusOnlyOnProduction,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupDetectionMecanismBypass,
+  BaseFormGroupSwitch                 as FormGroupSecureRedirect,
+  BaseFormGroupSwitch                 as FormGroupStatusOnlyOnProduction,
+  BaseFormGroupSwitch                 as FormGroupDetectionMecanismBypass,
   BaseFormGroupTextarea               as FormGroupDetectionMecanismUrls,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupWisprRedirection,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupRateLimiting,
+  BaseFormGroupSwitch                 as FormGroupWisprRedirection,
+  BaseFormGroupSwitch                 as FormGroupRateLimiting,
   BaseFormGroupInputNumber            as FormGroupRateLimitingThreshold,
   BaseFormGroupTextarea               as FormGroupOtherDomainNames,
 
