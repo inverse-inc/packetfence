@@ -6,32 +6,34 @@
     :isLoading="isLoading"
   >
     <form-group-enabled namespace="enabled"
-      :column-label="$i18n.t('Enable security event')"
+                        :column-label="$i18n.t('Enable this event')"
+                        enabled-value="Y"
+                        disabled-value="N"
     />
 
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Identifier')"
+                           :column-label="$i18n.t('Identifier')"
     />
 
     <form-group-description namespace="desc"
-      :column-label="$i18n.t('Description')"
+                            :column-label="$i18n.t('Description')"
     />
 
     <form-group-priority namespace="priority"
-      :column-label="$i18n.t('Priority')"
-      :text="$i18n.t('When multiple violations are opened for an endpoint, the one with the lowest priority takes precedence.')"
+                         :column-label="$i18n.t('Priority')"
+                         :text="$i18n.t('When multiple violations are opened for an endpoint, the one with the lowest priority takes precedence.')"
     />
 
     <form-group-whitelisted-roles namespace="whitelisted_roles"
-      :column-label="$i18n.t('Ignored Roles')"
-      :text="$i18n.t(`Which roles shouldn't be impacted by this security event.`)"
+                                  :column-label="$i18n.t('Ignored Roles')"
+                                  :text="$i18n.t(`Which roles shouldn't be impacted by this security event.`)"
     />
 
     <form-group-triggers namespace="triggers"
-      :column-label="$i18n.t('Event Triggers')"
+                         :column-label="$i18n.t('Event Triggers')"
     >
       <template v-slot:header>
-        <form-group-triggers-header />
+        <form-group-triggers-header/>
       </template>
     </form-group-triggers>
 
@@ -40,28 +42,30 @@
     />
 
     <form-group-window-dynamic namespace="window_dynamic"
-      :column-label="$i18n.t('Dynamic Window')"
-      :text="$i18n.t('Only works for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).')"
+                               :column-label="$i18n.t('Dynamic Window')"
+                               :text="$i18n.t('Only works for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).')"
+                               enabled-value="1"
+                               disabled-value="0"
     />
 
     <form-group-grace namespace="grace"
-      :column-label="$i18n.t('Grace')"
-      :text="$i18n.t('Amount of time before the security event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.')"
+                      :column-label="$i18n.t('Grace')"
+                      :text="$i18n.t('Amount of time before the security event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.')"
     />
 
     <form-group-window namespace="window"
-      :column-label="$i18n.t('Window')"
-      :text="$i18n.t('Amount of time before a security event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security event for a defined amount of time instead.')"
+                       :column-label="$i18n.t('Window')"
+                       :text="$i18n.t('Amount of time before a security event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security event for a defined amount of time instead.')"
     />
 
     <form-group-delay-by namespace="delay_by"
-      :column-label="$i18n.t('Delay By')"
-      :text="$i18n.t('Delay before triggering the security event.')"
+                         :column-label="$i18n.t('Delay By')"
+                         :text="$i18n.t('Delay before triggering the security event.')"
     />
   </base-form>
 </template>
 <script>
-import { computed, provide, reactive, ref, toRefs, watch } from '@vue/composition-api'
+import {computed, provide, reactive, ref, toRefs, watch} from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'

@@ -5702,7 +5702,7 @@ msgid "Enable profile"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/TheForm.vue:9
-msgid "Enable security event"
+msgid "Enable this event"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/advanced/_components/TheForm.vue:25
