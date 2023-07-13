@@ -1,0 +1,301 @@
+/api/v1/radius_audit_logs/search:
+  description: |-
+    pf::UnifiedApi::Controller::RadiusAuditLogs
+
+      cleanup_item
+        cleanup_item
+  post:
+    description: Search all items.
+    operationId: api.v1.RadiusAuditLogs.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          example:
+            cursor: 0
+            fields: &1
+            - nas_port_id
+            - radius_reply
+            - pf_domain
+            - nas_port
+            - ip
+            - auth_status
+            - request_time
+            - ssid
+            - created_at
+            - uuid
+            - event_type
+            - connection_type
+            - switch_id
+            - switch_ip_address
+            - auto_reg
+            - auth_type
+            - switch_mac
+            - computer_name
+            - ifindex
+            - is_phone
+            - user_name
+            - reason
+            - radius_ip
+            - called_station_id
+            - eap_type
+            - nas_port_type
+            - stripped_user_name
+            - mac
+            - source
+            - node_status
+            - profile
+            - realm
+            - id
+            - radius_source_ip_address
+            - calling_station_id
+            - nas_ip_address
+            - role
+            - nas_identifier
+            - radius_request
+            limit: 25
+            query:
+              op: and
+              values:
+              - op: or
+                values:
+                - field: nas_port_id
+                  op: contains
+                  value: foo
+                - field: radius_reply
+                  op: contains
+                  value: foo
+                - field: pf_domain
+                  op: contains
+                  value: foo
+                - field: nas_port
+                  op: contains
+                  value: foo
+                - field: ip
+                  op: contains
+                  value: foo
+                - field: auth_status
+                  op: contains
+                  value: foo
+                - field: request_time
+                  op: contains
+                  value: foo
+                - field: ssid
+                  op: contains
+                  value: foo
+                - field: created_at
+                  op: contains
+                  value: foo
+                - field: uuid
+                  op: contains
+                  value: foo
+                - field: event_type
+                  op: contains
+                  value: foo
+                - field: connection_type
+                  op: contains
+                  value: foo
+                - field: switch_id
+                  op: contains
+                  value: foo
+                - field: switch_ip_address
+                  op: contains
+                  value: foo
+                - field: auto_reg
+                  op: contains
+                  value: foo
+                - field: auth_type
+                  op: contains
+                  value: foo
+                - field: switch_mac
+                  op: contains
+                  value: foo
+                - field: computer_name
+                  op: contains
+                  value: foo
+                - field: ifindex
+                  op: contains
+                  value: foo
+                - field: is_phone
+                  op: contains
+                  value: foo
+                - field: user_name
+                  op: contains
+                  value: foo
+                - field: reason
+                  op: contains
+                  value: foo
+                - field: radius_ip
+                  op: contains
+                  value: foo
+                - field: called_station_id
+                  op: contains
+                  value: foo
+                - field: eap_type
+                  op: contains
+                  value: foo
+                - field: nas_port_type
+                  op: contains
+                  value: foo
+                - field: stripped_user_name
+                  op: contains
+                  value: foo
+                - field: mac
+                  op: contains
+                  value: foo
+                - field: source
+                  op: contains
+                  value: foo
+                - field: node_status
+                  op: contains
+                  value: foo
+                - field: profile
+                  op: contains
+                  value: foo
+                - field: realm
+                  op: contains
+                  value: foo
+                - field: id
+                  op: contains
+                  value: foo
+                - field: radius_source_ip_address
+                  op: contains
+                  value: foo
+                - field: calling_station_id
+                  op: contains
+                  value: foo
+                - field: nas_ip_address
+                  op: contains
+                  value: foo
+                - field: role
+                  op: contains
+                  value: foo
+                - field: nas_identifier
+                  op: contains
+                  value: foo
+                - field: radius_request
+                  op: contains
+                  value: foo
+            sort:
+            - id ASC
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Search'
+            - properties:
+                cursor:
+                  required: false
+                  type: string
+                fields:
+                  items:
+                    enum: *1
+                    type: string
+                  required: true
+                  type: array
+                limit:
+                  maximum: 1000
+                  minimum: 1
+                  required: false
+                  type: integer
+                sort:
+                  items:
+                    enum:
+                    - nas_port_id ASC
+                    - nas_port_id DESC
+                    - radius_reply ASC
+                    - radius_reply DESC
+                    - pf_domain ASC
+                    - pf_domain DESC
+                    - nas_port ASC
+                    - nas_port DESC
+                    - ip ASC
+                    - ip DESC
+                    - auth_status ASC
+                    - auth_status DESC
+                    - request_time ASC
+                    - request_time DESC
+                    - ssid ASC
+                    - ssid DESC
+                    - created_at ASC
+                    - created_at DESC
+                    - uuid ASC
+                    - uuid DESC
+                    - event_type ASC
+                    - event_type DESC
+                    - connection_type ASC
+                    - connection_type DESC
+                    - switch_id ASC
+                    - switch_id DESC
+                    - switch_ip_address ASC
+                    - switch_ip_address DESC
+                    - auto_reg ASC
+                    - auto_reg DESC
+                    - auth_type ASC
+                    - auth_type DESC
+                    - switch_mac ASC
+                    - switch_mac DESC
+                    - computer_name ASC
+                    - computer_name DESC
+                    - ifindex ASC
+                    - ifindex DESC
+                    - is_phone ASC
+                    - is_phone DESC
+                    - user_name ASC
+                    - user_name DESC
+                    - reason ASC
+                    - reason DESC
+                    - radius_ip ASC
+                    - radius_ip DESC
+                    - called_station_id ASC
+                    - called_station_id DESC
+                    - eap_type ASC
+                    - eap_type DESC
+                    - nas_port_type ASC
+                    - nas_port_type DESC
+                    - stripped_user_name ASC
+                    - stripped_user_name DESC
+                    - mac ASC
+                    - mac DESC
+                    - source ASC
+                    - source DESC
+                    - node_status ASC
+                    - node_status DESC
+                    - profile ASC
+                    - profile DESC
+                    - realm ASC
+                    - realm DESC
+                    - id ASC
+                    - id DESC
+                    - radius_source_ip_address ASC
+                    - radius_source_ip_address DESC
+                    - calling_station_id ASC
+                    - calling_station_id DESC
+                    - nas_ip_address ASC
+                    - nas_ip_address DESC
+                    - role ASC
+                    - role DESC
+                    - nas_identifier ASC
+                    - nas_identifier DESC
+                    - radius_request ASC
+                    - radius_request DESC
+                    type: string
+                  required: true
+                  type: array
+              required:
+              - fields
+      required: true
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadiusAuditLogsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - RadiusAuditLogs

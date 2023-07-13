@@ -3,9 +3,7 @@ ConfigRadiusdOCSPProfilesList:
   - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
-        description: List
         items:
           $ref: '#/components/schemas/ConfigRadiusdOCSPProfile'
         type: array
     type: object
-  description: List

@@ -1,21 +1,27 @@
 ConfigSSLCertificate:
   properties:
     ca:
+      default: ~
       description: Ca
       type: string
     cert:
+      default: ~
       description: Cert
       type: string
     id:
+      default: ~
       description: SSL Profile Name
       type: string
     intermediate:
+      default: ~
       description: Intermediate
       type: string
     key:
+      default: ~
       description: Key
       type: string
     private_key_password:
+      default: ~
       description: Private Key Password
       type: string
   required:

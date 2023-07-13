@@ -3,7 +3,7 @@ AuthLogsList:
   - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
-        description: Items
+        description: Items.
         items:
           $ref: '#/components/schemas/AuthLog'
         type: array

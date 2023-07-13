@@ -1,0 +1,7 @@
+ConfigFilterEnginesDHCPFilterWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigFilterEnginesDHCPFilter'
+    status:
+      type: integer
+  type: object

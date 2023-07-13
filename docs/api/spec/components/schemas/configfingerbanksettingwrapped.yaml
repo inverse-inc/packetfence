@@ -1,0 +1,7 @@
+ConfigFingerbankSettingWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigFingerbankSetting'
+    status:
+      type: integer
+  type: object

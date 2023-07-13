@@ -1,0 +1,177 @@
+/api/v1/locationlogs/search:
+  description: pf::UnifiedApi::Controller::Locationlogs
+  post:
+    description: Search all items.
+    operationId: api.v1.Locationlogs.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          example:
+            cursor: 0
+            fields: &1
+            - port
+            - dot1x_username
+            - connection_type
+            - realm
+            - ssid
+            - vlan
+            - ifDesc
+            - mac
+            - end_time
+            - stripped_user_name
+            - connection_sub_type
+            - session_id
+            - switch
+            - role
+            - switch_ip_int
+            - start_time
+            - switch_mac
+            - switch_ip
+            - voip
+            limit: 25
+            query:
+              op: and
+              values:
+              - op: or
+                values:
+                - field: port
+                  op: contains
+                  value: foo
+                - field: dot1x_username
+                  op: contains
+                  value: foo
+                - field: connection_type
+                  op: contains
+                  value: foo
+                - field: realm
+                  op: contains
+                  value: foo
+                - field: ssid
+                  op: contains
+                  value: foo
+                - field: vlan
+                  op: contains
+                  value: foo
+                - field: ifDesc
+                  op: contains
+                  value: foo
+                - field: mac
+                  op: contains
+                  value: foo
+                - field: end_time
+                  op: contains
+                  value: foo
+                - field: stripped_user_name
+                  op: contains
+                  value: foo
+                - field: connection_sub_type
+                  op: contains
+                  value: foo
+                - field: session_id
+                  op: contains
+                  value: foo
+                - field: switch
+                  op: contains
+                  value: foo
+                - field: role
+                  op: contains
+                  value: foo
+                - field: switch_ip_int
+                  op: contains
+                  value: foo
+                - field: start_time
+                  op: contains
+                  value: foo
+                - field: switch_mac
+                  op: contains
+                  value: foo
+                - field: switch_ip
+                  op: contains
+                  value: foo
+                - field: voip
+                  op: contains
+                  value: foo
+            sort:
+            - mac ASC
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Search'
+            - properties:
+                cursor:
+                  required: false
+                  type: string
+                fields:
+                  items:
+                    enum: *1
+                    type: string
+                  required: true
+                  type: array
+                limit:
+                  maximum: 1000
+                  minimum: 1
+                  required: false
+                  type: integer
+                sort:
+                  items:
+                    enum:
+                    - port ASC
+                    - port DESC
+                    - dot1x_username ASC
+                    - dot1x_username DESC
+                    - connection_type ASC
+                    - connection_type DESC
+                    - realm ASC
+                    - realm DESC
+                    - ssid ASC
+                    - ssid DESC
+                    - vlan ASC
+                    - vlan DESC
+                    - ifDesc ASC
+                    - ifDesc DESC
+                    - mac ASC
+                    - mac DESC
+                    - end_time ASC
+                    - end_time DESC
+                    - stripped_user_name ASC
+                    - stripped_user_name DESC
+                    - connection_sub_type ASC
+                    - connection_sub_type DESC
+                    - session_id ASC
+                    - session_id DESC
+                    - switch ASC
+                    - switch DESC
+                    - role ASC
+                    - role DESC
+                    - switch_ip_int ASC
+                    - switch_ip_int DESC
+                    - start_time ASC
+                    - start_time DESC
+                    - switch_mac ASC
+                    - switch_mac DESC
+                    - switch_ip ASC
+                    - switch_ip DESC
+                    - voip ASC
+                    - voip DESC
+                    type: string
+                  required: true
+                  type: array
+              required:
+              - fields
+      required: true
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationlogsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Locationlogs

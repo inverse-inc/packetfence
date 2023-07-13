@@ -1,0 +1,7 @@
+ConfigMfaWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigMfa'
+    status:
+      type: integer
+  type: object

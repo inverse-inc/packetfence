@@ -1,0 +1,99 @@
+/api/v1/dns_audit_logs:
+  description: pf::UnifiedApi::Controller::DnsAutitLogs
+  get:
+    description: List all items.
+    operationId: api.v1.DnsAuditLogs.list
+    parameters:
+    - allOf:
+      - description: Comma delimited list of fields to return with each item.
+        explode: false
+        name: fields
+        required: true
+        schema:
+          example: &1
+          - answer
+          - scope
+          - qtype
+          - mac
+          - created_at
+          - qname
+          - ip
+          - id
+          items:
+            enum: *1
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - description: 'Comma delimited list of fields and respective order to sort
+          items (`default: [ id ASC ]`).'
+        explode: false
+        name: sort
+        schema:
+          example:
+          - id ASC
+          items:
+            enum:
+            - answer ASC
+            - answer DESC
+            - scope ASC
+            - scope DESC
+            - qtype ASC
+            - qtype DESC
+            - mac ASC
+            - mac DESC
+            - created_at ASC
+            - created_at DESC
+            - qname ASC
+            - qname DESC
+            - ip ASC
+            - ip DESC
+            - id ASC
+            - id DESC
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/limit'
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/cursor'
+      - in: query
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DnsAuditLogsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - DnsAuditLogs
+  post:
+    description: Create a new item.
+    operationId: api.v1.DnsAuditLogs.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DnsAuditLog'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - DnsAuditLogs

@@ -1,0 +1,7 @@
+ConfigScanWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigScan'
+    status:
+      type: integer
+  type: object

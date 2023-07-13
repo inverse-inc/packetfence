@@ -1,0 +1,14 @@
+ConfigRadiusdFastProfilesMeta:
+  properties:
+    meta:
+      properties:
+        authority_identity:
+          $ref: '#/components/schemas/Meta'
+        id:
+          $ref: '#/components/schemas/Meta'
+        pac_opaque_key:
+          $ref: '#/components/schemas/Meta'
+        tls:
+          $ref: '#/components/schemas/Meta'
+      type: object
+  type: object

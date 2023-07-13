@@ -1,0 +1,232 @@
+/api/v1/users:
+  description: |-
+    pf::UnifiedApi::Controller::User
+
+      create_data_update
+        create_data_update
+
+      cleanup_item
+        Remove the password field from the item
+
+      unassign_nodes
+        unassign user nodes
+
+      security_events
+        security_events
+
+      bulk_register
+        bulk_register
+
+      bulk_deregister
+        bulk_deregister
+
+      bulk_close_security_events
+        bulk_close_security_events
+
+      close_security_events
+        close_security_events
+
+      bulk_apply_security_event
+        bulk_apply_security_event
+
+      bulk_reevaluate_access
+        bulk_reevaluate_access
+
+      bulk_init_results
+        bulk_init_results
+
+      bulk_fingerbank_refresh
+        bulk_fingerbank_refresh
+
+      do_bulk_update_field
+        do_bulk_update_field
+
+      bulk_apply_role
+        bulk_apply_role
+
+      bulk_apply_bypass_role
+        bulk_apply_bypass_role
+
+      bulk_delete
+        bulk_delete
+
+      bulk_import
+        bulk_import
+  get:
+    description: List all items.
+    operationId: api.v1.Users.list
+    parameters:
+    - allOf:
+      - description: Comma delimited list of fields to return with each item.
+        explode: false
+        name: fields
+        required: true
+        schema:
+          example: &1
+          - potd
+          - sponsored_date
+          - work_phone
+          - custom_field_9
+          - gender
+          - pid
+          - portal
+          - birthday
+          - company
+          - custom_field_8
+          - custom_field_7
+          - building_number
+          - apartment_number
+          - email
+          - custom_field_2
+          - custom_field_1
+          - custom_field_5
+          - source
+          - custom_field_6
+          - nickname
+          - sponsor
+          - firstname
+          - otp
+          - address
+          - cell_phone
+          - custom_field_4
+          - lang
+          - psk
+          - telephone
+          - lastname
+          - room_number
+          - notes
+          - anniversary
+          - custom_field_3
+          - title
+          items:
+            enum: *1
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - description: 'Comma delimited list of fields and respective order to sort
+          items (`default: [ pid ASC ]`).'
+        explode: false
+        name: sort
+        schema:
+          example:
+          - pid ASC
+          items:
+            enum:
+            - potd ASC
+            - potd DESC
+            - sponsored_date ASC
+            - sponsored_date DESC
+            - work_phone ASC
+            - work_phone DESC
+            - custom_field_9 ASC
+            - custom_field_9 DESC
+            - gender ASC
+            - gender DESC
+            - pid ASC
+            - pid DESC
+            - portal ASC
+            - portal DESC
+            - birthday ASC
+            - birthday DESC
+            - company ASC
+            - company DESC
+            - custom_field_8 ASC
+            - custom_field_8 DESC
+            - custom_field_7 ASC
+            - custom_field_7 DESC
+            - building_number ASC
+            - building_number DESC
+            - apartment_number ASC
+            - apartment_number DESC
+            - email ASC
+            - email DESC
+            - custom_field_2 ASC
+            - custom_field_2 DESC
+            - custom_field_1 ASC
+            - custom_field_1 DESC
+            - custom_field_5 ASC
+            - custom_field_5 DESC
+            - source ASC
+            - source DESC
+            - custom_field_6 ASC
+            - custom_field_6 DESC
+            - nickname ASC
+            - nickname DESC
+            - sponsor ASC
+            - sponsor DESC
+            - firstname ASC
+            - firstname DESC
+            - otp ASC
+            - otp DESC
+            - address ASC
+            - address DESC
+            - cell_phone ASC
+            - cell_phone DESC
+            - custom_field_4 ASC
+            - custom_field_4 DESC
+            - lang ASC
+            - lang DESC
+            - psk ASC
+            - psk DESC
+            - telephone ASC
+            - telephone DESC
+            - lastname ASC
+            - lastname DESC
+            - room_number ASC
+            - room_number DESC
+            - notes ASC
+            - notes DESC
+            - anniversary ASC
+            - anniversary DESC
+            - custom_field_3 ASC
+            - custom_field_3 DESC
+            - title ASC
+            - title DESC
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/limit'
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/cursor'
+      - in: query
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Users
+  post:
+    description: Create a new item.
+    operationId: api.v1.Users.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Users

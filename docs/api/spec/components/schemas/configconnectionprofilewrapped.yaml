@@ -1,0 +1,7 @@
+ConfigConnectionProfileWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigConnectionProfile'
+    status:
+      type: integer
+  type: object
