@@ -14,7 +14,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
     tags:
-      - $Session
+      - Session
 
 /api/v1/preference/{preference_id}:
   delete:
@@ -35,7 +35,7 @@
       '404':
         $ref: '#/components/responses/NotFound'
     tags:
-      - $Session
+      - Session
   get:
     summary: Get user preference.
     operationId: api.v1.Preferences.get
@@ -56,7 +56,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
     tags:
-      - $Session
+      - Session
   put:
     summary: Replace user preference.
     operationId: api.v1.Preferences.resource.replace
@@ -82,4 +82,4 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
     tags:
-      - $Session
+      - Session

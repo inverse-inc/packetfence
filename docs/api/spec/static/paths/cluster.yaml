@@ -11,7 +11,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Cluster
+      - Cluster
 
 /api/v1/cluster/servers:
   get:
@@ -26,4 +26,4 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $Cluster
+      - Cluster

@@ -7,7 +7,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $PKI
+      - PKI
   post:
     summary: Create PKI Certificate Authority.
     requestBody:
@@ -24,7 +24,7 @@
       '500':
         $ref: '#/components/responses/BadRequest'
     tags:
-      - $PKI
+      - PKI
 
 /api/v1/pki/cas/search:
   post:
@@ -43,7 +43,7 @@
       '500':
         $ref: '#/components/responses/BadRequest'
     tags:
-      - $PKI
+      - PKI
 
 /api/v1/pki/ca/{ca_id}:
   get:
@@ -61,7 +61,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $PKI
+      - PKI
 
 /api/v1/pki/ca/resign/{ca_id}:
   post:
@@ -81,4 +81,4 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $PKI
+      - PKI

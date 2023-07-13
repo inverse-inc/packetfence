@@ -9,4 +9,4 @@
       '401':
         $ref: "#/components/responses/Forbidden"
     tags:
-      - $SSO
+      - SSO

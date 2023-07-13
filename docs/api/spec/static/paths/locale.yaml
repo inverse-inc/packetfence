@@ -7,7 +7,7 @@
       '401':
         $ref: "#/components/responses/Forbidden"
     tags:
-      - $Locales
+      - Locales
 
 /api/v1/translation/{locale}:
   get:
@@ -30,4 +30,4 @@
       '401':
         $ref: "#/components/responses/Forbidden"
     tags:
-      - $Locales
+      - Locales

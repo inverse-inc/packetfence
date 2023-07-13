@@ -15,7 +15,7 @@
       '401':
         $ref: "#/components/responses/Forbidden"
     tags:
-      - $Services
+      - Services
 
 /api/v1/services/status_all:
   get:
@@ -32,7 +32,7 @@
       '401':
         $ref: "#/components/responses/Forbidden"
     tags:
-      - $Services
+      - Services
 
 /api/v1/services/cluster_statuses:
   get:
@@ -45,7 +45,7 @@
       '401':
         $ref: "#/components/responses/Forbidden"
     tags:
-      - $Services
+      - Services
 
 /api/v1/services/cluster_status/{server}:
   get:
@@ -64,7 +64,7 @@
       '401':
         $ref: "#/components/responses/Forbidden"
     tags:
-      - $Services
+      - Services
 
 /api/v1/service/{service}/status:
   get:
@@ -84,7 +84,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Services
+      - Services
 
 
 /api/v1/service/{service}/start:
@@ -110,7 +110,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Services
+      - Services
 
 /api/v1/service/{service}/stop:
   post:
@@ -136,7 +136,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Services
+      - Services
 
 
 /api/v1/service/{service}/restart:
@@ -163,7 +163,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Services
+      - Services
 
 
 /api/v1/service/{service}/enable:
@@ -180,7 +180,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Services
+      - Services
 
 
 /api/v1/service/{service}/disable:
@@ -197,4 +197,4 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $Services
+      - Services

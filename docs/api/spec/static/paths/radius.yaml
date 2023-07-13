@@ -12,4 +12,4 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $RADIUS
+      - RADIUS

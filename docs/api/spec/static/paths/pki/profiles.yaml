@@ -7,7 +7,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $PKI
+      - PKI
   post:
     summary: Create PKI Profile.
     requestBody:
@@ -24,7 +24,7 @@
       '500':
         $ref: '#/components/responses/BadRequest'
     tags:
-      - $PKI
+      - PKI
 
 /api/v1/pki/profiles/search:
   post:
@@ -43,7 +43,7 @@
       '500':
         $ref: '#/components/responses/BadRequest'
     tags:
-      - $PKI
+      - PKI
 
 /api/v1/pki/profile/{profile_id}:
   get:
@@ -61,7 +61,7 @@
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
-      - $PKI
+      - PKI
   patch:
     summary: Update PKI Profile.
     parameters:
@@ -81,7 +81,7 @@
       '405':
         $ref: '#/components/responses/NotFound'
     tags:
-      - $PKI
+      - PKI
   delete:
     summary: Delete PKI Profile.
     parameters:
@@ -99,7 +99,7 @@
       '405':
         $ref: '#/components/responses/NotFound'
     tags:
-      - $PKI
+      - PKI
 
 /api/v1/pki/profile/{profile_id}/sign_csr:
   post:
@@ -123,4 +123,4 @@
       '500':
         $ref: '#/components/responses/BadRequest'
     tags:
-      - $PKI
+      - PKI

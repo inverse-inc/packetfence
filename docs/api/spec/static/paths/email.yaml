@@ -13,7 +13,7 @@
       '500':
         $ref: "#/components/responses/ErrorMessage"
     tags:
-      - $Email
+      - Email
 
 /api/v1/email/send:
   post:
@@ -30,7 +30,7 @@
       '500':
         $ref: "#/components/responses/ErrorMessage"
     tags:
-      - $Email
+      - Email
 
 /api/v1/email/pfmailer:
   post:
@@ -45,4 +45,4 @@
       '422':
         $ref: "#/components/responses/ErrorsWithMessage"
     tags:
-      - $Email
+      - Email
