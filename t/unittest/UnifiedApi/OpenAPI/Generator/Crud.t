@@ -118,47 +118,54 @@ my @actions = (
             }
         ]
     );
-#    use Data::Dumper;print Dumper(\@operators);
     is_deeply(
         \%operators,
         {
-            get => {
+            'get' => {
+                'tags'       => ['DhcpOption82s'],
                 'parameters' => [
                     {
-                        in     => 'path',
-                        name   => 'dhcp_option82_id',
-                        schema => {
-                            type => 'string'
-                        }
+                        'in'       => 'path',
+                        'name'     => 'dhcp_option82_id',
+                        'required' => bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'schema' => {
+                            'type' => 'string'
+                        },
+                        'description' => '`PRIMARY KEY`'
                     }
                 ],
                 'operationId' => 'api.v1.DhcpOption82s.get',
                 'responses'   => {
-                    "200" => {
-                        description => 'Get item',
-                        content => {
-                            "application/json" => {
-                                schema => {
-                                    'description' => 'Item',
-                                    "properties" => {
-                                        "item" => {
-                                            "\$ref" => "#/components/schemas/DhcpOption82",
+                    '200' => {
+                        'content' => {
+                            'application/json' => {
+                                'schema' => {
+                                    'properties' => {
+
+                                        'item' => {
+
+                                            '$ref' => '#/components/schemas/DhcpOption82'
+
                                         }
+
                                     },
-                                    "type" => "object"
+                                    'type' => 'object'
                                 }
                             }
-                        },
+                        }
                     },
-                    "400" => {
-                        "\$ref" => "#/components/responses/BadRequest",
+                    '422' => {
+                        '$ref' => '#/components/responses/UnprocessableEntity'
                     },
-                    "422" => {
-                        "\$ref" => "#/components/responses/UnprocessableEntity"
+                    '404' => {
+                        '$ref' => '#/components/responses/BadRequest'
+                    },
+                    '401' => {
+                        '$ref' => '#/components/responses/Forbidden'
                     }
                 },
-                'description' => 'Get an item'
-            },
+                'description' => 'Get an item.'
+            }
         },
         "Crud resource GET"
     );
@@ -187,28 +194,33 @@ my @actions = (
             },
         ]
     );
-#    use Data::Dumper;print Dumper(\@operators);
+    #    use Data::Dumper;print Dumper(\@operators);
     is_deeply(
         \@operators,
         [
-            delete => {
+            'delete',
+            {
                 'parameters' => [
                     {
-                        in     => 'path',
-                        name   => 'dhcp_option82_id',
-                        schema => {
-                            type => 'string'
-                        }
+                        'name'   => 'dhcp_option82_id',
+                        'in'     => 'path',
+                        'schema' => {
+                            'type' => 'string'
+                        },
+                        'description' => '`PRIMARY KEY`',
+                        'required'    =>
+                          bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' )
                     }
                 ],
-                'operationId' => 'api.v1.DhcpOption82s.remove',
-                'description' => 'Remove an item',
-                responses => {
+                'tags'      => ['DhcpOption82s'],
+                'responses' => {
                     '204' => {
-                        description => 'Item deleted'
+                        'description' => 'Item deleted.'
                     }
-                }
-              },
+                },
+                'description' => 'Delete an item.',
+                'operationId' => 'api.v1.DhcpOption82s.remove'
+            }
         ],
         "Crud resource DELETE"
     );
@@ -237,41 +249,49 @@ my @actions = (
             },
         ]
     );
+    #    use Data::Dumper;print Dumper(\%operators);
     is_deeply(
         \%operators,
         {
-            patch => {
-                'parameters' => [
-                    {
-                        in     => 'path',
-                        name   => 'dhcp_option82_id',
-                        schema => {
-                            type => 'string'
+            'patch' => {
+                'tags'        => ['DhcpOption82s'],
+                'description' => 'Update an item.',
+                'requestBody' => {
+                    'content' => {
+                        'application/json' => {
+                            'schema' => {
+                                '$ref' => '#/components/schemas/DhcpOption82'
+                            }
                         }
                     }
+                },
+                'parameters' => [
+                    {
+                        'required' =>
+                          bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'schema' => {
+                            'type' => 'string'
+                        },
+                        'name'        => 'dhcp_option82_id',
+                        'description' => '`PRIMARY KEY`',
+                        'in'          => 'path'
+                    }
                 ],
-                'operationId' => 'api.v1.DhcpOption82s.update',
-                'description' => 'Update an item',
-                "requestBody" => {
-                   "content" => {
-                      "application/json" => {
-                         "schema" => {
-                            "\$ref" => "#/components/schemas/DhcpOption82"
-                         }
-                      }
-                   },
+                'responses' => {
+                    '422' => {
+                        '$ref' => '#/components/responses/UnprocessableEntity'
+                    },
+                    '404' => {
+                        '$ref' => '#/components/responses/BadRequest'
+                    },
+                    '401' => {
+                        '$ref' => '#/components/responses/Forbidden'
+                    },
+                    '200' => {
+                        '$ref' => '#/components/responses/Message'
+                    }
                 },
-                "responses" => {
-                   "200" => {
-                      "\$ref" => "#/components/responses/Message"
-                   },
-                   "400" => {
-                      "\$ref" => "#/components/responses/BadRequest"
-                   },
-                   "422" => {
-                      "\$ref" => "#/components/responses/UnprocessableEntity"
-                   }
-                },
+                'operationId' => 'api.v1.DhcpOption82s.update'
             }
         },
         "Crud resource PATCH"
@@ -304,38 +324,45 @@ my @actions = (
     is_deeply(
         \%operators,
         {
-            put => {
+            'put' => {
+                'operationId' => 'api.v1.DhcpOption82s.replace',
+                'responses'   => {
+                    '422' => {
+                        '$ref' => '#/components/responses/UnprocessableEntity'
+                    },
+                    '401' => {
+                        '$ref' => '#/components/responses/Forbidden'
+                    },
+                    '200' => {
+                        '$ref' => '#/components/responses/Message'
+                    },
+                    '404' => {
+                        '$ref' => '#/components/responses/BadRequest'
+                    }
+                },
                 'parameters' => [
                     {
-                        in     => 'path',
-                        name   => 'dhcp_option82_id',
-                        schema => {
-                            type => 'string'
-                        }
+                        'in'          => 'path',
+                        'description' => '`PRIMARY KEY`',
+                        'required'    =>
+                          bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'schema' => {
+                            'type' => 'string'
+                        },
+                        'name' => 'dhcp_option82_id'
                     }
                 ],
-                'operationId' => 'api.v1.DhcpOption82s.replace',
-                'description' => 'Replace an item',
-                "requestBody" => {
-                   "content" => {
-                      "application/json" => {
-                         "schema" => {
-                            "\$ref" => "#/components/schemas/DhcpOption82"
-                         }
-                      }
-                   },
+                'description' => 'Replace an item.',
+                'requestBody' => {
+                    'content' => {
+                        'application/json' => {
+                            'schema' => {
+                                '$ref' => '#/components/schemas/DhcpOption82'
+                            }
+                        }
+                    }
                 },
-                "responses" => {
-                   "200" => {
-                      "\$ref" => "#/components/responses/Message"
-                   },
-                   "400" => {
-                      "\$ref" => "#/components/responses/BadRequest"
-                   },
-                   "422" => {
-                      "\$ref" => "#/components/responses/UnprocessableEntity"
-                   }
-                },
+                'tags' => ['DhcpOption82s']
             }
         },
         "Crud resource PUT"
@@ -365,42 +392,201 @@ my @actions = (
             },
         ]
     );
-#    use Data::Dumper;print Dumper(\@operators);
+    #        use Data::Dumper;print Dumper(\%operators);
     is_deeply(
         \%operators,
         {
-            post => {
-                'parameters'  => [ ],
+            'post' => {
+                'tags'        => ['DhcpOption82s'],
+                'parameters'  => [],
                 'operationId' => 'api.v1.DhcpOption82s.search',
-                'requestBody' => {
-                    description => 'Search for items',
-                    content => {
-                        "application/json" => {
-                            schema => {
-                                "\$ref" => "#/components/schemas/Search",
+                'description' => 'Search all items.',
+                'responses'   => {
+                    '404' => {
+                        '$ref' => '#/components/responses/BadRequest'
+                    },
+                    '409' => {
+                        '$ref' => '#/components/responses/Duplicate'
+                    },
+                    '401' => {
+                        '$ref' => '#/components/responses/Forbidden'
+                    },
+                    '422' => {
+                        '$ref' => '#/components/responses/UnprocessableEntity'
+                    },
+                    '200' => {
+                        'content' => {
+                            'application/json' => {
+                                'schema' => {
+                                    '$ref' =>
+                                      '#/components/schemas/DhcpOption82sList'
+                                }
                             }
                         }
                     }
                 },
-                'responses'  => {
-                    "200" => {
-                        description => 'List',
-                        content => {
-                            "application/json" => {
-                                schema => {
-                                    "\$ref" => "#/components/schemas/DhcpOption82sList"
+                'requestBody' => {
+                    'content' => {
+                        'application/json' => {
+                            'schema' => {
+                                'allOf' => [
+                                    {
+                                        '$ref' => '#/components/schemas/Search'
+                                    },
+                                    {
+                                        'required'   => ['fields'],
+                                        'properties' => {
+                                            'limit' => {
+                                                'type'     => 'integer',
+                                                'maximum'  => 1000,
+                                                'minimum'  => 1,
+                                                'required' => bless(
+                                                    do { \( my $o = 0 ) },
+                                                    'JSON::PP::Boolean'
+                                                ),
+                                            },
+                                            'sort' => {
+                                                'type'  => 'array',
+                                                'items' => {
+                                                    'enum' => [
+                                                        'circuit_id_string ASC',
+                                                        'circuit_id_string DESC',
+                                                        'created_at ASC',
+                                                        'created_at DESC',
+                                                        'host ASC',
+                                                        'host DESC',
+                                                        'mac ASC',
+                                                        'mac DESC',
+                                                        'module ASC',
+                                                        'module DESC',
+                                                        'option82_switch ASC',
+                                                        'option82_switch DESC',
+                                                        'port ASC',
+                                                        'port DESC',
+                                                        'switch_id ASC',
+                                                        'switch_id DESC',
+                                                        'vlan ASC',
+                                                        'vlan DESC'
+                                                    ],
+                                                    'type' => 'string'
+                                                },
+                                                'required' => bless(
+                                                    do { \( my $o = 1 ) },
+                                                    'JSON::PP::Boolean'
+                                                )
+                                            },
+                                            'cursor' => {
+                                                'type'     => 'string',
+                                                'required' => bless(
+                                                    do { \( my $o = 0 ) },
+                                                    'JSON::PP::Boolean'
+                                                )
+                                            },
+                                            'fields' => {
+                                                'items' => {
+                                                    'type' => 'string',
+                                                    'enum' => [
+                                                        'circuit_id_string',
+                                                        'created_at',
+                                                        'host',
+                                                        'mac',
+                                                        'module',
+                                                        'option82_switch',
+                                                        'port',
+                                                        'switch_id',
+                                                        'vlan'
+                                                    ]
+                                                },
+                                                'type'     => 'array',
+                                                'required' => bless(
+                                                    do { \( my $o = 1 ) },
+                                                    'JSON::PP::Boolean'
+                                                )
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            'example' => {
+                                'fields' => [
+                                    'circuit_id_string',
+                                    'created_at',
+                                    'host',
+                                    'mac',
+                                    'module',
+                                    'option82_switch',
+                                    'port',
+                                    'switch_id',
+                                    'vlan'
+                                ],
+                                'cursor' => 0,
+                                'sort'   => [
+                                    'mac ASC'
+                                ],
+                                'limit' => 25,
+                                'query' => {
+                                    'op'     => 'and',
+                                    'values' => [
+                                        {
+                                            'values' => [
+                                                {
+                                                    'value' => 'foo',
+                                                    'op'    => 'contains',
+                                                    'field' =>
+                                                      'circuit_id_string'
+                                                },
+                                                {
+                                                    'value' => 'foo',
+                                                    'op'    => 'contains',
+                                                    'field' => 'created_at'
+                                                },
+                                                {
+                                                    'op'    => 'contains',
+                                                    'field' => 'host',
+                                                    'value' => 'foo'
+                                                },
+                                                {
+                                                    'value' => 'foo',
+                                                    'field' => 'mac',
+                                                    'op'    => 'contains'
+                                                },
+                                                {
+                                                    'op'    => 'contains',
+                                                    'field' => 'module',
+                                                    'value' => 'foo'
+                                                },
+                                                {
+                                                    'field' =>
+                                                      'option82_switch',
+                                                    'op'    => 'contains',
+                                                    'value' => 'foo'
+                                                },
+                                                {
+                                                    'value' => 'foo',
+                                                    'field' => 'port',
+                                                    'op'    => 'contains'
+                                                },
+                                                {
+                                                    'value' => 'foo',
+                                                    'field' => 'switch_id',
+                                                    'op'    => 'contains'
+                                                },
+                                                {
+                                                    'op'    => 'contains',
+                                                    'field' => 'vlan',
+                                                    'value' => 'foo'
+                                                }
+                                            ],
+                                            'op' => 'or'
+                                        }
+                                    ]
                                 }
                             }
-                        },
+                        }
                     },
-                    "400" => {
-                        "\$ref" => "#/components/responses/BadRequest"
-                    },
-                    "422" => {
-                        "\$ref" => "#/components/responses/UnprocessableEntity"
-                    }
+                    'required' => bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean'),
                 }
-            },
+            }
         },
         "Crud collection SEARCH"
     );
@@ -443,75 +629,190 @@ my @actions = (
             },
         ]
     );
-#    use Data::Dumper;print Dumper(\@operators);
+    #        use Data::Dumper;print Dumper(\%operators);
     is_deeply(
         \%operators,
         {
-            post => {
+            'get' => {
+                'operationId' => 'api.v1.DhcpOption82s.list',
+                'tags'        => ['DhcpOption82s'],
+                'description' => 'List all items.',
+                'responses'   => {
+                    '200' => {
+                        'content' => {
+                            'application/json' => {
+                                'schema' => {
+                                    '$ref' =>
+                                      '#/components/schemas/DhcpOption82sList'
+                                }
+                            }
+                        }
+                    },
+                    '409' => {
+                        '$ref' => '#/components/responses/Duplicate'
+                    },
+                    '401' => {
+                        '$ref' => '#/components/responses/Forbidden'
+                    },
+                    '422' => {
+                        '$ref' => '#/components/responses/UnprocessableEntity'
+                    },
+                    '404' => {
+                        '$ref' => '#/components/responses/BadRequest'
+                    }
+                },
+                'parameters' => [
+                    {
+                        'allOf' => [
+                            {
+                                'explode' => bless(
+                                    do { \( my $o = 0 ) },
+                                    'JSON::PP::Boolean'
+                                ),
+                                'name'   => 'fields',
+                                'schema' => {
+                                    'example' => [
+                                        'circuit_id_string',
+                                        'created_at',
+                                        'host',
+                                        'mac',
+                                        'module',
+                                        'option82_switch',
+                                        'port',
+                                        'switch_id',
+                                        'vlan'
+                                    ],
+                                    'items' => {
+                                        'enum' => [
+                                            'circuit_id_string',
+                                            'created_at',
+                                            'host',
+                                            'mac',
+                                            'module',
+                                            'option82_switch',
+                                            'port',
+                                            'switch_id',
+                                            'vlan'
+                                        ],
+                                        'type' => 'string'
+                                    },
+                                    'type' => 'array'
+                                },
+                                'required' => bless(
+                                    do { \( my $o = 1 ) },
+                                    'JSON::PP::Boolean'
+                                ),
+                                'style'       => 'form',
+                                'description' =>
+'Comma delimited list of fields to return with each item.'
+                            },
+                            {
+                                'in' => 'query'
+                            }
+                        ]
+                    },
+                    {
+                        'allOf' => [
+                            {
+                                'schema' => {
+                                    'type'  => 'array',
+                                    'items' => {
+                                        'enum' => [
+                                            'circuit_id_string ASC',
+                                            'circuit_id_string DESC',
+                                            'created_at ASC',
+                                            'created_at DESC',
+                                            'host ASC',
+                                            'host DESC',
+                                            'mac ASC',
+                                            'mac DESC',
+                                            'module ASC',
+                                            'module DESC',
+                                            'option82_switch ASC',
+                                            'option82_switch DESC',
+                                            'port ASC',
+                                            'port DESC',
+                                            'switch_id ASC',
+                                            'switch_id DESC',
+                                            'vlan ASC',
+                                            'vlan DESC'
+                                        ],
+                                        'type' => 'string'
+                                    },
+                                    'example' => ['mac ASC']
+                                },
+                                'explode' => bless(
+                                    do { \( my $o = 0 ) },
+                                    'JSON::PP::Boolean'
+                                ),
+                                'name'        => 'sort',
+                                'style'       => 'form',
+                                'description' =>
+'Comma delimited list of fields and respective order to sort items (`default: [ mac ASC ]`).'
+                            },
+                            {
+                                'in' => 'query'
+                            }
+                        ]
+                    },
+                    {
+                        'allOf' => [
+                            {
+                                '$ref' => '#/components/parameters/limit'
+                            },
+                            {
+                                'in' => 'query'
+                            }
+                        ]
+                    },
+                    {
+                        'allOf' => [
+                            {
+                                '$ref' => '#/components/parameters/cursor'
+                            },
+                            {
+                                'in' => 'query'
+                            }
+                        ]
+                    }
+                ]
+            },
+            'post' => {
                 'parameters'  => [],
-                'operationId' => 'api.v1.DhcpOption82s.create',
-                'description' => 'Create an item',
-                requestBody => {
-                    description => 'Create item',
-                    content => {
-                        "application/json" => {
-                            schema => {
-                                "\$ref" => "#/components/schemas/DhcpOption82"
+                'requestBody' => {
+                    'content' => {
+                        'application/json' => {
+                            'schema' => {
+                                '$ref' => '#/components/schemas/DhcpOption82'
                             }
                         }
                     }
                 },
-                responses => {
-                    '201' => {
-                        "\$ref" => '#/components/responses/Created'
-                    },
+                'responses' => {
                     '400' => {
-                        "\$ref" => '#/components/responses/BadRequest'
-                    },
-                    '409' => {
-                        "\$ref" => '#/components/responses/Duplicate'
+                        '$ref' => '#/components/responses/BadRequest'
                     },
                     '422' => {
-                        "\$ref" => '#/components/responses/UnprocessableEntity'
+                        '$ref' => '#/components/responses/UnprocessableEntity'
                     },
-                  },
-            },
-            get => {
-                'parameters'  => [
-                    { "\$ref" => '#/components/parameters/cursor' },
-                    { "\$ref" => '#/components/parameters/limit' },
-                    { "\$ref" => '#/components/parameters/fields' },
-                    { "\$ref" => '#/components/parameters/sort' },
-                ],
-                'operationId' => 'api.v1.DhcpOption82s.list',
-                'description' => 'List items',
-                'responses'  => {
-                    "200" => {
-                        description => 'List',
-                        content => {
-                            "application/json" => {
-                                schema => {
-                                    "\$ref" => "#/components/schemas/DhcpOption82sList"
-                                }
-                            }
-                        },
+                    '409' => {
+                        '$ref' => '#/components/responses/Duplicate'
                     },
-                    "400" => {
-                        "\$ref" => "#/components/responses/BadRequest"
-                    },
-                    "422" => {
-                        "\$ref" => "#/components/responses/UnprocessableEntity"
+                    '201' => {
+                        '$ref' => '#/components/responses/Created'
                     }
                 },
-            },
+                'description' => 'Create a new item.',
+                'tags'        => ['DhcpOption82s'],
+                'operationId' => 'api.v1.DhcpOption82s.create'
+            }
         },
         "Crud collection POST/GET"
     );
 }
 
 {
-    is_deeply(
-        $generator->generateSchemas(
+    my $schemas = $generator->generateSchemas(
             $controller,
             [
                 {
@@ -613,40 +914,71 @@ my @actions = (
                     'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
                 }
             ],
-        ),
+        );
+        #    use Data::Dumper;print Dumper($schemas); 
+    is_deeply(
+        $schemas,
         {
             '/components/schemas/DhcpOption82sList' => {
-                allOf => [
-                    { '$ref' => "#/components/schemas/Iterable" },
+                'allOf' => [
                     {
-                        "properties" => {
-                            "items" => {
-                                description => 'Items',
-                                "items" => {
-                                    "\$ref" =>
-                                      "#/components/schemas/DhcpOption82"
+                        '$ref' => '#/components/schemas/Iterable'
+                    },
+                    {
+                        'type'       => 'object',
+                        'properties' => {
+                            'items' => {
+                                'type'  => 'array',
+                                'items' => {
+                                    '$ref' =>
+                                      '#/components/schemas/DhcpOption82'
                                 },
-                                "type" => "array"
+                                'description' => 'Items.'
                             }
-                        },
-                        "type" => "object"
+                        }
                     }
                 ]
             },
             '/components/schemas/DhcpOption82' => {
-                properties => {
-                    mac               => { type => 'string' },
-                    created_at        => { type => 'string' },
-                    option82_switch   => { type => 'string' },
-                    switch_id         => { type => 'string' },
-                    port              => { type => 'string' },
-                    vlan              => { type => 'string' },
-                    circuit_id_string => { type => 'string' },
-                    module            => { type => 'string' },
-                    host              => { type => 'string' },
+                'properties' => {
+                    'mac' => {
+                        'type'        => 'string',
+                        'description' => '`PRIMARY KEY`'
+                    },
+                    'host' => {
+                        'type'     => 'string',
+                        'nullable' =>
+                          bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' )
+                    },
+                    'port' => {
+                        'type' => 'string'
+                    },
+                    'vlan' => {
+                        'nullable' => bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'type' => 'string',
+                    },
+                    'module' => {
+                        'type'     => 'string',
+                        'nullable' => bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                    },
+                    'circuit_id_string' => {
+                        'nullable' => bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'type' => 'string'
+                    },
+                    'created_at' => {
+                        'type' => 'string'
+                    },
+                    'switch_id' => {
+                        'nullable' => bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'type' => 'string'
+                    },
+                    'option82_switch' => {
+                        'nullable' => bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'type' => 'string'
+                    }
                 },
-                type     => 'object',
-            },
+                'type' => 'object'
+            }
         },
         "Schemas For DhcpOption82s",
     );
