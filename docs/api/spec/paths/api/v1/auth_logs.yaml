@@ -1,0 +1,102 @@
+/api/v1/auth_logs:
+  description: pf::UnifiedApi::Controller::AuthLogs
+  get:
+    description: List all items.
+    operationId: api.v1.AuthLogs.list
+    parameters:
+    - allOf:
+      - description: Comma delimited list of fields to return with each item.
+        explode: false
+        name: fields
+        required: true
+        schema:
+          example: &1
+          - mac
+          - source
+          - status
+          - pid
+          - attempted_at
+          - id
+          - completed_at
+          - process_name
+          - profile
+          items:
+            enum: *1
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - description: 'Comma delimited list of fields and respective order to sort
+          items (`default: [ id ASC ]`).'
+        explode: false
+        name: sort
+        schema:
+          example:
+          - id ASC
+          items:
+            enum:
+            - mac ASC
+            - mac DESC
+            - source ASC
+            - source DESC
+            - status ASC
+            - status DESC
+            - pid ASC
+            - pid DESC
+            - attempted_at ASC
+            - attempted_at DESC
+            - id ASC
+            - id DESC
+            - completed_at ASC
+            - completed_at DESC
+            - process_name ASC
+            - process_name DESC
+            - profile ASC
+            - profile DESC
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/limit'
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/cursor'
+      - in: query
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - AuthLogs
+  post:
+    description: Create a new item.
+    operationId: api.v1.AuthLogs.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthLog'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - AuthLogs

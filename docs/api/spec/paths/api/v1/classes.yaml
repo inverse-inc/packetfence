@@ -1,0 +1,106 @@
+/api/v1/classes:
+  description: pf::UnifiedApi::Controller::Classes
+  get:
+    description: List all items.
+    operationId: api.v1.Classes.list
+    parameters:
+    - allOf:
+      - description: Comma delimited list of fields to return with each item.
+        explode: false
+        name: fields
+        required: true
+        schema:
+          example: &1
+          - vlan
+          - button_text
+          - external_command
+          - enabled
+          - security_event_id
+          - window
+          - redirect_url
+          - target_category
+          - max_enable_url
+          - max_enables
+          - auto_enable
+          - grace_period
+          - priority
+          - delay_by
+          - vclose
+          - template
+          - description
+          items:
+            enum: *1
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - description: 'Comma delimited list of fields and respective order to sort
+          items (`default: [ security_event_id ASC ]`).'
+        explode: false
+        name: sort
+        schema:
+          example:
+          - security_event_id ASC
+          items:
+            enum:
+            - vlan ASC
+            - vlan DESC
+            - button_text ASC
+            - button_text DESC
+            - external_command ASC
+            - external_command DESC
+            - enabled ASC
+            - enabled DESC
+            - security_event_id ASC
+            - security_event_id DESC
+            - window ASC
+            - window DESC
+            - redirect_url ASC
+            - redirect_url DESC
+            - target_category ASC
+            - target_category DESC
+            - max_enable_url ASC
+            - max_enable_url DESC
+            - max_enables ASC
+            - max_enables DESC
+            - auto_enable ASC
+            - auto_enable DESC
+            - grace_period ASC
+            - grace_period DESC
+            - priority ASC
+            - priority DESC
+            - delay_by ASC
+            - delay_by DESC
+            - vclose ASC
+            - vclose DESC
+            - template ASC
+            - template DESC
+            - description ASC
+            - description DESC
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/limit'
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/cursor'
+      - in: query
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassesList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Classes

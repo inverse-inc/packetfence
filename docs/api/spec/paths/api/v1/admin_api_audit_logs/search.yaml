@@ -1,0 +1,117 @@
+/api/v1/admin_api_audit_logs/search:
+  description: pf::UnifiedApi::Controller::AdminApiAuditLogs
+  post:
+    description: Search all items.
+    operationId: api.v1.AdminApiAuditLogs.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          example:
+            cursor: 0
+            fields: &1
+            - object_id
+            - status
+            - url
+            - id
+            - action
+            - user_name
+            - created_at
+            - method
+            - request
+            limit: 25
+            query:
+              op: and
+              values:
+              - op: or
+                values:
+                - field: object_id
+                  op: contains
+                  value: foo
+                - field: status
+                  op: contains
+                  value: foo
+                - field: url
+                  op: contains
+                  value: foo
+                - field: id
+                  op: contains
+                  value: foo
+                - field: action
+                  op: contains
+                  value: foo
+                - field: user_name
+                  op: contains
+                  value: foo
+                - field: created_at
+                  op: contains
+                  value: foo
+                - field: method
+                  op: contains
+                  value: foo
+                - field: request
+                  op: contains
+                  value: foo
+            sort:
+            - id ASC
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Search'
+            - properties:
+                cursor:
+                  required: false
+                  type: string
+                fields:
+                  items:
+                    enum: *1
+                    type: string
+                  required: true
+                  type: array
+                limit:
+                  maximum: 1000
+                  minimum: 1
+                  required: false
+                  type: integer
+                sort:
+                  items:
+                    enum:
+                    - object_id ASC
+                    - object_id DESC
+                    - status ASC
+                    - status DESC
+                    - url ASC
+                    - url DESC
+                    - id ASC
+                    - id DESC
+                    - action ASC
+                    - action DESC
+                    - user_name ASC
+                    - user_name DESC
+                    - created_at ASC
+                    - created_at DESC
+                    - method ASC
+                    - method DESC
+                    - request ASC
+                    - request DESC
+                    type: string
+                  required: true
+                  type: array
+              required:
+              - fields
+      required: true
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminApiAuditLogsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - AdminApiAuditLogs

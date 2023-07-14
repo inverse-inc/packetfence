@@ -1,0 +1,16 @@
+RadiusAttributes:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          query:
+            $ref: '#/components/schemas/Query'
+      example:
+        query:
+          op: and
+          values:
+            - field: name
+              op: contains
+              value: X-

@@ -1,0 +1,12 @@
+ConfigDomainJoin:
+  type: object
+  required:
+    - password
+    - username
+  properties:
+    password:
+      description: Domain password
+      type: string
+    username:
+      description: Domain username
+      type: string

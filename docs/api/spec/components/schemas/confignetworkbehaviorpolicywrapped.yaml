@@ -1,0 +1,7 @@
+ConfigNetworkBehaviorPolicyWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigNetworkBehaviorPolicy'
+    status:
+      type: integer
+  type: object

@@ -1,0 +1,34 @@
+mac:
+  description: The MAC address of the device.
+  name: mac
+  in: path
+  required: true
+  schema:
+    type: string
+  example: d3:4d:b4:c0:ff:ee
+
+ip:
+  description: The IP address of the device.
+  name: ip
+  in: path
+  required: true
+  schema:
+    type: string
+  example: 1.2.3.4
+
+interface:
+  description: The network interface.
+  name: interface
+  in: path
+  required: true
+  schema:
+    type: string
+  example: eth0
+
+network:
+  name: network
+  in: path
+  required: true
+  schema :
+    type: string
+  example: 192.168.1.0

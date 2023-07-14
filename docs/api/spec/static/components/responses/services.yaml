@@ -1,0 +1,60 @@
+ServiceAsync:
+  description: Request successful. An asyncronous task has been created.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceAsync"
+
+ServiceStart:
+  description: Request successful. Service started.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceStart"
+
+ServiceStop:
+  description: Request successful. Service stopped.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceStop"
+
+ServiceRestart:
+  description: Request successful. Service restarted.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceRestart"
+
+ServiceEnable:
+  description: Request successful. Service enabled.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceEnable"
+
+ServiceDisable:
+  description: Request successful. Service disabled.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceDisable"
+
+ServicesClusterServer:
+  description: List of services on cluster server.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          item:
+            type: object
+            properties:
+              host:
+                type: string
+              services:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceStatus"
+          status:
+            $ref: "#/components/schemas/Status"

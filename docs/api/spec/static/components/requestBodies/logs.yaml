@@ -1,0 +1,20 @@
+LogsCreate:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          files:
+            description: Log files to tail.
+            type: array
+            items:
+              description: /usr/local/pf/logs/logfile.log
+              type: string
+            required: true
+          filter:
+            description: Filter events by string.
+            type: string
+          filter_is_regexp:
+            description: Filter is a regular expression.
+            type: boolean

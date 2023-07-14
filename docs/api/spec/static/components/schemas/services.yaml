@@ -1,0 +1,143 @@
+ServicesList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable"
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Service"
+
+Service:
+  description: Service unique identifier.
+  type: string
+
+ServicesStatus:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: "#/components/schemas/ServiceStatus"
+    status:
+      $ref: "#/components/schemas/Status"
+
+ServiceStatus:
+  type: object
+  properties:
+    alive:
+      description: Service is running.
+      type: integer
+      oneOf:
+        - const: 0
+          description: No
+        - const: 1
+          description: Yes
+    enabled:
+      description: Service is enabled.
+      type: integer
+      oneOf:
+        - const: 0
+          description: No
+        - const: 1
+          description: Yes
+    id:
+      description: Unique identifier.
+      type: string
+    managed:
+      description: Service is managed.
+      type: integer
+      oneOf:
+        - const: 0
+          description: No
+        - const: 1
+          description: Yes
+    pid:
+      description: Process identifier.
+      type: integer
+
+ServiceAsync:
+  type: object
+  properties:
+    task_id:
+      description: A unique identifier for the asyncronous task.
+      type: string
+    status:
+      description: Response code for item.
+      type: integer
+
+ServiceStart:
+  type: object
+  properties:
+    pid:
+      type: integer
+      description: The service PID.
+    start:
+      type: integer
+      description: Whether the service was started or not.
+      oneOf:
+        - const: 0
+          description: No
+        - const: 1
+          description: Yes
+    status:
+      $ref: "#/components/schemas/Status"
+
+ServiceStop:
+  type: object
+  properties:
+    stop:
+      type: integer
+      description: Whether the service was stopped or not.
+      oneOf:
+        - const: 0
+          description: No
+        - const: 1
+          description: Yes
+    status:
+      $ref: "#/components/schemas/Status"
+
+ServiceRestart:
+  type: object
+  properties:
+    pid:
+      type: integer
+      description: The service PID.
+    restart:
+      type: integer
+      description: Whether the service was restarted or not.
+      oneOf:
+        - const: 0
+          description: No
+        - const: 1
+          description: Yes
+    status:
+      $ref: "#/components/schemas/Status"
+
+ServiceEnable:
+  type: object
+  properties:
+    enable:
+      type: integer
+      description: Whether the service was enabled or not.
+      oneOf:
+        - const: 0
+          description: No
+        - const: 1
+          description: Yes
+    status:
+      $ref: "#/components/schemas/Status"
+
+ServiceDisable:
+  type: object
+  properties:
+    disable:
+      type: integer
+      description: Whether the service was disabled or not.
+      oneOf:
+        - const: 0
+          description: No
+        - const: 1
+          description: Yes
+    status:
+      $ref: "#/components/schemas/Status"

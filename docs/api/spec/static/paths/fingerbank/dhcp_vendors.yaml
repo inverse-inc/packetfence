@@ -1,0 +1,112 @@
+/api/v1/fingerbank/{scope}/dhcp_vendors:
+  get:
+    summary: Get DHCP Vendors.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScope'
+    - name: cursor
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankPaginatedCursor'
+    - name: limit
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankPaginatedLimit'
+    - name: sort
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcpVendorsSort'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDhcpVendors'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+  post:
+    summary: Create local DHCP Vendor.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcpVendor'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/{scope}/dhcp_vendors/search:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScope'
+  post:
+    summary: Search local DHCP Vendors.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcpVendorsSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDhcpVendorsSearch'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/{scope}/dhcp_vendor/{dhcp_vendor_id}:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+  - name: dhcp_vendor_id
+    in: path
+    required: true
+    schema:
+      type: string
+  get:
+    summary: Get local DHCP Vendor.
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDhcpVendor'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  patch:
+    summary: Update local DHCP Vendor.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcpVendor'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    summary: Delete local DHCP Vendor.
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank

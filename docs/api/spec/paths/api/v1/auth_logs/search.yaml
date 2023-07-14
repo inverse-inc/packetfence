@@ -1,0 +1,117 @@
+/api/v1/auth_logs/search:
+  description: pf::UnifiedApi::Controller::AuthLogs
+  post:
+    description: Search all items.
+    operationId: api.v1.AuthLogs.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          example:
+            cursor: 0
+            fields: &1
+            - mac
+            - source
+            - status
+            - pid
+            - attempted_at
+            - id
+            - completed_at
+            - process_name
+            - profile
+            limit: 25
+            query:
+              op: and
+              values:
+              - op: or
+                values:
+                - field: mac
+                  op: contains
+                  value: foo
+                - field: source
+                  op: contains
+                  value: foo
+                - field: status
+                  op: contains
+                  value: foo
+                - field: pid
+                  op: contains
+                  value: foo
+                - field: attempted_at
+                  op: contains
+                  value: foo
+                - field: id
+                  op: contains
+                  value: foo
+                - field: completed_at
+                  op: contains
+                  value: foo
+                - field: process_name
+                  op: contains
+                  value: foo
+                - field: profile
+                  op: contains
+                  value: foo
+            sort:
+            - id ASC
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Search'
+            - properties:
+                cursor:
+                  required: false
+                  type: string
+                fields:
+                  items:
+                    enum: *1
+                    type: string
+                  required: true
+                  type: array
+                limit:
+                  maximum: 1000
+                  minimum: 1
+                  required: false
+                  type: integer
+                sort:
+                  items:
+                    enum:
+                    - mac ASC
+                    - mac DESC
+                    - source ASC
+                    - source DESC
+                    - status ASC
+                    - status DESC
+                    - pid ASC
+                    - pid DESC
+                    - attempted_at ASC
+                    - attempted_at DESC
+                    - id ASC
+                    - id DESC
+                    - completed_at ASC
+                    - completed_at DESC
+                    - process_name ASC
+                    - process_name DESC
+                    - profile ASC
+                    - profile DESC
+                    type: string
+                  required: true
+                  type: array
+              required:
+              - fields
+      required: true
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - AuthLogs

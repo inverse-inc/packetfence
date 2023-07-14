@@ -1,0 +1,104 @@
+Created:
+  description: Request successful. A new resource was created.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+  headers:
+    Location:
+      schema:
+        type: string
+      description: The location of the created resource.
+Deleted:
+  description: Request successful. An exisiting resource was deleted.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+Updated:
+  description: Request successful. Resource was updated.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+Message:
+  description: Request successful. Response contains a simple message.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+Status:
+  description: Request successful. Response contains a status response code.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          status:
+            $ref: "#/components/schemas/Status"
+StatusOnly:
+  description: Request successful. Response contains a status response code.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Status"
+ErrorMessage:
+  description: Request failed. Response contains a simple message.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+ErrorsWithMessage:
+  description: A response that contains a message along with explanatory error messages tied to fields.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorsWithMessage"
+BadRequest:
+  description: Bad Request. One of the submitted parameters has an invalid format.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorsWithMessage"
+Unauthorized:
+  description: Unauthorized access to the resource because of invalid credentials.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+Forbidden:
+  description: Forbidden access to the resource because of insufficient access rights.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+Duplicate:
+  description: An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorsWithMessage"
+UnprocessableEntity:
+  description: Request cannot be processed because the resource has failed validation after the modification.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorsWithMessage"
+NotFound:
+  description: Request cannot be processed because the resource could not be found.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorsWithMessage"
+BulkImport:
+  description: Request successful. Bulk resources have been imported.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/BulkImportResponse"
+Count:
+  description: Request successful. Response contains resource count.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/CountResponse"

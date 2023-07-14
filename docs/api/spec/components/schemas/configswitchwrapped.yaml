@@ -1,0 +1,7 @@
+ConfigSwitchWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigSwitch'
+    status:
+      type: integer
+  type: object

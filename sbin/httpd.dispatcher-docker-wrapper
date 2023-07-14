@@ -7,8 +7,8 @@ name=httpd.dispatcher
 args=`base_args $name`
 args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -p 8888:8888 -p 8889:8889 -p 5252:5252"
 
-if ! [ -z "$HTML_CAPTIVEPORTAL_MOUNT" ]; then
-  args="$args -v$HTML_CAPTIVEPORTAL_MOUNT:/usr/local/pf/html/captive-portal"
+if ! [ -z "$HTML_MOUNT" ]; then
+  args="$args -v$HTML_MOUNT:/usr/local/pf/html"
 else
   args="$args -v/usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates"
 fi

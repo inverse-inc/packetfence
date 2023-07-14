@@ -1,33 +1,42 @@
 ConfigProvisioning:
-  properties:
-    category:
-      description: Nodes with the selected roles will be affected
-      items:
-        description: Nodes with the selected roles will be affected
-        type: string
-      type: array
-    description:
-      description: Description
-      type: string
-    id:
-      description: Provisioning ID
-      type: string
-    non_compliance_violation:
-      description: Which violation should be raised when non compliance is detected
-      type: string
-    oses:
-      description: Nodes with the selected OS will be affected
-      items:
-        description: Nodes with the selected OS will be affected
-        type: string
-      type: array
-    pki_provider:
-      description: PKI Provider
-      type: string
-    type:
-      description: Provisioning type
-      type: string
-  required:
-  - id
-  - type
-  type: object
+  description: 'Choose one of the request bodies by discriminator (`type`). '
+  discriminator:
+    mapping:
+      accept: '#/components/schemas/ConfigProvisioningSubTypeAccept'
+      airwatch: '#/components/schemas/ConfigProvisioningSubTypeAirwatch'
+      android: '#/components/schemas/ConfigProvisioningSubTypeAndroid'
+      deny: '#/components/schemas/ConfigProvisioningSubTypeDeny'
+      dpsk: '#/components/schemas/ConfigProvisioningSubTypeDpsk'
+      google_workspace_chromebook: '#/components/schemas/ConfigProvisioningSubTypeGoogleWorkspaceChromebook'
+      ibm: '#/components/schemas/ConfigProvisioningSubTypeIbm'
+      intune: '#/components/schemas/ConfigProvisioningSubTypeIntune'
+      jamf: '#/components/schemas/ConfigProvisioningSubTypeJamf'
+      kandji: '#/components/schemas/ConfigProvisioningSubTypeKandji'
+      mobileconfig: '#/components/schemas/ConfigProvisioningSubTypeMobileconfig'
+      mobileiron: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
+      opswat: '#/components/schemas/ConfigProvisioningSubTypeOpswat'
+      sentinelone: '#/components/schemas/ConfigProvisioningSubTypeSentinelone'
+      sepm: '#/components/schemas/ConfigProvisioningSubTypeSepm'
+      servicenow: '#/components/schemas/ConfigProvisioningSubTypeServicenow'
+      symantec: '#/components/schemas/ConfigProvisioningSubTypeSymantec'
+      windows: '#/components/schemas/ConfigProvisioningSubTypeWindows'
+    propertyName: type
+  oneOf:
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeAndroid'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeIntune'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeWindows'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeIbm'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeGoogleWorkspaceChromebook'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeSentinelone'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeDpsk'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeOpswat'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeDeny'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeServicenow'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeSymantec'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeKandji'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeAirwatch'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeJamf'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileconfig'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeSepm'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeAccept'

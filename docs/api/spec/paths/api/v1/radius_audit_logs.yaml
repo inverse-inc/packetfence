@@ -1,0 +1,196 @@
+/api/v1/radius_audit_logs:
+  description: |-
+    pf::UnifiedApi::Controller::RadiusAuditLogs
+
+      cleanup_item
+        cleanup_item
+  get:
+    description: List all items.
+    operationId: api.v1.RadiusAuditLogs.list
+    parameters:
+    - allOf:
+      - description: Comma delimited list of fields to return with each item.
+        explode: false
+        name: fields
+        required: true
+        schema:
+          example: &1
+          - nas_port_id
+          - radius_reply
+          - pf_domain
+          - nas_port
+          - ip
+          - auth_status
+          - request_time
+          - ssid
+          - created_at
+          - uuid
+          - event_type
+          - connection_type
+          - switch_id
+          - switch_ip_address
+          - auto_reg
+          - auth_type
+          - switch_mac
+          - computer_name
+          - ifindex
+          - is_phone
+          - user_name
+          - reason
+          - radius_ip
+          - called_station_id
+          - eap_type
+          - nas_port_type
+          - stripped_user_name
+          - mac
+          - source
+          - node_status
+          - profile
+          - realm
+          - id
+          - radius_source_ip_address
+          - calling_station_id
+          - nas_ip_address
+          - role
+          - nas_identifier
+          - radius_request
+          items:
+            enum: *1
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - description: 'Comma delimited list of fields and respective order to sort
+          items (`default: [ id ASC ]`).'
+        explode: false
+        name: sort
+        schema:
+          example:
+          - id ASC
+          items:
+            enum:
+            - nas_port_id ASC
+            - nas_port_id DESC
+            - radius_reply ASC
+            - radius_reply DESC
+            - pf_domain ASC
+            - pf_domain DESC
+            - nas_port ASC
+            - nas_port DESC
+            - ip ASC
+            - ip DESC
+            - auth_status ASC
+            - auth_status DESC
+            - request_time ASC
+            - request_time DESC
+            - ssid ASC
+            - ssid DESC
+            - created_at ASC
+            - created_at DESC
+            - uuid ASC
+            - uuid DESC
+            - event_type ASC
+            - event_type DESC
+            - connection_type ASC
+            - connection_type DESC
+            - switch_id ASC
+            - switch_id DESC
+            - switch_ip_address ASC
+            - switch_ip_address DESC
+            - auto_reg ASC
+            - auto_reg DESC
+            - auth_type ASC
+            - auth_type DESC
+            - switch_mac ASC
+            - switch_mac DESC
+            - computer_name ASC
+            - computer_name DESC
+            - ifindex ASC
+            - ifindex DESC
+            - is_phone ASC
+            - is_phone DESC
+            - user_name ASC
+            - user_name DESC
+            - reason ASC
+            - reason DESC
+            - radius_ip ASC
+            - radius_ip DESC
+            - called_station_id ASC
+            - called_station_id DESC
+            - eap_type ASC
+            - eap_type DESC
+            - nas_port_type ASC
+            - nas_port_type DESC
+            - stripped_user_name ASC
+            - stripped_user_name DESC
+            - mac ASC
+            - mac DESC
+            - source ASC
+            - source DESC
+            - node_status ASC
+            - node_status DESC
+            - profile ASC
+            - profile DESC
+            - realm ASC
+            - realm DESC
+            - id ASC
+            - id DESC
+            - radius_source_ip_address ASC
+            - radius_source_ip_address DESC
+            - calling_station_id ASC
+            - calling_station_id DESC
+            - nas_ip_address ASC
+            - nas_ip_address DESC
+            - role ASC
+            - role DESC
+            - nas_identifier ASC
+            - nas_identifier DESC
+            - radius_request ASC
+            - radius_request DESC
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/limit'
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/cursor'
+      - in: query
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadiusAuditLogsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - RadiusAuditLogs
+  post:
+    description: Create a new item.
+    operationId: api.v1.RadiusAuditLogs.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RadiusAuditLog'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - RadiusAuditLogs

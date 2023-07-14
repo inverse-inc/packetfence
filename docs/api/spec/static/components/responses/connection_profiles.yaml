@@ -1,0 +1,6 @@
+ConfigConnectionProfileFilesRoot:
+  description: Request successful. Response contains files for connection profile.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigConnectionProfileFilesRoot"

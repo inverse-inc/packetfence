@@ -12,7 +12,7 @@ Web form for purge_binary_logs pfcron task
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfcron qw(default_field_method);
+use pfappserver::Form::Config::Pfcron qw(default_field_method batch_help_text timeout_help_text window_help_text);
 
 extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';

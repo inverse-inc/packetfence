@@ -1,0 +1,82 @@
+/api/v1/admin_api_audit_logs:
+  description: pf::UnifiedApi::Controller::AdminApiAuditLogs
+  get:
+    description: List all items.
+    operationId: api.v1.AdminApiAuditLogs.list
+    parameters:
+    - allOf:
+      - description: Comma delimited list of fields to return with each item.
+        explode: false
+        name: fields
+        required: true
+        schema:
+          example: &1
+          - object_id
+          - status
+          - url
+          - id
+          - action
+          - user_name
+          - created_at
+          - method
+          - request
+          items:
+            enum: *1
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - description: 'Comma delimited list of fields and respective order to sort
+          items (`default: [ id ASC ]`).'
+        explode: false
+        name: sort
+        schema:
+          example:
+          - id ASC
+          items:
+            enum:
+            - object_id ASC
+            - object_id DESC
+            - status ASC
+            - status DESC
+            - url ASC
+            - url DESC
+            - id ASC
+            - id DESC
+            - action ASC
+            - action DESC
+            - user_name ASC
+            - user_name DESC
+            - created_at ASC
+            - created_at DESC
+            - method ASC
+            - method DESC
+            - request ASC
+            - request DESC
+            type: string
+          type: array
+        style: form
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/limit'
+      - in: query
+    - allOf:
+      - $ref: '#/components/parameters/cursor'
+      - in: query
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminApiAuditLogsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - AdminApiAuditLogs

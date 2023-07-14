@@ -1,0 +1,7 @@
+ConfigFilterEnginesVlanFilterWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigFilterEnginesVlanFilter'
+    status:
+      type: integer
+  type: object

@@ -1,0 +1,110 @@
+Status:
+  description: Response code.
+  type: integer
+  default: 200
+
+Message:
+  type: object
+  properties:
+    message:
+      description: A descriptive message for the user.
+      type: string
+    status:
+      $ref: '#/components/schemas/Status'
+
+ErrorsWithMessage:
+  type: object
+  properties:
+    message:
+      description: A descriptive message for the user.
+      type: string
+    errors:
+      description: Array of errors.
+      type: array
+      items:
+        description: An individual error.
+        type: object
+        properties:
+          field:
+            description: The error field.
+            type: string
+          message:
+            description: The error message.
+            type: string
+    status:
+      $ref: '#/components/schemas/Status'
+
+Iterable:
+  type: object
+  properties:
+    prevCursor:
+      description: The cursor to access paginated data for the previous page.
+      type: string
+    nextCursor:
+      description: The cursor to access paginated data for the next page.
+      type: string
+    total_count:
+      type: integer
+      description: The total count of paginated items.
+
+Flags:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          not_deletable:
+            description: The resource can not be deleted.
+            type: boolean
+            default: false
+          not_updatable:
+            description: The resource can not be modified.
+            type: boolean
+            default: false
+
+BulkImport:
+  type: object
+  properties:
+    ignoreInsertIfNotExists:
+      type: boolean
+      description: Only modify existing items, do not create new items.
+      default: false
+    ignoreUpdateIfExists:
+      type: boolean
+      description: Only create new items, do not modify existing items.
+      default: true
+    stopOnFirstError:
+      type: boolean
+      description: Return on the first error and do not process remaining items.
+      default: true
+
+BulkImportResponse:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          isNew:
+            type: boolean
+          item:
+            type: object
+          message:
+            description: A descriptive message for the user.
+            type: string
+          status:
+            $ref: '#/components/schemas/Status'
+    status:
+      $ref: '#/components/schemas/Status'
+
+CountResponse:
+  type: object
+  properties:
+    count:
+      type: string
+      description: The number of modified resources.
+    status:
+      $ref: '#/components/schemas/Status'

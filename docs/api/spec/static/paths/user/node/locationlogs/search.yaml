@@ -1,0 +1,28 @@
+/api/v1/user/{user_id}/node/{node_id}/locationlogs/search:
+  description: pf::UnifiedApi::Controller::Users::Nodes::Locationlogs
+  post:
+    operationId: api.v1.Users.Nodes.Locationlogs.search
+    parameters:
+    - $ref: "#/components/parameters/user_id"
+    - $ref: "#/components/parameters/node_id"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Search'
+      description: Search for locationlogs.
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersNodesLocationlogsList'
+        description: Request successful. The response contains the locationlogs.
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Users

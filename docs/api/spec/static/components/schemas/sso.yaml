@@ -1,0 +1,16 @@
+SsoStatus:
+  type: object
+  properties:
+    login_text:
+      type: string
+      description: SSO login button text.
+    login_url:
+      type: string
+      description: SSO login callback URL.
+    is_enabled:
+      type: boolean
+      oneOf:
+        - const: false
+          description: SSO is not enabled.
+        - const: true
+          description: SSO is enabled.

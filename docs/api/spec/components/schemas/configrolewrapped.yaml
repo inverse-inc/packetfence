@@ -1,0 +1,7 @@
+ConfigRoleWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigRole'
+    status:
+      type: integer
+  type: object

@@ -1,0 +1,200 @@
+/api/v1/services/:
+  get:
+    summary: List all available services.
+    description: The list of services will be limited to 100 and a cursor will be returned for iterating on other services. Iteration is only needed if the nextCursor is not an empty value.
+    parameters:
+      - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+    responses:
+      '200':
+        description: List of services
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServicesList"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+    tags:
+      - Services
+
+/api/v1/services/status_all:
+  get:
+    summary: List services statuses on the local cluster member.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+    responses:
+      '200':
+        description: Request successful. Response contains a list of all services.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServicesStatus"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+    tags:
+      - Services
+
+/api/v1/services/cluster_statuses:
+  get:
+    summary: List servers and the services of each member in the cluster.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+    responses:
+      '200':
+        description: List of servers.
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+    tags:
+      - Services
+
+/api/v1/services/cluster_status/{server}:
+  get:
+    summary: List service statuses on a specific cluster member.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+      - name: server
+        in: path
+        required: true
+        description: The server to fetch.
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: "#/components/responses/ServicesClusterServer"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+    tags:
+      - Services
+
+/api/v1/service/{service}/status:
+  get:
+    summary: Service status.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+      - $ref: '#/components/parameters/service'
+    responses:
+      '200':
+        description: Service details.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceStatus"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Services
+
+
+/api/v1/service/{service}/start:
+  post:
+    summary: Start a service, return the PID.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+      - $ref: '#/components/parameters/Async'
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+          example:
+            async: true
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceStart"
+      '202':
+        $ref: "#/components/responses/ServiceAsync"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Services
+
+/api/v1/service/{service}/stop:
+  post:
+    summary: Stop a service.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+      - $ref: '#/components/parameters/Async'
+      - $ref: '#/components/parameters/service'
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+          example:
+            async: true
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceStop"
+      '202':
+        $ref: "#/components/responses/ServiceAsync"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Services
+
+
+/api/v1/service/{service}/restart:
+  post:
+    summary: Restart a service, return the PID.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+      - $ref: '#/components/parameters/Async'
+      - $ref: '#/components/parameters/service'
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+          example:
+            async: true
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceRestart"
+      '202':
+        $ref: "#/components/responses/ServiceAsync"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Services
+
+
+/api/v1/service/{service}/enable:
+  post:
+    summary: Enable service, starts after reboot.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+      - $ref: '#/components/parameters/service'
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceEnable"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Services
+
+
+/api/v1/service/{service}/disable:
+  post:
+    summary: Disable service, does not start after reboot.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+      - $ref: '#/components/parameters/service'
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceDisable"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Services

@@ -1,0 +1,7 @@
+ConfigRoutedNetworkWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigRoutedNetwork'
+    status:
+      type: integer
+  type: object

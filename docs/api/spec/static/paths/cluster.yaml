@@ -1,0 +1,29 @@
+/api/v1/cluster/config:
+  get:
+    summary: Cluster configuration.
+    responses:
+      '200':
+        description: Request successful. Response contains the cluster configuration.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClusterConfig"
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Cluster
+
+/api/v1/cluster/servers:
+  get:
+    summary: Cluster members.
+    responses:
+      '200':
+        description: Request successful. Response contains the cluster members.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClusterServers"
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Cluster

@@ -1,0 +1,9 @@
+ConfigFilterEnginesDNSFiltersList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/ConfigFilterEnginesDNSFilter'
+        type: array
+    type: object

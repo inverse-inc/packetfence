@@ -1,0 +1,25 @@
+Ip6logsOpen:
+  description: Request successful. Response contains the open IP6 log.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          item:
+            $ref: '#/components/schemas/Ip6log'
+          status:
+            $ref: '#/components/schemas/Status'
+
+Ip6logsHistory:
+  description: Request successful. Response contains the IP6 log history.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ip6log'
+          status:
+            $ref: '#/components/schemas/Status'
