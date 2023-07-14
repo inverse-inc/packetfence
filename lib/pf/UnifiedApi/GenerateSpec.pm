@@ -30,7 +30,7 @@ sub formHandlerToSchema {
     return {
         $name => objectSchema($form),
         "${name}List" => listSchema($name),
-        "${name}Meta" => metaSchema($name),
+        "${name}Meta" => metaSchema($form),
     };
 }
 
