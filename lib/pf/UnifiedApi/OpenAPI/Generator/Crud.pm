@@ -175,11 +175,7 @@ sub dalToOpenAPISchemaProperties {
 sub dalToFields {
     my ( $self, $dal ) = @_;
     my $meta = $dal->get_meta();
-    my $fields = [];
-    while (my ($key, $value) = each %$meta) {
-        push @$fields, $key;
-    }
-    return \@$fields;
+    return [sort keys %$meta];
 }
 
 sub dalToSorts {
@@ -190,7 +186,7 @@ sub dalToSorts {
         push @$sorts, $key.' ASC';
         push @$sorts, $key.' DESC';
     };
-    return \@$sorts;
+    return [sort @$sorts];
 }
 
 sub dalToPK {
@@ -215,9 +211,9 @@ sub dalToOpFields {
             type => 'array',
             items => {
                 type => 'string',
-                enum => \@$fields,
+                enum => [@$fields],
             },
-            example => \@$fields,
+            example => [@$fields],
         },
         style => 'form',
         explode => JSON::MaybeXS::false,
@@ -235,7 +231,7 @@ sub dalToOpSort {
             type => 'array',
             items => {
                 type => 'string',
-                enum => \@$sorts,
+                enum => [sort @$sorts],
             },
             example => [ $pk.' ASC' ],
         },
@@ -248,11 +244,8 @@ sub dalToOpSort {
 sub dalToExampleQuery {
     my ($self, $dal) = @_;
     my $meta = $dal->get_meta();
-    my $values = [];
-    while (my ($key, $value) = each %$meta) {
-        push @$values, { field => $key, op => 'contains', value => 'foo' };
-    }
-    return { op => 'and', values => [ { op => 'or', values => \@$values } ] };
+    my @values = map { { field => $_, op => 'contains', value => 'foo' } } sort keys %$meta;
+    return { op => 'and', values => [ { op => 'or', values => \@values } ] };
 }
 
 sub operationParametersLookup {
@@ -405,7 +398,7 @@ sub searchRequestBody {
                                     type => 'array',
                                     items => {
                                         type => 'string',
-                                        enum => \@$fields,
+                                        enum => [sort @$fields],
                                     },
                                 },
                                 limit => {
@@ -419,7 +412,7 @@ sub searchRequestBody {
                                     type => 'array',
                                     items => {
                                         type => 'string',
-                                        enum => \@$sorts,
+                                        enum => [sort @$sorts],
                                     },
                                 }
                             }
