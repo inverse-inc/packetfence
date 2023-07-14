@@ -16,17 +16,12 @@ import (
 )
 
 type SearchQuery struct {
-	Server     string   `json:"server"`
 	Filter     string   `json:"filter"`
 	BaseDN     string   `json:"base_dn"`
 	Scope      string   `json:"scope"`
 	SizeLimit  int      `json:"size_limit"`
 	TimeLimit  int      `json:"time_limit"`
 	Attributes []string `json:"attributes,omitempty"`
-	// Server info
-
-	BindDN       string `json:"bind_dn,omitempty"`
-	BindPassword string `json:"bind_password,omitempty"`
 	// TODO take a look at how this is used
 	Context context.Context `json:"context"`
 }
