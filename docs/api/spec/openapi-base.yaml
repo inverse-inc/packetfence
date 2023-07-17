@@ -76,6 +76,8 @@ tags:
     description: Manage session, get the current users' allowed roles and actions.
   - name: SSO
     description: Single-Sign-On status.
+  - name: LDAP
+    description: Perform LDAP search.
   - name: System
     description: System summary.
   - name: Users
