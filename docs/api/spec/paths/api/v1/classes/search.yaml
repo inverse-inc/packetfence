@@ -9,52 +9,49 @@
         application/json:
           example:
             cursor: 0
-            fields: &1
-            - vlan
+            fields:
+            - auto_enable
             - button_text
-            - external_command
+            - delay_by
+            - description
             - enabled
-            - security_event_id
-            - window
-            - redirect_url
-            - target_category
+            - external_command
+            - grace_period
             - max_enable_url
             - max_enables
-            - auto_enable
-            - grace_period
             - priority
-            - delay_by
-            - vclose
+            - redirect_url
+            - security_event_id
+            - target_category
             - template
-            - description
+            - vclose
+            - vlan
+            - window
             limit: 25
             query:
               op: and
               values:
               - op: or
                 values:
-                - field: vlan
+                - field: auto_enable
                   op: contains
                   value: foo
                 - field: button_text
                   op: contains
                   value: foo
-                - field: external_command
+                - field: delay_by
+                  op: contains
+                  value: foo
+                - field: description
                   op: contains
                   value: foo
                 - field: enabled
                   op: contains
                   value: foo
-                - field: security_event_id
+                - field: external_command
                   op: contains
                   value: foo
-                - field: window
-                  op: contains
-                  value: foo
-                - field: redirect_url
-                  op: contains
-                  value: foo
-                - field: target_category
+                - field: grace_period
                   op: contains
                   value: foo
                 - field: max_enable_url
@@ -63,25 +60,28 @@
                 - field: max_enables
                   op: contains
                   value: foo
-                - field: auto_enable
-                  op: contains
-                  value: foo
-                - field: grace_period
-                  op: contains
-                  value: foo
                 - field: priority
                   op: contains
                   value: foo
-                - field: delay_by
+                - field: redirect_url
                   op: contains
                   value: foo
-                - field: vclose
+                - field: security_event_id
+                  op: contains
+                  value: foo
+                - field: target_category
                   op: contains
                   value: foo
                 - field: template
                   op: contains
                   value: foo
-                - field: description
+                - field: vclose
+                  op: contains
+                  value: foo
+                - field: vlan
+                  op: contains
+                  value: foo
+                - field: window
                   op: contains
                   value: foo
             sort:
@@ -95,7 +95,24 @@
                   type: string
                 fields:
                   items:
-                    enum: *1
+                    enum:
+                    - auto_enable
+                    - button_text
+                    - delay_by
+                    - description
+                    - enabled
+                    - external_command
+                    - grace_period
+                    - max_enable_url
+                    - max_enables
+                    - priority
+                    - redirect_url
+                    - security_event_id
+                    - target_category
+                    - template
+                    - vclose
+                    - vlan
+                    - window
                     type: string
                   required: true
                   type: array
@@ -107,40 +124,40 @@
                 sort:
                   items:
                     enum:
-                    - vlan ASC
-                    - vlan DESC
+                    - auto_enable ASC
+                    - auto_enable DESC
                     - button_text ASC
                     - button_text DESC
-                    - external_command ASC
-                    - external_command DESC
+                    - delay_by ASC
+                    - delay_by DESC
+                    - description ASC
+                    - description DESC
                     - enabled ASC
                     - enabled DESC
-                    - security_event_id ASC
-                    - security_event_id DESC
-                    - window ASC
-                    - window DESC
-                    - redirect_url ASC
-                    - redirect_url DESC
-                    - target_category ASC
-                    - target_category DESC
+                    - external_command ASC
+                    - external_command DESC
+                    - grace_period ASC
+                    - grace_period DESC
                     - max_enable_url ASC
                     - max_enable_url DESC
                     - max_enables ASC
                     - max_enables DESC
-                    - auto_enable ASC
-                    - auto_enable DESC
-                    - grace_period ASC
-                    - grace_period DESC
                     - priority ASC
                     - priority DESC
-                    - delay_by ASC
-                    - delay_by DESC
-                    - vclose ASC
-                    - vclose DESC
+                    - redirect_url ASC
+                    - redirect_url DESC
+                    - security_event_id ASC
+                    - security_event_id DESC
+                    - target_category ASC
+                    - target_category DESC
                     - template ASC
                     - template DESC
-                    - description ASC
-                    - description DESC
+                    - vclose ASC
+                    - vclose DESC
+                    - vlan ASC
+                    - vlan DESC
+                    - window ASC
+                    - window DESC
                     type: string
                   required: true
                   type: array

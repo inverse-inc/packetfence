@@ -9,10 +9,10 @@
         application/json:
           example:
             cursor: 0
-            fields: &1
-            - mac
+            fields:
             - end_time
             - ip
+            - mac
             - start_time
             limit: 25
             query:
@@ -20,13 +20,13 @@
               values:
               - op: or
                 values:
-                - field: mac
-                  op: contains
-                  value: foo
                 - field: end_time
                   op: contains
                   value: foo
                 - field: ip
+                  op: contains
+                  value: foo
+                - field: mac
                   op: contains
                   value: foo
                 - field: start_time
@@ -43,7 +43,11 @@
                   type: string
                 fields:
                   items:
-                    enum: *1
+                    enum:
+                    - end_time
+                    - ip
+                    - mac
+                    - start_time
                     type: string
                   required: true
                   type: array
@@ -55,12 +59,12 @@
                 sort:
                   items:
                     enum:
-                    - mac ASC
-                    - mac DESC
                     - end_time ASC
                     - end_time DESC
                     - ip ASC
                     - ip DESC
+                    - mac ASC
+                    - mac DESC
                     - start_time ASC
                     - start_time DESC
                     type: string

@@ -10,19 +10,29 @@
         name: fields
         required: true
         schema:
-          example: &1
-          - include_parent_acls
-          - inherit_web_auth_url
-          - notes
+          example:
           - acls
           - category_id
-          - max_nodes_per_pid
           - fingerbank_dynamic_access_list
+          - include_parent_acls
           - inherit_role
-          - name
           - inherit_vlan
+          - inherit_web_auth_url
+          - max_nodes_per_pid
+          - name
+          - notes
           items:
-            enum: *1
+            enum:
+            - acls
+            - category_id
+            - fingerbank_dynamic_access_list
+            - include_parent_acls
+            - inherit_role
+            - inherit_vlan
+            - inherit_web_auth_url
+            - max_nodes_per_pid
+            - name
+            - notes
             type: string
           type: array
         style: form
@@ -37,26 +47,26 @@
           - category_id ASC
           items:
             enum:
-            - include_parent_acls ASC
-            - include_parent_acls DESC
-            - inherit_web_auth_url ASC
-            - inherit_web_auth_url DESC
-            - notes ASC
-            - notes DESC
             - acls ASC
             - acls DESC
             - category_id ASC
             - category_id DESC
-            - max_nodes_per_pid ASC
-            - max_nodes_per_pid DESC
             - fingerbank_dynamic_access_list ASC
             - fingerbank_dynamic_access_list DESC
+            - include_parent_acls ASC
+            - include_parent_acls DESC
             - inherit_role ASC
             - inherit_role DESC
-            - name ASC
-            - name DESC
             - inherit_vlan ASC
             - inherit_vlan DESC
+            - inherit_web_auth_url ASC
+            - inherit_web_auth_url DESC
+            - max_nodes_per_pid ASC
+            - max_nodes_per_pid DESC
+            - name ASC
+            - name DESC
+            - notes ASC
+            - notes DESC
             type: string
           type: array
         style: form

@@ -9,51 +9,51 @@
         application/json:
           example:
             cursor: 0
-            fields: &1
-            - include_parent_acls
-            - inherit_web_auth_url
-            - notes
+            fields:
             - acls
             - category_id
-            - max_nodes_per_pid
             - fingerbank_dynamic_access_list
+            - include_parent_acls
             - inherit_role
-            - name
             - inherit_vlan
+            - inherit_web_auth_url
+            - max_nodes_per_pid
+            - name
+            - notes
             limit: 25
             query:
               op: and
               values:
               - op: or
                 values:
-                - field: include_parent_acls
-                  op: contains
-                  value: foo
-                - field: inherit_web_auth_url
-                  op: contains
-                  value: foo
-                - field: notes
-                  op: contains
-                  value: foo
                 - field: acls
                   op: contains
                   value: foo
                 - field: category_id
                   op: contains
                   value: foo
-                - field: max_nodes_per_pid
+                - field: fingerbank_dynamic_access_list
                   op: contains
                   value: foo
-                - field: fingerbank_dynamic_access_list
+                - field: include_parent_acls
                   op: contains
                   value: foo
                 - field: inherit_role
                   op: contains
                   value: foo
+                - field: inherit_vlan
+                  op: contains
+                  value: foo
+                - field: inherit_web_auth_url
+                  op: contains
+                  value: foo
+                - field: max_nodes_per_pid
+                  op: contains
+                  value: foo
                 - field: name
                   op: contains
                   value: foo
-                - field: inherit_vlan
+                - field: notes
                   op: contains
                   value: foo
             sort:
@@ -67,7 +67,17 @@
                   type: string
                 fields:
                   items:
-                    enum: *1
+                    enum:
+                    - acls
+                    - category_id
+                    - fingerbank_dynamic_access_list
+                    - include_parent_acls
+                    - inherit_role
+                    - inherit_vlan
+                    - inherit_web_auth_url
+                    - max_nodes_per_pid
+                    - name
+                    - notes
                     type: string
                   required: true
                   type: array
@@ -79,26 +89,26 @@
                 sort:
                   items:
                     enum:
-                    - include_parent_acls ASC
-                    - include_parent_acls DESC
-                    - inherit_web_auth_url ASC
-                    - inherit_web_auth_url DESC
-                    - notes ASC
-                    - notes DESC
                     - acls ASC
                     - acls DESC
                     - category_id ASC
                     - category_id DESC
-                    - max_nodes_per_pid ASC
-                    - max_nodes_per_pid DESC
                     - fingerbank_dynamic_access_list ASC
                     - fingerbank_dynamic_access_list DESC
+                    - include_parent_acls ASC
+                    - include_parent_acls DESC
                     - inherit_role ASC
                     - inherit_role DESC
-                    - name ASC
-                    - name DESC
                     - inherit_vlan ASC
                     - inherit_vlan DESC
+                    - inherit_web_auth_url ASC
+                    - inherit_web_auth_url DESC
+                    - max_nodes_per_pid ASC
+                    - max_nodes_per_pid DESC
+                    - name ASC
+                    - name DESC
+                    - notes ASC
+                    - notes DESC
                     type: string
                   required: true
                   type: array

@@ -10,46 +10,83 @@
         name: fields
         required: true
         schema:
-          example: &1
-          - Location_Country_Name
-          - UTC_Timezone
-          - SSID_1X
+          example:
+          - Client_Support
+          - Coverage_Area
           - English_Location_City
           - English_Location_Name
-          - Location_Identifier
-          - Service_Provider_Brand
-          - id
-          - Open_Wednesday
-          - SSID_Broadcasted
-          - Open_Thursday
-          - Location_Phone_Number
-          - WEP_Key_Entry_Method
-          - Open_Monday
-          - Location_State_Province_Name
-          - WEP_Key_Size
           - Latitude
-          - Provider_Identifier
-          - WEP_Key
           - Location_Address1
           - Location_Address2
-          - Sub_Location_Type
-          - Security_Protocol_1X
-          - SSID_Open_Auth
-          - Open_Friday
-          - MAC_Address
-          - Location_URL
+          - Location_Country_Name
+          - Location_Identifier
+          - Location_Phone_Number
+          - Location_State_Province_Name
           - Location_Type
-          - Restricted_Access
+          - Location_URL
+          - Location_Zip_Postal_Code
+          - Longitude
+          - MAC_Address
+          - Open_Friday
+          - Open_Monday
           - Open_Saturday
           - Open_Sunday
-          - Client_Support
-          - SSID_1X_Broadcasted
-          - Coverage_Area
-          - Longitude
-          - Location_Zip_Postal_Code
+          - Open_Thursday
           - Open_Tuesday
+          - Open_Wednesday
+          - Provider_Identifier
+          - Restricted_Access
+          - SSID_1X
+          - SSID_1X_Broadcasted
+          - SSID_Broadcasted
+          - SSID_Open_Auth
+          - Security_Protocol_1X
+          - Service_Provider_Brand
+          - Sub_Location_Type
+          - UTC_Timezone
+          - WEP_Key
+          - WEP_Key_Entry_Method
+          - WEP_Key_Size
+          - id
           items:
-            enum: *1
+            enum:
+            - Client_Support
+            - Coverage_Area
+            - English_Location_City
+            - English_Location_Name
+            - Latitude
+            - Location_Address1
+            - Location_Address2
+            - Location_Country_Name
+            - Location_Identifier
+            - Location_Phone_Number
+            - Location_State_Province_Name
+            - Location_Type
+            - Location_URL
+            - Location_Zip_Postal_Code
+            - Longitude
+            - MAC_Address
+            - Open_Friday
+            - Open_Monday
+            - Open_Saturday
+            - Open_Sunday
+            - Open_Thursday
+            - Open_Tuesday
+            - Open_Wednesday
+            - Provider_Identifier
+            - Restricted_Access
+            - SSID_1X
+            - SSID_1X_Broadcasted
+            - SSID_Broadcasted
+            - SSID_Open_Auth
+            - Security_Protocol_1X
+            - Service_Provider_Brand
+            - Sub_Location_Type
+            - UTC_Timezone
+            - WEP_Key
+            - WEP_Key_Entry_Method
+            - WEP_Key_Size
+            - id
             type: string
           type: array
         style: form
@@ -64,80 +101,80 @@
           - id ASC
           items:
             enum:
-            - Location_Country_Name ASC
-            - Location_Country_Name DESC
-            - UTC_Timezone ASC
-            - UTC_Timezone DESC
-            - SSID_1X ASC
-            - SSID_1X DESC
+            - Client_Support ASC
+            - Client_Support DESC
+            - Coverage_Area ASC
+            - Coverage_Area DESC
             - English_Location_City ASC
             - English_Location_City DESC
             - English_Location_Name ASC
             - English_Location_Name DESC
-            - Location_Identifier ASC
-            - Location_Identifier DESC
-            - Service_Provider_Brand ASC
-            - Service_Provider_Brand DESC
-            - id ASC
-            - id DESC
-            - Open_Wednesday ASC
-            - Open_Wednesday DESC
-            - SSID_Broadcasted ASC
-            - SSID_Broadcasted DESC
-            - Open_Thursday ASC
-            - Open_Thursday DESC
-            - Location_Phone_Number ASC
-            - Location_Phone_Number DESC
-            - WEP_Key_Entry_Method ASC
-            - WEP_Key_Entry_Method DESC
-            - Open_Monday ASC
-            - Open_Monday DESC
-            - Location_State_Province_Name ASC
-            - Location_State_Province_Name DESC
-            - WEP_Key_Size ASC
-            - WEP_Key_Size DESC
             - Latitude ASC
             - Latitude DESC
-            - Provider_Identifier ASC
-            - Provider_Identifier DESC
-            - WEP_Key ASC
-            - WEP_Key DESC
             - Location_Address1 ASC
             - Location_Address1 DESC
             - Location_Address2 ASC
             - Location_Address2 DESC
-            - Sub_Location_Type ASC
-            - Sub_Location_Type DESC
-            - Security_Protocol_1X ASC
-            - Security_Protocol_1X DESC
-            - SSID_Open_Auth ASC
-            - SSID_Open_Auth DESC
-            - Open_Friday ASC
-            - Open_Friday DESC
-            - MAC_Address ASC
-            - MAC_Address DESC
-            - Location_URL ASC
-            - Location_URL DESC
+            - Location_Country_Name ASC
+            - Location_Country_Name DESC
+            - Location_Identifier ASC
+            - Location_Identifier DESC
+            - Location_Phone_Number ASC
+            - Location_Phone_Number DESC
+            - Location_State_Province_Name ASC
+            - Location_State_Province_Name DESC
             - Location_Type ASC
             - Location_Type DESC
-            - Restricted_Access ASC
-            - Restricted_Access DESC
+            - Location_URL ASC
+            - Location_URL DESC
+            - Location_Zip_Postal_Code ASC
+            - Location_Zip_Postal_Code DESC
+            - Longitude ASC
+            - Longitude DESC
+            - MAC_Address ASC
+            - MAC_Address DESC
+            - Open_Friday ASC
+            - Open_Friday DESC
+            - Open_Monday ASC
+            - Open_Monday DESC
             - Open_Saturday ASC
             - Open_Saturday DESC
             - Open_Sunday ASC
             - Open_Sunday DESC
-            - Client_Support ASC
-            - Client_Support DESC
-            - SSID_1X_Broadcasted ASC
-            - SSID_1X_Broadcasted DESC
-            - Coverage_Area ASC
-            - Coverage_Area DESC
-            - Longitude ASC
-            - Longitude DESC
-            - Location_Zip_Postal_Code ASC
-            - Location_Zip_Postal_Code DESC
+            - Open_Thursday ASC
+            - Open_Thursday DESC
             - Open_Tuesday ASC
             - Open_Tuesday DESC
+            - Open_Wednesday ASC
+            - Open_Wednesday DESC
+            - Provider_Identifier ASC
+            - Provider_Identifier DESC
+            - Restricted_Access ASC
+            - Restricted_Access DESC
+            - SSID_1X ASC
+            - SSID_1X DESC
+            - SSID_1X_Broadcasted ASC
+            - SSID_1X_Broadcasted DESC
+            - SSID_Broadcasted ASC
+            - SSID_Broadcasted DESC
+            - SSID_Open_Auth ASC
+            - SSID_Open_Auth DESC
+            - Security_Protocol_1X ASC
+            - Security_Protocol_1X DESC
+            - Service_Provider_Brand ASC
+            - Service_Provider_Brand DESC
+            - Sub_Location_Type ASC
+            - Sub_Location_Type DESC
+            - UTC_Timezone ASC
+            - UTC_Timezone DESC
+            - WEP_Key ASC
+            - WEP_Key DESC
+            - WEP_Key_Entry_Method ASC
+            - WEP_Key_Entry_Method DESC
+            - WEP_Key_Size ASC
+            - WEP_Key_Size DESC
+            - id ASC
+            - id DESC
             type: string
           type: array
         style: form

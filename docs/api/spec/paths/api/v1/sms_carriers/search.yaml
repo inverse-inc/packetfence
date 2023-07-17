@@ -9,31 +9,31 @@
         application/json:
           example:
             cursor: 0
-            fields: &1
+            fields:
+            - created
+            - email_pattern
+            - id
             - modified
             - name
-            - created
-            - id
-            - email_pattern
             limit: 25
             query:
               op: and
               values:
               - op: or
                 values:
-                - field: modified
-                  op: contains
-                  value: foo
-                - field: name
-                  op: contains
-                  value: foo
                 - field: created
+                  op: contains
+                  value: foo
+                - field: email_pattern
                   op: contains
                   value: foo
                 - field: id
                   op: contains
                   value: foo
-                - field: email_pattern
+                - field: modified
+                  op: contains
+                  value: foo
+                - field: name
                   op: contains
                   value: foo
             sort:
@@ -47,7 +47,12 @@
                   type: string
                 fields:
                   items:
-                    enum: *1
+                    enum:
+                    - created
+                    - email_pattern
+                    - id
+                    - modified
+                    - name
                     type: string
                   required: true
                   type: array
@@ -59,16 +64,16 @@
                 sort:
                   items:
                     enum:
+                    - created ASC
+                    - created DESC
+                    - email_pattern ASC
+                    - email_pattern DESC
+                    - id ASC
+                    - id DESC
                     - modified ASC
                     - modified DESC
                     - name ASC
                     - name DESC
-                    - created ASC
-                    - created DESC
-                    - id ASC
-                    - id DESC
-                    - email_pattern ASC
-                    - email_pattern DESC
                     type: string
                   required: true
                   type: array

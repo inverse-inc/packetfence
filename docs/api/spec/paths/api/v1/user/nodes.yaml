@@ -10,41 +10,73 @@
         name: fields
         required: true
         schema:
-          example: &1
-          - sessionid
-          - voip
-          - dhcp_fingerprint
-          - device_version
-          - dhcp_vendor
-          - computername
-          - device_type
-          - status
-          - regdate
+          example:
           - autoreg
-          - category_id
-          - notes
-          - device_class
-          - pid
-          - last_arp
-          - last_seen
           - bandwidth_balance
-          - bypass_vlan
-          - user_agent
-          - time_balance
-          - device_score
-          - dhcp6_fingerprint
-          - bypass_role_id
-          - unregdate
-          - mac
-          - lastskip
-          - device_manufacturer
-          - detect_date
-          - dhcp6_enterprise
-          - machine_account
           - bypass_acls
+          - bypass_role_id
+          - bypass_vlan
+          - category_id
+          - computername
+          - detect_date
+          - device_class
+          - device_manufacturer
+          - device_score
+          - device_type
+          - device_version
+          - dhcp6_enterprise
+          - dhcp6_fingerprint
+          - dhcp_fingerprint
+          - dhcp_vendor
+          - last_arp
           - last_dhcp
+          - last_seen
+          - lastskip
+          - mac
+          - machine_account
+          - notes
+          - pid
+          - regdate
+          - sessionid
+          - status
+          - time_balance
+          - unregdate
+          - user_agent
+          - voip
           items:
-            enum: *1
+            enum:
+            - autoreg
+            - bandwidth_balance
+            - bypass_acls
+            - bypass_role_id
+            - bypass_vlan
+            - category_id
+            - computername
+            - detect_date
+            - device_class
+            - device_manufacturer
+            - device_score
+            - device_type
+            - device_version
+            - dhcp6_enterprise
+            - dhcp6_fingerprint
+            - dhcp_fingerprint
+            - dhcp_vendor
+            - last_arp
+            - last_dhcp
+            - last_seen
+            - lastskip
+            - mac
+            - machine_account
+            - notes
+            - pid
+            - regdate
+            - sessionid
+            - status
+            - time_balance
+            - unregdate
+            - user_agent
+            - voip
             type: string
           type: array
         style: form
@@ -59,70 +91,70 @@
           - mac ASC
           items:
             enum:
-            - sessionid ASC
-            - sessionid DESC
-            - voip ASC
-            - voip DESC
-            - dhcp_fingerprint ASC
-            - dhcp_fingerprint DESC
-            - device_version ASC
-            - device_version DESC
-            - dhcp_vendor ASC
-            - dhcp_vendor DESC
-            - computername ASC
-            - computername DESC
-            - device_type ASC
-            - device_type DESC
-            - status ASC
-            - status DESC
-            - regdate ASC
-            - regdate DESC
             - autoreg ASC
             - autoreg DESC
-            - category_id ASC
-            - category_id DESC
-            - notes ASC
-            - notes DESC
-            - device_class ASC
-            - device_class DESC
-            - pid ASC
-            - pid DESC
-            - last_arp ASC
-            - last_arp DESC
-            - last_seen ASC
-            - last_seen DESC
             - bandwidth_balance ASC
             - bandwidth_balance DESC
-            - bypass_vlan ASC
-            - bypass_vlan DESC
-            - user_agent ASC
-            - user_agent DESC
-            - time_balance ASC
-            - time_balance DESC
-            - device_score ASC
-            - device_score DESC
-            - dhcp6_fingerprint ASC
-            - dhcp6_fingerprint DESC
-            - bypass_role_id ASC
-            - bypass_role_id DESC
-            - unregdate ASC
-            - unregdate DESC
-            - mac ASC
-            - mac DESC
-            - lastskip ASC
-            - lastskip DESC
-            - device_manufacturer ASC
-            - device_manufacturer DESC
-            - detect_date ASC
-            - detect_date DESC
-            - dhcp6_enterprise ASC
-            - dhcp6_enterprise DESC
-            - machine_account ASC
-            - machine_account DESC
             - bypass_acls ASC
             - bypass_acls DESC
+            - bypass_role_id ASC
+            - bypass_role_id DESC
+            - bypass_vlan ASC
+            - bypass_vlan DESC
+            - category_id ASC
+            - category_id DESC
+            - computername ASC
+            - computername DESC
+            - detect_date ASC
+            - detect_date DESC
+            - device_class ASC
+            - device_class DESC
+            - device_manufacturer ASC
+            - device_manufacturer DESC
+            - device_score ASC
+            - device_score DESC
+            - device_type ASC
+            - device_type DESC
+            - device_version ASC
+            - device_version DESC
+            - dhcp6_enterprise ASC
+            - dhcp6_enterprise DESC
+            - dhcp6_fingerprint ASC
+            - dhcp6_fingerprint DESC
+            - dhcp_fingerprint ASC
+            - dhcp_fingerprint DESC
+            - dhcp_vendor ASC
+            - dhcp_vendor DESC
+            - last_arp ASC
+            - last_arp DESC
             - last_dhcp ASC
             - last_dhcp DESC
+            - last_seen ASC
+            - last_seen DESC
+            - lastskip ASC
+            - lastskip DESC
+            - mac ASC
+            - mac DESC
+            - machine_account ASC
+            - machine_account DESC
+            - notes ASC
+            - notes DESC
+            - pid ASC
+            - pid DESC
+            - regdate ASC
+            - regdate DESC
+            - sessionid ASC
+            - sessionid DESC
+            - status ASC
+            - status DESC
+            - time_balance ASC
+            - time_balance DESC
+            - unregdate ASC
+            - unregdate DESC
+            - user_agent ASC
+            - user_agent DESC
+            - voip ASC
+            - voip DESC
             type: string
           type: array
         style: form

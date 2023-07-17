@@ -9,23 +9,38 @@
         application/json:
           example:
             cursor: 0
-            fields: &1
+            fields:
+            - action
+            - created_at
+            - id
+            - method
             - object_id
+            - request
             - status
             - url
-            - id
-            - action
             - user_name
-            - created_at
-            - method
-            - request
             limit: 25
             query:
               op: and
               values:
               - op: or
                 values:
+                - field: action
+                  op: contains
+                  value: foo
+                - field: created_at
+                  op: contains
+                  value: foo
+                - field: id
+                  op: contains
+                  value: foo
+                - field: method
+                  op: contains
+                  value: foo
                 - field: object_id
+                  op: contains
+                  value: foo
+                - field: request
                   op: contains
                   value: foo
                 - field: status
@@ -34,22 +49,7 @@
                 - field: url
                   op: contains
                   value: foo
-                - field: id
-                  op: contains
-                  value: foo
-                - field: action
-                  op: contains
-                  value: foo
                 - field: user_name
-                  op: contains
-                  value: foo
-                - field: created_at
-                  op: contains
-                  value: foo
-                - field: method
-                  op: contains
-                  value: foo
-                - field: request
                   op: contains
                   value: foo
             sort:
@@ -63,7 +63,16 @@
                   type: string
                 fields:
                   items:
-                    enum: *1
+                    enum:
+                    - action
+                    - created_at
+                    - id
+                    - method
+                    - object_id
+                    - request
+                    - status
+                    - url
+                    - user_name
                     type: string
                   required: true
                   type: array
@@ -75,24 +84,24 @@
                 sort:
                   items:
                     enum:
+                    - action ASC
+                    - action DESC
+                    - created_at ASC
+                    - created_at DESC
+                    - id ASC
+                    - id DESC
+                    - method ASC
+                    - method DESC
                     - object_id ASC
                     - object_id DESC
+                    - request ASC
+                    - request DESC
                     - status ASC
                     - status DESC
                     - url ASC
                     - url DESC
-                    - id ASC
-                    - id DESC
-                    - action ASC
-                    - action DESC
                     - user_name ASC
                     - user_name DESC
-                    - created_at ASC
-                    - created_at DESC
-                    - method ASC
-                    - method DESC
-                    - request ASC
-                    - request DESC
                     type: string
                   required: true
                   type: array

@@ -10,17 +10,25 @@
         name: fields
         required: true
         schema:
-          example: &1
+          example:
           - answer
-          - scope
-          - qtype
-          - mac
           - created_at
-          - qname
-          - ip
           - id
+          - ip
+          - mac
+          - qname
+          - qtype
+          - scope
           items:
-            enum: *1
+            enum:
+            - answer
+            - created_at
+            - id
+            - ip
+            - mac
+            - qname
+            - qtype
+            - scope
             type: string
           type: array
         style: form
@@ -37,20 +45,20 @@
             enum:
             - answer ASC
             - answer DESC
-            - scope ASC
-            - scope DESC
-            - qtype ASC
-            - qtype DESC
-            - mac ASC
-            - mac DESC
             - created_at ASC
             - created_at DESC
-            - qname ASC
-            - qname DESC
-            - ip ASC
-            - ip DESC
             - id ASC
             - id DESC
+            - ip ASC
+            - ip DESC
+            - mac ASC
+            - mac DESC
+            - qname ASC
+            - qname DESC
+            - qtype ASC
+            - qtype DESC
+            - scope ASC
+            - scope DESC
             type: string
           type: array
         style: form
