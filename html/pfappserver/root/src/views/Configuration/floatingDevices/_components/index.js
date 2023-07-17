@@ -2,7 +2,7 @@ import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupInput,
-  BaseFormGroupToggleNoYes
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -14,7 +14,7 @@ export {
   BaseFormGroupInput        as FormGroupIdentifier,
   BaseFormGroupInput        as FormGroupIp,
   BaseFormGroupInput        as FormGroupPvid,
-  BaseFormGroupToggleNoYes  as FormGroupTrunkPort,
+  BaseFormGroupSwitch       as FormGroupTrunkPort,
   BaseFormGroupInput        as FormGroupTaggedVlan,
 
   TheForm,
