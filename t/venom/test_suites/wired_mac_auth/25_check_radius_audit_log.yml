@@ -13,7 +13,7 @@ testcases:
   - type: exec
     script: "date '+%Y-%m-%d %H:%M:%S' --date='2 minutes ago'"
     vars:
-      two_minute_ago:
+      two_minutes_ago:
         from: result.systemout
 
 # only latest search entry since two minutes that matches
