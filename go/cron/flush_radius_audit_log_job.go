@@ -163,56 +163,56 @@ func (j *FlushRadiusAuditLogJob) argsFromEntry(entry []interface{}) []interface{
 	request = entry[1].(map[string]interface{})
 	reply = entry[2].(map[string]interface{})
 	control = entry[3].(map[string]interface{})
-	args[0] = interfaceToStr(request["Calling-Station-Id"], "N/A")
-	args[1] = interfaceToStr(request["Framed-IP-Address"], "N/A")
-	args[2] = interfaceToStr(request["PacketFence-Computer-Name"], "N/A")
-	args[3] = interfaceToStr(request["User-Name"], "N/A")
-	args[4] = interfaceToStr(request["Stripped-User-Name"], "N/A")
-	args[5] = interfaceToStr(request["Realm"], "N/A")
+	args[2] = formatRequestValue(request["PacketFence-Computer-Name"], "N/A")
+	args[0] = formatRequestValue(request["Calling-Station-Id"], "N/A")
+	args[1] = formatRequestValue(request["Framed-IP-Address"], "N/A")
+	args[3] = formatRequestValue(request["User-Name"], "N/A")
+	args[4] = formatRequestValue(request["Stripped-User-Name"], "N/A")
+	args[5] = formatRequestValue(request["Realm"], "N/A")
 	args[6] = "Radius-Access-Request"
-	args[7] = interfaceToStr(control["PacketFence-Switch-Id"], "N/A")
-	args[8] = interfaceToStr(control["PacketFence-Switch-Mac"], "N/A")
-	args[9] = interfaceToStr(control["PacketFence-Switch-Ip-Address"], "N/A")
-	args[10] = interfaceToStr(control["Packet-Src-IP-Address"], "N/A")
-	args[11] = interfaceToStr(request["Called-Station-Id"], "")
-	args[12] = interfaceToStr(request["Calling-Station-Id"], "")
-	args[13] = interfaceToStr(request["NAS-Port-Type"], "")
-	args[14] = interfaceToStr(request["Called-Station-SSID"], "")
-	args[15] = interfaceToStr(request["NAS-Port-Id"], "N/A")
-	args[16] = interfaceToStr(control["PacketFence-IfIndex"], "N/A")
-	args[17] = interfaceToStr(request["NAS-Port"], "")
-	args[18] = interfaceToStr(control["PacketFence-Connection-Type"], "N/A")
-	args[19] = interfaceToStr(request["NAS-IP-Address"], "")
-	args[20] = interfaceToStr(request["NAS-Identifier"], "")
-	args[21] = interfaceToStr(entry[0], "accept")
-	args[22] = interfaceToStr(request["Module-Failure-Message"], "")
-	args[23] = interfaceToStr(control["Auth-Type"], "")
-	args[24] = interfaceToStr(request["EAP-Type"], "")
-	args[25] = interfaceToStr(control["PacketFence-Role"], "N/A")
-	args[26] = interfaceToStr(control["PacketFence-Status"], "N/A")
-	args[27] = interfaceToStr(control["PacketFence-Profile"], "N/A")
-	args[28] = interfaceToStr(control["PacketFence-Source"], "N/A")
-	args[29] = interfaceToStr(control["PacketFence-AutoReg"], "0")
-	args[30] = interfaceToStr(control["PacketFence-IsPhone"], "0")
-	args[31] = interfaceToStr(request["PacketFence-Domain"], "")
+	args[7] = formatRequestValue(control["PacketFence-Switch-Id"], "N/A")
+	args[8] = formatRequestValue(control["PacketFence-Switch-Mac"], "N/A")
+	args[9] = formatRequestValue(control["PacketFence-Switch-Ip-Address"], "N/A")
+	args[10] = formatRequestValue(control["Packet-Src-IP-Address"], "N/A")
+	args[11] = formatRequestValue(request["Called-Station-Id"], "")
+	args[12] = formatRequestValue(request["Calling-Station-Id"], "")
+	args[13] = formatRequestValue(request["NAS-Port-Type"], "")
+	args[14] = formatRequestValue(request["Called-Station-SSID"], "")
+	args[15] = formatRequestValue(request["NAS-Port-Id"], "N/A")
+	args[16] = formatRequestValue(control["PacketFence-IfIndex"], "N/A")
+	args[17] = formatRequestValue(request["NAS-Port"], "")
+	args[18] = formatRequestValue(control["PacketFence-Connection-Type"], "N/A")
+	args[19] = formatRequestValue(request["NAS-IP-Address"], "")
+	args[20] = formatRequestValue(request["NAS-Identifier"], "")
+	args[21] = formatRequestValue(entry[0], "Accept")
+	args[22] = formatRequestValue(request["Module-Failure-Message"], "")
+	args[23] = formatRequestValue(control["Auth-Type"], "")
+	args[24] = formatRequestValue(request["EAP-Type"], "")
+	args[25] = formatRequestValue(control["PacketFence-Role"], "N/A")
+	args[26] = formatRequestValue(control["PacketFence-Status"], "N/A")
+	args[27] = formatRequestValue(control["PacketFence-Profile"], "N/A")
+	args[28] = formatRequestValue(control["PacketFence-Source"], "N/A")
+	args[29] = formatRequestValue(control["PacketFence-AutoReg"], "0")
+	args[30] = formatRequestValue(control["PacketFence-IsPhone"], "0")
+	args[31] = formatRequestValue(request["PacketFence-Domain"], "")
 	args[32] = ""
 	args[33] = formatRequest(request)
 	args[34] = formatRequest(reply)
-	args[35] = interfaceToStr(control["PacketFence-Request-Time"], "")
-	args[36] = interfaceToStr(request["PacketFence-Radius-Ip"], "")
+	args[35] = formatRequestValue(control["PacketFence-Request-Time"], "")
+	args[36] = formatRequestValue(request["PacketFence-Radius-Ip"], "")
 	return args
 }
 
 func formatRequest(request map[string]interface{}) string {
 	parts := []string{}
 	for k, v := range request {
-		parts = append(parts, k+" : "+formatRequestValue(v))
+		parts = append(parts, k+" : "+formatRequestValue(v, ""))
 	}
 
 	return strings.Join(parts, ",\n")
 }
 
-func formatRequestValue(i interface{}) string {
+func formatRequestValue(i interface{}, defaultValue string) string {
 	switch v := i.(type) {
 	case string:
 		return v
@@ -235,10 +235,10 @@ func formatRequestValue(i interface{}) string {
 	case int:
 		return strconv.Itoa(v)
 	case map[string]interface{}:
-		val := formatRequestValue(v["value"])
+		val := formatRequestValue(v["value"], defaultValue)
 		return val
 	default:
-		return ""
+		return defaultValue
 	}
 }
 
