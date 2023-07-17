@@ -1,12 +1,6 @@
-import { BaseViewResource } from '../../../_components/new/'
-import {
-  BaseFormButtonBar,
-  BaseFormGroupInput,
-  BaseFormGroupToggleDisabledEnabled
-} from '@/components/new/'
-import {
-  BaseFormGroupIntervalUnit
-} from '@/views/Configuration/_components/new/'
+import {BaseViewResource} from '../../../_components/new/'
+import {BaseFormButtonBar, BaseFormGroupInput, BaseFormGroupSwitch,} from '@/components/new/'
+import {BaseFormGroupIntervalUnit} from '@/views/Configuration/_components/new/'
 import BaseFormGroupStaticRoutes from './BaseFormGroupStaticRoutes'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -14,15 +8,15 @@ import TheView from './TheView'
 export {
   BaseFormButtonBar                   as FormButtonBar,
 
-  BaseFormGroupToggleDisabledEnabled  as FormGroupDhcpdetector,
+  BaseFormGroupSwitch                as FormGroupDhcpdetector,
   BaseFormGroupIntervalUnit           as FormGroupDhcpRateLimiting,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupRogueDhcpDetection,
+  BaseFormGroupSwitch                as FormGroupRogueDhcpDetection,
   BaseFormGroupInput                  as FormGroupRogueinterval,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupHostnameChangeDetection,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupConnectionTypeChangeDetection,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupDhcpoption82logger,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupDhcpProcessIpv6,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupForceListenerUpdateOnAck,
+  BaseFormGroupSwitch                as FormGroupHostnameChangeDetection,
+  BaseFormGroupSwitch                as FormGroupConnectionTypeChangeDetection,
+  BaseFormGroupSwitch                as FormGroupDhcpoption82logger,
+  BaseFormGroupSwitch                as FormGroupDhcpProcessIpv6,
+  BaseFormGroupSwitch                as FormGroupForceListenerUpdateOnAck,
   BaseFormGroupInput                  as FormGroupInterfaceSnat,
   BaseFormGroupStaticRoutes           as FormGroupStaticroutes,
 
