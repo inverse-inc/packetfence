@@ -10,13 +10,17 @@
         name: fields
         required: true
         schema:
-          example: &1
-          - mac
+          example:
           - end_time
           - ip
+          - mac
           - start_time
           items:
-            enum: *1
+            enum:
+            - end_time
+            - ip
+            - mac
+            - start_time
             type: string
           type: array
         style: form
@@ -31,12 +35,12 @@
           - ip ASC
           items:
             enum:
-            - mac ASC
-            - mac DESC
             - end_time ASC
             - end_time DESC
             - ip ASC
             - ip DESC
+            - mac ASC
+            - mac DESC
             - start_time ASC
             - start_time DESC
             type: string

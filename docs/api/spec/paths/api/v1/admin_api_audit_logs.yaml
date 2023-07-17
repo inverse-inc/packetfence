@@ -10,18 +10,27 @@
         name: fields
         required: true
         schema:
-          example: &1
+          example:
+          - action
+          - created_at
+          - id
+          - method
           - object_id
+          - request
           - status
           - url
-          - id
-          - action
           - user_name
-          - created_at
-          - method
-          - request
           items:
-            enum: *1
+            enum:
+            - action
+            - created_at
+            - id
+            - method
+            - object_id
+            - request
+            - status
+            - url
+            - user_name
             type: string
           type: array
         style: form
@@ -36,24 +45,24 @@
           - id ASC
           items:
             enum:
+            - action ASC
+            - action DESC
+            - created_at ASC
+            - created_at DESC
+            - id ASC
+            - id DESC
+            - method ASC
+            - method DESC
             - object_id ASC
             - object_id DESC
+            - request ASC
+            - request DESC
             - status ASC
             - status DESC
             - url ASC
             - url DESC
-            - id ASC
-            - id DESC
-            - action ASC
-            - action DESC
             - user_name ASC
             - user_name DESC
-            - created_at ASC
-            - created_at DESC
-            - method ASC
-            - method DESC
-            - request ASC
-            - request DESC
             type: string
           type: array
         style: form

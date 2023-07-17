@@ -10,28 +10,47 @@
         name: fields
         required: true
         schema:
-          example: &1
-          - port
-          - dot1x_username
+          example:
+          - connection_sub_type
           - connection_type
-          - realm
-          - ssid
-          - vlan
+          - dot1x_username
+          - end_time
           - ifDesc
           - mac
-          - end_time
-          - stripped_user_name
-          - connection_sub_type
-          - session_id
-          - switch
+          - port
+          - realm
           - role
-          - switch_ip_int
+          - session_id
+          - ssid
           - start_time
-          - switch_mac
+          - stripped_user_name
+          - switch
           - switch_ip
+          - switch_ip_int
+          - switch_mac
+          - vlan
           - voip
           items:
-            enum: *1
+            enum:
+            - connection_sub_type
+            - connection_type
+            - dot1x_username
+            - end_time
+            - ifDesc
+            - mac
+            - port
+            - realm
+            - role
+            - session_id
+            - ssid
+            - start_time
+            - stripped_user_name
+            - switch
+            - switch_ip
+            - switch_ip_int
+            - switch_mac
+            - vlan
+            - voip
             type: string
           type: array
         style: form
@@ -46,42 +65,42 @@
           - mac ASC
           items:
             enum:
-            - port ASC
-            - port DESC
-            - dot1x_username ASC
-            - dot1x_username DESC
+            - connection_sub_type ASC
+            - connection_sub_type DESC
             - connection_type ASC
             - connection_type DESC
-            - realm ASC
-            - realm DESC
-            - ssid ASC
-            - ssid DESC
-            - vlan ASC
-            - vlan DESC
+            - dot1x_username ASC
+            - dot1x_username DESC
+            - end_time ASC
+            - end_time DESC
             - ifDesc ASC
             - ifDesc DESC
             - mac ASC
             - mac DESC
-            - end_time ASC
-            - end_time DESC
-            - stripped_user_name ASC
-            - stripped_user_name DESC
-            - connection_sub_type ASC
-            - connection_sub_type DESC
-            - session_id ASC
-            - session_id DESC
-            - switch ASC
-            - switch DESC
+            - port ASC
+            - port DESC
+            - realm ASC
+            - realm DESC
             - role ASC
             - role DESC
-            - switch_ip_int ASC
-            - switch_ip_int DESC
+            - session_id ASC
+            - session_id DESC
+            - ssid ASC
+            - ssid DESC
             - start_time ASC
             - start_time DESC
-            - switch_mac ASC
-            - switch_mac DESC
+            - stripped_user_name ASC
+            - stripped_user_name DESC
+            - switch ASC
+            - switch DESC
             - switch_ip ASC
             - switch_ip DESC
+            - switch_ip_int ASC
+            - switch_ip_int DESC
+            - switch_mac ASC
+            - switch_mac DESC
+            - vlan ASC
+            - vlan DESC
             - voip ASC
             - voip DESC
             type: string

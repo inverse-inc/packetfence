@@ -21,6 +21,7 @@
         - Meru::MC_v2
         - PacketFence::SNMP
         - PacketFence::Standard
+        - PaloAlto::PanOS
         - Ruckus::SmartZone_v2
         - Ruckus::ZoneDirector
         type: string
@@ -56,6 +57,7 @@
         - Meru::MC_v2
         - PacketFence::SNMP
         - PacketFence::Standard
+        - PaloAlto::PanOS
         - Ruckus::SmartZone_v2
         - Ruckus::ZoneDirector
         type: string
@@ -94,6 +96,7 @@
         - Meru::MC_v2
         - PacketFence::SNMP
         - PacketFence::Standard
+        - PaloAlto::PanOS
         - Ruckus::SmartZone_v2
         - Ruckus::ZoneDirector
         type: string
@@ -132,6 +135,7 @@
         - Meru::MC_v2
         - PacketFence::SNMP
         - PacketFence::Standard
+        - PaloAlto::PanOS
         - Ruckus::SmartZone_v2
         - Ruckus::ZoneDirector
         type: string
@@ -175,6 +179,7 @@
         - Meru::MC_v2
         - PacketFence::SNMP
         - PacketFence::Standard
+        - PaloAlto::PanOS
         - Ruckus::SmartZone_v2
         - Ruckus::ZoneDirector
         type: string

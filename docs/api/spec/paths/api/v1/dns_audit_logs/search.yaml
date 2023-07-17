@@ -9,15 +9,15 @@
         application/json:
           example:
             cursor: 0
-            fields: &1
+            fields:
             - answer
-            - scope
-            - qtype
-            - mac
             - created_at
-            - qname
-            - ip
             - id
+            - ip
+            - mac
+            - qname
+            - qtype
+            - scope
             limit: 25
             query:
               op: and
@@ -27,25 +27,25 @@
                 - field: answer
                   op: contains
                   value: foo
-                - field: scope
-                  op: contains
-                  value: foo
-                - field: qtype
-                  op: contains
-                  value: foo
-                - field: mac
-                  op: contains
-                  value: foo
                 - field: created_at
                   op: contains
                   value: foo
-                - field: qname
+                - field: id
                   op: contains
                   value: foo
                 - field: ip
                   op: contains
                   value: foo
-                - field: id
+                - field: mac
+                  op: contains
+                  value: foo
+                - field: qname
+                  op: contains
+                  value: foo
+                - field: qtype
+                  op: contains
+                  value: foo
+                - field: scope
                   op: contains
                   value: foo
             sort:
@@ -59,7 +59,15 @@
                   type: string
                 fields:
                   items:
-                    enum: *1
+                    enum:
+                    - answer
+                    - created_at
+                    - id
+                    - ip
+                    - mac
+                    - qname
+                    - qtype
+                    - scope
                     type: string
                   required: true
                   type: array
@@ -73,20 +81,20 @@
                     enum:
                     - answer ASC
                     - answer DESC
-                    - scope ASC
-                    - scope DESC
-                    - qtype ASC
-                    - qtype DESC
-                    - mac ASC
-                    - mac DESC
                     - created_at ASC
                     - created_at DESC
-                    - qname ASC
-                    - qname DESC
-                    - ip ASC
-                    - ip DESC
                     - id ASC
                     - id DESC
+                    - ip ASC
+                    - ip DESC
+                    - mac ASC
+                    - mac DESC
+                    - qname ASC
+                    - qname DESC
+                    - qtype ASC
+                    - qtype DESC
+                    - scope ASC
+                    - scope DESC
                     type: string
                   required: true
                   type: array

@@ -61,61 +61,118 @@
         application/json:
           example:
             cursor: 0
-            fields: &1
-            - potd
-            - sponsored_date
-            - work_phone
+            fields:
+            - address
+            - anniversary
+            - apartment_number
+            - birthday
+            - building_number
+            - cell_phone
+            - company
+            - custom_field_1
+            - custom_field_2
+            - custom_field_3
+            - custom_field_4
+            - custom_field_5
+            - custom_field_6
+            - custom_field_7
+            - custom_field_8
             - custom_field_9
+            - email
+            - firstname
             - gender
+            - lang
+            - lastname
+            - nickname
+            - notes
+            - otp
             - pid
             - portal
-            - birthday
-            - company
-            - custom_field_8
-            - custom_field_7
-            - building_number
-            - apartment_number
-            - email
-            - custom_field_2
-            - custom_field_1
-            - custom_field_5
-            - source
-            - custom_field_6
-            - nickname
-            - sponsor
-            - firstname
-            - otp
-            - address
-            - cell_phone
-            - custom_field_4
-            - lang
+            - potd
             - psk
-            - telephone
-            - lastname
             - room_number
-            - notes
-            - anniversary
-            - custom_field_3
+            - source
+            - sponsor
+            - sponsored_date
+            - telephone
             - title
+            - work_phone
             limit: 25
             query:
               op: and
               values:
               - op: or
                 values:
-                - field: potd
+                - field: address
                   op: contains
                   value: foo
-                - field: sponsored_date
+                - field: anniversary
                   op: contains
                   value: foo
-                - field: work_phone
+                - field: apartment_number
+                  op: contains
+                  value: foo
+                - field: birthday
+                  op: contains
+                  value: foo
+                - field: building_number
+                  op: contains
+                  value: foo
+                - field: cell_phone
+                  op: contains
+                  value: foo
+                - field: company
+                  op: contains
+                  value: foo
+                - field: custom_field_1
+                  op: contains
+                  value: foo
+                - field: custom_field_2
+                  op: contains
+                  value: foo
+                - field: custom_field_3
+                  op: contains
+                  value: foo
+                - field: custom_field_4
+                  op: contains
+                  value: foo
+                - field: custom_field_5
+                  op: contains
+                  value: foo
+                - field: custom_field_6
+                  op: contains
+                  value: foo
+                - field: custom_field_7
+                  op: contains
+                  value: foo
+                - field: custom_field_8
                   op: contains
                   value: foo
                 - field: custom_field_9
                   op: contains
                   value: foo
+                - field: email
+                  op: contains
+                  value: foo
+                - field: firstname
+                  op: contains
+                  value: foo
                 - field: gender
+                  op: contains
+                  value: foo
+                - field: lang
+                  op: contains
+                  value: foo
+                - field: lastname
+                  op: contains
+                  value: foo
+                - field: nickname
+                  op: contains
+                  value: foo
+                - field: notes
+                  op: contains
+                  value: foo
+                - field: otp
                   op: contains
                   value: foo
                 - field: pid
@@ -124,88 +181,31 @@
                 - field: portal
                   op: contains
                   value: foo
-                - field: birthday
-                  op: contains
-                  value: foo
-                - field: company
-                  op: contains
-                  value: foo
-                - field: custom_field_8
-                  op: contains
-                  value: foo
-                - field: custom_field_7
-                  op: contains
-                  value: foo
-                - field: building_number
-                  op: contains
-                  value: foo
-                - field: apartment_number
-                  op: contains
-                  value: foo
-                - field: email
-                  op: contains
-                  value: foo
-                - field: custom_field_2
-                  op: contains
-                  value: foo
-                - field: custom_field_1
-                  op: contains
-                  value: foo
-                - field: custom_field_5
-                  op: contains
-                  value: foo
-                - field: source
-                  op: contains
-                  value: foo
-                - field: custom_field_6
-                  op: contains
-                  value: foo
-                - field: nickname
-                  op: contains
-                  value: foo
-                - field: sponsor
-                  op: contains
-                  value: foo
-                - field: firstname
-                  op: contains
-                  value: foo
-                - field: otp
-                  op: contains
-                  value: foo
-                - field: address
-                  op: contains
-                  value: foo
-                - field: cell_phone
-                  op: contains
-                  value: foo
-                - field: custom_field_4
-                  op: contains
-                  value: foo
-                - field: lang
+                - field: potd
                   op: contains
                   value: foo
                 - field: psk
                   op: contains
                   value: foo
-                - field: telephone
-                  op: contains
-                  value: foo
-                - field: lastname
-                  op: contains
-                  value: foo
                 - field: room_number
                   op: contains
                   value: foo
-                - field: notes
+                - field: source
                   op: contains
                   value: foo
-                - field: anniversary
+                - field: sponsor
                   op: contains
                   value: foo
-                - field: custom_field_3
+                - field: sponsored_date
+                  op: contains
+                  value: foo
+                - field: telephone
                   op: contains
                   value: foo
                 - field: title
+                  op: contains
+                  value: foo
+                - field: work_phone
                   op: contains
                   value: foo
             sort:
@@ -219,7 +219,42 @@
                   type: string
                 fields:
                   items:
-                    enum: *1
+                    enum:
+                    - address
+                    - anniversary
+                    - apartment_number
+                    - birthday
+                    - building_number
+                    - cell_phone
+                    - company
+                    - custom_field_1
+                    - custom_field_2
+                    - custom_field_3
+                    - custom_field_4
+                    - custom_field_5
+                    - custom_field_6
+                    - custom_field_7
+                    - custom_field_8
+                    - custom_field_9
+                    - email
+                    - firstname
+                    - gender
+                    - lang
+                    - lastname
+                    - nickname
+                    - notes
+                    - otp
+                    - pid
+                    - portal
+                    - potd
+                    - psk
+                    - room_number
+                    - source
+                    - sponsor
+                    - sponsored_date
+                    - telephone
+                    - title
+                    - work_phone
                     type: string
                   required: true
                   type: array
@@ -231,76 +266,76 @@
                 sort:
                   items:
                     enum:
-                    - potd ASC
-                    - potd DESC
-                    - sponsored_date ASC
-                    - sponsored_date DESC
-                    - work_phone ASC
-                    - work_phone DESC
+                    - address ASC
+                    - address DESC
+                    - anniversary ASC
+                    - anniversary DESC
+                    - apartment_number ASC
+                    - apartment_number DESC
+                    - birthday ASC
+                    - birthday DESC
+                    - building_number ASC
+                    - building_number DESC
+                    - cell_phone ASC
+                    - cell_phone DESC
+                    - company ASC
+                    - company DESC
+                    - custom_field_1 ASC
+                    - custom_field_1 DESC
+                    - custom_field_2 ASC
+                    - custom_field_2 DESC
+                    - custom_field_3 ASC
+                    - custom_field_3 DESC
+                    - custom_field_4 ASC
+                    - custom_field_4 DESC
+                    - custom_field_5 ASC
+                    - custom_field_5 DESC
+                    - custom_field_6 ASC
+                    - custom_field_6 DESC
+                    - custom_field_7 ASC
+                    - custom_field_7 DESC
+                    - custom_field_8 ASC
+                    - custom_field_8 DESC
                     - custom_field_9 ASC
                     - custom_field_9 DESC
+                    - email ASC
+                    - email DESC
+                    - firstname ASC
+                    - firstname DESC
                     - gender ASC
                     - gender DESC
+                    - lang ASC
+                    - lang DESC
+                    - lastname ASC
+                    - lastname DESC
+                    - nickname ASC
+                    - nickname DESC
+                    - notes ASC
+                    - notes DESC
+                    - otp ASC
+                    - otp DESC
                     - pid ASC
                     - pid DESC
                     - portal ASC
                     - portal DESC
-                    - birthday ASC
-                    - birthday DESC
-                    - company ASC
-                    - company DESC
-                    - custom_field_8 ASC
-                    - custom_field_8 DESC
-                    - custom_field_7 ASC
-                    - custom_field_7 DESC
-                    - building_number ASC
-                    - building_number DESC
-                    - apartment_number ASC
-                    - apartment_number DESC
-                    - email ASC
-                    - email DESC
-                    - custom_field_2 ASC
-                    - custom_field_2 DESC
-                    - custom_field_1 ASC
-                    - custom_field_1 DESC
-                    - custom_field_5 ASC
-                    - custom_field_5 DESC
-                    - source ASC
-                    - source DESC
-                    - custom_field_6 ASC
-                    - custom_field_6 DESC
-                    - nickname ASC
-                    - nickname DESC
-                    - sponsor ASC
-                    - sponsor DESC
-                    - firstname ASC
-                    - firstname DESC
-                    - otp ASC
-                    - otp DESC
-                    - address ASC
-                    - address DESC
-                    - cell_phone ASC
-                    - cell_phone DESC
-                    - custom_field_4 ASC
-                    - custom_field_4 DESC
-                    - lang ASC
-                    - lang DESC
+                    - potd ASC
+                    - potd DESC
                     - psk ASC
                     - psk DESC
-                    - telephone ASC
-                    - telephone DESC
-                    - lastname ASC
-                    - lastname DESC
                     - room_number ASC
                     - room_number DESC
-                    - notes ASC
-                    - notes DESC
-                    - anniversary ASC
-                    - anniversary DESC
-                    - custom_field_3 ASC
-                    - custom_field_3 DESC
+                    - source ASC
+                    - source DESC
+                    - sponsor ASC
+                    - sponsor DESC
+                    - sponsored_date ASC
+                    - sponsored_date DESC
+                    - telephone ASC
+                    - telephone DESC
                     - title ASC
                     - title DESC
+                    - work_phone ASC
+                    - work_phone DESC
                     type: string
                   required: true
                   type: array

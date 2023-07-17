@@ -19,6 +19,8 @@
         - cluster_check
         - dns_audit_log_cleanup
         - fingerbank_data_update
+        - flush_dns_audit_log
+        - flush_radius_audit_log
         - ip4log_cleanup
         - ip6log_cleanup
         - locationlog_cleanup
@@ -70,6 +72,8 @@
         - cluster_check
         - dns_audit_log_cleanup
         - fingerbank_data_update
+        - flush_dns_audit_log
+        - flush_radius_audit_log
         - ip4log_cleanup
         - ip6log_cleanup
         - locationlog_cleanup
@@ -120,6 +124,8 @@
         - cluster_check
         - dns_audit_log_cleanup
         - fingerbank_data_update
+        - flush_dns_audit_log
+        - flush_radius_audit_log
         - ip4log_cleanup
         - ip6log_cleanup
         - locationlog_cleanup
@@ -170,6 +176,8 @@
         - cluster_check
         - dns_audit_log_cleanup
         - fingerbank_data_update
+        - flush_dns_audit_log
+        - flush_radius_audit_log
         - ip4log_cleanup
         - ip6log_cleanup
         - locationlog_cleanup
@@ -225,6 +233,8 @@
         - cluster_check
         - dns_audit_log_cleanup
         - fingerbank_data_update
+        - flush_dns_audit_log
+        - flush_radius_audit_log
         - ip4log_cleanup
         - ip6log_cleanup
         - locationlog_cleanup

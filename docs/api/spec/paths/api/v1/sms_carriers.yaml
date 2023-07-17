@@ -10,14 +10,19 @@
         name: fields
         required: true
         schema:
-          example: &1
+          example:
+          - created
+          - email_pattern
+          - id
           - modified
           - name
-          - created
-          - id
-          - email_pattern
           items:
-            enum: *1
+            enum:
+            - created
+            - email_pattern
+            - id
+            - modified
+            - name
             type: string
           type: array
         style: form
@@ -32,16 +37,16 @@
           - id ASC
           items:
             enum:
+            - created ASC
+            - created DESC
+            - email_pattern ASC
+            - email_pattern DESC
+            - id ASC
+            - id DESC
             - modified ASC
             - modified DESC
             - name ASC
             - name DESC
-            - created ASC
-            - created DESC
-            - id ASC
-            - id DESC
-            - email_pattern ASC
-            - email_pattern DESC
             type: string
           type: array
         style: form

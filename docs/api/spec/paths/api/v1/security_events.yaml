@@ -10,17 +10,25 @@
         name: fields
         required: true
         schema:
-          example: &1
-          - security_event_id
-          - notes
+          example:
           - id
-          - status
-          - release_date
-          - ticket_ref
           - mac
+          - notes
+          - release_date
+          - security_event_id
           - start_date
+          - status
+          - ticket_ref
           items:
-            enum: *1
+            enum:
+            - id
+            - mac
+            - notes
+            - release_date
+            - security_event_id
+            - start_date
+            - status
+            - ticket_ref
             type: string
           type: array
         style: form
@@ -35,22 +43,22 @@
           - id ASC
           items:
             enum:
-            - security_event_id ASC
-            - security_event_id DESC
-            - notes ASC
-            - notes DESC
             - id ASC
             - id DESC
-            - status ASC
-            - status DESC
-            - release_date ASC
-            - release_date DESC
-            - ticket_ref ASC
-            - ticket_ref DESC
             - mac ASC
             - mac DESC
+            - notes ASC
+            - notes DESC
+            - release_date ASC
+            - release_date DESC
+            - security_event_id ASC
+            - security_event_id DESC
             - start_date ASC
             - start_date DESC
+            - status ASC
+            - status DESC
+            - ticket_ref ASC
+            - ticket_ref DESC
             type: string
           type: array
         style: form

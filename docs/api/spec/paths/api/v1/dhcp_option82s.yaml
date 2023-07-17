@@ -10,18 +10,27 @@
         name: fields
         required: true
         schema:
-          example: &1
-          - port
-          - module
-          - switch_id
-          - option82_switch
+          example:
           - circuit_id_string
-          - mac
-          - vlan
-          - host
           - created_at
+          - host
+          - mac
+          - module
+          - option82_switch
+          - port
+          - switch_id
+          - vlan
           items:
-            enum: *1
+            enum:
+            - circuit_id_string
+            - created_at
+            - host
+            - mac
+            - module
+            - option82_switch
+            - port
+            - switch_id
+            - vlan
             type: string
           type: array
         style: form
@@ -36,24 +45,24 @@
           - mac ASC
           items:
             enum:
-            - port ASC
-            - port DESC
-            - module ASC
-            - module DESC
-            - switch_id ASC
-            - switch_id DESC
-            - option82_switch ASC
-            - option82_switch DESC
             - circuit_id_string ASC
             - circuit_id_string DESC
-            - mac ASC
-            - mac DESC
-            - vlan ASC
-            - vlan DESC
-            - host ASC
-            - host DESC
             - created_at ASC
             - created_at DESC
+            - host ASC
+            - host DESC
+            - mac ASC
+            - mac DESC
+            - module ASC
+            - module DESC
+            - option82_switch ASC
+            - option82_switch DESC
+            - port ASC
+            - port DESC
+            - switch_id ASC
+            - switch_id DESC
+            - vlan ASC
+            - vlan DESC
             type: string
           type: array
         style: form
