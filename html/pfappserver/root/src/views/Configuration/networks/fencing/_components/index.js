@@ -3,7 +3,7 @@ import {
   BaseFormButtonBar,
   BaseFormGroupInput,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
+BaseFormGroupSwitch,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -13,12 +13,12 @@ export {
 
   BaseFormGroupInput                  as FormGroupWaitForRedirect,
   BaseFormGroupTextarea               as FormGroupRange,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupPassthrough,
+  BaseFormGroupSwitch                 as FormGroupPassthrough,
   BaseFormGroupTextarea               as FormGroupPassthroughs,
   BaseFormGroupTextarea               as FormGroupProxyPassthroughs,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupIsolationPassthrough,
+  BaseFormGroupSwitch                 as FormGroupIsolationPassthrough,
   BaseFormGroupTextarea               as FormGroupIsolationPassthroughs,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupInterceptionProxy,
+  BaseFormGroupSwitch                 as FormGroupInterceptionProxy,
   BaseFormGroupTextarea               as FormGroupInterceptionProxyPort,
 
   BaseViewResource                    as BaseView,
