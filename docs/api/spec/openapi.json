@@ -171,8 +171,10 @@
                   "haproxy-portal",
                   "httpd.aaa",
                   "httpd.admin_dispatcher",
+                  "httpd.collector",
                   "httpd.dispatcher",
                   "httpd.portal",
+                  "httpd.proxy",
                   "httpd.webservices",
                   "ip6tables",
                   "iptables",
@@ -189,11 +191,9 @@
                   "pfdns",
                   "pffilter",
                   "pfipset",
-                  "pfldapexplorer",
                   "pfperl-api",
                   "pfpki",
                   "pfqueue",
-                  "pfsetacls",
                   "pfsso",
                   "pfstats",
                   "proxysql",
@@ -206,6 +206,7 @@
                   "redis_ntlm_cache",
                   "redis_queue",
                   "snmptrapd",
+                  "tc",
                   "tracking-config",
                   "winbindd"
                ],
@@ -73136,114 +73137,6 @@
             ]
          }
       },
-      "/api/v1/ldap/search" : {
-         "post" : {
-            "description" : "This will cause the Packetfence server to perform an LDAP search on the provided LDAP server with the provided information",
-            "produces" : [
-               "application/json"
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "properties" : {
-                           "search_query" : {
-                              "properties" : {
-                                 "attributes" : {
-                                    "example" : [
-                                       "cn",
-                                       "uid",
-                                       "displayName"
-                                    ],
-                                    "items" : {
-                                       "type" : "string"
-                                    },
-                                    "type" : "array"
-                                 },
-                                 "base_dn" : {
-                                    "example" : "dc=ip,dc=linodeusercontent,dc=com",
-                                    "type" : "string"
-                                 },
-                                 "filter" : {
-                                    "example" : "(cn=*doe*)",
-                                    "type" : "string"
-                                 },
-                                 "scope" : {
-                                    "enum" : [
-                                       "base",
-                                       "one",
-                                       "sub"
-                                    ],
-                                    "example" : "base",
-                                    "required" : true,
-                                    "type" : "string"
-                                 },
-                                 "size_limit" : {
-                                    "example" : 100,
-                                    "type" : "integer"
-                                 },
-                                 "time_limit" : {
-                                    "example" : 60,
-                                    "type" : "integer"
-                                 }
-                              },
-                              "type" : "object"
-                           },
-                           "server" : {
-                              "$ref" : "#/components/schemas/ConfigSourceSubTypeLdap"
-                           }
-                        },
-                        "type" : "object"
-                     }
-                  }
-               },
-               "required" : true
-            },
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "additionalProperties" : {
-                              "additionalProperties" : {
-                                 "description" : "All attributes requested in query. Attribute value can be of any type.",
-                                 "type" : "object"
-                              },
-                              "description" : "LDAP entry.",
-                              "type" : "object"
-                           },
-                           "description" : "Map of LDAP entries. The key is the DN of the entry and the value is the entry.",
-                           "example" : {
-                              "uid=jdoe,ou=people,dc=ip,dc=linodeusercontent,dc=com" : {
-                                 "cn" : "John",
-                                 "displayName" : "John Doe",
-                                 "uid" : "jdoe"
-                              },
-                              "uid=jdoem,ou=people,dc=ip,dc=linodeusercontent,dc=com" : {
-                                 "cn" : "JohnM",
-                                 "displayName" : "John Doe Mathew",
-                                 "uid" : "jdoem"
-                              }
-                           },
-                           "type" : "object"
-                        }
-                     }
-                  },
-                  "description" : "Request successful. Response contains LDAP entries."
-               },
-               "400" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "401" : {
-                  "$ref" : "#/components/responses/Unauthorized"
-               }
-            },
-            "summary" : "Perform an LDAP search with provided LDAP server information",
-            "tags" : [
-               "LDAP"
-            ]
-         }
-      },
       "/api/v1/locationlog/{locationlog_id}" : {
          "description" : "pf::UnifiedApi::Controller::Locationlogs",
          "get" : {
@@ -83512,10 +83405,6 @@
       {
          "description" : "Single-Sign-On status.",
          "name" : "SSO"
-      },
-      {
-         "description" : "Perform LDAP search.",
-         "name" : "LDAP"
       },
       {
          "description" : "System summary.",
