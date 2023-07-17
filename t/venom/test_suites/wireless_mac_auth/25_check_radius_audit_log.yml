@@ -4,6 +4,10 @@ testcases:
   steps:
   - type: get_login_token
 
+- name: pfcron_flush_radius_audit_log
+  steps:
+  - type: pfcron_flush_radius_audit_log
+
 - name: get_time
   steps:
   - type: exec
