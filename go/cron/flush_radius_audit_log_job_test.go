@@ -3,6 +3,7 @@ package maint
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"testing"
 )
 
@@ -78,7 +79,7 @@ func TestFlushRadiusAuditLogFromRedis(t *testing.T) {
 	}
 	redis := redisClient()
 	redis.Del(ctx, "RADIUS_AUDIT_LOG")
-	redis.LPush(ctx, "RADIUS_AUDIT_LOG", RADIUS_ENTRY)
+	redis.LPush(ctx, "RADIUS_AUDIT_LOG", RADIUS_ENTRY, RADIUS_ENTRY)
 
 	res, err := db.Exec("DELETE FROM radius_audit_log;")
 	if err != nil {
@@ -88,14 +89,19 @@ func TestFlushRadiusAuditLogFromRedis(t *testing.T) {
 
 	j.Run()
 
-	row := db.QueryRow("SELECT id FROM radius_audit_log;")
+	row := db.QueryRow("SELECT COUNT(id) FROM radius_audit_log;")
 	if err := row.Err(); err != nil {
 		t.Fatalf("Delete from %s", err.Error())
 	}
 
-	id := 0
-	err = row.Scan(&id)
+	count := 0
+	err = row.Scan(&count)
 	if err != nil {
 		t.Fatalf("Cannot flush logs %s", err.Error())
+	}
+
+	fmt.Printf("count %d\n", count)
+	if count != 2 {
+		t.Fatalf("Flush count logs expect %d, got %d", 2, count)
 	}
 }
