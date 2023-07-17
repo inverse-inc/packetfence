@@ -1,81 +1,89 @@
 <template>
   <base-form
     :form="form"
+    :isLoading="isLoading"
     :meta="meta"
     :schema="schema"
-    :isLoading="isLoading"
   >
-    <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Provisioning ID')"
-      :disabled="!isNew && !isClone"
+    <form-group-identifier :column-label="$i18n.t('Provisioning ID')"
+                           :disabled="!isNew && !isClone"
+                           namespace="id"
     />
 
-    <form-group-description namespace="description"
-      :column-label="$i18n.t('Description')"
+    <form-group-description :column-label="$i18n.t('Description')"
+                            namespace="description"
     />
 
-    <form-group-enforce namespace="enforce"
-      :column-label="$i18n.t('Enforce')"
-      :text="$i18n.t('Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.')"
+    <form-group-enforce :column-label="$i18n.t('Enforce')"
+                        :text="$i18n.t('Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.')"
+                        disabled-value="disabled"
+                        enabled-value="enabled"
+                        namespace="enforce"
     />
 
-    <form-group-auto-register namespace="autoregister"
-      :column-label="$i18n.t('Auto register')"
-      :text="$i18n.t('Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.')"
+    <form-group-auto-register :column-label="$i18n.t('Auto register')"
+                              :text="$i18n.t('Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.')"
+                              disabled-value="disabled"
+                              enabled-value="enabled"
+                              namespace="autoregister"
     />
 
-    <form-group-apply-role namespace="apply_role"
-      :column-label="$i18n.t('Apply role')"
-      :text="$i18n.t('When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.')"
+    <form-group-apply-role :column-label="$i18n.t('Apply role')"
+                           :text="$i18n.t('When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.')"
+                           disabled-value="disabled"
+                           enabled-value="enabled"
+                           namespace="apply_role"
     />
 
-    <form-group-role-to-apply namespace="role_to_apply"
-      :column-label="$i18n.t('Role to apply')"
-      :text="$i18n.t(`When 'Apply role' is enabled, this defines the role to apply when the device is authorized with the provisioner.`)"
+    <form-group-role-to-apply :column-label="$i18n.t('Role to apply')"
+                              :text="$i18n.t(`When 'Apply role' is enabled, this defines the role to apply when the device is authorized with the provisioner.`)"
+                              namespace="role_to_apply"
     />
 
-    <form-group-sync-pid namespace="sync_pid"
-      :column-label="$i18n.t('Sync PID')"
-      :text="$i18n.t('Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.')"
+    <form-group-sync-pid :column-label="$i18n.t('Sync PID')"
+                         :text="$i18n.t('Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.')"
+                         disabled-value="disabled"
+                         enabled-value="enabled"
+                         namespace="sync_pid"
     />
 
-    <form-group-category namespace="category"
-      :column-label="$i18n.t('Roles')"
-      :text="$i18n.t('Nodes with the selected roles will be affected.')"
+    <form-group-category :column-label="$i18n.t('Roles')"
+                         :text="$i18n.t('Nodes with the selected roles will be affected.')"
+                         namespace="category"
     />
 
-    <form-group-oses namespace="oses"
-      :column-label="$i18n.t('OS')"
-      :text="$i18n.t('Nodes with the selected OS will be affected.')"
+    <form-group-oses :column-label="$i18n.t('OS')"
+                     :text="$i18n.t('Nodes with the selected OS will be affected.')"
+                     namespace="oses"
     />
 
-    <form-group-host namespace="host"
-      :column-label="$i18n.t('Host')"
+    <form-group-host :column-label="$i18n.t('Host')"
+                     namespace="host"
     />
 
-    <form-group-port namespace="port"
-      :column-label="$i18n.t('Port')"
+    <form-group-port :column-label="$i18n.t('Port')"
+                     namespace="port"
     />
 
-    <form-group-protocol namespace="protocol"
-      :column-label="$i18n.t('Protocol')"
+    <form-group-protocol :column-label="$i18n.t('Protocol')"
+                         namespace="protocol"
     />
 
-    <form-group-api-username namespace="api_username"
-      :column-label="$i18n.t('API username')"
+    <form-group-api-username :column-label="$i18n.t('API username')"
+                             namespace="api_username"
     />
 
-    <form-group-api-password namespace="api_password"
-      :column-label="$i18n.t('API password')"
+    <form-group-api-password :column-label="$i18n.t('API password')"
+                             namespace="api_password"
     />
 
-    <form-group-tenant-code namespace="tenant_code"
-      :column-label="$i18n.t('Tenant code')"
+    <form-group-tenant-code :column-label="$i18n.t('Tenant code')"
+                            namespace="tenant_code"
     />
   </base-form>
 </template>
 <script>
-import { BaseForm } from '@/components/new/'
+import {BaseForm} from '@/components/new/'
 import {
   FormGroupApiPassword,
   FormGroupApiUsername,
@@ -93,6 +101,7 @@ import {
   FormGroupSyncPid,
   FormGroupTenantCode
 } from './'
+import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
 const components = {
   BaseForm,
@@ -113,8 +122,6 @@ const components = {
   FormGroupSyncPid,
   FormGroupTenantCode
 }
-
-import { useForm as setup, useFormProps as props } from '../_composables/useForm'
 
 // @vue/component
 export default {
