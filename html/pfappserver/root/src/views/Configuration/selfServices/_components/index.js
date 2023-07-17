@@ -3,7 +3,7 @@ import {
   BaseFormButtonBar,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import {
   BaseFormGroupIntervalUnit,
@@ -22,7 +22,7 @@ export {
   BaseFormGroupOses                  as FormGroupDeviceRegistrationAllowedDevices,
   BaseFormGroupChosenMultiple        as FormGroupDeviceRegistrationRoles,
   BaseFormGroupChosenMultiple        as FormGroupRolesAllowedToUnregister,
-  BaseFormGroupToggleDisabledEnabled as FormGroupDynamicPreSharedKey,
+  BaseFormGroupSwitch                as FormGroupDynamicPreSharedKey,
   TheForm,
   TheView
 }
