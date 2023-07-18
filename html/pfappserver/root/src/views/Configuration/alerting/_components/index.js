@@ -6,7 +6,7 @@ import {
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import BaseFormGroupTestSmtp from './BaseFormGroupTestSmtp'
 import TheForm from './TheForm'
@@ -23,7 +23,7 @@ export {
   BaseFormGroupInput                  as FormGroupSmtpServer,
   BaseFormGroupInputNumber            as FormGroupSmtpTimeout,
   BaseFormGroupInput                  as FormGroupSmtpUsername,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupSmtpVerifySsl,
+  BaseFormGroupSwitch                 as FormGroupSmtpVerifySsl,
   BaseFormGroupInput                  as FormGroupSubjectPrefix,
   BaseFormGroupTestSmtp               as FormGroupTestEmailAddr,
 

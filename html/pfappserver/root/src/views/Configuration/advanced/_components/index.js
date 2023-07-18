@@ -1,51 +1,49 @@
-import { BaseViewResource } from '../../_components/new/'
+import {BaseViewResource} from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
+  BaseFormGroupSwitch,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
-import {
-  BaseFormGroupIntervalUnit
-} from '@/views/Configuration/_components/new/'
+import {BaseFormGroupIntervalUnit} from '@/views/Configuration/_components/new/'
 import BaseFormGroupOpenidAttributes from './BaseFormGroupOpenidAttributes'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseFormButtonBar                   as FormButtonBar,
+  BaseFormButtonBar as FormButtonBar,
 
-  BaseFormGroupIntervalUnit           as FormGroupAccountingTimebucketSize,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupActiveDirectoryOsJoinCheckBypass,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupAdminCspSecurityHeaders,
-  BaseFormGroupIntervalUnit           as FormGroupApiInactivityTimeout,
-  BaseFormGroupIntervalUnit           as FormGroupApiMaxExpiration,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupConfigurator,
-  BaseFormGroupChosenOne              as FormGroupHashPasswords,
-  BaseFormGroupInput                  as FormGroupHashingCost,
-  BaseFormGroupChosenOne              as FormGroupLanguage,
-  BaseFormGroupTextarea               as FormGroupLdapAttributes,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupLocationlogCloseOnAccountingStop,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupMultihost,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupNetflowOnAllNetworks,
-  BaseFormGroupOpenidAttributes       as FormGroupOpenidAttributes,
-  BaseFormGroupInputNumber            as FormGroupPffilterProcesses,
-  BaseFormGroupInputNumber            as FormGroupPfperlApiProcesses,
-  BaseFormGroupInputNumber            as FormGroupPfperlApiTimeout,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupPortalCspSecurityHeaders,
-  BaseFormGroupInput                  as FormGroupPfupdateCustomScriptPath,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupScanOnAccounting,
-  BaseFormGroupChosenOne              as FormGroupSourceToSendSmsWhenCreatingUsers,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupSsoOnAccessReevaluation,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupSsoOnAccounting,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupSsoOnDhcp,
-  BaseFormGroupInputNumber            as FormGroupTimingStatsLevel,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupUpdateIplogWithAccounting,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupUpdateIplogWithExternalPortalRequests,
+  BaseFormGroupIntervalUnit as FormGroupAccountingTimebucketSize,
+  BaseFormGroupSwitch as FormGroupActiveDirectoryOsJoinCheckBypass,
+  BaseFormGroupSwitch as FormGroupAdminCspSecurityHeaders,
+  BaseFormGroupIntervalUnit as FormGroupApiInactivityTimeout,
+  BaseFormGroupIntervalUnit as FormGroupApiMaxExpiration,
+  BaseFormGroupSwitch as FormGroupConfigurator,
+  BaseFormGroupChosenOne as FormGroupHashPasswords,
+  BaseFormGroupInput as FormGroupHashingCost,
+  BaseFormGroupChosenOne as FormGroupLanguage,
+  BaseFormGroupTextarea as FormGroupLdapAttributes,
+  BaseFormGroupSwitch as FormGroupLocationlogCloseOnAccountingStop,
+  BaseFormGroupSwitch as FormGroupMultihost,
+  BaseFormGroupSwitch as FormGroupNetflowOnAllNetworks,
+  BaseFormGroupOpenidAttributes as FormGroupOpenidAttributes,
+  BaseFormGroupInputNumber as FormGroupPffilterProcesses,
+  BaseFormGroupInputNumber as FormGroupPfperlApiProcesses,
+  BaseFormGroupInputNumber as FormGroupPfperlApiTimeout,
+  BaseFormGroupSwitch as FormGroupPortalCspSecurityHeaders,
+  BaseFormGroupInput as FormGroupPfupdateCustomScriptPath,
+  BaseFormGroupSwitch as FormGroupScanOnAccounting,
+  BaseFormGroupChosenOne as FormGroupSourceToSendSmsWhenCreatingUsers,
+  BaseFormGroupSwitch as FormGroupSsoOnAccessReevaluation,
+  BaseFormGroupSwitch as FormGroupSsoOnAccounting,
+  BaseFormGroupSwitch as FormGroupSsoOnDhcp,
+  BaseFormGroupInputNumber as FormGroupTimingStatsLevel,
+  BaseFormGroupSwitch as FormGroupUpdateIplogWithAccounting,
+  BaseFormGroupSwitch as FormGroupUpdateIplogWithExternalPortalRequests,
 
-  BaseViewResource                    as BaseView,
+  BaseViewResource as BaseView,
   TheForm,
   TheView
 }

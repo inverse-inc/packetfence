@@ -3,7 +3,7 @@ import {
   BaseFormButtonBar,
   BaseFormGroupInput,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -15,7 +15,7 @@ export {
   BaseFormGroupTextarea               as FormGroupAlertEmailTo,
   BaseFormGroupInput                  as FormGroupConfigurations,
   BaseFormGroupInput                  as FormGroupMailserver,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupStatus,
+  BaseFormGroupSwitch                 as FormGroupStatus,
   BaseFormGroupInput                  as FormGroupSubjectPrefix,
 
   BaseViewResource as BaseView,
