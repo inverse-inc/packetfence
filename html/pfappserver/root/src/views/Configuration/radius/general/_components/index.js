@@ -1,37 +1,37 @@
 import {
   BaseFormButtonBar,
-  BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled,
-  BaseFormGroupInputNumber
+  BaseFormGroupInputNumber,
+  BaseFormGroupSwitch,
+  BaseFormGroupTextarea
 } from '@/components/new/'
-import { BaseViewResource } from '../../../_components/new/'
+import {BaseViewResource} from '../../../_components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseFormButtonBar                   as FormButtonBar,
+  BaseFormButtonBar as FormButtonBar,
 
-  BaseFormGroupToggleDisabledEnabled  as FormGroupRecordAccountingInSql,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInPacketfenceAuthorize,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInPacketfencePreProxy,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInPacketfencePostProxy,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInPacketfencePreacct,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInPacketfenceAccounting,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInPacketfenceTunnelAuthorize,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInEduroamAuthorize,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInEduroamPreProxy,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInEduroamPostProxy,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInEduroamPreacct,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupLocalAuth,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmRedisCache,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupProcessBandwidthAccounting,
-  BaseFormGroupTextarea               as FormGroupRadiusAttributes,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupNormalizeRadiusMachineAuthUsername,
-  BaseFormGroupTextarea               as FormGroupUsernameAttributes,
-  BaseFormGroupInputNumber            as FormGroupPfacctWorkers,
-  BaseFormGroupInputNumber            as FormGroupPfacctWorkQueueSize,
+  BaseFormGroupSwitch as FormGroupRecordAccountingInSql,
+  BaseFormGroupSwitch as FormGroupFilterInPacketfenceAuthorize,
+  BaseFormGroupSwitch as FormGroupFilterInPacketfencePreProxy,
+  BaseFormGroupSwitch as FormGroupFilterInPacketfencePostProxy,
+  BaseFormGroupSwitch as FormGroupFilterInPacketfencePreacct,
+  BaseFormGroupSwitch as FormGroupFilterInPacketfenceAccounting,
+  BaseFormGroupSwitch as FormGroupFilterInPacketfenceTunnelAuthorize,
+  BaseFormGroupSwitch as FormGroupFilterInEduroamAuthorize,
+  BaseFormGroupSwitch as FormGroupFilterInEduroamPreProxy,
+  BaseFormGroupSwitch as FormGroupFilterInEduroamPostProxy,
+  BaseFormGroupSwitch as FormGroupFilterInEduroamPreacct,
+  BaseFormGroupSwitch as FormGroupLocalAuth,
+  BaseFormGroupSwitch as FormGroupNtlmRedisCache,
+  BaseFormGroupSwitch as FormGroupProcessBandwidthAccounting,
+  BaseFormGroupTextarea as FormGroupRadiusAttributes,
+  BaseFormGroupSwitch as FormGroupNormalizeRadiusMachineAuthUsername,
+  BaseFormGroupTextarea as FormGroupUsernameAttributes,
+  BaseFormGroupInputNumber as FormGroupPfacctWorkers,
+  BaseFormGroupInputNumber as FormGroupPfacctWorkQueueSize,
 
-  BaseViewResource                    as BaseView,
+  BaseViewResource as BaseView,
   TheForm,
   TheView
 }
