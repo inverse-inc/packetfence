@@ -84,7 +84,7 @@ func dalAdminApiAuditLog() http.HandlerFunc {
 	if err != nil {
 		fmt.Println("error occured while connecting to mysql, ", err.Error())
 	}
-	NewAdminApiAuditLog(ctx, dbs).AddToRouter(router)
+	NewAdminApiAuditLog(ctx, &dbs).AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
 			// We always default to application/json
