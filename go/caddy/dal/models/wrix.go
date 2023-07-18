@@ -56,9 +56,9 @@ func (w Wrix) TableName() string {
 }
 
 // Wrix
-func NewWrixModel(db *gorm.DB, ctx *context.Context) *Wrix {
+func NewWrixModel(dbp **gorm.DB, ctx *context.Context) *Wrix {
 	ret := &Wrix{}
-	ret.DB = db
+	ret.DB = *dbp
 	ret.Ctx = ctx
 	return ret
 }

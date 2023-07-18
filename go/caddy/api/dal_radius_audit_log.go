@@ -17,19 +17,19 @@ import (
 )
 
 type RadiusAuditLog struct {
-	DB  *gorm.DB
+	DBP **gorm.DB
 	Ctx *context.Context
 }
 
-func NewRadiusAuditLog(ctx context.Context, db *gorm.DB) *RadiusAuditLog {
+func NewRadiusAuditLog(ctx context.Context, dbp **gorm.DB) *RadiusAuditLog {
 	return &RadiusAuditLog{
-		DB:  db,
+		DBP: dbp,
 		Ctx: &ctx,
 	}
 }
 
 func (a *RadiusAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -52,7 +52,7 @@ func (a *RadiusAuditLog) List(w http.ResponseWriter, r *http.Request, p httprout
 }
 
 func (a *RadiusAuditLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -75,7 +75,7 @@ func (a *RadiusAuditLog) Search(w http.ResponseWriter, r *http.Request, p httpro
 }
 
 func (a *RadiusAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -102,7 +102,7 @@ func (a *RadiusAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httpr
 }
 
 func (a *RadiusAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -131,7 +131,7 @@ func (a *RadiusAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p ht
 }
 
 func (a *RadiusAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK

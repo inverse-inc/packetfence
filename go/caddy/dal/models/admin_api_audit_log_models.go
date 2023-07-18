@@ -28,9 +28,9 @@ func (a AdminApiAuditLog) TableName() string {
 	return "admin_api_audit_log"
 }
 
-func NewAdminApiAuditLogModel(db *gorm.DB, ctx *context.Context) *AdminApiAuditLog {
+func NewAdminApiAuditLogModel(dbp **gorm.DB, ctx *context.Context) *AdminApiAuditLog {
 	ret := &AdminApiAuditLog{}
-	ret.DB = db
+	ret.DB = *dbp
 	ret.Ctx = ctx
 	return ret
 }

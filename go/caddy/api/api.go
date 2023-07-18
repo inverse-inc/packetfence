@@ -5,11 +5,15 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"sync"
+	"time"
 )
 
 // Register the plugin in caddy
@@ -57,32 +61,68 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 
 	router.POST("/api/v1/nodes/fingerbank_communications", apiHandler.nodeFingerbankCommunications)
 
-	//done := false
-	//var DB *gorm.DB
-	//var err error
-	//for !done {
-	//	DB, err = gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
-	//	if err != nil {
-	//		log.LoggerWContext(ctx).Warn(err.Error())
-	//	} else {
-	//		done = true
-	//	}
-	//	time.Sleep(time.Duration(5) * time.Second)
-	//}
-	//
-	//go func() {
-	//	for {
-	//		DB.DB().Ping()
-	//		time.Sleep(5 * time.Second)
-	//	}
-	//}()
+	var DBP **gorm.DB
+	var DB *gorm.DB
+	var err error
+	done := false
+	wait := false
 
-	//NewAdminApiAuditLog(ctx, DB).AddToRouter(router)
-	//NewAuthLog(ctx, DB).AddToRouter(router)
-	//NewDnsAuditLog(ctx, DB).AddToRouter(router)
-	//NewRadacctLog(ctx, DB).AddToRouter(router)
-	//NewRadiusAuditLog(ctx, DB).AddToRouter(router)
-	//NewWrix(ctx, DB).AddToRouter(router)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
+	go func() {
+		for {
+			if done == false {
+				DB, err = gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+				if DB != nil {
+					DBP = &DB
+					if wait == false {
+						wait = true
+						wg.Done()
+					}
+				}
+
+				if DB == nil {
+					log.LoggerWContext(ctx).Warn("gorm db is nil while trying to open db")
+				}
+				if err != nil {
+					log.LoggerWContext(ctx).Warn(err.Error())
+				}
+				if DB != nil && err == nil {
+					err := DB.DB().Ping()
+					if err == nil {
+						done = true
+					} else {
+						log.LoggerWContext(ctx).Warn(err.Error())
+						err := DB.DB().Close()
+						if err != nil {
+							log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
+						}
+					}
+				}
+				time.Sleep(time.Duration(10) * time.Second)
+			} else {
+				err := DB.DB().Ping()
+				if err != nil {
+					done = false
+					log.LoggerWContext(ctx).Warn(err.Error())
+					err := DB.DB().Close()
+					if err != nil {
+						log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
+					}
+				}
+				time.Sleep(time.Duration(5) * time.Second)
+			}
+		}
+	}()
+
+	wg.Wait()
+	NewAdminApiAuditLog(ctx, DBP).AddToRouter(router)
+	NewAuthLog(ctx, DBP).AddToRouter(router)
+	NewDnsAuditLog(ctx, DBP).AddToRouter(router)
+	NewRadacctLog(ctx, DBP).AddToRouter(router)
+	NewRadiusAuditLog(ctx, DBP).AddToRouter(router)
+	NewWrix(ctx, DBP).AddToRouter(router)
 
 	apiHandler.router = router
 	return apiHandler, nil
