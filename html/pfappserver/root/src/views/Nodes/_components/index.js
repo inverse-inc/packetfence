@@ -29,5 +29,6 @@ export {
   BaseFormGroupTextarea         as FormGroupBypassAcls,
   
   BaseFormGroupInput            as FormGroupMac,
+  BaseFormGroupInput            as FormGroupComputername,
   
 }
