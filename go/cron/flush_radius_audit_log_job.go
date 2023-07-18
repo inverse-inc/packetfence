@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/util"
 )
 
 type FlushRadiusAuditLogJob struct {
@@ -205,17 +207,40 @@ func (j *FlushRadiusAuditLogJob) argsFromEntry(entry []interface{}) []interface{
 
 func formatRequest(request map[string]interface{}) string {
 	parts := []string{}
-	for k, v := range request {
-		parts = append(parts, k+" : "+formatRequestValue(v, ""))
+	keys := util.MapKeys(request)
+	sort.Strings(keys)
+	for _, k := range keys {
+		parts = append(parts, formatRequestKeyValue(k, request[k]))
 	}
 
 	return strings.Join(parts, ",\n")
+}
+
+func formatRequestKeyValue(key string, value interface{}) string {
+	if val, ok := value.(map[string]interface{}); ok {
+		value = val["value"]
+	}
+
+	if val, ok := value.([]interface{}); ok {
+		if len(val) > 1 {
+			parts := make([]string, 0, len(val))
+			for _, p := range val {
+				parts = append(parts, formatRequestKeyValue(key, p))
+			}
+			return strings.Join(parts, ",\n")
+		}
+
+	}
+
+	return key + ` : "` + formatRequestValue(value, "") + `"`
 }
 
 func formatRequestValue(i interface{}, defaultValue string) string {
 	switch v := i.(type) {
 	case string:
 		return v
+	case float64:
+		return strconv.FormatFloat(v, 'g', -1, 64)
 	case int8:
 		return strconv.FormatInt(int64(v), 10)
 	case int16:
@@ -237,9 +262,14 @@ func formatRequestValue(i interface{}, defaultValue string) string {
 	case map[string]interface{}:
 		val := formatRequestValue(v["value"], defaultValue)
 		return val
+	case []interface{}:
+		if len(v) > 0 {
+			return formatRequestValue(v[0], defaultValue)
+		}
 	default:
 		return defaultValue
 	}
+	return defaultValue
 }
 
 func interfaceToStr(i interface{}, defaultStr string) string {
