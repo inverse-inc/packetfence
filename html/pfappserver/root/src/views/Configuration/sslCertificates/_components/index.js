@@ -1,30 +1,27 @@
 import {
-  BaseButtonService,
   BaseFormButtonBar,
-
   BaseFormGroupChosenCountry,
   BaseFormGroupInput,
-  BaseFormGroupToggleDisabledEnabled,
-  BaseFormGroupToggleFalseTrue
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import BaseFormGroupCertificate from './BaseFormGroupCertificate'
 import BaseFormGroupPrivateKey from './BaseFormGroupPrivateKey'
 import BaseFormGroupLetsEncryptCommonName from './BaseFormGroupLetsEncryptCommonName'
-import BaseFormGroupIntermediateCertificateAuthorities from './BaseFormGroupIntermediateCertificateAuthorities'
+import BaseFormGroupIntermediateCertificateAuthorities
+  from './BaseFormGroupIntermediateCertificateAuthorities'
 import TheCsr from './TheCsr'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseButtonService                               as ButtonService,
   BaseFormButtonBar                               as FormButtonBar,
 
-  BaseFormGroupToggleFalseTrue                    as FormGroupLetsEncrypt,
+  BaseFormGroupSwitch                             as FormGroupLetsEncrypt,
   BaseFormGroupLetsEncryptCommonName              as FormGroupLetsEncryptCommonName,
   BaseFormGroupCertificate                        as FormGroupCa,
   BaseFormGroupCertificate                        as FormGroupCertificate,
   BaseFormGroupPrivateKey                         as FormGroupPrivateKey,
-  BaseFormGroupToggleDisabledEnabled              as FormGroupCheckChain,
+  BaseFormGroupSwitch                             as FormGroupCheckChain,
   BaseFormGroupIntermediateCertificateAuthorities as FormGroupIntermediateCertificationAuthorities,
   BaseFormGroupChosenCountry                      as FormGroupCsrCountry,
   BaseFormGroupInput                              as FormGroupCsrState,
