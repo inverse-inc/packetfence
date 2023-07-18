@@ -6,20 +6,18 @@
     :isLoading="isLoading"
   >
     <form-group-record-dns-in-sql namespace="record_dns_in_sql"
-      :column-label="$i18n.t('Record DNS')"
-      :text="$i18n.t('Record DNS requests and replies in the SQL tables.')"
+                                  :column-label="$i18n.t('Record DNS')"
+                                  :text="$i18n.t('Record DNS requests and replies in the SQL tables.')"
+                                  enabled-value="enabled"
+                                  disabled-value="disabled"
     />
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
-import {
-  BaseForm
-} from '@/components/new/'
+import {computed} from '@vue/composition-api'
+import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
-import {
-  FormGroupRecordDnsInSql
-} from './'
+import {FormGroupRecordDnsInSql} from './'
 
 const components = {
   BaseForm,
