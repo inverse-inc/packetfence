@@ -5,14 +5,12 @@
         <b-col cols="auto">
           <h5 class="mb-0 d-inline">{{ $i18n.t('Flows') }}</h5>
         </b-col>
-        <b-col cols="auto" class="ml-auto">
-          <base-input-toggle-false-true v-model="animate"
-            :column-label="$i18n.t('Animate')"
-            label-left :label-right="false"
-            :options="[
-            { value: false, label: $i18n.t('Animate') },
-            { value: true, label: $i18n.t('Animate'), color: 'var(--primary)' }
-          ]"/>
+        <b-col cols="auto" class="ml-auto animate-switch">
+          <base-label>{{ $i18n.t('Animate') }}</base-label>
+          <base-input-switch :value="animate"
+                             :onChange="animateOnChange"
+
+          />
         </b-col>
       </b-row>
     </b-card-header>
@@ -23,28 +21,34 @@
         </template>
       </b-tab>
       <b-tab v-for="(devices, i) in collections" :key="`tab-${i}`"
-        lazy>
+             lazy>
         <template #title>
           <span v-for="device of devices" :key="device.mac">
-            {{ device.mac }} <b-badge pill variant="primary" class="ml-1">{{ device.count }}</b-badge>
+            {{ device.mac }} <b-badge pill variant="primary" class="ml-1">{{
+              device.count
+            }}</b-badge>
           </span>
         </template>
       </b-tab>
       <base-data-flow
         :animate="animate"
         :devices="devices"
-        @device="toggleDevice" />
+        @device="toggleDevice"/>
     </b-tabs>
   </b-card>
 </template>
 <script>
 import BaseDataFlow from './BaseDataFlow'
-import {
-  BaseInputToggleFalseTrue
-} from '@/components/new/'
+import {OnChangeFormGroupSwitch, BaseLabel} from '@/components/new/'
+import BaseInputSwitch from '@/components/new/BaseInputSwitch.vue'
+import {computed, ref, toRefs, watch} from '@vue/composition-api'
+import usePreference from '@/composables/usePreference'
+
 const components = {
   BaseDataFlow,
-  BaseInputToggleFalseTrue
+  OnChangeFormGroupSwitch,
+  BaseInputSwitch,
+  BaseLabel
 }
 
 const props = {
@@ -53,38 +57,35 @@ const props = {
   }
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
-import usePreference from '@/composables/usePreference'
-
 const setup = (props, context) => {
 
   const {
     device
   } = toRefs(props)
 
-  const { root: { $store } = {} } = context
+  const {root: {$store} = {}} = context
 
   const byDevice = computed(() => $store.getters['$_fingerbank_communication/byDevice'])
 
   const collections = ref([])
   watch(byDevice, () => {
     collections.value = Object.entries(byDevice.value)
-      .map(([mac, data]) => ({ mac, ...data }))
+      .map(([mac, data]) => ({mac, ...data}))
       .sort((a, b) => a.mac.localeCompare(b.mac))
-      .map(item => ([ item ]))
-  }, { immediate: true })
+      .map(item => ([item]))
+  }, {immediate: true})
 
   const tabIndex = ref(0)
 
   const devices = computed(() => {
     // idx 0: All
-    switch(tabIndex.value) {
+    switch (tabIndex.value) {
       case 0:
-        return Object.keys(byDevice.value).map(mac => ({ mac })) // all
-        // break
+        return Object.keys(byDevice.value).map(mac => ({mac})) // all
+      // break
       default:
         return collections.value[tabIndex.value - 1]
-        // break
+      // break
     }
   })
 
@@ -92,23 +93,26 @@ const setup = (props, context) => {
     if (tabIndex.value === 0) {
       // view specific device
       tabIndex.value = collections.value.findIndex(devices => devices.map(device => device.mac).indexOf(mac) > -1) + 1
-    }
-    else {
+    } else {
       // view all
       tabIndex.value = 0
     }
   }
 
-  watch(device, () => toggleDevice(device.value), { immediate: true })
+  watch(device, () => toggleDevice(device.value), {immediate: true})
 
   const animate = usePreference('vizsec::settings', 'animate', false)
+  const animateOnChange = (toggleValue) => {
+    animate.value = toggleValue
+  }
 
   return {
     collections,
     tabIndex,
     devices,
     toggleDevice,
-    animate
+    animate,
+    animateOnChange,
   }
 }
 
@@ -120,3 +124,8 @@ export default {
   setup
 }
 </script>
+<style>
+  .animate-switch {
+    display: flex;
+  }
+</style>
