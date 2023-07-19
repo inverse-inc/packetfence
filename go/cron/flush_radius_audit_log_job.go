@@ -232,7 +232,7 @@ func formatRequestKeyValue(key string, value interface{}) string {
 
 	}
 
-	return key + ` : "` + formatRequestValue(value, "") + `"`
+	return key + ` = "` + formatRequestValue(value, "") + `"`
 }
 
 func formatRequestValue(i interface{}, defaultValue string) string {
