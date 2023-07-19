@@ -80,6 +80,7 @@ import BaseUpload from './BaseUpload'
 import BaseView from './BaseView'
 import BaseFormGroupSwitch from './BaseFormGroupSwitch.vue';
 import BaseLabel from './BaseLabel.vue';
+import OnChangeFormGroupSwitch from '@/components/new/OnChangeFormGroupSwitch.vue';
 
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
 
@@ -123,6 +124,7 @@ export {
   BaseFormGroupToggleNY,
   BaseFormGroupToggleOffOn,
   BaseFormGroupSwitch,
+  OnChangeFormGroupSwitch,
 
   // icons
   BaseIconPreference,
