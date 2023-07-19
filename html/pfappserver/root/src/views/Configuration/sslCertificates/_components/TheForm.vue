@@ -149,7 +149,8 @@
                                       rows="6" auto-fit
               />
 
-              <form-group-find-intermediate-cas v-model="isFindIntermediateCas"
+              <form-group-find-intermediate-cas :switch-value="isFindIntermediateCas"
+                                                :on-change="findIntermediateCasOnChange"
                                                 :column-label="$i18n.t('Find {name} Server intermediate CA(s) automatically', { name })"
               />
 
@@ -210,7 +211,7 @@ import {
   BaseContainerLoading,
   BaseForm,
   BaseFormButtonBar,
-  BaseFormGroupToggleFalseTrue as FormGroupFindIntermediateCas,
+  OnChangeFormGroupSwitch as FormGroupFindIntermediateCas,
   BaseServices,
 } from '@/components/new/'
 import {
@@ -313,6 +314,10 @@ const setup = (props, context) => {
       })
   }
 
+  const findIntermediateCasOnChange = (value) => {
+    isFindIntermediateCas.value = value
+  }
+
   const tabIndex = ref(0)
 
   return {
@@ -342,6 +347,7 @@ const setup = (props, context) => {
     isChainValid,
     isLetsEncrypt,
     isFindIntermediateCas,
+    findIntermediateCasOnChange,
 
     // custom
     onSaveWrapper,
