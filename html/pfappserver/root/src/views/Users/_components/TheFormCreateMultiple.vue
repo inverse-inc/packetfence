@@ -6,60 +6,65 @@
       :isLoading="isLoading"
       class="pt-0"
     >
-      <b-alert show variant="info" v-html="$t('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>, <i>guest2</i> and <i>guest3</i>. Random passwords will be created.')"></b-alert>
+      <b-alert show variant="info"
+               v-html="$t('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>, <i>guest2</i> and <i>guest3</i>. Random passwords will be created.')"></b-alert>
 
       <form-group-pid-overwrite namespace="pid_overwrite"
-        :column-label="$t('Username (PID) overwrite')"
-        :text="$t('Overwrite the username (PID) if it already exists.')"
+                                :column-label="$t('Username (PID) overwrite')"
+                                :text="$t('Overwrite the username (PID) if it already exists.')"
+                                :enabled-value="1"
+                                :disabled-value="0"
       />
 
       <form-group-prefix namespace="prefix"
-        :column-label="$t('Username Prefix')"
+                         :column-label="$t('Username Prefix')"
       />
 
       <form-group-quantity namespace="quantity"
-        :column-label="$t('Quantity')"
+                           :column-label="$t('Quantity')"
       />
 
       <form-group-password-options v-model="passwordOptions"
-        min="6" max="64"
-        :column-label="$i18n.t('Password')"
-        :text="$i18n.t('Random passwords will be created.')"
+                                   min="6" max="64"
+                                   :column-label="$i18n.t('Password')"
+                                   :text="$i18n.t('Random passwords will be created.')"
       />
 
       <form-group-login-remaining namespace="login_remaining"
-        :column-label="$t('Login remaining')"
-        :text="$t('Leave empty to allow unlimited logins.')"
+                                  :column-label="$t('Login remaining')"
+                                  :text="$t('Leave empty to allow unlimited logins.')"
       />
 
       <form-group-firstname namespace="firstname"
-        :column-label="$t('Firstname')"
+                            :column-label="$t('Firstname')"
       />
 
       <form-group-lastname namespace="lastname"
-        :column-label="$t('Lastname')"
+                           :column-label="$t('Lastname')"
       />
 
       <form-group-company namespace="company"
-        :column-label="$t('Company')"
+                          :column-label="$t('Company')"
       />
 
       <form-group-notes namespace="notes"
-        :column-label="$t('Notes')"
+                        :column-label="$t('Notes')"
       />
 
       <base-form-group
         :column-label="$t('Registration Window')"
       >
         <input-group-valid-from namespace="valid_from"
-          class="flex-grow-1" />
-        <b-button variant="link" disabled><icon name="long-arrow-alt-right"></icon></b-button>
+                                class="flex-grow-1"/>
+        <b-button variant="link" disabled>
+          <icon name="long-arrow-alt-right"></icon>
+        </b-button>
         <input-group-expiration namespace="expiration"
-          class="flex-grow-1" />
+                                class="flex-grow-1"/>
       </base-form-group>
 
       <form-group-actions namespace="actions"
-        :column-label="$t('Actions')"
+                          :column-label="$t('Actions')"
       />
 
       <div class="mt-3">
@@ -77,31 +82,32 @@
         </div>
       </div>
     </base-form>
-    <the-preview-modal v-model="showPreviewModal" :quantity="form.quantity" :completed="completed" />
+    <the-preview-modal v-model="showPreviewModal" :quantity="form.quantity" :completed="completed"/>
   </b-form>
 </template>
 <script>
+import {BaseForm, BaseFormButtonBar, BaseFormGroup} from '@/components/new/'
 import {
-  BaseForm,
-  BaseFormButtonBar,
-  BaseFormGroup
-} from '@/components/new/'
-import {
+  FormGroupActions,
+  FormGroupCompany,
+  FormGroupFirstname,
+  FormGroupLastname,
+  FormGroupLoginRemaining,
+  FormGroupNotes,
+  FormGroupPasswordOptions,
   FormGroupPidOverwrite,
   FormGroupPrefix,
   FormGroupQuantity,
-  FormGroupLoginRemaining,
-  FormGroupFirstname,
-  FormGroupLastname,
-  FormGroupCompany,
-  FormGroupNotes,
-  FormGroupPasswordOptions,
-
-  InputGroupValidFrom,
   InputGroupExpiration,
-  FormGroupActions
+  InputGroupValidFrom
 } from './'
 import ThePreviewModal from './ThePreviewModal'
+import {computed, ref} from '@vue/composition-api'
+import {useDebouncedWatchHandler} from '@/composables/useDebounce'
+import {multiple as schemaFn} from '../schema'
+import i18n from '@/utils/locale'
+import password from '@/utils/password'
+import {createMultipleForm as defaults, passwordOptions as _passwordOptions} from '../_config/'
 
 const components = {
   BaseForm,
@@ -124,22 +130,12 @@ const components = {
   ThePreviewModal
 }
 
-import { computed, ref } from '@vue/composition-api'
-import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import { multiple as schemaFn } from '../schema'
-import i18n from '@/utils/locale'
-import password from '@/utils/password'
-import {
-  createMultipleForm as defaults,
-  passwordOptions as _passwordOptions
-} from '../_config/'
-
 const setup = (props, context) => {
 
-  const { root: { $router, $store } = {} } = context
+  const {root: {$router, $store} = {}} = context
 
   const rootRef = ref(null)
-  const form = ref({ ...defaults }) // dereferenced
+  const form = ref({...defaults}) // dereferenced
   const schema = computed(() => schemaFn(props, form.value))
   const isLoading = computed(() => $store.getters['$_users/isLoading'])
 
@@ -154,7 +150,7 @@ const setup = (props, context) => {
   )
 
   const onClose = () => {
-    $router.push({ name: 'users' })
+    $router.push({name: 'users'})
   }
 
   const showPreviewModal = ref(false)
@@ -179,22 +175,22 @@ const setup = (props, context) => {
       }
       promises.push($store.dispatch('$_users/exists', _form.pid).then(() => {
         // user exists
-        completed.value += 1/3
+        completed.value += 1 / 3
         return $store.dispatch('$_users/updateUser', _form).then(() => {
-          completed.value += 1/3
+          completed.value += 1 / 3
           return $store.dispatch('$_users/updatePassword', _form).then(() => {
-            completed.value += 1/3
+            completed.value += 1 / 3
             createdUsers.value.push(_form)
             $store.commit('$_users/CREATED_USERS_REPLACED', createdUsers.value)
           })
         })
       }).catch(() => {
         // user not exist
-        completed.value += 1/3
+        completed.value += 1 / 3
         return $store.dispatch('$_users/createUser', _form).then(() => {
-          completed.value += 1/3
+          completed.value += 1 / 3
           return $store.dispatch('$_users/createPassword', _form).then(() => {
-            completed.value += 1/3
+            completed.value += 1 / 3
             createdUsers.value.push(_form)
             $store.commit('$_users/CREATED_USERS_REPLACED', createdUsers.value)
           })
@@ -204,7 +200,7 @@ const setup = (props, context) => {
     showPreviewModal.value = true
     Promise.all(promises).then(values => {
       $store.dispatch('notification/info', {
-        message: i18n.t('{quantity} users created', { quantity: values.length }),
+        message: i18n.t('{quantity} users created', {quantity: values.length}),
         success: null,
         skipped: null,
         failed: null
@@ -213,7 +209,7 @@ const setup = (props, context) => {
   }
 
   const onReset = () => {
-    form.value = { ...defaults } // dereferenced
+    form.value = {...defaults} // dereferenced
   }
 
   const passwordOptions = ref(_passwordOptions)
