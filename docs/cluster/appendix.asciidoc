@@ -35,8 +35,8 @@ Once that is changed on one of your cluster members, propagate your change using
 
 [source,bash]
 ----
-/usr/local/pf/bin/pfcmd configreload hard
 /usr/local/pf/bin/cluster/sync --as-master
+/usr/local/pf/bin/pfcmd configreload hard
 ----
 
 And restart PacketFence on all your cluster members:
