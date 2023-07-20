@@ -1,9 +1,9 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 v-t="'Live Logs'" class="mb-0" />
+      <h4 v-t="'Live Logs'" class="mb-0"/>
     </b-card-header>
-    <the-tabs />
+    <the-tabs/>
     <b-card-body>
       <b-form @submit.prevent="onCreate" ref="formRef">
         <base-form
@@ -14,13 +14,16 @@
           <b-form-row align-v="center">
             <b-col sm="12">
               <base-form-group-chosen-multiple namespace="files"
-                :column-label="$t('Log Files')"
-                :placeholder="$t('Choose log file(s)')"
-                :options="files" />
+                                               :column-label="$t('Log Files')"
+                                               :placeholder="$t('Choose log file(s)')"
+                                               :options="files"/>
               <base-form-group-input namespace="filter"
-                :column-label="$t('Filter')" />
-              <base-form-group-toggle-false-true namespace="filter_is_regexp"
-                :column-label="$t('Regular Expression')" />
+                                     :column-label="$t('Filter')"/>
+              <base-form-group-switch
+                namespace="filter_is_regexp"
+                :column-label="$t('Regular Expression')"
+                :enabled-value="true"
+                :disabled-value="false"/>
             </b-col>
           </b-form-row>
         </base-form>
@@ -28,7 +31,8 @@
     </b-card-body>
     <b-card-footer>
       <b-button variant="primary" :disabled="isLoading || !isValid" @click="onCreate">
-        <icon name="circle-notch" spin v-show="isLoading" /> {{ $t('Start Session') }}
+        <icon name="circle-notch" spin v-show="isLoading"/>
+        {{ $t('Start Session') }}
       </b-button>
     </b-card-footer>
   </b-card>
@@ -39,22 +43,21 @@ import {
   BaseForm,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
-  BaseFormGroupToggleFalseTrue
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import TheTabs from './TheTabs'
+import {computed, ref} from '@vue/composition-api'
+import {useDebouncedWatchHandler} from '@/composables/useDebounce'
+import i18n from '@/utils/locale'
+import yup from '@/utils/yup'
 
 const components = {
   BaseForm,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
-  BaseFormGroupToggleFalseTrue,
+  BaseFormGroupSwitch,
   TheTabs
 }
-
-import { computed, ref } from '@vue/composition-api'
-import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import i18n from '@/utils/locale'
-import yup from '@/utils/yup'
 
 const schema = yup.object({
   files: yup.array().ensure()
@@ -64,9 +67,9 @@ const schema = yup.object({
 
 const setup = (props, context) => {
 
-  const { root: { $router, $store } = {} } = context
+  const {root: {$router, $store} = {}} = context
 
-  const form = ref ({
+  const form = ref({
     name: i18n.t('New Session'),
     files: [],
     filter: null,
@@ -80,12 +83,12 @@ const setup = (props, context) => {
 
   // immediate
   $store.dispatch(`$_live_logs/optionsSession`).then(response => {
-    const { meta: { files: { item: { allowed = [] } = {} } = {} } = {} } = response
+    const {meta: {files: {item: {allowed = []} = {}} = {}} = {}} = response
     if (allowed) {
       files.value = allowed
         .map(item => {
-          const { text, value } = item
-          return { text: `${value} - ${text}`, value }
+          const {text, value} = item
+          return {text: `${value} - ${text}`, value}
         })
         .sort((a, b) => {
           return a.value.localeCompare(b.value)
@@ -95,9 +98,9 @@ const setup = (props, context) => {
 
   const onCreate = () => {
     $store.dispatch(`$_live_logs/createSession`, form.value).then(response => {
-      const { session_id } = response
+      const {session_id} = response
       if (session_id)
-        $router.push({ name: 'live_log', params: { id: session_id } })
+        $router.push({name: 'live_log', params: {id: session_id}})
     })
   }
 
