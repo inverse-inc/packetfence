@@ -1,5 +1,9 @@
 name: Check RADIUS audit log
 testcases:
+- name: move_from_redis_to_db
+  steps:
+  - type: pfcron_flush_radius_audit_log
+
 - name: get_time
   steps:
   - type: exec
