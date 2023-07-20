@@ -17,19 +17,19 @@ import (
 )
 
 type RadacctLog struct {
-	DB  *gorm.DB
+	DBP **gorm.DB
 	Ctx *context.Context
 }
 
-func NewRadacctLog(ctx context.Context, db *gorm.DB) *RadacctLog {
+func NewRadacctLog(ctx context.Context, dbp **gorm.DB) *RadacctLog {
 	return &RadacctLog{
-		DB:  db,
+		DBP: dbp,
 		Ctx: &ctx,
 	}
 }
 
 func (a *RadacctLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DB, a.Ctx)
+	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -52,7 +52,7 @@ func (a *RadacctLog) List(w http.ResponseWriter, r *http.Request, p httprouter.P
 }
 
 func (a *RadacctLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DB, a.Ctx)
+	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -75,7 +75,7 @@ func (a *RadacctLog) Search(w http.ResponseWriter, r *http.Request, p httprouter
 }
 
 func (a *RadacctLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DB, a.Ctx)
+	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -102,7 +102,7 @@ func (a *RadacctLog) GetItem(w http.ResponseWriter, r *http.Request, p httproute
 }
 
 func (a *RadacctLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DB, a.Ctx)
+	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -131,7 +131,7 @@ func (a *RadacctLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httpro
 }
 
 func (a *RadacctLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DB, a.Ctx)
+	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK

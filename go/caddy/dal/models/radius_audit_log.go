@@ -69,9 +69,9 @@ func (r RadiusAuditLog) TableName() string {
 }
 
 // RadiusAuditLog
-func NewRadiusAuditLogModel(db *gorm.DB, ctx *context.Context) *RadiusAuditLog {
+func NewRadiusAuditLogModel(dbp **gorm.DB, ctx *context.Context) *RadiusAuditLog {
 	ret := &RadiusAuditLog{}
-	ret.DB = db
+	ret.DB = *dbp
 	ret.Ctx = ctx
 	return ret
 }

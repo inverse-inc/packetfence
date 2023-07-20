@@ -17,7 +17,7 @@ import (
 )
 
 type AdminApiAuditLog struct {
-	DB  *gorm.DB
+	DBP **gorm.DB
 	Ctx *context.Context
 }
 
@@ -28,9 +28,9 @@ type RespBody struct {
 	Message string       `json:"message,omitempty"`
 }
 
-func NewAdminApiAuditLog(ctx context.Context, db *gorm.DB) *AdminApiAuditLog {
+func NewAdminApiAuditLog(ctx context.Context, dbp **gorm.DB) *AdminApiAuditLog {
 	return &AdminApiAuditLog{
-		DB:  db,
+		DBP: dbp,
 		Ctx: &ctx,
 	}
 }
@@ -48,7 +48,7 @@ func outputResult(w http.ResponseWriter, body RespBody) {
 }
 
 func (a *AdminApiAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+	model := models.NewAdminApiAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -71,7 +71,7 @@ func (a *AdminApiAuditLog) List(w http.ResponseWriter, r *http.Request, p httpro
 }
 
 func (a *AdminApiAuditLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+	model := models.NewAdminApiAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -94,7 +94,7 @@ func (a *AdminApiAuditLog) Search(w http.ResponseWriter, r *http.Request, p http
 }
 
 func (a *AdminApiAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+	model := models.NewAdminApiAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -121,7 +121,7 @@ func (a *AdminApiAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p htt
 }
 
 func (a *AdminApiAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+	model := models.NewAdminApiAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -150,7 +150,7 @@ func (a *AdminApiAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p 
 }
 
 func (a *AdminApiAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+	model := models.NewAdminApiAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK

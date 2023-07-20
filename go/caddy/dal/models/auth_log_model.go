@@ -29,9 +29,9 @@ func (a AuthLog) TableName() string {
 }
 
 // AuthLog
-func NewAuthLogModel(db *gorm.DB, ctx *context.Context) *AuthLog {
+func NewAuthLogModel(dbp **gorm.DB, ctx *context.Context) *AuthLog {
 	ret := &AuthLog{}
-	ret.DB = db
+	ret.DB = *dbp
 	ret.Ctx = ctx
 	return ret
 }

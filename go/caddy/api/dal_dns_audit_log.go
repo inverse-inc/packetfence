@@ -17,19 +17,19 @@ import (
 )
 
 type DnsAuditLog struct {
-	DB  *gorm.DB
+	DBP **gorm.DB
 	Ctx *context.Context
 }
 
-func NewDnsAuditLog(ctx context.Context, db *gorm.DB) *DnsAuditLog {
+func NewDnsAuditLog(ctx context.Context, dbp **gorm.DB) *DnsAuditLog {
 	return &DnsAuditLog{
-		DB:  db,
+		DBP: dbp,
 		Ctx: &ctx,
 	}
 }
 
 func (a *DnsAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DB, a.Ctx)
+	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -52,7 +52,7 @@ func (a *DnsAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.
 }
 
 func (a *DnsAuditLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DB, a.Ctx)
+	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -75,7 +75,7 @@ func (a *DnsAuditLog) Search(w http.ResponseWriter, r *http.Request, p httproute
 }
 
 func (a *DnsAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DB, a.Ctx)
+	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -102,7 +102,7 @@ func (a *DnsAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprout
 }
 
 func (a *DnsAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DB, a.Ctx)
+	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -131,7 +131,7 @@ func (a *DnsAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httpr
 }
 
 func (a *DnsAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DB, a.Ctx)
+	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK

@@ -15,19 +15,19 @@ import (
 )
 
 type Wrix struct {
-	DB  *gorm.DB
+	DBP **gorm.DB
 	Ctx *context.Context
 }
 
-func NewWrix(ctx context.Context, db *gorm.DB) *Wrix {
+func NewWrix(ctx context.Context, dbp **gorm.DB) *Wrix {
 	return &Wrix{
-		DB:  db,
+		DBP: dbp,
 		Ctx: &ctx,
 	}
 }
 
 func (a *Wrix) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DB, a.Ctx)
+	model := models.NewWrixModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -50,7 +50,7 @@ func (a *Wrix) List(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }
 
 func (a *Wrix) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DB, a.Ctx)
+	model := models.NewWrixModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -73,7 +73,7 @@ func (a *Wrix) Search(w http.ResponseWriter, r *http.Request, p httprouter.Param
 }
 
 func (a *Wrix) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DB, a.Ctx)
+	model := models.NewWrixModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -94,7 +94,7 @@ func (a *Wrix) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Para
 }
 
 func (a *Wrix) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DB, a.Ctx)
+	model := models.NewWrixModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -117,7 +117,7 @@ func (a *Wrix) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.P
 }
 
 func (a *Wrix) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DB, a.Ctx)
+	model := models.NewWrixModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK

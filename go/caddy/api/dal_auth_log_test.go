@@ -76,7 +76,7 @@ func dalAuthLog() http.HandlerFunc {
 	if err != nil {
 		fmt.Println("error occured while connecting to mysql, ", err.Error())
 	}
-	NewAuthLog(ctx, dbs).AddToRouter(router)
+	NewAuthLog(ctx, &dbs).AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
 			// We always default to application/json
