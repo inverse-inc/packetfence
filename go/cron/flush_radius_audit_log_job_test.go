@@ -270,26 +270,7 @@ const RADIUS_ENTRY2 = `
 ]
 `
 
-const REQUEST_EXPECTED = `Acct-Session-Id = "EE4C43AD30EB4C8C",
-Called-Station-Id = "44-38-39-00-00-12:",
-Calling-Station-Id = "00:03:00:11:11:01",
-Event-Timestamp = "Jul 17 2023 21:10:18 UTC",
-Framed-MTU = "1400",
-FreeRADIUS-Client-IP-Address = "172.18.120.201",
-Message-Authenticator = "0x439a666a595f9c98538e1ce1b8ed8f34",
-NAS-IP-Address = "172.18.120.201",
-NAS-Identifier = "localhost",
-NAS-Port = "8",
-NAS-Port-Id = "swp12",
-NAS-Port-Type = "Ethernet",
-PacketFence-KeyBalanced = "d0765eaba49810c0c2578385bc6272b2",
-PacketFence-Radius-Ip = "172.18.120.15",
-Realm = "null",
-Service-Type = "Call-Check",
-Stripped-User-Name = "000300111101",
-User-Name = "000300111101",
-User-Password = "******",
-User-Password = "*"`
+const REQUEST_EXPECTED = `Acct-Session-Id =3D =22EE4C43AD30EB4C8C=22=2C=0ACalled-Station-Id =3D =2244-38-39-00-00-12:=22=2C=0ACalling-Station-Id =3D =2200:03:00:11:11:01=22=2C=0AEvent-Timestamp =3D =22Jul 17 2023 21:10:18 UTC=22=2C=0AFramed-MTU =3D =221400=22=2C=0AFreeRADIUS-Client-IP-Address =3D =22172.18.120.201=22=2C=0AMessage-Authenticator =3D =220x439a666a595f9c98538e1ce1b8ed8f34=22=2C=0ANAS-IP-Address =3D =22172.18.120.201=22=2C=0ANAS-Identifier =3D =22localhost=22=2C=0ANAS-Port =3D =228=22=2C=0ANAS-Port-Id =3D =22swp12=22=2C=0ANAS-Port-Type =3D =22Ethernet=22=2C=0APacketFence-KeyBalanced =3D =22d0765eaba49810c0c2578385bc6272b2=22=2C=0APacketFence-Radius-Ip =3D =22172.18.120.15=22=2C=0ARealm =3D =22null=22=2C=0AService-Type =3D =22Call-Check=22=2C=0AStripped-User-Name =3D =22000300111101=22=2C=0AUser-Name =3D =22000300111101=22=2C=0AUser-Password =3D =22=2A=2A=2A=2A=2A=2A=22=2C=0AUser-Password =3D =22=2A=22`
 
 func TestToRequest(t *testing.T) {
 	var entry []interface{} = make([]interface{}, 4)
@@ -299,7 +280,7 @@ func TestToRequest(t *testing.T) {
 
 	request := formatRequest(entry[1].(map[string]interface{}))
 	if request != REQUEST_EXPECTED {
-		t.Fatalf("Expected \n%s\nGot\n%s\n", REQUEST_EXPECTED, request)
+		t.Fatalf("Expected \n'%s'\nGot\n'%s'\n", REQUEST_EXPECTED, request)
 	}
 
 }

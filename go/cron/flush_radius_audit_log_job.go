@@ -21,6 +21,8 @@ type FlushRadiusAuditLogJob struct {
 	redis   *redis.Client
 }
 
+const hextable = "0123456789ABCDEF"
+
 func NewFlushRadiusAuditLogJob(config map[string]interface{}) JobSetupConfig {
 	return &FlushRadiusAuditLogJob{
 		Task:    SetupTask(config),
@@ -213,7 +215,7 @@ func formatRequest(request map[string]interface{}) string {
 		parts = append(parts, formatRequestKeyValue(k, request[k]))
 	}
 
-	return strings.Join(parts, ",\n")
+	return escapeRadiusRequest(strings.Join(parts, ",\n"))
 }
 
 func formatRequestKeyValue(key string, value interface{}) string {
@@ -270,6 +272,41 @@ func formatRequestValue(i interface{}, defaultValue string) string {
 		return defaultValue
 	}
 	return defaultValue
+}
+
+func escapeRadiusRequest(s string) string {
+	size := 0
+	for _, c := range []byte(s) {
+		if shouldEscape(c) {
+			size += 3
+		} else {
+			size++
+		}
+	}
+
+	if size == len(s) {
+		return s
+	}
+
+	out := make([]byte, size)
+	j := 0
+	for _, c := range []byte(s) {
+		if shouldEscape(c) {
+			out[j] = '='
+			out[j+1] = hextable[c>>4]
+			out[j+2] = hextable[c&0x0f]
+			j += 3
+		} else {
+			out[j] = c
+			j++
+		}
+	}
+
+	return string(out)
+}
+
+func shouldEscape(c byte) bool {
+	return strings.IndexByte("@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_: /", c) == -1
 }
 
 func interfaceToStr(i interface{}, defaultStr string) string {
