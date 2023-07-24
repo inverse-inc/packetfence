@@ -78,9 +78,10 @@ import BaseTableEmpty from './BaseTableEmpty'
 import BaseTableSortable from './BaseTableSortable'
 import BaseUpload from './BaseUpload'
 import BaseView from './BaseView'
-import BaseFormGroupSwitch from './BaseFormGroupSwitch.vue';
-import BaseLabel from './BaseLabel.vue';
-import OnChangeFormGroupSwitch from '@/components/new/OnChangeFormGroupSwitch.vue';
+import BaseFormGroupSwitch from './BaseFormGroupSwitch.vue'
+import BaseLabel from './BaseLabel.vue'
+import BaseInputSwitch from './BaseInputSwitch.vue'
+import OnChangeFormGroupSwitch from '@/components/new/OnChangeFormGroupSwitch.vue'
 
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
 
@@ -140,6 +141,7 @@ export {
   BaseInputPassword,
   BaseInputRange,
   BaseInputToggle, BaseInputToggleProps,
+  BaseInputSwitch,
   BaseInputToggleAdvancedMode,
   BaseInputToggleFalseTrue,
   BaseLabel,

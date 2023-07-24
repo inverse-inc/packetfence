@@ -5,23 +5,26 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-    <form-group-record-dns-in-sql namespace="record_dns_in_sql"
-                                  :column-label="$i18n.t('Record DNS')"
-                                  :text="$i18n.t('Record DNS requests and replies in the SQL tables.')"
-                                  enabled-value="enabled"
-                                  disabled-value="disabled"
+    <v-model-switch v-model="uiForm['record_dns_in_sql']"
+                    :column-label="$i18n.t('Record DNS')"
+                    :text="$i18n.t('Record DNS requests and replies in the SQL tables.')"
     />
   </base-form>
 </template>
 <script>
-import {computed} from '@vue/composition-api'
+import {computed, ref, toRefs, watch} from '@vue/composition-api'
 import {BaseForm} from '@/components/new/'
+import vModelSwitch from './vModelSwitch.vue'
 import schemaFn from '../schema'
 import {FormGroupRecordDnsInSql} from './'
+import _ from 'lodash'
+import {
+  useParseBoolean
+} from '@/views/Configuration/dns/_composables/_api_parsing_layer/parseBoolean';
 
 const components = {
   BaseForm,
-
+  vModelSwitch,
   FormGroupRecordDnsInSql
 }
 
@@ -42,8 +45,21 @@ export const setup = (props) => {
 
   const schema = computed(() => schemaFn(props))
 
+  // props.form come in undefined.
+  // Adding a watcher to trigger when it gets a value fail.
+  // I don't know how to work around it, so this form doesn't work
+
+  // The idea is to clone the form and link it to the UI form.
+  // UI form would use whatever UI components need and backend form would get computed.
+  const uiForm = _.cloneDeep(props.form)
+  uiForm.value['record_dns_in_sql'] = (props.form['record_dns_in_sql'] === "enabled")
+  props.form['record_dns_in_sql'] = computed(() => {
+    return uiForm['record_dns_in_sql'] ? "enabled" : "disabled"
+  })
+
   return {
-    schema
+    schema,
+    uiForm,
   }
 }
 
