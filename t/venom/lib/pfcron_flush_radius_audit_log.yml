@@ -1,6 +1,14 @@
 executor: pfcron_flush_radius_audit_log 
+input:
+  i_retry: 6
+  i_delay: 5
 steps:
+- type: systemctl_service_status
+  service: packetfence-redis-cache.service
+
 - type: pfcron_command_line
   unit_command: flush_radius_audit_log
+  i_retry: "{{.input.i_retry}}"
+  i_delay: "{{.input.i_delay}}"
   assertions:
     - result.pfcron_command_line_systemout ShouldContainSubstring "task flush_radius_audit_log finished"
