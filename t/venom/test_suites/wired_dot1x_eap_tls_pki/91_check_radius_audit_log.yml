@@ -86,6 +86,8 @@ testcases:
       }
     assertions:
       - result.pf_api_action_json.items.items0 ShouldContainKey id
+    retry: 6
+    delay: 10
     vars:
       id_tmp:
         from: result.pf_api_action_json.items.items0.id

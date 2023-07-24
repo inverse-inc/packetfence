@@ -85,6 +85,8 @@ testcases:
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
+    retry: 6
+    delay: 10
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.items.items0 ShouldContainKey id
