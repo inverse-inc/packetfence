@@ -7,11 +7,10 @@
 # http://www.fsf.org/licensing/licenses/gpl.html
 [192.168.0.1]
 description=Test Switch
-type=Cisco::Cisco_IOS_15_0
-mode=production
-uplink=23,24
+type = Cisco::Cisco_IOS_15_0
+mode = production
+uplink = 23,24
 VoIPLLDPDetect=N
-
 #SNMPVersion = 3
 #SNMPEngineID = 0000000000000
 #SNMPUserNameRead = readUser
@@ -30,9 +29,10 @@ VoIPLLDPDetect=N
 #SNMPAuthPasswordTrap = authpwdread
 #SNMPPrivProtocolTrap = DES
 #SNMPPrivPasswordTrap = privpwdread
+
 [192.168.1.0/24]
 description=Test Range WLC
-type=Cisco::WLC
-mode=production
+type = Cisco::WLC
+mode = production
 uplink_dynamic=0
 VoIPLLDPDetect=N
