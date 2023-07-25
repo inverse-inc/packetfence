@@ -60,7 +60,6 @@ func (p *Proxy) listen() error {
 		}
 		p.Infof("Listening")
 		p.tcp = l
-		_, p.remote.LocalPort, _ = net.SplitHostPort(l.Addr().String())
 	} else if p.remote.LocalProto == "udp" {
 		l, err := listenUDP(p.Logger, p.sshTun, p.remote)
 		if err != nil {
@@ -68,7 +67,6 @@ func (p *Proxy) listen() error {
 		}
 		p.Infof("Listening")
 		p.udp = l
-		_, p.remote.LocalPort, _ = net.SplitHostPort(l.Addr().String())
 	} else {
 		return p.Errorf("unknown local proto")
 	}
