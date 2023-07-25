@@ -17,9 +17,10 @@
   </div>
 </template>
 <script>
-import {BaseInputChosenOne} from '@/components/new'
+import {BaseInput, BaseInputChosenOne} from '@/components/new'
 import {computed, nextTick, ref, unref, watch} from '@vue/composition-api'
 import {
+  operatorMap,
   pfComponentType,
   pfFieldType,
   pfFieldTypeOperators as fieldTypeOperators,
@@ -35,6 +36,7 @@ import LdapAttributeSelector
 const components = {
   BaseInputChosenOne,
   LdapAttributeSelector,
+  BaseInput,
 }
 
 const props = {
@@ -43,6 +45,8 @@ const props = {
 }
 
 const setup = (props, context) => {
+
+  const ldapSearchOperators = [operatorMap.is, operatorMap.equals, operatorMap.not_equals]
 
   const metaProps = useInputMeta(props, context)
 
@@ -107,7 +111,10 @@ const setup = (props, context) => {
 
   const valueComponent = computed(() => {
     if (attributeValue.value) {
-      return LdapSearchInput
+      if (ldapSearchOperators.includes(operatorValue.value))
+        return LdapSearchInput
+      else
+        return BaseInput
     } else {
       return undefined
     }
