@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 12.1.0\n"
+"Project-Id-Version: 13.0.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2022-11-16 21:06-0400\n"
+"PO-Revision-Date: 2023-07-25 23:53-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -114,10 +114,6 @@ msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "After registering, you will be given temporary network access for %s minutes. In order to complete your registration, you will need to click on the link emailed to you."
-msgstr ""
-
-# html/captive-portal/templates/provisioner/sepm.html
-msgid "Alternate installer"
 msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/osx.html
@@ -313,17 +309,12 @@ msgstr ""
 # html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/dpsk.html
-# html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
-# html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
-# html/captive-portal/templates/provisioner/sepm.html
-# html/captive-portal/templates/provisioner/servicenow.html
-# html/captive-portal/templates/provisioner/symantec.html
 # html/captive-portal/templates/provisioner/windows.html
 # html/captive-portal/templates/select-role.html
 # html/captive-portal/templates/signin.html
@@ -467,11 +458,6 @@ msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/chrome.html
 msgid "Do not double-click the file after the download has finished; instead, click the Chrome menu (usually appearing as three horizontal lines) in the top right corner. Then, click the <i>Settings</i> option."
-msgstr ""
-
-# html/captive-portal/templates/provisioner/sepm.html
-# html/captive-portal/templates/provisioner/symantec.html
-msgid "Download"
 msgstr ""
 
 # html/captive-portal/templates/provisioner/intune.html
@@ -672,10 +658,6 @@ msgstr ""
 msgid "If you did not see the prompts mentioned above you will need to manually <i>Trust</i> the newly installed certificate. Continue with the following steps."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/sepm.html
-msgid "If you find the program above not working you can try this one:"
-msgstr ""
-
 # html/captive-portal/templates/ssl_inspection/other.html
 msgid "If you have a device that does not fall under one of the categories located on the page menus above, you will need to figure out how to install the certificate on your own device. We do not support any devices outside of the ones listed on the page menus. You may download our certificate below."
 msgstr ""
@@ -721,9 +703,7 @@ msgstr ""
 msgid "In your firefox browser click on the <i>menu</i> botton at the top right of your browser and select <i>Options</i>."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/mobileiron.html
-# html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/windows.html
 msgid "Install Agent"
 msgstr ""
@@ -921,23 +901,15 @@ msgid "Once on site, select guest access on the captive portal and use the follo
 msgstr ""
 
 # html/captive-portal/templates/provisioner/airwatch.html
-# html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/kandji.html
-# html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
-# html/captive-portal/templates/provisioner/sepm.html
-# html/captive-portal/templates/provisioner/symantec.html
 msgid "Once the application is installed, click 'Continue' to activate your network connection"
 msgstr ""
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "Once the application is installed, click Continue to activate your network connection"
-msgstr ""
-
-# html/captive-portal/templates/provisioner/servicenow.html
-msgid "Once the verification has completed, click 'Continue' to activate your network connection"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
@@ -1425,20 +1397,12 @@ msgstr ""
 msgid "To cancel your subscription, click on the following link"
 msgstr ""
 
-# html/captive-portal/templates/provisioner/servicenow.html
-msgid "To complete your network activation we need to verify that your device is corporate-owned."
-msgstr ""
-
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "To complete your network activation you need to install MobileIron"
 msgstr ""
 
 # html/captive-portal/templates/provisioner/airwatch.html
 msgid "To complete your network activation you need to install the Airwatch agent."
-msgstr ""
-
-# html/captive-portal/templates/provisioner/ibm.html
-msgid "To complete your network activation you need to install the IBM client."
 msgstr ""
 
 # html/captive-portal/templates/provisioner/intune.html
@@ -1453,20 +1417,8 @@ msgstr ""
 msgid "To complete your network activation you need to install the Kandji MDM client."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/opswat.html
-msgid "To complete your network activation you need to install the OPSWAT Metadefender Endpoint client."
-msgstr ""
-
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid "To complete your network activation you need to install the SentinelOne client."
-msgstr ""
-
-# html/captive-portal/templates/provisioner/sepm.html
-msgid "To complete your network activation you need to install the Symantec Endpoint Manager"
-msgstr ""
-
-# html/captive-portal/templates/provisioner/symantec.html
-msgid "To complete your network activation you need to install the Symantec client."
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
