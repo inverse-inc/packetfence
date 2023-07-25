@@ -24,7 +24,7 @@ has '+deflate_value_method'=> ( default => sub { \&deflate } );
 # Form fields
 
 has_field 'attribute' => (
-    type            => 'Select',
+    type            => 'SelectSuggested',
     localize_labels => 1,
     required        => 1,
     element_attr   => {
@@ -34,6 +34,9 @@ has_field 'attribute' => (
     options_method  => \&options_attributes,
     element_class   => ['span5'],
     do_label        => 0,
+    tags => {
+        allow_custom => 1
+    },
 );
 
 has_field 'operator' => (
