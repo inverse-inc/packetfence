@@ -70,6 +70,7 @@ require (
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.5.0 // indirect
 	github.com/openzipkin/zipkin-go v0.4.1 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
 	github.com/prometheus/client_golang v1.14.0
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.39.0 // indirect
