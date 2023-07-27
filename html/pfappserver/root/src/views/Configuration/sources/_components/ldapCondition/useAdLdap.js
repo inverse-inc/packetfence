@@ -1,5 +1,9 @@
 import _ from 'lodash';
 import {
+  extractAttributeFromFilter,
+  isAttributeDn,
+  parseLdapResponseToAttributeArray,
+  searchDn,
   sendLdapSearchRequest
 } from '@/views/Configuration/sources/_components/ldapCondition/common';
 
@@ -7,24 +11,40 @@ import {
 function useAdLdap(form) {
 
   const performSearch = (filter, scope, attributes, base_dn) => {
-    return sendLdapSearchRequest({...form.value}, filter, scope, attributes, base_dn)
+    let server = {...form.value}
+    // This also handles the case where we filter a DN attribute
+    return sendLdapSearchRequest(server , filter, scope, attributes, base_dn)
+        .then((result) => {
+            if (_.isEmpty(result)) {
+              return isAttributeDn(server, filter, scope, attributes, base_dn).then((isDn) => {
+                if (isDn) {
+                  return searchDn(server, filter, scope, attributes, base_dn)
+                } else {
+                  return []
+                }
+              })
+            } else {
+              return parseLdapResponseToAttributeArray(result, extractAttributeFromFilter(filter))
+            }
+          }
+        )
   }
 
   const getSubSchemaDN = () => {
-    return performSearch(null, 'base', ['subschemaSubentry'], '')
-      .then((response) => {
-        let firstAttribute = response.data[Object.keys(response.data)[0]]
+    return sendLdapSearchRequest({...form.value}, null, 'base', ['subschemaSubentry'], '')
+      .then((result) => {
+        let firstAttribute = result[Object.keys(result)[0]]
         return firstAttribute['subSchemaSubEntry']
       })
   }
 
   const fetchAttributeTypes = (subSchemaDN) => {
-    return performSearch('(objectclass=subschema)',
+    return sendLdapSearchRequest({...form.value}, '(objectclass=subschema)',
       'base',
       ['attributetypes'],
       subSchemaDN)
-      .then((response) => {
-        return response.data[Object.keys(response.data)[0]]['attributeTypes']
+      .then((result) => {
+        return result[Object.keys(result)[0]]['attributeTypes']
       })
   }
 

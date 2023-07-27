@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import {
-  parseLdapStringToArray, sendLdapSearchRequest
+  extractAttributeFromFilter,
+  parseLdapResponseToAttributeArray,
+  parseLdapStringToArray,
+  sendLdapSearchRequest
 } from '@/views/Configuration/sources/_components/ldapCondition/common';
 
 
@@ -8,23 +11,27 @@ function useOpenLdap(form) {
 
   const performSearch = (filter, scope, attributes, base_dn) => {
     return sendLdapSearchRequest({...form.value}, filter, scope, attributes, base_dn)
+      .then((result) => {
+          return parseLdapResponseToAttributeArray(result, extractAttributeFromFilter(filter))
+        }
+      )
   }
 
   const getSubSchemaDN = () => {
-    return performSearch(null, 'base', ['subSchemaSubEntry'], form.value.basedn)
+    return sendLdapSearchRequest({...form.value}, null, 'base', ['subSchemaSubEntry'], form.value.basedn)
       .then((response) => {
-        let firstAttribute = response.data[Object.keys(response.data)[0]]
+        let firstAttribute = response[Object.keys(response)[0]]
         return firstAttribute['subschemaSubentry']
       })
   }
 
   const fetchAttributeTypes = (subSchemaDN) => {
-    return performSearch('(objectclass=subschema)',
+    return sendLdapSearchRequest({...form.value}, '(objectclass=subschema)',
       'base',
       ['attributeTypes'],
       subSchemaDN)
       .then((response) => {
-        return response.data[Object.keys(response.data)[0]]['attributeTypes']
+        return response[Object.keys(response)[0]]['attributeTypes']
       })
   }
 

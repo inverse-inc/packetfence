@@ -105,20 +105,32 @@ export const pfFieldTypeComponent = {
   [pfFieldType.YESNO]:                 pfComponentType.TOGGLE
 }
 
+export const operatorMap = {
+  is: 'is',
+  is_not: 'is not',
+  starts: 'starts',
+  equals: 'equals',
+  not_equals: 'not equals',
+  contains: 'contains',
+  ends: 'ends',
+  matches_regexp: 'matches regexp',
+  is_member_of: 'is member of',
+}
+
 export const pfFieldTypeOperators = {
   [pfFieldType.CONNECTION]: [
-    { text: 'is', value: 'is' },
-    { text: 'is not', value: 'is not' }
+    { text: 'is', value: operatorMap.is },
+    { text: 'is not', value: operatorMap.is_not }
   ],
   [pfFieldType.LDAPATTRIBUTE]: [
-    { text: 'is', value: 'is' },
-    { text: 'starts', value: 'starts' },
-    { text: 'equals', value: 'equals' },
-    { text: 'not_equals', value: 'not_equals' },
-    { text: 'contains', value: 'contains' },
-    { text: 'ends', value: 'ends' },
-    { text: 'matches regexp', value: 'matches regexp' },
-    { text: 'is member of', value: 'is member of' }
+    { text: 'is', value: operatorMap.is },
+    { text: 'starts', value: operatorMap.starts },
+    { text: 'equals', value: operatorMap.equals },
+    { text: 'not_equals', value: operatorMap.not_equals },
+    { text: 'contains', value: operatorMap.contains },
+    { text: 'ends', value: operatorMap.ends },
+    { text: 'matches regexp', value: operatorMap.matches_regexp },
+    { text: 'is member of', value: operatorMap.is_member_of }
   ],
   [pfFieldType.LDAPFILTER]: [
     { text: 'match filter', value: 'match filter' }
