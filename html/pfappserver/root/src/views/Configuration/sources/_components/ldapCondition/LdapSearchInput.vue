@@ -43,20 +43,8 @@ export const props = {
 
 }
 
-function parseLdapResponse(response, ldapAttribute) {
-  const ldapEntries = Object.values(response.data)
-  let parsedEntries = new Set()
-  for (let i = 0; i < ldapEntries.length; i++) {
-    let value = ldapEntries[i][ldapAttribute]
-    if (Array.isArray(value)) {
-      parsedEntries = new Set([...parsedEntries, ...value])
-    } else {
-      parsedEntries.add(value)
-    }
-  }
-  return Array.from(parsedEntries).filter((item) => {
-    return Boolean(item)
-  }).map((item) => {
+function attributesToSelectValues(attributes) {
+  return attributes.map((item) => {
     return valueToSelectValue(item)
   })
 }
@@ -111,8 +99,8 @@ function setup(props, context) { // eslint-disable-line
 
   function performSearch(query) {
     const filter = createFilter(query, ldapFilterAttribute.value)
-    sendLdapSearchRequest(filter).then((searchResponse) => {
-      inputOptions.value = parseLdapResponse(searchResponse, ldapFilterAttribute.value)
+    sendLdapSearchRequest(filter).then((attributes) => {
+      inputOptions.value = attributesToSelectValues(attributes)
       addAlreadySelectedValueToOptions()
     }).finally(() => {
       isLoading.value = false
