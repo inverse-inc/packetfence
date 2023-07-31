@@ -12,7 +12,7 @@ function useOpenLdap(form) {
   const performSearch = (filter, scope, attributes, base_dn) => {
     return sendLdapSearchRequest({...form.value}, filter, scope, attributes, base_dn)
       .then((result) => {
-          return parseLdapResponseToAttributeArray(result, extractAttributeFromFilter(filter))
+          return {results: parseLdapResponseToAttributeArray(result, extractAttributeFromFilter(filter)), success: true}
         }
       )
   }

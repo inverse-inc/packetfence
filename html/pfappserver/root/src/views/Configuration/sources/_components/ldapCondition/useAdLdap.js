@@ -12,22 +12,27 @@ function useAdLdap(form) {
 
   const performSearch = (filter, scope, attributes, base_dn) => {
     let server = {...form.value}
-    // This also handles the case where we filter a DN attribute
-    return sendLdapSearchRequest(server , filter, scope, attributes, base_dn)
-        .then((result) => {
-            if (_.isEmpty(result)) {
-              return isAttributeDn(server, filter, scope, attributes, base_dn).then((isDn) => {
-                if (isDn) {
-                  return searchDn(server, filter, scope, attributes, base_dn)
-                } else {
-                  return []
-                }
-              })
-            } else {
-              return parseLdapResponseToAttributeArray(result, extractAttributeFromFilter(filter))
+    return sendLdapSearchRequest(server, filter, scope, attributes, base_dn)
+      .then((result) => {
+          if (_.isEmpty(result)) {
+            return isAttributeDn(server, filter, scope, attributes, base_dn).then((isDn) => {
+              if (isDn) {
+                // In case there are a lot of results we can't know for sure if all DNs were found
+                return searchDn(server, filter, scope, attributes, base_dn).then(([results, success]) => {
+                  return {results: results, success: success}
+                })
+              } else {
+                return {results: [], success: true}
+              }
+            })
+          } else {
+            return {
+              results: parseLdapResponseToAttributeArray(result, extractAttributeFromFilter(filter)),
+              success: true
             }
           }
-        )
+        }
+      )
   }
 
   const getSubSchemaDN = () => {
