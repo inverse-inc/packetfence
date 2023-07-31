@@ -15,9 +15,7 @@
     :is-disabled="isDisabled"
     :isLoading="isLoading"
     :placeholder="$i18n.t('Search')"
-    :search-query-invalid-feedback="searchQueryInvalidFeedback"
     :search-query-valid-feedback="''"
-    :state="inputState"
   />
 </template>
 
@@ -72,9 +70,8 @@ function setup(props, context) { // eslint-disable-line
   }
   const inputOptions = ref([])
   const searchInput = ref('')
-  const localValidator = inject('schema')
+  const searchSuccess = ref(true)
 
-  const searchQueryInvalidFeedback = ref('')
   const debouncedSearch = _.debounce(performSearch, searchAfter)
 
   const ldapFilterAttribute = computed(() => {
@@ -99,8 +96,9 @@ function setup(props, context) { // eslint-disable-line
 
   function performSearch(query) {
     const filter = createFilter(query, ldapFilterAttribute.value)
-    sendLdapSearchRequest(filter).then((attributes) => {
-      inputOptions.value = attributesToSelectValues(attributes)
+    sendLdapSearchRequest(filter).then((response) => {
+      inputOptions.value = attributesToSelectValues(response.results)
+      searchSuccess.value = response.success
       addAlreadySelectedValueToOptions()
     }).finally(() => {
       isLoading.value = false
@@ -114,24 +112,10 @@ function setup(props, context) { // eslint-disable-line
     }
   }
 
-  function validateChoice() {
-    const path = namespaceToYupPath(props.namespace)
-    localValidator.value.validateAt(path, form.value).then(() => {
-      searchQueryInvalidFeedback.value = ''
-    }).catch(ValidationError => { // invalid
-      const {_, message} = ValidationError // eslint-disable-line
-      searchQueryInvalidFeedback.value = message
-    })
-  }
-
   function onRemove() {
     inputOptions.value = []
     onSelect(defaultSelectedValue)
   }
-
-  const inputState = computed(() => {
-    return searchQueryInvalidFeedback.value === ''
-  })
 
   function onSelect(value) {
     selectedValue.value = value
@@ -141,7 +125,6 @@ function setup(props, context) { // eslint-disable-line
     } else {
       setFormNamespace(ldapEntryNamespace, form.value, defaultSelectedValue)
     }
-    validateChoice()
   }
 
   function onOpen() {
@@ -159,8 +142,6 @@ function setup(props, context) { // eslint-disable-line
     return selectedValue.value !== null ? selectedValue.value.text : ''
   })
 
-  validateChoice()
-
   return {
     inputOptions,
     isDisabled,
@@ -174,8 +155,6 @@ function setup(props, context) { // eslint-disable-line
     onRemove,
     singleLabel,
     inputValue: selectedValue,
-    searchQueryInvalidFeedback,
-    inputState,
     form,
   }
 }
