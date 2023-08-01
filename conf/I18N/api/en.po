@@ -13304,6 +13304,14 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/LdapSearchInput.vue:53
+msgid "Results might be missing."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/LdapSearchInput.vue:64
+msgid "Input manually"
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeEdir.vue:55
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:63
 msgid "Search Attributes"

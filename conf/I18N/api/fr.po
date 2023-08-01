@@ -1,7 +1,7 @@
 # Copyright (C) Inverse inc.
 # English translations for PacketFence package.
 # This file is distributed under the same license as the PacketFence package.
-# 
+#
 # Translators:
 # GurVan, 2019
 # Maxime Andre <andmaxime+transifex@gmail.com>, 2019
@@ -14,7 +14,7 @@
 # lzammit <lzammit@inverse.ca>, 2022
 # jgoimard <jgoimard@inverse.ca>, 2022
 # Christopher <chuguet@inverse.ca>, 2023
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: 13.0.0\n"
@@ -14545,6 +14545,15 @@ msgstr "Chemin du script"
 #: html/pfappserver/root/src/views/Users/index.vue:23
 msgid "Search"
 msgstr "Rechercher"
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/LdapSearchInput.vue:53
+msgid "Results might be missing"
+msgstr "Les résultats peuvent manquer"
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/LdapSearchInput.vue:64
+msgid "Input manually"
+msgstr "Saisir manuellement"
+
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeEdir.vue:55
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:63
