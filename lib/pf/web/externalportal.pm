@@ -44,7 +44,7 @@ Readonly our $SWITCH_REWRITE_MAP => {
     'RuckusSmartZone' => 'Ruckus::SmartZone',
     'guest' => 'Ubiquiti::Unifi',
     'AeroHIVE' => 'AeroHIVE::AP',
-    'Cisco::Catalyst_2960' => 'Cisco::Cisco_IOS_12_x',
+    'Cisco::Catalyst_2960' => 'Cisco::Cisco_IOS_15_0',
 };
 
 =head1 SUBROUTINES
