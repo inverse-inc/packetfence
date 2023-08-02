@@ -96,7 +96,7 @@ To submit the CSR to a CA, follow these steps:
 
 - Download the certificate in Apache format (base 64).
 
-In the event that you have a choice between several types of certificates, here an example:
+In the event that you have a choice between several types of certificates, like in the following example:
 
 image::certificate/18-Choice.png[scalewidth="100%",alt="Choice"]
 
