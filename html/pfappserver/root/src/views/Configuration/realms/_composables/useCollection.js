@@ -21,7 +21,7 @@ export const useItemTitle = (props) => {
 
 export const useServices = () => computed(() => {
   return {
-    message: i18n.t('Creating or modifying the Realm configuration requires services restart.'),
+    message: i18n.t('Creating or modifying the Realm configuration requires a restart of services to be fully effective.'),
     services: ['radiusd-auth'],
     k8s_services: ['radiusd-auth']
   }
