@@ -152,13 +152,23 @@ export default {
       return response.data.items
     })
   },
-  bulkApplyRole: body => {
-    return apiCall.put(['nodes', 'bulk_apply_role'], body).then(response => {
+  bulkApplyBypassAcls: body => {
+    return apiCall.put(['nodes', 'bulk_apply_bypass_acls'], body).then(response => {
       return response.data.items
     })
   },
   bulkApplyBypassRole: body => {
     return apiCall.put(['nodes', 'bulk_apply_bypass_role'], body).then(response => {
+      return response.data.items
+    })
+  },
+  bulkApplyBypassVlan: body => {
+    return apiCall.put(['nodes', 'bulk_apply_bypass_vlan'], body).then(response => {
+      return response.data.items
+    })
+  },
+  bulkApplyRole: body => {
+    return apiCall.put(['nodes', 'bulk_apply_role'], body).then(response => {
       return response.data.items
     })
   },
@@ -174,11 +184,6 @@ export default {
   },
   bulkRestartSwitchport: body => {
     return apiCall.put(['nodes', 'bulk_restart_switchport'], body).then(response => {
-      return response.data.items
-    })
-  },
-  bulkApplyBypassVlan: body => {
-    return apiCall.put(['nodes', 'bulk_apply_bypass_vlan'], body).then(response => {
       return response.data.items
     })
   },

@@ -31,6 +31,10 @@
       <icon class="position-absolute mt-1" name="retweet" />
       <span class="ml-4">{{ $t('Refresh Fingerbank') }}</span>
     </b-dropdown-item>
+    <b-dropdown-item @click="showBypassAclsModal = true">
+      <icon class="position-absolute mt-1" name="shield-alt" />
+      <span class="ml-4">{{ $t('Apply Bypass ACLs') }}</span>
+    </b-dropdown-item>
     <b-dropdown-item @click="showBypassVlanModal = true">
       <icon class="position-absolute mt-1" name="project-diagram" />
       <span class="ml-4">{{ $t('Apply Bypass VLAN') }}</span>
@@ -64,6 +68,18 @@
         <span>{{security_event.desc}}</span>
       </b-dropdown-item>
     </template>
+
+    <b-modal v-model="showBypassAclsModal" @shown="$refs.bypassAclsInput.focus()"
+      size="sm" centered id="bypassAclsModal" :title="$t('Bulk Apply Bypass ACLs')">
+      <b-form-group>
+        <b-form-textarea ref="bypassAclsInput" v-model="bypassAclsString" type="text" :placeholder="$t('Enter ACLs')" />
+        <b-form-text v-t="'Leave empty to clear bypass ACLs.'" />
+      </b-form-group>
+      <template #modal-footer>
+        <b-button variant="secondary" class="mr-1" @click="showBypassAclsModal=false">{{ $t('Cancel') }}</b-button>
+        <b-button variant="primary" @click="onBulkBypassAcls">{{ $t('Apply') }}</b-button>
+      </template>
+    </b-modal>
 
     <b-modal v-model="showBypassVlanModal" @shown="$refs.bypassVlanInput.focus()"
       size="sm" centered id="bypassVlanModal" :title="$t('Bulk Apply Bypass VLAN')">
@@ -240,6 +256,20 @@ const setup = (props, context) => {
       })
   }
 
+  const showBypassAclsModal = ref(false)
+  const bypassAclsString = ref(null)
+  const onBulkBypassAcls = () => {
+    showBypassAclsModal.value = false
+    const items = selectedItems.value.map(item => item.mac)
+    const bypassAcls = (bypassAclsString.value) ? bypassAclsString.value : null
+    $store.dispatch(`$_nodes/bulkApplyBypassAcls`, { bypass_acls: bypassAcls, items })
+      .then(_items => {
+        $store.dispatch('notification/info', {
+          message: this.$i18n.tc('Applied bypass ACLs on 1 node. | Applied bypass ACLs on {nodeCount} nodes.', _items.length, { nodeCount: _items.length }),
+          ..._statusCounts(_items)
+        })
+      })
+  }
 
   const showBypassVlanModal = ref(false)
   const bypassVlanString = ref(null)
@@ -270,9 +300,14 @@ const setup = (props, context) => {
     onBulkRole,
     onBulkBypassRole,
     onBulkSecurityEvent,
+
     onBulkBypassVlan,
     showBypassVlanModal,
-    bypassVlanString
+    bypassVlanString,
+
+    onBulkBypassAcls,
+    showBypassAclsModal,
+    bypassAclsString
   }
 }
 

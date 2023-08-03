@@ -372,9 +372,9 @@ const actions = {
       commit('NODE_ERROR', err.response)
     })
   },
-  bulkApplyRole: ({ commit }, data) => {
+  bulkApplyBypassAcls: ({ commit }, data) => {
     commit('NODE_REQUEST')
-    return api.bulkApplyRole(data).then(response => {
+    return api.bulkApplyBypassAcls(data).then(response => {
       commit('NODE_BULK_SUCCESS', response)
       return response
     }).catch(err => {
@@ -384,6 +384,24 @@ const actions = {
   bulkApplyBypassRole: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return api.bulkApplyBypassRole(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkApplyBypassVlan: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkApplyBypassVlan(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkApplyRole: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkApplyRole(data).then(response => {
       commit('NODE_BULK_SUCCESS', response)
       return response
     }).catch(err => {
@@ -411,15 +429,6 @@ const actions = {
   bulkRestartSwitchport: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return api.bulkRestartSwitchport(data).then(response => {
-      commit('NODE_BULK_SUCCESS', response)
-      return response
-    }).catch(err => {
-      commit('NODE_ERROR', err.response)
-    })
-  },
-  bulkApplyBypassVlan: ({ commit }, data) => {
-    commit('NODE_REQUEST')
-    return api.bulkApplyBypassVlan(data).then(response => {
       commit('NODE_BULK_SUCCESS', response)
       return response
     }).catch(err => {
