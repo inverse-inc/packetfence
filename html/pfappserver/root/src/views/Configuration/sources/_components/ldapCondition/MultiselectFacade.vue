@@ -45,11 +45,7 @@
         </span>
       </template>
       <template v-if="isConnected" v-slot:beforeList>
-        <li v-if="!internalSearch" class="multiselect__element">
-          <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">
-            {{ $t('Type to search') }}
-          </div>
-        </li>
+        <slot name="before-list" />
       </template>
       <template v-if="!isConnected" v-slot:noOptions>
         <LdapConnectionError/>

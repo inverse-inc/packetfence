@@ -1,24 +1,73 @@
 <template>
-  <MultiselectFacade
-    :on-search="onSearch"
-    :options="inputOptions"
-    :value="inputValue"
-    :label="text"
-    :track-by="text"
-    :single-label="singleLabel"
-    :on-select="onSelect"
-    :on-open="onOpen"
-    :on-remove="onRemove"
-    :on-close="onClose"
-    :is-connected="isConnected"
-    :is-focused="isFocused"
-    :is-disabled="isDisabled"
-    :isLoading="isLoading"
-    :placeholder="$i18n.t('Search')"
-    :search-query-invalid-feedback="searchQueryInvalidFeedback"
-    :search-query-valid-feedback="''"
-    :state="inputState"
-  />
+  <div class="ldap-search-input" v-if="manualInputChosen">
+    <base-form-group>
+      <b-form-input ref="input"
+                    class="base-form-group-input"
+                    :data-namespace="namespace"
+                    :disabled="isDisabled"
+                    type="text"
+                    :value="inputValue ? inputValue.value : ''"
+                    @input="(value) => onSelect({text: value, value: value})"
+                    v-on="$listeners"
+      />
+      <template v-slot:append>
+        <b-button-group
+          @click="toggleManualInput"
+        >
+          <b-button class="input-group-text no-border-radius" tabindex="-1" :variant="'light'">
+            <icon name="times"></icon>
+          </b-button>
+        </b-button-group>
+      </template>
+    </base-form-group>
+  </div>
+  <div v-else class="ldap-search-input">
+    <MultiselectFacade
+      :on-search="onSearch"
+      :options="inputOptions"
+      :value="inputValue"
+      :label="text"
+      :track-by="text"
+      :single-label="singleLabel"
+      :on-select="onSelect"
+      :on-open="onOpen"
+      :on-remove="onRemove"
+      :on-close="onClose"
+      :is-connected="isConnected"
+      :is-focused="isFocused"
+      :is-disabled="isDisabled"
+      :isLoading="isLoading"
+      :placeholder="$i18n.t('Search')"
+      :search-query-valid-feedback="''"
+    >
+      <template v-slot:before-list v-if="searchSuccess">
+        <li class="multiselect__element">
+          <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">
+            {{ $t('Type to search') }}
+          </div>
+        </li>
+      </template>
+      <template v-slot:before-list v-else>
+        <li class="multiselect__element">
+          <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">
+            {{ $t('Results might be missing.') }}
+          </div>
+        </li>
+        <li class="multiselect__element">
+          <b-button-group
+            class="manual-input-button"
+            @click="toggleManualInput"
+          >
+            <b-button class="input-group-text no-border-radius" tabindex="-1"
+                      :variant="'light'">
+              <icon name="plus" class="fa-xs"></icon>
+              {{ $t('Input manually') }}
+            </b-button>
+          </b-button-group>
+        </li>
+      </template>
+    </MultiselectFacade>
+  </div>
 </template>
 
 <script>
@@ -27,10 +76,10 @@ import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue'
 import {computed, inject, ref, unref} from '@vue/composition-api'
 import MultiselectFacade
   from '@/views/Configuration/sources/_components/ldapCondition/MultiselectFacade.vue'
-import {namespaceToYupPath} from '@/composables/useInputValidator'
 import {valueToSelectValue} from '@/utils/convert'
 import _ from 'lodash'
 import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
+import BaseFormGroup from '@/components/new/BaseFormGroup.vue';
 
 
 export const props = {
@@ -72,9 +121,9 @@ function setup(props, context) { // eslint-disable-line
   }
   const inputOptions = ref([])
   const searchInput = ref('')
-  const localValidator = inject('schema')
+  const searchSuccess = ref(true)
+  const manualInputChosen = ref(false)
 
-  const searchQueryInvalidFeedback = ref('')
   const debouncedSearch = _.debounce(performSearch, searchAfter)
 
   const ldapFilterAttribute = computed(() => {
@@ -99,8 +148,9 @@ function setup(props, context) { // eslint-disable-line
 
   function performSearch(query) {
     const filter = createFilter(query, ldapFilterAttribute.value)
-    sendLdapSearchRequest(filter).then((attributes) => {
-      inputOptions.value = attributesToSelectValues(attributes)
+    sendLdapSearchRequest(filter).then((response) => {
+      inputOptions.value = attributesToSelectValues(response.results)
+      searchSuccess.value = response.success
       addAlreadySelectedValueToOptions()
     }).finally(() => {
       isLoading.value = false
@@ -114,24 +164,10 @@ function setup(props, context) { // eslint-disable-line
     }
   }
 
-  function validateChoice() {
-    const path = namespaceToYupPath(props.namespace)
-    localValidator.value.validateAt(path, form.value).then(() => {
-      searchQueryInvalidFeedback.value = ''
-    }).catch(ValidationError => { // invalid
-      const {_, message} = ValidationError // eslint-disable-line
-      searchQueryInvalidFeedback.value = message
-    })
-  }
-
   function onRemove() {
     inputOptions.value = []
     onSelect(defaultSelectedValue)
   }
-
-  const inputState = computed(() => {
-    return searchQueryInvalidFeedback.value === ''
-  })
 
   function onSelect(value) {
     selectedValue.value = value
@@ -141,7 +177,6 @@ function setup(props, context) { // eslint-disable-line
     } else {
       setFormNamespace(ldapEntryNamespace, form.value, defaultSelectedValue)
     }
-    validateChoice()
   }
 
   function onOpen() {
@@ -159,7 +194,9 @@ function setup(props, context) { // eslint-disable-line
     return selectedValue.value !== null ? selectedValue.value.text : ''
   })
 
-  validateChoice()
+  function toggleManualInput() {
+    manualInputChosen.value = !manualInputChosen.value
+  }
 
   return {
     inputOptions,
@@ -172,19 +209,31 @@ function setup(props, context) { // eslint-disable-line
     onOpen,
     onClose,
     onRemove,
+    searchSuccess,
     singleLabel,
     inputValue: selectedValue,
-    searchQueryInvalidFeedback,
-    inputState,
+    manualInputChosen,
     form,
+    toggleManualInput,
   }
 }
 
 export default {
   name: 'ldap-search-input',
   methods: {unref},
-  components: {MultiselectFacade},
+  components: {BaseFormGroup, MultiselectFacade},
   setup,
   props,
 }
 </script>
+<style>
+.ldap-search-input legend {
+  display: none;
+}
+.manual-input-button {
+  width: 100%;
+}
+.manual-input-button svg {
+  margin-right: 0.5rem;
+}
+</style>

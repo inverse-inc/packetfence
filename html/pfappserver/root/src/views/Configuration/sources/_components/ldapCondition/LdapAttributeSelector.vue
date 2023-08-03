@@ -17,7 +17,15 @@
     :search-query-invalid-feedback="searchQueryInvalidFeedback"
     :search-query-valid-feedback="''"
     :state="inputState"
-  />
+  >
+    <template v-slot:before-list>
+      <li class="multiselect__element">
+        <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">
+          {{ $t('Type to search') }}
+        </div>
+      </li>
+    </template>
+  </MultiselectFacade>
 </template>
 
 <script>
