@@ -57,6 +57,11 @@ export const isAttributeDn = (server, filter, scope, base_dn) => {
 
 export const searchDn = (server, filter, scope, base_dn) => {
   return getAllAttributes(server, filter, scope, base_dn).then((allEntries) => {
+    let success = true
+    // 1000 is the default limit for ldapsearch
+    if (Object.keys(allEntries).length > 1000) {
+      success = false
+    }
     let attributeSet = new Set();
     for (let dn in allEntries) {
       let entry = allEntries[dn]
@@ -65,7 +70,7 @@ export const searchDn = (server, filter, scope, base_dn) => {
       attribute.forEach((item) => attributeSet.add(item))
     }
     let regexQuery = new RegExp(_.trim(filter.split('=')[1], ')(*'), "i")
-    return [...attributeSet].filter((item) => regexQuery.test(item))
+    return [[...attributeSet].filter((item) => regexQuery.test(item)), success]
   })
 }
 
