@@ -52912,7 +52912,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
       summary: Meta for log-tail session.
       tags:
-      - Livelogs
+      - LiveLogs
     post:
       requestBody:
         $ref: '#/components/requestBodies/LogsCreate'
@@ -52925,7 +52925,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
       summary: Create new log-tail session.
       tags:
-      - Livelogs
+      - LiveLogs
   /api/v1/logs/tail/{session_id}:
     delete:
       responses:
@@ -52937,7 +52937,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
       summary: Delete log-tail session.
       tags:
-      - Livelogs
+      - LiveLogs
     get:
       responses:
         '200':
@@ -52949,7 +52949,7 @@ paths:
       summary: Returns immediately if there is at least one entry. Waits for entries
         until timeout.
       tags:
-      - Livelogs
+      - LiveLogs
     parameters:
     - in: path
       name: session_id
@@ -52973,7 +52973,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
       summary: Touch session without updating read pointer.
       tags:
-      - Livelogs
+      - LiveLogs
   /api/v1/node/{node_id}:
     delete:
       description: Delete an item.

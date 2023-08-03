@@ -73861,7 +73861,7 @@
             },
             "summary" : "Meta for log-tail session.",
             "tags" : [
-               "Livelogs"
+               "LiveLogs"
             ]
          },
          "post" : {
@@ -73881,7 +73881,7 @@
             },
             "summary" : "Create new log-tail session.",
             "tags" : [
-               "Livelogs"
+               "LiveLogs"
             ]
          }
       },
@@ -73900,7 +73900,7 @@
             },
             "summary" : "Delete log-tail session.",
             "tags" : [
-               "Livelogs"
+               "LiveLogs"
             ]
          },
          "get" : {
@@ -73917,7 +73917,7 @@
             },
             "summary" : "Returns immediately if there is at least one entry. Waits for entries until timeout.",
             "tags" : [
-               "Livelogs"
+               "LiveLogs"
             ]
          },
          "parameters" : [
@@ -73956,7 +73956,7 @@
             },
             "summary" : "Touch session without updating read pointer.",
             "tags" : [
-               "Livelogs"
+               "LiveLogs"
             ]
          }
       },
