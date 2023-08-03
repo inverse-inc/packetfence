@@ -1208,6 +1208,7 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
     $args->{'unfiltered'} = $TRUE;
+    $self->compute_action(\$args);
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
@@ -1220,9 +1221,18 @@ sub returnRadiusAccessAccept {
             if ($access_list) {
                 my $acl_num = 101;
                 while($access_list =~ /([^\n]+)\n?/g){
-                    push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
+                    my $acl = $1;
+                    if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
+                        next;
+                    }
+                    my ($test, $formated_acl) = $self->returnAccessListAttribute($acl_num,$acl);
+                    if ($test) {
+                        push(@av_pairs, $formated_acl);
+                    } else {
+                        next;
+                    }
                     $acl_num ++;
-                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                    $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                 }
                 $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
             } else {
