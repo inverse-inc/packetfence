@@ -102,7 +102,7 @@ Node:
       type: string
     voip:
       enum:
-      - no
       - yes
+      - no
       type: string
   type: object

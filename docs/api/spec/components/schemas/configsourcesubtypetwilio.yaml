@@ -40,6 +40,10 @@ ConfigSourceSubTypeTwilio:
                   default: ~
                   description: Operator
                   type: string
+                type:
+                  default: ~
+                  description: Type
+                  type: string
                 value:
                   default: ~
                   description: Value
@@ -103,6 +107,10 @@ ConfigSourceSubTypeTwilio:
                 operator:
                   default: ~
                   description: Operator
+                  type: string
+                type:
+                  default: ~
+                  description: Type
                   type: string
                 value:
                   default: ~

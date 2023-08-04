@@ -24,7 +24,7 @@ ConfigSyslogParsersMeta:
             $ref: '#/components/schemas/Meta'
           path:
             $ref: '#/components/schemas/Meta'
-          rate_limit:
+          rules:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
@@ -39,7 +39,7 @@ ConfigSyslogParsersMeta:
             $ref: '#/components/schemas/Meta'
           path:
             $ref: '#/components/schemas/Meta'
-          rules:
+          rate_limit:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'

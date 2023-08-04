@@ -41,6 +41,10 @@ ConfigSourceSubTypeEmail:
                   default: ~
                   description: Operator
                   type: string
+                type:
+                  default: ~
+                  description: Type
+                  type: string
                 value:
                   default: ~
                   description: Value
@@ -110,6 +114,10 @@ ConfigSourceSubTypeEmail:
                 operator:
                   default: ~
                   description: Operator
+                  type: string
+                type:
+                  default: ~
+                  description: Type
                   type: string
                 value:
                   default: ~
