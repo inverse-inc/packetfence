@@ -1,0 +1,16 @@
+LocationLogsSsids:
+  description: Request successful. Response contains a list of SSID's.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                ssid:
+                  type: string
+          status:
+            $ref: '#/components/schemas/Status'

@@ -1,0 +1,10 @@
+/api/v1/queues/stats:
+  get:
+    summary: Show stats of pfqueue
+    responses:
+      '200':
+        $ref: "#/components/responses/QueueStats"
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Pfqueue

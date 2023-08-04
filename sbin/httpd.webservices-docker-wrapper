@@ -9,8 +9,8 @@ args="$args -p 9090:9090"
 args="$args -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/ -v/usr/local/pf/conf/:/usr/local/pf/conf/ -v/usr/local/pf/raddb/certs:/usr/local/pf/raddb/certs"
 args="$args --privileged -v /run/systemd/system:/run/systemd/system -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"
 
-if ! [ -z "$HTML_CAPTIVEPORTAL_MOUNT" ]; then
-  args="$args -v$HTML_CAPTIVEPORTAL_MOUNT:/usr/local/pf/html/captive-portal"
+if ! [ -z "$HTML_MOUNT" ]; then
+  args="$args -v$HTML_MOUNT:/usr/local/pf/html"
 else
   args="$args -v/usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates"
 fi

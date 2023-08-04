@@ -1,0 +1,112 @@
+/api/v1/fingerbank/{scope}/dhcp6_fingerprints:
+  get:
+    summary: Get DHCPv6 Fingerprints.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScope'
+    - name: cursor
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankPaginatedCursor'
+    - name: limit
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankPaginatedLimit'
+    - name: sort
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcp6FingerprintsSort'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDhcp6Fingerprints'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+  post:
+    summary: Create local DHCPv6 Fingerprint.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6Fingerprint'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/{scope}/dhcp6_fingerprints/search:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScope'
+  post:
+    summary: Search local DHCPv6 Fingerprints.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6FingerprintsSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDhcp6FingerprintsSearch'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/{scope}/dhcp6_fingerprint/{dhcp6_fingerprint_id}:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+  - name: dhcp6_fingerprint_id
+    in: path
+    required: true
+    schema:
+      type: string
+  get:
+    summary: Get local DHCPv6 Fingerprint.
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDhcp6Fingerprint'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  patch:
+    summary: Update local DHCPv6 Fingerprint.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6Fingerprint'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    summary: Delete local DHCPv6 Fingerprint.
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank

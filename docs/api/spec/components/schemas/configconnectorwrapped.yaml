@@ -1,0 +1,7 @@
+ConfigConnectorWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigConnector'
+    status:
+      type: integer
+  type: object

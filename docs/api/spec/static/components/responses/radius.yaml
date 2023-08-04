@@ -1,0 +1,6 @@
+RadiusAttributesSearch:
+  description: Request successful. The response contains the RADIUS Attributes.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/RadiusAttributesSearch"

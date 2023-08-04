@@ -19,6 +19,7 @@ use pf::config::pfcron qw(%ConfigCronDefault);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(default_field_method batch_help_text timeout_help_text window_help_text);
+
 use pf::log;
 
 ## Definition
@@ -40,6 +41,7 @@ has_field 'type' =>
   (
    type => 'Hidden',
    required => 1,
+   default_method => \&default_type,
   );
 
 has_field 'status' =>
@@ -140,6 +142,19 @@ sub batch_help_text { "Amount of items that will be processed in each batch of t
 sub timeout_help_text { "Maximum amount of time this task can run." }
 
 sub window_help_text { "Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days." }
+
+=head2 default_type
+
+Returns the default type of the Provisioning
+
+=cut
+
+sub default_type {
+    my ($field) = @_;
+    my $type = ref($field->form);
+    $type =~ s/^pfappserver::Form::Config::Pfcron//;
+    return $type;
+}
 
 =head1 COPYRIGHT
 

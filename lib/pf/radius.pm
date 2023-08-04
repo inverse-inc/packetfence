@@ -788,6 +788,13 @@ sub switch_access {
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
+    # is switch object correct?
+    if ( !$switch ) {
+        $logger->warn( "Can't instantiate switch ($switch_ip). This request will be failed. "
+                . "Are you sure your switches.conf is correct?" );
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
+    }
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     my $connection = pf::Connection->new;

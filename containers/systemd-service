@@ -61,7 +61,7 @@ function build_img {
   img="$1"
   PF_VERSION=$(sed 's/PacketFence \([0-9]*\.[0-9]*\)\.[0-9]*/\1/g' /usr/local/pf/conf/pf-release)
   BUILD_PFAPPSERVER_VUE=yes
-  if ! [ -z "$HTML_PFAPPSERVER_ROOT_MOUNT" ]; then
+  if ! [ -z "$HTML_MOUNT" ]; then
     BUILD_PFAPPSERVER_VUE=no
   fi
   docker build --build-arg=PF_VERSION=$PF_VERSION --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME --build-arg=BUILD_PFAPPSERVER_VUE=$BUILD_PFAPPSERVER_VUE -q -f containers/$img/Dockerfile .

@@ -1,0 +1,20 @@
+Search:
+  type: object
+  properties:
+    fields:
+      type: string
+      description: Comma delimited fields to return from the results.
+    limit:
+      type: string
+      description: The maximum amount of entries to get. Use `cursor` for pagination.
+    sort:
+      type: string
+      description: A list of fields and ordering (`ASC` or `DESC`) to sort the results.
+    with_total_count:
+      type: boolean
+      description: The total count for pagination.
+    cursor:
+      type: string
+      description: The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).
+    query:
+      $ref: '#/components/schemas/Query'

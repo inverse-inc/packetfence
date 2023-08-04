@@ -8,8 +8,9 @@ testcases:
       sudo curl -s http://{{.firewall_sso.radius.api_host}}:{{.firewall_sso.radius.api_port}}/history | jq '.[-1]'
     assertions:
       - result.code ShouldEqual 0
+      - result.systemout ShouldNotBeBlank
       - result.systemoutjson.code ShouldEqual "Accounting-Request"
       - result.systemoutjson.attributes.acct-status-type ShouldEqual "Start"
       - result.systemoutjson.attributes.user-name ShouldEqual "{{.ad_domain_user}}"
-    retry: 5
+    retry: 10
     delay: 1

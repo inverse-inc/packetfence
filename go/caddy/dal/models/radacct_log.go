@@ -30,9 +30,9 @@ func (r RadacctLog) TableName() string {
 }
 
 // RadacctLog
-func NewRadacctLogModel(db *gorm.DB, ctx *context.Context) *RadacctLog {
+func NewRadacctLogModel(dbp **gorm.DB, ctx *context.Context) *RadacctLog {
 	ret := &RadacctLog{}
-	ret.DB = db
+	ret.DB = *dbp
 	ret.Ctx = ctx
 	return ret
 }

@@ -1,0 +1,9 @@
+ConfigSyslogForwardersList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/ConfigSyslogForwarder'
+        type: array
+    type: object

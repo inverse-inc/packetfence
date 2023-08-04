@@ -1,0 +1,21 @@
+PfQueue:
+  type: object
+  properties:
+    item:
+      description: The task response JSON object.
+      type: object
+    message:
+      description: A descriptive message for the user.
+      type: string
+      enum:
+        - In Progress
+        - Completed
+    progress:
+      description: Task progress. "100" when completed.
+      type: string
+    status:
+      description: Response code.
+      type: integer
+      enum:
+        - 202
+        - 200

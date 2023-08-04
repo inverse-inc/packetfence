@@ -46,7 +46,7 @@ my $ini = pf::IniFiles->new(
 
 our %attributes_to_skip = (
     (
-        map { $_ => 1 } pf::Authentication::Source->meta->get_attribute_list()
+        map { $_ => 1 } (pf::Authentication::Source->meta->get_attribute_list(), "_ldap_attributes")
     )
 );
 

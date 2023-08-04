@@ -8,7 +8,6 @@
       <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
     </b-card-header>
     <div class="card-body">
-      <div class="alert alert-warning">{{ $t(`Any changes to the realms requires to restart radiusd-auth`) }}</div>
       <base-search :use-search="useSearch">
         <b-button variant="outline-primary" @click="goToNew">{{ $t('New Realm') }}</b-button>
       </base-search>

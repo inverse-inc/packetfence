@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
@@ -19,24 +17,19 @@ import (
 )
 
 type RadiusAuditLog struct {
-	DB  *gorm.DB
+	DBP **gorm.DB
 	Ctx *context.Context
 }
 
-func NewRadiusAuditLog() *RadiusAuditLog {
-	DB, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
-	ctx := context.Background()
-	if err != nil {
-		log.LoggerWContext(ctx).Warn(err.Error())
-	}
+func NewRadiusAuditLog(ctx context.Context, dbp **gorm.DB) *RadiusAuditLog {
 	return &RadiusAuditLog{
-		DB:  DB,
+		DBP: dbp,
 		Ctx: &ctx,
 	}
 }
 
 func (a *RadiusAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -59,7 +52,7 @@ func (a *RadiusAuditLog) List(w http.ResponseWriter, r *http.Request, p httprout
 }
 
 func (a *RadiusAuditLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -82,7 +75,7 @@ func (a *RadiusAuditLog) Search(w http.ResponseWriter, r *http.Request, p httpro
 }
 
 func (a *RadiusAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -109,7 +102,7 @@ func (a *RadiusAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httpr
 }
 
 func (a *RadiusAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -138,7 +131,7 @@ func (a *RadiusAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p ht
 }
 
 func (a *RadiusAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
+	model := models.NewRadiusAuditLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK

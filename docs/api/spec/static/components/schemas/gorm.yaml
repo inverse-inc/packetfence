@@ -1,0 +1,36 @@
+Gorm:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          ID:
+            description: '`PRIMARY KEY`'
+            type: integer
+          CreatedAt:
+            type: string
+            format: date-time
+          DeletedAt:
+            type: string
+            format: date-time
+            nullable: true
+          UpdatedAt:
+            type: string
+            format: date-time
+            nullable: true
+          Ctx:
+            type: string
+            nullable: true
+          DB:
+            type: object
+            properties:
+              Error:
+                type: string
+                nullable: true
+              RowsAffected:
+                type: integer
+              Value:
+                type: string
+                nullable: true

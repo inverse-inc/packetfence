@@ -5,36 +5,41 @@ use warnings;
 
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::file_paths qw($install_dir);
+use pf::services;
 use File::Find;
 use File::Slurp qw(read_file write_file);
 use Data::Dumper;
 use JSON::MaybeXS qw();
 use YAML::XS qw(:all);
 use JSON::PP qw();
+use Hash::Merge qw(merge);
 $YAML::XS::Boolean = "JSON::PP";
 my $base_path = "$install_dir/docs/api/spec";
 
 my $spec = LoadFile("$base_path/openapi-base.yaml");
 
 merge_yaml_into_paths($spec->{paths}, "paths");
+merge_yaml_into_paths($spec->{paths}, "deprecated/paths");
+merge_yaml_into_paths($spec->{paths}, "static/paths");
 
-$spec->{components} = merge_yaml_components("components");
-
-common_parameters(
-    $spec,
-    {
-        'required' => 0,
-        'in'       => 'header',
-        'name'     => 'X-PacketFence-Tenant-Id',
-        'schema'   => {
-            'type' => 'string'
-        },
-        'description' =>
-'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
-    }
-);
+my $components = hash_yaml_dir("components");
+my $components_deprecated = hash_yaml_dir("deprecated/components");
+my $components_static = hash_yaml_dir("static/components");
+$spec->{components} = merge($components, merge($components_deprecated, $components_static));
 
 insert_search_parameters($spec);
+
+# insert service paramters
+$spec->{components}->{parameters}->{service} = {
+  name => 'service',
+  in => 'path',
+  required =>  JSON::MaybeXS::true,
+  description => 'Service unique identifier.',
+  schema => {
+    type => 'string',
+    enum => [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ],
+  },
+};
 
 YAML::XS::DumpFile("$base_path/openapi.yaml", $spec);
 
@@ -77,7 +82,7 @@ sub insert_search_parameters {
     }
 }
 
-sub merge_yaml_components {
+sub hash_yaml_dir {
     my ($dir) = @_;
     my %all;
     my $full_path = "$base_path/$dir";
@@ -95,6 +100,7 @@ sub merge_yaml_components {
     }
     return \%all;
 }
+
 
 sub merge_yaml_into_paths {
     my ($component, $path) = @_;

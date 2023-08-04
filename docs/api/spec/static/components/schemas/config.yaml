@@ -1,0 +1,9 @@
+ItemNotDeletable:
+  type: boolean
+  default: false
+  description: The item is immutable and can not be removed.
+
+ItemNotSortable:
+  type: boolean
+  default: false
+  description: The item is immutable and can not be sorted.

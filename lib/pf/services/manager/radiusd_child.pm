@@ -1627,8 +1627,10 @@ sub generate_container_environments {
 
     my $port = 0;
     if ($self->name eq 'radiusd-eduroam') {
-        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-        $port = $eduroam_authentication_source[0]{'auth_listening_port'};
+        if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+            my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+            $port = $eduroam_authentication_source[0]{'auth_listening_port'};
+        }
     }
     if ($self->name eq 'radiusd-auth') {
         $port = '1812';

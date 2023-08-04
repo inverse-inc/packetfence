@@ -1,0 +1,179 @@
+PkiRevokedCert:
+  type: object
+  properties:
+    cn:
+      type: string
+    mail:
+      type: string
+    ca_id:
+      type: string
+    ca_name:
+      type: string
+    cert:
+      type: string
+    profile_id:
+      type: string
+    profile_name:
+      type: string
+    valid_until:
+      type: string
+      format: date-time
+    not_before:
+      type: string
+      format: date-time
+    date:
+      type: string
+      format: date-time
+    serial_number:
+      type: string
+    revoked:
+      type: string
+      format: date-time
+
+PkiRevokedCertsList:
+  type: object
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - properties:
+        contentType:
+          type: string
+        error:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiRevokedCert'
+        password:
+          type: string
+        raw:
+          type: string
+          nullable: true
+        serial:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+
+PkiRevokedCertsSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - type: object
+      properties:
+        items:
+          description: Certs.
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiRevokedCert'
+
+PkiRevokedCertsQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/PkiRevokedCertsQueryNested'
+    - $ref: '#/components/schemas/PkiRevokedCertsQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/PkiRevokedCertsQueryNested'
+      or: '#/components/schemas/PkiRevokedCertsQueryNested'
+      contains: '#/components/schemas/PkiRevokedCertsQueryField'
+      not_contains: '#/components/schemas/PkiRevokedCertsQueryField'
+      match: '#/components/schemas/PkiRevokedCertsQueryField'
+      not_match: '#/components/schemas/PkiRevokedCertsQueryField'
+      between: '#/components/schemas/PkiRevokedCertsQueryField'
+      not_between: '#/components/schemas/PkiRevokedCertsQueryField'
+      is: '#/components/schemas/PkiRevokedCertsQueryField'
+      is_not: '#/components/schemas/PkiRevokedCertsQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+PkiRevokedCertsQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/PkiRevokedCertsQuery'
+
+PkiRevokedCertsQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/PkiRevokedCertsField'
+    value:
+      description: Search criteria.
+      type: string
+
+PkiRevokedCertsField:
+  type: string
+  example: id
+  enum:
+    - id
+    - cn
+    - mail
+    - ca_id
+    - ca_name
+    - cert
+    - profile_id
+    - profile_name
+    - valid_until
+    - not_before
+    - date
+    - serial_number
+    - revoked
+
+PkiRevokedCertsSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - cn ASC
+      - cn DESC
+      - mail ASC
+      - mail DESC
+      - ca_id ASC
+      - ca_id DESC
+      - ca_name ASC
+      - ca_name DESC
+      - cert ASC
+      - cert DESC
+      - profile_id ASC
+      - profile_id DESC
+      - profile_name ASC
+      - profile_name DESC
+      - valid_until ASC
+      - valid_until DESC
+      - not_before ASC
+      - not_before DESC
+      - date ASC
+      - date DESC
+      - serial_number ASC
+      - serial_number DESC
+      - revoked ASC
+      - revoked DESC

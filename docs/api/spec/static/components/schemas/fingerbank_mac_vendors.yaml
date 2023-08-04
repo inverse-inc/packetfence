@@ -1,0 +1,173 @@
+FingerbankMacVendors:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankIterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankMacVendorDecorated'
+        scope:
+          $ref: '#/components/schemas/FingerbankScope'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankMacVendorItem:
+  type: object
+  properties:
+    item:
+      $ref: '#/components/schemas/FingerbankMacVendorDecorated'
+    scope:
+      $ref: '#/components/schemas/FingerbankScope'
+    status:
+      $ref: '#/components/schemas/Status'
+
+FingerbankMacVendor:
+  type: object
+  properties:
+    # write-able
+    mac:
+      type: string
+    name:
+      type: string
+
+FingerbankMacVendorDecorated:
+  type: object
+  properties:
+    # read-only
+    id:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    updated_at:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    # write-able
+    mac:
+      type: string
+    name:
+      type: string
+
+FingerbankMacVendorForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankMacVendor'
+    - required:
+      - device_id
+
+FingerbankMacVendorsSearch:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankIterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          description: MacVendors.
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankMacVendor'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankMacVendorsQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/FingerbankMacVendorsQueryNested'
+    - $ref: '#/components/schemas/FingerbankMacVendorsQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/FingerbankMacVendorsQueryNested'
+      or: '#/components/schemas/FingerbankMacVendorsQueryNested'
+      contains: '#/components/schemas/FingerbankMacVendorsQueryField'
+      not_contains: '#/components/schemas/FingerbankMacVendorsQueryField'
+      match: '#/components/schemas/FingerbankMacVendorsQueryField'
+      not_match: '#/components/schemas/FingerbankMacVendorsQueryField'
+      between: '#/components/schemas/FingerbankMacVendorsQueryField'
+      not_between: '#/components/schemas/FingerbankMacVendorsQueryField'
+      is: '#/components/schemas/FingerbankMacVendorsQueryField'
+      is_not: '#/components/schemas/FingerbankMacVendorsQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+FingerbankMacVendorsQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/FingerbankMacVendorsQuery'
+
+FingerbankMacVendorsQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/FingerbankMacVendorsField'
+    value:
+      description: Search criteria.
+      type: string
+
+
+FingerbankMacVendorsFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/FingerbankMacVendorsField'
+  example:
+    - id
+    - created_at
+    - updated_at
+    - mac
+    - name
+
+FingerbankMacVendorsField:
+  type: string
+  example: id
+  enum:
+    - id
+    - created_at
+    - updated_at
+    - mac
+    - name
+
+FingerbankMacVendorsSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - created_at ASC
+      - created_at DESC
+      - updated_at ASC
+      - updated_at DESC
+      - mac ASC
+      - mac DESC
+      - name ASC
+      - name DESC

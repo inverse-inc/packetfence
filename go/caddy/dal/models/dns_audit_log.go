@@ -28,9 +28,9 @@ func (d DnsAuditLog) TableName() string {
 }
 
 // DnsAuditLog
-func NewDnsAuditLogModel(db *gorm.DB, ctx *context.Context) *DnsAuditLog {
+func NewDnsAuditLogModel(dbp **gorm.DB, ctx *context.Context) *DnsAuditLog {
 	ret := &DnsAuditLog{}
-	ret.DB = db
+	ret.DB = *dbp
 	ret.Ctx = ctx
 	return ret
 }

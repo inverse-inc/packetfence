@@ -72,7 +72,7 @@
     "sass-loader": "^13.3.2",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
-    "stylelint": "^13.13.1",
+    "stylelint": "^15.10.1",
     "stylelint-config-idiomatic-css": "^1.1.0",
     "url": "^0.11.0",
     "vue-cli-plugin-bootstrap-vue": "^0.8.0",

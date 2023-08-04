@@ -2,15 +2,18 @@ package api
 
 import (
 	"context"
-	"net/http"
-
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
+	"net/http"
+	"sync"
+	"time"
 )
 
 // Register the plugin in caddy
@@ -58,12 +61,68 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 
 	router.POST("/api/v1/nodes/fingerbank_communications", apiHandler.nodeFingerbankCommunications)
 
-	NewAdminApiAuditLog().AddToRouter(router)
-	NewAuthLog().AddToRouter(router)
-	NewDnsAuditLog().AddToRouter(router)
-	NewRadacctLog().AddToRouter(router)
-	NewRadiusAuditLog().AddToRouter(router)
-	NewWrix().AddToRouter(router)
+	var DBP **gorm.DB
+	var DB *gorm.DB
+	var err error
+	done := false
+	wait := false
+
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
+	go func() {
+		for {
+			if done == false {
+				DB, err = gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+				if DB != nil {
+					DBP = &DB
+					if wait == false {
+						wait = true
+						wg.Done()
+					}
+				}
+
+				if DB == nil {
+					log.LoggerWContext(ctx).Warn("gorm db is nil while trying to open db")
+				}
+				if err != nil {
+					log.LoggerWContext(ctx).Warn(err.Error())
+				}
+				if DB != nil && err == nil {
+					err := DB.DB().Ping()
+					if err == nil {
+						done = true
+					} else {
+						log.LoggerWContext(ctx).Warn(err.Error())
+						err := DB.DB().Close()
+						if err != nil {
+							log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
+						}
+					}
+				}
+				time.Sleep(time.Duration(10) * time.Second)
+			} else {
+				err := DB.DB().Ping()
+				if err != nil {
+					done = false
+					log.LoggerWContext(ctx).Warn(err.Error())
+					err := DB.DB().Close()
+					if err != nil {
+						log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
+					}
+				}
+				time.Sleep(time.Duration(5) * time.Second)
+			}
+		}
+	}()
+
+	wg.Wait()
+	NewAdminApiAuditLog(ctx, DBP).AddToRouter(router)
+	NewAuthLog(ctx, DBP).AddToRouter(router)
+	NewDnsAuditLog(ctx, DBP).AddToRouter(router)
+	NewRadacctLog(ctx, DBP).AddToRouter(router)
+	NewRadiusAuditLog(ctx, DBP).AddToRouter(router)
+	NewWrix(ctx, DBP).AddToRouter(router)
 
 	apiHandler.router = router
 	return apiHandler, nil

@@ -22,6 +22,7 @@ use Pod::Select qw(podselect);
 use Pod::Markdown;
 use Pod::Text;
 use Lingua::EN::Inflexion qw(noun);
+use JSON::MaybeXS ();
 
 =head2 generatePath
 
@@ -32,6 +33,7 @@ generate the OpenAPI Path
 sub generatePath {
     my ($self, $controller, $actions) = @_;
     my %path = $self->operations($controller, $actions);
+
     if (!keys %path) {
         return undef;
     }
@@ -155,7 +157,7 @@ extract text from pod
 
 sub extract_text_from_pod {
     my ($self, $class, $sections) = @_;
-    my $file = pod_where( { -inc => 1 }, $class); 
+    my $file = pod_where( { -inc => 1 }, $class);
 
     if (!defined $file) {
         return undef;
@@ -165,7 +167,7 @@ sub extract_text_from_pod {
     open(my $fh, ">", \$pod);
     podselect({-output => $fh, sections => $sections }, $file);
     if (!$pod) {
-       return undef; 
+       return undef;
     }
 
     return $pod;
@@ -245,7 +247,7 @@ sub operation {
     my %op = (
         responses => $responses
     );
-    for my $scope (qw(tags summary description externalDocs operationId parameters requestBody callbacks deprecated security servers)) {
+    for my $scope (qw(tags summary description externalDocs operationId parameters requestBody callbacks deprecated security servers consumes produces)) {
         if (defined(my $value = $self->operation_generation($scope, $c, $m, $action))) {
             $op{$scope} = $value;
         }
@@ -281,8 +283,22 @@ sub operation_generation {
         return undef;
     }
 
-    my $method = $generators->{$scope}{$a};
-    return $self->$method($scope, $c, $m, $action);
+    my $generator = $generators->{$scope}{$a};
+    if (!defined $generator) {
+        return undef;
+    }
+
+    my $ref_type = ref ($generator);
+    if ($ref_type eq 'CODE' || ($ref_type eq '' && $self->can($generator))) {
+        return $self->$generator($scope, $c, $m, $action);
+    }
+
+    if ($ref_type eq 'HASH') {
+        return $generator;
+    }
+
+    print STDERR "Invalid generator of $a\n";
+    return undef;
 }
 
 =head2 performLookup
@@ -302,7 +318,13 @@ sub performLookup {
         return $default;
     }
 
-    return $lookup->{$key};
+    my $generator = $lookup->{$key};
+    my $ref_type = ref ($generator);
+    if ($ref_type eq 'CODE' || ($ref_type eq '' && $self->can($generator))) {
+        return $self->$generator();
+    }
+
+    return $generator;
 }
 
 =head2 operationDescriptionsLookup
@@ -311,8 +333,36 @@ operation Descriptions Lookup
 
 =cut
 
+my %OPERATION_DESCRIPTIONS = (
+    create  => 'Create a new item.',
+    search => 'Search all items.',
+    list    => 'List all items.',
+    options => 'Get meta for a new item.',
+    sort_items => 'Sort items.',
+
+    bulk_update => 'Update one or more items.',
+    bulk_delete => 'Delete one or more items.',
+    bulk_import => 'Create one or more items.',
+    remove  => 'Delete an item.',
+    get     => 'Get an item.',
+    replace => 'Replace an item.',
+    update  => 'Update an item.',
+    resource_options => 'Get meta for an item.',
+);
+
 sub operationDescriptionsLookup {
-    undef
+    return \%OPERATION_DESCRIPTIONS;
+}
+
+=head2 operationDescription
+
+operationDescription
+
+=cut
+
+sub operationDescription {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return $self->performLookup($self->operationDescriptionsLookup, $a->{action}, undef);
 }
 
 =head2 operationParametersLookup
@@ -333,18 +383,8 @@ operation Parameters
 
 sub operationParameters {
     my ($self, $scope, $c, $m, $a) = @_;
-    return $self->performLookup($self->operationParametersLookup, $a->{action}, []);
-}
-
-=head2 operationDescription
-
-operationDescription
-
-=cut
-
-sub operationDescription {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return $self->performLookup($self->operationDescriptionsLookup, $a->{action}, undef);
+    my @parameters = @{ $self->performLookup($self->operationParametersLookup($scope, $c, $m, $a), $a->{action}, [])};
+    return \@parameters;
 }
 
 =head2 operationId
@@ -356,6 +396,21 @@ operation Id
 sub operationId {
     my ($self, $scope, $c, $m, $a) = @_;
     return $a->{operationId};
+}
+
+=head2 operationTags
+
+operation tags
+
+=cut
+
+sub operationTags {
+    my ($self, $scope, $c, $m, $a) = @_;
+    my $tag = $a->{controller};
+    $tag =~ s/::/\//g;
+    my @tags;
+    push @tags, $tag;
+    return \@tags;
 }
 
 =head2 schemaItemPath
@@ -376,6 +431,24 @@ sub schemaItemPath {
     return join('/', $prefix, join("", @paths, $singular));
 }
 
+=head2 schemaItemWrappedPath
+
+schema Item Path
+
+=cut
+
+sub schemaItemWrappedPath {
+    my ($self, $controller) = @_;
+    my $class = ref ($controller) || $controller;
+    $class =~ s/pf::UnifiedApi::Controller:://;
+    my @paths = split('::', $class);
+    my $name = pop @paths;
+    my $noun = noun($name);
+    my $singular = $noun->singular;
+    my $prefix = "/components/schemas";
+    return join('/', $prefix, join("", @paths, "${singular}Wrapped"));
+}
+
 =head2 schemaListPath
 
 schema List Path
@@ -392,12 +465,30 @@ sub schemaListPath {
     return join('/', $prefix, join("", @paths, "${name}List"));
 }
 
+=head2 schemaMetaPath
+
+schema Meta Path
+
+=cut
+
+sub schemaMetaPath {
+    my ($self, $controller) = @_;
+    my $class = ref ($controller) || $controller;
+    $class =~ s/pf::UnifiedApi::Controller:://;
+    my @paths = split('::', $class);
+    my $name = pop @paths;
+    my $prefix = "/components/schemas";
+    return join('/', $prefix, join("", @paths, "${name}Meta"));
+}
+
 sub path_parameter {
     my ($self, $name, $description) = @_;
     return {
-        in     => 'path',
-        schema => { type => 'string' },
-        name   => $name,
+        description => '`PRIMARY KEY`',
+        in          => 'path',
+        required    => JSON::MaybeXS::true,
+        schema      => { type => 'string' },
+        name        => $name,
         (defined $description ? (description => $description) : ()),
     };
 }

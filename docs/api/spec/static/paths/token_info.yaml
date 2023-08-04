@@ -1,0 +1,19 @@
+/api/v1/token_info:
+  parameters:
+  - name: no-expiration-extension
+    in: query
+    description: Request does not extend the session expiration.
+    schema :
+      type: number
+      enum:
+        - 1
+  get:
+    summary: Get information on the current session.
+    responses:
+      '200':
+        $ref: "#/components/responses/TokenInfo"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - Session
+

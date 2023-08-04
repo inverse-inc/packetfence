@@ -1,0 +1,14 @@
+Locales:
+  description: Request successful. Response contains all translations.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Locales"
+
+Locale:
+  description: Request successful. Response contains translation.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Locale"
+

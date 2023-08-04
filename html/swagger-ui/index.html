@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="SwaggerUI"
+    />
+    <title>PacketFence API</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.0.0-alpha.6/swagger-ui.css" />
+    <link rel="stylesheet" href="oas/theme.css" />
+    <style type="text/css">
+      .swagger-ui .opblock .opblock-summary-method {
+        min-width: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="swagger-ui" />
+    <script src="https://unpkg.com/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js" crossorigin></script>
+    <script>
+      let token = null
+      const syncToken = function(ui) {
+        const storage = localStorage.getItem('user-token')
+        if (storage && (!token || storage !== token)) {
+          token = storage
+          ui.preauthorizeApiKey('bearerAuth', token)
+        }
+        else if (!storage && token) {
+          token = null
+          ui.preauthorizeApiKey('bearerAuth', token)
+        }
+      }
+      window.onload = () => {
+        const ui = SwaggerUIBundle({
+          url: '/static/doc/api/spec/openapi.json',
+          deepLinking: true,
+          dom_id: '#swagger-ui',
+          defaultModelsExpandDepth: 99,
+          defaultModelExpandDepth: 3,
+          docExpansion: 'none',
+          jsonEditor: true,
+          jsonEditorOptions: {
+              disableProperties: false,
+              disableEditJson: false,
+              removeEmptyProperties: false,
+              noDefaultProperties: false
+          },
+          syntaxHighlight: {
+            theme: 'monokai'
+          },
+          requestInterceptor: function (req) {
+            // fix url (not query params) issue where OAS 'allowReserved: true' still urlEncodes ':' as '%3A'
+            let [url, query] = req.url.split('?', 2)
+            url = url.replaceAll('%3A', ':')
+            req.url = [url, query].join('?')
+            return req
+          },
+          tagsSorter: function(a, b) {
+            if (a == 'default')
+              return -1
+            if (b == 'default')
+              return 1
+            return a.localeCompare(b)
+          },
+          operationsSorter: function(a, b) {
+            const explode = (operation) => {
+              const { _root: { entries = [] } = {} } = operation
+              return entries.reduce((entries, entry) => {
+                return { [entry[0]]: entry[1], ...entries }
+              }, {})
+            }
+            const _a = explode(a)
+            const _b = explode(b)
+            const aSplit = _a.path.substr(1).split('/')
+            const bSplit = _b.path.substr(1).split('/')
+            for (let i = 0; i < Math.min(aSplit.length, bSplit.length); i++) {
+              if (aSplit[i] !== bSplit[i]) {
+                switch (true) {
+                  case aSplit[i].indexOf('configurator') !== bSplit[i].indexOf('configurator'): // /configurator last
+                    return aSplit[i].indexOf('configurator') - bSplit[i].indexOf('configurator')
+                    // break
+                  case aSplit[i].indexOf(bSplit[i]) === 0: // a starts with b
+                    return -1
+                    //break
+                  case bSplit[i].indexOf(aSplit[i]) === 0: // b starts with a
+                    return 1
+                    //break
+                  default:
+                    return aSplit[i].localeCompare(bSplit[i])
+                }
+              }
+            }
+            return _a.path.localeCompare(_b.path)
+          },
+          onComplete: function() {
+            setInterval(function() { syncToken(ui) }, 1000)
+            syncToken(ui)
+          },
+          plugins: [
+            SwaggerUIBundle.plugins.DownloadUrl,
+            // replace the server list with the current url
+            function() {
+              return {
+                statePlugins: {
+                  spec: {
+                    wrapActions: {
+                      updateJsonSpec: function(cb) {
+                        return (spec) => {
+                          spec.servers = spec.servers.map(server => {
+                            server.variables.hostname.default = window.location.hostname
+                            return server
+                          })
+                          return cb(spec)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+        })
+      }
+    </script>
+  </body>
+</html>

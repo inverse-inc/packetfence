@@ -15,6 +15,10 @@ pf::UnifiedApi::OpenAPI::Generator::Crud
 use strict;
 use warnings;
 use Moo;
+$YAML::XS::Boolean = "JSON::PP";
+use JSON::MaybeXS ();
+use Clone qw(clone);
+
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
 our %OPERATION_GENERATORS = (
@@ -33,7 +37,7 @@ our %OPERATION_GENERATORS = (
     parameters => {
         (
             map { $_ => "${_}OperationParameters" }
-              qw(create search list get replace update remove)
+              qw(create list get search replace update remove)
         )
     },
     description => {
@@ -47,22 +51,19 @@ our %OPERATION_GENERATORS = (
             map { $_ => "operationId" }
               qw(create search list get replace update remove)
         )
-    }
+    },
+    tags => {
+        (
+            map { $_ => "operationTags" }
+              qw(create search list get replace update remove)
+        )
+    },
+
 );
 
 sub operation_generators {
     \%OPERATION_GENERATORS;
 }
-
-my %OPERATION_DESCRIPTIONS = (
-    remove  => 'Delete an item',
-    create  => 'Create an item',
-    list    => 'List items',
-    get     => 'Get an item',
-    replace => 'Replace an item',
-    update  => 'Update an item',
-    remove  => 'Remove an item',
-);
 
 =head2 operationParameters
 
@@ -124,31 +125,26 @@ sub removeOperationParameters {
     return $self->resoureParameters( $scope, $c, $m, $a );
 }
 
-sub operationDescriptionsLookup {
-    return \%OPERATION_DESCRIPTIONS;
-}
-
 my %SQLTYPES_TO_OPENAPI = (
-    BIGINT    => 'integer',
-    INT       => 'integer',
-    TINYINT   => 'integer',
-    DOUBLE    => 'number',
-    LONGBLOB  => 'string',
-    TEXT      => 'string',
-    VARCHAR   => 'string',
-    DATETIME  => 'string',
-    TIMESTAMP => 'string',
-    CHAR      => 'string',
-    ENUM      => 'string',
+    BIGINT    => { type => 'integer' },
+    INT       => { type => 'integer' },
+    TINYINT   => { type => 'integer' },
+    DOUBLE    => { type => 'number' },
+    LONGBLOB  => { type => 'string' },
+    TEXT      => { type => 'string' },
+    VARCHAR   => { type => 'string' },
+    DATETIME  => { type => 'string', format => 'date-time', example => '1970-01-01 00:00:00' },
+    TIMESTAMP => { type => 'string' },
+    CHAR      => { type => 'string' },
+    ENUM      => { type => 'string' },
 );
 
-sub sqlTypeToOpenAPIType {
+sub sqlTypeToOpenAPI {
     my ($type) = @_;
     if (exists $SQLTYPES_TO_OPENAPI{$type}) {
-        return $SQLTYPES_TO_OPENAPI{$type};
+        return clone($SQLTYPES_TO_OPENAPI{$type});
     }
-
-    return "string";
+    return { type => 'string' };
 }
 
 =head2 dalToOpenAPISchemaProperties
@@ -162,25 +158,108 @@ sub dalToOpenAPISchemaProperties {
     my $meta = $dal->get_meta;
     my %properties;
     while (my ($k, $v) = each %$meta) {
-        $properties{$k} = {
-            type => sqlTypeToOpenAPIType($v->{type}),
+        $properties{$k} = sqlTypeToOpenAPI($v->{type});
+        if ($v->{is_primary_key}) {
+            $properties{$k}->{description} = '`PRIMARY KEY`';
+        };
+        if ($v->{is_nullable}) {
+            $properties{$k}->{nullable} = JSON::MaybeXS::true;
+        };
+        if ($v->{enums_values}) {
+            $properties{$k}->{enum} = [ keys %{$v->{enums_values}} ];
         };
     }
     return \%properties;
 }
 
-our %OPERATION_PARAMETERS_LOOKUP = (
-    list => [
-        { "\$ref" => '#/components/parameters/cursor' },
-        { "\$ref" => '#/components/parameters/limit' },
-        { "\$ref" => '#/components/parameters/fields' },
-        { "\$ref" => '#/components/parameters/sort' },
-    ],
-);
+sub dalToFields {
+    my ( $self, $dal ) = @_;
+    my $meta = $dal->get_meta();
+    return [sort keys %$meta];
+}
+
+sub dalToSorts {
+    my ( $self, $dal ) = @_;
+    my $meta = $dal->get_meta();
+    my $sorts = [];
+    while (my ($key, $value) = each %$meta) {
+        push @$sorts, $key.' ASC';
+        push @$sorts, $key.' DESC';
+    };
+    return [sort @$sorts];
+}
+
+sub dalToPK {
+    my ( $self, $dal ) = @_;
+    my $meta = $dal->get_meta();
+    my $pk = undef;
+    while (my ($key, $value) = each %$meta) {
+        if ($value->{is_primary_key}) {
+            $pk = $key;
+        }
+    }
+    return $pk;
+}
+
+sub dalToOpFields {
+    my ($self, $dal) = @_;
+    my $fields = $self->dalToFields($dal);
+    return {
+        name => 'fields',
+        required => JSON::MaybeXS::true,
+        schema => {
+            type => 'array',
+            items => {
+                type => 'string',
+                enum => [@$fields],
+            },
+            example => [@$fields],
+        },
+        style => 'form',
+        explode => JSON::MaybeXS::false,
+        description => 'Comma delimited list of fields to return with each item.'
+    };
+}
+
+sub dalToOpSort {
+    my ($self, $dal) = @_;
+    my $sorts = $self->dalToSorts($dal);
+    my $pk = $self->dalToPK($dal);
+    return {
+        name => 'sort',
+        schema => {
+            type => 'array',
+            items => {
+                type => 'string',
+                enum => [sort @$sorts],
+            },
+            example => [ $pk.' ASC' ],
+        },
+        style => 'form',
+        explode => JSON::MaybeXS::false,
+        description => 'Comma delimited list of fields and respective order to sort items (`default: [ '.$pk.' ASC ]`).',
+    };
+}
+
+sub dalToExampleQuery {
+    my ($self, $dal) = @_;
+    my $meta = $dal->get_meta();
+    my @values = map { { field => $_, op => 'contains', value => 'foo' } } sort keys %$meta;
+    return { op => 'and', values => [ { op => 'or', values => \@values } ] };
+}
 
 sub operationParametersLookup {
-    \%OPERATION_PARAMETERS_LOOKUP
+    my ($self, $scope, $c, $m, $a) = @_;
+    return {
+        list => [
+            { allOf => [ $self->dalToOpFields($c->dal), { in => 'query' } ] },
+            { allOf => [ $self->dalToOpSort($c->dal), { in => 'query' } ] },
+            { allOf => [ { "\$ref" => "#/components/parameters/limit" }, { in => 'query' } ] },
+            { allOf => [ { "\$ref" => "#/components/parameters/cursor" }, { in => 'query' } ] },
+        ]
+    }
 }
+
 
 =head2 getResponses
 
@@ -191,12 +270,10 @@ The OpenAPI Operation Repsonses for the get action
 sub getResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
-        "200" => {
-            description => "Get item",
+        '200' => {
             content => {
                 "application/json" => {
                     schema => {
-                        description => "Item",
                         properties => {
                             item => {
                                 "\$ref" => "#" . $self->schemaItemPath($c),
@@ -207,10 +284,13 @@ sub getResponses {
                 }
             },
         },
-        "400" => {
+        '401' => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        '404' => {
             "\$ref" => "#/components/responses/BadRequest"
         },
-        "422" => {
+        '422' => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
@@ -226,7 +306,7 @@ sub removeResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         '204' => {
-            description => 'Item deleted',
+            description => 'Item deleted.',
         }
     };
 }
@@ -240,7 +320,6 @@ The OpenAPI Operation RequestBody for the create action
 sub createRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
-        description => "Create item",
         "content" => {
             "application/json" => {
                 "schema" => {
@@ -294,12 +373,59 @@ The OpenAPI Operation RequestBody for the search action
 
 sub searchRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
+    my $pk = $self->dalToPK($c->dal);
+    my $fields = $self->dalToFields($c->dal);
+    my $sorts = $self->dalToSorts($c->dal);
+    my $query = $self->dalToExampleQuery($c->dal);
     return {
-        description => "Search for items",
+        required => JSON::MaybeXS::true,
         content => {
             "application/json" => {
                 schema => {
-                    "\$ref" => "#/components/schemas/Search",
+                    allOf => [
+                        {
+                            "\$ref" => "#/components/schemas/Search"
+                        },
+                        {
+                            required => [ 'fields' ],
+                            properties => {
+                                cursor => {
+                                    required => JSON::MaybeXS::false,
+                                    type => 'string',
+                                },
+                                fields => {
+                                    required => JSON::MaybeXS::true,
+                                    type => 'array',
+                                    items => {
+                                        type => 'string',
+                                        enum => [sort @$fields],
+                                    },
+                                },
+                                limit => {
+                                    required => JSON::MaybeXS::false,
+                                    type => 'integer',
+                                    minimum => 1,
+                                    maximum => 1000,
+                                },
+                                sort => {
+                                    required => JSON::MaybeXS::true,
+                                    type => 'array',
+                                    items => {
+                                        type => 'string',
+                                        enum => [sort @$sorts],
+                                    },
+                                }
+                            }
+                        },
+
+                    ],
+                },
+                example => {
+                    cursor => 0,
+                    fields => \@$fields,
+                    limit => 25,
+                    sort => [ $pk.' ASC' ],
+                    query => $query,
                 }
             }
         }
@@ -315,8 +441,7 @@ The OpenAPI Operation Repsonses for the list action
 sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
-        "200" => {
-            description => "List",
+        '200' => {
             content => {
                 "application/json" => {
                     schema => {
@@ -325,10 +450,16 @@ sub listResponses {
                 }
             },
         },
-        "400" => {
+        '401' => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        '404' => {
             "\$ref" => "#/components/responses/BadRequest"
         },
-        "422" => {
+        '409' => {
+            "\$ref" => '#/components/responses/Duplicate'
+        },
+        '422' => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
@@ -379,7 +510,7 @@ sub updateRequestBody {
         "content" => {
             "application/json" => {
                 "schema" => {
-                    "\$ref" => "#" . $self->schemaItemPath($c),
+                    "\$ref" => "#" . $self->schemaItemPath($c)
                 }
             }
         },
@@ -395,13 +526,16 @@ The OpenAPI Operation Repsonses for the update action
 sub updateResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
-        "200" => {
+        '200' => {
             "\$ref" => "#/components/responses/Message"
         },
-        "400" => {
+        '401' => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        '404' => {
             "\$ref" => "#/components/responses/BadRequest"
         },
-        "422" => {
+        '422' => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
@@ -503,7 +637,7 @@ sub generateListSchema {
                             "\$ref" => "#" . $self->schemaItemPath($controller),
                         },
                         "type" => "array",
-                        "description" => "Items",
+                        "description" => "Items.",
                     }
                 },
                 "type" => "object"

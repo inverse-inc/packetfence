@@ -1,0 +1,165 @@
+FingerbankUserAgents:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankIterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankUserAgentDecorated'
+        scope:
+          $ref: '#/components/schemas/FingerbankScope'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankUserAgentItem:
+  type: object
+  properties:
+    item:
+      $ref: '#/components/schemas/FingerbankUserAgentDecorated'
+    scope:
+      $ref: '#/components/schemas/FingerbankScope'
+    status:
+      $ref: '#/components/schemas/Status'
+
+FingerbankUserAgent:
+  type: object
+  properties:
+    # write-able
+    value:
+      type: string
+
+FingerbankUserAgentDecorated:
+  type: object
+  properties:
+    # read-only
+    id:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    updated_at:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    # write-able
+    value:
+      type: string
+
+FingerbankUserAgentForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankUserAgent'
+    - required:
+      - device_id
+
+FingerbankUserAgentsSearch:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankIterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          description: UserAgents.
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankUserAgent'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankUserAgentsQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/FingerbankUserAgentsQueryNested'
+    - $ref: '#/components/schemas/FingerbankUserAgentsQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/FingerbankUserAgentsQueryNested'
+      or: '#/components/schemas/FingerbankUserAgentsQueryNested'
+      contains: '#/components/schemas/FingerbankUserAgentsQueryField'
+      not_contains: '#/components/schemas/FingerbankUserAgentsQueryField'
+      match: '#/components/schemas/FingerbankUserAgentsQueryField'
+      not_match: '#/components/schemas/FingerbankUserAgentsQueryField'
+      between: '#/components/schemas/FingerbankUserAgentsQueryField'
+      not_between: '#/components/schemas/FingerbankUserAgentsQueryField'
+      is: '#/components/schemas/FingerbankUserAgentsQueryField'
+      is_not: '#/components/schemas/FingerbankUserAgentsQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+FingerbankUserAgentsQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/FingerbankUserAgentsQuery'
+
+FingerbankUserAgentsQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/FingerbankUserAgentsField'
+    value:
+      description: Search criteria.
+      type: string
+
+
+FingerbankUserAgentsFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/FingerbankUserAgentsField'
+  example:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankUserAgentsField:
+  type: string
+  example: id
+  enum:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankUserAgentsSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - created_at ASC
+      - created_at DESC
+      - updated_at ASC
+      - updated_at DESC
+      - value ASC
+      - value DESC

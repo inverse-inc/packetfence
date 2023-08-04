@@ -31,7 +31,7 @@ fingerbank_conf_dir: '{{.fingerbank_root_dir}}/conf'
 fingerbank_upstream_db: '{{.fingerbank_root_dir}}/db/fingerbank_Upstream.db'
 fingerbank_api_mock_pidfile: '{{.pfserver_root_dir}}/var/run/fingerbank-api-mock.pid'
 fingerbank_host: '100.64.0.1'
-fingerbank_port: 3000
+fingerbank_port: 3003
 
 # PacketFence general settings
 pfserver_api_inactivity_timeout.interval: 12

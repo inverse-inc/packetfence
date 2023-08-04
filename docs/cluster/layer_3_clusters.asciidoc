@@ -286,8 +286,9 @@ Then, to complete the client network configuration, you will need to override th
 
 Then, reload the configuration and sync the cluster from the server on which you've performed the configuration:
 
-  /usr/local/pf/bin/pfcmd configreload hard
   /usr/local/pf/bin/cluster/sync --as-master
+  /usr/local/pf/bin/pfcmd configreload hard
+
 
 You should now restart PacketFence on all servers using:
 

@@ -4,12 +4,16 @@ testcases:
   steps:
   - type: get_login_token
 
+- name: move_from_redis_to_db
+  steps:
+  - type: pfcron_flush_radius_audit_log
+
 - name: get_time
   steps:
   - type: exec
     script: "date '+%Y-%m-%d %H:%M:%S' --date='2 minutes ago'"
     vars:
-      two_minute_ago:
+      two_minutes_ago:
         from: result.systemout
 
 # only latest search entry since two minutes that matches

@@ -1,0 +1,10 @@
+ConfigSyslogForwarder:
+  description: 'Choose one of the request bodies by discriminator (`type`). '
+  discriminator:
+    mapping:
+      file: '#/components/schemas/ConfigSyslogForwarderSubTypeFile'
+      server: '#/components/schemas/ConfigSyslogForwarderSubTypeServer'
+    propertyName: type
+  oneOf:
+  - $ref: '#/components/schemas/ConfigSyslogForwarderSubTypeFile'
+  - $ref: '#/components/schemas/ConfigSyslogForwarderSubTypeServer'

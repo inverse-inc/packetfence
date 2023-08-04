@@ -1,0 +1,9 @@
+ConfigFilterEnginesSwitchFiltersList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/ConfigFilterEnginesSwitchFilter'
+        type: array
+    type: object

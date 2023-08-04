@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
@@ -19,24 +17,19 @@ import (
 )
 
 type AuthLog struct {
-	DB  *gorm.DB
+	DBP **gorm.DB
 	Ctx *context.Context
 }
 
-func NewAuthLog() *AuthLog {
-	DB, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
-	ctx := context.Background()
-	if err != nil {
-		log.LoggerWContext(ctx).Warn(err.Error())
-	}
+func NewAuthLog(ctx context.Context, dbp **gorm.DB) *AuthLog {
 	return &AuthLog{
-		DB:  DB,
+		DBP: dbp,
 		Ctx: &ctx,
 	}
 }
 
 func (a *AuthLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAuthLogModel(a.DB, a.Ctx)
+	model := models.NewAuthLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -59,7 +52,7 @@ func (a *AuthLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Para
 }
 
 func (a *AuthLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAuthLogModel(a.DB, a.Ctx)
+	model := models.NewAuthLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -82,7 +75,7 @@ func (a *AuthLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Pa
 }
 
 func (a *AuthLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAuthLogModel(a.DB, a.Ctx)
+	model := models.NewAuthLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -109,7 +102,7 @@ func (a *AuthLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.P
 }
 
 func (a *AuthLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAuthLogModel(a.DB, a.Ctx)
+	model := models.NewAuthLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -138,7 +131,7 @@ func (a *AuthLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httproute
 }
 
 func (a *AuthLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAuthLogModel(a.DB, a.Ctx)
+	model := models.NewAuthLogModel(a.DBP, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
