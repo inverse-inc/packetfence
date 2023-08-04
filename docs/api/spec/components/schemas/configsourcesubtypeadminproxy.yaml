@@ -36,6 +36,10 @@ ConfigSourceSubTypeAdminproxy:
                   default: ~
                   description: Operator
                   type: string
+                type:
+                  default: ~
+                  description: Type
+                  type: string
                 value:
                   default: ~
                   description: Value
@@ -95,6 +99,10 @@ ConfigSourceSubTypeAdminproxy:
                 operator:
                   default: ~
                   description: Operator
+                  type: string
+                type:
+                  default: ~
+                  description: Type
                   type: string
                 value:
                   default: ~

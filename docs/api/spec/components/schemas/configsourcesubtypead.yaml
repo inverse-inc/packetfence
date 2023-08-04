@@ -36,6 +36,10 @@ ConfigSourceSubTypeAd:
                   default: ~
                   description: Operator
                   type: string
+                type:
+                  default: ~
+                  description: Type
+                  type: string
                 value:
                   default: ~
                   description: Value
@@ -100,6 +104,10 @@ ConfigSourceSubTypeAd:
                 operator:
                   default: ~
                   description: Operator
+                  type: string
+                type:
+                  default: ~
+                  description: Type
                   type: string
                 value:
                   default: ~
