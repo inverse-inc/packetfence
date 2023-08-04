@@ -69,7 +69,7 @@
     "postcss": "^8.4.14",
     "process": "^0.11.10",
     "react-app-rewired": "^2.2.1",
-    "sass-loader": "^12.6.0",
+    "sass-loader": "^13.3.2",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "stylelint": "^13.13.1",
