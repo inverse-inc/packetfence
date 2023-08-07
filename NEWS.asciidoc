@@ -47,11 +47,10 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Removed unused service httpd.collector (#7667)
  * Removed Traffic Shaping (#7666)
  * Optimized pfdhcp (#7710)
- * Allowed the OS to pick the port instead doing retrying. (#7596)
  * ISO installer supports UEFI booting (#7724)
  * Updated to go 1.20.5 (#7636)
  * Documentation to manage HTTP and RADIUS certificates
- * Updated OpenAPI Specification to version 3 and improved coverage to all endpoints, including meta OPTIONS and distinct collection sub-types.
+ * Updated OpenAPI Specification to version 3 and improved coverage to all endpoints, including meta OPTIONS and distinct collection sub-types
 
 === Bug Fixes
 
