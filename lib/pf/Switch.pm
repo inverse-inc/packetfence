@@ -4108,6 +4108,7 @@ sub format_acl {
     my @direction;
     while($acl =~ /([^\n]+)\n?/g) {
         my $acl_line = $1;
+        next if($acl_line =~ /^remark/i);
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
             my $raw_acl = $2;
