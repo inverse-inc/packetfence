@@ -3,7 +3,7 @@
     <b-card-header>
       <h4 class="mb-0">
         {{ $t('Network Devices') }}
-        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_network_devices_definition_switches_conf" />
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_network_devices_definition" />
       </h4>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>

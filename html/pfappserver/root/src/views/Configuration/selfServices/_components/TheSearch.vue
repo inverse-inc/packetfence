@@ -3,7 +3,7 @@
     <b-card-header>
       <h4 class="d-flex align-items-center mb-0">
         {{ $t('Self Service') }}
-        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_devices_registration" />
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_self_service_device_registration" />
       </h4>
     </b-card-header>
     <div class="card-body">

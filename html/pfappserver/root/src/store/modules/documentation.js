@@ -110,15 +110,19 @@ const actions = {
     if (state.path !== path) {
       commit('SET_PATH', path)
       commit('SET_HASH', null)
-      store.dispatch('analytics/trackEvent', ['Documentation Path', { path }])
     }
+    store.dispatch('analytics/trackEvent', ['Documentation Path', { path }])
   },
   setHash: ({ commit, state }, hash) => {
     hash = (hash.charAt(0) === '#') ? hash.substr(1) : hash
-    if (state.hash !== hash) {
-      commit('SET_HASH', hash)
-      store.dispatch('analytics/trackEvent', ['Documentation Hash', { path: state.path, hash }])
+    if (state.hash === hash) {
+      commit('SET_HASH', '#') // reset
+      setTimeout(() => commit('SET_HASH', hash), 300)
     }
+    else {
+      commit('SET_HASH', hash)
+    }
+    store.dispatch('analytics/trackEvent', ['Documentation Hash', { path: state.path, hash }])
   },
   showImage: ({ state }, src) => {
     const parsed = new URL(src)
