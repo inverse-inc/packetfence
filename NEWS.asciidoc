@@ -51,6 +51,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * ISO installer supports UEFI booting (#7724)
  * Updated to go 1.20.5 (#7636)
  * Documentation to manage HTTP and RADIUS certificates
+ * Updated OpenAPI Specification to version 3 and improved coverage to all endpoints, including meta OPTIONS and distinct collection sub-types.
 
 === Bug Fixes
 
