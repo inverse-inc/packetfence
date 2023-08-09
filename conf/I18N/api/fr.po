@@ -1,7 +1,7 @@
 # Copyright (C) Inverse inc.
 # English translations for PacketFence package.
 # This file is distributed under the same license as the PacketFence package.
-#
+# 
 # Translators:
 # GurVan, 2019
 # Maxime Andre <andmaxime+transifex@gmail.com>, 2019
@@ -9,18 +9,18 @@
 # Stéphane GAUDICHE <stephane.gaudiche@laposte.net>, 2020
 # Nicolas Quiniou-Briand <nqb@azyx.fr>, 2020
 # julsemaan <jsemaan@inverse.ca>, 2021
-# inverse <support@inverse.ca>, 2021
 # oeufdure <fdurand@inverse.ca>, 2021
 # lzammit <lzammit@inverse.ca>, 2022
 # jgoimard <jgoimard@inverse.ca>, 2022
 # Christopher <chuguet@inverse.ca>, 2023
-#
+# inverse <support@inverse.ca>, 2023
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: 13.0.0\n"
 "POT-Creation-Date: 2019-05-01 12:00-0400\n"
 "PO-Revision-Date: 2019-05-01 17:57+0000\n"
-"Last-Translator: Christopher <chuguet@inverse.ca>, 2023\n"
+"Last-Translator: inverse <support@inverse.ca>, 2023\n"
 "Language-Team: French (https://app.transifex.com/inverse/teams/14366/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -14547,13 +14547,12 @@ msgid "Search"
 msgstr "Rechercher"
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/LdapSearchInput.vue:53
-msgid "Results might be missing"
-msgstr "Les résultats peuvent manquer"
+msgid "Results might be missing."
+msgstr "Le résultat peut etre manquant."
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/ldapCondition/LdapSearchInput.vue:64
 msgid "Input manually"
-msgstr "Saisir manuellement"
-
+msgstr "Remplir manuellement"
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeEdir.vue:55
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:63
