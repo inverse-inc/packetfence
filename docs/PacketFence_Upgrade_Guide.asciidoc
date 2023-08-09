@@ -1845,7 +1845,19 @@ wget https://github.com/inverse-inc/packetfence/files/10897043/rc-local.patch
 patch /etc/rc.local /tmp/rc-local.patch
 ----
 
-== Upgrading from a version prior to X.Y.Z
+== Upgrading from a version prior to 13.0.0
+
+=== Adding the LDAP search attributes
+
+When a LDAP condition is added in the LDAP authentication source a LDAP search is done to retrieve the values.
+
+=== Switch types conversion
+
+Two switch types will be converted to the new way of defining a switch. Now, a switch could be defined according the OS and not only the model.
+
+=== Some unused or outdated provisionners will be removed
+
+the following provisionners will be removed from Packetfence configuration ibm, servicenow, sepm, symantec, opswat
 
 == Archived upgrade notes
 
