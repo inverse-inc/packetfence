@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-to-11.0-no-slash-32-switches -
+to-13.0-convert-switch-types.pl
 
 =head1 DESCRIPTION
 
-to-11.0-no-slash-32-switches
+Convert some switch types and use Switch OS versions
 
 =cut
 
