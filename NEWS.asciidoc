@@ -30,7 +30,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * ACL pre-creation support for wired and WiFi equipment
  * Redis-based queueing to improve geo-distributed deployments
  * End-to-end testing framework to UI for CI/CD pipelines (#7350)
- * LDAP explorer allows LDAP search (#7634 and #7683 => special thanks for @VakarisZ)
+ * LDAP explorer allows LDAP search (#7634 and #7683, @VakarisZ)
 
 === Enhancements
 
