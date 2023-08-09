@@ -202,6 +202,8 @@ sub acl_chewer {
     my $i = 0;
     my $acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
+        next if (defined($acl->{'tcp_flags'}));
         $acl->{'protocol'} =~ s/\(\d*\)//;
         my $dest;
         my $dest_port;
@@ -230,9 +232,9 @@ sub acl_chewer {
         }
         my $j = $i + 1;
         if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' )." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' ) ."\n";
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' )."\n";
         } else {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' )."\n";
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )."\n";
         }
         $i++;
     }
