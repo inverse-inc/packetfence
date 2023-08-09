@@ -2,13 +2,14 @@
 
 =head1 NAME
 
-to-7.1-authentication-conf
+to-13.0-authentication-conf.pl
 
 =cut
 
 =head1 DESCRIPTION
 
-Add default required fields for SQL Twilio and SMS sources
+Skip _ldap_attributes when updating authentication.conf from source module.
+Add script to add the ldap attributes to conditions.
 
 =cut
 
