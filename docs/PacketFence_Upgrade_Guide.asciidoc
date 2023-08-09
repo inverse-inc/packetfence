@@ -1849,7 +1849,7 @@ patch /etc/rc.local /tmp/rc-local.patch
 
 === Adding the LDAP search attributes
 
-When a LDAP condition is added in the LDAP authentication source a LDAP search is done to retrieve the values.
+LDAP conditions added in the LDAP authentication source use a LDAP search to retrieve the values.
 
 === Switch types conversion
 
@@ -1857,7 +1857,7 @@ Two switch types will be converted to the new way of defining a switch. Now, a s
 
 === Some unused or outdated provisionners will be removed
 
-the following provisionners will be removed from Packetfence configuration ibm, servicenow, sepm, symantec, opswat
+The following provisioners will be removed from Packetfence configuration IBM, ServiceNow, SEPM, Symantec, Opswat
 
 == Archived upgrade notes
 
