@@ -1,0 +1,16 @@
+ConfigCloudsMeta:
+  properties:
+    meta:
+      properties:
+        client_id:
+          $ref: '#/components/schemas/Meta'
+        client_secret:
+          $ref: '#/components/schemas/Meta'
+        id:
+          $ref: '#/components/schemas/Meta'
+        tenant_id:
+          $ref: '#/components/schemas/Meta'
+        type:
+          $ref: '#/components/schemas/Meta'
+      type: object
+  type: object

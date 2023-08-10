@@ -1,0 +1,17 @@
+EmailPreview:
+  type: object
+  properties:
+    body:
+      description: HTML email body.
+      type: string
+    status:
+      $ref: "#/components/schemas/Status"
+
+EmailSend:
+  type: object
+
+EmailMailer:
+  type: object
+  properties:
+    status:
+      $ref: "#/components/schemas/Status"

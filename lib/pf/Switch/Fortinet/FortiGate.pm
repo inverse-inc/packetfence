@@ -234,7 +234,7 @@ sub identifyConnectionType {
     my @require = qw(Connect-Info);
     my @found = grep {exists $radius_request->{$_}} @require;
 
-    if ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(vpn-ssl|vpn-ikev2)$/i ) {
+    if ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^vpn-\w+$/i ) {
         $connection->isVPN($TRUE);
         $connection->isCLI($FALSE);
     } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(admin-login)$/i ) {

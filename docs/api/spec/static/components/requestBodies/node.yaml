@@ -1,0 +1,10 @@
+NodeSecurityEvent:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          security_event_id:
+            type: string
+            description: The security events `PRIMARY_KEY`.

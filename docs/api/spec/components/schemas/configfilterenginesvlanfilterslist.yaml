@@ -1,0 +1,9 @@
+ConfigFilterEnginesVlanFiltersList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/ConfigFilterEnginesVlanFilter'
+        type: array
+    type: object

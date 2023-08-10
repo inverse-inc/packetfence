@@ -5,6 +5,7 @@
         {{ $t('Active Directory Domains') }}
         <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_microsoft_active_directory_ad" />
       </h4>
+      <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
@@ -103,6 +104,7 @@ import {
   BaseButtonHelp,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
 import BaseButtonJoin from './BaseButtonJoin'
@@ -113,6 +115,7 @@ const components = {
   BaseButtonJoin,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 }
 
@@ -127,11 +130,13 @@ import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useStore, useRouter } from '../_composables/useCollection'
+import { useSearch, useStore, useRouter, useServices } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
   const { root: { $router, $store } = {} } = context
+
+  const services = useServices()
 
   const {
     deleteItem
@@ -172,7 +177,8 @@ const setup = (props, context) => {
     onBulkExport,
     ...router,
     ...selected,
-    ...toRefs(search)
+    ...toRefs(search),
+    services
   }
 }
 

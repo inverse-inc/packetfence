@@ -42,6 +42,19 @@ has_field namespaces => (
     multiple => 1,
 );
 
+=head2 default_type
+
+Returns the default type of the Provisioning
+
+=cut
+
+sub default_type {
+    my ($field) = @_;
+    my $type = ref($field->form);
+    $type =~ s/^pfappserver::Form::Config::EventLogger:://;
+    return $type;
+}
+
 =head2 Methods
 
 =over

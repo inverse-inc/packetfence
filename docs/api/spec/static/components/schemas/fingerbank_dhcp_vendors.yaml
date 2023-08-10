@@ -1,0 +1,165 @@
+FingerbankDhcpVendors:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankIterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDhcpVendorDecorated'
+        scope:
+          $ref: '#/components/schemas/FingerbankScope'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDhcpVendorItem:
+  type: object
+  properties:
+    item:
+      $ref: '#/components/schemas/FingerbankDhcpVendorDecorated'
+    scope:
+      $ref: '#/components/schemas/FingerbankScope'
+    status:
+      $ref: '#/components/schemas/Status'
+
+FingerbankDhcpVendor:
+  type: object
+  properties:
+    # write-able
+    value:
+      type: string
+
+FingerbankDhcpVendorDecorated:
+  type: object
+  properties:
+    # read-only
+    id:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    updated_at:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    # write-able
+    value:
+      type: string
+
+FingerbankDhcpVendorForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDhcpVendor'
+    - required:
+      - device_id
+
+FingerbankDhcpVendorsSearch:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankIterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          description: DhcpVendors.
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDhcpVendor'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDhcpVendorsQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/FingerbankDhcpVendorsQueryNested'
+    - $ref: '#/components/schemas/FingerbankDhcpVendorsQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/FingerbankDhcpVendorsQueryNested'
+      or: '#/components/schemas/FingerbankDhcpVendorsQueryNested'
+      contains: '#/components/schemas/FingerbankDhcpVendorsQueryField'
+      not_contains: '#/components/schemas/FingerbankDhcpVendorsQueryField'
+      match: '#/components/schemas/FingerbankDhcpVendorsQueryField'
+      not_match: '#/components/schemas/FingerbankDhcpVendorsQueryField'
+      between: '#/components/schemas/FingerbankDhcpVendorsQueryField'
+      not_between: '#/components/schemas/FingerbankDhcpVendorsQueryField'
+      is: '#/components/schemas/FingerbankDhcpVendorsQueryField'
+      is_not: '#/components/schemas/FingerbankDhcpVendorsQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+FingerbankDhcpVendorsQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/FingerbankDhcpVendorsQuery'
+
+FingerbankDhcpVendorsQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/FingerbankDhcpVendorsField'
+    value:
+      description: Search criteria.
+      type: string
+
+
+FingerbankDhcpVendorsFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/FingerbankDhcpVendorsField'
+  example:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankDhcpVendorsField:
+  type: string
+  example: id
+  enum:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankDhcpVendorsSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - created_at ASC
+      - created_at DESC
+      - updated_at ASC
+      - updated_at DESC
+      - value ASC
+      - value DESC

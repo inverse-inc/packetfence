@@ -1,5 +1,6 @@
 import { computed, ref, toRefs, unref } from '@vue/composition-api'
 import { useFormMetaSchema } from '@/composables/useMeta'
+import { baseRoles } from '../config'
 import schemaFn from '../schema'
 
 const useFormProps = {
@@ -133,12 +134,8 @@ const useForm = (props, context) => {
     return placeholder === 'Y'
   })
 
-  const roles = ref([
-    'registration',
-    'isolation',
-    'macDetection',
-    'inline'
-  ])
+  const roles = ref(baseRoles)
+
   const { root: { $store } = {} } = context
   $store.dispatch('$_roles/all').then(allRoles => {
     roles.value = [

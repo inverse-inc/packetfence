@@ -32,8 +32,9 @@ Configuration for a server is always prefixed by the server's hostname.
 
 Once you have removed the configuration, you need to reload it and synchronize it with the remaining nodes in the cluster.
 
-  # /usr/local/pf/bin/pfcmd configreload hard
   # /usr/local/pf/bin/cluster/sync --as-master
+  # /usr/local/pf/bin/pfcmd configreload hard
+
 
 Now restart PacketFence on all the servers so that the removed node is not part of the clustering configuration.
 

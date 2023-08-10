@@ -1,0 +1,18 @@
+Preference:
+  properties:
+    id:
+      type: string
+    value:
+      type: string
+  type: object
+
+Preferences:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/components/schemas/Preference'
+    status:
+      $ref: '#/components/schemas/Status'
+

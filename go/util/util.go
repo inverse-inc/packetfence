@@ -30,3 +30,12 @@ func NextIP(ip net.IP, inc uint) net.IP {
 	v0 := byte((v >> 24) & 0xFF)
 	return net.IPv4(v0, v1, v2, v3)
 }
+
+func MapKeys[K comparable, V any](m map[K]V) []K {
+	keys := make([]K, 0, len(m))
+	for k, _ := range m {
+		keys = append(keys, k)
+	}
+
+	return keys
+}

@@ -27,33 +27,46 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
- * Adding end-to-end testing framework to UI for CI/CD pipelines (#7350)
-
 === Enhancements
-
- * Upgrade coredns libraries (#7197)
- * Added Palo Alto switch module to manage web admin login using RADIUS (#7643)
- * Remove WMI (#7649)
- * Allow to call a custom script from pfupdate to handle VIP in cloud environments (#7654)
- * Remove IBM provisioner (#7686)
- * Remove ServiceNow provisioner (#7699)
- * Remove Symantec Provisioner (#7700)
- * Remove OPSWAT Provisioner (#7716)
- * Remove httpd.proxy service (#7668)
- * Remove unused service httpd.collector (#7667)
- * Remove Traffic Shaping (#7666)
- * Optimize pfdhcp (#7710)
- * Allow the OS to pick the port instead doing retrying. (#7596)
- * ISO installer supports UEFI booting (#7724)
- * Update to go 1.20.5 (#7636)
- * Documentation to manage HTTP and RADIUS certificates
 
 === Bug Fixes
 
- * Remove the use of pthread_atfork (#7538)
+== Version 13.0.0 released on 2023-08-09
+
+=== New Features
+
+ * ACL pre-creation support for wired and WiFi equipment
+ * Redis-based queueing to improve geo-distributed deployments
+ * End-to-end testing framework to UI for CI/CD pipelines (#7350)
+ * LDAP explorer allows LDAP search (#7634 and #7683, @VakarisZ)
+
+=== Enhancements
+
+ * Refactored all Cisco modules to now use OS versions instead of model names
+ * Be informed (through security event) when a device pops up into a VLAN or a subnet that shouldn’t be there (#7529)
+ * Upgraded coredns libraries (#7197)
+ * Added Palo Alto switch module to manage web admin login using RADIUS (#7643)
+ * Removed WMI (#7649)
+ * Allow to call a custom script from pfupdate to handle VIP in cloud environments (#7654)
+ * Removed IBM provisioner (#7686)
+ * Removed ServiceNow provisioner (#7699)
+ * Removed Symantec Provisioner (#7700)
+ * Removed OPSWAT Provisioner (#7716)
+ * Removed httpd.proxy service (#7668)
+ * Removed unused service httpd.collector (#7667)
+ * Removed Traffic Shaping (#7666)
+ * Optimized pfdhcp (#7710)
+ * ISO installer supports UEFI booting (#7724)
+ * Updated to go 1.20.5 (#7636)
+ * Documentation to manage HTTP and RADIUS certificates
+ * Updated OpenAPI Specification to version 3 and improved coverage to all endpoints, including meta OPTIONS and distinct collection sub-types
+
+=== Bug Fixes
+
+ * Removed the use of pthread_atfork (#7538)
  * Don't delete a node from pfdhcp if it is disabled on node deregister (#7525)
- * Accurately display the number of registered nodes per role and the overall total of registered nodes. (ZEN 12.1 Odd maths problem on the status page graphics #7471)
- * Move freeradius refresh to pfqueue (#7620)
+ * Accurately display the number of registered nodes per role and the overall total of registered nodes (#7471)
+ * Moved FreeRADIUS refresh to pfqueue (#7620)
 
 == Version 12.2.0 released on 2023-03-08
 
@@ -61,7 +74,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
  * Content Keeper firewall SSO support
  * Added support for Unifi OS controllers (#7368)
- * Added support for downloadable ACLs on Cisco and Dell switches
+ * Added support for downloadable ACLs on Cisco and Dell switches (Also visible in Packetfence Supported network devices webpage https://www.packetfence.org/about.html#/material)
 
 === Enhancements
 

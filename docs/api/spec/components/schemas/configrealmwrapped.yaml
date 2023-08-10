@@ -1,0 +1,7 @@
+ConfigRealmWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigRealm'
+    status:
+      type: integer
+  type: object

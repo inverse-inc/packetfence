@@ -1,0 +1,10 @@
+ConfigMfa:
+  description: 'Choose one of the request bodies by discriminator (`type`). '
+  discriminator:
+    mapping:
+      Akamai: '#/components/schemas/ConfigMfaSubTypeAkamai'
+      TOTP: '#/components/schemas/ConfigMfaSubTypeTotp'
+    propertyName: type
+  oneOf:
+  - $ref: '#/components/schemas/ConfigMfaSubTypeTotp'
+  - $ref: '#/components/schemas/ConfigMfaSubTypeAkamai'

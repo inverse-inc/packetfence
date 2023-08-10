@@ -410,11 +410,14 @@ sub create {
 
     $cs->create($id, $item);
     return unless($self->commit($cs));
+    $self->post_create($id);
     my $additional_out = $self->additional_create_out($form, $item);
     $self->stash( $self->primary_key => $id );
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, json => $self->create_response($id, $additional_out));
 }
+
+sub post_create { }
 
 sub additional_create_out {
     my ($self, $form, $item) = @_;
@@ -565,8 +568,11 @@ sub update {
     my $id =  $self->id;
     $cs->update($id, $new_data);
     return unless($self->commit($cs));
+    $self->post_update($id);
     $self->render(status => 200, json => $self->update_response($form));
 }
+
+sub post_update { }
 
 sub update_response {
     my ($self, $form) = @_;
@@ -612,6 +618,7 @@ sub replace {
     delete $item->{id};
     $cs->update($id, $item);
     return unless($self->commit($cs));
+    $self->post_update($id);
     $self->render(status => 200, json => { message => "Settings replaced"});
 }
 

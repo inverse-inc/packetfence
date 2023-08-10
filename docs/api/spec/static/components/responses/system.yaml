@@ -1,0 +1,6 @@
+SystemSummary:
+  description: Request successful. Response contains system summary.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/SystemSummary"

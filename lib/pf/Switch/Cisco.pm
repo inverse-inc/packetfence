@@ -36,6 +36,7 @@ use pf::util::radius qw(perform_coa);
 use pf::SwitchSupports qw(
     SaveConfig
     Cdp
+    PushACLs
 );
 
 #
@@ -1811,6 +1812,58 @@ sub returnOutAccessListAttribute {
     return "ip:outacl#";
 }
 
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    my $logger = $self->logger;
+    my ($acl_ref , @direction) = $self->format_acl($acl);
+
+    my $i = 0;
+    my $acl_chewed;
+    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        my $dest;
+        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $dest = "any";
+        } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
+                $dest = $acl->{'destination'}->{'ipv4_addr'}." ".$acl->{'destination'}->{'wildcard'};
+            } else {
+                $dest = "host ".$acl->{'destination'}->{'ipv4_addr'};
+            }
+        }
+        my $src;
+        if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $src = "any";
+        } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
+                $src = $acl->{'source'}->{'ipv4_addr'}." ".$acl->{'source'}->{'wildcard'};
+            } else {
+                $src = "host ".$acl->{'source'}->{'ipv4_addr'};
+            }
+
+        }
+        $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." ".$dest ." ".( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+        $i++;
+    }
+    return $acl_chewed;
+}
+
+=head2 implicit_acl
+
+Return implicit acl
+
+=cut
+
+sub implicit_acl {
+    my ($self) = @_;
+    return "permit ip any any";
+}
 
 =back
 

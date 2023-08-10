@@ -1,0 +1,112 @@
+/api/v1/fingerbank/{scope}/user_agents:
+  get:
+    summary: Get User Agents.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScope'
+    - name: cursor
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankPaginatedCursor'
+    - name: limit
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankPaginatedLimit'
+    - name: sort
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankUserAgentsSort'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankUserAgents'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+  post:
+    summary: Create local User Agent.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankUserAgent'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/{scope}/user_agents/search:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScope'
+  post:
+    summary: Search local User Agents.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankUserAgentsSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankUserAgentsSearch'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/{scope}/user_agent/{user_agent_id}:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+  - name: user_agent_id
+    in: path
+    required: true
+    schema:
+      type: string
+  get:
+    summary: Get local User Agent.
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankUserAgent'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  patch:
+    summary: Update local User Agent.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankUserAgent'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    summary: Delete local User Agent.
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank

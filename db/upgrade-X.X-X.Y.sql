@@ -10,11 +10,11 @@ SET sql_mode = "NO_ENGINE_SUBSTITUTION";
 --
 
 SET @MAJOR_VERSION = 13;
-SET @MINOR_VERSION = 0;
+SET @MINOR_VERSION = 1;
 
 
-SET @PREV_MAJOR_VERSION = 12;
-SET @PREV_MINOR_VERSION = 2;
+SET @PREV_MAJOR_VERSION = 13;
+SET @PREV_MINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries

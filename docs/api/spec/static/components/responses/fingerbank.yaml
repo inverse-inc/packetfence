@@ -1,0 +1,195 @@
+FingerbankAccountInfo:
+  description: Request successful. The response contains the account information.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankAccountInfo"
+
+FingerbankCombinations:
+  description: Request successful. The response contains the combinations.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankCombinations"
+
+FingerbankCombinationsSearch:
+  description: Request successful. The response contains the combinations search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankCombinationsSearch"
+
+FingerbankCombination:
+  description: Request successful. The response contains the combination.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankCombinationItem"
+
+FingerbankDevices:
+  description: Request successful. The response contains the devices.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDevices"
+
+FingerbankDevicesSearch:
+  description: Request successful. The response contains the devices search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDevicesSearch"
+
+FingerbankDevice:
+  description: Request successful. The response contains the device.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDeviceItem"
+
+FingerbankDeviceClasses:
+  description: Request successful. The response contains the device classes.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDeviceClasses"
+
+FingerbankDhcpFingerprints:
+  description: Request successful. The response contains the DHCP fingerprints.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcpFingerprints"
+
+FingerbankDhcpFingerprintsSearch:
+  description: Request successful. The response contains the DHCP fingerprints search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcpFingerprintsSearch"
+
+FingerbankDhcpFingerprint:
+  description: Request successful. The response contains the DHCP fingerprint.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcpFingerprintItem"
+
+FingerbankDhcpVendors:
+  description: Request successful. The response contains the DHCP fingerprints.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcpVendors"
+
+FingerbankDhcpVendorsSearch:
+  description: Request successful. The response contains the DHCP fingerprints search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcpVendorsSearch"
+
+FingerbankDhcpVendor:
+  description: Request successful. The response contains the DHCP fingerprint.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcpVendorItem"
+
+FingerbankDhcp6Enterprises:
+  description: Request successful. The response contains the DHCPv6 enterprises.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcp6Enterprises"
+
+FingerbankDhcp6EnterprisesSearch:
+  description: Request successful. The response contains the DHCPv6 enterprises search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcp6EnterprisesSearch"
+
+FingerbankDhcp6Enterprise:
+  description: Request successful. The response contains the DHCPv6 enterprises.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcp6EnterpriseItem"
+
+FingerbankDhcp6Fingerprints:
+  description: Request successful. The response contains the DHCPv6 fingerprints.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcp6Fingerprints"
+
+FingerbankDhcp6FingerprintsSearch:
+  description: Request successful. The response contains the DHCPv6 fingerprints search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcp6FingerprintsSearch"
+
+FingerbankDhcp6Fingerprint:
+  description: Request successful. The response contains the DHCPv6 fingerprints.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcp6FingerprintItem"
+
+FingerbankNba:
+  description: Request successful. The response contains the result.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankNba"
+
+FingerbankUpdateUpstreamDb:
+  description: Request successful. The upstream database is being updated.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+
+FingerbankMacVendors:
+  description: Request successful. The response contains the MAC vendors.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankMacVendors"
+
+FingerbankMacVendorsSearch:
+  description: Request successful. The response contains the MAC vendors search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankMacVendorsSearch"
+
+FingerbankMacVendor:
+  description: Request successful. The response contains the MAC vendor.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankMacVendorItem"
+
+FingerbankUserAgents:
+  description: Request successful. The response contains the user agents.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankUserAgents"
+
+FingerbankUserAgentsSearch:
+  description: Request successful. The response contains the user agents search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankUserAgentsSearch"
+
+FingerbankUserAgent:
+  description: Request successful. The response contains the user agent.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankUserAgentItem"

@@ -1,19 +1,86 @@
 openapi: "3.0.0"
-  
+
 info:
   title: PacketFence API
-  description: A JSON HTTP API to access and manipulate the PacketFence resources. Backward compatibility is currently not 100% guaranteed although we will do our best effort to keep API calls as described here.
-  version: 1.0.0
+  description: A JSON HTTP API to access and manage PacketFence resources.
+  version: 1.1.0
+  contact:
+    name: PacketFence
+    url: https://packetfence.org
+  license:
+    name: GNU General Public License v2.0
+
+consumes:
+  - application/json
+
+produces:
+  - application/json
 
 paths: {}
 
 components: {}
-    
+
 servers:
-  - url: https://127.0.0.1:9999/api/v1
-      
+  - url: https://{hostname}:{port}
+    description: Secure PacketFence API.
+    variables:
+      hostname:
+        default: localhost
+        description: Hostname or IP address of the PacketFence API.
+      port:
+        default: 9999
+        description: Port of the PacketFence API
+  - url: http://{hostname}:{port}
+    description: Insecure PacketFence API.
+    variables:
+      hostname:
+        default: localhost
+        description: Hostname or IP address of the PacketFence API.
+      port:
+        default: 9999
+        description: Port of the PacketFence API.
+
 security:
   - bearerAuth: []
-   
 
-      
+tags:
+  - name: Async
+    description: Runs tasks asyncronously.
+  - name: Cluster
+    description: Manage PacketFence cluster.
+  - name: DHCP
+    description: Manage PacketFence Authoritative DNS server.
+  - name: Email
+    description: Send email using SMTP configuration.
+  - name: Fingerbank
+    description: Fingerbank device discovery.
+  - name: Ipset
+    description: Manage PacketFence Ipset firewall.
+  - name: LiveLogs
+    description: Tail logs in real time.
+  - name: Locales
+    description: Locale translations.
+  - name: Nodes
+    description: Manage PacketFence nodes/devices.
+  - name: Pfqueue
+    description: PacketFence Queue.
+  - name: PKI
+    description: PacketFence Public Key Infrastructure.
+  - name: RADIUS
+    description: RADIUS Helpers.
+  - name: SecurityEvents
+    description: Manage Security Events and Violations.
+  - name: Services
+    description: Manage PacketFence services.
+  - name: Session
+    description: Manage session, get the current users' allowed roles and actions.
+  - name: SSO
+    description: Single-Sign-On status.
+  - name: LDAP
+    description: Perform LDAP search.
+  - name: System
+    description: System summary.
+  - name: Users
+    description: Manage PacketFence users/persons.
+
+

@@ -1,0 +1,27 @@
+Locales:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          lang:
+            type: string
+          lexicon:
+            type: object
+    status:
+      $ref: "#/components/schemas/Status"
+
+Locale:
+  type: object
+  properties:
+    item:
+      type: object
+      properties:
+        lang:
+          type: string
+        lexicon:
+          type: object
+    status:
+      $ref: "#/components/schemas/Status"

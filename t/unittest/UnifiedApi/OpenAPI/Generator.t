@@ -84,204 +84,272 @@ sub standardSchema {
 {
 
     my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
+    my %schemas = $generator->operations(
+        $controller,
+        [
+            {
+                'operationId' => 'api.v1.Config::FloatingDevices.get',
+                'name'        => 'api.v1.Config::FloatingDevices.get',
+                'children'    => [],
+                'path'        => '/config/floating_device/{floating_device_id}',
+                'depth'       => 2,
+                'paths' => ['/config/floating_device/{floating_device_id}'],
+                'controller' => 'Config::FloatingDevices',
+                'path_type'  => 'resource',
+                'methods'    => ['GET'],
+                'path_part'  => '',
+                'action'     => 'get',
+                'full_path'  =>
+                  '/api/v1/config/floating_device/{floating_device_id}'
+            }
+        ]
+    );
     is_deeply(
-        [
-            $generator->operations(
-                $controller,
-                [
+        \%schemas,
+        {
+            'get' => {
+                'description' => 'Get an item.',
+                'parameters'  => [
                     {
-                        'operationId' => 'api.v1.Config::FloatingDevices.get',
-                        'name'        => 'api.v1.Config::FloatingDevices.get',
-                        'children'    => [],
-                        'path' =>
-                          '/config/floating_device/{floating_device_id}',
-                        'depth' => 2,
-                        'paths' =>
-                          ['/config/floating_device/{floating_device_id}'],
-                        'controller' => 'Config::FloatingDevices',
-                        'path_type'  => 'resource',
-                        'methods'    => ['GET'],
-                        'path_part'  => '',
-                        'action'     => 'get',
-                        'full_path' =>
-                          '/api/v1/config/floating_device/{floating_device_id}'
-                    }
-                ]
-            )
-        ],
-        [
-            get => {
-                description => 'Get an item',
-                operationId => 'api.v1.Config::FloatingDevices.get',
-                parameters => [
-                    {
-                        name   => 'floating_device_id',
-                        in     => 'path',
-                        schema => {
-                            type => 'string'
+                        'schema' => {
+                            'type' => 'string'
                         },
+                        'name'     => 'floating_device_id',
+                        'required' =>
+                          bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'in'          => 'path',
+                        'description' => '`PRIMARY KEY`'
                     }
                 ],
-                responses  => {
-                    "200" =>  {
-                        'description' => 'Item',
-                        content => {
-                            "application/json" => {
-                                schema => {
-                                    "\$ref" => "#/components/schemas/ConfigFloatingDevice",
+                'responses' => {
+                    '401' => {
+                        '$ref' => '#/components/responses/Forbidden'
+                    },
+                    '200' => {
+                        'description' =>
+'Request successful. Response contains a specific resource.',
+                        'content' => {
+                            'application/json' => {
+                                'schema' => {
+                                    '$ref' =>
+'#/components/schemas/ConfigFloatingDeviceWrapped'
                                 }
                             }
-                        },
+                        }
                     },
-                    "400" => {
-                        "\$ref" => "#/components/responses/BadRequest",
-                    },
-                    "422" => {
-                        "\$ref" => "#/components/responses/UnprocessableEntity"
+                    '404' => {
+                        '$ref' => '#/components/responses/NotFound'
                     }
                 },
-            },
-        ],
+                'operationId' => 'api.v1.Config::FloatingDevices.get',
+                'tags'        => ['Config/FloatingDevices']
+            }
+        },
         "Config Get"
     );
 }
 
 {
     my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
-
+    my $schemas   = $generator->generateSchemas(
+        $controller,
+        [
+            {
+                'operationId' => 'api.v1.Config::FloatingDevices.create',
+                'name'        => 'api.v1.Config::FloatingDevices.create',
+                'children'    => [],
+                'path'        => '/config/floating_devices',
+                'depth'       => 2,
+                'paths'       => ['/config/floating_devices'],
+                'controller'  => 'Config::FloatingDevices',
+                'path_type'   => 'collection',
+                'methods'     => ['POST'],
+                'path_part'   => '',
+                'action'      => 'create',
+                'full_path'   => '/api/v1/config/floating_devices'
+            },
+            {
+                'operationId' => 'api.v1.Config::FloatingDevices.list',
+                'name'        => 'api.v1.Config::FloatingDevices.list',
+                'children'    => [],
+                'path'        => '/config/floating_devices',
+                'depth'       => 2,
+                'paths'       => ['/config/floating_devices'],
+                'controller'  => 'Config::FloatingDevices',
+                'path_type'   => 'collection',
+                'methods'     => ['GET'],
+                'path_part'   => '',
+                'action'      => 'list',
+                'full_path'   => '/api/v1/config/floating_devices'
+            },
+            {
+                'operationId' => 'api.v1.Config::FloatingDevices.search',
+                'name'        => 'api.v1.Config::FloatingDevices.search',
+                'children'    => [],
+                'path'        => '/config/floating_devices/search',
+                'depth'       => 3,
+                'paths'       => [ '/config/floating_devices', '/search' ],
+                'controller'  => 'Config::FloatingDevices',
+                'path_type'   => 'collection',
+                'methods'     => ['POST'],
+                'path_part'   => '',
+                'action'      => 'search',
+                'full_path'   => '/api/v1/config/floating_devices/search'
+            },
+            {
+                'operationId' => 'api.v1.Config::FloatingDevices.update',
+                'name'        => 'api.v1.Config::FloatingDevices.update',
+                'children'    => [],
+                'path'        => '/config/floating_device/{floating_device_id}',
+                'depth'       => 2,
+                'paths' => ['/config/floating_device/{floating_device_id}'],
+                'controller' => 'Config::FloatingDevices',
+                'path_type'  => 'resource',
+                'methods'    => ['PATCH'],
+                'path_part'  => '',
+                'action'     => 'update',
+                'full_path'  =>
+                  '/api/v1/config/floating_device/{floating_device_id}'
+            },
+            {
+                'operationId' => 'api.v1.Config::FloatingDevices.remove',
+                'name'        => 'api.v1.Config::FloatingDevices.remove',
+                'children'    => [],
+                'path'        => '/config/floating_device/{floating_device_id}',
+                'depth'       => 2,
+                'paths' => ['/config/floating_device/{floating_device_id}'],
+                'controller' => 'Config::FloatingDevices',
+                'path_type'  => 'resource',
+                'methods'    => ['DELETE'],
+                'path_part'  => '',
+                'action'     => 'remove',
+                'full_path'  =>
+                  '/api/v1/config/floating_device/{floating_device_id}'
+            },
+            {
+                'operationId' => 'api.v1.Config::FloatingDevices.replace',
+                'name'        => 'api.v1.Config::FloatingDevices.replace',
+                'children'    => [],
+                'path'        => '/config/floating_device/{floating_device_id}',
+                'depth'       => 2,
+                'paths' => ['/config/floating_device/{floating_device_id}'],
+                'controller' => 'Config::FloatingDevices',
+                'path_type'  => 'resource',
+                'methods'    => ['PUT'],
+                'path_part'  => '',
+                'action'     => 'replace',
+                'full_path'  =>
+                  '/api/v1/config/floating_device/{floating_device_id}'
+            },
+            {
+                'operationId' => 'api.v1.Config::FloatingDevices.get',
+                'name'        => 'api.v1.Config::FloatingDevices.get',
+                'children'    => [],
+                'path'        => '/config/floating_device/{floating_device_id}',
+                'depth'       => 2,
+                'paths' => ['/config/floating_device/{floating_device_id}'],
+                'controller' => 'Config::FloatingDevices',
+                'path_type'  => 'resource',
+                'methods'    => ['GET'],
+                'path_part'  => '',
+                'action'     => 'get',
+                'full_path'  =>
+                  '/api/v1/config/floating_device/{floating_device_id}'
+            }
+        ],
+    );
     is_deeply(
-        $generator->generateSchemas(
-            $controller,
-            [
-                {
-                    'operationId' => 'api.v1.Config::FloatingDevices.create',
-                    'name'        => 'api.v1.Config::FloatingDevices.create',
-                    'children'    => [],
-                    'path'        => '/config/floating_devices',
-                    'depth'       => 2,
-                    'paths'       => [ '/config/floating_devices' ],
-                    'controller'  => 'Config::FloatingDevices',
-                    'path_type'   => 'collection',
-                    'methods'     => [ 'POST' ],
-                    'path_part'   => '',
-                    'action'      => 'create',
-                    'full_path'   => '/api/v1/config/floating_devices'
-                },
-                {
-                    'operationId' => 'api.v1.Config::FloatingDevices.list',
-                    'name'        => 'api.v1.Config::FloatingDevices.list',
-                    'children'    => [],
-                    'path'        => '/config/floating_devices',
-                    'depth'       => 2,
-                    'paths'       => [ '/config/floating_devices' ],
-                    'controller'  => 'Config::FloatingDevices',
-                    'path_type'   => 'collection',
-                    'methods'     => [ 'GET' ],
-                    'path_part'   => '',
-                    'action'      => 'list',
-                    'full_path'   => '/api/v1/config/floating_devices'
-                },
-                {
-                    'operationId' => 'api.v1.Config::FloatingDevices.search',
-                    'name'        => 'api.v1.Config::FloatingDevices.search',
-                    'children'    => [],
-                    'path'        => '/config/floating_devices/search',
-                    'depth'       => 3,
-                    'paths'       => [ '/config/floating_devices', '/search' ],
-                    'controller'  => 'Config::FloatingDevices',
-                    'path_type'   => 'collection',
-                    'methods'     => [ 'POST' ],
-                    'path_part'   => '',
-                    'action'      => 'search',
-                    'full_path'   => '/api/v1/config/floating_devices/search'
-                },
-                {
-                    'operationId' => 'api.v1.Config::FloatingDevices.update',
-                    'name'        => 'api.v1.Config::FloatingDevices.update',
-                    'children'    => [],
-                    'path'  => '/config/floating_device/{floating_device_id}',
-                    'depth' => 2,
-                    'paths' =>
-                      [ '/config/floating_device/{floating_device_id}' ],
-                    'controller' => 'Config::FloatingDevices',
-                    'path_type'  => 'resource',
-                    'methods'    => [ 'PATCH' ],
-                    'path_part'  => '',
-                    'action'     => 'update',
-                    'full_path' =>
-                      '/api/v1/config/floating_device/{floating_device_id}'
-                },
-                {
-                    'operationId' => 'api.v1.Config::FloatingDevices.remove',
-                    'name'        => 'api.v1.Config::FloatingDevices.remove',
-                    'children'    => [],
-                    'path'  => '/config/floating_device/{floating_device_id}',
-                    'depth' => 2,
-                    'paths' =>
-                      [ '/config/floating_device/{floating_device_id}' ],
-                    'controller' => 'Config::FloatingDevices',
-                    'path_type'  => 'resource',
-                    'methods'    => [ 'DELETE' ],
-                    'path_part'  => '',
-                    'action'     => 'remove',
-                    'full_path' =>
-                      '/api/v1/config/floating_device/{floating_device_id}'
-                },
-                {
-                    'operationId' => 'api.v1.Config::FloatingDevices.replace',
-                    'name'        => 'api.v1.Config::FloatingDevices.replace',
-                    'children'    => [],
-                    'path'  => '/config/floating_device/{floating_device_id}',
-                    'depth' => 2,
-                    'paths' =>
-                      [ '/config/floating_device/{floating_device_id}' ],
-                    'controller' => 'Config::FloatingDevices',
-                    'path_type'  => 'resource',
-                    'methods'    => [ 'PUT' ],
-                    'path_part'  => '',
-                    'action'     => 'replace',
-                    'full_path' =>
-                      '/api/v1/config/floating_device/{floating_device_id}'
-                },
-                {
-                    'operationId' => 'api.v1.Config::FloatingDevices.get',
-                    'name'        => 'api.v1.Config::FloatingDevices.get',
-                    'children'    => [],
-                    'path'  => '/config/floating_device/{floating_device_id}',
-                    'depth' => 2,
-                    'paths' =>
-                      [ '/config/floating_device/{floating_device_id}' ],
-                    'controller' => 'Config::FloatingDevices',
-                    'path_type'  => 'resource',
-                    'methods'    => [ 'GET' ],
-                    'path_part'  => '',
-                    'action'     => 'get',
-                    'full_path' =>
-                      '/api/v1/config/floating_device/{floating_device_id}'
-                }
-            ],
-        ),
+        $schemas,
         {
+            '/components/schemas/ConfigFloatingDevice' => {
+                'required'   => [ 'id', 'pvid' ],
+                'properties' => {
+                    'pvid' => {
+                        'default'     => undef,
+                        'type'        => 'integer',
+                        'description' =>
+                          'VLAN in which PacketFence should put the port'
+                    },
+                    'taggedVlan' => {
+                        'type'        => 'string',
+                        'default'     => undef,
+                        'description' =>
+'Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.'
+                    },
+                    'id' => {
+                        'description' => 'MAC Address',
+                        'default'     => undef,
+                        'type'        => 'string'
+                    },
+                    'ip' => {
+                        'description' => 'IP Address',
+                        'default'     => undef,
+                        'type'        => 'string'
+                    },
+                    'trunkPort' => {
+                        'description' =>
+                          'The port must be configured as a muti-vlan port',
+                        'default' => undef,
+                        'type'    => 'string'
+                    }
+                },
+                'type' => 'object'
+            },
             '/components/schemas/ConfigFloatingDevicesList' => {
-                description => 'List',
-                allOf => [
-                    { '$ref' => "#/components/schemas/Iterable" },
+                'allOf' => [
                     {
-                        "properties" => {
-                            "items" => {
-                                'description' => 'List',
-                                "items" => {
-                                    "\$ref" =>
-                                      "#/components/schemas/ConfigFloatingDevice"
+                        '$ref' => '#/components/schemas/Iterable'
+                    },
+                    {
+                        'type'       => 'object',
+                        'properties' => {
+                            'items' => {
+                                'items' => {
+                                    '$ref' =>
+'#/components/schemas/ConfigFloatingDevice'
                                 },
-                                "type" => "array"
+                                'type' => 'array'
                             }
-                        },
-                        "type" => "object"
+                        }
                     }
                 ]
             },
-            '/components/schemas/ConfigFloatingDevice' => standardSchema(),
+            '/components/schemas/ConfigFloatingDevicesMeta' => {
+                'type'       => 'object',
+                'properties' => {
+                    'meta' => {
+                        'type'       => 'object',
+                        'properties' => {
+                            'ip' => {
+                                '$ref' => '#/components/schemas/Meta'
+                            },
+                            'taggedVlan' => {
+                                '$ref' => '#/components/schemas/Meta'
+                            },
+                            'id' => {
+                                '$ref' => '#/components/schemas/Meta'
+                            },
+                            'pvid' => {
+                                '$ref' => '#/components/schemas/Meta'
+                            },
+                            'trunkPort' => {
+                                '$ref' => '#/components/schemas/Meta'
+                            }
+                        }
+                    }
+                }
+            },
+            '/components/schemas/ConfigFloatingDeviceWrapped' => {
+                'type'       => 'object',
+                'properties' => {
+                    'item' => {
+                        '$ref' => '#/components/schemas/ConfigFloatingDevice'
+                    },
+                    'status' => {
+                        'type' => 'integer'
+                    }
+                }
+            }
         },
         "Schemas For Config::FloatingDevices"
     );
@@ -290,65 +358,73 @@ sub standardSchema {
 {
 
     my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
+    my %schemas   = $generator->operations(
+        $controller,
+        [
+            {
+                'name'        => 'api.v1.Config::FloatingDevices.replace',
+                'operationId' => 'api.v1.Config::FloatingDevices.replace',
+                'children'    => [],
+                'path'        => '/config/floating_device/{floating_device_id}',
+                'depth'       => 2,
+                'paths' => ['/config/floating_device/{floating_device_id}'],
+                'controller' => 'Config::FloatingDevices',
+                'path_type'  => 'resource',
+                'methods'    => ['PUT'],
+                'path_part'  => '',
+                'action'     => 'replace',
+                'full_path'  =>
+                  '/api/v1/config/floating_device/{floating_device_id}'
+            }
+        ]
+    );
     is_deeply(
+        \%schemas,
         {
-            $generator->operations(
-                $controller,
-                [
-                    {
-                        'name'     => 'api.v1.Config::FloatingDevices.replace',
-                        'operationId' => 'api.v1.Config::FloatingDevices.replace',
-                        'children' => [],
-                        'path' =>
-                          '/config/floating_device/{floating_device_id}',
-                        'depth' => 2,
-                        'paths' =>
-                          ['/config/floating_device/{floating_device_id}'],
-                        'controller' => 'Config::FloatingDevices',
-                        'path_type'  => 'resource',
-                        'methods'    => ['PUT'],
-                        'path_part'  => '',
-                        'action'     => 'replace',
-                        'full_path' =>
-                          '/api/v1/config/floating_device/{floating_device_id}'
+            'put' => {
+                'tags'        => ['Config/FloatingDevices'],
+                'operationId' => 'api.v1.Config::FloatingDevices.replace',
+                'responses'   => {
+                    '404' => {
+                        '$ref' => '#/components/responses/NotFound'
+                    },
+                    '400' => {
+                        '$ref' => '#/components/responses/BadRequest'
+                    },
+                    '401' => {
+                        '$ref' => '#/components/responses/Forbidden'
+                    },
+                    '201' => {
+                        '$ref' => '#/components/responses/Created'
+                    },
+                    '422' => {
+                        '$ref' => '#/components/responses/UnprocessableEntity'
                     }
-                ]
-            )
-        },
-        {
-            put => {
-                operationId => 'api.v1.Config::FloatingDevices.replace',
-                description => 'Replace an item',
-                parameters => [
-                    {
-                        name   => 'floating_device_id',
-                        in     => 'path',
-                        schema => {
-                            type => 'string'
-                        },
-                    }
-                ],
-                requestBody => {
-                    "content" => {
-                        "application/json" => {
-                            schema => {
-                                "\$ref" => "#/components/schemas/ConfigFloatingDevice"
+                },
+                'requestBody' => {
+                    'content' => {
+                        'application/json' => {
+                            'schema' => {
+                                '$ref' =>
+                                  '#/components/schemas/ConfigFloatingDevice'
                             }
                         }
-                    },
-                },
-                responses => {
-                    "201" => {
-                        "\$ref" => "#/components/responses/Created"
-                    },
-                    "400" => {
-                        "\$ref" => "#/components/responses/BadRequest"
-                    },
-                    "422" => {
-                        "\$ref" => "#/components/responses/UnprocessableEntity"
                     }
                 },
-            },
+                'description' => 'Replace an item.',
+                'parameters'  => [
+                    {
+                        'description' => '`PRIMARY KEY`',
+                        'in'          => 'path',
+                        'name'        => 'floating_device_id',
+                        'schema'      => {
+                            'type' => 'string'
+                        },
+                        'required' =>
+                          bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' )
+                    }
+                ]
+            }
         },
         "Config PUT"
     );
@@ -357,51 +433,58 @@ sub standardSchema {
 {
 
     my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
+    my %schemas = $generator->operations(
+        $controller,
+        [
+            {
+                'operationId' => 'api.v1.Config::FloatingDevices.remove',
+                'name'        => 'api.v1.Config::FloatingDevices.get',
+                'children'    => [],
+                'path'        => '/config/floating_device/{floating_device_id}',
+                'depth'       => 2,
+                'paths' => ['/config/floating_device/{floating_device_id}'],
+                'controller' => 'Config::FloatingDevices',
+                'path_type'  => 'resource',
+                'methods'    => ['DELETE'],
+                'path_part'  => '',
+                'action'     => 'remove',
+                'full_path'  =>
+                  '/api/v1/config/floating_device/{floating_device_id}'
+            }
+        ]
+    );
     is_deeply(
-        [
-            $generator->operations(
-                $controller,
-                [
-                    {
-                        'operationId' => 'api.v1.Config::FloatingDevices.remove',
-                        'name'        => 'api.v1.Config::FloatingDevices.get',
-                        'children'    => [],
-                        'path' =>
-                          '/config/floating_device/{floating_device_id}',
-                        'depth' => 2,
-                        'paths' =>
-                          ['/config/floating_device/{floating_device_id}'],
-                        'controller' => 'Config::FloatingDevices',
-                        'path_type'  => 'resource',
-                        'methods'    => ['DELETE'],
-                        'path_part'  => '',
-                        'action'     => 'remove',
-                        'full_path' =>
-                          '/api/v1/config/floating_device/{floating_device_id}'
+        \%schemas,
+        {
+            'delete' => {
+                'responses' => {
+                    '200' => {
+                        '$ref' => '#/components/responses/Deleted'
+                    },
+                    '404' => {
+                        '$ref' => '#/components/responses/NotFound'
+                    },
+                    '401' => {
+                        '$ref' => '#/components/responses/Forbidden'
                     }
-                ]
-            )
-        ],
-        [
-            delete => {
-                description => 'Remove an item',
-                operationId => 'api.v1.Config::FloatingDevices.remove',
-                parameters => [
+                },
+                'tags'        => ['Config/FloatingDevices'],
+                'description' => 'Delete an item.',
+                'parameters'  => [
                     {
-                        name   => 'floating_device_id',
-                        in     => 'path',
-                        schema => {
-                            type => 'string'
+                        'description' => '`PRIMARY KEY`',
+                        'name'        => 'floating_device_id',
+                        'required'    =>
+                          bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'schema' => {
+                            'type' => 'string'
                         },
+                        'in' => 'path'
                     }
                 ],
-                responses  => {
-                    "204" => {
-                        description => 'Deleted a config item',
-                    },
-                },
-            },
-        ],
+                'operationId' => 'api.v1.Config::FloatingDevices.remove'
+            }
+        },
         "Config DELETE"
     );
 }

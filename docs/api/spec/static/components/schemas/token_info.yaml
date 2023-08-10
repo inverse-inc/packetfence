@@ -1,0 +1,22 @@
+TokenInfo:
+  type: object
+  properties:
+    item:
+      type: object
+      properties:
+        admin_actions:
+          description: User admin actions using [noun]_[verb] format.
+          type: array
+          items:
+            type: string
+        admin_roles:
+          description: PacketFence admin roles.
+          type: array
+          items:
+            type: string
+        expires_at:
+          description: Session expiration.
+          type: string
+        username:
+          description: Session username.
+          type: string

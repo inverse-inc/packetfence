@@ -1,0 +1,27 @@
+[Unit]
+Description=PacketFence PFSetACLs Daemon
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-httpd.portal.service
+Before=packetfence-docker-iptables.service
+Requires=packetfence-docker-iptables.service
+PartOf=packetfence-docker-iptables.service
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=10
+Type=simple
+TimeoutStopSec=60
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfsetacls' -e 'pf::services::manager::pfsetacls->new()->generateConfig()'
+ExecStartPre=mkdir -p /usr/local/pf/var/conf/pfsetacls
+ExecStartPre=chown -R :1002 /usr/local/pf/var/conf/pfsetacls
+ExecStartPre=chmod 775 /usr/local/pf/var/conf/pfsetacls
+ExecStartPre=chmod g+s /usr/local/pf/var/conf/pfsetacls
+ExecStart=/usr/local/pf/sbin/pfsetacls-docker-wrapper
+ExecStop=/bin/bash -c "docker stop pfsetacls ; echo Stopped"
+Restart=on-failure
+Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/pfsetacls-systemd-notify.pid
+
+[Install]
+WantedBy=packetfence.target

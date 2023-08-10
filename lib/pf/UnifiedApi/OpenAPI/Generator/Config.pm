@@ -29,34 +29,59 @@ our %METHODS_WITH_ID = (
 our %OPERATION_GENERATORS = (
     requestBody => {
         create  => "createRequestBody",
-        search  => sub { undef },
+        search  => "searchRequestBody",
         replace => "replaceRequestBody",
         update  => "updateRequestBody",
+        bulk_update => "bulkUpdateRequestBody",
+        bulk_delete => "bulkDeleteRequestBody",
+        bulk_import => "bulkImportRequestBody",
     },
     responses => {
-        search  => sub { undef },
+        create  => "createResponses",
+        search  => "searchResponses",
         list    => "listResponses",
+        options => "metaResponses",
+        bulk_update => "getResponses",
+        bulk_delete => "getResponses",
+        bulk_import => "getResponses",
+        sort_items => "getResponses",
         get     => "getResponses",
         replace => "replaceResponses",
         update  => "updateResponses",
         remove  => "removeResponses",
+        resource_options => "metaResponses",
     },
     parameters => {
-        (
-            map { $_ => "${_}OperationParameters" }
-              qw(create search list get replace update remove)
-        )
+        create  => "operationParameters",
+        search  => "operationParameters",
+        list    => "operationParameters",
+        options => "operationParameters",
+        bulk_update => "operationParameters",
+        bulk_delete => "operationParameters",
+        bulk_import => "operationParameters",
+        sort_items => "operationParameters",
+        get     => "resourceParameters",
+        replace => "resourceParameters",
+        update  => "resourceParameters",
+        remove  => "resourceParameters",
+        resource_options => "resourceParameters",
     },
     description => {
         (
             map { $_ => "operationDescription" }
-              qw(create search list get replace update remove)
+              qw(create search list bulk_update bulk_delete bulk_import sort_items options get replace update remove resource_options)
         )
     },
     operationId => {
         (
             map { $_ => "operationId" }
-              qw(create search list get replace update remove)
+              qw(create search list bulk_update bulk_delete bulk_import sort_items options get replace update remove resource_options)
+        )
+    },
+    tags => {
+        (
+            map { $_ => "operationTags" }
+              qw(create search list bulk_update bulk_delete bulk_import sort_items options get replace update remove resource_options)
         )
     }
 );
@@ -65,73 +90,46 @@ sub operation_generators {
     \%OPERATION_GENERATORS;
 }
 
-my %OPERATION_DESCRIPTIONS = (
-    remove  => 'Delete an item',
-    create  => 'Create an item',
-    list    => 'List items',
-    get     => 'Get an item',
-    replace => 'Replace an item',
-    update  => 'Update an item',
-    remove  => 'Remove an item',
-);
-
-sub resoureParameters {
+sub resourceParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
-    push @$parameters, $self->path_parameter($c->primary_key);
+    my $parameter = $self->path_parameter($c->primary_key);
+    $parameter->{required} = JSON::MaybeXS::true;
+    $parameter->{description} = '`PRIMARY KEY`';
+    if (ref($c) =~ /Config::.*(?<!Subtype)$/ && $c->config_store->importConfigFile) {
+        my $ini = Config::IniFiles->new(
+            -file => $c->config_store->importConfigFile,
+        );
+        my $enum = [];
+        for my $section ($ini->Sections) {
+            push @$enum, $section;
+        };
+        $parameter->{schema}->{enum} = [sort @$enum];
+    }
+    push @$parameters, $parameter;
     return $parameters;
-}
-
-sub createOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->operationParameters( $scope, $c, $m, $a );
-}
-
-sub searchOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->operationParameters( $scope, $c, $m, $a );
-}
-
-sub listOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->operationParameters( $scope, $c, $m, $a );
-}
-
-sub getOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resoureParameters( $scope, $c, $m, $a );
-}
-
-sub replaceOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resoureParameters( $scope, $c, $m, $a );
-}
-
-sub updateOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resoureParameters( $scope, $c, $m, $a );
-}
-
-sub removeOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resoureParameters( $scope, $c, $m, $a );
-}
-
-sub operationDescriptionsLookup {
-    return \%OPERATION_DESCRIPTIONS;
 }
 
 =head2 createResponses
 
-The OpenAPI Operation Repsonses for the create action
+The OpenAPI Operation Responses for the create action
 
 =cut
 
 sub createResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
+        "201" => {
+            "\$ref" => "#/components/responses/Created"
+        },
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
+        },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        "409" => {
+            "\$ref" => "#/components/responses/Duplicate"
         },
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
@@ -141,7 +139,7 @@ sub createResponses {
 
 =head2 listResponses
 
-The OpenAPI Operation Repsonses for the list action
+The OpenAPI Operation Responses for the list action
 
 =cut
 
@@ -149,7 +147,7 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            description => "List",
+            description => 'Request successful. Response contains a list of resources.',
             content => {
                 "application/json" => {
                     schema => {
@@ -158,12 +156,48 @@ sub listResponses {
                 }
             },
         },
-        "400" => {
-            "\$ref" => "#/components/responses/BadRequest"
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
         },
-        "422" => {
-            "\$ref" => "#/components/responses/UnprocessableEntity"
-        }
+    };
+}
+
+=head2 searchResponses
+
+The OpenAPI Operation Responses for the search action
+
+=cut
+
+sub searchResponses {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->listResponses($scope, $c, $m, $a);
+}
+
+=head2 metaResponses
+
+The OpenAPI Operation Responses for the meta action
+
+=cut
+
+sub metaResponses {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        "200" => {
+            description => 'Request successful. Response contains meta for a resource.',
+            content => {
+                "application/json" => {
+                    schema => {
+                        "\$ref" => "#" . $self->schemaMetaPath($c),
+                    }
+                }
+            },
+        },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        "404" => {
+            "\$ref" => "#/components/responses/NotFound"
+        },
     };
 }
 
@@ -177,21 +211,96 @@ sub getResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            description => "Item",
+            description => 'Request successful. Response contains a specific resource.',
             content => {
                 "application/json" => {
                     schema => {
-                        "\$ref" => "#" . $self->schemaItemPath($c),
+                        "\$ref" => "#" . $self->schemaItemWrappedPath($c),
                     }
                 }
             },
         },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        "404" => {
+            "\$ref" => "#/components/responses/NotFound"
+        },
+    };
+}
+
+=head2 replaceResponses
+
+The OpenAPI Operation Responses for the replace action
+
+=cut
+
+sub replaceResponses {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        "201" => {
+            "\$ref" => "#/components/responses/Created"
+        },
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
+        },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        "404" => {
+            "\$ref" => "#/components/responses/NotFound"
         },
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
+    };
+}
+
+=head2 updateResponses
+
+The OpenAPI Operation Responses for the update action
+
+=cut
+
+sub updateResponses {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return {
+        "201" => {
+            "\$ref" => "#/components/responses/Updated"
+        },
+        "400" => {
+            "\$ref" => "#/components/responses/BadRequest"
+        },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        "404" => {
+            "\$ref" => "#/components/responses/NotFound"
+        },
+        "422" => {
+            "\$ref" => "#/components/responses/UnprocessableEntity"
+        }
+    };
+}
+
+=head2 removeResponses
+
+The OpenAPI Operation Responses for the remove action
+
+=cut
+
+sub removeResponses {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return {
+        "200" => {
+            "\$ref" => "#/components/responses/Deleted"
+        },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        "404" => {
+            "\$ref" => "#/components/responses/NotFound"
+        },
     };
 }
 
@@ -205,81 +314,41 @@ sub generateSchemas {
     my ($self, $controller, $actions) = @_;
     my $list_path = $self->schemaListPath($controller);
     my $item_path = $self->schemaItemPath($controller);
+    my $item_wrapped_path = $self->schemaItemWrappedPath($controller);
+    my $meta_path = $self->schemaMetaPath($controller);
     my @forms = buildForms($controller);
     return {
         $list_path => {
-            description => "List",
             allOf => [
                 { '$ref' => "#/components/schemas/Iterable" },
                 {
-                    "properties" => {
-                        "items" => {
-                            "items" => {
+                    properties => {
+                        items => {
+                            items => {
                                 "\$ref" => "#$item_path",
                             },
-                            "type" => "array",
-                            "description" => "List",
+                            type => "array",
                         },
                     },
-                    "type" => "object"
+                    type => "object"
                 },
             ],
         },
-        $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema(\@forms)
-    };
-}
-
-=head2 replaceResponses
-
-The OpenAPI Operation Repsonses for the replace action
-
-=cut
-
-sub replaceResponses {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return {
-        "201" => {
-            "\$ref" => "#/components/responses/Created"
+        $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema($item_path, \@forms),
+        $item_wrapped_path => {
+            type => "object",
+            properties => {
+                item => {
+                    "\$ref" => "#$item_path"
+                },
+                status => {
+                    type => "integer"
+                }
+            }
         },
-        "400" => {
-            "\$ref" => "#/components/responses/BadRequest"
-        },
-        "422" => {
-            "\$ref" => "#/components/responses/UnprocessableEntity"
-        }
-    };
-}
+        $meta_path => pf::UnifiedApi::GenerateSpec::formsToMetaSchema(\@forms),
 
-=head2 updateResponses
-
-The OpenAPI Operation Repsonses for the update action
-
-=cut
-
-sub updateResponses {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return {
-        "400" => {
-            "\$ref" => "#/components/responses/BadRequest"
-        },
-        "422" => {
-            "\$ref" => "#/components/responses/UnprocessableEntity"
-        }
-    };
-}
-
-=head2 removeResponses
-
-The OpenAPI Operation Repsonses for the remove action
-
-=cut
-
-sub removeResponses {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return {
-        '204' => {
-            description => 'Deleted a config item'
-        }
+        %{pf::UnifiedApi::GenerateSpec::formsToSubTypeSchemas($item_path, \@forms)}
     };
 }
 
@@ -308,6 +377,69 @@ sub buildForms {
     }
 
     return map { $_->new() } @form_classes;
+}
+
+=head2 searchRequestBody
+
+The OpenAPI Operation RequestBody for the search action
+
+=cut
+
+sub searchRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        description => "Search for items.",
+        content => {
+            "application/json" => {
+                schema => {
+                    allOf => [
+                        {
+                            "\$ref" => "#/components/schemas/Search"
+                        },
+                        {
+                            required => [ 'fields' ],
+                            properties => {
+                                cursor => {
+                                    required => JSON::MaybeXS::false,
+                                    type => 'string',
+                                },
+                                fields => {
+                                    required => JSON::MaybeXS::true,
+                                    type => 'array',
+                                    items => {
+                                        type => 'string',
+#                                        enum => \@$fields,
+                                    },
+                                },
+                                limit => {
+                                    required => JSON::MaybeXS::false,
+                                    type => 'integer',
+                                    minimum => 1,
+                                    maximum => 1000,
+                                },
+                                sort => {
+                                    required => JSON::MaybeXS::true,
+                                    type => 'array',
+                                    items => {
+                                        type => 'string',
+#                                        enum => \@$sorts,
+                                    },
+                                }
+                            }
+                        },
+
+                    ],
+                },
+                example => {
+                    cursor => 0,
+#                    fields => \@$fields,
+                    limit => 25,
+#                    sort => [ $pk.' ASC' ],
+#                    query => $query,
+                }
+            }
+        }
+    };
 }
 
 =head2 createRequestBody
@@ -343,9 +475,9 @@ sub updateRequestBody {
     return $self->requestBody( $scope, $c, $m, $a );
 }
 
-=head2 RequestBody
+=head2 requestBody
 
-The generic OpenAPI Operation RequestBody for a config controller
+The generic OpenAPI Operation requestBody for a config controller
 
 =cut
 
@@ -362,6 +494,84 @@ sub requestBody {
     };
 }
 
+
+=head2 bulkDeleteRequestBody
+
+The OpenAPI Operation RequestBody for the bulk_delete action
+
+=cut
+
+sub bulkDeleteRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        content => {
+            "application/json" => {
+                schema => {
+                    type => 'object',
+                    properties => {
+                        items => {
+                            type => 'array',
+                            items => {
+                                type => 'string',
+                                description => '`PRIMARY_KEY`'
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    };
+}
+
+=head2 bulkUpdateRequestBody
+
+The OpenAPI Operation RequestBody for the bulk_update action
+
+=cut
+
+sub bulkUpdateRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->bulkRequestBody( $scope, $c, $m, $a );
+}
+
+=head2 bulkImportRequestBody
+
+The OpenAPI Operation RequestBody for the bulk_import action
+
+=cut
+
+sub bulkImportRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->bulkRequestBody( $scope, $c, $m, $a );
+}
+
+=head2 bulkRequestBody
+
+The generic OpenAPI Operation bulk requestBody for a config controller
+
+=cut
+
+sub bulkRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        content => {
+            "application/json" => {
+                schema => {
+                    type => 'object',
+                    properties => {
+                        items => {
+                            type => 'array',
+                            items => {
+                                "\$ref" => "#" . $self->schemaItemPath($c),
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    };
+}
+
 =head2 generatePath
 
 generate Path excluding search
@@ -370,9 +580,9 @@ generate Path excluding search
 
 sub generatePath {
     my ($self, $controller, $actions) = @_;
-    if (@$actions == 1 && $actions->[0]{action} eq 'search') {
-        return undef;
-    }
+    # if (@$actions == 1 && $actions->[0]{action} eq 'search') {
+    #     return undef;
+    # }
 
     return $self->SUPER::generatePath($controller, $actions);
 }

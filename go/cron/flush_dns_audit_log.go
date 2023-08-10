@@ -14,7 +14,7 @@ import (
 
 type FlushDNSAuditLog struct {
 	Task
-	Batch   int
+	Batch   int64
 	Timeout time.Duration
 	redis   *redis.Client
 }
@@ -22,8 +22,9 @@ type FlushDNSAuditLog struct {
 func NewFlushDNSAuditLog(config map[string]interface{}) JobSetupConfig {
 	return &FlushDNSAuditLog{
 		Task:    SetupTask(config),
-		Batch:   int(config["batch"].(float64)),
+		Batch:   int64(config["batch"].(float64)),
 		Timeout: time.Duration((config["timeout"].(float64))) * time.Second,
+		redis:   redisClient(),
 	}
 }
 
@@ -34,7 +35,13 @@ func (j *FlushDNSAuditLog) Run() {
 	ctx := context.Background()
 	for {
 		i++
-		data := j.redis.LPopCount(ctx, "DNS_AUDIT_LOG", j.Batch)
+		var data *redis.StringSliceCmd
+		j.redis.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+			data = pipe.LRange(ctx, "DNS_AUDIT_LOG", 0, j.Batch-1)
+			pipe.LTrim(ctx, "DNS_AUDIT_LOG", j.Batch, -1)
+			return nil
+		})
+
 		if err := data.Err(); err != nil {
 			log.LogError(ctx, err.Error())
 			break

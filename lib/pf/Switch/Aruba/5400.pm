@@ -44,6 +44,7 @@ use pf::constants;
 use pf::config qw(
     $MAC
     $PORT
+    %ConfigRoles
 );
 use pf::Switch::constants;
 use pf::util;
@@ -125,11 +126,14 @@ sub returnRadiusAccessAccept {
     my @acls = defined($radius_reply_ref->{'Aruba-NAS-Filter-Rule'}) ? @{$radius_reply_ref->{'Aruba-NAS-Filter-Rule'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac})) && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} )){
             if ($access_list) {
                 while($access_list =~ /([^\n]+)\n?/g){
-                    push(@acls, $1);
-                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                    my ($test, $formated_acl) = $self->returnAccessListAttribute('',$1);
+                    if ($test) {
+                        push(@acls, $formated_acl);
+                        $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
+                    }
                 }
                 $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
             } else {
@@ -145,7 +149,50 @@ sub returnRadiusAccessAccept {
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     return [$status, %$radius_reply_ref];
 }
-=over
+
+=head2 returnInAccessListAttribute
+
+Returns the attribute to use when pushing an input ACL using RADIUS
+
+=cut
+
+sub returnInAccessListAttribute {
+    my ($self) = @_;
+    return '';
+}
+
+
+=head2 returnOutAccessListAttribute
+
+Returns the attribute to use when pushing an output ACL using RADIUS
+
+=cut
+
+sub returnOutAccessListAttribute {
+    my ($self) = @_;
+    return '';
+}
+
+=head2 returnAccessListAttribute
+
+Returns the attribute to use when pushing an ACL using RADIUS
+
+=cut
+
+sub returnAccessListAttribute {
+    my ($self, $acl_num, $acl) = @_;
+    if ($acl =~ /^out\|(.*)/) {
+        if ($self->supportsOutAcl) {
+            return $TRUE, $self->returnOutAccessListAttribute.$acl_num.$1;
+        } else {
+            return $FALSE, '';
+        }
+    } elsif ($acl =~ /^in\|(.*)/) {
+        return $TRUE, $self->returnInAccessListAttribute.$acl_num.$1;
+    } else {
+        return $TRUE, $self->returnInAccessListAttribute.$acl_num.$acl;
+    }
+}
 
 =item getVoipVSA
 

@@ -1,0 +1,7 @@
+ConfigPkiProviderWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigPkiProvider'
+    status:
+      type: integer
+  type: object

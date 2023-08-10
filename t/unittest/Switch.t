@@ -62,7 +62,7 @@ is(
 
 is(
     $switch->getAccessListByName('r3'),
-    "permit tcp any any \n",
+    "permit tcp any any",
     "getAccessListByName",
 );
 

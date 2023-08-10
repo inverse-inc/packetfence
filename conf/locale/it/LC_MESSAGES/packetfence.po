@@ -25,7 +25,7 @@ msgstr ""
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2011-11-16 20:16+0000\n"
 "Last-Translator: inverse <support@inverse.ca>, 2013,2021\n"
-"Language-Team: Italian (http://www.transifex.com/inverse/packetfence/language/it/)\n"
+"Language-Team: Italian (http://app.transifex.com/inverse/packetfence/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -161,10 +161,6 @@ msgid ""
 "minutes. In order to complete your registration, you will need to click on "
 "the link emailed to you."
 msgstr "Dopo la registrazione, ti sarà dato un accesso temporaneo alla rete di %s minuti. Per completare la tua registrazione devi accedere al link che ti è stato inviato via mail."
-
-# html/captive-portal/templates/provisioner/sepm.html
-msgid "Alternate installer"
-msgstr "Programma di installazione alternativo"
 
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid "Always trust certificate"
@@ -378,17 +374,12 @@ msgstr "Conferma la tua password"
 # html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/dpsk.html
-# html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
-# html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
-# html/captive-portal/templates/provisioner/sepm.html
-# html/captive-portal/templates/provisioner/servicenow.html
-# html/captive-portal/templates/provisioner/symantec.html
 # html/captive-portal/templates/provisioner/windows.html
 # html/captive-portal/templates/select-role.html
 # html/captive-portal/templates/signin.html
@@ -555,11 +546,6 @@ msgid ""
 " the Chrome menu (usually appearing as three horizontal lines) in the top "
 "right corner. Then, click the <i>Settings</i> option."
 msgstr ""
-
-# html/captive-portal/templates/provisioner/sepm.html
-# html/captive-portal/templates/provisioner/symantec.html
-msgid "Download"
-msgstr "Download"
 
 # html/captive-portal/templates/provisioner/intune.html
 msgid "Download Android Agent"
@@ -775,10 +761,6 @@ msgid ""
 "steps."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/sepm.html
-msgid "If you find the program above not working you can try this one:"
-msgstr "Se il programma sopra non funziona, puoi provare questo:"
-
 # html/captive-portal/templates/ssl_inspection/other.html
 msgid ""
 "If you have a device that does not fall under one of the categories located "
@@ -850,9 +832,7 @@ msgid ""
 "your browser and select <i>Options</i>."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/mobileiron.html
-# html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/windows.html
 msgid "Install Agent"
 msgstr "Installa l'Agent"
@@ -1070,14 +1050,10 @@ msgid ""
 msgstr "Una volta sul sito, seleziona accesso ospite sul captive portal e utilizza il seguente nome utente e password per l'autenticazione"
 
 # html/captive-portal/templates/provisioner/airwatch.html
-# html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/kandji.html
-# html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
-# html/captive-portal/templates/provisioner/sepm.html
-# html/captive-portal/templates/provisioner/symantec.html
 msgid ""
 "Once the application is installed, click 'Continue' to activate your network"
 " connection"
@@ -1088,12 +1064,6 @@ msgid ""
 "Once the application is installed, click Continue to activate your network "
 "connection"
 msgstr "Una volta installata l'applicazione, fare clic su Continua per attivare la tua connessione di rete"
-
-# html/captive-portal/templates/provisioner/servicenow.html
-msgid ""
-"Once the verification has completed, click 'Continue' to activate your "
-"network connection"
-msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid ""
@@ -1694,12 +1664,6 @@ msgstr "Titolo"
 msgid "To cancel your subscription, click on the following link"
 msgstr ""
 
-# html/captive-portal/templates/provisioner/servicenow.html
-msgid ""
-"To complete your network activation we need to verify that your device is "
-"corporate-owned."
-msgstr ""
-
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "To complete your network activation you need to install MobileIron"
 msgstr "Per completare l'attivazione della rete è necessario installare MobileIron"
@@ -1708,11 +1672,6 @@ msgstr "Per completare l'attivazione della rete è necessario installare MobileI
 msgid ""
 "To complete your network activation you need to install the Airwatch agent."
 msgstr ""
-
-# html/captive-portal/templates/provisioner/ibm.html
-msgid ""
-"To complete your network activation you need to install the IBM client."
-msgstr "Per completare l'attivazione della rete è necessario installare il client IBM."
 
 # html/captive-portal/templates/provisioner/intune.html
 msgid ""
@@ -1730,28 +1689,11 @@ msgid ""
 "client."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/opswat.html
-msgid ""
-"To complete your network activation you need to install the OPSWAT "
-"Metadefender Endpoint client."
-msgstr "Per completare l'attivazione della rete è necessario installare il client OPSWAT Metadefender Endpoint."
-
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid ""
 "To complete your network activation you need to install the SentinelOne "
 "client."
 msgstr "Per completare l'attivazione della rete è necessario installare il client Sentinel One."
-
-# html/captive-portal/templates/provisioner/sepm.html
-msgid ""
-"To complete your network activation you need to install the Symantec "
-"Endpoint Manager"
-msgstr "Per completare l'attivazione della rete è necessario installare Symantec Endpoint Manager"
-
-# html/captive-portal/templates/provisioner/symantec.html
-msgid ""
-"To complete your network activation you need to install the Symantec client."
-msgstr "Per completare l'attivazione della rete è necessario installare il client Symantec."
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "To extend your network access, please visit"

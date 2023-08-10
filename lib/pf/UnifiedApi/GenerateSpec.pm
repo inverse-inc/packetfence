@@ -29,42 +29,95 @@ sub formHandlerToSchema {
     $name =~ s/^.*:://;
     return {
         $name => objectSchema($form),
-        "${name}List" => listSchema($name)
+        "${name}List" => listSchema($name),
+        "${name}Meta" => metaSchema($form),
     };
 }
 
-sub subTypesSchema {
-    my (@forms) = @_;
-    return {
-        oneOf => [
-            map { objectSchema($_) } @forms
-        ],
-        discriminator => {
-            propertyName => 'type',
-        }
-    }
-}
-
 sub formsToSchema {
-    my ($forms) = @_;
+    my ($item_path, $forms) = @_;
     if (@$forms == 1) {
         return objectSchema(@$forms);
     }
 
-    return subTypesSchema(@$forms);
+    return subTypesSchema($item_path, @$forms);
+}
 
+sub formsToSubTypeSchemas {
+    my ($item_path, $forms) = @_;
+    my $schemas = {};
+    if (@$forms > 1) {
+        while (my ($k, $form) = each @$forms) {
+            for my $field (grep { isSubTypeField($_) } $form->fields) {
+                my $subTypePath = subTypePath($item_path, $field->value);
+                $schemas->{$subTypePath} = objectSchema($form, 1);
+            };
+        };
+    };
+    return $schemas;
+}
+
+sub subTypePath {
+    my ($item_path, $type) = @_;
+    $type = join('', map { ucfirst(lc $_) } split(/[:_]+/, $type));
+    return $item_path . 'SubType' . $type;
 }
 
 sub objectSchema {
-    my ($form) = @_;
+    my ($form, $is_subtype) = @_;
     my $required = formHandlerRequiredProperties($form);
     return {
         type       => 'object',
-        properties => formHandlerProperties($form),
+        properties => formHandlerProperties($form, $is_subtype),
         (
             @$required != 0 ? (required => $required) : ()
         ),
     }
+}
+
+sub subTypesSchema {
+    my ($item_path, @forms) = @_;
+    my %mapping;
+    while (my ($k, $form) = each @forms) {
+        for my $field (grep { isSubTypeField($_) } $form->fields) {
+            my $subTypePath = subTypePath($item_path, $field->value);
+            $mapping{$field->value} = '#' . $subTypePath;
+        };
+    };
+    return {
+        description => 'Choose one of the request bodies by discriminator (`type`). ',
+        oneOf => [
+            map { subTypeSchemaRef($item_path, $_, 1) } @forms
+        ],
+        discriminator => {
+            propertyName => 'type',
+            mapping => \%mapping
+        }
+    }
+}
+
+sub subTypeSchemaRef {
+    my ($item_path, $form) = @_;
+    for my $field (grep { isSubTypeField($_) } $form->fields) {
+        my $subTypePath = subTypePath($item_path, $field->value);
+        return {
+            '$ref' => '#' . $subTypePath
+        };
+    };
+    return;
+}
+
+sub objectSchemaMapping {
+    my (@forms) = @_;
+    my %mapping;
+    while (my ($k, $form) = each @forms) {
+        for my $field (grep { isAllowedField($_) } $form->fields) {
+            if ($field->name eq 'type' && $field->value) {
+                $mapping{$field->value} = objectSchema($form, 1);
+            }
+        }
+    }
+    return \%mapping;
 }
 
 sub formHandlerRequiredProperties {
@@ -73,11 +126,64 @@ sub formHandlerRequiredProperties {
 }
 
 sub formHandlerProperties {
-    my ($form) = @_;
+    my ($form, $is_subtype) = @_;
     my %properties;
     for my $field (grep { isAllowedField($_) } $form->fields) {
         my $name = $field->name;
         $properties{$name} = fieldProperties($field);
+        $properties{$name}->{default} = $field->value;
+        if ($is_subtype && $field->name eq 'type' && $field->value) {
+            $properties{$name}->{description} = 'Discriminator `' . $field->value . '`';
+            $properties{$name}->{value} = $field->value;
+        }
+    }
+
+    return \%properties;
+}
+
+sub subTypesMetaSchema {
+    my (@forms) = @_;
+    return {
+        oneOf => [
+            map { metaSchema($_) } @forms
+        ],
+        discriminator => {
+            propertyName => 'type',
+        }
+    };
+}
+
+sub formsToMetaSchema {
+    my ($forms) = @_;
+    if (@$forms == 1) {
+        return metaSchema(@$forms);
+    }
+
+    return subTypesMetaSchema(@$forms);
+}
+
+
+sub metaSchema {
+    my ($form) = @_;
+    return {
+        type => 'object',
+        properties => {
+            meta => {
+                type => 'object',
+                properties => formHandlerMetaProperties($form)
+            }
+        },
+    }
+}
+
+sub formHandlerMetaProperties {
+    my ($form) = @_;
+    my %properties;
+    for my $field (grep { isAllowedField($_) } $form->fields) {
+        my $name = $field->name;
+        $properties{$name} = {
+            '$ref' => "#/components/schemas/Meta"
+        };
     }
 
     return \%properties;
@@ -129,7 +235,7 @@ sub fieldType {
 
 sub isArrayType {
     my ($field, $not_array) = @_;
-    return $field->isa('HTML::FormHandler::Field::Repeatable') || 
+    return $field->isa('HTML::FormHandler::Field::Repeatable') ||
         ($field->isa('HTML::FormHandler::Field::Select') && $field->multiple && !$not_array );
 }
 
@@ -152,7 +258,7 @@ sub listSchema {
         properties => {
             items => {
                 type    => 'array',
-                'items' => {
+                items => {
                     '$ref' => "#/components/schemas/$name"
                 },
                 description => "List",
@@ -169,6 +275,11 @@ sub isAllowedField {
 sub isRequiredField {
     my ($field) = @_;
     return isAllowedField($field) && $field->required;
+}
+
+sub isSubTypeField {
+    my ($field) = @_;
+    return isAllowedField($field) && $field->value && ($field->get_tag('isSubType') || $field->name eq 'type');
 }
 
 =head1 AUTHOR

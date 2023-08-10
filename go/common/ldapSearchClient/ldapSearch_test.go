@@ -31,7 +31,6 @@ var _ = Describe("LdapSearch", func() {
 				DialResponse = nil
 				DialError = errors.New("fake error")
 				searchQuery = &ldapSearchClient.SearchQuery{
-					Server:     "fake_configured_server",
 					Filter:     "(uid=test_human)",
 					Attributes: []string{"userPrincipalName"},
 				}

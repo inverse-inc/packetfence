@@ -96,6 +96,14 @@ To submit the CSR to a CA, follow these steps:
 
 - Download the certificate in Apache format (base 64).
 
+In the event that you have a choice between several types of certificates, like in the following example:
+
+image::certificate/18-Choice.png[scalewidth="100%",alt="Choice"]
+
+Choose `as Certificate (w/ issuer after), PEM encoded:`
+
+Note that it can be different from one issuer to another.
+
 ==== Install the SSL/TLS HTTP Certificate on the Server
 
 Once you have received the SSL/TLS certificate from the CA, the final step is to install it on PacketFence. This involves configuring the web server to use the SSL/TLS certificate for encrypted communications.

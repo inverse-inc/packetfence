@@ -1,0 +1,166 @@
+FingerbankDhcp6Fingerprints:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankIterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDhcp6FingerprintDecorated'
+        scope:
+          $ref: '#/components/schemas/FingerbankScope'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDhcp6FingerprintItem:
+  type: object
+  properties:
+    item:
+      $ref: '#/components/schemas/FingerbankDhcp6FingerprintDecorated'
+    scope:
+      $ref: '#/components/schemas/FingerbankScope'
+    status:
+      $ref: '#/components/schemas/Status'
+
+FingerbankDhcp6Fingerprint:
+  type: object
+  properties:
+    # write-able
+    value:
+      type: string
+
+FingerbankDhcp6FingerprintDecorated:
+  type: object
+  properties:
+    # read-only
+    id:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    updated_at:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+
+    # write-able
+    value:
+      type: string
+
+FingerbankDhcp6FingerprintForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDhcp6Fingerprint'
+    - required:
+      - device_id
+
+FingerbankDhcp6FingerprintsSearch:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankIterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          description: Dhcp6Fingerprints.
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDhcp6Fingerprint'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDhcp6FingerprintsQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/FingerbankDhcp6FingerprintsQueryNested'
+    - $ref: '#/components/schemas/FingerbankDhcp6FingerprintsQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/FingerbankDhcp6FingerprintsQueryNested'
+      or: '#/components/schemas/FingerbankDhcp6FingerprintsQueryNested'
+      contains: '#/components/schemas/FingerbankDhcp6FingerprintsQueryField'
+      not_contains: '#/components/schemas/FingerbankDhcp6FingerprintsQueryField'
+      match: '#/components/schemas/FingerbankDhcp6FingerprintsQueryField'
+      not_match: '#/components/schemas/FingerbankDhcp6FingerprintsQueryField'
+      between: '#/components/schemas/FingerbankDhcp6FingerprintsQueryField'
+      not_between: '#/components/schemas/FingerbankDhcp6FingerprintsQueryField'
+      is: '#/components/schemas/FingerbankDhcp6FingerprintsQueryField'
+      is_not: '#/components/schemas/FingerbankDhcp6FingerprintsQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+FingerbankDhcp6FingerprintsQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/FingerbankDhcp6FingerprintsQuery'
+
+FingerbankDhcp6FingerprintsQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/FingerbankDhcp6FingerprintsField'
+    value:
+      description: Search criteria.
+      type: string
+
+
+FingerbankDhcp6FingerprintsFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/FingerbankDhcp6FingerprintsField'
+  example:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankDhcp6FingerprintsField:
+  type: string
+  example: id
+  enum:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankDhcp6FingerprintsSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - created_at ASC
+      - created_at DESC
+      - updated_at ASC
+      - updated_at DESC
+      - value ASC
+      - value DESC

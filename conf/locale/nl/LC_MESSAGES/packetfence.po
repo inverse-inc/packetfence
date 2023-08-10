@@ -15,7 +15,7 @@ msgstr ""
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2011-11-16 20:16+0000\n"
 "Last-Translator: inverse <support@inverse.ca>, 2021\n"
-"Language-Team: Dutch (http://www.transifex.com/inverse/packetfence/language/nl/)\n"
+"Language-Team: Dutch (http://app.transifex.com/inverse/packetfence/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -364,16 +364,12 @@ msgstr ""
 # html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/dpsk.html
-# html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
-# html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
-# html/captive-portal/templates/provisioner/servicenow.html
-# html/captive-portal/templates/provisioner/symantec.html
 # html/captive-portal/templates/provisioner/windows.html
 # html/captive-portal/templates/select-role.html
 # html/captive-portal/templates/signin.html
@@ -539,10 +535,6 @@ msgid ""
 "Do not double-click the file after the download has finished; instead, click"
 " the Chrome menu (usually appearing as three horizontal lines) in the top "
 "right corner. Then, click the <i>Settings</i> option."
-msgstr ""
-
-# html/captive-portal/templates/provisioner/symantec.html
-msgid "Download"
 msgstr ""
 
 # html/captive-portal/templates/provisioner/intune.html
@@ -830,9 +822,7 @@ msgid ""
 "your browser and select <i>Options</i>."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/mobileiron.html
-# html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/windows.html
 msgid "Install Agent"
 msgstr "Installeer agent"
@@ -1050,13 +1040,10 @@ msgid ""
 msgstr "Eenmaal in onze gebouwen, selecteer de 'guest toegang' op het toegangsportaal en gebruik volgende gebruikersnaam en wachtwoord om in te loggen"
 
 # html/captive-portal/templates/provisioner/airwatch.html
-# html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/kandji.html
-# html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
-# html/captive-portal/templates/provisioner/symantec.html
 msgid ""
 "Once the application is installed, click 'Continue' to activate your network"
 " connection"
@@ -1067,12 +1054,6 @@ msgid ""
 "Once the application is installed, click Continue to activate your network "
 "connection"
 msgstr "Eenmaal de applicatie is geinstalleerd, druk dan Ga Verder om uw netwerkverbinding te activeren"
-
-# html/captive-portal/templates/provisioner/servicenow.html
-msgid ""
-"Once the verification has completed, click 'Continue' to activate your "
-"network connection"
-msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid ""
@@ -1673,12 +1654,6 @@ msgstr "Titel"
 msgid "To cancel your subscription, click on the following link"
 msgstr ""
 
-# html/captive-portal/templates/provisioner/servicenow.html
-msgid ""
-"To complete your network activation we need to verify that your device is "
-"corporate-owned."
-msgstr ""
-
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "To complete your network activation you need to install MobileIron"
 msgstr ""
@@ -1686,11 +1661,6 @@ msgstr ""
 # html/captive-portal/templates/provisioner/airwatch.html
 msgid ""
 "To complete your network activation you need to install the Airwatch agent."
-msgstr ""
-
-# html/captive-portal/templates/provisioner/ibm.html
-msgid ""
-"To complete your network activation you need to install the IBM client."
 msgstr ""
 
 # html/captive-portal/templates/provisioner/intune.html
@@ -1709,21 +1679,10 @@ msgid ""
 "client."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/opswat.html
-msgid ""
-"To complete your network activation you need to install the OPSWAT "
-"Metadefender Endpoint client."
-msgstr ""
-
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid ""
 "To complete your network activation you need to install the SentinelOne "
 "client."
-msgstr ""
-
-# html/captive-portal/templates/provisioner/symantec.html
-msgid ""
-"To complete your network activation you need to install the Symantec client."
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html

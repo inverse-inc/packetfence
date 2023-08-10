@@ -52,9 +52,16 @@ use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect perform_coa);
 use Try::Tiny;
-use pf::accounting qw(node_accounting_current_sessionid);
+use pf::locationlog;
 
 sub description { 'Aruba CX Switch' }
+
+# CAPABILITIES
+# access technology supported
+# VoIP technology supported
+use pf::SwitchSupports qw(
+    PushACLs
+);
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
@@ -86,13 +93,14 @@ sub radiusDisconnect {
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
         $connection_info->{nas_port} = $nas_port;
-
+        my $locationlog = locationlog_view_open_mac($mac);
         $logger->debug("network device supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
-        my $acctsessionid = node_accounting_current_sessionid($mac);
 
         # transforming MAC to the expected format 00112233CAFE
+        my $calling_station_id = uc($mac);
+        $calling_station_id =~ s/:/-/g;
         $mac = lc($mac);
         $mac =~ s/://g;
 
@@ -100,7 +108,8 @@ sub radiusDisconnect {
         my $attributes_ref = {
             'User-Name' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
-            'Acct-Session-Id' => $acctsessionid,
+            'Calling-Station-Id' => $calling_station_id,
+            'NAS-Port' => $locationlog->{port},
         };
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
@@ -178,6 +187,60 @@ sub deauthenticateMacRadius {
     # perform CoA
     $self->radiusDisconnect($mac);
 }
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    my $logger = $self->logger;
+    my ($acl_ref , @direction) = $self->format_acl($acl);
+
+    my $i = 0;
+    my $acl_chewed;
+    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
+        next if (defined($acl->{'tcp_flags'}));
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        my $dest;
+        my $dest_port;
+        if (defined($acl->{'destination'}->{'port'})) {
+            $dest_port = $acl->{'destination'}->{'port'};
+            $dest_port =~ s/\w+\s+//;
+        }
+        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $dest = "any";
+        } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
+                $dest = $acl->{'destination'}->{'ipv4_addr'}."/".norm_net_mask($acl->{'destination'}->{'wildcard'});
+            } else {
+                $dest = $acl->{'destination'}->{'ipv4_addr'};
+            }
+        }
+        my $src;
+        if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $src = "any";
+        } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
+                $src = $acl->{'source'}->{'ipv4_addr'}."/".norm_net_mask($acl->{'source'}->{'wildcard'});
+            } else {
+                $src = $acl->{'source'}->{'ipv4_addr'};
+            }
+        }
+        my $j = $i + 1;
+        if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' )."\n";
+        } else {
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )."\n";
+        }
+        $i++;
+    }
+    return $acl_chewed;
+}
+
 
 =back
 

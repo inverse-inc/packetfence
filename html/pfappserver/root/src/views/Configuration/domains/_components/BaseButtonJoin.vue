@@ -210,6 +210,7 @@ export const setup = (props, context) => {
   }
   if (autoJoin.value)
     showJoin()
+
   const isJoinValid = useDebouncedWatchHandler([form, showJoinModal], () => {
     const { $el } = joinFormRef.value || {}
     return (!$el || $el.querySelectorAll('.is-invalid').length === 0)
@@ -225,10 +226,11 @@ export const setup = (props, context) => {
       promise = $store.dispatch('$_domains/joinDomain', { id: id.value, username, password })
     promise
       .then(response => join.value = response)
-      .catch(() => join.value = { message: i18n.t('Join failed with an unknown error.'), status: false })
+      .catch(() => join.value = { url: id.value, message: i18n.t('Join failed with an unknown error.'), status: false })
       .finally(() => {
         showWaitModal.value = false
         showResultModal.value = true
+        $store.dispatch('notification/info', { url: id.value, message: i18n.t('Successfully joined domain. Restart <code>radiusd-auth</code> for the changes to take effect.') })
       })
   }
 
@@ -259,6 +261,7 @@ export const setup = (props, context) => {
       .finally(() => {
         showWaitModal.value = false
         showResultModal.value = true
+        $store.dispatch('notification/info', { url: id.value, message: i18n.t('Successfully unjoined domain. Restart <code>radiusd-auth</code> for the changes to take effect.') })
       })
   }
 

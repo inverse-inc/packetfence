@@ -1,0 +1,7 @@
+ConfigBaseWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigBase'
+    status:
+      type: integer
+  type: object

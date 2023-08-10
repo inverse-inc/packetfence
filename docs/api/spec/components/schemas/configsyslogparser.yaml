@@ -1,166 +1,22 @@
 ConfigSyslogParser:
+  description: 'Choose one of the request bodies by discriminator (`type`). '
   discriminator:
+    mapping:
+      dhcp: '#/components/schemas/ConfigSyslogParserSubTypeDhcp'
+      fortianalyser: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'
+      nexpose: '#/components/schemas/ConfigSyslogParserSubTypeNexpose'
+      regex: '#/components/schemas/ConfigSyslogParserSubTypeRegex'
+      security_onion: '#/components/schemas/ConfigSyslogParserSubTypeSecurityOnion'
+      snort: '#/components/schemas/ConfigSyslogParserSubTypeSnort'
+      suricata: '#/components/schemas/ConfigSyslogParserSubTypeSuricata'
+      suricata_md5: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
     propertyName: type
   oneOf:
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      loglines:
-        description: Loglines
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      rules:
-        description: Rules
-        items:
-          description: Rule - New
-          properties:
-            actions:
-              description: Actions
-              items:
-                description: Action
-                properties:
-                  api_method:
-                    description: Api method
-                    type: string
-                  api_parameters:
-                    description: Api parameters
-                    type: string
-                type: object
-              type: array
-            ip_mac_translation:
-              description: Perform automatic translation of IPs to MACs and the other
-                way around
-              type: string
-            last_if_match:
-              description: Stop processing rules if this rule matches
-              type: string
-            name:
-              description: Name
-              type: string
-            regex:
-              description: Regex
-              type: string
-          type: object
-        type: array
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSnort'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeRegex'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricata'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSecurityOnion'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeDhcp'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeNexpose'

@@ -5,7 +5,7 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-    <b-tabs>
+    <b-tabs lazy>
       <template v-slot:tabs-end>
         <div class="text-right mr-3">
           <base-input-toggle-advanced-mode v-model="advancedMode" label-left/>
@@ -96,119 +96,110 @@
           {{ $i18n.t('Choose a Switch type, or enable advanced mode to manage roles.') }}
         </div>
 
-        <template v-else>
-          <b-card v-show="supports(['RadiusDynamicVlanAssignment'])"
-                  class="mb-3 pb-0" no-body
-          >
-            <b-card-header>
-              <h4 class="mb-0" v-t="'Role mapping by VLAN ID'"></h4>
-            </b-card-header>
-            <div class="card-body pb-0">
-              <form-group-toggle-vlan-map namespace="VlanMap"
-                                          :column-label="$i18n.t('Role by VLAN ID')"
-              />
+        <b-tabs lazy v-else>
 
-              <form-group-role-map-vlan v-for="role in roles" :key="`${role}Vlan`"
-                                        :namespace="`${role}Vlan`"
-                                        v-show="isVlanMap"
-                                        :column-label="role"
-              />
-            </div>
-          </b-card>
+          <base-form-tab v-if="supports(['RadiusDynamicVlanAssignment'])"
+                         :title="$i18n.t('VLAN ID')" active>
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by VLAN ID'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-vlan-map namespace="VlanMap"
+                                            :column-label="$i18n.t('Role by VLAN ID')"
+                />
 
-          <b-card v-show="supports(['RoleBasedEnforcement'])"
-                  class="mb-3 pb-0" no-body
-          >
-            <b-card-header>
-              <h4 class="mb-0" v-t="'Role mapping by Switch Role'"></h4>
-            </b-card-header>
-            <div class="card-body pb-0">
-              <form-group-toggle-role-map namespace="RoleMap"
-                                          :column-label="$i18n.t('Role by Switch Role')"
-              />
-
-              <form-group-role-map-role v-for="role in roles" :key="`${role}Role`"
-                                        :namespace="`${role}Role`"
-                                        v-show="isRoleMap"
-                                        :column-label="role"
-              />
-            </div>
-          </b-card>
-
-          <b-card v-show="supports(['VPNRoleBasedEnforcement'])"
-                  class="mb-3 pb-0" no-body
-          >
-            <b-card-header>
-              <h4 class="mb-0" v-t="'Role mapping by Vpn Role'"></h4>
-            </b-card-header>
-            <div class="card-body pb-0">
-              <form-group-toggle-vpn-map namespace="VpnMap"
-                                         :column-label="$i18n.t('Role by Vpn Role')"
-              />
-
-              <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`"
-                                       :namespace="`${role}Vpn`"
-                                       v-show="isVpnMap"
-                                       :column-label="role"
-              />
-            </div>
-          </b-card>
-
-          <b-card v-show="supports(['AccessListBasedEnforcement'])"
-                  class="mb-3 pb-0" no-body
-          >
-            <b-card-header>
-              <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
-            </b-card-header>
-            <b-card v-show="supports(['DownloadableListBasedEnforcement'])"
-                    class="mb-3 pb-0" no-body
-            >
-              <form-group-use-downloadable-acls namespace="UseDownloadableACLs"
-                                                :column-label="$i18n.t('Use downloadable ACLs instead of Dynamic ACLs')"
-                                                :text="$i18n.t('This option parameter will allow you to do enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
-              />
-              <form-group-downloadable-acls-limit namespace="DownloadableACLsLimit"
-                                                  :column-label="$i18n.t('Maximum number of ACLs PacketFence can return')"
-                                                  :text="$i18n.t('This option parameter will allow you to do define the maximum number of ACLs PacketFence can send to the switch.')"
-              />
+                <template v-if="isVlanMap">
+                  <form-group-role-map-vlan v-for="role in roles" :key="`${role}Vlan`" 
+                                            :namespace="`${role}Vlan`"
+                                            :column-label="role"
+                  />
+                </template>
+              </div>
             </b-card>
-            <form-group-acls-limit namespace="ACLsLimit"
-                                   :column-label="$i18n.t('Maximum number of ACLs PacketFence can return in one RADIUS reply')"
-                                   :text="$i18n.t('This option parameter will allow you to do define the maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"
-            />
-            <div class="card-body pb-0">
-              <form-group-toggle-access-list-map namespace="AccessListMap"
-                                                 :column-label="$i18n.t('Role by Access List')"
-              />
+          </base-form-tab>
 
-              <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`"
-                                               :namespace="`${role}AccessList`"
-                                               v-show="isAccessListMap"
-                                               :column-label="role"
-              />
-            </div>
-          </b-card>
+          <base-form-tab v-if="supports(['RoleBasedEnforcement'])"
+                         :title="$i18n.t('Switch Role')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by Switch Role'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-role-map namespace="RoleMap"
+                                            :column-label="$i18n.t('Role by Switch Role')"
+                />
 
-          <b-card v-show="supports(['ExternalPortal'])"
-                  class="mb-3 pb-0" no-body
-          >
-            <b-card-header>
-              <h4 class="mb-0" v-t="'Role mapping by Web Auth URL'"></h4>
-            </b-card-header>
-            <div class="card-body pb-0">
-              <form-group-toggle-url-map namespace="UrlMap"
-                                         :column-label="$i18n.t('Role by Web Auth URL')"
-              />
+                <template v-if="isRoleMap">
+                  <form-group-role-map-role v-for="role in roles" :key="`${role}Role`" 
+                                            :namespace="`${role}Role`"
+                                            :column-label="role"
+                  />
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
 
-              <form-group-role-map-url v-for="role in roles" :key="`${role}Url`"
-                                       :namespace="`${role}Url`"
-                                       v-show="isUrlMap"
-                                       :column-label="role"
-              />
-            </div>
-          </b-card>
+          <base-form-tab v-if="supports(['VPNRoleBasedEnforcement'])"
+                         :title="$i18n.t('Vpn Role')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by Vpn Role'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-access-list-map namespace="VpnMap"
+                                                   :column-label="$i18n.t('Role by Vpn Role')"
+                />
 
-        </template>
+                <template v-if="isVpnMap">
+                  <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`" 
+                                           :namespace="`${role}Vpn`"
+                                           :column-label="role"
+                  />
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
+
+          <base-form-tab v-if="supports(['AccessListBasedEnforcement'])"
+                         :title="$i18n.t('Access List')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <template v-if="isAccessListMap">
+                  <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" 
+                                                   :namespace="`${role}AccessList`"
+                                                   :column-label="role"
+                  />
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
+
+          <base-form-tab v-if="supports(['ExternalPortal'])"
+                         :title="$i18n.t('Web Auth URL')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by Web Auth URL'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-url-map namespace="UrlMap"
+                                           :column-label="$i18n.t('Role by Web Auth URL')"
+                />
+
+                <template v-if="isUrlMap">
+                  <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" 
+                                            :namespace="`${role}Url`"
+                                            :column-label="role"
+                  />
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
+
+        </b-tabs>
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Inline')">
 
@@ -395,6 +386,32 @@
         />
 
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
+
+        <form-group-push-acls v-show="supports(['PushACLs'])"
+          namespace="PushACLs"
+          :column-label="$i18n.t('Push ACLs')"
+          :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
+        />
+
+        <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
+          namespace="UseDownloadableACLs"
+          :column-label="$i18n.t('Downloadable ACLs')"
+          :text="$i18n.t('Enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
+        />
+
+        <form-group-downloadable-acls-limit v-show="supports(['DownloadableListBasedEnforcement'])"
+          namespace="DownloadableACLsLimit"
+          :column-label="$i18n.t('Maximum ACLs per switch')"
+          :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch.')"
+        />
+
+        <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement'])"
+          :column-label="$i18n.t('Maximum ACLs per RADIUS reply')"
+          :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"
+        />
+
+      </base-form-tab>
       <base-form-tab :title="$i18n.t('Members')" v-if="!isNew && !isClone">
 
         <b-card no-body class="mb-3">
@@ -539,6 +556,7 @@ import {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupPushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
@@ -615,6 +633,7 @@ const components = {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupPushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,

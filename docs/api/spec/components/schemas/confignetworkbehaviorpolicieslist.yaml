@@ -1,0 +1,9 @@
+ConfigNetworkBehaviorPoliciesList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/ConfigNetworkBehaviorPolicy'
+        type: array
+    type: object

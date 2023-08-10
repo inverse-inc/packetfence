@@ -1,0 +1,55 @@
+Query:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/QueryNested'
+    - $ref: '#/components/schemas/QueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/QueryNested'
+      or: '#/components/schemas/QueryNested'
+      contains: '#/components/schemas/QueryField'
+      not_contains: '#/components/schemas/QueryField'
+      match: '#/components/schemas/QueryField'
+      not_match: '#/components/schemas/QueryField'
+      between: '#/components/schemas/QueryField'
+      not_between: '#/components/schemas/QueryField'
+      is: '#/components/schemas/QueryField'
+      is_not: '#/components/schemas/QueryField'
+
+QueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/Query'
+
+QueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      description: Search field.
+      type: string
+    value:
+      description: Search criteria.
+      type: string

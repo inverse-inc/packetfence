@@ -24,6 +24,7 @@ has activity_timeout => 300;
 has 'openapi_generator_class' => undef;
 use Data::UUID;
 use pfappserver::Form::Field::FingerbankSelect;
+use pfappserver::Role::Form::RolesAttribute qw();
 
 our $ERROR_400_MSG = "Bad Request. One of the submitted parameters has an invalid format";
 our $ERROR_404_MSG = "Not Found. The requested resource could not be found";
@@ -44,6 +45,7 @@ use pf::util;
 
 sub after_dispatch {
     pfappserver::Form::Field::FingerbankSelect->clear_cache();
+    pfappserver::Role::Form::RolesAttribute->_clear_roles();
 }
 
 sub log {

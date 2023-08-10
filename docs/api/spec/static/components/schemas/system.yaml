@@ -1,0 +1,35 @@
+SystemSummary:
+  type: object
+  properties:
+    db_version:
+      type: string
+      description: SQL database version.
+    git_commit_id:
+      type: string
+      description: GIT commit id.
+    hostname:
+      type: string
+      description: System hostname.
+    is_inline_configured:
+      type: boolean
+      description: PacketFence inline.
+    os:
+      type: string
+      description: Operating system.
+    readonly_mode:
+      type: boolean
+      description: PacketFence is read-only.
+    saas:
+      type: boolean
+      description: PacketFence NACaaS.
+    send_anonynmous_stats:
+      type: boolean
+      description: Track user events.
+    status:
+      $ref: "#/components/schemas/Status"
+    uptime:
+      type: string
+      description: System uptime.
+    version:
+      type: string
+      description: PacketFence version.
