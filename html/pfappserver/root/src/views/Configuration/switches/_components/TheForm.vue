@@ -40,6 +40,8 @@
         <form-group-deauth-on-previous namespace="deauthOnPrevious"
           :column-label="$i18n.t('Deauth on previous switch')"
           :text="$i18n.t('This option parameter will allow you to do the deauthentication/CoA on the previous switch where the device was connected.')"
+          enabled-value="Y"
+          disabled-value="N"
         />
 
         <form-group-external-portal-enforcement namespace="ExternalPortalEnforcement"

@@ -26,6 +26,8 @@
       namespace="trunkPort"
       :column-label="$i18n.t('Trunk Port')"
       :text="$i18n.t('The port must be configured as a muti-vlan port.')"
+      enabled-value="yes"
+      disabled-value="no"
     />
 
     <form-group-tagged-vlan v-show="form.trunkPort === 'yes'"

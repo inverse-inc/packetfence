@@ -6,50 +6,50 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Billing Tier')"
-      :disabled="!isNew && !isClone"
+                           :column-label="$i18n.t('Billing Tier')"
+                           :disabled="!isNew && !isClone"
     />
 
     <form-group-name namespace="name"
-      :column-label="$i18n.t('Name')"
+                     :column-label="$i18n.t('Name')"
     />
 
     <form-group-description namespace="description"
-      :column-label="$i18n.t('Description')"
+                            :column-label="$i18n.t('Description')"
     />
 
     <form-group-price namespace="price"
-      :column-label="$i18n.t('Price')"
+                      :column-label="$i18n.t('Price')"
     />
 
     <form-group-role namespace="role"
-      :column-label="$i18n.t('Role')"
+                     :column-label="$i18n.t('Role')"
     />
 
     <form-group-access-duration namespace="access_duration"
-      :column-label="$i18n.t('Access Duration')"
-      :text="$i18n.t('The access duration of the devices that use this tier.')"
+                                :column-label="$i18n.t('Access Duration')"
+                                :text="$i18n.t('The access duration of the devices that use this tier.')"
     />
 
     <form-group-use-time-balance namespace="use_time_balance"
-      :column-label="$i18n.t('Use Time Balance')"
-      :text="$i18n.t('Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration.')"
+                                 :column-label="$i18n.t('Use Time Balance')"
+                                 :text="$i18n.t('Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration.')"
+                                 enabled-value="enabled"
+                                 disabled-value="disabled"
     />
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
-import {
-  BaseForm
-} from '@/components/new/'
+import {computed} from '@vue/composition-api'
+import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
 import {
+  FormGroupAccessDuration,
+  FormGroupDescription,
   FormGroupIdentifier,
   FormGroupName,
-  FormGroupDescription,
   FormGroupPrice,
   FormGroupRole,
-  FormGroupAccessDuration,
   FormGroupUseTimeBalance
 } from './'
 

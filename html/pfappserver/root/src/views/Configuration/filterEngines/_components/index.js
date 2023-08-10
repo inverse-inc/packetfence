@@ -4,15 +4,13 @@ import {
   BaseFormGroupChosenMultiple,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
-  BaseFormGroupToggleDisabledEnabled,
-  BaseFormGroupToggleNoYes
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import BaseFormGroupActions from './BaseFormGroupActions'
 import BaseFormGroupAnswers from './BaseFormGroupAnswers'
 import BaseFormGroupCondition from './BaseFormGroupCondition'
 import BaseFormGroupParams from './BaseFormGroupParams'
-import BaseFormGroupStatus from './BaseFormGroupStatus'
-import BaseFormGroupSwitch from './BaseFormGroupSwitch'
+import BaseFormGroupNetworkSwitch from './BaseFormGroupNetworkSwitch'
 import TheForm from './TheForm'
 import TheView from './TheView'
 import ToggleStatus from './ToggleStatus'
@@ -21,22 +19,22 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupActions                as FormGroupActions,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupActionsSynchronous,
+  BaseFormGroupSwitch                 as FormGroupActionsSynchronous,
   BaseFormGroupInput                  as FormGroupAnswer,
   BaseFormGroupAnswers                as FormGroupAnswers,
   BaseFormGroupCondition              as FormGroupCondition,
   BaseFormGroupInput                  as FormGroupDescription,
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupInput                  as FormGroupLog,
-  BaseFormGroupToggleNoYes            as FormGroupMergeAnswer,
+  BaseFormGroupSwitch                 as FormGroupMergeAnswer,
   BaseFormGroupParams                 as FormGroupParams,
   BaseFormGroupChosenOne              as FormGroupRadiusStatus,
   BaseFormGroupChosenOne              as FormGroupResponseCode,
   BaseFormGroupChosenOne              as FormGroupRole,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupRunActions,
+  BaseFormGroupSwitch                 as FormGroupRunActions,
   BaseFormGroupChosenMultiple         as FormGroupScopes,
-  BaseFormGroupStatus                 as FormGroupStatus,
-  BaseFormGroupSwitch                 as FormGroupSwitch,
+  BaseFormGroupSwitch                 as FormGroupFilterEnabled,
+  BaseFormGroupNetworkSwitch          as FormGroupNetworkSwitch,
 
   BaseViewCollectionItem              as BaseView,
   TheForm,

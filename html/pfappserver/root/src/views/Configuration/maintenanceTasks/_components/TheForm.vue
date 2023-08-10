@@ -5,149 +5,153 @@
     :schema="schema"
     :isLoading="isLoading"
   >
+    <form-group-status namespace="status"
+                       :column-label="$i18n.t('Status')"
+                       :text="$i18n.t('Whether or not this task is enabled.\nRequires a restart of pfcron to be effective.')"
+                       enabled-value="enabled"
+                       disabled-value="disabled"
+    />
+
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Maintenance Task Name')"
-      disabled
+                           :column-label="$i18n.t('Maintenance Task Name')"
+                           disabled
     />
 
     <form-group-description namespace="description"
-      :column-label="$i18n.t('Description')"
-      disabled
-    />
-
-    <form-group-status namespace="status"
-      :column-label="$i18n.t('Status')"
-      :text="$i18n.t('Whether or not this task is enabled.\nRequires a restart of pfcron to be effective.')"
+                            :column-label="$i18n.t('Description')"
+                            disabled
     />
 
     <form-group-schedule v-show="wants('schedule')"
-      namespace="schedule"
-      :column-label="$i18n.t('Schedule')"
-      :options="schedulesOptions"
-      taggable
+                         namespace="schedule"
+                         :column-label="$i18n.t('Schedule')"
+                         :options="schedulesOptions"
+                         taggable
     />
 
     <form-group-batch v-show="wants('batch')"
-      namespace="batch"
-      :column-label="$i18n.t('Batch')"
-      :text="$i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.')"
+                      namespace="batch"
+                      :column-label="$i18n.t('Batch')"
+                      :text="$i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.')"
     />
 
     <form-group-timeout v-show="wants('timeout')"
-      namespace="timeout"
-      :column-label="$i18n.t('Timeout')"
-      :text="$i18n.t('Maximum amount of time this task can run.')"
+                        namespace="timeout"
+                        :column-label="$i18n.t('Timeout')"
+                        :text="$i18n.t('Maximum amount of time this task can run.')"
     />
 
     <form-group-window v-show="wants('window')"
-      namespace="window"
-      :column-label="$i18n.t('Window')"
-      :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
+                       namespace="window"
+                       :column-label="$i18n.t('Window')"
+                       :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
     />
 
     <form-group-history-batch v-show="wants('history_batch')"
-      namespace="history_batch"
-      :column-label="$i18n.t('History Batch')"
-      :text="$i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.')"
+                              namespace="history_batch"
+                              :column-label="$i18n.t('History Batch')"
+                              :text="$i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.')"
     />
 
     <form-group-history-timeout v-show="wants('history_timeout')"
-      namespace="history_timeout"
-      :column-label="$i18n.t('History Timeout')"
-      :text="$i18n.t('Maximum amount of time this task can run.')"
+                                namespace="history_timeout"
+                                :column-label="$i18n.t('History Timeout')"
+                                :text="$i18n.t('Maximum amount of time this task can run.')"
     />
 
     <form-group-history-window v-show="wants('history_window')"
-      namespace="history_window"
-      :column-label="$i18n.t('History Window')"
-      :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
+                               namespace="history_window"
+                               :column-label="$i18n.t('History Window')"
+                               :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
     />
 
     <form-group-session-batch v-show="wants('session_batch')"
-      namespace="session_batch"
-      :column-label="$i18n.t('Session Batch')"
-      :text="$i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.')"
+                              namespace="session_batch"
+                              :column-label="$i18n.t('Session Batch')"
+                              :text="$i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.')"
     />
 
     <form-group-session-timeout v-show="wants('session_timeout')"
-      namespace="session_timeout"
-      :column-label="$i18n.t('Session Timeout')"
-      :text="$i18n.t('Maximum amount of time this task can run.')"
+                                namespace="session_timeout"
+                                :column-label="$i18n.t('Session Timeout')"
+                                :text="$i18n.t('Maximum amount of time this task can run.')"
     />
 
     <form-group-session-window v-show="wants('session_window')"
-      namespace="session_window"
-      :column-label="$i18n.t('Session Window')"
-      :text="$i18n.t('Window to keep a sesson open.')"
+                               namespace="session_window"
+                               :column-label="$i18n.t('Session Window')"
+                               :text="$i18n.t('Window to keep a sesson open.')"
     />
 
     <form-group-rotate v-show="wants('rotate')"
-      namespace="rotate"
-      :column-label="$i18n.t('Rotate')"
-      :text="$i18n.t(`Enable or disable ${logName} rotation (moving ${logName}_history records to ${logName}_archive)\nIf disabled, this task will delete from the ${logName}_history table rather than the ${logName}_archive.`)"
+                       namespace="rotate"
+                       :column-label="$i18n.t('Rotate')"
+                       :text="$i18n.t(`Enable or disable ${logName} rotation (moving ${logName}_history records to ${logName}_archive)\nIf disabled, this task will delete from the ${logName}_history table rather than the ${logName}_archive.`)"
     />
 
     <form-group-rotate-batch v-show="wants('rotate_batch')"
-      namespace="rotate_batch"
-      :column-label="$i18n.t('Rotate Batch')"
-      :text="$i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.')"
+                             namespace="rotate_batch"
+                             :column-label="$i18n.t('Rotate Batch')"
+                             :text="$i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.')"
     />
 
     <form-group-rotate-timeout v-show="wants('rotate_timeout')"
-      namespace="rotate_timeout"
-      :column-label="$i18n.t('Rotate Timeout')"
-      :text="$i18n.t('Maximum amount of time this task can run.')"
+                               namespace="rotate_timeout"
+                               :column-label="$i18n.t('Rotate Timeout')"
+                               :text="$i18n.t('Maximum amount of time this task can run.')"
     />
 
     <form-group-rotate-window v-show="wants('rotate_window')"
-      namespace="rotate_window"
-      :column-label="$i18n.t('Rotate Window')"
-      :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
+                              namespace="rotate_window"
+                              :column-label="$i18n.t('Rotate Window')"
+                              :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
     />
 
     <form-group-unreg-window v-show="wants('unreg_window')"
-      namespace="unreg_window"
-      :column-label="$i18n.t('Unreg Window')"
-      :text="$i18n.t('How long can a registered node be inactive before it becomes unregistered.')"
+                             namespace="unreg_window"
+                             :column-label="$i18n.t('Unreg Window')"
+                             :text="$i18n.t('How long can a registered node be inactive before it becomes unregistered.')"
     />
 
     <form-group-delete-window v-show="wants('delete_window')"
-      namespace="delete_window"
-      :column-label="$i18n.t('Delete Window')"
-      :text="$i18n.t(`How long can an unregistered node be inactive before being deleted.\nThis shouldn't be used if you are using port-security.`)"
+                              namespace="delete_window"
+                              :column-label="$i18n.t('Delete Window')"
+                              :text="$i18n.t(`How long can an unregistered node be inactive before being deleted.\nThis shouldn't be used if you are using port-security.`)"
     />
 
     <form-group-delay v-show="wants('delay')"
-      namespace="delay"
-      :column-label="$i18n.t('Delay')"
-      :text="$i18n.t('Minimum gap before certificate expiration date (will the certificate expires in ...).')"
+                      namespace="delay"
+                      :column-label="$i18n.t('Delay')"
+                      :text="$i18n.t('Minimum gap before certificate expiration date (will the certificate expires in ...).')"
     />
 
     <form-group-certificates v-show="wants('certificates')"
-      namespace="certificates"
-      :column-label="$i18n.t('Certificates')"
-      :text="$i18n.t('SSL certificate(s) to monitor. Comma-separated list.')"
+                             namespace="certificates"
+                             :column-label="$i18n.t('Certificates')"
+                             :text="$i18n.t('SSL certificate(s) to monitor. Comma-separated list.')"
     />
 
     <form-group-process-switchranges v-show="wants('process_switchranges')"
-      namespace="process_switchranges"
-      :column-label="$i18n.t('Process switchranges')"
-      :text="$i18n.t('Whether or not a switch range should be expanded to process each of its IPs.')"
+                                     namespace="process_switchranges"
+                                     :column-label="$i18n.t('Process switchranges')"
+                                     :text="$i18n.t('Whether or not a switch range should be expanded to process each of its IPs.')"
+                                     enabled-value="Y"
+                                     disabled-value="N"
     />
 
     <form-group-voip v-show="wants('voip')"
-      namespace="voip"
-      :column-label="$i18n.t('Process switchranges')"
-      :text="$i18n.t('Whether or not the VoIP devices should be handled by this maintenance task.')"
+                     namespace="voip"
+                     :column-label="$i18n.t('Process switchranges')"
+                     :text="$i18n.t('Whether or not the VoIP devices should be handled by this maintenance task.')"
+                     enabled-value="enabled"
+                     disabled-value="disabled"
     />
   </base-form>
 </template>
 <script>
-import { computed, toRefs } from '@vue/composition-api'
-import {
-  BaseForm
-} from '@/components/new/'
-import { pfSchedulesList as schedulesOptions } from '@/globals/pfSchedules'
+import {computed, toRefs} from '@vue/composition-api'
+import {BaseForm} from '@/components/new/'
+import {pfSchedulesList as schedulesOptions} from '@/globals/pfSchedules'
 import schemaFn from '../schema'
 import {
   FormGroupBatch,
@@ -159,12 +163,12 @@ import {
   FormGroupHistoryTimeout,
   FormGroupHistoryWindow,
   FormGroupIdentifier,
-  FormGroupSchedule,
   FormGroupProcessSwitchranges,
   FormGroupRotate,
   FormGroupRotateBatch,
   FormGroupRotateTimeout,
   FormGroupRotateWindow,
+  FormGroupSchedule,
   FormGroupSessionBatch,
   FormGroupSessionTimeout,
   FormGroupSessionWindow,

@@ -6292,8 +6292,8 @@ msgid "Enable profile"
 msgstr "Activer le profil"
 
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/TheForm.vue:9
-msgid "Enable security event"
-msgstr "Activer l'événement de sécurité"
+msgid "Enable this event"
+msgstr "Activer cet événement"
 
 #: html/pfappserver/root/src/views/Configuration/advanced/_components/TheForm.vue:25
 msgid "Enable the Configurator and the Configurator API."

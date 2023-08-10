@@ -4,13 +4,12 @@ import {
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupToggle,
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import {
   BaseFormGroupIntervalUnit
 } from '@/views/Configuration/_components/new/'
 import BaseFormGroupActions from './BaseFormGroupActions'
-import BaseFormGroupEnabled from './BaseFormGroupEnabled'
 import BaseFormGroupTriggers from './BaseFormGroupTriggers'
 import BaseFormGroupTriggersHeader from './BaseFormGroupTriggersHeader'
 import TheForm from './TheForm'
@@ -24,7 +23,7 @@ export {
   BaseFormGroupActions        as FormGroupActions,
   BaseFormGroupIntervalUnit   as FormGroupDelayBy,
   BaseFormGroupInput          as FormGroupDescription,
-  BaseFormGroupEnabled        as FormGroupEnabled,
+  BaseFormGroupSwitch         as FormGroupEnabled,
   BaseFormGroupIntervalUnit   as FormGroupGrace,
   BaseFormGroupInput          as FormGroupIdentifier,
   BaseFormGroupInputNumber    as FormGroupPriority,
@@ -32,7 +31,7 @@ export {
   BaseFormGroupTriggersHeader as FormGroupTriggersHeader,
   BaseFormGroupChosenMultiple as FormGroupWhitelistedRoles,
   BaseFormGroupIntervalUnit   as FormGroupWindow,
-  BaseFormGroupToggle         as FormGroupWindowDynamic,
+  BaseFormGroupSwitch         as FormGroupWindowDynamic,
 
   TheForm,
   TheView,

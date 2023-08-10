@@ -6,7 +6,7 @@ import {
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled,
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -25,7 +25,7 @@ export {
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupTextarea               as FormGroupIpAssigned,
   BaseFormGroupTextarea               as FormGroupIpReserved,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupNetflowAccountingEnabled,
+  BaseFormGroupSwitch                 as FormGroupNetflowAccountingEnabled,
   BaseFormGroupChosenOne              as FormGroupPoolBackend,
   BaseFormGroupInput                  as FormGroupPortalFqdn,
 

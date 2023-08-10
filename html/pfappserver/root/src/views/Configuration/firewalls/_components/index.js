@@ -1,4 +1,4 @@
-import { BaseViewCollectionItem } from '../../_components/new/'
+import {BaseViewCollectionItem} from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenMultiple,
@@ -6,31 +6,30 @@ import {
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
-  BaseFormGroupToggle,
-  BaseFormGroupToggleDisabledEnabled,
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseViewCollectionItem              as BaseView,
-  BaseFormButtonBar                   as FormButtonBar,
+  BaseViewCollectionItem as BaseView,
+  BaseFormButtonBar as FormButtonBar,
 
-  BaseFormGroupInputNumber            as FormGroupCacheTimeout,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupCacheUpdates,
-  BaseFormGroupChosenMultiple         as FormGroupCategories,
-  BaseFormGroupInput                  as FormGroupDefaultRealm,
-  BaseFormGroupInput                  as FormGroupDeviceIdentifier,
-  BaseFormGroupInput                  as FormGroupIdentifier,
-  BaseFormGroupInput                  as FormGroupNacName,
-  BaseFormGroupInput                  as FormGroupNetworks,
-  BaseFormGroupInputPassword          as FormGroupPassword,
-  BaseFormGroupInputNumber            as FormGroupPort,
-  BaseFormGroupChosenOne              as FormGroupTransport,
-  BaseFormGroupToggle                 as FormGroupUseConnector,
-  BaseFormGroupInput                  as FormGroupUsername,
-  BaseFormGroupInput                  as FormGroupUsernameFormat,
-  BaseFormGroupInput                  as FormGroupVsys,
+  BaseFormGroupInputNumber as FormGroupCacheTimeout,
+  BaseFormGroupSwitch as FormGroupCacheUpdates,
+  BaseFormGroupChosenMultiple as FormGroupCategories,
+  BaseFormGroupInput as FormGroupDefaultRealm,
+  BaseFormGroupInput as FormGroupDeviceIdentifier,
+  BaseFormGroupInput as FormGroupIdentifier,
+  BaseFormGroupInput as FormGroupNacName,
+  BaseFormGroupInput as FormGroupNetworks,
+  BaseFormGroupInputPassword as FormGroupPassword,
+  BaseFormGroupInputNumber as FormGroupPort,
+  BaseFormGroupChosenOne as FormGroupTransport,
+  BaseFormGroupSwitch as FormGroupUseConnector,
+  BaseFormGroupInput as FormGroupUsername,
+  BaseFormGroupInput as FormGroupUsernameFormat,
+  BaseFormGroupInput as FormGroupVsys,
 
   TheForm,
   TheView

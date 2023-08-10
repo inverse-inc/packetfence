@@ -7,8 +7,10 @@
       class="pt-0"
     >
       <form-group-pid-overwrite namespace="pid_overwrite"
-        :column-label="$t('Username (PID) overwrite')"
-        :text="$t('Overwrite the username (PID) if it already exists.')"
+                                :column-label="$t('Username (PID) overwrite')"
+                                :text="$t('Overwrite the username (PID) if it already exists.')"
+                                :enabled-value="1"
+                                :disabled-value="0"
       />
 
       <form-group-pid
@@ -18,116 +20,118 @@
       />
 
       <form-group-password namespace="password"
-        :column-label="$t('Password')"
+                           :column-label="$t('Password')"
       />
 
       <form-group-login-remaining namespace="login_remaining"
-        :column-label="$t('Login remaining')"
-        :text="$t('Leave empty to allow unlimited logins.')"
+                                  :column-label="$t('Login remaining')"
+                                  :text="$t('Leave empty to allow unlimited logins.')"
       />
 
       <form-group-email namespace="email"
-        :column-label="$t('Email')"
+                        :column-label="$t('Email')"
       />
 
       <form-group-sponsor namespace="sponsor"
-        :column-label="$t('Sponsor')"
-        :text="$t('If no sponsor is defined the current user will be used.')"
-        :placeholder="$store.state['session'].username"
+                          :column-label="$t('Sponsor')"
+                          :text="$t('If no sponsor is defined the current user will be used.')"
+                          :placeholder="$store.state['session'].username"
       />
 
       <form-group-language namespace="lang"
-        :column-label="$t('Language')" />
+                           :column-label="$t('Language')"/>
 
       <form-group-gender namespace="gender"
-        :column-label="$t('Gender')" />
+                         :column-label="$t('Gender')"/>
 
       <form-group-title namespace="title"
-        :column-label="$t('Title')" />
+                        :column-label="$t('Title')"/>
 
       <form-group-firstname namespace="firstname"
-        :column-label="$t('Firstname')" />
+                            :column-label="$t('Firstname')"/>
 
       <form-group-lastname namespace="lastname"
-        :column-label="$t('Lastname')" />
+                           :column-label="$t('Lastname')"/>
 
       <form-group-nickname namespace="nickname"
-        :column-label="$t('Nickname')" />
+                           :column-label="$t('Nickname')"/>
 
       <form-group-company namespace="company"
-        :column-label="$t('Company')" />
+                          :column-label="$t('Company')"/>
 
       <form-group-telephone namespace="telephone"
-        :column-label="$t('Telephone number')" />
+                            :column-label="$t('Telephone number')"/>
 
       <form-group-cell-phone namespace="cell_phone"
-        :column-label="$t('Cellphone number')" />
+                             :column-label="$t('Cellphone number')"/>
 
       <form-group-work-phone namespace="work_phone"
-        :column-label="$t('Workphone number')" />
+                             :column-label="$t('Workphone number')"/>
 
       <form-group-apartment-number namespace="apartment_number"
-        :column-label="$t('Apartment number')" />
+                                   :column-label="$t('Apartment number')"/>
 
       <form-group-building-number namespace="building_number"
-        :column-label="$t('Building Number')" />
+                                  :column-label="$t('Building Number')"/>
 
       <form-group-room-number namespace="room_number"
-        :column-label="$t('Room Number')" />
+                              :column-label="$t('Room Number')"/>
 
       <form-group-address namespace="address"
-        :column-label="$t('Address')" />
+                          :column-label="$t('Address')"/>
 
       <form-group-anniversary namespace="anniversary"
-        :column-label="$t('Anniversary')" />
+                              :column-label="$t('Anniversary')"/>
 
       <form-group-birthday namespace="birthday"
-        :column-label="$t('Birthday')" />
+                           :column-label="$t('Birthday')"/>
 
       <form-group-psk namespace="psk"
-        :column-label="$t('Psk')" />
+                      :column-label="$t('Psk')"/>
 
       <form-group-notes namespace="notes"
-        :column-label="$t('Notes')" />
+                        :column-label="$t('Notes')"/>
 
       <form-group-custom-field-1 namespace="custom_field_1"
-        :column-label="$t('Custom Field 1')" />
+                                 :column-label="$t('Custom Field 1')"/>
 
       <form-group-custom-field-2 namespace="custom_field_2"
-        :column-label="$t('Custom Field 2')" />
+                                 :column-label="$t('Custom Field 2')"/>
 
       <form-group-custom-field-3 namespace="custom_field_3"
-        :column-label="$t('Custom Field 3')" />
+                                 :column-label="$t('Custom Field 3')"/>
 
       <form-group-custom-field-4 namespace="custom_field_4"
-        :column-label="$t('Custom Field 4')"  />
+                                 :column-label="$t('Custom Field 4')"/>
 
       <form-group-custom-field-5 namespace="custom_field_5"
-        :column-label="$t('Custom Field 5')" />
+                                 :column-label="$t('Custom Field 5')"/>
 
       <form-group-custom-field-6 namespace="custom_field_6"
-        :column-label="$t('Custom Field 6')" />
+                                 :column-label="$t('Custom Field 6')"/>
 
       <form-group-custom-field-7 namespace="custom_field_7"
-        :column-label="$t('Custom Field 7')" />
+                                 :column-label="$t('Custom Field 7')"/>
 
       <form-group-custom-field-8 namespace="custom_field_8"
-        :column-label="$t('Custom Field 8')" />
+                                 :column-label="$t('Custom Field 8')"/>
 
       <form-group-custom-field-9 namespace="custom_field_9"
-        :column-label="$t('Custom Field 9')" />
+                                 :column-label="$t('Custom Field 9')"/>
 
       <base-form-group
         :column-label="$t('Registration Window')">
         <input-group-valid-from namespace="valid_from"
-          class="flex-grow-1" />
-        <b-button variant="link" disabled><icon name="long-arrow-alt-right"></icon></b-button>
+                                class="flex-grow-1"/>
+        <b-button variant="link" disabled>
+          <icon name="long-arrow-alt-right"></icon>
+        </b-button>
         <input-group-expiration namespace="expiration"
-          class="flex-grow-1" />
+                                class="flex-grow-1"/>
       </base-form-group>
 
       <form-group-actions namespace="actions"
-        :column-label="$t('Actions')" />
+                          :column-label="$t('Actions')"/>
 
       <div class="mt-3">
         <div class="border-top pt-3">
@@ -144,40 +148,20 @@
         </div>
       </div>
     </base-form>
-    <the-preview-modal v-model="showPreviewModal" />
+    <the-preview-modal v-model="showPreviewModal"/>
   </b-form>
 </template>
 <script>
+import {BaseForm, BaseFormButtonBar, BaseFormGroup} from '@/components/new/'
 import {
-  BaseForm,
-  BaseFormButtonBar,
-  BaseFormGroup
-} from '@/components/new/'
-import {
-  FormGroupPidOverwrite,
-  FormGroupPid,
-  FormGroupPassword,
-  FormGroupLoginRemaining,
-  FormGroupEmail,
-  FormGroupSponsor,
-  FormGroupLanguage,
-  FormGroupGender,
-  FormGroupTitle,
-  FormGroupFirstname,
-  FormGroupLastname,
-  FormGroupNickname,
-  FormGroupCompany,
-  FormGroupTelephone,
-  FormGroupCellPhone,
-  FormGroupWorkPhone,
-  FormGroupApartmentNumber,
-  FormGroupBuildingNumber,
-  FormGroupRoomNumber,
+  FormGroupActions,
   FormGroupAddress,
   FormGroupAnniversary,
+  FormGroupApartmentNumber,
   FormGroupBirthday,
-  FormGroupPsk,
-  FormGroupNotes,
+  FormGroupBuildingNumber,
+  FormGroupCellPhone,
+  FormGroupCompany,
   FormGroupCustomField1,
   FormGroupCustomField2,
   FormGroupCustomField3,
@@ -187,12 +171,31 @@ import {
   FormGroupCustomField7,
   FormGroupCustomField8,
   FormGroupCustomField9,
-
-  InputGroupValidFrom,
+  FormGroupEmail,
+  FormGroupFirstname,
+  FormGroupGender,
+  FormGroupLanguage,
+  FormGroupLastname,
+  FormGroupLoginRemaining,
+  FormGroupNickname,
+  FormGroupNotes,
+  FormGroupPassword,
+  FormGroupPid,
+  FormGroupPidOverwrite,
+  FormGroupPsk,
+  FormGroupRoomNumber,
+  FormGroupSponsor,
+  FormGroupTelephone,
+  FormGroupTitle,
+  FormGroupWorkPhone,
   InputGroupExpiration,
-  FormGroupActions
+  InputGroupValidFrom
 } from './'
 import ThePreviewModal from './ThePreviewModal'
+import {computed, ref} from '@vue/composition-api'
+import {useDebouncedWatchHandler} from '@/composables/useDebounce'
+import {single as schemaFn} from '../schema'
+import {createSingleForm as defaults} from '../_config/'
 
 const components = {
   BaseForm,
@@ -239,17 +242,12 @@ const components = {
   ThePreviewModal
 }
 
-import { computed, ref } from '@vue/composition-api'
-import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import { single as schemaFn } from '../schema'
-import { createSingleForm as defaults } from '../_config/'
-
 const setup = (props, context) => {
 
-  const { root: { $router, $store } = {} } = context
+  const {root: {$router, $store} = {}} = context
 
   const rootRef = ref(null)
-  const form = ref({ ...defaults }) // dereferenced
+  const form = ref({...defaults}) // dereferenced
   const schema = computed(() => schemaFn(props, form.value))
   const isLoading = computed(() => $store.getters['$_users/isLoading'])
 
@@ -264,7 +262,7 @@ const setup = (props, context) => {
   )
 
   const onClose = () => {
-    $router.push({ name: 'users' })
+    $router.push({name: 'users'})
   }
 
   const showPreviewModal = ref(false)
@@ -274,7 +272,7 @@ const setup = (props, context) => {
     showPreviewModal.value = false
     const _form = form.value
     $store.dispatch('$_users/createUser', _form).then(() => {
-      $store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, _form)).then(() => {
+      $store.dispatch('$_users/createPassword', Object.assign({quiet: true}, _form)).then(() => {
         $store.commit('$_users/CREATED_USERS_REPLACED', [_form])
         showPreviewModal.value = true
       })
@@ -282,7 +280,7 @@ const setup = (props, context) => {
   }
 
   const onReset = () => {
-    form.value = { ...defaults } // dereferenced
+    form.value = {...defaults} // dereferenced
   }
 
   return {

@@ -6,7 +6,7 @@ import {
   BaseFormGroupInputMultiplier,
   BaseFormGroupInputNumber,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleNoYes
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import BaseFormGroupRolesOptional from './BaseFormGroupRolesOptional'
 import BaseFormGroupStatus from './BaseFormGroupStatus'
@@ -22,12 +22,12 @@ export {
   BaseFormGroupInputDateTime    as FormGroupUnregdate,
   BaseFormGroupInputNumber      as FormGroupTimeBalance,
   BaseFormGroupInputMultiplier  as FormGroupBandwidthBalance,
-  BaseFormGroupToggleNoYes      as FormGroupVoip,
+  BaseFormGroupSwitch           as FormGroupVoip,
   BaseFormGroupInput            as FormGroupBypassVlan,
   BaseFormGroupRolesOptional    as FormGroupBypassRole,
   BaseFormGroupTextarea         as FormGroupNotes,
   BaseFormGroupTextarea         as FormGroupBypassAcls,
-  
+
   BaseFormGroupInput            as FormGroupMac,
-  
+
 }

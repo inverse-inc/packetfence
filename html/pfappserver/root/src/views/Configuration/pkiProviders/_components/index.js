@@ -6,7 +6,7 @@ import {
   BaseFormGroupFileUpload,
   BaseFormGroupInput,
   BaseFormGroupInputPassword,
-  BaseFormGroupToggleNY
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import {
   BaseFormGroupChosenOneProfile
@@ -31,7 +31,7 @@ export {
   BaseFormGroupInputPassword    as FormGroupPassword,
   BaseFormGroupInput            as FormGroupPostalCode,
   BaseFormGroupChosenOneProfile as FormGroupProfile,
-  BaseFormGroupToggleNY         as FormGroupRevokeOnRegistration,
+  BaseFormGroupSwitch           as FormGroupRevokeOnRegistration,
   BaseFormGroupFileUpload       as FormGroupServerCertPath,
   BaseFormGroupInput            as FormGroupState,
   BaseFormGroupInput            as FormGroupStreetAddress,

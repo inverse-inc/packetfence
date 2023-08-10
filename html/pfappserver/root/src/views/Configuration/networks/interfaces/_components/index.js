@@ -5,11 +5,8 @@ import {
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
-import {
-  BaseFormGroupToggleZeroOneIntegerAsOffOn
-} from '@/views/Configuration/_components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 import ToggleStatus from './ToggleStatus'
@@ -19,19 +16,20 @@ export {
   BaseFormButtonBar                         as FormButtonBar,
 
   BaseFormGroupChosenMultiple               as FormGroupAdditionalListeneningDaemons,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupCoa,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupDhcpdEnabled,
-  BaseFormGroupToggleZeroOneIntegerAsOffOn  as FormGroupHighAvailability,
+  BaseFormGroupSwitch                       as FormGroupCoa,
+  BaseFormGroupSwitch                       as FormGroupDhcpdEnabled,
+  BaseFormGroupInput                        as FormGroupDns,
+  BaseFormGroupSwitch                       as FormGroupHighAvailability,
   BaseFormGroupInput                        as FormGroupIdentifier,
   BaseFormGroupInput                        as FormGroupIpAddress,
   BaseFormGroupInput                        as FormGroupIpv6Address,
   BaseFormGroupInputNumber                  as FormGroupIpv6Prefix,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupNatEnabled,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupNatDns,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupNetflowAccountingEnabled,
+  BaseFormGroupSwitch                       as FormGroupNatEnabled,
+  BaseFormGroupSwitch                       as FormGroupNatDns,
+  BaseFormGroupSwitch                       as FormGroupNetflowAccountingEnabled,
   BaseFormGroupInput                        as FormGroupNetmask,
   BaseFormGroupInput                        as FormGroupRegNetwork,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupSplitNetwork,
+  BaseFormGroupSwitch                       as FormGroupSplitNetwork,
   BaseFormGroupChosenOne                    as FormGroupType,
   BaseFormGroupInput                        as FormGroupVlan,
 

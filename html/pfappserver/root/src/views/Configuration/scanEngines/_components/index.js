@@ -1,4 +1,4 @@
-import { BaseViewCollectionItem } from '../../_components/new/'
+import {BaseViewCollectionItem} from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenMultiple,
@@ -6,13 +6,9 @@ import {
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
-import {
-  BaseFormGroupIntervalUnit,
-  BaseFormGroupOses,
-  BaseFormGroupToggleZeroOneIntegerAsOffOn
-} from '@/views/Configuration/_components/new/'
+import {BaseFormGroupIntervalUnit, BaseFormGroupOses} from '@/views/Configuration/_components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -21,7 +17,6 @@ export {
   BaseFormButtonBar                         as FormButtonBar,
 
   BaseFormGroupChosenMultiple               as FormGroupCategories,
-  BaseFormGroupInput                        as FormGroupDomain,
   BaseFormGroupIntervalUnit                 as FormGroupDuration,
   BaseFormGroupChosenOne                    as FormGroupEngineIdentifier,
   BaseFormGroupInput                        as FormGroupHost,
@@ -33,15 +28,15 @@ export {
   BaseFormGroupInput                        as FormGroupOpenvasReportFormatIdentifier,
   BaseFormGroupOses                         as FormGroupOses,
   BaseFormGroupInputPassword                as FormGroupPassword,
-  BaseFormGroupToggleZeroOneIntegerAsOffOn  as FormGroupPreRegistration,
+  BaseFormGroupSwitch                       as FormGroupPreRegistration,
   BaseFormGroupInputNumber                  as FormGroupPort,
-  BaseFormGroupToggleZeroOneIntegerAsOffOn  as FormGroupPostRegistration,
-  BaseFormGroupToggleZeroOneIntegerAsOffOn  as FormGroupRegistration,
+  BaseFormGroupSwitch                       as FormGroupPostRegistration,
+  BaseFormGroupSwitch                       as FormGroupRegistration,
   BaseFormGroupInput                        as FormGroupScannerName,
   BaseFormGroupChosenOne                    as FormGroupSiteIdentifier,
   BaseFormGroupChosenOne                    as FormGroupTemplateIdentifier,
   BaseFormGroupInput                        as FormGroupUsername,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupVerifyHostname,
+  BaseFormGroupSwitch                       as FormGroupVerifyHostname,
 
   TheForm,
   TheView

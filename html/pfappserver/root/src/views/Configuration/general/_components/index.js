@@ -4,18 +4,18 @@ import {
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseFormButtonBar       as FormButtonBar,
+  BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupTextarea               as FormGroupDhcpServers,
   BaseFormGroupInput                  as FormGroupDomain,
   BaseFormGroupInput                  as FormGroupHostname,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupSendAnonymousStats,
+  BaseFormGroupSwitch                 as FormGroupSendAnonymousStats,
   BaseFormGroupChosenOne              as FormGroupTimezone,
 
   BaseViewResource        as BaseView,

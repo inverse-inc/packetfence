@@ -1,7 +1,7 @@
 import { BaseViewResource } from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -9,7 +9,7 @@ import TheView from './TheView'
 export {
   BaseFormButtonBar                   as FormButtonBar,
 
-  BaseFormGroupToggleDisabledEnabled  as FormGroupRecordDnsInSql,
+  BaseFormGroupSwitch                 as FormGroupRecordDnsInSql,
 
   BaseViewResource                    as BaseView,
   TheForm,

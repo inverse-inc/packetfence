@@ -6,18 +6,18 @@
     :isLoading="isLoading"
   >
     <form-group-domain namespace="domain"
-      :column-label="$i18n.t('Domain')"
-      :text="$i18n.t('Domain name of PacketFence system. Changing this requires to restart haproxy-portal.')"
+                       :column-label="$i18n.t('Domain')"
+                       :text="$i18n.t('Domain name of PacketFence system. Changing this requires to restart haproxy-portal.')"
     />
 
     <form-group-hostname namespace="hostname"
-      :column-label="$i18n.t('Hostname')"
-      :text="$i18n.t('Hostname of PacketFence system. This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients. Changing this requires to restart haproxy-portal.')"
+                         :column-label="$i18n.t('Hostname')"
+                         :text="$i18n.t('Hostname of PacketFence system. This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients. Changing this requires to restart haproxy-portal.')"
     />
 
     <form-group-dhcp-servers namespace="dhcpservers"
-      :column-label="$i18n.t('DHCP servers')"
-      :text="$i18n.t('Comma-separated list of DHCP servers.')"
+                             :column-label="$i18n.t('DHCP servers')"
+                             :text="$i18n.t('Comma-separated list of DHCP servers.')"
     />
 
     <form-group-timezone
@@ -27,17 +27,17 @@
     />
 
     <form-group-send-anonymous-stats namespace="send_anonymous_stats"
-      :column-label="$i18n.t('Send anonymous stats')"
-      :text="$i18n.t('Whether or not to send anonymous statistics on how PacketFence is used. Enabling this will help us prioritize the features you use.')"
+                                     :column-label="$i18n.t('Send anonymous stats')"
+                                     :text="$i18n.t('Whether or not to send anonymous statistics on how PacketFence is used. Enabling this will help us prioritize the features you use.')"
+                                     enabled-value="enabled"
+                                     disabled-value="disabled"
     />
 
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
-import {
-  BaseForm
-} from '@/components/new/'
+import {computed} from '@vue/composition-api'
+import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
 import {
   FormGroupDhcpServers,
