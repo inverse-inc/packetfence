@@ -30,18 +30,8 @@
 </template>
 <script>
 import {useFormGroupProps} from '@/composables/useFormGroup'
-import {useInput, useInputProps} from '@/composables/useInput'
-import {useInputMeta, useInputMetaProps} from '@/composables/useMeta'
-import {useInputValidator, useInputValidatorProps} from '@/composables/useInputValidator'
-import {
-  getFormNamespace,
-  setFormNamespace,
-  useInputValue,
-  useInputValueProps
-} from '@/composables/useInputValue'
 import BaseFormGroup from './BaseFormGroup'
 import BaseInputSwitch from './BaseInputSwitch.vue'
-import {computed, inject, unref} from '@vue/composition-api';
 
 const components = {
   BaseFormGroup,
@@ -71,10 +61,6 @@ export const props = {
     type: Boolean
   },
   ...useFormGroupProps,
-  ...useInputProps,
-  ...useInputMetaProps,
-  ...useInputValidatorProps,
-  ...useInputValueProps,
 }
 
 

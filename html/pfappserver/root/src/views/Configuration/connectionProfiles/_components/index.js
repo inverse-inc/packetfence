@@ -4,7 +4,6 @@ import {
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupToggleDisabledEnabled,
   BaseFormGroupSwitch,
 } from '@/components/new/'
 import { BaseFormGroupIntervalUnit } from '@/views/Configuration/_components/new/'
