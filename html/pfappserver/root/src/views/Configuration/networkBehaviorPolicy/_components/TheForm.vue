@@ -6,69 +6,74 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Profile Name')"
+                           :column-label="$i18n.t('Profile Name')"
     />
 
     <form-group-status namespace="status"
-      :column-label="$i18n.t('Status')"
-      :text="$i18n.t('Whether or not the policy should be enabled')"
+                       :column-label="$i18n.t('Status')"
+                       :text="$i18n.t('Whether or not the policy should be enabled')"
+                       enabled-value="enabled"
+                       disabled-value="disabled"
     />
 
     <form-group-description namespace="description"
-      :column-label="$i18n.t('Description')"
+                            :column-label="$i18n.t('Description')"
     />
 
     <form-group-devices-included namespace="devices_included"
-      :column-label="$i18n.t('Devices Included')"
-      :text="$i18n.t('The list of Fingerbank devices that will be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the children of the selected devices. Leaving this empty will have all devices impacted by this policy.')"
+                                 :column-label="$i18n.t('Devices Included')"
+                                 :text="$i18n.t('The list of Fingerbank devices that will be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the children of the selected devices. Leaving this empty will have all devices impacted by this policy.')"
     />
 
     <form-group-devices-excluded namespace="devices_excluded"
-      :column-label="$i18n.t('Devices Excluded')"
-      :text="$i18n.t('The list of Fingerbank devices that should not be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the children of the selected devices.')"
+                                 :column-label="$i18n.t('Devices Excluded')"
+                                 :text="$i18n.t('The list of Fingerbank devices that should not be impacted by this Network Behavior Policy. Devices of this list implicitely includes all the children of the selected devices.')"
     />
 
     <form-group-watch-blacklisted-ips namespace="watch_blacklisted_ips"
-      :column-label="$i18n.t('Monitor for blacklisted IPs')"
-      :text="$i18n.t('Whether or not the policy should check if the endpoints are communicating with blacklisted IP addresses.')"
+                                      :column-label="$i18n.t('Monitor for blacklisted IPs')"
+                                      :text="$i18n.t('Whether or not the policy should check if the endpoints are communicating with blacklisted IP addresses.')"
+                                      enabled-value="enabled"
+                                      disabled-value="disabled"
     />
 
     <form-group-whitelisted-ips namespace="whitelisted_ips"
-      :column-label="$i18n.t('Whitelisted IPs')"
-      :text="$i18n.t('Comma delimited list of IP addresses (can be CIDR) to ignore when checking against the blacklisted IPs list.')"
+                                :column-label="$i18n.t('Whitelisted IPs')"
+                                :text="$i18n.t('Comma delimited list of IP addresses (can be CIDR) to ignore when checking against the blacklisted IPs list.')"
     />
 
     <form-group-blacklisted-ip-hosts-window namespace="blacklisted_ip_hosts_window"
-      :column-label="$i18n.t('Blacklisted IP Hosts Window')"
-      :text="$i18n.t('The window to consider when counting the amount of blacklisted IPs the endpoint has communicated with.')"
+                                            :column-label="$i18n.t('Blacklisted IP Hosts Window')"
+                                            :text="$i18n.t('The window to consider when counting the amount of blacklisted IPs the endpoint has communicated with.')"
     />
 
     <form-group-blacklisted-ip-hosts-threshold namespace="blacklisted_ip_hosts_threshold"
-      :column-label="$i18n.t('Blacklisted IPs Threshold')"
-      :text="$i18n.t('If an endpoint talks with more than this amount of blacklisted IPs in the window defined above, then it triggers an event.')"
+                                               :column-label="$i18n.t('Blacklisted IPs Threshold')"
+                                               :text="$i18n.t('If an endpoint talks with more than this amount of blacklisted IPs in the window defined above, then it triggers an event.')"
     />
 
     <form-group-blacklisted-ports namespace="blacklisted_ports"
-      :column-label="$i18n.t('Blacklisted ports')"
-      :text="$i18n.t('Which ports should be considered as vulnerable/dangerous and trigger an event. Should be a comma delimited list of ports. Also supports ranges (ex: &quot;1000-1024&quot; configures ports 1000 to 1024 inclusively). This list is for the outbound communication of the endpoint.')"
+                                  :column-label="$i18n.t('Blacklisted ports')"
+                                  :text="$i18n.t('Which ports should be considered as vulnerable/dangerous and trigger an event. Should be a comma delimited list of ports. Also supports ranges (ex: &quot;1000-1024&quot; configures ports 1000 to 1024 inclusively). This list is for the outbound communication of the endpoint.')"
     />
 
     <form-group-blacklisted-ports-window namespace="blacklisted_ports_window"
-      :column-label="$i18n.t('Blacklisted ports window')"
-      :text="$i18n.t('The window to consider when checking for blacklisted ports communication.')"
+                                         :column-label="$i18n.t('Blacklisted ports window')"
+                                         :text="$i18n.t('The window to consider when checking for blacklisted ports communication.')"
     />
 
     <form-group-watched-device-attributes namespace="watched_device_attributes"
-      :column-label="$i18n.t('Watched Device Attributes')"
-      :text="$i18n.t('Defines the attributes that should be analysed when checking against the pristine profile of the endpoint. Leaving this empty will disable the feature.')"
+                                          :column-label="$i18n.t('Watched Device Attributes')"
+                                          :text="$i18n.t('Defines the attributes that should be analysed when checking against the pristine profile of the endpoint. Leaving this empty will disable the feature.')"
     />
 
     <form-group-device-attributes-diff-score namespace="device_attributes_diff_score"
-      :column-label="$i18n.t('Device attributes minimal score')"
-      :text="$i18n.t(`If an endpoint doesn't get at least this score when being matched against the pristine profile, then it triggers an event.`)"
+                                             :column-label="$i18n.t('Device attributes minimal score')"
+                                             :text="$i18n.t(`If an endpoint doesn't get at least this score when being matched against the pristine profile, then it triggers an event.`)"
     />
 
-    <form-group-device-attributes-diff-threshold-overrides namespace="device_attributes_diff_threshold_overrides"
+    <form-group-device-attributes-diff-threshold-overrides
+      namespace="device_attributes_diff_threshold_overrides"
       :column-label="$i18n.t('Device Attributes weight')"
       :text="$i18n.t('Override the weight of the different attributes when matching them against the pristine profiles.')"
     />
@@ -78,7 +83,10 @@
         <p v-t="'Default weights'"/>
         <table class="table table-responsive table-sm small mb-0 w-100">
           <tbody class="w-100">
-            <tr v-for="(attribute, index) in weights" :key="index" class="w-100"><th>{{ attribute.defaultWeight }}</th><td class="w-100">{{ attribute.text }}</td></tr>
+          <tr v-for="(attribute, index) in weights" :key="index" class="w-100">
+            <th>{{ attribute.defaultWeight }}</th>
+            <td class="w-100">{{ attribute.text }}</td>
+          </tr>
           </tbody>
         </table>
       </b-alert>
@@ -86,7 +94,7 @@
   </base-form>
 </template>
 <script>
-import { computed, provide, reactive, ref, toRefs, watch } from '@vue/composition-api'
+import {computed, provide, reactive, ref, toRefs, watch} from '@vue/composition-api'
 import {
   BaseForm,
   BaseFormGroup
@@ -153,7 +161,7 @@ export const props = {
   }
 }
 
-import { deviceAttributes } from '../config'
+import {deviceAttributes} from '../config'
 
 export const setup = (props) => {
 

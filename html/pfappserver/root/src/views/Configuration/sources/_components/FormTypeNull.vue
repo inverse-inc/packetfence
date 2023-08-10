@@ -6,25 +6,27 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Name')"
-      :disabled="!isNew && !isClone"
+                           :column-label="$i18n.t('Name')"
+                           :disabled="!isNew && !isClone"
     />
 
     <form-group-description namespace="description"
-      :column-label="$i18n.t('Description')"
+                            :column-label="$i18n.t('Description')"
     />
 
     <form-group-email-required namespace="email_required"
-      :column-label="$i18n.t('Email required')"
+                               :column-label="$i18n.t('Email required')"
+                               :enabled-value="1"
+                               :disabled-value="0"
     />
 
     <form-group-authentication-rules namespace="authentication_rules"
-      :column-label="$i18n.t('Authentication Rules')"
+                                     :column-label="$i18n.t('Authentication Rules')"
     />
   </base-form>
 </template>
 <script>
-import { BaseForm } from '@/components/new/'
+import {BaseForm} from '@/components/new/'
 import {
   FormGroupAuthenticationRules,
   FormGroupDescription,
@@ -41,7 +43,7 @@ const components = {
   FormGroupIdentifier,
 }
 
-import { useForm as setup, useFormProps as props } from '../_composables/useForm'
+import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
 // @vue/component
 export default {

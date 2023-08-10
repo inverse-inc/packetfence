@@ -8,174 +8,177 @@
     <b-tabs>
       <base-form-tab :title="$i18n.t('Identification')" active>
         <form-group-identifier namespace="id"
-          :column-label="$i18n.t('Identifier')"
-          :disabled="!isNew && !isClone"
+                               :column-label="$i18n.t('Identifier')"
+                               :disabled="!isNew && !isClone"
         />
         <form-group-provider-identifier namespace="Provider_Identifier"
-          :column-label="$i18n.t('Provider Identifier')"
+                                        :column-label="$i18n.t('Provider Identifier')"
         />
         <form-group-location-identifier namespace="Location_Identifier"
-          :column-label="$i18n.t('Location Identifier')"
+                                        :column-label="$i18n.t('Location Identifier')"
         />
         <form-group-service-provider-brand namespace="Service_Provider_Brand"
-          :column-label="$i18n.t('Service Provider Brand')"
+                                           :column-label="$i18n.t('Service Provider Brand')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Location')">
         <form-group-location-type namespace="Location_Type"
-          :column-label="$i18n.t('Location Type')"
+                                  :column-label="$i18n.t('Location Type')"
         />
         <form-group-sub-location-type namespace="Sub_Location_Type"
-          :column-label="$i18n.t('Sub Location Type')"
+                                      :column-label="$i18n.t('Sub Location Type')"
         />
         <form-group-english-location-name namespace="English_Location_Name"
-          :column-label="$i18n.t('English Location Name')"
+                                          :column-label="$i18n.t('English Location Name')"
         />
         <form-group-location-address1 namespace="Location_Address1"
-          :column-label="$i18n.t('Location Address1')"
+                                      :column-label="$i18n.t('Location Address1')"
         />
         <form-group-location-address2 namespace="Location_Address2"
-          :column-label="$i18n.t('Location Address2')"
+                                      :column-label="$i18n.t('Location Address2')"
         />
         <form-group-english-location-city namespace="English_Location_City"
-          :column-label="$i18n.t('English Location City')"
+                                          :column-label="$i18n.t('English Location City')"
         />
         <form-group-location-zip-postal-code namespace="Location_Zip_Postal_Code"
-          :column-label="$i18n.t('Location Zip Postal Code')"
+                                             :column-label="$i18n.t('Location Zip Postal Code')"
         />
         <form-group-location-state-province-name namespace="Location_State_Province_Name"
-          :column-label="$i18n.t('Location State Province Name')"
+                                                 :column-label="$i18n.t('Location State Province Name')"
         />
         <form-group-location-country-name namespace="Location_Country_Name"
-          :column-label="$i18n.t('Location Country Name')"
+                                          :column-label="$i18n.t('Location Country Name')"
         />
         <form-group-location-phone-number namespace="Location_Phone_Number"
-          :column-label="$i18n.t('Location Phone Number')"
+                                          :column-label="$i18n.t('Location Phone Number')"
         />
         <form-group-location-url namespace="Location_URL"
-          :column-label="$i18n.t('Location URL')"
+                                 :column-label="$i18n.t('Location URL')"
         />
         <form-group-coverage-area namespace="Coverage_Area"
-          :column-label="$i18n.t('Coverage Area')"
+                                  :column-label="$i18n.t('Coverage Area')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('SSID')">
         <form-group-ssid-open-auth namespace="SSID_Open_Auth"
-          :column-label="$i18n.t('SSID Open Auth')"
+                                   :column-label="$i18n.t('SSID Open Auth')"
         />
         <form-group-ssid-broadcasted namespace="SSID_Broadcasted"
-          :column-label="$i18n.t('SSID Broadcasted')"
+                                     :column-label="$i18n.t('SSID Broadcasted')"
+                                     enabled-value="Y"
+                                     disabled-value="N"
         />
         <form-group-wep-key namespace="WEP_Key"
-          :column-label="$i18n.t('WEP Key')"
+                            :column-label="$i18n.t('WEP Key')"
         />
         <form-group-wep-key-entry-method namespace="WEP_Key_Entry_Method"
-          :column-label="$i18n.t('WEP Key Entry Method')"
+                                         :column-label="$i18n.t('WEP Key Entry Method')"
         />
         <form-group-wep-key-size namespace="WEP_Key_Size"
-          :column-label="$i18n.t('WEP Key Size')"
+                                 :column-label="$i18n.t('WEP Key Size')"
         />
         <form-group-ssid1x namespace="SSID_1X"
-          :column-label="$i18n.t('SSID 1X')"
+                           :column-label="$i18n.t('SSID 1X')"
         />
         <form-group-ssid1x-broadcasted namespace="SSID_1X_Broadcasted"
-          :column-label="$i18n.t('SSID 1X Broadcasted')"
+                                       :column-label="$i18n.t('SSID 1X Broadcasted')"
         />
         <form-group-security-protocol1x namespace="Security_Protocol_1X"
-          :column-label="$i18n.t('Security Protocol 1X')"
+                                        :column-label="$i18n.t('Security Protocol 1X')"
+                                        enabled-value="Y"
+                                        disabled-value="N"
         />
         <form-group-restricted-access namespace="Restricted_Access"
-          :column-label="$i18n.t('Restricted Access')"
+                                      :column-label="$i18n.t('Restricted Access')"
+                                      enabled-value="Y"
+                                      disabled-value="N"
         />
         <form-group-client-support namespace="Client_Support"
-          :column-label="$i18n.t('Client Support')"
+                                   :column-label="$i18n.t('Client Support')"
         />
         <form-group-mac-address namespace="MAC_Address"
-          :column-label="$i18n.t('MAC Address')"
+                                :column-label="$i18n.t('MAC Address')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Hours')">
         <form-group-utc-timezone namespace="UTC_Timezone"
-          :column-label="$i18n.t('UTC Timezone')"
+                                 :column-label="$i18n.t('UTC Timezone')"
         />
         <form-group-open-monday namespace="Open_Monday"
-          :column-label="$i18n.t('Open Monday')"
+                                :column-label="$i18n.t('Open Monday')"
         />
         <form-group-open-tuesday namespace="Open_Tuesday"
-          :column-label="$i18n.t('Open Tuesday')"
+                                 :column-label="$i18n.t('Open Tuesday')"
         />
         <form-group-open-wednesday namespace="Open_Wednesday"
-          :column-label="$i18n.t('Open Wednesday')"
+                                   :column-label="$i18n.t('Open Wednesday')"
         />
         <form-group-open-thursday namespace="Open_Thursday"
-          :column-label="$i18n.t('Open Thursday')"
+                                  :column-label="$i18n.t('Open Thursday')"
         />
         <form-group-open-friday namespace="Open_Friday"
-          :column-label="$i18n.t('Open Friday')"
+                                :column-label="$i18n.t('Open Friday')"
         />
         <form-group-open-saturday namespace="Open_Saturday"
-          :column-label="$i18n.t('Open Saturday')"
+                                  :column-label="$i18n.t('Open Saturday')"
         />
         <form-group-open-sunday namespace="Open_Sunday"
-          :column-label="$i18n.t('Open Sunday')"
+                                :column-label="$i18n.t('Open Sunday')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Longitude/Latitude')">
         <form-group-longitude namespace="Longitude"
-          :column-label="$i18n.t('Longitude')"
+                              :column-label="$i18n.t('Longitude')"
         />
         <form-group-latitude namespace="Latitude"
-          :column-label="$i18n.t('Latitude')"
+                             :column-label="$i18n.t('Latitude')"
         />
       </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
-import {
-  BaseForm,
-  BaseFormTab
-} from '@/components/new/'
+import {computed} from '@vue/composition-api'
+import {BaseForm, BaseFormTab} from '@/components/new/'
 import schemaFn from '../schema'
 import {
-  FormGroupIdentifier,
-  FormGroupProviderIdentifier,
-  FormGroupLocationIdentifier,
-  FormGroupServiceProviderBrand,
-  FormGroupLocationType,
-  FormGroupSubLocationType,
+  FormGroupClientSupport,
+  FormGroupCoverageArea,
+  FormGroupEnglishLocationCity,
   FormGroupEnglishLocationName,
+  FormGroupIdentifier,
+  FormGroupLatitude,
   FormGroupLocationAddress1,
   FormGroupLocationAddress2,
-  FormGroupEnglishLocationCity,
-  FormGroupLocationZipPostalCode,
-  FormGroupLocationStateProvinceName,
   FormGroupLocationCountryName,
+  FormGroupLocationIdentifier,
   FormGroupLocationPhoneNumber,
+  FormGroupLocationStateProvinceName,
+  FormGroupLocationType,
   FormGroupLocationUrl,
-  FormGroupCoverageArea,
-  FormGroupSsidOpenAuth,
-  FormGroupSsidBroadcasted,
-  FormGroupWepKey,
-  FormGroupWepKeyEntryMethod,
-  FormGroupWepKeySize,
-  FormGroupSsid1x,
-  FormGroupSsid1xBroadcasted,
-  FormGroupSecurityProtocol1x,
-  FormGroupRestrictedAccess,
-  FormGroupClientSupport,
+  FormGroupLocationZipPostalCode,
+  FormGroupLongitude,
   FormGroupMacAddress,
-  FormGroupUtcTimezone,
-  FormGroupOpenMonday,
-  FormGroupOpenTuesday,
-  FormGroupOpenWednesday,
-  FormGroupOpenThursday,
   FormGroupOpenFriday,
+  FormGroupOpenMonday,
   FormGroupOpenSaturday,
   FormGroupOpenSunday,
-  FormGroupLongitude,
-  FormGroupLatitude
+  FormGroupOpenThursday,
+  FormGroupOpenTuesday,
+  FormGroupOpenWednesday,
+  FormGroupProviderIdentifier,
+  FormGroupRestrictedAccess,
+  FormGroupSecurityProtocol1x,
+  FormGroupServiceProviderBrand,
+  FormGroupSsid1x,
+  FormGroupSsid1xBroadcasted,
+  FormGroupSsidBroadcasted,
+  FormGroupSsidOpenAuth,
+  FormGroupSubLocationType,
+  FormGroupUtcTimezone,
+  FormGroupWepKey,
+  FormGroupWepKeyEntryMethod,
+  FormGroupWepKeySize
 } from './'
 
 const components = {

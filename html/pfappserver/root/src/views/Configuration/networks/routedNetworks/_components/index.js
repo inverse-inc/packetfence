@@ -1,14 +1,11 @@
-import { BaseViewCollectionItem } from '../../../_components/new/'
+import {BaseViewCollectionItem} from '../../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
+  BaseFormGroupSwitch,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
-import {
-  BaseFormGroupToggleZeroOneIntegerAsOffOn
-} from '@/views/Configuration/_components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -16,22 +13,22 @@ export {
   BaseFormButtonBar                         as FormButtonBar,
 
   BaseFormGroupChosenOne                    as FormGroupAlgorithm,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupCoa,
+  BaseFormGroupSwitch                       as FormGroupCoa,
   BaseFormGroupInput                        as FormGroupDescription,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupDhcpd,
+  BaseFormGroupSwitch                       as FormGroupDhcpd,
   BaseFormGroupInput                        as FormGroupDhcpDefaultLeaseTime,
   BaseFormGroupInput                        as FormGroupDhcpEnd,
   BaseFormGroupInput                        as FormGroupDhcpMaxLeaseTime,
   BaseFormGroupInput                        as FormGroupDhcpStart,
   BaseFormGroupInput                        as FormGroupDns,
-  BaseFormGroupToggleZeroOneIntegerAsOffOn  as FormGroupFakeMacEnabled,
+  BaseFormGroupSwitch                       as FormGroupFakeMacEnabled,
   BaseFormGroupInput                        as FormGroupGateway,
   BaseFormGroupInput                        as FormGroupIdentifier,
   BaseFormGroupTextarea                     as FormGroupIpAssigned,
   BaseFormGroupTextarea                     as FormGroupIpReserved,
-  BaseFormGroupToggleZeroOneIntegerAsOffOn  as FormGroupNatEnabled,
-  BaseFormGroupToggleZeroOneIntegerAsOffOn  as FormGroupNatDns,
-  BaseFormGroupToggleDisabledEnabled        as FormGroupNetflowAccountingEnabled,
+  BaseFormGroupSwitch                       as FormGroupNatEnabled,
+  BaseFormGroupSwitch                       as FormGroupNatDns,
+  BaseFormGroupSwitch                       as FormGroupNetflowAccountingEnabled,
   BaseFormGroupInput                        as FormGroupNetmask,
   BaseFormGroupInput                        as FormGroupNextHop,
   BaseFormGroupChosenOne                    as FormGroupPoolBackend,

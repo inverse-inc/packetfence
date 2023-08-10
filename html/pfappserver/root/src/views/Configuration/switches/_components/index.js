@@ -9,6 +9,7 @@ import {
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupTextarea,
+  BaseFormGroupSwitch
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from './BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from './BaseFormGroupToggleStaticDynamicDefault'
@@ -74,7 +75,7 @@ export {
   BaseFormGroupInput                      as FormGroupDownloadableAclsLimit,
   BaseFormGroupInput                      as FormGroupAclsLimit,
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
-  BaseFormGroupToggleNYDefault            as FormGroupDeauthOnPrevious,
+  BaseFormGroupSwitch                     as FormGroupDeauthOnPrevious,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVpnMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleUrlMap,

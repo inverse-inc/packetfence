@@ -7,23 +7,27 @@
   >
 
     <form-group-enable namespace="enable"
-      :column-label="$i18n.t('Enabled')"
-      :text="$i18n.t('Whether or not the Fingerbank device change feature is enabled.')"
+                       :column-label="$i18n.t('Enabled')"
+                       :text="$i18n.t('Whether or not the Fingerbank device change feature is enabled.')"
+                       enabled-value="enabled"
+                       disabled-value="disabled"
     />
 
     <form-group-trigger-on-device-class-change namespace="trigger_on_device_class_change"
-      :column-label="$i18n.t('Trigger on device class change')"
-      :text="$i18n.t('Whether or not internal::fingerbank_device_change should be triggered when we detect a device class change in Fingerbank.')"
+                                               :column-label="$i18n.t('Trigger on device class change')"
+                                               :text="$i18n.t('Whether or not internal::fingerbank_device_change should be triggered when we detect a device class change in Fingerbank.')"
+                                               enabled-value="enabled"
+                                               disabled-value="disabled"
     />
 
     <form-group-device-class-whitelist namespace="device_class_whitelist"
-      :column-label="$i18n.t('Device class change whitelist')"
-      :text="$i18n.t('Which device class changes are allowed in conjunction with trigger_on_device_class_changeComma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.')"
+                                       :column-label="$i18n.t('Device class change whitelist')"
+                                       :text="$i18n.t('Which device class changes are allowed in conjunction with trigger_on_device_class_changeComma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.')"
     />
 
     <form-group-triggers namespace="triggers"
-      :column-label="$i18n.t('Manual device class change triggers')"
-      :text="$i18n.t('Which changes (changing from a device class to another) should trigger internal::fingerbank_device_change. This setting is independant from trigger_on_device_class_change and allows to specify exactly which transitions should trigger internal::fingerbank_device_change. Comma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.')"
+                         :column-label="$i18n.t('Manual device class change triggers')"
+                         :text="$i18n.t('Which changes (changing from a device class to another) should trigger internal::fingerbank_device_change. This setting is independant from trigger_on_device_class_change and allows to specify exactly which transitions should trigger internal::fingerbank_device_change. Comma delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID</code> where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.')"
     />
 
     <b-row>
@@ -69,7 +73,7 @@
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
+import {computed} from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'

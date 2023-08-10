@@ -4,7 +4,7 @@ import {
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import BaseFormGroupBounce from './BaseFormGroupBounce'
 import BaseFormGroupCliAuthorizeRead from './BaseFormGroupCliAuthorizeRead'
@@ -29,7 +29,7 @@ export {
   BaseFormGroupInput                  as FormGroupNasPortToIfIndex,
   BaseFormGroupChosenOne              as FormGroupRadiusDisconnect,
   BaseFormGroupRadiusAttributes       as FormGroupReject,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupSnmpDisconnect,
+  BaseFormGroupSwitch                 as FormGroupSnmpDisconnect,
   BaseFormGroupRadiusAttributes       as FormGroupVoip,
 
   BaseViewCollectionItem              as BaseView,

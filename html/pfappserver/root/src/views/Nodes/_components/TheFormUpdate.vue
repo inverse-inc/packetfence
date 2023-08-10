@@ -7,40 +7,43 @@
       class="pt-0"
     >
       <form-group-pid namespace="pid"
-        :column-label="$i18n.t('Owner')"
-        placeholder="default"
+                      :column-label="$i18n.t('Owner')"
+                      placeholder="default"
       />
       <form-group-status namespace="status"
-        :column-label="$i18n.t('Status')"
+                         :column-label="$i18n.t('Status')"
       />
       <form-group-role namespace="category_id"
-        :column-label="$i18n.t('Role')"
+                       :column-label="$i18n.t('Role')"
       />
       <form-group-unregdate namespace="unregdate"
-        :column-label="$i18n.t('Unregistration')"
+                            :column-label="$i18n.t('Unregistration')"
       />
       <form-group-time-balance namespace="time_balance"
-        :column-label="$i18n.t('Access Time Balance')"
-        :text="$i18n.t('Seconds')"
+                               :column-label="$i18n.t('Access Time Balance')"
+                               :text="$i18n.t('Seconds')"
       />
       <form-group-bandwidth-balance namespace="bandwidth_balance"
-        :column-label="$i18n.t('Bandwidth Balance')"
-        :max="MysqlLimits.ubigint.max"
+                                    :column-label="$i18n.t('Bandwidth Balance')"
+                                    :max="MysqlLimits.ubigint.max"
       />
       <form-group-voip namespace="voip"
-        :column-label="$i18n.t('Voice Over IP')"
+                       :column-label="$i18n.t('Voice Over IP')"
+                       enabled-value="yes"
+                       disabled-value="no"
+
       />
       <form-group-bypass-vlan namespace="bypass_vlan"
-        :column-label="$i18n.t('Bypass VLAN')"
+                              :column-label="$i18n.t('Bypass VLAN')"
       />
       <form-group-bypass-role namespace="bypass_role_id"
-        :column-label="$i18n.t('Bypass Role')"
+                              :column-label="$i18n.t('Bypass Role')"
       />
       <form-group-bypass-acls namespace="bypass_acls"
-        :column-label="$i18n.t('Bypass ACLS')"
+                              :column-label="$i18n.t('Bypass ACLS')"
       />
       <form-group-notes namespace="notes"
-        :column-label="$i18n.t('Notes')"
+                        :column-label="$i18n.t('Notes')"
       />
 
       <div class="mt-3">
@@ -59,11 +62,14 @@
             @save="onSave"
           >
             <template v-if="canReevaluateAccess">
-              <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="isLoading" @click="reevaluateAccess">{{ $i18n.t('Reevaluate Access') }}</b-button>
+              <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="isLoading"
+                        @click="reevaluateAccess">{{ $i18n.t('Reevaluate Access') }}
+              </b-button>
             </template>
             <template v-else>
               <span v-b-tooltip.hover.top.d300 :title="$i18n.t('Node has no locations.')">
-                <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="true">{{ $i18n.t('Reevaluate Access') }}</b-button>
+                <b-button class="mr-1" size="sm" variant="outline-secondary"
+                          :disabled="true">{{ $i18n.t('Reevaluate Access') }}</b-button>
               </span>
             </template>
           </form-button-bar>
@@ -74,24 +80,29 @@
 </template>
 
 <script>
-import {
-  BaseForm,
-  BaseFormGroupInput
-} from '@/components/new/'
+import {BaseForm, BaseFormGroupInput} from '@/components/new/'
 import {
   FormButtonBar,
-  FormGroupPid,
-  FormGroupStatus,
-  FormGroupRole,
-  FormGroupUnregdate,
-  FormGroupTimeBalance,
   FormGroupBandwidthBalance,
-  FormGroupVoip,
-  FormGroupBypassVlan,
   FormGroupBypassAcls,
   FormGroupBypassRole,
-  FormGroupNotes
+  FormGroupBypassVlan,
+  FormGroupNotes,
+  FormGroupPid,
+  FormGroupRole,
+  FormGroupStatus,
+  FormGroupTimeBalance,
+  FormGroupUnregdate,
+  FormGroupVoip
 } from './'
+import {computed, ref, toRefs, watch} from '@vue/composition-api'
+import {useDebouncedWatchHandler} from '@/composables/useDebounce'
+import useEventActionKey from '@/composables/useEventActionKey'
+import useEventJail from '@/composables/useEventJail'
+import {usePropsWrapper} from '@/composables/useProps'
+import {MysqlLimits} from '@/globals/mysql'
+import {updateSchema as schemaFn} from '../schema'
+import {useRouter, useStore} from '../_composables/useCollection'
 
 const components = {
   BaseForm,
@@ -117,15 +128,6 @@ const props = {
   }
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
-import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import useEventActionKey from '@/composables/useEventActionKey'
-import useEventJail from '@/composables/useEventJail'
-import { usePropsWrapper } from '@/composables/useProps'
-import { MysqlLimits } from '@/globals/mysql'
-import { updateSchema as schemaFn } from '../schema'
-import { useRouter, useStore } from '../_composables/useCollection'
-
 const setup = (props, context) => {
 
   const {
@@ -150,7 +152,7 @@ const setup = (props, context) => {
     )
   )
 
-  const { root: { $router, $store } = {} } = context
+  const {root: {$router, $store} = {}} = context
 
   // merge props w/ params in useStore methods
   const _useStore = $store => usePropsWrapper(useStore($store), props)
@@ -164,7 +166,7 @@ const setup = (props, context) => {
   } = _useStore($store)
 
   const canReevaluateAccess = computed(() => {
-    const { locations = [] } = $store.state.$_nodes.nodes[id.value] || {}
+    const {locations = []} = $store.state.$_nodes.nodes[id.value] || {}
     return locations.length > 0
   })
 
@@ -174,7 +176,7 @@ const setup = (props, context) => {
   } = useRouter($router)
 
   const isDeletable = computed(() => {
-    const { not_deletable: notDeletable = false } = form.value || {}
+    const {not_deletable: notDeletable = false} = form.value || {}
     if (notDeletable)
       return false
     return true
@@ -183,7 +185,7 @@ const setup = (props, context) => {
   const init = () => {
     return new Promise((resolve, reject) => {
       getItem().then(item => {
-        form.value = { ...item }
+        form.value = {...item}
         resolve()
       }).catch(e => {
         form.value = {}
@@ -208,15 +210,15 @@ const setup = (props, context) => {
     const closeAfter = actionKey.value
     save().then(response => {
       if (closeAfter) // [CTRL] key pressed
-        goToCollection({ actionKey: true })
+        goToCollection({actionKey: true})
       else {
-        form.value = { ...form.value, ...response } // merge form w/ newly inserted IDs
+        form.value = {...form.value, ...response} // merge form w/ newly inserted IDs
         goToItem(form.value).then(() => init()) // re-init
       }
     })
   }
 
-  watch(props, () => init(), { deep: true, immediate: true })
+  watch(props, () => init(), {deep: true, immediate: true})
 
   return {
     MysqlLimits,

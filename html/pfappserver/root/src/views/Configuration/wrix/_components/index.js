@@ -3,7 +3,7 @@ import {
   BaseFormButtonBar,
   BaseFormGroupChosenTimezone,
   BaseFormGroupInput,
-  BaseFormGroupToggleNY
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import BaseFormGroupSecurityProtocol1x from './BaseFormGroupSecurityProtocol1x'
 import TheForm from './TheForm'
@@ -30,14 +30,14 @@ export {
   BaseFormGroupInput                  as FormGroupLocationUrl,
   BaseFormGroupInput                  as FormGroupCoverageArea,
   BaseFormGroupInput                  as FormGroupSsidOpenAuth,
-  BaseFormGroupToggleNY               as FormGroupSsidBroadcasted,
+  BaseFormGroupSwitch                 as FormGroupSsidBroadcasted,
   BaseFormGroupInput                  as FormGroupWepKey,
   BaseFormGroupInput                  as FormGroupWepKeyEntryMethod,
   BaseFormGroupInput                  as FormGroupWepKeySize,
   BaseFormGroupInput                  as FormGroupSsid1x,
-  BaseFormGroupToggleNY               as FormGroupSsid1xBroadcasted,
+  BaseFormGroupSwitch                 as FormGroupSsid1xBroadcasted,
   BaseFormGroupSecurityProtocol1x     as FormGroupSecurityProtocol1x,
-  BaseFormGroupToggleNY               as FormGroupRestrictedAccess,
+  BaseFormGroupSwitch                 as FormGroupRestrictedAccess,
   BaseFormGroupInput                  as FormGroupClientSupport,
   BaseFormGroupInput                  as FormGroupMacAddress,
   BaseFormGroupChosenTimezone         as FormGroupUtcTimezone,

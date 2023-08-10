@@ -8,60 +8,61 @@
     <b-tabs>
       <base-form-tab :title="$i18n.t('General')" active>
         <form-group-identifier namespace="id"
-          :column-label="$i18n.t('Profile Name')"
-          :disabled="!isNew && !isClone"
+                               :column-label="$i18n.t('Profile Name')"
+                               :disabled="!isNew && !isClone"
         />
 
         <form-group-description namespace="description"
-          :column-label="$i18n.t('Description')"
+                                :column-label="$i18n.t('Description')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Status Page')">
         <form-group-roles-allowed-to-unregister namespace="roles_allowed_to_unregister"
-          :column-label="$i18n.t('Allowed roles')"
-          :text="$i18n.t('The list of roles that are allowed to unregister devices using the self-service portal. Leaving this empty will allow all users to unregister their devices.')"
+                                                :column-label="$i18n.t('Allowed roles')"
+                                                :text="$i18n.t('The list of roles that are allowed to unregister devices using the self-service portal. Leaving this empty will allow all users to unregister their devices.')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Self Service')">
         <form-group-device-registration-roles namespace="device_registration_roles"
-          :column-label="$i18n.t('Role to assign')"
-          :text="$i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used. If multiples are defined then the user will have to choose.')"
+                                              :column-label="$i18n.t('Role to assign')"
+                                              :text="$i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used. If multiples are defined then the user will have to choose.')"
         />
 
-        <form-group-device-registration-access-duration namespace="device_registration_access_duration"
+        <form-group-device-registration-access-duration
+          namespace="device_registration_access_duration"
           :column-label="$i18n.t('Access duration to assign')"
           :text="$i18n.t('The access duration to assign to devices registered from the self-service portal. If zero is specified, the access duration of the registrant is used.')"
         />
 
-        <form-group-device-registration-allowed-devices namespace="device_registration_allowed_devices"
+        <form-group-device-registration-allowed-devices
+          namespace="device_registration_allowed_devices"
           :column-label="$i18n.t('Allowed OS')"
           :text="$i18n.t('List of OS which will be allowed to be register via the self service portal.')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('DPSK')">
         <form-group-dynamic-pre-shared-key namespace="dynamic_pre_shared_key"
-          :column-label="$i18n.t('Show the user WPA pre-shared key')"
-          :text="$i18n.t('Will display the WPA pre-shared key on the status page when a DPSK provisioner is configured.')"
+                                           :column-label="$i18n.t('Show the user WPA pre-shared key')"
+                                           :text="$i18n.t('Will display the WPA pre-shared key on the status page when a DPSK provisioner is configured.')"
+                                           enabled-value="enabled"
+                                           disabled-value="disabled"
         />
       </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
-import {
-  BaseForm,
-  BaseFormTab
-} from '@/components/new/'
+import {computed} from '@vue/composition-api'
+import {BaseForm, BaseFormTab} from '@/components/new/'
 import schemaFn from '../schema'
 import {
-  FormGroupIdentifier,
   FormGroupDescription,
   FormGroupDeviceRegistrationAccessDuration,
   FormGroupDeviceRegistrationAllowedDevices,
   FormGroupDeviceRegistrationRoles,
-  FormGroupRolesAllowedToUnregister,
-  FormGroupDynamicPreSharedKey
+  FormGroupDynamicPreSharedKey,
+  FormGroupIdentifier,
+  FormGroupRolesAllowedToUnregister
 } from './'
 
 const components = {

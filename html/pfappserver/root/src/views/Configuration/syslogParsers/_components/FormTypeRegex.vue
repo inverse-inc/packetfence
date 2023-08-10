@@ -6,29 +6,31 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Detector')"
-      :disabled="!isNew && !isClone"
+                           :column-label="$i18n.t('Detector')"
+                           :disabled="!isNew && !isClone"
     />
 
     <form-group-status namespace="status"
-      :column-label="$i18n.t('Status')"
+                       :column-label="$i18n.t('Enabled')"
+                       enabled-value="enabled"
+                       disabled-value="disabled"
     />
 
     <form-group-path namespace="path"
-      :column-label="$i18n.t('Alert pipe')"
+                     :column-label="$i18n.t('Alert pipe')"
     />
 
     <form-group-rules namespace="rules"
-      :column-label="$i18n.t('Rules')"
+                      :column-label="$i18n.t('Rules')"
     />
 
     <form-group-test namespace="lines"
-      :column-label="$i18n.t('Sample Log Lines')"
+                     :column-label="$i18n.t('Sample Log Lines')"
     />
   </base-form>
 </template>
 <script>
-import { BaseForm } from '@/components/new/'
+import {BaseForm} from '@/components/new/'
 import {
   FormGroupIdentifier,
   FormGroupPath,
@@ -36,6 +38,7 @@ import {
   FormGroupStatus,
   FormGroupTest
 } from './'
+import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
 const components = {
   BaseForm,
@@ -46,8 +49,6 @@ const components = {
   FormGroupStatus,
   FormGroupTest
 }
-
-import { useForm as setup, useFormProps as props } from '../_composables/useForm'
 
 // @vue/component
 export default {

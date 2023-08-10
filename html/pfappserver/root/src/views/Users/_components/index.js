@@ -5,17 +5,17 @@ import {
   BaseFormGroupInputNumber,
   BaseFormGroupInputPasswordGenerator,
   BaseFormGroupTextarea,
-  BaseInputGroupDateTime
+  BaseInputGroupDateTime,
+  BaseFormGroupSwitch,
 } from '@/components/new/'
 import BaseRuleFormGroupActions from '@/views/Configuration/sources/_components/BaseRuleFormGroupActions'
 import BaseFormGroupGender from './BaseFormGroupGender'
-import BaseFormGroupPidOverwrite from './BaseFormGroupPidOverwrite'
 import BaseFormGroupPasswordOptions from './BaseFormGroupPasswordOptions'
 
 export {
   BaseFormButtonBar                   as FormButtonBar,
 
-  BaseFormGroupPidOverwrite           as FormGroupPidOverwrite,
+  BaseFormGroupSwitch                 as FormGroupPidOverwrite,
   BaseFormGroupInput                  as FormGroupPid,
   BaseFormGroupInputPasswordGenerator as FormGroupPassword,
   BaseFormGroupInputNumber            as FormGroupLoginRemaining,

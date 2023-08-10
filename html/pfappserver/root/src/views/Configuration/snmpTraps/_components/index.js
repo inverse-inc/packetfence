@@ -3,7 +3,7 @@ import {
   BaseFormButtonBar,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch
 } from '@/components/new/'
 import {
   BaseFormGroupIntervalUnit
@@ -15,7 +15,7 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupIntervalUnit           as FormGroupBounceDuration,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupTrapLimit,
+  BaseFormGroupSwitch                 as FormGroupTrapLimit,
   BaseFormGroupInput                  as FormGroupTrapLimitThreshold,
   BaseFormGroupChosenMultiple         as FormGroupTrapLimitAction,
 

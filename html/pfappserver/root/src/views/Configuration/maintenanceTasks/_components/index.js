@@ -1,16 +1,13 @@
-import { BaseViewCollectionItem } from '../../_components/new/'
+import {BaseViewCollectionItem} from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
+  BaseFormGroupSwitch,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled,
-  BaseFormGroupToggleNY
 } from '@/components/new/'
-import {
-  BaseFormGroupIntervalUnit
-} from '@/views/Configuration/_components/new/'
+import {BaseFormGroupIntervalUnit} from '@/views/Configuration/_components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 import ToggleStatus from './ToggleStatus'
@@ -29,18 +26,18 @@ export {
   BaseFormGroupIntervalUnit           as FormGroupHistoryWindow,
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupChosenOne              as FormGroupSchedule,
-  BaseFormGroupToggleNY               as FormGroupProcessSwitchranges,
-  BaseFormGroupToggleNY               as FormGroupRotate,
+  BaseFormGroupSwitch                 as FormGroupProcessSwitchranges,
+  BaseFormGroupSwitch                 as FormGroupRotate,
   BaseFormGroupInputNumber            as FormGroupRotateBatch,
   BaseFormGroupIntervalUnit           as FormGroupRotateTimeout,
   BaseFormGroupIntervalUnit           as FormGroupRotateWindow,
   BaseFormGroupInputNumber            as FormGroupSessionBatch,
   BaseFormGroupIntervalUnit           as FormGroupSessionTimeout,
   BaseFormGroupIntervalUnit           as FormGroupSessionWindow,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupStatus,
+  BaseFormGroupSwitch                 as FormGroupStatus,
   BaseFormGroupIntervalUnit           as FormGroupTimeout,
   BaseFormGroupIntervalUnit           as FormGroupUnregWindow,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupVoip,
+  BaseFormGroupSwitch                 as FormGroupVoip,
   BaseFormGroupIntervalUnit           as FormGroupWindow,
 
   TheForm,

@@ -1,16 +1,14 @@
-import { BaseViewCollectionItem } from '../../_components/new/'
+import {BaseViewCollectionItem} from '../../_components/new/'
 import {
   BaseFormButtonBar,
-
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupToggleDisabledEnabled,
+  BaseFormGroupSwitch,
 } from '@/components/new/'
-import {
-  BaseFormGroupIntervalUnit
-} from '@/views/Configuration/_components/new/'
-import BaseFormGroupDeviceAttributesDiffThresholdOverrides from './BaseFormGroupDeviceAttributesDiffThresholdOverrides'
+import {BaseFormGroupIntervalUnit} from '@/views/Configuration/_components/new/'
+import BaseFormGroupDeviceAttributesDiffThresholdOverrides
+  from './BaseFormGroupDeviceAttributesDiffThresholdOverrides'
 import BaseFormGroupDevices from './BaseFormGroupDevices'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -30,8 +28,8 @@ export {
   BaseFormGroupDevices                                as FormGroupDevicesExcluded,
   BaseFormGroupDevices                                as FormGroupDevicesIncluded,
   BaseFormGroupInput                                  as FormGroupIdentifier,
-  BaseFormGroupToggleDisabledEnabled                  as FormGroupStatus,
-  BaseFormGroupToggleDisabledEnabled                  as FormGroupWatchBlacklistedIps,
+  BaseFormGroupSwitch                                 as FormGroupStatus,
+  BaseFormGroupSwitch                                 as FormGroupWatchBlacklistedIps,
   BaseFormGroupChosenMultiple                         as FormGroupWatchedDeviceAttributes,
   BaseFormGroupInput                                  as FormGroupWhitelistedIps,
 
