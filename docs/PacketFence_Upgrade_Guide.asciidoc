@@ -1859,6 +1859,8 @@ Two switch types will be converted to the new way of defining a switch. Now, a s
 
 The following provisioners will be removed from Packetfence configuration IBM, ServiceNow, SEPM, Symantec, Opswat
 
+== Upgrading from a version prior to X.Y.Z
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
