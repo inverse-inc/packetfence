@@ -13,6 +13,7 @@ RUN cd /usr/local/pf/go/ && go mod download
 
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
+COPY ./html/swagger-ui /usr/local/pf/html/swagger-ui
 # src html is copy into a temp directory (/html)
 # then move to /usr/local/pf/html
 COPY ./html /html
@@ -27,7 +28,7 @@ RUN cd /usr/local/pf/go/ && \
 ARG BUILD_PFAPPSERVER_VUE
 
 # build web admin
-RUN if [[ "$BUILD_PFAPPSERVER_VUE" == "yes" ]]; then \ 
+RUN if [[ "$BUILD_PFAPPSERVER_VUE" == "yes" ]]; then \
       cd /html/pfappserver/root && \
       make vendor  && \
       make light-dist ; \
