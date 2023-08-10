@@ -1,5 +1,5 @@
 Name:       packetfence-upgrade
-Version:    13.0.0
+Version:    13.1
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence upgrade files
@@ -47,6 +47,9 @@ This package should only be installed on releases after v11.
 %attr(0755, -, -)     /usr/local/pf/addons/full-upgrade/hooks/*
 
 %changelog
+* Thu Aug 10 2023 Inverse <info@inverse.ca> - 13.1-1
+- New release 13.1
+
 * Thu Mar 09 2023 Inverse <info@inverse.ca> - 13.0.0-1
 - New release 13.0.0
 
