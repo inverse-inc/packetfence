@@ -218,15 +218,6 @@ const components = {
   FormGroupWriteTimeout,
 }
 
-import {useForm as setupForm, useFormProps as props} from '../_composables/useForm'
-import useLdapAttributes
-  from '@/views/Configuration/sources/_components/ldapCondition/useLdapAttributes';
-import BaseRuleFormGroupLdapConditions
-  from '@/views/Configuration/sources/_components/BaseRuleFormGroupLdapConditions';
-import {provide} from '@vue/composition-api';
-import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
-import {ldapFormsSupported} from '@/views/Configuration/sources/_components/ldapCondition/common';
-
 function setup(props) {
   const ret = setupForm(props)
   // TODO support other ldap types
