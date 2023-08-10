@@ -163,6 +163,11 @@ sub do_sponsor_registration {
     my $email = $self->request_fields->{email};
     $info{'pid'} = $pid;
     $info{'email'} = $email;
+    unless ( $email ) {
+        $self->app->flash->{error} = "Undefined email";
+        $self->prompt_fields();
+        return;
+    }
     my ( $status, $status_msg ) = $source->authenticate($pid);
     unless ( $status ) {
         $self->app->flash->{error} = $status_msg;
