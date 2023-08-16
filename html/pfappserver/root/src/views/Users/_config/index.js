@@ -2,9 +2,6 @@ import i18n from '@/utils/locale'
 import acl from '@/utils/acl'
 import yup from '@/utils/yup'
 import {
-  pfActions
-} from '@/globals/pfActions'
-import {
   MysqlDatabase,
   validatorFromColumnSchemas
 } from '@/globals/mysql'
@@ -15,12 +12,12 @@ import { yup as yupRoles } from '@/views/Configuration/roles/schema'
 import { yup as yupSources } from '@/views/Configuration/sources/schema'
 
 export const userActions = [
-  pfActions.set_access_duration_by_acl_user,
-  pfActions.set_access_level_by_acl_user,
-  pfActions.mark_as_sponsor,
-  pfActions.set_role_by_acl_user,
-  pfActions.set_access_durations,
-  pfActions.set_unreg_date_by_acl_user
+  'set_access_duration_by_acl_user',
+  'set_access_level_by_acl_user',
+  'mark_as_sponsor',
+  'set_role_by_acl_user',
+  'set_access_durations',
+  'set_unreg_date_by_acl_user'
 ]
 
 export const passwordOptions = {
