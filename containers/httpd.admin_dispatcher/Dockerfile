@@ -49,7 +49,7 @@ RUN if [[ "$BUILD_PFAPPSERVER_VUE" == "yes" ]]; then \
       make SRC_HTMLDIR=/html html_httpd.admin_dispatcher ; \
     else \
       echo "Skipping this step..." && \
-      mkdir /usr/local/pf/html ; \
+      mkdir -p /usr/local/pf/html ; \
     fi
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
