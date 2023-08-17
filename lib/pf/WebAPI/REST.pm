@@ -14,7 +14,7 @@ pf::WebAPI::JSONRPC
 
 use strict;
 use warnings;
-use Cpanel::JSON::XS;
+use JSON::MaybeXS;
 use pf::log;
 use pf::util::webapi;
 use Apache2::RequestIO;
@@ -32,7 +32,6 @@ our %ALLOW_CONTENT_TYPE = (
 );
 
 our $CONTENT_TYPE = 'application/json';
-our $JSON = Cpanel::JSON::XS->new()->allow_dupkeys(1);
 
 sub allowed {return exists $ALLOW_CONTENT_TYPE{$_[0]}}
 
@@ -41,7 +40,7 @@ sub handler {
     use bytes;
     my ($self, $r) = @_;
     my $content = $self->get_all_content($r);
-    my $data = eval { $JSON->decode($content) };
+    my $data = eval {decode_json $content };
     if ($@) {
         my $error = $@;
         get_logger->error($error);
