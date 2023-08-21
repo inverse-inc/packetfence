@@ -39,7 +39,7 @@ for my $kid (@kids) {
     $kid =~ s/ *$//;
     next if $kid eq '';
     my ($parent, $pid, $cpu, $etimes) = split(/ +/, $kid);
-    if (defined $etimes && $etimes > 30 && $cpu == 0) {
+    if (defined $etimes && $etimes > 60 && $cpu == 0) {
         push @pids, $pid;
     }
 }
