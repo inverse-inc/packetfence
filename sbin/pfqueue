@@ -179,6 +179,10 @@ sub register_tasks {
             register_task("worker", \&process_multiple_queues, {} );
         }
     }
+
+    if (@delay_queues) {
+        register_task("process_delayed_jobs", \&process_delayed_jobs, \@delay_queues );
+    }
 }
 
 
@@ -271,26 +275,30 @@ sub run_task {
     my ($task) = @_;
     db_disconnect();
     my $pid = pf::AtFork::pf_fork();
+    if (!defined $pid) {
+        $logger->error("Fork error $!");
+        return;
+    }
+
     if ($pid) {
         $CHILDREN{$pid} = $task;
-    } elsif ($pid == 0) {
-        STDOUT->autoflush(1);
-        eval {
-            srand();
-            my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
-            Log::Log4perl::MDC->put('tid', $$);
-            $SIG{CHLD} = \&child_sighandler2;
-            $IS_CHILD = 1;
-            sigprocmask(SIG_UNBLOCK, $mask);
-            _run_task(@$task);
-        };
-        $logger->error("Error running the task $@") if $@;
-        cleanup_task();
-        #Exit quickly because it takes a long time for perl to cleanup
-        POSIX::_exit(0);
-    } else {
-        $logger->error("Fork error $!");
+        return;
     }
+
+    STDOUT->autoflush(1);
+    eval {
+        srand();
+        my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
+        Log::Log4perl::MDC->put('tid', $$);
+        $SIG{CHLD} = \&child_sighandler2;
+        $IS_CHILD = 1;
+        sigprocmask(SIG_UNBLOCK, $mask);
+        _run_task(@$task);
+    };
+    $logger->error("Error running the task $@") if $@;
+    cleanup_task();
+    #Exit quickly because it takes a long time for perl to cleanup
+    POSIX::_exit(0);
 }
 
 =head2 cleanup_task
@@ -439,8 +447,8 @@ sub process_delayed_jobs {
     my ($consumer, $args) = @_;
     for my $arg (@$args) {
         $consumer->process_delayed_jobs($arg);
+        usleep(50000);
     }
-    usleep(50000);
 }
 
 =head2 wait_for_it
@@ -451,14 +459,19 @@ waits for signals
 
 sub wait_for_it {
     my $consumer = get_consumer();
+    my $old_sigset = POSIX::SigSet->new;
+    my $sigset = POSIX::SigSet->new(
+        POSIX::SIGINT(),
+        POSIX::SIGHUP(),
+        POSIX::SIGTERM(),
+        POSIX::SIGCHLD(),
+    );
     while ($running) {
         run_tasks();
-        eval {
-            process_delayed_jobs($consumer, \@delay_queues);
-        };
-        if ($@) {
-            $consumer = get_consumer();
-        }
+        # Atomically waiting for a signal to happen
+        sigprocmask(SIG_BLOCK, $sigset, $old_sigset);
+        sigsuspend($old_sigset);
+        sigprocmask(SIG_UNBLOCK, $sigset);
     }
     $logger->trace("Signaled to stop running");
 }
