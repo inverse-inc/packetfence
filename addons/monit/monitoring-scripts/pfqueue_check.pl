@@ -31,22 +31,46 @@ unless ($pfqueue_id) {
     exit 0;
 }
 
-my $pfqueue_kids = qx/ps --no-headers --ppid ${pfqueue_id} -o ppid,pid,pcpu,etimes/;
+my $pfqueue_kids = qx/ps --no-headers --ppid ${pfqueue_id} -o pid,pcpu,etimes/;
 my @kids = split(/\n/, $pfqueue_kids);
 my @pids;
 for my $kid (@kids) {
     $kid =~ s/^ *//;
     $kid =~ s/ *$//;
     next if $kid eq '';
-    my ($parent, $pid, $cpu, $etimes) = split(/ +/, $kid);
+    my ($pid, $cpu, $etimes) = split(/ +/, $kid);
     if (defined $etimes && $etimes > 60 && $cpu == 0) {
         push @pids, $pid;
     }
 }
 
+unless (@pids) {
+    exit 0;
+}
+
+my %pids = map { $_ => 1 } @pids;
+my $start = time();
+while (keys %pids) {
+    my $pid_list = join(",", keys %pids);
+    my $info_list = qx/ps --no-headers --pid ${pid_list} -o pid,pcpu/;
+    $info_list =~ s/^ *//mg;
+    $info_list =~ s/ *$//mg;
+    next if $info_list eq '';
+    for my $info (split(/\n/, $info_list)) {
+        my ($pid, $cpu) = split(/ +/, $info);
+        if ($cpu != 0) {
+            delete $pids{$pid};
+        }
+    }
+} continue {
+    last if (time() - $start) >= 2;
+}
+
+@pids = keys %pids;
 if (@pids) {
     print STDERR "pfqueue children are stuck ", join(" ", @pids), "\n";
     exit 1;
+
 }
 
 =end
