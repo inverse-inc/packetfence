@@ -92,7 +92,8 @@ my $restart   = $args{r};
 my $pidfile = "${var_dir}/run/pfqueue.pid";
 
 our $HAS_LOCK = 0;
-open(my $fh, ">>$pidfile");
+open(my $fh, "+>>", $pidfile) or die "cannot open pid file $pidfile\n";
+
 flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfqueue is running\n";
 $HAS_LOCK = 1;
 
@@ -102,9 +103,17 @@ our @delay_queues;
 our @weighted_queues;
 
 # standard signals and daemonize
-daemonize($PROGRAM_NAME) if ($daemonize);
+if ($daemonize) {
+    daemonize($PROGRAM_NAME);
+}
 our $PARENT_PID = $$;
-Log::Log4perl::MDC->put( 'tid', $$ );
+if (!$daemonize) {
+    truncate($fh, 0);
+    print $fh "$PARENT_PID";
+    $fh->flush();
+}
+
+Log::Log4perl::MDC->put( 'tid', $PARENT_PID );
 
 pf::SwitchFactory->preloadConfiguredModules();
 
