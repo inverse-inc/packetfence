@@ -26,12 +26,20 @@ my $pfqueue_id = do {
     $f
 };
 
-my $pfqueue_kids = `ps --no-headers --ppid ${pfqueue_id} -o ppid,pid,pcpu,etimes`;
+unless ($pfqueue_id) {
+    print "Cannot get the pfqueue pid\n";
+    exit 0;
+}
+
+my $pfqueue_kids = qx/ps --no-headers --ppid ${pfqueue_id} -o ppid,pid,pcpu,etimes/;
 my @kids = split(/\n/, $pfqueue_kids);
 my @pids;
 for my $kid (@kids) {
-    my (undef, $parent, $pid, $cpu, $etimes) = split(/ +/, $kid);
-    if ($etimes > 30 && $cpu == 0) {
+    $kid =~ s/^ *//;
+    $kid =~ s/ *$//;
+    next if $kid eq '';
+    my ($parent, $pid, $cpu, $etimes) = split(/ +/, $kid);
+    if (defined $etimes && $etimes > 30 && $cpu == 0) {
         push @pids, $pid;
     }
 }
