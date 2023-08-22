@@ -142,7 +142,14 @@ export const importFields = [
       ],
       labelRight: true
     }
-  }
+  },
+  {
+    value: 'ip4',
+    text: i18n.t('IP'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.ip)
+  },
 ]
 
 export const ipLogFields = [

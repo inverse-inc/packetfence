@@ -219,6 +219,11 @@ export const MysqlDatabase = {
       type: MysqlDatetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
+    },
+    ip: {
+      type: MysqlString,
+      maxLength: 16,
+      default:null
     }
   },
   password: {
