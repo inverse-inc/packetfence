@@ -135,7 +135,7 @@ Remove the private key passphrase:
 
 Send the CSR and retreive the certificate:
 
- scep enroll -c ./ca-prefix  -k ./private.key -r ./MYCSR.csr -u http://ip_address/scep/template_name -S sha1 -l ./cert.crt
+ sscep enroll -c ./ca-prefix  -k ./private.key -r ./MYCSR.csr -u http://ip_address/scep/template_name -S sha1 -l ./cert.crt
 
 ==== Certificate creation
 
