@@ -388,9 +388,10 @@ sub parse_dhcp_request {
 
     # We check if we are running without dhcpd
     # This means we don't see ACK so we need to act on requests
-    if( !$self->pf_is_dhcp($client_ip) && 
+    my $is_dhcp = $self->pf_is_dhcp($client_ip);
+    if( !$is_dhcp &&
         !isenabled($Config{network}{force_listener_update_on_ack}) ){
-        $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length) );
+        $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length, is_dhcp => $is_dhcp) );
     }
     # We call the parking on all DHCPREQUEST since the actions have to be done on all servers and all servers receive the DHCPREQUEST
     else {
@@ -469,9 +470,10 @@ sub parse_dhcp_ack {
     # We check if we are running with the DHCPd process.
     # If yes, we are interested with the ACK
     # Packet also has to be valid
-    if( $self->pf_is_dhcp($client_ip) || 
+    my $is_dhcp = $self->pf_is_dhcp($client_ip);
+    if( $is_dhcp ||
         isenabled $Config{network}{force_listener_update_on_ack} ){
-        $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length) );
+        $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length, is_dhcp => $is_dhcp) );
         if ($self->{is_inline_vlan}) {
             $self->apiClient->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE, $self->{inline_sub_connection_type});
             $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
