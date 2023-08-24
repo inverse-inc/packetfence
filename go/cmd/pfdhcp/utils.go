@@ -436,13 +436,13 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
 
-	MAC2IP, err := MySQLdatabase.Prepare("SELECT mac, ip, start_time, end_time FROM ip4log WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) AND tenant_id = ? ORDER BY start_time DESC LIMIT 1")
+	MAC2IP, err := MySQLdatabase.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
 	if err != nil {
 		return err
 	}
 	defer MAC2IP.Close()
 
-	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac, ip, start_time, end_time FROM ip4log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) AND tenant_id = ? ORDER BY start_time DESC")
+	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC")
 	if err != nil {
 		return err
 	}
@@ -458,36 +458,43 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 	if err != nil {
 		return err
 	}
-	defer IPInsert.Close()
-
+	IPUpdate, err := MySQLdatabase.Prepare("UPDATE ip4log SET mac = ?, start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? SECOND) WHERE ip = ?")
+	if err != nil {
+		return err
+	}
 	var (
 		oldMAC string
 		oldIP  string
 	)
 	err = MAC2IP.QueryRow(mac, 1).Scan(&oldIP)
 	if err != nil {
-		return err
+		log.LoggerWContext(ctx).Info(err.Error())
 	}
 	err = IP2MAC.QueryRow(ip, 1).Scan(&oldMAC)
 	if err != nil {
-		return err
+		log.LoggerWContext(ctx).Info(err.Error())
 	}
-	if oldMAC != mac {
+	if len(oldMAC) > 0 && (oldMAC != mac) {
 		_, err = IPClose.Exec(ip)
 		if err != nil {
 			return err
 		}
 	}
-	if oldIP != ip {
+	if len(oldIP) > 0 && (oldIP != ip) {
 		_, err = IPClose.Exec(oldIP)
 		if err != nil {
 			return err
 		}
 	}
-	IPInsert.Exec(mac, ip, duration.Seconds())
-
+	_, err = IPInsert.Exec(mac, ip, duration.Seconds())
+	if err != nil {
+		log.LoggerWContext(ctx).Info(err.Error())
+		_, err = IPUpdate.Exec(mac, duration.Seconds(), ip)
+		if err != nil {
+			log.LoggerWContext(ctx).Info(err.Error())
+		}
+	}
 	return err
-
 }
 
 func stringInSlice(a string, list []string) bool {
