@@ -5,6 +5,18 @@ export default [
     name: 'Logs', // i18n defer
     groups: [
       {
+        name: 'httpd.apache portal_log',
+        items: [
+          {
+            title: 'Number of events', // i18n defer
+            metric: 'packetfence.logs.portal_log',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 12
+          }
+        ]
+      },
+      {
         name: 'packetfence.log',
         items: [
           {
