@@ -16,15 +16,23 @@ use lib qw(/usr/local/pf/lib);
 use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use pf::file_paths qw($var_dir);
 my $pfqueue_id = do {
-    open(my $fh, "$var_dir/run/pfqueue.pid") or exit 0;
+    my $f = slurp( "$var_dir/run/pfqueue.pid");
+    exit 0 unless defined $f;
+    chomp($f);
+    $f
+};
+
+sub slurp {
+    my ($file) = @_;
+    open(my $fh, $file) or return undef;
     my $f = '';
     {
         local $/ = undef;
         $f = <$fh>;
     }
-    chomp($f);
-    $f
-};
+
+    return $f;
+}
 
 unless ($pfqueue_id) {
     print "Cannot get the pfqueue pid\n";
@@ -32,12 +40,9 @@ unless ($pfqueue_id) {
 }
 
 my $pfqueue_kids = qx/ps --no-headers --ppid ${pfqueue_id} -o pid,pcpu,etimes/;
-my @kids = split(/\n/, $pfqueue_kids);
+my @kids = map {s/^ +//;s/ +$//;$_} grep { /\d+/ } split(/\n/, $pfqueue_kids);
 my @pids;
 for my $kid (@kids) {
-    $kid =~ s/^ *//;
-    $kid =~ s/ *$//;
-    next if $kid eq '';
     my ($pid, $cpu, $etimes) = split(/ +/, $kid);
     if (defined $etimes && $etimes > 60 && $cpu == 0) {
         push @pids, $pid;
@@ -66,11 +71,14 @@ while (keys %pids) {
     last if (time() - $start) >= 2;
 }
 
-@pids = keys %pids;
-if (@pids) {
-    print STDERR "pfqueue children are stuck ", join(" ", @pids), "\n";
-    exit 1;
+my @stucked_pids = keys %pids;
+if (@stucked_pids) {
+    print STDERR "pfqueue children are stuck ", join(" ", @stucked_pids), "\n";
+}
 
+if (@stucked_pids == @kids) {
+    print STDERR "All children are stuck\n";
+    exit 1;
 }
 
 =end
