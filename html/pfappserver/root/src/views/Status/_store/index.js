@@ -20,21 +20,6 @@ const state = () => {
 
 const getters = {
   isLoading: state => state.allChartsStatus === types.LOADING,
-  allModules: state => {
-    let modules = []
-    let unasignedCharts = false
-    for (const chart of state.allCharts) {
-      if (chart.module && !modules.includes(chart.module)) {
-        modules.push(chart.module)
-      } else if (!chart.module) {
-        unasignedCharts = true
-      }
-    }
-    if (unasignedCharts) {
-      modules.push('other')
-    }
-    return modules
-  },
   uniqueCharts: state => {
     let charts = [].concat(...Object.values(state.allCharts))
     // Remove duplicates
