@@ -26,6 +26,7 @@ use POSIX;
 use Readonly;
 use pf::file_paths qw($pf_default_file $pf_config_file);
 use pf::IniFiles;
+use pf::AtFork;
 
 our $VERSION = 1.000000;
 our @EXPORT = qw($statsd);
@@ -86,6 +87,8 @@ sub closeStatsd {
 sub CLONE {
     initStatsd;
 }
+
+pf::AtFork->add_to_child(\&CLONE);
 
 =head1 METHODS
 
