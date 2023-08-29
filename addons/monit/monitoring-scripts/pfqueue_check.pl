@@ -12,6 +12,7 @@ pfqueue_check
 
 use strict;
 use warnings;
+use POSIX ":sys_wait_h";
 use lib qw(/usr/local/pf/lib);
 use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use pf::file_paths qw($var_dir);
@@ -77,6 +78,40 @@ if (@stucked_pids) {
 }
 
 if (@stucked_pids == @kids) {
+    if (-e '/usr/bin/gcore') {
+        open(my $null_fh, '>', '/dev/null');
+        my @forks;
+        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+        $mon++;
+        $year+=1900;
+        my $prefix = sprintf("/usr/local/pf/logs/pfqueue-%02d%02d%02d%02d%02d%02d-", $year, $mon, $mday, $hour, $min, $sec);
+        local $SIG{CHLD} = sub {};
+        my $nums = scalar @stucked_pids;
+        for my $pid (@stucked_pids) {
+            $nums--;
+            my $fork = fork();
+            if (!defined $fork) {
+                next;
+            }
+
+            if ($fork == 0) {
+                #gcore [-a] [-o filename] pid
+                open(STDERR, ">", "/dev/null");
+                open(STDOUT, ">", "/dev/null");
+                exec('/usr/bin/gcore', '-o', "${prefix}${pid}.core", $pid);
+            } else {
+                push @forks, $fork;
+            }
+
+            if (@forks == 4 || $nums == 0) {
+                for my $f (@forks) {
+                    waitpid($f, 0);
+                }
+                @forks = ();
+            }
+        }
+    }
+
     print STDERR "All children are stuck\n";
     exit 1;
 }
