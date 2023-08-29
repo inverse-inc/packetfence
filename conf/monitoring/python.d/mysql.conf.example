@@ -100,5 +100,5 @@ pfdb:
   name : 'PacketFence Database'
   user : '%%db_username%%'
   pass : '%%db_password%%'
-  host : '%%db_host%%'
+  %%db_host%%
 
