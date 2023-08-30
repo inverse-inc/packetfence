@@ -61,6 +61,7 @@ Readonly::Hash my %IPTASKS_ARGUMENTS_MAP => (
     client_ip       => 'ip',
     lease_length    => 'lease_length',
     ip_type         => 'ip_type',
+    is_dhcp         => 'is_dhcp',
 );
 
 
@@ -164,7 +165,9 @@ sub processIPTasks {
 
     # IPlog
     if ( $iptasks_arguments{'ipversion'} eq $IPV4 ) {
-        $self->apiClient->notify('update_ip4log', %iptasks_arguments);
+        if (!$iptasks_arguments{'is_dhcp'}) {
+            $self->apiClient->notify('update_ip4log', %iptasks_arguments);
+        }
     } elsif ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
         $self->apiClient->notify('update_ip6log', %iptasks_arguments);
     }
