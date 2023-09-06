@@ -144,7 +144,7 @@ export const importFields = [
     }
   },
   {
-    value: 'ip4',
+    value: 'ip4log.ip',
     text: i18n.t('IP'),
     types: [fieldType.SUBSTRING],
     required: false,

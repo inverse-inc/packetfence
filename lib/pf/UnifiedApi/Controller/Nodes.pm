@@ -1051,8 +1051,8 @@ sub import_item {
         node_update_last_seen($mac);
     }
 
-    if (exists($node{-ip4})) {
-        my $ip4= $node{ip4};
+    if (exists($node{'ip4log.ip'})) {
+        my $ip4= $node{'ip4log.ip'};
         pf::ip4log::open($ip, $mac, 0);
     }
 
