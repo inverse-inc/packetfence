@@ -148,7 +148,7 @@ export const importFields = [
     text: i18n.t('IP'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validator: validatorFromColumnSchemas(MysqlDatabase.node.ip)
+    validator: yup.string().nullable().isIpv4(i18n.t('Invalid IPv4 Address.'))
   },
 ]
 
