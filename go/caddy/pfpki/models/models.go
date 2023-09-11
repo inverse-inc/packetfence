@@ -18,7 +18,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/asn1"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
@@ -825,8 +824,8 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 
 	Information.Entries = cadb
 	for _, v := range cadb {
-		block, _ := pem.Decode([]byte(v.Key))
 
+		block, _ := pem.Decode([]byte(v.Key))
 		if block == nil {
 			log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
 		}
@@ -842,40 +841,49 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 		switch *c.KeyType {
 		case certutils.KEY_RSA:
 			keyRSA, err = x509.ParsePKCS1PrivateKey(block.Bytes)
-			key = keyRSA
-			pub = &key.(*rsa.PrivateKey).PublicKey
-			skid, err = certutils.CalculateSKID(pub)
 			if err != nil {
-				Information.Error = err.Error()
-				return Information, err
+				keyOut, skid, err = certutils.ReturnPrivateKey(block.Bytes)
+				if err != nil {
+					Information.Error = err.Error()
+					return Information, err
+				}
+			} else {
+				keyOut, skid, err = certutils.ReturnRSAPrivateKey(keyRSA)
+				if err != nil {
+					Information.Error = err.Error()
+					return Information, err
+				}
 			}
-			pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(keyRSA)})
 		case certutils.KEY_ECDSA:
 			KeyECDSA, err = x509.ParseECPrivateKey(block.Bytes)
-			key = KeyECDSA
-			pub = &key.(*ecdsa.PrivateKey).PublicKey
-			skid, err = certutils.CalculateSKID(pub)
 			if err != nil {
-				Information.Error = err.Error()
-				return Information, err
+				keyOut, skid, err = certutils.ReturnPrivateKey(block.Bytes)
+				if err != nil {
+					Information.Error = err.Error()
+					return Information, err
+				}
+			} else {
+				keyOut, skid, err = certutils.ReturnECDSAPrivateKey(KeyECDSA)
+				if err != nil {
+					Information.Error = err.Error()
+					return Information, err
+				}
 			}
-			bytes, _ := x509.MarshalECPrivateKey(KeyECDSA)
-			pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: bytes})
 		case certutils.KEY_DSA:
 			KeyDSA, err = ssh.ParseDSAPrivateKey(block.Bytes)
-			key = KeyDSA
-			pub = &key.(*dsa.PrivateKey).PublicKey
-			skid, err = certutils.CalculateSKID(pub)
 			if err != nil {
-				Information.Error = err.Error()
-				return Information, err
+				keyOut, skid, err = certutils.ReturnPrivateKey(block.Bytes)
+				if err != nil {
+					Information.Error = err.Error()
+					return Information, err
+				}
+			} else {
+				keyOut, skid, err = certutils.ReturnDSAPrivateKey(KeyDSA)
+				if err != nil {
+					Information.Error = err.Error()
+					return Information, err
+				}
 			}
-			val := certutils.DSAKeyFormat{
-				P: key.(*dsa.PrivateKey).P, Q: key.(*dsa.PrivateKey).Q, G: key.(*dsa.PrivateKey).G,
-				Y: key.(*dsa.PrivateKey).Y, X: key.(*dsa.PrivateKey).X,
-			}
-			bytes, _ := asn1.Marshal(val)
-			pem.Encode(keyOut, &pem.Block{Type: "DSA PRIVATE KEY", Bytes: bytes})
 		}
 
 		var cadb CA
