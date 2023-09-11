@@ -56,7 +56,6 @@
     />
     <form-group-digest namespace="digest"
       :column-label="$i18n.t('Digest')"
-      :disabled="!isNew && !isClone"
     />
     <form-group-key-usage namespace="key_usage"
       :column-label="$i18n.t('Key usage')"
