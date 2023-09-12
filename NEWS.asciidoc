@@ -29,6 +29,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+ * Node Import supports IPv4 address (#7808)
+
 === Bug Fixes
 
 == Version 13.0.0 released on 2023-08-09
