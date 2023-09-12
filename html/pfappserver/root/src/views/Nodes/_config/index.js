@@ -142,7 +142,14 @@ export const importFields = [
       ],
       labelRight: true
     }
-  }
+  },
+  {
+    value: 'ip4log.ip',
+    text: i18n.t('IP'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validator: yup.string().nullable().isIpv4(i18n.t('Invalid IPv4 Address.'))
+  },
 ]
 
 export const ipLogFields = [
