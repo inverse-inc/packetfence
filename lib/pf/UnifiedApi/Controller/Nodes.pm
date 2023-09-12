@@ -1051,6 +1051,11 @@ sub import_item {
         node_update_last_seen($mac);
     }
 
+    if (exists($item->{'ip4log.ip'})) {
+        my $ip4= $item->{'ip4log.ip'};
+        pf::ip4log::open($ip4, $mac, 0);
+    }
+
     return { item => $item, status => 200, isNew => ( defined $node ? $self->json_false : $self->json_true ) };
 }
 
