@@ -117,13 +117,19 @@ autodetection_retry: 60
 
 portal_log:
   name: 'apache portal log'
-  path: '/usr/local/pf/logs/httpd.portal.access'
+  path: '/usr/local/pf/logs/httpd.apache'
+  filter:
+    include: 'httpd.portal'
 
 webservices_log:
   name: 'apache webservices log'
-  path: '/usr/local/pf/logs/httpd.webservices.access'
+  path: '/usr/local/pf/logs/httpd.apache'
+  filter:
+    include: 'httpd.webservices'
 
 aaa_log:
   name: 'apache aaa log'
-  path: '/usr/local/pf/logs/httpd.aaa.access'
+  path: '/usr/local/pf/logs/httpd.apache'
+  filter:
+    include: 'httpd.aaa'
 
