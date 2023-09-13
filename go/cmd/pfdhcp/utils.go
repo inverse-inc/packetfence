@@ -430,6 +430,70 @@ func IsIPv6(address net.IP) bool {
 	return strings.Count(address.String(), ":") >= 2
 }
 
+// MysqlUpdateIP4Log update the ip4log table
+func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
+	if err := MySQLdatabase.PingContext(ctx); err != nil {
+		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
+	}
+
+	MAC2IP, err := MySQLdatabase.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
+	if err != nil {
+		return err
+	}
+
+	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC")
+	if err != nil {
+		return err
+	}
+
+	IPClose, err := MySQLdatabase.Prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
+	if err != nil {
+		return err
+	}
+
+	IPInsert, err := MySQLdatabase.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND))")
+	if err != nil {
+		return err
+	}
+	IPUpdate, err := MySQLdatabase.Prepare("UPDATE ip4log SET mac = ?, start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? SECOND) WHERE ip = ?")
+	if err != nil {
+		return err
+	}
+	var (
+		oldMAC string
+		oldIP  string
+	)
+	err = MAC2IP.QueryRow(mac).Scan(&oldIP)
+	if err != nil {
+		log.LoggerWContext(ctx).Info(err.Error())
+	}
+	err = IP2MAC.QueryRow(ip).Scan(&oldMAC)
+	if err != nil {
+		log.LoggerWContext(ctx).Info(err.Error())
+	}
+	if len(oldMAC) > 0 && (oldMAC != mac) {
+		_, err = IPClose.Exec(ip)
+		if err != nil {
+			return err
+		}
+	}
+	if len(oldIP) > 0 && (oldIP != ip) {
+		_, err = IPClose.Exec(oldIP)
+		if err != nil {
+			return err
+		}
+	}
+	_, err = IPInsert.Exec(mac, ip, duration.Seconds())
+	if err != nil {
+		log.LoggerWContext(ctx).Info(err.Error())
+		_, err = IPUpdate.Exec(mac, duration.Seconds(), ip)
+		if err != nil {
+			log.LoggerWContext(ctx).Info(err.Error())
+		}
+	}
+	return err
+}
+
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
