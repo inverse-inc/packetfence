@@ -219,9 +219,12 @@ sub deauthenticateMacWebservices {
         "RequestPassword"=> $webservicesPassword,
         "APIVersion"=> "1.0",
         "RequestCategory"=> "UserOnlineControl",
-        "UE-IP"=> $ip,
         "UE-MAC"=> $ucmac
     );
+    # Add UE-IP if the ip of the device is known
+    if ($ip) {
+        $baseCommand{"UE-IP"} = $ip;
+    }
 
     # If a webservice username is defined, add the key/value to the hash so that it appears on the json.
     # Otherwise, the "RequestUserName" field should not exist at all.
