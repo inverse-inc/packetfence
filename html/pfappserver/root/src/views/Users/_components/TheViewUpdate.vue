@@ -22,6 +22,7 @@ const props = {
 
 import { provide, ref } from '@vue/composition-api'
 import { pfActions } from '@/globals/pfActions'
+import { userActions } from '../_config/'
 
 const setup = (props, context) => {
 
@@ -31,22 +32,25 @@ const setup = (props, context) => {
   const actions = ref([])
   provide('actions', actions) // for FormGroupActions
   $store.dispatch('session/getAllowedUserActions').then(allowedActions => {
-    actions.value = allowedActions.map(({action}) => {
-      switch (action) {
-        case 'set_access_duration':
-        case 'set_access_level':
-        case 'set_role':
-        case 'set_unreg_date':
-          return pfActions[`${action}_by_acl_user`] // remap action to user ACL
-          // break
-        default:
-          return pfActions[action] // passthrough
-      }
-    })
+    actions.value = allowedActions
+      .map(({action}) => {
+        switch (action) {
+          case 'set_access_duration':
+          case 'set_access_level':
+          case 'set_role':
+          case 'set_unreg_date':
+            return `${action}_by_acl_user` // remap action to user ACL
+            // break
+          default:
+            return action // passthrough
+        }
+      })
+      .filter(action => userActions.includes(action))
+      .map(action => pfActions[action])
   })
-  
+
   const onClose = () => $router.back()
-    
+
   return {
     onClose
   }
