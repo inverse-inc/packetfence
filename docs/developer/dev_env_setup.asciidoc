@@ -43,7 +43,7 @@ Next, run:
 
 [source,bash]
 ----
-dnf module install nodejs:16
+dnf module install nodejs:18
 bash /usr/local/pf/addons/dev-helpers/setup-dev-env.sh
 ----
 
