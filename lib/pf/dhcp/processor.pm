@@ -25,6 +25,7 @@ use pf::config qw(
     %ConfigNetworks
     %connection_type_to_str
     $INLINE
+    %ConfigFirewallSSO
 );
 use pf::config::util;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
@@ -131,7 +132,7 @@ sub processIPTasks {
     pf::node::node_update_last_seen($iptasks_arguments{'mac'});
 
     # Firewall SSO
-    if (isenabled($pf::config::Config{advanced}{sso_on_dhcp})) {
+    if (isenabled($pf::config::Config{advanced}{sso_on_dhcp}) && scalar keys %ConfigFirewallSSO != 0) {
         if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $iptasks_arguments{'ip'} ) {
             $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'oldip'}, timeout => undef) );
             $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'ip'}, timeout => $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH) );
