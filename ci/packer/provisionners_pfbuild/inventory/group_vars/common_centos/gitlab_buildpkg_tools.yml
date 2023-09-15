@@ -8,9 +8,9 @@ gitlab_buildpkg_tools__rpm_deps_repos:
     baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
     module_hotfixes: 1
   - name: nodejs
-    baseurl: 'https://rpm.nodesource.com/pub_12.x/el/$releasever/$basearch'
+    baseurl: 'https://rpm.nodesource.com/pub_18.x/el/$releasever/$basearch'
 
 # packages install will occur
 # during build dependencies install from SPEC files
 gitlab_buildpkg_tools__rpm_pkgs:
-  - 'epel-release'  
+  - 'epel-release'

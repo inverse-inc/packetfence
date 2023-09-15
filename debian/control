@@ -2,7 +2,7 @@ Source: packetfence
 Section: net
 Priority: optional
 Maintainer: Inverse inc. <support@inverse.ca>
-Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, lsb-release, libfile-fcntllock-perl, git, pkg-config, nodejs (>= 12.0), jq,
+Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, lsb-release, libfile-fcntllock-perl, git, pkg-config, nodejs (>= 18.0), jq,
  ruby, rubygems,
  quilt, libmariadbd-dev (>= 10.1)
 Standards-Version: 3.8.4
@@ -13,7 +13,7 @@ Homepage: http://www.packetfence.org/
 Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
-Pre-Depends:  ca-certificates, 
+Pre-Depends:  ca-certificates,
  ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
@@ -70,7 +70,7 @@ Depends: ${misc:Depends}, vlan,
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
  libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl,
  libiptables-parse-perl, libiptables-chainmgr-perl, iptables (>= 1.4.0), iptables-netflow-dkms,
- liblwp-useragent-determined-perl, 
+ liblwp-useragent-determined-perl,
  liblwp-protocol-connect-perl,
  libnet-netmask-perl, libnet-pcap-perl, libnet-snmp-perl, libsnmp-perl, libfile-fcntllock-perl,
  libnet-telnet-cisco-perl, libparse-recdescent-perl, libnet-cisco-mse-rest-perl, perlmagick,
@@ -118,7 +118,7 @@ Depends: ${misc:Depends}, vlan,
  libio-interface-perl, libnet-route-perl, libnet-arp-perl,
 # required by catalyst
  libcatalyst-perl (>= 5.90011), libcatalyst-modules-perl,
- libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
+ libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl,
  libcatalyst-authentication-store-htpasswd-perl, libcatalyst-plugin-unicode-encoding-perl,
  libcatalyst-view-tt-perl (>= 0.37), libcatalyst-view-csv-perl, libhtml-formfu-perl, libjson-perl, libjson-maybexs-perl,
  libcatalyst-plugin-smarturi-perl,
