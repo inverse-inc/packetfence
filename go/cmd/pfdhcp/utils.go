@@ -451,7 +451,7 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 		return err
 	}
 
-	IPInsert, err := MySQLdatabase.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND))")
+	IPInsert, err := MySQLdatabase.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), end_time=VALUES(end_time)")
 	if err != nil {
 		return err
 	}
