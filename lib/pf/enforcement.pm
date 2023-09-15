@@ -46,6 +46,7 @@ use pf::config qw(
     $WEBAUTH
     $VIRTUAL
     %ConfigNetworks
+    %ConfigFirewallSSO
 );
 use pf::api::jsonrpcclient;
 use pf::inline::custom $INLINE_API_LEVEL;
@@ -88,7 +89,7 @@ sub reevaluate_access {
     $opts{'force'} = '1' if ($function eq 'admin_modify');
     my $ip = pf::ip4log::mac2ip($mac);
     my $sync = $opts{sync};
-    if (isenabled($Config{advanced}{sso_on_access_reevaluation})) {
+    if (isenabled($Config{advanced}{sso_on_access_reevaluation}) && scalar keys %ConfigFirewallSSO != 0 ) {
         my $node = node_attributes($mac);
         if ($ip) {
             my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";

@@ -1509,7 +1509,7 @@ sub handle_accounting_metadata : Public {
         }
     }
 
-    $client->notify("firewallsso_accounting", %$RAD_REQUEST);
+    $client->notify("firewallsso_accounting", %$RAD_REQUEST) if (scalar keys %pf::config::ConfigFirewallSSO != 0);
     return $return;
 }
 
