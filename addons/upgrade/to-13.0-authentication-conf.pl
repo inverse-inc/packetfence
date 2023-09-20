@@ -28,7 +28,7 @@ my $pf_ini = Config::IniFiles->new(-file => $pf_config_file, -allowempty => 1);
 
 my %ldap_attributes = map { $_ => 1 } (
     qw(
-  uid cn sAMAccountName servicePrincipalName UserPrincipalName department displayName distinguishedName givenName memberOf sn eduPersonPrimaryAffiliation mail postOfficeBox description groupMembership basedn dNSHostName
+  uid cn sAMAccountName servicePrincipalName UserPrincipalName department displayName distinguishedName givenName memberOf memberOf:1.2.840.113556.1.4.1941 sn eduPersonPrimaryAffiliation mail postOfficeBox description groupMembership basedn dNSHostName
     ),
     (
         split(/\s*,\s*/, $pf_ini->val('advanced','ldap_attributes', ''))
@@ -60,6 +60,11 @@ for my $section ($cs->Sections()) {
         my ($attr, $op, $v) = split(',', $val, 3);
         if (exists $ldap_attributes{$attr}) {
             my $updated = join(',', "ldap:$attr", $op, $v);
+            print "$attr updated to $updated\n";
+            $cs->setval($section, $param, $updated);
+            $update |= 1;
+        } else {
+            my $updated = join(',', "pf:$attr", $op, $v);
             print "$attr updated to $updated\n";
             $cs->setval($section, $param, $updated);
             $update |= 1;
