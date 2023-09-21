@@ -1,5 +1,6 @@
 import { ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
+import { useQuerySelectorAll } from '@/composables/useDom'
 import useEventJail from '@/composables/useEventJail'
 import { usePropsWrapper } from '@/composables/useProps'
 
@@ -39,8 +40,9 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
 
   const isDeletable = false
 
+  const _invalidNodes = useQuerySelectorAll(rootRef, '.input-group.is-invalid')
   const isValid = useDebouncedWatchHandler(
-    form,
+    [form, _invalidNodes],
     () => (
       !rootRef.value ||
       Array.prototype.slice.call(rootRef.value.querySelectorAll('.is-invalid'))
