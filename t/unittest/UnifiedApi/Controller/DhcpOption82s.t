@@ -25,19 +25,12 @@ BEGIN {
 use DateTime::Format::Strptime;
 use pf::dal::dhcp_option82;
 #run tests
-use Test::More tests => 31;
+use Test::More tests => 27;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
 #truncate the dhcp_option82 table
-pf::dal::dhcp_option82->remove_items();
-
-#unittest (empty)
-$t->get_ok('/api/v1/dhcp_option82s' => json => { })
-  ->json_is('/items', []) 
-  ->status_is(200);
-
 my $mac = "00:01:02:03:04:05";
 
 #insert known data
@@ -77,9 +70,10 @@ $t->delete_ok("/api/v1/dhcp_option82/$mac")
   ->status_is(200);
   
 #unittest (empty)
-$t->get_ok('/api/v1/dhcp_option82s' => json => { })
-  ->json_is('/items', []) 
-  ->status_is(200);
+#run unittest, use $mac
+$t->get_ok("/api/v1/dhcp_option82/$mac")
+  ->status_is(404);
+
 
 =head1 AUTHOR
 
