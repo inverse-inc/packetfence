@@ -1,5 +1,6 @@
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
+import { useQuerySelectorAll } from '@/composables/useDom'
 import useEventActionKey from '@/composables/useEventActionKey'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
@@ -79,8 +80,9 @@ export const useViewCollectionItem = (collection, props, context) => {
   // unhandled custom props
   const customProps = ref(context.attrs)
 
+  const _invalidNodes = useQuerySelectorAll(rootRef, '.input-group.is-invalid')
   const isValid = useDebouncedWatchHandler(
-    [form, meta],
+    [form, meta, _invalidNodes],
     () => (
       !rootRef.value ||
       Array.prototype.slice.call(rootRef.value.querySelectorAll('.is-invalid'))
