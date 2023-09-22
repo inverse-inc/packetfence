@@ -25,9 +25,6 @@ export default (props) => {
     form
   } = props
 
-  if (!isNew && !isClone)
-    return yup.object() // no validations
-
   // reactive variables for `yup.when`
   const { name, key_type } = form || {}
 

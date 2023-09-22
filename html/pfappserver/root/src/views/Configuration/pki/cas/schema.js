@@ -26,11 +26,8 @@ export default (props) => {
     form
   } = props
 
-  if (!isNew && !isClone)
-    return yup.object() // no validations
-
   // reactive variables for `yup.when`
-  const { key_type } = form || {}
+  const { cn, key_type } = form || {}
 
   return yup.object().shape({
     id: yup.string()
@@ -41,7 +38,7 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Common name required.'))
       .max(64, i18n.t('Maximum 64 characters.'))
-      .pkiCaCnNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Common name exists.'))
+      .pkiCaCnNotExistsExcept((!isNew && !isClone) ? cn : undefined, i18n.t('Common name exists.'))
       .isCommonNameOrFQDN(i18n.t('Invalid common name.')),
 
     mail: yup.string()
