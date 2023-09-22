@@ -20,7 +20,6 @@ yup.addMethod(yup.string, 'pkiCaCnNotExistsExcept', function (exceptId = '', mes
 
 export default (props) => {
   const {
-    id,
     isNew,
     isClone,
     form
