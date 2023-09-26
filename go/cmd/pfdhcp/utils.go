@@ -438,12 +438,12 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
 
-	MAC2IP, err := MySQLdatabase.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = " + ZeroDate + " OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
+	MAC2IP, err := MySQLdatabase.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
 	if err != nil {
 		return err
 	}
 
-	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = " + ZeroDate + " OR end_time > NOW()) ORDER BY start_time DESC")
+	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC")
 	if err != nil {
 		return err
 	}
@@ -453,11 +453,7 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 		return err
 	}
 
-	IPInsert, err := MySQLdatabase.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), end_time=VALUES(end_time)")
-	if err != nil {
-		return err
-	}
-	IPUpdate, err := MySQLdatabase.Prepare("UPDATE ip4log SET mac = ?, start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? SECOND) WHERE ip = ?")
+	IPInsert, err := MySQLdatabase.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)")
 	if err != nil {
 		return err
 	}
@@ -488,10 +484,6 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 	_, err = IPInsert.Exec(mac, ip, duration.Seconds())
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
-		_, err = IPUpdate.Exec(mac, duration.Seconds(), ip)
-		if err != nil {
-			log.LoggerWContext(ctx).Info(err.Error())
-		}
 	}
 	return err
 }
