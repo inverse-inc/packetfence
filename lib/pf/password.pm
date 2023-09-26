@@ -118,6 +118,25 @@ sub view_email {
 }
 
 
+sub view_expired {
+    my ($pid) = @_;
+    my ($status, $iter) = pf::dal::password->search(
+        -where => {
+            'password.pid' => $pid,
+            'password.expiration' => {'<' => \"NOW()"},
+        },
+        -limit => 1,
+    );
+
+    if (is_error($status)) {
+        return (undef);
+
+    }
+
+    return $iter->next(undef);
+}
+
+
 =item _delete
 
 _delete a temporary password record

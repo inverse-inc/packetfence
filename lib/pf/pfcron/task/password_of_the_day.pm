@@ -49,15 +49,10 @@ sub run {
             $self->send_email(pid => $source->{id}, password => $new_password, email => $source->{password_email_update}, expiration => pf::config::access_duration($source->{password_rotation}));
             next;
         }
-        my $password = pf::password::view($source->{id});
-        if(defined($password)){
-            my $expiration = $password->{expiration};
-            $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
-            $expiration->set_time_zone("local");
-            if ( $now->epoch > $expiration->epoch) {
-                $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0',$source);
-                $self->send_email(pid => $source->{id},password => $new_password, email => $source->{password_email_update}, expiration => pf::config::access_duration($source->{password_rotation}));
-            }
+        my $password = pf::password::view_expired($source->{id});
+        if (defined($password)) {
+            $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0',$source);
+            $self->send_email(pid => $source->{id},password => $new_password, email => $source->{password_email_update}, expiration => pf::config::access_duration($source->{password_rotation}));
         }
     }
 }

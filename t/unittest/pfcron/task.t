@@ -31,6 +31,22 @@ BEGIN {
         },
         {
             args  => [],
+            type  => 'password_of_the_day',
+            setup => \&noEmail,
+            check => sub {
+                is(SHM::getCount(),1, "The email was not sent");
+            }
+        },
+        {
+            args  => [],
+            type  => 'password_of_the_day',
+            setup => \&passwordExpired,
+            check => sub {
+                is(SHM::getCount(),2, "The email for expiration was sent");
+            }
+        },
+        {
+            args  => [],
             type  => 'person_cleanup',
             setup => \&setup_person_cleanup,
             check => \&check_person_cleanup,
@@ -79,12 +95,10 @@ use IO::Handle;
 
 use pf::factory::pfcron::task;
 
-my $smtp_server_pid;
+our @smtp_server_pid;
 
 END {
-    if ($smtp_server_pid) {
-        kill 9, $smtp_server_pid;
-    }
+    kill_smtp_servers();
 }
 
 is(SHM::getCount(), 0, "The SHM is set to zero");
@@ -105,6 +119,7 @@ for my $test (@TESTS) {
 }
 
 sub startSMTP {
+    my ($ctx) = @_;
     pipe(my $reader, my $writer);
     my $pid = pf::AtFork::pf_fork();
     BAIL_OUT("Cannot fork") if ( !defined $pid );
@@ -114,7 +129,7 @@ sub startSMTP {
         close($reader);
         pf::password::_delete('potd');
         pf::person::person_delete('potd');
-        $smtp_server_pid = $pid;
+        push @smtp_server_pid, $pid;
         return;
     }
 
@@ -134,6 +149,86 @@ sub startSMTP {
     }
 
     exit 0;
+}
+
+sub noEmail {
+    my ($ctx) = @_;
+    pipe(my $reader, my $writer);
+    my $pid = pf::AtFork::pf_fork();
+    BAIL_OUT("Cannot fork") if ( !defined $pid );
+    if ($pid) {
+        close($writer);
+        my $line = <$reader>;
+        close($reader);
+        #        pf::password::_delete('potd');
+        #pf::person::person_delete('potd');
+        push @smtp_server_pid, $pid;
+        return;
+    }
+
+    close($reader);
+    my $server = new Net::SMTP::Server( 'localhost', 2525 )
+      || croak("Unable to handle client connection: $!\n");
+    $writer->write("done\n");
+    close($writer);
+    while ( my $conn = $server->accept() ) {
+
+        my $client = new Net::SMTP::Server::Client($conn)
+          || croak("Unable to handle client connection: $!\n");
+
+        SHM::incCount();
+        $client->process;
+		last;
+    }
+
+    exit 0;
+}
+
+sub passwordExpired {
+    my ($ctx) = @_;
+    kill_smtp_servers();
+    sleep(1);
+    pipe(my $reader, my $writer);
+    my $pid = pf::AtFork::pf_fork();
+    BAIL_OUT("Cannot fork") if ( !defined $pid );
+    if ($pid) {
+        close($writer);
+        my $line = <$reader>;
+        close($reader);
+        #        pf::password::_delete('potd');
+        pf::password::modify_actions(
+            { pid => 'potd'},
+            [{ type => 'expiration', value => \'NOW()' }]
+        );
+        push @smtp_server_pid, $pid;
+        sleep(1);
+        return;
+    }
+
+    close($reader);
+    my $server = new Net::SMTP::Server( 'localhost', 2525 )
+      || croak("Unable to handle client connection: $!\n");
+    $writer->write("done\n");
+    close($writer);
+    while ( my $conn = $server->accept() ) {
+
+        my $client = new Net::SMTP::Server::Client($conn)
+          || croak("Unable to handle client connection: $!\n");
+
+        SHM::incCount();
+        $client->process;
+		last;
+    }
+
+    exit 0;
+}
+
+sub kill_smtp_servers {
+    for my $pid (@smtp_server_pid) {
+        kill 9, $pid;
+    }
+
+    @smtp_server_pid = ();
 }
 
 sub setup_person_cleanup {
