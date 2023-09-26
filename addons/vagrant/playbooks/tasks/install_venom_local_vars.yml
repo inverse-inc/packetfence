@@ -3,6 +3,12 @@
   set_fact:
     mariadb_socket: '/var/lib/mysql/mysql.sock'
 
+# hack to get id of mgmt interface based
+# on IP assigned by vagrant (in inventory/hosts file)
+- name: Set Management Interface
+  set_fact:
+    mgmt_interface: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.type', 'defined') | selectattr('value.ipv4.address', 'equalto', mgmt_ip) | first }}"
+
 - name: Insert Venom local vars
   template:
     src: 'templates/local.yml.j2'
