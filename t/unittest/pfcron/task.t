@@ -12,6 +12,7 @@ unit test for task
 
 use strict;
 use warnings;
+use POSIX ":sys_wait_h";
 
 our @TESTS;
 
@@ -195,7 +196,6 @@ sub passwordExpired {
         close($writer);
         my $line = <$reader>;
         close($reader);
-        #        pf::password::_delete('potd');
         pf::password::modify_actions(
             { pid => 'potd'},
             [{ type => 'expiration', value => \'NOW()' }]
@@ -226,6 +226,7 @@ sub passwordExpired {
 sub kill_smtp_servers {
     for my $pid (@smtp_server_pid) {
         kill 9, $pid;
+        waitpid($pid, WNOHANG);
     }
 
     @smtp_server_pid = ();
