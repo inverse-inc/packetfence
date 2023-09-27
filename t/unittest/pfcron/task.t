@@ -161,8 +161,6 @@ sub noEmail {
         close($writer);
         my $line = <$reader>;
         close($reader);
-        #        pf::password::_delete('potd');
-        #pf::person::person_delete('potd');
         push @smtp_server_pid, $pid;
         return;
     }
