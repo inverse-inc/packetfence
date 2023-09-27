@@ -12,4 +12,4 @@ RUN apt-get update -y && \
             inotify-tools \
             runit
 
-ENTRYPOINT /usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
+ENTRYPOINT timedatectl set-timezone $TIMEZONE;/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
