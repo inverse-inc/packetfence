@@ -11,4 +11,4 @@ COPY sbin/pfqueue sbin/pfqueue
 
 COPY html/captive-portal/templates html/captive-portal/templates
 
-ENTRYPOINT /usr/local/pf/sbin/pfqueue
+ENTRYPOINT timedatectl set-timezone $TIMEZONE;/usr/local/pf/sbin/pfqueue
