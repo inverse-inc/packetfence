@@ -50,11 +50,41 @@
             -->
           <template v-if="rootPasswordIsRequired">
 
+
+
+<form-group-remote-database-configuration
+  v-model="remoteDatabaseConfiguration"
+  :disabled="rootPasswordIsValid"
+  :column-label="$i18n.t('Remote Database')"
+  :text="$i18n.t('Use a remote MySQL compatible database.')"
+/>
+
+
             <!--
               root password is needed
               -->
             <template v-if="setRootPassword">
 
+<base-form-group
+  :column-label="$i18n.t('Database Root')"
+  :text="$i18n.t('Root user with SUPER privileges in MySQL.')"
+>
+  <base-input namespace="root_user"
+    class="px-0 pr-lg-1 col-lg-6"
+    :text="$i18n.t('MySQL root user')"
+    :disabled="rootPasswordIsValid"
+    :valid-feedback="(rootPasswordIsValid) ? $i18n.t('MySQL root user is valid') : undefined"
+  />
+  <base-input-group-password-test namespace="root_pass"
+    class="px-0 pl-lg-1 col-lg-6"
+    :text="$i18n.t('MySQL root password')"
+    :readonly="rootPasswordIsValid"
+    :test="onSetRootPassword"
+    :button-label="(remoteDatabaseConfiguration) ? $i18n.t('Check Password') : $i18n.t('Set Password')"
+    :valid-feedback="(rootPasswordIsValid) ? $i18n.t('MySQL root password is valid') : undefined"
+  />
+</base-form-group>
+<!---
               <base-form-group-input-password-test namespace="root_pass"
                 :column-label="$i18n.t('Root Password')"
                 :text="$i18n.t('Define a root password for the MySQL server.')"
@@ -63,6 +93,7 @@
                 :button-label="$i18n.t('Set Password')"
                 :valid-feedback="$i18n.t('MySQL root password set.')"
               />
+--->
 
               <!--
                 root password is valid
@@ -80,12 +111,40 @@
               root password is defined
               -->
             <template v-else-if="!setRootPassword">
+
+<!--
+  root username and password
+  -->
+<base-form-group
+  :column-label="$i18n.t('Root')"
+  :text="$i18n.t('Root user with SUPER privileges in MySQL.')"
+>
+  <base-input namespace="root_user"
+    class="px-0 pr-lg-1 col-lg-6"
+    :disabled="userIsValid"
+    :text="$i18n.t('Current root user.')"
+    :valid-feedback="(userIsValid) ? $i18n.t('MySQL user exists.') : undefined"
+  />
+  <base-input-group-password-generator namespace="root_pass"
+    class="px-0 pl-lg-1 col-lg-6"
+    :column-label="$i18n.t('Root Password')"
+    :text="$i18n.t('Current root password.')"
+    :readonly="rootPasswordIsValid"
+    :valid-feedback="(rootPasswordIsValid) ? $i18n.t('MySQL root password is valid.') : undefined"
+  />
+</base-form-group>
+
+
+<!--
               <base-form-group-input-password namespace="root_pass"
                 :column-label="$i18n.t('Root Password')"
                 :text="$i18n.t('Current root password of the MySQL server.')"
                 :readonly="rootPasswordIsValid"
                 :valid-feedback="(rootPasswordIsValid) ? $i18n.t('MySQL root password is valid.') : undefined"
               />
+-->
+
+
             </template>
 
             <template v-if="!(setRootPassword || rootPasswordIsValid)">
@@ -107,72 +166,76 @@
 
           </template>
 
-          <!--
-            database name
-            -->
-          <base-form-group-input namespace="db"
-            :column-label="$i18n.t('Database name')"
-            :text="$i18n.t('Name of the MySQL database used by PacketFence.')"
-            :disabled="databaseExists"
-            :valid-feedback="
-              ((databaseExists) ? $i18n.t('MySQL database exists. ') : '') +
-              ((databaseVersion) ? $i18n.t('Current database schema is version {databaseVersion}. ', {databaseVersion}) : '')
-            "
-          />
+          <template v-if="rootPasswordIsValid">
 
-          <template v-if="!databaseExists">
-            <base-form-group class="mb-3"
-                :class="{
-                  'is-invalid': databaseCreationError
-                }"
-              >
-              <base-button-save class="col-sm-7 col-lg-5 col-xl-4"
-                :isLoading="isCreatingDatabase"
-                :disabled="!rootPasswordIsValid"
-                :variant="(databaseCreationError) ? 'outline-danger' : 'outline-primary'"
-                @click="onCreateDatabase"
-                type="button">{{ $t('Create') }}</base-button-save>
-
-              <div v-if="databaseCreationError"
-                class="d-block invalid-feedback py-2">{{ databaseCreationError }}</div>
-            </base-form-group>
-          </template>
-
-          <!--
-            username and password
-            -->
-          <base-form-group
-            :column-label="$i18n.t('User')"
-            :text="$i18n.t('Username of the account with access to the MySQL database used by PacketFence.')"
-          >
-            <base-input namespace="user"
-              class="px-0 pr-lg-1 col-lg-6"
-              :disabled="userIsValid"
-              :valid-feedback="(userIsValid) ? $i18n.t('MySQL user exists.') : undefined"
+            <!--
+              database name
+              -->
+            <base-form-group-input namespace="db"
+              :column-label="$i18n.t('Database name')"
+              :text="$i18n.t('Name of the MySQL database used by PacketFence.')"
+              :disabled="databaseExists || !rootPasswordIsValid"
+              :valid-feedback="
+                ((databaseExists) ? $i18n.t('MySQL database exists. ') : '') +
+                ((databaseVersion) ? $i18n.t('Current database schema is version {databaseVersion}. ', {databaseVersion}) : '')
+              "
             />
-            <base-input-group-password-generator namespace="pass"
-              class="px-0 pl-lg-1 col-lg-6"
-              :disabled="userIsValid"
-              :valid-feedback="(userIsValid) ? $i18n.t('MySQL password is valid.') : undefined"
-            />
-          </base-form-group>
 
-          <template v-if="!userIsValid">
-            <base-form-group class="mb-3"
-                :class="{
-                  'is-invalid': userCreationError
-                }"
-              >
-              <base-button-save class="col-sm-7 col-lg-5 col-xl-4"
-                :disabled="!canCreateUser"
-                :isLoading="isCreatingUser"
-                :variant="(userCreationError) ? 'outline-danger' : 'outline-primary'"
-                @click="onCreateUser"
-                type="button">{{ $t('Create') }}</base-button-save>
+            <template v-if="!databaseExists">
+              <base-form-group class="mb-3"
+                  :class="{
+                    'is-invalid': databaseCreationError
+                  }"
+                >
+                <base-button-save class="col-sm-7 col-lg-5 col-xl-4"
+                  :isLoading="isCreatingDatabase"
+                  :disabled="!rootPasswordIsValid"
+                  :variant="(databaseCreationError) ? 'outline-danger' : 'outline-primary'"
+                  @click="onCreateDatabase"
+                  type="button">{{ $t('Create') }}</base-button-save>
 
-              <div v-if="userCreationError"
-                class="d-block invalid-feedback py-2">{{ userCreationError }}</div>
+                <div v-if="databaseCreationError"
+                  class="d-block invalid-feedback py-2">{{ databaseCreationError }}</div>
+              </base-form-group>
+            </template>
+
+            <!--
+              username and password
+              -->
+            <base-form-group
+              :column-label="$i18n.t('Database user')"
+              :text="$i18n.t('Username of the account with access to the MySQL database used by PacketFence.')"
+            >
+              <base-input namespace="user"
+                class="px-0 pr-lg-1 col-lg-6"
+                :disabled="userIsValid || !rootPasswordIsValid"
+                :valid-feedback="(userIsValid) ? $i18n.t('MySQL user exists.') : undefined"
+              />
+              <base-input-group-password-generator namespace="pass"
+                class="px-0 pl-lg-1 col-lg-6"
+                :disabled="userIsValid || !rootPasswordIsValid"
+                :valid-feedback="(userIsValid) ? $i18n.t('MySQL password is valid.') : undefined"
+              />
             </base-form-group>
+
+            <template v-if="!userIsValid">
+              <base-form-group class="mb-3"
+                  :class="{
+                    'is-invalid': userCreationError
+                  }"
+                >
+                <base-button-save class="col-sm-7 col-lg-5 col-xl-4"
+                  :disabled="!canCreateUser"
+                  :isLoading="isCreatingUser"
+                  :variant="(userCreationError) ? 'outline-danger' : 'outline-primary'"
+                  @click="onCreateUser"
+                  type="button">{{ $t('Create') }}</base-button-save>
+
+                <div v-if="userCreationError"
+                  class="d-block invalid-feedback py-2">{{ userCreationError }}</div>
+              </base-form-group>
+            </template>
+
           </template>
 
         </template>
@@ -182,6 +245,7 @@
   </b-card>
 </template>
 <script>
+const DEFAULT_ROOT_USERNAME = 'root' // default root username is "root"
 const DEFAULT_DATABASE = 'pf' // default database is "pf"
 const DEFAULT_USERNAME = 'pf' // default username is "pf"
 
@@ -197,6 +261,7 @@ import {
   BaseFormGroupToggleFalseTrue,
   BaseInput,
   BaseInputGroupPassword,
+  BaseInputGroupPasswordTest,
   BaseInputGroupPasswordGenerator
 } from '@/components/new/'
 
@@ -204,13 +269,15 @@ const components = {
   BaseButtonSave,
   BaseForm,
   BaseFormGroup,
-  FormGroupAutomaticConfiguration:  BaseFormGroupToggleFalseTrue,
+  FormGroupAutomaticConfiguration:      BaseFormGroupToggleFalseTrue,
+  FormGroupRemoteDatabaseConfiguration: BaseFormGroupToggleFalseTrue,
   BaseFormGroupInput,
   BaseFormGroupInputPassword,
   BaseFormGroupInputPasswordGenerator,
   BaseFormGroupInputPasswordTest,
   BaseInput,
   BaseInputGroupPassword,
+  BaseInputGroupPasswordTest,
   BaseInputGroupPasswordGenerator
 }
 
@@ -220,7 +287,7 @@ const props = {
   }
 }
 
-import { computed, inject, ref } from '@vue/composition-api'
+import { computed, inject, onMounted, ref } from '@vue/composition-api'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import password from '@/utils/password'
@@ -250,6 +317,9 @@ export const setup = (props, context) => {
       db: yup.string().nullable()
         .required(i18n.t('MySQL database name required.'))
         .not(databaseExists.value, i18n.t('MySQL database not created.')),
+      root_user: yup.string().nullable()
+        .required(i18n.t('MySQL root user required.'))
+        .not((rootPasswordIsUnverified.value || rootPasswordIsValid.value), i18n.t('MySQL root user not verified.')),
       root_pass: yup.string().nullable()
         .required(i18n.t('MySQL root password required.'))
         .not((rootPasswordIsUnverified.value || rootPasswordIsValid.value), i18n.t('MySQL root password not verified.')),
@@ -264,15 +334,12 @@ export const setup = (props, context) => {
 
   // Make sure the database server is running
   const isStarting = ref(true)
-  $store.dispatch('cluster/startSystemService', { id: 'packetfence-mariadb', quiet: true }).then(() => {
-    form.value.db = DEFAULT_DATABASE
-    form.value.user = DEFAULT_USERNAME
-    initialValidation()
-  }).finally(() => {
+  onMounted(() => $store.dispatch('cluster/startSystemService', { id: 'packetfence-mariadb', quiet: true }).then(initialValidation).finally(() => {
     isStarting.value = false
-  })
+  }))
 
   const automaticConfiguration = ref(false)
+  const remoteDatabaseConfiguration = ref(false)
   const databaseExists = ref(false)
   const rootPasswordIsRequired = ref(true)
   const setUserPassword = ref(false)
@@ -280,16 +347,18 @@ export const setup = (props, context) => {
   const userIsValid = ref(false)
 
   const initialValidation = () => {
-    const { db, user } = form.value || {}
+    const { db, user, root_user } = form.value || {}
     // Check if root has no password
     if (!db)
       form.value.db = DEFAULT_DATABASE
     if (!user)
       form.value.user = DEFAULT_USERNAME
-    $store.dispatch('$_bases/testDatabase', { username: 'root' }).then(() => {
+    if (!root_user)
+      form.value.root_user = DEFAULT_ROOT_USERNAME
+    $store.dispatch('$_bases/testDatabase', { username: form.value.root_user }).then(() => {
       setRootPassword.value = true // root has no password -- installation is insecure
       automaticConfiguration.value = true // enable automatic configuration
-      $store.dispatch('$_bases/testDatabase', { username: 'root', database: form.value.db }).then(() => {
+      $store.dispatch('$_bases/testDatabase', { username: form.value.root_user, database: form.value.db }).then(() => {
         databaseExists.value = true // database exists
       })
     }).catch(() => {
@@ -315,7 +384,7 @@ export const setup = (props, context) => {
     form.value.root_pass = password.generate(passwordOptions)
     return secureDatabase().then(() => {
       const databaseReady = new Promise((resolve, reject) => {
-        $store.dispatch('$_bases/testDatabase', { username: 'root', password: form.value.root_pass, database: form.value.db }).then(() => {
+        $store.dispatch('$_bases/testDatabase', { username: form.value.root_user, password: form.value.root_pass, database: form.value.db }).then(() => {
           databaseExists.value = true // database exists
           resolve()
         }).catch(() => {
@@ -346,7 +415,7 @@ export const setup = (props, context) => {
   }
 
   const secureDatabase = () => {
-    return $store.dispatch('$_bases/secureDatabase', { username: 'root', password: form.value.root_pass }).then(() => {
+    return $store.dispatch('$_bases/secureDatabase', { username: form.value.root_user, password: form.value.root_pass }).then(() => {
       rootPasswordIsValid.value = true
     })
   }
@@ -362,7 +431,7 @@ export const setup = (props, context) => {
     isCreatingDatabase.value = true
     databaseCreationError.value = null
     return $store.dispatch('$_bases/createDatabase', {
-      username: 'root',
+      username: form.value.root_user,
       password: form.value.root_pass,
       database: form.value.db
     }).then(() => {
@@ -397,7 +466,7 @@ export const setup = (props, context) => {
     isCreatingUser.value = true
     userCreationError.value = null
     return $store.dispatch('$_bases/assignDatabase', {
-      root_username: 'root',
+      root_username: form.value.root_user,
       root_password: form.value.root_pass,
       pf_username: form.value.user,
       pf_password: form.value.pass,
@@ -504,6 +573,7 @@ export const setup = (props, context) => {
     onSave,
 
     automaticConfiguration,
+    remoteDatabaseConfiguration,
     databaseExists,
     rootPasswordIsRequired,
     rootPasswordIsValid,

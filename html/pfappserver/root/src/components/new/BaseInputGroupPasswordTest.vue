@@ -1,38 +1,21 @@
 <template>
-  <base-form-group
-    class="base-form-group-input-password-test"
-    :column-label="columnLabel"
-    :content-cols="contentCols"
-    :content-cols-sm="contentColsSm"
-    :content-cols-md="contentColsMd"
-    :content-cols-lg="contentColsLg"
-    :content-cols-xl="contentColsXl"
-    :label-cols="labelCols"
-    :label-cols-sm="labelColsSm"
-    :label-cols-md="labelColsMd"
-    :label-cols-lg="labelColsLg"
-    :label-cols-xl="labelColsXl"
-    :text="text"
-    :disabled="isLocked"
+  <base-input-group
     :state="inputState"
     :invalid-feedback="inputInvalidFeedback"
     :valid-feedback="inputValidFeedback"
-    :is-focus="isFocus"
+    :text="inputText"
+    :isFocus="isFocus"
+    :isLocked="isLocked"
   >
     <b-form-input ref="input"
       class="base-input"
-      :class="{
-        'is-focus': isFocus,
-        'is-blur': !isFocus
-      }"
       :data-namespace="namespace"
       :disabled="isLocked"
+      :readonly="inputReadonly"
       :placeholder="inputPlaceholder"
-      :readonly="readonly"
       :tabIndex="inputTabIndex"
       :type="inputType"
       :value="inputValue"
-      :autocomplete="namespace || 'password'"
       @input="onInput"
       @change="onChange"
       @focus="onFocus"
@@ -54,18 +37,18 @@
         @mousemove="doShow"
         @mouseout="doHide"
       >
-        <b-button class="input-group-text no-border-radius" :disabled="!canTest" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
+        <b-button class="input-group-text no-border-radius" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
           <icon name="eye"></icon>
         </b-button>
       </b-button-group>
     </template>
-  </base-form-group>
+  </base-input-group>
 </template>
 <script>
-import BaseFormGroup from './BaseFormGroup'
+import BaseInputGroup from './BaseInputGroup'
 
 const components = {
-  BaseFormGroup
+  BaseInputGroup
 }
 
 import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
@@ -106,6 +89,7 @@ export const setup = (props, context) => {
 
   const {
     placeholder,
+    readonly,
     tabIndex,
     text,
     isFocus,
@@ -116,8 +100,8 @@ export const setup = (props, context) => {
 
   const {
     value,
-    onChange,
-    onInput
+    onInput,
+    onChange
   } = useInputValue(metaProps, context)
 
   const {
@@ -192,6 +176,7 @@ export const setup = (props, context) => {
   return {
     // useInput
     inputPlaceholder: placeholder,
+    inputReadonly: readonly,
     inputTabIndex: tabIndex,
     inputText: text,
     isFocus,
@@ -201,8 +186,8 @@ export const setup = (props, context) => {
 
     // useInputValue
     inputValue: value,
-    onChange,
     onInput,
+    onChange,
 
     // useInputValidator
     inputState: wrappedState,
@@ -224,15 +209,10 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-form-group-input-password-test',
+  name: 'base-input-group-password-test',
   inheritAttrs: false,
   components,
   props,
   setup
 }
 </script>
-<style lang="scss">
-.base-input[type="password"] {
-  font-family: $font-family-monospace;
-}
-</style>
