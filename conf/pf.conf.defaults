@@ -322,7 +322,7 @@ backend=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "") %]
 # database_proxysql.port
 #
 #
-port=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_PORT", "") %]
+port=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_PORT", "3306") %]
 #
 # database_proxysql.encryption
 #
