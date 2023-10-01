@@ -85,7 +85,7 @@ EOT
 
         $single_server = 1;
         my $backend = $database_proxysql->{backend};
-        my $port = $database_proxysql->{port} // '3306';
+        my $port = $database_proxysql->{backend_port} // '3306';
         my $ssl = ($database_proxysql->{encryption} // 'TLS') eq 'TLS' ? 1 : 0;
         $tags{mysql_servers} .= << "EOT";
     { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },

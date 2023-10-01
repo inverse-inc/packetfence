@@ -319,10 +319,10 @@ cacert=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_CACERT", "") %]
 #
 backend=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "") %]
 #
-# database_proxysql.port
+# database_proxysql.backend_port
 #
 #
-port=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_PORT", "3306") %]
+backend_port=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND_PORT", "3306") %]
 #
 # database_proxysql.encryption
 #
