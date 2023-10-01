@@ -85,9 +85,10 @@ EOT
 
         $single_server = 1;
         my $backend = $database_proxysql->{backend};
-        my $ssl = $cacert ? 1 : 0;
+        my $port = $database_proxysql->{port} // '3306';
+        my $ssl = ($database_proxysql->{encryption} // 'TLS') eq 'TLS' ? 1 : 0;
         $tags{mysql_servers} .= << "EOT";
-    { address="$backend" , port=3306 , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
+    { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
 EOT
     } elsif (pf::cluster::getWriteDB()) {
         $tags{'geoDB'} = $TRUE;
