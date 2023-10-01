@@ -22,6 +22,16 @@
                         :text="$i18n.t('Backend Host')"
     />
 
+    <form-group-port namespace="port"
+                        :column-label="$i18n.t('Port')"
+                        :text="$i18n.t('Backend Port')"
+    />
+
+    <form-group-encryption namespace="encryption"
+                        :column-label="$i18n.t('Encryption')"
+                        :text="$i18n.t('Encryption')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -36,6 +46,8 @@ const components = {
   FormGroupCacert,
   FormGroupBackend,
   FormGroupStatus,
+  FormGroupPort,
+  FormGroupEncryption,
 }
 
 export const props = {
