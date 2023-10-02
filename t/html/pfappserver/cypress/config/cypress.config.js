@@ -43,7 +43,6 @@ module.exports = {
   screenshotsFolder: 'cypress/results/screenshots',
   video: false,
   videosFolder: 'cypress/results/videos',
-  videoUploadOnPasses: false,
   viewportWidth: 1280,
   viewportHeight: 1024,
 
