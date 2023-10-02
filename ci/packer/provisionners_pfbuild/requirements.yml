@@ -1,4 +1,5 @@
 ---
 roles:
-  - src: inverse_inc.gitlab_buildpkg_tools
+  - src: inverse-inc.gitlab_buildpkg_tools
+    name: inverse_inc.gitlab_buildpkg_tools
     version: v1.3.5
