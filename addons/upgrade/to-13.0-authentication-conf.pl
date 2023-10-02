@@ -35,8 +35,6 @@ my %ldap_attributes = map { $_ => 1 } (
     )
 );
 
-use Data::Dumper;print Dumper(\%ldap_attributes);
-
 #run_as_pf();
 
 my $file = $authentication_config_file;
@@ -63,7 +61,15 @@ for my $section ($cs->Sections()) {
             print "$attr updated to $updated\n";
             $cs->setval($section, $param, $updated);
             $update |= 1;
+            next;
         }
+
+        next if $attr =~ /^(ldap|pf):/;
+
+        my $updated = join(',', "pf:$attr", $op, $v);
+        print "$attr updated to $updated\n";
+        $cs->setval($section, $param, $updated);
+        $update |= 1;
     }
 }
 
