@@ -213,17 +213,17 @@ Now when a device connect with the username bob@acme.com then the authentication
 
 ==== RADIUS Proxy Advanced
 
-In this section we will explain how to proxy a RADIUS request based on advanced criteria.
+In this section we will explain how to proxy RADIUS requests based on an advanced criteria.
 
-First you have to create RADIUS authentication source like above and create per example 2 REALMs "to_NPS" and "to_ISE" (Associate the RADIUS sources in the REALMs)
+First you have to create RADIUS authentication source like above and create for example two realms "to_NPS" and "to_ISE" (associate the RADIUS sources in the REALMs)
 
 Next you have to enable the RADIUS filters in the packetfence.authorize and packetfence.post-proxy scope, to do that you have to go in _Configuration -> System Configuration -> RADIUS -> General , and enable "Use RADIUS filters in packetfence authorize" and "Use RADIUS filters in packetfence post-proxy".
 
-At this step restart the radius-auth service.
+After this step restart the packetfence-radiusd-auth service (systemctl restart packetfence-radiusd-auth.service).
 
 Here some examples of what you can do with the RADIUS filters (the content of the radius_filters.conf file):
 
-Proxy to the to_NPS Realm the RADIUS request if the Calling-Station-Id or Colubris-AVPair attribute match the regex ACME$
+Proxy the RADIUS request to the to_NPS realm if the Calling-Station-Id or Colubris-AVPair attribute matches the regex ACME$
 
   [NPS]
   scopes=packetfence.authorize
@@ -233,7 +233,7 @@ Proxy to the to_NPS Realm the RADIUS request if the Calling-Station-Id or Colubr
   merge_answer=yes
   answer.0=control:Proxy-To-Realm = to_NPS
 
-Proxy to the to_ISE Realm the RADIUS request if the Calling-Station-Id or Colubris-AVPair attribute contains ACME_Admin$ and add the Realm to_ISE in the RADIUS request (can be per example use as a filter in a connection profile)
+Proxy the RADIUS request the to_ISE realm if the Calling-Station-Id or Colubris-AVPair attribute contains ACME_Admin$ and add the attribute Realm with the value to_ISE in the RADIUS request (can be for example used as a filter in a connection profile)
 
   [ISE]
   merge_answer=yes
@@ -244,7 +244,7 @@ Proxy to the to_ISE Realm the RADIUS request if the Calling-Station-Id or Colubr
   answer.0=control:Proxy-To-Realm = to_ISE
   answer.1=request:Realm = to_ISE
 
-Proxy to the NULL Realm if the Calling-Station-Id or Colubris-AVPair attribute match the regex Guest$
+Proxy the RADIUS request to the NULL realm if the Calling-Station-Id or Colubris-AVPair attribute matches the regex Guest$
 
   [NULL]
   scopes=packetfence.authorize
@@ -254,7 +254,7 @@ Proxy to the NULL Realm if the Calling-Station-Id or Colubris-AVPair attribute m
   condition=radius_request.Called-Station-Id =~ "Guest$" || radius_request.Colubris-AVPair =~ "Guest$"
   answer.0=control:Proxy-To-Realm = NULL
 
-Proxy to the to_ISE Realm the RADIUS request if the Calling-Station-Id attribute match the regex ACME$ 
+Proxy the RADIUS request to the to_ISE realm if the Calling-Station-Id attribute matches the regex ACME$
 
   [NO_REALM]
   merge_answer=no
@@ -264,7 +264,7 @@ Proxy to the to_ISE Realm the RADIUS request if the Calling-Station-Id attribute
   description=NO_REALM
   answer.0=control:Proxy-To-Realm = to_ISE
 
-CAUTION: Those examples can be added in /usr/local/pf/conf/radius_filters.conf and run /usr/local/pf/bin/pfcmd configreload hard
+CAUTION: Those examples can be added in /usr/local/pf/conf/radius_filters.conf and after, perform a /usr/local/pf/bin/pfcmd configreload hard
 
 
 === RADIUS EAP Profiles
