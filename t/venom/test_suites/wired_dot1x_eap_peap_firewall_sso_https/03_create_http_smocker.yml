@@ -10,7 +10,7 @@ testcases:
   steps:
   - type: exec
     script: |
-      wget -P {{.smocker_dir}} https://github.com/Thiht/smocker/releases/latest/download/smocker.tar.gz
+      wget -P {{.smocker_dir}} https://github.com/Thiht/smocker/releases/download/0.17.1/smocker.tar.gz
 
 - name: untar_smocker
   steps:
