@@ -221,7 +221,7 @@ Next you have to enable the RADIUS filters in the packetfence.authorize and pack
 
 After this step restart the packetfence-radiusd-auth service (systemctl restart packetfence-radiusd-auth.service).
 
-Here some examples of what you can do with the RADIUS filters (the content of the radius_filters.conf file):
+Here are some examples of what you can do with the RADIUS filters (the content of the radius_filters.conf file):
 
 Proxy the RADIUS request to the to_NPS realm if the Calling-Station-Id or Colubris-AVPair attribute matches the regex ACME$
 
