@@ -44,6 +44,11 @@
       :text="$i18n.t('Nodes with the selected OS will be affected.')"
     />
 
+    <form-group-non-compliance-security-event :column-label="$i18n.t('Non compliance security event')"
+      :text="$i18n.t('Which security event should be raised when non compliance is detected.')"
+      namespace="non_compliance_security_event"
+    />
+
     <form-group-application-identifier namespace="applicationID"
       :column-label="$i18n.t('Application ID')"
     />
@@ -111,6 +116,7 @@ import {
   FormGroupIosAgentDownloadUri,
   FormGroupLoginUrl,
   FormGroupMacOsxAgentDownloadUri,
+  FormGroupNonComplianceSecurityEvent,
   FormGroupOses,
   FormGroupPort,
   FormGroupProtocol,
@@ -136,6 +142,7 @@ const components = {
   FormGroupIosAgentDownloadUri,
   FormGroupLoginUrl,
   FormGroupMacOsxAgentDownloadUri,
+  FormGroupNonComplianceSecurityEvent,
   FormGroupOses,
   FormGroupPort,
   FormGroupProtocol,
