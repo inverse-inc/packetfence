@@ -286,7 +286,7 @@ variables:
   script:
     - ${CHECKDIR}/run-pipeline-if-necessary.sh
   tags:
-    - docker-v7
+    - docker
 
 .build_img_docker_job:
   stage: build_img
@@ -302,7 +302,7 @@ variables:
   script:
     - /bin/kanikobuild
   tags:
-    - docker-v7
+    - docker
 
 .build_img_container_job_br_maint:
   stage: build_img_container
@@ -311,7 +311,7 @@ variables:
   script:
     - /bin/kanikobuild
   tags:
-    - docker-v7
+    - docker
 
 .build_img_container_job_cloud_nac:
   stage: build_img_container
@@ -320,7 +320,7 @@ variables:
   script:
     - /bin/kanikobuild
   tags:
-    - docker-v7
+    - docker
 
 .build_img_container_job_rel:
   stage: build_img_container
@@ -329,7 +329,7 @@ variables:
   script:
     - /bin/kanikobuild
   tags:
-    - docker-v7
+    - docker
 
 .build_img_container_kanikobuild_job:
   stage: build_img_container
@@ -340,7 +340,7 @@ variables:
   script:
     - ${CONTAINER_DIR}/kanikobuild
   tags:
-    - docker-v7
+    - docker
 
 .build_img_vagrant_devel_and_branches_job:
   stage: build_img
@@ -363,7 +363,7 @@ variables:
     paths:
       - result/*
   tags:
-    - docker-v7
+    - docker
 
 .build_artifacts_website_job:
   stage: build_artifacts
@@ -375,7 +375,7 @@ variables:
     paths:
       - website/*
   tags:
-    - docker-v7
+    - docker
 
 .build_artifacts_material_job:
   stage: build_artifacts
@@ -407,7 +407,7 @@ variables:
       - docs/*.pdf
       - docs/images/*
   tags:
-    - docker-v7
+    - docker
 
 .publish_job:
   stage: publish
