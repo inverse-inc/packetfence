@@ -149,6 +149,12 @@
 
         </b-collapse>
       </b-row>
+
+      <b-row no-gutters class="border-bottom">
+        <b-col cols="3">
+          <input-toggle-enforce-provisioning v-model="enforce_provisioning"/>
+        </b-col>
+      </b-row>
   </b-form-group>
 </template>
 <script>
@@ -176,6 +182,7 @@ import BaseInputToggleEmailRecipient from './BaseInputToggleEmailRecipient'
 import BaseInputToggleExternal from './BaseInputToggleExternal'
 import BaseInputToggleIsolate from './BaseInputToggleIsolate'
 import BaseInputToggleUnreg from './BaseInputToggleUnreg'
+import BaseInputToggleEnforceProvisioning from './BaseInputToggleEnforceProvisioning'
 
 const components = {
   FormGroupAccessDuration,
@@ -193,14 +200,15 @@ const components = {
   FormGroupRecipientTemplateMessage,
   FormGroupVlan,
 
-  InputToggleAutoreg:        BaseInputToggleAutoreg,
-  InputToggleClose:          BaseInputToggleClose,
-  InputToggleEmailAdmin:     BaseInputToggleEmailAdmin,
-  InputToggleEmailUser:      BaseInputToggleEmailUser,
-  InputToggleEmailRecipient: BaseInputToggleEmailRecipient,
-  InputToggleExternal:       BaseInputToggleExternal,
-  InputToggleIsolate:        BaseInputToggleIsolate,
-  InputToggleUnreg:          BaseInputToggleUnreg,
+  InputToggleAutoreg:             BaseInputToggleAutoreg,
+  InputToggleClose:               BaseInputToggleClose,
+  InputToggleEmailAdmin:          BaseInputToggleEmailAdmin,
+  InputToggleEmailUser:           BaseInputToggleEmailUser,
+  InputToggleEmailRecipient:      BaseInputToggleEmailRecipient,
+  InputToggleExternal:            BaseInputToggleExternal,
+  InputToggleIsolate:             BaseInputToggleIsolate,
+  InputToggleUnreg:               BaseInputToggleUnreg,
+  InputToggleEnforceProvisioning: BaseInputToggleEnforceProvisioning
 }
 
 import { customRef, inject, ref, unref, watch } from '@vue/composition-api'
@@ -352,6 +360,21 @@ const setup = () => {
     }
   }))
 
+  const enforce_provisioning = customRef((track, trigger) => ({
+    get() {
+      track()
+      return actionsValue.value.includes('enforce_provisioning')
+    },
+    set(newValue) {
+      if (newValue) {
+        add('enforce_provisioning')
+      }
+      else
+        remove('enforce_provisioning')
+      trigger()
+    }
+  }))
+
   watch(
     () => form.value.target_category,
     target_category => {
@@ -370,7 +393,8 @@ const setup = () => {
     email_user,
     email_recipient,
     external,
-    close
+    close,
+    enforce_provisioning
   }
 }
 
