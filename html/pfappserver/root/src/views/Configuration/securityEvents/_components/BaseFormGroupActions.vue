@@ -164,6 +164,14 @@
 
       </b-collapse>
     </b-row>
+
+    <b-row no-gutters class="border-bottom">
+      <b-col cols="3" class="action-col">
+        <base-input-switch :onChange="enforceProvisioningOnChange" :isLocked="isLocked" :value="enforceProvisioning"/>
+        <base-label>Enforce Provisioning</base-label>
+      </b-col>
+    </b-row>
+
   </b-form-group>
 </template>
 <script>
@@ -246,6 +254,7 @@ const setup = () => {
   const emailRecipientKey = 'email_recipient'
   const externalKey = 'external'
   const closeKey = 'close'
+  const enforceProvisioningKey = 'enforce_provisioning'
 
   const unreg = computed(() => unref(actionsValue).includes(unregKey))
 
@@ -327,6 +336,16 @@ const setup = () => {
       remove(closeKey)
   }
 
+  const enforceProvisioning = computed(() => unref(actionsValue).includes(enforceProvisioningKey))
+
+  const enforceProvisioningOnChange = (newValue) => {
+    if (newValue) {
+      add(enforceProvisioningKey)
+    } else {
+      remove(enforceProvisioningKey)
+    }
+  }
+
   watch(
     () => form.value.target_category,
     target_category => {
@@ -355,6 +374,8 @@ const setup = () => {
     externalAccessOnChange,
     close,
     closeOnChange,
+    enforceProvisioning,
+    enforceProvisioningOnChange,
   }
 }
 
