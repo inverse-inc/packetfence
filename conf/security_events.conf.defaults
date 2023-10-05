@@ -245,7 +245,6 @@ enabled=Y
 desc=Provisioning Enforcement
 priority=6
 actions=enforce_provisioning
-template=enforce_provisioning
 trigger=Provisioner::check
 enabled=Y
 grace=15m
