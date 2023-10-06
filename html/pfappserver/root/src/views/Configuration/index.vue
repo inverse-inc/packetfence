@@ -148,7 +148,7 @@ const setup = () => {
           items: [
             { name: i18n.t('General'), path: '/configuration/database_general' },
             { name: i18n.t('Advanced'), path: '/configuration/database_advanced' },
-            { name: i18n.t('ProxySQL'), path: '/configuration/database_proxysql' }
+            { name: i18n.t('Remote'), path: '/configuration/database_proxysql' }
           ]
         },
         { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },

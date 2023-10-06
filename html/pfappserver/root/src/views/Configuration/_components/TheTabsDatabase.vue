@@ -27,7 +27,7 @@ const tabs = {
     component: DatabaseAdvancedView
   },
   database_proxysql: {
-    title: 'ProxySQL Configuration', // i18n defer
+    title: 'Remote Configuration', // i18n defer
     component: DatabaseProxySQLView
   }
 }

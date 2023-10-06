@@ -7,7 +7,7 @@
   >
     <form-group-status namespace="status"
                        :column-label="$i18n.t('Remote Database')"
-                       :text="$i18n.t('Enable external remote database server')"
+                       :text="$i18n.t('Enable external remote database on ProxySQL')"
                        enabled-value="enabled"
                        disabled-value="disabled"
     />

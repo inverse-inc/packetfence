@@ -1,7 +1,7 @@
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
-export const useTitle = () => i18n.t('Database ProxySQL')
+export const useTitle = () => i18n.t('Database Remote')
 
 export const useStore = $store => {
   return {

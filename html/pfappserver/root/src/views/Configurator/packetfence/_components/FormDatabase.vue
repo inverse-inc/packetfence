@@ -4,6 +4,7 @@
       <h4 class="d-inline mb-0" v-t="'Database'"/>
     </b-card-header>
     <b-form>
+
       <b-container v-if="isStarting || isLoading"
         class="d-flex align-items-center justify-content-md-center">
         <b-row class="py-5 justify-content-md-center text-secondary">
@@ -17,6 +18,7 @@
           </b-col>
         </b-row>
       </b-container>
+
       <base-form v-else
         :form="form"
         :schema="schema"
