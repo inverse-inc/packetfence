@@ -30,6 +30,8 @@ collections:
     version: 5.1.1
   - name: ansible.posix
     version: 1.5.4
+  - name: community.docker
+    version: 3.4.8
  
 # For collections, to test locally
 # Ansible will create an export, not a symlink to git repository
