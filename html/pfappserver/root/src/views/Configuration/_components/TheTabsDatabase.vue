@@ -19,15 +19,15 @@ import DatabaseProxySQLView from '../database/proxysql/_components/TheView'
 
 const tabs = {
   database_general: {
-    title: 'General Configuration', // i18n defer
+    title: 'General', // i18n defer
     component: DatabaseGeneralView
   },
   database_advanced: {
-    title: 'Advanced Configuration', // i18n defer
+    title: 'Advanced', // i18n defer
     component: DatabaseAdvancedView
   },
   database_proxysql: {
-    title: 'Remote Configuration', // i18n defer
+    title: 'Remote', // i18n defer
     component: DatabaseProxySQLView
   }
 }
