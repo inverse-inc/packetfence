@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
+    "serve-debug": "env VUE_APP_DEBUG=true vue-cli-service serve --mode development",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint --report-unused-disable-directives=error",
     "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build --mode development",
