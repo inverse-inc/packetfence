@@ -16,7 +16,7 @@ export {
   BaseFormGroupSwitch                 as FormGroupStatus,
   BaseFormGroupFileUpload             as FormGroupCacert,
   BaseFormGroupInput                  as FormGroupBackend,
-  BaseFormGroupInputNumber            as FormGroupPort,
+  BaseFormGroupInputNumber            as FormGroupBackendPort,
   BaseFormGroupChosenOne              as FormGroupEncryption,
   BaseViewResource                    as BaseView,
   TheForm,
