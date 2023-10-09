@@ -19,14 +19,9 @@ configure_and_check() {
     BASE_DIR=/usr/local/pf/lib/perl_modules
     DUMP_FILE=${BASE_DIR}/modules_installed.csv
     DISABLE_REPO="--disablerepo=packetfence"
-
-    CPAN_BIN_PATH="/usr/bin/cpan"
-    CPAN_VERSION=2.29
-
     MODULES_WITHOUT_VERSION=("Net::Radius" "libwww::perl" "Module::Loaded")
 
     prepare_env
-    install_requirements
 
 }
 
@@ -41,36 +36,6 @@ prepare_env() {
         export LC_CTYPE=en_US.UTF-8
         export LC_ALL=en_US.UTF-8
     fi
-}
-
-install_requirements() {
-    if [ -f /etc/debian_version ]; then
-        echo "Debian system detected"
-        apt update
-        apt install libmodule-signature-perl zip make build-essential libssl-dev zlib1g-dev libmariadb-dev-compat libmariadb-dev libssh2-1-dev libexpat1-dev pkg-config libkrb5-dev libsystemd-dev libgd-dev libcpan-distnameinfo-perl libyaml-perl curl wget graphviz libio-socket-ssl-perl libnet-ssleay-perl libcpan-perl-releases-perl -y
-    elif [ -f /etc/redhat-release ]; then
-        echo "EL system detected"
-        yum install -y openssl-devel krb5-libs MariaDB-devel epel-release libssh2-devel systemd-devel gd-devel perl-open perl-experimental perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo $DISABLE_REPO
-        yum group install -y "Development Tools" $DISABLE_REPO
-        yum install -y http://repo.okay.com.mx/centos/8/x86_64/release/okay-release-1-5.el8.noarch.rpm
-    else
-        echo "Unknown system, exit"
-        exit 0
-    fi
-}
-
-upgrade_cpan() {
-    echo "CPAN installation"
-    # 1. configure CPAN with defaults (answer yes)
-    # 2. override default conf to UNINST cpan after upgrade (seems mandatory for EL8)
-    (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DEFAULT=1 ${CPAN_BIN_PATH} &> /dev/null
-
-    # upgrade CPAN
-    ${CPAN_BIN_PATH} -i ANDK/CPAN-${CPAN_VERSION}.tar.gz &> /dev/null
-
-    # display CPAN version
-    ${CPAN_BIN_PATH} -D CPAN
-    echo "CPAN installed at ${CPAN_VERSION}"
 }
 
 # generate MyConfig.pm for packetfence-perl
@@ -166,7 +131,6 @@ function install_module(){
 # ===== MAIN =====
 
 configure_and_check
-upgrade_cpan
 generate_pfperl_cpan_config
 #
 # Read from csv file
