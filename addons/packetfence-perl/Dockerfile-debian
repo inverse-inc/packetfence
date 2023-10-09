@@ -1,0 +1,36 @@
+FROM debian:11
+
+ENV workdir=/root 
+
+ENV PERL5LIB=/root/perl5/lib/perl5:/usr/local/pf/lib/perl_modules/lib/perl5/
+
+ENV CPAN_BIN_PATH="/usr/bin/cpan" \
+    CPAN_VERSION=2.36
+
+WORKDIR ${workdir}
+
+RUN  apt update -y && \
+    apt install libmodule-signature-perl zip make build-essential \ 
+libssl-dev zlib1g-dev libmariadb-dev-compat libmariadb-dev libssh2-1-dev libexpat1-dev \
+pkg-config libkrb5-dev libsystemd-dev libgd-dev libcpan-distnameinfo-perl libyaml-perl \
+curl wget graphviz libio-socket-ssl-perl debhelper \ 
+libnet-ssleay-perl libcpan-perl-releases-perl python3 -y && \
+    apt-get clean && \ 
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/* /var/tmp/*
+
+RUN mkdir -p ${workdir}/debian
+
+RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DEFAULT=1 ${CPAN_BIN_PATH} &> /dev/null
+
+RUN ${CPAN_BIN_PATH} -i ANDK/CPAN-${CPAN_VERSION}.tar.gz &> /dev/null && ${CPAN_BIN_PATH} -D CPAN
+
+COPY ./install_cpan.sh ./dependencies.csv ./get_modules_installed.pl ./make_tar_from_source.sh install_cpan.py ${workdir}
+
+#RUN  ./install_cpan.sh dependencies.csv && python3 -u  install_cpan.py  -d dependencies.csv
+#RUN  ./install_cpan.sh dependencies.csv
+
+
+
+
+
