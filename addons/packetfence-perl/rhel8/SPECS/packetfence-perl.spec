@@ -1,5 +1,5 @@
 Name:           packetfence-perl
-Version:        1.2.1
+Version:        1.2.2
 Release:        1%{?dist}
 Summary:        All modules loaded with cpan
 BuildArch:      x86_64
@@ -33,6 +33,9 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
         /usr/local/pf/lib_perl/*
 
 %changelog
+* Wed Nov 07 2023 Inverse <info@inverse.ca> 1.2.2-1
+- Upgrade Net::HTTP 6.21 -> 6.23
+
 * Wed Feb 23 2022 Inverse <info@inverse.ca> 1.2.1-1
 - Add Test::Simple
    

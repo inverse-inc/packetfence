@@ -29,7 +29,7 @@ File::Listing,6.14,PLICEASE/File-Listing-6.14.tar.gz,True,P/PL/PLICEASE/File-Lis
 Test::Exception,0.43,EXODIST/Test-Exception-0.43.tar.gz,True,E/EX/EXODIST/Test-Exception-0.43.tar.gz,10
 Test::RequiresInternet,0.05,MALLEN/Test-RequiresInternet-0.05.tar.gz,True,M/MA/MALLEN/Test-RequiresInternet-0.05.tar.gz,10
 Module::Build::Tiny,0.039,LEONT/Module-Build-Tiny-0.039.tar.gz,True,L/LE/LEONT/Module-Build-Tiny-0.039.tar.gz,10
-Net::HTTP,6.21,OALDERS/Net-HTTP-6.21.tar.gz,True,O/OA/OALDERS/Net-HTTP-6.21.tar.gz,10
+Net::HTTP,6.23,OALDERS/Net-HTTP-6.23.tar.gz,True,O/OA/OALDERS/Net-HTTP-6.23.tar.gz,10
 Test::WWW::Mechanize,1.54,PETDANCE/Test-WWW-Mechanize-1.54.tar.gz,True,P/PE/PETDANCE/Test-WWW-Mechanize-1.54.tar.gz,10
 Devel::GlobalDestruction,0.14,HAARG/Devel-GlobalDestruction-0.14.tar.gz,True,H/HA/HAARG/Devel-GlobalDestruction-0.14.tar.gz,10
 Params::ValidationCompiler,0.30,DROLSKY/Params-ValidationCompiler-0.30.tar.gz,True,D/DR/DROLSKY/Params-ValidationCompiler-0.30.tar.gz,10
