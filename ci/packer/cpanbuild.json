@@ -57,7 +57,7 @@
             "collections_path": "{{user `ansible_collections_path`}}",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
-            "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
+            "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}", "ANSIBLE_ROLES_PATH={{user `prov_dir`}}/roles", "ANSIBLE_COLLECTIONS_PATH={{user `prov_dir`}}/"],
             "groups": ["{{user `ansible_centos_group`}}","{{user `ansible_centos8_group`}}"],
             "user": "{{user `ansible_user`}}",
             "only": ["{{user `builder_prefix`}}-centos-8"]
@@ -71,7 +71,7 @@
             "collections_path": "{{user `ansible_collections_path`}}",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
-            "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
+            "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}", "ANSIBLE_ROLES_PATH={{user `prov_dir`}}/roles", "ANSIBLE_COLLECTIONS_PATH={{user `prov_dir`}}/"],
             "groups": ["{{user `ansible_debian_group`}}"],
             "user": "{{user `ansible_user`}}",
             "only": ["{{user `builder_prefix`}}-bullseye"]

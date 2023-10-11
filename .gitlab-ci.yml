@@ -436,7 +436,7 @@ variables:
     paths:
       - results/*
   tags:
-    - test-shell
+    - test-shell-v7
 
 .deploy_deb_job:
   stage: deploy

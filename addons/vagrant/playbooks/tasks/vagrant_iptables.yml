@@ -4,7 +4,7 @@
     path: "/usr/local/pf/conf/iptables-input.conf.inc"
     block: |
       # allow SSH for vagrant management
-      -A INPUT --in-interface {{ ansible_default_ipv4['interface'] }} --jump ACCEPT
+      -A INPUT --in-interface {{ ansible_default_ipv4.interface }} --jump ACCEPT
     marker: "# {mark} ANSIBLE MANAGED BLOCK - vagrant"
 
 - name: allow external services on management interface

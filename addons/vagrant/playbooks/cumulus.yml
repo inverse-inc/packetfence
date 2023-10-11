@@ -14,3 +14,10 @@
   roles:
     - role: hostapd
     - role: restserver
+
+  post_tasks:
+  - name: Change {{ switch01_api_user }} password user
+    ansible.builtin.user:
+      name: "{{ switch01_api_user }}"
+      password: "{{ switch01_api_password | password_hash }}"
+      force: true

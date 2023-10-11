@@ -3,6 +3,8 @@
   name: Install and configure Python 3 for rpmlint and nodejs
   become: True
   gather_facts: True
+  collections:
+    - community.general
 
   tasks:
     - name: Install Python 3 packages
