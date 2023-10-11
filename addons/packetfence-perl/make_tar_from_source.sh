@@ -7,7 +7,7 @@ set -o nounset -o pipefail -o errexit
 workdir="${workdir:-/root}"
 
 #SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-SCRIPT_DIR=/build
+SCRIPT_DIR=/build/packages
 mkdir -p $SCRIPT_DIR
 RPM_BUILD=0
 
@@ -23,7 +23,7 @@ else
     exit 0
 fi
 
-cd /usr/local/pf/lib/perl_modules
+cd "${BASE_DIR}"
 tar cvfz $SCRIPT_DIR/$PF_PERL_ARCHIVE ./
 if [ "${RPM_BUILD}" -eq 1 ]; then
     cp -v $SCRIPT_DIR/$PF_PERL_ARCHIVE $SCRIPT_DIR/rhel8/SOURCES/
@@ -33,7 +33,7 @@ if [ -f /etc/debian_version ]; then
     cp -a /$workdir/debian $SCRIPT_DIR
     cd $SCRIPT_DIR
     dpkg-buildpackage --no-sign -rfakeroot
-    mkdir -p /$workdir/debian/output 
-    cp -a /packetfence-perl* /$workdir/debian/output
+    mkdir -p /$OUTPUT_DIRECTORY/debian/packages 
+    cp -a ../packetfence-perl* /$OUTPUT_DIRECTORY/debian/packages
     cd -
 fi
