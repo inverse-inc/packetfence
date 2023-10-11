@@ -17,6 +17,10 @@ user_vars = inventory['all']['vars']['users_vars'][dict_name]
 
 Vagrant.configure("2") do |config|
   inventory['all']['children']['wireless']['hosts'].each do |server,details|
+    # The time in seconds that Vagrant will wait for the machine to gracefully halt when vagrant halt is called.
+    # https://developer.hashicorp.com/vagrant/docs/vagrantfile/machine_settings#config-vm-graceful_halt_timeout
+    config.vm.graceful_halt_timeout = 120
+
     config.vm.define server, autostart: false do |srv|
 
       srv.vm.box = details['box']

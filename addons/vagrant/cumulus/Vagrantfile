@@ -26,6 +26,11 @@ function vagrant_user_nclu(){
     adduser vagrant netshow
 }
 
+function vagrant_user_nvue(){
+    echo "### Giving Vagrant User Ability to Run NVUE Commands ###"
+    adduser vagrant nvapply
+}
+
 if grep -q -i 'cumulus' /etc/lsb-release &> /dev/null; then
     echo "### RUNNING CUMULUS EXTRA CONFIG ###"
     source /etc/lsb-release
@@ -76,6 +81,11 @@ if grep -q -i 'cumulus' /etc/lsb-release &> /dev/null; then
             disable_remap
             vagrant_user_nclu
             setup_ztp
+        elif [[ $DISTRIB_RELEASE =~ ^5.* ]]; then
+            echo "  INFO: Detected a 5.x Based Release ($DISTRIB_RELEASE)"
+            disable_remap
+            vagrant_user_nvue
+            setup_ztp
         fi
     fi
 fi
@@ -109,11 +119,19 @@ node03_netmask = user_vars['vms']['node03']['netmask']
 
 Vagrant.configure("2") do |config|
 
+  # The time in seconds that Vagrant will wait for the machine to gracefully halt when vagrant halt is called.
+  # https://developer.hashicorp.com/vagrant/docs/vagrantfile/machine_settings#config-vm-graceful_halt_timeout
+  config.vm.graceful_halt_timeout = 120
+
   wbid = 1
   offset = wbid * 100
 
   ##### DEFINE VM for switch01 #####
   config.vm.define "switch01" do |device|
+
+
+    # Number of seconds to wait for establishing an SSH connection to the guest
+    config.ssh.connect_timeout = 120
 
     device.vm.hostname = "switch01"
 
@@ -324,7 +342,7 @@ vagrant_interface_rule
     device.vm.box_version = inventory['all']['children']['nodes']['hosts']['node01']['box_version']
 
     device.vm.provider :libvirt do |v|
-      v.nic_model_type = 'e1000'
+      #v.nic_model_type = 'e1000'
       v.memory = 1024
 
     end
@@ -434,7 +452,7 @@ vagrant_interface_rule
     device.vm.box_version = inventory['all']['children']['nodes']['hosts']['node02']['box_version']
 
     device.vm.provider :libvirt do |v|
-      v.nic_model_type = 'e1000'
+      #v.nic_model_type = 'e1000'
       v.memory = 1024
 
     end
@@ -531,7 +549,7 @@ vagrant_interface_rule
     device.vm.box_version = inventory['all']['children']['nodes']['hosts']['node03']['box_version']
 
     device.vm.provider :libvirt do |v|
-      v.nic_model_type = 'e1000'
+      #v.nic_model_type = 'e1000'
       v.memory = 1024
 
     end
