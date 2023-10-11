@@ -85,8 +85,8 @@ def install_perl_module(dict_data):
 
 
 def paralle_execution(list_execute):
-    #with concurrent.futures.ThreadPoolExecutor(max_workers=number_exec) as executor:
-    with concurrent.futures.ProcessPoolExecutor(max_workers=number_exec) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=number_exec) as executor:
+#    with concurrent.futures.ProcessPoolExecutor(max_workers=number_exec) as executor:
         errors_install_perl = []
         list_module_perl_error = []
         # Start the load operations and mark each future with its URL
