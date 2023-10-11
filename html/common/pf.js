@@ -79,7 +79,7 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
     if(vars["auto_redirect"] != 0) {
       errorDetected = loaded = undefined;
       var netdetect = document.getElementById('netdetect');
-      netdetect.setAttribute('src', 'http://' + external_ip + image_path + '?r=' + Date.now());
+      netdetect.setAttribute('src', 'https://' + external_ip + image_path + '?r=' + Date.now());
     }
     setTimeout(checker, retry_delay * 1000);
   };
