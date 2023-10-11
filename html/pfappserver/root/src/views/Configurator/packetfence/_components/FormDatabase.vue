@@ -5,6 +5,12 @@
     </b-card-header>
     <b-form>
 
+      <form-group-remote-configuration
+        v-model="remoteConfiguration"
+        :column-label="$i18n.t('Remote Database')"
+        :text="$i18n.t('Use a remote MySQL compatible database.')"
+      />
+
       <b-container v-if="isStarting || isLoading"
         class="d-flex align-items-center justify-content-md-center">
         <b-row class="py-5 justify-content-md-center text-secondary">
@@ -54,12 +60,7 @@
 
 
 
-<form-group-remote-database-configuration
-  v-model="remoteDatabaseConfiguration"
-  :disabled="rootPasswordIsValid"
-  :column-label="$i18n.t('Remote Database')"
-  :text="$i18n.t('Use a remote MySQL compatible database.')"
-/>
+
 
 
             <!--
@@ -82,7 +83,7 @@
     :text="$i18n.t('MySQL root password')"
     :readonly="rootPasswordIsValid"
     :test="onSetRootPassword"
-    :button-label="(remoteDatabaseConfiguration) ? $i18n.t('Check Password') : $i18n.t('Set Password')"
+    :button-label="(remoteConfiguration) ? $i18n.t('Check Password') : $i18n.t('Set Password')"
     :valid-feedback="(rootPasswordIsValid) ? $i18n.t('MySQL root password is valid') : undefined"
   />
 </base-form-group>
@@ -271,8 +272,8 @@ const components = {
   BaseButtonSave,
   BaseForm,
   BaseFormGroup,
-  FormGroupAutomaticConfiguration:      BaseFormGroupToggleFalseTrue,
-  FormGroupRemoteDatabaseConfiguration: BaseFormGroupToggleFalseTrue,
+  FormGroupAutomaticConfiguration: BaseFormGroupToggleFalseTrue,
+  FormGroupRemoteConfiguration:    BaseFormGroupToggleFalseTrue,
   BaseFormGroupInput,
   BaseFormGroupInputPassword,
   BaseFormGroupInputPasswordGenerator,
@@ -289,7 +290,7 @@ const props = {
   }
 }
 
-import { computed, inject, onMounted, ref } from '@vue/composition-api'
+import { computed, inject, onMounted, ref, watch } from '@vue/composition-api'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import password from '@/utils/password'
@@ -332,7 +333,8 @@ export const setup = (props, context) => {
     })
   })
 
-  const isLoading = computed(() => $store.getters['$_bases/isLoading'])
+  const isLoadingBases = computed(() => $store.getters['$_bases/isLoading'])
+  const isLoading = computed(() => isLoadingBases.value)
 
   // Make sure the database server is running
   const isStarting = ref(true)
@@ -340,8 +342,17 @@ export const setup = (props, context) => {
     isStarting.value = false
   }))
 
+  const remoteConfiguration = ref(false)
+  const remoteConfigurationModal = ref(false)
+  watch(remoteConfiguration, newVal => {
+
+    console.log({remoteConfiguration, newVal})
+
+
+  }, { immediate: true })
+
+
   const automaticConfiguration = ref(false)
-  const remoteDatabaseConfiguration = ref(false)
   const databaseExists = ref(false)
   const rootPasswordIsRequired = ref(true)
   const setUserPassword = ref(false)
@@ -357,6 +368,11 @@ export const setup = (props, context) => {
       form.value.user = DEFAULT_USERNAME
     if (!root_user)
       form.value.root_user = DEFAULT_ROOT_USERNAME
+
+      $store.dispatch('$_bases/getDatabaseProxySQL').then(response => {
+        console.log({response})
+      })
+
     $store.dispatch('$_bases/testDatabase', { username: form.value.root_user }).then(() => {
       setRootPassword.value = true // root has no password -- installation is insecure
       automaticConfiguration.value = true // enable automatic configuration
@@ -574,8 +590,10 @@ export const setup = (props, context) => {
     isStarting,
     onSave,
 
+    remoteConfiguration,
+    remoteConfigurationModal,
+
     automaticConfiguration,
-    remoteDatabaseConfiguration,
     databaseExists,
     rootPasswordIsRequired,
     rootPasswordIsValid,
