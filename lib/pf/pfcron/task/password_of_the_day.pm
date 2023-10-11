@@ -44,7 +44,10 @@ sub run {
     foreach my $source (@{$sources}) {
         unless (person_exist($source->{id})) {
             $logger->info("Create Person $source->{id}");
-            person_add($source->{id}, (potd => 'yes'));
+            my $return = person_add($source->{id}, (potd => 'yes'));
+            if ($return == 2 ) {
+                next;
+            }
             $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0',$source);
             $self->send_email(pid => $source->{id}, password => $new_password, email => $source->{password_email_update}, expiration => pf::config::access_duration($source->{password_rotation}));
             next;
