@@ -77,7 +77,7 @@ check_free_space() {
     # it's a bit over than necessary because ad, switch and wireless could have been
     # already provisioned
     MANDATORY_SPACE='32212254'
-    AVAILABLE_SPACE=$(df --output=avail / | awk 'NR == 2 { print $1  }')
+    AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
 
     if ((  $AVAILABLE_SPACE > $MANDATORY_SPACE )); then
         echo "Enough space on system to run tests."
