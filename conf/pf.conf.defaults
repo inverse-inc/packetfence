@@ -805,7 +805,7 @@ network_detection=enabled
 # It is recommended that you allow your users to reach your packetfence server and put your LAN's PacketFence IP.
 # By default we will make this reach PacketFence's website as an easy solution.
 #
-network_detection_ip = 192.95.20.194
+network_detection_ip = web.inverse.ca
 #
 # captive_portal.network_detection_initial_delay
 #
