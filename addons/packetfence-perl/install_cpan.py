@@ -22,10 +22,10 @@ class bcolors:
 
 
 def manage_directory():
-    root_path = os.getcwd()
-    directory_path = root_path + "/install_perl"
+    root_path = os.environ.get('OUTPUT_DIRECTORY', '/mnt/output')
+    directory_path = root_path + "/debian/install_perl_logs"
     if os.path.exists(directory_path) and os.path.isdir(directory_path):
-        # If it exists, remove the entire directory
+        # If it exists, remove the entire directory to clear all old logs
         try:
             shutil.rmtree(directory_path)
         except Exception as e:
@@ -94,18 +94,17 @@ def paralle_execution(list_execute):
         for future in concurrent.futures.as_completed(future_to_url):
             url = future_to_url[future]
             data = future.result()
-            print(data)
             return_code = data[0]
             log_file_name = data[1]
             if return_code != 0:
-                if url.get('retry')  is None:
-                    url['retry'] = 1
-                elif url.get('retry')  is not None:
-                    url['retry'] += 1
+                if url.get('retry_install')  is None:
+                    url['retry_install'] = 1
+                elif url.get('retry_install')  is not None:
+                    url['retry_install'] += 1
                 list_module_perl_error.append(url)
                 error_message = f"Error module installation: {url['a']} --> {url['c']}, more details please see the logs file: {log_file_name}, rc: {return_code} \n"
                 print(bcolors.WARNING + error_message + bcolors.ENDC)
-                if url.get('retry')  is not None and url['retry'] >= 6:
+                if url.get('retry_install')  is not None and url['retry_install'] >= 6:
                     errors_install_perl.append(error_message) 
                 
             else:
@@ -143,14 +142,17 @@ def find_installed_perl_modules():
         print("Error running Perl script:", e)
         return []
 
-def validate_installed_perl_module(original_list_of_depdencies, installed_perl_modules):
+def validate_installed_perl_module(original_list_of_depdencies, installed_perl_modules,modules_without_version):
     list_module_perl_error_installed = []
     for data_csv in original_list_of_depdencies:
         name_version_perl = dict(islice(data_csv.items(), 2))
 
         if name_version_perl not in installed_perl_modules:
             for data_installed in installed_perl_modules:
-                if data_installed['a'].strip().lower() == data_csv['a'].strip().lower() and data_installed['b'].strip().lower() != data_csv['b'].strip().lower():
+                if data_installed['a'].strip().lower() == data_csv['a'].strip().lower() and data_installed['a'] in modules_without_version and data_installed['b'] == '':
+                    print(f"depedencies - {data_csv['a']} {data_csv['b']}; installed - {data_installed['a']} {data_installed['b']}  - {bcolors.OKBLUE} module without version {bcolors.ENDC}")
+                    break
+                elif data_installed['a'].strip().lower() == data_csv['a'].strip().lower() and data_installed['b'].strip().lower() != data_csv['b'].strip().lower():
                     print(f"depedencies - {data_csv['a']} {data_csv['b']}; installed - {data_installed['a']} {data_installed['b']}  - {bcolors.WARNING}version does not match{bcolors.ENDC}")
                     list_module_perl_error_installed.append(data_csv)
                     break
@@ -168,12 +170,13 @@ def validate_installed_perl_module(original_list_of_depdencies, installed_perl_m
 if __name__ == '__main__':
     # construct the argument parse and parse the arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--dependencies", required=True,  help="file's name")
-    parser.add_argument("-mw", "--max_workers", required=False, help="number of perl module installation simultany, default is 30", default = 30)
+    parser.add_argument("-d", "--dependencies", required=True,  help="depedencies file's path")
+    parser.add_argument("-mw", "--max_workers", required=False, help="The number of Perl modules to be installed simultaneously, default is 30", default = 30)
     args = parser.parse_args()
 
     filename = args.dependencies
     number_exec = args.max_workers
+    modules_without_version=("Net::Radius" "libwww::perl" "Module::Loaded")
 
     list_of_depdencies = list()
     with open(filename, 'r') as f:
@@ -193,11 +196,14 @@ if __name__ == '__main__':
 
     print(f"**************************1 iteration validate******************************")
     installed_perl_modules = find_installed_perl_modules()
-    ts = validate_installed_perl_module(original_list_of_depdencies, installed_perl_modules)
+    ts = validate_installed_perl_module(original_list_of_depdencies, installed_perl_modules,modules_without_version)
     for i in range(2,7):
         if len(ts) > 0:
             print(f"**************************{i} iteration validate******************************")
             paralle_execution(ts)
             installed_perl_modules = find_installed_perl_modules()
-            ts = validate_installed_perl_module(original_list_of_depdencies, installed_perl_modules)
-
+            ts = validate_installed_perl_module(original_list_of_depdencies, installed_perl_modules,modules_without_version)
+        else:
+            break
+        if i >= 6:
+            sys.exit(bcolors.FAIL + "Validate perl modules failed, please see above errors" + bcolors.ENDC)
