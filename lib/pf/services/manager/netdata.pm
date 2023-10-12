@@ -165,9 +165,13 @@ EOT
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
     if ($Config{'database'}{'host'} ne '127.0.0.1') {
-        $tags{'db_host'}       = "$Config{'database'}{'host'}";
+        if ($Config{'database'}{'host'} eq 'localhost') {
+            $tags{'db_host'}       = "socket: '/var/lib/mysql/mysql.sock'";
+        } else {
+            $tags{'db_host'}       = "host: '$Config{'database'}{'host'}'";
+        }
     } else {
-        $tags{'db_host'}       = $tags{'management_ip'};
+        $tags{'db_host'}       = "host: '$tags{'management_ip'}'";
     }
     $tags{'db_username'}   = "$Config{'database'}{'user'}";
     $tags{'db_password'}   = "$Config{'database'}{'pass'}";
