@@ -13,7 +13,7 @@ source "virtualbox-iso" "debian-11" {
   # change hardware configuration before exporting VM
   vboxmanage_post = [
     ["modifyvm", "{{.Name}}", "--cpus", "4"],
-    ["modifyvm", "{{.Name}}", "--memory", "12288"],
+    ["modifyvm", "{{.Name}}", "--memory", "16384"],
     ["modifyvm", "{{.Name}}", "--uartmode1", "disconnected"],
     ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--remove"]
   ]
