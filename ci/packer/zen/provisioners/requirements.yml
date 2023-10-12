@@ -1,4 +1,7 @@
 ---
+roles:
+  - name: geerlingguy.swap
+    version: 1.0.2
 collections:
   - name: inverse_inc.packetfence
     version: 1.2.4
