@@ -40,6 +40,7 @@ sub match {
     return $FALSE unless exists $arg->{$key};
     require pf::SwitchFactory;
     my $last_switch = $arg->{$key};
+    return $FALSE if(!defined($last_switch) || !$last_switch);
     my $switch = pf::SwitchFactory->instantiate($last_switch);
     return $FALSE if(!defined($switch) || !$switch);
     return $self->condition->match($switch->{_group}, $args);
