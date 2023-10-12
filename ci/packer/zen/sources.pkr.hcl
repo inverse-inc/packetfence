@@ -17,8 +17,8 @@ source "virtualbox-iso" "debian-11" {
     ["modifyvm", "{{.Name}}", "--uartmode1", "disconnected"],
     ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--remove"]
   ]
-  iso_url = "https://cdimage.debian.org/cdimage/archive/latest-oldstable/amd64/iso-cd/debian-11.7.0-amd64-netinst.iso"
-  iso_checksum = "sha256:eb3f96fd607e4b67e80f4fc15670feb7d9db5be50f4ca8d0bf07008cb025766b"
+  iso_url = "https://cdimage.debian.org/cdimage/archive/latest-oldstable/amd64/iso-cd/debian-11.8.0-amd64-netinst.iso"
+  iso_checksum = "sha256:d7a74813a734083df30c8d35784926deaa36bc41e5c0766388e9f591ab056b72"
   # boot parameters to preseed questions
   # all parameters below can't be moved to preseed file
   boot_command = [
