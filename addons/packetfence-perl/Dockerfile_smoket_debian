@@ -1,0 +1,35 @@
+FROM debian:11
+
+ENV DEBIAN_FRONTEND=noninteractive 
+
+ARG workdir
+
+WORKDIR ${workdir}
+
+RUN apt-get update && \
+    apt-get install -yq systemd systemd-sysv gnupg sudo perl vim wget curl ansible iptables-persistent 
+
+RUN ln -s /usr/bin/perl /bin/perl &&  ln -s /usr/sbin/iptables-restore  /sbin/iptables-restore && \
+    ln -s /usr/sbin/iptables-save /sbin/iptables-save && ln -s /usr/sbin/iptables /sbin/iptables
+    
+    
+RUN echo 'deb http://inverse.ca/downloads/PacketFence/debian/13.0 bullseye bullseye' > \
+    /etc/apt/sources.list.d/packetfence.list
+RUN wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
+
+RUN mkdir test && cd test && wget https://github.com/inverse-inc/packetfence/archive/refs/tags/stable.tar.gz && \ 
+    tar -zxvf stable.tar.gz
+
+RUN apt-get update
+
+EXPOSE 80 1443 443
+
+VOLUME [ "/sys/fs/cgroup" ]
+
+
+#RUN printf "systemctl start systemd-logind" >> /etc/profile
+
+#CMD ["/sbin/init"]
+CMD ["/lib/systemd/systemd"]
+#ENTRYPOINT ["/usr/sbin/init", "&"]
+

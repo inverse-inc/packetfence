@@ -1,0 +1,10 @@
+--- 
+- name: Packetfence configuration
+  hosts: localhost
+  vars_files:
+    - local.yml
+  tasks:
+    - include_tasks: 10_run_configurator_step1.yml
+    - include_tasks: 20_run_configurator_step2.yml
+    - include_tasks: 30_start_services_step3.yml
+#    - include_tasks: 40_check_configurator_disabled.yml
