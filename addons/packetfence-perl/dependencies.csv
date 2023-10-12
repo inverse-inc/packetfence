@@ -1,6 +1,6 @@
 Module::Metadata,1.000037,ETHER/Module-Metadata-1.000037.tar.gz,True,E/ET/ETHER/Module-Metadata-1.000037.tar.gz,24
 Test,1.26,JESSE/Test-1.26.tar.gz,True,/J/JE/JESSE/Test-1.26.tar.gz,?
-Test::Simple,1.302195,EXODIST/Test-Simple-1.302195.tar.gz,True,/E/EX/EXODIST/Test-Simple-1.302195.tar.gz,?
+Test::Simple,1.302188,EXODIST/Test-Simple-1.302188.tar.gz,True,/E/EX/EXODIST/Test-Simple-1.302188.tar.gz,?
 Text::Balanced,2.04,SHAY/Text-Balanced-2.04.tar.gz,True,/S/SH/SHAY/Text-Balanced-2.04.tar.gz,?
 Role::Tiny,2.002004,HAARG/Role-Tiny-2.002004.tar.gz,True,/H/HA/HAARG/Role-Tiny-2.002004.tar.gz,?
 Type::Tiny,1.012003,TOBYINK/Type-Tiny-1.012003.tar.gz,True,/T/TO/TOBYINK/Type-Tiny-1.012003.tar.gz,?
@@ -11,7 +11,7 @@ Capture::Tiny,0.48,DAGOLDEN/Capture-Tiny-0.48.tar.gz,True,D/DA/DAGOLDEN/Capture-
 Time::HiRes,1.9764,ATOOMIC/Time-HiRes-1.9764.tar.gz,True,A/AT/ATOOMIC/Time-HiRes-1.9764.tar.gz,16
 Socket,2.032,PEVANS/Socket-2.032.tar.gz,True,P/PE/PEVANS/Socket-2.032.tar.gz,16
 Try::Tiny,0.31,ETHER/Try-Tiny-0.31.tar.gz,True,E/ET/ETHER/Try-Tiny-0.31.tar.gz,16
-Test::Needs,0.002010,HAARG/Test-Needs-0.002010.tar.gz,True,H/HA/HAARG/Test-Needs-0.002010.tar.gz,14
+Test::Needs,0.002009,HAARG/Test-Needs-0.002009.tar.gz,True,H/HA/HAARG/Test-Needs-0.002009.tar.gz,14
 Dist::CheckConflicts,0.11,DOY/Dist-CheckConflicts-0.11.tar.gz,True,D/DO/DOY/Dist-CheckConflicts-0.11.tar.gz,14
 Class::Data::Inheritable,0.08,TMTM/Class-Data-Inheritable-0.08.tar.gz,True,T/TM/TMTM/Class-Data-Inheritable-0.08.tar.gz,14
 Test::Fatal,0.016,RJBS/Test-Fatal-0.016.tar.gz,True,R/RJ/RJBS/Test-Fatal-0.016.tar.gz,14
@@ -79,7 +79,7 @@ Catalyst::Plugin::Session::State::Cookie,0.18,HAARG/Catalyst-Plugin-Session-Stat
 Catalyst::Plugin::Session,0.41,JJNAPIORK/Catalyst-Plugin-Session-0.41.tar.gz,True,J/JJ/JJNAPIORK/Catalyst-Plugin-Session-0.41.tar.gz,6
 Digest::JHash,0.10,SHLOMIF/Digest-JHash-0.10.tar.gz,True,S/SH/SHLOMIF/Digest-JHash-0.10.tar.gz,6
 MooseX::NonMoose,0.26,DOY/MooseX-NonMoose-0.26.tar.gz,True,D/DO/DOY/MooseX-NonMoose-0.26.tar.gz,6
-Catalyst::Runtime,5.90129,HAARG/Catalyst-Runtime-5.90129.tar.gz,True,H/HA/HAARG/Catalyst-Runtime-5.90129.tar.gz,6
+Catalyst::Runtime,5.90128,HAARG/Catalyst-Runtime-5.90128.tar.gz,True,H/HA/HAARG/Catalyst-Runtime-5.90128.tar.gz,6
 Devel::CheckCompiler,0.07,SYOHEX/Devel-CheckCompiler-0.07.tar.gz,True,S/SY/SYOHEX/Devel-CheckCompiler-0.07.tar.gz,6
 Net::Telnet,3.05,JROGERS/Net-Telnet-3.05.tar.gz,True,J/JR/JROGERS/Net-Telnet-3.05.tar.gz,6
 Log::Dispatch::Config,1.04,MIYAGAWA/Log-Dispatch-Config-1.04.tar.gz,True,M/MI/MIYAGAWA/Log-Dispatch-Config-1.04.tar.gz,6
@@ -207,7 +207,7 @@ Net::Netmask,2.0001,JMASLAK/Net-Netmask-2.0001.tar.gz,True,J/JM/JMASLAK/Net-Netm
 Time::Period,1.25,PBOYD/Time-Period-1.25.tar.gz,True,P/PB/PBOYD/Time-Period-1.25.tar.gz,2
 ExtUtils::MakeMaker,7.62,BINGOS/ExtUtils-MakeMaker-7.62.tar.gz,True,B/BI/BINGOS/ExtUtils-MakeMaker-7.62.tar.gz,2
 Net::OAuth2,0.66,MARKOV/Net-OAuth2-0.66.tar.gz,True,M/MA/MARKOV/Net-OAuth2-0.66.tar.gz,2
-Data::Visitor,0.32,ETHER/Data-Visitor-0.32.tar.gz,True,E/ET/ETHER/Data-Visitor-0.32.tar.gz,2
+Data::Visitor,0.31,ETHER/Data-Visitor-0.31.tar.gz,True,E/ET/ETHER/Data-Visitor-0.31.tar.gz,2
 Crypt::GeneratePassword,0.05,NEILB/Crypt-GeneratePassword-0.05.tar.gz,True,N/NE/NEILB/Crypt-GeneratePassword-0.05.tar.gz,2
 Crypt::LE,0.38,LEADER/Crypt-LE-0.38.tar.gz,True,L/LE/LEADER/Crypt-LE-0.38.tar.gz,2
 CHI::Driver::Redis,0.10,IBURRELL/CHI-Driver-Redis-0.10.tar.gz,True,I/IB/IBURRELL/CHI-Driver-Redis-0.10.tar.gz,2

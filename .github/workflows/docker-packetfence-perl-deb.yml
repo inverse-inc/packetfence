@@ -1,0 +1,223 @@
+name: packetfence_perl_deb_package
+on:
+  push:
+    branches: 
+      - '!devel'   # excludes devel
+    paths:
+      - 'addons/packetfence-perl/**'
+  schedule:
+    - cron: '0 1 * * *'
+  pull_request:
+    branches: [ "devel" ]
+    paths:
+      - 'addons/packetfence-perl/**'
+
+env:
+  WORKDIR: "/root"
+  VOLUME_MOUNT: "/mnt"
+  OUTPUT_DIRECTORY: "/mnt/output"
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+
+jobs:
+  build_image_and_package:
+    runs-on: test-igor2
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+    outputs:
+      package_version: ${{ steps.contents.outputs.data }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3    
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - name: Find package version from changelog
+        id: contents
+        run: |
+          package_version=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ debian:11 /bin/bash -c \
+          "set -e && cd ${{ env.WORKDIR }}/ && apt update > /dev/null 2>&1  && apt install build-essential -y > /dev/null 2>&1 && dpkg-parsechangelog --show-field Version")
+          echo "Found version: $package_version"
+          echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
+          echo "data=$package_version" >> "$GITHUB_OUTPUT"
+
+      - name: Build packetfence-perl docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: './addons/packetfence-perl'
+          push: false
+          load: true
+          build-args: |
+            workdir=${{ env.WORKDIR }}
+            output_directory=${{ env.OUTPUT_DIRECTORY }}
+          tags: |
+            packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
+            ghcr.io/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
+            ${{ env.BRANCH_NAME == 'devel' && 'packetfence/packetfence-perl-debian:latest' || ''}}
+            ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/packetfence/packetfence-perl-debian:latest' || ''}}
+          file: ./addons/packetfence-perl/Dockerfile_debian
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build debian package
+        uses: addnab/docker-run-action@v3
+        with:
+            image: packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
+            options: --rm -v ${{ github.workspace }}/addons/packetfence-perl/:${{ env.WORKDIR }} -v ${{ env.VOLUME_MOUNT }}:${{ env.OUTPUT_DIRECTORY }}
+            shell: /bin/bash
+            run: |
+                set -e && python3 install_cpan.py -d dependencies.csv -vi true && 
+                ./build_package.sh
+
+      - name: Check if the package is created
+        run: |
+          ls -la ${{ env.VOLUME_MOUNT }}/debian/packages/
+
+  smoke_test:
+    runs-on: test-igor2
+    continue-on-error: true
+    needs: ['build_image_and_package']
+    env:
+      container_name: "packetfence_perl_smoke_${{ github.run_id }}_${{ github.run_attempt }}"
+
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3    
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - name: Build debian smoke docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: './addons/packetfence-perl'
+          push: false
+          load: true
+          build-args: |
+            workdir=${{ env.WORKDIR }}
+          tags: |
+            packetfence/packetfence-perl-debian-smoke-test:latest
+          file: ./addons/packetfence-perl/Dockerfile_smoket_debian
+
+      - name: Start docker container
+        run: |
+            docker run -i -d --privileged -v /dev/:/dev/  -v ${{ env.VOLUME_MOUNT }}/debian/packages/:${{ env.VOLUME_MOUNT }} -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host -p 1443:1443 -v ${{ github.workspace }}/:${{ env.WORKDIR }}/packetfence --name ${{ env.container_name }} packetfence/packetfence-perl-debian-smoke-test:latest
+
+      - name: Install packetfence
+        run: |
+            docker exec -i ${{ env.container_name }} apt install packetfence -y
+
+      - name: Base packetfence configuration
+        run: |
+            docker exec -i ${{ env.container_name }} ansible-playbook packetfence/addons/packetfence-perl/ansible-configurator/main.yml
+
+      - name: Copy smoke scipts in the /usr/local/pf/t/ directory
+        run: |
+            docker exec -i ${{ env.container_name }} cp -a ${{ env.WORKDIR }}/packetfence/t/. /usr/local/pf/t/
+
+      - name: Force install new packetfence-perl package
+        run: |
+            docker exec -i ${{ env.container_name }} find ${{ env.VOLUME_MOUNT }} -name "*.deb" -exec dpkg -i --force-overwrite {} \;
+
+      - name: Execute smoke test after intsllation of the package packetgence-perl
+        run: |
+            docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && cd /usr/local/pf/t/ && mysql < db/smoke_test.sql && ./smoke.t; cd -"
+
+      - name: Post clean docker envrionement
+        if: always()
+        run: 
+          docker rm "${{ env.container_name }}" -f
+
+  unit-test:
+    needs: ['build_image_and_package']
+    runs-on: test-igor2
+    container:
+      image: ubuntu:20.04
+      volumes:
+        - /mnt/debian/packages/:/mnt
+    steps:     
+      - name: Install the package packetfence-perl
+        run: |
+          cat /etc/*release
+          env
+          ls -la  ${{ env.VOLUME_MOUNT }} 
+          find ${{ env.VOLUME_MOUNT }} -name "*.deb" -exec dpkg -i {} \;
+
+  sign_package:
+    needs: ['build_image_and_package', 'unit-test', 'smoke_test']
+    runs-on: test-igor2
+    container:
+      image: debian:11.0
+      volumes:
+        - /mnt/debian/packages/:/mnt
+    steps:
+      - name: Install debian dependenecies
+        run:  apt update && apt install gpg dpkg-sig -y
+
+      - name: import private key
+        run: echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --pinentry-mode loopback --import
+
+      - name: Sign the package
+        run: dpkg-sig -k  B022C48D3D6373D7FC256A8CCB2D3A2AA0030E2C  --sign builder ${{ env.VOLUME_MOUNT }}/*.deb
+
+      - name: Verifiy the signarure of package
+        run: gpg --verify  ${{ env.VOLUME_MOUNT }}/*.deb
+
+
+  push_docker-image_and_deb-package: 
+    needs: ['build_image_and_package', 'unit-test', 'sign_package']
+    runs-on: test-igor2
+
+    steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: network=host
+
+#    - name: Build and push
+#      uses: docker/build-push-action@v5
+##      with:
+#        context: './addons/packetfence-perl'
+#        push: true
+#        tags: |
+#          localhost:5000/packetfence-perl-debian:latest
+#          localhost:5000/packetfence-perl-debian:${{ needs.build_image_and_package.outputs.package_version }}  
+#        file: ./addons/packetfence-perl/Dockerfile-debian
+#        cache-from: type=gha
+##        cache-to: type=gha,mode=max
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ vars.USER_GITHUB }}
+        password: ${{ secrets.TOKEN_GITHUB }}
+
+    - name: Publish packetfence-perl-debian image version ${{ needs.build_image_and_package.outputs.package_version }}
+      run: |
+        docker push ghcr.io/packetfence/packetfence-perl-debian:${{ needs.build_image_and_package.outputs.package_version }} 
+
+    - name: Publish packetfence-image-debian latest
+      if: env.BRANCH_NAME == 'devel'
+      run: |
+        docker push ghcr.io/packetfence/packetfence-perl-debian:latest
+
