@@ -29,6 +29,7 @@ YES | NO
 # Checklist
 (REQUIRED) - [yes, no or n/a]
 - [ ] Document the feature
+- [ ] Add OpenAPI specification
 - [ ] Add unit tests
 - [ ] Add acceptance tests (TestLink)
 
