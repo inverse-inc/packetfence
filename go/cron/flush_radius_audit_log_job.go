@@ -57,9 +57,19 @@ func (j *FlushRadiusAuditLogJob) Run() {
 		}
 
 		rows_affected += len(a)
-		jsonStr := "[" + strings.Join(a, ",") + "]"
-		var entries [][]interface{} = make([][]interface{}, len(a))
-		json.Unmarshal([]byte(jsonStr), &entries)
+
+		var entries [][]interface{} = make([][]interface{}, 0, len(a))
+		for _, jsonStr := range a {
+			var entry []interface{} = make([]interface{}, 3)
+			err := json.Unmarshal([]byte(jsonStr), &entry)
+			if err != nil {
+				log.LogError(ctx, fmt.Sprintf("%s error running: %s", j.Name(), err.Error()))
+				continue
+			}
+
+			entries = append(entries, entry)
+		}
+
 		j.flushLogs(entries)
 		if time.Now().Sub(start) > j.Timeout {
 			break
