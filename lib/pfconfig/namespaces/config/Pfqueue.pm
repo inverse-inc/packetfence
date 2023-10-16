@@ -61,6 +61,7 @@ sub build_child {
         $data->{workers} //= $PFQUEUE_WORKERS_DEFAULT;
         $data->{weight} //= $PFQUEUE_WEIGHT_DEFAULT;
         $data->{hashed} //= $PFQUEUE_HASHED_DEFAULT;
+        $data->{$_} += 0 for qw(workers weight);
         if (isenabled ($data->{hashed})) {
             push @queues, (map { real_name => $queue, name => sprintf("%s_%03d",$queue, $_), workers => 1, weight => 0 }, (0...$data->{workers}-1));
         } else {
