@@ -264,6 +264,17 @@ Proxy the RADIUS request to the to_ISE realm if the Calling-Station-Id attribute
   description=NO_REALM
   answer.0=control:Proxy-To-Realm = to_ISE
 
+Proxy the RADIUS request to the to_ISE realm if the device role is Employe and the status is registered
+
+  [Employe]
+  merge_answer=no
+  scopes=packetfence.authorize
+  status=enabled
+  condition=node_info.category == "Employe" && node_info.status == "reg"
+  description=Employe
+  answer.0=control:Proxy-To-Realm = to_ISE
+
+
 CAUTION: Those examples can be added in /usr/local/pf/conf/radius_filters.conf and after, perform a /usr/local/pf/bin/pfcmd configreload hard
 
 
