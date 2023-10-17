@@ -211,6 +211,73 @@ Click on `Save` and restart radiusd service.
 
 Now when a device connect with the username bob@acme.com then the authentication and accounting requests will be forwarded to one of the ACME RADIUS servers.
 
+==== RADIUS Proxy Advanced
+
+In this section we will explain how to proxy RADIUS requests based on an advanced criteria.
+
+First you have to create RADIUS authentication source like above and create for example two realms "to_NPS" and "to_ISE" (associate the RADIUS sources in the REALMs)
+
+Next you have to enable the RADIUS filters in the packetfence.authorize and packetfence.post-proxy scope, to do that you have to go in _Configuration -> System Configuration -> RADIUS -> General , and enable "Use RADIUS filters in packetfence authorize" and "Use RADIUS filters in packetfence post-proxy".
+
+After this step restart the packetfence-radiusd-auth service (systemctl restart packetfence-radiusd-auth.service).
+
+Here are some examples of what you can do with the RADIUS filters (the content of the radius_filters.conf file):
+
+Proxy the RADIUS request to the to_NPS realm if the Calling-Station-Id or Colubris-AVPair attribute matches the regex ACME$
+
+  [NPS]
+  scopes=packetfence.authorize
+  description=to_NPS
+  condition=radius_request.Called-Station-Id =~ "ACME$" || radius_request.Colubris-AVPair =~ "ACME$"
+  status=disabled
+  merge_answer=yes
+  answer.0=control:Proxy-To-Realm = to_NPS
+
+Proxy the RADIUS request the to_ISE realm if the Calling-Station-Id or Colubris-AVPair attribute contains ACME_Admin$ and add the attribute Realm with the value to_ISE in the RADIUS request (can be for example used as a filter in a connection profile)
+
+  [ISE]
+  merge_answer=yes
+  status=disabled
+  condition=contains(radius_request.Called-Station-Id, "ACME_Admin") || contains(radius_request.Colubris-AVPair, "ACME_Admin")
+  scopes=packetfence.authorize,packetfence.post-proxy
+  description=to_ISE
+  answer.0=control:Proxy-To-Realm = to_ISE
+  answer.1=request:Realm = to_ISE
+
+Proxy the RADIUS request to the NULL realm if the Calling-Station-Id or Colubris-AVPair attribute matches the regex Guest$
+
+  [NULL]
+  scopes=packetfence.authorize
+  description=to_null
+  status=enabled
+  merge_answer=yes
+  condition=radius_request.Called-Station-Id =~ "Guest$" || radius_request.Colubris-AVPair =~ "Guest$"
+  answer.0=control:Proxy-To-Realm = NULL
+
+Proxy the RADIUS request to the to_ISE realm if the Calling-Station-Id attribute matches the regex ACME$
+
+  [NO_REALM]
+  merge_answer=no
+  scopes=packetfence.authorize
+  status=enabled
+  condition=radius_request.Called-Station-Id =~ "ACME$" && not_contains(radius_request.User-Name, "@") && not_contains(radius_request.User-Name, "\\")
+  description=NO_REALM
+  answer.0=control:Proxy-To-Realm = to_ISE
+
+Proxy the RADIUS request to the to_ISE realm if the device role is Employe and the status is registered
+
+  [Employe]
+  merge_answer=no
+  scopes=packetfence.authorize
+  status=enabled
+  condition=node_info.category == "Employe" && node_info.status == "reg"
+  description=Employe
+  answer.0=control:Proxy-To-Realm = to_ISE
+
+
+CAUTION: Those examples can be added in /usr/local/pf/conf/radius_filters.conf and after, perform a /usr/local/pf/bin/pfcmd configreload hard
+
+
 === RADIUS EAP Profiles
 
 RADIUS EAP Profiles allow you to select a specific EAP profile in PacketFence based on the realm of the user.
