@@ -21,7 +21,7 @@ use warnings;
 
 use Net::SNMP;
 
-use base ('pf::Switch::HP::AOS_Switch_v16.11');
+use base ('pf::Switch::HP::AOS_Switch_v16_11');
 
 sub description { 'HP ProCurve 5300 Series' }
 

@@ -38,7 +38,7 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use base ('pf::Switch::HP::Procurve_2500');
+use base ('pf::Switch::HP::AOS_Switch_v16_8');
 
 use pf::constants;
 use pf::config qw(
