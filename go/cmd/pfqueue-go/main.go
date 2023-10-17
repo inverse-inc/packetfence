@@ -103,7 +103,7 @@ func (qw *QueueWorkers) Run() {
 }
 
 func buildQueueWorkers() *QueueWorkers {
-	var pfqueue pfconfigdriver.PfQueue
+	var pfqueue pfconfigdriver.PfQueueConfig
 	ctx := context.Background()
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfqueue)
 	w := &QueueWorkers{
@@ -173,7 +173,7 @@ func distributeQueues(weights []QueueWeight) []string {
 	return queues
 }
 
-func skipQueue(q *pfconfigdriver.QueueInfo) bool {
+func skipQueue(q *pfconfigdriver.Queue) bool {
 	return false
 }
 
