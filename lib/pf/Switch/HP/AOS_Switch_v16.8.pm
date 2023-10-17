@@ -1,4 +1,4 @@
-package pf::Switch::HP::Procurve_2500;
+package pf::Switch::HP::AOS_Switch_v16.8;
 
 =head1 NAME
 
@@ -27,7 +27,7 @@ use warnings;
 use Net::SNMP;
 use base ('pf::Switch::HP');
 
-sub description { 'HP ProCurve 2500 Series' }
+sub description { 'AOS Switch v16.8' }
 
 # importing switch constants
 use pf::Switch::constants;
