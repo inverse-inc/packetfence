@@ -1,4 +1,4 @@
-package pf::Switch::HP::Procurve_2920;
+package pf::Switch::HP::AOS_Switch_v16.10;
 
 =head1 NAME
 
@@ -22,9 +22,9 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 use Net::SNMP;
-use base ('pf::Switch::HP');
+use base ('pf::Switch::HP::AOS_Switch_v16.9');
 
-sub description {'HP ProCurve 2920 Series'}
+sub description {'AOS Switch v16.10'}
 
 # importing switch constants
 use pf::Switch::constants;
