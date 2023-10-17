@@ -1,14 +1,17 @@
-package pf::Switch::HP::Procurve_5300;
+package pf::Switch::HP::AOS_Switch_v16.9;
 
 =head1 NAME
 
-pf::Switch::HP::Procurve_5300 - Object oriented module to parse SNMP traps and manage HP Procurve 5300 switches
+pf::Switch::HP::Procurve_2600 - Object oriented module to access SNMP enabled HP Procurve 2600 switches
 
-=head1 STATUS
+=head1 SYNOPSIS
 
-This switch was reported to work by the community with the Procurve 5400 module with firmware 11.21.
+The pf::Switch::HP::Procurve_2600 module implements an object
+oriented interface to access SNMP enabled HP Procurve 2600 switches.
 
-This module is currently only a placeholder, see L<pf::Switch::HP::Procurve_5400> for relevant support items.
+=head1 BUGS AND LIMITATIONS
+
+VoIP not tested using MAC Authentication/802.1X
 
 =head1 SNMP
 
@@ -19,11 +22,25 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 
-use Net::SNMP;
+use base ('pf::Switch::HP::AOS_Switch_v16.8');
 
-use base ('pf::Switch::HP::AOS_Switch_v16.11');
+sub description { 'AOS Switch v16.9' }
 
-sub description { 'HP ProCurve 5300 Series' }
+# importing switch constants
+use pf::constants;
+use pf::config qw(
+    $MAC
+    $PORT
+);
+
+# CAPABILITIES
+# access technology supported
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+);
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$PORT); }
 
 =head1 AUTHOR
 

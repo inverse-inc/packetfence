@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use base ('pf::Switch::HP::Procurve_2500');
+use base ('pf::Switch::HP::AOS_Switch_v16.8');
 
 sub description { 'HP ProCurve 4100 Series' }
 
