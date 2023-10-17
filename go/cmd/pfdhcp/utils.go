@@ -47,7 +47,7 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 	binary.BigEndian.PutUint32(a, endip)
 	ipend := net.IPv4(a[0], a[1], a[2], a[3])
 
-	rows, err := MySQLdatabase.Query("select ip,mac,end_time,start_time from ip4log i where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = "+ZeroDate+" OR  end_time > NOW()) and end_time in (select MAX(end_time) from ip4log where mac = i.mac)  ORDER BY mac,end_time desc", dhcpHandler.start.String(), ipend.String())
+	rows, err := MySQLdatabase.Query("select ip,mac,end_time,start_time from ip4log i where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = '"+ZeroDate+"' OR  end_time > NOW()) and end_time in (select MAX(end_time) from ip4log where mac = i.mac)  ORDER BY mac,end_time desc", dhcpHandler.start.String(), ipend.String())
 	if err != nil {
 		log.LoggerWContext(ctx).Error(err.Error())
 		return
