@@ -18,7 +18,7 @@ VoIP not tested using MAC Authentication/802.1X
 
 use strict;
 use warnings;
-use base ('pf::Switch::HP::Procurve_2920');
+use base ('pf::Switch::HP::AOS_Switch_v16_10');
 use pf::constants;
 use pf::util;
 use pf::radius::constants;
