@@ -1,4 +1,4 @@
-package pf::Switch::HP::Procurve_5400;
+package pf::Switch::HP::AOS_Switch_v16.11;
 
 =head1 NAME
 
@@ -46,7 +46,7 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use base ('pf::Switch::HP::Procurve_2500');
+use base ('pf::Switch::HP::AOS_Switch_v16.10');
 
 use pf::constants;
 use pf::config qw(
@@ -56,7 +56,7 @@ use pf::config qw(
 use pf::Switch::constants;
 use pf::util;
 
-sub description { 'HP ProCurve 5400 Series' }
+sub description { 'AOS Switch v16.11' }
 
 # CAPABILITIES
 # access technology supported
