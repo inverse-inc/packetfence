@@ -746,7 +746,7 @@ type PfConfRadiusConfiguration struct {
 type PfQueueConfig struct {
 	StructConfig
 	PfconfigMethod string                `val:"hash_element"`
-	PfconfigNS     string                `val:"config::Pf"`
+	PfconfigNS     string                `val:"config::Pfqueue"`
 	Pfqueue        Pfqueue               `json:"pfqueue"`
 	Queues         []Queue               `json:"queues"`
 	Consumer       Consumer              `json:"consumer"`
