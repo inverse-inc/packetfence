@@ -1,4 +1,4 @@
-package pf::Switch::HP::AOS_Switch_v16.9;
+package pf::Switch::HP::AOS_Switch_v16_9;
 
 =head1 NAME
 
@@ -22,7 +22,7 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 
-use base ('pf::Switch::HP::AOS_Switch_v16.8');
+use base ('pf::Switch::HP::AOS_Switch_v16_8');
 
 sub description { 'AOS Switch v16.9' }
 
