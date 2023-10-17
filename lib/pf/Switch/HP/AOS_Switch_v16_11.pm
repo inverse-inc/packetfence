@@ -1,4 +1,4 @@
-package pf::Switch::HP::AOS_Switch_v16.11;
+package pf::Switch::HP::AOS_Switch_v16_11;
 
 =head1 NAME
 
@@ -46,7 +46,7 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use base ('pf::Switch::HP::AOS_Switch_v16.10');
+use base ('pf::Switch::HP::AOS_Switch_v16_10');
 
 use pf::constants;
 use pf::config qw(

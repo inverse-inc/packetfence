@@ -1,4 +1,4 @@
-package pf::Switch::HP::AOS_Switch_v16.8;
+package pf::Switch::HP::AOS_Switch_v16_8;
 
 =head1 NAME
 
