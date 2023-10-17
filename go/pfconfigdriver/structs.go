@@ -743,6 +743,51 @@ type PfConfRadiusConfiguration struct {
 	PfacctWorkQueueSize                string   `json:"pfacct_work_queue_size"`
 }
 
+type PfQueueConfig struct {
+	StructConfig
+	PfconfigMethod string                `val:"hash_element"`
+	PfconfigNS     string                `val:"config::Pf"`
+	Pfqueue        Pfqueue               `json:"pfqueue"`
+	Queues         []Queue               `json:"queues"`
+	Consumer       Consumer              `json:"consumer"`
+	QueueConfig    map[string]QueueEntry `json:"queue_config"`
+	Producer       Producer              `json:"producer"`
+}
+
+type Pfqueue struct {
+	Workers    string `json:"workers"`
+	TaskJitter string `json:"task_jitter"`
+	MaxTasks   string `json:"max_tasks"`
+}
+
+type Queue struct {
+	Weight   int    `json:"weight"`
+	RealName string `json:"real_name"`
+	Name     string `json:"name"`
+	Hashed   string `json:"hashed,omitempty"`
+	Workers  int    `json:"workers"`
+}
+
+type RedisArgs struct {
+	Reconnect string `json:"reconnect"`
+	Every     string `json:"every"`
+	Server    string `json:"server"`
+}
+
+type Consumer struct {
+	RedisArgs RedisArgs `json:"redis_args"`
+}
+
+type QueueEntry struct {
+	Weight  int    `json:"weight"`
+	Hashed  string `json:"hashed"`
+	Workers int    `json:"workers"`
+}
+
+type Producer struct {
+	RedisServer string `json:"redis_server"`
+}
+
 type Certificate struct {
 	StructConfig
 	Cert               string `json:"cert"`
