@@ -313,8 +313,7 @@
                   "schema" : {
                      "example" : {
                         "message" : "Please send bitcoins!",
-                        "subject" : "Lonely Nigerian Prince",
-                        "to" : "noone@example.com"
+                        "subject" : "Lonely Nigerian Prince"
                      },
                      "properties" : {
                         "message" : {
@@ -325,10 +324,6 @@
                         "subject" : {
                            "description" : "Email subject.",
                            "required" : true,
-                           "type" : "string"
-                        },
-                        "to" : {
-                           "description" : "Email address recipient.",
                            "type" : "string"
                         }
                      },
@@ -70376,7 +70371,7 @@
                   "$ref" : "#/components/responses/ErrorsWithMessage"
                }
             },
-            "summary" : "Send an email message.",
+            "summary" : "Send an email message to the recipients defined in alerting.",
             "tags" : [
                "Email"
             ]
