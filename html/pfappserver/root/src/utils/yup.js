@@ -185,10 +185,11 @@ yup.addMethod(yup.string, 'isCommonNameOrFQDN', function (message) {
 })
 
 yup.addMethod(yup.string, 'isCommonNameOrFQDNOrMAC', function (message) {
+  const ALLOW_WILDCARD = true
   return this.test({
     name: 'isCommonNameOrFQDNOrMAC',
     message: message || i18n.t('Invalid common name.'),
-    test: (value) => (isCommonName(value) || isFQDN(value) || `${value}`.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12)
+    test: (value) => (isCommonName(value) || isFQDN(value, ALLOW_WILDCARD) || `${value}`.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12)
   })
 })
 
@@ -321,7 +322,7 @@ yup.addMethod(yup.string, 'isFilenameWithContentType', function (contentTypes, m
   })
 })
 
-export const isFQDN = value => {
+export const isFQDN = (value, allowWildCard = false) => {
   if (['', null, undefined].includes(value))
     return true
   const parts = value.split('.')
@@ -331,6 +332,15 @@ export const isFQDN = value => {
   }
   for (let i = 0; i < parts.length; i++) {
     let part = parts[i]
+    if (part == '*') {
+      if (i == 0 && allowWildCard) {
+        allowWildCard = false
+        continue
+      }
+      else {
+        return false
+      }
+    }
     if (part.indexOf('__') >= 0) {
       return false
     }
