@@ -34,7 +34,7 @@
 
 /api/v1/email/pfmailer:
   post:
-    summary: Send an email message.
+    summary: Send an email message to the recipients defined in alerting.
     requestBody:
       $ref: "#/components/requestBodies/EmailMailer"
     responses:
