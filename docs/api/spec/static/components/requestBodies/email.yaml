@@ -59,14 +59,10 @@ EmailMailer:
             type: string
             description: Email message body.
             required: true
-          to:
-            type: string
-            description: Email address recipient.
           subject:
             type: string
             description: Email subject.
             required: true
         example:
           message: Please send bitcoins!
-          to: noone@example.com
           subject: Lonely Nigerian Prince

@@ -253,7 +253,6 @@ components:
             example:
               message: Please send bitcoins!
               subject: Lonely Nigerian Prince
-              to: noone@example.com
             properties:
               message:
                 description: Email message body.
@@ -262,9 +261,6 @@ components:
               subject:
                 description: Email subject.
                 required: true
-                type: string
-              to:
-                description: Email address recipient.
                 type: string
             type: object
       required: true
@@ -50747,7 +50743,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '422':
           $ref: '#/components/responses/ErrorsWithMessage'
-      summary: Send an email message.
+      summary: Send an email message to the recipients defined in alerting.
       tags:
       - Email
   /api/v1/email/preview:
