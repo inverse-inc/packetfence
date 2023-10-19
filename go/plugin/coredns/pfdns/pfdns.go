@@ -20,7 +20,6 @@ import (
 
 	"github.com/coredns/coredns/plugin"
 	"github.com/coredns/coredns/request"
-	"github.com/go-redis/redis/v8"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/db"
@@ -28,6 +27,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/redis_cache"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	cache "github.com/patrickmn/go-cache"
+	"github.com/redis/go-redis/v9"
 
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"

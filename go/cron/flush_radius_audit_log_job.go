@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/util"
+	"github.com/redis/go-redis/v9"
 )
 
 type FlushRadiusAuditLogJob struct {

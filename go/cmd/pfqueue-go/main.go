@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/go-redis/redis/v8"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/redis/go-redis/v9"
 )
 
 const PFQUEUE_WEIGHTS = "QueueWeights"

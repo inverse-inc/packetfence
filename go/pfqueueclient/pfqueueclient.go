@@ -2,18 +2,19 @@ package pfqueueclient
 
 import (
 	"context"
+	"time"
+
 	"github.com/Sereal/Sereal/Go/sereal"
 	"github.com/inverse-inc/packetfence/go/redisclient"
 	"github.com/mediocregopher/radix.v2/redis"
-	"github.com/nu7hatch/gouuid"
-	"time"
+	uuid "github.com/nu7hatch/gouuid"
 )
 
 type PfQueueClient struct {
 }
 
 type PfQueueEncoder interface {
-    Marshal(interface{}) ([]byte, error)
+	Marshal(interface{}) ([]byte, error)
 }
 
 func NewPfQueueClient() *PfQueueClient {

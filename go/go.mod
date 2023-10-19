@@ -223,7 +223,6 @@ require (
 	github.com/DataDog/zstd v1.4.5 // indirect
 	github.com/andrew-d/go-termutil v0.0.0-20150726205930-009166a695a2 // indirect
 	github.com/cheekybits/genny v1.0.0 // indirect
-	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
@@ -243,6 +242,7 @@ require (
 	github.com/huandu/go-clone/generic v1.6.0
 	github.com/onsi/ginkgo/v2 v2.9.2
 	github.com/onsi/gomega v1.27.6
+	github.com/redis/go-redis/v9 v9.2.1
 	layeh.com/radius v0.0.0-00010101000000-000000000000
 )
 
