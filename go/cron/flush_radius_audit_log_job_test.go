@@ -2,6 +2,7 @@ package maint
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"testing"
 )
@@ -78,7 +79,7 @@ func TestFlushRadiusAuditLogFromRedis(t *testing.T) {
 	}
 	redis := redisClient()
 	redis.Del(ctx, "RADIUS_AUDIT_LOG")
-	redis.LPush(ctx, "RADIUS_AUDIT_LOG", RADIUS_ENTRY, RADIUS_ENTRY)
+	redis.LPush(ctx, "RADIUS_AUDIT_LOG", RADIUS_ENTRY, base64.StdEncoding.EncodeToString([]byte(RADIUS_ENTRY)))
 
 	res, err := db.Exec("DELETE FROM radius_audit_log;")
 	if err != nil {
