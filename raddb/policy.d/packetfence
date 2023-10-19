@@ -89,7 +89,7 @@ packetfence-audit-log-accept {
     }
     else {
         request-timing
-        %{redis:RPUSH RADIUS_AUDIT_LOG '["Accept",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time Packet-Src-IP-Address}]'}
+        %{redis:RPUSH RADIUS_AUDIT_LOG '%{base64:["Accept",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time Packet-Src-IP-Address}]}'}
 #        %{redis:LPUSH ACCEPT_RADIUS_AUDIT_LOG 1}
 #       -sql {
 #           fail = 1
@@ -103,7 +103,7 @@ packetfence-audit-log-reject {
     }
     else {
         request-timing
-        %{redis:RPUSH RADIUS_AUDIT_LOG '["Reject",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time Packet-Src-IP-Address}]'}
+        %{redis:RPUSH RADIUS_AUDIT_LOG '%{base64:["Reject",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time Packet-Src-IP-Address}]}'}
 #       -sql_reject {
 #           fail = 1
 #       }
