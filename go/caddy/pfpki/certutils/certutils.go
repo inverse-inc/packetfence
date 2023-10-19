@@ -536,5 +536,10 @@ func ReturnPrivateKey(key []byte) (*bytes.Buffer, []byte, error) {
 		return ReturnECDSAPrivateKey(pkey.(*ecdsa.PrivateKey))
 	case *dsa.PrivateKey:
 		return ReturnDSAPrivateKey(pkey.(*dsa.PrivateKey))
+	case *rsa.PrivateKey:
+		return ReturnRSAPrivateKey(pkey.(*rsa.PrivateKey))
+	default:
+		return keyOut, nil, err
 	}
+
 }
