@@ -92,7 +92,12 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 
 	switchInfo := iSwitchInfo.(*SwitchInfo)
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
-	mac, _ := mac.NewFromString(callingStation)
+	mac, err := mac.NewFromString(callingStation)
+	if err != nil {
+		logError(ctx, fmt.Sprintf("Calling Station is invalid: '%s' error: %s", callingStation, err.Error()))
+		return
+	}
+
 	rr := radiusRequest{
 		r:          r,
 		status:     status,
