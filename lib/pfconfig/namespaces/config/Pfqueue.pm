@@ -77,6 +77,8 @@ sub build_child {
         $option_key =~ s/^redis_//;
         $redis_args{$option_key} = delete $consumer->{$redis_key};
     }
+
+    $redis_args{$_} += 0 for qw(every reconnect);
     $consumer->{redis_args} = \%redis_args;
 
     return \%tmp_cfg;

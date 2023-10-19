@@ -769,8 +769,8 @@ type Queue struct {
 }
 
 type RedisArgs struct {
-	Reconnect string `json:"reconnect"`
-	Every     string `json:"every"`
+	Reconnect int    `json:"reconnect"`
+	Every     int    `json:"every"`
 	Server    string `json:"server"`
 }
 
