@@ -48,139 +48,154 @@ description=Top node accounting bandwidth
 columns=mac,bytes_in,bytes_out,bytes
 sql= <<EOT
   SELECT * FROM (
+    SELECT
+      mac,
+      SUM(in_bytes) AS bytes_in,
+      SUM(out_bytes) AS bytes_out,
+      SUM(total_bytes) AS bytes
+    FROM (
       SELECT
         mac,
-        SUM(in_bytes) AS bytes_in,
-        SUM(out_bytes) AS bytes_out,
-        SUM(total_bytes) AS bytes
-      FROM (
-        SELECT
-          mac,
-          in_bytes,
-          out_bytes,
-          total_bytes
-        FROM bandwidth_accounting
-        WHERE
-          time_bucket >= ?
-          AND time_bucket <= ?
-        UNION ALL
-        SELECT
-          mac,
-          in_bytes,
-          out_bytes,
-          total_bytes
-        FROM bandwidth_accounting_history
-        WHERE
-          time_bucket >= ?
-          AND time_bucket <= ?
-      ) `total`
-      GROUP BY mac
-      ORDER BY bytes DESC, mac DESC
- ) as x
- WHERE
-     (bytes, mac) <= (?, ?)
-  LIMIT ?;
-EOT
-bindings=start_date,end_date,start_date,end_date,cursor.0,cursor.1,limit
-has_date_range=enabled
-has_limit=enabled
-cursor_type=multi_field
-cursor_field=bytes,mac
-cursor_default=18446744073709551615,ff:ff:ff:ff:ff:ff
-date_limit=24h
-default_limit=25
-node_fields=mac
-
-[Accounting::Operating System Class]
-type=sql
-description=Top Fingerbank operating system class accounting bandwidth
-columns=dhcp_fingerprint,bytes_in,bytes_out,bytes
-sql= <<EOT
-  SELECT
-    IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
-    SUM(in_bytes) AS bytes_in,
-    SUM(out_bytes) AS bytes_out,
-    SUM(in_bytes) + SUM(out_bytes) AS bytes
-  FROM (
-    SELECT
-
-      mac,
-      in_bytes,
-      out_bytes
-    FROM bandwidth_accounting
-    WHERE
-      time_bucket >= ?
-      AND time_bucket <= ?
-    UNION ALL
-    SELECT
-
-      mac,
-      in_bytes,
-      out_bytes
-    FROM bandwidth_accounting_history
-    WHERE
-      time_bucket >= ?
-      AND time_bucket <= ?
-  ) `total`
-  LEFT JOIN node USING ( mac)
-  WHERE device_class >= ?
-  GROUP BY device_class
-  ORDER BY bytes DESC
+        in_bytes,
+        out_bytes,
+        total_bytes
+      FROM bandwidth_accounting
+      WHERE
+        mac IS NOT NULL
+        AND mac != '00:00:00:00:00:00'
+        AND time_bucket >= ?
+        AND time_bucket <= ?
+      UNION ALL
+      SELECT
+        mac,
+        in_bytes,
+        out_bytes,
+        total_bytes
+      FROM bandwidth_accounting_history
+      WHERE
+        mac IS NOT NULL
+        AND mac != '00:00:00:00:00:00'
+        AND time_bucket >= ?
+        AND time_bucket <= ?
+    ) `total`
+    GROUP BY mac
+    ORDER BY bytes DESC, mac DESC
+  ) as `x`
+  WHERE
+    bytes < ?
   LIMIT ?;
 EOT
 bindings=start_date,end_date,start_date,end_date,cursor,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=field
-cursor_field=device_class
+cursor_field=bytes
+cursor_default=18446744073709551615
 date_limit=24h
 default_limit=25
+node_fields=mac
+charts=pie|mac:bytes,bar|mac:bytes
+
+[Accounting::Operating System Class]
+type=sql
+description=Top Fingerbank operating system class accounting bandwidth
+columns=device_class,bytes_in,bytes_out,bytes
+sql= <<EOT
+  SELECT * FROM (
+    SELECT
+      device_class,
+      SUM(in_bytes) AS bytes_in,
+      SUM(out_bytes) AS bytes_out,
+      SUM(in_bytes) + SUM(out_bytes) AS bytes
+    FROM (
+      SELECT
+        mac,
+        in_bytes,
+        out_bytes
+      FROM bandwidth_accounting
+      WHERE
+        time_bucket >= ?
+        AND time_bucket <= ?
+      UNION ALL
+      SELECT
+        mac,
+        in_bytes,
+        out_bytes
+      FROM bandwidth_accounting_history
+      WHERE
+        time_bucket >= ?
+        AND time_bucket <= ?
+    ) `total`
+    LEFT JOIN node USING (mac)
+    WHERE
+      device_class IS NOT NULL
+    GROUP BY device_class
+    ORDER BY bytes DESC
+  ) as `x`
+  WHERE
+    bytes < ?
+  LIMIT ?;
+EOT
+bindings=start_date,end_date,start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=bytes
+cursor_default=18446744073709551615
+date_limit=24h
+default_limit=25
+charts=pie|device_class:bytes,bar|device_class:bytes
 
 [Accounting::User]
 type=sql
 description=Top user accounting bandwidth
 columns=pid,bytes_in,bytes_out,bytes
 sql= <<EOT
-  SELECT
-    pid,
-    SUM(in_bytes) AS bytes_in,
-    SUM(out_bytes) AS bytes_out,
-    SUM(in_bytes) + SUM(out_bytes) AS bytes
-  FROM (
+  SELECT * FROM (
     SELECT
-
-      mac,
-      in_bytes,
-      out_bytes
-    FROM bandwidth_accounting
+      pid,
+      SUM(in_bytes) AS bytes_in,
+      SUM(out_bytes) AS bytes_out,
+      SUM(in_bytes) + SUM(out_bytes) AS bytes
+    FROM (
+      SELECT
+        mac,
+        in_bytes,
+        out_bytes
+      FROM bandwidth_accounting
+      WHERE
+        time_bucket >= ?
+        AND time_bucket <= ?
+      UNION ALL
+      SELECT
+        mac,
+        in_bytes,
+        out_bytes
+      FROM bandwidth_accounting_history
+      WHERE
+        time_bucket >= ?
+        AND time_bucket <= ?
+    ) `total`
+    LEFT JOIN node USING (mac)
     WHERE
-      time_bucket >= ?
-      AND time_bucket <= ?
-    UNION ALL
-    SELECT
-
-      mac,
-      in_bytes,
-      out_bytes
-    FROM bandwidth_accounting_history
-    WHERE
-      time_bucket >= ?
-      AND time_bucket <= ?
-  ) `total`
-  LEFT JOIN node USING ( mac)
-  WHERE pid >= ?
-  GROUP BY pid
-  ORDER BY bytes DESC
+      pid IS NOT NULL
+    GROUP BY pid
+    ORDER BY bytes DESC, pid DESC
+  ) as `x`
+  WHERE
+    bytes < ?
   LIMIT ?;
 EOT
 bindings=start_date,end_date,start_date,end_date,cursor,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=field
-cursor_field=pid
+cursor_field=bytes
+cursor_default=18446744073709551615
 date_limit=24h
 default_limit=25
 person_fields=pid
+charts=pie|pid:bytes,bar|pid:bytes
 
 [Authentication::All]
 type=abstract
@@ -654,7 +669,7 @@ sql= <<EOT
     last_dhcp,
     device_type AS os
   FROM node n
-  LEFT JOIN ip4log i USING ( mac)
+  LEFT JOIN ip4log i USING (mac)
   WHERE
    (i.end_time = 0 OR i.end_time > NOW()) AND
     n.mac >= ?
@@ -689,7 +704,7 @@ sql= <<EOT
     last_dhcp,
     device_type AS os
   FROM node n
-  LEFT JOIN ip4log i USING ( mac)
+  LEFT JOIN ip4log i USING (mac)
   WHERE
       (
         (end_time != 0 AND end_time <= NOW()) OR
@@ -725,7 +740,7 @@ SELECT
         last_arp,
         last_dhcp,
         device_type AS os
-      FROM node n LEFT JOIN ip4log i USING ( mac)
+      FROM node n LEFT JOIN ip4log i USING (mac)
       WHERE
         n.status = 'reg'
         AND (i.end_time = 0 or i.end_time > NOW())
