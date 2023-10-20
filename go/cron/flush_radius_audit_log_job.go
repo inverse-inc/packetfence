@@ -61,6 +61,9 @@ func (j *FlushRadiusAuditLogJob) Run() {
 
 		var entries [][]interface{} = make([][]interface{}, 0, len(a))
 		for _, jsonStr := range a {
+			if jsonStr == "" {
+				continue
+			}
 			var entry []interface{} = make([]interface{}, 4)
 			if jsonStr[0] != '[' {
 				s, err := base64.StdEncoding.DecodeString(jsonStr)
