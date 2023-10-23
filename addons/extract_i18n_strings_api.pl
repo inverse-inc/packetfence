@@ -17,6 +17,7 @@ files.
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use Config::IniFiles;
 use File::Find;
+use DBI;
 
 use constant {
     APP => 'html/pfappserver',
@@ -258,11 +259,39 @@ sub verify {
     }
 }
 
+sub setup_db {
+    my $PF_DIR = '/usr/local/pf';
+    my $db_name = "pf_smoke_test__dal_$$";
+    my $schema = "$PF_DIR/db/pf-schema-X.Y.sql",
+    my $dbpass = 'packet';
+    my $dbuser = 'pf_smoke_tester';
+    my $dbh     = DBI->connect( "DBI:mysql:host=localhost", $dbuser, $dbpass, { RaiseError => 1 } );
+    $dbh->do("DROP DATABASE IF EXISTS $db_name;") or die $dbh->errstr;
+    $dbh->do("CREATE DATABASE $db_name;")         or die $dbh->errstr;
+    system("mysql -u\"$dbuser\" -p\"$dbpass\" $db_name < $schema");
+    $dbh->do("USE $db_name;") or die $dbh->errstr;
+    return ($dbh, $db_name);
+}
+
+sub add_db_comments {
+    my ($dbh, $db_name) = setup_db();
+    my $sql = <<"SQL";
+SELECT TABLE_NAME, COLUMN_NAME, COLUMN_COMMENT from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '$db_name' and COLUMN_COMMENT != '';
+SQL
+    for my $row (@{ $dbh->selectall_arrayref($sql, { Slice => {} } ) }) {
+        my ($table, $name, $comment) = @{$row}{qw(TABLE_NAME COLUMN_NAME COLUMN_COMMENT)};
+        my $string = "db.${table}.${name}";
+        add_string($string, "db:${table}:${name}");
+        add_translation($string, $comment);
+    }
+}
+
 #### MAIN ####
 
 &parse_po;
 &parse_js;
 &parse_conf;
+&add_db_comments;
 &print_po;
 &verify;
 
