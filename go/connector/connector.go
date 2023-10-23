@@ -42,7 +42,7 @@ func (c *Connector) init() error {
 }
 
 func (c *Connector) connectorServerApiClient(ctx context.Context) (*unifiedapiclient.Client, error) {
-	res := redisClient.Get(fmt.Sprintf("%s%s", redisTunnelsNamespace, c.PfconfigHashNS))
+	res := redisClient.Get(ctx, fmt.Sprintf("%s%s", redisTunnelsNamespace, c.PfconfigHashNS))
 	client := unifiedapiclient.NewFromConfig(ctx)
 	if s, err := res.Result(); err != nil && err != redis.Nil {
 		err := fmt.Errorf("Unable to find active tunnel %s via Redis: %s", c.PfconfigHashNS, err)

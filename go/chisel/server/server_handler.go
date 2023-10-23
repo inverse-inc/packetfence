@@ -210,7 +210,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		settings.ClearActiveDynReverseConnector(ctx, user.Name)
 		activeTunnels.Store(user.Name, tunnel)
 		tunnel.ConnectorID = user.Name
-		res := s.redis.Set(fmt.Sprintf("%s%s", s.redisTunnelsNamespace, user.Name), fmt.Sprintf("%s://%s", s.listenProto, req.Context().Value(http.LocalAddrContextKey).(net.Addr).String()), 0)
+		res := s.redis.Set(ctx, fmt.Sprintf("%s%s", s.redisTunnelsNamespace, user.Name), fmt.Sprintf("%s://%s", s.listenProto, req.Context().Value(http.LocalAddrContextKey).(net.Addr).String()), 0)
 		if res.Err() != nil {
 			l.Infof("Unable to write tunnel info to Redis: %s", res.Err())
 		}
