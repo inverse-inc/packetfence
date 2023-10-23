@@ -89,7 +89,7 @@ CREATE TABLE person (
 CREATE TABLE `node_category` (
   `category_id` BIGINT NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `max_nodes_per_pid` int default 0,
+  `max_nodes_per_pid` int default 0 COMMENT 'The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.',
   `notes` varchar(255) default NULL,
   `include_parent_acls` varchar(255) default NULL,
   `fingerbank_dynamic_access_list` varchar(255) default NULL,
