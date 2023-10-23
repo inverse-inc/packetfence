@@ -2,10 +2,11 @@ package redisclient
 
 import (
 	"context"
+	"sync"
+
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/mediocregopher/radix.v2/pool"
 	"github.com/mediocregopher/radix.v2/redis"
-	"sync"
 )
 
 type PfqueueConsumerConfig struct {
@@ -53,5 +54,5 @@ func GetPfQueueRedisClient(ctx context.Context) (*redis.Client, error) {
 }
 
 func PutPfQueueRedisClient(c *redis.Client) {
-    clientPool.Put(c)
+	clientPool.Put(c)
 }

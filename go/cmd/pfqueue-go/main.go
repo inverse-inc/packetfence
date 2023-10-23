@@ -102,15 +102,25 @@ func (qw *QueueWorkers) Run() {
 	qw.waiter.Wait()
 }
 
+func setupConnection(ctx context.Context, conn *redis.Conn) error {
+	return nil
+}
+
+func credentialsProvider() (string, string) {
+	return "", ""
+}
+
 func buildQueueWorkers() *QueueWorkers {
 	var pfqueue pfconfigdriver.PfQueueConfig
 	ctx := context.Background()
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfqueue)
 	w := &QueueWorkers{
 		redis: redis.NewClient(&redis.Options{
-			Addr:     pfqueue.Consumer.RedisArgs.Server,
-			Password: "", // no password set
-			DB:       0,  // use default DB
+			Addr:                pfqueue.Consumer.RedisArgs.Server,
+			Password:            "", // no password set
+			DB:                  0,  // use default DB
+			OnConnect:           setupConnection,
+			CredentialsProvider: credentialsProvider,
 		}),
 	}
 

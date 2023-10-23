@@ -8,10 +8,10 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
+	"github.com/redis/go-redis/v9"
 )
 
 type Connector struct {
