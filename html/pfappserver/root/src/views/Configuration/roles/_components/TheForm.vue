@@ -21,44 +21,45 @@
     <form-group-max-nodes-per-pid namespace="max_nodes_per_pid"
                                   type="number"
                                   :column-label="$i18n.t('Max nodes per user')"
-                                  :text="$i18n.t('The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.')"
+                                  :text="$i18n.t('db.node_category.max_nodes_per_pid')"
     />
 
     <form-group-include-parent-acls namespace="include_parent_acls"
                                     :column-label="$i18n.t('Include Parent ACLs')"
+				    :text="$i18n.t('db.node_category.include_parent_acls')"
                                     enabled-value="enabled"
                                     disabled-value="disabled"
     />
 
     <form-group-fingerbank-dynamic-access-list namespace="fingerbank_dynamic_access_list"
                                                :column-label="$i18n.t('Fingerbank Dynamic ACLs')"
-                                               :text="$i18n.t('Use the Fingerbank dynamic ACLS')"
+                                               :text="$i18n.t('db.node_category.fingerbank_dynamic_access_list')"
                                                enabled-value="enabled"
                                                disabled-value="disabled"
     />
 
     <form-group-acls namespace="acls"
                      :column-label="$i18n.t('ACLs')"
-                     :text="$i18n.t('Access Control Lists')"
+                     :text="$i18n.t('db.node_category.acls')"
     />
 
     <form-group-inherit-vlan namespace="inherit_vlan"
                              :column-label="$i18n.t('Inherit VLAN')"
-                             :text="$i18n.t('Inherit VLAN from parent if none is found')"
+                             :text="$i18n.t('db.node_category.inherit_vlan')"
                              enabled-value="enabled"
                              disabled-value="disabled"
     />
 
     <form-group-inherit-role namespace="inherit_role"
                              :column-label="$i18n.t('Inherit Role')"
-                             :text="$i18n.t('Inherit Role from parent if none is found')"
+                             :text="$i18n.t('db.node_category.inherit_role')"
                              enabled-value="enabled"
                              disabled-value="disabled"
     />
 
     <form-group-inherit-web-auth-url namespace="inherit_web_auth_url"
                                      :column-label="$i18n.t('Inherit Web Auth URL')"
-                                     :text="$i18n.t('Inherit Web Auth URL from parent if none is found')"
+                                     :text="$i18n.t('db.node_category.inherit_web_auth_url')"
                                      enabled-value="enabled"
                                      disabled-value="disabled"
     />

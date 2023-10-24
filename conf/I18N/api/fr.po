@@ -413,7 +413,7 @@ msgstr ""
 "domaine local."
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:38
-msgid "Access Control Lists"
+msgid "db.node_category.acls"
 msgstr "Listes de Contrôle d'Accès"
 
 #: html/pfappserver/root/src/views/Configuration/accessDurations/_composables/useResource.js:8
@@ -8395,7 +8395,7 @@ msgid "Inherit Role"
 msgstr "Rôle Hérité"
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:48
-msgid "Inherit Role from parent if none is found"
+msgid "db.node_category.inherit_role"
 msgstr "Rôle hérité du parent si aucun n'est trouvé"
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:42
@@ -8403,7 +8403,7 @@ msgid "Inherit VLAN"
 msgstr "VLAN hérité"
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:43
-msgid "Inherit VLAN from parent if none is found"
+msgid "db.node_category.inherit_vlan"
 msgstr "VLAN hérité du parent si aucun n'est trouvé"
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:52
@@ -8411,7 +8411,7 @@ msgid "Inherit Web Auth URL"
 msgstr "URL pour l’authentification web héritée"
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:53
-msgid "Inherit Web Auth URL from parent if none is found"
+msgid "db.node_category.inherit_web_auth_url"
 msgstr ""
 "URL pour l’authentification web hérité du parent si aucun n'est trouvé"
 
@@ -19091,7 +19091,7 @@ msgid "Use proxy"
 msgstr "Utiliser le proxy"
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:33
-msgid "Use the Fingerbank dynamic ACLS"
+msgid "db.node_category.fingerbank_dynamic_access_list"
 msgstr "Utiliser les ACL dynamiques de Fingerbank"
 
 #: html/pfappserver/root/src/views/Configuration/radius/general/_components/TheForm.vue:97

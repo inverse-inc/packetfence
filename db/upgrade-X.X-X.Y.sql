@@ -55,9 +55,6 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 -- UPGRADE STATEMENTS GO HERE
 --
 
-ALTER TABLE node_category
-    MODIFY COLUMN `max_nodes_per_pid` int(11) DEFAULT 0 COMMENT 'The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.';
-
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 

@@ -339,8 +339,8 @@ msgid "Accept self-registration with email address from the local domain."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:38
-msgid "Access Control Lists"
-msgstr ""
+msgid "db.node_category.acls"
+msgstr "Controls if ACLs from the parent role are prepended to the ACLs associated to this role."
 
 #: html/pfappserver/root/src/views/Configuration/accessDurations/_composables/useResource.js:8
 #: html/pfappserver/root/src/views/Configuration/billingTiers/_components/TheForm.vue:30
@@ -7501,24 +7501,24 @@ msgid "Inherit Role"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:48
-msgid "Inherit Role from parent if none is found"
-msgstr ""
+msgid "db.node_category.inherit_role"
+msgstr "Inherit Role from parent if none is found."
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:42
 msgid "Inherit VLAN"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:43
-msgid "Inherit VLAN from parent if none is found"
-msgstr ""
+msgid "db.node_category.inherit_vlan"
+msgstr "Inherit VLAN from parent if none is found."
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:52
 msgid "Inherit Web Auth URL"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:53
-msgid "Inherit Web Auth URL from parent if none is found"
-msgstr ""
+msgid "db.node_category.inherit_web_auth_url"
+msgstr "Inherit Web Auth URL from parent if none is found."
 
 #: html/pfappserver/root/src/views/Configuration/captivePortal/_components/TheForm.vue:24
 msgid "Initial delay"
@@ -16953,8 +16953,8 @@ msgid "Use proxy"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheForm.vue:33
-msgid "Use the Fingerbank dynamic ACLS"
-msgstr ""
+msgid "db.node_category.fingerbank_dynamic_access_list"
+msgstr "Controls if ACLs coming from Fingerbank pristine profiles are prepended to the ACLs associated to this role."
 
 #: html/pfappserver/root/src/views/Configuration/radius/general/_components/TheForm.vue:97
 msgid "Use the RADIUS username instead of the TLS certificate common name when doing machine authentication."

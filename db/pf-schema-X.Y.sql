@@ -91,12 +91,12 @@ CREATE TABLE `node_category` (
   `name` varchar(255) NOT NULL,
   `max_nodes_per_pid` int default 0 COMMENT 'The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.',
   `notes` varchar(255) default NULL,
-  `include_parent_acls` varchar(255) default NULL,
-  `fingerbank_dynamic_access_list` varchar(255) default NULL,
-  `acls` MEDIUMTEXT NOT NULL default '',
-  `inherit_vlan` varchar(50) default NULL,
-  `inherit_role` varchar(50) default NULL,
-  `inherit_web_auth_url` varchar(50) default NULL,
+  `include_parent_acls` varchar(255) default NULL COMMNENT 'Controls if ACLs from the parent role are prepended to the ACLs associated of this role.',
+  `fingerbank_dynamic_access_list` varchar(255) default NULL COMMENT 'Controls if ACLs coming from Fingerbank pristine profiles are prepended to the ACLs associated of this role.',
+  `acls` MEDIUMTEXT NOT NULL default '' COMMENT 'ACLs associated to this role. Cisco-style syntax must be used.',
+  `inherit_vlan` varchar(50) default NULL COMMENT 'Inherit VLAN from parent if none is found.',
+  `inherit_role` varchar(50) default NULL COMMENT 'Inherit Role from parent if none is found.',
+  `inherit_web_auth_url` varchar(50) default NULL COMMENT 'Inherit Web Auth URL from parent if none is found.',
   PRIMARY KEY (`category_id`),
   UNIQUE KEY node_category_name (`name`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
