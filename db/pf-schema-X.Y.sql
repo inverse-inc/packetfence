@@ -73,14 +73,15 @@ CREATE TABLE person (
   `custom_field_7` varchar(255) default NULL,
   `custom_field_8` varchar(255) default NULL,
   `custom_field_9` varchar(255) default NULL,
-  `portal` varchar(255) default NULL,
-  `source` varchar(255) default NULL,
-  `psk` varchar(255) NULL DEFAULT NULL,
-  `potd` enum('no','yes') NOT NULL DEFAULT 'no',
-  `otp` MEDIUMTEXT NULL DEFAULT NULL,
-  `sponsored_date` DATETIME DEFAULT NULL,
+  `portal` varchar(255) default NULL COMMENT 'The name of the last connection profile used to authenticate this person.',
+  `source` varchar(255) default NULL COMMENT 'The name of the last authentication source used to authenticate this person.',
+  `psk` varchar(255) NULL DEFAULT NULL COMMENT 'The pre-shared key associated to the user for registering devices.',
+  `potd` enum('no','yes') NOT NULL DEFAULT 'no' COMMENT 'Specifies if this person is used as a password of the day source.',
+  `otp` MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Random string to generate the one-time password for the person when registering devices.',
+  `sponsored_date` DATETIME DEFAULT NULL COMMENT 'The last date the person was sponsored when registering devices through sponsor-based registration.',
   PRIMARY KEY (`pid`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci'
+COMMENT 'Persons are owners of nodes in PacketFence. This table can be populated locally, for users authenticating using the PacketFence database (using the password table). It can also be populated from various authentication sources, like Microsoft Active Directory.';
 
 --
 -- Table structure for table `node_category`
@@ -99,7 +100,8 @@ CREATE TABLE `node_category` (
   `inherit_web_auth_url` varchar(50) default NULL COMMENT 'Inherit Web Auth URL from parent if none is found.',
   PRIMARY KEY (`category_id`),
   UNIQUE KEY node_category_name (`name`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci'
+COMMENT 'Categories are roles in PacketFence. For example, a role could be Marketing, Finance or Guest. A role is associated to a node and ultimately defines what network access will be granted to the node (VLAN, ACLs, etc.).';
 
 --
 -- Insert 'default' category
@@ -136,38 +138,38 @@ INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to 
 --
 
 CREATE TABLE node (
-  `mac` varchar(17) NOT NULL,
-  `pid` varchar(255) NOT NULL default "default",
-  `category_id` bigint default NULL,
-  `detect_date` datetime NOT NULL default "0000-00-00 00:00:00",
-  `regdate` datetime NOT NULL default "0000-00-00 00:00:00",
-  `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
-  `lastskip` datetime NOT NULL default "0000-00-00 00:00:00",
-  `time_balance` int(10) unsigned DEFAULT NULL,
-  `bandwidth_balance` bigint(20) unsigned DEFAULT NULL,
-  `status` varchar(15) NOT NULL default "unreg",
-  `user_agent` varchar(255) default NULL,
-  `computername` varchar(255) default NULL,
+  `mac` varchar(17) NOT NULL COMMENT 'The MAC address of the node.',
+  `pid` varchar(255) NOT NULL default "default" COMMENT 'The owner of the node (person identifier)',
+  `category_id` bigint default NULL COMMENT 'The role identifier associated to the node.',
+  `detect_date` datetime NOT NULL default "0000-00-00 00:00:00" COMMENT 'The date when the node was first seen by PacketFence.',
+  `regdate` datetime NOT NULL default "0000-00-00 00:00:00" COMMENT 'The last registration date of the node.',
+  `unregdate` datetime NOT NULL default "0000-00-00 00:00:00" COMMENT 'The last unregisration date of the node.',
+  `lastskip` datetime NOT NULL default "0000-00-00 00:00:00" COMMENT '???',
+  `time_balance` int(10) unsigned DEFAULT NULL COMMENT 'The remaining time of the node before it gets unregistered - based on accounting data.',
+  `bandwidth_balance` bigint(20) unsigned DEFAULT NULL COMMENT 'The remaining bandwidth of the node before it gets unregistered - based on accounting data.',
+  `status` varchar(15) NOT NULL default "unreg" COMMENT 'Status of the node. Possible values are reg and unreg.',
+  `user_agent` varchar(255) default NULL COMMENT 'Most probable User-Agent of the node - obtained from Fingerbank Collector'.,
+  `computername` varchar(255) default NULL COMMENT 'Hostname of the node - obtained from Fingerbank Collector.',
   `notes` varchar(255) default NULL,
-  `last_arp` datetime NOT NULL default "0000-00-00 00:00:00",
-  `last_dhcp` datetime NOT NULL default "0000-00-00 00:00:00",
-  `dhcp_fingerprint` varchar(255) default NULL,
-  `dhcp6_fingerprint` varchar(255) default NULL,
-  `dhcp_vendor` varchar(255) default NULL,
-  `dhcp6_enterprise` varchar(255) default NULL,
-  `device_type` varchar(255) default NULL,
-  `device_class` varchar(255) default NULL,
-  `device_version` varchar(255) DEFAULT NULL,
-  `device_score` int DEFAULT NULL,
-  `device_manufacturer` varchar(255) DEFAULT NULL,
-  `bypass_vlan` varchar(50) default NULL,
-  `voip` enum('no','yes') NOT NULL DEFAULT 'no',
-  `autoreg` enum('no','yes') NOT NULL DEFAULT 'no',
-  `sessionid` varchar(30) default NULL,
-  `machine_account` varchar(255) default NULL,
-  `bypass_role_id` int default NULL,
-  `last_seen` DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
-  `bypass_acls` MEDIUMTEXT DEFAULT NULL,
+  `last_arp` datetime NOT NULL default "0000-00-00 00:00:00" COMMENT 'Last ARP request made by the node and seen by PacketFence.',
+  `last_dhcp` datetime NOT NULL default "0000-00-00 00:00:00" COMMNET 'Last DHCP request made by the node and seen by PacketFence.',
+  `dhcp_fingerprint` varchar(255) default NULL COMMENT 'DHCP (IPv4) fingerprint of the node - obtained from Fingerbank Collector.',
+  `dhcp6_fingerprint` varchar(255) default NULL COMMENT 'DHCP (IPv6) fingerprint of the node - obtained from Fingerbank Collector.',
+  `dhcp_vendor` varchar(255) default NULL COMMENT 'DHCP (IPv4) vendor of the node - obtained from Fingerbank Collector.',
+  `dhcp6_enterprise` varchar(255) default NULL COMMENT 'DHCP (IPv6) enterprise of the node - obtained from Fingerbank Collector.',
+  `device_type` varchar(255) default NULL COMMENT 'The name of the node (like Samsung Galaxy S10e) - obtained from Fingerbank Collector.',
+  `device_class` varchar(255) default NULL COMMENT 'The class of the node (like Android OS) - obtained from Fingerbank Collector.',,
+  `device_version` varchar(255) DEFAULT NULL COMMENT 'The operating system versions of the node - obtained from Fingerbank Collector.',
+  `device_score` int DEFAULT NULL COMMENT 'The confidence level in the identification process - obtained from Fingerbank Collector.',
+  `device_manufacturer` varchar(255) DEFAULT NULL COMMENT 'The manafucturer of the node (like Samsung) - obtained from Fingerbank Collector.',
+  `bypass_vlan` varchar(50) default NULL COMMENT 'When set, the VLAN to use - ignoring all other VLAN information.',
+  `voip` enum('no','yes') NOT NULL DEFAULT 'no' COMMENT 'Specifies if the node is a voice over IP device or not.',
+  `autoreg` enum('no','yes') NOT NULL DEFAULT 'no' COMMENT 'Specifies if the node was auto-registered or not.',
+  `sessionid` varchar(30) default NULL COMMENT 'The audit session identifier for the node - used by some NAD when doing CoA.',
+  `machine_account` varchar(255) default NULL COMMENT 'The Microsoft Active Directory machine account name for the node, if doing machine authentication.',
+  `bypass_role_id` int default NULL COMMENT 'When set, the role (category_id) to use - ignoring all other role information.',
+  `last_seen` DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00" COMMENT 'The date when the node was last seen by PacketFence.',
+  `bypass_acls` MEDIUMTEXT DEFAULT NULL COMMENT 'When set, the ACLs to use - ignoring all other ACL information.',
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
@@ -177,19 +179,21 @@ CREATE TABLE node (
   KEY `node_bypass_role_id` (`bypass_role_id`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` ( `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci'
+COMMENT 'This table used to store all nodes in PacketFence. A node is MAC address - it is not necessarily a device, as devices can have multiple MAC addresses.';
 
 --
 -- Table structure for table `node_current_session`
 --
 
 CREATE TABLE node_current_session (
-  `mac` varchar(17) NOT NULL,
-  `updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `last_session_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-  `is_online` BOOLEAN DEFAULT 1,
+  `mac` varchar(17) NOT NULL COMMENT 'The MAC address of the node',
+  `updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Date/time of the last session update.'
+  `last_session_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Identifier of the last session.',
+  `is_online` BOOLEAN DEFAULT 1 COMMENT 'Specifies if the node is considered as online or not.',
   PRIMARY KEY (mac)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4'
+COMMENT 'This table stores all session-related information for nodes. This allows PacketFence to efficiently track online/offline nodes.';
 
 --
 -- Table structure for table `action`
@@ -231,13 +235,14 @@ CREATE TABLE security_event (
 CREATE TABLE ip4log (
   `mac` varchar(17) NOT NULL,
   `ip` varchar(45) NOT NULL,
-  `start_time` datetime NOT NULL,
-  `end_time` datetime default "0000-00-00 00:00:00",
+  `start_time` datetime NOT NULL COMMENT 'The date/time when the MAC address started using the IP.',
+  `end_time` datetime default "0000-00-00 00:00:00" COMMENT 'The date/time when the MAC address stopped using the IP.',
   PRIMARY KEY (`ip`),
   KEY ip4log_mac_end_time (mac,end_time),
   KEY ip4log_mac_start_time (mac, start_time),
   KEY ip4log_end_time (end_time)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci'
+COMMENT 'This table holds all the active IP to MAC associations. When end_time is set, after some time, entries from this table will be archived in the iplog_history table.';
 
 --
 -- Trigger to insert old record from 'ip4log' in 'ip4log_history' before updating the current one
@@ -351,31 +356,32 @@ CREATE TABLE ip6log_archive (
 
 CREATE TABLE `locationlog` (
   `mac` varchar(17) NOT NULL,
-  `switch` varchar(17) NOT NULL default '',
-  `port` varchar(20) NOT NULL default '',
-  `vlan` varchar(50) default NULL,
-  `role` varchar(255) default NULL,
-  `connection_type` varchar(50) NOT NULL default '',
-  `connection_sub_type` varchar(50) default NULL,
-  `dot1x_username` varchar(255) NOT NULL default '',
-  `ssid` varchar(32) NOT NULL default '',
-  `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `switch_ip` varchar(17) DEFAULT NULL,
-  `switch_ip_int` int(10) unsigned AS (INET_ATON(`switch_ip`)) STORED,
-  `switch_mac` varchar(17) DEFAULT NULL,
-  `stripped_user_name` varchar (255) DEFAULT NULL,
-  `realm`  varchar (255) DEFAULT NULL,
-  `session_id` VARCHAR(255) DEFAULT NULL,
-  `ifDesc` VARCHAR(255) DEFAULT NULL,
-  `voip` enum('no','yes') NOT NULL DEFAULT 'no',
+  `switch` varchar(17) NOT NULL default '' COMMENT 'IP or MAC address of the switch where the MAC is connected.',
+  `port` varchar(20) NOT NULL default '' COMMENT 'Port of the switch where the MAC is connected.',
+  `vlan` varchar(50) default NULL COMMENT 'Current VLAN of the MAC.',
+  `role` varchar(255) default NULL COMMENT 'Current role of the MAC.',
+  `connection_type` varchar(50) NOT NULL default '' COMMENT 'The type of connection used by the MAC - like Wireless-802.11-NoEAP.',
+  `connection_sub_type` varchar(50) default NULL COMMENT 'The subtype of connection used by the MAC - like EAP-TLS.',
+  `dot1x_username` varchar(255) NOT NULL default '' COMMENT 'The username used during authentication.',
+  `ssid` varchar(32) NOT NULL default '' COMMENT 'The SSID name where the MAC is connected, when using WiFi.',
+  `start_time` datetime NOT NULL default '0000-00-00 00:00:00' COMMENT 'The date/time when the MAC address started being at that location.',
+  `end_time` datetime NOT NULL default '0000-00-00 00:00:00' COMMENT 'The date/time when the MAC address ending being at that location.',
+  `switch_ip` varchar(17) DEFAULT NULL COMMENT 'IP address of the switch where the MAC is connected.',
+  `switch_ip_int` int(10) unsigned AS (INET_ATON(`switch_ip`)) STORED COMMENT 'Integer version of the IP address of the switch where the MAC is connected.',
+  `switch_mac` varchar(17) DEFAULT NULL COMMENT 'MAC address of the switch where the MAC is connected.',
+  `stripped_user_name` varchar (255) DEFAULT NULL COMMENT 'The stripped version of the username used during authentication.',
+  `realm`  varchar (255) DEFAULT NULL COMMENT 'The realm used during authentication.',
+  `session_id` VARCHAR(255) DEFAULT NULL COMMENT 'The session identifier for the node - used to do Web Authentication on some NAD.',
+  `ifDesc` VARCHAR(255) DEFAULT NULL COMMENT 'The interface description of the switch where the MAC is connected.',
+  `voip` enum('no','yes') NOT NULL DEFAULT 'no' COMMENT 'Specifies if the node is a voice over IP device or not.',
   PRIMARY KEY (`mac`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
   KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
   KEY `locationlog_switch_ip_int` (`switch_ip_int`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci'
+COMMENT 'This table keeps track of where devices (MAC addresses) are connected on the network. When end_time is set, after some time, entries from this table will be archived in the locationlog_history table.';
 
 CREATE TABLE `locationlog_history` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
