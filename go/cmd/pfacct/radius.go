@@ -95,6 +95,10 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 	mac, err := mac.NewFromString(callingStation)
 	if err != nil {
 		logError(ctx, fmt.Sprintf("Calling Station is invalid: '%s' error: %s", callingStation, err.Error()))
+		outPacket := r.Response(radius.CodeAccountingResponse)
+		rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
+		logInfo(ctx, fmt.Sprintf("Accounting status of %s ignored", status.String()))
+		w.Write(h.AddProxyState(outPacket, r))
 		return
 	}
 
