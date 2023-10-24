@@ -842,13 +842,13 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 		case certutils.KEY_RSA:
 			keyRSA, err = x509.ParsePKCS1PrivateKey(block.Bytes)
 			if err != nil {
-				keyOut, skid, err = certutils.ReturnPrivateKey(block.Bytes)
+				keyOut, skid, pub, err = certutils.ReturnPrivateKey(block.Bytes)
 				if err != nil {
 					Information.Error = err.Error()
 					return Information, err
 				}
 			} else {
-				keyOut, skid, err = certutils.ReturnRSAPrivateKey(keyRSA)
+				keyOut, skid, pub, err = certutils.ReturnRSAPrivateKey(keyRSA)
 				if err != nil {
 					Information.Error = err.Error()
 					return Information, err
@@ -857,13 +857,13 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 		case certutils.KEY_ECDSA:
 			KeyECDSA, err = x509.ParseECPrivateKey(block.Bytes)
 			if err != nil {
-				keyOut, skid, err = certutils.ReturnPrivateKey(block.Bytes)
+				keyOut, skid, pub, err = certutils.ReturnPrivateKey(block.Bytes)
 				if err != nil {
 					Information.Error = err.Error()
 					return Information, err
 				}
 			} else {
-				keyOut, skid, err = certutils.ReturnECDSAPrivateKey(KeyECDSA)
+				keyOut, skid, pub, err = certutils.ReturnECDSAPrivateKey(KeyECDSA)
 				if err != nil {
 					Information.Error = err.Error()
 					return Information, err
@@ -872,13 +872,13 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 		case certutils.KEY_DSA:
 			KeyDSA, err = ssh.ParseDSAPrivateKey(block.Bytes)
 			if err != nil {
-				keyOut, skid, err = certutils.ReturnPrivateKey(block.Bytes)
+				keyOut, skid, pub, err = certutils.ReturnPrivateKey(block.Bytes)
 				if err != nil {
 					Information.Error = err.Error()
 					return Information, err
 				}
 			} else {
-				keyOut, skid, err = certutils.ReturnDSAPrivateKey(KeyDSA)
+				keyOut, skid, pub, err = certutils.ReturnDSAPrivateKey(KeyDSA)
 				if err != nil {
 					Information.Error = err.Error()
 					return Information, err
@@ -1441,6 +1441,269 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 			}
 		}
 	}
+
+	return Information, nil
+}
+
+func (c Cert) Resign(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var certdb []Cert
+	var err error
+	//Search the existing cert in the db
+	if val, ok := params["id"]; ok {
+		if err = c.DB.First(&certdb, val).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+	}
+	//Search the profile in the db
+	var prof Profile
+	if profDB := c.DB.First(&prof, c.ProfileID); profDB.Error != nil {
+		Information.Error = profDB.Error.Error()
+		return Information, errors.New(dbError)
+	}
+
+	// Search for the CA
+	var ca CA
+	if CaDB := c.DB.First(&ca, prof.CaID).Find(&ca); CaDB.Error != nil {
+		Information.Error = CaDB.Error.Error()
+		return Information, errors.New(dbError)
+	}
+
+	// Load the CA certificates from the database
+	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+
+	Information.Entries = certdb
+
+	// Decode the private key
+	block, _ := pem.Decode([]byte(certdb[0].Key))
+	if block == nil {
+		log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
+	}
+	var keyRSA *rsa.PrivateKey
+	var KeyECDSA *ecdsa.PrivateKey
+	var KeyDSA *dsa.PrivateKey
+
+	var skid []byte
+	var keyOut *bytes.Buffer
+	keyOut = new(bytes.Buffer)
+	var key crypto.PrivateKey
+	var pub crypto.PublicKey
+	// Detect private key type
+	switch *certdb[0].Profile.KeyType {
+	case certutils.KEY_RSA:
+		keyRSA, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			keyOut, skid, pub, err = certutils.ReturnPrivateKey(block.Bytes)
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+		} else {
+			keyOut, skid, pub, err = certutils.ReturnRSAPrivateKey(keyRSA)
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+		}
+	case certutils.KEY_ECDSA:
+		KeyECDSA, err = x509.ParseECPrivateKey(block.Bytes)
+		if err != nil {
+			keyOut, skid, pub, err = certutils.ReturnPrivateKey(block.Bytes)
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+		} else {
+			keyOut, skid, pub, err = certutils.ReturnECDSAPrivateKey(KeyECDSA)
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+		}
+	case certutils.KEY_DSA:
+		KeyDSA, err = ssh.ParseDSAPrivateKey(block.Bytes)
+		if err != nil {
+			keyOut, skid, pub, err = certutils.ReturnPrivateKey(block.Bytes)
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+		} else {
+			keyOut, skid, pub, err = certutils.ReturnDSAPrivateKey(KeyDSA)
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+		}
+	}
+	// keyOut contain the private key
+	var certdbprevious Cert
+	var newcertdb []Cert
+
+	//Calculate the serial number to assign
+	var SerialNumber *big.Int
+
+	if CertDB := c.DB.Last(&certdbprevious); CertDB.Error != nil {
+		SerialNumber = big.NewInt(1)
+	} else {
+		SerialNumber = big.NewInt(int64(certdbprevious.ID + 1))
+	}
+
+	var Subject pkix.Name
+	Subject.CommonName = c.Cn
+
+	//Overload certificate attributes if exist
+	Organization := ""
+	if len(certdb[0].Profile.Organisation) > 0 {
+		Organization = certdb[0].Profile.Organisation
+	}
+	if len(c.Organisation) > 0 {
+		Organization = c.Organisation
+	}
+	if len(Organization) > 0 {
+		Subject.Organization = []string{Organization}
+	}
+
+	Country := ""
+	if len(certdb[0].Profile.Country) > 0 {
+		Country = certdb[0].Profile.Country
+	}
+	if len(c.Country) > 0 {
+		Country = c.Country
+	}
+	if len(Country) > 0 {
+		Subject.Country = []string{Country}
+	}
+
+	Province := ""
+	if len(certdb[0].Profile.State) > 0 {
+		Province = certdb[0].Profile.State
+	}
+	if len(c.State) > 0 {
+		Province = c.State
+	}
+	if len(Province) > 0 {
+		Subject.Province = []string{Province}
+	}
+
+	Locality := ""
+	if len(certdb[0].Profile.Locality) > 0 {
+		Locality = certdb[0].Profile.Locality
+	}
+	if len(c.Locality) > 0 {
+		Locality = c.Locality
+	}
+	if len(Locality) > 0 {
+		Subject.Locality = []string{Locality}
+	}
+
+	StreetAddress := ""
+	if len(certdb[0].Profile.StreetAddress) > 0 {
+		StreetAddress = certdb[0].Profile.StreetAddress
+	}
+	if len(c.StreetAddress) > 0 {
+		StreetAddress = c.StreetAddress
+	}
+	if len(StreetAddress) > 0 {
+		Subject.StreetAddress = []string{StreetAddress}
+	}
+
+	PostalCode := ""
+	if len(certdb[0].Profile.PostalCode) > 0 {
+		PostalCode = certdb[0].Profile.PostalCode
+	}
+	if len(c.PostalCode) > 0 {
+		PostalCode = c.PostalCode
+	}
+	if len(PostalCode) > 0 {
+		Subject.PostalCode = []string{PostalCode}
+	}
+	cert := &x509.Certificate{
+		SerialNumber:       SerialNumber,
+		Subject:            Subject,
+		NotBefore:          time.Now(),
+		NotAfter:           time.Now().AddDate(0, 0, certdb[0].Profile.Validity),
+		SignatureAlgorithm: certdb[0].Profile.Digest,
+		ExtKeyUsage:        certutils.Extkeyusage(strings.Split(*certdb[0].Profile.ExtendedKeyUsage, "|")),
+		KeyUsage:           x509.KeyUsage(certutils.Keyusage(strings.Split(*certdb[0].Profile.KeyUsage, "|"))),
+		SubjectKeyId:       skid,
+	}
+	//Overload certificate attributes
+	if len(c.Profile.OCSPUrl) > 0 {
+		cert.OCSPServer = []string{c.Profile.OCSPUrl}
+	}
+
+	Email := ""
+	if len(certdb[0].Profile.Mail) > 0 {
+		Email = certdb[0].Profile.Mail
+	}
+	if len(c.Mail) > 0 {
+		Email = c.Mail
+	}
+	if len(Email) > 0 {
+		for _, mail := range strings.Split(Email, ",") {
+			cert.EmailAddresses = append(cert.EmailAddresses, mail)
+		}
+	}
+
+	if len(c.DNSNames) > 0 {
+		for _, dns := range strings.Split(c.DNSNames, ",") {
+			cert.DNSNames = append(cert.DNSNames, dns)
+		}
+	}
+	var IPAddresses []string
+	if len(c.IPAddresses) > 0 {
+		for _, ip := range strings.Split(c.IPAddresses, ",") {
+			if net.ParseIP(ip) == nil {
+				fmt.Printf("IP Address: %s - Invalid\n", ip)
+			} else {
+				IPAddresses = append(IPAddresses, ip)
+				cert.IPAddresses = append(cert.IPAddresses, net.ParseIP(ip))
+			}
+		}
+	}
+
+	var certBytes []byte
+
+	switch *certdb[0].Profile.KeyType {
+	case certutils.KEY_RSA:
+		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, key.(*rsa.PrivateKey))
+	case certutils.KEY_ECDSA:
+		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, key.(*ecdsa.PrivateKey))
+	case certutils.KEY_DSA:
+		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, key.(*dsa.PrivateKey))
+	}
+	if err != nil {
+		return Information, err
+	}
+
+	certBuff := new(bytes.Buffer)
+	// Public key
+	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certBytes})
+
+	h := sha1.New()
+
+	h.Write(cacert.RawIssuer)
+	if err := c.DB.Model(&Cert{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Ca": ca, "CaName": ca.Cn, "ProfileName": prof.Name, "SerialNumber": SerialNumber.String(), "DNSNames": cert.DNSNames, "IPAddresses": strings.Join(IPAddresses, ","), "Mail": cert.EmailAddresses, "StreetAddress": cert.Subject.StreetAddress, "Organisation": cert.Subject.Organization, "OrganisationalUnit": cert.Subject.OrganizationalUnit, "Country": cert.Subject.Country, "State": cert.Subject.Province, "Locality": cert.Subject.Locality, "PostalCode": cert.Subject.PostalCode, "Profile": certdb[0].Profile, "Key": keyOut.String(), "Cert": certBuff.String(), "ValidUntil": cert.NotAfter, "NotBefore": cert.NotBefore, "Subject": cert.Subject.String()}).Error; err != nil {
+		Information.Error = err.Error()
+		Information.Status = http.StatusConflict
+		return Information, errors.New(dbError)
+	}
+
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND profile_name = ?", c.Cn, certdb[0].ProfileName).First(&newcertdb)
+	Information.Entries = newcertdb
+	Information.Serial = SerialNumber.String()
 
 	return Information, nil
 }
