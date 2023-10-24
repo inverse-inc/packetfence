@@ -58,18 +58,23 @@ sub smoke_tester_db_connections {
     my $dsn = dsn_from_config($config);
     my $dbh =
       DBI->connect( $dsn, $config->{user}, $config->{pass},
-        { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } )
-      or die <<EOS;
+        { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
+    if (!$dbh) {
+        my $err = DBI->errstr();
+      die <<EOS;
+$err
 $dsn
 Cannot connection to db with test user please run
 mysql -uroot -p < /usr/local/pf/t/db/smoke_test.sql;
 EOS
+    }
+
     return $dbh;
 }
 
 sub dsn_from_config {
     my ($config) = @_;
-    return "dbi:mysql:;host=$config->{host};port=$config->{port};mysql_client_found_rows=0";
+    return "dbi:mysql:;host=$config->{host};port=$config->{port};mysql_client_found_rows=0;mysql_socket=/var/lib/mysql/mysql.sock";
 }
 
 sub create_db {
