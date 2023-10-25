@@ -65,3 +65,4 @@ run_test_suites() {
 configure_and_check
 run_test_suites $@
 
+# wakeup gitlab
