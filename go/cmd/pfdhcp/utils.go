@@ -440,21 +440,25 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 	if err != nil {
 		return err
 	}
+	defer MAC2IP.Close()
 
 	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac, ip, start_time, end_time FROM ip4log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) AND tenant_id = ? ORDER BY start_time DESC")
 	if err != nil {
 		return err
 	}
+	defer IP2MAC.Close()
 
 	IPClose, err := MySQLdatabase.Prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
 	if err != nil {
 		return err
 	}
+	defer IPClose.Close()
 
 	IPInsert, err := MySQLdatabase.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND))")
 	if err != nil {
 		return err
 	}
+	defer IPInsert.Close()
 
 	var (
 		oldMAC string
