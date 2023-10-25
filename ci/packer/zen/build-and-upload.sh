@@ -38,7 +38,8 @@ compress_vmware_ova() {
 }
 
 upload_to_sf() {
-    # warning: slashs at end of dirs are
+    # warning: slashs at end of dirs are significant for rsync
+    local src_dir="${SF_RESULT_DIR}/"
     local dst_repo="${PUBLIC_REPO_DIR}/"
     local dst_dir="${DEPLOY_SF_USER}@${DEPLOY_SF_HOST}:${dst_repo}"
     declare -p src_dir dst_dir
