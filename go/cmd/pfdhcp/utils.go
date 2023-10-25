@@ -458,10 +458,14 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 	if err != nil {
 		return err
 	}
+	defer IPInsert.Close()
+
 	IPUpdate, err := MySQLdatabase.Prepare("UPDATE ip4log SET mac = ?, start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? SECOND) WHERE ip = ?")
 	if err != nil {
 		return err
 	}
+	defer IPUpdate.Close()
+
 	var (
 		oldMAC string
 		oldIP  string
