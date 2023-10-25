@@ -16,9 +16,13 @@
       ansible.builtin.apt:
         autoremove: yes
 
-    - name: Run the equivalent of "apt-get clean" as a separate step
-      ansible.builtin.apt:
-        clean: yes
+# Not working on ansible core 2.10
+#    - name: Run the equivalent of "apt-get clean" as a separate step
+#      ansible.builtin.apt:
+#        clean: yes
+
+    - name: Remove server SSH keys
+      shell: 'apt-get clean'
 
     - name: Delete Node Module directory
       ansible.builtin.file:
