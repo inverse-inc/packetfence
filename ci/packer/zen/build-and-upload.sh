@@ -34,19 +34,28 @@ compress_vmware_ova() {
     # replace .ova by .zip
     local zip_file=$(basename ${ova_file/.ova/.zip})
     
-    zip -j ${SF_RESULT_DIR}/${zip_file} ${ova_file}
+    zip -9 -j ${SF_RESULT_DIR}/${zip_file} ${ova_file}
 }
 
 upload_to_sf() {
-    # warning: slashs at end of dirs are significant for rsync
-    local src_dir="${SF_RESULT_DIR}/"
+    # warning: slashs at end of dirs are
     local dst_repo="${PUBLIC_REPO_DIR}/"
     local dst_dir="${DEPLOY_SF_USER}@${DEPLOY_SF_HOST}:${dst_repo}"
     declare -p src_dir dst_dir
-    echo "rsync: $src_dir -> $dst_dir"
+    # Get file size
+    file_size=$(du -bs ${SF_RESULT_DIR}/${zip_file} | cut -f1)
+    # Source Forge limit is 7.0 GB
+    check_size=7516192768
 
-    # quotes to handle space in filename
-    rsync -avz $src_dir "$dst_dir"
+    if [ "$file_size" -le "$check_size" ]; then
+      # quotes to handle space in filename
+      echo "rsync: $src_dir -> $dst_dir"
+      # quotes to handle space in filename
+      rsync -avz $src_dir "$dst_dir"
+    else
+      echo "The file is bigger than Sourceforge Limite 7.0 GB. It will not be uploaded"
+      exit 27
+    fi
 }
 
 mkdir -p ${VMWARE_RESULT_DIR} ${SF_RESULT_DIR}
