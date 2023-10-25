@@ -8,3 +8,19 @@
     - name: Remove server SSH keys
       shell: 'rm -f /etc/ssh/ssh_host_*'
 
+    - name: Remove useless packages from the cache
+      ansible.builtin.apt:
+        autoclean: yes
+
+    - name: Remove dependencies that are no longer required
+      ansible.builtin.apt:
+        autoremove: yes
+
+    - name: Run the equivalent of "apt-get clean" as a separate step
+      ansible.builtin.apt:
+        clean: yes
+
+    - name: Delete Node Module directory
+      ansible.builtin.file:
+        state: absent
+        path: "/usr/local/pf/html/pfappserver/root/node_modules"
