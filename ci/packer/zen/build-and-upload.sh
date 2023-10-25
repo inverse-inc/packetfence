@@ -34,7 +34,7 @@ compress_vmware_ova() {
 
     echo "zip source ${ova_file} =>  dest: ${zip_file}"
 
-    zip -9 -j ${zip_file} ${ova_file}
+    zip -qdgds 100m -9 -j ${zip_file} ${ova_file}
 }
 
 upload_to_sf() {
