@@ -15,7 +15,7 @@ gitlab_buildpkg_tools__rpm_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
   - name: nodejs
-    baseurl: 'https://rpm.nodesource.com/pub_18.x/el/$releasever/$basearch'
+    baseurl: 'https://rpm.nodesource.com/pub_20.x/el/$releasever/$basearch'
 
 # packages install will occur
 # during build dependencies install from SPEC files
