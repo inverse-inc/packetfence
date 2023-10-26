@@ -46,11 +46,12 @@ func NewConfigStore() *ConfigStore {
 
 type ConfigStoreUpdater ConfigStore
 
-func (cs *ConfigStoreUpdater) AddRefreshable(n string, i Refresh) {
+func (cs *ConfigStoreUpdater) AddRefreshable(ctx context.Context, n string, i Refresh) {
 	cs.refreshables[n] = i
 }
 
-func (cs *ConfigStoreUpdater) AddStruct(n string, i interface{}) {
+func (cs *ConfigStoreUpdater) AddStruct(ctx context.Context, n string, i interface{}) {
+	refreshStruct(ctx, i)
 	cs.structs[n] = i
 }
 
@@ -131,7 +132,7 @@ func (p *ConfigPool) AddRefreshable(ctx context.Context, n string, r Refresh) {
 	p.Update(
 		ctx,
 		func(ctx context.Context, u *ConfigStoreUpdater) {
-			u.AddRefreshable(n, updateRefresh(ctx, r))
+			u.AddRefreshable(ctx, n, updateRefresh(ctx, r))
 		},
 	)
 }
@@ -143,7 +144,7 @@ func (p *ConfigPool) AddStruct(ctx context.Context, n string, s interface{}) {
 		ctx,
 		func(ctx context.Context, u *ConfigStoreUpdater) {
 			refreshStruct(ctx, s)
-			u.AddStruct(n, s)
+			u.AddStruct(ctx, n, s)
 		},
 	)
 }
@@ -167,14 +168,15 @@ func refreshStruct(ctx context.Context, s interface{}) {
 	// Check if s itself is a PfconfigObject, otherwise, we cycle though its fields and process them
 	if o, ok := v.Addr().Interface().(PfconfigObject); ok {
 		FetchDecodeSocketCache(ctx, o)
-	} else {
-		for i := 0; i < v.NumField(); i++ {
-			field := v.Field(i).Addr()
-			if o, ok := field.Interface().(PfconfigObject); ok {
-				FetchDecodeSocketCache(ctx, o)
-			} else {
-				refreshStruct(ctx, field.Interface())
-			}
+		return
+	}
+
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i).Addr()
+		if o, ok := field.Interface().(PfconfigObject); ok {
+			FetchDecodeSocketCache(ctx, o)
+		} else {
+			refreshStruct(ctx, field.Interface())
 		}
 	}
 }
