@@ -61,10 +61,10 @@ jobs:
             workdir=${{ env.WORKDIR }}
             output_directory=${{ env.OUTPUT_DIRECTORY }}
           tags: |
-            packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
-            ghcr.io/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
-            ${{ env.BRANCH_NAME == 'devel' && 'packetfence/packetfence-perl-debian:latest' || ''}}
-            ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/packetfence/packetfence-perl-debian:latest' || ''}}
+            inverse-inc/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
+            ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
+            ${{ env.BRANCH_NAME == 'devel' && 'inverse-inc/packetfence/packetfence-perl-debian:latest' || ''}}
+            ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:latest' || ''}}
           file: ./addons/packetfence-perl/Dockerfile_debian
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -72,7 +72,7 @@ jobs:
       - name: Build debian package
         uses: addnab/docker-run-action@v3
         with:
-            image: packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
+            image: inverse-inc/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
             options: --rm -v ${{ github.workspace }}/addons/packetfence-perl/:${{ env.WORKDIR }} -v ${{ env.VOLUME_MOUNT }}:${{ env.OUTPUT_DIRECTORY }}
             shell: /bin/bash
             run: |
@@ -214,10 +214,10 @@ jobs:
 
     - name: Publish packetfence-perl-debian image version ${{ needs.build_image_and_package.outputs.package_version }}
       run: |
-        docker push ghcr.io/packetfence/packetfence-perl-debian:${{ needs.build_image_and_package.outputs.package_version }} 
+        docker push ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:${{ needs.build_image_and_package.outputs.package_version }} 
 
     - name: Publish packetfence-image-debian latest
       if: env.BRANCH_NAME == 'devel'
       run: |
-        docker push ghcr.io/packetfence/packetfence-perl-debian:latest
+        docker push ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:latest
 
