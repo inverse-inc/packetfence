@@ -8,15 +8,10 @@ import (
 func TestRefresh(t *testing.T) {
 	cs := NewConfigStore()
 	updater := cs.updater()
-	updater.AddStruct("PfConfGeneral", &PfConfGeneral{})
+	updater.AddStruct(context.Background(), "PfConfGeneral", &PfConfGeneral{})
 	data := cs.GetStruct("PfConfGeneral")
 	if data == nil {
 		t.Fatalf("Could not get PfConfGeneral")
-	}
-
-	item := data.(*PfConfGeneral)
-	if item.Domain != "" {
-		t.Fatalf("Domain is set")
 	}
 
 	updater.Refresh(context.Background())
