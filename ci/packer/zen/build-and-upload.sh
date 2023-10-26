@@ -11,6 +11,9 @@ VMWARE_RESULT_DIR=${VMWARE_RESULT_DIR:-results/vmware}
 VMX_OVA_NAME=${VM_NAME}-${PF_VERSION}.ova
 VMX_OVA_NAME=`echo -n $VMX_OVA_NAME | tr '/' '-'`
 
+VMX_ZIP_NAME=${VM_NAME}-${PF_VERSION}.zip
+VMX_ZIP_NAME=`echo -n $VMX_ZIP_NAME | tr '/' '-'`
+
 # upload
 SF_RESULT_DIR=results/sf/${PF_VERSION}
 PUBLIC_REPO_DIR="/home/frs/project/p/pa/packetfence/PacketFence\ ZEN/${PF_VERSION}"
