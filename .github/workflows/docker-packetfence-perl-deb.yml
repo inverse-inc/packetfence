@@ -20,7 +20,7 @@ env:
 
 jobs:
   build_image_and_package:
-    runs-on: test-igor2
+    runs-on: packetfence-perl-deb-package-build
     permissions:
       contents: read
       packages: write
@@ -84,7 +84,7 @@ jobs:
           ls -la ${{ env.VOLUME_MOUNT }}/debian/packages/
 
   smoke_test:
-    runs-on: test-igor2
+    runs-on: packetfence-perl-deb-package-build
     continue-on-error: true
     needs: ['build_image_and_package']
     env:
@@ -149,7 +149,7 @@ jobs:
 
   unit-test:
     needs: ['build_image_and_package']
-    runs-on: test-igor2
+    runs-on: packetfence-perl-deb-package-build
     container:
       image: ubuntu:20.04
       volumes:
@@ -164,7 +164,7 @@ jobs:
 
   sign_package:
     needs: ['build_image_and_package', 'unit-test', 'smoke_test']
-    runs-on: test-igor2
+    runs-on: packetfence-perl-deb-package-build
     container:
       image: debian:11.0
       volumes:
@@ -185,7 +185,7 @@ jobs:
 
   push_docker-image_and_deb-package: 
     needs: ['build_image_and_package', 'unit-test', 'sign_package']
-    runs-on: test-igor2
+    runs-on: packetfence-perl-deb-package-build
 
     steps:
     - name: Set up Docker Buildx
