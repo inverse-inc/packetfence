@@ -282,7 +282,7 @@ sub get_other_radiusd_certificates {
     #my @certs = $self->get_cn_and_cert_radiusd_certificates(); #looks llke something is missing in the import
     my @certs = $self->pf::services::manager::radiusd_child::get_cn_and_cert_radiusd_certificates();
     if(@certs) {
-        return @certs;
+        return \@certs;
     }
     else {
         get_logger->error("cannot find any other RADIUS CA certificates on PF");
