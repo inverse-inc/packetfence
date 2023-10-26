@@ -68,5 +68,3 @@
   retries: 5
   delay: 2
   ignore_errors: True
-
-
