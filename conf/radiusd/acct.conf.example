@@ -7,7 +7,7 @@ $INCLUDE radiusd.conf
 [% FOREACH ip IN listen_ips %]
 listen {
         ipaddr = [% ip %]
-        port = 0
+        port = [% port %]
         type = acct
         virtual_server = packetfence
 }
