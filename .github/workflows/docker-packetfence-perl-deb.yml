@@ -1,8 +1,8 @@
 name: packetfence_perl_deb_package
 on:
   push:
-    branches: 
-      - '!devel'   # excludes devel
+    branches-ignore: 
+      - 'devel'   # excludes devel
     paths:
       - 'addons/packetfence-perl/**'
   schedule:
