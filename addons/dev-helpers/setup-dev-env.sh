@@ -13,7 +13,7 @@ log_section() {
 ## Is npm Installed
 if ! type npm 2> /dev/null ; then
   echo "Install npm before running this script"
-  echo "Currently, the nodejs version that should be used is 18.x which can be installed using: \`dnf module install nodejs:18\`"
+  echo "Currently, the nodejs version that should be used is 20.x which can be installed using: \`dnf module install nodejs:20\`"
   exit 1
 fi
 
