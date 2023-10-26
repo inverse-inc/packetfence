@@ -30,5 +30,5 @@
   roles:
     - role: geerlingguy.nodejs
       vars:
-        nodejs_version: "18.x"
+        nodejs_version: "20.x"
       tags: nodejs
