@@ -142,10 +142,10 @@ jobs:
         run: |
             docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && cd /usr/local/pf/t/ && mysql < db/smoke_test.sql && ./smoke.t; cd -"
 
-      - name: Post clean docker envrionement
-        if: always()
-        run: 
-          docker rm "${{ env.container_name }}" -f
+#      - name: Post clean docker envrionement
+#        if: always()
+#        run: 
+#          docker rm "${{ env.container_name }}" -f
 
   unit-test:
     needs: ['build_image_and_package']
