@@ -411,6 +411,7 @@ sub generate_radiusd_acctconf {
     $tags{'listen_ips'} = '*'; #[uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
+    $tags{'port'} = $self->{acct_port};
     $tt->process("$conf_dir/radiusd/acct.conf", \%tags, "$install_dir/raddb/acct.conf") or die $tt->error();
 }
 
