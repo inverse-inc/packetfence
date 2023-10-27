@@ -75,7 +75,6 @@ type configStruct struct {
 		Alerting      PfConfAlerting
 		ActiveActive  PfConfActiveActive
 		Services      PfConfServices
-		ServicesURL   PfConfServicesURL
 		Pfconnector   PfConfPfconnector
 	}
 	//AdminRoles AdminRoles
