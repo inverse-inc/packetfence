@@ -77,7 +77,6 @@ type configStruct struct {
 		Services      PfConfServices
 		ServicesURL   PfConfServicesURL
 		Pfconnector   PfConfPfconnector
-		AdminLogin    PfConfAdminLogin
 	}
 	//AdminRoles AdminRoles
 	Cluster struct {
