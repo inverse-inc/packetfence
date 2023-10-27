@@ -20,10 +20,12 @@ var ctx = log.LoggerNewContext(context.Background())
 var apiAAA, err = buildApiAAAHandler(ctx, []string{})
 
 func TestApiAAALogin(t *testing.T) {
+	ctx := context.Background()
+	webservices := pfconfigdriver.GetStruct(ctx, "PfConfWebservices").(*pfconfigdriver.PfConfWebservices)
 	req, _ := http.NewRequest(
 		"POST",
 		"/login",
-		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"%s"}`, pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass))),
+		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"%s"}`, webservices.User, webservices.Pass))),
 	)
 
 	recorder := httptest.NewRecorder()
@@ -36,7 +38,7 @@ func TestApiAAALogin(t *testing.T) {
 	req, _ = http.NewRequest(
 		"POST",
 		"/login",
-		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"badPwd"}`, pfconfigdriver.Config.PfConf.Webservices.User))),
+		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"badPwd"}`, webservices.User))),
 	)
 
 	recorder = httptest.NewRecorder()
@@ -49,7 +51,8 @@ func TestApiAAALogin(t *testing.T) {
 }
 
 func TestApiAAATokenInfo(t *testing.T) {
-	_, token, _ := apiAAA.authentication.Login(ctx, pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
+	webservices := pfconfigdriver.GetStruct(ctx, "PfConfWebservices").(*pfconfigdriver.PfConfWebservices)
+	_, token, _ := apiAAA.authentication.Login(ctx, webservices.User, webservices.Pass)
 	tokenInfo, _ := apiAAA.authorization.GetTokenInfo(ctx, token)
 
 	req, _ := http.NewRequest("GET", "/api/v1/token_info", nil)
@@ -76,18 +79,18 @@ func TestApiAAATokenInfo(t *testing.T) {
 		}
 	}
 
-	if respMap.Item.Username != pfconfigdriver.Config.PfConf.Webservices.User {
+	if respMap.Item.Username != webservices.User {
 		t.Error("Username in token info isn't valid:", respMap.Item.Username)
 	}
 }
 
 func TestApiAAAHandleAAA(t *testing.T) {
-
+	webservices := pfconfigdriver.GetStruct(ctx, "PfConfWebservices").(*pfconfigdriver.PfConfWebservices)
 	// The webservices credentials should have access to everything
 	req, _ := http.NewRequest(
 		"POST",
 		"/login",
-		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"%s"}`, pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass))),
+		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"%s"}`, webservices.User, webservices.Pass))),
 	)
 
 	recorder := httptest.NewRecorder()
@@ -120,10 +123,11 @@ func TestApiAAAHandleAAA(t *testing.T) {
 
 func TestApiAAAContentType(t *testing.T) {
 
+	webservices := pfconfigdriver.GetStruct(ctx, "PfConfWebservices").(*pfconfigdriver.PfConfWebservices)
 	req, _ := http.NewRequest(
 		"POST",
 		"/login",
-		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"%s"}`, pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass))),
+		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"%s"}`, webservices.User, webservices.Pass))),
 	)
 
 	recorder := httptest.NewRecorder()

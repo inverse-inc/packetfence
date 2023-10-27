@@ -131,24 +131,30 @@ func validateTokenArgs(args []string) ([]string, error) {
 func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAHandler, error) {
 
 	apiAAA := ApiAAAHandler{}
+	webservices := &pfconfigdriver.PfConfWebservices{}
+	unifiedApiSystemUser := &pfconfigdriver.UnifiedApiSystemUser{}
+	advanced := &pfconfigdriver.PfConfAdvanced{}
 
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
-	//pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
+	pfconfigdriver.UpdateConfigStore(ctx, func(ctx context.Context, u *pfconfigdriver.ConfigStoreUpdater) {
+		//		u.AddStruct(ctx, n, s)
+		u.AddStruct(ctx, "PfConfWebservices", webservices)
+		u.AddStruct(ctx, "UnifiedApiSystemUser", unifiedApiSystemUser)
+		u.AddStruct(ctx, "PfConfAdvanced", advanced)
+	})
+
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.ServicesURL)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.AdminLogin)
 
-	tokenBackend := aaa.MakeTokenBackend(tokenBackendArgs)
+	tokenBackend := aaa.MakeTokenBackend(ctx, tokenBackendArgs)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
-	if pfconfigdriver.Config.UnifiedApiSystemUser.User != "" {
+	if unifiedApiSystemUser.User != "" {
 		apiAAA.systemBackend = aaa.NewMemAuthenticationBackend(
 			map[string]string{},
 			map[string]bool{"ALL": true},
 		)
-		apiAAA.systemBackend.SetUser(pfconfigdriver.Config.UnifiedApiSystemUser.User, pfconfigdriver.Config.UnifiedApiSystemUser.Pass)
+		apiAAA.systemBackend.SetUser(unifiedApiSystemUser.User, unifiedApiSystemUser.Pass)
 		apiAAA.authentication.AddAuthenticationBackend(apiAAA.systemBackend)
 	} else {
 		panic("Unable to setup the system user authentication backend")
@@ -161,8 +167,8 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 	)
 	apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
 
-	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
-		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
+	if webservices.User != "" {
+		apiAAA.webservicesBackend.SetUser(webservices.User, webservices.Pass)
 	}
 
 	// Backend for SSO
@@ -330,10 +336,10 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 
 func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
-
+	webservices := pfconfigdriver.GetStruct(ctx, "PfConfWebservices").(*pfconfigdriver.PfConfWebservices)
 	// Reload the webservices user info
-	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
-		h.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
+	if webservices.User != "" {
+		h.webservicesBackend.SetUser(webservices.User, webservices.Pass)
 	}
 
 	defer panichandler.Http(ctx, w)
