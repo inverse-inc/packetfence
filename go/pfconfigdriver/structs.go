@@ -91,9 +91,8 @@ type configStruct struct {
 	Dns struct {
 		Configuration PfConfDns
 	}
-	UnifiedApiSystemUser UnifiedApiSystemUser
-	EAPConfiguration     EAPConfiguration
-	RolesChildren        RolesChildren
+	EAPConfiguration EAPConfiguration
+	RolesChildren    RolesChildren
 }
 
 var Config configStruct
