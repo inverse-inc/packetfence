@@ -1,6 +1,7 @@
 package aaa
 
 import (
+	"context"
 	"crypto/sha256"
 	"fmt"
 	"time"
@@ -9,7 +10,7 @@ import (
 )
 
 type TokenBackend interface {
-	AdminActionsForToken(token string) map[string]bool
+	AdminActionsForToken(ctx context.Context, token string) map[string]bool
 	TokenInfoForToken(token string) (*TokenInfo, time.Time)
 	StoreTokenInfo(token string, ti *TokenInfo) error
 	TokenIsValid(token string) bool
@@ -23,9 +24,9 @@ func tokenKey(tb TokenBackend, token string) string {
 	return tokenPrefix + fmt.Sprintf("%x", sha256.Sum256([]byte(token)))
 }
 
-func AdminActionsForToken(tb TokenBackend, token string) map[string]bool {
+func AdminActionsForToken(ctx context.Context, tb TokenBackend, token string) map[string]bool {
 	if ti, _ := tb.TokenInfoForToken(token); ti != nil {
-		return ti.AdminActions()
+		return ti.AdminActions(ctx)
 	}
 
 	return make(map[string]bool)
@@ -37,11 +38,12 @@ type TokenInfo struct {
 	CreatedAt  time.Time       `json:"created_at" redis:"created_at"`
 }
 
-func (ti *TokenInfo) AdminActions() map[string]bool {
+func (ti *TokenInfo) AdminActions(ctx context.Context) map[string]bool {
 	adminRolesMap := make(map[string]bool)
+	AdminRoles := pfconfigdriver.GetStruct(ctx, "AdminRoles").(*pfconfigdriver.AdminRoles)
 
 	for role, _ := range ti.AdminRoles {
-		for role, _ := range pfconfigdriver.Config.AdminRoles.Element[role].Actions {
+		for role, _ := range AdminRoles.Element[role].Actions {
 			adminRolesMap[role] = true
 		}
 	}
