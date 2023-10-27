@@ -89,7 +89,7 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% server_cn %]</string>
                         <key>PayloadContent</key>
-                        [% IF for_android%]
+                        [% IF for_windows || for_android%]
                         <string>[% server_content %]</string>
                         [% ELSE %]
                         <data>[% server_content %]</data>
