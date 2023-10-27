@@ -146,7 +146,7 @@
                         <key>PayloadVersion</key>
                         <integer>1</integer>
 		</dict>
-                [% IF for_android AND provisioner.get_other_radiusd_certificates() != "" %]
+                [% IF for_android %]
                 [% FOREACH ca_cert IN provisioner.get_other_radiusd_certificates() %]
                 <dict>
                         <key>PayloadCertificateFileName</key>

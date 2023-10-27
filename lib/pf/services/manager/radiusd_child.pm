@@ -1657,17 +1657,16 @@ sub _extract_radiusd_certificates {
 sub get_cn_and_cert_radiusd_certificates {
     my ($self) = @_;
     my %hcerts = _extract_radiusd_certificates();
+    my @certDict;
     if(%hcerts){
-        my @certDict;
         foreach my $cert (keys %hcerts) {
             my $s = pf::ssl::cn_from_dn($hcerts{$cert}->subject);
             if ($s) {
-                push ( @certDict, { cn => $s, base65 => $cert });
+                push ( @certDict, { cn => $s, base64 => $cert });
             }
         }
-        return @certDict;
     }
-    return "";
+    return @certDict;
 }
 
 =head2 generate_container_environments
