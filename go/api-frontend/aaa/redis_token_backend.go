@@ -3,8 +3,9 @@ package aaa
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-redis/redis/v8"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type RedisTokenBackend struct {
@@ -33,8 +34,8 @@ func (rtb *RedisTokenBackend) tokenKey(token string) string {
 	return tokenKey(rtb, token)
 }
 
-func (rtb *RedisTokenBackend) AdminActionsForToken(token string) map[string]bool {
-	return AdminActionsForToken(rtb, token)
+func (rtb *RedisTokenBackend) AdminActionsForToken(ctx context.Context, token string) map[string]bool {
+	return AdminActionsForToken(ctx, rtb, token)
 }
 
 func (rtb *RedisTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Time) {

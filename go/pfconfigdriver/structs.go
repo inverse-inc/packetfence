@@ -79,8 +79,8 @@ type configStruct struct {
 		Pfconnector   PfConfPfconnector
 		AdminLogin    PfConfAdminLogin
 	}
-	AdminRoles AdminRoles
-	Cluster    struct {
+	//AdminRoles AdminRoles
+	Cluster struct {
 		HostsIp struct {
 			PfconfigKeys
 			PfconfigNS                 string `val:"resource::cluster_hosts_ip"`

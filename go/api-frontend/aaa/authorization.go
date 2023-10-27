@@ -191,7 +191,7 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 		return false, errors.New(InvalidTokenInfoErr)
 	}
 
-	authAdminRoles, err := tam.isAuthorizedAdminActions(ctx, method, path, tokenInfo.AdminActions())
+	authAdminRoles, err := tam.isAuthorizedAdminActions(ctx, method, path, tokenInfo.AdminActions(ctx))
 	if !authAdminRoles || err != nil {
 		return authAdminRoles, err
 	}

@@ -13,8 +13,8 @@ func NewContext(ctx context.Context) context.Context {
 }
 
 func GetConfigFromContext(ctx context.Context, n string) interface{} {
-	store := ctx.Value(pfconfigCtxKey).(*ConfigStore)
-	if store == nil {
+	store, ok := ctx.Value(pfconfigCtxKey).(*ConfigStore)
+	if !ok || store == nil {
 		return nil
 	}
 

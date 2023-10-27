@@ -134,7 +134,7 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
+	//pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.ServicesURL)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.AdminLogin)
@@ -240,14 +240,14 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 	if info != nil {
 		// We'll want to render the roles as an array, not as a map
 		prettyInfo := PrettyTokenInfo{
-			AdminActions: make([]string, len(info.AdminActions())),
+			AdminActions: make([]string, len(info.AdminActions(ctx))),
 			AdminRoles:   make([]string, len(info.AdminRoles)),
 			Username:     info.Username,
 			ExpiresAt:    expiration,
 		}
 
 		i := 0
-		for r, _ := range info.AdminActions() {
+		for r, _ := range info.AdminActions(ctx) {
 			prettyInfo.AdminActions[i] = r
 			i++
 		}
