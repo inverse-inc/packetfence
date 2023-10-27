@@ -111,11 +111,12 @@ func (p *ConfigPool) refreshStructs(ctx context.Context, structs map[string]inte
 // Refresh all the structs and resources of the pool using the RW lock
 // An attempt to get the RW lock will be done for up to RefreshLockTimeout
 func (p *ConfigPool) Refresh(ctx context.Context) bool {
-	cs := p.GetStore().Clone()
+	cs := p.GetStore()
 	if cs.IsValid(ctx) {
 		return false
 	}
 
+	cs = cs.Clone()
 	log.LoggerWContext(ctx).Debug("Refreshing pfconfig config pool")
 	updater := cs.updater()
 	updater.Refresh(ctx)
