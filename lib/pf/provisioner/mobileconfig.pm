@@ -288,7 +288,7 @@ sub get_other_radiusd_certificates {
     #    get_logger->error("cannot find any other RADIUS CA certificates on PF");
     #    return "";
     #}
-    return $self->pf::services::manager::radiusd_child::get_cn_and_cert_radiusd_certificates();
+    return [$self->pf::services::manager::radiusd_child::get_cn_and_cert_radiusd_certificates()];
 }
 
 =head2 authorize
