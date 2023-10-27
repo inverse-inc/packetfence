@@ -88,7 +88,6 @@ func (p *ConfigPool) AddStruct(ctx context.Context, n string, s interface{}) {
 	p.Update(
 		ctx,
 		func(ctx context.Context, u *ConfigStoreUpdater) {
-			refreshStruct(ctx, s)
 			u.AddStruct(ctx, n, s)
 		},
 	)
