@@ -135,15 +135,16 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 	unifiedApiSystemUser := &pfconfigdriver.UnifiedApiSystemUser{}
 	advanced := &pfconfigdriver.PfConfAdvanced{}
 	adminLogin := &pfconfigdriver.PfConfAdminLogin{}
+	servicesURL := &pfconfigdriver.PfConfServicesURL{}
 
 	pfconfigdriver.UpdateConfigStore(ctx, func(ctx context.Context, u *pfconfigdriver.ConfigStoreUpdater) {
 		u.AddStruct(ctx, "PfConfWebservices", webservices)
 		u.AddStruct(ctx, "UnifiedApiSystemUser", unifiedApiSystemUser)
 		u.AddStruct(ctx, "PfConfAdvanced", advanced)
 		u.AddStruct(ctx, "PfConfAdminLogin", adminLogin)
+		u.AddStruct(ctx, "PfConfServicesURL", servicesURL)
 	})
 
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.ServicesURL)
 	tokenBackend := aaa.MakeTokenBackend(ctx, tokenBackendArgs)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
@@ -179,7 +180,7 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 
 	// Backend for username/password auth via the internal auth sources
 	if sharedutils.IsEnabled(adminLogin.AllowUsernamePassword) {
-		url, err := url.Parse(fmt.Sprintf("%s/api/v1/authentication/admin_authentication", pfconfigdriver.Config.PfConf.ServicesURL.PfperlApi))
+		url, err := url.Parse(fmt.Sprintf("%s/api/v1/authentication/admin_authentication", servicesURL.PfperlApi))
 		sharedutils.CheckError(err)
 		apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
 	}
