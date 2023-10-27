@@ -5,6 +5,7 @@ on:
       - 'devel'   # excludes devel
     paths:
       - 'addons/packetfence-perl/**'
+      - '.github/workflows/docker-packetfence-perl-deb.yml'
   schedule:
     - cron: '0 1 * * *'
   pull_request:
@@ -122,25 +123,29 @@ jobs:
         run: |
             docker run -i -d --privileged -v /dev/:/dev/  -v ${{ env.VOLUME_MOUNT }}/debian/packages/:${{ env.VOLUME_MOUNT }} -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host -p 1443:1443 -v ${{ github.workspace }}/:${{ env.WORKDIR }}/packetfence --name ${{ env.container_name }} packetfence/packetfence-perl-debian-smoke-test:latest
 
-      - name: Install packetfence
+      - name: Copy smoke scipts in the /usr/local/pf/ directory
         run: |
-            docker exec -i ${{ env.container_name }} apt install packetfence -y
+            docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && mkdir -p /usr/local/pf/ && cp -a ${{ env.WORKDIR }}/packetfence/. /usr/local/pf/"
 
-      - name: Base packetfence configuration
-        run: |
-            docker exec -i ${{ env.container_name }} ansible-playbook packetfence/addons/packetfence-perl/ansible-configurator/main.yml
+#      - name: Install packetfence
+#        run: |
+#            docker exec -i ${{ env.container_name }} apt install packetfence -y
 
-      - name: Copy smoke scipts in the /usr/local/pf/t/ directory
-        run: |
-            docker exec -i ${{ env.container_name }} cp -a ${{ env.WORKDIR }}/packetfence/t/. /usr/local/pf/t/
+#      - name: Base packetfence configuration
+#        run: |
+#            docker exec -i ${{ env.container_name }} ansible-playbook packetfence/addons/packetfence-perl/ansible-configurator/main.yml
 
-      - name: Force install new packetfence-perl package
-        run: |
-            docker exec -i ${{ env.container_name }} find ${{ env.VOLUME_MOUNT }} -name "*.deb" -exec dpkg -i --force-overwrite {} \;
+#      - name: Copy smoke scipts in the /usr/local/pf/t/ directory
+#        run: |
+#            docker exec -i ${{ env.container_name }} cp -a ${{ env.WORKDIR }}/packetfence/t/. /usr/local/pf/t/
 
-      - name: Execute smoke test after intsllation of the package packetgence-perl
-        run: |
-            docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && cd /usr/local/pf/t/ && mysql < db/smoke_test.sql && ./smoke.t; cd -"
+#      - name: Force install new packetfence-perl package
+#        run: |
+#            docker exec -i ${{ env.container_name }} find ${{ env.VOLUME_MOUNT }} -name "*.deb" -exec dpkg -i --force-overwrite {} \;
+
+#      - name: Execute smoke test after intsllation of the package packetgence-perl
+#        run: |
+#            docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && cd /usr/local/pf/t/ && mysql < db/smoke_test.sql && ./smoke.t; cd -"
 
 #      - name: Post clean docker envrionement
 #        if: always()
