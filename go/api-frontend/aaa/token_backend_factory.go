@@ -1,6 +1,7 @@
 package aaa
 
 import (
+	"context"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -12,9 +13,10 @@ var factories = map[string]func(expiration time.Duration, maxExpiration time.Dur
 	"redis": NewRedisTokenBackend,
 }
 
-func MakeTokenBackend(args []string) TokenBackend {
-	timeout := time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout) * time.Second
-	expiration := time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration) * time.Second
+func MakeTokenBackend(ctx context.Context, args []string) TokenBackend {
+	advanced := pfconfigdriver.GetStruct(ctx, "PfConfAdvanced").(*pfconfigdriver.PfConfAdvanced)
+	timeout := time.Duration(advanced.ApiInactivityTimeout) * time.Second
+	expiration := time.Duration(advanced.ApiMaxExpiration) * time.Second
 	if len(args) == 0 {
 		return NewMemTokenBackend(
 			timeout,
