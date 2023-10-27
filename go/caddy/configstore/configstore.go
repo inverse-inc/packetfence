@@ -1,7 +1,10 @@
 package configstore
 
 import (
+	"context"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
@@ -15,10 +18,21 @@ func init() {
 	})
 }
 
+var refreshOnceRunner sync.Once
+
 func setup(c *caddy.Controller) error {
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		return ConfigStore{Next: next}
+	})
+
+	refreshOnceRunner.Do(func() {
+		go func() {
+			for {
+				pfconfigdriver.PfconfigConfigPool.Refresh(context.Background())
+				time.Sleep(time.Second * 1)
+			}
+		}()
 	})
 
 	return nil
