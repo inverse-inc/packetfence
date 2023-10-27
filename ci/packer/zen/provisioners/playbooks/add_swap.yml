@@ -1,0 +1,10 @@
+- hosts: pfservers
+  name: Add 4Go of SWAP 
+  become: True
+  gather_facts: True
+  
+  vars:
+    swap_file_size_mb: '4096'
+
+  roles:
+    - role: geerlingguy.swap 
