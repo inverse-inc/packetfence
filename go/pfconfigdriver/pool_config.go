@@ -93,20 +93,6 @@ func (p *ConfigStorePool) AddStruct(ctx context.Context, n string, s interface{}
 	)
 }
 
-// Refresh all the refreshables of the pool
-func refreshRefreshables(ctx context.Context, refreshables map[string]Refresh) {
-	for _, r := range refreshables {
-		r.Refresh(ctx)
-	}
-}
-
-// Refresh all the structs of the pool
-func (p *ConfigStorePool) refreshStructs(ctx context.Context, structs map[string]interface{}) {
-	for _, o := range structs {
-		refreshStruct(ctx, o)
-	}
-}
-
 // Refresh all the structs and resources of the pool using the RW lock
 // An attempt to get the RW lock will be done for up to RefreshLockTimeout
 func (p *ConfigStorePool) Refresh(ctx context.Context) bool {

@@ -179,3 +179,7 @@ func (c *ClientFromConfig) Refresh(ctx context.Context) {
 		c.Client = c.buildFromConf(ctx)
 	}
 }
+
+func (c *ClientFromConfig) IsValid(ctx context.Context) bool {
+	return pfconfigdriver.IsValid(ctx, &c.conf)
+}
