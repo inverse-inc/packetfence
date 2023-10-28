@@ -8,7 +8,7 @@ const pfconfigCtxKey = "pfconfigCtxKey"
 
 // Grab a context that includes a UUID of the request for logging purposes
 func NewContext(ctx context.Context) context.Context {
-	store := PfconfigConfigPool.GetStore()
+	store := PfConfigStorePool.GetStore()
 	return context.WithValue(ctx, pfconfigCtxKey, store)
 }
 
