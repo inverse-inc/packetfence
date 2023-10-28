@@ -18,6 +18,10 @@ func AddStruct(ctx context.Context, n string, i interface{}) {
 	PfConfigStorePool.AddStruct(ctx, n, i)
 }
 
+func AddRefreshable(ctx context.Context, n string, i Refresh) {
+	PfConfigStorePool.AddRefreshable(ctx, n, i)
+}
+
 func GetStruct(ctx context.Context, n string) interface{} {
 	i := GetConfigFromContext(ctx, n)
 	if i != nil {
@@ -25,6 +29,15 @@ func GetStruct(ctx context.Context, n string) interface{} {
 	}
 
 	return PfConfigStorePool.GetStore().GetStruct(n)
+}
+
+func GetRefresh(ctx context.Context, n string) interface{} {
+	i := GetRefreshFromContext(ctx, n)
+	if i != nil {
+		return i
+	}
+
+	return PfConfigStorePool.GetStore().GetRefreshable(n)
 }
 
 // A pool to load resources in and refresh them periodically
@@ -43,7 +56,7 @@ func init() {
 
 // Interface that should be implemented by resources that should be added to pool.refreshables
 type Refresh interface {
-	IsValid() bool
+	IsValid(ctx context.Context) bool
 	Refresh(ctx context.Context)
 }
 

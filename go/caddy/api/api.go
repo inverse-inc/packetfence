@@ -2,6 +2,10 @@ package api
 
 import (
 	"context"
+	"net/http"
+	"sync"
+	"time"
+
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
@@ -11,9 +15,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
-	"net/http"
-	"sync"
-	"time"
 )
 
 // Register the plugin in caddy
@@ -47,7 +48,7 @@ func setup(c *caddy.Controller) error {
 
 	setupRadiusDictionary()
 
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, fbcollectorclient.DefaultClient)
+	pfconfigdriver.AddRefreshable(ctx, "fbcollectorclient", fbcollectorclient.FromConfig(ctx))
 
 	return nil
 }
