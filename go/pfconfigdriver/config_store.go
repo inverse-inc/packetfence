@@ -55,7 +55,7 @@ func (cs *ConfigStore) IsValid(ctx context.Context) bool {
 	}
 
 	for _, r := range cs.refreshables {
-		if !r.IsValid() {
+		if !r.IsValid(ctx) {
 			return false
 		}
 	}
