@@ -8,14 +8,14 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 )
 
-var PfconfigConfigPool *ConfigPool
+var PfConfigStorePool *ConfigStorePool
 
 func UpdateConfigStore(ctx context.Context, f func(context.Context, *ConfigStoreUpdater)) {
-	PfconfigConfigPool.Update(ctx, f)
+	PfConfigStorePool.Update(ctx, f)
 }
 
 func AddStruct(ctx context.Context, n string, i interface{}) {
-	PfconfigConfigPool.AddStruct(ctx, n, i)
+	PfConfigStorePool.AddStruct(ctx, n, i)
 }
 
 func GetStruct(ctx context.Context, n string) interface{} {
@@ -24,21 +24,21 @@ func GetStruct(ctx context.Context, n string) interface{} {
 		return i
 	}
 
-	return PfconfigConfigPool.GetStore().GetStruct(n)
+	return PfConfigStorePool.GetStore().GetStruct(n)
 }
 
 // A pool to load resources in and refresh them periodically
 // The structs will be analyzed and all the PfconfigObject will be sent to FetchDecodeSocketCache.
 // If a struct isn't a PfconfigObject, all its fields will be analyzed to find the PfconfigObjects it contains
 // All the refreshables will have their Refresh() function called on every tick
-type ConfigPool struct {
+type ConfigStorePool struct {
 	store *atomic.Value
 	lock  *sync.Mutex
 }
 
 // Init the default global pool when importing this package
 func init() {
-	PfconfigConfigPool = NewConfigPool()
+	PfConfigStorePool = NewConfigPool()
 }
 
 // Interface that should be implemented by resources that should be added to pool.refreshables
@@ -48,8 +48,8 @@ type Refresh interface {
 }
 
 // Create a new Pool with a 1 second refresh timeout and initialize the lock
-func NewConfigPool() *ConfigPool {
-	p := &ConfigPool{
+func NewConfigPool() *ConfigStorePool {
+	p := &ConfigStorePool{
 		lock:  &sync.Mutex{},
 		store: &atomic.Value{},
 	}
@@ -58,11 +58,11 @@ func NewConfigPool() *ConfigPool {
 	return p
 }
 
-func (p *ConfigPool) GetStore() *ConfigStore {
+func (p *ConfigStorePool) GetStore() *ConfigStore {
 	return p.store.Load().(*ConfigStore)
 }
 
-func (p *ConfigPool) Update(ctx context.Context, f func(context.Context, *ConfigStoreUpdater)) {
+func (p *ConfigStorePool) Update(ctx context.Context, f func(context.Context, *ConfigStoreUpdater)) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	cs := p.GetStore().Clone()
@@ -72,7 +72,7 @@ func (p *ConfigPool) Update(ctx context.Context, f func(context.Context, *Config
 
 // Add a refreshable resource to the pool
 // Requires the RW lock and will not timeout like Refresh does
-func (p *ConfigPool) AddRefreshable(ctx context.Context, n string, r Refresh) {
+func (p *ConfigStorePool) AddRefreshable(ctx context.Context, n string, r Refresh) {
 	p.Update(
 		ctx,
 		func(ctx context.Context, u *ConfigStoreUpdater) {
@@ -84,7 +84,7 @@ func (p *ConfigPool) AddRefreshable(ctx context.Context, n string, r Refresh) {
 
 // Add a struct to the pool
 // Requires the RW lock and will not timeout like Refresh does
-func (p *ConfigPool) AddStruct(ctx context.Context, n string, s interface{}) {
+func (p *ConfigStorePool) AddStruct(ctx context.Context, n string, s interface{}) {
 	p.Update(
 		ctx,
 		func(ctx context.Context, u *ConfigStoreUpdater) {
@@ -101,7 +101,7 @@ func refreshRefreshables(ctx context.Context, refreshables map[string]Refresh) {
 }
 
 // Refresh all the structs of the pool
-func (p *ConfigPool) refreshStructs(ctx context.Context, structs map[string]interface{}) {
+func (p *ConfigStorePool) refreshStructs(ctx context.Context, structs map[string]interface{}) {
 	for _, o := range structs {
 		refreshStruct(ctx, o)
 	}
@@ -109,7 +109,7 @@ func (p *ConfigPool) refreshStructs(ctx context.Context, structs map[string]inte
 
 // Refresh all the structs and resources of the pool using the RW lock
 // An attempt to get the RW lock will be done for up to RefreshLockTimeout
-func (p *ConfigPool) Refresh(ctx context.Context) bool {
+func (p *ConfigStorePool) Refresh(ctx context.Context) bool {
 	cs := p.GetStore()
 	if cs.IsValid(ctx) {
 		return false

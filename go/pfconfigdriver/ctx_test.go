@@ -7,7 +7,7 @@ import (
 )
 
 func TestContext(t *testing.T) {
-	PfconfigConfigPool.AddStruct(context.Background(), "PfConfGeneral", &PfConfGeneral{})
+	PfConfigStorePool.AddStruct(context.Background(), "PfConfGeneral", &PfConfGeneral{})
 	ctx := NewContext(context.Background())
 	i := GetConfigFromContext(ctx, "PfConfGeneral")
 	if config, ok := i.(*PfConfGeneral); !ok {
