@@ -55,7 +55,7 @@ jobs:
       - name: Build packetfence-perl docker image
         uses: docker/build-push-action@v5
         with:
-          context: './addons/packetfence-perl'
+          context: './'
           push: false
           load: true
           build-args: |
@@ -66,7 +66,7 @@ jobs:
             ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
             ${{ env.BRANCH_NAME == 'devel' && 'inverse-inc/packetfence/packetfence-perl-debian:latest' || ''}}
             ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:latest' || ''}}
-          file: ./addons/packetfence-perl/Dockerfile_debian
+          file: ./containers/packetfence-perl/debian/Dockerfile_debian
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -110,14 +110,14 @@ jobs:
       - name: Build debian smoke docker image
         uses: docker/build-push-action@v5
         with:
-          context: './addons/packetfence-perl'
+          context: './'
           push: false
           load: true
           build-args: |
             workdir=${{ env.WORKDIR }}
           tags: |
             packetfence/packetfence-perl-debian-smoke-test:latest
-          file: ./addons/packetfence-perl/Dockerfile_smoket_debian
+          file: ./containers/packetfence-perl/debian/Dockerfile_smoket_debian
 
       - name: Start docker container
         run: |
