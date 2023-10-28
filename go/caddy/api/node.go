@@ -10,12 +10,13 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (h APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := r.Context()
-
+	client := pfconfigdriver.GetRefresh(ctx, "fbcollectorclient").(*fbcollectorclient.ClientFromConfig)
 	requestPayload := struct {
 		Nodes []string
 	}{}
@@ -32,7 +33,7 @@ func (h APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http.
 		wg.Add(1)
 		go func(mac string) {
 			ed := common.CollectorEndpointCommunications{}
-			fbcollectorclient.DefaultClient.Call(ctx, "GET", fmt.Sprintf("/endpoint_data/%s", mac), nil, &ed)
+			client.Call(ctx, "GET", fmt.Sprintf("/endpoint_data/%s", mac), nil, &ed)
 			l.Lock()
 			defer l.Unlock()
 			endpoints[mac] = ed
