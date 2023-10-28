@@ -29,7 +29,7 @@ func setup(c *caddy.Controller) error {
 	refreshOnceRunner.Do(func() {
 		go func() {
 			for {
-				pfconfigdriver.PfconfigConfigPool.Refresh(context.Background())
+				pfconfigdriver.PfConfigStorePool.Refresh(context.Background())
 				time.Sleep(time.Second * 1)
 			}
 		}()
