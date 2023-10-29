@@ -29,7 +29,7 @@ static pthread_once_t CONFIGURATION_ONCE = PTHREAD_ONCE_INIT;
 static struct configuration* configurations = NULL;
 static int configurations_len = 0;
 
-void setup_configuartion(void)
+void setup_configuration(void)
 {
     loadconfig("/usr/local/pf/var/conf/mariadb_pf_udf", &configurations_len, &configurations);
 }
@@ -47,7 +47,7 @@ my_bool pf_logger_init(UDF_INIT* initid, UDF_ARGS* args, char* message)
         return 1;
     }
 
-    pthread_once(&CONFIGURATION_ONCE, setup_configuartion);
+    pthread_once(&CONFIGURATION_ONCE, setup_configuration);
     for (i = 0; i < args->arg_count; i++) {
         args->arg_type[i] = STRING_RESULT;
     }
