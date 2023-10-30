@@ -69,7 +69,7 @@ export default (props) => {
       return _schema
     }),
     digest: yup.string().required(i18n.t('Digest required.')),
-    validity: yup.string().required(i18n.t('Days required.')).minAsInt(1, i18n.t('Minimum 1 day(s).')).maxAsInt(825, i18n.t('Maximum 825 day(s).')),
+    validity: yup.string().required(i18n.t('Days required.')).minAsInt(1, i18n.t('Minimum 1 day(s).')),
     ocsp_url: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     p12_mail_password: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     p12_mail_subject: yup.string().max(255, i18n.t('Maximum 255 characters.')),

@@ -67,7 +67,7 @@
     />
     <form-group-days namespace="days"
       :column-label="$i18n.t('Days')"
-      :text="$i18n.t('Number of days the CA will be valid.')"
+      :text="$i18n.t('Number of days the CA will be valid. (value greater than 825 wont work on some devices)')"
     />
     <form-group-ocsp-url namespace="ocsp_url"
       :column-label="$i18n.t('OCSP Url')"
