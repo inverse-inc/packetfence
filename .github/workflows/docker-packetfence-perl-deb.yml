@@ -136,9 +136,9 @@ jobs:
         run: |
             docker exec -i ${{ env.container_name }} ansible-playbook packetfence/addons/packetfence-perl/ansible-configurator/main.yml
 
-#      - name: Copy smoke scipts in the /usr/local/pf/t/ directory
-#        run: |
-#            docker exec -i ${{ env.container_name }} cp -a ${{ env.WORKDIR }}/packetfence/t/. /usr/local/pf/t/
+      - name: rebuild images
+        run: |
+            docker exec -i ${{ env.container_name }}  /bin/bash -c "set -e &&  bash  ${{ env.WORKDIR }}/packetfence/addons/packetfence-perl/rebuild_images.sh"
 
 #      - name: Force install new packetfence-perl package
 #        run: |
