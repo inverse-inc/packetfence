@@ -132,9 +132,9 @@ jobs:
         run: |
             docker exec -i ${{ env.container_name }} apt install packetfence -y
 
-#      - name: Base packetfence configuration
-#        run: |
-#            docker exec -i ${{ env.container_name }} ansible-playbook packetfence/addons/packetfence-perl/ansible-configurator/main.yml
+      - name: Base packetfence configuration
+        run: |
+            docker exec -i ${{ env.container_name }} ansible-playbook packetfence/addons/packetfence-perl/ansible-configurator/main.yml
 
 #      - name: Copy smoke scipts in the /usr/local/pf/t/ directory
 #        run: |
