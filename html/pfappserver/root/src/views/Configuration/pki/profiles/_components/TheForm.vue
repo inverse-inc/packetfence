@@ -48,7 +48,7 @@
         -->
         <form-group-validity namespace="validity"
                              :column-label="$i18n.t('Validity')"
-                             :text="$i18n.t('Number of days the certificate will be valid.')"
+                             :text="$i18n.t('Number of days the certificate will be valid. (value greater than 380 wont work on some devices)')"
         />
         <form-group-key-type namespace="key_type"
                              :column-label="$i18n.t('Key type')"
