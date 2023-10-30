@@ -72,7 +72,7 @@ done
 
 #tag pfconnector image with pfconnector-client and pfconnector-server
 docker tag  $LOCAL_REGISTRY/pfconnector:$TAG_OR_BRANCH_NAME $KNK_REGISTRY_URL/pfconnector-client:$TAG_OR_BRANCH_NAME
-docker tag  $LOCAL_REGISTRY/pfconnnector:$TAG_OR_BRANCH_NAME $KNK_REGISTRY_URL/pfconnector-server:$TAG_OR_BRANCH_NAME
+docker tag  $LOCAL_REGISTRY/pfconnector:$TAG_OR_BRANCH_NAME $KNK_REGISTRY_URL/pfconnector-server:$TAG_OR_BRANCH_NAME
 
 log_section "Start all PF services"
 /usr/local/pf/bin/pfcmd service pf restart
