@@ -482,13 +482,13 @@ func CertName(crt *x509.Certificate) string {
 	return string(crt.Signature)
 }
 
-func ReturnDSAPrivateKey(key *dsa.PrivateKey) (*bytes.Buffer, []byte, error) {
+func ReturnDSAPrivateKey(key *dsa.PrivateKey) (*bytes.Buffer, []byte, crypto.PublicKey, error) {
 	var keyOut *bytes.Buffer
 	var pub crypto.PublicKey
 	pub = &key.PublicKey
 	skid, err := CalculateSKID(pub)
 	if err != nil {
-		return keyOut, skid, err
+		return keyOut, skid, pub, err
 	}
 	val := DSAKeyFormat{
 		P: key.P, Q: key.Q, G: key.G,
@@ -496,40 +496,40 @@ func ReturnDSAPrivateKey(key *dsa.PrivateKey) (*bytes.Buffer, []byte, error) {
 	}
 	bytes, _ := asn1.Marshal(val)
 	pem.Encode(keyOut, &pem.Block{Type: "DSA PRIVATE KEY", Bytes: bytes})
-	return keyOut, skid, err
+	return keyOut, skid, pub, err
 }
 
-func ReturnECDSAPrivateKey(key *ecdsa.PrivateKey) (*bytes.Buffer, []byte, error) {
+func ReturnECDSAPrivateKey(key *ecdsa.PrivateKey) (*bytes.Buffer, []byte, crypto.PublicKey, error) {
 	var keyOut *bytes.Buffer
 	var pub crypto.PublicKey
 	pub = &key.PublicKey
 	skid, err := CalculateSKID(pub)
 	if err != nil {
-		return keyOut, skid, err
+		return keyOut, skid, pub, err
 	}
 	bytes, _ := x509.MarshalECPrivateKey(key)
 	pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: bytes})
-	return keyOut, skid, err
+	return keyOut, skid, pub, err
 }
 
-func ReturnRSAPrivateKey(key *rsa.PrivateKey) (*bytes.Buffer, []byte, error) {
+func ReturnRSAPrivateKey(key *rsa.PrivateKey) (*bytes.Buffer, []byte, crypto.PublicKey, error) {
 	var keyOut *bytes.Buffer
 	var pub crypto.PublicKey
 	pub = &key.PublicKey
 
 	skid, err := CalculateSKID(pub)
 	if err != nil {
-		return keyOut, skid, err
+		return keyOut, skid, pub, err
 	}
 	pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)})
-	return keyOut, skid, err
+	return keyOut, skid, pub, err
 }
 
-func ReturnPrivateKey(key []byte) (*bytes.Buffer, []byte, error) {
+func ReturnPrivateKey(key []byte) (*bytes.Buffer, []byte, crypto.PublicKey, error) {
 	var keyOut *bytes.Buffer
 	pkey, err := x509.ParsePKCS8PrivateKey(key)
 	if err != nil {
-		return keyOut, nil, err
+		return keyOut, nil, nil, err
 	}
 	switch pkey.(type) {
 	case *ecdsa.PrivateKey:
@@ -539,7 +539,7 @@ func ReturnPrivateKey(key []byte) (*bytes.Buffer, []byte, error) {
 	case *rsa.PrivateKey:
 		return ReturnRSAPrivateKey(pkey.(*rsa.PrivateKey))
 	default:
-		return keyOut, nil, err
+		return keyOut, nil, nil, err
 	}
 
 }
