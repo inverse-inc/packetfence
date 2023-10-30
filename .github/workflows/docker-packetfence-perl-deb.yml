@@ -6,6 +6,7 @@ on:
     paths:
       - 'addons/packetfence-perl/**'
       - '.github/workflows/docker-packetfence-perl-deb.yml'
+      - 'containers/packetfence-perl/debian/**'
   schedule:
     - cron: '0 1 * * *'
   pull_request:
@@ -127,9 +128,9 @@ jobs:
         run: |
             docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && mkdir -p /usr/local/pf/ && cp -a ${{ env.WORKDIR }}/packetfence/. /usr/local/pf/"
 
-#      - name: Install packetfence
-#        run: |
-#            docker exec -i ${{ env.container_name }} apt install packetfence -y
+      - name: Install packetfence
+        run: |
+            docker exec -i ${{ env.container_name }} apt install packetfence -y
 
 #      - name: Base packetfence configuration
 #        run: |
