@@ -140,13 +140,13 @@ jobs:
         run: |
             docker exec -i ${{ env.container_name }}  /bin/bash -c "set -e && cd ${{ env.WORKDIR }}/packetfence && bash  ${{ env.WORKDIR }}/packetfence/addons/packetfence-perl/rebuild_images.sh"
 
-#      - name: Force install new packetfence-perl package
-#        run: |
-#            docker exec -i ${{ env.container_name }} find ${{ env.VOLUME_MOUNT }} -name "*.deb" -exec dpkg -i --force-overwrite {} \;
+      - name: Force install new packetfence-perl package
+        run: |
+            docker exec -i ${{ env.container_name }} find ${{ env.VOLUME_MOUNT }} -name "*.deb" -exec dpkg -i --force-overwrite {} \;
 
-#      - name: Execute smoke test after intsllation of the package packetgence-perl
-#        run: |
-#            docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && cd /usr/local/pf/t/ && mysql < db/smoke_test.sql && ./smoke.t; cd -"
+      - name: Execute smoke test after intsllation of the package packetgence-perl
+        run: |
+            docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && cd /usr/local/pf/t/ && mysql < db/smoke_test.sql && ./smoke.t; cd -"
 
 #      - name: Post clean docker envrionement
 #        if: always()
