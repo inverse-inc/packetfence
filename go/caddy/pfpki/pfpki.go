@@ -122,6 +122,8 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	api.Handle("/pki/cert/{id}/email", handlers.EmailCert(PFPki)).Methods("GET")
 	// Revoke Certificate
 	api.Handle("/pki/cert/{id}/{reason}", handlers.RevokeCert(PFPki)).Methods("DELETE")
+	// Resign Certificate
+	api.Handle("/pki/cert/resign/{id}", handlers.ResignCert(PFPki)).Methods("POST")
 
 	// Revoke Certificate from profile
 	api.Handle("/pki/cert/{profile}/{cn}/{reason}", handlers.RevokeCert(PFPki)).Methods("DELETE")
