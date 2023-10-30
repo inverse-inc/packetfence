@@ -109,6 +109,8 @@ func (p *ConfigStorePool) AddStruct(ctx context.Context, n string, s interface{}
 // Refresh all the structs and resources of the pool using the RW lock
 // An attempt to get the RW lock will be done for up to RefreshLockTimeout
 func (p *ConfigStorePool) Refresh(ctx context.Context) bool {
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	cs := p.GetStore()
 	if cs.IsValid(ctx) {
 		return false
