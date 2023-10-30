@@ -1504,13 +1504,13 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	case certutils.KEY_RSA:
 		keyRSA, err = x509.ParsePKCS1PrivateKey(block.Bytes)
 		if err != nil {
-			keyOut, skid, pub, err = certutils.ReturnPrivateKey(block.Bytes)
+			keyOut, skid, pub, key, err = certutils.ReturnPrivateKey(block.Bytes)
 			if err != nil {
 				Information.Error = err.Error()
 				return Information, err
 			}
 		} else {
-			keyOut, skid, pub, err = certutils.ReturnRSAPrivateKey(keyRSA)
+			keyOut, skid, pub, key, err = certutils.ReturnRSAPrivateKey(keyRSA)
 			if err != nil {
 				Information.Error = err.Error()
 				return Information, err
@@ -1519,13 +1519,13 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	case certutils.KEY_ECDSA:
 		KeyECDSA, err = x509.ParseECPrivateKey(block.Bytes)
 		if err != nil {
-			keyOut, skid, pub, err = certutils.ReturnPrivateKey(block.Bytes)
+			keyOut, skid, pub, key, err = certutils.ReturnPrivateKey(block.Bytes)
 			if err != nil {
 				Information.Error = err.Error()
 				return Information, err
 			}
 		} else {
-			keyOut, skid, pub, err = certutils.ReturnECDSAPrivateKey(KeyECDSA)
+			keyOut, skid, pub, key, err = certutils.ReturnECDSAPrivateKey(KeyECDSA)
 			if err != nil {
 				Information.Error = err.Error()
 				return Information, err
@@ -1534,13 +1534,13 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	case certutils.KEY_DSA:
 		KeyDSA, err = ssh.ParseDSAPrivateKey(block.Bytes)
 		if err != nil {
-			keyOut, skid, pub, err = certutils.ReturnPrivateKey(block.Bytes)
+			keyOut, skid, pub, key, err = certutils.ReturnPrivateKey(block.Bytes)
 			if err != nil {
 				Information.Error = err.Error()
 				return Information, err
 			}
 		} else {
-			keyOut, skid, pub, err = certutils.ReturnDSAPrivateKey(KeyDSA)
+			keyOut, skid, pub, key, err = certutils.ReturnDSAPrivateKey(KeyDSA)
 			if err != nil {
 				Information.Error = err.Error()
 				return Information, err
