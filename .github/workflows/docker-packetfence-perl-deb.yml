@@ -138,7 +138,7 @@ jobs:
 
       - name: rebuild images
         run: |
-            docker exec -i ${{ env.container_name }}  /bin/bash -c "set -e &&  bash  ${{ env.WORKDIR }}/packetfence/addons/packetfence-perl/rebuild_images.sh"
+            docker exec -i ${{ env.container_name }}  /bin/bash -c "set -e && cd ${{ env.WORKDIR }}/packetfence && bash  ${{ env.WORKDIR }}/packetfence/addons/packetfence-perl/rebuild_images.sh"
 
 #      - name: Force install new packetfence-perl package
 #        run: |

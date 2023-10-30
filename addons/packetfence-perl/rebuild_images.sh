@@ -117,5 +117,5 @@ while [[ $i -lt 10 ]]; do
   exit 1
 done
 
-log_section "Clean docker cash"
-docker system prune -f
+#log_section "Clean docker cash"
+#docker system prune -f
