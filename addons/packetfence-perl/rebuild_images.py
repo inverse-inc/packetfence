@@ -18,7 +18,7 @@ def status_execution(process_ts, image):
 def docker_build(image):
     script_path="/root/packetfence/addons/dev-helpers/build-local-container.sh"
     command=f"/bin/bash {script_path} {image}".split()
-    file_log = "/tmp/test.log"
+    file_log = f"/tmp/{image}.log"
     print(f"Build image {image} \n")
     with open(file_log, 'w') as f:
         process = subprocess.Popen(command, stdout=f,stderr=f,text=True)
