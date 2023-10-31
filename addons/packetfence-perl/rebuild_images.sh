@@ -68,7 +68,7 @@ build_base_images
 docker tag  $LOCAL_REGISTRY/pfdebian:$TAG_OR_BRANCH_NAME $KNK_REGISTRY_URL/pfdebian:$TAG_OR_BRANCH_NAME
 
 log_section "Build other image that are using pfsebian as base"
-python3 ${SCRIPT_DIR}/rebuild_images.py -im "${CONTAINERS_IMAGES[@]}" -sp  ${PF_SRC_DIR}/addons/dev-helpers/build-local-container.sh 
+python3 -u ${SCRIPT_DIR}/rebuild_images.py -im "${CONTAINERS_IMAGES[@]}" -sp  ${PF_SRC_DIR}/addons/dev-helpers/build-local-container.sh 
 
 for img in ${CONTAINERS_IMAGES}; do
 #  bash ${PF_SRC_DIR}/addons/dev-helpers/build-local-container.sh ${img}
