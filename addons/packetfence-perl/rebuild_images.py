@@ -16,7 +16,7 @@ def status_execution(process_ts, image):
 
 def docker_build(image):
     command=f"/bin/bash {script_path} {image}".split()
-    file_log = f"/var/log/docker_build_image/{image}.log"
+    file_log = f"/var/log/docker_build_image_{image}.log"
     print(f"Build image {image} \n")
     with open(file_log, 'w') as f:
         process = subprocess.Popen(command, stdout=f,stderr=f,text=True)
