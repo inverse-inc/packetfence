@@ -1,13 +1,13 @@
 ---
 gitlab_buildpkg_tools__deb_keys:
   - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
-  - 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key'
+  - 'https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key'
 
 gitlab_buildpkg_tools__deb_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
   - name: nodejs
-    baseurl: 'https://deb.nodesource.com/node_20.x {{ ansible_distribution_release }} main'
+    baseurl: 'https://deb.nodesource.com/node_20.x nodistro main'
 
 # packages install will occur
 # during build depencies install from SPEC files

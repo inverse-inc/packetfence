@@ -7,7 +7,7 @@ all:
 
 vendor:
 	npm install -g npm
-	npm install --unsafe-perm
+	npm ci
 
 dev:
 	npm run build-debug
