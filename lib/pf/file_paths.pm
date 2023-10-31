@@ -21,7 +21,7 @@ use File::Spec::Functions;
 
 our (
     #Directories
-    $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir,
+    $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir, $run_dir,
     $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir, $domains_ntlm_cache_users_dir, $systemd_unit_dir, $acme_challenge_dir,
     $conf_uploads,
 
@@ -136,7 +136,7 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT_OK = qw(
-        $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir
+        $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir $run_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir $acme_challenge_dir $conf_uploads
         $pf_default_file
         $pf_config_file
@@ -252,6 +252,7 @@ $tt_compile_cache_dir = catdir($var_dir, "tt_compile_cache");
 $control_dir  = catdir( $var_dir, "control");
 $switch_control_dir  = catdir($var_dir, "switch_control");
 $pfconfig_cache_dir = catdir($var_dir, "cache/pfconfig");
+$run_dir  = catdir($var_dir, "run");
 $domains_chroot_dir = catdir("/chroots");
 $domains_ntlm_cache_users_dir = catdir($var_dir, "cache/ntlm_cache_users");
 $systemd_unit_dir   = "/usr/lib/systemd/system"; 
