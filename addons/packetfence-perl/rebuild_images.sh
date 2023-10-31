@@ -30,6 +30,8 @@ configure_and_check() {
                            -not -path "*/packetfence-perl/*" \
                            -not -path "*/proxysql/*" \
                            -not -path "*/fingerbank-db/*" \
+                           -not -path "*/httpd.dispatcher/*" \
+                           -not -path "*/httpd.admin_dispatcher/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do
