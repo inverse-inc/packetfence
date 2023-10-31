@@ -1,12 +1,6 @@
 #!/bin/bash
 #set -o nounset -o pipefail -o errexit
 
-log_section() {
-   printf '=%.0s' {1..72} ; printf "\n"
-   printf "=\t%s\n" "" "$@" ""
-}
-
-# full path to dir of current script
 SCRIPT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
 
 # full path to root of PF sources
@@ -19,22 +13,27 @@ source <(grep 'KNK_REGISTRY_URL' ${PF_SRC_DIR}/config.mk | tr -d ' ')
 source <(grep 'LOCAL_REGISTRY' ${PF_SRC_DIR}/config.mk | tr -d ' ')
 #source ${PF_SRC_DIR}/conf/build_id
 
+log_section() {
+    printf '=%.-1s' {1..72} ; printf "\n"
+    printf "=\t%s\n" "" "$@" ""
+}
+
 configure_and_check() {
     
     # find all directories with Dockerfile
     # excluding non necessary images
     DOCKERFILE_DIRS=$(find ${PF_SRC_DIR} -type f -name "Dockerfile" \
-                           -not -path "*/pfdebian/*" \
-                           -not -path "*/radiusd/*" \
-                           -not -path "*/kaniko-build/*" \
-                           -not -path "*/packetfence-perl/*" \
-                           -not -path "*/proxysql/*" \
-                           -not -path "*/fingerbank-db/*" \
-                           -not -path "*/httpd.dispatcher/*" \
-                           -not -path "*/httpd.admin_dispatcher/*" \
-                           -not -path "*/pfqueue/*" \
-                           -not -path "*/pfcmd/*" \
-                           -printf "%P\n")
+                          -not -path "*/pfdebian/*" \
+                          -not -path "*/radiusd/*" \
+                          -not -path "*/kaniko-build/*" \
+                          -not -path "*/packetfence-perl/*" \
+                          -not -path "*/proxysql/*" \
+                          -not -path "*/fingerbank-db/*" \
+                          -not -path "*/httpd.dispatcher/*" \
+                          -not -path "*/httpd.admin_dispatcher/*" \
+                          -not -path "*/pfqueue/*" \
+                          -not -path "*/pfcmd/*" \
+                          -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do
         # check if pfdebian container is used
