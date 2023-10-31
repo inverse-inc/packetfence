@@ -8,7 +8,7 @@ gitlab_buildpkg_tools__rpm_deps_repos:
     baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
     module_hotfixes: 1
   - name: nodejs
-    baseurl: 'https://rpm.nodesource.com/pub_20.x/nodistro/repo/'
+    baseurl: 'https://rpm.nodesource.com/pub_20.x/nodistro/nodejs/$basearch'
     module_hotfixes: 1
 
 # packages install will occur
