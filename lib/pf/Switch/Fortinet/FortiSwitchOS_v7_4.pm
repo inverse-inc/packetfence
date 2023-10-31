@@ -1,4 +1,4 @@
-package pf::Switch::Fortinet::FortiSwitch;
+package pf::Switch::Fortinet::FortiSwitchOS_v7_4;
 
 =head1 NAME
 
@@ -30,13 +30,13 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 
-use base ('pf::Switch::Fortinet');
+use base ('pf::Switch::Fortinet::FortiSwitchOS_v7_2');
 
 =head1 METHODS
 
 =cut
 
-sub description { 'FortiSwitch' }
+sub description { 'FortiSwitchOS v7.4' }
 
 use pf::SwitchSupports qw(
     WiredMacAuth
