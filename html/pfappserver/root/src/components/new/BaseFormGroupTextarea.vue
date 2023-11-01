@@ -28,6 +28,7 @@
     >
       <b-form-textarea ref="input"
         class="base-form-input"
+        :data-namespace="namespace"
         :disabled="isLocked"
         :readonly="inputReadonly"
         :state="inputState"
