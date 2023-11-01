@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"golang.org/x/crypto/ssh"
 )
 
 // DSAKeyFormat is the format of a DSA key
@@ -552,4 +553,60 @@ func ReturnPrivateKey(key []byte) (*bytes.Buffer, []byte, crypto.PublicKey, cryp
 		return keyOut, nil, nil, nil, err
 	}
 
+}
+
+func ExtractPrivateKey(KeyType *types.Type, block *pem.Block, Information *types.Info) (*bytes.Buffer, []byte, crypto.PublicKey, crypto.PrivateKey, types.Info, error) {
+	var skid []byte
+	var keyOut *bytes.Buffer
+	keyOut = new(bytes.Buffer)
+	var key crypto.PrivateKey
+	var pub crypto.PublicKey
+	switch *KeyType {
+	case KEY_RSA:
+		keyRSA, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, Information, err
+			}
+		} else {
+			keyOut, skid, pub, key, err = ReturnRSAPrivateKey(keyRSA)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, Information, err
+			}
+		}
+	case KEY_ECDSA:
+		KeyECDSA, err := x509.ParseECPrivateKey(block.Bytes)
+		if err != nil {
+			keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, Information, err
+			}
+		} else {
+			keyOut, skid, pub, key, err = ReturnECDSAPrivateKey(KeyECDSA)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, Information, err
+			}
+		}
+	case KEY_DSA:
+		KeyDSA, err := ssh.ParseDSAPrivateKey(block.Bytes)
+		if err != nil {
+			keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, Information, err
+			}
+		} else {
+			keyOut, skid, pub, key, err = ReturnDSAPrivateKey(KeyDSA)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, Information, err
+			}
+		}
+	}
+	return keyOut, skid, pub, key, Information, nil
 }
