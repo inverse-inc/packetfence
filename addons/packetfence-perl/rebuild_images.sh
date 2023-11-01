@@ -107,6 +107,7 @@ restart_packetfence() {
   i=1
   while [[ $i -lt 10 ]]; do
     ((i++))
+    echo "--------------------$i----------------------"
     stopped_pf_services=$(/usr/local/pf/bin/pfcmd service pf status  | grep stopped | awk '{print $1}' | tr '\n' ',')
     IFS="," read -ra stopped_pf_services <<< "$stopped_pf_services"
     echo "stopped services: ${stopped_pf_services[@]}"
@@ -120,7 +121,10 @@ restart_packetfence() {
       for service in "${stopped_pf_services[@]}"
       do 
         echo "trying to start service: $service"
+        CONTAINER_NAME="${service%.service}"
+        CONTAINER_NAME=" ${CONTAINER_NAME#packetfence-}"
         systemctl stop $service || true;
+        docker rm $CONTAINER_NAME || true;
         systemctl start $service || true;
       done
       continue
