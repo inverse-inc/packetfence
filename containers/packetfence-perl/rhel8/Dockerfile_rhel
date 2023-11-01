@@ -50,7 +50,7 @@ RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DE
 
 COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_package.sh ./addons/packetfence-perl/install_cpan.py ${WORKDIR}
 
-RUN set -e && python3 -u  install_cpan.py  -d dependencies.csv -mw 20
+RUN /bin/bash -c "set -e && python3 -u  install_cpan.py  -d dependencies.csv -mw 20"
 
 #remove logs
 RUN rm -rf ${WORKDIR}/.cpan/build/*
