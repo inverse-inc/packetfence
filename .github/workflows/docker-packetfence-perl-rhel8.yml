@@ -1,0 +1,87 @@
+name: packetfence_perl_rhel8_package
+on:
+  push:
+    branches-ignore: 
+      - 'devel'   # excludes devel
+    paths:
+      - 'addons/packetfence-perl/**'
+      - '.github/workflows/docker-packetfence-perl-rhel8.yml'
+      - 'containers/packetfence-perl/rhel8/**'
+  schedule:
+    - cron: '0 1 * * *'
+  pull_request:
+    branches: [ "devel" ]
+    paths:
+      - 'addons/packetfence-perl/**'
+
+env:
+  WORKDIR: "/root"
+  VOLUME_MOUNT: "/mnt"
+  OUTPUT_DIRECTORY: "/mnt/output"
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+
+jobs:
+  build_image_and_package:
+    runs-on: packetfence-perl-deb-package-build
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+    outputs:
+      package_version: ${{ steps.contents.outputs.data }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3    
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - name: Find package version from changelog
+        id: contents
+        run: |
+          package_version=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ debian:11 /bin/bash -c \
+          "set -e && cd ${{ env.WORKDIR }}/ && apt update > /dev/null 2>&1  && apt install build-essential -y > /dev/null 2>&1 && dpkg-parsechangelog --show-field Version")
+          echo "Found version: $package_version"
+          echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
+          echo "data=$package_version" >> "$GITHUB_OUTPUT"
+
+      - name: Build packetfence-perl docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: './'
+          push: false
+          load: true
+          build-args: |
+            workdir=${{ env.WORKDIR }}
+            output_directory=${{ env.OUTPUT_DIRECTORY }}
+          tags: |
+            inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}
+            ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}
+            ${{ env.BRANCH_NAME == 'devel' && 'inverse-inc/packetfence/packetfence-perl-rhel8:latest' || ''}}
+            ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/inverse-inc/packetfence/packetfence-rhel8:latest' || ''}}
+          file: containers/packetfence-perl/rhel8/Dockerfile_rhel
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build rhel8 package
+        uses: addnab/docker-run-action@v3
+        with:
+            image: inverse-inc/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
+            options: --rm -v ${{ github.workspace }}/addons/packetfence-perl/:${{ env.WORKDIR }} -v ${{ env.VOLUME_MOUNT }}:${{ env.OUTPUT_DIRECTORY }}
+            shell: /bin/bash
+            run: |
+                set -e && python3 install_cpan.py -d dependencies.csv -vi true && 
+                ./build_package.sh
+
+      - name: Check if the package is created
+        run: |
+          ls -la ${{ env.VOLUME_MOUNT }}/rhel8/packages/
+
