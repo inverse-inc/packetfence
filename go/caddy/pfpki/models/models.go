@@ -1203,31 +1203,24 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 
 	if profile, ok := params["profile"]; ok {
 		if val, ok := params["cn"]; ok {
-			if CertDB := c.DB.Where("Cn = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("Cn = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
 		}
 		if val, ok := params["id"]; ok {
-			if CertDB := c.DB.Where("Id = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("Id = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
 		}
 	} else {
 		if val, ok := params["id"]; ok {
-			if CertDB := c.DB.First(&cert, val); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").First(&cert, val); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
 		}
-	}
-
-	// Find the CA
-	var ca CA
-	if CaDB := c.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
-		Information.Error = CaDB.Error.Error()
-		return Information, errors.New(dbError)
 	}
 
 	// Load the certificates from the database
@@ -1251,7 +1244,7 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	}
 
 	// Load the certificates from the database
-	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	catls, err := tls.X509KeyPair([]byte(cert.Ca.Cert), []byte(cert.Ca.Key))
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -1296,30 +1289,24 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 
 	if profile, ok := params["profile"]; ok {
 		if id, ok := params["id"]; ok {
-			if CertDB := c.DB.Where("id = ? AND profile_id = ?", id, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("id = ? AND profile_id = ?", id, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, CertDB.Error
 			}
 		}
 		if cn, ok := params["cn"]; ok {
-			if CertDB := c.DB.Where("cn = ? AND profile_id = ?", cn, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("cn = ? AND profile_id = ?", cn, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, CertDB.Error
 			}
 		}
 	} else {
 		if id, ok := params["id"]; ok {
-			if CertDB := c.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("id = ?", id).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, CertDB.Error
 			}
 		}
-	}
-	// Find the CA
-	var ca CA
-	if CaDB := c.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
-		Information.Error = CaDB.Error.Error()
-		return Information, CaDB.Error
 	}
 
 	// Find the Profile
@@ -1335,7 +1322,7 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		return Information, errors.New("Reason unsupported")
 	}
 	RevokeDate := time.Now().AddDate(0, 0, profile.RevokedValidUntil)
-	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, NotBefore: cert.NotBefore, Date: cert.Date, Revoked: RevokeDate, CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses, Subject: cert.Subject}).Error; err != nil {
+	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: cert.Ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, NotBefore: cert.NotBefore, Date: cert.Date, Revoked: RevokeDate, CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses, Subject: cert.Subject}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
