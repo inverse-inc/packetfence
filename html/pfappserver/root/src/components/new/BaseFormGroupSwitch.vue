@@ -19,6 +19,7 @@
     :valid-feedback="inputValidFeedback"
   >
     <base-input-switch :disabled="isLocked"
+                       :data-namespace="namespace"
                        :size="size"
                        :onChange="onChange"
                        :value="inputValue"
