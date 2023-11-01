@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"regexp"
 
@@ -80,7 +79,7 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 			}
 
 		case "POST":
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			Information.Status = http.StatusCreated
 			if err != nil {
 				Error.Message = err.Error()
@@ -142,7 +141,7 @@ func ResignCA(pfpki *types.Handler) http.Handler {
 		case "POST":
 			vars := mux.Vars(req)
 			Information.Status = http.StatusCreated
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -246,7 +245,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 
 		case "POST":
 			Information.Status = http.StatusCreated
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -333,7 +332,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 
 		case "PATCH":
 			Information.Status = http.StatusOK
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -390,7 +389,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 
 		case "POST":
 			Information.Status = http.StatusCreated
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -599,7 +598,7 @@ func ResignCert(pfpki *types.Handler) http.Handler {
 		case "POST":
 			vars := mux.Vars(req)
 			Information.Status = http.StatusCreated
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -771,7 +770,7 @@ func SignCSR(pfpki *types.Handler) http.Handler {
 
 		case "POST":
 			Information.Status = http.StatusCreated
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError

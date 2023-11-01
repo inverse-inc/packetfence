@@ -291,9 +291,7 @@ func (c CA) New() (types.Info, error) {
 		SerialNumber = big.NewInt(int64(cadb.ID + 1))
 	}
 
-	var Subject pkix.Name
-
-	Subject = c.MakeSubject(Subject)
+	Subject := c.MakeSubject()
 
 	ca := &x509.Certificate{
 		SerialNumber:          SerialNumber,
@@ -359,7 +357,8 @@ func (c CA) New() (types.Info, error) {
 	return Information, nil
 }
 
-func (c CA) MakeSubject(Subject pkix.Name) pkix.Name {
+func (c CA) MakeSubject() pkix.Name {
+	var Subject pkix.Name
 	Subject.CommonName = c.Cn
 
 	if len(c.Organisation) > 0 {
@@ -853,8 +852,7 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 		SerialNumber = big.NewInt(int64(cadbprevious.ID + 1))
 	}
 
-	var Subject pkix.Name
-	Subject = c.MakeSubject(Subject)
+	Subject := c.MakeSubject()
 
 	ca := &x509.Certificate{
 		SerialNumber:          SerialNumber,
@@ -919,6 +917,35 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 	return Information, nil
 }
 
+func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var cadb []CA
+	var err error
+	if val, ok := params["id"]; ok {
+		if err = c.DB.First(&cadb, val).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+
+	}
+	catls, err := tls.X509KeyPair([]byte(cadb[0].Cert), []byte(cadb[0].Key))
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+	Information.Entries = cadb
+
+	template := x509.CertificateRequest{
+		Subject:            cadb[0].MakeSubject(),
+		SignatureAlgorithm: x509.SignatureAlgorithm(*cadb[0].KeyType),
+	}
+	csrBuff := new(bytes.Buffer)
+	csrBytes, _ := x509.CreateCertificateRequest(rand.Reader, &template, catls.PrivateKey)
+	pem.Encode(csrBuff, &pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes})
+	Information.Entries = csrBuff.String()
+	return Information, err
+}
+
 func (c Cert) New() (types.Info, error) {
 	Information := types.Info{}
 	Information.Status = http.StatusUnprocessableEntity
@@ -967,8 +994,8 @@ func (c Cert) New() (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
-	var Subject pkix.Name
-	Subject = c.MakeSubject(Subject)
+
+	Subject := c.MakeSubject()
 
 	NotAfter := time.Now().AddDate(0, 0, prof.Validity)
 
@@ -1329,8 +1356,7 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 		SerialNumber = big.NewInt(int64(certdbprevious.ID + 1))
 	}
 
-	var Subject pkix.Name
-	Subject = certdb[0].MakeSubject(Subject)
+	Subject := certdb[0].MakeSubject()
 
 	cert := &x509.Certificate{
 		SerialNumber:       SerialNumber,
@@ -1411,9 +1437,8 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	return Information, nil
 }
 
-func (c Cert) MakeSubject(Subject pkix.Name) pkix.Name {
-	Subject.CommonName = c.Cn
-
+func (c Cert) MakeSubject() pkix.Name {
+	var Subject pkix.Name
 	Subject.CommonName = c.Cn
 
 	//Overload certificate attributes if exist
