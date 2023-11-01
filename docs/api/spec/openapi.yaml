@@ -54928,6 +54928,25 @@ paths:
       summary: Search PKI Certificates.
       tags:
       - PKI
+  /api/v1/pki/cert/resign/{cert_id}:
+    post:
+      summary: Re-Sign PKI Certificate.
+      requestBody:
+        $ref: '#/components/requestBodies/PkiCert'
+      parameters:
+      - description: '`PRIMARY KEY`'
+        name: cert_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/PkiCert'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      tags:
+      - PKI
   /api/v1/pki/profile/{profile_id}:
     delete:
       parameters:
