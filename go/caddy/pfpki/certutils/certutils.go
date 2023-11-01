@@ -16,9 +16,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/big"
 	mathrand "math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -176,14 +176,14 @@ func CalculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
 }
 
 func GeneratePassword() string {
-	mathrand.Seed(time.Now().UnixNano())
+	r := mathrand.New(mathrand.NewSource(time.Now().UnixNano()))
 	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
 		"abcdefghijklmnopqrstuvwxyz" +
 		"0123456789")
 	length := 8
 	var b strings.Builder
 	for i := 0; i < length; i++ {
-		b.WriteRune(chars[mathrand.Intn(len(chars))])
+		b.WriteRune(chars[r.Intn(len(chars))])
 	}
 	return b.String()
 }
@@ -264,7 +264,7 @@ func ParseCertFile(pubPEM string) (*x509.Certificate, error) {
 
 // parses a PEM encoded PKCS8 private key (RSA only)
 func ParseKeyFile(filename string) (interface{}, error) {
-	kt, err := ioutil.ReadFile(filename)
+	kt, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -568,13 +568,13 @@ func ExtractPrivateKey(KeyType *types.Type, block *pem.Block, Information *types
 			keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
 			if err != nil {
 				Information.Error = err.Error()
-				return keyOut, skid, pub, key, Information, err
+				return keyOut, skid, pub, key, *Information, err
 			}
 		} else {
 			keyOut, skid, pub, key, err = ReturnRSAPrivateKey(keyRSA)
 			if err != nil {
 				Information.Error = err.Error()
-				return keyOut, skid, pub, key, Information, err
+				return keyOut, skid, pub, key, *Information, err
 			}
 		}
 	case KEY_ECDSA:
@@ -583,13 +583,13 @@ func ExtractPrivateKey(KeyType *types.Type, block *pem.Block, Information *types
 			keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
 			if err != nil {
 				Information.Error = err.Error()
-				return keyOut, skid, pub, key, Information, err
+				return keyOut, skid, pub, key, *Information, err
 			}
 		} else {
 			keyOut, skid, pub, key, err = ReturnECDSAPrivateKey(KeyECDSA)
 			if err != nil {
 				Information.Error = err.Error()
-				return keyOut, skid, pub, key, Information, err
+				return keyOut, skid, pub, key, *Information, err
 			}
 		}
 	case KEY_DSA:
@@ -598,15 +598,15 @@ func ExtractPrivateKey(KeyType *types.Type, block *pem.Block, Information *types
 			keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
 			if err != nil {
 				Information.Error = err.Error()
-				return keyOut, skid, pub, key, Information, err
+				return keyOut, skid, pub, key, *Information, err
 			}
 		} else {
 			keyOut, skid, pub, key, err = ReturnDSAPrivateKey(KeyDSA)
 			if err != nil {
 				Information.Error = err.Error()
-				return keyOut, skid, pub, key, Information, err
+				return keyOut, skid, pub, key, *Information, err
 			}
 		}
 	}
-	return keyOut, skid, pub, key, Information, nil
+	return keyOut, skid, pub, key, *Information, nil
 }
