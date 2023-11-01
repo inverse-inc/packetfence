@@ -160,7 +160,6 @@ Catalyst::Controller::HTML::FormFu,2.04,NIGELM/Catalyst-Controller-HTML-FormFu-2
 LWP::Protocol::connect,6.09,BENNING/LWP-Protocol-connect-6.09.tar.gz,True,B/BE/BENNING/LWP-Protocol-connect-6.09.tar.gz,2
 Catalyst::Plugin::StackTrace,0.12,BOBTFISH/Catalyst-Plugin-StackTrace-0.12.tar.gz,True,B/BO/BOBTFISH/Catalyst-Plugin-StackTrace-0.12.tar.gz,2
 DateTime::Format::RFC3339,v1.2.0,IKEGAMI/DateTime-Format-RFC3339-v1.2.0.tar.gz,True,I/IK/IKEGAMI/DateTime-Format-RFC3339-v1.2.0.tar.gz,2
-Linux::Distribution,0.23,CHORNY/Linux-Distribution-0.23.tar.gz,True,C/CH/CHORNY/Linux-Distribution-0.23.tar.gz,2
 Linux::FD,0.011,LEONT/Linux-FD-0.011.tar.gz,True,L/LE/LEONT/Linux-FD-0.011.tar.gz,2
 Locale::gettext,1.07,PVANDRY/gettext-1.07.tar.gz,True,P/PV/PVANDRY/gettext-1.07.tar.gz,2
 JSON::XS,4.03,MLEHMANN/JSON-XS-4.03.tar.gz,True,M/ML/MLEHMANN/JSON-XS-4.03.tar.gz,2
