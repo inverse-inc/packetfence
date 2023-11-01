@@ -66,25 +66,6 @@ def convert_boolean(value) -> bool:
         default_value = False
     return default_value
 
-def status_execution(process_ts, data_line):
-    while True:
-        # Do something else
-        return_code = process_ts.poll()
-#        print(f"Waiting for installation module perl: {data_line['ModName']} --> {data_line['ModInstall']} \n")
-        time.sleep(5)
-        if return_code is not None:
-            # print("***********************")
-            # # Process has finished, read rest of the output
-            # if return_code != 0:
-            #     print(f"error {data_line['ModName']}:  {return_code}")
-            #     break
-            # print(f"Perl module {data_line['ModName']}  was successfull installed, return code: {return_code}")
-            # print("***********************")
-            break
-            
-    return return_code
-
-
 def install_perl_module(dict_data):
     file_name = f"logs_{dict_data['ModName']}.log"
     file_log = f"{logs_directory}/{file_name}"
@@ -93,18 +74,15 @@ def install_perl_module(dict_data):
     elif convert_boolean(dict_data['ModTest']) == False:
         command=f"/usr/bin/cpan -T install {dict_data['ModInstall']}".split()
 #        command=f"perl -MCPAN -e \"CPAN::Shell->notest('install','{dict_data['ModInstall']}')\"".split()
-#    process = subprocess.Popen(command, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     print(f"Installing perl module: {dict_data['ModName']} \n" )
     with open(file_log, 'w') as f:
-#        process = subprocess.Popen(command, stdout=f,stderr=f,text=True)
-        process = subprocess.Popen(command, stdout=f,stderr=f,text=True)
-    result_status_execution = status_execution(process, dict_data)
-    return result_status_execution, file_name
+        process = subprocess.run(command,stdout=f,stderr=f,text=True)
+    return process.returncode, file_name
 
 
 def paralle_execution(list_execute,max_iteration):
-    with concurrent.futures.ThreadPoolExecutor(max_workers=number_exec) as executor:
-#    with concurrent.futures.ProcessPoolExecutor(max_workers=number_exec) as executor:
+#    with concurrent.futures.ThreadPoolExecutor(max_workers=number_exec) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=number_exec) as executor:
         errors_install_perl = []
         list_module_perl_error = []
         # Start the load operations for eache entry from CSV file
