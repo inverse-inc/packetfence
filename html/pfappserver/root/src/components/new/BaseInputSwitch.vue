@@ -24,6 +24,7 @@
         </span>
       </div>
       <input type="range" ref="input"
+             v-bind="$attrs"
              :tabIndex="tabIndex"
              :value="rangeValue"
              :step="1"
