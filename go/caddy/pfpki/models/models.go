@@ -33,7 +33,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
@@ -293,35 +292,8 @@ func (c CA) New() (types.Info, error) {
 	}
 
 	var Subject pkix.Name
-	Subject.CommonName = c.Cn
 
-	if len(c.Organisation) > 0 {
-		Subject.Organization = []string{c.Organisation}
-	}
-
-	if len(c.OrganisationalUnit) > 0 {
-		Subject.OrganizationalUnit = []string{c.OrganisationalUnit}
-	}
-
-	if len(c.Country) > 0 {
-		Subject.Country = []string{c.Country}
-	}
-
-	if len(c.State) > 0 {
-		Subject.Province = []string{c.State}
-	}
-
-	if len(c.Locality) > 0 {
-		Subject.Locality = []string{c.Locality}
-	}
-
-	if len(c.StreetAddress) > 0 {
-		Subject.StreetAddress = []string{c.StreetAddress}
-	}
-
-	if len(c.PostalCode) > 0 {
-		Subject.PostalCode = []string{c.PostalCode}
-	}
+	Subject = c.MakeSubject(Subject)
 
 	ca := &x509.Certificate{
 		SerialNumber:          SerialNumber,
@@ -385,6 +357,39 @@ func (c CA) New() (types.Info, error) {
 	Information.Entries = newcadb
 
 	return Information, nil
+}
+
+func (c CA) MakeSubject(Subject pkix.Name) pkix.Name {
+	Subject.CommonName = c.Cn
+
+	if len(c.Organisation) > 0 {
+		Subject.Organization = []string{c.Organisation}
+	}
+
+	if len(c.OrganisationalUnit) > 0 {
+		Subject.OrganizationalUnit = []string{c.OrganisationalUnit}
+	}
+
+	if len(c.Country) > 0 {
+		Subject.Country = []string{c.Country}
+	}
+
+	if len(c.State) > 0 {
+		Subject.Province = []string{c.State}
+	}
+
+	if len(c.Locality) > 0 {
+		Subject.Locality = []string{c.Locality}
+	}
+
+	if len(c.StreetAddress) > 0 {
+		Subject.StreetAddress = []string{c.StreetAddress}
+	}
+
+	if len(c.PostalCode) > 0 {
+		Subject.PostalCode = []string{c.PostalCode}
+	}
+	return Subject
 }
 
 // GetByID retreive the CA by id
@@ -849,35 +854,7 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 	}
 
 	var Subject pkix.Name
-	Subject.CommonName = c.Cn
-
-	if len(c.Organisation) > 0 {
-		Subject.Organization = []string{c.Organisation}
-	}
-
-	if len(c.OrganisationalUnit) > 0 {
-		Subject.OrganizationalUnit = []string{c.OrganisationalUnit}
-	}
-
-	if len(c.Country) > 0 {
-		Subject.Country = []string{c.Country}
-	}
-
-	if len(c.State) > 0 {
-		Subject.Province = []string{c.State}
-	}
-
-	if len(c.Locality) > 0 {
-		Subject.Locality = []string{c.Locality}
-	}
-
-	if len(c.StreetAddress) > 0 {
-		Subject.StreetAddress = []string{c.StreetAddress}
-	}
-
-	if len(c.PostalCode) > 0 {
-		Subject.PostalCode = []string{c.PostalCode}
-	}
+	Subject = c.MakeSubject(Subject)
 
 	ca := &x509.Certificate{
 		SerialNumber:          SerialNumber,
@@ -991,84 +968,8 @@ func (c Cert) New() (types.Info, error) {
 		return Information, err
 	}
 	var Subject pkix.Name
-	Subject.CommonName = c.Cn
+	Subject = c.MakeSubject(Subject)
 
-	Organization := ""
-	if len(prof.Organisation) > 0 {
-		Organization = prof.Organisation
-	}
-	if len(c.Organisation) > 0 {
-		Organization = c.Organisation
-	}
-	if len(Organization) > 0 {
-		Subject.Organization = []string{Organization}
-	}
-
-	OrganizationalUnit := ""
-	if len(prof.OrganisationalUnit) > 0 {
-		OrganizationalUnit = prof.OrganisationalUnit
-	}
-	if len(c.OrganisationalUnit) > 0 {
-		OrganizationalUnit = c.OrganisationalUnit
-	}
-	if len(OrganizationalUnit) > 0 {
-		Subject.OrganizationalUnit = []string{OrganizationalUnit}
-	}
-
-	Country := ""
-	if len(prof.Country) > 0 {
-		Country = prof.Country
-	}
-	if len(c.Country) > 0 {
-		Country = c.Country
-	}
-	if len(Country) > 0 {
-		Subject.Country = []string{Country}
-	}
-
-	Province := ""
-	if len(prof.State) > 0 {
-		Province = prof.State
-	}
-	if len(c.State) > 0 {
-		Province = c.State
-	}
-	if len(Province) > 0 {
-		Subject.Province = []string{Province}
-	}
-
-	Locality := ""
-	if len(prof.Locality) > 0 {
-		Locality = prof.Locality
-	}
-	if len(c.Locality) > 0 {
-		Locality = c.Locality
-	}
-	if len(Locality) > 0 {
-		Subject.Locality = []string{Locality}
-	}
-
-	StreetAddress := ""
-	if len(prof.StreetAddress) > 0 {
-		StreetAddress = prof.StreetAddress
-	}
-	if len(c.StreetAddress) > 0 {
-		StreetAddress = c.StreetAddress
-	}
-	if len(StreetAddress) > 0 {
-		Subject.StreetAddress = []string{StreetAddress}
-	}
-
-	PostalCode := ""
-	if len(prof.PostalCode) > 0 {
-		PostalCode = prof.PostalCode
-	}
-	if len(c.PostalCode) > 0 {
-		PostalCode = c.PostalCode
-	}
-	if len(PostalCode) > 0 {
-		Subject.PostalCode = []string{PostalCode}
-	}
 	NotAfter := time.Now().AddDate(0, 0, prof.Validity)
 
 	// Prepare certificate
@@ -1125,7 +1026,7 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: prof.Ca, CaName: prof.Ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, NotBefore: cert.NotBefore, Subject: Subject.String()}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: prof.Ca, CaName: prof.Ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: strings.Join(Subject.StreetAddress, ""), Organisation: strings.Join(Subject.Organization, ""), OrganisationalUnit: strings.Join(Subject.OrganizationalUnit, ""), Country: strings.Join(Subject.Country, ""), State: strings.Join(Subject.Province, ""), Locality: strings.Join(Subject.Locality, ""), PostalCode: strings.Join(Subject.PostalCode, ""), Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, NotBefore: cert.NotBefore, Subject: Subject.String()}).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
@@ -1429,74 +1330,8 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	}
 
 	var Subject pkix.Name
-	Subject.CommonName = c.Cn
+	Subject = certdb[0].MakeSubject(Subject)
 
-	//Overload certificate attributes if exist
-	Organization := ""
-	if len(certdb[0].Profile.Organisation) > 0 {
-		Organization = certdb[0].Profile.Organisation
-	}
-	if len(c.Organisation) > 0 {
-		Organization = c.Organisation
-	}
-	if len(Organization) > 0 {
-		Subject.Organization = []string{Organization}
-	}
-
-	Country := ""
-	if len(certdb[0].Profile.Country) > 0 {
-		Country = certdb[0].Profile.Country
-	}
-	if len(c.Country) > 0 {
-		Country = c.Country
-	}
-	if len(Country) > 0 {
-		Subject.Country = []string{Country}
-	}
-
-	Province := ""
-	if len(certdb[0].Profile.State) > 0 {
-		Province = certdb[0].Profile.State
-	}
-	if len(c.State) > 0 {
-		Province = c.State
-	}
-	if len(Province) > 0 {
-		Subject.Province = []string{Province}
-	}
-
-	Locality := ""
-	if len(certdb[0].Profile.Locality) > 0 {
-		Locality = certdb[0].Profile.Locality
-	}
-	if len(c.Locality) > 0 {
-		Locality = c.Locality
-	}
-	if len(Locality) > 0 {
-		Subject.Locality = []string{Locality}
-	}
-
-	StreetAddress := ""
-	if len(certdb[0].Profile.StreetAddress) > 0 {
-		StreetAddress = certdb[0].Profile.StreetAddress
-	}
-	if len(c.StreetAddress) > 0 {
-		StreetAddress = c.StreetAddress
-	}
-	if len(StreetAddress) > 0 {
-		Subject.StreetAddress = []string{StreetAddress}
-	}
-
-	PostalCode := ""
-	if len(certdb[0].Profile.PostalCode) > 0 {
-		PostalCode = certdb[0].Profile.PostalCode
-	}
-	if len(c.PostalCode) > 0 {
-		PostalCode = c.PostalCode
-	}
-	if len(PostalCode) > 0 {
-		Subject.PostalCode = []string{PostalCode}
-	}
 	cert := &x509.Certificate{
 		SerialNumber:       SerialNumber,
 		Subject:            Subject,
@@ -1563,7 +1398,7 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	h := sha1.New()
 
 	h.Write(cacert.RawIssuer)
-	if err := c.DB.Model(&Cert{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Ca": certdb[0].Ca, "CaName": certdb[0].Ca.Cn, "ProfileName": certdb[0].Profile.Name, "SerialNumber": SerialNumber.String(), "DNSNames": cert.DNSNames, "IPAddresses": strings.Join(IPAddresses, ","), "Mail": cert.EmailAddresses, "StreetAddress": cert.Subject.StreetAddress, "Organisation": cert.Subject.Organization, "OrganisationalUnit": cert.Subject.OrganizationalUnit, "Country": cert.Subject.Country, "State": cert.Subject.Province, "Locality": cert.Subject.Locality, "PostalCode": cert.Subject.PostalCode, "Profile": certdb[0].Profile, "Key": keyOut.String(), "Cert": certBuff.String(), "ValidUntil": cert.NotAfter, "NotBefore": cert.NotBefore, "Subject": cert.Subject.String()}).Error; err != nil {
+	if err := c.DB.Model(&Cert{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Ca": certdb[0].Ca, "CaName": certdb[0].Ca.Cn, "ProfileName": certdb[0].Profile.Name, "SerialNumber": SerialNumber.String(), "DNSNames": cert.DNSNames, "IPAddresses": strings.Join(IPAddresses, ","), "Mail": Email, "StreetAddress": cert.Subject.StreetAddress, "Organisation": cert.Subject.Organization, "OrganisationalUnit": cert.Subject.OrganizationalUnit, "Country": cert.Subject.Country, "State": cert.Subject.Province, "Locality": cert.Subject.Locality, "PostalCode": cert.Subject.PostalCode, "Profile": certdb[0].Profile, "Key": keyOut.String(), "Cert": certBuff.String(), "ValidUntil": cert.NotAfter, "NotBefore": cert.NotBefore, "Subject": cert.Subject.String()}).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
@@ -1574,6 +1409,80 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	Information.Serial = SerialNumber.String()
 
 	return Information, nil
+}
+
+func (c Cert) MakeSubject(Subject pkix.Name) pkix.Name {
+	Subject.CommonName = c.Cn
+
+	Subject.CommonName = c.Cn
+
+	//Overload certificate attributes if exist
+	Organization := ""
+	if len(c.Profile.Organisation) > 0 {
+		Organization = c.Profile.Organisation
+	}
+	if len(c.Organisation) > 0 {
+		Organization = c.Organisation
+	}
+	if len(Organization) > 0 {
+		Subject.Organization = []string{Organization}
+	}
+
+	Country := ""
+	if len(c.Profile.Country) > 0 {
+		Country = c.Profile.Country
+	}
+	if len(c.Country) > 0 {
+		Country = c.Country
+	}
+	if len(Country) > 0 {
+		Subject.Country = []string{Country}
+	}
+
+	Province := ""
+	if len(c.Profile.State) > 0 {
+		Province = c.Profile.State
+	}
+	if len(c.State) > 0 {
+		Province = c.State
+	}
+	if len(Province) > 0 {
+		Subject.Province = []string{Province}
+	}
+
+	Locality := ""
+	if len(c.Profile.Locality) > 0 {
+		Locality = c.Profile.Locality
+	}
+	if len(c.Locality) > 0 {
+		Locality = c.Locality
+	}
+	if len(Locality) > 0 {
+		Subject.Locality = []string{Locality}
+	}
+
+	StreetAddress := ""
+	if len(c.Profile.StreetAddress) > 0 {
+		StreetAddress = c.Profile.StreetAddress
+	}
+	if len(c.StreetAddress) > 0 {
+		StreetAddress = c.StreetAddress
+	}
+	if len(StreetAddress) > 0 {
+		Subject.StreetAddress = []string{StreetAddress}
+	}
+
+	PostalCode := ""
+	if len(c.Profile.PostalCode) > 0 {
+		PostalCode = c.Profile.PostalCode
+	}
+	if len(c.PostalCode) > 0 {
+		PostalCode = c.PostalCode
+	}
+	if len(PostalCode) > 0 {
+		Subject.PostalCode = []string{PostalCode}
+	}
+	return Subject
 }
 
 func NewRevokedCertModel(pfpki *types.Handler) *RevokedCert {
@@ -1944,7 +1853,7 @@ func parseTemplate(tplName string, lang language.Tag, data interface{}) (string,
 
 func ParseYAMLDict() (map[string]catalog.Dictionary, error) {
 	dir := "/usr/local/pf/conf/caddy-services/locales"
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -1953,7 +1862,7 @@ func ParseYAMLDict() (map[string]catalog.Dictionary, error) {
 	translations := map[string]catalog.Dictionary{}
 
 	for _, f := range files {
-		yamlFile, err := ioutil.ReadFile(dir + "/" + f.Name())
+		yamlFile, err := os.ReadFile(dir + "/" + f.Name())
 		if err != nil {
 			return nil, err
 		}
