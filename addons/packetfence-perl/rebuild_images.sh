@@ -92,6 +92,7 @@ rebuild_images() {
 }
 
 restart_packetfence() {
+  set -x
   log_section "Restart all PF services"
 #  /usr/local/pf/bin/pfcmd service pf restart
   echo "stop PF services"
