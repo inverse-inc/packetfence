@@ -1,5 +1,10 @@
 FROM rockylinux:8
 
+# Add Tini
+ENV TINI_VERSION v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+
 ARG workdir \
     output_directory
 
@@ -19,6 +24,8 @@ RUN yum install -y openssl-devel krb5-libs mariadb-devel epel-release systemd-de
     perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo $DISABLE_REPO python39
 
 RUN yum group install -y "Development Tools" $DISABLE_REPO
+
+RUN yum install -y libssh2-devel
 
 #RUN TestPerlConfig=$(perl -e exit); [[ ${TestPerlConfig} != "" ]] && export LC_CTYPE=en_US.UTF-8;  export LC_ALL=en_US.UTF-8
 
@@ -50,7 +57,8 @@ RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DE
 
 COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_package.sh ./addons/packetfence-perl/install_cpan.py ${WORKDIR}
 
-RUN /bin/bash -c "set -e && python3 -u  install_cpan.py  -d dependencies.csv -mw 20"
+RUN /bin/bash -c "set -e && /tini -- python3 -u  install_cpan.py  -d dependencies.csv -mw 20"
+#RUN python3 -u  install_cpan.py  -d dependencies.csv -mw 20
 
 #remove logs
-RUN rm -rf ${WORKDIR}/.cpan/build/*
+#RUN rm -rf ${WORKDIR}/.cpan/build/*
