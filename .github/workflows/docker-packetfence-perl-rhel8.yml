@@ -89,7 +89,7 @@ jobs:
     needs: ['build_image_and_package']
     runs-on: packetfence-perl-deb-package-build
     container:
-      image: rockylinux:8.8
+      image: redhat/ubi8
       volumes:
         - /mnt/rhel8/packages/:/mnt
     steps:     
