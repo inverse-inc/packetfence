@@ -8,7 +8,7 @@ on:
       - '.github/workflows/docker-packetfence-perl-rhel8.yml'
       - 'containers/packetfence-perl/rhel8/**'
   schedule:
-    - cron: '0 1 * * *'
+    - cron: 0 3 * * *
   pull_request:
     branches: [ "devel" ]
     paths:
@@ -85,3 +85,58 @@ jobs:
         run: |
           ls -la ${{ env.VOLUME_MOUNT }}/rhel8/packages/
 
+  unit-test:
+    needs: ['build_image_and_package']
+    runs-on: packetfence-perl-deb-package-build
+    container:
+      image: rockylinux:8.8
+      volumes:
+        - /mnt/rhel8/packages/:/mnt
+    steps:     
+      - name: Install the package packetfence-perl
+        run: |
+          cat /etc/*release
+          env
+          ls -la  ${{ env.VOLUME_MOUNT }} 
+          find ${{ env.VOLUME_MOUNT }} -name "*.rpm" -exec rpm -ivh {} \;
+
+
+  sign_package:
+    needs: ['build_image_and_package', 'unit-test']
+    runs-on: packetfence-perl-deb-package-build
+    container:
+      image: rocky:8.8
+      volumes:
+        - /mnt/debian/packages/:/mnt
+    steps:
+      - name: Install debian dependenecies
+        run: yum install -y rpm-sign
+
+      - name: import private key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --pinentry-mode loopback --import
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | rpm --import RPM-GPG-KEY-PUBLIC
+
+      - name: check if the key was imported
+        run: |
+          rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --> %{summary}\n'
+
+      - name: Sign the package
+        run: rpm --addsign ${{ env.VOLUME_MOUNT }}/*.rpm
+
+      - name: Verifiy the signarure of package
+        run: |
+          gpg --verify  ${{ env.VOLUME_MOUNT }}/*.rpm
+          rpm --checksig ${{ env.VOLUME_MOUNT }}/*.rpm
+          rpm --qpi ${{ env.VOLUME_MOUNT }}/*.rpm
+
+
+  push_docker-image_and_deb-package: 
+    needs: ['build_image_and_package', 'unit-test', 'sign_package']
+    runs-on: packetfence-perl-deb-package-build
+
+    steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: network=host
