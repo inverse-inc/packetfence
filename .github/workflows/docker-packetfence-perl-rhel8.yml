@@ -127,7 +127,8 @@ jobs:
 
       - name: Verifiy the signarure of package
         run: |
-          rpm --qpi ${{ env.VOLUME_MOUNT }}/*.rpm
+          gpg  --batch --yes   --output /tmp/pubkey.pub --armor --export  support@inverse.ca && rpm --import /tmp/pubkey.pub
+          rpm -qpi ${{ env.VOLUME_MOUNT }}/*.rpm
           rpm --checksig ${{ env.VOLUME_MOUNT }}/*.rpm
 
 
