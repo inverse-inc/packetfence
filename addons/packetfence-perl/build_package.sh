@@ -22,16 +22,22 @@ fi
 cd "${BASE_DIR}"
 tar cvfz $SCRIPT_DIR/$PF_PERL_ARCHIVE ./
 if [ "${RPM_BUILD}" -eq 1 ]; then
+    cp -av /$workdir/rhel8 $SCRIPT_DIR
     cp -v $SCRIPT_DIR/$PF_PERL_ARCHIVE $SCRIPT_DIR/rhel8/SOURCES/
+    cd $SCRIPT_DIR/rhel8
+    rpmbuild --define "_topdir `pwd`" -v -ba SPECS/packetfence-perl.spec
+    mkdir -p /$OUTPUT_DIRECTORY/rhel8/packages 
+    find /$OUTPUT_DIRECTORY/rhel8/packages/ -name "packetfence-perl*" -exec rm {} \;
+    cp -av  RPMS/x86_64/packetfence-perl*.rpm  /$OUTPUT_DIRECTORY/rhel8/packages
 fi
 
 if [ -f /etc/debian_version ]; then
-    cp -a /$workdir/debian $SCRIPT_DIR
+    cp -av /$workdir/debian $SCRIPT_DIR
     cd $SCRIPT_DIR
     dpkg-buildpackage --no-sign -rfakeroot
     mkdir -p /$OUTPUT_DIRECTORY/debian/packages 
     #remove old packages
     find /$OUTPUT_DIRECTORY/debian/packages/ -name "packetfence-perl*" -exec rm {} \;
-    cp -a ../packetfence-perl* /$OUTPUT_DIRECTORY/debian/packages
+    cp -av ../packetfence-perl* /$OUTPUT_DIRECTORY/debian/packages
     cd -
 fi
