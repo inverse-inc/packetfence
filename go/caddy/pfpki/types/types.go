@@ -10,7 +10,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/panichandler"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type (

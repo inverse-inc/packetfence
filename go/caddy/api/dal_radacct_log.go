@@ -5,15 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	"github.com/jinzhu/gorm"
-	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"github.com/julienschmidt/httprouter"
+	"gorm.io/gorm"
 )
 
 type RadacctLog struct {

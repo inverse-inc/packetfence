@@ -2,6 +2,12 @@ package api
 
 import (
 	"context"
+	"net/http"
+	"sync"
+	"time"
+
+	"database/sql"
+
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
@@ -9,11 +15,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
-	"net/http"
-	"sync"
-	"time"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 // Register the plugin in caddy
@@ -63,6 +67,7 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 
 	var DBP **gorm.DB
 	var DB *gorm.DB
+	var sqlDB *sql.DB
 	var err error
 	done := false
 	wait := false
@@ -73,7 +78,7 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 	go func() {
 		for {
 			if done == false {
-				DB, err = gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+				DB, err = gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 				if DB != nil {
 					DBP = &DB
 					if wait == false {
@@ -89,12 +94,13 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 					log.LoggerWContext(ctx).Warn(err.Error())
 				}
 				if DB != nil && err == nil {
-					err := DB.DB().Ping()
+					sqlDB, err = DB.DB()
+					err := sqlDB.Ping()
 					if err == nil {
 						done = true
 					} else {
 						log.LoggerWContext(ctx).Warn(err.Error())
-						err := DB.DB().Close()
+						err := sqlDB.Close()
 						if err != nil {
 							log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
 						}
@@ -102,11 +108,12 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 				}
 				time.Sleep(time.Duration(10) * time.Second)
 			} else {
-				err := DB.DB().Ping()
+				sqlDB, err = DB.DB()
+				err := sqlDB.Ping()
 				if err != nil {
 					done = false
 					log.LoggerWContext(ctx).Warn(err.Error())
-					err := DB.DB().Close()
+					err := sqlDB.Close()
 					if err != nil {
 						log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
 					}

@@ -39,8 +39,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -55,9 +55,12 @@ import (
 type (
 	// CA struct
 	CA struct {
-		gorm.Model
-		DB                   gorm.DB                 `gorm:"-"`
-		Ctx                  context.Context         `gorm:"-"`
+		ID                   uint                    `gorm:"primarykey"`
+		CreatedAt            time.Time               `json:"-"`
+		UpdatedAt            time.Time               `json:"-"`
+		DeletedAt            gorm.DeletedAt          `json:"-" gorm:"index"`
+		DB                   gorm.DB                 `json:"-" gorm:"-"`
+		Ctx                  context.Context         `json:"-" gorm:"-"`
 		Cn                   string                  `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail                 string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Organisation         string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
@@ -85,9 +88,12 @@ type (
 
 	// Profile struct
 	Profile struct {
-		gorm.Model
-		DB                    gorm.DB                 `gorm:"-"`
-		Ctx                   context.Context         `gorm:"-"`
+		ID                    uint                    `gorm:"primarykey"`
+		CreatedAt             time.Time               `json:"-"`
+		UpdatedAt             time.Time               `json:"-"`
+		DeletedAt             gorm.DeletedAt          `json:"-" gorm:"index"`
+		DB                    gorm.DB                 `json:"-" gorm:"-"`
+		Ctx                   context.Context         `json:"-" gorm:"-"`
 		Name                  string                  `json:"name" gorm:"UNIQUE"`
 		Mail                  string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Organisation          string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
@@ -129,9 +135,12 @@ type (
 
 	// Cert struct
 	Cert struct {
-		gorm.Model
-		DB                 gorm.DB         `gorm:"-"`
-		Ctx                context.Context `gorm:"-"`
+		ID                 uint            `gorm:"primarykey"`
+		CreatedAt          time.Time       `json:"-"`
+		UpdatedAt          time.Time       `json:"-"`
+		DeletedAt          gorm.DeletedAt  `json:"-" gorm:"index"`
+		DB                 gorm.DB         `json:"-" gorm:"-"`
+		Ctx                context.Context `json:"-" gorm:"-"`
 		Cn                 string          `json:"cn,omitempty"`
 		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca                 CA              `json:"-"`
@@ -170,7 +179,10 @@ type (
 
 	// RevokedCert struct
 	RevokedCert struct {
-		gorm.Model
+		ID                 uint            `gorm:"primarykey"`
+		CreatedAt          time.Time       `json:"-"`
+		UpdatedAt          time.Time       `json:"-"`
+		DeletedAt          gorm.DeletedAt  `json:"-" gorm:"index"`
 		DB                 gorm.DB         `gorm:"-"`
 		Ctx                context.Context `gorm:"-"`
 		Cn                 string          `json:"cn,omitempty" gorm:"INDEX:cn"`
@@ -201,6 +213,30 @@ type (
 		Subject            string          `json:"-"`
 	}
 )
+
+type Tabler interface {
+	TableName() string
+}
+
+// TableName overrides the table name used by CA to `pki_cas`
+func (CA) TableName() string {
+	return "pki_cas"
+}
+
+// TableName overrides the table name used by Profiles to `pki_profiles`
+func (Profile) TableName() string {
+	return "pki_profiles"
+}
+
+// TableName overrides the table name used by Cert to `pki_certs`
+func (Cert) TableName() string {
+	return "pki_certs"
+}
+
+// TableName overrides the table name used by Cert to `pki_revoked_certs`
+func (RevokedCert) TableName() string {
+	return "pki_revoked_certs"
+}
 
 const dbError = "A database error occured. See log for details."
 
@@ -449,12 +485,14 @@ func (c CA) Fix() (types.Info, error) {
 // Paginated return the CA list paginated
 func (c CA) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
-	var count int
+	var count int64
 	c.DB.Model(&CA{}).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sql, err := vars.Sql(c)
 		if err != nil {
 			Information.Error = err.Error()
@@ -476,12 +514,14 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	var count int
+	var count int64
 	c.DB.Model(&CA{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		var cadb []CA
 		c.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&cadb)
 		Information.Entries = cadb
@@ -590,7 +630,8 @@ func (c CA) FindSerial(p Profile) (*big.Int, error) {
 
 	var SerialNumber *big.Int
 
-	if CertDB := c.DB.Last(&certdb).Related(&ca); CertDB.Error != nil {
+	err := c.DB.Last(&certdb).Where(&ca)
+	if err.Error != nil {
 		SerialNumber = big.NewInt(1)
 	} else {
 		SerialNumber = big.NewInt(int64(certdb.ID + 1))
@@ -763,12 +804,14 @@ func (p Profile) GetByID(params map[string]string) (types.Info, error) {
 
 func (p Profile) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
-	var count int
+	var count int64
 	p.DB.Model(&Profile{}).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sql, err := vars.Sql(p)
 		if err != nil {
 			Information.Error = err.Error()
@@ -789,12 +832,13 @@ func (p Profile) Search(vars sql.Vars) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	var count int
+	var count int64
 	p.DB.Model(&Profile{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		var profiledb []Profile
 		p.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
 		Information.Entries = profiledb
@@ -1084,12 +1128,13 @@ func (c Cert) GetByID(params map[string]string) (types.Info, error) {
 
 func (c Cert) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
-	var count int
+	var count int64
 	c.DB.Model(&Cert{}).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sql, err := vars.Sql(c)
 		if err != nil {
 			Information.Error = err.Error()
@@ -1110,12 +1155,13 @@ func (c Cert) Search(vars sql.Vars) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	var count int
+	var count int64
 	c.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		var certdb []Cert
 		c.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&certdb)
 		Information.Entries = certdb
@@ -1239,9 +1285,11 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 
 	// Find the Profile
 	var profile Profile
-	if ProfileDB := c.DB.Model(&cert).Related(&profile); ProfileDB.Error != nil {
-		Information.Error = ProfileDB.Error.Error()
-		return Information, ProfileDB.Error
+
+	error := c.DB.Model(&profile).Where(&cert)
+	if error.Error != nil {
+		Information.Error = error.Error.Error()
+		return Information, error.Error
 	}
 
 	intreason, err := strconv.Atoi(reason)
@@ -1533,12 +1581,13 @@ func (c RevokedCert) GetByID(params map[string]string) (types.Info, error) {
 
 func (c RevokedCert) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
-	var count int
+	var count int64
 	c.DB.Model(&RevokedCert{}).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sql, err := vars.Sql(c)
 		if err != nil {
 			Information.Error = err.Error()
@@ -1564,12 +1613,13 @@ func (c RevokedCert) Search(vars sql.Vars) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
-	var count int
+	var count int64
 	c.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		var revokedcertdb []RevokedCert
 		c.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
 		Information.Entries = revokedcertdb

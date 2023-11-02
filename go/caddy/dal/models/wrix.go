@@ -3,8 +3,10 @@ package models
 import (
 	"context"
 	"errors"
+
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+
 	"strings"
 )
 
@@ -64,7 +66,7 @@ func NewWrixModel(dbp **gorm.DB, ctx *context.Context) *Wrix {
 }
 func (a Wrix) Paginated(vars sql.Vars) (DBRes, error) {
 	var res = DBRes{}
-	var count int
+	var count int64
 
 	a.DB.Model(&Wrix{}).Count(&count)
 	res.Total = &count
@@ -94,7 +96,7 @@ func (a Wrix) Search(vars sql.Vars) (DBRes, error) {
 		return res, err
 	}
 
-	var count int
+	var count int64
 	var items []Wrix
 	a.DB.Model(&Wrix{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
 

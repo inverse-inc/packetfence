@@ -5,16 +5,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/jinzhu/gorm"
-	"github.com/julienschmidt/httprouter"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/google/uuid"
+	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
+	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/julienschmidt/httprouter"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var WrixIDs []string
@@ -71,7 +73,7 @@ func removeDBTestEntriesWrix(t *testing.T, id string) error {
 func dalWrix() http.HandlerFunc {
 	router := httprouter.New()
 	ctx := context.Background()
-	dbs, err := gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+	dbs, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 	if err != nil {
 		fmt.Println("error occured while connecting to mysql, ", err.Error())
 	}
