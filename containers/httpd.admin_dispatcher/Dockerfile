@@ -29,7 +29,7 @@ ARG BUILD_PFAPPSERVER_VUE
 
 # Install nodejs if needed
 RUN if [[ "$BUILD_PFAPPSERVER_VUE" == "yes" ]]; then \
-      apt install nodejs -y;  && \
+      apt install nodejs -y && \
 # build web admin
       cd /html/pfappserver/root && \
         make vendor  && \
