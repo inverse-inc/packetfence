@@ -54723,6 +54723,25 @@ paths:
       summary: Re-Sign PKI Certificate Authority.
       tags:
       - PKI
+  /api/v1/pki/ca/csr/{ca_id}:
+    post:
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: ca_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        $ref: '#/components/requestBodies/PkiCa'
+      responses:
+        '200':
+          $ref: '#/components/responses/PkiCasList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      summary: Generate a Certificate Signing Request.
+      tags:
+      - PKI
   /api/v1/pki/ca/{ca_id}:
     get:
       parameters:

@@ -169,6 +169,48 @@ func ResignCA(pfpki *types.Handler) http.Handler {
 	})
 }
 
+func GenerateCSR(pfpki *types.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		o := models.NewCAModel(pfpki)
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+
+		case "POST":
+			vars := mux.Vars(req)
+			Information.Status = http.StatusCreated
+			body, err := io.ReadAll(req.Body)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.GenerateCSR(vars); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.GenerateCSR")
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
+
 func GetCAByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		o := models.NewCAModel(pfpki)
