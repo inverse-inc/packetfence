@@ -38,12 +38,15 @@ The process is meant to be very short lived and never reused. */
 #include <sys/socket.h>
 #include <argp.h>
 #include <signal.h>
+#include <curl/curl.h>
+#include <cjson/cJSON.h>
+
 
 const char *argp_program_version = "ntlm_auth_wrapper 1.0";
 const char *argp_program_bug_address = "<info@inverse.ca>";
 
 // These have to be initialized early so they can be used in the signal handler.
-pid_t pid = 0 ; // initialize the child pid 
+pid_t pid = 0 ; // initialize the child pid
 
 /* Program documentation. */
 static char doc[] =
@@ -54,18 +57,17 @@ static char args_doc[] = "[arguments passed to ntlm_auth]";
 
 /* The options we understand. */
 static struct argp_option options[] = {
-    {"binary", 'b', "path", 0,
-     "ntlm_auth binary path. Defaults to /usr/bin/ntlm_auth."},
-    {"host", 'h', "hostname or ip", 0,
-     "StatsD host. Default is localhost."},
-    {"port", 'p', "port", 0, "StatsD port. Default is 8125."},
-    {"insecure", 'i', 0, 0, "Log insecure arguments such as the password."},
-    {"nostatsd", 's', 0, 0, "Don't send performance counters to statsd."},
-    {"noresolv", 'n', 0, 0, "Do not resolve value for host and port."},
-    {"log", 'l', 0, 0, "Send results to syslog."},
-    {"logfacility", 'f', "facility", 0,
-     "Syslog facility. Default is local5."},
-    {"loglevel", 'd', "level", 0, "Syslog level. Default is info."},
+    {"binary"     ,'b', "path", 0, "ntlm_auth binary path. Defaults to /usr/bin/ntlm_auth."},
+    {"host"       ,'h', "hostname or ip", 0, "StatsD host. Default is localhost."},
+    {"port"       ,'p', "port", 0, "StatsD port. Default is 8125."},
+    {"insecure"   ,'i', 0, 0, "Log insecure arguments such as the password."},
+    {"nostatsd"   ,'s', 0, 0, "Don't send performance counters to statsd."},
+    {"noresolv"   ,'n', 0, 0, "Do not resolve value for host and port."},
+    {"log"        ,'l', 0, 0, "Send results to syslog."},
+    {"logfacility",'f', "facility", 0, "Syslog facility. Default is local5."},
+    {"loglevel"   ,'d', "level", 0, "Syslog level. Default is info."},
+    {"api_host"   ,'a', "hostname/ip" ,0, "NTLM auth API host or IP" },
+    {"api_port"   ,'t', "port" ,0, "NTLM auth API listening port" },
     {0}
 };
 
@@ -75,6 +77,8 @@ struct arguments {
     char *binary;
     char *host;
     char *port;
+    char *api_host;
+    char *api_port;
 };
 
 /* Parse a single option. */
@@ -105,6 +109,12 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
     case 'p':
         arguments->port = arg;
+        break;
+    case 'a':
+        arguments->api_host = arg;
+        break;
+    case 't':
+        arguments->api_port = arg;
         break;
     case 'f':
         if (strcasecmp(arg, "auth") == 0) {
@@ -190,7 +200,7 @@ log_result(int argc, char **argv, const struct arguments args, int status,
     asprintf(&log_msg, "%s", args.binary);
 
     // concatenate the command with all argv args separated by sep
-    int i = 1; 
+    int i = 1;
     while (i < argc ) {
         // split the argument on = and check the first part to reject excluded args.
         if (!args.insecure)
@@ -198,8 +208,8 @@ log_result(int argc, char **argv, const struct arguments args, int status,
                  (argv[i], "--password", strlen("--password")) == 0)
                 ||
                 (strncmp
-                 (argv[i], "--challenge", strlen("--challenge")) == 0)) 
-            { 
+                 (argv[i], "--challenge", strlen("--challenge")) == 0))
+            {
                 i=i+2; // will skip the next argument
                 continue;
             }
@@ -214,9 +224,9 @@ log_result(int argc, char **argv, const struct arguments args, int status,
         (void) 0; // no op
     }
     else if ( WIFEXITED(status) ) {
-        status =  WEXITSTATUS(status); 
-    } 
-    else { 
+        status =  WEXITSTATUS(status);
+    }
+    else {
         status = 1;
     }
 
@@ -242,7 +252,7 @@ void send_statsd(const struct arguments args , int status, double elapsed)
     if ((err = getaddrinfo(args.host, args.port, &hint, &ailist)) != 0) {
         sprintf("getaddrinfo error: %s", gai_strerror(err));
         return;
-    } 
+    }
 
     if ((sockfd = socket(ailist->ai_family, SOCK_DGRAM, 0)) < 0) {
         err = errno;
@@ -288,9 +298,9 @@ static void handler(int sig)
     if (sig == SIGTERM) {
         if (pid == 0) _exit(SIGTERM); // we haven't forked yet or we are still in the child pre exec
         kill(pid, SIGKILL);
-        alarm(1) ; // wake us up in one second, giving us just enough time to finish logging 
+        alarm(1) ; // wake us up in one second, giving us just enough time to finish logging
     }
-    if (sig == SIGALRM ) { 
+    if (sig == SIGALRM ) {
         kill(pid, SIGKILL); // just in case we may have forked in the meantime
         _exit(SIGTERM); // we waited long enough
     }
@@ -312,6 +322,8 @@ char **argv, **envp;
     arguments.port = "8125";
     arguments.facility = LOG_LOCAL5;
     arguments.level = LOG_INFO;
+    arguments.api_host = "";
+    arguments.api_port = "0";
     /* Parse our arguments; every option seen by parse_opt will
        be reflected in arguments. */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
@@ -345,8 +357,8 @@ char **argv, **envp;
             break;
         }
     }
-    if (opt_end) { 
-        // Here we move the pointer so that argv starts at opt_end 
+    if (opt_end) {
+        // Here we move the pointer so that argv starts at opt_end
         // We also need to change argc to reflect discarding the wrapper arguments.
         // This can have consequences so pay attention.
         argv += opt_end;
@@ -355,6 +367,89 @@ char **argv, **envp;
     }
 
     // Fork a process, exec it and then wait for the exit.
+
+    printf("---- argc is: %d\n", argc);
+    for (int i=0; i< argc; i++) {
+        printf("-------- argv[%d] is: %s\n", i, argv[i]);
+    }
+
+    if (strcmp(arguments.api_host, "") !=0 && strcmp(arguments.api_port, "0") != 0) {
+        printf("---- we are using new API to perform ntlm auth\n");
+
+        char *s_username;
+        char *s_domain;
+        char *s_workstation;
+        char *s_challenge;
+        char *s_lm_response;
+        char *s_nt_response;
+        char *s_password;
+        char *s_ntlm_password;
+        char *i_request_lm_key;
+        char *i_request_nt_key;
+        char *i_use_cached_creds;
+        char *i_allow_mschapv2;
+        char *i_offline_logon;
+        char *s_require_membership_of;
+        char *s_pam_winbind_conf;
+        char *s_target_service;
+        char *s_target_hostname;
+
+        cJSON *json = cJSON_CreateObject();
+        if (json == NULL) {
+            printf("Failed to create JSON object.\n");
+            return 1;
+        }
+        for (int i=1; i<argc; i++) {
+            if (strncmp(argv[i], "--username=", strlen("--username=")) == 0) {
+                cJSON_AddStringToObject(json, "username", argv[i]+strlen("--username="));
+            }
+            if (strncmp(argv[i], "--password=", strlen("--password=")) == 0) {
+                cJSON_AddStringToObject(json, "password", argv[i]+strlen("--password="));
+            }
+//            if (strncmp(argv[i], "--request-nt-key", strlen("--request-nt-key")) == 0) {
+//                cJSON_AddStringToObject(json, "request-nt-key", argv[i]+strlen("--request-nt-key"));
+//            }
+            if (strncmp(argv[i], "--challenge=", strlen("--challenge=")) == 0) {
+                cJSON_AddStringToObject(json, "challenge", argv[i]+strlen("--challenge="));
+            }
+            if (strncmp(argv[i], "--nt-response=", strlen("--nt-response=")) == 0) {
+                cJSON_AddStringToObject(json, "nt-response", argv[i]+strlen("--nt-response="));
+            }
+        }
+
+        char *json_string = cJSON_Print(json);
+        if (json_string != NULL) {
+//            printf("---- JSON string is: %s\n", json_string);
+//            free(json_string);
+        }
+//        cJSON_Delete(json);
+
+        CURL *curl;
+        CURLcode res;
+        curl = curl_easy_init();
+        if(curl) {
+            char *uri;
+            asprintf(&uri, "http://%s:%s/Test/test", arguments.api_host, arguments.api_port);
+
+            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_easy_setopt(curl, CURLOPT_URL, uri);
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
+            struct curl_slist *headers = NULL;
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_string);
+            printf("-----------------------\n");
+            res = curl_easy_perform(curl);
+            printf("=======================\n")
+        }
+        curl_easy_cleanup(curl);
+
+
+    } else {
+        printf("---- still using traditional fork to perform ntlm auth\n");
+    }
+
     pid_t  ppid;
     ppid = getpid();
     int status;
@@ -366,7 +461,7 @@ char **argv, **envp;
         perror(argv[0]);
         exit(127);
     }
-    
+
     if (waitpid(pid, &status, 0) != pid) {  // wait for child
         if (errno == EINTR) {  // we received a signal
             wait(NULL); // reap to prevent zombies
@@ -386,13 +481,17 @@ char **argv, **envp;
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
 
-    if (WIFEXITED(status)) { 
+    if (WIFEXITED(status)) {
         exit(WEXITSTATUS(status));
-    } 
-    else if ( status == SIGTERM ) { 
+    }
+    else if ( status == SIGTERM ) {
         exit(SIGTERM);
-    } 
-    else { 
+    }
+    else {
         exit(1); // Just in case the child exited abnormally.
-    } 
+    }
 }
+
+// /usr/local/pf/bin/ntlm_auth_wrapper -p 8125 -- \ --request-nt-key --username=%{%{control:AD-Samaccountname}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00} %{PacketFence-NTLMv2-Only}
+
+// /usr/local/pf/bin/ntlm_auth_wrapper -p 8125 -- --request-nt-key --username=administrator --challenge=dbb7dacb353c11bc --nt-response=a2568637cae095a457278c6ceb4de3961a06b772b85a0985
