@@ -69,12 +69,13 @@ func (a Wrix) Paginated(vars sql.Vars) (DBRes, error) {
 	var count int64
 
 	a.DB.Model(&Wrix{}).Count(&count)
-	res.Total = &count
+	counter := int(count)
+	res.Total = &counter
 	res.PrevCursor = &vars.Cursor
 	nextCursor := vars.Cursor + vars.Limit
 	res.NextCursor = &nextCursor
 
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sqls, err := vars.Sql(a)
 		if err != nil {
 			return DBRes{}, err
@@ -104,12 +105,13 @@ func (a Wrix) Search(vars sql.Vars) (DBRes, error) {
 		return res, errors.New("entries not found")
 	}
 
-	res.Total = &count
+	counter := int(count)
+	res.Total = &counter
 	res.PrevCursor = &vars.Cursor
 	nextCursor := vars.Cursor + vars.Limit
 	res.NextCursor = &nextCursor
 
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		db := a.DB.Select(sqls.Select).Where(sqls.Where.Query, sqls.Where.Values...).Order(sqls.Order).Offset(sqls.Offset).Limit(sqls.Limit).Find(&items)
 		if db.Error != nil {
 			return DBRes{}, db.Error
