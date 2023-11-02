@@ -190,9 +190,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 static struct argp argp = { options, parse_opt, args_doc, doc };
 
 // send results to syslog
-void
-log_result(int argc, char **argv, const struct arguments args, int status,
-       double elapsed, int ppid)
+void log_result(int argc, char **argv, const struct arguments args, int status, double elapsed, int ppid)
 {
     openlog("radius-debug", LOG_PID, args.facility);
     // build the log message
@@ -220,18 +218,7 @@ log_result(int argc, char **argv, const struct arguments args, int status,
         i++;
     }
 
-    if ( status == SIGTERM) {
-        (void) 0; // no op
-    }
-    else if ( WIFEXITED(status) ) {
-        status =  WEXITSTATUS(status);
-    }
-    else {
-        status = 1;
-    }
-
-    syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i",
-           log_msg, elapsed, status, ppid);
+    syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i", log_msg, elapsed, status, ppid);
     closelog();
 }
 
@@ -296,14 +283,40 @@ double howlong(struct timeval t1)
 static void handler(int sig)
 {
     if (sig == SIGTERM) {
-        if (pid == 0) _exit(SIGTERM); // we haven't forked yet or we are still in the child pre exec
-        kill(pid, SIGKILL);
+//        if (pid == 0) _exit(SIGTERM); // we haven't forked yet or we are still in the child pre exec
+//        kill(pid, SIGKILL);
         alarm(1) ; // wake us up in one second, giving us just enough time to finish logging
+        _exit(SIGTERM);
     }
     if (sig == SIGALRM ) {
-        kill(pid, SIGKILL); // just in case we may have forked in the meantime
+//        kill(pid, SIGKILL); // just in case we may have forked in the meantime
         _exit(SIGTERM); // we waited long enough
     }
+}
+
+struct MemoryStruct {
+    char *memory;
+    size_t size;
+};
+
+// Callback function to handle the response body in chunks
+size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
+    size_t realsize = size * nmemb;
+    struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+
+    // Reallocate memory to fit the new chunk
+    mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+    if (mem->memory == NULL) {
+        printf("Not enough memory (realloc returned NULL)\n");
+        return 0;
+    }
+
+    // Copy the chunk to the end of the memory block
+    memcpy(&(mem->memory[mem->size]), contents, realsize);
+    mem->size += realsize;
+    mem->memory[mem->size] = 0;
+
+    return realsize;
 }
 
 int main(argc, argv, envp)
@@ -366,38 +379,21 @@ char **argv, **envp;
         argc = argc - opt_end;
     }
 
-    // Fork a process, exec it and then wait for the exit.
-
-    printf("---- argc is: %d\n", argc);
-    for (int i=0; i< argc; i++) {
-        printf("-------- argv[%d] is: %s\n", i, argv[i]);
-    }
+    // keep the same log format we used in old ntlm_auth
+    int status = 0;
+    int ppid = 0;
 
     if (strcmp(arguments.api_host, "") !=0 && strcmp(arguments.api_port, "0") != 0) {
-        printf("---- we are using new API to perform ntlm auth\n");
-
         char *s_username;
-        char *s_domain;
-        char *s_workstation;
         char *s_challenge;
-        char *s_lm_response;
         char *s_nt_response;
-        char *s_password;
         char *s_ntlm_password;
-        char *i_request_lm_key;
         char *i_request_nt_key;
-        char *i_use_cached_creds;
-        char *i_allow_mschapv2;
-        char *i_offline_logon;
-        char *s_require_membership_of;
-        char *s_pam_winbind_conf;
-        char *s_target_service;
-        char *s_target_hostname;
 
         cJSON *json = cJSON_CreateObject();
         if (json == NULL) {
-            printf("Failed to create JSON object.\n");
-            return 1;
+            fprintf(stderr, "Error: could not create JSON object. Exiting.");
+            exit(1);
         }
         for (int i=1; i<argc; i++) {
             if (strncmp(argv[i], "--username=", strlen("--username=")) == 0) {
@@ -406,9 +402,9 @@ char **argv, **envp;
             if (strncmp(argv[i], "--password=", strlen("--password=")) == 0) {
                 cJSON_AddStringToObject(json, "password", argv[i]+strlen("--password="));
             }
-//            if (strncmp(argv[i], "--request-nt-key", strlen("--request-nt-key")) == 0) {
-//                cJSON_AddStringToObject(json, "request-nt-key", argv[i]+strlen("--request-nt-key"));
-//            }
+            if (strncmp(argv[i], "--request-nt-key", strlen("--request-nt-key")) == 0) {
+                cJSON_AddItemToObject(json, "request-nt-key", cJSON_CreateTrue());
+            }
             if (strncmp(argv[i], "--challenge=", strlen("--challenge=")) == 0) {
                 cJSON_AddStringToObject(json, "challenge", argv[i]+strlen("--challenge="));
             }
@@ -418,18 +414,18 @@ char **argv, **envp;
         }
 
         char *json_string = cJSON_Print(json);
-        if (json_string != NULL) {
-//            printf("---- JSON string is: %s\n", json_string);
-//            free(json_string);
-        }
-//        cJSON_Delete(json);
 
         CURL *curl;
-        CURLcode res;
+        CURLcode cURLCode;
         curl = curl_easy_init();
+        struct MemoryStruct chunk;
+        chunk.memory = malloc(1);
+        chunk.size = 0;
         if(curl) {
             char *uri;
-            asprintf(&uri, "http://%s:%s/Test/test", arguments.api_host, arguments.api_port);
+            asprintf(&uri, "http://%s:%s/ntlm/auth", arguments.api_host, arguments.api_port);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
 
             curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
             curl_easy_setopt(curl, CURLOPT_URL, uri);
@@ -439,38 +435,24 @@ char **argv, **envp;
             headers = curl_slist_append(headers, "Content-Type: application/json");
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_string);
-            printf("-----------------------\n");
-            res = curl_easy_perform(curl);
-            printf("=======================\n")
+            cURLCode = curl_easy_perform(curl);
+            if (cURLCode == CURLE_OK) {
+                status = 0;
+                long http_response_code;
+                curl_easy_getinfo(curl, CURLINFO_HTTP_CODE, &http_response_code);
+                if (http_response_code != 200) {
+                    status = 1;  // consider non-200 response as auth failures.
+                }
+                printf("%s\n", chunk.memory);
+            } else {
+                status = SIGTERM; // timeout or any network errors, considered as time-outs
+                fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(cURLCode));
+            }
+            curl_easy_cleanup(curl);
         }
-        curl_easy_cleanup(curl);
-
-
-    } else {
-        printf("---- still using traditional fork to perform ntlm auth\n");
-    }
-
-    pid_t  ppid;
-    ppid = getpid();
-    int status;
-    if ((pid = fork()) < 0) {
-        perror(argv[0]);
-        exit(1);
-    } else if (pid == 0) {  // child
-        execve(arguments.binary, argv, envp);
-        perror(argv[0]);
-        exit(127);
-    }
-
-    if (waitpid(pid, &status, 0) != pid) {  // wait for child
-        if (errno == EINTR) {  // we received a signal
-            wait(NULL); // reap to prevent zombies
-            status = SIGTERM;
-        }
-        else {
-            perror(argv[0]);
-            exit(1);
-        }
+        free(chunk.memory);
+        free(json_string);
+        cJSON_Delete(json);
     }
 
     elapsed = howlong(t1);
@@ -481,17 +463,4 @@ char **argv, **envp;
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
 
-    if (WIFEXITED(status)) {
-        exit(WEXITSTATUS(status));
-    }
-    else if ( status == SIGTERM ) {
-        exit(SIGTERM);
-    }
-    else {
-        exit(1); // Just in case the child exited abnormally.
-    }
 }
-
-// /usr/local/pf/bin/ntlm_auth_wrapper -p 8125 -- \ --request-nt-key --username=%{%{control:AD-Samaccountname}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00} %{PacketFence-NTLMv2-Only}
-
-// /usr/local/pf/bin/ntlm_auth_wrapper -p 8125 -- --request-nt-key --username=administrator --challenge=dbb7dacb353c11bc --nt-response=a2568637cae095a457278c6ceb4de3961a06b772b85a0985
