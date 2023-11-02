@@ -131,7 +131,6 @@ jobs:
           rpm -qpi ${{ env.VOLUME_MOUNT }}/*.rpm
           rpm --checksig ${{ env.VOLUME_MOUNT }}/*.rpm
 
-
   push_docker-image_and_deb-package: 
     needs: ['build_image_and_package', 'unit-test', 'sign_package']
     runs-on: packetfence-perl-deb-package-build
