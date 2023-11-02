@@ -74,7 +74,7 @@ jobs:
       - name: Build rhel8 package
         uses: addnab/docker-run-action@v3
         with:
-            image: inverse-inc/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
+            image: inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}
             options: --rm -v ${{ github.workspace }}/addons/packetfence-perl/:${{ env.WORKDIR }} -v ${{ env.VOLUME_MOUNT }}:${{ env.OUTPUT_DIRECTORY }}
             shell: /bin/bash
             run: |
