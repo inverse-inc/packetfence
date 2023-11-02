@@ -3,11 +3,12 @@ package models
 import (
 	"context"
 	"errors"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/jinzhu/gorm"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
+	"gorm.io/gorm"
 )
 
 type RadiusAuditLog struct {
@@ -77,7 +78,7 @@ func NewRadiusAuditLogModel(dbp **gorm.DB, ctx *context.Context) *RadiusAuditLog
 }
 func (a RadiusAuditLog) Paginated(vars sql.Vars) (DBRes, error) {
 	var res = DBRes{}
-	var count int
+	var count int64
 
 	a.DB.Model(&RadiusAuditLog{}).Count(&count)
 	res.Total = &count
@@ -111,7 +112,7 @@ func (a RadiusAuditLog) Search(vars sql.Vars) (DBRes, error) {
 		return res, err
 	}
 
-	var count int
+	var count int64
 	var items []RadiusAuditLog
 	a.DB.Model(&RadiusAuditLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
 

@@ -3,10 +3,12 @@ package models
 import (
 	"context"
 	"errors"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/jinzhu/gorm"
 	"strings"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
+
+	"gorm.io/gorm"
 )
 
 type RadacctLog struct {
@@ -38,7 +40,7 @@ func NewRadacctLogModel(dbp **gorm.DB, ctx *context.Context) *RadacctLog {
 }
 func (a RadacctLog) Paginated(vars sql.Vars) (DBRes, error) {
 	var res = DBRes{}
-	var count int
+	var count int64
 
 	a.DB.Model(&RadacctLog{}).Count(&count)
 	res.Total = &count
@@ -68,7 +70,7 @@ func (a RadacctLog) Search(vars sql.Vars) (DBRes, error) {
 		return res, err
 	}
 
-	var count int
+	var count int64
 	var items []RadacctLog
 	a.DB.Model(&RadacctLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
 

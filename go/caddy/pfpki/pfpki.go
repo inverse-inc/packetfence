@@ -15,9 +15,10 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 // Register the plugin in caddy
@@ -61,7 +62,7 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 
 	var successDBConnect = false
 	for !successDBConnect {
-		Database, err = gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+		Database, err = gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 		if err != nil {
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to the database: %s", err))
 			time.Sleep(time.Duration(5) * time.Second)
@@ -158,7 +159,9 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 
 	go func() {
 		for {
-			pfpki.DB.DB().Ping()
+
+			sqlDB, _ := pfpki.DB.DB()
+			sqlDB.Ping()
 			time.Sleep(5 * time.Second)
 		}
 	}()
