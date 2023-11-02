@@ -95,6 +95,7 @@ jobs:
     steps:     
       - name: Install the package packetfence-perl
         run: |
+          yum -y install findutils 
           cat /etc/*release
           env
           ls -la  ${{ env.VOLUME_MOUNT }} 
