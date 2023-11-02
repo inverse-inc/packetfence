@@ -47,8 +47,8 @@ jobs:
       - name: Find package version from changelog
         id: contents
         run: |
-          package_version=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ debian:11 /bin/bash -c \
-          "set -e && cd ${{ env.WORKDIR }}/ && apt update > /dev/null 2>&1  && apt install build-essential -y > /dev/null 2>&1 && dpkg-parsechangelog --show-field Version")
+          package_version=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ rockylinux:8 /bin/bash -c \
+          "set -e && cd ${{ env.WORKDIR }}/ && yum -y  install rpm-build > /dev/null 2>$1 && rpmspec -q --qf "%{version}"  rhel8/SPECS/packetfence-perl.spec")
           echo "Found version: $package_version"
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
           echo "data=$package_version" >> "$GITHUB_OUTPUT"
