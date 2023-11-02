@@ -82,3 +82,23 @@
         $ref: '#/components/responses/Unauthorized'
     tags:
       - PKI
+
+/api/v1/pki/ca/csr/{ca_id}:
+  post:
+    summary: Generate Certificate Signing Request.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCa'
+    parameters:
+      - name: ca_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCasList'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
