@@ -19,7 +19,7 @@ RUN cd /usr/local/pf/go/ && \
     make pfhttpd && \
     make httpdispatcher
 
-RUN apt install nodejs && \
+RUN apt install nodejs -y && \
     cd /usr/local/pf/html/common && \
     make vendor  && \
     make light-dist
