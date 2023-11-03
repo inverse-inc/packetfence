@@ -35,11 +35,13 @@ RUN --mount=type=secret,id=PSONO_API_KEY_ID \
     subscription-manager register --username $REDHAT_USERNAME --password $REDHAT_PASSWORD --auto-attach
 
 RUN yum install -y openssl-devel krb5-libs mariadb-devel systemd-devel gd-devel perl-open perl-experimental \
-    perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo $DISABLE_REPO python39
+    perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo
 
-RUN yum group install -y "Development Tools" $DISABLE_REPO
+RUN yum group install -y "Development Tools"
 
-RUN yum install -y libssh-devel
+RUN subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms && \
+    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
+    yum install -y libssh2-devel
 
 RUN subscription-manager unregister
 
