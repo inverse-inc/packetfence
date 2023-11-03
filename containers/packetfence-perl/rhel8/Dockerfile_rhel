@@ -26,12 +26,11 @@ COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_
 RUN yum -y  install python39 && python3.9 -m pip install -q  -U pip && pip install -q pynacl requests
 
 RUN --mount=type=secret,id=PSONO_API_KEY_ID \
-    --mount=type=secret,id=API_PASSWORD \
-    PSONO_API_KEY_ID=$(cat /run/secrets/PSONO_API_KEY_ID) && \
-    PSONO_API_KEY_SECRET_KEY=$(cat /run/secrets/PSONO_API_KEY_SECRET_KEY) 
-    
-RUN REDHAT_USERNAME=$(python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=username) && \
-    REDHAT_PASSWORD=$(python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=password)
+    --mount=type=secret,id=PSONO_API_KEY_SECRET_KEY \
+    export PSONO_API_KEY_ID=$(cat /run/secrets/PSONO_API_KEY_ID) && \
+    export PSONO_API_KEY_SECRET_KEY=$(cat /run/secrets/PSONO_API_KEY_SECRET_KEY) && \
+    REDHAT_USERNAME=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=username) && \
+    REDHAT_PASSWORD=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=password)
 
 RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py
 
