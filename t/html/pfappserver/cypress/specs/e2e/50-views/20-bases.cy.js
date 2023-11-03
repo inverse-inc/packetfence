@@ -1,12 +1,12 @@
-const { base, resources } = require('config');
+const { global, bases } = require('config');
 
-describe('Resources', () => {
-  Object.values(resources).forEach(resource => {
-    context(`Resource - ${resource.description}`, () => {
+describe('Bases', () => {
+  Object.values(bases).forEach(base => {
+    context(`Base - ${base.description}`, () => {
       beforeEach('Login and visit URL', () => {
         cy.pfSystemLogin()
       })
-      resource.tests.forEach(test => {
+      base.tests.forEach(test => {
         const { description, url, interceptors, form: { buttonSelector = 'button[type="submit"]' } = {} } = test
         it(description, () => {
 
@@ -29,7 +29,7 @@ describe('Resources', () => {
           })
 
           // load page
-          cy.visit(`${base.url}${url}`)
+          cy.visit(`${global.url}${url}`)
 
           interceptors.forEach(async (interceptor, i) => {
             const { url, fixture, timeout = 10E3 } = interceptor
