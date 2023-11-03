@@ -981,10 +981,14 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 
 	template := x509.CertificateRequest{
 		Subject:            cadb[0].MakeSubject(),
-		SignatureAlgorithm: x509.SignatureAlgorithm(*cadb[0].KeyType),
+		SignatureAlgorithm: x509.SignatureAlgorithm(x509.SHA256WithRSA),
 	}
 	csrBuff := new(bytes.Buffer)
-	csrBytes, _ := x509.CreateCertificateRequest(rand.Reader, &template, catls.PrivateKey)
+	csrBytes, err := x509.CreateCertificateRequest(rand.Reader, &template, catls.PrivateKey)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
 	pem.Encode(csrBuff, &pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes})
 	Information.Entries = csrBuff.String()
 	return Information, err
