@@ -52,22 +52,17 @@ jobs:
           echo "Found version: $package_version"
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
           echo "data=$package_version" >> "$GITHUB_OUTPUT"
-      
-      - name: Build rhel8 package
-        uses: addnab/docker-run-action@v3
-        with:
-            image: python:3.9
-            options: --init --rm -v ${{ github.workspace }}/addons/packetfence-perl/:${{ env.WORKDIR }}
-            shell: /bin/bash
-            run: |
-                cd ${{ env.WORKDIR }}
-                ls -ltr
-                set -e && pip install -q requests pynacl
-                echo "1"
-                redhat_username=$(cd /root/ && python3  psono.py  --api_key_id="${{ secrets.PSONO_API_KEY_ID}}" --api_key_secret_key="${{ secrets.PSONO_API_KEY_SECRET_KEY }}" --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=username)
-                echo "2"
-                redhat_password=$(cd /root/ &&  python3  psono.py  --api_key_id="${{ secrets.PSONO_API_KEY_ID}}" --api_key_secret_key="${{ secrets.PSONO_API_KEY_SECRET_KEY }}" --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=password)
 
+      - name: Find package version from changelog
+        run: |
+          redhat_username=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ python:3.9 /bin/bash -c \
+            "set -e && cd ${{ env.WORKDIR }}/ && pip install -q requests pynacl > /dev/null 2>&1 && \ 
+            python3  psono.py  --api_key_id="${{ secrets.PSONO_API_KEY_ID}}" --api_key_secret_key="${{ secrets.PSONO_API_KEY_SECRET_KEY }}" --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=username")
+          redhat_password=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ python:3.9 /bin/bash -c \
+            "set -e && cd ${{ env.WORKDIR }}/ && pip install -q requests pynacl > /dev/null 2>&1 && \ 
+            python3  psono.py  --api_key_id="${{ secrets.PSONO_API_KEY_ID}}" --api_key_secret_key="${{ secrets.PSONO_API_KEY_SECRET_KEY }}" --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=password")
+          echo "REDHAT_USERNAME=$redhat_username"  >> "$GITHUB_ENV"
+          echo "REDHAT_PASSWORD=$redhat_password"  >> "$GITHUB_ENV"
 
       - name: Build packetfence-perl docker image
         uses: docker/build-push-action@v5
