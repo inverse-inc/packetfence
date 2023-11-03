@@ -1,5 +1,5 @@
 ---
-- name: Install Venom
+- name: Install NodeJS from gitlab_buildpkg_tools
   hosts: pfservers
   become: True
   gather_facts: False
