@@ -6,9 +6,7 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
 
 ARG workdir \
-    output_directory \
-    REDHAT_USERNAME \
-    REDHAT_PASSWORD
+    output_directory
 
 ENV WORKDIR=${workdir} \
     OUTPUT_DIRECTORY=${output_directory} \
@@ -21,6 +19,19 @@ ENV PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/ \
     CPAN_VERSION=2.36
 
 WORKDIR ${WORKDIR}
+
+COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_package.sh ./addons/packetfence-perl/install_cpan.py ./addons/packetfence-perl/psono.py ${WORKDIR}
+
+#Install python module
+RUN yum -y  install python39 && python3.9 -m pip install -q  -U pip && pip install -q pynacl requests
+
+RUN --mount=type=secret,id=PSONO_API_KEY_ID \
+    --mount=type=secret,id=API_PASSWORD \
+    PSONO_API_KEY_ID=$(cat /run/secrets/PSONO_API_KEY_ID) && \
+    PSONO_API_KEY_SECRET_KEY=$(cat /run/secrets/PSONO_API_KEY_SECRET_KEY) 
+    
+RUN REDHAT_USERNAME=$(python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=username) && \
+    REDHAT_PASSWORD=$(python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=password)
 
 RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py
 
@@ -63,8 +74,6 @@ RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DE
 #limit the cache to 100mb
     set -o nounset -o errexit &&  (echo o conf build_cache 100; echo o conf commit)|${CPAN_BIN_PATH} 
 
-
-COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_package.sh ./addons/packetfence-perl/install_cpan.py ${WORKDIR}
 
 RUN /bin/bash -c "set -e && /tini -- python3 -u  install_cpan.py  -d dependencies.csv -mw 20"
 #RUN python3 -u  install_cpan.py  -d dependencies.csv -mw 20
