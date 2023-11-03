@@ -1,9 +1,9 @@
-const base = require('./base')
+const global = require('./global')
+const bases = require('./bases')
 const collections = require('./collections')
-const resources = require('./resources')
 
 module.exports = {
-  base,
-  collections,
-  resources,
+  global,
+  bases,
+  collections
 }
