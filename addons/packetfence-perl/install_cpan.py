@@ -76,7 +76,7 @@ def install_perl_module(dict_data):
 #        command=f"perl -MCPAN -e \"CPAN::Shell->notest('install','{dict_data['ModInstall']}')\"".split()
     print(f"Installing perl module: {dict_data['ModName']} \n" )
     with open(file_log, 'w') as f:
-        process = subprocess.run(command,stdout=f,stderr=f,text=True)
+        process = subprocess.run(command,stdout=f,stderr=f,text=True, timeout=720)
     return process.returncode, file_name
 
 
