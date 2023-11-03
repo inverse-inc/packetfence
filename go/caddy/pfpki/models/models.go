@@ -869,12 +869,12 @@ func (c CA) Update(params map[string]string) (types.Info, error) {
 			return Information, err
 		}
 	}
-	_, err = tls.X509KeyPair([]byte(params["cert"]), []byte(cadb[0].Key))
+	_, err = tls.X509KeyPair([]byte(c.Cert), []byte(cadb[0].Key))
 
 	if err != nil {
 		Information.Error = err.Error()
 	}
-	cadb[0].Cert = params["cert"]
+	cadb[0].Cert = c.Cert
 	c.DB.Save(&cadb[0])
 	return Information, err
 }

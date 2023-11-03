@@ -25,23 +25,6 @@
         $ref: '#/components/responses/BadRequest'
     tags:
       - PKI
-  patch:
-    summary: Update Certificate Authority Public Key.
-    requestBody:
-      $ref: '#/components/requestBodies/PkiCa'
-    responses:
-      '200':
-        $ref: '#/components/responses/PkiCaCreate'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-      '404':
-        $ref: '#/components/responses/BadRequest'
-      '422':
-        $ref: '#/components/responses/UnprocessableEntity'
-      '500':
-        $ref: '#/components/responses/BadRequest'
-    tags:
-      - PKI
 
 /api/v1/pki/cas/search:
   post:
@@ -72,6 +55,24 @@
         description: '`PRIMARY KEY`'
         schema:
           type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCa'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+  patch:
+    summary: Update Certificate Authority Public Key.
+    parameters:
+      - name: ca_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCa'
     responses:
       '200':
         $ref: '#/components/responses/PkiCa'

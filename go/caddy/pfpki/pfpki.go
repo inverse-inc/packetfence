@@ -87,13 +87,13 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	api := pfpki.Router.PathPrefix("/api/v1").Subrouter()
 
 	// CAs (GET: list, POST: create)
-	api.Handle("/pki/cas", handlers.GetSetCA(PFPki)).Methods("GET", "POST", "PATCH")
+	api.Handle("/pki/cas", handlers.GetSetCA(PFPki)).Methods("GET", "POST")
 	// Search CAs
 	api.Handle("/pki/cas/search", handlers.SearchCA(PFPki)).Methods("POST")
 	// Fix CA after Import
 	api.Handle("/pki/ca/fix", handlers.FixCA(PFPki)).Methods("GET")
 	// Get CA by ID
-	api.Handle("/pki/ca/{id}", handlers.GetCAByID(PFPki)).Methods("GET")
+	api.Handle("/pki/ca/{id}", handlers.CAByID(PFPki)).Methods("GET", "PATCH")
 	// Resign CA
 	api.Handle("/pki/ca/resign/{id}", handlers.ResignCA(PFPki)).Methods("POST")
 	// Generate CSR
