@@ -27,26 +27,21 @@ RUN cd /usr/local/pf/go/ && \
 
 ARG BUILD_PFAPPSERVER_VUE
 
-# build web admin
+# Install nodejs if needed
 RUN if [[ "$BUILD_PFAPPSERVER_VUE" == "yes" ]]; then \
+      apt install nodejs -y && \
+# build web admin
       cd /html/pfappserver/root && \
-      make vendor  && \
-      make light-dist ; \
-    else \
-      echo "Skipping this step..." ; \
-    fi
+        make vendor  && \
+        make light-dist && \
 # build and install html doc
 # in /usr/local/pf/docs
-RUN if [[ "$BUILD_PFAPPSERVER_VUE" == "yes" ]]; then \
       cd /usr/local/pf && \
-      make SRC_HTMLDIR=/html html ; \
-    else \
-      echo "Skipping this step..." ; \
-    fi
+        make SRC_HTMLDIR=/html html  && \
 # install html/ files and directories
 # in /usr/local/pf/html
-RUN if [[ "$BUILD_PFAPPSERVER_VUE" == "yes" ]]; then \
-      make SRC_HTMLDIR=/html html_httpd.admin_dispatcher ; \
+      cd /usr/local/pf && \
+        make SRC_HTMLDIR=/html html_httpd.admin_dispatcher ; \
     else \
       echo "Skipping this step..." && \
       mkdir -p /usr/local/pf/html ; \

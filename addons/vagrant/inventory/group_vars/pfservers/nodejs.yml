@@ -1,0 +1,26 @@
+---
+################################################################################
+# gitlab-buildpkg-tools Variables
+################################################################################
+# RPM
+gitlab_buildpkg_tools__rpm_keys:
+  - 'https://rpm.nodesource.com/gpgkey/nodesource.gpg.key'
+
+gitlab_buildpkg_tools__rpm_deps_repos:
+  - name: nodejs
+    baseurl: 'https://rpm.nodesource.com/pub_20.x/nodistro/nodejs/$basearch'
+    module_hotfixes: 1
+
+gitlab_buildpkg_tools__rpm_pkgs:
+  - nodejs
+
+# Debian
+gitlab_buildpkg_tools__deb_keys:
+  - 'https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key'
+
+gitlab_buildpkg_tools__deb_deps_repos:
+  - name: nodejs
+    baseurl: 'https://deb.nodesource.com/node_20.x nodistro main'
+
+gitlab_buildpkg_tools__deb_pkgs:
+  - nodejs
