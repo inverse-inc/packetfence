@@ -52,6 +52,20 @@ jobs:
           echo "Found version: $package_version"
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
           echo "data=$package_version" >> "$GITHUB_OUTPUT"
+      
+      - name: Build rhel8 package
+        uses: addnab/docker-run-action@v3
+        with:
+            image: python:3.9
+            options: --init --rm -v ${{ github.workspace }}/addons/packetfence-perl/:${{ env.WORKDIR }}
+            shell: /bin/bash
+            run: |
+                set -e && pip install requests pynacl
+                redhat_username=$(python3  psono.py  --api_key_id="${{ secrets.PSONO_API_KEY_ID}}" --api_key_secret_key="${{ secrets.PSONO_API_KEY_SECRET_KEY }}" --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=username)
+                redhat_password=$(python3  psono.py  --api_key_id="${{ secrets.PSONO_API_KEY_ID}}" --api_key_secret_key="${{ secrets.PSONO_API_KEY_SECRET_KEY }}" --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=password)
+                echo "REDHAT_PASSWORD=$redhat_password"  >> "$GITHUB_ENV"
+                echo "REDHAT_USERNAME=$redhat_password"  >> "$GITHUB_ENV"
+
 
       - name: Build packetfence-perl docker image
         uses: docker/build-push-action@v5
@@ -62,6 +76,8 @@ jobs:
           build-args: |
             workdir=${{ env.WORKDIR }}
             output_directory=${{ env.OUTPUT_DIRECTORY }}
+            REDHAT_USERNAME=${{ env.REDHAT_USERNAME }}
+            REDHAT_PASSWORD=${{ env.REDHAT_PASSWORD }}
           tags: |
             inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}
             ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}

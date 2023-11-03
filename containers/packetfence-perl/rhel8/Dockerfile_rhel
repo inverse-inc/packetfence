@@ -1,4 +1,4 @@
-FROM rockylinux:8
+FROM redhat/ubi8
 
 # Add Tini
 ENV TINI_VERSION v0.19.0
@@ -6,7 +6,9 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
 
 ARG workdir \
-    output_directory
+    output_directory \
+    REDHAT_USERNAME \
+    REDHAT_PASSWORD
 
 ENV WORKDIR=${workdir} \
     OUTPUT_DIRECTORY=${output_directory} \
@@ -20,12 +22,19 @@ ENV PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/ \
 
 WORKDIR ${WORKDIR}
 
-RUN yum install -y openssl-devel krb5-libs mariadb-devel epel-release systemd-devel gd-devel perl-open perl-experimental \
+RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py
+
+RUN subscription-manager register --username $REDHAT_USERNAME --password $REDHAT_PASSWORD --auto-attach
+
+RUN yum install -y openssl-devel krb5-libs mariadb-devel systemd-devel gd-devel perl-open perl-experimental \
     perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo $DISABLE_REPO python39
 
 RUN yum group install -y "Development Tools" $DISABLE_REPO
 
-RUN yum install -y libssh2-devel
+RUN yum install -y libssh-devel
+
+RUN subscription-manager unregister
+
 
 #RUN TestPerlConfig=$(perl -e exit); [[ ${TestPerlConfig} != "" ]] && export LC_CTYPE=en_US.UTF-8;  export LC_ALL=en_US.UTF-8
 
@@ -61,4 +70,4 @@ RUN /bin/bash -c "set -e && /tini -- python3 -u  install_cpan.py  -d dependencie
 #RUN python3 -u  install_cpan.py  -d dependencies.csv -mw 20
 
 #remove logs
-#RUN rm -rf ${WORKDIR}/.cpan/build/*
+RUN rm -rf ${WORKDIR}/.cpan/build/*
