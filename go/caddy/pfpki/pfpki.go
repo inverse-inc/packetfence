@@ -87,7 +87,7 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	api := pfpki.Router.PathPrefix("/api/v1").Subrouter()
 
 	// CAs (GET: list, POST: create)
-	api.Handle("/pki/cas", handlers.GetSetCA(PFPki)).Methods("GET", "POST")
+	api.Handle("/pki/cas", handlers.GetSetCA(PFPki)).Methods("GET", "POST", "PATCH")
 	// Search CAs
 	api.Handle("/pki/cas/search", handlers.SearchCA(PFPki)).Methods("POST")
 	// Fix CA after Import

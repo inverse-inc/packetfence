@@ -721,141 +721,6 @@ func (c CA) GetProfileByName(name string) (*Profile, error) {
 	return &profiledb[0], nil
 }
 
-func NewProfileModel(pfpki *types.Handler) *Profile {
-	Profile := &Profile{}
-
-	Profile.DB = *pfpki.DB
-	Profile.Ctx = *pfpki.Ctx
-
-	return Profile
-}
-
-func (p Profile) New() (types.Info, error) {
-
-	var profiledb []Profile
-
-	var err error
-	Information := types.Info{}
-	switch *p.KeyType {
-	case certutils.KEY_RSA:
-		if p.KeySize < 2048 {
-			err = errors.New("invalid private key size, should be at least 2048")
-			Information.Error = err.Error()
-			return Information, err
-		}
-	case certutils.KEY_ECDSA:
-		if !(p.KeySize == 256 || p.KeySize == 384 || p.KeySize == 521) {
-			err = errors.New("invalid private key size, should be 256 or 384 or 521")
-			Information.Error = err.Error()
-			return Information, err
-		}
-	case certutils.KEY_DSA:
-		if !(p.KeySize == 1024 || p.KeySize == 2048 || p.KeySize == 3072) {
-			err = errors.New("invalid private key size, should be 1024 or 2048 or 3072")
-			Information.Error = err.Error()
-			return Information, err
-		}
-	default:
-		return Information, errors.New("KeyType unsupported")
-
-	}
-
-	ca := &CA{}
-
-	if CaDB := p.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
-		Information.Error = CaDB.Error.Error()
-		return Information, CaDB.Error
-	}
-
-	if err := p.DB.Create(&Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal, DaysBeforeRenewal: p.DaysBeforeRenewal, RenewalMail: p.RenewalMail, DaysBeforeRenewalMail: p.DaysBeforeRenewalMail, RenewalMailSubject: p.RenewalMailSubject, RenewalMailFrom: p.RenewalMailFrom, RenewalMailHeader: p.RenewalMailHeader, RenewalMailFooter: p.RenewalMailFooter, RevokedValidUntil: p.RevokedValidUntil, CloudEnabled: p.CloudEnabled, CloudService: p.CloudService}).Error; err != nil {
-		Information.Error = err.Error()
-		return Information, errors.New(dbError)
-	}
-	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
-	Information.Entries = profiledb
-
-	return Information, nil
-}
-
-func (p Profile) Update() (types.Info, error) {
-	var profiledb []Profile
-	Information := types.Info{}
-	if err := p.DB.Model(&Profile{}).Where("name = ?", p.Name).Updates(map[string]interface{}{"mail": p.Mail, "street_address": p.StreetAddress, "organisation": p.Organisation, "organisational_unit": p.OrganisationalUnit, "country": p.Country, "state": p.State, "locality": p.Locality, "postal_code": p.PostalCode, "validity": p.Validity, "key_type": p.KeyType, "key_size": p.KeySize, "digest": p.Digest, "key_usage": p.KeyUsage, "extended_key_usage": p.ExtendedKeyUsage, "ocsp_url": p.OCSPUrl, "p12_mail_password": p.P12MailPassword, "p12_mail_subject": p.P12MailSubject, "p12_mail_from": p.P12MailFrom, "p12_mail_header": p.P12MailHeader, "p12_mail_footer": p.P12MailFooter, "revoked_valid_until": p.RevokedValidUntil, "scep_enabled": p.SCEPEnabled, "scep_challenge_password": p.SCEPChallengePassword, "scep_days_before_renewal": p.SCEPDaysBeforeRenewal, "days_before_renewal": p.DaysBeforeRenewal, "renewal_mail": p.RenewalMail, "days_before_renewal_mail": p.DaysBeforeRenewalMail, "renewal_mail_subject": p.RenewalMailSubject, "renewal_mail_from": p.RenewalMailFrom, "renewal_mail_header": p.RenewalMailHeader, "renewal_mail_footer": p.RenewalMailFooter, "cloud_enabled": p.CloudEnabled, "cloud_service": p.CloudService}).Error; err != nil {
-		Information.Error = err.Error()
-		return Information, errors.New(dbError)
-	}
-	p.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
-	Information.Entries = profiledb
-
-	return Information, nil
-}
-
-func (p Profile) GetByID(params map[string]string) (types.Info, error) {
-	Information := types.Info{}
-	var profiledb []Profile
-	if val, ok := params["id"]; ok {
-		allFields := strings.Join(sql.SqlFields(p)[:], ",")
-		p.DB.Select(allFields).Where("`id` = ?", val).First(&profiledb)
-	}
-	Information.Entries = profiledb
-
-	return Information, nil
-}
-
-func (p Profile) Paginated(vars sql.Vars) (types.Info, error) {
-	Information := types.Info{}
-	var count int64
-	p.DB.Model(&Profile{}).Count(&count)
-	counter := int(count)
-
-	Information.TotalCount = counter
-	Information.PrevCursor = vars.Cursor
-	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < counter {
-		sql, err := vars.Sql(p)
-		if err != nil {
-			Information.Error = err.Error()
-			return Information, errors.New(dbError)
-		}
-		var profiledb []Profile
-		p.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
-		Information.Entries = profiledb
-	}
-
-	return Information, nil
-}
-
-func (p Profile) Search(vars sql.Vars) (types.Info, error) {
-	Information := types.Info{}
-	sql, err := vars.Sql(p)
-	if err != nil {
-		Information.Error = err.Error()
-		return Information, errors.New(dbError)
-	}
-	var count int64
-	p.DB.Model(&Profile{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
-	counter := int(count)
-	Information.TotalCount = counter
-	Information.PrevCursor = vars.Cursor
-	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < counter {
-		var profiledb []Profile
-		p.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
-		Information.Entries = profiledb
-	}
-
-	return Information, nil
-}
-
-func NewCertModel(pfpki *types.Handler) *Cert {
-	Cert := &Cert{}
-
-	Cert.DB = *pfpki.DB
-	Cert.Ctx = *pfpki.Ctx
-
-	return Cert
-}
-
 func (c CA) Resign(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var cadb []CA
@@ -992,6 +857,161 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 	pem.Encode(csrBuff, &pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes})
 	Information.Entries = csrBuff.String()
 	return Information, err
+}
+
+func (c CA) Update(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var cadb []CA
+	var err error
+	if val, ok := params["id"]; ok {
+		if err = c.DB.First(&cadb, val).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+	}
+	_, err = tls.X509KeyPair([]byte(params["cert"]), []byte(cadb[0].Key))
+
+	if err != nil {
+		Information.Error = err.Error()
+	}
+	cadb[0].Cert = params["cert"]
+	c.DB.Save(&cadb[0])
+	return Information, err
+}
+
+func NewProfileModel(pfpki *types.Handler) *Profile {
+	Profile := &Profile{}
+
+	Profile.DB = *pfpki.DB
+	Profile.Ctx = *pfpki.Ctx
+
+	return Profile
+}
+
+func (p Profile) New() (types.Info, error) {
+
+	var profiledb []Profile
+
+	var err error
+	Information := types.Info{}
+	switch *p.KeyType {
+	case certutils.KEY_RSA:
+		if p.KeySize < 2048 {
+			err = errors.New("invalid private key size, should be at least 2048")
+			Information.Error = err.Error()
+			return Information, err
+		}
+	case certutils.KEY_ECDSA:
+		if !(p.KeySize == 256 || p.KeySize == 384 || p.KeySize == 521) {
+			err = errors.New("invalid private key size, should be 256 or 384 or 521")
+			Information.Error = err.Error()
+			return Information, err
+		}
+	case certutils.KEY_DSA:
+		if !(p.KeySize == 1024 || p.KeySize == 2048 || p.KeySize == 3072) {
+			err = errors.New("invalid private key size, should be 1024 or 2048 or 3072")
+			Information.Error = err.Error()
+			return Information, err
+		}
+	default:
+		return Information, errors.New("KeyType unsupported")
+
+	}
+
+	ca := &CA{}
+
+	if CaDB := p.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
+		Information.Error = CaDB.Error.Error()
+		return Information, CaDB.Error
+	}
+
+	if err := p.DB.Create(&Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal, DaysBeforeRenewal: p.DaysBeforeRenewal, RenewalMail: p.RenewalMail, DaysBeforeRenewalMail: p.DaysBeforeRenewalMail, RenewalMailSubject: p.RenewalMailSubject, RenewalMailFrom: p.RenewalMailFrom, RenewalMailHeader: p.RenewalMailHeader, RenewalMailFooter: p.RenewalMailFooter, RevokedValidUntil: p.RevokedValidUntil, CloudEnabled: p.CloudEnabled, CloudService: p.CloudService}).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New(dbError)
+	}
+	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
+	Information.Entries = profiledb
+
+	return Information, nil
+}
+
+func (p Profile) Update() (types.Info, error) {
+	var profiledb []Profile
+	Information := types.Info{}
+	if err := p.DB.Model(&Profile{}).Where("name = ?", p.Name).Updates(map[string]interface{}{"mail": p.Mail, "street_address": p.StreetAddress, "organisation": p.Organisation, "organisational_unit": p.OrganisationalUnit, "country": p.Country, "state": p.State, "locality": p.Locality, "postal_code": p.PostalCode, "validity": p.Validity, "key_type": p.KeyType, "key_size": p.KeySize, "digest": p.Digest, "key_usage": p.KeyUsage, "extended_key_usage": p.ExtendedKeyUsage, "ocsp_url": p.OCSPUrl, "p12_mail_password": p.P12MailPassword, "p12_mail_subject": p.P12MailSubject, "p12_mail_from": p.P12MailFrom, "p12_mail_header": p.P12MailHeader, "p12_mail_footer": p.P12MailFooter, "revoked_valid_until": p.RevokedValidUntil, "scep_enabled": p.SCEPEnabled, "scep_challenge_password": p.SCEPChallengePassword, "scep_days_before_renewal": p.SCEPDaysBeforeRenewal, "days_before_renewal": p.DaysBeforeRenewal, "renewal_mail": p.RenewalMail, "days_before_renewal_mail": p.DaysBeforeRenewalMail, "renewal_mail_subject": p.RenewalMailSubject, "renewal_mail_from": p.RenewalMailFrom, "renewal_mail_header": p.RenewalMailHeader, "renewal_mail_footer": p.RenewalMailFooter, "cloud_enabled": p.CloudEnabled, "cloud_service": p.CloudService}).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New(dbError)
+	}
+	p.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
+	Information.Entries = profiledb
+
+	return Information, nil
+}
+
+func (p Profile) GetByID(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var profiledb []Profile
+	if val, ok := params["id"]; ok {
+		allFields := strings.Join(sql.SqlFields(p)[:], ",")
+		p.DB.Select(allFields).Where("`id` = ?", val).First(&profiledb)
+	}
+	Information.Entries = profiledb
+
+	return Information, nil
+}
+
+func (p Profile) Paginated(vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
+	var count int64
+	p.DB.Model(&Profile{}).Count(&count)
+	counter := int(count)
+
+	Information.TotalCount = counter
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < counter {
+		sql, err := vars.Sql(p)
+		if err != nil {
+			Information.Error = err.Error()
+			return Information, errors.New(dbError)
+		}
+		var profiledb []Profile
+		p.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
+		Information.Entries = profiledb
+	}
+
+	return Information, nil
+}
+
+func (p Profile) Search(vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
+	sql, err := vars.Sql(p)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New(dbError)
+	}
+	var count int64
+	p.DB.Model(&Profile{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
+	counter := int(count)
+	Information.TotalCount = counter
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < counter {
+		var profiledb []Profile
+		p.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
+		Information.Entries = profiledb
+	}
+
+	return Information, nil
+}
+
+func NewCertModel(pfpki *types.Handler) *Cert {
+	Cert := &Cert{}
+
+	Cert.DB = *pfpki.DB
+	Cert.Ctx = *pfpki.Ctx
+
+	return Cert
 }
 
 func (c Cert) New() (types.Info, error) {

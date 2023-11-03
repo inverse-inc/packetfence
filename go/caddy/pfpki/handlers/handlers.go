@@ -98,6 +98,27 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.SetCA")
 
+		case "PATCH":
+			vars := mux.Vars(req)
+			Information.Status = http.StatusOK
+			body, err := io.ReadAll(req.Body)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.Update(vars); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.UpdateCA")
+
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
 			Error.Message = err.Error()
