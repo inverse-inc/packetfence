@@ -8,7 +8,7 @@ module.exports = {
       description: 'Networks fencing - Passthrough Form',
       url: '/configuration/fencing',
       interceptors: [
-        { method: 'GET', url, fixture: (r) => r.body.item },
+        { method: 'GET', url, fixture: res => res.body.item },
 
         { method: '+(PATCH|PUT)', url, expect: (req, fixture) => {
           Object.keys(fixture).forEach(key => {

@@ -3,7 +3,7 @@ const { global, bases } = require('config');
 describe('Bases', () => {
   Object.values(bases).forEach(base => {
     context(`Base - ${base.description}`, () => {
-      beforeEach('Login and visit URL', () => {
+      beforeEach('Login as system', () => {
         cy.pfSystemLogin()
       })
       base.tests.forEach(test => {
@@ -48,16 +48,6 @@ describe('Bases', () => {
             .should('not.have.class', 'disabled')
             .and('not.have.disabled', 'disabled')
             .click()
-
-          // wait API interceptors
-          /*
-          interceptors.forEach(async (interceptor, i) => {
-            const { timeout = 3E3 } = interceptor
-            await cy.wait(`@interceptor${i}`, { timeout })
-          })
-          */
-
-
         })
       })
     })
