@@ -1,0 +1,280 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+pfqueue -
+
+=head1 DESCRIPTION
+
+pfqueue
+
+=cut
+
+use strict;
+use warnings;
+BEGIN {
+    use lib qw(/usr/local/pf/lib);
+    use lib qw(/usr/local/pf/lib_perl/lib/perl5);
+    use pf::log(service => 'pfqueue');
+}
+use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
+use File::Basename qw(basename);
+use pf::file_paths qw($pfqueue_backend_socket);
+use Errno qw(EINTR EAGAIN);
+use POSIX qw(:signal_h pause :sys_wait_h);
+use pf::util::networking qw(read_data_with_length send_data_with_length);
+use Sereal::Decoder qw(sereal_decode_with_object);
+use pf::Sereal qw($DECODER);
+use pf::config::pfqueue;
+use pf::factory::task;
+use pf::util;
+use JSON::MaybeXS;
+use pf::SwitchFactory;
+use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS $PFQUEUE_MAX_TASKS_DEFAULT $PFQUEUE_TASK_JITTER_DEFAULT);
+
+our $PROGRAM_NAME = $0 = basename($0);
+$SIG{PIPE} = 'IGNORE';
+$SIG{CHLD} = \&child_sighandler;
+$SIG{INT}  = \&normal_sighandler;
+$SIG{HUP}  = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
+unlink($pfqueue_backend_socket);
+my $listener = IO::Socket::UNIX->new(
+    Type   => SOCK_STREAM,
+    Local  => $pfqueue_backend_socket,
+    Listen => SOMAXCONN,
+) or die("Can't create server socket: $!\n");
+
+my $running = 1;
+our %CHILDREN;
+our $IS_CHILD = 0;
+our $TASKS = -1;
+my $logger = Log::Log4perl->get_logger("pfqueue");
+our $PARENT_PID = $$;
+
+while ($running) {
+    my $paddr = accept(my $socket, $listener);
+    #Check if a signal was caught
+    if (!defined $paddr) {
+        if ($! == EINTR) {
+            next;
+        }
+
+        die("Can't accept connection: $!\n");
+    }
+
+    my $child = pf::AtFork::pf_fork();
+    if (!defined $child) {
+        close($socket);
+        $logger->error("Cannot fork child $!");
+        next;
+    }
+
+    if ($child) {
+        $CHILDREN{$child} = undef;
+        close($socket);
+        next;
+    }
+
+    handle_socket($socket);
+    exit(0);
+}
+
+cleanup();
+
+
+=head2 normal_sighandler
+
+the signal handler to shutdown the service
+
+=cut
+
+sub normal_sighandler {
+    $running = 0;
+}
+
+sub cleanup {
+    kill_and_wait_for_children( 'INT', 30 );
+    signal_children('KILL');
+}
+
+
+=head2 kill_and_wait_for_children
+
+signal children and waits for them to exit process
+
+=cut
+
+sub kill_and_wait_for_children {
+    my ($signal, $waittime) = @_;
+    return unless keys %CHILDREN;
+    my $start = time();
+    signal_children($signal);
+    while (((keys %CHILDREN) != 0) ) {
+        my $slept = sleep $waittime;
+        $waittime -= $slept;
+        $logger->trace("($signal) left to sleep : $waittime " . join(" ",keys %CHILDREN));
+        last if $waittime <= 0;
+    }
+    my $diff = time - $start;
+    $logger->trace("Time waiting for $diff $waittime");
+}
+
+
+=head2 worker_should_run
+
+worker_should_run
+
+=cut
+
+sub worker_should_run {
+    $running && $TASKS && is_parent_alive()
+}
+
+sub handle_socket {
+    my ($socket) = @_;
+    my $JSON = JSON::MaybeXS->new->allow_nonref;
+    $TASKS = get_tasks_count();
+    my $len = send_data_with_length($socket, $JSON->encode({"pid" => $$}));
+    while (worker_should_run()) {
+        my $len = read_data_with_length($socket, my $data);
+        if ($len == 0) {
+            last;
+        }
+
+        if ($data eq 'ping') {
+            $len = send_data_with_length($socket, 'true');
+        } else {
+            my $results = process_data($data);
+            $results = $JSON->encode($results);
+            $len = send_data_with_length($socket, $results);
+        }
+
+        if ($len == 0) {
+            last;
+        }
+    } continue {
+        if ($TASKS > 0) {
+            $TASKS--;
+        }
+    }
+}
+
+=head2 is_parent_alive
+
+Checks to see if parent is alive
+
+=cut
+
+sub is_parent_alive {
+    kill(0, $PARENT_PID);
+}
+
+
+sub get_tasks_count {
+    my $tasks_count = $ConfigPfqueue{pfqueue}{max_tasks} // $PFQUEUE_MAX_TASKS_DEFAULT;
+    if ($tasks_count <= 0) {
+        return -1;
+    }
+    my $task_jitter = $ConfigPfqueue{pfqueue}{task_jitter} // $PFQUEUE_TASK_JITTER_DEFAULT;
+    #The jitter cannot be greater than 25% of the max task
+    if ($task_jitter > $tasks_count / 4) {
+        $task_jitter = int($tasks_count / 4);
+    }
+
+    return add_jitter($tasks_count, $task_jitter);
+}
+
+sub process_data {
+    my ($data) = @_;
+    sereal_decode_with_object( $DECODER, $data, my $item );
+    if ( ref($item) ne 'ARRAY' ) {
+        die "Invalid object stored in queue";
+    }
+
+    my $type = $item->[0];
+    my $args = $item->[1];
+    my $task = "pf::task::$type"->new;
+
+    my ( $err, $result ) = eval {
+        $task->doTask($args);
+    };
+
+    if ($@) {
+        $err = $@;
+    }
+
+    if ($err) {
+        unless ( ref $err ) {
+            $err = { message => $err, status => 500 };
+        }
+
+        return $err;
+    }
+
+    if (!defined $result) {
+        return undef;
+    }
+
+    unless ( ref $result ) {
+        $result = { message => $result, status => 200 };
+    }
+
+    return $result;
+}
+
+
+=head2 signal_children
+
+sends a signal to all active children
+
+=cut
+
+sub signal_children {
+    my ($signal) = @_;
+    kill($signal, keys %CHILDREN);
+}
+
+
+=head2 child_sighandler
+
+reaps the children
+
+=cut
+
+sub child_sighandler {
+    local ($!, $?);
+    while (1) {
+        my $child = waitpid(-1, WNOHANG);
+        last unless $child > 0;
+        delete $CHILDREN{$child};
+    }
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2023 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
