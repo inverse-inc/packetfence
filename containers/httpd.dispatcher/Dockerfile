@@ -14,10 +14,13 @@ COPY ./html /usr/local/pf/html
 COPY ./src /usr/local/pf/src
 COPY ./config.mk /usr/local/pf/config.mk
 COPY ./Makefile /usr/local/pf/Makefile
+
 RUN cd /usr/local/pf/go/ && \
     make pfhttpd && \
     make httpdispatcher
-RUN cd /usr/local/pf/html/common && \
+
+RUN apt install nodejs && \
+    cd /usr/local/pf/html/common && \
     make vendor  && \
     make light-dist
 

@@ -2,11 +2,11 @@
 roles:
   - src: inverse_inc.gitlab_buildpkg_tools
     version: v1.3.5
-  - src: geerlingguy.nodejs
-    version: 6.0.0
 
 collections:
   - name: inverse_inc.utils
+    version: 1.1.2
   - name: debops.debops
+    version: 3.0.3
   - name: community.general
     version: 7.0.1

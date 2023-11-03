@@ -2,3 +2,4 @@
 - import_playbook: utils/venom.yml
 - import_playbook: utils/psonoci.yml
 - import_playbook: utils/mailhog.yml
+- import_playbook: utils/nodejs.yml
