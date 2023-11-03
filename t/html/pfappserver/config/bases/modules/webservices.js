@@ -8,7 +8,7 @@ module.exports = {
       description: 'Webservices - Passthrough Form',
       url: '/configuration/webservices',
       interceptors: [
-        { method: 'GET', url, fixture: (r) => r.body.item },
+        { method: 'GET', url, fixture: res => res.body.item },
 
         { method: '+(PATCH|PUT)', url, expect: (req, fixture) => {
           Object.keys(fixture).forEach(key => {

@@ -15,7 +15,7 @@ module.exports = {
       description: 'General Settings - Passthrough Form',
       url: '/configuration/fingerbank/general_settings',
       interceptors: [
-        { method: 'GET', url: '/api/**/config/fingerbank_settings?*', fixture: (r) => r.body.items.reduce((fixture, { id, ...rest }) => ({ ...fixture, [id]: { id, ...rest } }), {}) },
+        { method: 'GET', url: '/api/**/config/fingerbank_settings?*', fixture: res => res.body.items.reduce((fixture, { id, ...rest }) => ({ ...fixture, [id]: { id, ...rest } }), {}) },
 
         { method: '+(PATCH|PUT)', url: '/api/**/config/fingerbank_setting/collector', expect: (req, fixture) => expectByType('collector', req, fixture) },
         { method: '+(PATCH|PUT)', url: '/api/**/config/fingerbank_setting/proxy', expect: (req, fixture) => expectByType('proxy', req, fixture) },
@@ -27,7 +27,7 @@ module.exports = {
       description: 'Device Change Detection - Passthrough Form',
       url: '/configuration/fingerbank/device_change_detection',
       interceptors: [
-        { method: 'GET', url: '/api/**/config/base/fingerbank_device_change', fixture: (r) => r.body.item },
+        { method: 'GET', url: '/api/**/config/base/fingerbank_device_change', fixture: res => res.body.item },
 
         { method: '+(PATCH|PUT)', url: '/api/**/config/base/fingerbank_device_change', expect: (req, fixture) => {
           Object.keys(fixture).forEach(key => {
