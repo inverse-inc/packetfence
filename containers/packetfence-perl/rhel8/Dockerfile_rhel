@@ -29,12 +29,10 @@ RUN --mount=type=secret,id=PSONO_API_KEY_ID \
     --mount=type=secret,id=PSONO_API_KEY_SECRET_KEY \
     export PSONO_API_KEY_ID=$(cat /run/secrets/PSONO_API_KEY_ID) && \
     export PSONO_API_KEY_SECRET_KEY=$(cat /run/secrets/PSONO_API_KEY_SECRET_KEY) && \
-    REDHAT_USERNAME=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=username) && \
-    REDHAT_PASSWORD=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=password)
-
-RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py
-
-RUN subscription-manager register --username $REDHAT_USERNAME --password $REDHAT_PASSWORD --auto-attach
+    export REDHAT_USERNAME=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=username) && \
+    export REDHAT_PASSWORD=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=password) && \
+    sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py && \
+    subscription-manager register --username $REDHAT_USERNAME --password $REDHAT_PASSWORD --auto-attach
 
 RUN yum install -y openssl-devel krb5-libs mariadb-devel systemd-devel gd-devel perl-open perl-experimental \
     perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo $DISABLE_REPO python39
