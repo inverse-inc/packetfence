@@ -28,10 +28,16 @@ module.exports = {
       });
       on('task', {
         log(message) {
-          console.log(message)
+          console.log(`\t => ${message}`)
           return null
         }
-      })
+      });
+      on('task', {
+        error(message) {
+          console.error(`\t => ${message}`)
+          return null
+        }
+      });
       return config;
     },
     specPattern: [

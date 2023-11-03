@@ -1,7 +1,0 @@
-{
-  "id": "fingerbank_device_change",
-  "device_class_whitelist": "",
-  "enable": "disabled",
-  "trigger_on_device_class_change": "enabled",
-  "triggers": ""
-}
