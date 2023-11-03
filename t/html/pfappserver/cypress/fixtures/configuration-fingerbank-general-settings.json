@@ -1,4 +1,0 @@
-{
-  "upstream.api_key": "foo",
-  "collector.additional_env": "bar"
-}
