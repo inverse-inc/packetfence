@@ -966,3 +966,141 @@ func Responder(pfpki *types.Handler) *ocspresponder.OCSPResponder {
 		Handler:     pfpki,
 	}
 }
+
+func SearchSCEPServer(pfpki *types.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+
+		o := models.NewSCEPServerModel(pfpki)
+		var Information types.Info
+		var err error
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+		case "POST":
+			Information.Status = http.StatusOK
+			var vars sql.Vars
+			if err := vars.DecodeBodyJson(req); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			Information, err = o.Search(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusNotFound
+				break
+			}
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Information.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, nil)
+	})
+}
+
+func SCEPServerByID(pfpki *types.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		o := models.NewSCEPServerModel(pfpki)
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+		case "GET":
+			Information.Status = http.StatusOK
+			vars := mux.Vars(req)
+			Information, err = o.GetByID(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusNotFound
+				break
+			}
+
+		case "PATCH":
+			Information.Status = http.StatusOK
+			body, err := io.ReadAll(req.Body)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.Update(); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.UpdateCA")
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
+
+func GetSetSCEPServer(pfpki *types.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		o := models.NewSCEPServerModel(pfpki)
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog = nil
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+		case "GET":
+			vars, err := types.DecodeUrlQuery(req)
+			Information.Status = http.StatusOK
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			Information, err = o.Paginated(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+
+		case "POST":
+			body, err := io.ReadAll(req.Body)
+			Information.Status = http.StatusCreated
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.New(); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.SetCA")
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
