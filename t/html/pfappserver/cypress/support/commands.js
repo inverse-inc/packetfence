@@ -62,16 +62,24 @@ Cypress.Commands.add('formFillNamespace', (data, element) => {
       if ($.find(selector).length) {
         cy.get(selector)
           .then(el => {
-            const tagName = Cypress.$(el)[0].tagName.toLowerCase()
-            switch (tagName) {
-              case "input":
-              case "textarea":
+            const e =  Cypress.$(el)[0]
+            const tagName = e.tagName.toLowerCase()
+            const type = e.getAttribute('type')
+            switch (true) {
+              case tagName === 'input' && ['text', 'password'].includes(type):
+              case tagName === 'textarea':
                   cy.get(el).type(`{selectAll}{del}${value}`)
                 break
+              case tagName === 'input' && ['range'].includes(type):
+                  // TODO
+                break
               default:
-                throw new Error(`unhandled form tagName "${tagName}"`)
+                throw new Error(`unhandled element <${tagName} type="${type||''}" data-namespace="${namespace}" />`)
             }
           })
+      }
+      else {
+        cy.task('error', `empty selector ${selector}`)
       }
     }
   })
