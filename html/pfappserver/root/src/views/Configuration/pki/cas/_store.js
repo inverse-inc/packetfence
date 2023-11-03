@@ -13,7 +13,6 @@ export const useStore = $store => {
     createItem: params => $store.dispatch('$_pkis/createCa', recomposeCa(params)),
     getItem: params => $store.dispatch('$_pkis/getCa', params.id)
       .then(item => decomposeCa(item)),
-    updateItem: params => $store.dispatch('$_pkis/resignCa', recomposeCa(params)),
   }
 }
 
