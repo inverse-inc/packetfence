@@ -3,15 +3,6 @@
   name: Configure Packetfence VM
   become: True
 
-  vars:
-    nodejs_version: "20.x"
-    npm_config_unsafe_perm: "true"
-
-  roles:
-    # nodejs is already installed on Debian during build of Vagrant images
-    - role: geerlingguy.nodejs
-      tags: nodejs
-
   tasks:
     - name: Install Cypress dependencies on debian
       community.general.make:

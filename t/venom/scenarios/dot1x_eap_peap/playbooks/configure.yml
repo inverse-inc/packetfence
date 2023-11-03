@@ -4,8 +4,6 @@
   become: True
 
   vars:
-    nodejs_version: "20.x"
-    npm_config_unsafe_perm: "true"
     debianPackages:
       - curl
       - python3-pip
@@ -18,11 +16,6 @@
       - python3-setuptools
       - virtualenv
       - jq
-
-  roles:
-    # nodejs is already installed on Debian during build of Vagrant images
-    - role: geerlingguy.nodejs
-      tags: nodejs
 
   tasks:
     - name: Install packages on debian
