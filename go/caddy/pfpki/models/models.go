@@ -168,6 +168,7 @@ type (
 		Csr                *bool           `json:"csr,omitempty" gorm:"default:false"`
 		Alert              *bool           `json:"alert,omitempty" gorm:"default:false"`
 		Subject            string          `json:"-" gorm:"UNIQUE"`
+		ScepServer         SCEPServer      `json:"-"`
 	}
 
 	// CSR struct
@@ -212,6 +213,18 @@ type (
 		CRLReason          int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
 		Subject            string          `json:"-"`
 	}
+	// SCEP struct
+	SCEPServer struct {
+		ID           uint            `gorm:"primarykey"`
+		CreatedAt    time.Time       `json:"-"`
+		UpdatedAt    time.Time       `json:"-"`
+		DeletedAt    gorm.DeletedAt  `json:"-" gorm:"index"`
+		DB           gorm.DB         `json:"-" gorm:"-"`
+		Ctx          context.Context `json:"-" gorm:"-"`
+		Name         string          `json:"cn,omitempty" gorm:"UNIQUE"`
+		URL          string          `json:"mail,omitempty""`
+		SharedSecret string          `json:"organisation,omitempty"`
+	}
 )
 
 type Tabler interface {
@@ -236,6 +249,11 @@ func (Cert) TableName() string {
 // TableName overrides the table name used by Cert to `pki_revoked_certs`
 func (RevokedCert) TableName() string {
 	return "pki_revoked_certs"
+}
+
+// TableName overrides the table name used by SCEPServer to `pki_scep`
+func (SCEPServer) TableName() string {
+	return "pki_scep_servers"
 }
 
 const dbError = "A database error occured. See log for details."
@@ -2042,4 +2060,101 @@ func ProfileAttributes(prof Profile) map[string]string {
 		attributes["Digest"] = val
 	}
 	return attributes
+}
+
+func NewSCEPServerModel(pfpki *types.Handler) *SCEPServer {
+	SCEPServer := &SCEPServer{}
+
+	SCEPServer.DB = *pfpki.DB
+	SCEPServer.Ctx = *pfpki.Ctx
+
+	return SCEPServer
+}
+
+func (s SCEPServer) New() (types.Info, error) {
+	Information := types.Info{}
+	var scepserverdb []SCEPServer
+
+	if err := s.DB.Create(&SCEPServer{Name: s.Name, URL: s.URL, SharedSecret: s.SharedSecret}).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New(dbError)
+	}
+	s.DB.Select("id, name, url, shared_secret").Where("name = ?", s.Name).First(&scepserverdb)
+	Information.Entries = scepserverdb
+
+	return Information, nil
+}
+
+// GetByID retreive the SCEPServer by id
+func (s SCEPServer) GetByID(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var scepserverdb []SCEPServer
+	if val, ok := params["id"]; ok {
+		allFields := strings.Join(sql.SqlFields(s)[:], ",")
+		s.DB.Select(allFields).Where("`id` = ?", val).First(&scepserverdb)
+	}
+	Information.Entries = scepserverdb
+
+	return Information, nil
+}
+
+// Search for the SCEPServer
+func (s SCEPServer) Search(vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
+	sql, err := vars.Sql(s)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New(dbError)
+	}
+	var count int64
+	s.DB.Model(&SCEPServer{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
+	counter := int(count)
+
+	Information.TotalCount = counter
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < counter {
+		var scepserverdb []SCEPServer
+		s.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&scepserverdb)
+		Information.Entries = scepserverdb
+	}
+
+	return Information, nil
+}
+
+func (s SCEPServer) Update() (types.Info, error) {
+	var scepserverdb []SCEPServer
+	Information := types.Info{}
+	if err := s.DB.Model(&SCEPServer{}).Where("name = ?", s.Name).Updates(map[string]interface{}{"url": s.URL, "shared_secret": s.SharedSecret}).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New(dbError)
+	}
+	s.DB.Select("id, name, url, shared_secret").Where("name = ?", s.Name).First(&scepserverdb)
+	Information.Entries = scepserverdb
+
+	return Information, nil
+}
+
+// Paginated return the SCEPServer list paginated
+func (s SCEPServer) Paginated(vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
+	var count int64
+	s.DB.Model(&CA{}).Count(&count)
+	counter := int(count)
+
+	Information.TotalCount = counter
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < counter {
+		sql, err := vars.Sql(s)
+		if err != nil {
+			Information.Error = err.Error()
+			return Information, errors.New(dbError)
+		}
+		var scepserverdb []SCEPServer
+		s.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&scepserverdb)
+		Information.Entries = scepserverdb
+	}
+
+	return Information, nil
 }

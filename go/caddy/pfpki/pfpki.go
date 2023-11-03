@@ -154,6 +154,13 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 
 	api.Handle("/pki/scep/{id}/", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
 
+	// SCEPServers (GET: list, POST: create)
+	api.Handle("/pki/scepservers", handlers.GetSetSCEPServer(PFPki)).Methods("GET", "POST")
+	// Search SCEPServers
+	api.Handle("/pki/scepservers/search", handlers.SearchSCEPServer(PFPki)).Methods("POST")
+	// Get SCEPServer by ID
+	api.Handle("/pki/scepserver/{id}", handlers.SCEPServerByID(PFPki)).Methods("GET", "PATCH")
+
 	go func() {
 		for {
 
