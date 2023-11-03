@@ -36,6 +36,12 @@ PkiCa:
     street_address:
       type: string
 
+PkiCaCertOnly:
+  type: object
+  properties:
+    cert:
+      type: string
+
 PkiCaForm:
   allOf:
     - $ref: '#/components/schemas/PkiCa'
@@ -50,6 +56,12 @@ PkiCaForm:
       - key_size
       - digest
       - days
+
+PkiCaFormCertOnly:
+  allOf:
+    - $ref: '#/components/schemas/PkiCaCertOnly'
+    - required:
+      - cert
 
 PkiCasList:
   type: object

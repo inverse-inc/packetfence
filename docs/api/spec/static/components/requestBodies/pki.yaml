@@ -5,6 +5,13 @@ PkiCa:
       schema:
         $ref: '#/components/schemas/PkiCaForm'
 
+PkiCaCertOnly:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/PkiCaFormCertOnly'
+
 PkiCasSearch:
   required: true
   content:
