@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/inverse-inc/packetfence/go/db"
-	_ "gorm.io/driver/mysql"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -23,7 +23,7 @@ func TestLogAdd(t *testing.T) {
 }
 
 func getGormDB(t *testing.T) *gorm.DB {
-	database, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
+	database, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(context.Background())), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("Cannot create a database connection: %s", err.Error())
 		return nil
