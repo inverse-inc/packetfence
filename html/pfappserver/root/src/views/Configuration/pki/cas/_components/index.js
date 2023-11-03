@@ -13,6 +13,7 @@ import {
   BaseFormGroupKeyUsage,
   BaseFormGroupExtendedKeyUsage,
 } from '../../_components/'
+import ButtonCertificateResign from './ButtonCertificateResign'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -39,6 +40,7 @@ export {
   BaseFormGroupInputNumber      as FormGroupDays,
   BaseFormGroupTextareaUpload   as FormGroupCert,
 
+  ButtonCertificateResign,
   TheForm,
   TheView
 }
