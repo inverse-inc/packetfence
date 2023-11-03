@@ -72,7 +72,7 @@
         schema:
           type: string
     requestBody:
-      $ref: '#/components/requestBodies/PkiCa'
+      $ref: '#/components/requestBodies/PkiCaCertOnly'
     responses:
       '200':
         $ref: '#/components/responses/PkiCa'
