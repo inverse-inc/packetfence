@@ -109,8 +109,7 @@ restart_packetfence() {
   while [[ $i -lt 10 ]]; do
     ((i++))
     echo "--------------------$i----------------------"
-    stopped_pf_services=$(/usr/local/pf/bin/pfcmd service pf status  | grep stopped | awk '{print $1}' | tr '\n' ',')
-    IFS="," read -ra stopped_pf_services <<< "$stopped_pf_services"
+    stopped_pf_services=($(/usr/local/pf/bin/pfcmd service pf status | awk '$2 == "stopped" {print $1}'))
     echo "stopped services: ${stopped_pf_services[@]}"
     number_stopped_pf_services=${#stopped_pf_services[@]}
 
