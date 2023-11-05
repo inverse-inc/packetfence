@@ -76,7 +76,11 @@ def install_perl_module(dict_data):
 #        command=f"perl -MCPAN -e \"CPAN::Shell->notest('install','{dict_data['ModInstall']}')\"".split()
     print(f"Installing perl module: {dict_data['ModName']} \n" )
     with open(file_log, 'w') as f:
-        process = subprocess.run(command,stdout=f,stderr=f,text=True, timeout=720)
+        try:
+            process = subprocess.run(command,stdout=f,stderr=f,text=True, timeout=720)
+        except subprocess.TimeoutExpired as e:
+            print('Error, timeout expired: ', e)
+            return 2, file_name
     return process.returncode, file_name
 
 
