@@ -24,7 +24,7 @@ func NewPfQueueClient() *PfQueueClient {
 const DefaultExpiration = time.Minute * 5
 
 func (c *PfQueueClient) Submit(ctx context.Context, queue, task_type string, task_data interface{}) (string, error) {
-	return c.SubmitWithExpiration(ctx, queue, task_type, task_data, DefaultExpiration)
+	return c.SubmitWithExpiration(ctx, queue, task_type, task_data, DefaultExpiration, 0)
 }
 
 func (c *PfQueueClient) Encoder() PfQueueEncoder {
@@ -33,7 +33,7 @@ func (c *PfQueueClient) Encoder() PfQueueEncoder {
 	return encoder
 }
 
-func (c *PfQueueClient) SubmitWithExpiration(ctx context.Context, queue, task_type string, task_data interface{}, expire_in time.Duration) (string, error) {
+func (c *PfQueueClient) SubmitWithExpiration(ctx context.Context, queue, task_type string, task_data interface{}, expire_in time.Duration, status_update int) (string, error) {
 	queue_name := c.FormatQueueName(queue)
 	taskCounterId := c.taskCounterId(queue_name, task_type, task_data)
 	id, err := c.generateId(taskCounterId)
@@ -54,7 +54,7 @@ func (c *PfQueueClient) SubmitWithExpiration(ctx context.Context, queue, task_ty
 	}
 
 	redisClient.PipeAppend("MULTI")
-	redisClient.PipeAppend("HMSET", id, "expire", expire_in, "data", data)
+	redisClient.PipeAppend("HMSET", id, "expire", expire_in, "data", data, "status_update", status_update)
 	redisClient.PipeAppend("EXPIRE", id, expire_in)
 	redisClient.PipeAppend("HINCRBY", "TaskCounters", taskCounterId, 1)
 	redisClient.PipeAppend("LPUSH", queue_name, id)

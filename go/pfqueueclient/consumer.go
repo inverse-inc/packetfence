@@ -2,6 +2,7 @@ package pfqueueclient
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -59,6 +60,8 @@ func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) (i
 		return nil, err
 	}
 
+	var statusUpdater *StatusUpdater = nil
+
 	counterID := getTaskCounterId(taskID)
 	pipe := c.redis.Pipeline()
 	pipe.HIncrBy(ctx, PFQUEUE_COUNTER, counterID, -1)
@@ -79,9 +82,25 @@ func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) (i
 		return nil, fmt.Errorf("Data not found for task %s\n", taskID)
 	}
 
+	if taskInfo.StatusUpdate != 0 {
+		statusUpdater = NewStatusUpdater(taskID, time.Second*60, c.redis)
+		defer PutStatusUpdater(statusUpdater)
+		statusUpdater.Start(ctx)
+	}
+
 	out, err := c.conn.Send(taskInfo.Data)
 	if err != nil {
+		if statusUpdater != nil {
+			data, _ := json.Marshal(out)
+			statusUpdater.Failed(ctx, data)
+		}
+
 		return nil, err
+	}
+
+	if statusUpdater != nil && out != nil {
+		data, _ := json.Marshal(out)
+		statusUpdater.Complete(ctx, data)
 	}
 
 	return out, nil
