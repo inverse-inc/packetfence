@@ -755,9 +755,9 @@ type PfQueueConfig struct {
 }
 
 type Pfqueue struct {
-	Workers    string `json:"workers"`
-	TaskJitter string `json:"task_jitter"`
-	MaxTasks   string `json:"max_tasks"`
+	Workers    int `json:"workers"`
+	TaskJitter int `json:"task_jitter"`
+	MaxTasks   int `json:"max_tasks"`
 }
 
 type Queue struct {

@@ -53,6 +53,7 @@ sub build_child {
         $tmp_cfg{pfqueue}{max_tasks} = $PFQUEUE_MAX_TASKS_DEFAULT;
     }
     $tmp_cfg{pfqueue}{task_jitter} //= $PFQUEUE_TASK_JITTER_DEFAULT;
+    $tmp_cfg{pfqueue}{$_} += 0 for qw(workers task_jitter max_tasks);
     foreach my $queue_section ( $self->GroupMembers('queue') ) {
         my $queue = $queue_section;
         $queue =~ s/^queue //;
