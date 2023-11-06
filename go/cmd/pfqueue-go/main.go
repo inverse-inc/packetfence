@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -14,6 +15,7 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/pfqueueclient"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -52,22 +54,69 @@ type QueueWorkers struct {
 	WorkerCount         int
 	waiter              sync.WaitGroup
 	runningBooleans     []*atomic.Bool
+	currentIndex        atomic.Uint64
 }
 
 func (qw *QueueWorkers) runSingleWorkerQueue(q string, r *atomic.Bool) {
-	for r.Load() {
-		time.Sleep(5 * time.Second)
-		fmt.Printf("Processing %s\n", q)
+	ctx := context.Background()
+	defer qw.waiter.Done()
+	consumer, err := pfqueueclient.NewConsumer(qw.redis, q)
+	if err != nil {
+		return
 	}
-	qw.waiter.Done()
+
+	defer consumer.Close()
+	for r.Load() {
+		queues := qw.getNextWeights()
+		err := consumer.ProcessNextQueueItem(ctx, queues)
+		if err == nil {
+			continue
+		}
+
+		if errors.Is(err, redis.Nil) {
+			continue
+		}
+
+		logErrorf(ctx, "Error Next: %s", err.Error())
+	}
+}
+
+func (qw *QueueWorkers) getNextWeights() []string {
+	length := uint64(len(qw.QueuesWeighted))
+	start := (qw.currentIndex.Add(1) - 1) % length
+	nextWeights := make([]string, 0, len(qw.QueuesWeighted))
+	for i := start; i < length; i++ {
+		nextWeights = append(nextWeights, qw.QueuesWeighted[i])
+	}
+
+	for i := uint64(0); i < start; i++ {
+		nextWeights = append(nextWeights, qw.QueuesWeighted[i])
+	}
+
+	return nextWeights
 }
 
 func (qw *QueueWorkers) runMultiWorkerQueue(r *atomic.Bool) {
-	for r.Load() {
-		time.Sleep(5 * time.Second)
-		fmt.Printf("Multiqueues \n")
+	ctx := context.Background()
+	defer qw.waiter.Done()
+	consumer, err := pfqueueclient.NewConsumer(qw.redis, "worker")
+	if err != nil {
+		return
 	}
-	qw.waiter.Done()
+
+	defer consumer.Close()
+	for r.Load() {
+		err := consumer.ProcessNextQueueItem(ctx, qw.getNextWeights())
+		if err == nil {
+			continue
+		}
+
+		if errors.Is(err, redis.Nil) {
+			continue
+		}
+
+		logErrorf(ctx, "Error Next: %s", err.Error())
+	}
 }
 
 func (qw *QueueWorkers) Stop() {
@@ -114,14 +163,14 @@ func buildQueueWorkers() *QueueWorkers {
 	var pfqueue pfconfigdriver.PfQueueConfig
 	ctx := context.Background()
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfqueue)
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:                pfqueue.Consumer.RedisArgs.Server,
+		DB:                  0, // use default DB
+		OnConnect:           setupConnection,
+		CredentialsProvider: credentialsProvider,
+	})
 	w := &QueueWorkers{
-		redis: redis.NewClient(&redis.Options{
-			Addr:                pfqueue.Consumer.RedisArgs.Server,
-			Password:            "", // no password set
-			DB:                  0,  // use default DB
-			OnConnect:           setupConnection,
-			CredentialsProvider: credentialsProvider,
-		}),
+		redis: redisClient,
 	}
 
 	weights := []QueueWeight{}
@@ -154,6 +203,7 @@ func buildQueueWorkers() *QueueWorkers {
 		pipeliner.Exec(ctx)
 	}
 
+	w.WorkerCount = pfqueue.Pfqueue.Workers
 	return w
 }
 
@@ -211,20 +261,37 @@ func systemdStart() {
 }
 
 func increaseFileLimit() {
+	ctx := context.Background()
 	var rLimit syscall.Rlimit
 	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 	if err != nil {
-		log.LoggerWContext(context.Background()).Error("Error Getting Rlimit: " + err.Error())
+		logErrorf(ctx, "Error Getting Rlimit: %s", err.Error())
 	}
 
 	if rLimit.Cur < rLimit.Max {
 		rLimit.Cur = rLimit.Max
 		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
-			log.LoggerWContext(context.Background()).Warn("Error Setting Rlimit:" + err.Error())
+			logErrorf(ctx, "Error Getting Rlimit: %s", err.Error())
 		}
 	}
 
 	err = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-	log.LoggerWContext(context.Background()).Info(fmt.Sprintf("File descriptor limit is: %d", rLimit.Cur))
+	logInfof(ctx, "File descriptor limit is: %d", rLimit.Cur)
+}
+
+func logErrorf(ctx context.Context, msg string, args ...interface{}) {
+	log.LoggerWContext(ctx).Error(fmt.Sprintf(msg, args...))
+}
+
+func logWarnf(ctx context.Context, msg string, args ...interface{}) {
+	log.LoggerWContext(ctx).Warn(fmt.Sprintf(msg, args...))
+}
+
+func logInfof(ctx context.Context, msg string, args ...interface{}) {
+	log.LoggerWContext(ctx).Info(fmt.Sprintf(msg, args...))
+}
+
+func logDebugf(ctx context.Context, msg string, args ...interface{}) {
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf(msg, args...))
 }
