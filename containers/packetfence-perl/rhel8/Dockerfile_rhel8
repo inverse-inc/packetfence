@@ -11,8 +11,7 @@ ARG workdir \
 
 ENV WORKDIR=${workdir} \
     OUTPUT_DIRECTORY=${output_directory} \
-    BASE_DIR=/usr/local/pf/lib/perl_modules \
-    PSONO_NQB_RHEL_SUBS_SECRET_ID=psono_nqb_rhel_subs_secret_id
+    BASE_DIR=/usr/local/pf/lib/perl_modules
 
 ENV PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/ \
     PKG_CONFIG_PATH=/usr/lib/pkgconfig/ \
@@ -30,8 +29,8 @@ RUN --mount=type=secret,id=PSONO_API_KEY_ID \
     --mount=type=secret,id=PSONO_API_KEY_SECRET_KEY \
     export PSONO_API_KEY_ID=$(cat /run/secrets/PSONO_API_KEY_ID) && \
     export PSONO_API_KEY_SECRET_KEY=$(cat /run/secrets/PSONO_API_KEY_SECRET_KEY) && \
-    export REDHAT_USERNAME=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id=${PSONO_NQB_RHEL_SUBS_SECRET_ID} --return_value=username) && \
-    export REDHAT_PASSWORD=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id=${PSONO_NQB_RHEL_SUBS_SECRET_ID} --return_value=password) && \
+    export REDHAT_USERNAME=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id=${psono_nqb_rhel_subs_secret_id} --return_value=username) && \
+    export REDHAT_PASSWORD=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id=${psono_nqb_rhel_subs_secret_id} --return_value=password) && \
     sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py && \
     subscription-manager register --username $REDHAT_USERNAME --password $REDHAT_PASSWORD --auto-attach
 
