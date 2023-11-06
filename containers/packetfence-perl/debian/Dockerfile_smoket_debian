@@ -7,7 +7,7 @@ ARG workdir
 WORKDIR ${workdir}
 
 RUN apt-get update && \
-    apt-get install -yq systemd systemd-sysv gnupg sudo perl vim wget curl ansible iptables-persistent  ca-certificates
+    apt-get install -yq systemd systemd-sysv gnupg sudo perl vim wget curl ansible iptables-persistent ca-certificates gettext
 
 RUN ln -s /usr/bin/perl /bin/perl &&  ln -s /usr/sbin/iptables-restore  /sbin/iptables-restore && \
     ln -s /usr/sbin/iptables-save /sbin/iptables-save && ln -s /usr/sbin/iptables /sbin/iptables
