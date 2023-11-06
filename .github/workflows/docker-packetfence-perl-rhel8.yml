@@ -72,8 +72,8 @@ jobs:
             ${{ env.BRANCH_NAME == 'devel' && 'inverse-inc/packetfence/packetfence-perl-rhel8:latest' || ''}}
             ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/inverse-inc/packetfence/packetfence-rhel8:latest' || ''}}
           file: containers/packetfence-perl/rhel8/Dockerfile_rhel8
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
 
       - name: Build rhel8 package
         uses: addnab/docker-run-action@v3
