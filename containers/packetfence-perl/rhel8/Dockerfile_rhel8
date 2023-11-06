@@ -1,10 +1,5 @@
 FROM redhat/ubi8
 
-# Add Tini
-ENV TINI_VERSION v0.19.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-
 ARG workdir \
     output_directory \
     psono_nqb_rhel_subs_secret_id
@@ -16,7 +11,11 @@ ENV WORKDIR=${workdir} \
 ENV PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/ \
     PKG_CONFIG_PATH=/usr/lib/pkgconfig/ \
     CPAN_BIN_PATH="/usr/bin/cpan" \
-    CPAN_VERSION=2.36
+    CPAN_VERSION=2.36 \
+    TINI_VERSION=v0.19.0
+
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
 
 WORKDIR ${WORKDIR}
 
@@ -35,16 +34,14 @@ RUN --mount=type=secret,id=PSONO_API_KEY_ID \
     subscription-manager register --username $REDHAT_USERNAME --password $REDHAT_PASSWORD --auto-attach
 
 RUN dnf install -y openssl-devel krb5-libs mariadb-devel systemd-devel gd-devel perl-open perl-experimental \
-    perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo
-
-RUN yum group install -y "Development Tools"
+    perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo && \ 
+    dnf group install -y "Development Tools"
 
 RUN subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms && \
     dnf -y module enable virt-devel && \
     dnf install -y libssh2-devel
 
 RUN subscription-manager unregister
-
 
 #RUN TestPerlConfig=$(perl -e exit); [[ ${TestPerlConfig} != "" ]] && export LC_CTYPE=en_US.UTF-8;  export LC_ALL=en_US.UTF-8
 
