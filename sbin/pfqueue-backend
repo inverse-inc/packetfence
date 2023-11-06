@@ -135,7 +135,9 @@ sub handle_socket {
     my ($socket) = @_;
     my $JSON = JSON::MaybeXS->new->allow_nonref;
     $TASKS = get_tasks_count();
-    my $len = send_data_with_length($socket, $JSON->encode({"pid" => $$}));
+    my $len = read_data_with_length($socket, my $name);
+    $0 = "pfqueue - $name";
+    $len = send_data_with_length($socket, $JSON->encode({"pid" => $$}));
     while (worker_should_run()) {
         my $len = read_data_with_length($socket, my $data);
         if ($len == 0) {
