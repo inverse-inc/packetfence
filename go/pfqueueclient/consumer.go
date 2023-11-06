@@ -122,7 +122,7 @@ func (c *Consumer) nextTaskID(ctx context.Context, queues []string) (string, err
 
 	val, err := c.redis.BRPop(ctx, time.Second*1, queues...).Result()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return val[1], nil
