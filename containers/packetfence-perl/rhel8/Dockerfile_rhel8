@@ -6,12 +6,13 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
 
 ARG workdir \
-    output_directory
+    output_directory \
+    psono_nqb_rhel_subs_secret_id
 
 ENV WORKDIR=${workdir} \
     OUTPUT_DIRECTORY=${output_directory} \
-    BASE_DIR=/usr/local/pf/lib/perl_modules
-
+    BASE_DIR=/usr/local/pf/lib/perl_modules \
+    PSONO_NQB_RHEL_SUBS_SECRET_ID=psono_nqb_rhel_subs_secret_id
 
 ENV PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/ \
     PKG_CONFIG_PATH=/usr/lib/pkgconfig/ \
@@ -29,16 +30,15 @@ RUN --mount=type=secret,id=PSONO_API_KEY_ID \
     --mount=type=secret,id=PSONO_API_KEY_SECRET_KEY \
     export PSONO_API_KEY_ID=$(cat /run/secrets/PSONO_API_KEY_ID) && \
     export PSONO_API_KEY_SECRET_KEY=$(cat /run/secrets/PSONO_API_KEY_SECRET_KEY) && \
-    export REDHAT_USERNAME=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=username) && \
-    export REDHAT_PASSWORD=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id='e9d98894-bd22-4f32-8b59-653aceb72ec4' --return_value=password) && \
+    export REDHAT_USERNAME=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id=${PSONO_NQB_RHEL_SUBS_SECRET_ID} --return_value=username) && \
+    export REDHAT_PASSWORD=$(set -e && python3  psono.py  --api_key_id=$PSONO_API_KEY_ID --api_key_secret_key=$PSONO_API_KEY_SECRET_KEY --secret_id=${PSONO_NQB_RHEL_SUBS_SECRET_ID} --return_value=password) && \
     sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py && \
     subscription-manager register --username $REDHAT_USERNAME --password $REDHAT_PASSWORD --auto-attach
 
 RUN dnf install -y openssl-devel krb5-libs mariadb-devel systemd-devel gd-devel perl-open perl-experimental \
     perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo
 
-RUN dnf -y install rpmdevtools rpmlint
-#RUN yum group install -y "Development Tools"
+RUN yum group install -y "Development Tools"
 
 RUN subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms && \
     dnf -y module enable virt-devel && \

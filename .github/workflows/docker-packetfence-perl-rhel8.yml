@@ -65,12 +65,13 @@ jobs:
           build-args: |
             workdir=${{ env.WORKDIR }}
             output_directory=${{ env.OUTPUT_DIRECTORY }}
+            psono_nqb_rhel_subs_secret_id=${{ vars.PSONO_NQB_RHEL_SUBS_SECRET_ID }}
           tags: |
             inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}
             ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}
             ${{ env.BRANCH_NAME == 'devel' && 'inverse-inc/packetfence/packetfence-perl-rhel8:latest' || ''}}
             ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/inverse-inc/packetfence/packetfence-rhel8:latest' || ''}}
-          file: containers/packetfence-perl/rhel8/Dockerfile_rhel
+          file: containers/packetfence-perl/rhel8/Dockerfile_rhel8
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
