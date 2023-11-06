@@ -16,8 +16,8 @@ type Consumer struct {
 	conn  *BackendConn
 }
 
-func NewConsumer(redis *redis.Client) (*Consumer, error) {
-	conn, err := NewBackendConn()
+func NewConsumer(redis *redis.Client, name string) (*Consumer, error) {
+	conn, err := NewBackendConn(name)
 	if err != nil {
 		return nil, err
 	}
@@ -54,10 +54,10 @@ type TaskInfo struct {
 	StatusUpdate int    `redis:"status_update"`
 }
 
-func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) (interface{}, error) {
+func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) error {
 	taskID, err := c.nextTaskID(ctx, queues)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var statusUpdater *StatusUpdater = nil
@@ -69,17 +69,17 @@ func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) (i
 	pipe.Del(ctx, taskID)
 	_, err = pipe.Exec(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var taskInfo TaskInfo
 	if err := taskInfoOut.Scan(&taskInfo); err != nil {
-		return nil, err
+		return err
 	}
 
 	if taskInfo.Data == nil {
 		pipe.HIncrBy(ctx, PFQUEUE_EXPIRED_COUNTER, counterID, -1)
-		return nil, fmt.Errorf("Data not found for task %s\n", taskID)
+		return fmt.Errorf("Data not found for task %s\n", taskID)
 	}
 
 	if taskInfo.StatusUpdate != 0 {
@@ -95,7 +95,7 @@ func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) (i
 			statusUpdater.Failed(ctx, data)
 		}
 
-		return nil, err
+		return err
 	}
 
 	if statusUpdater != nil && out != nil {
@@ -103,7 +103,7 @@ func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) (i
 		statusUpdater.Complete(ctx, data)
 	}
 
-	return out, nil
+	return nil
 }
 
 func (c *Consumer) nextTaskID(ctx context.Context, queues []string) (string, error) {

@@ -19,10 +19,16 @@ type BackendConn struct {
 	info ConnInfo
 }
 
-func NewBackendConn() (*BackendConn, error) {
+func NewBackendConn(name string) (*BackendConn, error) {
 	addr := net.UnixAddr{Net: "unix", Name: file_paths.PFQUEUE_BACKEND_SOCKET}
 	conn, err := net.DialUnix("unix", nil, &addr)
 	if err != nil {
+		return nil, err
+	}
+
+	err = SendTo(conn, []byte(name))
+	if err != nil {
+		conn.Close()
 		return nil, err
 	}
 
