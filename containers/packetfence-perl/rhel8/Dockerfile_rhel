@@ -23,7 +23,7 @@ WORKDIR ${WORKDIR}
 COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_package.sh ./addons/packetfence-perl/install_cpan.py ./addons/packetfence-perl/psono.py ${WORKDIR}
 
 #Install python module
-RUN yum -y  install python39 && python3.9 -m pip install -q  -U pip && pip install -q pynacl requests
+RUN dnf -y  install python39 && python3.9 -m pip install -q  -U pip && pip install -q pynacl requests
 
 RUN --mount=type=secret,id=PSONO_API_KEY_ID \
     --mount=type=secret,id=PSONO_API_KEY_SECRET_KEY \
@@ -34,14 +34,15 @@ RUN --mount=type=secret,id=PSONO_API_KEY_ID \
     sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py && \
     subscription-manager register --username $REDHAT_USERNAME --password $REDHAT_PASSWORD --auto-attach
 
-RUN yum install -y openssl-devel krb5-libs mariadb-devel systemd-devel gd-devel perl-open perl-experimental \
+RUN dnf install -y openssl-devel krb5-libs mariadb-devel systemd-devel gd-devel perl-open perl-experimental \
     perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo
 
-RUN yum group install -y "Development Tools"
+RUN dnf -y install rpmdevtools rpmlint
+#RUN yum group install -y "Development Tools"
 
 RUN subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms && \
-    yum -y module enable virt-devel && \
-    yum install -y libssh2-devel
+    dnf -y module enable virt-devel && \
+    dnf install -y libssh2-devel
 
 RUN subscription-manager unregister
 
