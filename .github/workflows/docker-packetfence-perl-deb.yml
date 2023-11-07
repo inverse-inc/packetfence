@@ -85,74 +85,6 @@ jobs:
         run: |
           ls -la ${{ env.VOLUME_MOUNT }}/debian/packages/
 
-  smoke_test:
-    runs-on: packetfence-perl-deb-package-build
-    continue-on-error: true
-    needs: ['build_image_and_package']
-    env:
-      container_name: "packetfence_perl_smoke_${{ github.run_id }}_${{ github.run_attempt }}"
-
-    permissions:
-      contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3    
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: network=host
-
-      - name: Build debian smoke docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: './'
-          push: false
-          load: true
-          build-args: |
-            workdir=${{ env.WORKDIR }}
-          tags: |
-            packetfence/packetfence-perl-debian-smoke-test:latest
-          file: ./containers/packetfence-perl/debian/Dockerfile_smoket_debian
-
-      - name: Start docker container
-        run: |
-            docker run -i -d --privileged -v /dev/:/dev/  -v ${{ env.VOLUME_MOUNT }}/debian/packages/:${{ env.VOLUME_MOUNT }} -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host -p 1443:1443 -v ${{ github.workspace }}/:${{ env.WORKDIR }}/packetfence --name ${{ env.container_name }} packetfence/packetfence-perl-debian-smoke-test:latest
-
-      - name: Copy smoke scipts in the /usr/local/pf/ directory
-        run: |
-            docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && mkdir -p /usr/local/pf/ && cp -a ${{ env.WORKDIR }}/packetfence/. /usr/local/pf/"
-
-      - name: Install packetfence
-        run: |
-            docker exec -i ${{ env.container_name }} apt install packetfence -y && msgfmt /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po && ln -s /var/lib/mysql/mysql.sock /run/mysqld/mysqld.sock
-
-#      - name: Base packetfence configuration
-#        run: |
-#            docker exec -i ${{ env.container_name }} ansible-playbook packetfence/addons/packetfence-perl/ansible-configurator/main.yml
-
-#      - name: rebuild images
-#        run: |
-#            docker exec -i ${{ env.container_name }}  /bin/bash -c "set -e && cd ${{ env.WORKDIR }}/packetfence && bash  ${{ env.WORKDIR }}/packetfence/addons/packetfence-perl/rebuild_images.sh"
-
-#      - name: Force install new packetfence-perl package
-#        run: |
-#            docker exec -i ${{ env.container_name }} find ${{ env.VOLUME_MOUNT }} -name "*.deb" -exec dpkg -i --force-overwrite {} \;
-
-#      - name: Execute smoke test after intsllation of the package packetgence-perl
-#        run: |
-#            docker exec -i ${{ env.container_name }} /bin/bash -c "set -e && cd /usr/local/pf/t/ && mysql < db/smoke_test.sql && ./smoke.t; cd -"
-
-#      - name: Post clean docker envrionement
-#        if: always()
-#        run: 
-#          docker rm "${{ env.container_name }}" -f
-
   unit-test:
     needs: ['build_image_and_package']
     runs-on: packetfence-perl-deb-package-build
@@ -169,7 +101,7 @@ jobs:
           find ${{ env.VOLUME_MOUNT }} -name "*.deb" -exec dpkg -i {} \;
 
   sign_package:
-    needs: ['build_image_and_package', 'unit-test', 'smoke_test']
+    needs: ['build_image_and_package', 'unit-test']
     runs-on: packetfence-perl-deb-package-build
     container:
       image: debian:11.0
@@ -198,18 +130,6 @@ jobs:
       uses: docker/setup-buildx-action@v3
       with:
         driver-opts: network=host
-
-#    - name: Build and push
-#      uses: docker/build-push-action@v5
-##      with:
-#        context: './addons/packetfence-perl'
-#        push: true
-#        tags: |
-#          localhost:5000/packetfence-perl-debian:latest
-#          localhost:5000/packetfence-perl-debian:${{ needs.build_image_and_package.outputs.package_version }}  
-#        file: ./addons/packetfence-perl/Dockerfile-debian
-#        cache-from: type=gha
-##        cache-to: type=gha,mode=max
 
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
