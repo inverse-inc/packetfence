@@ -13,7 +13,7 @@ This module is currently only a placeholder, see L<pf::Switch::H3C>.
 use strict;
 use warnings;
 
-use base ('pf::Switch::Comware_v5');
+use base ('pf::Switch::H3C::Comware_v5');
 
 
 sub description { 'Comware v7' }
