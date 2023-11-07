@@ -130,7 +130,7 @@ jobs:
 
       - name: Install packetfence
         run: |
-            docker exec -i ${{ env.container_name }} apt install packetfence -y
+            docker exec -i ${{ env.container_name }} apt install packetfence -y && msgfmt /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po && ln -s /var/lib/mysql/mysql.sock /run/mysqld/mysqld.sock
 
 #      - name: Base packetfence configuration
 #        run: |
