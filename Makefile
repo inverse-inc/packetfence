@@ -110,7 +110,7 @@ bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 
 bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
-	$(CC) -g -std=c99 -lcurl -lcjson -Wall $< -o $@
+	$(CC) -g -std=c99 -Wall $< -o $@ -lcurl -lcjson
 
 src/mariadb_udf/pf_udf.so: src/mariadb_udf/pf_udf.c $(PF_UDF_OBJ)
 	$(CC) -O2 -Wall -g $$(pkg-config libmariadb --cflags) -fPIC -shared -o $@ $< $(PF_UDF_OBJ)

@@ -166,6 +166,8 @@ Depends: ${misc:Depends}, vlan,
  monit, uuid-runtime,
 # Docker runtime
  docker-ce, docker-ce-cli, containerd.io,
+# libcurl and cjson for ntlm_auth_wrapper
+ libcurl4-openssl-dev, libcjson-dev,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system
