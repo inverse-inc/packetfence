@@ -1,9 +1,0 @@
-pfserver_webadmin_url: https://localhost:1443
-mariadb:
-  rootuser: 'root'
-  rootpassword: 'secret'
-  pfuser: 'pf'
-  pfpassword: 'secret'
-  databasename: 'pf'
-admin:
-  password: 'secret'
