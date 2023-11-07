@@ -30,6 +30,9 @@ BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
 BuildRequires: systemd
 BuildRequires: MariaDB-devel >= 10.1
+BuildRequires: libcurl-devel
+BuildRequires: cjson-devel
+
 
 # To handle migration from several packetfence packages
 # to only one
@@ -314,8 +317,6 @@ Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
 
 Requires: python3-samba
-Requires: libcurl-devel
-Requires: cjson-devel
 
 %description
 

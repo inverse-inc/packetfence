@@ -45,8 +45,6 @@ The process is meant to be very short lived and never reused. */
 const char *argp_program_version = "ntlm_auth_wrapper 1.0";
 const char *argp_program_bug_address = "<info@inverse.ca>";
 
-// These have to be initialized early so they can be used in the signal handler.
-pid_t pid = 0 ; // initialize the child pid
 
 /* Program documentation. */
 static char doc[] =
@@ -190,7 +188,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 static struct argp argp = { options, parse_opt, args_doc, doc };
 
 // send results to syslog
-void log_result(int argc, char **argv, const struct arguments args, int status, double elapsed, int ppid)
+void log_result(int argc, char **argv, const struct arguments args, int status, double elapsed)
 {
     openlog("radius-debug", LOG_PID, args.facility);
     // build the log message
@@ -218,7 +216,7 @@ void log_result(int argc, char **argv, const struct arguments args, int status, 
         i++;
     }
 
-    syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i", log_msg, elapsed, status, ppid);
+    syslog(args.level, "%s time: %g ms, status: %i", log_msg, elapsed, status);
     closelog();
 }
 
@@ -276,42 +274,21 @@ double howlong(struct timeval t1)
     return elapsed;
 }
 
-// We set a handler for the TERM signal.
-// If we receive one, we kill the child and send ourselves a SIGALRM in one second.
-// This should be enough time to clean up, log the timeout and exit.
-// If it isn't, well... too bad. We _exit anyway.
-static void handler(int sig)
-{
-    if (sig == SIGTERM) {
-//        if (pid == 0) _exit(SIGTERM); // we haven't forked yet or we are still in the child pre exec
-//        kill(pid, SIGKILL);
-        alarm(1) ; // wake us up in one second, giving us just enough time to finish logging
-        _exit(SIGTERM);
-    }
-    if (sig == SIGALRM ) {
-//        kill(pid, SIGKILL); // just in case we may have forked in the meantime
-        _exit(SIGTERM); // we waited long enough
-    }
-}
-
 struct MemoryStruct {
     char *memory;
     size_t size;
 };
 
-// Callback function to handle the response body in chunks
 size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realsize = size * nmemb;
     struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 
-    // Reallocate memory to fit the new chunk
     mem->memory = realloc(mem->memory, mem->size + realsize + 1);
     if (mem->memory == NULL) {
         printf("Not enough memory (realloc returned NULL)\n");
         return 0;
     }
 
-    // Copy the chunk to the end of the memory block
     memcpy(&(mem->memory[mem->size]), contents, realsize);
     mem->size += realsize;
     mem->memory[mem->size] = 0;
@@ -323,7 +300,6 @@ int main(argc, argv, envp)
 int argc;
 char **argv, **envp;
 {
-
     /* Default values. */
     struct arguments arguments;
     arguments.insecure = 0;
@@ -345,22 +321,6 @@ char **argv, **envp;
     double elapsed;
     gettimeofday(&t1, NULL);
 
-    // set the signal handler
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sa.sa_handler = handler;
-    if (sigaction(SIGTERM, &sa, NULL) == -1) {
-        fprintf(stderr,
-            "Error: could not register TERM signal handler. Exiting.");
-        exit(1);
-    }
-    if (sigaction(SIGALRM, &sa, NULL) == -1) {
-        fprintf(stderr,
-            "Error: could not register ALRM signal handler. Exiting.");
-        exit(1);
-    }
-
     // Find the -- separator if any and reset the argv accordingly
     // so it does not get passed to the execed program.
     int opt_end = 0;
@@ -379,88 +339,88 @@ char **argv, **envp;
         argc = argc - opt_end;
     }
 
-    // keep the same log format we used in old ntlm_auth
+    // keep the same values we used before, so SIGTERM = timeout, other non-zero values = auth error
     int status = 0;
-    int ppid = 0;
 
-    if (strcmp(arguments.api_host, "") !=0 && strcmp(arguments.api_port, "0") != 0) {
-        char *s_username;
-        char *s_challenge;
-        char *s_nt_response;
-        char *s_ntlm_password;
-        char *i_request_nt_key;
-
-        cJSON *json = cJSON_CreateObject();
-        if (json == NULL) {
-            fprintf(stderr, "Error: could not create JSON object. Exiting.");
-            exit(1);
-        }
-        for (int i=1; i<argc; i++) {
-            if (strncmp(argv[i], "--username=", strlen("--username=")) == 0) {
-                cJSON_AddStringToObject(json, "username", argv[i]+strlen("--username="));
-            }
-            if (strncmp(argv[i], "--password=", strlen("--password=")) == 0) {
-                cJSON_AddStringToObject(json, "password", argv[i]+strlen("--password="));
-            }
-            if (strncmp(argv[i], "--request-nt-key", strlen("--request-nt-key")) == 0) {
-                cJSON_AddItemToObject(json, "request-nt-key", cJSON_CreateTrue());
-            }
-            if (strncmp(argv[i], "--challenge=", strlen("--challenge=")) == 0) {
-                cJSON_AddStringToObject(json, "challenge", argv[i]+strlen("--challenge="));
-            }
-            if (strncmp(argv[i], "--nt-response=", strlen("--nt-response=")) == 0) {
-                cJSON_AddStringToObject(json, "nt-response", argv[i]+strlen("--nt-response="));
-            }
-        }
-
-        char *json_string = cJSON_Print(json);
-
-        CURL *curl;
-        CURLcode cURLCode;
-        curl = curl_easy_init();
-        struct MemoryStruct chunk;
-        chunk.memory = malloc(1);
-        chunk.size = 0;
-        if(curl) {
-            char *uri;
-            asprintf(&uri, "http://%s:%s/ntlm/auth", arguments.api_host, arguments.api_port);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
-
-            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_easy_setopt(curl, CURLOPT_URL, uri);
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-            curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
-            struct curl_slist *headers = NULL;
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_string);
-            cURLCode = curl_easy_perform(curl);
-            if (cURLCode == CURLE_OK) {
-                status = 0;
-                long http_response_code;
-                curl_easy_getinfo(curl, CURLINFO_HTTP_CODE, &http_response_code);
-                if (http_response_code != 200) {
-                    status = 1;  // consider non-200 response as auth failures.
-                }
-                printf("%s\n", chunk.memory);
-            } else {
-                status = SIGTERM; // timeout or any network errors, considered as time-outs
-                fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(cURLCode));
-            }
-            curl_easy_cleanup(curl);
-        }
-        free(chunk.memory);
-        free(json_string);
-        cJSON_Delete(json);
+    if (strcmp(arguments.api_host, "") ==0 || strcmp(arguments.api_port, "0") == 0) {
+        fprintf(stderr, "Error: endpoint host or port not given, exiting");
+        exit(1);
     }
+
+    cJSON *json = cJSON_CreateObject();
+    if (json == NULL) {
+        fprintf(stderr, "Error: could not create JSON object. Exiting.");
+        exit(1);
+    }
+    for (int i = 1; i < argc; i++) {
+        if (strncmp(argv[i], "--username=", strlen("--username=")) == 0) {
+            cJSON_AddStringToObject(json, "username", argv[i] + strlen("--username="));
+        } else if (strncmp(argv[i], "--password=", strlen("--password=")) == 0) {
+            cJSON_AddStringToObject(json, "password", argv[i] + strlen("--password="));
+        } else if (strncmp(argv[i], "--request-nt-key", strlen("--request-nt-key")) == 0) {
+            cJSON_AddItemToObject(json, "request-nt-key", cJSON_CreateTrue());
+        } else if (strncmp(argv[i], "--challenge=", strlen("--challenge=")) == 0) {
+            cJSON_AddStringToObject(json, "challenge", argv[i] + strlen("--challenge="));
+        } else if (strncmp(argv[i], "--nt-response=", strlen("--nt-response=")) == 0) {
+            cJSON_AddStringToObject(json, "nt-response", argv[i] + strlen("--nt-response="));
+        }
+    }
+
+    char *json_string = cJSON_Print(json);
+    CURL *curl;
+    CURLcode cURLCode;
+    struct MemoryStruct chunk;
+
+    curl = curl_easy_init();
+    chunk.memory = malloc(1);
+    chunk.size = 0;
+    if(curl) {
+        char* uri;
+
+        asprintf(&uri, "http://%s:%s/ntlm/auth", arguments.api_host, arguments.api_port);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, 2500L);
+
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_easy_setopt(curl, CURLOPT_URL, uri);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
+
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_string);
+
+        cURLCode = curl_easy_perform(curl);
+        free(uri);
+        if (cURLCode == CURLE_OK) {
+            status = 0;
+            long http_response_code;
+            curl_easy_getinfo(curl, CURLINFO_HTTP_CODE, &http_response_code);
+            if (http_response_code != 200) {
+                status = http_response_code;  // consider non-200 response as auth failures.
+            }
+            printf("%s\n", chunk.memory);
+        } else {
+            status = cURLCode;
+            if (cURLCode==CURLE_OPERATION_TIMEDOUT || cURLCode == CURLE_COULDNT_RESOLVE_HOST || cURLCode == CURLE_COULDNT_CONNECT) {
+                status = SIGTERM; // timeout or any network errors, considered as time-outs
+            }
+            fprintf(stderr, "exec curl failed: %s\n", curl_easy_strerror(cURLCode));
+        }
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+    }
+    free(chunk.memory);
+    free(json_string);
+    cJSON_Delete(json);
 
     elapsed = howlong(t1);
 
     if (arguments.log)
-        log_result(argc, argv, arguments, status, elapsed, ppid);
+        log_result(argc, argv, arguments, status, elapsed);
     // open socket to StatsD server and send message
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
-
 }
