@@ -34,23 +34,16 @@ func main() {
 	defer NotifySystemd("STOPPING=1")
 }
 
-type DelayedQueue struct {
-	DelayQueue, SubmitQueue string
-}
-
 type QueueWeight struct {
 	Weight    int
 	QueueName string
-}
-
-type WorkerQueue struct {
 }
 
 type QueueWorkers struct {
 	redis               *redis.Client
 	SingleWorkerQueues  []string
 	QueuesWeighted      []string
-	DelayedWorkerQueues []DelayedQueue
+	DelayedWorkerQueues []pfqueueclient.DelayedQueue
 	WorkerCount         int
 	waiter              sync.WaitGroup
 	runningBooleans     []*atomic.Bool
@@ -152,7 +145,7 @@ func (qw *QueueWorkers) Run() {
 }
 
 func setupConnection(ctx context.Context, conn *redis.Conn) error {
-	return nil
+	return pfqueueclient.SetupConnection(ctx, conn)
 }
 
 func credentialsProvider() (string, string) {
@@ -189,7 +182,14 @@ func buildQueueWorkers() *QueueWorkers {
 			w.SingleWorkerQueues = append(w.SingleWorkerQueues, queueName)
 		}
 
-		w.DelayedWorkerQueues = append(w.DelayedWorkerQueues, DelayedQueue{queueName, delayedName})
+		w.DelayedWorkerQueues = append(
+			w.DelayedWorkerQueues,
+			pfqueueclient.DelayedQueue{
+				SubmitQueue: queueName,
+				DelayQueue:  delayedName,
+				Batch:       1000,
+			},
+		)
 	}
 
 	if len(weights) > 0 {

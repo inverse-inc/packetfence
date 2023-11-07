@@ -32,23 +32,6 @@ func (c *Consumer) Close() {
 const PFQUEUE_COUNTER = "TaskCounters"
 const PFQUEUE_EXPIRED_COUNTER = "ExpiredCounters"
 
-/*
-
-This lua script gets all the job id from a zset with a timestamp less the one passed
-Then push all the job ids the work queue
-It is called like the following
-EVAL LUA_DELAY_JOBS_MOVE 2 DELAY_ZSET JOB_QUEUE TIMESTAMP BATCH
-
-*/
-
-var LUA_DELAY_JOBS_MOVE = redis.NewScript(`local task_ids = redis.call("ZRANGEBYSCORE",KEYS[1],'-inf',ARGV[1],'LIMIT',0,ARGV[2]);
-    if table.getn(task_ids) > 0 then
-        redis.call("LPUSH",KEYS[2],unpack(task_ids));
-        redis.call("ZREM",KEYS[1],unpack(task_ids));
-    end
-`,
-)
-
 type TaskInfo struct {
 	Data         []byte `redis:"data"`
 	StatusUpdate int    `redis:"status_update"`
@@ -126,10 +109,6 @@ func (c *Consumer) nextTaskID(ctx context.Context, queues []string) (string, err
 	}
 
 	return val[1], nil
-}
-
-func (c *Consumer) ProcessDelayedJobs(ctx context.Context, delay_queue, submit_queue string, time_limit, batch int) {
-	LUA_DELAY_JOBS_MOVE.Run(ctx, c.redis, []string{delay_queue, submit_queue}, time_limit, batch)
 }
 
 func getTaskCounterId(id string) string {
