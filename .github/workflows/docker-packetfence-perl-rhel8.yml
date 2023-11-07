@@ -22,7 +22,7 @@ env:
 
 jobs:
   build_image_and_package:
-    runs-on: packetfence-perl-deb-package-build
+    runs-on: packetfence-perl-rpm-package-build
     permissions:
       contents: read
       packages: write
@@ -72,8 +72,6 @@ jobs:
             ${{ env.BRANCH_NAME == 'devel' && 'inverse-inc/packetfence/packetfence-perl-rhel8:latest' || ''}}
             ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/inverse-inc/packetfence/packetfence-rhel8:latest' || ''}}
           file: containers/packetfence-perl/rhel8/Dockerfile_rhel8
-#          cache-from: type=gha
-#          cache-to: type=gha,mode=max
 
       - name: Build rhel8 package
         uses: addnab/docker-run-action@v3
@@ -91,7 +89,7 @@ jobs:
 
   unit-test:
     needs: ['build_image_and_package']
-    runs-on: packetfence-perl-deb-package-build
+    runs-on: packetfence-perl-rpm-package-build
     container:
       image: redhat/ubi8
       volumes:
@@ -108,7 +106,7 @@ jobs:
 
   sign_package:
     needs: ['build_image_and_package', 'unit-test']
-    runs-on: packetfence-perl-deb-package-build
+    runs-on: packetfence-perl-rpm-package-build
     container:
       image: rockylinux:8.8
       volumes:
@@ -137,7 +135,7 @@ jobs:
 
   push_docker-image_and_deb-package: 
     needs: ['build_image_and_package', 'unit-test', 'sign_package']
-    runs-on: packetfence-perl-deb-package-build
+    runs-on: packetfence-perl-rpm-package-build
 
     steps:
     - name: Set up Docker Buildx
