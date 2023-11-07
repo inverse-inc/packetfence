@@ -313,6 +313,10 @@ Requires: fingerbank >= 4.3.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
 
+Requires: python3-samba
+Requires: libcurl-devel
+Requires: cjson-devel
+
 %description
 
 PacketFence is an open source network access control (NAC) system.
