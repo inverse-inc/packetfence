@@ -1,4 +1,4 @@
-package pf::Switch::H3C::S5120;
+package pf::Switch::H3C::Comware_v5;
 
 =head1 NAME
 
@@ -16,7 +16,7 @@ use warnings;
 use base ('pf::Switch::H3C');
 
 
-sub description { 'H3C S5120 (HP/3Com)' }
+sub description { 'Comware v5' }
 
 =head1 AUTHOR
 
