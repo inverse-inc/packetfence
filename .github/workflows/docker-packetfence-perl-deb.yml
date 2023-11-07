@@ -68,8 +68,6 @@ jobs:
             ${{ env.BRANCH_NAME == 'devel' && 'inverse-inc/packetfence/packetfence-perl-debian:latest' || ''}}
             ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:latest' || ''}}
           file: ./containers/packetfence-perl/debian/Dockerfile_debian
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Build debian package
         uses: addnab/docker-run-action@v3
