@@ -26,7 +26,7 @@ func NewBackendConn(name string) (*BackendConn, error) {
 		return nil, err
 	}
 
-	err = SendTo(conn, []byte(name))
+	_, err = SendTo(conn, []byte(name))
 	if err != nil {
 		conn.Close()
 		return nil, err
@@ -78,7 +78,7 @@ func (c *BackendConn) Send(data []byte) (interface{}, error) {
 }
 
 func (c *BackendConn) sendRecv(data []byte) ([]byte, error) {
-	if err := SendTo(c.conn, data); err != nil {
+	if _, err := SendTo(c.conn, data); err != nil {
 		return nil, err
 	}
 
@@ -125,32 +125,32 @@ func ReadFrom(conn *net.UnixConn) ([]byte, error) {
 	return data, nil
 }
 
-func SendTo(conn *net.UnixConn, data []byte) error {
+func SendTo(conn *net.UnixConn, data []byte) (int, error) {
 	buff := [4]byte{}
 	to_send := len(data)
 	binary.LittleEndian.PutUint32(buff[:], uint32(to_send))
 	n, err := conn.Write(buff[:])
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if n != 4 {
-		return errors.New("Short Write")
+		return 0, errors.New("Short Write")
 	}
 
 	sent, err := conn.Write(data)
 	if err != nil {
-		return err
+		return sent, err
 	}
 
 	for sent < to_send {
 		n, err := conn.Write(data[sent:])
 		if err != nil {
-			return err
+			return sent + n, err
 		}
 
 		sent += n
 	}
 
-	return err
+	return sent, err
 }
