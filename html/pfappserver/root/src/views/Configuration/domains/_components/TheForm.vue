@@ -51,6 +51,16 @@
                        :text="$i18n.t(`Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a '/'. (ex: Computers/Servers/Unix).`)"
         />
 
+        <form-group-machine-account namespace="machine_account"
+                                    :column-label="$i18n.t('Machine account')"
+                                    :text="$i18n.t(`...`)"
+        />
+
+        <form-group-machine-account-password namespace="machine_account_password"
+                       :column-label="$i18n.t('Machine account password')"
+                       :text="$i18n.t(`...`)"
+        />
+
         <form-group-ntlmv2-only namespace="ntlmv2_only"
                                 :column-label="$i18n.t('NTLM v2 only')"
                                 :text='$i18n.t(`If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level.`)'
@@ -113,6 +123,8 @@ import {
   FormGroupAdServer,
   FormGroupDnsServers,
   FormGroupOu,
+  FormGroupMachineAccount,
+  FormGroupMachineAccountPassword,
   FormGroupNtlmv2Only,
   FormGroupRegistration,
 
@@ -134,6 +146,8 @@ const components = {
   FormGroupAdServer,
   FormGroupDnsServers,
   FormGroupOu,
+  FormGroupMachineAccount,
+  FormGroupMachineAccountPassword,
   FormGroupNtlmv2Only,
   FormGroupRegistration,
 
