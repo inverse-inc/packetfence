@@ -50,15 +50,21 @@ type QueueWorkers struct {
 	currentIndex        atomic.Uint64
 }
 
+func (qw *QueueWorkers) runDelayedQueueWorker(dq pfqueueclient.DelayedQueue, r *atomic.Bool) {
+	ctx := context.Background()
+	for r.Load() {
+		dq.Run(ctx, qw.redis)
+		time.Sleep(time.Millisecond * 100)
+	}
+}
+
 func (qw *QueueWorkers) runSingleWorkerQueue(q string, r *atomic.Bool) {
 	ctx := context.Background()
-	defer qw.waiter.Done()
 	consumer, err := pfqueueclient.NewConsumer(qw.redis, q)
 	if err != nil {
 		return
 	}
 
-	defer consumer.Close()
 	for r.Load() {
 		queues := qw.getNextWeights()
 		err := consumer.ProcessNextQueueItem(ctx, queues)
@@ -91,7 +97,6 @@ func (qw *QueueWorkers) getNextWeights() []string {
 
 func (qw *QueueWorkers) runMultiWorkerQueue(r *atomic.Bool) {
 	ctx := context.Background()
-	defer qw.waiter.Done()
 	consumer, err := pfqueueclient.NewConsumer(qw.redis, "worker")
 	if err != nil {
 		return
@@ -127,6 +132,7 @@ func (qw *QueueWorkers) Run() {
 		qw.runningBooleans = append(qw.runningBooleans, r)
 		go func(q string, r *atomic.Bool) {
 			qw.waiter.Add(1)
+			defer qw.waiter.Done()
 			r.Store(true)
 			qw.runSingleWorkerQueue(q, r)
 		}(q, r)
@@ -137,11 +143,24 @@ func (qw *QueueWorkers) Run() {
 		qw.runningBooleans = append(qw.runningBooleans, r)
 		go func(r *atomic.Bool) {
 			qw.waiter.Add(1)
+			defer qw.waiter.Done()
 			r.Store(true)
 			qw.runMultiWorkerQueue(r)
 		}(r)
 	}
+
+	for _, dq := range qw.DelayedWorkerQueues {
+		r := &atomic.Bool{}
+		qw.runningBooleans = append(qw.runningBooleans, r)
+		go func(r *atomic.Bool, dq pfqueueclient.DelayedQueue) {
+			qw.waiter.Add(1)
+			defer qw.waiter.Done()
+			r.Store(true)
+			qw.runDelayedQueueWorker(dq, r)
+		}(r, dq)
+	}
 	qw.waiter.Wait()
+
 }
 
 func setupConnection(ctx context.Context, conn *redis.Conn) error {
