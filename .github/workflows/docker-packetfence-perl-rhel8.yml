@@ -16,7 +16,7 @@ on:
 
 env:
   WORKDIR: "/root"
-  VOLUME_MOUNT: "/mnt"
+  VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
   OUTPUT_DIRECTORY: "/mnt/output_${{ github.run_id }}_${{ github.run_attempt }}"
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
@@ -97,15 +97,15 @@ jobs:
     container:
       image: redhat/ubi8
       volumes:
-        - /mnt/rhel8/packages/:/mnt
+        - /mnt/${{ github.run_id }}_${{ github.run_attempt }}/rhel8/packages/:/mnt
     steps:     
       - name: Install the package packetfence-perl
         run: |
           yum -y install findutils 
           cat /etc/*release
           env
-          ls -la  ${{ env.VOLUME_MOUNT }} 
-          find ${{ env.VOLUME_MOUNT }} -name "packetfence-perl-*.rpm" -exec rpm -ivh {} \;
+          ls -la /mnt
+          find /mnt -name "packetfence-perl-*.rpm" -exec rpm -ivh {} \;
 
 
   sign_package:
@@ -114,7 +114,7 @@ jobs:
     container:
       image: rockylinux:8.8
       volumes:
-        - /mnt/rhel8/packages/:/mnt
+        - /mnt/${{ github.run_id }}_${{ github.run_attempt }}/rhel8/packages/:/mnt
     steps:
       - name: Install dependenecies
         run: yum install -y rpm-sign
@@ -129,13 +129,13 @@ jobs:
           gpg --list-keys
 
       - name: Sign the package
-        run: rpm --define "_gpg_name support@inverse.ca" --define '_signature gpg' --addsign --addsign  ${{ env.VOLUME_MOUNT }}/packetfence-perl*.rpm
+        run: rpm --define "_gpg_name support@inverse.ca" --define '_signature gpg' --addsign  /mnt/packetfence-perl*.rpm
 
       - name: Verifiy the signarure of package
         run: |
           gpg  --batch --yes   --output /tmp/pubkey.pub --armor --export  support@inverse.ca && rpm --import /tmp/pubkey.pub
-          rpm -qpi ${{ env.VOLUME_MOUNT }}/packetfence-perl*.rpm
-          rpm --checksig ${{ env.VOLUME_MOUNT }}/packetfence-perl*.rpm
+          rpm -qpi /mnt/packetfence-perl*.rpm
+          rpm --checksig /mnt/packetfence-perl*.rpm
 
   push_docker-image_and_deb-package: 
     needs: ['build_image_and_package', 'unit-test', 'sign_package']

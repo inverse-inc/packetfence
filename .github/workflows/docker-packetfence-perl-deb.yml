@@ -16,7 +16,7 @@ on:
 
 env:
   WORKDIR: "/root"
-  VOLUME_MOUNT: "/mnt"
+  VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
   OUTPUT_DIRECTORY: "/mnt/output_${{ github.run_id }}_${{ github.run_attempt }}"
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 
@@ -93,14 +93,14 @@ jobs:
     container:
       image: ubuntu:20.04
       volumes:
-        - /mnt/debian/packages/:/mnt
+        - /mnt/${{ github.run_id }}_${{ github.run_attempt }}/debian/packages/:/mnt
     steps:     
       - name: Install the package packetfence-perl
         run: |
           cat /etc/*release
           env
-          ls -la  ${{ env.VOLUME_MOUNT }} 
-          find ${{ env.VOLUME_MOUNT }} -name "*.deb" -exec dpkg -i {} \;
+          ls -la /mnt
+          find /mnt -name "*.deb" -exec dpkg -i {} \;
 
   sign_package:
     needs: ['build_image_and_package', 'unit-test']
@@ -108,7 +108,7 @@ jobs:
     container:
       image: debian:11.0
       volumes:
-        - /mnt/debian/packages/:/mnt
+        - /mnt/${{ github.run_id }}_${{ github.run_attempt }}/debian/packages/:/mnt
     steps:
       - name: Install debian dependenecies
         run:  apt update && apt install gpg dpkg-sig -y
@@ -117,10 +117,10 @@ jobs:
         run: echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --pinentry-mode loopback --import
 
       - name: Sign the package
-        run: dpkg-sig -k  B022C48D3D6373D7FC256A8CCB2D3A2AA0030E2C  --sign builder ${{ env.VOLUME_MOUNT }}/*.deb
+        run: dpkg-sig -k  B022C48D3D6373D7FC256A8CCB2D3A2AA0030E2C  --sign builder /mnt/*.deb
 
       - name: Verifiy the signarure of package
-        run: gpg --verify  ${{ env.VOLUME_MOUNT }}/*.deb
+        run: gpg --verify  /mnt/*.deb
 
 
   push_docker-image_and_deb-package: 
