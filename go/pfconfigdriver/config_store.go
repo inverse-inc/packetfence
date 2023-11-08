@@ -36,11 +36,14 @@ func (cs *ConfigStore) GetRefreshable(n string) Refresh {
 }
 
 func (cs *ConfigStore) Clone() *ConfigStore {
-	c := &ConfigStore{}
-	c.structs = clone.Clone(cs.structs)
-	c.refreshables = clone.Clone(cs.refreshables)
+	c2 := &ConfigStore{}
+	c2.structs = clone.Clone(cs.structs)
+	c2.refreshables = make(map[string]Refresh)
+	for k, r := range cs.refreshables {
+		c2.refreshables[k] = r.Clone()
+	}
 
-	return c
+	return c2
 }
 
 func (cs *ConfigStore) updater() *ConfigStoreUpdater {
@@ -84,6 +87,10 @@ func (cs *ConfigStoreUpdater) AddStruct(ctx context.Context, n string, i interfa
 func (cs *ConfigStoreUpdater) Refresh(ctx context.Context) {
 	for _, s := range cs.structs {
 		refreshStruct(ctx, s)
+	}
+
+	for _, s := range cs.refreshables {
+		s.Refresh(ctx)
 	}
 }
 
