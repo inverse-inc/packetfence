@@ -222,7 +222,7 @@ func buildQueueWorkers() *QueueWorkers {
 		pipeliner.Exec(ctx)
 	}
 
-	w.WorkerCount = pfqueue.Pfqueue.Workers
+	w.WorkerCount = pfqueue.PfQueue.Workers
 	return w
 }
 

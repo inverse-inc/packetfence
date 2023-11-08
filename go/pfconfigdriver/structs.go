@@ -747,14 +747,14 @@ type PfQueueConfig struct {
 	StructConfig
 	PfconfigMethod string                `val:"hash_element"`
 	PfconfigNS     string                `val:"config::Pfqueue"`
-	Pfqueue        Pfqueue               `json:"pfqueue"`
+	PfQueue        PfQueue               `json:"pfqueue"`
 	Queues         []Queue               `json:"queues"`
 	Consumer       Consumer              `json:"consumer"`
 	QueueConfig    map[string]QueueEntry `json:"queue_config"`
 	Producer       Producer              `json:"producer"`
 }
 
-type Pfqueue struct {
+type PfQueue struct {
 	Workers    int `json:"workers"`
 	TaskJitter int `json:"task_jitter"`
 	MaxTasks   int `json:"max_tasks"`
