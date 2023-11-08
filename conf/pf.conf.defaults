@@ -551,10 +551,10 @@ snmptrapd_binary=/usr/sbin/snmptrapd
 # Should pfqueue-backend be managed by PacketFence?
 pfqueue-backend=enabled
 #
-# services.pfqueue-perl
+# services.pfqueue
 #
-# Should pfqueue-perl be managed by PacketFence?
-pfqueue-perl=enabled
+# Should pfqueue be managed by PacketFence?
+pfqueue=enabled
 #
 # services.pfqueue-go
 #
