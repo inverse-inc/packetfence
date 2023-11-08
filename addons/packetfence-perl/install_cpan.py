@@ -191,9 +191,11 @@ def validate_dependencies(original_list_of_depdencies,modules_without_version):
 
 if __name__ == '__main__':
     # construct the argument parse and parse the arguments
+    cpu_count = os.cpu_count()
+    number_exec = round(cpu_count * 1.5 + 0.1)
     parser = argparse.ArgumentParser()
     parser.add_argument("-df", "--dependencies_csv_file", required=True,  help="depedencies file's path")
-    parser.add_argument("-mw", "--max_workers", required=False, help="The number of Perl modules to be installed simultaneously, default is 30", default = 30,type=int)
+    parser.add_argument("-mw", "--max_workers", required=False, help="The number of Perl modules to be installed simultaneously, number cpu multiplied by 1.5", default = number_exec,type=int)
     parser.add_argument("-vi", "--validate_perl_module", required=False, help="validate perl module", default = False, type= bool)
     
     args = parser.parse_args()
