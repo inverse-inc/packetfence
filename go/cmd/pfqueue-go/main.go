@@ -51,7 +51,7 @@ type QueueWorkers struct {
 }
 
 func (qw *QueueWorkers) runDelayedQueueWorker(dq pfqueueclient.DelayedQueue, r *atomic.Bool) {
-	ctx := context.Background()
+	ctx := log.LoggerNewContext(context.Background())
 	for r.Load() {
 		dq.Run(ctx, qw.redis)
 		time.Sleep(time.Millisecond * 100)
@@ -59,7 +59,7 @@ func (qw *QueueWorkers) runDelayedQueueWorker(dq pfqueueclient.DelayedQueue, r *
 }
 
 func (qw *QueueWorkers) runSingleWorkerQueue(q string, r *atomic.Bool) {
-	ctx := context.Background()
+	ctx := log.LoggerNewContext(context.Background())
 	consumer, err := pfqueueclient.NewConsumer(qw.redis, q)
 	if err != nil {
 		return
@@ -96,7 +96,7 @@ func (qw *QueueWorkers) getNextWeights() []string {
 }
 
 func (qw *QueueWorkers) runMultiWorkerQueue(r *atomic.Bool) {
-	ctx := context.Background()
+	ctx := log.LoggerNewContext(context.Background())
 	consumer, err := pfqueueclient.NewConsumer(qw.redis, "worker")
 	if err != nil {
 		return
@@ -173,7 +173,7 @@ func credentialsProvider() (string, string) {
 
 func buildQueueWorkers() *QueueWorkers {
 	var pfqueue pfconfigdriver.PfQueueConfig
-	ctx := context.Background()
+	ctx := log.LoggerNewContext(context.Background())
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfqueue)
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:                pfqueue.Consumer.RedisArgs.Server,
@@ -280,7 +280,7 @@ func systemdStart() {
 }
 
 func increaseFileLimit() {
-	ctx := context.Background()
+	ctx := log.LoggerNewContext(context.Background())
 	var rLimit syscall.Rlimit
 	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 	if err != nil {
