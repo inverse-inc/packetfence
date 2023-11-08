@@ -424,6 +424,8 @@ github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7 h1:1wjwpitH5JfZ4
 github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7/go.mod h1:adBgAyadl5D9Mz9rhkQyzZpwcUK9eXdKslXH4oImbB0=
 github.com/inverse-inc/scep v0.0.0-20221012121248-d6b471ca5508 h1:1t9vBsztCnD/iL/Ghk+ab4iXAVXBR1BuDGYDT62NQLA=
 github.com/inverse-inc/scep v0.0.0-20221012121248-d6b471ca5508/go.mod h1:id7lRQlAbzxS6zxQ9FsuH0kSJUKyod7cjPPEZ+kot2Q=
+github.com/inverse-inc/scep v0.0.0-20231108192824-a0c8c78d9a2b h1:3/KCguF3Ald0mFQ8xga6aSw2uRlwQxZlQT8rhKkIiiU=
+github.com/inverse-inc/scep v0.0.0-20231108192824-a0c8c78d9a2b/go.mod h1:6HItlrf6qIzcFzQp87fUuOhgtyqFF/7LV9hFgPUomQ0=
 github.com/jcuga/golongpoll v1.1.0 h1:2CWYEd5sH23aOxzMZ9xw5yjiZC8XdNG5wa70+KBkJrQ=
 github.com/jcuga/golongpoll v1.1.0/go.mod h1:sM63poxLraGZiLM83pQwKL3GbcPxWaxWcD7Hj94CcBc=
 github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a h1:BcF8coBl0QFVhe8vAMMlD+CV8EISiu9MGKLoj6ZEyJA=
