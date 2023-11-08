@@ -17,7 +17,7 @@ on:
 env:
   WORKDIR: "/root"
   VOLUME_MOUNT: "/mnt"
-  OUTPUT_DIRECTORY: "/mnt/output"
+  OUTPUT_DIRECTORY: "/mnt/output_${{ github.run_id }}_${{ github.run_attempt }}"
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 
 jobs:
