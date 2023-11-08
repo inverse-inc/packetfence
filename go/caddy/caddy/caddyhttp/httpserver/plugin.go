@@ -333,7 +333,8 @@ func (h *httpContext) MakeServers() ([]caddy.Server, error) {
 }
 
 // normalizedKey returns "normalized" key representation:
-//  scheme and host names are lowered, everything else stays the same
+//
+//	scheme and host names are lowered, everything else stays the same
 func normalizedKey(key string) string {
 	addr, err := standardizeAddress(key)
 	if err != nil {
@@ -664,6 +665,7 @@ var directives = []string{
 	// PACKETFENCE
 	"cors",
 	"pfconfigpool",
+	"configstore",
 
 	"geoip", // github.com/kodnaplakal/caddy-geoip
 	"errors",
