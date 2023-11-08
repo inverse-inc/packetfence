@@ -58,6 +58,7 @@ func init() {
 type Refresh interface {
 	IsValid(ctx context.Context) bool
 	Refresh(ctx context.Context)
+	Clone() Refresh
 }
 
 // Create a new Pool with a 1 second refresh timeout and initialize the lock

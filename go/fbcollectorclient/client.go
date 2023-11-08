@@ -183,3 +183,12 @@ func (c *ClientFromConfig) Refresh(ctx context.Context) {
 func (c *ClientFromConfig) IsValid(ctx context.Context) bool {
 	return pfconfigdriver.IsValid(ctx, &c.conf)
 }
+
+func (c *ClientFromConfig) Clone() pfconfigdriver.Refresh {
+	clone := &ClientFromConfig{
+		conf: c.conf,
+	}
+
+	clone.Client = clone.buildFromConf(context.Background())
+	return clone
+}
