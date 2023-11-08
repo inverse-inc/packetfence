@@ -54,11 +54,13 @@
         <form-group-machine-account namespace="machine_account"
                                     :column-label="$i18n.t('Machine account')"
                                     :text="$i18n.t(`...`)"
+                                    :disabled="!isNew && !isClone"
         />
 
         <form-group-machine-account-password namespace="machine_account_password"
-                       :column-label="$i18n.t('Machine account password')"
-                       :text="$i18n.t(`...`)"
+                                             :column-label="$i18n.t('Machine account password')"
+                                             :text="$i18n.t(`...`)"
+                                             :disabled="!isNew && !isClone"
         />
 
         <form-group-ntlmv2-only namespace="ntlmv2_only"
