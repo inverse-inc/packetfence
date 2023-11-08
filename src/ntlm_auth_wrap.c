@@ -55,7 +55,6 @@ static char args_doc[] = "[arguments passed to ntlm_auth]";
 
 /* The options we understand. */
 static struct argp_option options[] = {
-    {"binary"     ,'b', "path", 0, "ntlm_auth binary path. Defaults to /usr/bin/ntlm_auth."},
     {"host"       ,'h', "hostname or ip", 0, "StatsD host. Default is localhost."},
     {"port"       ,'p', "port", 0, "StatsD port. Default is 8125."},
     {"insecure"   ,'i', 0, 0, "Log insecure arguments such as the password."},
@@ -72,7 +71,6 @@ static struct argp_option options[] = {
 /* Used by main to communicate with parse_opt. */
 struct arguments {
     int insecure, nostatsd, noresolv, log, facility, level;
-    char *binary;
     char *host;
     char *port;
     char *api_host;
@@ -98,9 +96,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
     case 'l':
         arguments->log = 1;
-        break;
-    case 'b':
-        arguments->binary = arg;
         break;
     case 'h':
         arguments->host = arg;
@@ -193,7 +188,7 @@ void log_result(int argc, char **argv, const struct arguments args, int status, 
     openlog("radius-debug", LOG_PID, args.facility);
     // build the log message
     char *log_msg;
-    asprintf(&log_msg, "%s", args.binary);
+    asprintf(&log_msg, "http://%s:%s", args.api_host, args.api_port);
 
     // concatenate the command with all argv args separated by sep
     int i = 1;
@@ -306,7 +301,6 @@ char **argv, **envp;
     arguments.nostatsd = 0;
     arguments.noresolv = 0;
     arguments.log = 0;
-    arguments.binary = "/usr/bin/ntlm_auth";
     arguments.host = "localhost";
     arguments.port = "8125";
     arguments.facility = LOG_LOCAL5;
@@ -335,7 +329,6 @@ char **argv, **envp;
         // We also need to change argc to reflect discarding the wrapper arguments.
         // This can have consequences so pay attention.
         argv += opt_end;
-        argv[0] = arguments.binary;
         argc = argc - opt_end;
     }
 
