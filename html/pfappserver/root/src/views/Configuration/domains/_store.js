@@ -125,6 +125,9 @@ const actions = {
       return state.joins[id]
     })
   },
+  zhihaosMethod: ({ state }, data) => {
+    console.log(data)
+  },
   joinDomain: ({ state, commit }, data) => {
     commit('JOIN_REQUEST', data.id)
     return api.join(data).then(response => {

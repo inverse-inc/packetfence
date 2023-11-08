@@ -61,6 +61,9 @@
                                              :column-label="$i18n.t('Machine account password')"
                                              :text="$i18n.t(`...`)"
                                              :disabled="!isNew && !isClone"
+                                             :buttonLabel="$i18n.t('Click me!')"
+                                             testLabel="foobar"
+                                             :test="fn"
         />
 
         <form-group-ntlmv2-only namespace="ntlmv2_only"
@@ -182,11 +185,17 @@ export const props = {
   }
 }
 
-export const setup = (props) => {
+export const setup = (props, context) => {
+
+  const { root: { $store } = {} } = context
+
   const schema = computed(() => schemaFn(props))
 
+  const fn = () => $store.dispatch('$_domains/zhihaosMethod', 'woohoo!!!')
+
   return {
-    schema
+    schema,
+    fn
   }
 }
 
