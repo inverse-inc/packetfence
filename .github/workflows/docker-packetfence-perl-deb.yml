@@ -20,6 +20,10 @@ env:
   OUTPUT_DIRECTORY: "/mnt/output_${{ github.run_id }}_${{ github.run_attempt }}"
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build_image_and_package:
     runs-on: packetfence-perl-deb-package-build
