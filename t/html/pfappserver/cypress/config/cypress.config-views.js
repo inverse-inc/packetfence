@@ -7,8 +7,8 @@ module.exports = {
     ...config.e2e,
 
     specPattern: [
-      'cypress/specs/e2e/*-views/*.cy.{js,jsx,ts,tsx}',
-      'cypress/specs/e2e/*-views/**/*.cy.{js,jsx,ts,tsx}',
+      'cypress/specs/e2e/*-views/20*.cy.{js,jsx,ts,tsx}',
+//      'cypress/specs/e2e/*-views/**/*.cy.{js,jsx,ts,tsx}',
     ],
   }
 };

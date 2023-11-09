@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 const { global, bases } = require('config');
 
 describe('Bases', () => {
@@ -7,7 +9,11 @@ describe('Bases', () => {
         cy.pfSystemLogin()
       })
       base.tests.forEach(test => {
-        const { description, url, interceptors, form: { buttonSelector = 'button[type="submit"]' } = {} } = test
+        const { description, url, interceptors = [], selectors } = test
+        const {
+          buttonSelector = 'button[type="submit"]'
+        } = selectors || []
+
         it(description, () => {
 
           // storage from getter (fixture) to setter (expect)
@@ -18,8 +24,9 @@ describe('Bases', () => {
             const { method, url, expect, timeout = 3E3 } = interceptor
             cy.intercept({ method, url }, (req) => {
               if (expect) {
+                req.destroy() // block
                 cy.window().then(() => {
-                  expect(req, cache) // block
+                  expect(req, cache) // expect
                 })
               }
               else {

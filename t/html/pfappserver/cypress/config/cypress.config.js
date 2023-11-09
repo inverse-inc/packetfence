@@ -49,8 +49,8 @@ module.exports = {
   screenshotsFolder: 'cypress/results/screenshots',
   video: false,
   videosFolder: 'cypress/results/videos',
-  viewportWidth: 1280,
-  viewportHeight: 1024,
+  viewportWidth: 2560,
+  viewportHeight: 2048,
 
   // The number of tests for which snapshots and command data are kept in memory (default: 50).
   // Reduce this number if you are experiencing high memory consumption in your browser during a test run.
