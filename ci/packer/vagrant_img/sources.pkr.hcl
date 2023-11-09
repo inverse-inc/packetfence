@@ -1,5 +1,6 @@
 # Vagrant EL 8 builds
 source "vagrant" "el-8" {
+  disk_size = "40000"
   communicator = "ssh"
   source_path = "generic/rhel8"
   box_version = "3.2.24"
@@ -10,6 +11,7 @@ source "vagrant" "el-8" {
 
 # Vagrant Debian 11 builds
 source "vagrant" "debian-11" {
+  disk_size = "40000"
   communicator = "ssh"
   source_path = "debian/bullseye64"
   box_version = "11.20221219.1"
