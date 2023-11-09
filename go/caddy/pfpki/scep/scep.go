@@ -80,7 +80,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		// Load the Intune/MDM csr Verifier
 		signer = csrverifier.Middleware(o, signer)
 
-		if profile[0].ScepServerID != 0 {
+		if profile[0].SCEPEnabled != 0 {
 			svc, err = scepserver.Create("proxy", crts[0], key, signer, scepserver.WithLogger(logger), scepserver.WithAddProxy(profile[0].ScepServer.URL))
 		} else {
 			svc, err = scepserver.Create("server", crts[0], key, signer, scepserver.WithLogger(logger))

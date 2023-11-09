@@ -131,7 +131,7 @@ type (
 		RevokedValidUntil     int                     `json:"revoked_valid_until,omitempty,string" gorm:"default:14"`
 		CloudEnabled          int                     `json:"cloud_enabled,omitempty,string"`
 		CloudService          string                  `json:"cloud_service,omitempty"`
-		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty,string"`
+		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty,string" gorm:"default:0"`
 		ScepServer            SCEPServer              `json:"-"`
 		ScepServerID          uint                    `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
 	}
@@ -948,6 +948,11 @@ func (p Profile) New() (types.Info, error) {
 	}
 
 	scepserver := &SCEPServer{}
+	// Choose the default scep server in the db
+	if p.ScepServerID == 0 {
+		p.ScepServerID = 1
+	}
+
 	if ScepServerDB := p.DB.First(&scepserver, p.ScepServerID).Find(&scepserver); ScepServerDB.Error != nil {
 		Information.Error = ScepServerDB.Error.Error()
 		return Information, ScepServerDB.Error
