@@ -1551,6 +1551,13 @@ CREATE TABLE `pki_scep_servers` (
   KEY `idx_pki_scep_servers_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
+
+--
+-- Default values for pki_scep_servers table
+--
+
+INSERT INTO `pki_scep_servers` VALUES (1,'2023-11-09 10:36:34.489','2023-11-09 10:36:34.489',NULL,'Null','http://127.0.0.1','password');
+
 --
 -- Table structure for table `bandwidth_accounting`
 --
