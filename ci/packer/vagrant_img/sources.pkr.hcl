@@ -14,7 +14,7 @@ source "vagrant" "debian-11" {
   disk_size = "40000"
   communicator = "ssh"
   source_path = "debian/bullseye64"
-  box_version = "11.20221219.1"
+  box_version = "11.20231009.1"
   provider = "libvirt"
   output_dir = "${var.output_dir}"
   template = "templates/vagrantfile_template"
