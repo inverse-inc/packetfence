@@ -25,7 +25,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_image_and_package:
+  build_image:
     runs-on: packetfence-perl-rpm-package-build
     permissions:
       contents: read
@@ -35,6 +35,9 @@ jobs:
       id-token: write
     outputs:
       package_version: ${{ steps.contents.outputs.data }}
+      VOLUME_MOUNT: ${{ steps.contents.outputs.volume_mount }}
+      OUTPUT_DIRECTORY: ${{ steps.contents.outputs.output_directory }}
+      WORKDIR: ${{ steps.contents.outputs.workdir }}
 
     steps:
       - name: Checkout repository
@@ -48,21 +51,30 @@ jobs:
         with:
           driver-opts: network=host
 
-      - name: Find package version from changelog
+      - name: Declare output variable
         id: contents
         run: |
-          package_version=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ rockylinux:8 /bin/bash -c \
+          package_version=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ rockylinux:8.8 /bin/bash -c \
           "set -e && cd ${{ env.WORKDIR }}/ && yum -y  install rpm-build > /dev/null 2>&1 && rpmspec -q --qf "%{version}"  rhel8/SPECS/packetfence-perl.spec")
           echo "Found version: $package_version"
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
           echo "data=$package_version" >> "$GITHUB_OUTPUT"
+          echo "volume_mount=${{env.VOLUME_MOUNT}}" >> "$GITHUB_OUTPUT"
+          echo "output_directory=${{env.OUTPUT_DIRECTORY}}" >> "$GITHUB_OUTPUT"
+          echo "workdir=${{env.WORKDIR}}" >> "$GITHUB_OUTPUT"
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ vars.USER_GITHUB }}
+          password: ${{ secrets.TOKEN_GITHUB }}
+  
       - name: Build packetfence-perl docker image
         uses: docker/build-push-action@v5
         with:
           context: './'
-          push: false
-          load: true
+          push: true
           secrets: |
             PSONO_API_KEY_ID=${{ secrets.PSONO_API_KEY_ID }}
             PSONO_API_KEY_SECRET_KEY=${{ secrets.PSONO_API_KEY_SECRET_KEY }}
@@ -71,50 +83,52 @@ jobs:
             output_directory=${{ env.OUTPUT_DIRECTORY }}
             psono_nqb_rhel_subs_secret_id=${{ vars.PSONO_NQB_RHEL_SUBS_SECRET_ID }}
           tags: |
-            inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}
             ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}
-            ${{ env.BRANCH_NAME == 'devel' && 'inverse-inc/packetfence/packetfence-perl-rhel8:latest' || ''}}
             ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/inverse-inc/packetfence/packetfence-rhel8:latest' || ''}}
           file: containers/packetfence-perl/rhel8/Dockerfile_rhel8
 
-      - name: Build rhel8 package
-        uses: addnab/docker-run-action@v3
-        with:
-            image: inverse-inc/packetfence/packetfence-perl-rhel8:${{ env.PACKAGE_VERSION }}
-            options: --init --rm -v ${{ github.workspace }}/addons/packetfence-perl/:${{ env.WORKDIR }} -v ${{ env.VOLUME_MOUNT }}:${{ env.OUTPUT_DIRECTORY }}
-            shell: /bin/bash
-            run: |
-                set -e && python3 install_cpan.py -d dependencies.csv -vi true && 
-                ./build_package.sh
 
-      - name: Check if the package is created
+
+  build_package:
+    needs: ['build_image']
+    runs-on: packetfence-perl-rpm-package-build
+    container:
+      image: ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:${{ needs.build_image.outputs.package_version }}
+      credentials:
+        username: ${{ vars.USER_GITHUB }}
+        password: ${{ secrets.TOKEN_GITHUB }}
+      volumes:
+        - ${{ github.workspace }}/addons/packetfence-perl/:${{ needs.build_image.outputs.WORKDIR  }}
+        - ${{ needs.build_image.outputs.VOLUME_MOUNT }}:${{ needs.build_image.outputs.OUTPUT_DIRECTORY }}
+    steps:     
+      - name: Build package
         run: |
-          ls -la ${{ env.VOLUME_MOUNT }}/rhel8/packages/
-
+          cd /root
+          set -e && python3 install_cpan.py -d dependencies.csv -vi true && ./build_package.sh
+          ls -la ${{ env.OUTPUT_DIRECTORY }}/rhel8/packages/
+        
   unit-test:
-    needs: ['build_image_and_package']
+    needs: ['build_image', 'build_package']
     runs-on: packetfence-perl-rpm-package-build
     container:
       image: redhat/ubi8
       volumes:
-        - /mnt/${{ github.run_id }}_${{ github.run_attempt }}/rhel8/packages/:/mnt
+        - ${{ needs.build_image.outputs.VOLUME_MOUNT }}/rhel8/packages/:/mnt
     steps:     
       - name: Install the package packetfence-perl
         run: |
           yum -y install findutils 
-          cat /etc/*release
-          env
           ls -la /mnt
           find /mnt -name "packetfence-perl-*.rpm" -exec rpm -ivh {} \;
 
 
   sign_package:
-    needs: ['build_image_and_package', 'unit-test']
+    needs: ['build_image', 'unit-test', 'build_package']
     runs-on: packetfence-perl-rpm-package-build
     container:
       image: rockylinux:8.8
       volumes:
-        - /mnt/${{ github.run_id }}_${{ github.run_attempt }}/rhel8/packages/:/mnt
+        - ${{ needs.build_image.outputs.VOLUME_MOUNT }}/rhel8/packages/:/mnt
     steps:
       - name: Install dependenecies
         run: yum install -y rpm-sign
@@ -137,37 +151,17 @@ jobs:
           rpm -qpi /mnt/packetfence-perl*.rpm
           rpm --checksig /mnt/packetfence-perl*.rpm
 
-  push_docker-image_and_rhel-package: 
-    needs: ['build_image_and_package', 'unit-test', 'sign_package']
+  upload-package: 
+    needs: ['build_image', 'unit-test', 'sign_package', 'build_package']
     runs-on: packetfence-perl-rpm-package-build
 
     env:
-      PACKAGE_DEST_PATH: /root/packages/packetfence-perl/${{ github.head_ref || github.ref_name }}/rhel8/v_${{ needs.build_image_and_package.outputs.package_version }}/
+      PACKAGE_DEST_PATH: /root/packages/packetfence-perl/${{ github.head_ref || github.ref_name }}/rhel8/v_${{ needs.build_image.outputs.package_version }}/
 
     steps:
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      with:
-        driver-opts: network=host
-
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ vars.USER_GITHUB }}
-        password: ${{ secrets.TOKEN_GITHUB }}
-
-    - name: Publish packetfence-perl-rhel image version ${{ needs.build_image_and_package.outputs.package_version }}
-      run: |
-        docker push ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:${{ needs.build_image_and_package.outputs.package_version }} 
-
-    - name: Publish packetfence-image-debian latest
-      if: env.BRANCH_NAME == 'devel'
-      run: |
-        docker push ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:latest
-
     - name: Upload the package to web server
       run: |
+        echo "The package will be uploaded to the web server, directory: ${{ env.PACKAGE_DEST_PATH }}"
         set -e && \
         eval `ssh-agent -s` && ssh-add - <<< $(echo "${{ secrets.DEPLOY_KEY_WEB_SERVER }}") && \
         rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"  ${{ env.VOLUME_MOUNT }}/rhel8/packages/packetfence-perl-*.rpm root@192.95.20.194:${{ env.PACKAGE_DEST_PATH }}
@@ -181,8 +175,3 @@ jobs:
         shell: /bin/bash
         run: |
           rm -rf ${{ env.VOLUME_MOUNT }}
-
-    - name: Remove images
-      run: |
-        nohup docker rmi ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:${{ needs.build_image_and_package.outputs.package_version }} -f &
-        nohup docker rmi ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:latest -f &

@@ -18,14 +18,14 @@ env:
   WORKDIR: "/root"
   VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
   OUTPUT_DIRECTORY: "/mnt/output/"
-  BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build_image_and_package:
+  build_image:
     runs-on: packetfence-perl-deb-package-build
     permissions:
       contents: read
@@ -35,6 +35,9 @@ jobs:
       id-token: write
     outputs:
       package_version: ${{ steps.contents.outputs.data }}
+      VOLUME_MOUNT: ${{ steps.contents.outputs.volume_mount }}
+      OUTPUT_DIRECTORY: ${{ steps.contents.outputs.output_directory }}
+      WORKDIR: ${{ steps.contents.outputs.workdir }}
 
     steps:
       - name: Checkout repository
@@ -48,67 +51,78 @@ jobs:
         with:
           driver-opts: network=host
 
-      - name: Find package version from changelog
+      - name: Declare output variable
         id: contents
         run: |
-          package_version=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ debian:11 /bin/bash -c \
+          package_version=$(set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ env.WORKDIR }}/ debian:11.0 /bin/bash -c \
           "set -e && cd ${{ env.WORKDIR }}/ && apt update > /dev/null 2>&1  && apt install build-essential -y > /dev/null 2>&1 && dpkg-parsechangelog --show-field Version")
           echo "Found version: $package_version"
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
           echo "data=$package_version" >> "$GITHUB_OUTPUT"
+          echo "volume_mount=${{env.VOLUME_MOUNT}}" >> "$GITHUB_OUTPUT"
+          echo "output_directory=${{env.OUTPUT_DIRECTORY}}" >> "$GITHUB_OUTPUT"
+          echo "workdir=${{env.WORKDIR}}" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ vars.USER_GITHUB }}
+          password: ${{ secrets.TOKEN_GITHUB }}
 
       - name: Build packetfence-perl docker image
         uses: docker/build-push-action@v5
         with:
           context: './'
-          push: false
-          load: true
+          push: true
           build-args: |
             workdir=${{ env.WORKDIR }}
             output_directory=${{ env.OUTPUT_DIRECTORY }}
           tags: |
-            inverse-inc/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
             ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
-            ${{ env.BRANCH_NAME == 'devel' && 'inverse-inc/packetfence/packetfence-perl-debian:latest' || ''}}
             ${{ env.BRANCH_NAME == 'devel' && 'ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:latest' || ''}}
           file: ./containers/packetfence-perl/debian/Dockerfile_debian
 
-      - name: Build debian package
-        uses: addnab/docker-run-action@v3
-        with:
-            image: inverse-inc/packetfence/packetfence-perl-debian:${{ env.PACKAGE_VERSION }}
-            options: --rm -v ${{ github.workspace }}/addons/packetfence-perl/:${{ env.WORKDIR }} -v ${{ env.VOLUME_MOUNT }}:${{ env.OUTPUT_DIRECTORY }}
-            shell: /bin/bash
-            run: |
-                set -e && python3 install_cpan.py -d dependencies.csv -vi true && 
-                ./build_package.sh
+  build_package:
+    needs: ['build_image']
+    runs-on: packetfence-perl-deb-package-build
 
-      - name: Check if the package is created
+    container:
+      image: ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:${{ needs.build_image.outputs.package_version }}
+      credentials:
+        username: ${{ vars.USER_GITHUB }}
+        password: ${{ secrets.TOKEN_GITHUB }}
+      volumes:
+        - ${{ github.workspace }}/addons/packetfence-perl/:${{ needs.build_image.outputs.WORKDIR  }}
+        - ${{ needs.build_image.outputs.VOLUME_MOUNT }}:${{ needs.build_image.outputs.OUTPUT_DIRECTORY }}
+    steps:     
+      - name: Build package
         run: |
-          ls -la ${{ env.VOLUME_MOUNT }}/debian/packages/
+          cd /root
+          set -e && python3 install_cpan.py -d dependencies.csv -vi true && ./build_package.sh
+          ls -la ${{ env.OUTPUT_DIRECTORY }}/debian/packages/
+
 
   unit-test:
-    needs: ['build_image_and_package']
-    runs-on: packetfence-perl-deb-package-build
-    container:
-      image: ubuntu:20.04
-      volumes:
-        - /mnt/${{ github.run_id }}_${{ github.run_attempt }}/debian/packages/:/mnt
-    steps:     
-      - name: Install the package packetfence-perl
-        run: |
-          cat /etc/*release
-          env
-          ls -la /mnt
-          find /mnt -name "*.deb" -exec dpkg -i {} \;
-
-  sign_package:
-    needs: ['build_image_and_package', 'unit-test']
+    needs: ['build_image','build_package']
     runs-on: packetfence-perl-deb-package-build
     container:
       image: debian:11.0
       volumes:
-        - /mnt/${{ github.run_id }}_${{ github.run_attempt }}/debian/packages/:/mnt
+        - ${{ needs.build_image.outputs.VOLUME_MOUNT }}/debian/packages/:/mnt
+    steps:     
+      - name: Install the package packetfence-perl
+        run: |
+          ls -la /mnt
+          find /mnt -name "packetfence-perl*.deb" -exec dpkg -i {} \;
+
+  sign_package:
+    needs: ['build_image', 'unit-test', 'build_package']
+    runs-on: packetfence-perl-deb-package-build
+    container:
+      image: debian:11.0
+      volumes:
+        - ${{ needs.build_image.outputs.VOLUME_MOUNT }}/debian/packages/:/mnt
     steps:
       - name: Install debian dependenecies
         run:  apt update && apt install gpg dpkg-sig -y
@@ -123,39 +137,19 @@ jobs:
         run: gpg --verify  /mnt/*.deb
 
 
-  push_docker-image_and_deb-package: 
-    needs: ['build_image_and_package', 'unit-test', 'sign_package']
+  upload-package: 
+    needs: ['build_image', 'unit-test', 'sign_package', 'build_package']
     runs-on: packetfence-perl-deb-package-build
 
     env:
-      PACKAGE_DEST_PATH: /root/packages/packetfence-perl/${{ github.head_ref || github.ref_name }}/debian/v_${{ needs.build_image_and_package.outputs.package_version }}/
+      PACKAGE_DEST_PATH: /root/packages/packetfence-perl/${{ github.head_ref || github.ref_name }}/debian/v_${{ needs.build_image.outputs.package_version }}/
 
     steps:
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      with:
-        driver-opts: network=host
-
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ vars.USER_GITHUB }}
-        password: ${{ secrets.TOKEN_GITHUB }}
-
-    - name: Publish packetfence-perl-debian image version ${{ needs.build_image_and_package.outputs.package_version }}
-      run: |
-        docker push ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:${{ needs.build_image_and_package.outputs.package_version }} 
-
-    - name: Publish packetfence-image-debian latest
-      if: env.BRANCH_NAME == 'devel'
-      run: |
-        docker push ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:latest
-        - name: Upload the package to web server
-
     - name: Upload the package to web server
       run: |
-        eval `ssh-agent -s` && ssh-add - <<< $(echo "${{ secrets.DEPLOY_KEY_WEB_SERVER }}")
+        echo "The package will be uploaded to the web server, directory: ${{ env.PACKAGE_DEST_PATH }}"
+        set -e && \
+        eval `ssh-agent -s` && ssh-add - <<< $(echo "${{ secrets.DEPLOY_KEY_WEB_SERVER }}")  && \
         rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"  ${{ env.VOLUME_MOUNT }}/debian/packages/packetfence-perl_*.deb root@192.95.20.194:${{ env.PACKAGE_DEST_PATH }}
         ssh-add -D
 
@@ -167,9 +161,4 @@ jobs:
         shell: /bin/bash
         run: |
             rm -rf ${{ env.VOLUME_MOUNT }}
-    
-    - name: Remove images
-      run: |
-        nohup docker rmi ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:${{ needs.build_image_and_package.outputs.package_version }} -f &
-        nohup docker rmi ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:latest -f &
 
