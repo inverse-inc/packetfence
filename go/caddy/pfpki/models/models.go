@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"reflect"
 	"regexp"
 	"time"
 
@@ -964,23 +965,76 @@ func (p Profile) New() (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
+	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
 
 	return Information, nil
 }
 
-func (p Profile) Update() (types.Info, error) {
+func (p Profile) Update(params map[string]string) (types.Info, error) {
+
 	var profiledb []Profile
 	Information := types.Info{}
-	if err := p.DB.Model(&Profile{}).Where("name = ?", p.Name).Updates(map[string]interface{}{"mail": p.Mail, "street_address": p.StreetAddress, "organisation": p.Organisation, "organisational_unit": p.OrganisationalUnit, "country": p.Country, "state": p.State, "locality": p.Locality, "postal_code": p.PostalCode, "validity": p.Validity, "key_type": p.KeyType, "key_size": p.KeySize, "digest": p.Digest, "key_usage": p.KeyUsage, "extended_key_usage": p.ExtendedKeyUsage, "ocsp_url": p.OCSPUrl, "p12_mail_password": p.P12MailPassword, "p12_mail_subject": p.P12MailSubject, "p12_mail_from": p.P12MailFrom, "p12_mail_header": p.P12MailHeader, "p12_mail_footer": p.P12MailFooter, "revoked_valid_until": p.RevokedValidUntil, "scep_enabled": p.SCEPEnabled, "scep_challenge_password": p.SCEPChallengePassword, "scep_days_before_renewal": p.SCEPDaysBeforeRenewal, "days_before_renewal": p.DaysBeforeRenewal, "renewal_mail": p.RenewalMail, "days_before_renewal_mail": p.DaysBeforeRenewalMail, "renewal_mail_subject": p.RenewalMailSubject, "renewal_mail_from": p.RenewalMailFrom, "renewal_mail_header": p.RenewalMailHeader, "renewal_mail_footer": p.RenewalMailFooter, "cloud_enabled": p.CloudEnabled, "cloud_service": p.CloudService}).Error; err != nil {
-		Information.Error = err.Error()
-		return Information, errors.New(dbError)
+	scepserver := &SCEPServer{}
+
+	profile := &Profile{}
+
+	// Choose the default scep server in the db
+	if p.ScepServerID == 0 {
+		p.ScepServerID = 1
 	}
-	p.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
+
+	if ScepServerDB := p.DB.First(&scepserver, p.ScepServerID).Find(&scepserver); ScepServerDB.Error != nil {
+		Information.Error = ScepServerDB.Error.Error()
+		return Information, ScepServerDB.Error
+	}
+
+	if val, ok := params["id"]; ok {
+		if ProfileDB := p.DB.First(&profile, val).Find(&profile); ProfileDB.Error != nil {
+			Information.Error = ProfileDB.Error.Error()
+			return Information, ProfileDB.Error
+		}
+	} else {
+		if ProfileDB := p.DB.Where("name = ?", p.Name).First(&profile, val).Find(&profile); ProfileDB.Error != nil {
+			Information.Error = ProfileDB.Error.Error()
+			return Information, ProfileDB.Error
+		}
+	}
+
+	fieldsToExtract := []string{"Mail", "Organisation", "OrganisationalUnit", "Country", "State", "Locality", "StreetAddress", "PostalCode", "Validity", "KeyUsage", "ExtendedKeyUsage", "OCSPUrl", "P12MailPassword", "P12MailSubject", "P12MailFrom", "P12MailHeader", "P12MailFooter", "SCEPEnabled", "SCEPChallengePassword", "SCEPDaysBeforeRenewal", "DaysBeforeRenewal", "RenewalMail", "DaysBeforeRenewalMail", "RenewalMailSubject", "RenewalMailFrom", "RenewalMailHeader", "RenewalMailFooter", "RevokedValidUntil", "CloudEnabled", "ScepServerEnabled"}
+
+	v := reflect.ValueOf(p)
+	typeOfS := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		if contains(fieldsToExtract, typeOfS.Field(i).Name) {
+			profile = profile.setProperty(typeOfS.Field(i).Name, v.Field(i).Interface())
+		}
+	}
+
+	profile.ScepServer = *scepserver
+	profile.SCEPEnabled = p.SCEPEnabled
+
+	p.DB.Save(&profile)
+
+	profiledb = append(profiledb, p)
 	Information.Entries = profiledb
 
 	return Information, nil
+}
+
+func (p *Profile) setProperty(propName string, propValue interface{}) *Profile {
+	reflect.ValueOf(p).Elem().FieldByName(propName).Set(reflect.ValueOf(propValue))
+	return p
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (p Profile) GetByID(params map[string]string) (types.Info, error) {
