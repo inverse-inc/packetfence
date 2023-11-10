@@ -45,7 +45,7 @@ require (
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20220811032638-9fee2fa31606
 	github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4
-	github.com/inverse-inc/scep v0.0.0-20231110032151-a352fa4103d2
+	github.com/inverse-inc/scep v0.0.0-20231110144710-e1f521cce969
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jpillora/backoff v1.0.0
