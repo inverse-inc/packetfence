@@ -143,7 +143,7 @@ def find_installed_perl_modules():
         print("Error running Perl script:", e)
         return []
 
-def validate_installed_perl_module(original_list_of_depdencies, installed_perl_modules,modules_without_version):
+def validate_installed_perl_module(original_list_of_depdencies, installed_perl_modules, modules_without_version):
     list_module_perl_error_installed = []
     for data_csv in original_list_of_depdencies:
         name_version_perl = dict(islice(data_csv.items(), 2))
@@ -189,6 +189,13 @@ def validate_dependencies(original_list_of_depdencies,modules_without_version):
         if i >= 6:
             sys.exit(bcolors.FAIL + "Validate perl modules failed, please see above errors" + bcolors.ENDC)
 
+def write_modules_installed_file(filename):
+    directory_path = os.environ.get('BASE_DIR', '/usr/local/pf/lib/perl_modules')
+    installed_perl_modules = find_installed_perl_modules()
+    with open(directory_path + '/' + filename, 'x') as f:
+        for module in installed_perl_modules:
+            f.write(f"{module['ModName']},{module['ModVersion']}\n")
+
 if __name__ == '__main__':
     # construct the argument parse and parse the arguments
     cpu_count = os.cpu_count()
@@ -213,3 +220,4 @@ if __name__ == '__main__':
     else:
         install_dependencies(list_of_depdencies)
         validate_dependencies(original_list_of_depdencies,modules_without_version)
+        write_modules_installed_file('modules_installed.csv')
