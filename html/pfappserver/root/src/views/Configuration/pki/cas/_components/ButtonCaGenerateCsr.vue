@@ -71,7 +71,7 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'button-certificate-resign',
+  name: 'button-ca-generate-csr',
   inheritAttrs: false,
   props,
   setup
