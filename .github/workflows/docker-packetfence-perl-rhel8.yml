@@ -17,7 +17,7 @@ on:
 env:
   WORKDIR: "/root"
   VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
-  OUTPUT_DIRECTORY: "/mnt/output_${{ github.run_id }}_${{ github.run_attempt }}"
+  OUTPUT_DIRECTORY: "/mnt/output/"
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 concurrency:
@@ -137,12 +137,52 @@ jobs:
           rpm -qpi /mnt/packetfence-perl*.rpm
           rpm --checksig /mnt/packetfence-perl*.rpm
 
-  push_docker-image_and_deb-package: 
+  push_docker-image_and_rhel-package: 
     needs: ['build_image_and_package', 'unit-test', 'sign_package']
     runs-on: packetfence-perl-rpm-package-build
+
+    env:
+      PACKAGE_DEST_PATH: /root/packages/packetfence-perl/${{ github.head_ref || github.ref_name }}/rhel8/v_${{ needs.build_image_and_package.outputs.package_version }}/
 
     steps:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
       with:
         driver-opts: network=host
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ vars.USER_GITHUB }}
+        password: ${{ secrets.TOKEN_GITHUB }}
+
+    - name: Publish packetfence-perl-rhel image version ${{ needs.build_image_and_package.outputs.package_version }}
+      run: |
+        docker push ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:${{ needs.build_image_and_package.outputs.package_version }} 
+
+    - name: Publish packetfence-image-debian latest
+      if: env.BRANCH_NAME == 'devel'
+      run: |
+        docker push ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:latest
+
+    - name: Upload the package to web server
+      run: |
+        set -e && \
+        eval `ssh-agent -s` && ssh-add - <<< $(echo "${{ secrets.DEPLOY_KEY_WEB_SERVER }}") && \
+        rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"  ${{ env.VOLUME_MOUNT }}/rhel8/packages/packetfence-perl-*.rpm root@192.95.20.194:${{ env.PACKAGE_DEST_PATH }}
+        ssh-add -D
+
+    - name: Remove files
+      uses: addnab/docker-run-action@v3
+      with:
+        image: rockylinux:8.8
+        options: -v /mnt:/mnt
+        shell: /bin/bash
+        run: |
+          rm -rf ${{ env.VOLUME_MOUNT }}
+
+    - name: Remove images
+      run: |
+        nohup docker rmi ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:${{ needs.build_image_and_package.outputs.package_version }} -f &
+        nohup docker rmi ghcr.io/inverse-inc/packetfence/packetfence-perl-rhel8:latest -f &

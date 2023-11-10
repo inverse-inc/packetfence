@@ -17,7 +17,7 @@ on:
 env:
   WORKDIR: "/root"
   VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
-  OUTPUT_DIRECTORY: "/mnt/output_${{ github.run_id }}_${{ github.run_attempt }}"
+  OUTPUT_DIRECTORY: "/mnt/output/"
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 
 concurrency:
@@ -127,6 +127,9 @@ jobs:
     needs: ['build_image_and_package', 'unit-test', 'sign_package']
     runs-on: packetfence-perl-deb-package-build
 
+    env:
+      PACKAGE_DEST_PATH: /root/packages/packetfence-perl/${{ github.head_ref || github.ref_name }}/debian/v_${{ needs.build_image_and_package.outputs.package_version }}/
+
     steps:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -148,4 +151,25 @@ jobs:
       if: env.BRANCH_NAME == 'devel'
       run: |
         docker push ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:latest
+        - name: Upload the package to web server
+
+    - name: Upload the package to web server
+      run: |
+        eval `ssh-agent -s` && ssh-add - <<< $(echo "${{ secrets.DEPLOY_KEY_WEB_SERVER }}")
+        rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"  ${{ env.VOLUME_MOUNT }}/debian/packages/packetfence-perl_*.deb root@192.95.20.194:${{ env.PACKAGE_DEST_PATH }}
+        ssh-add -D
+
+    - name: Remove files
+      uses: addnab/docker-run-action@v3
+      with:
+        image: ubuntu:20.04
+        options: -v /mnt:/mnt
+        shell: /bin/bash
+        run: |
+            rm -rf ${{ env.VOLUME_MOUNT }}
+    
+    - name: Remove images
+      run: |
+        nohup docker rmi ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:${{ needs.build_image_and_package.outputs.package_version }} -f &
+        nohup docker rmi ghcr.io/inverse-inc/packetfence/packetfence-perl-debian:latest -f &
 
