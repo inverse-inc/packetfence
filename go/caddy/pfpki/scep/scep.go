@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/davecgh/go-spew/spew"
 	kitlog "github.com/go-kit/log"
 	kitloglevel "github.com/go-kit/log/level"
 	"github.com/gorilla/mux"
@@ -80,8 +81,10 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		// Load the Intune/MDM csr Verifier
 		signer = csrverifier.Middleware(o, signer)
 
-		if profile[0].SCEPEnabled != 0 {
-			svc, err = scepserver.Create("proxy", crts[0], key, signer, scepserver.WithLogger(logger), scepserver.WithAddProxy(profile[0].ScepServer.URL))
+		if profile[0].ScepServerEnabled == 1 {
+			svc, err = scepserver.Create("proxy", crts[0], key, signer, scepserver.WithLogger(logger))
+			svc.WithAddProxy(*pfpki.Ctx, profile[0].ScepServer.URL)
+			spew.Dump(svc)
 		} else {
 			svc, err = scepserver.Create("server", crts[0], key, signer, scepserver.WithLogger(logger))
 		}
