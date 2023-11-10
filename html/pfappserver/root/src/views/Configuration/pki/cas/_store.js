@@ -86,6 +86,20 @@ export const actions = {
       commit('CA_ERROR', err.response)
       throw err
     })
+  },
+  generateCsrCa: ({ commit, dispatch }, data) => {
+    commit('CA_REQUEST')
+    return api.csr(data).then(item => {
+      // reset list
+      commit('CA_LIST_RESET')
+      dispatch('allCas')
+      // update item
+      commit('CA_ITEM_REPLACED', item)
+      return item
+    }).catch(err => {
+      commit('CA_ERROR', err.response)
+      throw err
+    })
   }
 }
 
