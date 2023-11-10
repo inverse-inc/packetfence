@@ -1,18 +1,14 @@
 <template>
   <b-button-group>
-    <b-button size="sm" variant="outline-danger" :disabled="disabled || isLoading" @click.stop.prevent="onShowModal">{{ $t('Resign CA Certificate') }}</b-button>
-    <b-modal v-model="isShowModal"
+    <b-button size="sm" variant="outline-danger" :disabled="disabled || isLoading" @click.stop.prevent="onShowInputModal">{{ $t('Resign CA Certificate') }}</b-button>
+    <b-modal v-model="isShowInputModal"
       size="lg" centered cancel-disabled>
       <template v-slot:modal-title>
         <h4>{{ $t('Resign CA Certificate') }}</h4>
-        <div class="small alert alert-danger mb-0">
-          <strong>{{ $i18n.t('Warning') }}</strong>
-          {{ $i18n.t('Changing the "Organisational Unit", "Organisation", "Country", "State or Province", "Locality", or "Street Address" will invalidate the previously signed certificates using EAP-TLS') }}.
-        </div>
       </template>
       <b-form-group @submit.prevent="onResign" class="mb-0">
         <base-form ref="rootRef"
-          :form="form"
+          :form="formCopy"
           :schema="schema"
           :isLoading="isLoading"
         >
@@ -27,18 +23,23 @@
           />
           <form-group-organisation namespace="organisation"
             :column-label="$i18n.t('Organisation')"
+            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
           />
           <form-group-country namespace="country"
             :column-label="$i18n.t('Country')"
+            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
           />
           <form-group-state namespace="state"
             :column-label="$i18n.t('State or Province')"
+            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
           />
           <form-group-locality namespace="locality"
             :column-label="$i18n.t('Locality')"
+            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
           />
           <form-group-street-address namespace="street_address"
             :column-label="$i18n.t('Street Address')"
+            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
           />
           <form-group-key-type namespace="key_type"
             :column-label="$i18n.t('Key type')"
@@ -71,10 +72,17 @@
         </base-form>
       </b-form-group>
       <template v-slot:modal-footer>
-        <b-button variant="secondary" class="mr-1" :disabled="isLoading" @click="onHideModal">{{ $t('Cancel') }}</b-button>
+        <b-button variant="secondary" class="mr-1" :disabled="isLoading" @click="onHideInputModal">{{ $t('Cancel') }}</b-button>
         <b-button variant="danger" :disabled="isLoading || !isValid" @click="onResign">
           <icon v-if="isLoading" class="mr-1" name="circle-notch" spin /> {{ $t('Resign') }}
         </b-button>
+      </template>
+    </b-modal>
+    <b-modal v-model="isShowOutputModal"
+      size="lg" centered cancel-disabled>
+      <template v-slot:modal-title>
+        <h4>{{ $t('Certificate') }}</h4>
+
       </template>
     </b-modal>
   </b-button-group>
@@ -128,7 +136,7 @@ const props = {
 
 import i18n from '@/utils/locale'
 
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import schemaFn from '../schema'
 import StoreModule from '../../_store'
@@ -151,22 +159,33 @@ const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['$_pkis/isLoading'])
   const rootRef = ref(null)
 
-  const isShowModal = ref(false)
-  const onShowModal = () => { isShowModal.value = true }
-  const onHideModal = () => { isShowModal.value = false }
-  const isValid = useDebouncedWatchHandler([form, isShowModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
+  const formCopy = ref()
+  watch(form, () => {
+    formCopy.value = JSON.parse(JSON.stringify(form.value)) // dereference form
+  }, { deep: true, immediate: true })
+
+  const isShowInputModal = ref(false)
+  const onShowInputModal = () => { onHideOutputModal(); isShowInputModal.value = true }
+  const onHideInputModal = () => { isShowInputModal.value = false }
+  const isValid = useDebouncedWatchHandler([formCopy, isShowInputModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
   const onResign = () => {
-    $store.dispatch('$_pkis/resignCa', { id: id.value, ...form.value }).then(() => {
+    $store.dispatch('$_pkis/resignCa', { id: id.value, ...formCopy.value }).then(() => {
       $store.dispatch('notification/info', { message: i18n.t('Certificate <code>{id}</code> resigned.', { id: id.value }) })
       emit('change')
-      onHideModal()
+      onHideInputModal()
+      onShowOutputModal()
     }).catch(e => {
       $store.dispatch('notification/danger', { message: i18n.t('Could not resign certificate <code>{id}</code>.<br/>Reason: ', { id: id.value }) + e })
+      onShowOutputModal()
     })
   }
 
+  const isShowOutputModal = ref(false)
+  const onShowOutputModal = () => { onHideInputModal(); isShowOutputModal.value = true }
+  const onHideOutputModal = () => { isShowOutputModal.value = false }
+
   const keySizeOptions = computed(() => {
-    const { key_type } = form.value || {}
+    const { key_type } = formCopy.value || {}
     if (key_type) {
       const { [+key_type]: { sizes = [] } = {} } = keyTypes
       return sizes.map(size => ({ text: `${size}`, value: `${size}` }))
@@ -179,11 +198,15 @@ const setup = (props, context) => {
     rootRef,
     schema,
     isValid,
-    isShowModal,
-    onShowModal,
-    onHideModal,
+    isShowInputModal,
+    onShowInputModal,
+    onHideInputModal,
+    isShowOutputModal,
+    onShowOutputModal,
+    onHideOutputModal,
     onResign,
-    keySizeOptions
+    keySizeOptions,
+    formCopy,
   }
 }
 

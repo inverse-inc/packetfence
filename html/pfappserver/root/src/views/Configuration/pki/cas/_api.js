@@ -43,5 +43,17 @@ export default {
         return recomposeGorm(item)
       }
     })
+  },
+  csr: data => {
+    const { id, ...rest } = data
+    return apiCall.post(['pki', 'ca', 'csr', id], rest).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        return recomposeGorm(item)
+      }
+    })
   }
 }

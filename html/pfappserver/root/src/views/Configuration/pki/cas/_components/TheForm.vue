@@ -91,7 +91,9 @@
 
       <template #tabs-end v-if="!isNew && !isClone">
         <div class="text-right mr-3 mb-1">
-          <button-certificate-resign
+          <button-ca-resign
+            :id="id" :form="form" class="my-1 mr-1" />
+          <button-ca-generate-csr
             :id="id" :form="form" class="my-1 mr-1" />
         </div>
       </template>
@@ -105,7 +107,8 @@ import {
 } from '@/components/new/'
 import schemaFn from '../schema'
 import {
-  ButtonCertificateResign,
+  ButtonCaResign,
+  ButtonCaGenerateCsr,
   FormGroupIdentifier,
   FormGroupCn,
   FormGroupMail,
@@ -130,7 +133,8 @@ const components = {
   BaseForm,
   BaseFormTab,
 
-  ButtonCertificateResign,
+  ButtonCaResign,
+  ButtonCaGenerateCsr,
   FormGroupIdentifier,
   FormGroupCn,
   FormGroupMail,
