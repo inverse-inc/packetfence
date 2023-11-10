@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=ntlm-auth-api
+
+args=`base_args $name`
+args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
+args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
+args="$args -v /var/log:/var/log:ro"
+args="$args -p 5000:5000"
+
+run $name "$args"

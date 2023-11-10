@@ -53,12 +53,13 @@ if ($updated) {
 
 sub getServerName {
     my $domain = $_[0];
-    my $r = system("/usr/bin/tdbdump /chroots/$domain/var/cache/samba/gencache.tdb| grep 'SECRETS/SID/'| awk -F / '{print $3}' |sed s/\"//");
-    $r
+
+    my $r = system("/usr/bin/tdbdump /chroots/$domain/var/cache/samba/gencache.tdb| grep NEG_CONN_CACHE | awk '{print $NF}' | sed s/\"//g | sed s/\00// | awk -F , '{print $NF}'");
+    @r
 }
 sub getMachineAccount {
     my $domain = $_[0];
-    my $r = system("/usr/bin/tdbdump /chroots/$domain/var/cache/samba/gencache.tdb| grep NEG_CONN_CACHE | awk '{print $NF}' | sed s/\"//g | sed s/\00// | awk -F , '{print $NF}'");
+    my @r = readpipe("/usr/bin/tdbdump /chroots/$domain/var/cache/samba/gencache.tdb| grep 'SECRETS/SID/'| awk -F / '{print $3}' |sed s/\"//");
     $r
 }
 sub getMachineAccountPassword {
