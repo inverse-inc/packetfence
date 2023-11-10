@@ -13,8 +13,12 @@ ARG PKGS_TO_EXCLUDE
 COPY debian/control /tmp/
 COPY rpm/packetfence.spec /tmp/
 
-RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bullseye bullseye' > /etc/apt/sources.list.d/packetfence_deps.list"
-RUN wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
+RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bullseye bullseye' > /etc/apt/sources.list.d/packetfence_deps.list"  && \
+    wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
+
+RUN /bin/bash -c "echo 'deb https://deb.nodesource.com/node_20.x nodistro main' > /etc/apt/sources.list.d/nodejs.list" && \
+    wget -q -O - https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | apt-key add -
+
 RUN apt-get update
 
 COPY addons/dev-helpers/debian/install-pf-dependencies.sh /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh
@@ -25,8 +29,8 @@ RUN apt-get install -y freeradius-common
 
 RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
 
-RUN mkdir -p /usr/local/pf/lib/
-RUN ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
+RUN mkdir -p /usr/local/pf/lib/ && \
+    ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
 
 RUN chown -R pf: /usr/local/pf
 

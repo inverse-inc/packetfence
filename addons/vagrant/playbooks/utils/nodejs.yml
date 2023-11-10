@@ -1,0 +1,15 @@
+---
+- name: Install NodeJS from gitlab_buildpkg_tools
+  hosts: pfservers
+  become: True
+  gather_facts: False
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
+
+  roles:
+    - role: inverse_inc.gitlab_buildpkg_tools
+      tags: nodejs

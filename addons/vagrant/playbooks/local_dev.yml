@@ -15,10 +15,5 @@
         - "!all"
 
   roles:
-    - role: geerlingguy.nodejs
-      vars:
-        nodejs_version: "16.x"
-      tags: nodejs
-
     - role: packetfence_dev
       tags: dev

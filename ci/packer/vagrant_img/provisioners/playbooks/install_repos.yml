@@ -1,8 +1,13 @@
 - hosts: pfservers
-  name: Install PacketFence repositories
+  name: Install PacketFence repositories and NodeJS
   become: True
   gather_facts: True
-  tags: repos
+  tags:
+    - repos
+    - nodejs
 
+  # It will also install nodejs
+  # NodeJS is used now in e2e testing
+  # NodeJS version is defined in the repo added ../inventory/group_vars/pfservers/gitlab_buildpkg_tools.yml
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools

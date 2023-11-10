@@ -7,10 +7,17 @@ gitlab_buildpkg_tools__ppa_enabled: False
 # RPM
 gitlab_buildpkg_tools__rpm_keys:
   - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+  - 'https://rpm.nodesource.com/gpgkey/nodesource.gpg.key'
 
 gitlab_buildpkg_tools__rpm_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
+  - name: nodejs
+    baseurl: 'https://rpm.nodesource.com/pub_20.x/nodistro/nodejs/$basearch'
+    module_hotfixes: 1
+
+gitlab_buildpkg_tools__rpm_pkgs:
+  - nodejs
 
 # disable packetfence repo (to avoid conflict with CentOS repos when installing packages)
 gitlab_buildpkg_tools__rpm_enabled_repos:
@@ -21,8 +28,13 @@ gitlab_buildpkg_tools__rpm_enabled_repos:
 # Debian
 gitlab_buildpkg_tools__deb_keys:
   - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+  - 'https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key'
 
 gitlab_buildpkg_tools__deb_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
+  - name: nodejs
+    baseurl: 'https://deb.nodesource.com/node_20.x nodistro main'
 
+gitlab_buildpkg_tools__deb_pkgs:
+  - nodejs
