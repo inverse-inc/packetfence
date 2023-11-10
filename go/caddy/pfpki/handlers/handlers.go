@@ -382,11 +382,11 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
-
+		vars := mux.Vars(req)
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+
 			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -407,7 +407,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusInternalServerError
 				break
 			}
-			if Information, err = o.Update(); err != nil {
+			if Information, err = o.Update(vars); err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusUnprocessableEntity
 				break
