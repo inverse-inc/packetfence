@@ -37,7 +37,7 @@ describe('Collections', () => {
               cy.url().should('include', `${url}/new`)
 
               // fill form with fixture
-              cy.fixture(fixture).then(data => {
+              cy.fixture(fixture).then(async (data) => {
 
                 // setup API interceptors
                 interceptors.forEach((interceptor, i) => {
@@ -55,12 +55,12 @@ describe('Collections', () => {
                   }).as(`interceptor${i}`)
                 })
 
+                // iterate tabs (optional)
                 if (Cypress.$(tabSelector).length) {
-                  // iterate tabs (optional)
                   cy.get(tabSelector).each(async (tab, t, tabs) => {
                     if (tabs.length > 1) {
                       // click tab
-                      await cy.get(tab, { timeout: 10E3 })
+                      cy.get(tab, { timeout: 10E3 })
                         .click({ log: true })
                         .invoke('attr', 'aria-selected')
                         .should('eq', 'true')
@@ -71,7 +71,7 @@ describe('Collections', () => {
                 }
                 else {
                   // fill form
-                  cy.formFillNamespace(data)
+                  await cy.formFillNamespace(data)
                 }
 
                 // click "Create" button

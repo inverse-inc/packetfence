@@ -54,8 +54,8 @@ Cypress.Commands.add('pfConfiguratorDisable', () => {
   })
 })
 
-Cypress.Commands.add('formFillNamespace', (data, element) => {
-  (element || cy.get('form').first()).within($ => {
+Cypress.Commands.add('formFillNamespace', (data, selector = 'form > div.base-form') => {
+  return cy.get(selector).first().within($ => {
     for (let entry of Object.entries(data)) {
       const [namespace, value] = entry
       const selector = `*[data-namespace="${namespace}"]:not([disabled])`
@@ -68,7 +68,7 @@ Cypress.Commands.add('formFillNamespace', (data, element) => {
             switch (true) {
               case tagName === 'input' && ['text', 'password'].includes(type):
               case tagName === 'textarea':
-                  cy.get(el).type(`{selectAll}{del}${value}`)
+                  cy.get(el).type(`{selectAll}{del}${value}`, { log: true, force: true })
                 break
               case tagName === 'input' && ['range'].includes(type):
                   // TODO
