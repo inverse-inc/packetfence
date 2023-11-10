@@ -184,9 +184,40 @@ has_field 'ntlm_cache_expiry' =>
              help => 'The amount of seconds an entry should be cached.' },
   );
 
+has_field 'machine_account' =>
+    (
+        type => 'Text',
+        label => 'Machine account to be added to Active Directory',
+        required => 1,
+        messages => { required => 'Please specify the machine account to be added to Active Directory' },
+        tags => { after_element => \&help,
+            help => 'Machine account of the Active Directory.' },
+    );
+
+has_field 'machine_account_password' =>
+    (
+        type => 'Text',
+        label => 'Password / password hash of the machine account',
+        required => 1,
+        messages => { required => 'Please specify the machine account password' },
+        tags => { after_element => \&help,
+            help => 'Password of the machine account to be added to Active Directory.' },
+    );
+
+has_field 'password_is_nt_hash' =>
+    (
+        type => 'Toggle',
+        checkbox_value => "enabled",
+        unchecked_value => "disabled",
+        label => 'Password is NT hash',
+        tags => { after_element => \&help,
+            help => 'Is the machine password is a NT hash?' },
+    );
+
+
 has_block definition =>
   (
-   render_list => [ qw(workgroup dns_name server_name sticky_dc ad_server dns_servers bind_dn bind_pass ou registration) ],
+   render_list => [ qw(workgroup dns_name server_name sticky_dc ad_server dns_servers bind_dn bind_pass ou registration machine_account machine_account_password password_is_nt_hash) ],
   );
 
 has_block ntlm_cache =>
@@ -224,17 +255,17 @@ sub validate {
     if($self->field('server_name')->value() eq "%h") {
         my $hostname = [split(/\./,hostname())]->[0];
         if(length($hostname) > $self->field('server_name')->maxlength) {
-            $self->field("server_name")->add_error("You have selected %h as the server name but this server hostname ($hostname) is longer than 14 characters. Please change the value or modify the hostname of your server to a name of 14 characters or less.");            
-        }   
+            $self->field("server_name")->add_error("You have selected %h as the server name but this server hostname ($hostname) is longer than 14 characters. Please change the value or modify the hostname of your server to a name of 14 characters or less.");
+        }
     }
 
     if(isenabled($self->field('ntlm_cache')->value())) {
         get_logger->info("Validating NTLM cache fields because it is enabled.");
         unless($self->field('ntlm_cache_source')->value) {
-            $self->field("ntlm_cache_source")->add_error("A valid source must be selected when NTLM cache is enabled."); 
+            $self->field("ntlm_cache_source")->add_error("A valid source must be selected when NTLM cache is enabled.");
         }
         unless($self->field('ntlm_cache_expiry')->value) {
-            $self->field("ntlm_cache_expiry")->add_error("An expiration must be specified for caching when NTLM cache is enabled."); 
+            $self->field("ntlm_cache_expiry")->add_error("An expiration must be specified for caching when NTLM cache is enabled.");
         }
     }
 }

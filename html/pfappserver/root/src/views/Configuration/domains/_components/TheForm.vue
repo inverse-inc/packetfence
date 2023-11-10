@@ -53,17 +53,23 @@
 
         <form-group-machine-account namespace="machine_account"
                                     :column-label="$i18n.t('Machine account')"
-                                    :text="$i18n.t(`...`)"
+                                    :text="$i18n.t(`Machine account to be added to Active Directory`)"
                                     :disabled="!isNew && !isClone"
         />
 
         <form-group-machine-account-password namespace="machine_account_password"
                                              :column-label="$i18n.t('Machine account password')"
-                                             :text="$i18n.t(`...`)"
+                                             :text="$i18n.t(`Password / password hash of the machine account`)"
                                              :disabled="!isNew && !isClone"
-                                             :buttonLabel="$i18n.t('Click me!')"
+                                             :buttonLabel="$i18n.t('Test Machine account')"
                                              testLabel="foobar"
                                              :test="fn"
+        />
+        <form-group-password-is-nt-hash namespace="password_is_nt_hash"
+                                        :column-label="$i18n.t('password is NT hash')"
+                                        :text='$i18n.t(`If the machine account password above is provided as a NT hash string, not a "real" password that administrator sets, this should be enabled.`)'
+                                        enabled-value="1"
+                                        disabled-value="0"
         />
 
         <form-group-ntlmv2-only namespace="ntlmv2_only"
@@ -130,6 +136,7 @@ import {
   FormGroupOu,
   FormGroupMachineAccount,
   FormGroupMachineAccountPassword,
+  FormGroupPasswordIsNtHash,
   FormGroupNtlmv2Only,
   FormGroupRegistration,
 
@@ -153,6 +160,7 @@ const components = {
   FormGroupOu,
   FormGroupMachineAccount,
   FormGroupMachineAccountPassword,
+  FormGroupPasswordIsNtHash,
   FormGroupNtlmv2Only,
   FormGroupRegistration,
 

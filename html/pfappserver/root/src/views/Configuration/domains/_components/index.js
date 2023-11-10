@@ -23,6 +23,7 @@ export {
   BaseFormGroupInput                  as FormGroupOu,
   BaseFormGroupInput                  as FormGroupMachineAccount,
   BaseFormGroupInputTest              as FormGroupMachineAccountPassword,
+  BaseFormGroupSwitch                 as FormGroupPasswordIsNtHash,
   BaseFormGroupSwitch                 as FormGroupNtlmv2Only,
   BaseFormGroupSwitch                 as FormGroupRegistration,
 
