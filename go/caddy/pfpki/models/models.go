@@ -554,14 +554,15 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 // FindSCEPProfile search the SCEP Profile by the profile name
 func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	var profiledb []Profile
+	profile := &Profile{}
 	if len(options) >= 1 {
-		if err := c.DB.Preload("ScepServer").Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("`name` = ?", options[0]).First(&profiledb).Error; err != nil {
+		if ProfileDB := c.DB.Preload("ScepServer").Where("name = ? and `scep_enabled` = ?", options[0], "1").First(&profile).Find(&profile); ProfileDB.Error != nil {
 			return profiledb, errors.New(dbError)
 		}
+		profiledb = append(profiledb, *profile)
 		if len(profiledb) == 0 {
 			return profiledb, errors.New("Unknow profile.")
 		}
-
 	} else {
 		c.DB.Preload("ScepServer").Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("`scep_enabled` = ?", "1").First(&profiledb)
 	}
@@ -995,7 +996,7 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 			return Information, ProfileDB.Error
 		}
 	} else {
-		if ProfileDB := p.DB.Where("name = ?", p.Name).First(&profile, val).Find(&profile); ProfileDB.Error != nil {
+		if ProfileDB := p.DB.Where("name = ?", p.Name).First(&profile).Find(&profile); ProfileDB.Error != nil {
 			Information.Error = ProfileDB.Error.Error()
 			return Information, ProfileDB.Error
 		}
