@@ -1341,6 +1341,29 @@ CREATE TABLE dhcppool (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
+-- Table structure for table `pki_scep_servers`
+--
+
+CREATE TABLE `pki_scep_servers` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `name` varchar(191) DEFAULT NULL,
+  `url` longtext DEFAULT NULL,
+  `shared_secret` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `idx_pki_scep_servers_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Default values for pki_scep_servers table
+--
+
+INSERT INTO `pki_scep_servers` VALUES (1,'2023-11-09 10:36:34.489','2023-11-09 10:36:34.489',NULL,'Null','http://127.0.0.1','password');
+
+--
 -- Table structure for table `pki_cas`
 --
 
@@ -1376,6 +1399,65 @@ CREATE TABLE `pki_cas` (
   KEY `mail` (`mail`),
   KEY `organisation` (`organisation`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4';
+
+--
+-- Table structure for table `pki_profiles`
+--
+
+CREATE TABLE `pki_profiles` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `name` varchar(191) DEFAULT NULL,
+  `mail` varchar(191) DEFAULT NULL,
+  `organisation` varchar(191) DEFAULT NULL,
+  `organisational_unit` longtext DEFAULT NULL,
+  `country` longtext DEFAULT NULL,
+  `state` longtext DEFAULT NULL,
+  `locality` longtext DEFAULT NULL,
+  `street_address` longtext DEFAULT NULL,
+  `postal_code` longtext DEFAULT NULL,
+  `ca_id` bigint(20) unsigned DEFAULT NULL,
+  `ca_name` varchar(191) DEFAULT NULL,
+  `validity` bigint(20) DEFAULT NULL,
+  `key_type` bigint(20) DEFAULT NULL,
+  `key_size` bigint(20) DEFAULT NULL,
+  `digest` bigint(20) DEFAULT NULL,
+  `key_usage` longtext DEFAULT NULL,
+  `extended_key_usage` longtext DEFAULT NULL,
+  `ocsp_url` longtext DEFAULT NULL,
+  `p12_mail_password` bigint(20) DEFAULT NULL,
+  `p12_mail_subject` longtext DEFAULT NULL,
+  `p12_mail_from` longtext DEFAULT NULL,
+  `p12_mail_header` longtext DEFAULT NULL,
+  `p12_mail_footer` longtext DEFAULT NULL,
+  `scep_enabled` bigint(20) DEFAULT NULL,
+  `scep_challenge_password` longtext DEFAULT NULL,
+  `scep_days_before_renewal` bigint(20) DEFAULT 14,
+  `days_before_renewal` bigint(20) DEFAULT 14,
+  `renewal_mail` bigint(20) DEFAULT 1,
+  `days_before_renewal_mail` bigint(20) DEFAULT 14,
+  `renewal_mail_subject` varchar(191) DEFAULT 'Certificate expiration',
+  `renewal_mail_from` longtext DEFAULT NULL,
+  `renewal_mail_header` longtext DEFAULT NULL,
+  `renewal_mail_footer` longtext DEFAULT NULL,
+  `revoked_valid_until` bigint(20) DEFAULT 14,
+  `cloud_enabled` bigint(20) DEFAULT NULL,
+  `cloud_service` longtext DEFAULT NULL,
+  `scep_server_enabled` bigint(20) unsigned DEFAULT NULL,
+  `scep_server_id` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `idx_pki_profiles_deleted_at` (`deleted_at`),
+  KEY `mail` (`mail`),
+  KEY `organisation` (`organisation`),
+  KEY `ca_id` (`ca_id`),
+  KEY `ca_name` (`ca_name`),
+  KEY `scep_server__id` (`scep_server_id`),
+  CONSTRAINT `fk_pki_profiles_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
+  CONSTRAINT `fk_pki_profiles_scep_server` FOREIGN KEY (`scep_server_id`) REFERENCES `pki_scep_servers` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_certs`
@@ -1427,64 +1509,6 @@ CREATE TABLE `pki_certs` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4';
 
 --
--- Table structure for table `pki_profiles`
---
-
-CREATE TABLE `pki_profiles` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `deleted_at` datetime(3) DEFAULT NULL,
-  `name` varchar(191) DEFAULT NULL,
-  `mail` varchar(191) DEFAULT NULL,
-  `organisation` varchar(191) DEFAULT NULL,
-  `organisational_unit` longtext DEFAULT NULL,
-  `country` longtext DEFAULT NULL,
-  `state` longtext DEFAULT NULL,
-  `locality` longtext DEFAULT NULL,
-  `street_address` longtext DEFAULT NULL,
-  `postal_code` longtext DEFAULT NULL,
-  `ca_id` bigint(20) unsigned DEFAULT NULL,
-  `ca_name` varchar(191) DEFAULT NULL,
-  `validity` bigint(20) DEFAULT NULL,
-  `key_type` bigint(20) DEFAULT NULL,
-  `key_size` bigint(20) DEFAULT NULL,
-  `digest` bigint(20) DEFAULT NULL,
-  `key_usage` longtext DEFAULT NULL,
-  `extended_key_usage` longtext DEFAULT NULL,
-  `ocsp_url` longtext DEFAULT NULL,
-  `p12_mail_password` bigint(20) DEFAULT NULL,
-  `p12_mail_subject` longtext DEFAULT NULL,
-  `p12_mail_from` longtext DEFAULT NULL,
-  `p12_mail_header` longtext DEFAULT NULL,
-  `p12_mail_footer` longtext DEFAULT NULL,
-  `scep_enabled` bigint(20) DEFAULT NULL,
-  `scep_challenge_password` longtext DEFAULT NULL,
-  `scep_days_before_renewal` bigint(20) DEFAULT 14,
-  `days_before_renewal` bigint(20) DEFAULT 14,
-  `renewal_mail` bigint(20) DEFAULT 1,
-  `days_before_renewal_mail` bigint(20) DEFAULT 14,
-  `renewal_mail_subject` varchar(191) DEFAULT 'Certificate expiration',
-  `renewal_mail_from` longtext DEFAULT NULL,
-  `renewal_mail_header` longtext DEFAULT NULL,
-  `renewal_mail_footer` longtext DEFAULT NULL,
-  `revoked_valid_until` bigint(20) DEFAULT 14,
-  `cloud_enabled` bigint(20) DEFAULT NULL,
-  `cloud_service` longtext DEFAULT NULL,
-  `scep_server_id` bigint(20) unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `idx_pki_profiles_deleted_at` (`deleted_at`),
-  KEY `mail` (`mail`),
-  KEY `organisation` (`organisation`),
-  KEY `ca_id` (`ca_id`),
-  KEY `ca_name` (`ca_name`),
-  KEY `scep_server__id` (`scep_server_id`),
-  CONSTRAINT `fk_pki_profiles_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
-  CONSTRAINT `fk_pki_profiles_scep_server` FOREIGN KEY (`scep_server_id`) REFERENCES `pki_scep_servers` (`id`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
-
---
 -- Table structure for table `pki_revoked_certs`
 --
 
@@ -1533,30 +1557,6 @@ CREATE TABLE `pki_revoked_certs` (
   CONSTRAINT `fk_pki_revoked_certs_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
   CONSTRAINT `fk_pki_revoked_certs_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
-
---
--- Table structure for table `pki_scep_servers`
---
-
-CREATE TABLE `pki_scep_servers` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `deleted_at` datetime(3) DEFAULT NULL,
-  `name` varchar(191) DEFAULT NULL,
-  `url` longtext DEFAULT NULL,
-  `shared_secret` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `idx_pki_scep_servers_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
-
-
---
--- Default values for pki_scep_servers table
---
-
-INSERT INTO `pki_scep_servers` VALUES (1,'2023-11-09 10:36:34.489','2023-11-09 10:36:34.489',NULL,'Null','http://127.0.0.1','password');
 
 --
 -- Table structure for table `bandwidth_accounting`
