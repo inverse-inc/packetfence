@@ -1,4 +1,4 @@
-name: Reusable workflow
+name: Packetfence-perl image/package build 
 on:
   workflow_call:
     inputs:
@@ -14,11 +14,6 @@ on:
       _BRANCH_NAME:
         required: True
         type: string
-      _VOLUME_MOUNT:
-        required: True
-        type: string
-      
-
 
 jobs:
   build_image:
@@ -95,10 +90,18 @@ jobs:
         password: ${{ secrets.TOKEN_GITHUB }}
       volumes:
         - ${{ github.workspace }}/addons/packetfence-perl/:${{ inputs._WORKDIR  }}
-        - ${{ inputs._VOLUME_MOUNT }}:${{ inputs._OUTPUT_DIRECTORY }}
     steps:     
       - name: "Build package ${{inputs._IMAGE_TYPE}}"
         run: |
           cd /root
           set -e && python3 install_cpan.py -d dependencies.csv -vi true && ./build_package.sh
           ls -la ${{ inputs._OUTPUT_DIRECTORY }}/${{inputs._IMAGE_TYPE}}/packages/
+    
+      - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+          path:  ${{ inputs._OUTPUT_DIRECTORY }}/${{ inputs._IMAGE_TYPE}}/packages/${{ env.PACKAGE_NAME }}
+        env:
+          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || 'packetfence-perl*.deb' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}

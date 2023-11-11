@@ -1,0 +1,95 @@
+name: packetfence-perl_debian_rhel8_package
+on:
+  push:
+    branches-ignore: 
+      - 'devel'   # excludes devel
+    paths:
+      - 'addons/packetfence-perl/**'
+      - '.github/workflows/main_packetfence-perl.yml'
+      - '.github/workflows/packetfence-perl_build_image_package.yml'
+      - '.github/workflows/reusable_sign_package_debian.yml'
+      - '.github/workflows/reusable_sign_package_rhel8.yml'
+      - '.github/workflows/reusable_upload_package_rhel8.yml'
+      - 'containers/packetfence-perl/rhel8/**'
+  schedule:
+    - cron: 0 3 * * *
+  pull_request:
+    branches: [ "devel" ]
+    paths:
+      - 'addons/packetfence-perl/**'
+
+env:
+  WORKDIR: "/root"
+  VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
+  OUTPUT_DIRECTORY: "/mnt/output/"
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  PACKAGE_NAME: 'packetfence-perl'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_prepation:
+    runs-on: packetfence-perl-rpm-package-build
+    outputs:
+      volume_mount: ${{ steps.variable.outputs.volume_mount }}
+      workdir: ${{ steps.variable.outputs.workdir }}
+      output_directory: ${{ steps.variable.outputs.output_directory }}
+      branch_name: ${{ steps.variable.outputs.branch_name }}
+      package_name: ${{ steps.variable.outputs.package_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Declare 'needs' variable
+        id: variable
+        run: |
+          echo "volume_mount=${{env.VOLUME_MOUNT}}" >> "$GITHUB_OUTPUT"
+          echo "workdir=${{env.WORKDIR}}" >> "$GITHUB_OUTPUT"
+          echo "output_directory=${{env.OUTPUT_DIRECTORY}}" >> "$GITHUB_OUTPUT"
+          echo "branch_name=${{env.BRANCH_NAME}}" >> "$GITHUB_OUTPUT"
+          echo "package_name=${{env.PACKAGE_NAME}}" >> "$GITHUB_OUTPUT"
+
+  buil_images_and_packages:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/reusable_test.yml
+    needs: build_prepation
+    with:
+      _IMAGE_TYPE: ${{ matrix.images }}
+      _WORKDIR:  ${{needs.build_prepation.outputs.workdir}}
+      _OUTPUT_DIRECTORY: ${{needs.build_prepation.outputs.output_directory}}
+      _BRANCH_NAME: ${{ needs.build_prepation.outputs.branch_name }}
+    secrets: inherit
+  
+  unit_tests_packages:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/packetfence-perl_build_image_package.yml
+    needs: ['build_prepation', 'buil_images_and_packages']
+    with:
+      _IMAGE_TYPE: ${{ matrix.images }}
+      _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}
+
+  sign_debian_package:
+    uses:  ./.github/workflows/reusable_sign_package_debian.yml
+    needs: ['build_prepation', 'buil_images_and_packages', 'unit_tests_packages']
+    with:
+      _IMAGE_TYPE: 'debian'
+      _VOLUME_MOUNT: ${{needs.build_prepation.outputs.volume_mount}}
+      _BRANCH_NAME: ${{ needs.build_prepation.outputs.branch_name }}
+      _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}
+    secrets: inherit
+
+  sign_rpm_package:
+    uses:  ./.github/workflows/reusable_sign_package_rhel8.yml
+    needs: ['build_prepation', 'buil_images_and_packages', 'unit_tests_packages']
+    with:
+      _IMAGE_TYPE: 'rhel8'
+      _VOLUME_MOUNT: ${{needs.build_prepation.outputs.volume_mount}}
+      _BRANCH_NAME: ${{ needs.build_prepation.outputs.branch_name }}
+      _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}
+    secrets: inherit

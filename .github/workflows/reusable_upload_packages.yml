@@ -1,4 +1,4 @@
-name: Reusable workflow
+name: Reusable upload package to web.inverse.ca
 on:
   workflow_call:
     inputs:
@@ -9,6 +9,9 @@ on:
         required: True
         type: string
       _VOLUME_MOUNT:
+        required: True
+        type: string
+      _PACKAGE_NAME:
         required: True
         type: string
       
@@ -25,17 +28,17 @@ jobs:
         echo "The package will be uploaded to the web server, directory: ${{ env.PACKAGE_DEST_PATH }}"
         set -e && \
         eval `ssh-agent -s` && ssh-add - <<< $(echo "${{ secrets.DEPLOY_KEY_WEB_SERVER }}") && \
-        rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"  ${{ inputs._VOLUME_MOUNT }}/${{ inputs._IMAGE_TYPE }}/packages/${{ env.PACKAGE_NAME }} root@192.95.20.194:${{ env.PACKAGE_DEST_PATH }}
+        rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"  ${{ inputs._VOLUME_MOUNT }}/${{ inputs._IMAGE_TYPE }}/packages/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} root@192.95.20.194:${{ env.PACKAGE_DEST_PATH }}
         ssh-add -D
       env:
-        PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || 'packetfence-perl*.deb' }}
+        PACKAGE_TYPE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  '*.rpm' || '*.deb' }}
 
 
     - name: Remove files
       uses: addnab/docker-run-action@v3
       with:
         image: rockylinux:8.8
-        options: --rm -v /mnt:/mnt
+        options: --rm -v ${{ inputs._VOLUME_MOUNT }}:/mnt
         shell: /bin/bash
         run: |
-          rm -rf ${{ inputs._VOLUME_MOUNT }}/${{ inputs._IMAGE_TYPE }}
+          rm -rf /mnt/${{ inputs._IMAGE_TYPE }}

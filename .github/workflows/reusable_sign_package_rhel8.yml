@@ -1,0 +1,64 @@
+name: Sign rpm package 
+on:
+  workflow_call:
+    inputs:
+      _IMAGE_TYPE:
+        required: True
+        type: string
+      _VOLUME_MOUNT:
+        required: True
+        type: string
+      _BRANCH_NAME:
+        required: True
+        type: string
+      _PACKAGE_NAME:
+        required: True
+        type: string
+
+jobs:
+  sign_package_rpm:
+    runs-on: packetfence-perl-rpm-package-build
+    if: inputs._IMAGE_TYPE == 'rhel8'
+    container:
+      image: rockylinux:8.8
+      volumes:
+        - ${{ inputs._VOLUME_MOUNT }}/rhel8/packages/:/mnt
+    steps:
+      - name: Dwnload artifactory ${{ inputs._IMAGE_TYPE }}
+        uses: actions/download-artifact@v3 
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+          path: /mnt
+        env:
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
+
+      - name: Install dependenecies ${{ inputs._IMAGE_TYPE }}
+        run: yum install -y rpm-sign
+
+      - name: import private key ${{ inputs._IMAGE_TYPE }}
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --pinentry-mode loopback --import
+
+      - name: Check if the key was imported ${{ inputs._IMAGE_TYPE }}
+        run: |
+          rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --> %{summary}\n'
+          gpg --list-keys
+
+      - name: Sign the package ${{ inputs._IMAGE_TYPE }}
+        run: rpm --define "_gpg_name support@inverse.ca" --define '_signature gpg' --addsign  /mnt/${{ inputs._PACKAGE_NAME }}*.rpm
+
+      - name: Verifiy the signarure of package ${{ inputs._IMAGE_TYPE }}
+        run: |
+          gpg  --batch --yes   --output /tmp/pubkey.pub --armor --export  support@inverse.ca && rpm --import /tmp/pubkey.pub
+          rpm -qpi /mnt/${{ inputs._PACKAGE_NAME }}**.rpm
+          rpm --checksig /mnt/${{ inputs._PACKAGE_NAME }}**.rpm
+
+  upload_packages:
+    uses:  ./.github/workflows/reusable_upload_packages.yml
+    needs: sign_package_rpm
+    with:
+      _IMAGE_TYPE: ${{ inputs._IMAGE_TYPE }}
+      _VOLUME_MOUNT: ${{ inputs._VOLUME_MOUNT }}
+      _BRANCH_NAME: ${{ inputs._BRANCH_NAME }}
+      _PACKAGE_NAME: ${{ inputs._PACKAGE_NAME }}
+    secrets: inherit
