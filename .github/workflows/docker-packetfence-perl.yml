@@ -1,0 +1,87 @@
+name: packetfence_perl_rhel8_package
+on:
+  push:
+    branches-ignore: 
+      - 'devel'   # excludes devel
+    paths:
+      - 'addons/packetfence-perl/**'
+      - '.github/workflows/docker-packetfence-perl.yml'
+      - '.github/workflows/reusable_test.yml'
+      - '.github/workflows/sign_package_debian.yml'
+      - '.github/workflows/sign_package_rhel8.yml'
+      - 'containers/packetfence-perl/rhel8/**'
+  schedule:
+    - cron: 0 3 * * *
+  pull_request:
+    branches: [ "devel" ]
+    paths:
+      - 'addons/packetfence-perl/**'
+
+env:
+  WORKDIR: "/root"
+  VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
+  OUTPUT_DIRECTORY: "/mnt/output/"
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: packetfence-perl-rpm-package-build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3 
+
+  buil_images_and_packages:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/reusable_test.yml
+    needs: build
+    with:
+      _IMAGE_TYPE: ${{ matrix.images }}
+      _WORKDIR:  '/root'
+      _VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
+      _OUTPUT_DIRECTORY: "/mnt/output/"
+      _BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+    secrets: inherit
+  
+  unit_tests_packages:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/unit_test.yml
+    needs: ['build', 'buil_images_and_packages']
+    with:
+      _IMAGE_TYPE: ${{ matrix.images }}
+      _VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
+
+  sign_debian_package:
+    uses:  ./.github/workflows/sign_package_debian.yml
+    needs: ['build', 'buil_images_and_packages', 'unit_tests_packages']
+    with:
+      _IMAGE_TYPE: 'debian'
+      _VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
+    secrets: inherit
+
+  sign_rpm_package:
+    uses:  ./.github/workflows/sign_package_rhel8.yml
+    needs: ['build', 'buil_images_and_packages', 'unit_tests_packages']
+    with:
+      _IMAGE_TYPE: 'rhel8'
+      _VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
+    secrets: inherit
+
+  upload_packages:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/upload_packages.yml
+    needs: ['build', 'buil_images_and_packages','sign_rpm_package','sign_debian_package', 'unit_tests_packages']
+    with:
+      _IMAGE_TYPE: ${{ matrix.images }}
+      _VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
+      _BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+    secrets: inherit
