@@ -55,7 +55,7 @@ jobs:
     strategy:
       matrix:
         images: ['debian', 'rhel8']
-    uses:  ./.github/workflows/reusable_test.yml
+    uses:  ./.github/workflows/packetfence-perl_build_image_package.yml
     needs: build_prepation
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
@@ -68,7 +68,7 @@ jobs:
     strategy:
       matrix:
         images: ['debian', 'rhel8']
-    uses:  ./.github/workflows/packetfence-perl_build_image_package.yml
+    uses:  ./.github/workflows/reusable_unit_test.yml
     needs: ['build_prepation', 'buil_images_and_packages']
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
