@@ -1,5 +1,6 @@
 name: packetfence-perl_debian_rhel8_package
 on:
+  workflow_dispatch:
   push:
     branches-ignore: 
       - 'devel'   # excludes devel
