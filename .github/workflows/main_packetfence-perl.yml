@@ -31,8 +31,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+
+  pre_job:
+    # continue-on-error: true # Uncomment once integration is finished
+    runs-on: packetfence-perl-package-build
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          # All of these options are optional, so you can remove them if you are happy with the defaults
+          concurrent_skipping: 'same_content_newer'
+
   build_prepation:
     runs-on: packetfence-perl-package-build
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    needs: pre_job
     outputs:
       volume_mount: ${{ steps.variable.outputs.volume_mount }}
       workdir: ${{ steps.variable.outputs.workdir }}
@@ -53,11 +69,12 @@ jobs:
           echo "package_name=${{env.PACKAGE_NAME}}" >> "$GITHUB_OUTPUT"
 
   buil_images_and_packages:
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     strategy:
       matrix:
         images: ['debian', 'rhel8']
     uses:  ./.github/workflows/packetfence-perl_build_image_package.yml
-    needs: build_prepation
+    needs: ['build_prepation', 'pre_job']
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
       _WORKDIR:  ${{needs.build_prepation.outputs.workdir}}
