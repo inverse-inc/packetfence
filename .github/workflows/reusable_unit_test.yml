@@ -26,9 +26,9 @@ jobs:
       - name: Install the package packetfence-perl ${{ inputs._IMAGE_TYPE }}
         run: |
           ls -la /mnt
-          ${{ inputs._IMAGE_TYPE == 'rhel8' && env.INSATALL_RPM_PACKAGE  || env.INSALL_DEB_PACKAGE }}
+          ${{ inputs._IMAGE_TYPE == 'rhel8' && env.INSTALL_RPM_PACKAGE  || env.INSTALL_DEB_PACKAGE }}
         env:
-          INSATALL_RPM_PACKAGE: "set -x && yum -y install findutils && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.rpm -exec rpm -ivh {} \\;"
-          INSALL_DEB_PACKAGE: "set -x && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.deb -exec dpkg -i {} \\;"
+          INSTALL_RPM_PACKAGE: "set -x && yum -y install findutils && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.rpm -exec rpm -ivh {} \\;"
+          INSTALL_DEB_PACKAGE: "set -x && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.deb -exec dpkg -i {} \\;"
           
 

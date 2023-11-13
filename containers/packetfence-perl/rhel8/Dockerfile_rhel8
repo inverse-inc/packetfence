@@ -22,7 +22,7 @@ WORKDIR ${WORKDIR}
 COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_package.sh ./addons/packetfence-perl/install_cpan.py ./addons/packetfence-perl/psono.py ${WORKDIR}
 
 #Install python module
-RUN dnf -y  install python39 && python3.9 -m pip install -q  -U pip && pip install -q pynacl requests
+RUN dnf -y  upgrade && dnf -y  install python39 && python3.9 -m pip install -q  -U pip && pip install -q pynacl requests
 
 RUN --mount=type=secret,id=PSONO_API_KEY_ID \
     --mount=type=secret,id=PSONO_API_KEY_SECRET_KEY \
@@ -42,8 +42,6 @@ RUN subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
     dnf install -y libssh2-devel
 
 RUN subscription-manager unregister
-
-#RUN TestPerlConfig=$(perl -e exit); [[ ${TestPerlConfig} != "" ]] && export LC_CTYPE=en_US.UTF-8;  export LC_ALL=en_US.UTF-8
 
 RUN mkdir -p ${WORKDIR}/rhel8 && \
     mkdir -p ${BASE_DIR}/lib/perl5/ \

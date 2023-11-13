@@ -47,7 +47,7 @@ jobs:
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
           echo "data=$package_version" >> "$GITHUB_OUTPUT"
         env: 
-          command_rpm: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ rockylinux:8.8 /bin/bash -c \
+          command_rpm: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ redhat/ubi8:8.8 /bin/bash -c \
             "set -e && cd ${{ inputs._WORKDIR }}/ && yum -y  install rpm-build > /dev/null 2>&1 && rpmspec -q --qf "%{version}"  rhel8/SPECS/packetfence-perl.spec"
           command_deb: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ debian:11.0 /bin/bash -c \
             "set -e && cd ${{ inputs._WORKDIR }}/ && apt update > /dev/null 2>&1  && apt install build-essential -y > /dev/null 2>&1 && dpkg-parsechangelog --show-field Version"

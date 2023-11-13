@@ -37,7 +37,7 @@ jobs:
     - name: Remove files
       uses: addnab/docker-run-action@v3
       with:
-        image: rockylinux:8.8
+        image: debian:11.0
         options: --rm -v ${{ inputs._VOLUME_MOUNT }}:/mnt
         shell: /bin/bash
         run: |

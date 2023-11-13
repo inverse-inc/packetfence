@@ -70,7 +70,7 @@ jobs:
           echo "branch_name=${{env.BRANCH_NAME}}" >> "$GITHUB_OUTPUT"
           echo "package_name=${{env.PACKAGE_NAME}}" >> "$GITHUB_OUTPUT"
 
-  buil_images_and_packages:
+  build_images_and_packages:
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     strategy:
       matrix:
@@ -89,14 +89,14 @@ jobs:
       matrix:
         images: ['debian', 'rhel8']
     uses:  ./.github/workflows/reusable_unit_test.yml
-    needs: ['build_prepation', 'buil_images_and_packages']
+    needs: ['build_prepation', 'build_images_and_packages']
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
       _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}
 
   sign_debian_package:
     uses:  ./.github/workflows/reusable_sign_package_debian.yml
-    needs: ['build_prepation', 'buil_images_and_packages', 'unit_tests_packages']
+    needs: ['build_prepation', 'build_images_and_packages', 'unit_tests_packages']
     with:
       _IMAGE_TYPE: 'debian'
       _VOLUME_MOUNT: ${{needs.build_prepation.outputs.volume_mount}}
@@ -106,7 +106,7 @@ jobs:
 
   sign_rpm_package:
     uses:  ./.github/workflows/reusable_sign_package_rhel8.yml
-    needs: ['build_prepation', 'buil_images_and_packages', 'unit_tests_packages']
+    needs: ['build_prepation', 'build_images_and_packages', 'unit_tests_packages']
     with:
       _IMAGE_TYPE: 'rhel8'
       _VOLUME_MOUNT: ${{needs.build_prepation.outputs.volume_mount}}

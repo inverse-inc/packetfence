@@ -15,7 +15,7 @@ ENV PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/ \
 
 WORKDIR ${WORKDIR}
 
-RUN  apt update -y && \
+RUN  apt update -y && apt -y upgrade && \
     apt install libmodule-signature-perl zip make build-essential \ 
 libssl-dev zlib1g-dev libmariadb-dev-compat libmariadb-dev libssh2-1-dev libexpat1-dev \
 pkg-config libkrb5-dev libsystemd-dev libgd-dev libcpan-distnameinfo-perl libyaml-perl \
@@ -24,8 +24,6 @@ libnet-ssleay-perl libcpan-perl-releases-perl python3 vim -y && \
     apt-get clean && \ 
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* /var/tmp/*
-
-#RUN TestPerlConfig=$(perl -e exit); [[ ${TestPerlConfig} != "" ]] && export LC_CTYPE=en_US.UTF-8;  export LC_ALL=en_US.UTF-8
 
 RUN mkdir -p ${WORKDIR}/debian && \
     mkdir -p ${BASE_DIR}/lib/perl5/ \
