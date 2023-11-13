@@ -17,7 +17,7 @@ on:
 
 jobs:
   build_image:
-    runs-on: packetfence-perl-rpm-package-build
+    runs-on: packetfence-perl-package-build
     permissions:
       contents: read
       packages: write
@@ -82,7 +82,7 @@ jobs:
 
   build_package:
     needs: ['build_image']
-    runs-on: packetfence-perl-rpm-package-build
+    runs-on: packetfence-perl-package-build
     container:
       image: ghcr.io/inverse-inc/packetfence/packetfence-perl-${{inputs._IMAGE_TYPE}}:${{ needs.build_image.outputs.package_version }}
       credentials:

@@ -32,7 +32,7 @@ concurrency:
 
 jobs:
   build_prepation:
-    runs-on: packetfence-perl-rpm-package-build
+    runs-on: packetfence-perl-package-build
     outputs:
       volume_mount: ${{ steps.variable.outputs.volume_mount }}
       workdir: ${{ steps.variable.outputs.workdir }}

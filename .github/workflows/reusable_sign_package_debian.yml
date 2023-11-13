@@ -19,7 +19,7 @@ on:
 jobs:
   sign_package_deb:
     if: inputs._IMAGE_TYPE == 'debian'
-    runs-on: packetfence-perl-deb-package-build
+    runs-on: packetfence-perl-package-build 
     container:
       image: debian:11.0
       volumes:

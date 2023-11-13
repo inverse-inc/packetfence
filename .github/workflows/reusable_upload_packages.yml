@@ -18,7 +18,7 @@ on:
 
 jobs:
   upload-package: 
-    runs-on: packetfence-perl-rpm-package-build
+    runs-on: packetfence-perl-package-build
     env:
       PACKAGE_DEST_PATH: /root/packages/packetfence-perl/${{ inputs._BRANCH_NAME }}/${{ inputs._IMAGE_TYPE }}/
 

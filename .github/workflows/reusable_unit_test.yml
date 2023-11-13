@@ -11,7 +11,7 @@ on:
 
 jobs:
   unit-test:
-    runs-on: packetfence-perl-rpm-package-build
+    runs-on: packetfence-perl-package-build 
     container:
       image:  ${{ inputs._IMAGE_TYPE == 'rhel8' && 'redhat/ubi8' || 'debian:11.0'}}
     steps:     

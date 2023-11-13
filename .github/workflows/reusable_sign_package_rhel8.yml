@@ -17,7 +17,7 @@ on:
 
 jobs:
   sign_package_rpm:
-    runs-on: packetfence-perl-rpm-package-build
+    runs-on: packetfence-perl-package-build 
     if: inputs._IMAGE_TYPE == 'rhel8'
     container:
       image: rockylinux:8.8
