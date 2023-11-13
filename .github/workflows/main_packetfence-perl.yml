@@ -9,8 +9,9 @@ on:
       - '.github/workflows/packetfence-perl_build_image_package.yml'
       - '.github/workflows/reusable_sign_package_debian.yml'
       - '.github/workflows/reusable_sign_package_rhel8.yml'
-      - '.github/workflows/reusable_upload_package_rhel8.yml'
+      - '.github/workflows/reusable_upload_packages.yml'
       - 'containers/packetfence-perl/rhel8/**'
+      - 'containers/packetfence-perl/debian/**'
   schedule:
     - cron: 0 3 * * *
   pull_request:
