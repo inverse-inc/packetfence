@@ -226,7 +226,7 @@ type (
 		Ctx          context.Context `json:"-" gorm:"-"`
 		Name         string          `json:"name,omitempty" gorm:"UNIQUE"`
 		URL          string          `json:"url,omitempty""`
-		SharedSecret string          `json:"sharedsecret,omitempty"`
+		SharedSecret string          `json:"shared_secret,omitempty"`
 	}
 )
 
