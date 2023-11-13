@@ -45,6 +45,7 @@ jobs:
         with:
           # All of these options are optional, so you can remove them if you are happy with the defaults
           concurrent_skipping: 'same_content_newer'
+          skip_after_successful_duplicate: 'false'
 
   build_prepation:
     runs-on: packetfence-perl-package-build
