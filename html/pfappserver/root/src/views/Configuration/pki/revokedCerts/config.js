@@ -1,4 +1,4 @@
-export const decomposeScepServer = (item) => {
+export const decomposeRevokedCert = (item) => {
   // eslint-disable-next-line no-unused-vars
   const { ID, CreatedAt, DeletedAt, UpdatedAt, DB, Ctx, // strip gorm decorations
     ...rest
@@ -9,7 +9,7 @@ export const decomposeScepServer = (item) => {
   }
 }
 
-export const recomposeScepServer = (item) => {
+export const recomposeRevokedCert = (item) => {
   const {
     id,
     ...rest

@@ -33,8 +33,6 @@ export const useItemConfirmSave = props => {
   return computed(() => !(isNew.value || isClone.value))
 }
 
-export { recomposeGorm as useResponse } from '../../config'
-
 export const useServices = () => computed(() => {
   return {
     message: i18n.t('Creating or modifying the PKI configuration requires services restart.'),

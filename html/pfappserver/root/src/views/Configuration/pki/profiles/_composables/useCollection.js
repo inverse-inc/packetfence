@@ -42,7 +42,6 @@ export const useItemTitle = (props) => {
     }
   })
 }
-export { recomposeGorm as useResponse } from '../../config'
 
 export const useServices = () => computed(() => {
   return {

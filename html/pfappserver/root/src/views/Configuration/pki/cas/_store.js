@@ -1,18 +1,14 @@
 import { computed } from '@vue/composition-api'
 import store, { types } from '@/store'
 import api from './_api'
-import {
-  decomposeCa,
-  recomposeCa
-} from './config'
 
 export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_pkis/isCaLoading']),
     getList: () => $store.dispatch('$_pkis/allCas'),
-    createItem: params => $store.dispatch('$_pkis/createCa', recomposeCa(params)),
-    getItem: params => $store.dispatch('$_pkis/getCa', params.id)
-      .then(item => decomposeCa(item)),
+    createItem: params => $store.dispatch('$_pkis/createCa', params),
+    getItem: params => $store.dispatch('$_pkis/getCa', params.id),
+    resignItem: params => $store.dispatch('$_pkis/resignCa', params),
   }
 }
 
@@ -76,6 +72,7 @@ export const actions = {
   resignCa: ({ commit, dispatch }, data) => {
     commit('CA_REQUEST')
     return api.resign(data).then(item => {
+console.log(JSON.stringify({data, item}, null, 2))
       // reset list
       commit('CA_LIST_RESET')
       dispatch('allCas')
