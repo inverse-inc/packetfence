@@ -72,7 +72,6 @@ export const actions = {
   resignCa: ({ commit, dispatch }, data) => {
     commit('CA_REQUEST')
     return api.resign(data).then(item => {
-console.log(JSON.stringify({data, item}, null, 2))
       // reset list
       commit('CA_LIST_RESET')
       dispatch('allCas')

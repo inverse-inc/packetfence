@@ -167,9 +167,9 @@ const setup = (props, context) => {
   const onHideModal = () => { isShowModal.value = false }
   const isValid = useDebouncedWatchHandler([formCopy, isShowModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
   const onResign = () => {
-    resignItem({ id: id.value, ...formCopy.value }).then(() => {
+    resignItem({ id: id.value, ...formCopy.value }).then(item => {
       $store.dispatch('notification/info', { message: i18n.t('Certificate Authority <code>{id}</code> resigned.', { id: id.value }) })
-      emit('change')
+      emit('change', item)
       onHideModal()
     }).catch(e => {
       $store.dispatch('notification/danger', { message: i18n.t('Could not resign Certificate Authority <code>{id}</code>.<br/>Reason: ', { id: id.value }) + e })
