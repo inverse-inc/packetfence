@@ -1,7 +1,7 @@
 <template>
   <b-button-group>
-    <b-button size="sm" variant="outline-danger" :disabled="disabled || isLoading" @click.stop.prevent="onShowInputModal">{{ $t('Resign CA Certificate') }}</b-button>
-    <b-modal v-model="isShowInputModal"
+    <b-button size="sm" variant="outline-danger" :disabled="disabled || isLoading" @click.stop.prevent="onShowModal">{{ $t('Resign CA Certificate') }}</b-button>
+    <b-modal v-model="isShowModal"
       size="lg" centered cancel-disabled>
       <template v-slot:modal-title>
         <h4>{{ $t('Resign CA Certificate') }}</h4>
@@ -72,17 +72,10 @@
         </base-form>
       </b-form-group>
       <template v-slot:modal-footer>
-        <b-button variant="secondary" class="mr-1" :disabled="isLoading" @click="onHideInputModal">{{ $t('Cancel') }}</b-button>
+        <b-button variant="secondary" class="mr-1" :disabled="isLoading" @click="onHideModal">{{ $t('Cancel') }}</b-button>
         <b-button variant="danger" :disabled="isLoading || !isValid" @click="onResign">
           <icon v-if="isLoading" class="mr-1" name="circle-notch" spin /> {{ $t('Resign') }}
         </b-button>
-      </template>
-    </b-modal>
-    <b-modal v-model="isShowOutputModal"
-      size="lg" centered cancel-disabled>
-      <template v-slot:modal-title>
-        <h4>{{ $t('Certificate') }}</h4>
-
       </template>
     </b-modal>
   </b-button-group>
@@ -139,6 +132,7 @@ import i18n from '@/utils/locale'
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import schemaFn from '../schema'
+import { useStore } from '../_composables/useCollection'
 import StoreModule from '../../_store'
 import { keyTypes, keySizes } from '../../config'
 
@@ -153,6 +147,10 @@ const setup = (props, context) => {
 
   const { emit, root: { $store } = {} } = context
 
+  const {
+    resignItem
+  } = useStore($store)
+
   if (!$store.state.$_pkis)
     $store.registerModule('$_pkis', StoreModule)
 
@@ -164,25 +162,19 @@ const setup = (props, context) => {
     formCopy.value = JSON.parse(JSON.stringify(form.value)) // dereference form
   }, { deep: true, immediate: true })
 
-  const isShowInputModal = ref(false)
-  const onShowInputModal = () => { onHideOutputModal(); isShowInputModal.value = true }
-  const onHideInputModal = () => { isShowInputModal.value = false }
-  const isValid = useDebouncedWatchHandler([formCopy, isShowInputModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
+  const isShowModal = ref(false)
+  const onShowModal = () => { isShowModal.value = true }
+  const onHideModal = () => { isShowModal.value = false }
+  const isValid = useDebouncedWatchHandler([formCopy, isShowModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
   const onResign = () => {
-    $store.dispatch('$_pkis/resignCa', { id: id.value, ...formCopy.value }).then(() => {
-      $store.dispatch('notification/info', { message: i18n.t('Certificate <code>{id}</code> resigned.', { id: id.value }) })
+    resignItem({ id: id.value, ...formCopy.value }).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Certificate Authority <code>{id}</code> resigned.', { id: id.value }) })
       emit('change')
-      onHideInputModal()
-      onShowOutputModal()
+      onHideModal()
     }).catch(e => {
-      $store.dispatch('notification/danger', { message: i18n.t('Could not resign certificate <code>{id}</code>.<br/>Reason: ', { id: id.value }) + e })
-      onShowOutputModal()
+      $store.dispatch('notification/danger', { message: i18n.t('Could not resign Certificate Authority <code>{id}</code>.<br/>Reason: ', { id: id.value }) + e })
     })
   }
-
-  const isShowOutputModal = ref(false)
-  const onShowOutputModal = () => { onHideInputModal(); isShowOutputModal.value = true }
-  const onHideOutputModal = () => { isShowOutputModal.value = false }
 
   const keySizeOptions = computed(() => {
     const { key_type } = formCopy.value || {}
@@ -198,12 +190,9 @@ const setup = (props, context) => {
     rootRef,
     schema,
     isValid,
-    isShowInputModal,
-    onShowInputModal,
-    onHideInputModal,
-    isShowOutputModal,
-    onShowOutputModal,
-    onHideOutputModal,
+    isShowModal,
+    onShowModal,
+    onHideModal,
     onResign,
     keySizeOptions,
     formCopy,

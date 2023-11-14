@@ -1,19 +1,14 @@
 import { computed } from '@vue/composition-api'
 import store, { types } from '@/store'
 import api from './_api'
-import {
-  decomposeProfile,
-  recomposeProfile
-} from './config'
 
 export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_pkis/isProfileLoading']),
     getList: () => $store.dispatch('$_pkis/allProfiles'),
-    createItem: params => $store.dispatch('$_pkis/createProfile', recomposeProfile(params)),
-    getItem: params => $store.dispatch('$_pkis/getProfile', params.id)
-      .then(item => decomposeProfile(item)),
-    updateItem: params => $store.dispatch('$_pkis/updateProfile', recomposeProfile(params)),
+    createItem: params => $store.dispatch('$_pkis/createProfile', params),
+    getItem: params => $store.dispatch('$_pkis/getProfile', params.id),
+    updateItem: params => $store.dispatch('$_pkis/updateProfile', params),
     signCsr: params => $store.dispatch('$_pkis/signCsr', params),
   }
 }

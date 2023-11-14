@@ -75,13 +75,13 @@
               @click.stop.prevent="goToClone(item)"
             >{{ $t('Clone') }}</b-button>
             <button-certificate-copy
-              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" size="sm" />
             <button-certificate-download v-if="!item.scep || !item.csr"
-              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" size="sm" />
             <button-certificate-email v-if="!item.scep || !item.csr"
-              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" size="sm" />
             <button-certificate-revoke
-              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" @change="reSearch" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" size="sm" @change="reSearch" />
           </span>
         </template>
         <template #cell(ca_name)="{ item }">

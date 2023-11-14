@@ -92,7 +92,7 @@
       <template #tabs-end v-if="!isNew && !isClone">
         <div class="text-right mr-3 mb-1">
           <button-ca-resign
-            :id="id" :form="form" class="my-1 mr-1" />
+            :id="id" :form="form" class="my-1 mr-1" @change="reload" />
           <button-ca-generate-csr
             :id="id" :form="form" class="my-1 mr-1" />
         </div>
@@ -102,9 +102,7 @@
 </template>
 <script>
 import { computed, toRefs } from '@vue/composition-api'
-import {
-  BaseForm, BaseFormTab
-} from '@/components/new/'
+import { BaseForm, BaseFormTab } from '@/components/new/'
 import schemaFn from '../schema'
 import {
   ButtonCaResign,
@@ -195,9 +193,14 @@ export const setup = (props) => {
     return keySizes
   })
 
+  const reload = () => {
+console.log('reload')
+  }
+
   return {
     schema,
-    keySizeOptions
+    keySizeOptions,
+    reload
   }
 }
 
