@@ -77,7 +77,6 @@ type configStruct struct {
 		Services      PfConfServices
 		Pfconnector   PfConfPfconnector
 	}
-	//AdminRoles AdminRoles
 	Cluster struct {
 		HostsIp struct {
 			PfconfigKeys
