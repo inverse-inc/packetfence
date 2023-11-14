@@ -12,63 +12,7 @@
           :schema="schema"
           :isLoading="isLoading"
         >
-          <form-group-cn namespace="cn"
-            :column-label="$i18n.t('Common Name')"
-          />
-          <form-group-mail namespace="mail"
-            :column-label="$i18n.t('Email')"
-          />
-          <form-group-organisational-unit namespace="organisational_unit"
-            :column-label="$i18n.t('Organisational Unit')"
-          />
-          <form-group-organisation namespace="organisation"
-            :column-label="$i18n.t('Organisation')"
-            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
-          />
-          <form-group-country namespace="country"
-            :column-label="$i18n.t('Country')"
-            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
-          />
-          <form-group-state namespace="state"
-            :column-label="$i18n.t('State or Province')"
-            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
-          />
-          <form-group-locality namespace="locality"
-            :column-label="$i18n.t('Locality')"
-            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
-          />
-          <form-group-street-address namespace="street_address"
-            :column-label="$i18n.t('Street Address')"
-            :api-feedback="$i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')"
-          />
-          <form-group-key-type namespace="key_type"
-            :column-label="$i18n.t('Key type')"
-            :disabled="true"
-          />
-          <form-group-key-size namespace="key_size"
-            :column-label="$i18n.t('Key size')"
-            :options="keySizeOptions"
-            :disabled="true"
-          />
-          <form-group-digest namespace="digest"
-            :column-label="$i18n.t('Digest')"
-          />
-          <form-group-key-usage namespace="key_usage"
-            :column-label="$i18n.t('Key usage')"
-            :text="$i18n.t('Optional. One or many of: digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly.')"
-          />
-          <form-group-extended-key-usage namespace="extended_key_usage"
-            :column-label="$i18n.t('Extended key usage')"
-            :text="$i18n.t('Optional. One or many of: serverAuth, clientAuth, codeSigning, emailProtection, timeStamping, msCodeInd, msCodeCom, msCTLSign, msSGC, msEFS, nsSGC.')"
-          />
-          <form-group-days namespace="days"
-            :column-label="$i18n.t('Days')"
-            :text="$i18n.t('Number of days the CA will be valid. (value greater than 825 wont work on some devices)')"
-          />
-          <form-group-ocsp-url namespace="ocsp_url"
-            :column-label="$i18n.t('OCSP Url')"
-            :text="$i18n.t('Optional. This is the url of the OCSP server that will be added in the certificate.')"
-          />
+          <the-form-fields v-bind="{ form: formCopy, isResign: true }" />
         </base-form>
       </b-form-group>
       <template v-slot:modal-footer>
@@ -94,6 +38,7 @@ import {
   BaseFormGroupKeyUsage,
   BaseFormGroupExtendedKeyUsage,
 } from '../../_components/'
+import TheFormFields from './TheFormFields'
 
 const components = {
   BaseForm,
@@ -113,6 +58,7 @@ const components = {
   FormGroupKeyUsage: BaseFormGroupKeyUsage,
   FormGroupExtendedKeyUsage: BaseFormGroupExtendedKeyUsage,
   FormGroupDays: BaseFormGroupInputNumber,
+  TheFormFields,
 }
 
 const props = {
