@@ -43,7 +43,10 @@ jobs:
         run: dpkg-sig -k  B022C48D3D6373D7FC256A8CCB2D3A2AA0030E2C  --sign builder /mnt/${{ inputs._PACKAGE_NAME }}*.deb
 
       - name: Verifiy the signarure of package ${{ inputs._IMAGE_TYPE }}
-        run: gpg --verify  /mnt/${{ inputs._PACKAGE_NAME }}*.deb
+        run: | 
+          gpg --verify /mnt/${{ inputs._PACKAGE_NAME }}*.deb
+          dpkg-sig --list /mnt/${{ inputs._PACKAGE_NAME }}*.deb
+
 
   upload_packages:
     uses:  ./.github/workflows/reusable_upload_packages.yml
