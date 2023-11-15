@@ -470,11 +470,11 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 		oldMAC string
 		oldIP  string
 	)
-	err = MAC2IP.QueryRow(mac, 1).Scan(&oldIP)
+	err = MAC2IP.QueryRow(mac).Scan(&oldIP)
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
-	err = IP2MAC.QueryRow(ip, 1).Scan(&oldMAC)
+	err = IP2MAC.QueryRow(ip).Scan(&oldMAC)
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
