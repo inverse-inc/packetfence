@@ -28,7 +28,7 @@ jobs:
         echo "The package will be uploaded to the web server, directory: ${{ env.PACKAGE_DEST_PATH }}"
         set -e && \
         eval `ssh-agent -s` && ssh-add - <<< $(echo "${{ secrets.DEPLOY_KEY_WEB_SERVER }}") && \
-        rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"  ${{ inputs._VOLUME_MOUNT }}/${{ inputs._IMAGE_TYPE }}/packages/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} root@192.95.20.194:${{ env.PACKAGE_DEST_PATH }}
+        rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"  ${{ inputs._VOLUME_MOUNT }}/${{ inputs._IMAGE_TYPE }}/packages/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} root@${{ vars.WEB_INVERSE_IP_ADDRESS }}:${{ env.PACKAGE_DEST_PATH }}
         ssh-add -D
       env:
         PACKAGE_TYPE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  '*.rpm' || '*.deb' }}

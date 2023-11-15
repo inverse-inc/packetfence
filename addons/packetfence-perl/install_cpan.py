@@ -73,7 +73,6 @@ def install_perl_module(dict_data):
         command=f"/usr/bin/cpan install {dict_data['ModInstall']}".split()
     elif convert_boolean(dict_data['ModTest']) == False:
         command=f"/usr/bin/cpan -T install {dict_data['ModInstall']}".split()
-#        command=f"perl -MCPAN -e \"CPAN::Shell->notest('install','{dict_data['ModInstall']}')\"".split()
     print(f"Installing perl module: {dict_data['ModName']} \n" )
     with open(file_log, 'w') as f:
         try:
