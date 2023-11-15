@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/schema"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
@@ -51,7 +51,7 @@ type (
 	// Handler struct
 	Handler struct {
 		Next   httpserver.Handler
-		Router *mux.Router
+		Router *chi.Mux
 		DB     *gorm.DB
 		Ctx    *context.Context
 	}
@@ -87,12 +87,12 @@ func DecodeUrlQuery(req *http.Request) (sql.Vars, error) {
 
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
+	defer panichandler.Http(ctx, w)
+	chiCtx := chi.NewRouteContext()
+	ctx = context.WithValue(ctx, chi.RouteCtxKey, chiCtx)
 	r = r.WithContext(ctx)
 
-	defer panichandler.Http(ctx, w)
-
-	routeMatch := mux.RouteMatch{}
-	if h.Router.Match(r, &routeMatch) {
+	if h.Router.Match(chiCtx, r.Method, r.URL.Path) {
 		h.Router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
