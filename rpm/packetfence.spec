@@ -285,6 +285,9 @@ Requires: openvas-libraries
 # pki
 Requires: perl(Crypt::SMIME)
 
+# Windows AD domain
+Requires: perl(Digest::MD4)
+
 # dhcp-stress-test
 Requires: perl(Net::DHCP)
 
