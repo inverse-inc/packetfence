@@ -18,6 +18,9 @@ use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw($authentication_config_file $domain_config_file);
 use pf::util;
+use Digest::MD4;
+use Encode;
+use MIME::Base64;
 
 my $ini = pf::IniFiles->new(-file => $domain_config_file, -allowempty => 1);
 
@@ -44,54 +47,39 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     my $work_group = $samba_ini->val("global", "workgroup");
     my $realm = $samba_ini->val("global", "realm");
 
-    print("---- section: $section\n");
-    print("---- dns name is: $dns_name \n");
-    print("---- work_group is: $work_group\n");
-    print("---- realm is: $realm\n");
 
     # the tdb file should be located at /var/lib/samba/secrets.tdb, but here we use cache instead
     my $secret_tdb_file = "/chroots/$section/var/cache/samba/secrets.tdb";
-    print("---- tdb file is located in: $secret_tdb_file \n");
 
     my $exit_code = 0;
 
     # extract machine account from tdb file
+    my $machine_account = "";
     my $machine_account_key = "SECRETS/SALTING_PRINCIPAL/DES/$dns_name";
     my $tdb_secret_host_value;
     ($exit_code, $tdb_secret_host_value) = tdbdump_get_value("/chroots/$section/var/cache/samba/secrets.tdb", $machine_account_key);
     if ($exit_code == 0 && $tdb_secret_host_value ne "") {
-        my $machine_account = extract_machine_account($tdb_secret_host_value, $dns_name);
-        if ($machine_account ne "") {
-            print("  ---- machine_account is: $machine_account\n");
-        }
+        $machine_account = extract_machine_account($tdb_secret_host_value);
     }
 
     # extract machine account password from tdb file
+    my $machine_password="";
     my $machine_account_password_key = "SECRETS/MACHINE_PASSWORD/$work_group";
     my $tdb_secret_machine_password_value;
+
     ($exit_code, $tdb_secret_machine_password_value) = tdbdump_get_value("/chroots/$section/var/cache/samba/secrets.tdb", $machine_account_password_key);
+
     if ($exit_code == 0 && $tdb_secret_machine_password_value ne "") {
-
-        $tdb_secret_machine_password_value = $tdb_secret_machine_password_value;
-        ($exit_code, my $machine_password) = extract_machine_password($tdb_secret_machine_password_value);
-
+        $machine_password = extract_machine_password($tdb_secret_machine_password_value);
     }
 
-
-    if (!$ini->exists($section, 'server_name')) {
-        my $machine_account = getServerName $section;
-        ini->newval($section, 'server_name', $samba_server_name);
+    if (!$ini->exists($section, 'machine_account')) {
+        $ini->newval($section, 'machine_account', $machine_account);
         $updated |= 1;
     }
 
-    if (!$ini->exists($section, 'username')) {
-        my $machine_account = getMachineAccount $section;
-        ini->newval($section, 'username', $machine_account);
-        $updated |= 1;
-    }
-    if (!$ini->exists($section, 'password')) {
-        my $password = getMachineAccountPassword $section;
-        ini->newval($section, 'password', $password);
+    if (!$ini->exists($section, 'machine_account_password')) {
+        $ini->newval($section, 'machine_account_password', $machine_password);
         $updated |= 1;
     }
 }
@@ -111,37 +99,34 @@ sub tdbdump_get_value {
 }
 
 sub extract_machine_account {
-    my ($tdb_secret_host_string, $dns_name) = @_;
-
+    my ($tdb_secret_host_string) = @_;
     if ($tdb_secret_host_string =~ /^host\/(.*?)@(.*?)\\00$/i) {
         my $hostname = $1;
         my $domain = $2;
 
+        # this is a double check to make sure we have valid machine FQDN
         if ($hostname =~ /^(.*?)\.$domain/i) {
             return $1 . '$';
         }
     }
-    else {
-        return "";
-    }
+    return "";
 }
 
 sub extract_machine_password {
     my ($raw_password) = @_;
 
-    my $replace_cmd = "sed s/\\\\00//g| sed 's/\\\\//g'";
-    my $decrypt_cmd = 'import hashlib,binascii,sys;input=sys.stdin.read().strip();print(binascii.hexlify(hashlib.new("md4",binascii.unhexlify(input.replace("\\\", "").replace("\00","")).decode("utf-8").encode("utf-16le")).digest()))';
-    my $cmd = "echo -n '$raw_password'| $replace_cmd| python -c '$decrypt_cmd'";
+    chomp($raw_password);
+    $raw_password =~ s/\\00//g;
+    $raw_password =~ s/\\//g;
+    $raw_password =~ s/\\//g;
 
-    my $result = qx($cmd);
-    my $exit_code = $? >> 8;
-    my $password = "";
-    if ($exit_code != 0 && $result ne "") {
-        if ($result =~ /b'([a-f0-9]+)'/) {
-            $password = $1;
-        }
-    }
-    return $exit_code, $password;
+    my $bin_data = encode("UTF-16le", decode("UTF-8", pack("H*", $raw_password)));
+
+    my $md4 = Digest::MD4->new;
+    $md4->add($bin_data);
+    my $hash = $md4->digest;
+
+    return(unpack("H*", $hash));
 }
 
 
@@ -171,4 +156,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
