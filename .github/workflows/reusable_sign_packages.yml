@@ -24,6 +24,7 @@ jobs:
       image: debian:11.0
       volumes:
         - ${{ inputs._VOLUME_MOUNT }}/debian/packages/:/mnt
+        - ${{ github.workspace }}/addons/packetfence-perl/:/root
     steps:
       - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
         uses: actions/download-artifact@v3
@@ -34,10 +35,11 @@ jobs:
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
 
       - name: Install debian dependenecies ${{ inputs._IMAGE_TYPE }}
-        run:  apt update && apt install gpg dpkg-sig -y
+        run:  apt -qq update && apt -qq -y install gpg dpkg-sig python3 python3-pip && python3 -m pip install -q  -U pip && pip install -q pynacl requests
 
       - name: import private key ${{ inputs._IMAGE_TYPE }}
-        run: echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --pinentry-mode loopback --import
+        run: | 
+          set -e && python3 /root/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_GPG_PRIVATE_KEY_SECRET_ID }} --return_value=password_notes | gpg --pinentry-mode loopback --import
 
       - name: Sign the package ${{ inputs._IMAGE_TYPE }}
         run: dpkg-sig -k  B022C48D3D6373D7FC256A8CCB2D3A2AA0030E2C  --sign builder /mnt/${{ inputs._PACKAGE_NAME }}*.deb
@@ -63,6 +65,7 @@ jobs:
       image: rockylinux:8.8
       volumes:
         - ${{ inputs._VOLUME_MOUNT }}/rhel8/packages/:/mnt
+        - ${{ github.workspace }}/addons/packetfence-perl/:/root
     steps:
       - name: Dwnload artifactory ${{ inputs._IMAGE_TYPE }}
         uses: actions/download-artifact@v3 
@@ -73,11 +76,11 @@ jobs:
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
 
       - name: Install dependenecies ${{ inputs._IMAGE_TYPE }}
-        run: yum install -y rpm-sign
+        run: dnf -y install rpm-sign python39 && python3.9 -m pip install -q  -U pip && pip install -q pynacl requests
 
       - name: import private key ${{ inputs._IMAGE_TYPE }}
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --pinentry-mode loopback --import
+          set -e && python3 /root/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_GPG_PRIVATE_KEY_SECRET_ID }} --return_value=password_notes | gpg --pinentry-mode loopback --import
 
       - name: Check if the key was imported ${{ inputs._IMAGE_TYPE }}
         run: |
@@ -101,4 +104,3 @@ jobs:
         env:
           PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || 'packetfence-perl*.deb' }}
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}
-

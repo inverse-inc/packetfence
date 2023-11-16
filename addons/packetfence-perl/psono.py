@@ -45,6 +45,8 @@ def return_data(return_value, decrypted_secret):
         return decrypted_secret['application_password_password']
     elif return_value == "title":
         return decrypted_secret['application_password_title']
+    elif return_value == "password_notes":
+        return decrypted_secret['application_password_notes']
     elif return_value == "all":
         return decrypted_secret
     else:
@@ -54,10 +56,11 @@ def return_data(return_value, decrypted_secret):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--return_value', type=str,
-                    choices=['all', 'password', 'username', 'title' ],
+                    choices=['all', 'password', 'username', 'title' , 'password_notes'],
                     default= 'all',
                     help='all: Return all options\n'           
                         'password: return password(application_password_password)\n'
+                        'password_notes: return password_notes(application_password_notes)\n'
                         'username: return username(application_password_username)\n'
                         'title: return title secret\n')
     parser.add_argument("--api_key_id", required=True,  help="Please enter api_key_id", type=str)
