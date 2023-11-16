@@ -3,6 +3,7 @@ import os
 import sys
 import threading
 import binascii
+import datetime
 
 from flask import Flask, g, request, jsonify
 from http import HTTPStatus
@@ -17,6 +18,7 @@ machine_cred = None
 secure_channel_connection = None
 connection_id = 1
 reconnect_id = 0
+connection_last_active_time = datetime.datetime.now()
 lock = threading.Lock()
 
 conf_path = os.getenv("CONF")
@@ -106,17 +108,37 @@ def get_secure_channel_connection():
     global secure_channel_connection
     global connection_id
     global reconnect_id
+    global connection_last_active_time
     global lock
 
     with lock:
         if secure_channel_connection is None or machine_cred is None or (
-                reconnect_id != 0 and connection_id <= reconnect_id):
+                reconnect_id != 0 and connection_id <= reconnect_id) or (
+                datetime.datetime.now() - connection_last_active_time).total_seconds() > 5 * 60:
             secure_channel_connection, machine_cred, error_code, error_message = init_secure_connection()
             connection_id += 1
             reconnect_id = connection_id if error_code != 0 else 0
+            connection_last_active_time = datetime.datetime.now()
             return secure_channel_connection, machine_cred, connection_id, error_code, error_message
         else:
+            connection_last_active_time = datetime.datetime.now()
             return secure_channel_connection, machine_cred, connection_id, 0, ""
+
+
+def ntlm_connect_handler():
+    global machine_cred
+    global secure_channel_connection
+    global connection_id
+    global reconnect_id
+
+    with lock:
+        reconnect_id = connection_id
+
+    secure_channel_connection, machine_cred, connection_id, error_code, error_message = get_secure_channel_connection()
+    if error_code != 0:
+        return "Error while establishing secure channel connections: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    return "OK", HTTPStatus.OK
 
 
 def ntlm_auth_handler():
@@ -194,7 +216,7 @@ def ntlm_auth_handler():
             nt_error_message = e.args[1]
 
             if nt_error_code == ntstatus.NT_STATUS_NO_SUCH_USER:
-                return nt_error_message,HTTPStatus.NOT_FOUND
+                return nt_error_message, HTTPStatus.NOT_FOUND
             if nt_error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
                 return nt_error_message, HTTPStatus.UNAUTHORIZED
             if nt_error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:  # we should stop retrying after failures, then it will probably lock the user.
@@ -209,12 +231,13 @@ def ntlm_auth_handler():
             return f"NT Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
         except Exception as e:
             reconnect_id = connection_id
-            print("-----------General error:",e)
+            print("-----------General error:", e)
             return "Error handling request", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 app = Flask(__name__)
 app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)
+app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
 # if name == __main__:
 app.run(threaded=True, host='0.0.0.0', port=int(listen_port))
 # app.run(debug='debug', processes=1, threaded=True, host='0.0.0.0', port=int(listen_port))
