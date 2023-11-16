@@ -4,7 +4,8 @@ import {
   BaseFormGroupChosenCountry,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupTextareaUpload
+  BaseFormGroupTextareaUpload,
+  BaseInputGroupTextarea
 } from '@/components/new/'
 import {
   BaseFormGroupKeyType,
@@ -40,6 +41,9 @@ export {
   BaseFormGroupExtendedKeyUsage as FormGroupExtendedKeyUsage,
   BaseFormGroupInputNumber      as FormGroupDays,
   BaseFormGroupTextareaUpload   as FormGroupCert,
+
+  BaseInputGroupTextarea        as InputGroupCert,
+  BaseInputGroupTextarea        as InputGroupCsr,
 
   ButtonCaResign,
   ButtonCaGenerateCsr,

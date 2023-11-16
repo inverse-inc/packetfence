@@ -66,8 +66,8 @@ export default {
       if (error) {
         throw error
       } else {
-        const { data: { items: { 0: item = {} } = {} } = {} } = response
-        return decomposeCa(item)
+        const { data: { items = '' } } = response
+        return items
       }
     })
   }

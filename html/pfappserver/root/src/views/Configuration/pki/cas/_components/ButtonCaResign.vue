@@ -25,39 +25,11 @@
   </b-button-group>
 </template>
 <script>
-import {
-  BaseForm,
-  BaseFormGroupChosenCountry,
-  BaseFormGroupInput,
-  BaseFormGroupInputNumber,
-} from '@/components/new/'
-import {
-  BaseFormGroupKeyType,
-  BaseFormGroupKeySize,
-  BaseFormGroupDigest,
-  BaseFormGroupKeyUsage,
-  BaseFormGroupExtendedKeyUsage,
-} from '../../_components/'
+import { BaseForm } from '@/components/new/'
 import TheFormFields from './TheFormFields'
 
 const components = {
   BaseForm,
-  FormGroupCn: BaseFormGroupInput,
-  FormGroupMail: BaseFormGroupInput,
-  FormGroupOrganisationalUnit: BaseFormGroupInput,
-  FormGroupOrganisation: BaseFormGroupInput,
-  FormGroupCountry: BaseFormGroupChosenCountry,
-  FormGroupState: BaseFormGroupInput,
-  FormGroupLocality: BaseFormGroupInput,
-  FormGroupStreetAddress: BaseFormGroupInput,
-  FormGroupPostalCode: BaseFormGroupInput,
-  FormGroupOcspUrl: BaseFormGroupInput,
-  FormGroupKeyType: BaseFormGroupKeyType,
-  FormGroupKeySize: BaseFormGroupKeySize,
-  FormGroupDigest: BaseFormGroupDigest ,
-  FormGroupKeyUsage: BaseFormGroupKeyUsage,
-  FormGroupExtendedKeyUsage: BaseFormGroupExtendedKeyUsage,
-  FormGroupDays: BaseFormGroupInputNumber,
   TheFormFields,
 }
 
@@ -69,18 +41,17 @@ const props = {
     type: Boolean
   },
   form: {
-    type: Object
+    type: Object,
+    default: () => ({})
   }
 }
 
 import i18n from '@/utils/locale'
-
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import schemaFn from '../schema'
 import { useStore } from '../_composables/useCollection'
 import StoreModule from '../../_store'
-import { keyTypes, keySizes } from '../../config'
 
 const setup = (props, context) => {
 
@@ -122,15 +93,6 @@ const setup = (props, context) => {
     })
   }
 
-  const keySizeOptions = computed(() => {
-    const { key_type } = formCopy.value || {}
-    if (key_type) {
-      const { [+key_type]: { sizes = [] } = {} } = keyTypes
-      return sizes.map(size => ({ text: `${size}`, value: `${size}` }))
-    }
-    return keySizes
-  })
-
   return {
     isLoading,
     rootRef,
@@ -140,7 +102,6 @@ const setup = (props, context) => {
     onShowModal,
     onHideModal,
     onResign,
-    keySizeOptions,
     formCopy,
   }
 }
