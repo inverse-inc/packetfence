@@ -11,9 +11,9 @@ Type=notify
 TimeoutStopSec=60
 NotifyAccess=all
 LimitNOFILE=8192
-#ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_dispatcher' -e 'pf::services::manager::httpd_dispatcher->new()->generateConfig()'
-ExecStart=/usr/local/pf/sbin/httpd.dispatcher-docker-wrapper
-ExecStop=/bin/bash -c "docker stop ntlm-auth-api ; echo Stopped"
+#ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ntlm_auth_api' -e 'pf::services::manager::ntlm_auth_api->new()->generateConfig()'
+ExecStart=/usr/local/pf/sbin/ntlm-auth-api-docker-wrapper
+ExecStop=/bin/bash -c "docker ps -q --filter name=ntlm-auth-api | xargs docker stop ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/ntlm-auth-api-systemd-notify.pid

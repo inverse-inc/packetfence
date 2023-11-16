@@ -100,6 +100,18 @@ function run {
   fi
 }
 
+function run_multi() {
+  name="$1"
+  suffix="$2"
+  args="$3"
+  cmd="$4"
+  img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
+  if [ "$LOCAL_DEV" = "true" ]; then
+    build_run $name "$args" "$cmd"
+  else
+    run_img $img "$name-$suffix" "$args" "$cmd"
+  fi
+}
 function sdproxy() {
   SD_NOTIFY_PROXY=/usr/local/pf/sbin/sdnotify-proxy
   SD_SOCK=/usr/local/pf/var/run/$1-systemd-notify.sock
