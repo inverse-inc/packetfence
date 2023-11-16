@@ -71,7 +71,6 @@ jobs:
       - run:  | 
           echo ${{ needs.pre_job.outputs.should_skip }}
           echo ${{ steps.filters.outputs.src }}
-          echo ${{ steps.filters.outputs.src_files }}
           echo ${{ steps.filters.outputs.changes }}
           echo ${{ steps.filters.conclusion }}
           echo ${{ steps.filters.outcome }}
@@ -109,21 +108,27 @@ jobs:
       _IMAGE_TYPE: ${{ matrix.images }}
       _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}
 
-  sign_debian_package:
-    uses:  ./.github/workflows/reusable_sign_package_debian.yml
+  sign_package:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/reusable_sign_packages.yml
     needs: ['build_prepation', 'build_images_and_packages', 'unit_tests_packages']
     with:
-      _IMAGE_TYPE: 'debian'
+      _IMAGE_TYPE: ${{ matrix.images }}
       _VOLUME_MOUNT: ${{needs.build_prepation.outputs.volume_mount}}
       _BRANCH_NAME: ${{ needs.build_prepation.outputs.branch_name }}
       _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}
     secrets: inherit
 
-  sign_rpm_package:
-    uses:  ./.github/workflows/reusable_sign_package_rhel8.yml
-    needs: ['build_prepation', 'build_images_and_packages', 'unit_tests_packages']
+  upload_packages:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/reusable_upload_packages.yml
+    needs: ['build_prepation', 'build_images_and_packages', 'unit_tests_packages', 'sign_package']
     with:
-      _IMAGE_TYPE: 'rhel8'
+      _IMAGE_TYPE: ${{ matrix.images }}
       _VOLUME_MOUNT: ${{needs.build_prepation.outputs.volume_mount}}
       _BRANCH_NAME: ${{ needs.build_prepation.outputs.branch_name }}
       _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}

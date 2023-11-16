@@ -23,22 +23,20 @@ jobs:
       PACKAGE_DEST_PATH: /root/packages/packetfence-perl/${{ inputs._BRANCH_NAME }}/${{ inputs._IMAGE_TYPE }}/
 
     steps:
+    - name: download artifactory ${{ inputs._IMAGE_TYPE }}
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ env.ARTIFACTORY_NAME }}
+        path:  ${{ runner.temp }}/
+      env:
+        ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
+
     - name: Upload the package to web server
       run: |
         echo "The package will be uploaded to the web server, directory: ${{ env.PACKAGE_DEST_PATH }}"
         set -e && \
         eval `ssh-agent -s` && ssh-add - <<< $(echo "${{ secrets.DEPLOY_KEY_WEB_SERVER }}") && \
-        rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"  ${{ inputs._VOLUME_MOUNT }}/${{ inputs._IMAGE_TYPE }}/packages/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} root@${{ vars.WEB_INVERSE_IP_ADDRESS }}:${{ env.PACKAGE_DEST_PATH }}
+        rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"   ${{ runner.temp }}/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} root@${{ vars.WEB_INVERSE_IP_ADDRESS }}:${{ env.PACKAGE_DEST_PATH }}
         ssh-add -D
       env:
         PACKAGE_TYPE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  '*.rpm' || '*.deb' }}
-
-
-    - name: Remove files
-      uses: addnab/docker-run-action@v3
-      with:
-        image: debian:11.0
-        options: --rm -v ${{ inputs._VOLUME_MOUNT }}:/mnt
-        shell: /bin/bash
-        run: |
-          rm -rf /mnt/${{ inputs._IMAGE_TYPE }}

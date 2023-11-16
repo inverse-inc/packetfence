@@ -1,0 +1,104 @@
+name: Signe debian package
+on:
+  workflow_call:
+    inputs:
+      _VOLUME_MOUNT:
+        required: True
+        type: string
+      _IMAGE_TYPE:
+        required: True
+        type: string
+      _BRANCH_NAME:
+        required: True
+        type: string
+      _PACKAGE_NAME:
+        required: True
+        type: string
+
+
+jobs:
+  sign_package_deb:
+    if: inputs._IMAGE_TYPE == 'debian'
+    runs-on: packetfence-perl-package-build 
+    container:
+      image: debian:11.0
+      volumes:
+        - ${{ inputs._VOLUME_MOUNT }}/debian/packages/:/mnt
+    steps:
+      - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+          path:  /mnt
+        env:
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
+
+      - name: Install debian dependenecies ${{ inputs._IMAGE_TYPE }}
+        run:  apt update && apt install gpg dpkg-sig -y
+
+      - name: import private key ${{ inputs._IMAGE_TYPE }}
+        run: echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --pinentry-mode loopback --import
+
+      - name: Sign the package ${{ inputs._IMAGE_TYPE }}
+        run: dpkg-sig -k  B022C48D3D6373D7FC256A8CCB2D3A2AA0030E2C  --sign builder /mnt/${{ inputs._PACKAGE_NAME }}*.deb
+
+      - name: Verifiy the signarure of package ${{ inputs._IMAGE_TYPE }}
+        run: | 
+          gpg --verify /mnt/${{ inputs._PACKAGE_NAME }}*.deb
+          dpkg-sig --list /mnt/${{ inputs._PACKAGE_NAME }}*.deb
+
+      - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+          path:  /mnt/${{ env.PACKAGE_NAME }}
+        env:
+          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || 'packetfence-perl*.deb' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}
+
+  sign_package_rpm:
+    runs-on: packetfence-perl-package-build 
+    if: inputs._IMAGE_TYPE == 'rhel8'
+    container:
+      image: rockylinux:8.8
+      volumes:
+        - ${{ inputs._VOLUME_MOUNT }}/rhel8/packages/:/mnt
+    steps:
+      - name: Dwnload artifactory ${{ inputs._IMAGE_TYPE }}
+        uses: actions/download-artifact@v3 
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+          path: /mnt
+        env:
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
+
+      - name: Install dependenecies ${{ inputs._IMAGE_TYPE }}
+        run: yum install -y rpm-sign
+
+      - name: import private key ${{ inputs._IMAGE_TYPE }}
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --pinentry-mode loopback --import
+
+      - name: Check if the key was imported ${{ inputs._IMAGE_TYPE }}
+        run: |
+          rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --> %{summary}\n'
+          gpg --list-keys
+
+      - name: Sign the package ${{ inputs._IMAGE_TYPE }}
+        run: rpm --define "_gpg_name support@inverse.ca" --define '_signature gpg' --addsign  /mnt/${{ inputs._PACKAGE_NAME }}*.rpm
+
+      - name: Verifiy the signarure of package ${{ inputs._IMAGE_TYPE }}
+        run: |
+          gpg  --batch --yes   --output /tmp/pubkey.pub --armor --export  support@inverse.ca && rpm --import /tmp/pubkey.pub
+          rpm -qpi /mnt/${{ inputs._PACKAGE_NAME }}**.rpm
+          rpm --checksig /mnt/${{ inputs._PACKAGE_NAME }}**.rpm
+
+      - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+          path:  /mnt/${{ env.PACKAGE_NAME }}
+        env:
+          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || 'packetfence-perl*.deb' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}
+
