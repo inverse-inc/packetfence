@@ -1,91 +1,89 @@
 <template>
   <div>
-    <form-group-identifier v-if="!isResign && !isNew && !isClone"
+    <form-group-identifier v-if="disableInputsRegular"
       namespace="id"
       :column-label="$i18n.t('Identifier')"
       :disabled="!isNew && !isClone"
     />
-
     <form-group-cn namespace="cn"
       :column-label="$i18n.t('Common Name')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
     <form-group-mail namespace="mail"
       :column-label="$i18n.t('Email')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
     <form-group-organisational-unit namespace="organisational_unit"
       :column-label="$i18n.t('Organisational Unit')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
     <form-group-organisation namespace="organisation"
       :column-label="$i18n.t('Organisation')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
       :api-feedback="apiFeedback"
     />
     <form-group-country namespace="country"
       :column-label="$i18n.t('Country')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
       :api-feedback="apiFeedback"
     />
     <form-group-state namespace="state"
       :column-label="$i18n.t('State or Province')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
       :api-feedback="apiFeedback"
     />
     <form-group-locality namespace="locality"
       :column-label="$i18n.t('Locality')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
       :api-feedback="apiFeedback"
     />
     <form-group-street-address namespace="street_address"
       :column-label="$i18n.t('Street Address')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
     <!-- temporarily hidden
     <form-group-postal-code namespace="postal_code"
       :column-label="$i18n.t('Postal Code')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
     -->
     <form-group-key-type namespace="key_type"
       :column-label="$i18n.t('Key type')"
-      :disabled="isResign || (!isNew && !isClone)"
+      :disabled="disableInputsKeys"
     />
     <form-group-key-size namespace="key_size"
       :column-label="$i18n.t('Key size')"
-      :disabled="isResign || (!isNew && !isClone)"
+      :disabled="disableInputsKeys"
       :options="keySizeOptions"
     />
     <form-group-digest namespace="digest"
       :column-label="$i18n.t('Digest')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
     <form-group-key-usage namespace="key_usage"
       :column-label="$i18n.t('Key usage')"
       :text="$i18n.t('Optional. One or many of: digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly.')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
     <form-group-extended-key-usage namespace="extended_key_usage"
       :column-label="$i18n.t('Extended key usage')"
       :text="$i18n.t('Optional. One or many of: serverAuth, clientAuth, codeSigning, emailProtection, timeStamping, msCodeInd, msCodeCom, msCTLSign, msSGC, msEFS, nsSGC.')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
     <form-group-days namespace="days"
       :column-label="$i18n.t('Days')"
       :text="$i18n.t('Number of days the CA will be valid. (value greater than 825 wont work on some devices)')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
     <form-group-ocsp-url namespace="ocsp_url"
       :column-label="$i18n.t('OCSP Url')"
       :text="$i18n.t('Optional. This is the url of the OCSP server that will be added in the certificate.')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsRegular"
     />
-
-    <form-group-cert v-if="!isResign"
+    <form-group-cert v-if="!isResign && !isCsr"
       namespace="cert"
       :column-label="$i18n.t('Certificate')"
-      :disabled="!isResign && !isNew && !isClone"
+      :disabled="disableInputsSpecial"
       auto-fit
     />
   </div>
@@ -154,6 +152,10 @@ export const props = {
   isResign: {
     type: Boolean,
     default: false
+  },
+  isCsr: {
+    type: Boolean,
+    default: false
   }
 }
 
@@ -163,7 +165,10 @@ export const setup = (props) => {
 
   const {
     form,
-    isResign
+    isNew,
+    isClone,
+    isResign,
+    isCsr
   } = toRefs(props)
 
   const keySizeOptions = computed(() => {
@@ -176,13 +181,22 @@ export const setup = (props) => {
   })
 
   const apiFeedback = computed(() => {
-    return (isResign.value) ? i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')
+    return (isResign.value || isCsr.value)
+      ? i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')
       : '';
   })
+
+  const disableInputsRegular = computed(() => !isResign.value && !isCsr.value && !isNew.value && !isClone.value)
+  const disableInputsSpecial = computed(() => !isResign.value && !isCsr.value)
+  const disableInputsKeys = computed(() => isResign.value || isCsr.value || (!isNew.value && !isClone.value))
 
   return {
     keySizeOptions,
     apiFeedback,
+
+    disableInputsRegular,
+    disableInputsSpecial,
+    disableInputsKeys
   }
 }
 

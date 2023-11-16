@@ -9,6 +9,8 @@ export const useStore = $store => {
     createItem: params => $store.dispatch('$_pkis/createCa', params),
     getItem: params => $store.dispatch('$_pkis/getCa', params.id),
     resignItem: params => $store.dispatch('$_pkis/resignCa', params),
+    generateCsrItem: params => $store.dispatch('$_pkis/generateCsrCa', params),
+    updateItem: params => $store.dispatch('$_pkis/updateCa', params)
   }
 }
 
@@ -18,14 +20,14 @@ export const state = () => {
     caListCache: false, // ca list details
     caItemCache: {}, // ca item details
     caMessage: '',
-    caStatus: ''
+    caStatus: '',
   }
 }
 
 export const getters = {
   isCaWaiting: state => [types.LOADING, types.DELETING].includes(state.caStatus),
   isCaLoading: state => state.caStatus === types.LOADING,
-  cas: state => state.caListCache
+  cas: state => state.caListCache,
 }
 
 export const actions = {
@@ -83,9 +85,19 @@ export const actions = {
       throw err
     })
   },
-  generateCsrCa: ({ commit, dispatch }, data) => {
+  generateCsrCa: ({ commit }, data) => {
     commit('CA_REQUEST')
     return api.csr(data).then(item => {
+      commit('CA_SUCCESS')
+      return item
+    }).catch(err => {
+      commit('CA_ERROR', err.response)
+      throw err
+    })
+  },
+  updateCa: ({ commit, dispatch }, data) => {
+    commit('CA_REQUEST')
+    return api.update(data).then(item => {
       // reset list
       commit('CA_LIST_RESET')
       dispatch('allCas')
@@ -116,10 +128,13 @@ export const mutations = {
     state.caItemCache[data.id] = data
     store.dispatch('config/resetPkiCas')
   },
+  CA_SUCCESS: (state) => {
+    state.caStatus = types.SUCCESS
+  },
   CA_ERROR: (state, response) => {
     state.caStatus = types.ERROR
     if (response && response.data) {
       state.caMessage = response.data.message
     }
-  }
+  },
 }

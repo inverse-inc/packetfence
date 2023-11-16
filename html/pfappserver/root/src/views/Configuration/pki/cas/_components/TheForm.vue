@@ -13,14 +13,14 @@
           <button-ca-resign
             :id="id" :form="form" class="my-1 mr-1" @change="updateForm" />
           <button-ca-generate-csr
-            :id="id" :form="form" class="my-1 mr-1" />
+            :id="id" :form="form" class="my-1 mr-1" @change="updateForm" />
         </div>
       </template>
     </b-tabs>
   </base-form>
 </template>
 <script>
-import { computed, toRefs } from '@vue/composition-api'
+import { computed } from '@vue/composition-api'
 import { BaseForm, BaseFormTab } from '@/components/new/'
 import schemaFn from '../schema'
 import {
@@ -58,16 +58,11 @@ export const props = {
   }
 }
 
-export const setup = (props) => {
-
-  const {
-    form
-  } = toRefs(props)
-
+export const setup = (props, context) => {
+  const { emit } = context
   const schema = computed(() => schemaFn(props))
-
   const updateForm = item => {
-    form.value = item
+    emit('form', item)
   }
 
   return {
