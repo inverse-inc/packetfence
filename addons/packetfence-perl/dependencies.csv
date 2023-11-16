@@ -238,3 +238,4 @@ re::engine::RE2,0.14,DGL/re-engine-RE2-0.14.tar.gz,True,D/DG/DGL/re-engine-RE2-0
 HTML::Parser,3.76,OALDERS/HTML-Parser-3.76.tar.gz,True,O/OA/OALDERS/HTML-Parser-3.76.tar.gz,2
 CryptX,0.076,MIK/CryptX-0.076.tar.gz,True,M/MI/MIK/CryptX-0.076.tar.gz,?
 Crypt::JWT,0.033,MIK/Crypt-JWT-0.033.tar.gz,True,/M/MI/MIK/Crypt-JWT-0.033.tar.gz,?
+Digest::MD4,1.9,MIKEM/DigestMD4/Digest-MD4-1.9.tar.gz,True,M/MI/MIKEM/DigestMD4/Digest-MD4-1.9.tar.gz,?
