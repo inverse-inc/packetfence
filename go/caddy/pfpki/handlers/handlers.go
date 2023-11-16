@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
@@ -109,7 +108,7 @@ func GetSetCA(pfpki *types.Handler) http.HandlerFunc {
 }
 
 func makeAdminApiAuditLog(pfpki *types.Handler, req *http.Request, Information types.Info, body []byte, action string) *admin_api_audit_log.AdminApiAuditLog {
-	vars := mux.Vars(req)
+	vars := types.Vars(req)
 	log := &admin_api_audit_log.AdminApiAuditLog{
 		UserName: req.Header.Get("X-PacketFence-Username"),
 		Action:   action,
@@ -139,7 +138,7 @@ func ResignCA(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 
 		case "POST":
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information.Status = http.StatusCreated
 			body, err := io.ReadAll(req.Body)
 			if err != nil {
@@ -181,7 +180,7 @@ func GenerateCSR(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 
 		case "POST":
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information.Status = http.StatusCreated
 			body, err := io.ReadAll(req.Body)
 			if err != nil {
@@ -223,7 +222,7 @@ func CAByID(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -232,7 +231,7 @@ func CAByID(pfpki *types.Handler) http.HandlerFunc {
 			}
 
 		case "PATCH":
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information.Status = http.StatusOK
 			body, err := io.ReadAll(req.Body)
 			if err != nil {
@@ -382,7 +381,7 @@ func GetProfileByID(pfpki *types.Handler) http.HandlerFunc {
 		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
-		vars := mux.Vars(req)
+		vars := types.Vars(req)
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
@@ -528,7 +527,7 @@ func GetCertByID(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -555,7 +554,7 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 
 		Error := types.Errors{Status: 0}
 
-		vars := mux.Vars(req)
+		vars := types.Vars(req)
 		if len(regexp.MustCompile(`^[0-9]+$`).FindStringIndex(vars["id"])) > 0 {
 			delete(vars, "cn")
 		} else {
@@ -565,7 +564,7 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -595,7 +594,7 @@ func EmailCert(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -623,7 +622,7 @@ func RevokeCert(pfpki *types.Handler) http.HandlerFunc {
 
 		Error := types.Errors{Status: 0}
 
-		vars := mux.Vars(req)
+		vars := types.Vars(req)
 		if _, ok := vars["cn"]; ok {
 			delete(vars, "id")
 		}
@@ -660,7 +659,7 @@ func ResignCert(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 
 		case "POST":
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information.Status = http.StatusCreated
 			body, err := io.ReadAll(req.Body)
 			if err != nil {
@@ -770,7 +769,7 @@ func GetRevokedByID(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -800,7 +799,7 @@ func CheckRenewal(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information, err = o.CheckRenewal(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -829,7 +828,7 @@ func SignCSR(pfpki *types.Handler) http.HandlerFunc {
 		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
-		vars := mux.Vars(req)
+		vars := types.Vars(req)
 		switch req.Method {
 
 		case "POST":
@@ -1012,7 +1011,7 @@ func SCEPServerByID(pfpki *types.Handler) http.HandlerFunc {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Vars(req)
 			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()

@@ -6,7 +6,6 @@ import (
 
 	kitlog "github.com/go-kit/log"
 	kitloglevel "github.com/go-kit/log/level"
-	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
@@ -18,7 +17,7 @@ import (
 
 func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
+	vars := types.Vars(r)
 
 	var logger kitlog.Logger
 	{

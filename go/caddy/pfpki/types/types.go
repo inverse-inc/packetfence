@@ -100,3 +100,14 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 	}
 	return h.Next.ServeHTTP(w, r)
 }
+
+type contextKey int
+
+const varsKey contextKey = iota
+
+func Vars(r *http.Request) map[string]string {
+	if rv := r.Context().Value(varsKey); rv != nil {
+		return rv.(map[string]string)
+	}
+	return nil
+}
