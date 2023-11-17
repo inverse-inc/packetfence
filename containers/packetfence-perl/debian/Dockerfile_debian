@@ -51,7 +51,7 @@ RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DE
     set -o nounset -o errexit &&  (echo o conf build_cache 100; echo o conf commit)|${CPAN_BIN_PATH} 
 
 
-COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_package.sh ./addons/packetfence-perl/install_cpan.py ${WORKDIR}
+COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_package.sh ./addons/packetfence-perl/install_cpan.py ./addons/packetfence-perl/psono.py  ${WORKDIR}
 
 RUN python3 -u  install_cpan.py  -d dependencies.csv
 

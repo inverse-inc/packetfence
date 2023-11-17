@@ -23,7 +23,6 @@ jobs:
     container:
       image: debian:11.0
       volumes:
-        - ${{ inputs._VOLUME_MOUNT }}/debian/packages/:/mnt
         - ${{ github.workspace }}/addons/packetfence-perl/:/root
     steps:
       - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
@@ -64,7 +63,6 @@ jobs:
     container:
       image: rockylinux:8.8
       volumes:
-        - ${{ inputs._VOLUME_MOUNT }}/rhel8/packages/:/mnt
         - ${{ github.workspace }}/addons/packetfence-perl/:/root
     steps:
       - name: Dwnload artifactory ${{ inputs._IMAGE_TYPE }}
