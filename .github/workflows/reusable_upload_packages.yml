@@ -34,7 +34,7 @@ jobs:
         env:
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
 
-      - name: Install dependenecies ${{ inputs._IMAGE_TYPE }}
+      - name: Install dependencies ${{ inputs._IMAGE_TYPE }}
         run:  apt -qq update && apt -qq -y install openssh-client rsync python3 python3-pip && python3 -m pip install -q  -U pip && pip install -q pynacl requests
 
       - name: Upload the package to web server

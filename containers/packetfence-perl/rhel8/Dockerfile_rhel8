@@ -1,4 +1,4 @@
-FROM redhat/ubi8
+FROM redhat/ubi8:8.8
 
 ARG workdir \
     output_directory \

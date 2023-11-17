@@ -15,7 +15,7 @@ jobs:
     container:
       image:  ${{ inputs._IMAGE_TYPE == 'rhel8' && 'redhat/ubi8:8.8' || 'debian:11.0'}}
     steps:     
-      - name: download artifactory ${{ inputs._IMAGE_TYPE }}
+      - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.ARTIFACTORY_NAME }}

@@ -2,16 +2,8 @@ name: packetfence-perl_debian_rhel8_package
 on:
   workflow_dispatch:
   push:
-    branches:
-      - 'maintenance/13.0'
-      - 'devel'
-      - 'features/inv-73-reusable'
   schedule:
     - cron: 0 3 * * *
-  pull_request:
-    branches: [ "devel" ]
-    paths:
-      - 'addons/packetfence-perl/**'
 
 env:
   WORKDIR: "/root"
@@ -20,29 +12,11 @@ env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   PACKAGE_NAME: 'packetfence-perl'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  pre_job:
-    runs-on: packetfence-perl-package-build
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@v5
-        with:
-          concurrent_skipping: 'same_content_newer'
-          skip_after_successful_duplicate: 'false'
-
-
-  build_prepation:
+  build_preparation:
     permissions:
       pull-requests: read
     runs-on: packetfence-perl-package-build
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }} 
-    needs: pre_job
     outputs:
       volume_mount: ${{ steps.variable.outputs.volume_mount }}
       workdir: ${{ steps.variable.outputs.workdir }}
@@ -50,7 +24,16 @@ jobs:
       branch_name: ${{ steps.variable.outputs.branch_name }}
       package_name: ${{ steps.variable.outputs.package_name }}
       path_changes: ${{ steps.filters.outputs.src }}
+      regex_match_branch: ${{ steps.regex-match.outputs.match }}
     steps:
+
+      - name: Regex match devel and maintenance branches 
+        uses: kaisugi/action-regex-match@v1.0.0
+        id: regex-match
+        with:
+          text: ${{ env.BRANCH_NAME }}
+          regex: '^(maintenance\/1[1-9].[0-2]|devel)$'
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -69,11 +52,12 @@ jobs:
               - 'containers/packetfence-perl/rhel8/**'
               - 'containers/packetfence-perl/debian/**'
       - run:  | 
-          echo ${{ needs.pre_job.outputs.should_skip }}
           echo ${{ steps.filters.outputs.src }}
           echo ${{ steps.filters.outputs.changes }}
           echo ${{ steps.filters.conclusion }}
           echo ${{ steps.filters.outcome }}
+          echo ${{env.BRANCH_NAME}}
+          echo ${{ steps.regex-match.outputs.match }}
 
       - name: Declare 'needs' variable
         id: variable
@@ -84,18 +68,20 @@ jobs:
           echo "branch_name=${{env.BRANCH_NAME}}" >> "$GITHUB_OUTPUT"
           echo "package_name=${{env.PACKAGE_NAME}}" >> "$GITHUB_OUTPUT"
 
+
+
   build_images_and_packages:
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && (needs.build_prepation.outputs.path_changes == 'true' ||  contains( github.event.head_commit.message, '[perl]')) }}
+    if: ${{ contains( github.event.head_commit.message, '[perl]') || needs.build_preparation.outputs.path_changes == 'true' && needs.build_preparation.outputs.regex_match_branch != '' }}
     strategy:
       matrix:
         images: ['debian', 'rhel8']
     uses:  ./.github/workflows/packetfence-perl_build_image_package.yml
-    needs: ['build_prepation', 'pre_job']
+    needs: ['build_preparation']
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
-      _WORKDIR:  ${{needs.build_prepation.outputs.workdir}}
-      _OUTPUT_DIRECTORY: ${{needs.build_prepation.outputs.output_directory}}
-      _BRANCH_NAME: ${{ needs.build_prepation.outputs.branch_name }}
+      _WORKDIR:  ${{needs.build_preparation.outputs.workdir}}
+      _OUTPUT_DIRECTORY: ${{needs.build_preparation.outputs.output_directory}}
+      _BRANCH_NAME: ${{ needs.build_preparation.outputs.branch_name }}
     secrets: inherit
   
   unit_tests_packages:
@@ -103,22 +89,22 @@ jobs:
       matrix:
         images: ['debian', 'rhel8']
     uses:  ./.github/workflows/reusable_unit_test.yml
-    needs: ['build_prepation', 'build_images_and_packages']
+    needs: ['build_preparation', 'build_images_and_packages']
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
-      _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}
+      _PACKAGE_NAME: ${{ needs.build_preparation.outputs.package_name }}
 
   sign_package:
     strategy:
       matrix:
         images: ['debian', 'rhel8']
     uses:  ./.github/workflows/reusable_sign_packages.yml
-    needs: ['build_prepation', 'build_images_and_packages', 'unit_tests_packages']
+    needs: ['build_preparation', 'build_images_and_packages', 'unit_tests_packages']
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
-      _VOLUME_MOUNT: ${{needs.build_prepation.outputs.volume_mount}}
-      _BRANCH_NAME: ${{ needs.build_prepation.outputs.branch_name }}
-      _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}
+      _VOLUME_MOUNT: ${{needs.build_preparation.outputs.volume_mount}}
+      _BRANCH_NAME: ${{ needs.build_preparation.outputs.branch_name }}
+      _PACKAGE_NAME: ${{ needs.build_preparation.outputs.package_name }}
     secrets: inherit
 
   upload_packages:
@@ -126,10 +112,10 @@ jobs:
       matrix:
         images: ['debian', 'rhel8']
     uses:  ./.github/workflows/reusable_upload_packages.yml
-    needs: ['build_prepation', 'build_images_and_packages', 'unit_tests_packages', 'sign_package']
+    needs: ['build_preparation', 'build_images_and_packages', 'unit_tests_packages', 'sign_package']
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
-      _VOLUME_MOUNT: ${{needs.build_prepation.outputs.volume_mount}}
-      _BRANCH_NAME: ${{ needs.build_prepation.outputs.branch_name }}
-      _PACKAGE_NAME: ${{ needs.build_prepation.outputs.package_name }}
+      _VOLUME_MOUNT: ${{needs.build_preparation.outputs.volume_mount}}
+      _BRANCH_NAME: ${{ needs.build_preparation.outputs.branch_name }}
+      _PACKAGE_NAME: ${{ needs.build_preparation.outputs.package_name }}
     secrets: inherit

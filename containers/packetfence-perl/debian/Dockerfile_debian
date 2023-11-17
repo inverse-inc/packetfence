@@ -1,4 +1,4 @@
-FROM debian:11
+FROM debian:11.0
 
 ARG workdir \
     output_directory

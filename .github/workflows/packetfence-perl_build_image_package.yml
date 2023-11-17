@@ -59,7 +59,7 @@ jobs:
           username: ${{ vars.USER_GITHUB }}
           password: ${{ secrets.TOKEN_GITHUB }}
 
-      - name: "Build packetfence-perl docker image: ${{inputs._IMAGE_TYPE}}"
+      - name: Build packetfence-perl docker image ${{inputs._IMAGE_TYPE}}
         uses: docker/build-push-action@v5
         with:
           context: './'
@@ -91,7 +91,7 @@ jobs:
       volumes:
         - ${{ github.workspace }}/addons/packetfence-perl/:${{ inputs._WORKDIR  }}
     steps:     
-      - name: "Build package ${{inputs._IMAGE_TYPE}}"
+      - name: Build package ${{inputs._IMAGE_TYPE}}
         run: |
           cd /root
           set -e && python3 install_cpan.py -d dependencies.csv -vi true && ./build_package.sh
