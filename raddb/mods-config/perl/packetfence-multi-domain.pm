@@ -86,6 +86,8 @@ sub authorize {
     if( defined($realm_config) && defined($realm_config->{domain}) ) {
         # We have found this realm in PacketFence. We use the domain associated with it for the authentication
         $RAD_REQUEST{"PacketFence-Domain"} = $realm_config->{domain};
+        $RAD_REQUEST{"PacketFence-NTLM-Auth-Host"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlm_auth_host};
+        $RAD_REQUEST{"PacketFence-NTLM-Auth-Host"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlm_auth_port};
         $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlmv2_only} ? '--allow-mschapv2' : '';
     }
 
