@@ -91,107 +91,90 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 
 	PFPki := &pfpki
 
-	// Manage CAs
-	r.Route("/api/v1/pki/cas", func(r chi.Router) {
-		r.Post("/", handlers.GetSetCA(PFPki))
-		r.Get("/", handlers.GetSetCA(PFPki))
-		r.Post("/search", handlers.SearchCA(PFPki))
-	})
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Route("/pki/cas", func(r chi.Router) {
+			r.Get("/", handlers.GetSetCA(PFPki))
+			r.Post("/", handlers.GetSetCA(PFPki))
+			r.Post("/search", handlers.SearchCA(PFPki))
+		})
 
-	// Manage CA
-	r.Route("/api/v1/pki/ca", func(r chi.Router) {
-		r.Get("/fix", handlers.FixCA(PFPki))
-		r.Get("/{id}", handlers.CAByID(PFPki))
-		r.Patch("/{id}", handlers.CAByID(PFPki))
-		r.Post("/resign/{id}", handlers.ResignCA(PFPki))
-		r.Post("/csr/{id}", handlers.GenerateCSR(PFPki))
-	})
+		r.Route("/pki/ca", func(r chi.Router) {
+			r.Get("/fix", handlers.FixCA(PFPki))
+			r.Get("/{id}", handlers.CAByID(PFPki))
+			r.Patch("/{id}", handlers.CAByID(PFPki))
+			r.Post("/resign/{id}", handlers.ResignCA(PFPki))
+			r.Post("/csr/{id}", handlers.GenerateCSR(PFPki))
+		})
 
-	// Manage profiles
-	r.Route("/api/v1/pki/profiles", func(r chi.Router) {
-		r.Post("/", handlers.GetSetProfile(PFPki))
-		r.Get("/", handlers.GetSetProfile(PFPki))
-		r.Post("/search", handlers.SearchProfile(PFPki))
-	})
+		r.Route("/pki/profiles", func(r chi.Router) {
+			r.Post("/", handlers.GetSetProfile(PFPki))
+			r.Get("/", handlers.GetSetProfile(PFPki))
+			r.Post("/search", handlers.SearchProfile(PFPki))
+		})
+		r.Route("/pki/profile", func(r chi.Router) {
+			r.Patch("/{id}", handlers.GetProfileByID(PFPki))
+			r.Get("/{id}", handlers.GetProfileByID(PFPki))
+			r.Post("/{id}/sign_csr", handlers.SignCSR(PFPki))
 
-	// Manage profile
-	r.Route("/api/v1/pki/profile", func(r chi.Router) {
-		r.Patch("/{id}", handlers.GetProfileByID(PFPki))
-		r.Get("/{id}", handlers.GetProfileByID(PFPki))
-		r.Post("/{id}/sign_csr", handlers.SignCSR(PFPki))
+		})
+		r.Route("/pki/certs", func(r chi.Router) {
+			r.Post("/", handlers.GetSetCert(PFPki))
+			r.Get("/", handlers.GetSetCert(PFPki))
+			r.Post("/search", handlers.SearchCert(PFPki))
+		})
 
-	})
+		r.Route("/pki/cert", func(r chi.Router) {
+			r.Get("/{id}", handlers.GetCertByID(PFPki))
+			r.Get("/{id}/download/{password}", handlers.DownloadCert(PFPki))
+			r.Get("/{profile}/{id}/download/{password}", handlers.DownloadCert(PFPki))
+			r.Get("/{id}/email", handlers.EmailCert(PFPki))
+			r.Delete("/{id}/{reason}", handlers.RevokeCert(PFPki))
+			r.Post("/resign/{id}", handlers.ResignCert(PFPki))
+			r.Delete("/{profile}/{cn}/{reason}", handlers.RevokeCert(PFPki))
+		})
+		r.Route("/pki/revokedcerts", func(r chi.Router) {
+			r.Get("/", handlers.GetRevoked(PFPki))
+			r.Post("/search", handlers.SearchRevoked(PFPki))
+		})
 
-	// Manage certs
-	r.Route("/api/v1/pki/certs", func(r chi.Router) {
-		r.Post("/", handlers.GetSetCert(PFPki))
-		r.Get("/", handlers.GetSetCert(PFPki))
-		r.Post("/search", handlers.SearchCert(PFPki))
-	})
+		r.Route("/pki/revokedcert", func(r chi.Router) {
+			r.Get("/{id}", handlers.GetRevokedByID(PFPki))
+		})
 
-	// Manage cert
-	r.Route("/api/v1/pki/cert", func(r chi.Router) {
-		r.Get("/{id}", handlers.GetCertByID(PFPki))
-		r.Get("/{id}/download/{password}", handlers.DownloadCert(PFPki))
-		r.Get("/{profile}/{id}/download/{password}", handlers.DownloadCert(PFPki))
-		r.Get("/{id}/email", handlers.EmailCert(PFPki))
-		r.Delete("/{id}/{reason}", handlers.RevokeCert(PFPki))
-		r.Post("/resign/{id}", handlers.ResignCert(PFPki))
-		r.Delete("/{profile}/{cn}/{reason}", handlers.RevokeCert(PFPki))
+		r.Get("/pki/checkrenewal", handlers.CheckRenewal(PFPki))
 
-	})
+		r.Route("/pki/ocsp", func(r chi.Router) {
+			r.Get("/ocsp", handlers.ManageOcsp(PFPki))
+			r.Post("/ocsp", handlers.ManageOcsp(PFPki))
+		})
 
-	// Manage revokedcerts
-	r.Route("/api/v1/pki/revokedcerts", func(r chi.Router) {
-		r.Get("/", handlers.GetRevoked(PFPki))
-		r.Post("/search", handlers.SearchRevoked(PFPki))
-	})
+		r.Route("/pki/scep", func(r chi.Router) {
+			r.Get("/", handlers.ManageSCEP(PFPki))
+			r.Post("/", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}/", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}/", handlers.ManageSCEP(PFPki))
+		})
 
-	// Manage revokecert
-	r.Route("/api/v1/pki/revokedcert", func(r chi.Router) {
-		r.Get("/{id}", handlers.GetRevokedByID(PFPki))
-	})
+		r.Route("/pki/scepservers", func(r chi.Router) {
+			r.Get("/", handlers.GetSetSCEPServer(PFPki))
+			r.Post("/", handlers.GetSetSCEPServer(PFPki))
+			r.Post("/search", handlers.SearchSCEPServer(PFPki))
+			r.Get("/{id}", handlers.SCEPServerByID(PFPki))
+			r.Patch("/{id}", handlers.SCEPServerByID(PFPki))
+		})
 
-	// Manage checkrenewal
-	r.Route("/api/v1/pki/checkrenewal", func(r chi.Router) {
-		r.Get("/", handlers.CheckRenewal(PFPki))
-	})
-
-	// Manage OCSP
-	r.Route("/api/v1/pki/ocsp", func(r chi.Router) {
-		r.Get("/", handlers.ManageOcsp(PFPki))
-		r.Post("/", handlers.ManageOcsp(PFPki))
-	})
-
-	// Manage SCEP
-	r.Route("/api/v1/scep", func(r chi.Router) {
-		r.Get("/", handlers.ManageSCEP(PFPki))
-		r.Post("/", handlers.ManageSCEP(PFPki))
-		r.Get("/{id}", handlers.ManageSCEP(PFPki))
-		r.Post("/{id}", handlers.ManageSCEP(PFPki))
-		r.Get("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
-		r.Post("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
-	})
-
-	// Manage SCEP
-	r.Route("/api/v1/pki/scep", func(r chi.Router) {
-		r.Get("/", handlers.ManageSCEP(PFPki))
-		r.Post("/", handlers.ManageSCEP(PFPki))
-		r.Get("/{id}", handlers.ManageSCEP(PFPki))
-		r.Post("/{id}", handlers.ManageSCEP(PFPki))
-		r.Get("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
-		r.Post("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
-		r.Get("/{id}/", handlers.ManageSCEP(PFPki))
-		r.Post("/{id}/", handlers.ManageSCEP(PFPki))
-	})
-
-	// Manage scepservers
-	r.Route("/api/v1/pki/scepservers", func(r chi.Router) {
-		r.Get("/", handlers.GetSetSCEPServer(PFPki))
-		r.Post("/", handlers.GetSetSCEPServer(PFPki))
-		r.Post("/search", handlers.SearchSCEPServer(PFPki))
-		r.Get("/{id}", handlers.SCEPServerByID(PFPki))
-		r.Patch("/{id}", handlers.SCEPServerByID(PFPki))
+		r.Route("/scep", func(r chi.Router) {
+			r.Get("/", handlers.ManageSCEP(PFPki))
+			r.Post("/", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
+		})
 	})
 
 	pfpki.Router = r
