@@ -88,11 +88,11 @@ func DecodeUrlQuery(req *http.Request) (sql.Vars, error) {
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
 	defer panichandler.Http(ctx, w)
-	chiCtx := chi.NewRouteContext()
-	ctx = context.WithValue(ctx, chi.RouteCtxKey, chiCtx)
+	rctx := chi.NewRouteContext()
+	ctx = context.WithValue(ctx, rctx, chi.RouteCtxKey)
 	r = r.WithContext(ctx)
-
-	if h.Router.Match(chiCtx, r.Method, r.URL.Path) {
+	rctx.Routes = h.Router
+	if h.Router.Match(rctx, r.Method, r.URL.Path) {
 		h.Router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
