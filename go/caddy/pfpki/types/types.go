@@ -101,13 +101,10 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 	return h.Next.ServeHTTP(w, r)
 }
 
-type contextKey int
-
-const varsKey contextKey = iota
-
-func Vars(r *http.Request) map[string]string {
-	if rv := r.Context().Value(varsKey); rv != nil {
-		return rv.(map[string]string)
+func Params(r *http.Request, keys ...string) map[string]string {
+	param := make(map[string]string)
+	for _, key := range keys {
+		param[key] = chi.URLParam(r, key)
 	}
-	return nil
+	return param
 }

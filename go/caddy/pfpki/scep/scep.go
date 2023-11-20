@@ -17,7 +17,7 @@ import (
 
 func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
-	vars := types.Vars(r)
+	vars := types.Params(r, "id")
 
 	var logger kitlog.Logger
 	{
