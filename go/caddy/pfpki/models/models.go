@@ -897,6 +897,7 @@ func (c CA) Update(params map[string]string) (types.Info, error) {
 
 	if err != nil {
 		Information.Error = err.Error()
+		return Information, nil
 	}
 	cadb[0].Cert = c.Cert
 	c.DB.Save(&cadb[0])
