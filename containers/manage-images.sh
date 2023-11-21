@@ -25,6 +25,7 @@ configure_and_check() {
                            -not -path "*/radiusd/*" \
                            -not -path "*/pfconnector-*/*" \
                            -not -path "*/kaniko-build/*" \
+                           -not -path "*/packetfence-perl/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do

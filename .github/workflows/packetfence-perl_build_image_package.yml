@@ -1,0 +1,107 @@
+name: Packetfence-perl image/package build 
+on:
+  workflow_call:
+    inputs:
+      _IMAGE_TYPE:
+        required: True
+        type: string
+      _WORKDIR:
+        required: True
+        type: string
+      _OUTPUT_DIRECTORY:
+        required: True
+        type: string
+      _BRANCH_NAME:
+        required: True
+        type: string
+
+jobs:
+  build_image:
+    runs-on: packetfence-perl-package-build
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+    outputs:
+        package_version: ${{ steps.contents.outputs.data }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3    
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - name: Find package version
+        id: contents
+        run: |
+          package_version=$(${{ inputs._IMAGE_TYPE == 'rhel8' &&  env.command_rpm || env.command_deb}})
+          echo "Found version: $package_version"
+          echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
+          echo "data=$package_version" >> "$GITHUB_OUTPUT"
+        env: 
+          command_rpm: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ redhat/ubi8:8.8 /bin/bash -c \
+            "set -e && cd ${{ inputs._WORKDIR }}/ && yum -y  install rpm-build > /dev/null 2>&1 && rpmspec -q --qf "%{version}"  rhel8/SPECS/packetfence-perl.spec"
+          command_deb: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ debian:11.0 /bin/bash -c \
+            "set -e && cd ${{ inputs._WORKDIR }}/ && apt update > /dev/null 2>&1  && apt install build-essential -y > /dev/null 2>&1 && dpkg-parsechangelog --show-field Version"
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ vars.USER_GITHUB }}
+          password: ${{ secrets.TOKEN_GITHUB }}
+
+      - name: Build packetfence-perl docker image ${{inputs._IMAGE_TYPE}}
+        uses: docker/build-push-action@v5
+        with:
+          context: './'
+          push: true
+          secrets: |
+            PSONO_API_KEY_ID=${{ secrets.PSONO_API_KEY_ID }}
+            PSONO_API_KEY_SECRET_KEY=${{ secrets.PSONO_API_KEY_SECRET_KEY }}
+          build-args: |
+            workdir=${{ inputs._WORKDIR }}
+            output_directory=${{ inputs._OUTPUT_DIRECTORY }}
+            psono_nqb_rhel_subs_secret_id=${{ vars.PSONO_NQB_RHEL_SUBS_SECRET_ID }}
+          tags: |
+            ${{env.IMAGE_PATH_VERSION}}
+            ${{ inputs._BRANCH_NAME == 'devel' && env.IMAGE_PATH_LATEST || ''}}
+          file: containers/packetfence-perl/${{inputs._IMAGE_TYPE}}/Dockerfile_${{inputs._IMAGE_TYPE}}
+        env:
+          IMAGE_PATH_VERSION: "ghcr.io/inverse-inc/packetfence/packetfence-perl-${{inputs._IMAGE_TYPE}}:${{ env.PACKAGE_VERSION }}"
+          IMAGE_PATH_LATEST: "ghcr.io/inverse-inc/packetfence/packetfence-perl-${{inputs._IMAGE_TYPE}}:latest"
+
+
+  build_package:
+    needs: ['build_image']
+    runs-on: packetfence-perl-package-build
+    container:
+      image: ghcr.io/inverse-inc/packetfence/packetfence-perl-${{inputs._IMAGE_TYPE}}:${{ needs.build_image.outputs.package_version }}
+      credentials:
+        username: ${{ vars.USER_GITHUB }}
+        password: ${{ secrets.TOKEN_GITHUB }}
+      volumes:
+        - ${{ github.workspace }}/addons/packetfence-perl/:${{ inputs._WORKDIR  }}
+    steps:     
+      - name: Build package ${{inputs._IMAGE_TYPE}}
+        run: |
+          cd /root
+          set -e && python3 install_cpan.py -d dependencies.csv -vi true && ./build_package.sh
+          ls -la ${{ inputs._OUTPUT_DIRECTORY }}/${{inputs._IMAGE_TYPE}}/packages/
+    
+      - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+          path:  ${{ inputs._OUTPUT_DIRECTORY }}/${{ inputs._IMAGE_TYPE}}/packages/${{ env.PACKAGE_NAME }}
+        env:
+          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || 'packetfence-perl*.deb' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}
