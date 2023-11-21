@@ -126,6 +126,7 @@ our (
     $cron_config_file, $cron_default_config_file,
     $mfa_config_file,
     $connectors_config_file,
+    $kafka_config_file,
     $git_commit_id_file,
 );
 
@@ -227,6 +228,7 @@ BEGIN {
         $cron_config_file $cron_default_config_file
         $mfa_config_file
         $connectors_config_file
+        $kafka_config_file
         $git_commit_id_file
     );
 }
@@ -368,6 +370,7 @@ $captiveportal_profile_templates_path = catdir ($install_dir,"html/captive-porta
 $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_templates_path,"default");
 
 $mfa_config_file = catdir($conf_dir,"mfa.conf");
+$kafka_config_file = catdir($conf_dir, "kafka.conf");
 $connectors_config_file = catdir($conf_dir,"connectors.conf");
 
 @log_files = map {catfile($log_dir, $_)}
@@ -413,6 +416,7 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $cron_config_file,
     $domain_config_file,
     $mfa_config_file,
+    $kafka_config_file,
     $connectors_config_file,
 );
 

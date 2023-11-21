@@ -16,6 +16,7 @@ use warnings;
 use pf::file_paths qw(
     $generated_conf_dir
     $conf_dir
+    $kafka_config_file
 );
 
 use pf::IniFiles;
@@ -61,7 +62,7 @@ sub env_vars {
 
 
 sub config {
-    tie my %ini, 'pf::IniFiles', (-file=>"$conf_dir/kafka.conf" ) or die "Cannot open config file";
+    tie my %ini, 'pf::IniFiles', (-file=> $kafka_config_file) or die "Cannot open config file $kafka_config_file";
     return {%ini}
 }
 
