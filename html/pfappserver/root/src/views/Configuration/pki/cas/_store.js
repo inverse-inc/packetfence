@@ -87,7 +87,9 @@ export const actions = {
   },
   generateCsrCa: ({ commit }, data) => {
     commit('CA_REQUEST')
-    return api.csr(data).then(item => {
+    // strip cert
+    const { cert, ...rest } = data
+    return api.csr(rest).then(item => {
       commit('CA_SUCCESS')
       return item
     }).catch(err => {

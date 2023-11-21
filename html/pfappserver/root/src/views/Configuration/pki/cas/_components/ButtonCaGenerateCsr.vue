@@ -1,6 +1,6 @@
 <template>
   <b-button-group>
-    <b-button size="sm" variant="outline-primary" :disabled="disabled || isLoading" @click.stop.prevent="onShowFormModal">{{ $t('Generate CSR') }}</b-button>
+    <b-button :size="size" variant="outline-primary" :disabled="disabled || isLoading" @click.stop.prevent="onShowFormModal">{{ $t('Generate CSR') }}</b-button>
 
 
     <b-modal v-model="isShowFormModal"
@@ -92,6 +92,11 @@ const props = {
   form: {
     type: Object,
     default: () => ({})
+  },
+  size: {
+    type: String,
+    default: "md",
+    validator: value => ['sm', 'md', 'lg'].includes(value)
   }
 }
 
@@ -189,7 +194,7 @@ const setup = (props, context) => {
   })
   const onSave = () => {
     updateItem({ ...formCertificate.value, id: id.value }).then(item => {
-      emit('update', item)
+      emit('change', item)
       onHideCertModal()
     })
   }
