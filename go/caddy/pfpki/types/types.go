@@ -104,7 +104,10 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 func Params(r *http.Request, keys ...string) map[string]string {
 	param := make(map[string]string)
 	for _, key := range keys {
-		param[key] = chi.URLParam(r, key)
+		value := chi.URLParam(r, key)
+		if value != "" {
+			param[key] = value
+		}
 	}
 	return param
 }
