@@ -107,7 +107,8 @@ function run_multi() {
   cmd="$4"
   img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
   if [ "$LOCAL_DEV" = "true" ]; then
-    build_run $name "$args" "$cmd"
+    img=$(build_img $name)
+    run_img $img "$name-$suffix" "$args" "$cmd"
   else
     run_img $img "$name-$suffix" "$args" "$cmd"
   fi
