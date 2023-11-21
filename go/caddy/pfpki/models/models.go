@@ -869,7 +869,7 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 	Information.Entries = cadb
 
 	template := x509.CertificateRequest{
-		Subject:            cadb[0].MakeSubject(),
+		Subject:            c.MakeSubject(),
 		SignatureAlgorithm: x509.SignatureAlgorithm(x509.SHA256WithRSA),
 	}
 	csrBuff := new(bytes.Buffer)
@@ -880,7 +880,14 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 	}
 	pem.Encode(csrBuff, &pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes})
 	Information.Entries = csrBuff.String()
+
+	if err := c.DB.Model(&CA{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Mail": c.Mail, "Organisation": c.Organisation, "OrganisationalUnit": c.OrganisationalUnit, "Country": c.Country, "State": c.State, "Locality": c.Locality, "StreetAddress": c.StreetAddress, "PostalCode": c.PostalCode, "KeyType": c.KeyType, "KeySize": c.KeySize, "Digest": c.Digest, "KeyUsage": c.KeyUsage, "ExtendedKeyUsage": c.ExtendedKeyUsage, "Days": c.Days, "OCSPUrl": c.OCSPUrl}).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New("A database error occured. See log for details.")
+	}
+
 	return Information, err
+
 }
 
 func (c CA) Update(params map[string]string) (types.Info, error) {
