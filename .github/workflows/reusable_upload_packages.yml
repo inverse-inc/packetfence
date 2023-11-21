@@ -1,0 +1,50 @@
+name: Reusable upload package to web.inverse.ca
+on:
+  workflow_call:
+    inputs:
+      _IMAGE_TYPE:
+        required: True
+        type: string
+      _BRANCH_NAME:
+        required: True
+        type: string
+      _VOLUME_MOUNT:
+        required: True
+        type: string
+      _PACKAGE_NAME:
+        required: True
+        type: string
+      
+
+jobs:
+  upload-package: 
+    runs-on: packetfence-perl-package-build
+    env:
+      PACKAGE_DEST_PATH: "~/packages/packetfence-perl/${{ inputs._BRANCH_NAME }}/${{ inputs._IMAGE_TYPE }}/"
+    container:
+      image: debian:11.0
+      volumes:
+        - ${{ github.workspace }}/addons/packetfence-perl/:/root/packetfence-perl
+    steps:
+      - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+          path:  /mnt
+        env:
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
+
+      - name: Install dependencies ${{ inputs._IMAGE_TYPE }}
+        run:  apt -qq update && apt -qq -y install openssh-client rsync python3 python3-pip && python3 -m pip install -q  -U pip && pip install -q pynacl requests
+
+      - name: Upload the package to web server
+        shell: bash
+        run: |
+          echo "The package will be uploaded to the web server, directory: ${{ env.PACKAGE_DEST_PATH }}"
+          set -e && \
+          export private_key=$(/usr/bin/python3 /root/packetfence-perl/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_SSH_RUNNER_GH_PRIVATE }} --return_value=password_notes) && \
+          eval `ssh-agent -s` && ssh-add - <<< ${private_key}
+          rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"   /mnt/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} reposync@${{ vars.WEB_INVERSE_IP_ADDRESS }}:${{ env.PACKAGE_DEST_PATH }}
+          ssh-add -D
+        env:
+          PACKAGE_TYPE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  '*.rpm' || '*.deb' }}
