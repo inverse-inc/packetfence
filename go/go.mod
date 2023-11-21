@@ -263,6 +263,14 @@ require (
 	layeh.com/radius v0.0.0-00010101000000-000000000000
 )
 
+require (
+	github.com/globalsign/est v1.0.6 // indirect
+	github.com/globalsign/pemfile v1.0.0 // indirect
+	github.com/go-chi/chi v4.1.2+incompatible // indirect
+	github.com/google/go-tpm v0.3.2 // indirect
+	go.mozilla.org/pkcs7 v0.0.0-20200128120323-432b2356ecb1 // indirect
+)
+
 replace layeh.com/radius => github.com/inverse-inc/go-radius v0.0.0-20221114145510-67bfba021ae4
 
 replace github.com/inverse-inc/packetfence => ../
