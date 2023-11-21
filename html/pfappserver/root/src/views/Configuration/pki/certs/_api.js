@@ -66,5 +66,17 @@ export default {
         return true
       }
     })
+  },
+  resign: data => {
+    const { id, ...rest } = data
+    return apiCall.post(['pki', 'cert', 'resign', id], recomposeCert(rest)).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        return { id, ...decomposeCert(item) }
+      }
+    })
   }
 }
