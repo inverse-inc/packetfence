@@ -42,7 +42,7 @@ export default {
       if (error) {
         throw error
       } else {
-        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        const { data: { items: item = {} } = {} } = response
         return { id, ...decomposeCa(item) }
       }
     })
@@ -60,8 +60,8 @@ export default {
     })
   },
   csr: data => {
-    const { id, ...rest } = data
-    return apiCall.post(['pki', 'ca', 'csr', id], recomposeCa(rest)).then(response => {
+    const { id, cert, ...rest } = data
+    return apiCall.post(['pki', 'ca', 'csr', id], recomposeCa({ id, ...rest })).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
