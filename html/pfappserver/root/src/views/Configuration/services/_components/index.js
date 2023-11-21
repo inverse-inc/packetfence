@@ -53,6 +53,7 @@ export {
   BaseFormGroupSwitch                 as FormGroupTrackingConfig,
   BaseFormGroupSwitch                 as FormGroupWinbindd,
   BaseFormGroupSwitch                 as FormGroupMysqlProbe,
+  BaseFormGroupSwitch                 as FormGroupKafka,
 
   BaseViewResource                    as BaseView,
   TheForm,
