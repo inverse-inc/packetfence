@@ -4,13 +4,25 @@ source /usr/local/pf/containers/systemd-service
 
 name=ntlm-auth-api
 
-args=`base_args $name`
-args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
-args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
-args="$args -v /var/log:/var/log:ro"
-args="$args -p $LISTEN:$LISTEN"
-args="$args -e LISTEN=$LISTEN"
-args="$args -e IDENTIFIER=$IDENTIFIER"
-args="$args -e REWRITE_RESOLV_CONF=$REWRITE_RESOLV_CONF"
+conf_dir="/usr/local/pf/var/conf/${name}.d/"
 
-run_multi $name $IDENTIFIER "$args"
+env_files=$(ls $conf_dir 2>/dev/null)
+
+if [ -z "$env_files" ]; then
+    exit 1
+else
+    for env_file in $env_files; do
+        source "$conf_dir$env_file"
+
+        args=$(base_args $name)
+        args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
+        args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
+        args="$args -v /var/log:/var/log:ro"
+        args="$args -p $LISTEN:$LISTEN"
+        args="$args -e LISTEN=$LISTEN"
+        args="$args -e IDENTIFIER=$IDENTIFIER"
+        args="$args -e REWRITE_RESOLV_CONF=$REWRITE_RESOLV_CONF"
+
+        run_multi "$name" "$IDENTIFIER" "$args"
+    done
+fi
