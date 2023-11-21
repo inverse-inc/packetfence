@@ -901,6 +901,7 @@ func (c CA) Update(params map[string]string) (types.Info, error) {
 	}
 	cadb[0].Cert = c.Cert
 	c.DB.Save(&cadb[0])
+	Information.Entries = cadb[0]
 	return Information, err
 }
 
