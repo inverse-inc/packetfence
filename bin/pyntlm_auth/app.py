@@ -1,18 +1,19 @@
+import binascii
 import configparser
+import datetime
 import os
+import socket
 import sys
 import threading
-import binascii
-import datetime
-
-from flask import Flask, g, request, jsonify
-from http import HTTPStatus
 from configparser import ConfigParser
+from http import HTTPStatus
+
+from flask import Flask, request
 from samba import param, NTSTATUSError, ntstatus
-from samba.dcerpc import netlogon, ntlmssp, srvsvc
-from samba.dcerpc.netlogon import (netr_Authenticator, netr_WorkstationInformation, MSV1_0_ALLOW_MSVCHAPV2)
 from samba.credentials import Credentials, DONT_USE_KERBEROS
-from samba.dcerpc.misc import SEC_CHAN_WKSTA, SEC_CHAN_DOMAIN, SEC_CHAN_BDC
+from samba.dcerpc import netlogon
+from samba.dcerpc.misc import SEC_CHAN_WKSTA
+from samba.dcerpc.netlogon import (netr_Authenticator)
 
 machine_cred = None
 secure_channel_connection = None
@@ -21,24 +22,26 @@ reconnect_id = 0
 connection_last_active_time = datetime.datetime.now()
 lock = threading.Lock()
 
-conf_path = os.getenv("CONF")
+conf_path = "/usr/local/pf/conf/domain.conf"
 listen_port = os.getenv("LISTEN")
+identifier = os.getenv("IDENTIFIER")
+
 config = ConfigParser()
 try:
     with open(conf_path, 'r') as file:
         config.read_file(file)
 
-    if 'AD' in config:
-        netbios_name = config.get('AD', 'netbios_name')
-        realm = config.get('AD', 'realm')
-        server_string = config.get('AD', 'server_string')
-        workgroup = config.get('AD', 'workgroup')
-        server_name = config.get('AD', 'server_name')  # we need a valid DNS server or,  adds a DNS record in hosts file
-        workstation = config.get('AD', 'workstation')
-        username = config.get('AD', 'username')
-        password = config.get('AD', 'password')
-        password_is_nt_hash = config.get('AD', 'password_is_nt_hash')
-        domain = config.get('AD', 'domain')
+    if identifier in config:
+        ad_server = config.get(identifier, 'ad_server')
+        netbios_name = config.get(identifier, 'server_name').upper()
+        realm = config.get(identifier, 'dns_name')
+        server_string = config.get(identifier, 'server_name')
+        workgroup = config.get(identifier, 'workgroup')
+        workstation = config.get(identifier, 'server_name').upper()
+        username = config.get(identifier, 'server_name').upper() + "$"
+        password = config.get(identifier, 'machine_account_password')
+        password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
+        domain = config.get(identifier, 'workgroup').lower()
     else:
         print("The specified section does not exist in the config file.")
         sys.exit(1)
@@ -47,6 +50,12 @@ except FileNotFoundError as e:
     sys.exit(1)
 except configparser.Error as e:
     print(f"Error reading config file: {e}")
+    sys.exit(1)
+
+try:
+    server_name, alias_list, ip_list = socket.gethostbyaddr(ad_server)
+except Exception as e:
+    print("Unable to retrieve AD FQDN of AD domain")
     sys.exit(1)
 
 
