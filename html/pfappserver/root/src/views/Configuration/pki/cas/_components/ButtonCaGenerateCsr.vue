@@ -52,15 +52,20 @@
       <template v-slot:modal-title>
         <h4>{{ $t('Certificate') }}</h4>
       </template>
-      <input-group-cert
-        v-model="caCert"
-        :column-label="$i18n.t('Certificate')"
-        :text="$i18n.t('Provide the new certificate and click Save.')"
-        auto-fit
-      />
+      <base-form ref="rootRef"
+        :form="formCertificate"
+        :schema="schemaCertificate"
+        :isLoading="isLoading"
+      >
+        <input-group-cert namespace="cert"
+          :column-label="$i18n.t('Certificate')"
+          :text="$i18n.t('Provide the new certificate and click Save.')"
+          auto-fit
+        />
+      </base-form>
       <template v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" :disabled="isLoading" @click="onCancel">{{ $t('Cancel') }}</b-button>
-        <b-button variant="primary" class="mr-1" :disabled="isLoading" @click="onSave">{{ $t('Save') }}</b-button>
+        <b-button variant="primary" class="mr-1" :disabled="isLoading || !isCertificateValid" @click="onSave">{{ $t('Save') }}</b-button>
       </template>
     </b-modal>
   </b-button-group>
@@ -91,6 +96,7 @@ const props = {
 }
 
 import i18n from '@/utils/locale'
+import yup from '@/utils/yup'
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import schemaFn from '../schema'
@@ -142,7 +148,7 @@ const setup = (props, context) => {
       onHideFormModal()
       onShowCsrModal()
       caCsr.value = csr
-      caCert.value = undefined
+      formCertificate.value = { ...formCertificate.value, cert: undefined }
     }).catch(e => {
       $store.dispatch('notification/danger', { message: i18n.t('Certificate signing request <code>{id}</code> failed.<br/>Reason: ', { id: id.value }) + e })
       onShowFormModal()
@@ -174,10 +180,17 @@ const setup = (props, context) => {
   const isShowCertModal = ref(false)
   const onShowCertModal = () => { isShowCertModal.value = true }
   const onHideCertModal = () => { isShowCertModal.value = false }
-  const caCert = ref(undefined)
+  const formCertificate = ref({})
+  const isCertificateValid = useDebouncedWatchHandler([formCertificate, isShowCertModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
+  const schemaCertificate = yup.object().shape({
+    cert: yup.string()
+      .nullable()
+      .required(i18n.t('Certificate required.'))
+  })
   const onSave = () => {
-    updateItem({ ...formCopy.value, cert: caCert.value }).then(item => {
+    updateItem({ ...formCertificate.value, id: id.value }).then(item => {
       emit('update', item)
+      onHideCertModal()
     })
   }
 
@@ -198,11 +211,12 @@ const setup = (props, context) => {
     onCancel,
     onSkip,
     onClipboard,
-
-    caCert,
     isShowCertModal,
     onShowCertModal,
     onHideCertModal,
+    formCertificate,
+    schemaCertificate,
+    isCertificateValid,
     onSave,
   }
 }

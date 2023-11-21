@@ -18,7 +18,7 @@ export const recomposeCa = (item) => {
     ...rest
   } = item
   return {
-    ID: +id,
+    ...((id) ? {ID: +id} : {}),
     key_usage: key_usage.join('|'),
     extended_key_usage: extended_key_usage.join('|'),
     ...rest

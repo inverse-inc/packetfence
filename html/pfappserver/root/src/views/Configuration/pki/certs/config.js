@@ -15,7 +15,7 @@ export const recomposeCert = (item) => {
     ...rest
   } = item
   return {
-    ID: +id,
+    ...((id) ? {ID: +id} : {}),
     ...rest
   }
 }
