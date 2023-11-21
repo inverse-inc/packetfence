@@ -70,7 +70,7 @@ def install_perl_module(dict_data):
     file_name = f"logs_{dict_data['ModName']}.log"
     file_log = f"{logs_directory}/{file_name}"
     if convert_boolean(dict_data['ModTest']) == True:
-        command=f"/usr/bin/cpan install {dict_data['ModInstall']}".split()
+        command=f"/usr/bin/cpan -fi {dict_data['ModInstall']}".split()
     elif convert_boolean(dict_data['ModTest']) == False:
         command=f"/usr/bin/cpan -T install {dict_data['ModInstall']}".split()
     print(f"Installing perl module: {dict_data['ModName']} \n" )
