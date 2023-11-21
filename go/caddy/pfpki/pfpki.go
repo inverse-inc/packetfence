@@ -159,14 +159,6 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 			r.Post("/{id}/", handlers.ManageSCEP(PFPki))
 		})
 
-		r.Route("/pki/scepservers", func(r chi.Router) {
-			r.Get("/", handlers.GetSetSCEPServer(PFPki))
-			r.Post("/", handlers.GetSetSCEPServer(PFPki))
-			r.Post("/search", handlers.SearchSCEPServer(PFPki))
-			r.Get("/{id}", handlers.SCEPServerByID(PFPki))
-			r.Patch("/{id}", handlers.SCEPServerByID(PFPki))
-		})
-
 		r.Route("/scep", func(r chi.Router) {
 			r.Get("/", handlers.ManageSCEP(PFPki))
 			r.Post("/", handlers.ManageSCEP(PFPki))
@@ -175,6 +167,15 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 			r.Get("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
 			r.Post("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
 		})
+
+		r.Route("/pki/scepservers", func(r chi.Router) {
+			r.Get("/", handlers.GetSetSCEPServer(PFPki))
+			r.Post("/", handlers.GetSetSCEPServer(PFPki))
+			r.Post("/search", handlers.SearchSCEPServer(PFPki))
+			r.Get("/{id}", handlers.SCEPServerByID(PFPki))
+			r.Patch("/{id}", handlers.SCEPServerByID(PFPki))
+		})
+
 	})
 
 	pfpki.Router = r

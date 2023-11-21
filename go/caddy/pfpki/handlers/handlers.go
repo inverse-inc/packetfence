@@ -12,6 +12,7 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/estserver"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/ocspresponder"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/scep"
@@ -1101,5 +1102,12 @@ func GetSetSCEPServer(pfpki *types.Handler) http.HandlerFunc {
 			break
 		}
 		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
+
+func ManageEST(pfpki *types.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		log.LoggerWContext(*pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
+		estserver.EstHandler(pfpki, res, req)
 	})
 }

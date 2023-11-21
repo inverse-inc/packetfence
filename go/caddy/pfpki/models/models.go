@@ -597,6 +597,26 @@ func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.Privat
 	return []*x509.Certificate{cacert}, key, err
 }
 
+// CA return the CA public key based on the profile name (SCEP)
+func (c CA) CAbyProfile(pass []byte, profilename string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
+	profile := &Profile{}
+	// var ProfileDB Profile
+	if ProfileDB := c.DB.Where("name = ?", profilename).First(&profile).Find(&profile); ProfileDB.Error != nil {
+		return nil, nil, ProfileDB.Error
+	}
+
+	var ca CA
+
+	if CaDB := c.DB.First(&ca, profile.CaID).Find(&ca); CaDB.Error != nil {
+		c.DB.First(&ca)
+	}
+
+	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	key, err := certutils.LoadKey([]byte(ca.Key), pass)
+	return []*x509.Certificate{cacert}, key, err
+}
+
 // Put create the public key in the DB (SCEP)
 func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 
@@ -896,6 +916,7 @@ func (c CA) Update(params map[string]string) (types.Info, error) {
 	var err error
 	if val, ok := params["id"]; ok {
 		if err = c.DB.First(&cadb, val).Error; err != nil {
+			Information.Status = http.StatusNotFound
 			Information.Error = err.Error()
 			return Information, err
 		}
@@ -913,6 +934,22 @@ func (c CA) Update(params map[string]string) (types.Info, error) {
 	return Information, err
 }
 
+// EST
+func (c CA) CACerts(ctx context.Context, aps string, r *http.Request) ([]*x509.Certificate, error) {
+	var certs []*x509.Certificate
+	catls, err := tls.X509KeyPair([]byte(c.Cert), []byte(c.Key))
+	if err != nil {
+		log.LoggerWContext(c.Ctx).Error(err.Error())
+	}
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		log.LoggerWContext(c.Ctx).Error(err.Error())
+	}
+	certs = append(certs, cacert)
+	return certs, nil
+}
+
+// Profile section
 func NewProfileModel(pfpki *types.Handler) *Profile {
 	Profile := &Profile{}
 
