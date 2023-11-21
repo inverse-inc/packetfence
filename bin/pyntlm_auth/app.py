@@ -25,6 +25,7 @@ lock = threading.Lock()
 conf_path = "/usr/local/pf/conf/domain.conf"
 listen_port = os.getenv("LISTEN")
 identifier = os.getenv("IDENTIFIER")
+rewrite_resolv_conf_flag = os.getenv("REWRITE_RESOLV_CONF")
 
 config = ConfigParser()
 try:
@@ -42,6 +43,7 @@ try:
         password = config.get(identifier, 'machine_account_password')
         password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
         domain = config.get(identifier, 'workgroup').lower()
+        dns_servers = config.get(identifier, 'dns_servers')
     else:
         print("The specified section does not exist in the config file.")
         sys.exit(1)
@@ -57,6 +59,24 @@ try:
 except Exception as e:
     print("Unable to retrieve AD FQDN of AD domain")
     sys.exit(1)
+
+
+def generate_resolv_conf(dns_name, dns_servers_string):
+    with open('/etc/resolv.conf', 'w') as file:
+        file.write(f"search {dns_name}\n")
+        file.write("\n")
+        file.write("options timeout:1\n")
+        file.write("options attempts:1\n")
+        file.write("\n")
+
+        dns_servers = dns_servers_string.split(",")
+        for dns_server in dns_servers:
+            file.write(f"nameserver {dns_server}\n")
+        file.write("\n")
+
+
+if (rewrite_resolv_conf_flag is not None) and (rewrite_resolv_conf_flag.upper() == "YES"):
+    generate_resolv_conf(realm, dns_servers)
 
 
 def init_secure_connection():
