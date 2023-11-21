@@ -29,23 +29,33 @@ unless ($ini) {
 }
 
 my $updated = 0;
-for my $section (grep {/^\S+$/} $ini->Sections()) {
+my $ntlm_auth_host = "127.0.0.1";
+my $ntlm_auth_port = 4999;
 
-    if (($ini->exists($section, 'machine_account')) || ($ini->exists($section, 'machine_account_password'))) {
-        print("Section: ", $section, " already has machine_account and machine_account_password set. skipped\n");
+for my $section (grep {/^\S+$/} $ini->Sections()) {
+    print("Generating config for section: $section\n");
+    $ntlm_auth_port += 1;
+
+    if ($ini->exists($section, 'machine_account_password')) {
+        print("  Section: ", $section, " already has machine_account and machine_account_password set. skipped\n");
         next;
     }
 
     my $samba_conf_path = "/chroots/$section/etc/samba/$section.conf";
     my $samba_ini = pf::IniFiles->new(-file => $samba_conf_path, -allowempty => 1);
     unless ($samba_ini) {
-        print("unable to find correspond samba conf file in $samba_conf_path, terminated\n");
-        exit;
+        print("  Unable to find correspond samba conf file in $samba_conf_path, section $section skipped\n");
+        next;
     }
 
     my $dns_name = $ini->val($section, "dns_name");
     my $work_group = $samba_ini->val("global", "workgroup");
     my $realm = $samba_ini->val("global", "realm");
+
+    unless ($dns_name ne "" && $work_group ne "") {
+        print("  Unable to retrieve dns_name or workgroup from config file. Skipping section $section\n");
+        next;
+    }
 
 
     # the tdb file should be located at /var/lib/samba/secrets.tdb, but here we use cache instead
@@ -61,9 +71,13 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     if ($exit_code == 0 && $tdb_secret_host_value ne "") {
         $machine_account = extract_machine_account($tdb_secret_host_value);
     }
+    else {
+        print("  Unable to retrieve machine account from tdb file. Please check samba tdb database. Skipped\n");
+        next;
+    }
 
     # extract machine account password from tdb file
-    my $machine_password="";
+    my $machine_password = "";
     my $machine_account_password_key = "SECRETS/MACHINE_PASSWORD/$work_group";
     my $tdb_secret_machine_password_value;
 
@@ -72,14 +86,22 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     if ($exit_code == 0 && $tdb_secret_machine_password_value ne "") {
         $machine_password = extract_machine_password($tdb_secret_machine_password_value);
     }
+    else {
+        print("  Unable to retrieve machine account password from tdb file. Please check samba tdb database. Skipped\n");
+        next;
+    }
 
-    if (!$ini->exists($section, 'machine_account')) {
-        $ini->newval($section, 'machine_account', $machine_account);
-        $updated |= 1;
+    my $server_name = $ini->val($section, 'server_name');
+    if (lc($server_name) ne lc($machine_account)) {
+        print("  Unable to rewrite server_name values, current value is: $server_name, expected is: $machine_account, Skipped\n");
+        next;
     }
 
     if (!$ini->exists($section, 'machine_account_password')) {
         $ini->newval($section, 'machine_account_password', $machine_password);
+        $ini->newval($section, 'password_is_nt_hash', '1');
+        $ini->newval($section, 'ntlm_auth_host', $ntlm_auth_host);
+        $ini->newval($section, 'ntlm_auth_port', $ntlm_auth_port);
         $updated |= 1;
     }
 }
@@ -106,7 +128,7 @@ sub extract_machine_account {
 
         # this is a double check to make sure we have valid machine FQDN
         if ($hostname =~ /^(.*?)\.$domain/i) {
-            return $1 . '$';
+            return $1;
         }
     }
     return "";
@@ -126,7 +148,7 @@ sub extract_machine_password {
     $md4->add($bin_data);
     my $hash = $md4->digest;
 
-    return(unpack("H*", $hash));
+    return (unpack("H*", $hash));
 }
 
 
