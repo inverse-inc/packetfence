@@ -8,6 +8,9 @@ args=`base_args $name`
 args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
 args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
 args="$args -v /var/log:/var/log:ro"
-args="$args -p 5000:5000"
+args="$args -p $LISTEN:$LISTEN"
+args="$args -e LISTEN=$LISTEN"
+args="$args -e IDENTIFIER=$IDENTIFIER"
+args="$args -e REWRITE_RESOLV_CONF=$REWRITE_RESOLV_CONF"
 
-run $name "$args"
+run_multi $name $IDENTIFIER "$args"
