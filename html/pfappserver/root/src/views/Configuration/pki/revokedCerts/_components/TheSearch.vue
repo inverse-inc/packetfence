@@ -2,6 +2,7 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="mb-0">{{ $t('Revoked Certificates') }}</h4>
+      <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch" :disabled="!isServiceAlive" />
@@ -85,6 +86,7 @@ import {
   BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
 
@@ -92,6 +94,7 @@ const components = {
   BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 }
 
@@ -99,7 +102,7 @@ import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useRouter } from '../_composables/useCollection'
+import { useSearch, useRouter, useServices } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -144,6 +147,8 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
+  const services = useServices()
+
   return {
     useSearch,
     isServiceAlive,
@@ -151,7 +156,8 @@ const setup = (props, context) => {
     onBulkExport,
     ...router,
     ...selected,
-    ...toRefs(search)
+    ...toRefs(search),
+    services
   }
 }
 
