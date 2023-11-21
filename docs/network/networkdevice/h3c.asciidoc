@@ -19,7 +19,11 @@ endif::[]
 
 //=== H3C
 
-==== S5120 Switch series
+==== Comware v5
+
+These switch version modules are built for H3C switch series S5120 using Comware versions v5.
+
+==== S5120 (Comware v5) Switch series
 
 PacketFence supports these switches with the following technologies:
 
