@@ -252,6 +252,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfldapexplorer
 	dh_installinit --name=packetfence-pfsetacls
 	dh_installinit --no-start --name=packetfence-tracking-config
+	dh_installinit --no-start --name=packetfence-kafka
 
 	dh_installcron
 #	dh_installinfo
