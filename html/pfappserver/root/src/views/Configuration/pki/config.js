@@ -1,3 +1,6 @@
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
+
 export const digests = [
   { value: '0', text: 'UnknownSignatureAlgorithm' },
   { value: '1', text: 'MD2WithRSA' },
@@ -71,3 +74,11 @@ export const revokeReasons = [
   { value: '9', text: 'PrivilegeWithdrawn' },
   { value: '10', text: 'AACompromise' }
 ]
+
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Creating or modifying the PKI configuration requires services restart.'),
+    services: ['pfpki'],
+    k8s_services: ['pfpki']
+  }
+})

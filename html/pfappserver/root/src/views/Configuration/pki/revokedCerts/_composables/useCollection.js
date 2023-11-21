@@ -14,6 +14,8 @@ export const useItemTitle = (props) => {
   return computed(() => i18n.t('Revoked Certificate <code>{id}</code>', { id: id.value }))
 }
 
+export { useServices } from '../../config'
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
