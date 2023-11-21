@@ -13,7 +13,7 @@
     />
     <form-group-cn namespace="cn"
       :column-label="$i18n.t('Common Name')"
-      :disabled="disabled"
+      :disabled="!isNew && !isClone"
     />
     <form-group-mail namespace="mail"
       :column-label="$i18n.t('Email')"
