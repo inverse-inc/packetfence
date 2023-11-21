@@ -194,8 +194,12 @@ const setup = (props, context) => {
   })
   const onSave = () => {
     updateItem({ ...formCertificate.value, id: id.value }).then(item => {
+      $store.dispatch('notification/info', { message: i18n.t('Certificate Authority <code>{id}</code> updated.', { id: id.value }) })
       emit('change', item)
       onHideCertModal()
+    }).catch(e => {
+      $store.dispatch('notification/danger', { message: i18n.t('Certificate Authority <code>{id}</code> failed.<br/>Reason: ', { id: id.value }) + e })
+      onShowFormModal()
     })
   }
 
