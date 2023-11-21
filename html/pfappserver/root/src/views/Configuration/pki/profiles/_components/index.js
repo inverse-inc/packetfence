@@ -9,13 +9,14 @@ import {
 } from '@/components/new/'
 import {
   BaseFormGroupChosenOneCa,
+  BaseFormGroupChosenOneScepServer,
   BaseFormGroupDigest,
   BaseFormGroupExtendedKeyUsage,
   BaseFormGroupKeySize,
   BaseFormGroupKeyType,
   BaseFormGroupKeyUsage,
 } from '../../_components/'
-import {BaseFormGroupChosenOneCloud,} from '@/views/Configuration/clouds/_components/'
+import { BaseFormGroupChosenOneCloud } from '@/views/Configuration/clouds/_components/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -58,6 +59,8 @@ export {
   BaseFormGroupTextarea                   as FormGroupRenewalMailHeader,
   BaseFormGroupTextarea                   as FormGroupRenewalMailFooter,
   BaseFormGroupInputNumber                as FormGroupRevokedValidUntil,
+  BaseFormGroupSwitch                     as FormGroupScepServerEnabled,
+  BaseFormGroupChosenOneScepServer        as FormGroupScepServerId,
   TheForm,
   TheView,
 
