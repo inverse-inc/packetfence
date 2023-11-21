@@ -15,7 +15,7 @@ export const recomposeRevokedCert = (item) => {
     ...rest
   } = item
   return {
-    ID: +id,
+    ...((id) ? {ID: +id} : {}),
     ...rest
   }
 }
