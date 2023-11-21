@@ -904,6 +904,7 @@ func (c CA) Update(params map[string]string) (types.Info, error) {
 
 	if err != nil {
 		Information.Error = err.Error()
+		Information.Status = http.StatusUnprocessableEntity
 		return Information, nil
 	}
 	cadb[0].Cert = c.Cert
