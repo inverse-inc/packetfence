@@ -60,5 +60,12 @@ export default {
     return apiCall.post('config/domains/search', data).then(response => {
       return response.data
     })
+  },
+  testMachineAccount: data => {
+    return apiCall.getQuiet('ntlm/test', data).then(response => {
+      return response.data
+    }).catch(err=> {
+      throw err
+    })
   }
 }
