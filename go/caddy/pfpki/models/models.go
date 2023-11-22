@@ -19,6 +19,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
@@ -27,17 +28,21 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/globalsign/est"
 	"github.com/inverse-inc/scep/cryptoutil"
 	"github.com/inverse-inc/scep/scep"
 	"github.com/knq/pemutil"
+	"go.mozilla.org/pkcs7"
 
 	"context"
 	"fmt"
 	"io"
 
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/caerrors"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/internal/tpm"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	_ "gorm.io/driver/mysql"
@@ -949,6 +954,363 @@ func (c CA) CACerts(ctx context.Context, aps string, r *http.Request) ([]*x509.C
 	return certs, nil
 }
 
+// Global constants.
+const (
+	// alphanumerics              = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	bitSizeHeader        = "Bit-Size"
+	csrAttrsAPS          = "csrattrs"
+	serverKeyGenPassword = "pseudohistorical"
+	triggerErrorsAPS     = "triggererrors"
+)
+
+// Global variables.
+var (
+	oidSubjectAltName = asn1.ObjectIdentifier{2, 5, 29, 17}
+)
+
+// CSRAttrs returns an empty sequence of CSR attributes, unless the additional
+// path segment is:
+//   - "csrattrs", in which case it returns the same example sequence described
+//     in RFC7030 4.5.2; or
+//   - "triggererrors", in which case an error is returned for testing purposes.
+func (c CA) CSRAttrs(ctx context.Context, aps string, r *http.Request) (attrs est.CSRAttrs, err error) {
+	switch aps {
+	case csrAttrsAPS:
+		attrs = est.CSRAttrs{
+			OIDs: []asn1.ObjectIdentifier{
+				{1, 2, 840, 113549, 1, 9, 7},
+				{1, 2, 840, 10045, 4, 3, 3},
+			},
+			Attributes: []est.Attribute{
+				{
+					Type:   asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 9, 14},
+					Values: est.AttributeValueSET{asn1.ObjectIdentifier{1, 3, 6, 1, 1, 1, 1, 22}},
+				},
+				{
+					Type:   asn1.ObjectIdentifier{1, 2, 840, 10045, 2, 1},
+					Values: est.AttributeValueSET{asn1.ObjectIdentifier{1, 3, 132, 0, 34}},
+				},
+			},
+		}
+
+	case triggerErrorsAPS:
+		err = errors.New("triggered error")
+	}
+
+	return attrs, err
+}
+
+// Enroll issues a new certificate:
+//
+// unless the additional path segment is "triggererrors", in which case the
+// following errors will be returned for testing purposes, depending on the
+// common name in the CSR:
+//
+//   - "Trigger Error Forbidden", HTTP status 403
+//   - "Trigger Error Deferred", HTTP status 202 with retry of 600 seconds
+//   - "Trigger Error Unknown", untyped error expected to be interpreted as
+//     an internal server error.
+func (c CA) Enroll(ctx context.Context, csr *x509.CertificateRequest, aps string, r *http.Request) (*x509.Certificate, error) {
+	// Process any requested triggered errors.
+	if aps == triggerErrorsAPS {
+		switch csr.Subject.CommonName {
+		case "Trigger Error Forbidden":
+			return nil, caerrors.CaError{
+				Status: http.StatusForbidden,
+				Desc:   "triggered forbidden response",
+			}
+
+		case "Trigger Error Deferred":
+			return nil, caerrors.CaError{
+				Status:     http.StatusAccepted,
+				Desc:       "triggered deferred response",
+				Retryafter: 600,
+			}
+
+		case "Trigger Error Unknown":
+			return nil, errors.New("triggered error")
+		}
+	}
+
+	vars := types.Params(r, "id")
+
+	profileName := vars["id"]
+
+	prof, err := c.GetProfile(profileName)
+	if err != nil {
+		return nil, caerrors.CaError{
+			Status: http.StatusForbidden,
+			Desc:   err.Error(),
+		}
+	}
+
+	// Check if the certificate is allowed to be revoked
+	_, err = revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, &c.DB)
+
+	if err != nil {
+		return nil, caerrors.CaError{
+			Status: http.StatusForbidden,
+			Desc:   err.Error(),
+		}
+	}
+
+	// Generate certificate template, copying the raw subject and raw
+	// SubjectAltName extension from the CSR.
+	SerialNumber := big.NewInt(int64(prof.Ca.SerialNumber))
+
+	// ski, err := makePublicKeyIdentifier(csr.PublicKey)
+	ski, err := certutils.CalculateSKID(csr.PublicKey)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to make public key identifier: %w", err)
+	}
+
+	// if latest := ca.certs[0].NotAfter.Sub(notAfter); latest < 0 {
+	// 	// Don't issue any certificates which expire after the CA certificate.
+	// 	notAfter = ca.certs[0].NotAfter
+	// }
+
+	Subject := makeSubject(csr.Subject, ProfileAttributes(prof))
+	// Subject.CommonName = m.CSR.Subject.CommonName
+
+	var ExtraExtensions []pkix.Extension
+	for _, v := range csr.Extensions {
+		if v.Id.String() != "2.5.29.37" {
+			if v.Id.String() == "2.5.29.17" {
+				ext, err := forEachSAN(v.Value, ProfileAttributes(prof))
+				if err == nil {
+					ExtraExtensions = append(ExtraExtensions, ext)
+				}
+			} else {
+				ExtraExtensions = append(ExtraExtensions, v)
+			}
+		}
+	}
+
+	// create cert template
+	v, _ := strconv.Atoi(ProfileAttributes(prof)["Digest"])
+	SignatureAlgorithm := x509.SignatureAlgorithm(v)
+
+	var tmpl = &x509.Certificate{
+		SerialNumber:          SerialNumber,
+		NotBefore:             Bod(time.Now().Add(-600).UTC()),
+		NotAfter:              Bod(time.Now().AddDate(0, 0, prof.Validity).UTC()),
+		Subject:               Subject,
+		SubjectKeyId:          ski,
+		BasicConstraintsValid: true,
+		IsCA:                  false,
+		ExtKeyUsage:           certutils.Extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
+		KeyUsage:              x509.KeyUsage(certutils.Keyusage(strings.Split(*prof.KeyUsage, "|"))),
+		SignatureAlgorithm:    SignatureAlgorithm,
+		DNSNames:              csr.DNSNames,
+		EmailAddresses:        csr.EmailAddresses,
+		IPAddresses:           csr.IPAddresses,
+		URIs:                  csr.URIs,
+		ExtraExtensions:       ExtraExtensions,
+	}
+
+	// Load the certificates from the database
+	catls, err := tls.X509KeyPair([]byte(c.Cert), []byte(c.Key))
+	if err != nil {
+		return nil, caerrors.CaError{
+			Status: http.StatusForbidden,
+			Desc:   err.Error(),
+		}
+	}
+
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		return nil, caerrors.CaError{
+			Status: http.StatusForbidden,
+			Desc:   err.Error(),
+		}
+	}
+
+	// Create and return certificate.
+	der, err := x509.CreateCertificate(rand.Reader, tmpl, cacert, csr.PublicKey, catls.PrivateKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create certificate: %w", err)
+	}
+
+	cert, err := x509.ParseCertificate(der)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse certificate: %w", err)
+	}
+
+	return cert, nil
+}
+
+// Reenroll simply passes the request through to Enroll.
+func (c CA) Reenroll(ctx context.Context, cert *x509.Certificate, csr *x509.CertificateRequest, aps string, r *http.Request) (*x509.Certificate, error) {
+	return c.Enroll(ctx, csr, aps, r)
+}
+
+// ServerKeyGen creates a new RSA private key and then calls Enroll. It returns
+// the key in PKCS8 DER-encoding, unless the additional path segment is set to
+// "pkcs7", in which case it is returned wrapped in a CMS SignedData structure
+// signed by the CA certificate(s), itself wrapped in a CMS EnvelopedData
+// encrypted with the pre-shared key "pseudohistorical". A "Bit-Size" HTTP
+// header may be passed with the values 2048, 3072 or 4096.
+func (c CA) ServerKeyGen(ctx context.Context, csr *x509.CertificateRequest, aps string, r *http.Request) (*x509.Certificate, []byte, error) {
+
+	vars := types.Params(r, "id")
+
+	profileName := vars["id"]
+
+	prof, err := c.GetProfile(profileName)
+	if err != nil {
+		return nil, nil, caerrors.CaError{
+			Status: http.StatusForbidden,
+			Desc:   err.Error(),
+		}
+	}
+
+	// Load the certificates from the database
+	catls, err := tls.X509KeyPair([]byte(c.Cert), []byte(c.Key))
+	if err != nil {
+		return nil, nil, caerrors.CaError{
+			Status: http.StatusForbidden,
+			Desc:   err.Error(),
+		}
+	}
+
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		return nil, nil, caerrors.CaError{
+			Status: http.StatusForbidden,
+			Desc:   err.Error(),
+		}
+	}
+
+	bitsize := 2048
+	if r != nil && r.Header != nil {
+		if v := r.Header.Get(bitSizeHeader); v != "" {
+			var err error
+			bitsize, err = strconv.Atoi(v)
+			if err != nil || (bitsize != 2048 && bitsize != 3072 && bitsize != 4096) {
+				return nil, nil, caerrors.CaError{
+					Status: http.StatusBadRequest,
+					Desc:   "invalid bit size value",
+				}
+			}
+		}
+	}
+
+	// Generate new key.
+	keyOut, _, _, err := certutils.GenerateKey(*prof.KeyType, prof.KeySize)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to generate RSA key: %w", err)
+	}
+
+	// Copy raw subject and raw SubjectAltName extension from client CSR into
+	// a new CSR signed by the new private key.
+	tmpl := &x509.CertificateRequest{
+		RawSubject: csr.RawSubject,
+	}
+
+	for _, ext := range csr.Extensions {
+		if ext.Id.Equal(oidSubjectAltName) {
+			tmpl.ExtraExtensions = append(tmpl.ExtraExtensions, ext)
+			break
+		}
+	}
+
+	csrDER, err := x509.CreateCertificateRequest(rand.Reader, tmpl, keyOut)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create certificate request: %w", err)
+	}
+
+	newCSR, err := x509.ParseCertificateRequest(csrDER)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to parse certificate request: %w", err)
+	}
+
+	// Enroll for certificate using the new CSR signed with the new key.
+	cert, err := c.Enroll(ctx, newCSR, aps, r)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Marshal generated private key.
+	keyDER, err := x509.MarshalPKCS8PrivateKey(keyOut)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to marshal private key: %w", err)
+	}
+
+	// Based on value of additional path segment, return private key either
+	// as a DER-encoded PKCS8 PrivateKeyInfo structure, or as that structure
+	// wrapped in a CMS SignedData inside a CMS EnvelopedData structure.
+	var retDER []byte
+
+	switch aps {
+	case "pkcs7":
+		// Create the CMS SignedData structure.
+		signedData, err := pkcs7.NewSignedData(keyDER)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to create CMS SignedData: %w", err)
+		}
+
+		err = signedData.AddSigner(cert, cacert, pkcs7.SignerInfoConfig{})
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to add signed to CMS SignedData: %w", err)
+		}
+
+		sdBytes, err := signedData.Finish()
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to finish CMS SignedData: %w", err)
+		}
+
+		// Encrypt the CMS SignedData in a CMS EnvelopedData structure.
+		retDER, err = pkcs7.EncryptUsingPSK(sdBytes, []byte(serverKeyGenPassword))
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to create CMS EnvelopedData: %w", err)
+		}
+
+	default:
+		retDER = keyDER
+	}
+
+	return cert, retDER, nil
+}
+
+// TPMEnroll requests a new certificate using the TPM 2.0 privacy-preserving
+// protocol. An EK certificate chain with a length of at least one must be
+// provided, along with the EK and AK public areas. The return values are an
+// encrypted credential, a wrapped encryption key, and the certificate itself
+// encrypted with the encrypted credential in AES 128 Galois Counter Mode
+// inside a CMS EnvelopedData structure.
+func (c CA) TPMEnroll(ctx context.Context, csr *x509.CertificateRequest, ekcerts []*x509.Certificate, ekPub, akPub []byte, aps string, r *http.Request) ([]byte, []byte, []byte, error) {
+	cert, err := c.Enroll(ctx, csr, aps, r)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	key := make([]byte, 16)
+	if _, err := io.ReadFull(rand.Reader, key); err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to generate AES key random bytes: %w", err)
+	}
+
+	blob, secret, err := tpm.MakeCredential(key, ekPub, akPub)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	cred, err := pkcs7.EncryptUsingPSK(cert.Raw, key)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to create CMS EnvelopedData: %w", err)
+	}
+
+	return blob, secret, cred, err
+}
+
+func (c CA) GetProfile(profilename string) (Profile, error) {
+	profile := &Profile{}
+	if ProfileDB := c.DB.Preload("CA").Where("name = ?", profilename).First(&profile).Find(&profile); ProfileDB.Error != nil {
+		return *profile, ProfileDB.Error
+	}
+	return *profile, nil
+}
+
 // Profile section
 func NewProfileModel(pfpki *types.Handler) *Profile {
 	Profile := &Profile{}
@@ -1200,7 +1562,7 @@ func (c Cert) New() (types.Info, error) {
 		return Information, err
 	}
 
-	Subject := c.MakeSubject()
+	Subject := prof.MakeSubject(c)
 
 	NotAfter := time.Now().AddDate(0, 0, prof.Validity)
 
@@ -1565,7 +1927,7 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 		SerialNumber = big.NewInt(int64(certdbprevious.ID + 1))
 	}
 
-	Subject := certdb[0].MakeSubject()
+	Subject := certdb[0].Profile.MakeSubject(certdb[0])
 
 	cert := &x509.Certificate{
 		SerialNumber:       SerialNumber,
@@ -1646,14 +2008,14 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	return Information, nil
 }
 
-func (c Cert) MakeSubject() pkix.Name {
+func (p Profile) MakeSubject(c Cert) pkix.Name {
 	var Subject pkix.Name
 	Subject.CommonName = c.Cn
 
 	//Overload certificate attributes if exist
 	Organization := ""
-	if len(c.Profile.Organisation) > 0 {
-		Organization = c.Profile.Organisation
+	if len(p.Organisation) > 0 {
+		Organization = p.Organisation
 	}
 	if len(c.Organisation) > 0 {
 		Organization = c.Organisation
@@ -1663,8 +2025,8 @@ func (c Cert) MakeSubject() pkix.Name {
 	}
 
 	Country := ""
-	if len(c.Profile.Country) > 0 {
-		Country = c.Profile.Country
+	if len(p.Country) > 0 {
+		Country = p.Country
 	}
 	if len(c.Country) > 0 {
 		Country = c.Country
@@ -1674,8 +2036,8 @@ func (c Cert) MakeSubject() pkix.Name {
 	}
 
 	Province := ""
-	if len(c.Profile.State) > 0 {
-		Province = c.Profile.State
+	if len(p.State) > 0 {
+		Province = p.State
 	}
 	if len(c.State) > 0 {
 		Province = c.State
@@ -1685,8 +2047,8 @@ func (c Cert) MakeSubject() pkix.Name {
 	}
 
 	Locality := ""
-	if len(c.Profile.Locality) > 0 {
-		Locality = c.Profile.Locality
+	if len(p.Locality) > 0 {
+		Locality = p.Locality
 	}
 	if len(c.Locality) > 0 {
 		Locality = c.Locality
@@ -1696,8 +2058,8 @@ func (c Cert) MakeSubject() pkix.Name {
 	}
 
 	StreetAddress := ""
-	if len(c.Profile.StreetAddress) > 0 {
-		StreetAddress = c.Profile.StreetAddress
+	if len(p.StreetAddress) > 0 {
+		StreetAddress = p.StreetAddress
 	}
 	if len(c.StreetAddress) > 0 {
 		StreetAddress = c.StreetAddress
@@ -1707,8 +2069,8 @@ func (c Cert) MakeSubject() pkix.Name {
 	}
 
 	PostalCode := ""
-	if len(c.Profile.PostalCode) > 0 {
-		PostalCode = c.Profile.PostalCode
+	if len(p.PostalCode) > 0 {
+		PostalCode = p.PostalCode
 	}
 	if len(c.PostalCode) > 0 {
 		PostalCode = c.PostalCode
@@ -2276,4 +2638,117 @@ func (s SCEPServer) Paginated(vars sql.Vars) (types.Info, error) {
 	}
 
 	return Information, nil
+}
+
+func Bod(t time.Time) time.Time {
+	year, month, day := t.Date()
+	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+}
+
+func forEachSAN(extension []byte, attributes map[string]string) (pkix.Extension, error) {
+	// RFC 5280, 4.2.1.6
+
+	// SubjectAltName ::= GeneralNames
+	//
+	// GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+	//
+	// GeneralName ::= CHOICE {
+	//      otherName                       [0]     OtherName,
+	//      rfc822Name                      [1]     IA5String,
+	//      dNSName                         [2]     IA5String,
+	//      x400Address                     [3]     ORAddress,
+	//      directoryName                   [4]     Name,
+	//      ediPartyName                    [5]     EDIPartyName,
+	//      uniformResourceIdentifier       [6]     IA5String,
+	//      iPAddress                       [7]     OCTET STRING,
+	//      registeredID                    [8]     OBJECT IDENTIFIER }
+
+	var seq asn1.RawValue
+
+	extSubjectAltName := pkix.Extension{
+		Id:       asn1.ObjectIdentifier{2, 5, 29, 17},
+		Critical: false,
+		Value:    extension,
+	}
+
+	rest, err := asn1.Unmarshal(extension, &seq)
+	if err != nil {
+		return extSubjectAltName, err
+	} else if len(rest) != 0 {
+		return extSubjectAltName, errors.New("x509: trailing data after X.509 extension")
+	}
+	if !seq.IsCompound || seq.Tag != 16 || seq.Class != 0 {
+		return extSubjectAltName, asn1.StructuralError{Msg: "bad SAN sequence"}
+	}
+
+	rest = seq.Bytes
+	var rawValues []asn1.RawValue
+
+	found := false
+	for len(rest) > 0 {
+		var v asn1.RawValue
+		rest, err = asn1.Unmarshal(rest, &v)
+		if err != nil {
+			return extSubjectAltName, err
+		}
+		if v.Tag == 1 {
+			found = true
+		}
+		rawValues = append(rawValues, v)
+	}
+
+	if found {
+		return extSubjectAltName, nil
+	} else {
+		rawValues = append(rawValues, asn1.RawValue{
+			Class:      2,
+			IsCompound: false,
+			Tag:        1,
+			Bytes:      []byte(attributes["Mail"]),
+		})
+		RawValue, _ := asn1.Marshal(rawValues)
+		extSubjectAltName = pkix.Extension{
+			Id:       asn1.ObjectIdentifier{2, 5, 29, 17},
+			Critical: false,
+			Value:    RawValue,
+		}
+		return extSubjectAltName, nil
+	}
+}
+
+func makeSubject(Subject pkix.Name, attributes map[string]string) pkix.Name {
+
+	for k, v := range attributes {
+		switch k {
+		case "Organization":
+			if len(v) > 0 {
+				Subject.Organization = []string{v}
+			}
+		case "OrganizationalUnit":
+			if len(v) > 0 {
+				Subject.OrganizationalUnit = []string{v}
+			}
+		case "Country":
+			if len(v) > 0 {
+				Subject.Country = []string{v}
+			}
+		case "State":
+			if len(v) > 0 {
+				Subject.Province = []string{v}
+			}
+		case "Locality":
+			if len(v) > 0 {
+				Subject.Locality = []string{v}
+			}
+		case "StreetAddress":
+			if len(v) > 0 {
+				Subject.StreetAddress = []string{v}
+			}
+		case "PostalCode":
+			if len(v) > 0 {
+				Subject.PostalCode = []string{v}
+			}
+		}
+	}
+	return Subject
 }
