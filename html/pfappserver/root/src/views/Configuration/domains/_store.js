@@ -125,8 +125,15 @@ const actions = {
       return state.joins[id]
     })
   },
-  zhihaosMethod: ({ state }, data) => {
-    console.log(data)
+  testMachineAccount: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return api.testMachineAccount(data).then(response => {
+      commit('ITEM_SUCCESS', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   },
   joinDomain: ({ state, commit }, data) => {
     commit('JOIN_REQUEST', data.id)
