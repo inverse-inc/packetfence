@@ -10,47 +10,54 @@ describe('Collections', () => {
         cy.pfSystemLogin()
       })
       collection.tests.forEach(test => {
-        const { description, scope, url, expect, form, interceptors = [], selectors } = test
-        const { fixture = 'empty.json' } = form || {}
+        const { description, fixture = 'emtpy.json', scope, url, interceptors = [], selectors,
+          idFromFixture = ({ id }) => id,
+        } = test
         const {
-          buttonNewSelector = 'button[type="button"]:contains(New)',
+          buttonNewSelectors = ['button[type="button"]:contains(New)'],
           buttonCreateSelector = 'button[type="submit"]:contains(Create)',
+          buttonDeleteSelector = 'button[type="button"]:contains(Delete)',
+          buttonDeleteConfirmSelector = 'button[type="button"][data-confirm]:contains(Delete)',
+          buttonSaveSelector = 'button[type="submit"]:contains(Save)',
           tabSelector = 'div.tabs a[role="tab"]',
-        } = selectors || {}
-
+        } = selectors || {};
         it(description, () => {
+          cy.fixture(fixture).then(async (data) => {
+            const resourceId = idFromFixture(data)
+            const resourceUrl = (url.constructor == Function) ? url(resourceId) : url
+            switch (scope) {
 
-          // load page
-          cy.visit(`${global.url}${url}`)
 
-          switch (scope) {
-            case SCOPE_INSERT:
+              /**
+               * SCOPE_INSERT
+               */
+              case SCOPE_INSERT:
+                cy.visit(`${global.url}${url}`)
 
-              // click "New" button
-              cy.get(buttonNewSelector).first().as('buttonNew')
-              cy.get('@buttonNew')
-                .should('not.have.class', 'disabled')
-                .and('not.have.disabled', 'disabled')
-                .click({ log: true })
+                // click "New" button(s)
+                buttonNewSelectors.forEach((buttonNewSelector, n) => {
+                  cy.get(buttonNewSelector).first().as(`buttonNew${n}`)
+                  cy.get(`@buttonNew${n}`)
+                    .should('not.have.class', 'disabled')
+                    .and('not.have.disabled', 'disabled')
+                    .click({ log: true })
+                })
 
-              // expect url changed
-              cy.url().should('include', `${url}/new`)
-
-              // fill form with fixture
-              cy.fixture(fixture).then(async (data) => {
+                // expect url changed
+                cy.url().should('include', `${url}/new`)
 
                 // setup API interceptors
                 interceptors.forEach((interceptor, i) => {
-                  const { method, url, expect, timeout = 3E3 } = interceptor
-                  cy.intercept({ method, url }, (req) => {
-                    if (expect) {
-                      req.destroy() // block
-                      cy.window().then(() => {
-                        expect(req, data) // expect
-                      })
+                  const { method, url, expectRequest, timeout = global.interceptorTimeoutMs, block } = interceptor
+                  cy.intercept({ method, url }, (request) => {
+                    if (block) {
+                      request.destroy() // block
                     }
                     else {
-                     req.continue() // passthrough
+                      request.continue() // passthrough
+                    }
+                    if (expectRequest) {
+                      expectRequest(request, data) // expect
                     }
                   }).as(`interceptor${i}`)
                 })
@@ -62,8 +69,7 @@ describe('Collections', () => {
                       // click tab
                       cy.get(tab, { timeout: 10E3 })
                         .click({ log: true })
-                        .invoke('attr', 'aria-selected')
-                        .should('eq', 'true')
+                        .invoke('attr', 'aria-selected').should('eq', 'true')
                     }
                     // fill form
                     await cy.formFillNamespace(data)
@@ -75,23 +81,109 @@ describe('Collections', () => {
                 }
 
                 // click "Create" button
-                cy.window().then(() => {
-                  cy.get(buttonCreateSelector).first().as('buttonCreate')
-                  cy.get('@buttonCreate')
-                    .should('not.have.class', 'disabled')
-                    .and('not.have.disabled', 'disabled')
-                    .click({ log: true })
+                cy.get(buttonCreateSelector).first().as('buttonCreate')
+                cy.get('@buttonCreate')
+                  .should('not.have.class', 'disabled')
+                  .and('not.have.disabled', 'disabled')
+                  .click({ log: true })
 
+                // wait, expect response
+                interceptors.forEach(async (interceptor, i) => {
+                  const { url, expectResponse, timeout = global.interceptorTimeoutMs } = interceptor
+                  await cy.wait(`@interceptor${i}`, { timeout }).then(response => {
+                    if (expectResponse) {
+                      expectResponse(response, data)
+                    }
+                  })
                 })
-              })
-              break
+                break;
 
-            case SCOPE_UPDATE:
-            case SCOPE_DELETE:
-            default:
-              cy.task('error', `Unhandled scope '${scope || 'unknown'}'`)
-          }
 
+              /**
+               * SCOPE_UPDATE
+               */
+              case SCOPE_UPDATE:
+
+                // setup API interceptors
+                interceptors.forEach((interceptor, i) => {
+                  const { method, url, timeout = global.interceptorTimeoutMs, block } = interceptor
+                  cy.intercept({ method, url }, (req) => {
+                    if (block) {
+                      req.destroy() // block
+                    }
+                    else {
+                      req.continue() // passthrough
+                    }
+                  }).as(`interceptor${i}`)
+                })
+
+                cy.visit(`${global.url}${resourceUrl}`)
+
+                // click "Save" button
+                cy.get(buttonSaveSelector).first().as('buttonSave')
+                cy.get('@buttonSave')
+                  .should('not.have.class', 'disabled')
+                  .and('not.have.disabled', 'disabled')
+                  .click({ log: true })
+
+                // wait, expect response
+                interceptors.forEach(async (interceptor, i) => {
+                  const { url, expectResponse, timeout = global.interceptorTimeoutMs } = interceptor
+                  await cy.wait(`@interceptor${i}`, { timeout }).then(({ request, response }) => {
+                    if (expectResponse) {
+                      expectResponse(response, data)
+                    }
+                  })
+                })
+                break;
+
+
+              /**
+               * SCOPE_DELETE
+               */
+               case SCOPE_DELETE:
+                // setup API interceptors
+                interceptors.forEach((interceptor, i) => {
+                  const { method, url, timeout = global.interceptorTimeoutMs, block } = interceptor
+                  cy.intercept({ method, url }, (req) => {
+                    if (block) {
+                      req.destroy() // block
+                    }
+                    else {
+                      req.continue() // passthrough
+                    }
+                  }).as(`interceptor${i}`)
+                })
+
+                cy.visit(`${global.url}${resourceUrl}`)
+
+                // click "Delete" button
+                cy.get(buttonDeleteSelector).first().as('buttonDelete')
+                cy.get('@buttonDelete')
+                  .should('not.have.class', 'disabled')
+                  .and('not.have.disabled', 'disabled')
+                  .click({ log: true })
+
+                // click "Delete" button again (confirm)
+                cy.get(buttonDeleteConfirmSelector).first().as('buttonDeleteConfirm')
+                cy.get('@buttonDeleteConfirm')
+                  .click({ log: true })
+
+                // wait, expect response
+                interceptors.forEach(async (interceptor, i) => {
+                  const { url, expectResponse, timeout = global.interceptorTimeoutMs } = interceptor
+                  await cy.wait(`@interceptor${i}`, { timeout }).then(({ request, response }) => {
+                    if (expectResponse) {
+                      expectResponse(response, data)
+                    }
+                  })
+                })
+                break;
+
+              default:
+                cy.task('error', `Unhandled scope '${scope || 'unknown'}'`)
+            }
+          })
         })
       })
     })
