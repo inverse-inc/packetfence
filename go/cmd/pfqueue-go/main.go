@@ -66,8 +66,7 @@ func (qw *QueueWorkers) runSingleWorkerQueue(q string, r *atomic.Bool) {
 	}
 
 	for r.Load() {
-		queues := qw.getNextWeights()
-		err := consumer.ProcessNextQueueItem(ctx, queues)
+		err := consumer.ProcessNextQueueItem(ctx, []string{q})
 		if err == nil {
 			continue
 		}
