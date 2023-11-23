@@ -23,7 +23,7 @@ export const useItemTitle = (props) => {
 export const useServices = () => computed(() => {
   return {
     message: i18n.t('Joining or unjoining a Domain requires a restart of services to be fully effective.'),
-    services: ['radiusd-auth'],
+    services: ['radiusd-auth', 'ntlm-auth-api'],
     system_services: [],
     k8s_services: [],
     systemd: false

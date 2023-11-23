@@ -42,6 +42,7 @@ Where :
 * *OU* is the OU in the Active Directory where you want to create your computer account.
 * *ntlmv2 only* forces the NTLNM authentication (802.1X on AD) to use the NTLM version 2.
 * *Allow on registration* would allow devices in the registration network to communicate with the DC.
+* *Machine account password* password of server's account in your Active Directory
 
 NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
 

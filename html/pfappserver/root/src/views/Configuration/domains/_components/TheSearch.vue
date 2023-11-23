@@ -107,7 +107,6 @@ import BaseButtonJoin from './BaseButtonJoin'
 const components = {
   BaseButtonConfirm,
   BaseButtonHelp,
-  BaseButtonJoin,
   BaseSearch,
   BaseSearchInputColumns,
   BaseServices,
