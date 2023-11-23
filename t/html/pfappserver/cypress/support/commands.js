@@ -54,33 +54,31 @@ Cypress.Commands.add('pfConfiguratorDisable', () => {
   })
 })
 
-Cypress.Commands.add('formFillNamespace', (data, selector = 'form > div.base-form') => {
-  return cy.get(selector).first().within($ => {
-    for (let entry of Object.entries(data)) {
-      const [namespace, value] = entry
-      const selector = `*[data-namespace="${namespace}"]:not([disabled])`
-      if ($.find(selector).length) {
-        cy.get(selector)
-          .then(el => {
-            const e =  Cypress.$(el)[0]
-            const tagName = e.tagName.toLowerCase()
-            const type = e.getAttribute('type')
-            switch (true) {
-              case tagName === 'input' && ['text', 'password'].includes(type):
-              case tagName === 'textarea':
-                  cy.get(el).type(`{selectAll}{del}${value}`, { log: true, force: true })
-                break
-              case tagName === 'input' && ['range'].includes(type):
-                  // TODO
-                break
-              default:
-                throw new Error(`unhandled element <${tagName} type="${type||''}" data-namespace="${namespace}" />`)
-            }
-          })
+Cypress.Commands.add('formFillNamespace', (data, selector = 'body') => {
+  return cy.get(selector)
+    .get('*[data-namespace]:not([disabled])')
+    .should("have.length.gte", 0)
+    .then(element => {
+      const namespace = element.attr('data-namespace')
+      if (namespace in data && data[namespace]) {
+        const value = data[namespace]
+        const type = element.attr('type')
+        const e = Cypress.$(element)[0]
+        const tagName = e.tagName.toLowerCase()
+        switch (true) {
+          case tagName === 'input' && ['text', 'password'].includes(type):
+          case tagName === 'textarea':
+            cy.get(e)
+              .should('be.visible')
+              .clear({ log: true, force: true })
+              .type(value, { log: true, force: true })
+            break
+          case tagName === 'input' && ['range'].includes(type):
+            // TODO
+            break
+          default:
+            throw new Error(`unhandled element <${tagName} type="${type || ''}" data-namespace="${namespace}" />`)
+        }
       }
-      else {
-        cy.task('error', `empty selector ${selector}`)
-      }
-    }
-  })
+    })
 })

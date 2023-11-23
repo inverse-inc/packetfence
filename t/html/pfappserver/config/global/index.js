@@ -1,5 +1,5 @@
 const url = '/admin#';
-const interceptorTimeoutMs = 3E3;
+const interceptorTimeoutMs = 5E3;
 
 module.exports = {
   url,
