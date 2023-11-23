@@ -62,7 +62,7 @@ export default {
     })
   },
   testMachineAccount: data => {
-    return apiCall.getQuiet('ntlm/test', data).then(response => {
+    return apiCall.postQuiet('ntlm/test', data).then(response => {
       return response.data
     }).catch(err=> {
       throw err

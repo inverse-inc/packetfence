@@ -66,11 +66,6 @@ export const useSearch = makeSearch('domains', {
       visible: true
     },
     {
-      key: 'joined',
-      label: 'Domain Join', // i18n defer
-      visible: true
-    },
-    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
