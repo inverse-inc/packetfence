@@ -44,27 +44,27 @@ install-debian:
 	apt-get install -y firefox-esr
 
 install:
-	npm install -g npm
+  npm install -g npm
 	npm install cypress -g --allow-root --unsafe-perm=true
 	npm install --legacy-peer-deps
 
 test:
-		DEBUG=$(DEBUG) \
-		DISPLAY= \
-		NO_COLOR=1 \
-		BROWSERSLIST_IGNORE_OLD_DATA=true \
-		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --env tags=[$(TAGS)] ; \
+	DEBUG=$(DEBUG) \
+	DISPLAY= \
+	NO_COLOR=1 \
+	BROWSERSLIST_IGNORE_OLD_DATA=true \
+	CYPRESS_baseUrl=$(BASE_URL) \
+	npx cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --env tags=[$(TAGS)] ; \
 
 test-project:
-		DEBUG=$(DEBUG) \
-		DISPLAY= \
-		NO_COLOR=1 \
-		BROWSERSLIST_IGNORE_OLD_DATA=true \
-		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
+	DEBUG=$(DEBUG) \
+	DISPLAY= \
+	NO_COLOR=1 \
+	BROWSERSLIST_IGNORE_OLD_DATA=true \
+	CYPRESS_baseUrl=$(BASE_URL) \
+	npx cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
 
 test-x11:
 	DEBUG=$(DEBUG) \
 	CYPRESS_baseUrl=$(BASE_URL) \
-	cypress open --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG)
+	npx cypress open --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG)
