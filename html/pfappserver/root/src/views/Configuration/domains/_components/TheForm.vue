@@ -5,10 +5,6 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-    <base-button-join v-if="!isNew && !isClone"
-                      :id="id"
-                      size="sm" variant="outline-primary" class="mx-3 mb-3" toggle-class="text-wrap"
-    />
     <b-tabs>
       <base-form-tab :title="$i18n.t('Settings')" active>
 
@@ -51,16 +47,11 @@
                        :text="$i18n.t(`Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a '/'. (ex: Computers/Servers/Unix).`)"
         />
 
-        <form-group-machine-account namespace="machine_account"
-                                    :column-label="$i18n.t('Machine account')"
-                                    :text="$i18n.t(`Machine account to be added to Active Directory`)"
-                                    :disabled="!isNew && !isClone"
-        />
 
         <form-group-machine-account-password namespace="machine_account_password"
                                              :column-label="$i18n.t('Machine account password')"
                                              :text="$i18n.t(`Password / password hash of the machine account`)"
-                                             :disabled="!isNew && !isClone"
+                                             :disabled="isNew || isClone"
                                              :buttonLabel="$i18n.t('Test Machine account')"
                                              testLabel="foobar"
                                              :test="fn"
@@ -134,7 +125,6 @@ import {
   FormGroupAdServer,
   FormGroupDnsServers,
   FormGroupOu,
-  FormGroupMachineAccount,
   FormGroupMachineAccountPassword,
   FormGroupPasswordIsNtHash,
   FormGroupNtlmv2Only,
@@ -158,7 +148,6 @@ const components = {
   FormGroupAdServer,
   FormGroupDnsServers,
   FormGroupOu,
-  FormGroupMachineAccount,
   FormGroupMachineAccountPassword,
   FormGroupPasswordIsNtHash,
   FormGroupNtlmv2Only,
@@ -199,8 +188,7 @@ export const setup = (props, context) => {
 
   const schema = computed(() => schemaFn(props))
 
-  const fn = () => $store.dispatch('$_domains/zhihaosMethod', 'woohoo!!!')
-
+  const fn = () => $store.dispatch('$_domains/testMachineAccount', props.form.id)
   return {
     schema,
     fn

@@ -38,10 +38,6 @@ export default (props) => {
     dns_servers: yup.string().nullable().label(i18n.t('Servers'))
       .required(i18n.t('Servers required.'))
       .isIpv4Csv(),
-    machine_account: yup.string().nullable()
-      .required(i18n.t('Machine account required.'))
-      .isAlphaNumericHyphenUnderscoreDot()
-      .label( i18n.t('Machine account')),
     machine_account_password: yup.string().nullable()
       .required(i18n.t('Password required.'))
       .min(8)
