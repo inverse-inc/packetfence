@@ -114,7 +114,6 @@ import {
   BaseForm,
   BaseFormTab
 } from '@/components/new/'
-import BaseButtonJoin from './BaseButtonJoin'
 import schemaFn from '../schema'
 import {
   FormGroupIdentifier,
@@ -136,7 +135,6 @@ import {
 } from './'
 
 const components = {
-  BaseButtonJoin,
   BaseForm,
   BaseFormTab,
 
