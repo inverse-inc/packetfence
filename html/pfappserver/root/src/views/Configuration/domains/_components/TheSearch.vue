@@ -102,7 +102,6 @@ import {
   BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
-import BaseButtonJoin from './BaseButtonJoin'
 
 const components = {
   BaseButtonConfirm,
