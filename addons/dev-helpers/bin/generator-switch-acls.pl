@@ -43,6 +43,9 @@ my $tt = Template->new({
 });
 
 $Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Purity = 1;
+$Data::Dumper::Terse = 0;
+$Data::Dumper::Indent = 2;
 
 $tt->process(
     "pf-switch-acls.pm.tt",

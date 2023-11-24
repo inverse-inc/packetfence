@@ -39,6 +39,7 @@ our %ACLsSupports;
                                                     'Cisco::Catalyst_3750G' => 1,
                                                     'Cisco::Catalyst_4500' => 1,
                                                     'Cisco::Catalyst_6500' => 1,
+                                                    'Cisco::Cisco_IOS_12_x' => 1,
                                                     'Cisco::Cisco_IOS_15_0' => 1,
                                                     'Cisco::Cisco_IOS_15_5' => 1,
                                                     'Cisco::SG300' => 1,
