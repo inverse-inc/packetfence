@@ -1,0 +1,8 @@
+# ---> Vagrant
+.vagrant/
+
+# Emacs
+*~
+\#*\#
+roles/
+ansible_collections/
