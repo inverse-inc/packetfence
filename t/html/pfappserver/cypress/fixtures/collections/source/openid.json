@@ -1,0 +1,11 @@
+{
+  "id": "test",
+  "description": "test",
+  "client_id": "foo",
+  "client_secret": "bar",
+  "site": "foobar",
+  "authorize_path": "foobar",
+  "access_token_path": "foobar",
+  "protected_resource_url": "foobar",
+  "domains": "foobar.local"
+}

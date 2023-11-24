@@ -1,0 +1,10 @@
+{
+  "id": "test",
+  "description": "test",
+  "identity_token": "test",
+  "cert_id": "test",
+  "cert_file": "/dev/null",
+  "key_file": "/dev/null",
+  "paypal_cert_file": "/dev/null",
+  "email_address": "user@example.com"
+}

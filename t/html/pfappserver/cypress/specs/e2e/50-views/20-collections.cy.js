@@ -90,7 +90,7 @@ describe('Collections', () => {
                   }
                   else {
                     // fill form
-                    cy.formFillNamespace(data, 'form > div.base-form')
+                    cy.formFillNamespace(data, 'form div.base-form')
                   }
                 })
 
@@ -104,7 +104,7 @@ describe('Collections', () => {
                 // wait, expect response
                 interceptors.forEach(async (interceptor, i) => {
                   const { url, expectResponse, timeout = global.interceptorTimeoutMs } = interceptor
-                  await cy.wait(`@interceptor${i}`, { timeout }).then(response => {
+                  await cy.wait(`@interceptor${i}`, { timeout }).then(({ request, response }) => {
                     if (expectResponse) {
                       expectResponse(response, data)
                     }

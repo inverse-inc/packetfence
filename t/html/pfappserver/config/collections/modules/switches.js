@@ -1,37 +1,47 @@
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
-const collection_url = '/configuration/roles';
-const resource_url = id => `/configuration/role/${id}`;
-const fixture = 'collections/role.json';
+const collection_url = '/configuration/switches';
+const resource_url = id => `/configuration/switch/${id}`;
+const fixture = 'collections/switch.json';
+const timeout = 10E3;
 
 module.exports = {
-  id: 'roles',
-  description: 'Roles',
+  id: 'switches',
+  description: 'Switches',
+  timeout,
   tests: [
     {
-      description: 'Roles - Create New',
+      description: 'Switches - Create New',
       scope: SCOPE_INSERT,
       url: collection_url,
       fixture,
+      selectors: {
+        buttonNewSelectors: ['button[type="button"]:contains(New)', 'ul li a[href]:contains(default)'],
+      },
       interceptors: [
         {
-          method: 'POST', url: '/api/**/config/roles', expectRequest: (request, fixture) => {
+          method: 'POST',
+          url: '/api/**/config/switches',
+          expectRequest: (request, fixture) => {
             Object.keys(fixture).forEach(key => {
               expect(request.body).to.have.property(key)
               expect(request.body[key]).to.deep.equal(fixture[key], key)
             })
+          },
+          expectResponse: (response, fixture) => {
+            expect(response.statusCode).to.equal(201)
           }
         }
       ]
     },
     {
-      description: 'Roles - Update Existing',
+      description: 'Switches - Update Existing',
       scope: SCOPE_UPDATE,
       fixture,
       url: resource_url,
       interceptors: [
         {
           method: '+(PATCH|PUT)',
-          url: '/api/**/config/role/**',
+          url: '/api/**/config/switch/**',
           expectRequest: (request, fixture) => {
             Object.keys(fixture).forEach(key => {
               expect(request.body).to.have.property(key)
@@ -45,13 +55,13 @@ module.exports = {
       ]
     },
     {
-      description: 'Roles - Delete Existing',
+      description: 'Switches - Delete Existing',
       scope: SCOPE_DELETE,
       fixture,
       url: resource_url,
       interceptors: [
         {
-          method: 'DELETE', url: '/api/**/config/role/**', expectResponse: (response, fixture) => {
+          method: 'DELETE', url: '/api/**/config/switch/**', expectResponse: (response, fixture) => {
             expect(response.statusCode).to.equal(200)
           }
         }

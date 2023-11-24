@@ -1,0 +1,10 @@
+{
+  "id": "test",
+  "description": "test",
+  "host": [
+    "foo",
+    "bar"
+  ],
+  "basedn": "baz",
+  "usernameattribute": "cn"
+}
