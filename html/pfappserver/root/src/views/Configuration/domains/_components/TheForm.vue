@@ -50,17 +50,20 @@
 
         <form-group-machine-account-password namespace="machine_account_password"
                                              :column-label="$i18n.t('Machine account password')"
-                                             :text="$i18n.t(`Password / password hash of the machine account`)"
-                                             :disabled="isNew || isClone"
+                                             :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. type another value to change the password, or leave it as-is`)"
                                              :buttonLabel="$i18n.t('Test Machine account')"
                                              testLabel="foobar"
                                              :test="fn"
         />
-        <form-group-password-is-nt-hash namespace="password_is_nt_hash"
-                                        :column-label="$i18n.t('password is NT hash')"
-                                        :text='$i18n.t(`If the machine account password above is provided as a NT hash string, not a "real" password that administrator sets, this should be enabled.`)'
-                                        enabled-value="1"
-                                        disabled-value="0"
+
+        <form-group-domain-admin-user namespace="domain_admin_user"
+                                      :column-label="$i18n.t('Domain administrator username')"
+                                      :text="$i18n.t(`Domain Administrator's Username, PacketFence will only use this to update machine accounts in Active Directory, this will not be saved into config file`)"
+        />
+
+        <form-group-domain-admin-password namespace="domain_admin_password"
+                                          :column-label="$i18n.t('Domain administrator password')"
+                                          :text="$i18n.t(`Domain administrator's password, PacketFence will only use this to update machine account in Active Directory, this will not be saved into config file`)"
         />
 
         <form-group-ntlmv2-only namespace="ntlmv2_only"
@@ -114,6 +117,7 @@ import {
   BaseForm,
   BaseFormTab
 } from '@/components/new/'
+import BaseButtonJoin from './BaseButtonJoin'
 import schemaFn from '../schema'
 import {
   FormGroupIdentifier,
@@ -125,7 +129,8 @@ import {
   FormGroupDnsServers,
   FormGroupOu,
   FormGroupMachineAccountPassword,
-  FormGroupPasswordIsNtHash,
+  FormGroupDomainAdminUser,
+  FormGroupDomainAdminPassword,
   FormGroupNtlmv2Only,
   FormGroupRegistration,
 
@@ -135,6 +140,7 @@ import {
 } from './'
 
 const components = {
+  BaseButtonJoin,
   BaseForm,
   BaseFormTab,
 
@@ -147,7 +153,8 @@ const components = {
   FormGroupDnsServers,
   FormGroupOu,
   FormGroupMachineAccountPassword,
-  FormGroupPasswordIsNtHash,
+  FormGroupDomainAdminUser,
+  FormGroupDomainAdminPassword,
   FormGroupNtlmv2Only,
   FormGroupRegistration,
 
@@ -186,7 +193,7 @@ export const setup = (props, context) => {
 
   const schema = computed(() => schemaFn(props))
 
-  const fn = () => $store.dispatch('$_domains/testMachineAccount', props.form.id)
+  const fn = () => $store.dispatch('$_domains/testMachineAccount', props.form)
   return {
     schema,
     fn

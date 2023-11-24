@@ -5,6 +5,7 @@ import {
   BaseFormGroupInput,
   BaseFormGroupInputTest,
   BaseFormGroupSwitch,
+  BaseFormGroupInputPassword,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -22,7 +23,8 @@ export {
   BaseFormGroupInput                  as FormGroupDnsServers,
   BaseFormGroupInput                  as FormGroupOu,
   BaseFormGroupInputTest              as FormGroupMachineAccountPassword,
-  BaseFormGroupSwitch                 as FormGroupPasswordIsNtHash,
+  BaseFormGroupInput                  as FormGroupDomainAdminUser,
+  BaseFormGroupInputPassword          as FormGroupDomainAdminPassword,
   BaseFormGroupSwitch                 as FormGroupNtlmv2Only,
   BaseFormGroupSwitch                 as FormGroupRegistration,
 
