@@ -1561,10 +1561,15 @@ sub generate_multi_domain_constants {
 package multi_domain_constants;
 our (%ConfigRealm, @ConfigOrderedRealm, %ConfigDomain);
 ];
-    $content .= Data::Dumper->Dump(
-        [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomain],
-        ['*ConfigRealm', '*ConfigOrderedRealm', '*ConfigDomain']
-    );
+    {
+        local $Data::Dumper::Purity = 1;
+        local $Data::Dumper::Terse = 0;
+        local $Data::Dumper::Indent = 2;
+        $content .= Data::Dumper->Dump(
+            [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomain],
+            ['*ConfigRealm', '*ConfigOrderedRealm', '*ConfigDomain']
+        );
+    }
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
     chmod(0644, "$install_dir/raddb/mods-config/perl/multi_domain_constants.pm");
