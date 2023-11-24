@@ -1,0 +1,12 @@
+{
+  "id": "test",
+  "description": "test",
+  "host": [
+    "foo",
+    "bar"
+  ],
+  "basedn": "baz",
+  "usernameattribute": "cn",
+  "client_cert_file": "/dev/null",
+  "client_key_file": "/dev/null"
+}

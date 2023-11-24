@@ -18,6 +18,7 @@ module.exports = {
       on('before:browser:launch', (browser = {}, launchOptions) => {
         switch (browser.name) {
           case 'chrome':
+          case 'chromium':
             launchOptions.args.push('--disable-gpu'); // headless
             break;
           case 'firefox':

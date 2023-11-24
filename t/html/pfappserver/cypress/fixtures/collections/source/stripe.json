@@ -1,0 +1,6 @@
+{
+  "id": "test",
+  "description": "test",
+  "secret_key": "foo",
+  "publishable_key": "bar"
+}

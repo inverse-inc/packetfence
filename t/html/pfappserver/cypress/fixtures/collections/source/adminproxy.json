@@ -1,0 +1,7 @@
+{
+  "id": "test",
+  "description": "test",
+  "proxy_addresses": "1.2.3.4",
+  "user_header": "foo",
+  "group_header": "bar"
+}

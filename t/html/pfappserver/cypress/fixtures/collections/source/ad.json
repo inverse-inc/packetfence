@@ -1,0 +1,9 @@
+{
+  "id": "test",
+  "description": "test",
+  "host": [
+    "foo",
+    "bar"
+  ],
+  "basedn": "bar"
+}
