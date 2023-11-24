@@ -1,0 +1,1 @@
+DEBUILD_DPKG_BUILDPACKAGE_OPTS='-Zgzip -zfast'

@@ -1,0 +1,13 @@
+# logrotate file for Fingerbank
+
+/usr/local/fingerbank/logs/*log {
+    daily
+    rotate 7
+    missingok
+    compress
+    create 660 fingerbank fingerbank
+    copytruncate
+
+    # This following line is required for RHEL / CentOS 7 but will be ignored on RHEL / CentOS 6
+    su fingerbank fingerbank
+}

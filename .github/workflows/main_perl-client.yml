@@ -1,0 +1,118 @@
+name: perl-client_debian_rhel8_package
+on:
+  workflow_dispatch:
+  push:
+  schedule:
+    - cron: 0 2 * * *
+
+env:
+  WORKDIR: "/root"
+  VOLUME_MOUNT: "/mnt/${{ github.run_id }}_${{ github.run_attempt }}"
+  OUTPUT_DIRECTORY: "/mnt/output/"
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  PACKAGE_NAME: 'fingerbank'
+
+jobs:
+  build_preparation:
+    permissions:
+      pull-requests: read
+    runs-on: packetfence-perl-package-build
+    outputs:
+      volume_mount: ${{ steps.variable.outputs.volume_mount }}
+      workdir: ${{ steps.variable.outputs.workdir }}
+      output_directory: ${{ steps.variable.outputs.output_directory }}
+      branch_name: ${{ steps.variable.outputs.branch_name }}
+      package_name: ${{ steps.variable.outputs.package_name }}
+      path_changes: ${{ steps.filters.outputs.src }}
+      regex_match_branch: ${{ steps.regex-match.outputs.match }}
+    steps:
+
+      - name: Regex match devel and maintenance branches 
+        uses: kaisugi/action-regex-match@v1.0.0
+        id: regex-match
+        with:
+          text: ${{ env.BRANCH_NAME }}
+          regex: '^(maintenance\/1[1-9].[0-2]|devel)$'
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - uses: dorny/paths-filter@v2
+        id: filters
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            src:
+              - '.addons/perl-client/**'
+              - '.github/workflows/main_perl-client.yml'
+              - '.github/workflows/perl-client_build_package.yml'
+              - '.github/workflows/reusable_sign_package_debian.yml'
+              - '.github/workflows/reusable_sign_package_rhel8.yml'
+              - '.github/workflows/reusable_upload_packages.yml'
+      - run:  | 
+          echo ${{ steps.filters.outputs.src }}
+          echo ${{ steps.filters.outputs.changes }}
+          echo ${{ steps.filters.conclusion }}
+          echo ${{ steps.filters.outcome }}
+          echo ${{env.BRANCH_NAME}}
+          echo ${{ steps.regex-match.outputs.match }}
+
+      - name: Declare 'needs' variable
+        id: variable
+        run: |
+          echo "volume_mount=${{env.VOLUME_MOUNT}}" >> "$GITHUB_OUTPUT"
+          echo "workdir=${{env.WORKDIR}}" >> "$GITHUB_OUTPUT"
+          echo "output_directory=${{env.OUTPUT_DIRECTORY}}" >> "$GITHUB_OUTPUT"
+          echo "branch_name=${{env.BRANCH_NAME}}" >> "$GITHUB_OUTPUT"
+          echo "package_name=${{env.PACKAGE_NAME}}" >> "$GITHUB_OUTPUT"
+
+  build_packages:
+    if: ${{ contains( github.event.head_commit.message, '[perl-client]') || needs.build_preparation.outputs.path_changes == 'true' && needs.build_preparation.outputs.regex_match_branch != '' }}
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/perl-client_build_package.yml
+    needs: ['build_preparation']
+    with:
+      _IMAGE_TYPE: ${{ matrix.images }}
+      _WORKDIR:  ${{needs.build_preparation.outputs.workdir}}
+      _BRANCH_NAME: ${{ needs.build_preparation.outputs.branch_name }}
+      _VOLUME_MOUNT: ${{needs.build_preparation.outputs.volume_mount}}
+
+    secrets: inherit
+  
+  unit_tests_packages:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/reusable_unit_test.yml
+    needs: ['build_preparation', 'build_packages']
+    with:
+      _IMAGE_TYPE: ${{ matrix.images }}
+      _PACKAGE_NAME: ${{ needs.build_preparation.outputs.package_name }}
+
+  sign_package:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/reusable_sign_packages.yml
+    needs: ['build_preparation', 'build_packages', 'unit_tests_packages']
+    with:
+      _IMAGE_TYPE: ${{ matrix.images }}
+      _VOLUME_MOUNT: ${{needs.build_preparation.outputs.volume_mount}}
+      _BRANCH_NAME: ${{ needs.build_preparation.outputs.branch_name }}
+      _PACKAGE_NAME: ${{ needs.build_preparation.outputs.package_name }}
+    secrets: inherit
+
+  upload_packages:
+    strategy:
+      matrix:
+        images: ['debian', 'rhel8']
+    uses:  ./.github/workflows/reusable_upload_packages.yml
+    needs: ['build_preparation', 'build_packages', 'unit_tests_packages', 'sign_package']
+    with:
+      _IMAGE_TYPE: ${{ matrix.images }}
+      _VOLUME_MOUNT: ${{needs.build_preparation.outputs.volume_mount}}
+      _BRANCH_NAME: ${{ needs.build_preparation.outputs.branch_name }}
+      _PACKAGE_NAME: ${{ needs.build_preparation.outputs.package_name }}
+    secrets: inherit

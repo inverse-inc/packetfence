@@ -1,0 +1,7 @@
+dist_ignore
+*.gitignore
+.gitlab-ci.yml
+*.gitattributes
+*.git
+README.md
+client-development-guidelines.md

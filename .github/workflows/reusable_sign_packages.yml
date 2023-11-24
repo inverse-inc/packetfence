@@ -54,8 +54,10 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  /mnt/${{ env.PACKAGE_NAME }}
         env:
-          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || 'packetfence-perl*.deb' }}
+          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&   env.RPM_FORMAT_PACKAGE_NAME || env.DEB_FORMAT_PACKAGE_NAME }}
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}
+          DEB_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.deb"
+          RPM_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.rpm"
 
   sign_package_rpm:
     runs-on: packetfence-perl-package-build 
@@ -100,5 +102,7 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  /mnt/${{ env.PACKAGE_NAME }}
         env:
-          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || 'packetfence-perl*.deb' }}
+          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&   env.RPM_FORMAT_PACKAGE_NAME || env.DEB_FORMAT_PACKAGE_NAME }}
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}
+          DEB_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.deb"
+          RPM_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.rpm"

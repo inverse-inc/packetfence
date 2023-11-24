@@ -1,0 +1,24 @@
+---
+# inventory file use by Vagrantfile
+# to create VMs
+# also use as a Ansible inventory file to provision VMs
+all:
+  children:
+    fbservers:
+      children:
+        dev:
+          hosts:
+            fbel8dev:
+              box: generic/rhel8
+              box_version: 3.2.24
+              mgmt_ip: 172.17.18.10
+              mgmt_netmask: 255.255.255.0              
+              ansible_host: "{{ mgmt_ip}}"
+            fbdeb11dev:
+              box: debian/bullseye64
+              box_version: 11.20210409.1
+              mgmt_ip: 172.17.18.11
+              mgmt_netmask: 255.255.255.0              
+              ansible_host: "{{ mgmt_ip }}"
+  vars:
+    tz: Europe/Paris

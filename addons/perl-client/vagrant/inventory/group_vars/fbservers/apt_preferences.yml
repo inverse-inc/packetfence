@@ -1,0 +1,7 @@
+---
+apt_preferences__list:
+  - filename: 'fingerbank-local.pref'
+    package: 'fingerbank'
+    pin: 'release a=bullseye-gitlab,n=bullseye,c=main,b=amd64'
+    priority: '900'
+    reason: 'always install fingerbank package from fingerbank-local repository'

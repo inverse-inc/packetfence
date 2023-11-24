@@ -1,0 +1,85 @@
+name: Packetfence-perl image/package build 
+on:
+  workflow_call:
+    inputs:
+      _IMAGE_TYPE:
+        required: True
+        type: string
+      _WORKDIR:
+        required: True
+        type: string
+      _BRANCH_NAME:
+        required: True
+        type: string
+      _VOLUME_MOUNT:
+        required: True
+        type: string
+
+jobs:
+  git_checkout:
+    runs-on: packetfence-perl-package-build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+  build_package:
+    runs-on: packetfence-perl-package-build
+    needs: git_checkout
+    container:
+      image: registry.gitlab.com/orange-opensource/gitlab-buildpkg/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos:8' || 'debian:bullseye'}}
+      env:
+        EXECUTION_DIRECTORY: '/mnt/packetfence/'
+#      volumes:
+#        - ${{ github.workspace }}/:${{ inputs._VOLUME_MOUNT }}
+    steps:
+      - name: Copy 
+        run: |
+          cp -avT ${GITHUB_WORKSPACE} ${EXECUTION_DIRECTORY}
+
+      - name: Install RHEL dependencies ${{ inputs._IMAGE_TYPE }}
+        if: inputs._IMAGE_TYPE == 'rhel8'
+        run: dnf -y install rpm-sign python39 && python3.9 -m pip install -q  -U pip && pip install -q pynacl requests
+
+      - name: Install Debian dependencies ${{ inputs._IMAGE_TYPE }}
+        if: inputs._IMAGE_TYPE == 'debian'
+        run:  apt -qq update && apt -qq -y install python3 python3-pip && python3 -m pip install -q  -U pip && pip install -q pynacl requests
+
+      - name: Safety add directory
+        shell: bash
+        run: |
+          cd ${EXECUTION_DIRECTORY}
+          git config --global --add safe.directory '*'
+          cd -
+
+      - name: Build package ${{inputs._IMAGE_TYPE}}
+        shell: bash
+        run: |
+          ls -la ${EXECUTION_DIRECTORY}
+          env
+          echo "${EXECUTION_DIRECTORY}"
+          ls -la  "${EXECUTION_DIRECTORY}"
+          echo "${EXECUTION_DIRECTORY}/addons"
+          ls -la "${EXECUTION_DIRECTORY}/addons"
+          cd "${EXECUTION_DIRECTORY}"/addons/perl-client/
+          set -e && export FINGERBANK_API_KEY=$(set -e && python3  "${EXECUTION_DIRECTORY}"/addons/packetfence-perl/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_BUILDS_KEY_FINGERBANK }} --return_value=password)
+          set -e &&  make SHELL='sh' -e ${{ inputs._IMAGE_TYPE == 'rhel8' && 'build_rpm' || 'build_deb'}}
+          ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || 'debian/bullseye'}}
+        env:
+          CI_COMMIT_REF_NAME: ${{ inputs._BRANCH_NAME }}
+    
+      - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACTORY_NAME }}
+#          path:  /__w/packetfence/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || 'debian/bullseye'}}/${{ env.PACKAGE_NAME }}
+          path:  /mnt/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || 'debian/bullseye'}}/${{ env.PACKAGE_NAME }}
+        env:
+          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'fingerbank-*.noarch.rpm' || 'fingerbank*.deb' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}
+          PATH: "${GITHUB_WORKSPACE}"
+
+      - name: Clean directory
+        if: always()
+        run: |
+          rm -rf "${EXECUTION_DIRECTORY}"
+          rm -rf  ${HOME}/rpmbuild

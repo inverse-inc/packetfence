@@ -23,12 +23,28 @@ jobs:
         env:
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
 
-      - name: Install the package packetfence-perl ${{ inputs._IMAGE_TYPE }}
+      - name: Install the package ${{ inputs._PACKAGE_NAME}} rhel8
+        if: inputs._IMAGE_TYPE == 'rhel8'
         run: |
           ls -la /mnt
-          ${{ inputs._IMAGE_TYPE == 'rhel8' && env.INSTALL_RPM_PACKAGE  || env.INSTALL_DEB_PACKAGE }}
-        env:
-          INSTALL_RPM_PACKAGE: "set -x && yum -y install findutils && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.rpm -exec rpm -ivh {} \\;"
-          INSTALL_DEB_PACKAGE: "set -x && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.deb -exec dpkg -i {} \\;"
-          
+          PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
+          PF_MINOR_RELEASE=$(curl -s ${PF_RELEASE_PATH}  | grep -oE '[0-9]+\.[0-9]+')
+          yum -y install findutils
+          yum -y localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-${PF_MINOR_RELEASE}.el8.noarch.rpm
+          set -e && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.rpm -exec bash -c 'yum -y localinstall --enablerepo=packetfence {}' \;
+          echo "Next packages ${{ inputs._PACKAGE_NAME }} was installed successfuly: "
+          rpm -qa | grep ${{ inputs._PACKAGE_NAME }}
 
+      - name: Install the package ${{ inputs._PACKAGE_NAME}} debian
+        if: inputs._IMAGE_TYPE == 'debian'
+        run: |
+          ls -la /mnt
+          apt update; apt  install -y gnupg sudo wget  curl
+          PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
+          PF_MINOR_RELEASE=$(curl -s ${PF_RELEASE_PATH}  | grep -oE '[0-9]+\.[0-9]+')
+          wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
+          echo "deb http://inverse.ca/downloads/PacketFence/debian/${PF_MINOR_RELEASE} bullseye bullseye" > /etc/apt/sources.list.d/packetfence.list
+          apt update
+          set -e && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.deb -exec bash -c 'apt install -f -y {}' \;
+          echo "Next packages ${{ inputs._PACKAGE_NAME }} was installed successfuly: "
+          dpkg -l | grep ${{ inputs._PACKAGE_NAME }}
