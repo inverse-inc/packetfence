@@ -184,16 +184,6 @@ has_field 'ntlm_cache_expiry' =>
              help => 'The amount of seconds an entry should be cached.' },
   );
 
-has_field 'machine_account' =>
-    (
-        type => 'Text',
-        label => 'Machine account to be added to Active Directory',
-        required => 1,
-        messages => { required => 'Please specify the machine account to be added to Active Directory' },
-        tags => { after_element => \&help,
-            help => 'Machine account of the Active Directory.' },
-    );
-
 has_field 'machine_account_password' =>
     (
         type => 'Text',
