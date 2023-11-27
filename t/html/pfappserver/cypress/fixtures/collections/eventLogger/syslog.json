@@ -1,0 +1,6 @@
+{
+  "id": "test",
+  "description": "test",
+  "host": "foo",
+  "facility": "syslog"
+}
