@@ -128,7 +128,7 @@ export const schema = (props) => {
     client_id: yup.string().label(i18n.t('Client ID')),
     client_key_file: yup.string().nullable().label(i18n.t('Client key')),
     client_secret: yup.string().label(i18n.t('Secret')),
-    description: yup.string().label(i18n.t('Description')),
+    description: yup.string().label(i18n.t('Description')).required(i18n.t('Description required.')),
     domains: yup.string().label(i18n.t('Domains')),
     email_address: yup.string().label(i18n.t('Email')),
     encryption: yup.string().nullable().label(i18n.t('Encryption')),
