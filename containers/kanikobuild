@@ -92,7 +92,7 @@ generate_destinations() {
 
 generate_cache_opt() {
     local cache=''
-    if [ "$KNK_CACHE" = false || "${IMAGE_NAME}" = "radiusd" || "${IMAGE_NAME}" = "proxysql" ]; then
+    if [ "$KNK_CACHE" = false || "$IMAGE_NAME" = "radiusd" || "$IMAGE_NAME" = "proxysql" ]; then
         cache="--cache=false"
     else
         cache="--cache=true"
