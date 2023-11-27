@@ -1,0 +1,6 @@
+{
+  "id": "test",
+  "app_id": "foo",
+  "signing_key": "bar",
+  "verify_key": "bar"
+}
