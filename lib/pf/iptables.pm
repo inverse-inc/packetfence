@@ -203,6 +203,8 @@ sub iptables_generate {
 
     #DNAT traffic from docker to mgmt ip
     $self->generate_dnat_from_docker(\$tags{'nat_if_src_to_chain'});
+    #Kafka iptables
+    $self->generate_kafka_rules(\$tags{'kafka'});
 
     # OAuth
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));

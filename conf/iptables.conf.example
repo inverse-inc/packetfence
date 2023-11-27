@@ -59,6 +59,8 @@
 %%netdata%%
 # pfconnector
 %%pfconnector%%
+# KAFKA
+%%kafka%%
 
 # RADIUS
 -A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
