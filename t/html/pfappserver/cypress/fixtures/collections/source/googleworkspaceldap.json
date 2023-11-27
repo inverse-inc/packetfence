@@ -7,6 +7,6 @@
   ],
   "basedn": "baz",
   "usernameattribute": "cn",
-  "client_cert_file": "/dev/null",
-  "client_key_file": "/dev/null"
+  "client_cert_file": "/usr/local/pf/conf/ssl/server.crt",
+  "client_key_file": "/usr/local/pf/conf/ssl/server.key"
 }
