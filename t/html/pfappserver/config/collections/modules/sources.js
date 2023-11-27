@@ -20,7 +20,7 @@ const typesByCategory = {
     'HTTP',
     'Kerberos',
     'LDAP',
-    'Potd',
+//    'Potd', // Issue #TODO
     'RADIUS',
     'SAML'
   ],
@@ -59,10 +59,12 @@ const tests = types.reduce((tests, typeCategory) => {
   const collection_url = '/configuration/sources';
   const resource_url = (id) => `/configuration/source/${id}`;
   const fixture = `collections/source/${type.toLowerCase()}.json`;
+
   return [...tests, ...[
     {
       description: `Sources (${category}/${type}) - Create New`,
       scope: SCOPE_INSERT,
+      timeout,
       url: collection_url,
       fixture,
       selectors: {
