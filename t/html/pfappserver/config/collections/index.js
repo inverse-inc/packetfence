@@ -1,5 +1,6 @@
 const clouds = require('./modules/clouds')
 const domains = require('./modules/domains')
+const eventLoggers = require('./modules/eventLoggers')
 const firewalls = require('./modules/firewalls')
 const realms = require('./modules/realms')
 const roles = require('./modules/roles')
@@ -11,11 +12,12 @@ const syslogParsers = require('./modules/syslogParsers')
 module.exports = {
 //  clouds,
 //  domains,
+  eventLoggers,
 //  firewalls,
 //  realms,
 //  roles,
 //  scanEngines,
 //  sources,
 //  switches,
-  syslogParsers
+//  syslogParsers
 }
