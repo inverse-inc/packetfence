@@ -1,0 +1,6 @@
+{
+  "id": "test",
+  "host": "test.local",
+  "username": "foo",
+  "password": "bar"
+}
