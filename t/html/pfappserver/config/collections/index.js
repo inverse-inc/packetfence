@@ -6,14 +6,16 @@ const roles = require('./modules/roles')
 const scanEngines = require('./modules/scanEngines')
 const sources = require('./modules/sources')
 const switches = require('./modules/switches')
+const syslogParsers = require('./modules/syslogParsers')
 
 module.exports = {
 //  clouds,
 //  domains,
-  firewalls,
+//  firewalls,
 //  realms,
 //  roles,
 //  scanEngines,
 //  sources,
-//  switches
+//  switches,
+  syslogParsers
 }

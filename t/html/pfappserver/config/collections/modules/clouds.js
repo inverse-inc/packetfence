@@ -1,5 +1,4 @@
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
-const timeout = 10E3;
 
 const types = {
   intune: 'Intune'
@@ -14,7 +13,6 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
     {
       description: `Clouds (${name}) - Create New`,
       scope: SCOPE_INSERT,
-      timeout,
       url: collection_url,
       fixture,
       selectors: {
@@ -76,6 +74,5 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
 module.exports = {
   id: 'clouds',
   description: 'Clouds',
-  timeout,
   tests
 };
