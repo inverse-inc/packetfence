@@ -194,16 +194,6 @@ has_field 'machine_account_password' =>
             help => 'Password of the machine account to be added to Active Directory.' },
     );
 
-has_field 'password_is_nt_hash' =>
-    (
-        type => 'Toggle',
-        checkbox_value => "enabled",
-        unchecked_value => "disabled",
-        label => 'Password is NT hash',
-        tags => { after_element => \&help,
-            help => 'Is the machine password is a NT hash?' },
-    );
-
 
 has_block definition =>
   (

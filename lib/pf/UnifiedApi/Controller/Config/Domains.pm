@@ -26,12 +26,86 @@ use pfappserver::Form::Config::Domain;
 use pf::domain;
 use pf::error qw(is_error);
 use pf::pfqueue::producer::redis;
+use Sys::Hostname;
+use Socket;
 
+use JSON;
 =head2 test_join
 
 Test if a domain is properly joined
 
 =cut
+
+sub create {
+    my ($self) = @_;
+    my ($error, $item) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my $id = $item->{id};
+    my $cs = $self->config_store;
+    if (!defined $id || length($id) == 0) {
+        $self->render_error(422, "Unable to validate", [{ message => "id field is required", field => 'id'}]);
+        return 0;
+    }
+
+    $item = $self->cleanupItemForCreate($item);
+    (my $status, $item, my $form) = $self->validate_item($item);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $item);
+    }
+
+    $id = delete $item->{id} // $id;
+    if ($cs->hasId($id)) {
+        return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
+    }
+
+    my $bind_dn = $item->{bind_dn};
+    my $bind_pass = $item->{bind_pass};
+    my $computer_name = $item->{server_name};
+    my $computer_password = $item->{machine_account_password};
+    my $ad_server = $item->{ad_server};
+    my $dns_name = $item->{dns_name};
+    my $workgroup = $item->{workgroup};
+
+    if ($computer_name eq "%h") {
+        $computer_name = hostname()
+    }
+
+    my $ad_server_host;
+    my $ad_server_ip;
+    my $hostent = gethostbyname($ad_server);
+    if ($hostent) {
+        my @addrs =  $hostent->addr_list;
+        $ad_server_host = $hostent->name;
+        foreach my $addr (@addrs) {
+            my $ip_address = inet_ntoa($addr);
+            $ad_server_ip = $ip_address
+        }
+    } else {
+        $self->render_error(422, "Unable to resolve ad server's hostname");
+        return 0;
+    }
+
+    my $baseDN = $dns_name;
+    my $domain_auth = "$dns_name/$bind_dn:$bind_pass";
+
+
+    my $add_result = pf::domain::add_computer($computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+    if (!$add_result) {
+        $self->render_error(422, "Unable to create machine account");
+    }
+
+    $cs->create($id, $item);
+    return unless($self->commit($cs));
+    $self->post_create($id);
+    my $additional_out = $self->additional_create_out($form, $item);
+    $self->stash( $self->primary_key => $id );
+    $self->res->headers->location($self->make_location_url($id));
+    $self->render(status => 201, json => $self->create_response($id, $additional_out));
+}
+
 
 sub test_join {
     my ($self) = @_;

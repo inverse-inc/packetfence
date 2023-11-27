@@ -27,6 +27,14 @@ use File::Slurp;
 our $TT_OPTIONS = {ABSOLUTE => 1};
 our $template = Template->new($TT_OPTIONS);
 
+our $ADD_COMPUTERS_BIN;
+if ($OS eq 'rhel') {
+    $ADD_COMPUTERS_BIN = '/usr/bin/addcomputer.py';
+} elsif ($OS eq 'debian') {
+    $ADD_COMPUTERS_BIN = '/usr/bin/impacket-addcomputer';
+}
+
+
 =head2 chroot_path
 
 Returns the path to a domain chroot
@@ -58,6 +66,39 @@ sub run {
 Executes the command in the OS to test the domain join
 
 =cut
+
+sub add_computer {
+    return operate_computer()
+}
+
+sub change_password {
+    return operate_computer("-no-add")
+}
+
+sub delete_computer {
+    return operate_computer("-delete")
+}
+
+sub operate_computer {
+    my $option = shift;
+    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $baseDN, $computer_group, $domain_auth) = @_;
+
+    $computer_name = escape_bind_user_string($computer_name) + "$";
+    $computer_password = escape_bind_user_string($computer_password);
+
+    my $result;
+    my $logger = get_logger;
+    eval {
+        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass $computer_password -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN $baseDN -computer-group $computer_group $domain_auth $option";
+        $logger->debug("Executing addcomputer command: $command");
+        $result = pf_run($command, accepted_exit_status => [ 0 ]);
+    };
+    if (!defined($result) || $@) {
+        $result = "Can not execute add computers";
+        return $TRUE
+    }
+    return $FALSE
+}
 
 sub test_join {
     my ($domain) = @_;
