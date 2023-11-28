@@ -27,6 +27,7 @@ Services managed by PacketFence:
   httpd.portal           | Apache Captive Portal
   httpd.webservices      | Apache Webservices
   iptables               | PacketFence firewall rules
+  kafka                  | Kafka
   keepalived             | Virtual IP management
   mysql-probe            | MySQL probe service
   netdata                | Monitoring service
