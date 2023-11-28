@@ -240,12 +240,13 @@ generate_kafka_rules
 sub generate_kafka_rules {
     my ($self, $rule) = @_;
     for my $client (@{$KafkaConfig{iptables}{clients}}) {
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $client --dport 29092 --jump ACCEPT\n";
+        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT\n";
     }
 
     for my $ip (@{$KafkaConfig{iptables}{cluster_ips}}) {
         $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT\n";
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 29093 --jump ACCEPT\n";
+        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT\n";
+        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT\n";
     }
 }
 
