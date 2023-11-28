@@ -38,16 +38,16 @@ CAUTION: If you configure a switch that is already in production be careful that
 
 These switch modules are built for ProCurve switch series 2500,2600,2920 and 5400 using ArubaOS-Switch versions earlier than and including AOS-Switch v16.11.xx.
 
-==== ArubaOS Switch 16.8
+==== Procurve
 
-Note: The "ArubaOS Switch 16.8" module is developed for the ProCurve 2500 Series siwtches using AOS Switch version 16.8 and also this module inherits all its capabilities from the old "ProCurve 25
+Note: The "Procurve" module is developed for the ProCurve 2500 Series switches using AOS Switch version 16.x and also this module inherits all its capabilities from the old "ProCurve 25
 00 Series" module.
 
 ===== Port-Security
 
 linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
 
-On AOS Switch v16.8, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+On Procurve, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
 
 Global config settings:
 
@@ -63,7 +63,7 @@ where `xx` stands for the interface index
 
 ===== CLI authentication
 
-You can use PacketFence for RADIUS CLI authentication on the AOS Switch 16.8 (2500 Series).
+You can use PacketFence for RADIUS CLI authentication on the Procurve (2500 Series).
 
 Global config settings
 
@@ -73,9 +73,9 @@ Global config settings
 
 Next, make sure you configure the switch in PacketFence accordingly as well as the proper administrative access. Refer to the Administration Guide for more details.
 
-==== 2600 (ArubaOS Switch 16.9) and 3400cl Series
+==== 2600 and 3400cl Series
 
-Note: "ArubaOS Switch 16.9" module is developed for the ProCurve 2600 Series siwtches using AOS Switch version 16.9 and also this module inherits all its capabilities from the old "ProCurve 2600 S
+#Note: "Procurve_2600" module is developed for the ProCurve 2600 Series switches using AOS Switch version 16.x and also this module inherits all its capabilities from the old "ProCurve 2600 S
 eries" module.
 
 ===== Port-Security
@@ -130,7 +130,7 @@ Don't forget to permit address moves and the reauth period.  x represents the po
    
 (Thanks to Jean-Francois Laporte for this contribution)
 
-==== ArubaOS Switch 16.9 (sw-2610)
+==== 2610 Switches
 
 ===== 802.1X
 
@@ -171,7 +171,7 @@ Configuration of the port:
 
 ==== 4100, 5300, 5400 (ArubaOS Switch 16.11) Series
 
-Note: The "ArubaOS Switch 16.11" module is developed for the ProCurve 5400 Series siwtches using AOS Switch version 16.11 and also this module inherits all its capabilities from the old "ProCurve 5400 Series" module.
+Note: The "ArubaOS Switch 16.11" module is developed for the ProCurve 5400 Series switches using AOS Switch version 16.11 and also this module inherits all its capabilities from the old "ProCurve 5400 Series" module.
 
 ===== Port-Security
 
