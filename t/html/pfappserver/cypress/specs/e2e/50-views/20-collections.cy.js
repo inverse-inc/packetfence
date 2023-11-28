@@ -6,7 +6,9 @@ describe('Collections', () => {
   Object.values(collections).forEach(collection => {
     context(`Collection - ${collection.description}`, () => {
       beforeEach('Login as system', () => {
-        cy.pfSystemLogin()
+        cy.session('system', () => {
+          cy.pfSystemLogin()
+        })
       })
       collection.tests.forEach(test => {
         const { description, fixture = 'emtpy.json', scope, url, interceptors = [], selectors, timeout,
