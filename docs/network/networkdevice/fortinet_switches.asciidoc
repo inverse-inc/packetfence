@@ -152,7 +152,7 @@ For example:
 
  diagnose switch 802-1x status port3
 
-port3: Mode: mac-based (mac-by-pass enable)
+ port3: Mode: mac-based (mac-by-pass enable)
 	Link: Link up
 	Port State: authorized: ( )
 	Dynamic Allowed Vlan list: 101
