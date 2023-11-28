@@ -23,7 +23,7 @@ use Moo;
 use NetAddr::IP;
 use Template;
 use Data::Dumper;
-use File::Slurp qw(write_file);
+use File::Slurp qw(read_file write_file);
 
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
@@ -35,6 +35,7 @@ use Socket;
 
 use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_error);
+use pf::ssl qw(x509_from_string cn_from_dn);
 
 use pf::file_paths qw(
     $conf_dir
@@ -1620,6 +1621,52 @@ sub generate_radiusd_certificates {
             }
         }
     }
+}
+
+=head2 get_cn_and_cert_radiusd_certificates
+
+Extract all CA certificates from radius files
+Organize them in a table of haches with keys cn and base64
+
+=cut
+
+sub _extract_radiusd_certificates {
+    my ($self) = @_;
+    my %hcerts;
+    my @vals = ("crt","pem");
+    foreach my $ext (@vals){
+        foreach my $key (keys %ConfigEAP) {
+            foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
+                my $ckey = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
+                my $mkey = pf::ssl::rsa_from_string($ckey);
+                my $cext = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".".$ext);
+                my @certs = split_pem($cext);
+                foreach my $cert (@certs) {
+                    my $mcert = pf::ssl::x509_from_string($cert);
+                    my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($mcert, $mkey);
+                    unless($key_match_res) {
+                        $hcerts{$cert} = $mcert;
+                    }
+                }
+            }
+        }
+    }
+    return %hcerts;
+}
+
+sub get_cn_and_cert_radiusd_certificates {
+    my ($self) = @_;
+    my %hcerts = _extract_radiusd_certificates();
+    my @certDict;
+    if(%hcerts){
+        foreach my $cert (keys %hcerts) {
+            my $s = pf::ssl::cn_from_dn($hcerts{$cert}->subject);
+            if ($s) {
+                push ( @certDict, { cn => $s, base64 => $cert });
+            }
+        }
+    }
+    return @certDict;
 }
 
 =head2 generate_container_environments
