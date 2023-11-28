@@ -23,8 +23,8 @@ export {
   BaseFormGroupInput                  as FormGroupDnsServers,
   BaseFormGroupInput                  as FormGroupOu,
   BaseFormGroupInputTest              as FormGroupMachineAccountPassword,
-  BaseFormGroupInput                  as FormGroupDomainAdminUser,
-  BaseFormGroupInputPassword          as FormGroupDomainAdminPassword,
+  BaseFormGroupInput                  as FormGroupBindDn,
+  BaseFormGroupInputPassword          as FormGroupBindPass,
   BaseFormGroupSwitch                 as FormGroupNtlmv2Only,
   BaseFormGroupSwitch                 as FormGroupRegistration,
 
