@@ -6,7 +6,9 @@ describe('Bases', () => {
   Object.values(bases).forEach(base => {
     context(`Base - ${base.description}`, () => {
       beforeEach('Login as system', () => {
-        cy.pfSystemLogin()
+        cy.session('system', () => {
+          cy.pfSystemLogin()
+        })
       })
       base.tests.forEach(test => {
         const { description, url, interceptors = [], selectors } = test
