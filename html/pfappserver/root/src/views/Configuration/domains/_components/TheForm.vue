@@ -52,16 +52,16 @@
                                              :column-label="$i18n.t('Machine account password')"
                                              :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. type another value to change the password, or leave it as-is`)"
                                              :buttonLabel="$i18n.t('Test Machine account')"
-                                             testLabel="foobar"
+                                             testLabel="Processing"
                                              :test="fn"
         />
 
-        <form-group-domain-admin-user namespace="domain_admin_user"
+        <form-group-bind-dn namespace="bind_dn"
                                       :column-label="$i18n.t('Domain administrator username')"
                                       :text="$i18n.t(`Domain Administrator's Username, PacketFence will only use this to update machine accounts in Active Directory, this will not be saved into config file`)"
         />
 
-        <form-group-domain-admin-password namespace="domain_admin_password"
+        <form-group-bind-pass namespace="bind_pass"
                                           :column-label="$i18n.t('Domain administrator password')"
                                           :text="$i18n.t(`Domain administrator's password, PacketFence will only use this to update machine account in Active Directory, this will not be saved into config file`)"
         />
@@ -129,8 +129,8 @@ import {
   FormGroupDnsServers,
   FormGroupOu,
   FormGroupMachineAccountPassword,
-  FormGroupDomainAdminUser,
-  FormGroupDomainAdminPassword,
+  FormGroupBindDn,
+  FormGroupBindPass,
   FormGroupNtlmv2Only,
   FormGroupRegistration,
 
@@ -153,8 +153,8 @@ const components = {
   FormGroupDnsServers,
   FormGroupOu,
   FormGroupMachineAccountPassword,
-  FormGroupDomainAdminUser,
-  FormGroupDomainAdminPassword,
+  FormGroupBindDn,
+  FormGroupBindPass,
   FormGroupNtlmv2Only,
   FormGroupRegistration,
 
