@@ -1,12 +1,12 @@
-package pf::Switch::HP::AOS_Switch_v16_10;
+package pf::Switch::HP::AOS_Switch_v16_x;
 
 =head1 NAME
 
-pf::Switch::HP::Procurve_2920 - Object oriented module to access SNMP enabled HP Procurve 2920 switches
+pf::Switch::HP::AOS_Switch_v16_x - Object oriented module to access SNMP enabled HP Procurve 2920 switches
 
 =head1 SYNOPSIS
 
-The pf::Switch::HP::Procurve_2920 module implements an object
+The pf::Switch::HP::AOS_Switch_v16_x module implements an object
 oriented interface to access SNMP enabled HP Procurve 2920 switches using the ArubaOS-Switch
 operating system version 16.x and up to configure dynamic ACL.
 
@@ -23,9 +23,9 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 use Net::SNMP;
-use base ('pf::Switch::HP::AOS_Switch_v16_9');
+use base ('pf::Switch::HP');
 
-sub description {'AOS Switch v16.10'}
+sub description {'AOS Switch v16.x'}
 
 # importing switch constants
 use pf::Switch::constants;
