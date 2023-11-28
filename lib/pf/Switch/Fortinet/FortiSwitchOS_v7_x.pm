@@ -1,12 +1,12 @@
-package pf::Switch::Fortinet::FortiSwitchOS_v7_0;
+package pf::Switch::Fortinet::FortiSwitchOS_v7_x;
 
 =head1 NAME
 
-pf::Switch::Fortinet::FortiSwitch - Object oriented module to FortiSwitch using the 802.1x with the radius disconnect (CoA) on port 3799
+pf::Switch::Fortinet::FortiSwitchOS_v7_x - Object oriented module to FortiSwitch using the 802.1x with the radius disconnect (CoA) on port 3799
 
 =head1 SYNOPSIS
 
-The pf::Switch::Fortinet::FortiSwitch  module implements an object oriented interface to interact with the FortiSwitch
+The pf::Switch::Fortinet::FortiSwitchOS_v7_x  module implements an object oriented interface to interact with the FortiSwitch
 
 =head1 STATUS
 
@@ -36,7 +36,7 @@ use base ('pf::Switch::Fortinet');
 
 =cut
 
-sub description { 'FortiSwitchOS v7.0' }
+sub description { 'FortiSwitchOS v7.x' }
 
 use pf::SwitchSupports qw(
     WiredMacAuth
