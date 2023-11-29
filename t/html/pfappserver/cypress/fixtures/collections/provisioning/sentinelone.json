@@ -1,0 +1,7 @@
+{
+  "id": "test",
+  "api_username": "foo",
+  "api_password": "bar",
+  "windows_agent_download_uri": "https://test.local",
+  "mac_osx_agent_download_uri": "https://test.local"
+  }

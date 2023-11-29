@@ -4,6 +4,7 @@ const eventLoggers = require('./modules/eventLoggers')
 const firewalls = require('./modules/firewalls')
 const mfas = require('./modules/mfas')
 const pkiProviders = require('./modules/pkiProviders')
+const provisionings = require('./modules/provisionings')
 const realms = require('./modules/realms')
 const roles = require('./modules/roles')
 const scanEngines = require('./modules/scanEngines')
@@ -17,7 +18,8 @@ module.exports = {
 //  eventLoggers,
 //  firewalls,
 //  mfas,
-  pkiProviders,
+//  pkiProviders,
+  provisionings,
 //  realms,
 //  roles,
 //  scanEngines,
