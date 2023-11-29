@@ -31,6 +31,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
  * RADIUS proxy configuration documentation and examples
  * Node Import supports IPv4 address (#7808)
+ * Added TCP flags parameter from role configuration in ACL for Cisco
 
 === Bug Fixes
 
