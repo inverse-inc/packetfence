@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 [Unit]
-Description=PacketFence pfqueue Service
+Description=PacketFence pfqueue perl backend Service
 Wants=packetfence-redis_queue.service
 After=packetfence-redis_queue.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
