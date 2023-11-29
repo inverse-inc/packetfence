@@ -156,8 +156,8 @@ func (tb *DbTokenBackend) TouchTokenInfo(token string) {
 	}
 }
 
-func (tb *DbTokenBackend) AdminActionsForToken(token string) map[string]bool {
-	return AdminActionsForToken(tb, token)
+func (tb *DbTokenBackend) AdminActionsForToken(ctx context.Context, token string) map[string]bool {
+	return AdminActionsForToken(ctx, tb, token)
 }
 
 var _ TokenBackend = (*DbTokenBackend)(nil)

@@ -75,12 +75,9 @@ type configStruct struct {
 		Alerting      PfConfAlerting
 		ActiveActive  PfConfActiveActive
 		Services      PfConfServices
-		ServicesURL   PfConfServicesURL
 		Pfconnector   PfConfPfconnector
-		AdminLogin    PfConfAdminLogin
 	}
-	AdminRoles AdminRoles
-	Cluster    struct {
+	Cluster struct {
 		HostsIp struct {
 			PfconfigKeys
 			PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
@@ -91,9 +88,8 @@ type configStruct struct {
 	Dns struct {
 		Configuration PfConfDns
 	}
-	UnifiedApiSystemUser UnifiedApiSystemUser
-	EAPConfiguration     EAPConfiguration
-	RolesChildren        RolesChildren
+	EAPConfiguration EAPConfiguration
+	RolesChildren    RolesChildren
 }
 
 var Config configStruct

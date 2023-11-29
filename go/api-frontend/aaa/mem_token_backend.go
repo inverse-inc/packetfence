@@ -1,6 +1,7 @@
 package aaa
 
 import (
+	"context"
 	"time"
 
 	cache "github.com/patrickmn/go-cache"
@@ -37,9 +38,9 @@ func (mtb *MemTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Ti
 	return nil, time.Unix(0, 0)
 }
 
-func (mtb *MemTokenBackend) AdminActionsForToken(token string) map[string]bool {
+func (mtb *MemTokenBackend) AdminActionsForToken(ctx context.Context, token string) map[string]bool {
 	if ti, _ := mtb.TokenInfoForToken(token); ti != nil {
-		return ti.AdminActions()
+		return ti.AdminActions(ctx)
 	} else {
 		return make(map[string]bool)
 	}
