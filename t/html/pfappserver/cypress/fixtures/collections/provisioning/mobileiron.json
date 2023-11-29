@@ -1,0 +1,11 @@
+{
+  "id": "test",
+  "username": "foo",
+  "password": "bar",
+  "host": "test.local",
+  "android_download_uri": "https://test.local",
+  "ios_download_uri": "https://test.local",
+  "windows_phone_download_uri": "https://test.local",
+  "boarding_host": "test.local",
+  "boarding_port": "1337"
+  }
