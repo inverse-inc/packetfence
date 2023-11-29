@@ -431,6 +431,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
 %{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfldapexplorer.service %{buildroot}%{_unitdir}/packetfence-pfldapexplorer.service
+%{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path

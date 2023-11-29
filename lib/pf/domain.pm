@@ -16,7 +16,7 @@ use warnings;
 use Net::SNMP;
 use Template;
 use pf::util;
-use pf::config qw(%ConfigDomain);
+use pf::config qw(%ConfigDomain $OS);
 use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::file_paths qw($domains_chroot_dir);
@@ -83,7 +83,7 @@ sub operate_computer {
     my $option = shift;
     my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $baseDN, $computer_group, $domain_auth) = @_;
 
-    $computer_name = escape_bind_user_string($computer_name) + "$";
+    $computer_name = escape_bind_user_string($computer_name) . "\$";
     $computer_password = escape_bind_user_string($computer_password);
 
     my $result;
