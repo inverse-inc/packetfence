@@ -1302,6 +1302,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-go
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-backend
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
