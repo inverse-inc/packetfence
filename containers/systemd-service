@@ -101,12 +101,14 @@ function run {
 }
 
 function run_multi() {
-  name="$1"
-  suffix="$2"
-  args="$3"
-  cmd="$4"
-  img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
+  local name="$1"
+  local suffix="$2"
+  local args="$3"
+  local cmd="$4"
+  local img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
   if [ "$LOCAL_DEV" = "true" ]; then
+    cd /usr/local/pf/
+    systemd-notify --ready
     img=$(build_img $name)
     run_img $img "$name-$suffix" "$args" "$cmd"
   else
