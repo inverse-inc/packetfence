@@ -40,8 +40,7 @@ export default (props) => {
       .isIpv4Csv(),
     machine_account_password: yup.string().nullable().label(i18n.t('Machine Account Password'))
       .required(i18n.t('Password required.'))
-      .min(8)
-      .label( i18n.t('Password')),
+      .min(8),
     ntlm_cache_source: yup.string().nullable().label( i18n.t('Source')),
     ntlm_cache_filter: yup.string().nullable().label(i18n.t('Filter')),
     ntlm_cache_expiry: yup.string().nullable().label(i18n.t('Expiration')),

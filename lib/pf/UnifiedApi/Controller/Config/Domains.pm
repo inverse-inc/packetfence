@@ -26,8 +26,11 @@ use pfappserver::Form::Config::Domain;
 use pf::domain;
 use pf::error qw(is_error);
 use pf::pfqueue::producer::redis;
+use pf::util;
 use Sys::Hostname;
 use Socket;
+use Digest::MD4 qw(md4_hex);
+use Encode qw(encode);
 
 use JSON;
 =head2 test_join
@@ -70,29 +73,40 @@ sub create {
     my $workgroup = $item->{workgroup};
 
     if ($computer_name eq "%h") {
-        $computer_name = hostname()
+        $computer_name = hostname();
+        my ($first_element) = split(/\./, $computer_name);
+        $computer_name = $first_element;
     }
 
-    my $ad_server_host;
-    my $ad_server_ip;
-    my $hostent = gethostbyname($ad_server);
-    if ($hostent) {
-        my @addrs =  $hostent->addr_list;
-        $ad_server_host = $hostent->name;
-        foreach my $addr (@addrs) {
-            my $ip_address = inet_ntoa($addr);
-            $ad_server_ip = $ip_address
-        }
-    } else {
-        $self->render_error(422, "Unable to resolve ad server's hostname");
-        return 0;
+    my $ad_server_host = "";
+    my $ad_server_ip = "";
+
+    if (valid_ip($ad_server)) {
+        $ad_server_ip = $ad_server;
+        $ad_server_host = gethostbyaddr(inet_aton($ad_server), AF_INET);
     }
+    else {
+        my $packed_ip = gethostbyname($ad_server);
+        if (defined $packed_ip) {
+            $ad_server_ip = inet_ntoa($packed_ip);
+            $ad_server_host = $ad_server
+        }
+    }
+    if ($ad_server_host eq "" || $ad_server_ip eq "") {
+        return $self->render_error(422, "Unable to resolve hostname or IP of AD server '$ad_server'");
+    }
+
 
     my $baseDN = $dns_name;
-    my $domain_auth = "$dns_name/$bind_dn:$bind_pass";
+    my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
+    $baseDN = generate_baseDN($dns_name);
 
+    my $add_result = pf::domain::add_computer(" ", $computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
 
-    my $add_result = pf::domain::add_computer($computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+    my $encoded_password = encode("utf-16le", $computer_password);
+    my $hash = md4_hex($encoded_password);
+    $computer_password = $hash;
+
     if (!$add_result) {
         $self->render_error(422, "Unable to create machine account");
     }
@@ -106,6 +120,18 @@ sub create {
     $self->render(status => 201, json => $self->create_response($id, $additional_out));
 }
 
+sub generate_baseDN {
+    my $ret = "";
+
+    my ($dns_name) = @_;
+    my @array = split(/\./, $dns_name);
+
+    foreach my $element (@array) {
+        $ret .= "DC=$element,";
+    }
+    $ret =~ s/,$//;
+    return $ret;
+}
 
 sub test_join {
     my ($self) = @_;

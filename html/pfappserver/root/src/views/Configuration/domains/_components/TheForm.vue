@@ -51,9 +51,9 @@
         <form-group-machine-account-password namespace="machine_account_password"
                                              :column-label="$i18n.t('Machine account password')"
                                              :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. type another value to change the password, or leave it as-is`)"
-                                             :buttonLabel="$i18n.t('Test Machine account')"
+                                             :buttonLabel="$i18n.t('Test')"
                                              testLabel="Processing"
-                                             :test="fn"
+                                             :test="testMachineAccount"
         />
 
         <form-group-bind-dn namespace="bind_dn"
@@ -193,10 +193,10 @@ export const setup = (props, context) => {
 
   const schema = computed(() => schemaFn(props))
 
-  const fn = () => $store.dispatch('$_domains/testMachineAccount', props.form)
+  const testMachineAccount = () => $store.dispatch('$_domains/testMachineAccount', props.form)
   return {
     schema,
-    fn
+    testMachineAccount
   }
 }
 
