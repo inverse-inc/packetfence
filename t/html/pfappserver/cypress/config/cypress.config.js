@@ -4,6 +4,10 @@ const webpackOptions = {
   watchOptions: {}
 }
 
+// screenshot and video resolution
+const width = 3840 // 4k
+const height = 2160 // 4k
+
 // see https://docs.cypress.io/guides/references/configuration#Global
 
 module.exports = {
@@ -18,11 +22,20 @@ module.exports = {
       on('before:browser:launch', (browser = {}, launchOptions) => {
         switch (browser.name) {
           case 'chrome':
+          case 'chrome:canary':
           case 'chromium':
             launchOptions.args.push('--disable-gpu'); // headless
+            launchOptions.args.push(`--window-size=${width},${height}`)
+            launchOptions.args.push('--force-device-scale-factor=1')
+            break;
+          case 'electron':
+            launchOptions.preferences.width = width
+            launchOptions.preferences.height = height
             break;
           case 'firefox':
             launchOptions.args.push('-headless'); // headless
+            launchOptions.args.push(`--width=${width}`)
+            launchOptions.args.push(`--height=${height}`)
             break;
         }
         return launchOptions;
@@ -50,8 +63,8 @@ module.exports = {
   screenshotsFolder: 'cypress/results/screenshots',
   video: false,
   videosFolder: 'cypress/results/videos',
-  viewportWidth: 2560,
-  viewportHeight: 2048,
+  viewportWidth: width,
+  viewportHeight: height,
 
   // The number of tests for which snapshots and command data are kept in memory (default: 50).
   // Reduce this number if you are experiencing high memory consumption in your browser during a test run.
