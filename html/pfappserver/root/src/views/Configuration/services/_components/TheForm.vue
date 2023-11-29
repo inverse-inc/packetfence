@@ -290,7 +290,7 @@
 
     <form-group-mysql-probe namespace="kafka"
                             column-label="kafka"
-                            :text="$i18n.t(`Should kafka be started? Keep disabled unless you know what you're doing.`)"
+                            :text="$i18n.t(`Should Kafka be started? Keep disabled unless you know what you're doing.`)"
                             enabled-value="enabled"
                             disabled-value="disabled"
     />

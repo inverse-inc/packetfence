@@ -735,7 +735,7 @@ pfsetacls=enabled
 #
 # services.kafka
 #
-# Should kafka be started?
+# Should Kafka be started?
 kafka=disabled
 
 [snmp_traps]
