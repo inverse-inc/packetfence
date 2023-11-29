@@ -14,7 +14,7 @@ else
     for env_file in $env_files; do
         source "$conf_dir$env_file"
 
-        args=$(base_args $name)
+        args=$(base_args "${name}-${IDENTIFIER}")
         args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
         args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
         args="$args -v /var/log:/var/log:ro"
