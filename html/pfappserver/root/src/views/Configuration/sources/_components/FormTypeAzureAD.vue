@@ -26,6 +26,12 @@
       :column-label="$i18n.t('Tenant ID')"
     />
 
+    <form-group-user-groups-url namespace="user_groups_url"
+      :column-label="$i18n.t('User Groups Url')"
+      :text="$i18n.t('What is the API Url where to check the groupmembership.')"
+    />
+
+
     <form-group-timeout namespace="timeout"
       :column-label="$i18n.t('Timeout')"
       :text="$i18n.t('Timeout while sending HTTP requests to Azure AD.')"
@@ -60,6 +66,7 @@ import {
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupTenantIdentifier,
+  FormGroupUserGroupsUrl,
   FormGroupTimeout,
   FormGroupRealms,
   FormGroupUserGroupsCache,
@@ -75,6 +82,7 @@ const components = {
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupTenantIdentifier,
+  FormGroupUserGroupsUrl,
   FormGroupTimeout,
   FormGroupRealms,
   FormGroupUserGroupsCache,

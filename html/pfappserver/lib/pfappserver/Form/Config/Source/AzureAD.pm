@@ -42,6 +42,16 @@ has_field 'tenant_id' =>
    default => '',
   );
 
+has_field 'user_groups_url' =>
+  (
+   type => 'Text',
+   required => 1,
+    element_attr => {
+        'placeholder' => $META->get_attribute('user_groups_url')->default
+    },
+    default => $META->get_attribute('user_groups_url')->default,
+  );
+
 has_field 'user_groups_cache' =>
   (
     type         => 'PosInteger',
