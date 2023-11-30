@@ -193,7 +193,30 @@ has_field 'machine_account_password' =>
         tags => { after_element => \&help,
             help => 'Password of the machine account to be added to Active Directory.' },
     );
-
+has_field 'password_is_nt_hash' =>
+    (
+        type => 'Text',
+        label => 'Password is NT Hash',
+        default => '1',
+        tags => { after_element => \&help,
+            help => 'Password stored in the config file is NT hash.' },
+    );
+has_field 'ntlm_auth_host' =>
+    (
+        type => 'Text',
+        label => 'NTLM auth host',
+        default => '127.0.0.1',
+        tags => { after_element => \&help,
+            help => 'The IP address of NTLM auth API' },
+    );
+has_field 'ntlm_auth_port' =>
+    (
+        type => 'Text',
+        label => 'NTLM auth port',
+        default => '5000',
+        tags => { after_element => \&help,
+            help => 'The listening port of NTLM auth API.' },
+    );
 
 has_block definition =>
   (
