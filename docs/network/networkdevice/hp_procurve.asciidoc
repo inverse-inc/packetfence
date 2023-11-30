@@ -75,8 +75,7 @@ Next, make sure you configure the switch in PacketFence accordingly as well as t
 
 ==== 2600 and 3400cl Series
 
-#Note: "Procurve_2600" module is developed for the ProCurve 2600 Series switches using AOS Switch version 16.x and also this module inherits all its capabilities from the old "ProCurve 2600 S
-eries" module.
+#Note: "Procurve_2600" module is developed for the ProCurve 2600 Series switches using AOS Switch version 16.x and also this module inherits all its capabilities from the old "ProCurve 2600 Series" module.
 
 ===== Port-Security
 
