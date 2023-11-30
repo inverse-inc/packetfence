@@ -27,6 +27,7 @@ use pf::domain;
 use pf::error qw(is_error);
 use pf::pfqueue::producer::redis;
 use pf::util;
+use pf::constants qw($TRUE $FALSE);
 use Sys::Hostname;
 use Socket;
 use Digest::MD4 qw(md4_hex);
@@ -48,6 +49,18 @@ sub create {
 
     my $id = $item->{id};
     my $cs = $self->config_store;
+    my $sections = $cs->readAllIds;
+    my $max_port = 4999;
+    for my $section (@$sections) {
+        my $ntlm_auth_port = $cs->cachedConfig->val($section, "ntlm_auth_port");
+        if (defined($ntlm_auth_port) ) {
+            if (int($ntlm_auth_port) > $max_port) {
+                $max_port = $ntlm_auth_port;
+            }
+        }
+    }
+    $max_port = $max_port +1;
+
     if (!defined $id || length($id) == 0) {
         $self->render_error(422, "Unable to validate", [{ message => "id field is required", field => 'id'}]);
         return 0;
@@ -96,20 +109,27 @@ sub create {
         return $self->render_error(422, "Unable to resolve hostname or IP of AD server '$ad_server'");
     }
 
-
     my $baseDN = $dns_name;
     my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
     $baseDN = generate_baseDN($dns_name);
 
-    my $add_result = pf::domain::add_computer(" ", $computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+    my ($add_status,$add_result) = pf::domain::add_computer(" ", $computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+    if ($add_status == $FALSE) {
+        $self->render_error(422, "Unable to add machine account with following error: $add_result");
+        return 0;
+    }
 
     my $encoded_password = encode("utf-16le", $computer_password);
     my $hash = md4_hex($encoded_password);
     $computer_password = $hash;
 
-    if (!$add_result) {
-        $self->render_error(422, "Unable to create machine account");
-    }
+    $item->{ntlm_auth_host} = '127.0.0.1';
+    $item->{ntlm_auth_port} = $max_port;
+    $item->{password_is_nt_hash} = '1';
+    $item->{machine_account_password} = $computer_password;
+
+    delete $item->{bind_dn};
+    delete $item->{bind_pass};
 
     $cs->create($id, $item);
     return unless($self->commit($cs));
@@ -119,6 +139,71 @@ sub create {
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, json => $self->create_response($id, $additional_out));
 }
+
+sub update {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+    my $old_item = $self->item;
+    my $new_item = $self->mergeUpdate($data, $self->item);
+    my ($status, $new_data, $form) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $new_data);
+    }
+
+    my $cs = $self->config_store;
+    $self->cleanupItemForUpdate($old_item, $new_data, $data);
+    $new_data->{machine_account_password} = md4_hex(encode("utf-16le", $new_data->{machine_account_password}));
+    if ($new_data->{machine_account_password} ne $old_item->{machine_account_password}) {
+        my $bind_dn = $new_item->{bind_dn};
+        my $bind_pass = $new_item->{bind_pass};
+        my $computer_name = $old_item->{server_name};
+        my $computer_password = $new_item->{machine_account_password};
+        my $ad_server = $new_item->{ad_server};
+        my $dns_name = $new_item->{dns_name};
+        my $workgroup = $old_item->{workgroup};
+
+        my $ad_server_host = "";
+        my $ad_server_ip = "";
+
+        if (valid_ip($ad_server)) {
+            $ad_server_ip = $ad_server;
+            $ad_server_host = gethostbyaddr(inet_aton($ad_server), AF_INET);
+        }
+        else {
+            my $packed_ip = gethostbyname($ad_server);
+            if (defined $packed_ip) {
+                $ad_server_ip = inet_ntoa($packed_ip);
+                $ad_server_host = $ad_server
+            }
+        }
+        if ($ad_server_host eq "" || $ad_server_ip eq "") {
+            return $self->render_error(422, "Unable to resolve hostname or IP of AD server '$ad_server'");
+        }
+
+        my $baseDN = $dns_name;
+        my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
+        $baseDN = generate_baseDN($dns_name);
+
+        my ($add_status,$add_result) = pf::domain::add_computer("-no-add", $computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+        if ($add_status == $FALSE) {
+            $self->render_error(422, "Unable to add machine account with following error: $add_result");
+            return 0;
+        }
+    }
+
+    delete $new_data->{id};
+    delete $new_data->{bind_dn};
+    delete $new_data->{bind_pass};
+    my $id =  $self->id;
+    $cs->update($id, $new_data);
+    return unless($self->commit($cs));
+    $self->post_update($id);
+    $self->render(status => 200, json => $self->update_response($form));
+}
+
 
 sub generate_baseDN {
     my $ret = "";

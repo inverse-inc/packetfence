@@ -68,18 +68,6 @@ Executes the command in the OS to test the domain join
 =cut
 
 sub add_computer {
-    return operate_computer()
-}
-
-sub change_password {
-    return operate_computer("-no-add")
-}
-
-sub delete_computer {
-    return operate_computer("-delete")
-}
-
-sub operate_computer {
     my $option = shift;
     my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $baseDN, $computer_group, $domain_auth) = @_;
 
@@ -89,15 +77,29 @@ sub operate_computer {
     my $result;
     my $logger = get_logger;
     eval {
-        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass $computer_password -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN $baseDN -computer-group $computer_group $domain_auth $option";
+        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass $computer_password -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group $computer_group $domain_auth $option";
         $logger->debug("Executing addcomputer command: $command");
         $result = pf_run($command, accepted_exit_status => [ 0 ]);
     };
-    if (!defined($result) || $@) {
-        $result = "Can not execute add computers";
-        return $TRUE
+    if ($@) {
+        $result = "Executing add computers failed with unknown errors";
+        return $FALSE, $result;
     }
-    return $FALSE
+
+    $result =~ s/Impacket v.*Corporation//g;
+    $result =~ s/^\s+|\s+$//g;
+
+    if ($result =~ /\[\*\] (.+)$/) {
+        my $success_msg = $1;
+        return $TRUE, $success_msg;
+    }
+
+    if ($result =~ /\[\-\] (.+)$/) {
+        my $error_msg = $1;
+        return $FALSE, $error_msg
+    }
+
+    return $FALSE, $result;
 }
 
 sub test_join {
