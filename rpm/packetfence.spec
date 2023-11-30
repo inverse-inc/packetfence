@@ -401,6 +401,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfcron.service %{buildroot}%{_unitdir}/packetfence-pfcron.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service %{buildroot}%{_unitdir}/packetfence-pfqueue.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue-backend.service %{buildroot}%{_unitdir}/packetfence-pfqueue-backend.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfqueue-perl.service %{buildroot}%{_unitdir}/packetfence-pfqueue-perl.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsso.service %{buildroot}%{_unitdir}/packetfence-pfsso.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.dispatcher.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin_dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.admin_dispatcher.service
