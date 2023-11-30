@@ -24,7 +24,7 @@ The name of service of this manager
 
 =cut
 
-has '+name' => ( default => sub { 'pfqueue_perl' } );
+has '+name' => ( default => sub { 'pfqueue-perl' } );
 
 =head1 AUTHOR
 
