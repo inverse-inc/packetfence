@@ -719,12 +719,10 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					// Update Global Caches
 					GlobalIPCache.Set(reqIP.String(), answer.MAC.String(), cacheDuration)
 					GlobalMacCache.Set(answer.MAC.String(), reqIP.String(), cacheDuration)
-					// Update ip4log from pfdhcp. Commented for now.
 					err := MysqlUpdateIP4Log(answer.MAC.String(), reqIP.String(), cacheDuration)
 					if err != nil {
 						log.LoggerWContext(ctx).Info(err.Error())
 					}
-					// Update the cache
 					log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")")
 
 					handler.hwcache.Set(answer.MAC.String(), Index, cacheDuration)
