@@ -60,7 +60,7 @@ WARNING: This will disable common recommended settings from Microsoft. Using Azu
  .. Client ID: the 'Client ID' that was displayed while configuring the 'PacketFence' app inside Azure
  .. Client Secret: the secret you created inside the 'PacketFence' app in Azure AD
  .. Tenant ID: the 'Tenant ID' that was displayed while configuring the 'PacketFence' app inside Azure
- .. User Groups Url: the API Url where to verify the groupmembership
+ .. User Groups URL: the API Url where to verify the groupmembership
  .. Add any authentication or administration rules and then save the source
 
 With this configuration, you can now use this source in your connection profiles to authenticate and authorize users on the captive portal and use it with EAP-TLS to authorize users (getting the role and access duration) as long as your EAP-TLS certificates use the distinguished name of the Azure AD users as their common name. Additionally, you can use this source for authenticating users in the admin interface and for VPN access.
@@ -88,13 +88,13 @@ To do that first you will have to provide to the end device a certificate that c
 
 image::Intune_SCEP_machine.png[scaledwidth="100%",alt="Intune SCEP machine configuration"]
 
-As you can see the CN (Common Name) will contain the Device Identifier, so when the device will connect on the secure ssid, the username will be equal to the device ID (like 8df07f7e-d98e-4579-aa97-bfcfaaa7fe38)
+As you can see the CN (Common Name) will contain the Device Identifier, so when the device will connects on the secure SSID, the username will be equal to the device ID (like 8df07f7e-d98e-4579-aa97-bfcfaaa7fe38)
 
-Now it just a matter to retrieve the groupmembership associated with the device ID, in order to do that you will need to change the "User Groups Url" parameter in the "Azure Active Directory" authentication source.
+Now it just a matter to retrieve the group membership associated with the device ID, in order to do that you will need to change the "User Groups URL" parameter in the "Azure Active Directory" authentication source.
 
 The URL will be `https://graph.microsoft.com/v1.0/devices(deviceId='%USERNAME')/memberOf` (for more information https://learn.microsoft.com/en-us/graph/api/device-list-memberof?view=graph-rest-1.0&tabs=http)
 
-In this example the api call will be `https://graph.microsoft.com/v1.0//devices(deviceId='8df07f7e-d98e-4579-aa97-bfcfaaa7fe38')/memberOf?$select=id,displayName and the reply is:
+In this example the API call will be `https://graph.microsoft.com/v1.0//devices(deviceId='8df07f7e-d98e-4579-aa97-bfcfaaa7fe38')/memberOf?$select=id,displayName and the reply will be:
 
 `{
    "value""=>"[
@@ -122,6 +122,6 @@ In this example the api call will be `https://graph.microsoft.com/v1.0//devices(
    "@odata.context""=>""https://graph.microsoft.com/v1.0/$metadata#directoryObjects(id,displayName)"
 }`
 
-In the "Azure Active Directory" authentication source create a authentication rule like this:
+From the "Azure Active Directory" authentication source, create an authentication rule like this:"
 
 image::Azure_Group_membership.png[scaledwidth="100%",alt="Azure AD Group Membership"]
