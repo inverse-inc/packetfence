@@ -22,6 +22,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
+const ZeroDate = "0000-00-00 00:00:00"
+
 // NodeInfo struct
 type NodeInfo struct {
 	Mac      string
@@ -45,7 +47,7 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 	binary.BigEndian.PutUint32(a, endip)
 	ipend := net.IPv4(a[0], a[1], a[2], a[3])
 
-	rows, err := MySQLdatabase.Query("select ip,mac,end_time,start_time from ip4log i where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) and end_time in (select MAX(end_time) from ip4log where mac = i.mac)  ORDER BY mac,end_time desc", dhcpHandler.start.String(), ipend.String())
+	rows, err := MySQLdatabase.Query("select ip,mac,end_time,start_time from ip4log i where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = '"+ZeroDate+"' OR  end_time > NOW()) and end_time in (select MAX(end_time) from ip4log where mac = i.mac)  ORDER BY mac,end_time desc", dhcpHandler.start.String(), ipend.String())
 	if err != nil {
 		log.LoggerWContext(ctx).Error(err.Error())
 		return
@@ -436,13 +438,13 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
 
-	MAC2IP, err := MySQLdatabase.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
+	MAC2IP, err := MySQLdatabase.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
 	if err != nil {
 		return err
 	}
 	defer MAC2IP.Close()
 
-	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC")
+	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC")
 	if err != nil {
 		return err
 	}
@@ -452,20 +454,13 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 	if err != nil {
 		return err
 	}
-	defer IPClose.Close()
+	defer IP2MAC.Close()
 
-	IPInsert, err := MySQLdatabase.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND))")
+	IPInsert, err := MySQLdatabase.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)")
 	if err != nil {
 		return err
 	}
 	defer IPInsert.Close()
-
-	IPUpdate, err := MySQLdatabase.Prepare("UPDATE ip4log SET mac = ?, start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? SECOND) WHERE ip = ?")
-	if err != nil {
-		return err
-	}
-	defer IPUpdate.Close()
-
 	var (
 		oldMAC string
 		oldIP  string
@@ -493,10 +488,6 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 	_, err = IPInsert.Exec(mac, ip, duration.Seconds())
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
-		_, err = IPUpdate.Exec(mac, duration.Seconds(), ip)
-		if err != nil {
-			log.LoggerWContext(ctx).Info(err.Error())
-		}
 	}
 	return err
 }
