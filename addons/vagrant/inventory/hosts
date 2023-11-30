@@ -120,7 +120,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf2el8dev:
               box: generic/rhel8
               box_version: '4.2.16'
@@ -130,7 +130,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf3el8dev:
               box: generic/rhel8
               box_version: '4.2.16'
@@ -140,7 +140,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf1deb11dev:
               box: inverse-inc/pfdeb11dev
               box_version: 13.1.20231107151133
@@ -150,7 +150,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf2deb11dev:
               box: inverse-inc/pfdeb11dev
               box_version: 13.1.20231107151133
@@ -160,7 +160,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf3deb11dev:
               box: inverse-inc/pfdeb11dev
               box_version: 13.1.20231107151133
@@ -170,7 +170,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf1el8localdev:
               box: generic/rhel8
               box_version: '4.2.16'
@@ -180,7 +180,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf2el8localdev:
               box: generic/rhel8
               box_version: '4.2.16'
@@ -190,7 +190,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf3el8localdev:
               box: generic/rhel8
               box_version: '4.2.16'
@@ -200,7 +200,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf1deb11localdev:
               box: inverse-inc/pfdeb11dev
               box_version: 13.1.20231107151133
@@ -210,7 +210,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf2deb11localdev:
               box: inverse-inc/pfdeb11dev
               box_version: 13.1.20231107151133
@@ -220,7 +220,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
             pf3deb11localdev:
               box: inverse-inc/pfdeb11dev
               box_version: 13.1.20231107151133
@@ -230,7 +230,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 30
+              disk_size: 130
 
         standalones:
           hosts:
@@ -243,7 +243,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             pfdeb11dev:
               box: inverse-inc/pfdeb11dev
               box_version: 13.1.20231107151133
@@ -253,7 +253,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             el8dev:
               box: generic/rhel8
               box_version: '4.2.16'
@@ -263,7 +263,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             deb11dev:
               box: debian/bullseye64
               box_version: 11.20221219.1
@@ -273,7 +273,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             localhost:
               mgmt_ip: "{{ users_vars[dict_name]['vms']['localhost']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['localhost']['netmask'] }}"
@@ -287,7 +287,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             pfdeb11localdev:
               box: inverse-inc/pfdeb11dev
               box_version: 13.1.20231107151133
@@ -297,7 +297,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             el8localdev:
               box: generic/rhel8
               box_version: '4.2.16'
@@ -307,7 +307,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             deb11localdev:
               box: debian/bullseye64
               box_version: 11.20221219.1
@@ -317,7 +317,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             pfel8stable:
               box: generic/rhel8
               box_version: '4.2.16'
@@ -327,7 +327,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             # to test upgrades
             pfdeb9stable:
               box: inverse-inc/pfdeb9stable
@@ -337,7 +337,7 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
             pfdeb11stable:
               box: debian/bullseye64
               box_version: 11.20221219.1
@@ -347,7 +347,7 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
               memory: 16384
-              disk_size: 60
+              disk_size: 130
 
 
     dev:
