@@ -24,7 +24,7 @@ use warnings;
 
 use base ('pf::Switch::HP');
 
-sub description { 'Procurve_2600' }
+sub description { 'HP ProCurve 2600 Series' }
 
 # importing switch constants
 use pf::constants;

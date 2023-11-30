@@ -1,4 +1,4 @@
-package pf::Switch::HP::AOS_Switch_v16_11;
+package pf::Switch::HP::Procurve_5400;
 
 =head1 NAME
 
@@ -56,7 +56,7 @@ use pf::config qw(
 use pf::Switch::constants;
 use pf::util;
 
-sub description { 'AOS Switch v16.11' }
+sub description { 'HP ProCurve 5400 Series' }
 
 # CAPABILITIES
 # access technology supported
