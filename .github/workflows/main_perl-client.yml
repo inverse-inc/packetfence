@@ -16,7 +16,7 @@ jobs:
   build_preparation:
     permissions:
       pull-requests: read
-    runs-on: packetfence-perl-package-build
+    runs-on: package-build
     outputs:
       volume_mount: ${{ steps.variable.outputs.volume_mount }}
       workdir: ${{ steps.variable.outputs.workdir }}
