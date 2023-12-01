@@ -29,8 +29,8 @@ if (@ARGV) {
 }
 
 our %types = (
-    'HP::Procurve_2500' => 'HP::Old_HP_Procurve',
-    'HP::Procurve_2920' => 'HP::AOS_Switch_v16_x',
+    'HP::Procurve_2500' => 'HP::Old_Procurve',
+    'HP::Procurve_2920' => 'HP::AOS_Switch_v16_X',
 );
 
 my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
