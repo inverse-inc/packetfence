@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-to-13.0-convert-switch-types.pl
+to-13.1-convert-h3cswitch-types.pl
 
 =head1 DESCRIPTION
 
@@ -12,11 +12,6 @@ Convert some switch types and use Switch OS versions
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
-use lib qw(/usr/local/pf/lib_perl/lib/perl5);
-use pf::IniFiles;
-use NetAddr::IP;
-use pf::util qw(valid_ip valid_mac run_as_pf);
 use pf::file_paths qw(
     $switches_config_file
 );
