@@ -19,7 +19,7 @@ use pf::file_paths qw(
     $switches_config_file
 );
 use File::Copy;
-
+use pf::util qw(run_as_pf);
 run_as_pf();
 
 my $file = $switches_config_file;
