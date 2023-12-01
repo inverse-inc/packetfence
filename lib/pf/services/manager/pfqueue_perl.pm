@@ -8,7 +8,7 @@ pf::services::manager::pfqueue_perl - Manager for the pfqueue_perl service
 
 =head1 DESCRIPTION
 
-pf::services::manager::pfqueue
+pf::services::manager::pfqueue_perl
 
 =cut
 
