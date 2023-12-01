@@ -1,8 +1,8 @@
-package pf::Switch::HP::Old_HP_Procurve;
+package pf::Switch::HP::Old_Procurve;
 
 =head1 NAME
 
-pf::Switch::HP::Old_HP_Procurve - Object oriented module to access SNMP enabled HP Procurve 2500 switches
+pf::Switch::HP::Old_Procurve - Object oriented module to access SNMP enabled HP Procurve 2500 switches
 
 =head1 SYNOPSIS
 
