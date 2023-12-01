@@ -1,8 +1,8 @@
-package pf::Switch::HP::AOS_Switch_v16_x;
+package pf::Switch::HP::AOS_Switch_v16_X;
 
 =head1 NAME
 
-pf::Switch::HP::AOS_Switch_v16_x - Object oriented module to access SNMP enabled HP Procurve 2920 switches
+pf::Switch::HP::AOS_Switch_v16_X - Object oriented module to access SNMP enabled HP Procurve 2920 switches
 
 =head1 SYNOPSIS
 
