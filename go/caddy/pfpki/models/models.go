@@ -28,11 +28,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/globalsign/est"
+	"github.com/fdurand/est"
+	"github.com/inverse-inc/pkcs7"
 	"github.com/inverse-inc/scep/cryptoutil"
 	"github.com/inverse-inc/scep/scep"
 	"github.com/knq/pemutil"
-	"go.mozilla.org/pkcs7"
 
 	"context"
 	"fmt"
@@ -140,6 +140,7 @@ type (
 		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty,string" gorm:"default:0"`
 		ScepServer            SCEPServer              `json:"-"`
 		ScepServerID          uint                    `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
+		EST                   bool                    `json:"est,omitempty,string" gorm:"default:false"`
 	}
 
 	// Cert struct
@@ -1036,7 +1037,7 @@ func (c CA) Enroll(ctx context.Context, csr *x509.CertificateRequest, aps string
 
 	profileName := vars["id"]
 
-	prof, err := c.GetProfile(profileName)
+	prof, err := c.GetESTProfile(profileName)
 	if err != nil {
 		return nil, caerrors.CaError{
 			Status: http.StatusForbidden,
@@ -1157,7 +1158,7 @@ func (c CA) ServerKeyGen(ctx context.Context, csr *x509.CertificateRequest, aps 
 
 	profileName := vars["id"]
 
-	prof, err := c.GetProfile(profileName)
+	prof, err := c.GetESTProfile(profileName)
 	if err != nil {
 		return nil, nil, caerrors.CaError{
 			Status: http.StatusForbidden,
@@ -1303,10 +1304,12 @@ func (c CA) TPMEnroll(ctx context.Context, csr *x509.CertificateRequest, ekcerts
 	return blob, secret, cred, err
 }
 
-func (c CA) GetProfile(profilename string) (Profile, error) {
+func (c CA) GetESTProfile(profilename string) (Profile, error) {
 	profile := &Profile{}
-	if ProfileDB := c.DB.Preload("CA").Where("name = ?", profilename).First(&profile).Find(&profile); ProfileDB.Error != nil {
-		return *profile, ProfileDB.Error
+	if ProfileDB := c.DB.Preload("Ca").Where("name = ?", profilename).First(&profile).Find(&profile); ProfileDB.Error != nil {
+		if ProfileDB := c.DB.Preload("Ca").Where("est = ?", "1").First(&profile).Find(&profile); ProfileDB.Error != nil {
+			return *profile, ProfileDB.Error
+		}
 	}
 	return *profile, nil
 }

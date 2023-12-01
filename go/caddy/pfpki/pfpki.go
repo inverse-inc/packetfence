@@ -80,6 +80,12 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 
 	pfpki.Ctx = &ctx
 
+	// pfpki.DB.AutoMigrate(&models.Profile{})
+	// pfpki.DB.AutoMigrate(&models.CA{})
+	// pfpki.DB.AutoMigrate(&models.Cert{})
+	// pfpki.DB.AutoMigrate(&models.RevokedCert{})
+	// pfpki.DB.AutoMigrate(&models.SCEPServer{})
+
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
@@ -143,11 +149,21 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 
 		r.Get("/pki/checkrenewal", handlers.CheckRenewal(PFPki))
 
+		r.Route("/pki/scepservers", func(r chi.Router) {
+			r.Get("/", handlers.GetSetSCEPServer(PFPki))
+			r.Post("/", handlers.GetSetSCEPServer(PFPki))
+			r.Post("/search", handlers.SearchSCEPServer(PFPki))
+			r.Get("/{id}", handlers.SCEPServerByID(PFPki))
+			r.Patch("/{id}", handlers.SCEPServerByID(PFPki))
+		})
+
+		// OCSP routes
 		r.Route("/pki/ocsp", func(r chi.Router) {
 			r.Get("/ocsp", handlers.ManageOcsp(PFPki))
 			r.Post("/ocsp", handlers.ManageOcsp(PFPki))
 		})
 
+		//SCEP routes
 		r.Route("/pki/scep", func(r chi.Router) {
 			r.Get("/", handlers.ManageSCEP(PFPki))
 			r.Post("/", handlers.ManageSCEP(PFPki))
@@ -168,14 +184,22 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 			r.Post("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
 		})
 
-		r.Route("/pki/scepservers", func(r chi.Router) {
-			r.Get("/", handlers.GetSetSCEPServer(PFPki))
-			r.Post("/", handlers.GetSetSCEPServer(PFPki))
-			r.Post("/search", handlers.SearchSCEPServer(PFPki))
-			r.Get("/{id}", handlers.SCEPServerByID(PFPki))
-			r.Patch("/{id}", handlers.SCEPServerByID(PFPki))
+		// EST routes
+		r.Route("/est", func(r chi.Router) {
+			r.Get("/{id}", handlers.ManageEST(PFPki))
+			r.Post("/{id}", handlers.ManageEST(PFPki))
 		})
 
+		r.Route("/pki/est", func(r chi.Router) {
+			r.Get("/{id}", handlers.ManageEST(PFPki))
+			r.Post("/{id}", handlers.ManageEST(PFPki))
+		})
+		r.Route("/.well-known", func(r chi.Router) {
+			r.Get("/{id}", handlers.ManageEST(PFPki))
+			r.Post("/{id}", handlers.ManageEST(PFPki))
+			r.Get("/*", handlers.ManageEST(PFPki))
+			r.Post("/*", handlers.ManageEST(PFPki))
+		})
 	})
 
 	pfpki.Router = r
