@@ -46,6 +46,7 @@ testcases:
   steps:
   - type: pf_api_service_start
     service: pfqueue-backend
+
   - type: pf_api_service_start
     service: pfqueue-go
 

@@ -117,7 +117,10 @@ testcases:
 - name: restart_service_pfqueue
   steps:
   - type: systemctl_service_restart 
-    service: packetfence-pfqueue
+    service: packetfence-pfqueue-backend
+
+  - type: systemctl_service_restart
+    service: packetfence-pfqueue-go
 
 - name: restart_service_pfdetect
   steps:
