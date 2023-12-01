@@ -46,7 +46,7 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use base ('pf::Switch::HP::Old_HP_Procurve');
+use base ('pf::Switch::HP::Old_Procurve');
 
 use pf::constants;
 use pf::config qw(
