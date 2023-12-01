@@ -2,7 +2,7 @@ package pf::Switch::H3C::Comware_v5;
 
 =head1 NAME
 
-pf::Switch::H3C::S5120 - Object oriented module to access and configure enabled H3C S5120 switches.
+pf::Switch::H3C::Comware_v5 - Object oriented module to access and configure enabled H3C S5120 switches.
 
 =head1 STATUS
 
