@@ -17,13 +17,13 @@ on:
 
 jobs:
   git_checkout:
-    runs-on: packetfence-perl-package-build
+    runs-on: package-build
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
   build_package:
-    runs-on: packetfence-perl-package-build
+    runs-on: package-build
     needs: git_checkout
     container:
       image: registry.gitlab.com/orange-opensource/gitlab-buildpkg/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos:8' || 'debian:bullseye'}}
