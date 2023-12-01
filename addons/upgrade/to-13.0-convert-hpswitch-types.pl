@@ -12,6 +12,9 @@ Convert some switch types and use Switch OS versions
 
 use strict;
 use warnings;
+use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib_perl/lib/perl5);
+use pf::IniFiles;
 use pf::file_paths qw(
     $switches_config_file
 );
