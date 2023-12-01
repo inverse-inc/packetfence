@@ -30,6 +30,7 @@ use pf::factory::task;
 use pf::util;
 use JSON::MaybeXS;
 use pf::SwitchFactory;
+use Linux::Systemd::Daemon 'sd_ready';
 use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS $PFQUEUE_MAX_TASKS_DEFAULT $PFQUEUE_TASK_JITTER_DEFAULT);
 
 our $PROGRAM_NAME = $0 = basename($0);
@@ -51,6 +52,8 @@ our $IS_CHILD = 0;
 our $TASKS = -1;
 my $logger = Log::Log4perl->get_logger("pfqueue");
 our $PARENT_PID = $$;
+
+sd_ready;
 
 while ($running) {
     my $paddr = accept(my $socket, $listener);
