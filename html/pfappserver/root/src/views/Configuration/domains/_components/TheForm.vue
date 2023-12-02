@@ -48,13 +48,15 @@
         />
 
 
-        <form-group-machine-account-password namespace="machine_account_password"
-                                             :column-label="$i18n.t('Machine account password')"
-                                             :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. type another value to change the password, or leave it as-is`)"
-                                             :buttonLabel="$i18n.t('Test')"
-                                             testLabel="Processing"
-                                             :test="testMachineAccount"
-        />
+        <template>
+          <component :is="formGroupComputedMachineAccountPassword"  namespace="machine_account_password"
+                                               :column-label="$i18n.t('Machine account password')"
+                                               :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. type another value to change the password, or leave it as-is`)"
+                                               :buttonLabel="$i18n.t('Test')"
+                                               testLabel="Processing"
+                                               :test="testMachineAccount"
+          />
+        </template>
 
         <form-group-bind-dn namespace="bind_dn"
                                       :column-label="$i18n.t('Domain administrator username')"
@@ -128,6 +130,7 @@ import {
   FormGroupAdServer,
   FormGroupDnsServers,
   FormGroupOu,
+  FormGroupMachineAccountPasswordOnly,
   FormGroupMachineAccountPassword,
   FormGroupBindDn,
   FormGroupBindPass,
@@ -152,6 +155,7 @@ const components = {
   FormGroupAdServer,
   FormGroupDnsServers,
   FormGroupOu,
+  FormGroupMachineAccountPasswordOnly,
   FormGroupMachineAccountPassword,
   FormGroupBindDn,
   FormGroupBindPass,
@@ -193,10 +197,16 @@ export const setup = (props, context) => {
 
   const schema = computed(() => schemaFn(props))
 
+  const formGroupComputedMachineAccountPassword = computed(() => {
+
+    return (props.isNew) ? FormGroupMachineAccountPasswordOnly : FormGroupMachineAccountPassword
+  })
+
   const testMachineAccount = () => $store.dispatch('$_domains/testMachineAccount', props.form)
   return {
     schema,
-    testMachineAccount
+    testMachineAccount,
+    formGroupComputedMachineAccountPassword
   }
 }
 
