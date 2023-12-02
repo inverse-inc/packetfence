@@ -155,8 +155,8 @@ sub update {
 
     my $cs = $self->config_store;
     $self->cleanupItemForUpdate($old_item, $new_data, $data);
-    $new_data->{machine_account_password} = md4_hex(encode("utf-16le", $new_data->{machine_account_password}));
     if ($new_data->{machine_account_password} ne $old_item->{machine_account_password}) {
+        $new_data->{machine_account_password} = md4_hex(encode("utf-16le", $new_data->{machine_account_password}));
         my $bind_dn = $new_item->{bind_dn};
         my $bind_pass = $new_item->{bind_pass};
         my $computer_name = $old_item->{server_name};

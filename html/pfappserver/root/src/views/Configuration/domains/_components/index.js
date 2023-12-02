@@ -22,6 +22,7 @@ export {
   BaseFormGroupInput                  as FormGroupAdServer,
   BaseFormGroupInput                  as FormGroupDnsServers,
   BaseFormGroupInput                  as FormGroupOu,
+  BaseFormGroupInput                  as FormGroupMachineAccountPasswordOnly,
   BaseFormGroupInputTest              as FormGroupMachineAccountPassword,
   BaseFormGroupInput                  as FormGroupBindDn,
   BaseFormGroupInputPassword          as FormGroupBindPass,
