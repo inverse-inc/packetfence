@@ -27,6 +27,11 @@ listen_port = os.getenv("LISTEN")
 identifier = os.getenv("IDENTIFIER")
 rewrite_resolv_conf_flag = os.getenv("REWRITE_RESOLV_CONF")
 
+print("NTLM auth api starts with the following parameters:")
+print(f" -- LISTEN = {listen_port}")
+print(f" -- IDENTIFIER = {identifier}")
+print(f" -- REWRITE_RESOLV_CONF = {rewrite_resolv_conf_flag}")
+
 config = ConfigParser()
 try:
     with open(conf_path, 'r') as file:
@@ -60,6 +65,9 @@ except Exception as e:
     print("Unable to retrieve AD FQDN of AD domain")
     sys.exit(1)
 
+def generate_empty_conf():
+    with open('/root/default.conf', 'w') as file:
+        file.write("\n")
 
 def generate_resolv_conf(dns_name, dns_servers_string):
     with open('/etc/resolv.conf', 'w') as file:
@@ -85,6 +93,7 @@ def init_secure_connection():
     lp = param.LoadParm()
 
     try:
+        generate_empty_conf()
         lp.load("/root/default.conf")
     except KeyError:
         raise KeyError("SMB_CONF_PATH not set")
@@ -264,9 +273,15 @@ def ntlm_auth_handler():
             return "Error handling request", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def ping_handler():
+    return "pong", HTTPStatus.OK
+
+
 app = Flask(__name__)
 app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)
 app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
+app.route('/ping', methods=['GET'])(ping_handler)
+
 # if name == __main__:
 app.run(threaded=True, host='0.0.0.0', port=int(listen_port))
 # app.run(debug='debug', processes=1, threaded=True, host='0.0.0.0', port=int(listen_port))

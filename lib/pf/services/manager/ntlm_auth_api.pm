@@ -51,6 +51,23 @@ sub generateConfig {
     }
 }
 
+sub isAlive {
+    my $alive = 1;
+
+    for my $identifier (keys(%ConfigDomain)) {
+        my %conf = %{$ConfigDomain{$identifier}};
+        if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
+            my $ntlm_auth_port = $conf{ntlm_auth_port};
+            my $result = pf_run("curl -X GET http://containers-gateway.internal:$ntlm_auth_port/ping 2>/dev/null", accepted_exit_status => [ 0 ]);
+            if (!defined($result) || $result ne "pong") {
+                $alive = 0;
+            }
+        }
+    }
+    return $alive;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
