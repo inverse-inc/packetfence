@@ -32,6 +32,26 @@ my $updated = 0;
 my $ntlm_auth_host = "127.0.0.1";
 my $ntlm_auth_port = 4999;
 
+my $tmp_dirname= pf_run("date +%Y%m%d_%H%M%S");
+$tmp_dirname =~ s/^\s+|\s+$//g;
+my $target_dir="/usr/local/pf/archive/$tmp_dirname";
+
+print("Backing up configuration files, they can be found in $target_dir\n");
+
+pf_run("mkdir -p $target_dir", accepted_exit_status => [ 0 ], working_directory => "/usr/local/pf/archive");
+pf_run("cp -R /usr/local/pf/conf/domain.conf $target_dir");
+pf_run("cp -R /usr/local/pf/conf/realm.conf $target_dir");
+
+for my $section (grep {/^\S+$/} $ini->Sections()) {
+    if ($ini->exists($section, 'machine_account_password')) {
+        next;
+    }
+
+    pf_run("mkdir -p $target_dir/chroots/$section/etc && cp -R /chroots/$section/etc/samba $target_dir/chroots/$section/etc");
+    pf_run("mkdir -p $target_dir/chroots/$section/var/cache && cp -R /chroots/$section/var/cache/samba $target_dir/chroots/$section/var/cache");
+}
+pf_run("cd /usr/local/pf/archive && tar -cvzf $tmp_dirname.tgz $tmp_dirname && rm -rf $tmp_dirname");
+
 for my $section (grep {/^\S+$/} $ini->Sections()) {
     print("Generating config for section: $section\n");
     $ntlm_auth_port += 1;
