@@ -2218,6 +2218,17 @@ func (s SCEPServer) GetByID(params map[string]string) (types.Info, error) {
 	return Information, nil
 }
 
+// GetByID retreive the SCEPServer by id
+func (s SCEPServer) DelByID(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var scepserverdb []SCEPServer
+	if val, ok := params["id"]; ok {
+		s.DB.Delete(&SCEPServer{}, val)
+	}
+	Information.Entries = scepserverdb
+	return Information, nil
+}
+
 // Search for the SCEPServer
 func (s SCEPServer) Search(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}

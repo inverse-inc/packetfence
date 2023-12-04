@@ -1038,6 +1038,15 @@ func SCEPServerByID(pfpki *types.Handler) http.HandlerFunc {
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.UpdateCA")
+		case "DELETE":
+			Information.Status = http.StatusOK
+			vars := types.Params(req, "id")
+			Information, err = o.DelByID(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusNotFound
+				break
+			}
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
