@@ -115,17 +115,18 @@ var statusUpdaterPool = sync.Pool{
 	},
 }
 
-func (u *StatusUpdater) reset(id string, ttl time.Duration) {
+func (u *StatusUpdater) reset(id string, ttl time.Duration, client *redis.Client) {
 	u.id = id
 	u.key = id + "-Status"
 	u.publishKey = id + "-Status-Update"
 	u.ttl = ttl
 	u.finalized = false
+	u.redisClient = client
 }
 
 func NewStatusUpdater(id string, ttl time.Duration, redis *redis.Client) *StatusUpdater {
 	u := statusUpdaterPool.Get().(*StatusUpdater)
-	u.reset(id, ttl)
+	u.reset(id, ttl, redis)
 	return u
 }
 
