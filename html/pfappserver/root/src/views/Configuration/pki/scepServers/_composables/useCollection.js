@@ -25,14 +25,6 @@ export const useItemTitle = (props) => {
   })
 }
 
-export const useItemConfirmSave = props => {
-  const {
-    isClone,
-    isNew
-  } = toRefs(props)
-  return computed(() => !(isNew.value || isClone.value))
-}
-
 export { useServices } from '../../config'
 
 export { useRouter } from '../_router'

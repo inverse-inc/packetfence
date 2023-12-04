@@ -71,17 +71,8 @@
             <b-button
               size="sm" variant="outline-primary" class="mr-1"
               :disabled="!isServiceAlive"
-              @click.stop.prevent="goToClone(useTableColumnsItems)"
+              @click.stop.prevent="goToClone(item)"
             >{{ $t('Clone') }}</b-button>
-            <b-button
-              size="sm" variant="outline-primary" class="mr-1 text-nowrap"
-              :disabled="!isServiceAlive"
-              @click.stop.prevent="onClipboard(item)"
-            >{{ $t('Copy Certificate') }}</b-button>
-            <b-button
-              size="sm" variant="outline-primary" class="mr-1 text-nowrap"
-              :disabled="!isServiceAlive" :to="{ name: 'newPkiProfile', params: { ca_id: item.id } }"
-            >{{ $t('New Template') }}</b-button>
           </span>
         </template>
       </b-table>

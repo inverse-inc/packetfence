@@ -143,6 +143,9 @@ const api = {
   getPkiCerts () {
     return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
   },
+  getPkiScepServers () {
+    return apiCall({ url: 'pki/scepservers', method: 'get', params: { limit: 1000 } })
+  },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
@@ -317,6 +320,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     pkiProfilesStatus: '',
     pkiCerts: false,
     pkiCertsStatus: '',
+    pkiScepServers: false,
+    pkiScepServersStatus: '',
     pkiProviders: false,
     pkiProvidersStatus: '',
     portalModules: false,
@@ -517,6 +522,9 @@ const getters = {
   },
   isLoadingPkiCerts: state => {
     return state.pkiCertsStatus === types.LOADING
+  },
+  isLoadingPkiScepServers: state => {
+    return state.pkiScepServersStatus === types.LOADING
   },
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
@@ -1318,6 +1326,26 @@ const actions = {
       commit('PKI_CERTS_RESET')
     }
   },
+  getPkiScepServers: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiScepServers) {
+      return Promise.resolve(state.pkiScepServers)
+    }
+    if (!state.pkiScepServers) {
+      commit('PKI_SCEPSERVERS_REQUEST')
+      return api.getPkiScepServers().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_SCEPSERVERS_UPDATED', items || [])
+        return state.pkiScepServers
+      })
+    } else {
+      return Promise.resolve(state.pkiScepServers)
+    }
+  },
+  resetPkiScepServers: ({ state, commit }) => {
+    if (state.pkiScepServers) {
+      commit('PKI_SCEPSERVERS_RESET')
+    }
+  },
   getPkiProviders: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiProviders) {
       return Promise.resolve(state.pkiProviders)
@@ -1987,6 +2015,16 @@ const mutations = {
   },
   PKI_CERTS_RESET: (state) => {
     state.pkiCerts = false
+  },
+  PKI_SCEPSERVERS_REQUEST: (state) => {
+    state.pkiScepServersStatus = types.LOADING
+  },
+  PKI_SCEPSERVERS_UPDATED: (state, pkiCerts) => {
+    state.pkiScepServers = pkiCerts
+    state.pkiScepServersStatus = types.SUCCESS
+  },
+  PKI_SCEPSERVERS_RESET: (state) => {
+    state.pkiScepServers = false
   },
   PKI_PROVIDERS_REQUEST: (state) => {
     state.pkiProvidersStatus = types.LOADING

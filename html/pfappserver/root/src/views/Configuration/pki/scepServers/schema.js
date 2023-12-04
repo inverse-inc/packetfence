@@ -2,14 +2,14 @@ import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
-yup.addMethod(yup.string, 'pkiScepServerNotExistsExcept', function (exceptId = '', message) {
+yup.addMethod(yup.string, 'pkiScepServerNameNotExistsExcept', function (exceptId = '', message) {
   return this.test({
-    name: 'pkiScepServerNotExistsExcept',
-    message: message || i18n.t('Identifier exists.'),
+    name: 'pkiScepServerNameNotExistsExcept',
+    message: message || i18n.t('Name exists.'),
     test: (value) => {
-      if (!value || value.toLowerCase() === exceptId.toLowerCase()) return true
+      if (!value) return true
       return store.dispatch('config/getPkiScepServers').then((response) => {
-        return response.filter(scepserver => scepserver.id !== +exceptId && scepserver.id.toLowerCase() === value.toLowerCase()).length === 0
+        return response.filter(scepserver => scepserver.id !== +exceptId && scepserver.name.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })
@@ -30,12 +30,12 @@ export default (props) => {
   return yup.object().shape({
     id: yup.string()
       .nullable()
-      .required(i18n.t('Identifier required.'))
-      .pkiScepServerNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
+      .required(i18n.t('Identifier required.')),
 
     name: yup.string()
       .nullable()
-      .required(i18n.t('Name required.')),
+      .required(i18n.t('Name required.'))
+      .pkiScepServerNameNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
 
     url: yup.string()
       .nullable()

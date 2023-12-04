@@ -1,5 +1,5 @@
 import { computed } from '@vue/composition-api'
-import store, { types } from '@/store'
+import { types } from '@/store'
 import api from './_api'
 import {
   decomposeScepServer,
@@ -13,6 +13,9 @@ export const useStore = $store => {
     createItem: params => $store.dispatch('$_pkis/createScepServer', recomposeScepServer(params)),
     getItem: params => $store.dispatch('$_pkis/getScepServer', params.id)
       .then(item => decomposeScepServer(item)),
+    updateItem: params => $store.dispatch('$_pkis/updateScepServer', recomposeScepServer(params))
+      .then(item => decomposeScepServer(item)),
+    deleteItem: params => $store.dispatch('$_pkis/deleteScepServer', params.id),
   }
 }
 
@@ -72,6 +75,34 @@ export const actions = {
       commit('SCEPSERVER_ERROR', err.response)
       throw err
     })
+  },
+  updateScepServer: ({ commit, dispatch }, data) => {
+    commit('SCEPSERVER_REQUEST')
+    return api.update(data).then(item => {
+      // reset list
+      commit('SCEPSERVER_LIST_RESET')
+      dispatch('allScepServers')
+      // update item
+      commit('SCEPSERVER_ITEM_REPLACED', item)
+      return item
+    }).catch(err => {
+      commit('SCEPSERVER_ERROR', err.response)
+      throw err
+    })
+  },
+  deleteScepServer: ({ commit, dispatch }, id) => {
+    commit('SCEPSERVER_REQUEST', types.DELETING)
+    return api.delete(id).then(item => {
+      // reset list
+      commit('SCEPSERVER_LIST_RESET')
+      dispatch('allScepServers')
+      // update item
+      commit('SCEPSERVER_ITEM_DESTROYED', id)
+      return item
+    }).catch(err => {
+      commit('SCEPSERVER_ERROR', err.response)
+      throw err
+    })
   }
 }
 
@@ -90,7 +121,10 @@ export const mutations = {
   SCEPSERVER_ITEM_REPLACED: (state, data) => {
     state.scepServerStatus = types.SUCCESS
     state.scepServerItemCache[data.id] = data
-    store.dispatch('config/resetPkiCas')
+  },
+  SCEPSERVER_ITEM_DESTROYED: (state, id) => {
+    state.scepServerStatus = types.SUCCESS
+    state.scepServerItemCache[id] = undefined
   },
   SCEPSERVER_ERROR: (state, response) => {
     state.scepServerStatus = types.ERROR
