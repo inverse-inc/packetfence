@@ -27,7 +27,7 @@ use warnings;
 use Net::SNMP;
 use base ('pf::Switch::HP');
 
-sub description { 'Procurve' }
+sub description { 'Old Procurve' }
 
 # importing switch constants
 use pf::Switch::constants;
