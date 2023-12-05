@@ -68,6 +68,12 @@
         </template>
         <template #cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right">
+            <base-button-confirm v-if="!item.not_deletable"
+              size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+              :disabled="isLoading"
+              :confirm="$t('Delete Cloud?')"
+              @click="onRemove(item.id)"
+            >{{ $t('Delete') }}</base-button-confirm>
             <b-button
               size="sm" variant="outline-primary" class="mr-1"
               :disabled="!isServiceAlive"
@@ -109,7 +115,7 @@ import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useRouter, useServices } from '../_composables/useCollection'
+import { useSearch, useRouter, useServices, useStore } from '../_composables/useCollection'
 import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
@@ -124,6 +130,12 @@ const setup = (props, context) => {
   } = toRefs(search)
 
   const { root: { $router, $store } = {} } = context
+
+  const {
+    deleteItem
+  } = useStore($store)
+
+  const router = useRouter($router)
 
   const isServiceAlive = computed(() => {
     if ($store.getters['system/isSaas']) {
@@ -140,8 +152,6 @@ const setup = (props, context) => {
     if (isServiceAlive.value)
       reSearch()
   })
-
-  const router = useRouter($router)
 
   const tableRef = ref(null)
   const selected = useBootstrapTableSelected(tableRef, items)
@@ -171,6 +181,11 @@ const setup = (props, context) => {
 
   const services = useServices()
 
+  const onRemove = id => {
+    deleteItem({ id })
+      .then(() => reSearch())
+  }
+
   return {
     useSearch,
     isServiceAlive,
@@ -181,6 +196,7 @@ const setup = (props, context) => {
     ...selected,
     ...toRefs(search),
     services,
+    onRemove,
   }
 }
 
