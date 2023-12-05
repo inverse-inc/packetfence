@@ -31,8 +31,8 @@ if (@ARGV) {
 }
 
 our %types = (
-    'Cisco::Catalyst_2950' => 'Cisco::Cisco_IOS_12_x',
-    'Cisco::Catalyst_2960' => 'Cisco::Cisco_IOS_15_0',
+    'Aruba::2930M' => 'Aruba::ArubaOS_Switch_16_x',
+    'Aruba::CX' => 'Aruba::ArubaOS_CX_10_x',
 );
 
 my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
