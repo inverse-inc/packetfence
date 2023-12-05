@@ -173,7 +173,7 @@ const setup = (props, context) => {
   })
 
   $store.dispatch('$_pkis/allProfiles')
-  const profiles = computed(() => $store.getters['$_pkis/profiles'] || [])
+  const profiles = computed(() => $store.state.$_pkis.profileListCache || [])
   const profilesSorted = computed(() => {
     return Array.prototype.slice.call(profiles.value)
       .sort((a, b) => {

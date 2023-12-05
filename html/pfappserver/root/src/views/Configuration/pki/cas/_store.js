@@ -27,7 +27,7 @@ export const state = () => {
 export const getters = {
   isCaWaiting: state => [types.LOADING, types.DELETING].includes(state.caStatus),
   isCaLoading: state => state.caStatus === types.LOADING,
-  cas: state => state.caListCache,
+  cas: state => state.caListCache
 }
 
 export const actions = {
