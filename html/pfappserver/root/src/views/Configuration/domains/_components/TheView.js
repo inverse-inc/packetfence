@@ -16,10 +16,6 @@ import { useViewCollectionItem, useViewCollectionItemProps } from '../../_compos
 const props = {
   ...useViewCollectionItemProps,
 
-  labelActionKey: {
-    type: String,
-    default: i18n.t('Join Domain')
-  }
 }
 
 import * as collection from '../_composables/useCollection'
