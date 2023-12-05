@@ -9,7 +9,7 @@ yup.addMethod(yup.string, 'pkiScepServerNameNotExistsExcept', function (exceptId
     test: (value) => {
       if (!value) return true
       return store.dispatch('config/getPkiScepServers').then((response) => {
-        return response.filter(scepserver => scepserver.id !== +exceptId && scepserver.name.toLowerCase() === value.toLowerCase()).length === 0
+        return response.filter(scepserver => scepserver.ID !== +exceptId && scepserver.name.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })
