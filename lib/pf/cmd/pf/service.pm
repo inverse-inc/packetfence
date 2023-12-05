@@ -31,6 +31,7 @@ Services managed by PacketFence:
   keepalived             | Virtual IP management
   mysql-probe            | MySQL probe service
   netdata                | Monitoring service
+  ntlm-auth-api          | ntlm auth backend API used to authenticate a user on Windows AD
   pfacct                 | Netflow and Radius Accounting service
   pf                     | all services that should be running based on your config
   pfcron                 | PF Cron daemon
