@@ -67,6 +67,14 @@ sub isAlive {
     return $alive;
 }
 
+sub pid {
+    my $self = shift;
+    if ($self->isAlive) {
+        return $self->SUPER::pid();
+
+    }
+    return 0;
+}
 
 =head1 AUTHOR
 
