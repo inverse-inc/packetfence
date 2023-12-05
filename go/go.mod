@@ -254,7 +254,10 @@ require (
 	layeh.com/radius v0.0.0-00010101000000-000000000000
 )
 
-require google.golang.org/genproto/googleapis/rpc v0.0.0-20230807174057-1744710a1577 // indirect
+require (
+	github.com/redis/go-redis/v9 v9.3.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230807174057-1744710a1577 // indirect
+)
 
 replace layeh.com/radius => github.com/inverse-inc/go-radius v0.0.0-20221114145510-67bfba021ae4
 
