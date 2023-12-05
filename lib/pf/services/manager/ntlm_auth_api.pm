@@ -76,6 +76,13 @@ sub pid {
     return 0;
 }
 
+sub isManaged {
+    my ($self) = @_;
+    return $TRUE if (keys(%ConfigDomain));
+    return $FALSE;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
