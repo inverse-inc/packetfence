@@ -140,110 +140,6 @@ sub escape_bind_user_string {
     return $s;
 }
 
-=head2 join_domain
-
-Joins the domain
-
-=cut
-
-sub join_domain {
-    my ($domain, $info) = @_;
-    my $logger = get_logger();
-    my $chroot_path = chroot_path($domain);
-    my $output;
-    my $error;
-    if (!exists $ConfigDomain{$domain}) {
-        return { message => "Domain $domain is not configured", status => 404 }, undef;
-    }
-
-    regenerate_configuration();
-
-    $info //= $ConfigDomain{$domain};
-    my $createcomputer = $info->{ou} ne "Computers" ? "createcomputer=$info->{ou}" : "";
-    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join --no-dns-updates -s /etc/samba/$domain.conf $createcomputer -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
-    chomp($output);
-    $logger->info("domain join : $output");
-
-    if ($status != 0) {
-        ($status, my $test_output) = test_join($domain);
-        if ($status != 0) {
-            return {message => $output, status => 400}, undef;
-        }
-    }
-
-    restart_winbinds();
-    return undef, {message => $output, status => 200};
-}
-
-=head2 rejoin_domain
-
-Unjoins then joins the domain
-
-=cut
-
-sub rejoin_domain {
-    my ($domain, $info) = @_;
-    my $logger = get_logger();
-    $info //= $ConfigDomain{$domain};
-    my @errors;
-    my $results = {};
-    my ($unjoin_error, $join_error);
-    my $err;
-    if ($info) {
-        my ($unjoin_error, $leave_output) = unjoin_domain($domain, $info);
-        if ($unjoin_error) {
-            $results->{unjoin} = $unjoin_error;
-            push @errors, $unjoin_error;
-        } else {
-            $results->{unjoin} = $leave_output;
-        }
-
-        ($join_error, my $join_output) = join_domain($domain, $info);
-        if ($join_error) {
-            push @errors, $join_error;
-        } else {
-            $results->{join} = $join_output;
-        }
-    }
-
-    if ($join_error) {
-        $err = {
-            message => "Error rejoining domain '$domain'",
-            errors  => \@errors,
-            status  => 400
-        };
-        $results = undef;
-    }
-
-    return $err, {status => 200, message => "Leave output:\n" . $results->{unjoin}->{message} . "\n\nJoin output:\n" . $results->{join}->{message}};
-}
-
-=head2 unjoin_domain
-
-Joins the domain through the ip namespace
-
-=cut
-
-sub unjoin_domain {
-    my ($domain, $info) = @_;
-    my $logger = get_logger();
-    if (!exists $ConfigDomain{$domain}) {
-        return { message => "Domain $domain is not configured", status => 404 }, undef;
-    }
-
-    my $chroot_path = chroot_path($domain);
-
-    $info //= $ConfigDomain{$domain};
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
-    chomp($output);
-    $logger->info("domain leave : $output");
-    $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
-    if ($status) {
-        return {message => $output, status => 400}, undef;
-    }
-
-    return undef, {message => $output, status => 200};
-}
 
 =head2 generate_krb5_conf
 
@@ -306,16 +202,6 @@ sub generate_resolv_conf {
     }
 }
 
-=head2 restart_winbinds
-
-Calls pfcmd to restart the winbind processes
-
-=cut
-
-sub restart_winbinds {
-    my $logger = get_logger();
-    pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd service winbindd restart --ignore-checkup");
-}
 
 
 =head2 regenerate_configuration

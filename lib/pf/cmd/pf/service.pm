@@ -53,7 +53,6 @@ Services managed by PacketFence:
   redis_queue            | Redis for pfqueue
   snmptrapd              | SNMP trap receiver daemon
   tracking-config        | Tracking configuration change
-  winbindd               | Winbind daemon
 
 =head1 DESCRIPTION
 
