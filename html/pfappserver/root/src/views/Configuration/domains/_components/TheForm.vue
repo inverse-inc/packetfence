@@ -49,12 +49,13 @@
 
 
         <template>
-          <component :is="formGroupComputedMachineAccountPassword"  namespace="machine_account_password"
-                                               :column-label="$i18n.t('Machine account password')"
-                                               :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. type another value to change the password, or leave it as-is`)"
-                                               :buttonLabel="$i18n.t('Test')"
-                                               testLabel="Processing"
-                                               :test="testMachineAccount"
+          <component namespace="machine_account_password"
+                     :is="formGroupComputedMachineAccountPassword"
+                     :column-label="$i18n.t('Machine account password')"
+                     :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. type another value to change the password, or leave it as-is`)"
+                     :buttonLabel="$i18n.t('Test')"
+                     testLabel="Processing"
+                     :test="testMachineAccount"
           />
         </template>
 
@@ -119,7 +120,6 @@ import {
   BaseForm,
   BaseFormTab
 } from '@/components/new/'
-import BaseButtonJoin from './BaseButtonJoin'
 import schemaFn from '../schema'
 import {
   FormGroupIdentifier,
@@ -143,7 +143,6 @@ import {
 } from './'
 
 const components = {
-  BaseButtonJoin,
   BaseForm,
   BaseFormTab,
 

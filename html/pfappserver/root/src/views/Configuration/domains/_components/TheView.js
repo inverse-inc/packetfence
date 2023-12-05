@@ -10,7 +10,6 @@ const components = {
   TheForm
 }
 
-import i18n from '@/utils/locale'
 import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
 
 const props = {
