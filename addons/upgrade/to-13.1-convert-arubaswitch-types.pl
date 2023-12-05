@@ -12,7 +12,7 @@ Convert some switch types and use Switch OS versions
 
 use strict;
 use warnings;
-use pf::util qw(valid_ip valid_mac run_as_pf);
+use pf::util qw(run_as_pf);
 use pf::file_paths qw(
     $switches_config_file
 );
