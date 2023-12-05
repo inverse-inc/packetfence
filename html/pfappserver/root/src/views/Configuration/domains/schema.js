@@ -17,11 +17,28 @@ yup.addMethod(yup.string, 'domainIdentifierNotExistsExcept', function (exceptNam
   })
 })
 
+yup.addMethod(yup.string, 'domainUniqueNamesNotExistsExcept', function (except, message) {
+  return this.test({
+    name: 'domainUniqueNamesNotExistsExcept',
+    message: message || i18n.t('Workgroup &amp; DNS name exists.'),
+    test: (value) => {
+      const { id, dns_name, workgroup } = except
+      if (!value) return true
+      return store.dispatch('config/getDomains').then(response => {
+        return response.filter(domain => domain.id !== id && domain.dns_name.toLowerCase() === dns_name.toLowerCase() && domain.workgroup.toLowerCase() === workgroup.toLowerCase()).length === 0
+      }).catch(() => {
+        return true
+      })
+    }
+  })
+})
+
 export default (props) => {
   const {
     id,
     isNew,
-    isClone
+    isClone,
+    form
   } = props
 
   return yup.object().shape({
@@ -34,7 +51,8 @@ export default (props) => {
     ad_server: yup.string().nullable().label(i18n.t('Server')).required(i18n.t('Server required.')),
     dns_name: yup.string().nullable().label(i18n.t('DNS name'))
       .required(i18n.t('Server required.'))
-      .isFQDN(),
+      .isFQDN()
+      .domainUniqueNamesNotExistsExcept({ id, ...form }),
     dns_servers: yup.string().nullable().label(i18n.t('Servers'))
       .required(i18n.t('Servers required.'))
       .isIpv4Csv(),
@@ -47,6 +65,8 @@ export default (props) => {
     ou: yup.string().nullable().label('OU'),
     server_name: yup.string().nullable().label(i18n.t('Server name')),
     sticky_dc: yup.string().nullable().label(i18n.t('Sticky DC')),
-    workgroup: yup.string().nullable().label(i18n.t('Workgroup')).required(i18n.t('Workgroup required.'))
-  })
+    workgroup: yup.string().nullable().label(i18n.t('Workgroup'))
+      .required(i18n.t('Workgroup required.'))
+      .domainUniqueNamesNotExistsExcept({ id, ...form })
+    })
 }
