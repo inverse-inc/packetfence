@@ -6,7 +6,7 @@ pf::Switch::HP::AOS_Switch_v16_X - Object oriented module to access SNMP enabled
 
 =head1 SYNOPSIS
 
-The pf::Switch::HP::AOS_Switch_v16_x module implements an object
+The pf::Switch::HP::AOS_Switch_v16_X module implements an object
 oriented interface to access SNMP enabled HP Procurve 2920 switches using the ArubaOS-Switch
 operating system version 16.x and up to configure dynamic ACL.
 
