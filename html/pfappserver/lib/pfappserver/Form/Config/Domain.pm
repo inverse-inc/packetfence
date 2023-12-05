@@ -268,7 +268,7 @@ sub validate {
             $self->field("ntlm_cache_source")->add_error("A valid source must be selected when NTLM cache is enabled.");
         }
         unless($self->field('ntlm_cache_expiry')->value) {
-            $self->field("ntlm_cache_expiry")->add_error("An expiration must be specified for caching when NTLM cache is enabled.");
+            $self->field("ntlm_cache_expiry")->add_error("An expiration must be specified when NTLM cache is enabled.");
         }
     }
 }
