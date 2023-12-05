@@ -6,7 +6,7 @@ pf::Switch::HP::Old_Procurve - Object oriented module to access SNMP enabled HP 
 
 =head1 SYNOPSIS
 
-The pf::Switch::HP::Old_HP_Procurve module implements an object
+The pf::Switch::HP::Old_Procurve module implements an object
 oriented interface to access SNMP enabled HP Procurve 2500 switches.
 
 =head1 STATUS
