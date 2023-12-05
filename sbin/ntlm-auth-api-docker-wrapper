@@ -12,7 +12,7 @@ if [ -z "$env_files" ]; then
     exit 1
 else
     for env_file in $env_files; do
-        echo "starting ntlm auth api for: $env_files"
+        echo "starting ntlm auth api for: $env_file"
         source "$conf_dir$env_file"
 
         args="-d "$(base_args "${name}-${IDENTIFIER}")

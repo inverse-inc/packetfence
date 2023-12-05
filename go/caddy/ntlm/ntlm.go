@@ -20,7 +20,7 @@ func GetDomainConfig(ctx context.Context) (pfconfigdriver.Domain, error) {
 }
 
 func CheckMachineAccountPassword(ctx context.Context, backendPort string) (bool, error) {
-	url := "http://127.0.0.1:" + backendPort + "/ntlm/connect"
+	url := "http://containers-gateway.internal:" + backendPort + "/ntlm/connect"
 
 	client := &http.Client{
 		Timeout: 2 * time.Second,
