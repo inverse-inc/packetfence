@@ -4,9 +4,9 @@ import (
 	"context"
 	"os"
 
-	"github.com/go-redis/redis"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/redis/go-redis/v9"
 )
 
 var redisClient *redis.Client

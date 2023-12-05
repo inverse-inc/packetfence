@@ -94,3 +94,4 @@ Licensed under the GNU General Public License v2.
 
 
 [mailing_lists]: https://packetfence.org/support/index.html#/community "Community Mailing Lists"
+

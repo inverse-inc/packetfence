@@ -1,14 +1,14 @@
-package pf::services::manager::pfqueue;
+package pf::services::manager::pfqueue_perl;
 
 =head1 NAME
 
-pf::services::manager::pfqueue - Manager for the pfqueue service
+pf::services::manager::pfqueue_perl - Manager for the pfqueue_perl service
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::pfqueue
+pf::services::manager::pfqueue_perl
 
 =cut
 
@@ -24,7 +24,7 @@ The name of service of this manager
 
 =cut
 
-has '+name' => ( default => sub { 'pfqueue' } );
+has '+name' => ( default => sub { 'pfqueue-perl' } );
 
 =head1 AUTHOR
 

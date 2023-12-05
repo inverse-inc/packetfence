@@ -11,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-redis/redis"
 	"github.com/gorilla/websocket"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/ccrypto"
@@ -22,6 +21,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/jpillora/requestlog"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/ssh"
 )
 

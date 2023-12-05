@@ -304,5 +304,10 @@ testcases:
 - name: restart_pfqueue_service
   steps:
   - type: systemctl_service_restart
-    service: packetfence-pfqueue
+    service: packetfence-pfqueue-backend
     time_to_sleep: 5
+
+  - type: systemctl_service_restart
+    service: packetfence-pfqueue-go
+    time_to_sleep: 5
+

@@ -22,8 +22,7 @@ func init() {
 }
 
 func setup(c *caddy.Controller) error {
-	ctx := context.Background()
-	ctx = log.LoggerNewContext(ctx)
+	ctx := log.LoggerNewContext(context.Background())
 
 	var requestHistory *RequestHistoryController
 
