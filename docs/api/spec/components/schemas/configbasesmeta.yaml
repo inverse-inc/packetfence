@@ -562,8 +562,6 @@ ConfigBasesMeta:
             $ref: '#/components/schemas/Meta'
           tracking-config:
             $ref: '#/components/schemas/Meta'
-          winbindd:
-            $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
