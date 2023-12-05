@@ -27,5 +27,5 @@ else
 
         run_multi "$name" "$IDENTIFIER" "$args"
     done
-    sleep infinity;
+    sleep infinity
 fi
