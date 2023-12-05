@@ -60,6 +60,20 @@ export const useSearch = makeSearch('domains', {
       visible: true
     },
     {
+      key: 'dns_name',
+      label: 'DNS name', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'server_name',
+      label: 'Server name', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'ntlm_cache',
       label: 'NTLM Cache', // i18n defer
       sortable: true,
