@@ -53,6 +53,7 @@ sub build_child {
         $tmp_cfg{pfqueue}{max_tasks} = $PFQUEUE_MAX_TASKS_DEFAULT;
     }
     $tmp_cfg{pfqueue}{task_jitter} //= $PFQUEUE_TASK_JITTER_DEFAULT;
+    $tmp_cfg{pfqueue}{$_} += 0 for qw(workers task_jitter max_tasks);
     foreach my $queue_section ( $self->GroupMembers('queue') ) {
         my $queue = $queue_section;
         $queue =~ s/^queue //;
@@ -61,6 +62,7 @@ sub build_child {
         $data->{workers} //= $PFQUEUE_WORKERS_DEFAULT;
         $data->{weight} //= $PFQUEUE_WEIGHT_DEFAULT;
         $data->{hashed} //= $PFQUEUE_HASHED_DEFAULT;
+        $data->{$_} += 0 for qw(workers weight);
         if (isenabled ($data->{hashed})) {
             push @queues, (map { real_name => $queue, name => sprintf("%s_%03d",$queue, $_), workers => 1, weight => 0 }, (0...$data->{workers}-1));
         } else {
@@ -76,6 +78,8 @@ sub build_child {
         $option_key =~ s/^redis_//;
         $redis_args{$option_key} = delete $consumer->{$redis_key};
     }
+
+    $redis_args{$_} += 0 for qw(every reconnect);
     $consumer->{redis_args} = \%redis_args;
 
     return \%tmp_cfg;

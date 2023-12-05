@@ -21,7 +21,7 @@ use File::Spec::Functions;
 
 our (
     #Directories
-    $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir,
+    $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir, $run_dir,
     $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir, $domains_ntlm_cache_users_dir, $systemd_unit_dir, $acme_challenge_dir,
     $conf_uploads,
 
@@ -127,6 +127,7 @@ our (
     $mfa_config_file,
     $connectors_config_file,
     $git_commit_id_file,
+    $pfqueue_backend_socket
 );
 
 BEGIN {
@@ -136,7 +137,7 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT_OK = qw(
-        $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir
+        $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir $run_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir $acme_challenge_dir $conf_uploads
         $pf_default_file
         $pf_config_file
@@ -228,6 +229,7 @@ BEGIN {
         $mfa_config_file
         $connectors_config_file
         $git_commit_id_file
+        $pfqueue_backend_socket
     );
 }
 
@@ -252,6 +254,7 @@ $tt_compile_cache_dir = catdir($var_dir, "tt_compile_cache");
 $control_dir  = catdir( $var_dir, "control");
 $switch_control_dir  = catdir($var_dir, "switch_control");
 $pfconfig_cache_dir = catdir($var_dir, "cache/pfconfig");
+$run_dir  = catdir($var_dir, "run");
 $domains_chroot_dir = catdir("/chroots");
 $domains_ntlm_cache_users_dir = catdir($var_dir, "cache/ntlm_cache_users");
 $systemd_unit_dir   = "/usr/lib/systemd/system"; 
@@ -417,6 +420,8 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
+
+$pfqueue_backend_socket = catfile($run_dir, "pfqueue-backend.sock");
 
 $cache_control_file = catfile($var_dir, "cache_control");
 

@@ -546,10 +546,20 @@ snmptrapd=disabled
 # Location of the snmptrapd binary. Only necessary to change if you are not using the RPMed version.
 snmptrapd_binary=/usr/sbin/snmptrapd
 #
+# services.pfqueue-backend
+#
+# Should pfqueue-backend be managed by PacketFence?
+pfqueue-backend=enabled
+#
 # services.pfqueue
 #
 # Should pfqueue be managed by PacketFence?
 pfqueue=enabled
+#
+# services.pfqueue-go
+#
+# Should pfqueue-go be managed by PacketFence?
+pfqueue-go=enabled
 #
 # services.pfcron
 #

@@ -42,7 +42,8 @@ Services managed by PacketFence:
   pfldapexplorer         | PF ldap search daemon
   pfperl-api             | Perl daemon providing API
   pfpki                  | PKI daemon
-  pfqueue                | PF queueing service
+  pfqueue-go             | PF queueing service
+  pfqueue-backend        | PF queueing backend service
   pfsso                  | Firewall SSO daemon
   pfstats                | PF statistics daemon
   proxysql               | proxysql daemon

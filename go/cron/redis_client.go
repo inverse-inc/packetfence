@@ -1,8 +1,8 @@
 package maint
 
 import (
-	"github.com/go-redis/redis/v8"
 	"github.com/inverse-inc/packetfence/go/redis_cache"
+	"github.com/redis/go-redis/v9"
 )
 
 func redisClient() *redis.Client {
