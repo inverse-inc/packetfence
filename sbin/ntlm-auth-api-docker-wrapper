@@ -12,12 +12,14 @@ if [ -z "$env_files" ]; then
     exit 1
 else
     for env_file in $env_files; do
+        echo "starting ntlm auth api for: $env_files"
         source "$conf_dir$env_file"
 
         args="-d "$(base_args "${name}-${IDENTIFIER}")
         args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
         args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
         args="$args -v /var/log:/var/log:ro"
+        args="$args --log-driver=syslog"
         args="$args -p $LISTEN:$LISTEN"
         args="$args -e LISTEN=$LISTEN"
         args="$args -e IDENTIFIER=$IDENTIFIER"
