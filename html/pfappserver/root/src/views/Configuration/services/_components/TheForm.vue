@@ -288,7 +288,7 @@
                             disabled-value="disabled"
     />
 
-    <form-group-mysql-probe namespace="kafka"
+    <form-group-kafka namespace="kafka"
                             column-label="kafka"
                             :text="$i18n.t(`Should Kafka be started? Keep disabled unless you know what you're doing.`)"
                             enabled-value="enabled"
@@ -343,7 +343,7 @@ import {
   FormGroupSnmpTrapd,
   FormGroupTrackingConfig,
   FormGroupWinbindd,
-  FormGroupKakfa
+  FormGroupKafka
 } from './'
 
 const components = {
@@ -390,7 +390,7 @@ const components = {
   FormGroupSnmpTrapd,
   FormGroupTrackingConfig,
   FormGroupWinbindd,
-  FormGroupKakfa,
+  FormGroupKafka,
   FormGroupMysqlProbe
 }
 
