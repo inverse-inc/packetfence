@@ -919,6 +919,7 @@ fi
                         /usr/local/pf/bin/pflogger-packetfence
 %attr(0755, pf, pf)     /usr/local/pf/bin/pflogger.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/proxysql-read-only-handler.sh
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/app.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/sync
@@ -943,6 +944,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.admin_dispatcher-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-domain
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetacls-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
