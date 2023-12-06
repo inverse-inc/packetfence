@@ -23,14 +23,20 @@ This section has been created to give a quick start to configure the PacketFence
 
 ==== Certificate Authority creation
 
-
 You will need to create a new certificate authority. Go to the PacketFence web administration under the section Configuration -> Integration -> PKI -> Certificate Authorities and click on *New Certificate Authority*
 
 image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification authority creation"]
 
+Optionally if you want the CA to be a sub CA of another PKI then you can click on 'Generate CSR' (top right of the CA form), change the information if one of them needs to be modify and click 'Generate CSR'.
+Copy the CSR and provide it to the external CA to be able to retrieve the certificate signed.
+Once done paste the certificate in the certificate box and save.
+
+Also if the CA certificate is about to expire then you can generate a new CSR or click on Resign CA Certificate (it will be a self signed certificate)
+
 ===== Here's a CA example:
 
 image::packetfence-pki-ca_creation.png[scaledwidth="100%",alt="Certification authority creation"]
+
 
 ===== Once you have created the CA, you should see the Root CA certificate displayed at the bottom of the page:
 
@@ -70,6 +76,7 @@ image::packetfence-pki-scep.png[scaledwidth="100%",alt="SCEP configuration"]
 IMPORTANT: Common name and Subject Alt Name attributes provided in CSR to get a certificate through SCEP will override values in PKI template.
 Other values like Signature Algorithm, Key usage, Extended key usage will be taken from PKI template.
 
+You could also enable 'SCEP Server Enabled' and define on which external SCEP server you want to proxy the request.
 
 ====== SCEP Test
 
@@ -163,6 +170,12 @@ If you revoke a certificate it can't be recovered and you would need to recreate
 ===== Click on the *Revoke* button on the certificate:
 
 image::packetfence-pki-revoked_certificate.png[scaledwidth="100%",alt="Revoke a certificate"]
+
+==== Resign a certificate
+
+You can resign an existing certificate if you want per example to extend the duration, this option will keep the same private key but generate a new public certificate.
+On the top right of the form when you edit a certificate, click on 'Resign' and change the values of the form if needed, then click 'Resign'.
+
 
 ==== PKI Provider
 
@@ -263,3 +276,4 @@ For this section you can follow the instruction on the Microsoft web site:
 From the PacketFence server you will need to extract the PKI Ca certificate associated to the template and put it in Intune as a "trusted certificate"
 
 Then set the SCEP URL to http://ip_addresse/scep/template_name or https://ip_addresse/scep/template_name
+
