@@ -2,13 +2,13 @@ package pf::services::manager::ntlm_auth_api;
 
 =head1 NAME
 
-pf::services::manager::httpd_dispatcher
+pf::services::manager::ntlm_auth_api
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::httpd_dispatcher
+pf::services::manager::ntlm_auth_api
 
 =cut
 
@@ -66,15 +66,6 @@ sub isAlive {
         }
     }
     return $alive;
-}
-
-sub pid {
-    my $self = shift;
-    if ($self->isAlive) {
-        return $self->SUPER::pid();
-
-    }
-    return 0;
 }
 
 sub isManaged {

@@ -250,6 +250,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-proxysql
 	dh_installinit --name=packetfence-pfldapexplorer
 	dh_installinit --name=packetfence-ntlm-auth-api
+	dh_installinit --name=packetfence-ntlm-auth-api-domain@
 	dh_installinit --name=packetfence-pfsetacls
 	dh_installinit --no-start --name=packetfence-tracking-config
 
