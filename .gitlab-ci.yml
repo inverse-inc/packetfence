@@ -641,6 +641,7 @@ pfdeb_based_dev:
           - "haproxy-admin"
           - "proxysql"
           - "pfldapexplorer"
+          - "ntlm-auth-api"
 
 img_dev:
   extends:
@@ -722,6 +723,7 @@ pfdeb_based_br_maint:
           - "haproxy-admin"
           - "proxysql"
           - "pfldapexplorer"
+          - "ntlm-auth-api"
 
 img_br_maint:
   extends:
@@ -803,6 +805,7 @@ pfdeb_based_cloud_nac:
           - "haproxy-admin"
           - "proxysql"
           - "pfldapexplorer"
+          - "ntlm-auth-api"
 
 img_cloud_nac:
   extends:
@@ -884,6 +887,7 @@ pfdeb_based_rel:
           - "haproxy-admin"
           - "proxysql"
           - "pfldapexplorer"
+          - "ntlm-auth-api"
 
 img_rel:
   extends:
