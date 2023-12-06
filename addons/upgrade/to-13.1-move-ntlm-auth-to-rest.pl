@@ -42,6 +42,8 @@ pf_run("mkdir -p $target_dir", accepted_exit_status => [ 0 ], working_directory 
 pf_run("cp -R /usr/local/pf/conf/domain.conf $target_dir");
 pf_run("cp -R /usr/local/pf/conf/realm.conf $target_dir");
 
+umount_winbindd();
+
 for my $section (grep {/^\S+$/} $ini->Sections()) {
     if ($ini->exists($section, 'machine_account_password')) {
         next;
@@ -169,6 +171,14 @@ sub extract_machine_password {
     my $hash = $md4->digest;
 
     return (unpack("H*", $hash));
+}
+
+sub umount_winbindd {
+    print("Stopping winbindd and umount /chroots/*\n");
+    pf_run("systemctl stop packetfence-winbindd");
+    sleep(3);
+    pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount");
+    print("/chroots/* has been umounted. there're still some subdirs in use remaining. They will be removed at the next reboot")
 }
 
 
