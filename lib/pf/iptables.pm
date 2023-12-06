@@ -92,6 +92,7 @@ Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
 Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
+tie our %KafkaConfig, 'pfconfig::cached_hash', "config::Kafka";
 
 =head1 SUBROUTINES
 
@@ -129,7 +130,7 @@ sub iptables_generate {
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
         'domain_postrouting' => '','mangle_postrouting_inline' => '',
         'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
-        'filter_forward' => '', 'forward_netflow' => '',
+        'filter_forward' => '', 'forward_netflow' => '', 'kafka' => '',
     );
 
     # global substitution variables
@@ -202,6 +203,8 @@ sub iptables_generate {
 
     #DNAT traffic from docker to mgmt ip
     $self->generate_dnat_from_docker(\$tags{'nat_if_src_to_chain'});
+    #Kafka iptables
+    $self->generate_kafka_rules(\$tags{'kafka'});
 
     # OAuth
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
@@ -228,6 +231,24 @@ sub iptables_generate {
     $self->iptables_restore("$generated_conf_dir/iptables.conf");
 }
 
+=head2 generate_kafka_rules
+
+generate_kafka_rules
+
+=cut
+
+sub generate_kafka_rules {
+    my ($self, $rule) = @_;
+    for my $client (@{$KafkaConfig{iptables}{clients}}) {
+        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT\n";
+    }
+
+    for my $ip (@{$KafkaConfig{iptables}{cluster_ips}}) {
+        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT\n";
+        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT\n";
+        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT\n";
+    }
+}
 
 =item generate_filter_if_src_to_chain
 
