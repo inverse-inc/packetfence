@@ -4,7 +4,8 @@ import {
   BaseFormGroupChosenCountry,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupTextareaUpload
+  BaseFormGroupTextareaUpload,
+  BaseInputGroupTextarea
 } from '@/components/new/'
 import {
   BaseFormGroupKeyType,
@@ -13,6 +14,8 @@ import {
   BaseFormGroupKeyUsage,
   BaseFormGroupExtendedKeyUsage,
 } from '../../_components/'
+import ButtonCaResign from './ButtonCaResign'
+import ButtonCaGenerateCsr from './ButtonCaGenerateCsr'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -39,6 +42,11 @@ export {
   BaseFormGroupInputNumber      as FormGroupDays,
   BaseFormGroupTextareaUpload   as FormGroupCert,
 
+  BaseInputGroupTextarea        as InputGroupCert,
+  BaseInputGroupTextarea        as InputGroupCsr,
+
+  ButtonCaResign,
+  ButtonCaGenerateCsr,
   TheForm,
   TheView
 }

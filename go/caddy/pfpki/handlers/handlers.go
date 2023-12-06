@@ -7,11 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"regexp"
 
-	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
@@ -21,7 +19,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 )
 
-func SearchCA(pfpki *types.Handler) http.Handler {
+func SearchCA(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewCAModel(pfpki)
@@ -54,7 +52,7 @@ func SearchCA(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func GetSetCA(pfpki *types.Handler) http.Handler {
+func GetSetCA(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		o := models.NewCAModel(pfpki)
 		var Information types.Info
@@ -80,7 +78,7 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 			}
 
 		case "POST":
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			Information.Status = http.StatusCreated
 			if err != nil {
 				Error.Message = err.Error()
@@ -110,7 +108,7 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 }
 
 func makeAdminApiAuditLog(pfpki *types.Handler, req *http.Request, Information types.Info, body []byte, action string) *admin_api_audit_log.AdminApiAuditLog {
-	vars := mux.Vars(req)
+	vars := types.Params(req, "id")
 	log := &admin_api_audit_log.AdminApiAuditLog{
 		UserName: req.Header.Get("X-PacketFence-Username"),
 		Action:   action,
@@ -128,7 +126,7 @@ func makeAdminApiAuditLog(pfpki *types.Handler, req *http.Request, Information t
 	return log
 }
 
-func ResignCA(pfpki *types.Handler) http.Handler {
+func ResignCA(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		o := models.NewCAModel(pfpki)
 		var Information types.Info
@@ -140,9 +138,9 @@ func ResignCA(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 
 		case "POST":
-			vars := mux.Vars(req)
+			vars := types.Params(req, "id")
 			Information.Status = http.StatusCreated
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -170,24 +168,37 @@ func ResignCA(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func GetCAByID(pfpki *types.Handler) http.Handler {
+func GenerateCSR(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		o := models.NewCAModel(pfpki)
 		var Information types.Info
 		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
 
 		switch req.Method {
-		case "GET":
-			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
-			Information, err = o.GetByID(vars)
+
+		case "POST":
+			vars := types.Params(req, "id")
+			Information.Status = http.StatusCreated
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusNotFound
+				Error.Status = http.StatusInternalServerError
 				break
 			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.GenerateCSR(vars); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.GenerateCSR")
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
@@ -195,11 +206,62 @@ func GetCAByID(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req, nil)
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
 	})
 }
 
-func FixCA(pfpki *types.Handler) http.Handler {
+func CAByID(pfpki *types.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		o := models.NewCAModel(pfpki)
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+		case "GET":
+			Information.Status = http.StatusOK
+			vars := types.Params(req, "id")
+			Information, err = o.GetByID(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusNotFound
+				break
+			}
+
+		case "PATCH":
+			vars := types.Params(req, "id")
+			Information.Status = http.StatusOK
+			body, err := io.ReadAll(req.Body)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.Update(vars); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.UpdateCA")
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
+
+func FixCA(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		o := models.NewCAModel(pfpki)
 		var Information types.Info
@@ -217,7 +279,7 @@ func FixCA(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func GetSetProfile(pfpki *types.Handler) http.Handler {
+func GetSetProfile(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewProfileModel(pfpki)
@@ -246,7 +308,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 
 		case "POST":
 			Information.Status = http.StatusCreated
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -274,7 +336,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func SearchProfile(pfpki *types.Handler) http.Handler {
+func SearchProfile(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewProfileModel(pfpki)
@@ -309,7 +371,7 @@ func SearchProfile(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func GetProfileByID(pfpki *types.Handler) http.Handler {
+func GetProfileByID(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewProfileModel(pfpki)
@@ -319,11 +381,12 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
+		vars := types.Params(req, "id")
 
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+
 			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -333,7 +396,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 
 		case "PATCH":
 			Information.Status = http.StatusOK
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -344,7 +407,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusInternalServerError
 				break
 			}
-			if Information, err = o.Update(); err != nil {
+			if Information, err = o.Update(vars); err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusUnprocessableEntity
 				break
@@ -361,7 +424,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func GetSetCert(pfpki *types.Handler) http.Handler {
+func GetSetCert(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewCertModel(pfpki)
@@ -390,7 +453,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 
 		case "POST":
 			Information.Status = http.StatusCreated
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -418,7 +481,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func SearchCert(pfpki *types.Handler) http.Handler {
+func SearchCert(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewCertModel(pfpki)
@@ -453,7 +516,7 @@ func SearchCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func GetCertByID(pfpki *types.Handler) http.Handler {
+func GetCertByID(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewCertModel(pfpki)
@@ -465,7 +528,7 @@ func GetCertByID(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Params(req, "id", "cn")
 			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -483,7 +546,7 @@ func GetCertByID(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func DownloadCert(pfpki *types.Handler) http.Handler {
+func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewCertModel(pfpki)
@@ -492,7 +555,7 @@ func DownloadCert(pfpki *types.Handler) http.Handler {
 
 		Error := types.Errors{Status: 0}
 
-		vars := mux.Vars(req)
+		vars := types.Params(req, "id", "cn")
 		if len(regexp.MustCompile(`^[0-9]+$`).FindStringIndex(vars["id"])) > 0 {
 			delete(vars, "cn")
 		} else {
@@ -502,7 +565,6 @@ func DownloadCert(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
 			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -520,7 +582,7 @@ func DownloadCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func EmailCert(pfpki *types.Handler) http.Handler {
+func EmailCert(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewCertModel(pfpki)
@@ -532,7 +594,7 @@ func EmailCert(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Params(req, "id", "profile", "cn")
 			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -550,7 +612,7 @@ func EmailCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func RevokeCert(pfpki *types.Handler) http.Handler {
+func RevokeCert(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewCertModel(pfpki)
@@ -560,7 +622,7 @@ func RevokeCert(pfpki *types.Handler) http.Handler {
 
 		Error := types.Errors{Status: 0}
 
-		vars := mux.Vars(req)
+		vars := types.Params(req, "id", "cn", "profile")
 		if _, ok := vars["cn"]; ok {
 			delete(vars, "id")
 		}
@@ -585,7 +647,49 @@ func RevokeCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func GetRevoked(pfpki *types.Handler) http.Handler {
+func ResignCert(pfpki *types.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		o := models.NewCertModel(pfpki)
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+
+		case "POST":
+			vars := types.Params(req, "id")
+			Information.Status = http.StatusCreated
+			body, err := io.ReadAll(req.Body)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.Resign(vars); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.ResignCert")
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
+
+func GetRevoked(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewRevokedCertModel(pfpki)
@@ -620,7 +724,7 @@ func GetRevoked(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func SearchRevoked(pfpki *types.Handler) http.Handler {
+func SearchRevoked(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewRevokedCertModel(pfpki)
@@ -654,7 +758,7 @@ func SearchRevoked(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func GetRevokedByID(pfpki *types.Handler) http.Handler {
+func GetRevokedByID(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewRevokedCertModel(pfpki)
@@ -665,7 +769,7 @@ func GetRevokedByID(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Params(req, "id")
 			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -683,7 +787,7 @@ func GetRevokedByID(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func CheckRenewal(pfpki *types.Handler) http.Handler {
+func CheckRenewal(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewCertModel(pfpki)
@@ -695,7 +799,7 @@ func CheckRenewal(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			Information.Status = http.StatusOK
-			vars := mux.Vars(req)
+			vars := types.Params(req, "id", "reason")
 			Information, err = o.CheckRenewal(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -714,7 +818,7 @@ func CheckRenewal(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func SignCSR(pfpki *types.Handler) http.Handler {
+func SignCSR(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewCsrModel(pfpki)
@@ -724,12 +828,12 @@ func SignCSR(pfpki *types.Handler) http.Handler {
 		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
-		vars := mux.Vars(req)
+		vars := types.Params(req, "id")
 		switch req.Method {
 
 		case "POST":
 			Information.Status = http.StatusCreated
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -800,7 +904,7 @@ func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handl
 	}
 }
 
-func ManageOcsp(pfpki *types.Handler) http.Handler {
+func ManageOcsp(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		log.LoggerWContext(*pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
 		if req.Header.Get("Content-Type") != "application/ocsp-request" {
@@ -843,7 +947,7 @@ func ManageOcsp(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func ManageSCEP(pfpki *types.Handler) http.Handler {
+func ManageSCEP(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		log.LoggerWContext(*pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
 		scep.ScepHandler(pfpki, res, req)
@@ -860,4 +964,151 @@ func Responder(pfpki *types.Handler) *ocspresponder.OCSPResponder {
 		NonceList:   nil,
 		Handler:     pfpki,
 	}
+}
+
+func SearchSCEPServer(pfpki *types.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+
+		o := models.NewSCEPServerModel(pfpki)
+		var Information types.Info
+		var err error
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+		case "POST":
+			Information.Status = http.StatusOK
+			var vars sql.Vars
+			if err := vars.DecodeBodyJson(req); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			Information, err = o.Search(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusNotFound
+				break
+			}
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Information.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, nil)
+	})
+}
+
+func SCEPServerByID(pfpki *types.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		o := models.NewSCEPServerModel(pfpki)
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+		case "GET":
+			Information.Status = http.StatusOK
+			vars := types.Params(req, "id")
+			Information, err = o.GetByID(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusNotFound
+				break
+			}
+
+		case "PATCH":
+			Information.Status = http.StatusOK
+			body, err := io.ReadAll(req.Body)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.Update(); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.UpdateCA")
+		case "DELETE":
+			Information.Status = http.StatusOK
+			vars := types.Params(req, "id")
+			Information, err = o.DelByID(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusNotFound
+				break
+			}
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
+
+func GetSetSCEPServer(pfpki *types.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		o := models.NewSCEPServerModel(pfpki)
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog = nil
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+		case "GET":
+			vars, err := types.DecodeUrlQuery(req)
+			Information.Status = http.StatusOK
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			Information, err = o.Paginated(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+
+		case "POST":
+			body, err := io.ReadAll(req.Body)
+			Information.Status = http.StatusCreated
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.New(); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.SetCA")
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
 }

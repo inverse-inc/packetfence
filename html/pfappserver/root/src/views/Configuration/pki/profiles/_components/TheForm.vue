@@ -48,7 +48,7 @@
         -->
         <form-group-validity namespace="validity"
                              :column-label="$i18n.t('Validity')"
-                             :text="$i18n.t('Number of days the certificate will be valid.')"
+                             :text="$i18n.t('Number of days the certificate will be valid. (value greater than 380 wont work on some devices)')"
         />
         <form-group-key-type namespace="key_type"
                              :column-label="$i18n.t('Key type')"
@@ -123,6 +123,14 @@
         <form-group-cloud-service namespace="cloud_service"
                                   :column-label="$i18n.t('Cloud Service')"
                                   :text="$i18n.t('Cloud Service to integrate.')"
+        />
+        <form-group-scep-server-enabled namespace="scep_server_enabled"
+                                        :column-label="$i18n.t('SCEP Server Enabled')"
+                                        :enabled-value="1"
+                                        :disabled-value="0"
+        />
+        <form-group-scep-server-id namespace="scep_server_id"
+                                  :column-label="$i18n.t('SCEP Server')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Renewal Configuration')">
@@ -219,7 +227,9 @@ import {
   FormGroupScepEnabled,
   FormGroupState,
   FormGroupStreetAddress,
-  FormGroupValidity
+  FormGroupValidity,
+  FormGroupScepServerEnabled,
+  FormGroupScepServerId
 } from './'
 import {computed, toRefs} from '@vue/composition-api'
 import {keySizes, keyTypes} from '../../config'
@@ -263,7 +273,9 @@ const components = {
   FormGroupRenewalMailFrom,
   FormGroupRenewalMailHeader,
   FormGroupRenewalMailFooter,
-  FormGroupRevokedValidUntil
+  FormGroupRevokedValidUntil,
+  FormGroupScepServerEnabled,
+  FormGroupScepServerId
 }
 
 export const props = {

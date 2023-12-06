@@ -3,10 +3,12 @@ package models
 import (
 	"context"
 	"errors"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/jinzhu/gorm"
 	"strings"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
+
+	"gorm.io/gorm"
 )
 
 type RadacctLog struct {
@@ -38,15 +40,16 @@ func NewRadacctLogModel(dbp **gorm.DB, ctx *context.Context) *RadacctLog {
 }
 func (a RadacctLog) Paginated(vars sql.Vars) (DBRes, error) {
 	var res = DBRes{}
-	var count int
+	var count int64
 
 	a.DB.Model(&RadacctLog{}).Count(&count)
-	res.Total = &count
+	counter := int(count)
+	res.Total = &counter
 	res.PrevCursor = &vars.Cursor
 	nextCursor := vars.Cursor + vars.Limit
 	res.NextCursor = &nextCursor
 
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sqls, err := vars.Sql(a)
 		if err != nil {
 			return DBRes{}, err
@@ -68,7 +71,7 @@ func (a RadacctLog) Search(vars sql.Vars) (DBRes, error) {
 		return res, err
 	}
 
-	var count int
+	var count int64
 	var items []RadacctLog
 	a.DB.Model(&RadacctLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
 
@@ -76,12 +79,13 @@ func (a RadacctLog) Search(vars sql.Vars) (DBRes, error) {
 		return res, errors.New("entries not found")
 	}
 
-	res.Total = &count
+	counter := int(count)
+	res.Total = &counter
 	res.PrevCursor = &vars.Cursor
 	nextCursor := vars.Cursor + vars.Limit
 	res.NextCursor = &nextCursor
 
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		db := a.DB.Select(sqls.Select).Where(sqls.Where.Query, sqls.Where.Values...).Order(sqls.Order).Offset(sqls.Offset).Limit(sqls.Limit).Find(&items)
 		if db.Error != nil {
 			return DBRes{}, db.Error

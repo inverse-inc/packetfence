@@ -3,8 +3,10 @@ package models
 import (
 	"context"
 	"errors"
+
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+
 	"strings"
 )
 
@@ -64,15 +66,16 @@ func NewWrixModel(dbp **gorm.DB, ctx *context.Context) *Wrix {
 }
 func (a Wrix) Paginated(vars sql.Vars) (DBRes, error) {
 	var res = DBRes{}
-	var count int
+	var count int64
 
 	a.DB.Model(&Wrix{}).Count(&count)
-	res.Total = &count
+	counter := int(count)
+	res.Total = &counter
 	res.PrevCursor = &vars.Cursor
 	nextCursor := vars.Cursor + vars.Limit
 	res.NextCursor = &nextCursor
 
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sqls, err := vars.Sql(a)
 		if err != nil {
 			return DBRes{}, err
@@ -94,7 +97,7 @@ func (a Wrix) Search(vars sql.Vars) (DBRes, error) {
 		return res, err
 	}
 
-	var count int
+	var count int64
 	var items []Wrix
 	a.DB.Model(&Wrix{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
 
@@ -102,12 +105,13 @@ func (a Wrix) Search(vars sql.Vars) (DBRes, error) {
 		return res, errors.New("entries not found")
 	}
 
-	res.Total = &count
+	counter := int(count)
+	res.Total = &counter
 	res.PrevCursor = &vars.Cursor
 	nextCursor := vars.Cursor + vars.Limit
 	res.NextCursor = &nextCursor
 
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		db := a.DB.Select(sqls.Select).Where(sqls.Where.Query, sqls.Where.Values...).Order(sqls.Order).Offset(sqls.Offset).Limit(sqls.Limit).Find(&items)
 		if db.Error != nil {
 			return DBRes{}, db.Error

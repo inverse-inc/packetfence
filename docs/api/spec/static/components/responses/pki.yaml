@@ -158,3 +158,31 @@ PkiRevokedCertsSearch:
     application/json:
       schema:
         $ref: "#/components/schemas/PkiRevokedCertsSearch"
+
+PkiScepServer:
+  description: Request successful. The response contains the PKI SCEP Server.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiScepServersList"
+
+PkiScepServersList:
+  description: Request successful. The response contains PKI SCEP Servers.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiScepServersList"
+
+PkiScepServerCreate:
+  description: Request successful. The PKI SCEP Server has been created.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiScepServerList"
+
+PkiScepServersSearch:
+  description: Request successful. The response contains the search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiScepServersSearch"

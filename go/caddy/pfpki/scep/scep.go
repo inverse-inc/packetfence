@@ -6,7 +6,6 @@ import (
 
 	kitlog "github.com/go-kit/log"
 	kitloglevel "github.com/go-kit/log/level"
-	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
@@ -18,7 +17,7 @@ import (
 
 func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
+	vars := types.Params(r, "id")
 
 	var logger kitlog.Logger
 	{
@@ -43,7 +42,9 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 	}
 
 	var svc scepserver.Service // scep service
+
 	{
+		var signer scepserver.CSRSigner
 		crts, key, err := o.CA(nil, profileName)
 		if err != nil {
 			lginfo.Log("err", err)
@@ -53,7 +54,6 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			lginfo.Log("err", "missing CA certificate")
 			return
 		}
-
 		var vcloud cloud.Cloud
 		if profile[0].CloudEnabled == 1 {
 			vcloud, err = cloud.Create(*pfpki.Ctx, "intune", profile[0].CloudService)
@@ -64,7 +64,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		var signer scepserver.CSRSigner = scepdepot.NewSigner(
+		signer = scepdepot.NewSigner(
 			o,
 			scepdepot.WithAllowRenewalDays(profile[0].SCEPDaysBeforeRenewal),
 			scepdepot.WithValidityDays(profile[0].Validity),
@@ -79,11 +79,17 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		// Load the Intune/MDM csr Verifier
 		signer = csrverifier.Middleware(o, signer)
 
-		svc, err = scepserver.NewService(crts[0], key, signer, scepserver.WithLogger(logger))
+		if profile[0].ScepServerEnabled == 1 {
+			svc, err = scepserver.Create("proxy", crts[0], key, signer, scepserver.WithLogger(logger))
+			svc.WithAddProxy(*pfpki.Ctx, profile[0].ScepServer.URL)
+		} else {
+			svc, err = scepserver.Create("server", crts[0], key, signer, scepserver.WithLogger(logger))
+		}
 		if err != nil {
 			lginfo.Log("err", err)
 			return
 		}
+
 		svc = scepserver.NewLoggingService(kitlog.With(lginfo, "component", "scep_service"), svc)
 	}
 

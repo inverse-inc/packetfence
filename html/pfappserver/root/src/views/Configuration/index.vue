@@ -86,7 +86,8 @@ const setup = () => {
             { name: i18n.t('Certificate Authorities'), path: '/configuration/pki/cas' },
             { name: i18n.t('Templates'), path: '/configuration/pki/profiles' },
             { name: i18n.t('Certificates'), path: '/configuration/pki/certs' },
-            { name: i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' }
+            { name: i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' },
+            { name: i18n.t('SCEP Servers'), path: '/configuration/pki/scepservers' }
           ]
         },
         { name: i18n.t('Multi-Factor Authentication'), path: '/configuration/mfas' }

@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/schema"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/panichandler"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type (
@@ -51,7 +51,7 @@ type (
 	// Handler struct
 	Handler struct {
 		Next   httpserver.Handler
-		Router *mux.Router
+		Router *chi.Mux
 		DB     *gorm.DB
 		Ctx    *context.Context
 	}
@@ -87,16 +87,27 @@ func DecodeUrlQuery(req *http.Request) (sql.Vars, error) {
 
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
-	r = r.WithContext(ctx)
-
 	defer panichandler.Http(ctx, w)
-
-	routeMatch := mux.RouteMatch{}
-	if h.Router.Match(r, &routeMatch) {
+	rctx := chi.NewRouteContext()
+	ctx = context.WithValue(ctx, rctx, chi.RouteCtxKey)
+	r = r.WithContext(ctx)
+	rctx.Routes = h.Router
+	if h.Router.Match(rctx, r.Method, r.URL.Path) {
 		h.Router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
 		return 0, nil
 	}
 	return h.Next.ServeHTTP(w, r)
+}
+
+func Params(r *http.Request, keys ...string) map[string]string {
+	param := make(map[string]string)
+	for _, key := range keys {
+		value := chi.URLParam(r, key)
+		if value != "" {
+			param[key] = value
+		}
+	}
+	return param
 }

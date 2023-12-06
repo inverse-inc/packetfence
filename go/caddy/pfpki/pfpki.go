@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
+	chi "github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -15,9 +16,10 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 // Register the plugin in caddy
@@ -61,7 +63,7 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 
 	var successDBConnect = false
 	for !successDBConnect {
-		Database, err = gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+		Database, err = gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 		if err != nil {
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to the database: %s", err))
 			time.Sleep(time.Duration(5) * time.Second)
@@ -70,9 +72,6 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 		}
 	}
 
-	gorm.DefaultTableNameHandler = func(Database *gorm.DB, defaultTableName string) string {
-		return "pki_" + defaultTableName
-	}
 	if log.LoggerGetLevel(ctx) == "DEBUG" {
 		pfpki.DB = Database.Debug()
 	} else {
@@ -84,77 +83,114 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	pfpki.Router = mux.NewRouter()
+	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
 	PFPki := &pfpki
-	api := pfpki.Router.PathPrefix("/api/v1").Subrouter()
 
-	// CAs (GET: list, POST: create)
-	api.Handle("/pki/cas", handlers.GetSetCA(PFPki)).Methods("GET", "POST")
-	// Search CAs
-	api.Handle("/pki/cas/search", handlers.SearchCA(PFPki)).Methods("POST")
-	// Fix CA after Import
-	api.Handle("/pki/ca/fix", handlers.FixCA(PFPki)).Methods("GET")
-	// Get CA by ID
-	api.Handle("/pki/ca/{id}", handlers.GetCAByID(PFPki)).Methods("GET")
-	// Resign CA
-	api.Handle("/pki/ca/resign/{id}", handlers.ResignCA(PFPki)).Methods("POST")
+	r.Route("/api/v1", func(r chi.Router) {
+		// CAS api endpoint
+		r.Route("/pki/cas", func(r chi.Router) {
+			r.Get("/", handlers.GetSetCA(PFPki))
+			r.Post("/", handlers.GetSetCA(PFPki))
+			r.Post("/search", handlers.SearchCA(PFPki))
+		})
+		// CA api endpoint
+		r.Route("/pki/ca", func(r chi.Router) {
+			r.Get("/fix", handlers.FixCA(PFPki))
+			r.Get("/{id}", handlers.CAByID(PFPki))
+			r.Patch("/{id}", handlers.CAByID(PFPki))
+			r.Post("/resign/{id}", handlers.ResignCA(PFPki))
+			r.Post("/csr/{id}", handlers.GenerateCSR(PFPki))
+		})
+		// Profiles api endpoint
+		r.Route("/pki/profiles", func(r chi.Router) {
+			r.Post("/", handlers.GetSetProfile(PFPki))
+			r.Get("/", handlers.GetSetProfile(PFPki))
+			r.Post("/search", handlers.SearchProfile(PFPki))
+		})
+		// Profile api endpoint
+		r.Route("/pki/profile", func(r chi.Router) {
+			r.Patch("/{id}", handlers.GetProfileByID(PFPki))
+			r.Get("/{id}", handlers.GetProfileByID(PFPki))
+			r.Post("/{id}/sign_csr", handlers.SignCSR(PFPki))
 
-	// Profiles (GET: list, POST: create)
-	api.Handle("/pki/profiles", handlers.GetSetProfile(PFPki)).Methods("GET", "POST")
-	// Search Profiles
-	api.Handle("/pki/profiles/search", handlers.SearchProfile(PFPki)).Methods("POST")
-	// Profile by ID (GET: get, PATCH: update)
-	api.Handle("/pki/profile/{id}", handlers.GetProfileByID(PFPki)).Methods("GET", "PATCH")
-	// Sign a CSR
-	api.Handle("/pki/profile/{id}/sign_csr", handlers.SignCSR(PFPki)).Methods("POST")
+		})
+		// Certs api endpoint
+		r.Route("/pki/certs", func(r chi.Router) {
+			r.Post("/", handlers.GetSetCert(PFPki))
+			r.Get("/", handlers.GetSetCert(PFPki))
+			r.Post("/search", handlers.SearchCert(PFPki))
+		})
+		// Cert api endpoint
+		r.Route("/pki/cert", func(r chi.Router) {
+			r.Get("/{id}", handlers.GetCertByID(PFPki))
+			r.Get("/{id}/download/{password}", handlers.DownloadCert(PFPki))
+			r.Get("/{profile}/{id}/download/{password}", handlers.DownloadCert(PFPki))
+			r.Get("/{id}/email", handlers.EmailCert(PFPki))
+			r.Delete("/{id}/{reason}", handlers.RevokeCert(PFPki))
+			r.Post("/resign/{id}", handlers.ResignCert(PFPki))
+			r.Delete("/{profile}/{cn}/{reason}", handlers.RevokeCert(PFPki))
+		})
+		// Revoke certs api endpoint
+		r.Route("/pki/revokedcerts", func(r chi.Router) {
+			r.Get("/", handlers.GetRevoked(PFPki))
+			r.Post("/search", handlers.SearchRevoked(PFPki))
+		})
+		// Revoke certs api endpoint
+		r.Route("/pki/revokedcert", func(r chi.Router) {
+			r.Get("/{id}", handlers.GetRevokedByID(PFPki))
+		})
+		// Check renewal api endpoint
+		r.Get("/pki/checkrenewal", handlers.CheckRenewal(PFPki))
+		// OCSP api endpoint
+		r.Route("/pki/ocsp", func(r chi.Router) {
+			r.Get("/ocsp", handlers.ManageOcsp(PFPki))
+			r.Post("/ocsp", handlers.ManageOcsp(PFPki))
+		})
+		// SCEP api endpoint
+		r.Route("/pki/scep", func(r chi.Router) {
+			r.Get("/", handlers.ManageSCEP(PFPki))
+			r.Post("/", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}/", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}/", handlers.ManageSCEP(PFPki))
+		})
+		r.Route("/scep", func(r chi.Router) {
+			r.Get("/", handlers.ManageSCEP(PFPki))
+			r.Post("/", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}", handlers.ManageSCEP(PFPki))
+			r.Get("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
+			r.Post("/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki))
+		})
+		// SCEPServers api endpoint
+		r.Route("/pki/scepservers", func(r chi.Router) {
+			r.Get("/", handlers.GetSetSCEPServer(PFPki))
+			r.Post("/", handlers.GetSetSCEPServer(PFPki))
+			r.Post("/search", handlers.SearchSCEPServer(PFPki))
+		})
+		r.Route("/pki/scepserver", func(r chi.Router) {
+			r.Get("/{id}", handlers.SCEPServerByID(PFPki))
+			r.Patch("/{id}", handlers.SCEPServerByID(PFPki))
+			r.Delete("/{id}", handlers.SCEPServerByID(PFPki))
+		})
 
-	// Certificates (GET: list, POST: create)
-	api.Handle("/pki/certs", handlers.GetSetCert(PFPki)).Methods("GET", "POST")
-	// Search Certificates
-	api.Handle("/pki/certs/search", handlers.SearchCert(PFPki)).Methods("POST")
-	// Get Certificate by ID
-	api.Handle("/pki/cert/{id}", handlers.GetCertByID(PFPki)).Methods("GET")
-	// Download Certificate
-	api.Handle("/pki/cert/{id}/download/{password}", handlers.DownloadCert(PFPki)).Methods("GET")
-	// Download Certificate from profile
-	api.Handle("/pki/cert/{profile}/{id}/download/{password}", handlers.DownloadCert(PFPki)).Methods("GET")
-	// Get Certificate by email
-	api.Handle("/pki/cert/{id}/email", handlers.EmailCert(PFPki)).Methods("GET")
-	// Revoke Certificate
-	api.Handle("/pki/cert/{id}/{reason}", handlers.RevokeCert(PFPki)).Methods("DELETE")
+	})
 
-	// Revoke Certificate from profile
-	api.Handle("/pki/cert/{profile}/{cn}/{reason}", handlers.RevokeCert(PFPki)).Methods("DELETE")
-	// Revoked Certificates
-	api.Handle("/pki/revokedcerts", handlers.GetRevoked(PFPki)).Methods("GET")
-	// Search Revoked Certificates
-	api.Handle("/pki/revokedcerts/search", handlers.SearchRevoked(PFPki)).Methods("POST")
-	// Get Revoked Certificate by ID
-	api.Handle("/pki/revokedcert/{id}", handlers.GetRevokedByID(PFPki)).Methods("GET")
-
-	api.Handle("/pki/checkrenewal", handlers.CheckRenewal(PFPki)).Methods("GET")
-
-	// OCSP responder
-	api.Handle("/pki/ocsp", handlers.ManageOcsp(PFPki)).Methods("GET", "POST")
-
-	// SCEP responder
-	api.Handle("/scep", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
-
-	api.Handle("/scep/{id}", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
-
-	api.Handle("/scep/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
-
-	api.Handle("/pki/scep", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
-
-	api.Handle("/pki/scep/{id}", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
-
-	api.Handle("/pki/scep/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
-
-	api.Handle("/pki/scep/{id}/", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
+	pfpki.Router = r
 
 	go func() {
 		for {
-			pfpki.DB.DB().Ping()
+
+			sqlDB, _ := pfpki.DB.DB()
+			sqlDB.Ping()
 			time.Sleep(5 * time.Second)
 		}
 	}()

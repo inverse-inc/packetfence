@@ -1,28 +1,31 @@
 import apiCall from '@/utils/api'
-import { recomposeGorm } from '../config'
+import {
+  decomposeCert,
+  recomposeCert
+} from './config'
 
 export default {
   list: params => {
     return apiCall.getQuiet('pki/certs', { params }).then(response => {
       const { data: { items, ...rest } = {} } = response
-      return { items: (items || []).map(item => recomposeGorm(item)), ...rest }
+      return { items: (items || []).map(item => decomposeCert(item)), ...rest }
     })
   },
   search: params => {
     return apiCall.postQuiet('pki/certs/search', params).then(response => {
       const { data: { items, ...rest } } = response
-      return { items: (items || []).map(item => recomposeGorm(item)), ...rest }
+      return { items: (items || []).map(item => decomposeCert(item)), ...rest }
     })
   },
   create: data => {
     const { id, ...rest } = data // strip `id` from isClone
-    return apiCall.post('pki/certs', rest).then(response => {
+    return apiCall.post('pki/certs', recomposeCert(rest)).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
       } else {
         const { data: { items: { 0: item = {} } = {} } = {} } = response
-        return recomposeGorm(item)
+        return { id, ...decomposeCert(item) }
       }
     })
   },
@@ -40,7 +43,7 @@ export default {
   item: id => {
     return apiCall.get(['pki', 'cert', id]).then(response => {
       const { data: { items: { 0: item = {} } = {} } = {} } = response
-      return recomposeGorm(item)
+      return { id, ...decomposeCert(item) }
     })
   },
   email: id => {
@@ -61,6 +64,18 @@ export default {
         throw error
       } else {
         return true
+      }
+    })
+  },
+  resign: data => {
+    const { id, ...rest } = data
+    return apiCall.post(['pki', 'cert', 'resign', id], recomposeCert(rest)).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        return { id, ...decomposeCert(item) }
       }
     })
   }

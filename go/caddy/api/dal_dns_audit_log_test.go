@@ -5,9 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -15,7 +12,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/julienschmidt/httprouter"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var dnsAuditLogIDs []int64
@@ -73,7 +74,7 @@ func removeDBTestEntriesDnsAuditLog(t *testing.T, id int64) error {
 func dalDnsAuditLog() http.HandlerFunc {
 	router := httprouter.New()
 	ctx := context.Background()
-	dbs, err := gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+	dbs, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 	if err != nil {
 		fmt.Println("error occured while connecting to mysql, ", err.Error())
 	}

@@ -16,14 +16,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/big"
 	mathrand "math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"golang.org/x/crypto/ssh"
 )
 
 // DSAKeyFormat is the format of a DSA key
@@ -175,14 +176,14 @@ func CalculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
 }
 
 func GeneratePassword() string {
-	mathrand.Seed(time.Now().UnixNano())
+	r := mathrand.New(mathrand.NewSource(time.Now().UnixNano()))
 	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
 		"abcdefghijklmnopqrstuvwxyz" +
 		"0123456789")
 	length := 8
 	var b strings.Builder
 	for i := 0; i < length; i++ {
-		b.WriteRune(chars[mathrand.Intn(len(chars))])
+		b.WriteRune(chars[r.Intn(len(chars))])
 	}
 	return b.String()
 }
@@ -263,7 +264,7 @@ func ParseCertFile(pubPEM string) (*x509.Certificate, error) {
 
 // parses a PEM encoded PKCS8 private key (RSA only)
 func ParseKeyFile(filename string) (interface{}, error) {
-	kt, err := ioutil.ReadFile(filename)
+	kt, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -480,4 +481,132 @@ func CertName(crt *x509.Certificate) string {
 		return crt.Subject.CommonName
 	}
 	return string(crt.Signature)
+}
+
+func ReturnDSAPrivateKey(key *dsa.PrivateKey) (*bytes.Buffer, []byte, crypto.PublicKey, crypto.PrivateKey, error) {
+	var keyOut *bytes.Buffer
+	var pub crypto.PublicKey
+	var privkey crypto.PrivateKey
+	privkey = key
+	keyOut = new(bytes.Buffer)
+	pub = &key.PublicKey
+	skid, err := CalculateSKID(pub)
+	if err != nil {
+		return keyOut, skid, pub, privkey, err
+	}
+	val := DSAKeyFormat{
+		P: key.P, Q: key.Q, G: key.G,
+		Y: key.Y, X: key.X,
+	}
+	bytes, _ := asn1.Marshal(val)
+	pem.Encode(keyOut, &pem.Block{Type: "DSA PRIVATE KEY", Bytes: bytes})
+	return keyOut, skid, pub, privkey, err
+}
+
+func ReturnECDSAPrivateKey(key *ecdsa.PrivateKey) (*bytes.Buffer, []byte, crypto.PublicKey, crypto.PrivateKey, error) {
+	var keyOut *bytes.Buffer
+	var pub crypto.PublicKey
+	var privkey crypto.PrivateKey
+	privkey = key
+	keyOut = new(bytes.Buffer)
+	pub = &key.PublicKey
+	skid, err := CalculateSKID(pub)
+	if err != nil {
+		return keyOut, skid, pub, privkey, err
+	}
+	bytes, _ := x509.MarshalECPrivateKey(key)
+	pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: bytes})
+	return keyOut, skid, pub, privkey, err
+}
+
+func ReturnRSAPrivateKey(key *rsa.PrivateKey) (*bytes.Buffer, []byte, crypto.PublicKey, crypto.PrivateKey, error) {
+	var keyOut *bytes.Buffer
+	var pub crypto.PublicKey
+	var privkey crypto.PrivateKey
+	privkey = key
+	keyOut = new(bytes.Buffer)
+	pub = &key.PublicKey
+
+	skid, err := CalculateSKID(pub)
+	if err != nil {
+		return keyOut, skid, pub, privkey, err
+	}
+	pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)})
+	return keyOut, skid, pub, privkey, err
+}
+
+func ReturnPrivateKey(key []byte) (*bytes.Buffer, []byte, crypto.PublicKey, crypto.PrivateKey, error) {
+	var keyOut *bytes.Buffer
+	keyOut = new(bytes.Buffer)
+	pkey, err := x509.ParsePKCS8PrivateKey(key)
+	if err != nil {
+		return keyOut, nil, nil, nil, err
+	}
+	switch pkey.(type) {
+	case *ecdsa.PrivateKey:
+		return ReturnECDSAPrivateKey(pkey.(*ecdsa.PrivateKey))
+	case *dsa.PrivateKey:
+		return ReturnDSAPrivateKey(pkey.(*dsa.PrivateKey))
+	case *rsa.PrivateKey:
+		return ReturnRSAPrivateKey(pkey.(*rsa.PrivateKey))
+	default:
+		return keyOut, nil, nil, nil, err
+	}
+
+}
+
+func ExtractPrivateKey(KeyType *types.Type, block *pem.Block, Information *types.Info) (*bytes.Buffer, []byte, crypto.PublicKey, crypto.PrivateKey, types.Info, error) {
+	var skid []byte
+	var keyOut *bytes.Buffer
+	keyOut = new(bytes.Buffer)
+	var key crypto.PrivateKey
+	var pub crypto.PublicKey
+	switch *KeyType {
+	case KEY_RSA:
+		keyRSA, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, *Information, err
+			}
+		} else {
+			keyOut, skid, pub, key, err = ReturnRSAPrivateKey(keyRSA)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, *Information, err
+			}
+		}
+	case KEY_ECDSA:
+		KeyECDSA, err := x509.ParseECPrivateKey(block.Bytes)
+		if err != nil {
+			keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, *Information, err
+			}
+		} else {
+			keyOut, skid, pub, key, err = ReturnECDSAPrivateKey(KeyECDSA)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, *Information, err
+			}
+		}
+	case KEY_DSA:
+		KeyDSA, err := ssh.ParseDSAPrivateKey(block.Bytes)
+		if err != nil {
+			keyOut, skid, pub, key, err = ReturnPrivateKey(block.Bytes)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, *Information, err
+			}
+		} else {
+			keyOut, skid, pub, key, err = ReturnDSAPrivateKey(KeyDSA)
+			if err != nil {
+				Information.Error = err.Error()
+				return keyOut, skid, pub, key, *Information, err
+			}
+		}
+	}
+	return keyOut, skid, pub, key, *Information, nil
 }

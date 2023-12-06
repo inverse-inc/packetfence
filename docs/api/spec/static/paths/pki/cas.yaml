@@ -62,10 +62,48 @@
         $ref: '#/components/responses/Unauthorized'
     tags:
       - PKI
+  patch:
+    summary: Update Certificate Authority Public Key.
+    parameters:
+      - name: ca_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCaCertOnly'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCa'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
 
 /api/v1/pki/ca/resign/{ca_id}:
   post:
     summary: Re-Sign PKI Certificate Authority.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCa'
+    parameters:
+      - name: ca_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCasList'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+
+/api/v1/pki/ca/csr/{ca_id}:
+  post:
+    summary: Generate Certificate Signing Request.
     requestBody:
       $ref: '#/components/requestBodies/PkiCa'
     parameters:

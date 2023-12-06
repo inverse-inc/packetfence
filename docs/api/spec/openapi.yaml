@@ -54723,6 +54723,25 @@ paths:
       summary: Re-Sign PKI Certificate Authority.
       tags:
       - PKI
+  /api/v1/pki/ca/csr/{ca_id}:
+    post:
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: ca_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        $ref: '#/components/requestBodies/PkiCa'
+      responses:
+        '200':
+          $ref: '#/components/responses/PkiCasList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      summary: Generate a Certificate Signing Request.
+      tags:
+      - PKI
   /api/v1/pki/ca/{ca_id}:
     get:
       parameters:
@@ -54926,6 +54945,25 @@ paths:
         '500':
           $ref: '#/components/responses/BadRequest'
       summary: Search PKI Certificates.
+      tags:
+      - PKI
+  /api/v1/pki/cert/resign/{cert_id}:
+    post:
+      summary: Re-Sign PKI Certificate.
+      requestBody:
+        $ref: '#/components/requestBodies/PkiCert'
+      parameters:
+      - description: '`PRIMARY KEY`'
+        name: cert_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/PkiCert'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
       tags:
       - PKI
   /api/v1/pki/profile/{profile_id}:

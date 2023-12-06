@@ -7,7 +7,8 @@ export const useStore = $store => {
     isLoading: computed(() => $store.getters['$_pkis/isCertLoading']),
     getList: () => $store.dispatch('$_pkis/allCerts'),
     createItem: params => $store.dispatch('$_pkis/createCert', params),
-    getItem: params => $store.dispatch('$_pkis/getCert', params.id)
+    getItem: params => $store.dispatch('$_pkis/getCert', params.id),
+    resignItem: params => $store.dispatch('$_pkis/resignCert', params)
   }
 }
 
@@ -99,6 +100,20 @@ export const actions = {
       // update item
       commit('CERT_ITEM_REVOKED', data.id)
       return response
+    }).catch(err => {
+      commit('CERT_ERROR', err.response)
+      throw err
+    })
+  },
+  resignCert: ({ commit, dispatch }, data) => {
+    commit('CERT_REQUEST')
+    return api.resign(data).then(item => {
+      // reset list
+      commit('CERT_LIST_RESET')
+      dispatch('allCerts')
+      // update item
+      commit('CERT_ITEM_REPLACED', item)
+      return item
     }).catch(err => {
       commit('CERT_ERROR', err.response)
       throw err
