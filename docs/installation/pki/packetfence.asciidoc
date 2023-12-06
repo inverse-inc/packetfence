@@ -27,11 +27,11 @@ You will need to create a new certificate authority. Go to the PacketFence web a
 
 image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification authority creation"]
 
-Optionally if you want the CA to be a sub CA of another PKI then you can click on 'Generate CSR' (top right of the CA form), change the information if one of them needs to be modify and click 'Generate CSR'.
-Copy the CSR and provide it to the external CA to be able to retrieve the certificate signed.
+Optionally if you want the CA to be a sub CA of another PKI then you can click on 'Generate CSR' (top right of the CA form), change the information if one of them needs to be modified and click 'Generate CSR'.
+Copy the CSR and provide it to the external CA to be able to retrieve the signed certificate.
 Once done paste the certificate in the certificate box and save.
 
-Also if the CA certificate is about to expire then you can generate a new CSR or click on Resign CA Certificate (it will be a self signed certificate)
+Also if the CA certificate is about to expire then you can generate a new CSR or click on Resign CA Certificate (it will be a self-signed certificate)
 
 ===== Here's a CA example:
 
@@ -76,7 +76,7 @@ image::packetfence-pki-scep.png[scaledwidth="100%",alt="SCEP configuration"]
 IMPORTANT: Common name and Subject Alt Name attributes provided in CSR to get a certificate through SCEP will override values in PKI template.
 Other values like Signature Algorithm, Key usage, Extended key usage will be taken from PKI template.
 
-You could also enable 'SCEP Server Enabled' and define on which external SCEP server you want to proxy the request.
+You could also enable 'SCEP Server Enabled' and define on which external SCEP server you want to proxy the request to.
 
 ====== SCEP Test
 
