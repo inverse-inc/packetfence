@@ -27,11 +27,9 @@ You will need to create a new certificate authority. Go to the PacketFence web a
 
 image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification authority creation"]
 
-Optionally if you want the CA to be a sub CA of another PKI then you can click on 'Generate CSR' (top right of the CA form), change the information if one of them needs to be modified and click 'Generate CSR'.
-Copy the CSR and provide it to the external CA to be able to retrieve the signed certificate.
-Once done paste the certificate in the certificate box and save.
+Optionally if you want the CA to be a sub-CA of another PKI then you can click on 'Generate CSR' (top right of the CA form), modify the information (if needed) and click 'Generate CSR'. On the next page copy the CSR and provide it to the external CA to be able to retrieve a Signed Certficate. On the last page provide the Signed Certificate and click 'Save'.
 
-Also if the CA certificate is about to expire then you can generate a new CSR or click on Resign CA Certificate (it will be a self-signed certificate)
+If the CA certificate is about to expire, generate a new CSR or click on Resign CA Certificate (self-signed).
 
 ===== Here's a CA example:
 
@@ -76,7 +74,7 @@ image::packetfence-pki-scep.png[scaledwidth="100%",alt="SCEP configuration"]
 IMPORTANT: Common name and Subject Alt Name attributes provided in CSR to get a certificate through SCEP will override values in PKI template.
 Other values like Signature Algorithm, Key usage, Extended key usage will be taken from PKI template.
 
-You could also enable 'SCEP Server Enabled' and define on which external SCEP server you want to proxy the request to.
+Optionally, enable 'SCEP Server Enabled' and define an external SCEP server to proxy the request.
 
 ====== SCEP Test
 
@@ -173,8 +171,8 @@ image::packetfence-pki-revoked_certificate.png[scaledwidth="100%",alt="Revoke a 
 
 ==== Resign a certificate
 
-You can resign an existing certificate if you want per example to extend the duration, this option will keep the same private key but generate a new public certificate.
-On the top right of the form when you edit a certificate, click on 'Resign' and change the values of the form if needed, then click 'Resign'.
+Resign-ing an existing Certificate will extend the duration by reusing the private-key to generate a new public certificate.
+Click the 'Resign' button (top-right), modify the information (if needed) and click 'Resign'.
 
 
 ==== PKI Provider
@@ -210,7 +208,7 @@ On the next page you have to copy the "Application (Client) ID" and the "Directo
 
 image::Intune-3-App-Detail.png[scaledwidth="100%",alt="Application-Detail"]
 
-Then you need to generate a "Client secrets", to do that click on "Add a certificate or secret" 
+Then you need to generate a "Client secrets", to do that click on "Add a certificate or secret"
 
 image::Intune-4-App-Certificates-Secrets.png[scaledwidth="100%",alt="App-Certificates-Secrets"]
 
