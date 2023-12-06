@@ -1311,7 +1311,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
-%attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
