@@ -1,6 +1,6 @@
 <template>
   <b-button v-if="!isClone && !isNew"
-    size="sm" variant="outline-primary" class="text-nowrap"
+    :size="size" variant="outline-primary" class="text-nowrap"
     :disabled="disabled"
     @click.stop.prevent="onClipboard"
   >{{ $t('Copy Certificate') }}</b-button>
@@ -18,6 +18,11 @@ const props = {
   },
   disabled: {
     type: Boolean
+  },
+  size: {
+    type: String,
+    default: "md",
+    validator: value => ['sm', 'md', 'lg'].includes(value)
   }
 }
 

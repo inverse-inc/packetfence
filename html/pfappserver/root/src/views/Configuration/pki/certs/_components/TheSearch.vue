@@ -2,6 +2,7 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="mb-0">{{ $t('Certificates') }}</h4>
+      <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch" :disabled="!isServiceAlive">
@@ -75,13 +76,13 @@
               @click.stop.prevent="goToClone(item)"
             >{{ $t('Clone') }}</b-button>
             <button-certificate-copy
-              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" size="sm" />
             <button-certificate-download v-if="!item.scep || !item.csr"
-              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" size="sm" />
             <button-certificate-email v-if="!item.scep || !item.csr"
-              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" size="sm" />
             <button-certificate-revoke
-              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" @change="reSearch" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" size="sm" @change="reSearch" />
           </span>
         </template>
         <template #cell(ca_name)="{ item }">
@@ -114,6 +115,7 @@ import {
   BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
 import {
@@ -127,6 +129,7 @@ const components = {
   BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty,
   ButtonCertificateCopy,
   ButtonCertificateDownload,
@@ -138,7 +141,7 @@ import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useRouter } from '../_composables/useCollection'
+import { useSearch, useRouter, useServices } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -170,7 +173,7 @@ const setup = (props, context) => {
   })
 
   $store.dispatch('$_pkis/allProfiles')
-  const profiles = computed(() => $store.getters['$_pkis/profiles'] || [])
+  const profiles = computed(() => $store.state.$_pkis.profileListCache || [])
   const profilesSorted = computed(() => {
     return Array.prototype.slice.call(profiles.value)
       .sort((a, b) => {
@@ -194,6 +197,8 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
+  const services = useServices()
+
   return {
     useSearch,
     isServiceAlive,
@@ -203,7 +208,8 @@ const setup = (props, context) => {
     onBulkExport,
     ...router,
     ...selected,
-    ...toRefs(search)
+    ...toRefs(search),
+    services
   }
 }
 

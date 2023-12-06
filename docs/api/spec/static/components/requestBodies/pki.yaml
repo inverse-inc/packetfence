@@ -5,6 +5,13 @@ PkiCa:
       schema:
         $ref: '#/components/schemas/PkiCaForm'
 
+PkiCaCertOnly:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/PkiCaFormCertOnly'
+
 PkiCasSearch:
   required: true
   content:
@@ -104,6 +111,33 @@ PkiRevokedCertsSearch:
             $ref: '#/components/schemas/PkiRevokedCertsSort'
           query:
             $ref: '#/components/schemas/PkiRevokedCertsQuery'
+          limit:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            example: 1
+
+PkiScepServer:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/PkiScepServerForm'
+
+PkiScepServersSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            required: false
+            type: integer
+          sort:
+            $ref: '#/components/schemas/PkiScepServersSort'
+          query:
+            $ref: '#/components/schemas/PkiScepServersQuery'
           limit:
             type: integer
             minimum: 1

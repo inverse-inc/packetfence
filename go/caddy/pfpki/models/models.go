@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"reflect"
 	"regexp"
 	"time"
 
@@ -18,7 +19,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/asn1"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
@@ -34,20 +34,18 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"golang.org/x/crypto/ocsp"
-	"golang.org/x/crypto/ssh"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
@@ -58,9 +56,12 @@ import (
 type (
 	// CA struct
 	CA struct {
-		gorm.Model
-		DB                   gorm.DB                 `gorm:"-"`
-		Ctx                  context.Context         `gorm:"-"`
+		ID                   uint                    `gorm:"primarykey"`
+		CreatedAt            time.Time               `json:"-"`
+		UpdatedAt            time.Time               `json:"-"`
+		DeletedAt            gorm.DeletedAt          `json:"-" gorm:"index"`
+		DB                   gorm.DB                 `json:"-" gorm:"-"`
+		Ctx                  context.Context         `json:"-" gorm:"-"`
 		Cn                   string                  `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail                 string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Organisation         string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
@@ -88,9 +89,12 @@ type (
 
 	// Profile struct
 	Profile struct {
-		gorm.Model
-		DB                    gorm.DB                 `gorm:"-"`
-		Ctx                   context.Context         `gorm:"-"`
+		ID                    uint                    `gorm:"primarykey"`
+		CreatedAt             time.Time               `json:"-"`
+		UpdatedAt             time.Time               `json:"-"`
+		DeletedAt             gorm.DeletedAt          `json:"-" gorm:"index"`
+		DB                    gorm.DB                 `json:"-" gorm:"-"`
+		Ctx                   context.Context         `json:"-" gorm:"-"`
 		Name                  string                  `json:"name" gorm:"UNIQUE"`
 		Mail                  string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Organisation          string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
@@ -128,13 +132,19 @@ type (
 		RevokedValidUntil     int                     `json:"revoked_valid_until,omitempty,string" gorm:"default:14"`
 		CloudEnabled          int                     `json:"cloud_enabled,omitempty,string"`
 		CloudService          string                  `json:"cloud_service,omitempty"`
+		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty,string" gorm:"default:0"`
+		ScepServer            SCEPServer              `json:"-"`
+		ScepServerID          uint                    `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
 	}
 
 	// Cert struct
 	Cert struct {
-		gorm.Model
-		DB                 gorm.DB         `gorm:"-"`
-		Ctx                context.Context `gorm:"-"`
+		ID                 uint            `gorm:"primarykey"`
+		CreatedAt          time.Time       `json:"-"`
+		UpdatedAt          time.Time       `json:"-"`
+		DeletedAt          gorm.DeletedAt  `json:"-" gorm:"index"`
+		DB                 gorm.DB         `json:"-" gorm:"-"`
+		Ctx                context.Context `json:"-" gorm:"-"`
 		Cn                 string          `json:"cn,omitempty"`
 		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca                 CA              `json:"-"`
@@ -173,7 +183,10 @@ type (
 
 	// RevokedCert struct
 	RevokedCert struct {
-		gorm.Model
+		ID                 uint            `gorm:"primarykey"`
+		CreatedAt          time.Time       `json:"-"`
+		UpdatedAt          time.Time       `json:"-"`
+		DeletedAt          gorm.DeletedAt  `json:"-" gorm:"index"`
 		DB                 gorm.DB         `gorm:"-"`
 		Ctx                context.Context `gorm:"-"`
 		Cn                 string          `json:"cn,omitempty" gorm:"INDEX:cn"`
@@ -203,7 +216,48 @@ type (
 		CRLReason          int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
 		Subject            string          `json:"-"`
 	}
+	// SCEP struct
+	SCEPServer struct {
+		ID           uint            `gorm:"primarykey"`
+		CreatedAt    time.Time       `json:"-"`
+		UpdatedAt    time.Time       `json:"-"`
+		DeletedAt    gorm.DeletedAt  `json:"-" gorm:"index"`
+		DB           gorm.DB         `json:"-" gorm:"-"`
+		Ctx          context.Context `json:"-" gorm:"-"`
+		Name         string          `json:"name,omitempty" gorm:"UNIQUE"`
+		URL          string          `json:"url,omitempty""`
+		SharedSecret string          `json:"shared_secret,omitempty"`
+	}
 )
+
+type Tabler interface {
+	TableName() string
+}
+
+// TableName overrides the table name used by CA to `pki_cas`
+func (CA) TableName() string {
+	return "pki_cas"
+}
+
+// TableName overrides the table name used by Profiles to `pki_profiles`
+func (Profile) TableName() string {
+	return "pki_profiles"
+}
+
+// TableName overrides the table name used by Cert to `pki_certs`
+func (Cert) TableName() string {
+	return "pki_certs"
+}
+
+// TableName overrides the table name used by Cert to `pki_revoked_certs`
+func (RevokedCert) TableName() string {
+	return "pki_revoked_certs"
+}
+
+// TableName overrides the table name used by SCEPServer to `pki_scep`
+func (SCEPServer) TableName() string {
+	return "pki_scep_servers"
+}
 
 const dbError = "A database error occured. See log for details."
 
@@ -294,36 +348,7 @@ func (c CA) New() (types.Info, error) {
 		SerialNumber = big.NewInt(int64(cadb.ID + 1))
 	}
 
-	var Subject pkix.Name
-	Subject.CommonName = c.Cn
-
-	if len(c.Organisation) > 0 {
-		Subject.Organization = []string{c.Organisation}
-	}
-
-	if len(c.OrganisationalUnit) > 0 {
-		Subject.OrganizationalUnit = []string{c.OrganisationalUnit}
-	}
-
-	if len(c.Country) > 0 {
-		Subject.Country = []string{c.Country}
-	}
-
-	if len(c.State) > 0 {
-		Subject.Province = []string{c.State}
-	}
-
-	if len(c.Locality) > 0 {
-		Subject.Locality = []string{c.Locality}
-	}
-
-	if len(c.StreetAddress) > 0 {
-		Subject.StreetAddress = []string{c.StreetAddress}
-	}
-
-	if len(c.PostalCode) > 0 {
-		Subject.PostalCode = []string{c.PostalCode}
-	}
+	Subject := c.MakeSubject()
 
 	ca := &x509.Certificate{
 		SerialNumber:          SerialNumber,
@@ -389,6 +414,40 @@ func (c CA) New() (types.Info, error) {
 	return Information, nil
 }
 
+func (c CA) MakeSubject() pkix.Name {
+	var Subject pkix.Name
+	Subject.CommonName = c.Cn
+
+	if len(c.Organisation) > 0 {
+		Subject.Organization = []string{c.Organisation}
+	}
+
+	if len(c.OrganisationalUnit) > 0 {
+		Subject.OrganizationalUnit = []string{c.OrganisationalUnit}
+	}
+
+	if len(c.Country) > 0 {
+		Subject.Country = []string{c.Country}
+	}
+
+	if len(c.State) > 0 {
+		Subject.Province = []string{c.State}
+	}
+
+	if len(c.Locality) > 0 {
+		Subject.Locality = []string{c.Locality}
+	}
+
+	if len(c.StreetAddress) > 0 {
+		Subject.StreetAddress = []string{c.StreetAddress}
+	}
+
+	if len(c.PostalCode) > 0 {
+		Subject.PostalCode = []string{c.PostalCode}
+	}
+	return Subject
+}
+
 // GetByID retreive the CA by id
 func (c CA) GetByID(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
@@ -447,12 +506,14 @@ func (c CA) Fix() (types.Info, error) {
 // Paginated return the CA list paginated
 func (c CA) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
-	var count int
+	var count int64
 	c.DB.Model(&CA{}).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sql, err := vars.Sql(c)
 		if err != nil {
 			Information.Error = err.Error()
@@ -474,12 +535,14 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	var count int
+	var count int64
 	c.DB.Model(&CA{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		var cadb []CA
 		c.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&cadb)
 		Information.Entries = cadb
@@ -491,16 +554,17 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 // FindSCEPProfile search the SCEP Profile by the profile name
 func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	var profiledb []Profile
+	profile := &Profile{}
 	if len(options) >= 1 {
-		if err := c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("`name` = ?", options[0]).First(&profiledb).Error; err != nil {
+		if ProfileDB := c.DB.Preload("ScepServer").Where("name = ? and `scep_enabled` = ?", options[0], "1").First(&profile).Find(&profile); ProfileDB.Error != nil {
 			return profiledb, errors.New(dbError)
 		}
+		profiledb = append(profiledb, *profile)
 		if len(profiledb) == 0 {
 			return profiledb, errors.New("Unknow profile.")
 		}
-
 	} else {
-		c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("`scep_enabled` = ?", "1").First(&profiledb)
+		c.DB.Preload("ScepServer").Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("`scep_enabled` = ?", "1").First(&profiledb)
 	}
 	c.SCEPAssociateProfile = profiledb[0].Name
 
@@ -519,9 +583,31 @@ func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.Privat
 		return nil, nil, err
 	}
 
+	// Proxy the request if a SCEPServer is defined in the profil
+
 	var ca CA
 
 	if CaDB := c.DB.First(&ca, profiledb[0].CaID).Find(&ca); CaDB.Error != nil {
+		c.DB.First(&ca)
+	}
+
+	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	key, err := certutils.LoadKey([]byte(ca.Key), pass)
+	return []*x509.Certificate{cacert}, key, err
+}
+
+// CA return the CA public key based on the profile name (SCEP)
+func (c CA) CAbyProfile(pass []byte, profilename string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
+	profile := &Profile{}
+	// var ProfileDB Profile
+	if ProfileDB := c.DB.Where("name = ?", profilename).First(&profile).Find(&profile); ProfileDB.Error != nil {
+		return nil, nil, ProfileDB.Error
+	}
+
+	var ca CA
+
+	if CaDB := c.DB.First(&ca, profile.CaID).Find(&ca); CaDB.Error != nil {
 		c.DB.First(&ca)
 	}
 
@@ -588,7 +674,8 @@ func (c CA) FindSerial(p Profile) (*big.Int, error) {
 
 	var SerialNumber *big.Int
 
-	if CertDB := c.DB.Last(&certdb).Related(&ca); CertDB.Error != nil {
+	err := c.DB.Last(&certdb).Where(&ca)
+	if err.Error != nil {
 		SerialNumber = big.NewInt(1)
 	} else {
 		SerialNumber = big.NewInt(int64(certdb.ID + 1))
@@ -654,7 +741,6 @@ func (c CA) Verify(m *scep.CSRReqMessage) (bool, error) {
 			return false, err
 		}
 		c.Cloud = vcloud
-		// vcloud.SuccessReply(c.Ctx, m.CSR.Raw, "Siwuper !")
 		return true, nil
 	}
 	return true, nil
@@ -679,6 +765,192 @@ func (c CA) GetProfileByName(name string) (*Profile, error) {
 	return &profiledb[0], nil
 }
 
+func (c CA) Resign(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var cadb []CA
+	var err error
+	if val, ok := params["id"]; ok {
+		if err = c.DB.First(&cadb, val).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+
+	}
+
+	Information.Entries = cadb
+
+	block, _ := pem.Decode([]byte(cadb[0].Key))
+	if block == nil {
+		log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
+	}
+
+	var skid []byte
+	var keyOut *bytes.Buffer
+	keyOut = new(bytes.Buffer)
+	var key crypto.PrivateKey
+	var pub crypto.PublicKey
+	keyOut, skid, pub, key, Information, err = certutils.ExtractPrivateKey(c.KeyType, block, &Information)
+	if err != nil {
+		return Information, err
+	}
+
+	var cadbprevious CA
+	var newcadb []CA
+
+	var SerialNumber *big.Int
+
+	if CaDB := c.DB.Last(&cadbprevious); CaDB.Error != nil {
+		SerialNumber = big.NewInt(1)
+	} else {
+		SerialNumber = big.NewInt(int64(cadbprevious.ID + 1))
+	}
+
+	Subject := c.MakeSubject()
+
+	ca := &x509.Certificate{
+		SerialNumber:          SerialNumber,
+		Subject:               Subject,
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().AddDate(0, 0, c.Days),
+		IsCA:                  true,
+		SignatureAlgorithm:    c.Digest,
+		ExtKeyUsage:           certutils.Extkeyusage(strings.Split(*c.ExtendedKeyUsage, "|")),
+		KeyUsage:              x509.KeyUsage(certutils.Keyusage(strings.Split(*c.KeyUsage, "|"))),
+		BasicConstraintsValid: true,
+		EmailAddresses:        []string{c.Mail},
+		SubjectKeyId:          skid,
+		AuthorityKeyId:        skid,
+	}
+
+	if len(c.OCSPUrl) > 0 {
+		ca.OCSPServer = []string{c.OCSPUrl}
+	}
+
+	var caBytes []byte
+
+	switch *c.KeyType {
+	case certutils.KEY_RSA:
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*rsa.PrivateKey))
+	case certutils.KEY_ECDSA:
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*ecdsa.PrivateKey))
+	case certutils.KEY_DSA:
+		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
+	}
+	if err != nil {
+		return Information, err
+	}
+
+	cert := new(bytes.Buffer)
+	// Public key
+	pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
+
+	// Calculate the IssuerNameHash
+	catls, err := tls.X509KeyPair([]byte(cert.String()), []byte(keyOut.String()))
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+	h := sha1.New()
+
+	h.Write(cacert.RawIssuer)
+
+	if err := c.DB.Model(&CA{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Mail": c.Mail, "Organisation": c.Organisation, "OrganisationalUnit": c.OrganisationalUnit, "Country": c.Country, "State": c.State, "Locality": c.Locality, "StreetAddress": c.StreetAddress, "PostalCode": c.PostalCode, "KeyType": c.KeyType, "KeySize": c.KeySize, "Digest": c.Digest, "KeyUsage": c.KeyUsage, "ExtendedKeyUsage": c.ExtendedKeyUsage, "Days": c.Days, "Key": keyOut.String(), "Cert": cert.String(), "IssuerKeyHash": hex.EncodeToString(skid), "IssuerNameHash": hex.EncodeToString(h.Sum(nil)), "OCSPUrl": c.OCSPUrl}).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New("A database error occured. See log for details.")
+	}
+
+	c.DB.Select("id, cn, mail, organisation, organisational_unit, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert, ocsp_url").Where("cn = ?", c.Cn).First(&newcadb)
+	Information.Entries = newcadb
+
+	return Information, nil
+}
+
+func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var cadb []CA
+	var err error
+	if val, ok := params["id"]; ok {
+		if err = c.DB.First(&cadb, val).Error; err != nil {
+			Information.Status = http.StatusNotFound
+			Information.Error = err.Error()
+			return Information, err
+		}
+
+	}
+	catls, err := tls.X509KeyPair([]byte(cadb[0].Cert), []byte(cadb[0].Key))
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+	Information.Entries = cadb
+
+	template := x509.CertificateRequest{
+		Subject:            c.MakeSubject(),
+		SignatureAlgorithm: x509.SignatureAlgorithm(x509.SHA256WithRSA),
+	}
+	csrBuff := new(bytes.Buffer)
+	csrBytes, err := x509.CreateCertificateRequest(rand.Reader, &template, catls.PrivateKey)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+	pem.Encode(csrBuff, &pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes})
+	Information.Entries = csrBuff.String()
+
+	if err := c.DB.Model(&CA{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Mail": c.Mail, "Organisation": c.Organisation, "OrganisationalUnit": c.OrganisationalUnit, "Country": c.Country, "State": c.State, "Locality": c.Locality, "StreetAddress": c.StreetAddress, "PostalCode": c.PostalCode, "KeyType": c.KeyType, "KeySize": c.KeySize, "Digest": c.Digest, "KeyUsage": c.KeyUsage, "ExtendedKeyUsage": c.ExtendedKeyUsage, "Days": c.Days, "OCSPUrl": c.OCSPUrl}).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New("A database error occured. See log for details.")
+	}
+
+	return Information, err
+
+}
+
+func (c CA) Update(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var cadb []CA
+	var err error
+	if val, ok := params["id"]; ok {
+		if err = c.DB.First(&cadb, val).Error; err != nil {
+			Information.Status = http.StatusNotFound
+			Information.Error = err.Error()
+			return Information, err
+		}
+	}
+	_, err = tls.X509KeyPair([]byte(c.Cert), []byte(cadb[0].Key))
+
+	if err != nil {
+		Information.Error = err.Error()
+		Information.Status = http.StatusUnprocessableEntity
+		return Information, nil
+	}
+	cadb[0].Cert = c.Cert
+	c.DB.Save(&cadb[0])
+	Information.Entries = cadb[0]
+	return Information, err
+}
+
+// EST
+func (c CA) CACerts(ctx context.Context, aps string, r *http.Request) ([]*x509.Certificate, error) {
+	var certs []*x509.Certificate
+	catls, err := tls.X509KeyPair([]byte(c.Cert), []byte(c.Key))
+	if err != nil {
+		log.LoggerWContext(c.Ctx).Error(err.Error())
+	}
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		log.LoggerWContext(c.Ctx).Error(err.Error())
+	}
+	certs = append(certs, cacert)
+	return certs, nil
+}
+
+// Profile section
 func NewProfileModel(pfpki *types.Handler) *Profile {
 	Profile := &Profile{}
 
@@ -725,27 +997,93 @@ func (p Profile) New() (types.Info, error) {
 		return Information, CaDB.Error
 	}
 
-	if err := p.DB.Create(&Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal, DaysBeforeRenewal: p.DaysBeforeRenewal, RenewalMail: p.RenewalMail, DaysBeforeRenewalMail: p.DaysBeforeRenewalMail, RenewalMailSubject: p.RenewalMailSubject, RenewalMailFrom: p.RenewalMailFrom, RenewalMailHeader: p.RenewalMailHeader, RenewalMailFooter: p.RenewalMailFooter, RevokedValidUntil: p.RevokedValidUntil, CloudEnabled: p.CloudEnabled, CloudService: p.CloudService}).Error; err != nil {
+	scepserver := &SCEPServer{}
+	// Choose the default scep server in the db
+	if p.ScepServerID == 0 {
+		p.ScepServerID = 1
+	}
+
+	if ScepServerDB := p.DB.First(&scepserver, p.ScepServerID).Find(&scepserver); ScepServerDB.Error != nil {
+		Information.Error = ScepServerDB.Error.Error()
+		return Information, ScepServerDB.Error
+	}
+
+	profile := Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal, DaysBeforeRenewal: p.DaysBeforeRenewal, RenewalMail: p.RenewalMail, DaysBeforeRenewalMail: p.DaysBeforeRenewalMail, RenewalMailSubject: p.RenewalMailSubject, RenewalMailFrom: p.RenewalMailFrom, RenewalMailHeader: p.RenewalMailHeader, RenewalMailFooter: p.RenewalMailFooter, RevokedValidUntil: p.RevokedValidUntil, CloudEnabled: p.CloudEnabled, CloudService: p.CloudService, ScepServerEnabled: p.SCEPEnabled, ScepServerID: p.ScepServerID, ScepServer: p.ScepServer}
+
+	if err := p.DB.Create(&profile).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
+	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
 
 	return Information, nil
 }
 
-func (p Profile) Update() (types.Info, error) {
+func (p Profile) Update(params map[string]string) (types.Info, error) {
+
 	var profiledb []Profile
 	Information := types.Info{}
-	if err := p.DB.Model(&Profile{}).Where("name = ?", p.Name).Updates(map[string]interface{}{"mail": p.Mail, "street_address": p.StreetAddress, "organisation": p.Organisation, "organisational_unit": p.OrganisationalUnit, "country": p.Country, "state": p.State, "locality": p.Locality, "postal_code": p.PostalCode, "validity": p.Validity, "key_type": p.KeyType, "key_size": p.KeySize, "digest": p.Digest, "key_usage": p.KeyUsage, "extended_key_usage": p.ExtendedKeyUsage, "ocsp_url": p.OCSPUrl, "p12_mail_password": p.P12MailPassword, "p12_mail_subject": p.P12MailSubject, "p12_mail_from": p.P12MailFrom, "p12_mail_header": p.P12MailHeader, "p12_mail_footer": p.P12MailFooter, "revoked_valid_until": p.RevokedValidUntil, "scep_enabled": p.SCEPEnabled, "scep_challenge_password": p.SCEPChallengePassword, "scep_days_before_renewal": p.SCEPDaysBeforeRenewal, "days_before_renewal": p.DaysBeforeRenewal, "renewal_mail": p.RenewalMail, "days_before_renewal_mail": p.DaysBeforeRenewalMail, "renewal_mail_subject": p.RenewalMailSubject, "renewal_mail_from": p.RenewalMailFrom, "renewal_mail_header": p.RenewalMailHeader, "renewal_mail_footer": p.RenewalMailFooter, "cloud_enabled": p.CloudEnabled, "cloud_service": p.CloudService}).Error; err != nil {
-		Information.Error = err.Error()
-		return Information, errors.New(dbError)
+	scepserver := &SCEPServer{}
+
+	profile := &Profile{}
+
+	// Choose the default scep server in the db
+	if p.ScepServerID == 0 {
+		p.ScepServerID = 1
 	}
-	p.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
+
+	if ScepServerDB := p.DB.First(&scepserver, p.ScepServerID).Find(&scepserver); ScepServerDB.Error != nil {
+		Information.Error = ScepServerDB.Error.Error()
+		return Information, ScepServerDB.Error
+	}
+
+	if val, ok := params["id"]; ok {
+		if ProfileDB := p.DB.First(&profile, val).Find(&profile); ProfileDB.Error != nil {
+			Information.Error = ProfileDB.Error.Error()
+			return Information, ProfileDB.Error
+		}
+	} else {
+		if ProfileDB := p.DB.Where("name = ?", p.Name).First(&profile).Find(&profile); ProfileDB.Error != nil {
+			Information.Error = ProfileDB.Error.Error()
+			return Information, ProfileDB.Error
+		}
+	}
+
+	fieldsToExtract := []string{"Mail", "Organisation", "OrganisationalUnit", "Country", "State", "Locality", "StreetAddress", "PostalCode", "Validity", "KeyUsage", "ExtendedKeyUsage", "OCSPUrl", "P12MailPassword", "P12MailSubject", "P12MailFrom", "P12MailHeader", "P12MailFooter", "SCEPEnabled", "SCEPChallengePassword", "SCEPDaysBeforeRenewal", "DaysBeforeRenewal", "RenewalMail", "DaysBeforeRenewalMail", "RenewalMailSubject", "RenewalMailFrom", "RenewalMailHeader", "RenewalMailFooter", "RevokedValidUntil", "CloudEnabled", "ScepServerEnabled"}
+
+	v := reflect.ValueOf(p)
+	typeOfS := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		if contains(fieldsToExtract, typeOfS.Field(i).Name) {
+			profile = profile.setProperty(typeOfS.Field(i).Name, v.Field(i).Interface())
+		}
+	}
+
+	profile.ScepServer = *scepserver
+	profile.SCEPEnabled = p.SCEPEnabled
+
+	p.DB.Save(&profile)
+
+	profiledb = append(profiledb, p)
 	Information.Entries = profiledb
 
 	return Information, nil
+}
+
+func (p *Profile) setProperty(propName string, propValue interface{}) *Profile {
+	reflect.ValueOf(p).Elem().FieldByName(propName).Set(reflect.ValueOf(propValue))
+	return p
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (p Profile) GetByID(params map[string]string) (types.Info, error) {
@@ -762,12 +1100,14 @@ func (p Profile) GetByID(params map[string]string) (types.Info, error) {
 
 func (p Profile) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
-	var count int
+	var count int64
 	p.DB.Model(&Profile{}).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sql, err := vars.Sql(p)
 		if err != nil {
 			Information.Error = err.Error()
@@ -788,12 +1128,13 @@ func (p Profile) Search(vars sql.Vars) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	var count int
+	var count int64
 	p.DB.Model(&Profile{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		var profiledb []Profile
 		p.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
 		Information.Entries = profiledb
@@ -811,195 +1152,13 @@ func NewCertModel(pfpki *types.Handler) *Cert {
 	return Cert
 }
 
-func (c CA) Resign(params map[string]string) (types.Info, error) {
-	Information := types.Info{}
-	var cadb []CA
-	var err error
-	if val, ok := params["id"]; ok {
-		if err = c.DB.First(&cadb, val).Error; err != nil {
-			Information.Error = err.Error()
-			return Information, err
-		}
-
-	}
-
-	Information.Entries = cadb
-	for _, v := range cadb {
-		block, _ := pem.Decode([]byte(v.Key))
-
-		if block == nil {
-			log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
-		}
-		var keyRSA *rsa.PrivateKey
-		var KeyECDSA *ecdsa.PrivateKey
-		var KeyDSA *dsa.PrivateKey
-
-		var skid []byte
-		var keyOut *bytes.Buffer
-		keyOut = new(bytes.Buffer)
-		var key crypto.PrivateKey
-		var pub crypto.PublicKey
-		switch *c.KeyType {
-		case certutils.KEY_RSA:
-			keyRSA, err = x509.ParsePKCS1PrivateKey(block.Bytes)
-			key = keyRSA
-			pub = &key.(*rsa.PrivateKey).PublicKey
-			skid, err = certutils.CalculateSKID(pub)
-			if err != nil {
-				Information.Error = err.Error()
-				return Information, err
-			}
-			pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(keyRSA)})
-		case certutils.KEY_ECDSA:
-			KeyECDSA, err = x509.ParseECPrivateKey(block.Bytes)
-			key = KeyECDSA
-			pub = &key.(*ecdsa.PrivateKey).PublicKey
-			skid, err = certutils.CalculateSKID(pub)
-			if err != nil {
-				Information.Error = err.Error()
-				return Information, err
-			}
-			bytes, _ := x509.MarshalECPrivateKey(KeyECDSA)
-			pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: bytes})
-		case certutils.KEY_DSA:
-			KeyDSA, err = ssh.ParseDSAPrivateKey(block.Bytes)
-			key = KeyDSA
-			pub = &key.(*dsa.PrivateKey).PublicKey
-			skid, err = certutils.CalculateSKID(pub)
-			if err != nil {
-				Information.Error = err.Error()
-				return Information, err
-			}
-			val := certutils.DSAKeyFormat{
-				P: key.(*dsa.PrivateKey).P, Q: key.(*dsa.PrivateKey).Q, G: key.(*dsa.PrivateKey).G,
-				Y: key.(*dsa.PrivateKey).Y, X: key.(*dsa.PrivateKey).X,
-			}
-			bytes, _ := asn1.Marshal(val)
-			pem.Encode(keyOut, &pem.Block{Type: "DSA PRIVATE KEY", Bytes: bytes})
-		}
-
-		var cadb CA
-		var newcadb []CA
-
-		var SerialNumber *big.Int
-
-		if CaDB := c.DB.Last(&cadb); CaDB.Error != nil {
-			SerialNumber = big.NewInt(1)
-		} else {
-			SerialNumber = big.NewInt(int64(cadb.ID + 1))
-		}
-
-		var Subject pkix.Name
-		Subject.CommonName = c.Cn
-
-		if len(c.Organisation) > 0 {
-			Subject.Organization = []string{c.Organisation}
-		}
-
-		if len(c.OrganisationalUnit) > 0 {
-			Subject.OrganizationalUnit = []string{c.OrganisationalUnit}
-		}
-
-		if len(c.Country) > 0 {
-			Subject.Country = []string{c.Country}
-		}
-
-		if len(c.State) > 0 {
-			Subject.Province = []string{c.State}
-		}
-
-		if len(c.Locality) > 0 {
-			Subject.Locality = []string{c.Locality}
-		}
-
-		if len(c.StreetAddress) > 0 {
-			Subject.StreetAddress = []string{c.StreetAddress}
-		}
-
-		if len(c.PostalCode) > 0 {
-			Subject.PostalCode = []string{c.PostalCode}
-		}
-
-		ca := &x509.Certificate{
-			SerialNumber:          SerialNumber,
-			Subject:               Subject,
-			NotBefore:             time.Now(),
-			NotAfter:              time.Now().AddDate(0, 0, c.Days),
-			IsCA:                  true,
-			SignatureAlgorithm:    c.Digest,
-			ExtKeyUsage:           certutils.Extkeyusage(strings.Split(*c.ExtendedKeyUsage, "|")),
-			KeyUsage:              x509.KeyUsage(certutils.Keyusage(strings.Split(*c.KeyUsage, "|"))),
-			BasicConstraintsValid: true,
-			EmailAddresses:        []string{c.Mail},
-			SubjectKeyId:          skid,
-			AuthorityKeyId:        skid,
-		}
-
-		if len(c.OCSPUrl) > 0 {
-			ca.OCSPServer = []string{c.OCSPUrl}
-		}
-
-		var caBytes []byte
-
-		switch *c.KeyType {
-		case certutils.KEY_RSA:
-			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*rsa.PrivateKey))
-		case certutils.KEY_ECDSA:
-			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*ecdsa.PrivateKey))
-		case certutils.KEY_DSA:
-			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
-		}
-		if err != nil {
-			return Information, err
-		}
-
-		cert := new(bytes.Buffer)
-		// Public key
-		pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
-
-		// Calculate the IssuerNameHash
-		catls, err := tls.X509KeyPair([]byte(cert.String()), []byte(keyOut.String()))
-		if err != nil {
-			Information.Error = err.Error()
-			return Information, err
-		}
-		cacert, err := x509.ParseCertificate(catls.Certificate[0])
-		if err != nil {
-			Information.Error = err.Error()
-			return Information, err
-		}
-		h := sha1.New()
-
-		h.Write(cacert.RawIssuer)
-
-		if err := c.DB.Model(&CA{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Mail": c.Mail, "Organisation": c.Organisation, "OrganisationalUnit": c.OrganisationalUnit, "Country": c.Country, "State": c.State, "Locality": c.Locality, "StreetAddress": c.StreetAddress, "PostalCode": c.PostalCode, "KeyType": c.KeyType, "KeySize": c.KeySize, "Digest": c.Digest, "KeyUsage": c.KeyUsage, "ExtendedKeyUsage": c.ExtendedKeyUsage, "Days": c.Days, "Key": keyOut.String(), "Cert": cert.String(), "IssuerKeyHash": hex.EncodeToString(skid), "IssuerNameHash": hex.EncodeToString(h.Sum(nil)), "OCSPUrl": c.OCSPUrl}).Error; err != nil {
-			Information.Error = err.Error()
-			return Information, errors.New("A database error occured. See log for details.")
-		}
-
-		c.DB.Select("id, cn, mail, organisation, organisational_unit, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert, ocsp_url").Where("cn = ?", c.Cn).First(&newcadb)
-		Information.Entries = newcadb
-
-		return Information, nil
-	}
-
-	return Information, err
-}
-
 func (c Cert) New() (types.Info, error) {
 	Information := types.Info{}
 	Information.Status = http.StatusUnprocessableEntity
 	// Find the profile
 	var prof Profile
-	if profDB := c.DB.First(&prof, c.ProfileID); profDB.Error != nil {
+	if profDB := c.DB.Preload("Ca").First(&prof, c.ProfileID); profDB.Error != nil {
 		Information.Error = profDB.Error.Error()
-		return Information, errors.New(dbError)
-	}
-
-	// Find the CA
-	var ca CA
-	if CaDB := c.DB.First(&ca, prof.CaID).Find(&ca); CaDB.Error != nil {
-		Information.Error = CaDB.Error.Error()
 		return Information, errors.New(dbError)
 	}
 
@@ -1010,7 +1169,7 @@ func (c Cert) New() (types.Info, error) {
 		return Information, err
 	}
 	// Load the certificates from the database
-	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	catls, err := tls.X509KeyPair([]byte(prof.Ca.Cert), []byte(prof.Ca.Key))
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -1025,10 +1184,10 @@ func (c Cert) New() (types.Info, error) {
 	var newcertdb []Cert
 	var SerialNumber *big.Int
 
-	SerialNumber = big.NewInt(int64(ca.SerialNumber))
-	ca.SerialNumber = ca.SerialNumber + 1
-	ca.DB = c.DB
-	ca.DB.Save(ca)
+	SerialNumber = big.NewInt(int64(prof.Ca.SerialNumber))
+	prof.Ca.SerialNumber = prof.Ca.SerialNumber + 1
+	prof.Ca.DB = c.DB
+	prof.Ca.DB.Save(prof.Ca)
 	keyOut, pub, _, err := certutils.GenerateKey(*prof.KeyType, prof.KeySize)
 
 	if err != nil {
@@ -1041,85 +1200,9 @@ func (c Cert) New() (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
-	var Subject pkix.Name
-	Subject.CommonName = c.Cn
 
-	Organization := ""
-	if len(prof.Organisation) > 0 {
-		Organization = prof.Organisation
-	}
-	if len(c.Organisation) > 0 {
-		Organization = c.Organisation
-	}
-	if len(Organization) > 0 {
-		Subject.Organization = []string{Organization}
-	}
+	Subject := c.MakeSubject()
 
-	OrganizationalUnit := ""
-	if len(prof.OrganisationalUnit) > 0 {
-		OrganizationalUnit = prof.OrganisationalUnit
-	}
-	if len(c.OrganisationalUnit) > 0 {
-		OrganizationalUnit = c.OrganisationalUnit
-	}
-	if len(OrganizationalUnit) > 0 {
-		Subject.OrganizationalUnit = []string{OrganizationalUnit}
-	}
-
-	Country := ""
-	if len(prof.Country) > 0 {
-		Country = prof.Country
-	}
-	if len(c.Country) > 0 {
-		Country = c.Country
-	}
-	if len(Country) > 0 {
-		Subject.Country = []string{Country}
-	}
-
-	Province := ""
-	if len(prof.State) > 0 {
-		Province = prof.State
-	}
-	if len(c.State) > 0 {
-		Province = c.State
-	}
-	if len(Province) > 0 {
-		Subject.Province = []string{Province}
-	}
-
-	Locality := ""
-	if len(prof.Locality) > 0 {
-		Locality = prof.Locality
-	}
-	if len(c.Locality) > 0 {
-		Locality = c.Locality
-	}
-	if len(Locality) > 0 {
-		Subject.Locality = []string{Locality}
-	}
-
-	StreetAddress := ""
-	if len(prof.StreetAddress) > 0 {
-		StreetAddress = prof.StreetAddress
-	}
-	if len(c.StreetAddress) > 0 {
-		StreetAddress = c.StreetAddress
-	}
-	if len(StreetAddress) > 0 {
-		Subject.StreetAddress = []string{StreetAddress}
-	}
-
-	PostalCode := ""
-	if len(prof.PostalCode) > 0 {
-		PostalCode = prof.PostalCode
-	}
-	if len(c.PostalCode) > 0 {
-		PostalCode = c.PostalCode
-	}
-	if len(PostalCode) > 0 {
-		Subject.PostalCode = []string{PostalCode}
-	}
 	NotAfter := time.Now().AddDate(0, 0, prof.Validity)
 
 	// Prepare certificate
@@ -1176,7 +1259,7 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, NotBefore: cert.NotBefore, Subject: Subject.String()}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: prof.Ca, CaName: prof.Ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: strings.Join(Subject.StreetAddress, ""), Organisation: strings.Join(Subject.Organization, ""), OrganisationalUnit: strings.Join(Subject.OrganizationalUnit, ""), Country: strings.Join(Subject.Country, ""), State: strings.Join(Subject.Province, ""), Locality: strings.Join(Subject.Locality, ""), PostalCode: strings.Join(Subject.PostalCode, ""), Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, NotBefore: cert.NotBefore, Subject: Subject.String()}).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
@@ -1207,12 +1290,13 @@ func (c Cert) GetByID(params map[string]string) (types.Info, error) {
 
 func (c Cert) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
-	var count int
+	var count int64
 	c.DB.Model(&Cert{}).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sql, err := vars.Sql(c)
 		if err != nil {
 			Information.Error = err.Error()
@@ -1233,12 +1317,13 @@ func (c Cert) Search(vars sql.Vars) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	var count int
+	var count int64
 	c.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		var certdb []Cert
 		c.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&certdb)
 		Information.Entries = certdb
@@ -1254,31 +1339,24 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 
 	if profile, ok := params["profile"]; ok {
 		if val, ok := params["cn"]; ok {
-			if CertDB := c.DB.Where("Cn = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("Cn = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
 		}
 		if val, ok := params["id"]; ok {
-			if CertDB := c.DB.Where("Id = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("Id = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
 		}
 	} else {
 		if val, ok := params["id"]; ok {
-			if CertDB := c.DB.First(&cert, val); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").First(&cert, val); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
 		}
-	}
-
-	// Find the CA
-	var ca CA
-	if CaDB := c.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
-		Information.Error = CaDB.Error.Error()
-		return Information, errors.New(dbError)
 	}
 
 	// Load the certificates from the database
@@ -1302,7 +1380,7 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	}
 
 	// Load the certificates from the database
-	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	catls, err := tls.X509KeyPair([]byte(cert.Ca.Cert), []byte(cert.Ca.Key))
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -1347,37 +1425,33 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 
 	if profile, ok := params["profile"]; ok {
 		if id, ok := params["id"]; ok {
-			if CertDB := c.DB.Where("id = ? AND profile_id = ?", id, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("id = ? AND profile_id = ?", id, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, CertDB.Error
 			}
 		}
 		if cn, ok := params["cn"]; ok {
-			if CertDB := c.DB.Where("cn = ? AND profile_id = ?", cn, profile).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("cn = ? AND profile_id = ?", cn, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, CertDB.Error
 			}
 		}
 	} else {
 		if id, ok := params["id"]; ok {
-			if CertDB := c.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Preload("Ca").Where("id = ?", id).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, CertDB.Error
 			}
 		}
 	}
-	// Find the CA
-	var ca CA
-	if CaDB := c.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
-		Information.Error = CaDB.Error.Error()
-		return Information, CaDB.Error
-	}
 
 	// Find the Profile
 	var profile Profile
-	if ProfileDB := c.DB.Model(&cert).Related(&profile); ProfileDB.Error != nil {
-		Information.Error = ProfileDB.Error.Error()
-		return Information, ProfileDB.Error
+
+	error := c.DB.Model(&profile).Where(&cert)
+	if error.Error != nil {
+		Information.Error = error.Error.Error()
+		return Information, error.Error
 	}
 
 	intreason, err := strconv.Atoi(reason)
@@ -1386,7 +1460,7 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		return Information, errors.New("Reason unsupported")
 	}
 	RevokeDate := time.Now().AddDate(0, 0, profile.RevokedValidUntil)
-	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, NotBefore: cert.NotBefore, Date: cert.Date, Revoked: RevokeDate, CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses, Subject: cert.Subject}).Error; err != nil {
+	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: cert.Ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, NotBefore: cert.NotBefore, Date: cert.Date, Revoked: RevokeDate, CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses, Subject: cert.Subject}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
@@ -1437,6 +1511,215 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 	return Information, nil
 }
 
+func (c Cert) Resign(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var certdb []Cert
+	var err error
+	//Search the existing cert in the db
+	if val, ok := params["id"]; ok {
+		if err = c.DB.Preload("Ca").Preload("Profile").First(&certdb, val).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+	}
+
+	catls, err := tls.X509KeyPair([]byte(certdb[0].Ca.Cert), []byte(certdb[0].Ca.Key))
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+
+	Information.Entries = certdb
+
+	// Decode the private key
+	block, _ := pem.Decode([]byte(certdb[0].Key))
+	if block == nil {
+		log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
+	}
+
+	var skid []byte
+	var keyOut *bytes.Buffer
+	keyOut = new(bytes.Buffer)
+	var pub crypto.PublicKey
+
+	keyOut, skid, pub, _, Information, err = certutils.ExtractPrivateKey(certdb[0].Profile.KeyType, block, &Information)
+	if err != nil {
+		return Information, err
+	}
+
+	// keyOut contain the private key
+	var certdbprevious Cert
+	var newcertdb []Cert
+
+	//Calculate the serial number to assign
+	var SerialNumber *big.Int
+
+	if CertDB := c.DB.Last(&certdbprevious); CertDB.Error != nil {
+		SerialNumber = big.NewInt(1)
+	} else {
+		SerialNumber = big.NewInt(int64(certdbprevious.ID + 1))
+	}
+
+	Subject := certdb[0].MakeSubject()
+
+	cert := &x509.Certificate{
+		SerialNumber:       SerialNumber,
+		Subject:            Subject,
+		NotBefore:          time.Now(),
+		NotAfter:           time.Now().AddDate(0, 0, certdb[0].Profile.Validity),
+		SignatureAlgorithm: certdb[0].Profile.Digest,
+		ExtKeyUsage:        certutils.Extkeyusage(strings.Split(*certdb[0].Profile.ExtendedKeyUsage, "|")),
+		KeyUsage:           x509.KeyUsage(certutils.Keyusage(strings.Split(*certdb[0].Profile.KeyUsage, "|"))),
+		SubjectKeyId:       skid,
+	}
+	//Overload certificate attributes
+	if len(c.Profile.OCSPUrl) > 0 {
+		cert.OCSPServer = []string{c.Profile.OCSPUrl}
+	}
+
+	Email := ""
+	if len(certdb[0].Profile.Mail) > 0 {
+		Email = certdb[0].Profile.Mail
+	}
+	if len(c.Mail) > 0 {
+		Email = c.Mail
+	}
+	if len(Email) > 0 {
+		for _, mail := range strings.Split(Email, ",") {
+			cert.EmailAddresses = append(cert.EmailAddresses, mail)
+		}
+	}
+
+	if len(c.DNSNames) > 0 {
+		for _, dns := range strings.Split(c.DNSNames, ",") {
+			cert.DNSNames = append(cert.DNSNames, dns)
+		}
+	}
+	var IPAddresses []string
+	if len(c.IPAddresses) > 0 {
+		for _, ip := range strings.Split(c.IPAddresses, ",") {
+			if net.ParseIP(ip) == nil {
+				fmt.Printf("IP Address: %s - Invalid\n", ip)
+			} else {
+				IPAddresses = append(IPAddresses, ip)
+				cert.IPAddresses = append(cert.IPAddresses, net.ParseIP(ip))
+			}
+		}
+	}
+
+	var certBytes []byte
+
+	switch *certdb[0].Profile.KeyType {
+	case certutils.KEY_RSA:
+		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(*rsa.PrivateKey))
+	case certutils.KEY_ECDSA:
+		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(*ecdsa.PrivateKey))
+	case certutils.KEY_DSA:
+		certBytes, err = x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey.(*dsa.PrivateKey))
+	}
+	if err != nil {
+		return Information, err
+	}
+
+	certBuff := new(bytes.Buffer)
+	// Public key
+	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certBytes})
+
+	h := sha1.New()
+
+	h.Write(cacert.RawIssuer)
+	if err := c.DB.Model(&Cert{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Ca": certdb[0].Ca, "CaName": certdb[0].Ca.Cn, "ProfileName": certdb[0].Profile.Name, "SerialNumber": SerialNumber.String(), "DNSNames": cert.DNSNames, "IPAddresses": strings.Join(IPAddresses, ","), "Mail": Email, "StreetAddress": cert.Subject.StreetAddress, "Organisation": cert.Subject.Organization, "OrganisationalUnit": cert.Subject.OrganizationalUnit, "Country": cert.Subject.Country, "State": cert.Subject.Province, "Locality": cert.Subject.Locality, "PostalCode": cert.Subject.PostalCode, "Profile": certdb[0].Profile, "Key": keyOut.String(), "Cert": certBuff.String(), "ValidUntil": cert.NotAfter, "NotBefore": cert.NotBefore, "Subject": cert.Subject.String()}).Error; err != nil {
+		Information.Error = err.Error()
+		Information.Status = http.StatusConflict
+		return Information, errors.New(dbError)
+	}
+
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND profile_name = ?", c.Cn, certdb[0].ProfileName).First(&newcertdb)
+	Information.Entries = newcertdb
+	Information.Serial = SerialNumber.String()
+
+	return Information, nil
+}
+
+func (c Cert) MakeSubject() pkix.Name {
+	var Subject pkix.Name
+	Subject.CommonName = c.Cn
+
+	//Overload certificate attributes if exist
+	Organization := ""
+	if len(c.Profile.Organisation) > 0 {
+		Organization = c.Profile.Organisation
+	}
+	if len(c.Organisation) > 0 {
+		Organization = c.Organisation
+	}
+	if len(Organization) > 0 {
+		Subject.Organization = []string{Organization}
+	}
+
+	Country := ""
+	if len(c.Profile.Country) > 0 {
+		Country = c.Profile.Country
+	}
+	if len(c.Country) > 0 {
+		Country = c.Country
+	}
+	if len(Country) > 0 {
+		Subject.Country = []string{Country}
+	}
+
+	Province := ""
+	if len(c.Profile.State) > 0 {
+		Province = c.Profile.State
+	}
+	if len(c.State) > 0 {
+		Province = c.State
+	}
+	if len(Province) > 0 {
+		Subject.Province = []string{Province}
+	}
+
+	Locality := ""
+	if len(c.Profile.Locality) > 0 {
+		Locality = c.Profile.Locality
+	}
+	if len(c.Locality) > 0 {
+		Locality = c.Locality
+	}
+	if len(Locality) > 0 {
+		Subject.Locality = []string{Locality}
+	}
+
+	StreetAddress := ""
+	if len(c.Profile.StreetAddress) > 0 {
+		StreetAddress = c.Profile.StreetAddress
+	}
+	if len(c.StreetAddress) > 0 {
+		StreetAddress = c.StreetAddress
+	}
+	if len(StreetAddress) > 0 {
+		Subject.StreetAddress = []string{StreetAddress}
+	}
+
+	PostalCode := ""
+	if len(c.Profile.PostalCode) > 0 {
+		PostalCode = c.Profile.PostalCode
+	}
+	if len(c.PostalCode) > 0 {
+		PostalCode = c.PostalCode
+	}
+	if len(PostalCode) > 0 {
+		Subject.PostalCode = []string{PostalCode}
+	}
+	return Subject
+}
+
 func NewRevokedCertModel(pfpki *types.Handler) *RevokedCert {
 	RevokedCert := &RevokedCert{}
 
@@ -1460,12 +1743,13 @@ func (c RevokedCert) GetByID(params map[string]string) (types.Info, error) {
 
 func (c RevokedCert) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
-	var count int
+	var count int64
 	c.DB.Model(&RevokedCert{}).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		sql, err := vars.Sql(c)
 		if err != nil {
 			Information.Error = err.Error()
@@ -1491,12 +1775,13 @@ func (c RevokedCert) Search(vars sql.Vars) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
-	var count int
+	var count int64
 	c.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
-	Information.TotalCount = count
+	counter := int(count)
+	Information.TotalCount = counter
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
-	if vars.Cursor < count {
+	if vars.Cursor < counter {
 		var revokedcertdb []RevokedCert
 		c.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
 		Information.Entries = revokedcertdb
@@ -1805,7 +2090,7 @@ func parseTemplate(tplName string, lang language.Tag, data interface{}) (string,
 
 func ParseYAMLDict() (map[string]catalog.Dictionary, error) {
 	dir := "/usr/local/pf/conf/caddy-services/locales"
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -1814,7 +2099,7 @@ func ParseYAMLDict() (map[string]catalog.Dictionary, error) {
 	translations := map[string]catalog.Dictionary{}
 
 	for _, f := range files {
-		yamlFile, err := ioutil.ReadFile(dir + "/" + f.Name())
+		yamlFile, err := os.ReadFile(dir + "/" + f.Name())
 		if err != nil {
 			return nil, err
 		}
@@ -1895,4 +2180,112 @@ func ProfileAttributes(prof Profile) map[string]string {
 		attributes["Digest"] = val
 	}
 	return attributes
+}
+
+func NewSCEPServerModel(pfpki *types.Handler) *SCEPServer {
+	SCEPServer := &SCEPServer{}
+
+	SCEPServer.DB = *pfpki.DB
+	SCEPServer.Ctx = *pfpki.Ctx
+
+	return SCEPServer
+}
+
+func (s SCEPServer) New() (types.Info, error) {
+	Information := types.Info{}
+	var scepserverdb []SCEPServer
+
+	if err := s.DB.Create(&SCEPServer{Name: s.Name, URL: s.URL, SharedSecret: s.SharedSecret}).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New(dbError)
+	}
+	s.DB.Select("id, name, url, shared_secret").Where("name = ?", s.Name).First(&scepserverdb)
+	Information.Entries = scepserverdb
+
+	return Information, nil
+}
+
+// GetByID retreive the SCEPServer by id
+func (s SCEPServer) GetByID(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var scepserverdb []SCEPServer
+	if val, ok := params["id"]; ok {
+		allFields := strings.Join(sql.SqlFields(s)[:], ",")
+		s.DB.Select(allFields).Where("`id` = ?", val).First(&scepserverdb)
+	}
+	Information.Entries = scepserverdb
+
+	return Information, nil
+}
+
+// GetByID retreive the SCEPServer by id
+func (s SCEPServer) DelByID(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var scepserverdb []SCEPServer
+	if val, ok := params["id"]; ok {
+		s.DB.Delete(&SCEPServer{}, val)
+	}
+	Information.Entries = scepserverdb
+	return Information, nil
+}
+
+// Search for the SCEPServer
+func (s SCEPServer) Search(vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
+	sql, err := vars.Sql(s)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New(dbError)
+	}
+	var count int64
+	s.DB.Model(&SCEPServer{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
+	counter := int(count)
+
+	Information.TotalCount = counter
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < counter {
+		var scepserverdb []SCEPServer
+		s.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&scepserverdb)
+		Information.Entries = scepserverdb
+	}
+
+	return Information, nil
+}
+
+func (s SCEPServer) Update() (types.Info, error) {
+	var scepserverdb []SCEPServer
+	Information := types.Info{}
+	if err := s.DB.Model(&SCEPServer{}).Where("name = ?", s.Name).Updates(map[string]interface{}{"url": s.URL, "shared_secret": s.SharedSecret}).Error; err != nil {
+		Information.Error = err.Error()
+		return Information, errors.New(dbError)
+	}
+	s.DB.Select("id, name, url, shared_secret").Where("name = ?", s.Name).First(&scepserverdb)
+	Information.Entries = scepserverdb
+
+	return Information, nil
+}
+
+// Paginated return the SCEPServer list paginated
+func (s SCEPServer) Paginated(vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
+	var count int64
+	s.DB.Model(&CA{}).Count(&count)
+	counter := int(count)
+
+	Information.TotalCount = counter
+	Information.PrevCursor = vars.Cursor
+	Information.NextCursor = vars.Cursor + vars.Limit
+	if vars.Cursor < counter {
+		sql, err := vars.Sql(s)
+		if err != nil {
+			Information.Error = err.Error()
+			return Information, errors.New(dbError)
+		}
+		var scepserverdb []SCEPServer
+		s.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&scepserverdb)
+		Information.Entries = scepserverdb
+	}
+
+	return Information, nil
 }

@@ -5,21 +5,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
+	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/julienschmidt/httprouter"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func GetGormDB(t *testing.T) *gorm.DB {
-	database, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
+	database, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(context.Background())), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("Cannot create a database connection: %s", err.Error())
 		return nil
@@ -80,7 +81,7 @@ func removeDBTestEntries(t *testing.T, id int64) error {
 func dalAdminApiAuditLog() http.HandlerFunc {
 	router := httprouter.New()
 	ctx := context.Background()
-	dbs, err := gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
+	dbs, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 	if err != nil {
 		fmt.Println("error occured while connecting to mysql, ", err.Error())
 	}

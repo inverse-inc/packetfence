@@ -26,7 +26,7 @@ export default (props) => {
   } = props
 
   // reactive variables for `yup.when`
-  const { name, key_type } = form || {}
+  const { name, key_type, scep_server_enabled } = form || {}
 
   return yup.object().shape({
     ca_id: yup.string()
@@ -69,11 +69,16 @@ export default (props) => {
       return _schema
     }),
     digest: yup.string().required(i18n.t('Digest required.')),
-    validity: yup.string().required(i18n.t('Days required.')).minAsInt(1, i18n.t('Minimum 1 day(s).')).maxAsInt(825, i18n.t('Maximum 825 day(s).')),
+    validity: yup.string().required(i18n.t('Days required.')).minAsInt(1, i18n.t('Minimum 1 day(s).')),
     ocsp_url: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     p12_mail_password: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     p12_mail_subject: yup.string().max(255, i18n.t('Maximum 255 characters.')),
-    p12_mail_from: yup.string().email().max(255, i18n.t('Maximum 255 characters.'))
+    p12_mail_from: yup.string().email().max(255, i18n.t('Maximum 255 characters.')),
+    scep_server_id: yup.string().when('scep_server_enabled', () => {
+      return (scep_server_enabled)
+        ? yup.string().nullable().required(i18n.t('SCEP Server required.'))
+        : yup.string().nullable()
+    })
   })
 }
 

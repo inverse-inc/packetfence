@@ -11,6 +11,7 @@ import ButtonCertificateCopy from './ButtonCertificateCopy'
 import ButtonCertificateDownload from './ButtonCertificateDownload'
 import ButtonCertificateEmail from './ButtonCertificateEmail'
 import ButtonCertificateRevoke from './ButtonCertificateRevoke'
+import ButtonCertificateResign from './ButtonCertificateResign'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -36,6 +37,7 @@ export {
   ButtonCertificateDownload,
   ButtonCertificateEmail,
   ButtonCertificateRevoke,
+  ButtonCertificateResign,
   TheForm,
   TheView
 }

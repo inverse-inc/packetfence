@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -159,6 +159,7 @@ func (vars Vars) SqlOffset() (int, error) {
 	var err error
 	if vars.Cursor < 0 {
 		f, _ := reflect.TypeOf(vars).FieldByName("Cursor")
+
 		if defaultCursor, err = strconv.Atoi(f.Tag.Get("default")); err != nil {
 			return 0, err
 		}
@@ -273,7 +274,7 @@ func (search Search) SqlWhere(class interface{}) (Where, error) {
 }
 
 func (vars *Vars) DecodeBodyJson(req *http.Request) error {
-	body, err := ioutil.ReadAll(req.Body)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		return err
 	}

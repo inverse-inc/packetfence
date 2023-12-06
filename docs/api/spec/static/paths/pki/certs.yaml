@@ -146,3 +146,23 @@
         $ref: '#/components/responses/NotFound'
     tags:
       - PKI
+
+/api/v1/pki/cert/resign/{cert_id}:
+  post:
+    summary: Re-Sign PKI Certificate.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCert'
+    parameters:
+      - name: cert_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCert'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
