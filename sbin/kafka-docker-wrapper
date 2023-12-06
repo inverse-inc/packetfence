@@ -8,6 +8,7 @@ chown -R 1000:1000 /usr/local/pf/var/kafka
 
 args=`base_args $name`
 args+=" -v /usr/local/pf/var/kafka:/usr/local/pf/var/kafka"
+args+=" -v /usr/local/pf/conf/kafka:/usr/local/pf/conf/kafka"
 
 args+=" -p 9092:9092"
 args+=" -p 29092:29092"
