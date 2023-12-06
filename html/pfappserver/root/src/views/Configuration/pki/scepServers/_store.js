@@ -1,20 +1,14 @@
 import { computed } from '@vue/composition-api'
 import { types } from '@/store'
 import api from './_api'
-import {
-  decomposeScepServer,
-  recomposeScepServer
-} from './config'
 
 export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_pkis/isScepServerLoading']),
     getList: () => $store.dispatch('$_pkis/allScepServers'),
-    createItem: params => $store.dispatch('$_pkis/createScepServer', recomposeScepServer(params)),
-    getItem: params => $store.dispatch('$_pkis/getScepServer', params.id)
-      .then(item => decomposeScepServer(item)),
-    updateItem: params => $store.dispatch('$_pkis/updateScepServer', recomposeScepServer(params))
-      .then(item => decomposeScepServer(item)),
+    createItem: params => $store.dispatch('$_pkis/createScepServer', params),
+    getItem: params => $store.dispatch('$_pkis/getScepServer', params.id),
+    updateItem: params => $store.dispatch('$_pkis/updateScepServer', params),
     deleteItem: params => $store.dispatch('$_pkis/deleteScepServer', params.id),
   }
 }
