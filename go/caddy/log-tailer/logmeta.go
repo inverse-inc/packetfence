@@ -110,7 +110,6 @@ func NewRsyslogMetaEngine() *LogMetaEngine {
 			"packetfence_httpd.aaa":         &log4perlMetaExtractor,
 			"packetfence_httpd.portal":      &log4perlMetaExtractor,
 			"packetfence_httpd.webservices": &log4perlMetaExtractor,
-			"packetfence_winbindd-wrapper":  &log4perlMetaExtractor,
 			"pfacct":                        &golangMetaExtractor,
 			"pfdhcp":                        &golangMetaExtractor,
 			"pfdhcplistener":                &log4perlMetaExtractor,

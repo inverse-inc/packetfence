@@ -5,27 +5,31 @@ source /usr/local/pf/containers/systemd-service
 name=ntlm-auth-api
 
 conf_dir="/usr/local/pf/var/conf/${name}.d/"
-
 env_files=$(ls $conf_dir 2>/dev/null)
+option=$1
 
 if [ -z "$env_files" ]; then
     exit 1
-else
+fi
+
+if [ "$option" == "" ]; then
+    echo "No option given, terminated"
+    exit 1
+fi
+
+if [ "$option" = "start" ]; then
     for env_file in $env_files; do
-        echo "starting ntlm auth api for: $env_file"
-        source "$conf_dir$env_file"
-
-        args="-d "$(base_args "${name}-${IDENTIFIER}")
-        args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
-        args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
-        args="$args -v /var/log:/var/log:ro"
-        args="$args --log-driver=syslog"
-        args="$args -p $LISTEN:$LISTEN"
-        args="$args -e LISTEN=$LISTEN"
-        args="$args -e IDENTIFIER=$IDENTIFIER"
-        args="$args -e REWRITE_RESOLV_CONF=$REWRITE_RESOLV_CONF"
-
-        run_multi "$name" "$IDENTIFIER" "$args"
+        iden=$(echo $env_file | awk -F '.' '{print $1}')
+        echo "starting ntlm auth api domain service for: $iden using env file: $env_file"
+        systemctl start packetfence-ntlm-auth-api-domain@"$iden"
     done
     sleep infinity
+elif [ "$option" = "stop" ]; then
+    for env_file in $env_files; do
+        iden=$(echo $env_file | awk -F '.' '{print $1}')
+        echo "stopping ntlm auth api domain service for: $iden"
+        systemctl stop packetfence-ntlm-auth-api-domain@"$iden"
+    done
+    echo "stopped"
+    sleep 1
 fi
