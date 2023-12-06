@@ -426,6 +426,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfldapexplorer.service %{buildroot}%{_unitdir}/packetfence-pfldapexplorer.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
+%{__install} -D -m0644 conf/systemd/packetfence-kafka.service %{buildroot}%{_unitdir}/packetfence-kafka.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -937,6 +938,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.admin_dispatcher-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/kafka-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetacls-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
@@ -997,6 +999,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
 %config(noreplace)      /usr/local/pf/conf/event_loggers.conf
+%config(noreplace)      /usr/local/pf/conf/kafka.conf
+                        /usr/local/pf/conf/kafka.conf.example
 %config(noreplace)      /usr/local/pf/conf/.gitignore
                         /usr/local/pf/conf/.gitignore.example
 %config(noreplace)      /usr/local/pf/conf/survey.conf
@@ -1343,6 +1347,7 @@ fi
 %dir                    /usr/local/pf/var/session
 %dir                    /usr/local/pf/var/webadmin_cache
 %dir                    /usr/local/pf/var/control
+%dir                    /usr/local/pf/var/kafka
 %dir                    /usr/local/pf/var/redis_cache
 %dir                    /usr/local/pf/var/redis_queue
 %dir                    /usr/local/pf/var/redis_ntlm_cache

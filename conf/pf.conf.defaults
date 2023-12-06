@@ -742,6 +742,11 @@ proxysql_binary=/usr/bin/proxysql
 #
 # Should pfsetacls be started?
 pfsetacls=enabled
+#
+# services.kafka
+#
+# Should Kafka be started?
+kafka=disabled
 
 [snmp_traps]
 #

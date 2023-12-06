@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=kafka
+
+chown -R 1000:1000 /usr/local/pf/var/kafka
+
+args=`base_args $name`
+args+=" -v /usr/local/pf/var/kafka:/usr/local/pf/var/kafka"
+
+args+=" -p 9092:9092"
+args+=" -p 29092:29092"
+args+=" -p 9093:9093"
+args+=" --env-file /usr/local/pf/var/conf/$name.env"
+
+run $name "$args"
