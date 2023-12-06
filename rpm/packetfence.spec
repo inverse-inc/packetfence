@@ -406,9 +406,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}%{_unitdir}/packetfence-pffilter.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfcron.service %{buildroot}%{_unitdir}/packetfence-pfcron.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfqueue-go.service %{buildroot}%{_unitdir}/packetfence-pfqueue-go.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfqueue-backend.service %{buildroot}%{_unitdir}/packetfence-pfqueue-backend.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfqueue-perl.service %{buildroot}%{_unitdir}/packetfence-pfqueue-perl.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service %{buildroot}%{_unitdir}/packetfence-pfqueue.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsso.service %{buildroot}%{_unitdir}/packetfence-pfsso.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.dispatcher.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin_dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.admin_dispatcher.service
@@ -434,7 +432,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api.service
 %{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api-domain@.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api-domain@.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
-%{__install} -D -m0644 conf/systemd/packetfence-kafka.service %{buildroot}%{_unitdir}/packetfence-kafka.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -468,7 +465,6 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/session
 %{__install} -d %{buildroot}/usr/local/pf/var/webadmin_cache
 %{__install} -d %{buildroot}/usr/local/pf/var/control
-%{__install} -d %{buildroot}/usr/local/pf/var/kafka
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
 %{__install} -d %{buildroot}/etc/docker
@@ -949,6 +945,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/kafka-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-domain
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetacls-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
@@ -1009,8 +1007,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
 %config(noreplace)      /usr/local/pf/conf/event_loggers.conf
-%config(noreplace)      /usr/local/pf/conf/kafka.conf
-                        /usr/local/pf/conf/kafka.conf.example
 %config(noreplace)      /usr/local/pf/conf/.gitignore
                         /usr/local/pf/conf/.gitignore.example
 %config(noreplace)      /usr/local/pf/conf/survey.conf
@@ -1318,8 +1314,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-go
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-backend
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
 %doc                    /usr/local/pf/UPGRADE.old
@@ -1356,7 +1350,6 @@ fi
 %dir                    /usr/local/pf/var/session
 %dir                    /usr/local/pf/var/webadmin_cache
 %dir                    /usr/local/pf/var/control
-%dir                    /usr/local/pf/var/kafka
 %dir                    /usr/local/pf/var/redis_cache
 %dir                    /usr/local/pf/var/redis_queue
 %dir                    /usr/local/pf/var/redis_ntlm_cache
