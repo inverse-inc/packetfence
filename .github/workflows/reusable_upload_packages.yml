@@ -20,7 +20,7 @@ jobs:
   upload-package: 
     runs-on: packetfence-perl-package-build
     env:
-      PACKAGE_DEST_PATH: "~/packages/packetfence-perl/${{ inputs._BRANCH_NAME }}/${{ inputs._IMAGE_TYPE }}/"
+      PACKAGE_DEST_PATH: "~/packages/${{ inputs._PACKAGE_NAME }}/${{ inputs._BRANCH_NAME }}/${{ inputs._IMAGE_TYPE }}/"
     container:
       image: debian:11.0
       volumes:
@@ -44,7 +44,7 @@ jobs:
           set -e && \
           export private_key=$(/usr/bin/python3 /root/packetfence-perl/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_SSH_RUNNER_GH_PRIVATE }} --return_value=password_notes) && \
           eval `ssh-agent -s` && ssh-add - <<< ${private_key}
-          rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"   /mnt/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} reposync@${{ vars.WEB_INVERSE_IP_ADDRESS }}:${{ env.PACKAGE_DEST_PATH }}
+          rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} &&  rm -rf ${{ env.PACKAGE_DEST_PATH }}/* && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"   /mnt/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} reposync@${{ vars.WEB_INVERSE_IP_ADDRESS }}:${{ env.PACKAGE_DEST_PATH }}
           ssh-add -D
         env:
           PACKAGE_TYPE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  '*.rpm' || '*.deb' }}

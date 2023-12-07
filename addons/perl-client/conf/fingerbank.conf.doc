@@ -1,0 +1,134 @@
+[upstream.api_key]
+type=text
+description=<<EOT
+API key to interact with upstream Fingerbank project. Changing this value requires to restart the Fingerbank collector.
+EOT
+
+[upstream.use_https]
+type=toggle
+options=enabled|disabled
+description=<<EOT
+Whether or not HTTPS should be used to communicate with the Fingerbank API
+EOT
+
+[upstream.host]
+type=text
+description=<<EOT
+The host on which the Fingerbank API should be reached
+EOT
+
+[upstream.port]
+type=numeric
+description=<<EOT
+The port on which the Fingerbank API should be reached
+EOT
+
+[upstream.db_path]
+type=text
+description=<<EOT
+Path used to fetch the database on the Fingerbank API
+EOT
+
+[upstream.sqlite_db_retention]
+type=numeric
+description=<<EOT
+Amount of upstream databases to retain on disk in db/. Should be at least one in case any running processes are still pointing on the old file descriptor of the database.
+EOT
+
+[collector.use_https]
+type=toggle
+options=enabled|disabled
+description=<<EOT
+Whether or not HTTPS should be used to communicate with the collector
+EOT
+
+[collector.host]
+type=text
+description=<<EOT
+The host on which the Fingerbank collector should be reached
+EOT
+
+[collector.port]
+type=numeric
+description=<<EOT
+The port on which the Fingerbank collector should be reached
+EOT
+
+[collector.arp_lookup]
+type=toggle
+options=enabled|disabled
+description=<<EOT
+Whether or not the collector should perform ARP lookups for devices it doesn't have DHCP information.
+EOT
+
+[collector.network_behavior_analysis]
+type=toggle
+options=enabled|disabled
+description=<<EOT
+Whether or not the collector should perform network behavior analysis of the endpoints it sees.
+EOT
+
+[query.record_unmatched]
+type=toggle
+options=enabled|disabled
+description=<<EOT
+Should the local instance of Fingerbank record unmatched parameters so that it will be possible to submit thoses unmatched parameters to the upstream Fingerbank project for contribution
+EOT
+
+[collector.query_cache_time]
+type=numeric
+description=<<EOT
+Amount of minutes for which the collector API query results are cached.
+EOT
+
+[collector.inactive_endpoints_expiration]
+type=numeric
+description=<<EOT
+Amount of hours after which the information inactive endpoints should be removed from the collector.
+EOT
+
+[collector.db_persistence_interval]
+type=numeric
+description=<<EOT
+Interval in seconds at which the collector will persist its databases.
+EOT
+
+[collector.cluster_resync_interval]
+type=numeric
+description=<<EOT
+Interval in seconds at which the collector will fully resynchronize with its peers when in cluster mode. 
+The collector synchronizes in real-time, so this only acts as a safety net when there is a communication error between the collectors. 
+EOT
+
+[collector.additional_env]
+type=text
+description=<<EOT
+Additional environment variables to setup for the collector. Comma-delimited values. Example: 'COLLECTOR_ALL_HOSTS_CACHE_SIZE=100,COLLECTOR_DISABLE_TCP_HANDLER=true'
+EOT
+
+[proxy.use_proxy]
+type=toggle
+options=enabled|disabled
+description=<<EOT
+Should Fingerbank interact with WWW using a proxy ?
+EOT
+
+[proxy.host]
+type=text
+description=<<EOT
+Host the proxy is listening on. Only the host must be specified here without any port or protocol.
+EOT
+
+[proxy.port]
+type=numeric
+description=<<EOT
+Port the proxy is listening on
+EOT
+
+[proxy.verify_ssl]
+type=toggle
+options=enabled|disabled
+description=<<EOT
+Whether or not to verify SSL when using proxying
+EOT
+
