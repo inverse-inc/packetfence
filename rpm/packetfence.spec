@@ -460,6 +460,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/session
 %{__install} -d %{buildroot}/usr/local/pf/var/webadmin_cache
 %{__install} -d %{buildroot}/usr/local/pf/var/control
+%{__install} -d %{buildroot}/usr/local/pf/var/kafka
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
 %{__install} -d %{buildroot}/etc/docker
