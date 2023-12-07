@@ -2,6 +2,7 @@ ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
+RUN apt-get -y install libdigest-md4-perl
 COPY ./html ./html
 COPY ./lib ./lib
 COPY ./db ./db
