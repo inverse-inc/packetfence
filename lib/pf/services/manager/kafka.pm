@@ -62,7 +62,7 @@ sub env_vars {
 
 
 sub config {
-    tie my %ini, 'pf::IniFiles', (-file=> $kafka_config_file) or die "Cannot open config file $kafka_config_file";
+    tie my %ini, 'pf::IniFiles', (-file=> $kafka_config_file, -allowempty => 1) or die "Cannot open config file $kafka_config_file";
     return {%ini}
 }
 
