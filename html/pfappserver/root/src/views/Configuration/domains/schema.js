@@ -41,10 +41,10 @@ export default (props) => {
     form
   } = props
 
-  const { ad_fqdn, ad_server } = form || {}
+  const { ad_fqdn, ad_server, dns_servers } = form || {}
 
-  const schemaAdFqdn = yup.string().nullable().label(i18n.t('FQDN')).isFQDN('Invalid FQDN.')
   const schemaAdServer = yup.string().nullable().label(i18n.t('IP address')).isIpv4('Invalid IP address.')
+  const schemaDnsServers = yup.string().nullable().label(i18n.t('Servers')).isIpv4Csv()
 
   return yup.object().shape({
     id: yup.string()
@@ -53,15 +53,10 @@ export default (props) => {
       .max(10)
       .isAlphaNumeric()
       .domainIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
-    ad_fqdn: yup.string()
-      .when('id', {
-        is: () => !ad_server,
-        then: schemaAdFqdn.required(i18n.t('FQDN or IP address required.')),
-        otherwise: schemaAdFqdn
-      }),
+    ad_fqdn: yup.string().nullable().label(i18n.t('FQDN')).isFQDN('Invalid FQDN.'),
     ad_server: yup.string()
       .when('id', {
-        is: () => !ad_fqdn,
+        is: () => !ad_fqdn || !dns_servers,
         then: schemaAdServer.required(i18n.t('IP address or FQDN required.')),
         otherwise: schemaAdServer
       }),
@@ -69,9 +64,12 @@ export default (props) => {
       .required(i18n.t('Server required.'))
       .isFQDN()
       .domainUniqueNamesNotExistsExcept({ id, ...form }),
-    dns_servers: yup.string().nullable().label(i18n.t('Servers'))
-      .required(i18n.t('Servers required.'))
-      .isIpv4Csv(),
+    dns_servers: yup.string()
+      .when('id', {
+        is: () => !ad_fqdn || !ad_server,
+        then: schemaDnsServers.required(i18n.t('DNS servers required.')),
+        otherwise: schemaDnsServers
+      }),
     machine_account_password: yup.string().nullable().label(i18n.t('Machine Account Password'))
       .required(i18n.t('Password required.'))
       .min(8),
