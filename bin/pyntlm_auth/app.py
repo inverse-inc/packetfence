@@ -1,7 +1,9 @@
 import binascii
 import configparser
 import datetime
+import hashlib
 import os
+import re
 import socket
 import sys
 import threading
@@ -65,9 +67,11 @@ except Exception as e:
     print("Unable to retrieve AD FQDN of AD domain")
     sys.exit(1)
 
+
 def generate_empty_conf():
     with open('/root/default.conf', 'w') as file:
         file.write("\n")
+
 
 def generate_resolv_conf(dns_name, dns_servers_string):
     with open('/etc/resolv.conf', 'w') as file:
@@ -168,6 +172,40 @@ def ntlm_connect_handler():
     global secure_channel_connection
     global connection_id
     global reconnect_id
+
+    with lock:
+        reconnect_id = connection_id
+
+    secure_channel_connection, machine_cred, connection_id, error_code, error_message = get_secure_channel_connection()
+    if error_code != 0:
+        return "Error while establishing secure channel connections: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    return "OK", HTTPStatus.OK
+
+
+def test_password_handler():
+    data = request.get_json()
+
+    if data is None:
+        return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
+    if 'password' not in data:
+        return 'Invalid JSON payload format, missing required key: password', HTTPStatus.BAD_REQUEST
+
+    test_password = data['password'].strip()
+
+    if re.search(r'^[a-fA-F0-9]{32}$', test_password):
+        nt_hash = test_password
+    else:
+        nt4_digest = hashlib.new('md4', test_password.encode('utf-16le')).digest()
+        nt_hash = binascii.hexlify(nt4_digest).decode('utf-8')
+
+    global password
+    global machine_cred
+    global secure_channel_connection
+    global connection_id
+    global reconnect_id
+
+    password = nt_hash
 
     with lock:
         reconnect_id = connection_id
@@ -280,6 +318,7 @@ def ping_handler():
 app = Flask(__name__)
 app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)
 app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
+app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
 app.route('/ping', methods=['GET'])(ping_handler)
 
 # if name == __main__:

@@ -1,7 +1,9 @@
 package ntlm
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -32,12 +34,42 @@ func CheckMachineAccountPassword(ctx context.Context, backendPort string) (bool,
 
 	defer response.Body.Close()
 	statusCode := response.StatusCode
-	_, err = ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return false, err
 	}
 	if statusCode != http.StatusOK {
-		return false, errors.New(fmt.Sprintf("NTLM auth api returned with HTTP code: %d", statusCode))
+		return false, errors.New(fmt.Sprintf("NTLM auth api returned with HTTP code: %d, %s", statusCode, string(body)))
+	}
+	return true, nil
+}
+
+func CheckMachineAccountWithGivenPassword(ctx context.Context, backendPort string, password string) (bool, error) {
+	url := "http://containers-gateway.internal:" + backendPort + "/ntlm/connect"
+
+	client := &http.Client{
+		Timeout: 2 * time.Second,
+	}
+
+	jsonData := map[string]string{
+		"password": password,
+	}
+	jsonBytes, _ := json.Marshal(jsonData)
+	buffer := bytes.NewBuffer(jsonBytes)
+
+	response, err := client.Post(url, "application/json", buffer)
+	if err != nil {
+		return false, err
+	}
+
+	defer response.Body.Close()
+	statusCode := response.StatusCode
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, err
+	}
+	if statusCode != http.StatusOK {
+		return false, errors.New(fmt.Sprintf("NTLM auth api returned with HTTP code: %d, %s", statusCode, string(body)))
 	}
 	return true, nil
 }
