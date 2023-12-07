@@ -44,6 +44,7 @@ use Encode qw(encode encode_utf8);
 use File::Basename;
 use Net::MAC::Vendor;
 use Net::SMTP;
+use Authen::SASL;
 use MIME::Lite;
 use MIME::Lite::TT;
 use POSIX();
@@ -627,7 +628,15 @@ sub send_using_smtp_callback {
         and !$args{NoAuth} )
     {
         if ( $smtp->supports( 'AUTH', 500, ["Command unknown: 'AUTH'"] ) ) {
-            $smtp->auth( $args{AuthUser}, $args{AuthPass} )
+            my $sasl = Authen::SASL->new(
+              mechanism => 'LOGIN PLAIN',
+              callback => {
+                pass => $args{AuthPass},
+                user => $args{AuthUser},
+              }
+            );
+
+            $smtp->auth($sasl)
               or die "SMTP auth() command failed: $!\n" . $smtp->message . "\n";
         }
         else {
