@@ -48,7 +48,12 @@ export default (props) => {
       .max(10)
       .isAlphaNumeric()
       .domainIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
-    ad_server: yup.string().nullable().label(i18n.t('Server')).required(i18n.t('Server required.')),
+    ad_fqdn: yup.string().nullable().label(i18n.t('FQDN'))
+      .required(i18n.t('FQDN required.'))
+      .isFQDN('Invalid FQDN.'),
+    ad_server: yup.string().nullable().label(i18n.t('IP address'))
+      .required(i18n.t('IP address required.'))
+      .isIpv4('Invalid IP address.'),
     dns_name: yup.string().nullable().label(i18n.t('DNS name'))
       .required(i18n.t('Server required.'))
       .isFQDN()

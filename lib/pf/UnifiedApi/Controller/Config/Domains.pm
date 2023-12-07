@@ -81,6 +81,7 @@ sub create {
     my $bind_pass = $item->{bind_pass};
     my $computer_name = $item->{server_name};
     my $computer_password = $item->{machine_account_password};
+    my $ad_fqdn = $item->{ad_fqdn};
     my $ad_server = $item->{ad_server};
     my $dns_name = $item->{dns_name};
     my $workgroup = $item->{workgroup};
@@ -96,17 +97,16 @@ sub create {
 
     if (valid_ip($ad_server)) {
         $ad_server_ip = $ad_server;
-        $ad_server_host = gethostbyaddr(inet_aton($ad_server), AF_INET);
     }
     else {
-        my $packed_ip = gethostbyname($ad_server);
-        if (defined $packed_ip) {
-            $ad_server_ip = inet_ntoa($packed_ip);
-            $ad_server_host = $ad_server
-        }
+        return $self->render_error(422, "Inavlid AD IP '$ad_server'");
     }
-    if ($ad_server_host eq "" || $ad_server_ip eq "") {
-        return $self->render_error(422, "Unable to resolve hostname or IP of AD server '$ad_server'");
+    my @address = gethostbyname($ad_fqdn);
+    if (@address) {
+        $ad_server_host = $ad_fqdn;
+    }
+    else {
+        return $self->render_error(422, "Inavlid AD FQDN '$ad_fqdn'");
     }
 
     my $baseDN = $dns_name;
@@ -161,6 +161,7 @@ sub update {
         my $bind_pass = $new_item->{bind_pass};
         my $computer_name = $old_item->{server_name};
         my $computer_password = $new_item->{machine_account_password};
+        my $ad_fqdn = $new_item->{ad_fqdn};
         my $ad_server = $new_item->{ad_server};
         my $dns_name = $new_item->{dns_name};
         my $workgroup = $old_item->{workgroup};
@@ -170,17 +171,16 @@ sub update {
 
         if (valid_ip($ad_server)) {
             $ad_server_ip = $ad_server;
-            $ad_server_host = gethostbyaddr(inet_aton($ad_server), AF_INET);
         }
         else {
-            my $packed_ip = gethostbyname($ad_server);
-            if (defined $packed_ip) {
-                $ad_server_ip = inet_ntoa($packed_ip);
-                $ad_server_host = $ad_server
-            }
+            return $self->render_error(422, "Inavlid AD IP '$ad_server'");
         }
-        if ($ad_server_host eq "" || $ad_server_ip eq "") {
-            return $self->render_error(422, "Unable to resolve hostname or IP of AD server '$ad_server'");
+        my @address = gethostbyname($ad_fqdn);
+        if (@address) {
+            $ad_server_host = $ad_fqdn;
+        }
+        else {
+            return $self->render_error(422, "Inavlid AD FQDN '$ad_fqdn'");
         }
 
         my $baseDN = $dns_name;

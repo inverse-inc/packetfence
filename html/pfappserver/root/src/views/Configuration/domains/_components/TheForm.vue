@@ -24,7 +24,7 @@
 
         <form-group-server-name namespace="server_name"
                                 :column-label="$i18n.t(`This server's name`)"
-                                :text="$i18n.t(`This server's name (account name) in your Active Directory. Use '%h' to automatically use this server hostname.`)"
+                                :text="$i18n.t(`This server's name (account name) in the Active Directory. Use '%h' to automatically use this server hostname.`)"
         />
 
         <form-group-sticky-dc namespace="sticky_dc"
@@ -32,9 +32,14 @@
                               :text="$i18n.t(`This is used to specify a sticky domain controller to connect to. If not specified, default '*' will be used to connect to any available domain controller.`)"
         />
 
+        <form-group-ad-fqdn namespace="ad_fqdn"
+                              :column-label="$i18n.t('Active Directory FQDN')"
+                              :text="$i18n.t('The FQDN of the Active Directory server.')"
+        />
+
         <form-group-ad-server namespace="ad_server"
-                              :column-label="$i18n.t('Active Directory server')"
-                              :text="$i18n.t('The IP address or DNS name of your Active Directory server.')"
+                              :column-label="$i18n.t('Active Directory IP')"
+                              :text="$i18n.t('The IPv4 of the Active Directory server.')"
         />
 
         <form-group-dns-servers namespace="dns_servers"
@@ -127,6 +132,7 @@ import {
   FormGroupDnsName,
   FormGroupServerName,
   FormGroupStickyDc,
+  FormGroupAdFqdn,
   FormGroupAdServer,
   FormGroupDnsServers,
   FormGroupOu,
@@ -151,6 +157,7 @@ const components = {
   FormGroupDnsName,
   FormGroupServerName,
   FormGroupStickyDc,
+  FormGroupAdFqdn,
   FormGroupAdServer,
   FormGroupDnsServers,
   FormGroupOu,

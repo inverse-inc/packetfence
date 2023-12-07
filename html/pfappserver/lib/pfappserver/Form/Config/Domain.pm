@@ -56,14 +56,24 @@ has_field 'workgroup' =>
    messages => { required => 'Please specify the workgroup' },
   );
 
+has_field 'ad_fqdn' =>
+  (
+   type => 'Text',
+   label => 'Active Directory server',
+   required => 1,
+   messages => { required => 'Please specify the FQDN of the Active Directory server' },
+   tags => { after_element => \&help,
+             help => 'The FQDN of the Active Directory server' },
+  );
+
 has_field 'ad_server' =>
   (
    type => 'Text',
    label => 'Active Directory server',
    required => 1,
-   messages => { required => 'Please specify the Active Directory server' },
+   messages => { required => 'Please specify the IPv4 of the Active Directory server' },
    tags => { after_element => \&help,
-             help => 'The IP address or DNS name of your Active Directory server' },
+             help => 'The IPv4 of the Active Directory server' },
   );
 
 has_field 'bind_pass' =>
@@ -220,7 +230,7 @@ has_field 'ntlm_auth_port' =>
 
 has_block definition =>
   (
-   render_list => [ qw(workgroup dns_name server_name sticky_dc ad_server dns_servers bind_dn bind_pass ou registration machine_account machine_account_password password_is_nt_hash) ],
+   render_list => [ qw(workgroup dns_name server_name sticky_dc ad_fqdn ad_server dns_servers bind_dn bind_pass ou registration machine_account machine_account_password password_is_nt_hash) ],
   );
 
 has_block ntlm_cache =>

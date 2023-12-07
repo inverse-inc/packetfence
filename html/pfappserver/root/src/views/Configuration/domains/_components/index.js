@@ -19,6 +19,7 @@ export {
   BaseFormGroupInput                  as FormGroupDnsName,
   BaseFormGroupInput                  as FormGroupServerName,
   BaseFormGroupInput                  as FormGroupStickyDc,
+  BaseFormGroupInput                  as FormGroupAdFqdn,
   BaseFormGroupInput                  as FormGroupAdServer,
   BaseFormGroupInput                  as FormGroupDnsServers,
   BaseFormGroupInput                  as FormGroupOu,

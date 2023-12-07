@@ -74,6 +74,20 @@ export const useSearch = makeSearch('domains', {
       visible: true
     },
     {
+      key: 'ad_fqdn',
+      label: 'AD FQDN', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'ad_server',
+      label: 'AD IPv4', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'ntlm_cache',
       label: 'NTLM Cache', // i18n defer
       sortable: true,

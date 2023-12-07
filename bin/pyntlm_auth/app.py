@@ -40,6 +40,7 @@ try:
         config.read_file(file)
 
     if identifier in config:
+        ad_fqdn = config.get(identifier, 'ad_fqdn')
         ad_server = config.get(identifier, 'ad_server')
         netbios_name = config.get(identifier, 'server_name').upper()
         realm = config.get(identifier, 'dns_name')
@@ -62,11 +63,15 @@ except configparser.Error as e:
     sys.exit(1)
 
 try:
-    server_name, alias_list, ip_list = socket.gethostbyaddr(ad_server)
+    ip_address = socket.gethostbyname(ad_fqdn)
+    if ip_address:
+        server_name = ad_fqdn
+    else:
+        print("Unable to retrieve AD FQDN of AD domain")
+        sys.exit(1)
 except Exception as e:
     print("Unable to retrieve AD FQDN of AD domain")
     sys.exit(1)
-
 
 def generate_empty_conf():
     with open('/root/default.conf', 'w') as file:
