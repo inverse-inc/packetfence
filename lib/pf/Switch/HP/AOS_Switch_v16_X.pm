@@ -1,42 +1,137 @@
-package pf::Switch::Aruba::2930M;
+package pf::Switch::HP::AOS_Switch_v16_X;
 
 =head1 NAME
 
-pf::Switch::Aruba::2930M - Object oriented module to access Aruba 2930M switches.
+pf::Switch::HP::AOS_Switch_v16_X - Object oriented module to access SNMP enabled HP Procurve 2920 switches
 
 =head1 SYNOPSIS
 
-The pf::Switch::Aruba::2930M module implements an object oriented
-interface to access Aruba 2930M switches using the ArubaOS-Switch 
+The pf::Switch::HP::AOS_Switch_v16_X module implements an object
+oriented interface to access SNMP enabled HP Procurve 2920 switches using the ArubaOS-Switch
 operating system version 16.x and up to configure dynamic ACL.
 
 =head1 BUGS AND LIMITATIONS
 
 VoIP not tested using MAC Authentication/802.1X
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;
 use warnings;
-use base ('pf::Switch::HP::AOS_Switch_v16_X');
-use pf::constants;
+use Net::SNMP;
+use base ('pf::Switch::HP');
+
+sub description {'AOS Switch v16.x'}
+
+# importing switch constants
+use pf::Switch::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::util;
 use pf::radius::constants;
 use pf::locationlog;
 use pf::config qw(
-     $WEBAUTH_WIRED
-     $WIRED_802_1X
-     $WIRED_MAC_AUTH
+    $MAC
+    $PORT
+    $WEBAUTH_WIRED
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
 );
 use Try::Tiny;
 use pf::util::radius qw(perform_coa perform_disconnect);
-sub description {'Aruba 2930M Series'}
+use pf::constants;
 
+# CAPABILITIES
+# access technology supported
 use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    Lldp
+    RadiusVoip
     RoleBasedEnforcement
     AccessListBasedEnforcement
     ExternalPortal
 );
+
+# inline capabilities
+sub inlineCapabilities { return ( $MAC, $PORT ); }
+
+=head2 getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+
+sub getVoipVsa {
+    my ($self) = @_;
+    my $logger = $self->logger;
+    my $vlanid = sprintf( "%03x\n", $self->getVlanByName($VOICE_ROLE) );
+    my $hexvlan = hex( "31000" . $vlanid );
+    return ( 'Egress-VLANID' => $hexvlan, );
+}
+
+=head2 getPhonesLLDPAtIfIndex
+
+Using SNMP and LLDP we determine if there is VoIP connected on the switch port
+
+=cut
+
+sub getPhonesLLDPAtIfIndex {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
+    my @phones;
+    if ( !$self->isVoIPEnabled() ) {
+        $logger->debug( "VoIP not enabled on switch "
+                . $self->{_ip}
+                . ". getPhonesLLDPAtIfIndex will return empty list." );
+        return @phones;
+    }
+    my $oid_lldpRemPortId           = '1.0.8802.1.1.2.1.4.1.1.7';
+    my $oid_lldpRemChassisIdSubtype = '1.0.8802.1.1.2.1.4.1.1.12';
+    if ( !$self->connectRead() ) {
+        return @phones;
+    }
+    $logger->trace(
+        "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemChassisIdSubtype"
+    );
+    my $result = $self->{_sessionRead}
+        ->get_table( -baseoid => $oid_lldpRemChassisIdSubtype );
+    foreach my $oid ( keys %{$result} ) {
+        if ( $oid
+            =~ /^$oid_lldpRemChassisIdSubtype\.([0-9]+)\.([0-9]+)\.([0-9]+)$/
+            )
+        {
+            if ( $ifIndex eq $2 ) {
+                my $cache_lldpRemTimeMark     = $1;
+                my $cache_lldpRemLocalPortNum = $2;
+                my $cache_lldpRemIndex        = $3;
+
+                if ( $self->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+                    $logger->trace(
+                        "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                    );
+                    my $MACresult = $self->{_sessionRead}->get_request(
+                        -varbindlist => [
+                            "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                        ]
+                    );
+                    if ($MACresult
+                        && ($MACresult->{"$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"}
+                            =~ /^(?:0x)?([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})(?::..)?$/i
+                        )
+                        )
+                    {
+                        push @phones, lc("$1:$2:$3:$4:$5:$6");
+                    }
+                }
+            }
+        }
+    }
+    return @phones;
+}
 
 =head2 returnRadiusAccessAccept
 
@@ -78,7 +173,7 @@ sub returnRadiusAccessAccept {
             } else {
                 $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }
-        }
+	}
     }
 
     $radius_reply_ref->{'Aruba-NAS-Filter-Rule'} = \@acls;
@@ -132,13 +227,13 @@ sub wiredeauthTechniques {
             $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
-        if (!defined($method) || !defined($tech{$method})) {
+       	if (!defined($method) || !defined($tech{$method})) {
             $method = $default;
-        }
+       	}
         return $method,$tech{$method};
     }
     if ($connection_type == $WIRED_MAC_AUTH) {
-        my $default = $SNMP::SNMP;
+       	my $default = $SNMP::SNMP;
         my %tech = (
             $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
             $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -228,8 +323,8 @@ sub radiusDisconnect {
             $response = perform_coa($connection_info, $attributes_ref,$vsa);
         }
     } catch {
-        chomp;
-        $logger->warn("[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: $_");
+	chomp;
+	$logger->warn("[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: $_");
         $logger->error("[$self->{'_ip'}] Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
@@ -302,10 +397,12 @@ This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,

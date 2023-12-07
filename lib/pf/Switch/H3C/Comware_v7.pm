@@ -1,27 +1,22 @@
-package pf::Switch::HP::Procurve_4100;
+package pf::Switch::H3C::Comware_v7;
 
 =head1 NAME
 
-pf::Switch::HP::Procurve_4100 - Object oriented module to access SNMP enabled HP Procurve 4100 switches
+pf::Switch::H3C::Comware_v7 - Object oriented module to access and configure enabled H3C S5120 switches.
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::Switch::HP::Procurve_4100 module implements an object 
-oriented interface to access SNMP enabled HP Procurve 4100 switches.
-
-=head1 SNMP
-
-This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+This module is currently only a placeholder, see L<pf::Switch::H3C>.
 
 =cut
 
 use strict;
 use warnings;
-use Net::SNMP;
 
-use base ('pf::Switch::HP::Old_Procurve');
+use base ('pf::Switch::H3C::Comware_v5');
 
-sub description { 'HP ProCurve 4100 Series' }
+
+sub description { 'Comware v7' }
 
 =head1 AUTHOR
 
@@ -51,7 +46,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:

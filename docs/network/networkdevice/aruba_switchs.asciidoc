@@ -19,10 +19,9 @@ endif::[]
 
 //=== Aruba Switch
 
-==== Aruba 2930M Serie
+==== ArubaOS_CX_10.x and ArubaOS_Switch_16.x
 
-The Aruba 2930M is supported by PacketFence and it supports MAC Authentication, 802.1X, Dynamic ACLS and Web Authentication.
-
+The ArubaOS_CX_10.x and ArubaOS_Switch_16.x are supported by PacketFence and it supports MAC Authentication, 802.1X, Dynamic ACLS and Web Authentication.
 
 ===== Global Radius Configuration
 
@@ -75,12 +74,17 @@ On the PacketFence side you will need to fill the "Role by Access List" for the 
   permit in udp from any to any 53
   permit in udp from any to any 67
 
-And the "Role by Web Auth URL" for the registration role:
+And the "Role by Web Auth URL" for the registration role depending of your switch template:
 
-  http://192.168.1.5/Aruba::2930M
+  http://192.168.1.5/Aruba::ArubaOS_Switch_16_x
+
+or
+ 
+  http://192.168.1.5/Aruba::ArubaOS_CX_10.x 
 
 
 ===== Dynamic ACL
 
 The switch needs to be configure to do MAC Authentication and or 802.1x.
 Then on the PacketFence side in the switch roles, enable "Role by Access List" and fill the appropriate role with the acl you want.
+

@@ -1,12 +1,12 @@
-package pf::Switch::HP::Procurve_2500;
+package pf::Switch::HP::Old_Procurve;
 
 =head1 NAME
 
-pf::Switch::HP::Procurve_2500 - Object oriented module to access SNMP enabled HP Procurve 2500 switches
+pf::Switch::HP::Old_Procurve - Object oriented module to access SNMP enabled HP Procurve 2500 switches
 
 =head1 SYNOPSIS
 
-The pf::Switch::HP::Procurve_2500 module implements an object
+The pf::Switch::HP::Old_Procurve module implements an object
 oriented interface to access SNMP enabled HP Procurve 2500 switches.
 
 =head1 STATUS
@@ -27,7 +27,7 @@ use warnings;
 use Net::SNMP;
 use base ('pf::Switch::HP');
 
-sub description { 'HP ProCurve 2500 Series' }
+sub description { 'Old Procurve' }
 
 # importing switch constants
 use pf::Switch::constants;

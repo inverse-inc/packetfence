@@ -1,13 +1,13 @@
-package pf::Switch::Aruba::2930M;
+package pf::Switch::Aruba::ArubaOS_Switch_16_x;
 
 =head1 NAME
 
-pf::Switch::Aruba::2930M - Object oriented module to access Aruba 2930M switches.
+pf::Switch::Aruba::ArubaOS_Switch_16_x - Object oriented module to access Aruba switches using ArubaOS-Switch 16.x.
 
 =head1 SYNOPSIS
 
-The pf::Switch::Aruba::2930M module implements an object oriented
-interface to access Aruba 2930M switches using the ArubaOS-Switch 
+The pf::Switch::Aruba::ArubaOS_Switch_16_x module implements an object oriented
+interface to access Aruba switches using the ArubaOS-Switch 16.x 
 operating system version 16.x and up to configure dynamic ACL.
 
 =head1 BUGS AND LIMITATIONS
@@ -30,7 +30,7 @@ use pf::config qw(
 );
 use Try::Tiny;
 use pf::util::radius qw(perform_coa perform_disconnect);
-sub description {'Aruba 2930M Series'}
+sub description {'ArubaOS-Switch 16.x'}
 
 use pf::SwitchSupports qw(
     RoleBasedEnforcement

@@ -1,8 +1,8 @@
-package pf::Switch::H3C::S5120;
+package pf::Switch::H3C::Comware_v5;
 
 =head1 NAME
 
-pf::Switch::H3C::S5120 - Object oriented module to access and configure enabled H3C S5120 switches.
+pf::Switch::H3C::Comware_v5 - Object oriented module to access and configure enabled H3C S5120 switches.
 
 =head1 STATUS
 
@@ -16,7 +16,7 @@ use warnings;
 use base ('pf::Switch::H3C');
 
 
-sub description { 'H3C S5120 (HP/3Com)' }
+sub description { 'Comware v5' }
 
 =head1 AUTHOR
 
