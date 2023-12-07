@@ -18,7 +18,7 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 
 	type payload struct {
 		Id       string `json:"id"`
-		Password string `json:"password"`
+		Password string `json:"machine_account_password"`
 	}
 
 	ctx := context.Background()
@@ -73,7 +73,7 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 		return
 	}
 
-	passed, err := ntlm.CheckMachineAccountPassword(ctx, ntlmAuthPort.(string))
+	passed, err := ntlm.CheckMachineAccountWithGivenPassword(ctx, ntlmAuthPort.(string), req.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		res := &response{
