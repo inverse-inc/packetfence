@@ -1,7 +1,0 @@
-# Winbind OS managed checks
-
-check process winbindd with pidfile [% WINBINDD_PID %]
-    group OS
-    start program = "[% SERVICE_BIN %] winbind start" with timeout 60 seconds
-    stop program  = "[% SERVICE_BIN %] winbind stop"
-    if 3 restarts within 10 cycles then alert

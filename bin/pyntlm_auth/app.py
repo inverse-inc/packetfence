@@ -111,8 +111,6 @@ def init_secure_connection():
     lp.set('realm', realm)
     lp.set('server string', server_string)
     lp.set('workgroup', workgroup)
-    lp.set('ldap connection timeout', "2")
-    lp.set('winbind request timeout', '2')
 
     machine_cred = Credentials()
 

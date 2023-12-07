@@ -48,13 +48,11 @@ NOTE: If you are using an Active/Active cluster, each member of the cluster must
 
 ==== Troubleshooting
 
-* In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
+* In order to troubleshoot unsuccessful binds, please refer to the following file : `/usr/local/pf/log/packetfence.log`. Search for "ntlm-auth-api-domain" for all ntlm-auth-api entries.
 
-* You can validate the domain bind using the following command : `chroot /chroots/<mydomain> wbinfo -u`
+* you can check the service status and journal log using `journalctl -f -u packetfence-ntlm-auth-api-domain@[domain_id]` for domain specific logs. Replace [domain_id] with your domain
 
-* You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
-
-NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting. Also try reloading the page in the GUI since in some case the browser side of the ajax call may time out while the join actually succeeds.
+* You can test the authentication process using the following command `/usr/local/pf/bin/ntlm_auth_wrapper --username=administrator`
 
 ==== Default Domain Configuration
 
