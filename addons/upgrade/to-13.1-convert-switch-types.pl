@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-to-13.1-convert-hpswitch-types.pl
+to-13.1-convert-switch-types.pl
 
 =head1 DESCRIPTION
 
@@ -12,6 +12,7 @@ Convert some switch types and use Switch OS versions
 
 use strict;
 use warnings;
+use pf::util qw(run_as_pf);
 use lib qw(/usr/local/pf/lib);
 use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
@@ -19,7 +20,7 @@ use pf::file_paths qw(
     $switches_config_file
 );
 use File::Copy;
-use pf::util qw(run_as_pf);
+
 run_as_pf();
 
 my $file = $switches_config_file;
@@ -29,6 +30,9 @@ if (@ARGV) {
 }
 
 our %types = (
+    'Aruba::2930M' => 'Aruba::ArubaOS_Switch_16_x',
+    'Aruba::CX' => 'Aruba::ArubaOS_CX_10_x',
+    'H3C::S5120' => 'H3C::Comware_v5',
     'HP::Procurve_2500' => 'HP::Old_Procurve',
     'HP::Procurve_2920' => 'HP::AOS_Switch_v16_X',
 );
