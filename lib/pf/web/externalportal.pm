@@ -47,9 +47,6 @@ Readonly our $SWITCH_REWRITE_MAP => {
     'Cisco::Catalyst_2960' => 'Cisco::Cisco_IOS_15_0',
     'Aruba::CX' => 'Aruba::ArubaOS_CX_10.x',
     'Aruba::2930M' => 'Aruba::ArubaOS_Switch_16.x',
-    'H3C::S5120' => 'H3C::Comware_v5',
-    'HP::Procurve_2500' => 'HP::Old_Procurve',
-    'HP::Procurve_2920' => 'HP::AOS_Switch_v16_X',
 };
 
 =head1 SUBROUTINES
