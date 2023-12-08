@@ -2,6 +2,7 @@ const clouds = require('./modules/clouds')
 const domains = require('./modules/domains')
 const eventLoggers = require('./modules/eventLoggers')
 const firewalls = require('./modules/firewalls')
+const maintenaceTasks = require('./modules/maintenanceTasks')
 const mfas = require('./modules/mfas')
 const pkiProviders = require('./modules/pkiProviders')
 const provisionings = require('./modules/provisionings')
@@ -17,9 +18,10 @@ module.exports = {
 //  domains,
 //  eventLoggers,
 //  firewalls,
+    maintenaceTasks,
 //  mfas,
 //  pkiProviders,
-  provisionings,
+//  provisionings,
 //  realms,
 //  roles,
 //  scanEngines,
