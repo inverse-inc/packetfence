@@ -1,5 +1,5 @@
 [Unit]
-Description=PacketFence Kakfa Daemon
+Description=PacketFence Kafka Daemon
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 Before=packetfence-docker-iptables.service
