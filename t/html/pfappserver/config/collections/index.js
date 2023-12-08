@@ -11,6 +11,7 @@ const roles = require('./modules/roles')
 const scanEngines = require('./modules/scanEngines')
 const sources = require('./modules/sources')
 const switches = require('./modules/switches')
+const switchGroups = require('./modules/switchGroups')
 const syslogParsers = require('./modules/syslogParsers')
 
 module.exports = {
@@ -18,7 +19,7 @@ module.exports = {
 //  domains,
 //  eventLoggers,
 //  firewalls,
-    maintenaceTasks,
+//  maintenaceTasks,
 //  mfas,
 //  pkiProviders,
 //  provisionings,
@@ -27,5 +28,6 @@ module.exports = {
 //  scanEngines,
 //  sources,
 //  switches,
+  switchGroups,
 //  syslogParsers
 }
