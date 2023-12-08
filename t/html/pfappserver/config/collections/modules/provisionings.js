@@ -3,7 +3,6 @@ const timeout = 15E3;
 
 const types = {
   accept: 'Accept',
-  /*
   airwatch: 'Airwatch',
   android: 'Android',
   deny: 'Deny',
@@ -16,7 +15,6 @@ const types = {
   windows: 'Windows',
   intune: 'Microsoft Intune',
   google_workspace_chromebook: 'Google Workspace Chromebook'
-  */
 };
 
 const tests = Object.entries(types).reduce((tests, [type, name]) => {
@@ -30,10 +28,10 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
       scope: SCOPE_INSERT,
       url: collection_url,
       fixture,
+      timeout,
       selectors: {
         buttonNewSelectors: [`button[type="button"]:contains(New Provisioner)`, `ul li a[href$="/new/${type}"]`],
       },
-      timeout,
       interceptors: [
         {
           method: 'POST',
@@ -54,6 +52,7 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
       description: `Provisionings (${name}) - Update Existing`,
       scope: SCOPE_UPDATE,
       fixture,
+      timeout,
       url: resource_url,
       interceptors: [
         {
@@ -75,6 +74,7 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
       description: `Provisionings (${name}) - Delete Existing`,
       scope: SCOPE_DELETE,
       fixture,
+      timeout,
       url: resource_url,
       interceptors: [
         {
