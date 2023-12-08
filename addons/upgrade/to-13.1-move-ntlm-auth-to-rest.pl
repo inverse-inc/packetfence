@@ -32,9 +32,9 @@ my $updated = 0;
 my $ntlm_auth_host = "127.0.0.1";
 my $ntlm_auth_port = 4999;
 
-my $tmp_dirname= pf_run("date +%Y%m%d_%H%M%S");
+my $tmp_dirname = pf_run("date +%Y%m%d_%H%M%S");
 $tmp_dirname =~ s/^\s+|\s+$//g;
-my $target_dir="/usr/local/pf/archive/$tmp_dirname";
+my $target_dir = "/usr/local/pf/archive/$tmp_dirname";
 
 print("Backing up configuration files, they can be found in $target_dir\n");
 
@@ -74,8 +74,50 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     my $work_group = $samba_ini->val("global", "workgroup");
     my $realm = $samba_ini->val("global", "realm");
 
+    my $ad_server = $ini->val($section, "ad_server");
+    my $dns_server = $ini->val($section, "dns_server");
+    my $ad_fqdn = $ini->val($section, "ad_fqdn");
+
+    if (!defined($ad_fqdn) || $ad_fqdn eq "") {
+        if (valid_ip($ad_server)) {
+            my ($ad_fqdn_from_dns, $i, $msg) = pf::util::dns_resolve($ad_server, $dns_server, $dns_name);
+            if (defined($ad_fqdn_from_dns) && $ad_fqdn_from_dns ne "") {
+                $ad_fqdn = $ad_fqdn_from_dns;
+            }
+            else {
+                print("  AD server '$ad_server' does not have a PRT record retrieved using given DNS server. Trying 'gethostbyaddr' instead. Got: ");
+                my $ad_fqdn_from_system = gethostbyaddr(inet_aton($ad_server), "AF_INET");
+                if (defined($ad_fqdn_from_system) && $ad_fqdn_from_system ne "") {
+                    print("'$ad_fqdn_from_system'.\n");
+                    $ad_fqdn = $ad_fqdn_from_system;
+                }
+                else {
+                    print("Nothing. You need to input the AD's FQDN manually here: ");
+                    $ad_fqdn = <STDIN>;
+                    chomp($ad_fqdn);
+                }
+            }
+        }
+        else {
+            $ad_fqdn = $ad_server;
+            my ($h, $ip_from_dns, $msg) = pf::util::dns_resolve($ad_fqdn, $dns_server, $dns_name);
+            if (defined($ip_from_dns) && $ip_from_dns ne "") {
+                $ad_server = $ip_from_dns;
+            }
+            else {
+                my $packed_ip = gethostbyname($ad_fqdn);
+                if (defined $packed_ip) {
+                    $ad_server = inet_ntoa($packed_ip);
+                }
+                else {
+                    print("  Failed to resolve FQDN: '$ad_fqdn', Please check your DNS/network config\n")
+                }
+            }
+        }
+    }
+
     unless ($dns_name ne "" && $work_group ne "") {
-        print("  Unable to retrieve dns_name or workgroup from config file. Skipping section $section\n");
+        print("  Unable to retrieve dns_name or workgroup from config file. Section $section skipped\n");
         next;
     }
 
@@ -94,7 +136,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
         $machine_account = extract_machine_account($tdb_secret_host_value);
     }
     else {
-        print("  Unable to retrieve machine account from tdb file. Please check samba tdb database. Skipped\n");
+        print("  Unable to retrieve machine account from tdb file. Please check samba tdb database. Section $section Skipped\n");
         next;
     }
 
@@ -109,13 +151,13 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
         $machine_password = extract_machine_password($tdb_secret_machine_password_value);
     }
     else {
-        print("  Unable to retrieve machine account password from tdb file. Please check samba tdb database. Skipped\n");
+        print("  Unable to retrieve machine account password from tdb file. Please check samba tdb database. Section $section Skipped\n");
         next;
     }
 
     my $server_name = $ini->val($section, 'server_name');
     if (lc($server_name) ne lc($machine_account)) {
-        print("  Unable to rewrite server_name values, current value is: $server_name, expected is: $machine_account, Skipped\n");
+        print("  Unable to rewrite server_name values, current value is: $server_name, expected is: $machine_account, Section $section Skipped\n");
         next;
     }
 
@@ -124,6 +166,8 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
         $ini->newval($section, 'password_is_nt_hash', '1');
         $ini->newval($section, 'ntlm_auth_host', $ntlm_auth_host);
         $ini->newval($section, 'ntlm_auth_port', $ntlm_auth_port);
+        $ini->newval($section, 'ad_fqdn', $ad_fqdn);
+        $ini->setval($section, 'ad_server', $ad_server);
         $updated |= 1;
     }
 }
