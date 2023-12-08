@@ -7,12 +7,12 @@ const timeout = 10E3;
 module.exports = {
   id: 'domains',
   description: 'Domains',
-  timeout,
   tests: [
     {
       description: 'Domains - Create New',
       scope: SCOPE_INSERT,
       fixture,
+      timeout,
       url: collection_url,
       interceptors: [
         {
@@ -34,6 +34,7 @@ module.exports = {
       description: 'Domains - Update Existing',
       scope: SCOPE_UPDATE,
       fixture,
+      timeout,
       url: resource_url,
       interceptors: [
         {
@@ -55,6 +56,7 @@ module.exports = {
       description: 'Domains - Delete Existing',
       scope: SCOPE_DELETE,
       fixture,
+      timeout,
       url: resource_url,
       interceptors: [
         {
