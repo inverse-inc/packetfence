@@ -32,6 +32,7 @@ use Sys::Hostname;
 use Socket;
 use Digest::MD4 qw(md4_hex);
 use Encode qw(encode);
+use Net::DNS;
 
 use JSON;
 =head2 test_join
@@ -99,14 +100,20 @@ sub create {
         $ad_server_ip = $ad_server;
     }
     else {
-        return $self->render_error(422, "Inavlid AD IP '$ad_server'");
+        return $self->render_error(422, "Inivalid AD IP '$ad_server'");
     }
-    my @address = gethostbyname($ad_fqdn);
-    if (@address) {
+    my @dns_servers = split(',',$item->{dns_servers});
+    my $resolver = Net::DNS::Resolver->new(
+        nameservers => @dns_servers,
+        recurse     => 0,
+        debug       => 0
+    );
+    my $packet = $resolver->search( $ad_fqdn );
+    if ($packet) {
         $ad_server_host = $ad_fqdn;
     }
     else {
-        return $self->render_error(422, "Inavlid AD FQDN '$ad_fqdn'");
+        return $self->render_error(422, "Invalid AD FQDN '$ad_fqdn'");
     }
 
     my $baseDN = $dns_name;
@@ -173,14 +180,28 @@ sub update {
             $ad_server_ip = $ad_server;
         }
         else {
-            return $self->render_error(422, "Inavlid AD IP '$ad_server'");
+            return $self->render_error(422, "Invalid AD IP '$ad_server'");
         }
+        my @dns_servers = split(',',$item->{dns_servers});
+        my $resolver = Net::DNS::Resolver->new(
+            nameservers => @dns_servers,
+            recurse     => 0,
+            debug       => 0
+        );
+        my $packet = $resolver->search( $ad_fqdn );
+        if ($packet) {
+            $ad_server_host = $ad_fqdn;
+        }
+        else {
+            return $self->render_error(422, "Invalid AD FQDN '$ad_fqdn'");
+        }
+
         my @address = gethostbyname($ad_fqdn);
         if (@address) {
             $ad_server_host = $ad_fqdn;
         }
         else {
-            return $self->render_error(422, "Inavlid AD FQDN '$ad_fqdn'");
+            return $self->render_error(422, "Invalid AD FQDN '$ad_fqdn'");
         }
 
         my $baseDN = $dns_name;
