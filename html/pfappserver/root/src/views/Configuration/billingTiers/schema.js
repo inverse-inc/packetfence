@@ -29,10 +29,14 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Billing Tier required.'))
       .billingTierIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Billing Tier exists.')),
-    name: yup.string().nullable().label(i18n.t('Name')),
-    description: yup.string().nullable().label(i18n.t('Description')),
+    name: yup.string().nullable().label(i18n.t('Name'))
+      .required(i18n.t('Name required.')),
+    description: yup.string().nullable().label(i18n.t('Description'))
+      .required(i18n.t('Description required.')),
     price: yup.string().nullable().label(i18n.t('Price'))
-      .isPrice(i18n.t('Invalid price.')),
+      .isPrice(i18n.t('Invalid price.'))
+      .required(i18n.t('Price required.')),
     role: yup.string().nullable().label(i18n.t('Role'))
+      .required(i18n.t('Role required.'))
   })
 }

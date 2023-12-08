@@ -1,5 +1,3 @@
-const { flatten } = require('utils')
-
 Cypress.Commands.add('pfSystemLogin', () => {
   /*
   cy.visit('https://localhost:1443/admin#/login').then(() => {
@@ -57,7 +55,6 @@ Cypress.Commands.add('pfConfiguratorDisable', () => {
 })
 
 Cypress.Commands.add('formFillNamespace', (data, selector = 'body') => {
-  const flat = flatten(data)
   return cy.get(selector)
     .should('exist')
     .get('*[data-namespace]')
@@ -66,8 +63,8 @@ Cypress.Commands.add('formFillNamespace', (data, selector = 'body') => {
       if (element.is(':visible')) {
         const namespace = element.attr('data-namespace')
         const chosen = element.attr('data-chosen')
-        if (namespace in flat && flat[namespace]) {
-          const value = flat[namespace]
+        if (namespace in data && data[namespace]) {
+          const value = data[namespace]
           const type = element.attr('type')
           const e = Cypress.$(element)[0]
           const tagName = e.tagName.toLowerCase()

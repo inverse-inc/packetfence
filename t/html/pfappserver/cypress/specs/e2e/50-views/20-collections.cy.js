@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 const { global, collections } = require('config');
+const { flatten } = require('utils')
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('config/collections/config');
 
 describe('Collections', () => {
@@ -14,6 +15,7 @@ describe('Collections', () => {
         const { description, fixture = 'emtpy.json', scope, url, interceptors = [], selectors, timeout,
           idFromFixture = ({ id }) => id,
           beforeFormFill,
+          map = (v) => v,
         } = test
         const {
           containerSelector = 'div[data-router-view] > div > div.card',
@@ -28,6 +30,10 @@ describe('Collections', () => {
 
         it(description, () => {
           cy.fixture(fixture).then((data) => {
+            const associative = flatten(data)
+            const form = Object.entries(associative).reduce((items, [k, v]) => {
+              return { ...items, [k]: map(v, k) }
+            }, {})
             const resourceId = idFromFixture(data)
             const resourceUrl = (url.constructor == Function) ? url(resourceId) : url
 
@@ -90,7 +96,7 @@ describe('Collections', () => {
                       }
 
                       // fill form
-                      cy.formFillNamespace(data, `@tab${n}`)
+                      cy.formFillNamespace(form, `@tab${n}`)
                     })
 
                     // click first tab
@@ -105,7 +111,7 @@ describe('Collections', () => {
                     }
 
                     // fill form
-                    cy.formFillNamespace(data, containerSelector)
+                    cy.formFillNamespace(form, containerSelector)
                   }
                 })
 

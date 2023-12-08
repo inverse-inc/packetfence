@@ -1,3 +1,4 @@
+const billingTiers = require('./modules/billingTiers')
 const clouds = require('./modules/clouds')
 const connectionProfiles = require('./modules/connectionProfiles')
 const domains = require('./modules/domains')
@@ -16,8 +17,9 @@ const switchGroups = require('./modules/switchGroups')
 const syslogParsers = require('./modules/syslogParsers')
 
 module.exports = {
+  billingTiers,
 //  clouds,
-  connectionProfiles,
+//  connectionProfiles,
 //  domains,
 //  eventLoggers,
 //  firewalls,

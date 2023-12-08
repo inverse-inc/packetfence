@@ -1,0 +1,11 @@
+{
+  "id": "test",
+  "name": "test",
+  "description": "test",
+  "price": "13.37",
+  "role": "guest",
+  "access_duration": {
+    "interval": "1",
+    "unit": "D"
+  }
+}
