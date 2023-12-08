@@ -84,7 +84,7 @@ describe('Collections', () => {
                         .invoke('attr', 'aria-hidden').should('eq', 'false')
 
                       // fill form
-                      cy.formFillNamespace(data, `@tab${n} form div.base-form`)
+                      cy.formFillNamespace(data, `@tab${n}`)
                     })
                     // click first tab
                     cy.get(tabSelector, selectorOptions).first()
@@ -93,7 +93,7 @@ describe('Collections', () => {
                   }
                   else {
                     // fill form
-                    cy.formFillNamespace(data, `${containerSelector} form div.base-form`)
+                    cy.formFillNamespace(data, containerSelector)
                   }
                 })
 
