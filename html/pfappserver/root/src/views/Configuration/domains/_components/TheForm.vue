@@ -39,12 +39,12 @@
 
         <form-group-ad-server namespace="ad_server"
                               :column-label="$i18n.t('Active Directory IP')"
-                              :text="$i18n.t('The IPv4 of the Active Directory server.')"
+                              :text="$i18n.t('The IPv4 of the Active Directory server. This field is optional if Active Directory server\'s FQDN is resolvable using specified DNS servers. Note: If DNS server, Active Directory Server\'s FQDN and IP are all given, PacketFence will use the resolved IP address instead of this.')"
         />
 
         <form-group-dns-servers namespace="dns_servers"
                                 :column-label="$i18n.t('DNS server(s)')"
-                                :text="$i18n.t('The IP address(es) of the DNS server(s) for this domain. Comma delimited if multiple.')"
+                                :text="$i18n.t('The IP address(es) of the DNS server(s) for this domain. Comma delimited if multiple. This field is optional if Active Directory server\'s FQDN and IP are specified.')"
         />
 
         <form-group-ou namespace="ou"
@@ -57,7 +57,7 @@
           <component namespace="machine_account_password"
                      :is="formGroupComputedMachineAccountPassword"
                      :column-label="$i18n.t('Machine account password')"
-                     :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. type another value to change the password, or leave it as-is`)"
+                     :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. Type another value to change the password, or leave it as-is`)"
                      :buttonLabel="$i18n.t('Test')"
                      testLabel="Processing"
                      :test="testMachineAccount"
@@ -66,12 +66,12 @@
 
         <form-group-bind-dn namespace="bind_dn"
                                       :column-label="$i18n.t('Domain administrator username')"
-                                      :text="$i18n.t(`Domain Administrator's Username, PacketFence will only use this to update machine accounts in Active Directory, this will not be saved into config file`)"
+                                      :text="$i18n.t(`Domain Administrator's Username, PacketFence will only use this to update machine accounts in Active Directory, this will not be saved into config file.`)"
         />
 
         <form-group-bind-pass namespace="bind_pass"
                                           :column-label="$i18n.t('Domain administrator password')"
-                                          :text="$i18n.t(`Domain administrator's password, PacketFence will only use this to update machine account in Active Directory, this will not be saved into config file`)"
+                                          :text="$i18n.t(`Domain administrator's password, PacketFence will only use this to update machine account in Active Directory, this will not be saved into config file.`)"
         />
 
         <form-group-ntlmv2-only namespace="ntlmv2_only"
