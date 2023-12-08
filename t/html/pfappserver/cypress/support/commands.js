@@ -56,6 +56,7 @@ Cypress.Commands.add('pfConfiguratorDisable', () => {
 
 Cypress.Commands.add('formFillNamespace', (data, selector = 'body') => {
   return cy.get(selector)
+    .should('exist')
     .get('*[data-namespace]')
     .should("have.length.gte", 0)
     .each(element => {
@@ -67,7 +68,7 @@ Cypress.Commands.add('formFillNamespace', (data, selector = 'body') => {
         const e = Cypress.$(element)[0]
         const tagName = e.tagName.toLowerCase()
         switch (true) {
-          case tagName === 'input' && ['text', 'password'].includes(type):
+          case tagName === 'input' && ['text', 'password', 'number'].includes(type):
           case tagName === 'textarea':
             cy.get(e).as(namespace)
             cy.get(`@${namespace}`)
