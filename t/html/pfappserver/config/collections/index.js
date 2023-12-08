@@ -1,4 +1,5 @@
 const clouds = require('./modules/clouds')
+const connectionProfiles = require('./modules/connectionProfiles')
 const domains = require('./modules/domains')
 const eventLoggers = require('./modules/eventLoggers')
 const firewalls = require('./modules/firewalls')
@@ -16,6 +17,7 @@ const syslogParsers = require('./modules/syslogParsers')
 
 module.exports = {
 //  clouds,
+  connectionProfiles,
 //  domains,
 //  eventLoggers,
 //  firewalls,
@@ -28,6 +30,6 @@ module.exports = {
 //  scanEngines,
 //  sources,
 //  switches,
-  switchGroups,
+//  switchGroups,
 //  syslogParsers
 }

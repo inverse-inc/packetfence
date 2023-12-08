@@ -13,6 +13,7 @@ describe('Collections', () => {
       collection.tests.forEach(test => {
         const { description, fixture = 'emtpy.json', scope, url, interceptors = [], selectors, timeout,
           idFromFixture = ({ id }) => id,
+          beforeFormFill,
         } = test
         const {
           containerSelector = 'div[data-router-view] > div > div.card',
@@ -83,15 +84,26 @@ describe('Collections', () => {
                       cy.get(`@tab${n}`, selectorOptions)
                         .invoke('attr', 'aria-hidden').should('eq', 'false')
 
+                      // before form fill
+                      if (beforeFormFill) {
+                        beforeFormFill(`@tab${n}`, selectorOptions)
+                      }
+
                       // fill form
                       cy.formFillNamespace(data, `@tab${n}`)
                     })
+
                     // click first tab
                     cy.get(tabSelector, selectorOptions).first()
                       .click({ log: true })
                       .invoke('attr', 'aria-selected').should('eq', 'true')
                   }
                   else {
+                    // before form fill
+                    if (beforeFormFill) {
+                      beforeFormFill(`@tab${n}`, selectorOptions)
+                    }
+
                     // fill form
                     cy.formFillNamespace(data, containerSelector)
                   }

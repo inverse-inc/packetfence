@@ -1,0 +1,9 @@
+{
+  "id": "test",
+  "filter": [
+    {
+      "type": "port",
+      "match": "1337"
+    }
+  ]
+}
