@@ -27,14 +27,7 @@ use File::Slurp;
 our $TT_OPTIONS = {ABSOLUTE => 1};
 our $template = Template->new($TT_OPTIONS);
 
-our $ADD_COMPUTERS_BIN;
-if ($OS eq 'rhel') {
-    $ADD_COMPUTERS_BIN = '/usr/bin/addcomputer.py';
-} elsif ($OS eq 'debian') {
-    $ADD_COMPUTERS_BIN = '/usr/bin/impacket-addcomputer';
-}
-
-
+our $ADD_COMPUTERS_BIN = '/usr/local/pf/bin/impacket-addcomputer';
 
 =head2 run
 
