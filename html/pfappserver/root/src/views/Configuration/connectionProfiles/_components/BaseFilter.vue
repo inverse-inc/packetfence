@@ -141,7 +141,7 @@ const setup = (props, context) => {
         }
       }
     }
-    return undefined
+    return BaseInput
   })
 
   const matchOptions = ref([])
