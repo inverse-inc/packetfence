@@ -29,6 +29,7 @@ describe('Collections', () => {
           cy.fixture(fixture).then((data) => {
             const resourceId = idFromFixture(data)
             const resourceUrl = (url.constructor == Function) ? url(resourceId) : url
+
             switch (scope) {
 
 
@@ -83,7 +84,7 @@ describe('Collections', () => {
                         .invoke('attr', 'aria-hidden').should('eq', 'false')
 
                       // fill form
-                      cy.formFillNamespace(data, `@tab${n}`)
+                      cy.formFillNamespace(data, `@tab${n} form div.base-form`)
                     })
                     // click first tab
                     cy.get(tabSelector, selectorOptions).first()
@@ -92,7 +93,7 @@ describe('Collections', () => {
                   }
                   else {
                     // fill form
-                    cy.formFillNamespace(data, 'form div.base-form')
+                    cy.formFillNamespace(data, `${containerSelector} form div.base-form`)
                   }
                 })
 
