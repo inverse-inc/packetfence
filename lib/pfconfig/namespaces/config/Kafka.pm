@@ -29,16 +29,17 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
-
     my %ConfigKafka = %{ $self->{cfg} };
     $self->cleanup_whitespaces( \%ConfigKafka );
+    return \%ConfigKafka if !exists $ConfigKafka{iptables};
+
     my $iptables = $ConfigKafka{iptables};
     for my $f (qw(cluster_ips clients)) {
-        $iptables->{$f} = [split /\s*,\s*/, $iptables->{$f}];
+        next if !exists $iptables->{$f};
+        $iptables->{$f} = [split /\s*,\s*/, ($iptables->{$f} // "")];
     }
 
     return \%ConfigKafka;
-
 }
 
 
