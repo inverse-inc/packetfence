@@ -215,7 +215,6 @@ type PfConfServices struct {
 	Snmptrapd            string `json:"snmptrapd"`
 	TC                   string `json:"tc"`
 	TrackingConfig       string `json:"tracking-config"`
-	Winbindd             string `json:"winbindd"`
 }
 
 type PfConfWebservices struct {

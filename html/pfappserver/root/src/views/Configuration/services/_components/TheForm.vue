@@ -274,13 +274,6 @@
                                 disabled-value="disabled"
     />
 
-    <form-group-winbindd namespace="winbindd"
-                         column-label="winbindd"
-                         :text="$i18n.t(`Should winbindd be started? Keep enabled unless you know what you're doing.`)"
-                         enabled-value="enabled"
-                         disabled-value="disabled"
-    />
-
     <form-group-mysql-probe namespace="mysql-probe"
                             column-label="mysql-probe"
                             :text="$i18n.t(`Should mysql-probe be started? Keep enabled unless you know what you're doing.`)"
@@ -342,7 +335,6 @@ import {
   FormGroupRedisQueue,
   FormGroupSnmpTrapd,
   FormGroupTrackingConfig,
-  FormGroupWinbindd,
   FormGroupKafka
 } from './'
 
@@ -389,7 +381,6 @@ const components = {
   FormGroupRedisQueue,
   FormGroupSnmpTrapd,
   FormGroupTrackingConfig,
-  FormGroupWinbindd,
   FormGroupKafka,
   FormGroupMysqlProbe
 }
