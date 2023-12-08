@@ -3,6 +3,9 @@
 #MySQL
 /usr/libexec/mysqld
 
+#Mariadb
+/usr/sbin/mysqld
+
 #Accounting
 /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa
 
