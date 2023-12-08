@@ -182,7 +182,7 @@ sub update {
         else {
             return $self->render_error(422, "Invalid AD IP '$ad_server'");
         }
-        my @dns_servers = split(',',$item->{dns_servers});
+        my @dns_servers = split(',',$new_item->{dns_servers});
         my $resolver = Net::DNS::Resolver->new(
             nameservers => @dns_servers,
             recurse     => 0,
