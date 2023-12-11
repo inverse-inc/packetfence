@@ -45,7 +45,7 @@ def generate_empty_conf():
 
 
 def generate_resolv_conf(dns_name, dns_servers_string):
-    with open('/etc/resolv.conf', 'a') as file:
+    with open('/etc/resolv.conf', 'w') as file:
         file.write(f"\n")
         file.write(f"search {dns_name}\n")
         file.write("\n")
@@ -92,7 +92,7 @@ def init_secure_connection():
     machine_cred.set_username(username)
     machine_cred.set_password(password)
 
-    machine_cred.set_password_will_be_nt_hash(True if password_is_nt_hash == "1" else False)
+    machine_cred.set_password_will_be_nt_hash(True)
     machine_cred.set_domain(domain)
 
     error_code = 0
@@ -150,6 +150,9 @@ def ntlm_connect_handler():
         reconnect_id = connection_id
 
     secure_channel_connection, machine_cred, connection_id, error_code, error_message = get_secure_channel_connection()
+
+    if error_code == ntstatus.NT_STATUS_ACCESS_DENIED:
+        return "Test machine account failed. Access Denied", HTTPStatus.UNAUTHORIZED
     if error_code != 0:
         return "Error while establishing secure channel connections: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
 
@@ -184,6 +187,9 @@ def test_password_handler():
         reconnect_id = connection_id
 
     secure_channel_connection, machine_cred, connection_id, error_code, error_message = get_secure_channel_connection()
+
+    if error_code == ntstatus.NT_STATUS_ACCESS_DENIED:
+        return "Test machine account failed. Access Denied", HTTPStatus.UNAUTHORIZED
     if error_code != 0:
         return "Error while establishing secure channel connections: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
 
@@ -355,6 +361,8 @@ else:
     else:
         print("Failed to start NTLM auth API. 'ad_server' is required when DNS servers are unavailable.\n")
         exit(1)
+
+server_name = ad_fqdn
 
 app = Flask(__name__)
 app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)

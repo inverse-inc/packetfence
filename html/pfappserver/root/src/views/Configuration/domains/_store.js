@@ -112,11 +112,11 @@ const actions = {
   testMachineAccount: ({commit}, data) => {
     commit('ITEM_REQUEST')
     return api.testMachineAccount(data).then(response => {
-      commit('ITEM_SUCCESS', data.message)
-      return response
+      commit('ITEM_SUCCESS', data)
+      return response.message
     }).catch(err => {
       commit('ITEM_ERROR', err.response.message)
-      throw err
+      throw err.response.data.message
     })
   }
 }

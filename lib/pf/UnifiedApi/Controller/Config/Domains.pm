@@ -97,33 +97,25 @@ sub create {
     my $ad_server_ip = "";
 
     my $dns_servers = $item->{dns_servers};
-    if (!defined($dns_servers)) {
-        if (valid_ip($ad_server)) {
-            $ad_server_ip = $ad_server;
+    if (defined($dns_servers)) {
+        my ($hostname, $ip, $error) = pf::util::dns_resolve($ad_fqdn, $dns_servers, $dns_name);
+        if (defined($ip)) {
+            $ad_server_host = $ad_fqdn;
+            $ad_server_ip = $ip;
         }
         else {
-            return $self->render_error(422, "Invalid AD IP '$ad_server'");
+            if (defined($ad_server) && valid_ip($ad_server)) {
+                $ad_server_host = $ad_fqdn;
+                $ad_server_ip = $ad_server;
+            }
+            else {
+                return $self->render_error(422, "Unable to resolve AD FQDN: '$ad_fqdn' with given DNS server: '$dns_servers'\n");
+            }
         }
-    }
-
-    my @dns_servers = split(',', $item->{dns_servers});
-    my $resolver = Net::DNS::Resolver->new(
-        nameservers => @dns_servers,
-        recurse     => 0,
-        debug       => 0
-    );
-    my $packet = $resolver->search($ad_fqdn);
-    if (defined($packet)) {
-        $ad_server_host = $ad_fqdn;
     }
     else {
-        my @address = gethostbyname($ad_fqdn);
-        if (@address) {
-            $ad_server_host = $ad_fqdn;
-        }
-        else {
-            return $self->render_error(422, "Invalid AD FQDN '$ad_fqdn'. Unable to resolve FQDN using given DNS server");
-        }
+        $ad_server_host = $ad_fqdn;
+        $ad_server_ip = $ad_server;
     }
 
     my $baseDN = $dns_name;
@@ -138,7 +130,8 @@ sub create {
                 $self->render_error(422, "Unable to add machine account with following error: $add_result");
                 return 0;
             }
-        } else {
+        }
+        else {
             $self->render_error(422, "Unable to add machine account with following error: $add_result");
             return 0;
         }
@@ -152,6 +145,7 @@ sub create {
     $item->{ntlm_auth_port} = $max_port;
     $item->{password_is_nt_hash} = '1';
     $item->{machine_account_password} = $computer_password;
+    $item->{server_name} = $computer_name;
 
     delete $item->{bind_dn};
     delete $item->{bind_pass};
@@ -180,46 +174,48 @@ sub update {
 
     my $cs = $self->config_store;
     $self->cleanupItemForUpdate($old_item, $new_data, $data);
+
+    my $bind_dn = $new_item->{bind_dn};
+    my $bind_pass = $new_item->{bind_pass};
+    my $computer_name = $old_item->{server_name};
+    my $computer_password = $new_item->{machine_account_password};
+    my $ad_fqdn = $new_item->{ad_fqdn};
+    my $ad_server = $new_item->{ad_server};
+    my $dns_name = $new_item->{dns_name};
+    my $workgroup = $old_item->{workgroup};
+
+    if ($computer_name eq "%h") {
+        $computer_name = hostname();
+        my ($first_element) = split(/\./, $computer_name);
+        $computer_name = $first_element;
+    }
+
     if ($new_data->{machine_account_password} ne $old_item->{machine_account_password}) {
         $new_data->{machine_account_password} = md4_hex(encode("utf-16le", $new_data->{machine_account_password}));
-        my $bind_dn = $new_item->{bind_dn};
-        my $bind_pass = $new_item->{bind_pass};
-        my $computer_name = $old_item->{server_name};
-        my $computer_password = $new_item->{machine_account_password};
-        my $ad_fqdn = $new_item->{ad_fqdn};
-        my $ad_server = $new_item->{ad_server};
-        my $dns_name = $new_item->{dns_name};
-        my $workgroup = $old_item->{workgroup};
 
         my $ad_server_host = "";
         my $ad_server_ip = "";
         my $dns_servers = $new_item->{dns_servers};
-        if (!defined($dns_servers)) {
-            if (valid_ip($ad_server)) {
-                $ad_server_ip = $ad_server;
+
+        if (defined($dns_servers)) {
+            my ($hostname, $ip, $error) = pf::util::dns_resolve($ad_fqdn, $dns_servers, $dns_name);
+            if (defined($ip)) {
+                $ad_server_host = $ad_fqdn;
+                $ad_server_ip = $ip;
             }
             else {
-                return $self->render_error(422, "Invalid AD IP '$ad_server'");
+                if (defined($ad_server) && valid_ip($ad_server)) {
+                    $ad_server_host = $ad_fqdn;
+                    $ad_server_ip = $ad_server;
+                }
+                else {
+                    return $self->render_error(422, "Unable to resolve AD FQDN: '$ad_fqdn' with given DNS server: '$dns_servers'\n");
+                }
             }
-        }
-        my @dns_servers = split(',', $new_item->{dns_servers});
-        my $resolver = Net::DNS::Resolver->new(
-            nameservers => @dns_servers,
-            recurse     => 0,
-            debug       => 0
-        );
-        my $packet = $resolver->search($ad_fqdn);
-        if (defined($packet)) {
-            $ad_server_host = $ad_fqdn;
         }
         else {
-            my @address = gethostbyname($ad_fqdn);
-            if (@address) {
-                $ad_server_host = $ad_fqdn;
-            }
-            else {
-                return $self->render_error(422, "Invalid AD FQDN '$ad_fqdn'. Unable to resolve FQDN using given DNS server");
-            }
+            $ad_server_host = $ad_fqdn;
+            $ad_server_ip = $ad_server;
         }
 
         my $baseDN = $dns_name;
@@ -242,6 +238,7 @@ sub update {
         }
     }
 
+    $new_data->{server_name} = $computer_name;
     delete $new_data->{id};
     delete $new_data->{bind_dn};
     delete $new_data->{bind_pass};

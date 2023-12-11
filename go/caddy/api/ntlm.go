@@ -105,6 +105,3 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 	fmt.Fprintf(w, string(j))
 
 }
-
-// {"id":"asas","message":"Settings updated","status":200} - save
-// {"id":"adasd","message":"'adasd' created","status":201}
