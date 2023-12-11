@@ -1,23 +1,26 @@
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
-const collection_url = '/configuration/domains';
-const resource_url = id => `/configuration/domain/${id}`;
-const fixture = 'collections/domain.json';
-const timeout = 60E3;
+const collection_url = '/configuration/security_events';
+const resource_url = id => `/configuration/security_event/${id}`;
+const fixture = 'collections/securityEvent.json';
+const timeout = 10E3;
 
 module.exports = {
-  id: 'domains',
-  description: 'Domains',
+  id: 'securityEvents',
+  description: 'Security Events',
   tests: [
     {
-      description: 'Domains - Create New',
+      description: 'Security Events - Create New',
       scope: SCOPE_INSERT,
+      url: collection_url,
       fixture,
       timeout,
-      url: collection_url,
+      selectors: {
+        buttonNewSelectors: ['button[type="button"]:contains(New)'],
+      },
       interceptors: [
         {
           method: 'POST',
-          url: '/api/**/config/domains',
+          url: '/api/**/config/security_events',
           expectRequest: (request, fixture) => {
             Object.keys(fixture).forEach(key => {
               expect(request.body).to.have.property(key)
@@ -26,20 +29,23 @@ module.exports = {
           },
           expectResponse: (response, fixture) => {
             expect(response.statusCode).to.equal(201)
+            const { body: { id } = {} } = response
+            return { id } // push `id` to fixture
           }
         }
       ]
     },
     {
-      description: 'Domains - Update Existing',
+      description: 'Security Events - Update Existing',
       scope: SCOPE_UPDATE,
+      idFrom: (_, cache) => cache.id,
       fixture,
       timeout,
       url: resource_url,
       interceptors: [
         {
           method: '+(PATCH|PUT)',
-          url: '/api/**/config/domain/**',
+          url: '/api/**/config/security_event/**',
           expectRequest: (request, fixture) => {
             Object.keys(fixture).forEach(key => {
               expect(request.body).to.have.property(key)
@@ -53,14 +59,15 @@ module.exports = {
       ]
     },
     {
-      description: 'Domains - Delete Existing',
+      description: 'Security Events - Delete Existing',
       scope: SCOPE_DELETE,
+      idFrom: (_, cache) => cache.id,
       fixture,
       timeout,
       url: resource_url,
       interceptors: [
         {
-          method: 'DELETE', url: '/api/**/config/domain/**', expectResponse: (response, fixture) => {
+          method: 'DELETE', url: '/api/**/config/security_event/**', expectResponse: (response, fixture) => {
             expect(response.statusCode).to.equal(200)
           }
         }

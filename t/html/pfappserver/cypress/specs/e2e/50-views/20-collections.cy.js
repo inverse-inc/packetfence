@@ -11,9 +11,10 @@ describe('Collections', () => {
           cy.pfSystemLogin()
         })
       })
+      let cache = {};
       collection.tests.forEach(test => {
-        const { description, fixture = 'emtpy.json', scope, url, interceptors = [], selectors, timeout,
-          idFromFixture = ({ id }) => id,
+        const { description, fixture = 'empty.json', scope, url, interceptors = [], selectors, timeout,
+          idFrom = ({ id }) => id,
           beforeFormFill,
           map = (v) => v,
         } = test
@@ -34,7 +35,7 @@ describe('Collections', () => {
             const form = Object.entries(associative).reduce((items, [k, v]) => {
               return { ...items, [k]: map(v, k) }
             }, {})
-            const resourceId = idFromFixture(data)
+            const resourceId = idFrom(data, cache) // `id` may only be available post-create
             const resourceUrl = (url.constructor == Function) ? url(resourceId) : url
 
             switch (scope) {
@@ -69,7 +70,7 @@ describe('Collections', () => {
                       request.continue() // passthrough
                     }
                     if (expectRequest) {
-                      expectRequest(request, data) // expect
+                      expectRequest(request, data, cache) // expect
                     }
                   }).as(`interceptor${i}`)
                 })
@@ -127,7 +128,10 @@ describe('Collections', () => {
                   const { url, expectResponse, timeout = global.interceptorTimeoutMs } = interceptor
                   await cy.wait(`@interceptor${i}`, { timeout }).then(({ request, response }) => {
                     if (expectResponse) {
-                      expectResponse(response, data)
+                      let retVal = expectResponse(response, data, cache)
+                      if (retVal) {
+                        cache = { ...cache, ...retVal }
+                      }
                     }
                   })
                 })
@@ -170,7 +174,10 @@ describe('Collections', () => {
                     const { url, expectResponse, timeout = global.interceptorTimeoutMs } = interceptor
                     await cy.wait(`@interceptor${i}`, { timeout }).then(({ request, response }) => {
                       if (expectResponse) {
-                        expectResponse(response, data)
+                        let retVal = expectResponse(response, data, cache)
+                        if (retVal) {
+                          cache = { ...cache, ...retVal }
+                        }
                       }
                     })
                   })
@@ -218,7 +225,10 @@ describe('Collections', () => {
                     const { url, expectResponse, timeout = global.interceptorTimeoutMs } = interceptor
                     await cy.wait(`@interceptor${i}`, { timeout }).then(({ request, response }) => {
                       if (expectResponse) {
-                        expectResponse(response, data)
+                        let retVal = expectResponse(response, data, cache)
+                        if (retVal) {
+                          cache = { ...cache, ...retVal }
+                        }
                       }
                     })
                   })
