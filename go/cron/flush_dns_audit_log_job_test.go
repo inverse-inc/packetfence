@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"arena"
 	"context"
 	"encoding/json"
 	"testing"
@@ -24,9 +25,11 @@ func TestFlushDNSAuditLog(t *testing.T) {
 		"timeout":     10.0,
 		"local":       "enabled",
 	})
+	mem := arena.NewArena()
+	defer mem.Free()
 
 	j := job.(*FlushDNSAuditLog)
-	_, _, err := j.buildQuery(entries)
+	_, _, err := j.buildQuery(mem, entries)
 	if err != nil {
 		t.Fatalf("Cannot flush logs %s", err.Error())
 	}
@@ -42,7 +45,7 @@ func TestFlushDNSAuditLog(t *testing.T) {
 	}
 	_ = res
 
-	err = j.flushLogs(entries)
+	err = j.flushLogs(mem, entries)
 	if err != nil {
 		t.Fatalf("Cannot flush logs %s", err.Error())
 	}
@@ -89,7 +92,9 @@ func TestFlushDNSAuditLogFromRedis(t *testing.T) {
 	}
 	_ = res
 
-	err = j.flushLogs(entries)
+	mem := arena.NewArena()
+	defer mem.Free()
+	err = j.flushLogs(mem, entries)
 	if err != nil {
 		t.Fatalf("Cannot flush logs %s", err.Error())
 	}

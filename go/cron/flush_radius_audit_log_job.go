@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"arena"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -38,6 +39,8 @@ func (j *FlushRadiusAuditLogJob) Run() {
 	rows_affected := 0
 	i := 0
 	ctx := context.Background()
+	mem := arena.NewArena()
+	defer mem.Free()
 	for {
 		i++
 		var data *redis.StringSliceCmd
@@ -59,12 +62,12 @@ func (j *FlushRadiusAuditLogJob) Run() {
 
 		rows_affected += len(a)
 
-		var entries [][]interface{} = make([][]interface{}, 0, len(a))
+		var entries [][]interface{} = arena.MakeSlice[[]interface{}](mem, 0, len(a))
 		for _, jsonStr := range a {
 			if jsonStr == "" {
 				continue
 			}
-			var entry []interface{} = make([]interface{}, 4)
+			var entry []interface{} = arena.MakeSlice[interface{}](mem, 0, 4)
 			if jsonStr[0] != '[' {
 				s, err := base64.StdEncoding.DecodeString(jsonStr)
 				if err != nil {
@@ -84,7 +87,7 @@ func (j *FlushRadiusAuditLogJob) Run() {
 			entries = append(entries, entry)
 		}
 
-		j.flushLogs(entries)
+		j.flushLogs(mem, entries)
 		if time.Now().Sub(start) > j.Timeout {
 			break
 		}
@@ -94,9 +97,9 @@ func (j *FlushRadiusAuditLogJob) Run() {
 	}
 }
 
-func (j *FlushRadiusAuditLogJob) flushLogs(entries [][]interface{}) error {
+func (j *FlushRadiusAuditLogJob) flushLogs(mem *arena.Arena, entries [][]interface{}) error {
 	ctx := context.Background()
-	sql, args, err := j.buildQuery(entries)
+	sql, args, err := j.buildQuery(mem, entries)
 	if err != nil {
 		return err
 	}
@@ -157,7 +160,7 @@ const RADIUS_AUDIT_LOG_COLUMN_COUNT = 37
        '%{request:PacketFence-Domain}', '', '%{pairs:&request:[*]}','%{pairs:&reply:[*]}', '%{control:PacketFence-Request-Time}', '%{request:PacketFence-Radius-Ip}')"
 */
 
-func (j *FlushRadiusAuditLogJob) buildQuery(entries [][]interface{}) (string, []interface{}, error) {
+func (j *FlushRadiusAuditLogJob) buildQuery(mem *arena.Arena, entries [][]interface{}) (string, []interface{}, error) {
 	sql := `
 INSERT INTO radius_audit_log
 	(
@@ -177,16 +180,16 @@ INSERT INTO radius_audit_log
 VALUES `
 	bind := "(?" + strings.Repeat(",?", RADIUS_AUDIT_LOG_COLUMN_COUNT-1) + ")"
 	sql += bind + strings.Repeat(","+bind, len(entries)-1)
-	args := make([]interface{}, 0, len(entries)*RADIUS_AUDIT_LOG_COLUMN_COUNT)
+	args := arena.MakeSlice[interface{}](mem, 0, len(entries)*RADIUS_AUDIT_LOG_COLUMN_COUNT)
 	for _, e := range entries {
-		args = append(args, j.argsFromEntry(e)...)
+		args = append(args, j.argsFromEntry(mem, e)...)
 	}
 
 	return sql, args, nil
 }
 
-func (j *FlushRadiusAuditLogJob) argsFromEntry(entry []interface{}) []interface{} {
-	args := make([]interface{}, RADIUS_AUDIT_LOG_COLUMN_COUNT)
+func (j *FlushRadiusAuditLogJob) argsFromEntry(mem *arena.Arena, entry []interface{}) []interface{} {
+	args := arena.MakeSlice[interface{}](mem, RADIUS_AUDIT_LOG_COLUMN_COUNT, RADIUS_AUDIT_LOG_COLUMN_COUNT)
 	var request, reply, control map[string]interface{}
 	request = entry[1].(map[string]interface{})
 	reply = entry[2].(map[string]interface{})

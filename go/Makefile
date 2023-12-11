@@ -1,6 +1,6 @@
 include ../config.mk
 GO ?= go
-build_cmd = $(GO) build $(ARGS)
+build_cmd = GOEXPERIMENT=arenas $(GO) build $(ARGS)
 
 .PHONY: clean-caddy-src
 clean-caddy-src:
