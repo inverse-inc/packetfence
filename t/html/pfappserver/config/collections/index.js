@@ -11,13 +11,14 @@ const provisionings = require('./modules/provisionings')
 const realms = require('./modules/realms')
 const roles = require('./modules/roles')
 const scanEngines = require('./modules/scanEngines')
+const securityEvents = require('./modules/securityEvents')
 const sources = require('./modules/sources')
 const switches = require('./modules/switches')
 const switchGroups = require('./modules/switchGroups')
 const syslogParsers = require('./modules/syslogParsers')
 
 module.exports = {
-  billingTiers,
+//  billingTiers,
 //  clouds,
 //  connectionProfiles,
 //  domains,
@@ -30,6 +31,7 @@ module.exports = {
 //  realms,
 //  roles,
 //  scanEngines,
+  securityEvents,
 //  sources,
 //  switches,
 //  switchGroups,
