@@ -84,29 +84,31 @@ func (c *Client) Call(ctx context.Context, method, path string, payload, decodeR
 
 	r := c.buildRequest(ctx, method, path, data)
 	resp, err := c.httpClient.Do(r)
-	defer c.ensureRequestComplete(ctx, resp)
+	if err != nil {
+		return err
+	}
 
+	defer c.ensureRequestComplete(ctx, resp)
 	if resp.StatusCode < 400 {
 		dec := json.NewDecoder(resp.Body)
 		err := dec.Decode(decodeResponseIn)
 		if err != nil {
 			return fmt.Errorf("Unable to decode JSON response: %s", err)
-		} else {
-			return nil
 		}
 
-	} else {
-		errRep := struct {
-			Error string
-		}{}
-		err := json.NewDecoder(resp.Body).Decode(&errRep)
-
-		if err != nil {
-			return fmt.Errorf("Error body doesn't follow the standard, couldn't extract the error message from it. Status code was %d", resp.StatusCode)
-		}
-
-		return fmt.Errorf("Error while querying collector: %s", errRep.Error)
+		return nil
 	}
+
+	errRep := struct {
+		Error string
+	}{}
+	err := json.NewDecoder(resp.Body).Decode(&errRep)
+
+	if err != nil {
+		return fmt.Errorf("Error body doesn't follow the standard, couldn't extract the error message from it. Status code was %d", resp.StatusCode)
+	}
+
+	return fmt.Errorf("Error while querying collector: %s", errRep.Error)
 }
 
 func (c *Client) buildRequest(ctx context.Context, method, path string, body []byte) *http.Request {
