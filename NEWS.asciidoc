@@ -33,6 +33,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Node Import supports IPv4 address (#7808)
  * Added TCP flags parameter from role configuration in ACL for Cisco
  * Added documentation for Azure AD EAP-TLS machine authentication
+ * Reuse the websocket buffer to reduce memory usage.
 
 === Bug Fixes
 
