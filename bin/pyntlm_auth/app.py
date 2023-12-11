@@ -4,12 +4,13 @@ import datetime
 import hashlib
 import os
 import re
-import socket
 import sys
 import threading
+import time
 from configparser import ConfigParser
 from http import HTTPStatus
 
+import dns.resolver
 from flask import Flask, request
 from samba import param, NTSTATUSError, ntstatus
 from samba.credentials import Credentials, DONT_USE_KERBEROS
@@ -17,61 +18,26 @@ from samba.dcerpc import netlogon
 from samba.dcerpc.misc import SEC_CHAN_WKSTA
 from samba.dcerpc.netlogon import (netr_Authenticator)
 
-machine_cred = None
-secure_channel_connection = None
-connection_id = 1
-reconnect_id = 0
-connection_last_active_time = datetime.datetime.now()
-lock = threading.Lock()
 
-conf_path = "/usr/local/pf/conf/domain.conf"
-listen_port = os.getenv("LISTEN")
-identifier = os.getenv("IDENTIFIER")
-rewrite_resolv_conf_flag = os.getenv("REWRITE_RESOLV_CONF")
+# simplified IPv4 validator.
+def is_ipv4(address):
+    ipv4_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
+    return bool(ipv4_pattern.match(address))
 
-print("NTLM auth api starts with the following parameters:")
-print(f" -- LISTEN = {listen_port}")
-print(f" -- IDENTIFIER = {identifier}")
-print(f" -- REWRITE_RESOLV_CONF = {rewrite_resolv_conf_flag}")
 
-config = ConfigParser()
-try:
-    with open(conf_path, 'r') as file:
-        config.read_file(file)
+def dns_lookup(hostname, dns_server):
+    if dns_server != "":
+        resolver = dns.resolver.Resolver(configure=False)
+        resolver.nameservers = dns_server.split(",")
+    try:
+        answers = dns.resolver.resolve(hostname, 'A')
+        for answer in answers:
+            return answer.address, ""
+    except dns.resolver.NXDOMAIN:
+        return "", "NXDOMAIN"
+    except dns.exception.DNSException as e:
+        return "", e.args[1]
 
-    if identifier in config:
-        ad_fqdn = config.get(identifier, 'ad_fqdn')
-        ad_server = config.get(identifier, 'ad_server')
-        netbios_name = config.get(identifier, 'server_name').upper()
-        realm = config.get(identifier, 'dns_name')
-        server_string = config.get(identifier, 'server_name')
-        workgroup = config.get(identifier, 'workgroup')
-        workstation = config.get(identifier, 'server_name').upper()
-        username = config.get(identifier, 'server_name').upper() + "$"
-        password = config.get(identifier, 'machine_account_password')
-        password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
-        domain = config.get(identifier, 'workgroup').lower()
-        dns_servers = config.get(identifier, 'dns_servers')
-    else:
-        print("The specified section does not exist in the config file.")
-        sys.exit(1)
-except FileNotFoundError as e:
-    print("The specified config file does not exist.")
-    sys.exit(1)
-except configparser.Error as e:
-    print(f"Error reading config file: {e}")
-    sys.exit(1)
-
-try:
-    ip_address = socket.gethostbyname(ad_fqdn)
-    if ip_address:
-        server_name = ad_fqdn
-    else:
-        print("Unable to retrieve AD FQDN of AD domain")
-        sys.exit(1)
-except Exception as e:
-    print("Unable to retrieve AD FQDN of AD domain")
-    sys.exit(1)
 
 def generate_empty_conf():
     with open('/root/default.conf', 'w') as file:
@@ -79,7 +45,8 @@ def generate_empty_conf():
 
 
 def generate_resolv_conf(dns_name, dns_servers_string):
-    with open('/etc/resolv.conf', 'w') as file:
+    with open('/etc/resolv.conf', 'a') as file:
+        file.write(f"\n")
         file.write(f"search {dns_name}\n")
         file.write("\n")
         file.write("options timeout:1\n")
@@ -92,8 +59,11 @@ def generate_resolv_conf(dns_name, dns_servers_string):
         file.write("\n")
 
 
-if (rewrite_resolv_conf_flag is not None) and (rewrite_resolv_conf_flag.upper() == "YES"):
-    generate_resolv_conf(realm, dns_servers)
+def generate_hosts_entry(ip, hostname):
+    with open('/etc/hosts', 'a') as file:
+        file.write(f"\n")
+        file.write(f"{ip}    {hostname}")
+        file.write("\n")
 
 
 def init_secure_connection():
@@ -318,12 +288,78 @@ def ping_handler():
     return "pong", HTTPStatus.OK
 
 
+machine_cred = None
+secure_channel_connection = None
+connection_id = 1
+reconnect_id = 0
+connection_last_active_time = datetime.datetime.now()
+lock = threading.Lock()
+
+conf_path = "/usr/local/pf/conf/domain.conf"
+listen_port = os.getenv("LISTEN")
+identifier = os.getenv("IDENTIFIER")
+
+print("NTLM auth api starts with the following parameters:")
+print(f" -- LISTEN = {listen_port}")
+print(f" -- IDENTIFIER = {identifier}")
+
+config = ConfigParser()
+try:
+    with open(conf_path, 'r') as file:
+        config.read_file(file)
+
+    if identifier in config:
+        ad_fqdn = config.get(identifier, 'ad_fqdn')
+        ad_server = config.get(identifier, 'ad_server')
+        netbios_name = config.get(identifier, 'server_name').upper()
+        realm = config.get(identifier, 'dns_name')
+        server_string = config.get(identifier, 'server_name')
+        workgroup = config.get(identifier, 'workgroup')
+        workstation = config.get(identifier, 'server_name').upper()
+        username = config.get(identifier, 'server_name').upper() + "$"
+        password = config.get(identifier, 'machine_account_password')
+        password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
+        domain = config.get(identifier, 'workgroup').lower()
+        dns_servers = config.get(identifier, 'dns_servers')
+    else:
+        print("The specified section does not exist in the config file.")
+        sys.exit(1)
+except FileNotFoundError as e:
+    print("The specified config file does not exist.")
+    sys.exit(1)
+except configparser.Error as e:
+    print(f"Error reading config file: {e}")
+    sys.exit(1)
+
+if ad_fqdn == "":
+    print("Failed to start NTLM auth API: ad_fqdn is not set.\n")
+    exit(1)
+
+if dns_servers != "":
+    generate_resolv_conf(realm, dns_servers)
+    time.sleep(1)
+    ip, err_msg = dns_lookup(ad_fqdn, "")
+    if ip != "" and err_msg == "":
+        print(f"AD FQDN: {ad_fqdn} resolved with IP: {ip}\n")
+    else:
+        if is_ipv4(ad_server):  # plan B: if it's not resolved then we use the static IP provided in the profile
+            print(f"AD FQDN resolve failed. Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}\n")
+            generate_hosts_entry(ad_server, ad_fqdn)
+        else:
+            print("Failed to retrieve IP address of AD server. Terminated.\n")
+            exit(1)
+else:
+    if is_ipv4(ad_server):
+        generate_hosts_entry(ad_server, ad_fqdn)
+        print(f"Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}\n")
+    else:
+        print("Failed to start NTLM auth API. 'ad_server' is required when DNS servers are unavailable.\n")
+        exit(1)
+
 app = Flask(__name__)
 app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)
 app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
 app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
 app.route('/ping', methods=['GET'])(ping_handler)
 
-# if name == __main__:
 app.run(threaded=True, host='0.0.0.0', port=int(listen_port))
-# app.run(debug='debug', processes=1, threaded=True, host='0.0.0.0', port=int(listen_port))
