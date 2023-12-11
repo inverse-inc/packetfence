@@ -914,7 +914,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
                         /usr/local/pf/bin/pflogger-packetfence
 %attr(0755, pf, pf)     /usr/local/pf/bin/pflogger.pl
-%attr(0755, pf, pf)     /local/pf/bin/get_pf_conf
+%attr(0755, pf, pf)     /usr/local/pf/bin/get_pf_conf
 %attr(0755, pf, pf)     /usr/local/pf/bin/proxysql-read-only-handler.sh
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
