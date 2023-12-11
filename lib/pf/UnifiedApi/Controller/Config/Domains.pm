@@ -138,6 +138,9 @@ sub create {
                 $self->render_error(422, "Unable to add machine account with following error: $add_result");
                 return 0;
             }
+        } else {
+            $self->render_error(422, "Unable to add machine account with following error: $add_result");
+            return 0;
         }
     }
 
@@ -190,12 +193,14 @@ sub update {
 
         my $ad_server_host = "";
         my $ad_server_ip = "";
-
-        if (valid_ip($ad_server)) {
-            $ad_server_ip = $ad_server;
-        }
-        else {
-            return $self->render_error(422, "Invalid AD IP '$ad_server'");
+        my $dns_servers = $new_item->{dns_servers};
+        if (!defined($dns_servers)) {
+            if (valid_ip($ad_server)) {
+                $ad_server_ip = $ad_server;
+            }
+            else {
+                return $self->render_error(422, "Invalid AD IP '$ad_server'");
+            }
         }
         my @dns_servers = split(',', $new_item->{dns_servers});
         my $resolver = Net::DNS::Resolver->new(
@@ -204,19 +209,17 @@ sub update {
             debug       => 0
         );
         my $packet = $resolver->search($ad_fqdn);
-        if ($packet) {
+        if (defined($packet)) {
             $ad_server_host = $ad_fqdn;
         }
         else {
-            return $self->render_error(422, "Invalid AD FQDN '$ad_fqdn'");
-        }
-
-        my @address = gethostbyname($ad_fqdn);
-        if (@address) {
-            $ad_server_host = $ad_fqdn;
-        }
-        else {
-            return $self->render_error(422, "Invalid AD FQDN '$ad_fqdn'");
+            my @address = gethostbyname($ad_fqdn);
+            if (@address) {
+                $ad_server_host = $ad_fqdn;
+            }
+            else {
+                return $self->render_error(422, "Invalid AD FQDN '$ad_fqdn'. Unable to resolve FQDN using given DNS server");
+            }
         }
 
         my $baseDN = $dns_name;
@@ -225,8 +228,17 @@ sub update {
 
         my ($add_status, $add_result) = pf::domain::add_computer("-no-add", $computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
         if ($add_status == $FALSE) {
-            $self->render_error(422, "Unable to add machine account with following error: $add_result");
-            return 0;
+            if ($add_result =~ /Account.+not found in/) {
+                ($add_status, $add_result) = pf::domain::add_computer(" ", $computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+                if ($add_status == $FALSE) {
+                    $self->render_error(422, "Unable to add machine account with following error: $add_result");
+                    return 0;
+                }
+            }
+            else {
+                $self->render_error(422, "Unable to add machine account with following error: $add_result");
+                return 0;
+            }
         }
     }
 
@@ -253,47 +265,7 @@ sub generate_baseDN {
     return $ret;
 }
 
-sub test_join {
-    my ($self) = @_;
-    # Although a test_join will run relatively fast, it needs to run via pfqueue since pfperl-api is in a container and has to be restarted in order to be able to view the new netns namespaces
-    # Once we get rid of the chroots/netns/samba design, this can go back to being a synchronous response
-    my $client = pf::pfqueue::producer::redis->new();
-    my $task_id = $client->submit("general", domain => { operation => "test_join", domain => $self->id }, undef, status_update => 1);
-    $self->render(
-        json   => {
-            "task_id" => $task_id,
-        },
-        status => 202,
-    );
-}
 
-=head2 handle_domain_operation
-
-Post a long running operation to the queue and render the task ID to follow its status
-
-=cut
-
-sub handle_domain_operation {
-    my ($self, $op) = @_;
-    my ($status, $json) = $self->parse_json;
-    if (is_error($status)) {
-        return $self->render(status => $status, json => $json);
-    }
-
-    ($status, my $data) = $self->validate_input($json);
-    if (is_error($status)) {
-        return $self->render(status => $status, json => $data);
-    }
-
-    my $client = pf::pfqueue::producer::redis->new();
-    my $task_id = $client->submit("general", domain => { %$data, operation => $op, domain => $self->id }, undef, status_update => 1);
-    $self->render(
-        json   => {
-            "task_id" => $task_id,
-        },
-        status => 202,
-    );
-}
 
 =head2 validate_input
 
@@ -322,38 +294,6 @@ sub validate_input {
     return 200, { bind_dn => $bind_dn, bind_pass => $bind_pass };
 }
 
-=head2 join
-
-Join to the domain via the queue
-
-=cut
-
-sub join {
-    my ($self) = @_;
-    $self->handle_domain_operation("join");
-}
-
-=head2 unjoin
-
-Unjoin to the domain via the queue
-
-=cut
-
-sub unjoin {
-    my ($self) = @_;
-    $self->handle_domain_operation("unjoin");
-}
-
-=head2 rejoin
-
-Rejoin to the domain via the queue
-
-=cut
-
-sub rejoin {
-    my ($self) = @_;
-    $self->handle_domain_operation("rejoin");
-}
 
 =head2 fields_to_mask
 
