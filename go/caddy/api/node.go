@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
@@ -32,12 +33,15 @@ func (h APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http.
 	for _, mac := range requestPayload.Nodes {
 		wg.Add(1)
 		go func(mac string) {
+			defer wg.Done()
 			ed := common.CollectorEndpointCommunications{}
-			client.Call(ctx, "GET", fmt.Sprintf("/endpoint_data/%s", mac), nil, &ed)
+			err := client.Call(ctx, "GET", fmt.Sprintf("/endpoint_data/%s", mac), nil, &ed)
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Error calling the fingerbank client: %s", err.Error())
+			}
 			l.Lock()
 			defer l.Unlock()
 			endpoints[mac] = ed
-			wg.Done()
 		}(mac)
 	}
 
