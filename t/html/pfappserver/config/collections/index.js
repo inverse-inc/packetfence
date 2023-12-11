@@ -1,6 +1,7 @@
 const billingTiers = require('./modules/billingTiers')
 const clouds = require('./modules/clouds')
 const connectionProfiles = require('./modules/connectionProfiles')
+const connectors = require('./modules/connectors')
 const domains = require('./modules/domains')
 const eventLoggers = require('./modules/eventLoggers')
 const firewalls = require('./modules/firewalls')
@@ -21,6 +22,7 @@ module.exports = {
 //  billingTiers,
 //  clouds,
 //  connectionProfiles,
+  connectors,
 //  domains,
 //  eventLoggers,
 //  firewalls,
@@ -31,7 +33,7 @@ module.exports = {
 //  realms,
 //  roles,
 //  scanEngines,
-  securityEvents,
+//  securityEvents,
 //  sources,
 //  switches,
 //  switchGroups,
