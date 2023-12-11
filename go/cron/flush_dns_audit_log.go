@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"arena"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -33,6 +34,9 @@ func (j *FlushDNSAuditLog) Run() {
 	rows_affected := 0
 	i := 0
 	ctx := context.Background()
+	mem := arena.NewArena()
+	defer mem.Free()
+
 	for {
 		i++
 		var data *redis.StringSliceCmd
@@ -54,9 +58,9 @@ func (j *FlushDNSAuditLog) Run() {
 
 		rows_affected += len(a)
 		jsonStr := "[" + strings.Join(a, ",") + "]"
-		var entries []common.DNSAuditLog = make([]common.DNSAuditLog, len(a))
+		entries := arena.MakeSlice[common.DNSAuditLog](mem, len(a), len(a))
 		json.Unmarshal([]byte(jsonStr), &entries)
-		j.flushLogs(entries)
+		j.flushLogs(mem, entries)
 		if time.Now().Sub(start) > j.Timeout {
 			break
 		}
@@ -67,9 +71,9 @@ func (j *FlushDNSAuditLog) Run() {
 	}
 }
 
-func (j *FlushDNSAuditLog) flushLogs(entries []common.DNSAuditLog) error {
+func (j *FlushDNSAuditLog) flushLogs(mem *arena.Arena, entries []common.DNSAuditLog) error {
 	ctx := context.Background()
-	sql, args, err := j.buildQuery(entries)
+	sql, args, err := j.buildQuery(mem, entries)
 	if err != nil {
 		return err
 	}
@@ -98,7 +102,7 @@ func (j *FlushDNSAuditLog) flushLogs(entries []common.DNSAuditLog) error {
 	return nil
 }
 
-func (j *FlushDNSAuditLog) buildQuery(entries []common.DNSAuditLog) (string, []interface{}, error) {
+func (j *FlushDNSAuditLog) buildQuery(mem *arena.Arena, entries []common.DNSAuditLog) (string, []interface{}, error) {
 	sql := `
 		INSERT INTO dns_audit_log
 		(
@@ -107,7 +111,7 @@ func (j *FlushDNSAuditLog) buildQuery(entries []common.DNSAuditLog) (string, []i
 		VALUES `
 	bind := "(?" + strings.Repeat(",?", 5) + ")"
 	sql += bind + strings.Repeat(","+bind, len(entries)-1)
-	args := make([]interface{}, 0, len(entries)*6)
+	args := arena.MakeSlice[interface{}](mem, 0, len(entries)*6)
 	for _, e := range entries {
 		args = append(args, j.argsFromEntry(e)...)
 	}
