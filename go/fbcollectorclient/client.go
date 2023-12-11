@@ -102,7 +102,7 @@ func (c *Client) Call(ctx context.Context, method, path string, payload, decodeR
 	errRep := struct {
 		Error string
 	}{}
-	err := json.NewDecoder(resp.Body).Decode(&errRep)
+	err = json.NewDecoder(resp.Body).Decode(&errRep)
 
 	if err != nil {
 		return fmt.Errorf("Error body doesn't follow the standard, couldn't extract the error message from it. Status code was %d", resp.StatusCode)
