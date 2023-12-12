@@ -8,6 +8,7 @@ const filterEngines = require('./modules/filterEngines')
 const firewalls = require('./modules/firewalls')
 const maintenaceTasks = require('./modules/maintenanceTasks')
 const mfas = require('./modules/mfas')
+const networkBehaviorPolicies = require('./modules/networkBehaviorPolicies')
 const pkiProviders = require('./modules/pkiProviders')
 const provisionings = require('./modules/provisionings')
 const radiusProfiles = require('./modules/radiusProfiles')
@@ -32,6 +33,7 @@ module.exports = {
 //  eventLoggers,
 //  filterEngines, // issue(s)
 //  firewalls,
+  networkBehaviorPolicies,
 //  maintenaceTasks,
 //  mfas,
 //  pkiProviders,
@@ -45,7 +47,7 @@ module.exports = {
 //  sources,
 //  switches,
 //  switchGroups,
-  switchTemplates,
+//  switchTemplates,
 //  syslogParsers,
 //  wrixLocations
 }
