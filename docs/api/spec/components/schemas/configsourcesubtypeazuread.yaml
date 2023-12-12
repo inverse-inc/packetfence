@@ -170,10 +170,15 @@ ConfigSourceSubTypeAzuread:
       default: 0
       description: User groups cache
       type: integer
+    user_groups_url:
+      default: https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf
+      description: User groups url
+      type: string
   required:
   - id
   - description
   - client_id
   - client_secret
   - tenant_id
+  - user_groups_url
   type: object

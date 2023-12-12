@@ -21,24 +21,8 @@
   description: |-
     pf::UnifiedApi::Controller::Config::Domains
 
-      test_join
-        Test if a domain is properly joined
-
-      handle_domain_operation
-        Post a long running operation to the queue and render the task ID to
-        follow its status
-
       validate_input
         validate_input
-
-      join
-        Join to the domain via the queue
-
-      unjoin
-        Unjoin to the domain via the queue
-
-      rejoin
-        Rejoin to the domain via the queue
 
       fields_to_mask
         fields_to_mask

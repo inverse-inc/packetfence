@@ -5,13 +5,72 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -38,6 +97,259 @@ ConfigMaintenanceTasksMeta:
           status:
             $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          rotate:
+            $ref: '#/components/schemas/Meta'
+          rotate_batch:
+            $ref: '#/components/schemas/Meta'
+          rotate_timeout:
+            $ref: '#/components/schemas/Meta'
+          rotate_window:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          rotate:
+            $ref: '#/components/schemas/Meta'
+          rotate_batch:
+            $ref: '#/components/schemas/Meta'
+          rotate_timeout:
+            $ref: '#/components/schemas/Meta'
+          rotate_window:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -76,7 +388,7 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
-          batch:
+          delete_window:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
@@ -84,28 +396,11 @@ ConfigMaintenanceTasksMeta:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
+          unreg_window:
             $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          window:
+          voip:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -119,76 +414,6 @@ ConfigMaintenanceTasksMeta:
           status:
             $ref: '#/components/schemas/Meta'
           type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          window:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          window:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -226,187 +451,6 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          rotate:
-            $ref: '#/components/schemas/Meta'
-          rotate_batch:
-            $ref: '#/components/schemas/Meta'
-          rotate_timeout:
-            $ref: '#/components/schemas/Meta'
-          rotate_window:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          window:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          window:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          delete_window:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          unreg_window:
-            $ref: '#/components/schemas/Meta'
-          voip:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
           batch:
             $ref: '#/components/schemas/Meta'
           id:
@@ -430,14 +474,6 @@ ConfigMaintenanceTasksMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          rotate:
-            $ref: '#/components/schemas/Meta'
-          rotate_batch:
-            $ref: '#/components/schemas/Meta'
-          rotate_timeout:
-            $ref: '#/components/schemas/Meta'
-          rotate_window:
-            $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
           status:
@@ -445,42 +481,6 @@ ConfigMaintenanceTasksMeta:
           timeout:
             $ref: '#/components/schemas/Meta'
           type:
-            $ref: '#/components/schemas/Meta'
-          window:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          window:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object

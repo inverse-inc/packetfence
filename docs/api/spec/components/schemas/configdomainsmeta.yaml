@@ -2,6 +2,8 @@ ConfigDomainsMeta:
   properties:
     meta:
       properties:
+        ad_fqdn:
+          $ref: '#/components/schemas/Meta'
         ad_server:
           $ref: '#/components/schemas/Meta'
         bind_dn:
@@ -14,15 +16,21 @@ ConfigDomainsMeta:
           $ref: '#/components/schemas/Meta'
         id:
           $ref: '#/components/schemas/Meta'
+        machine_account_password:
+          $ref: '#/components/schemas/Meta'
+        ntlm_auth_host:
+          $ref: '#/components/schemas/Meta'
+        ntlm_auth_port:
+          $ref: '#/components/schemas/Meta'
         ntlm_cache:
           $ref: '#/components/schemas/Meta'
         ntlm_cache_expiry:
           $ref: '#/components/schemas/Meta'
         ntlm_cache_source:
           $ref: '#/components/schemas/Meta'
-        ntlmv2_only:
-          $ref: '#/components/schemas/Meta'
         ou:
+          $ref: '#/components/schemas/Meta'
+        password_is_nt_hash:
           $ref: '#/components/schemas/Meta'
         registration:
           $ref: '#/components/schemas/Meta'

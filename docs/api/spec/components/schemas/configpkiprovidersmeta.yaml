@@ -56,6 +56,31 @@ ConfigPkiProvidersMeta:
             $ref: '#/components/schemas/Meta'
           ca_cert_path_upload:
             $ref: '#/components/schemas/Meta'
+          client_cert_path:
+            $ref: '#/components/schemas/Meta'
+          client_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          client_key_path:
+            $ref: '#/components/schemas/Meta'
+          client_key_path_upload:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          server_cert_path:
+            $ref: '#/components/schemas/Meta'
+          server_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          ca_cert_path:
+            $ref: '#/components/schemas/Meta'
+          ca_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
           cn_attribute:
             $ref: '#/components/schemas/Meta'
           cn_format:
@@ -83,31 +108,6 @@ ConfigPkiProvidersMeta:
           url:
             $ref: '#/components/schemas/Meta'
           username:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          ca_cert_path:
-            $ref: '#/components/schemas/Meta'
-          ca_cert_path_upload:
-            $ref: '#/components/schemas/Meta'
-          client_cert_path:
-            $ref: '#/components/schemas/Meta'
-          client_cert_path_upload:
-            $ref: '#/components/schemas/Meta'
-          client_key_path:
-            $ref: '#/components/schemas/Meta'
-          client_key_path_upload:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          server_cert_path:
-            $ref: '#/components/schemas/Meta'
-          server_cert_path_upload:
-            $ref: '#/components/schemas/Meta'
-          type:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
