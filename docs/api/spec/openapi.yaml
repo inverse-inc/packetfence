@@ -186,7 +186,6 @@ components:
         - redis_queue
         - snmptrapd
         - tracking-config
-        - winbindd
         type: string
     sort:
       description: The sort and order of the paginated entries.
@@ -2835,8 +2834,6 @@ components:
               snmptrapd:
                 $ref: '#/components/schemas/Meta'
               tracking-config:
-                $ref: '#/components/schemas/Meta'
-              winbindd:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object

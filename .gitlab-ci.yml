@@ -642,6 +642,7 @@ pfdeb_based_dev:
           - "proxysql"
           - "pfldapexplorer"
           - "kafka"
+          - "ntlm-auth-api"
 
 img_dev:
   extends:
@@ -724,6 +725,7 @@ pfdeb_based_br_maint:
           - "proxysql"
           - "pfldapexplorer"
           - "kafka"
+          - "ntlm-auth-api"
 
 img_br_maint:
   extends:
@@ -806,6 +808,7 @@ pfdeb_based_cloud_nac:
           - "proxysql"
           - "pfldapexplorer"
           - "kafka"
+          - "ntlm-auth-api"
 
 img_cloud_nac:
   extends:
@@ -888,6 +891,7 @@ pfdeb_based_rel:
           - "proxysql"
           - "pfldapexplorer"
           - "kafka"
+          - "ntlm-auth-api"
 
 img_rel:
   extends:

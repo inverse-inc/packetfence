@@ -47,6 +47,7 @@ use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
 use Net::Ping;
+use Net::DNS;
 use Crypt::OpenSSL::X509;
 use Date::Parse;
 use pf::CHI;
@@ -1751,6 +1752,42 @@ sub resolve {
     }
     @addresses = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
     return \@addresses;
+}
+
+sub dns_resolve {
+    (my $q, my $dns, my $domain) = @_;
+    unless (defined($domain)) {
+        $domain = "";
+    }
+
+    my @dns_servers = split(',', $dns);
+
+    my $resolver = Net::DNS::Resolver->new(
+        nameservers => \@dns_servers,
+        domain      => $domain,
+        recurse     => 1,
+        timeout     => 3,
+        # debug       => 1
+    );
+
+    my $query = $resolver->search($q);
+
+    unless (defined($query)) {
+        return (undef, undef, $resolver->errorstring)
+    }
+
+    my $hostname;
+    my $ip;
+    foreach my $rr ($query->answer) {
+        if ($rr->type eq 'PTR') {
+            $hostname = $rr->ptrdname;
+        }
+
+        if ($rr->type eq 'A') {
+            $ip = $rr->address;
+        }
+    }
+    return ($hostname, $ip, "");
 }
 
 sub random_mac {

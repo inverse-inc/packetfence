@@ -4,7 +4,8 @@ Priority: optional
 Maintainer: Inverse inc. <support@inverse.ca>
 Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, lsb-release, libfile-fcntllock-perl, git, pkg-config, nodejs (>= 20.0), jq,
  ruby, rubygems,
- quilt, libmariadbd-dev (>= 10.1)
+ quilt, libmariadbd-dev (>= 10.1),
+ libcurl4-openssl-dev, libcjson-dev
 Standards-Version: 3.8.4
 Vcs-Git: git://github.com/inverse-inc/packetfence.git
 Vcs-browser: https://github.com/inverse-inc/packetfence/
@@ -14,13 +15,13 @@ Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  ca-certificates,
- ca-certificates, winbind,
+ ca-certificates,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
  fingerbank (>= 4.3.2), fingerbank (<< 5.0.0),
  fingerbank-collector (>= 1.4.1), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
- packetfence-perl (>= 1.2.1),
+ packetfence-perl (>= 1.2.3),
  netdata (= 1:1.10.0-1)
 # Removed for now
 # libmariadbd-dev (>= 10.1), libmariadbd-dev (<< 10.5.18)
@@ -52,7 +53,7 @@ Depends: ${misc:Depends}, vlan,
 # binary
  make, binutils,
  samba,
- python3-impacket,
+ python3-impacket (>= 0.9.23),
  python-is-python3,
  krb5-user,
  iproute2,

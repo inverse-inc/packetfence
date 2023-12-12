@@ -604,15 +604,6 @@ keepalived=enabled
 #
 # Location of the keepalived binary. Only necessary to change if you are not running the RPMed version.
 keepalived_binary=/usr/sbin/keepalived
-# services.winbindd
-#
-# Should winbindd be started?
-winbindd=enabled
-# 
-# services.winbindd_binary
-# 
-# location of the winbindd binary. only necessary to change if you are not running the rpmed version.
-winbindd_binary=/usr/sbin/winbindd
 #
 # services.radsniff
 #

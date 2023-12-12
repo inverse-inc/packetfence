@@ -51,7 +51,6 @@ export {
   BaseFormGroupSwitch                 as FormGroupRedisQueue,
   BaseFormGroupSwitch                 as FormGroupSnmpTrapd,
   BaseFormGroupSwitch                 as FormGroupTrackingConfig,
-  BaseFormGroupSwitch                 as FormGroupWinbindd,
   BaseFormGroupSwitch                 as FormGroupMysqlProbe,
   BaseFormGroupSwitch                 as FormGroupKafka,
 

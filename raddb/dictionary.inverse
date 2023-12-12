@@ -53,6 +53,8 @@ ATTRIBUTE       PacketFence-UserDN                    37       string
 ATTRIBUTE       PacketFence-reply-insert              38       string
 ATTRIBUTE       PacketFence-UserPassword              39       string
 ATTRIBUTE       PacketFence-ConnectorID               40       string
+ATTRIBUTE       PacketFence-NTLM-Auth-Host            41       string
+ATTRIBUTE       PacketFence-NTLM-Auth-Port            42       string
 
 END-VENDOR      Inverse
 
