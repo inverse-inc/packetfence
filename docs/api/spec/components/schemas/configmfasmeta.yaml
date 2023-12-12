@@ -5,6 +5,25 @@ ConfigMfasMeta:
   - properties:
       meta:
         properties:
+          cache_duration:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          post_mfa_validation_cache_duration:
+            $ref: '#/components/schemas/Meta'
+          radius_mfa_method:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          split_char:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           app_id:
             $ref: '#/components/schemas/Meta'
           cache_duration:
@@ -28,25 +47,6 @@ ConfigMfasMeta:
           type:
             $ref: '#/components/schemas/Meta'
           verify_key:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          cache_duration:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          post_mfa_validation_cache_duration:
-            $ref: '#/components/schemas/Meta'
-          radius_mfa_method:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          split_char:
-            $ref: '#/components/schemas/Meta'
-          type:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
