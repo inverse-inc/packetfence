@@ -275,7 +275,7 @@ Requires: perl(Graph)
 Requires: perl(DateTime::TimeZone)
 
 Requires: libdrm >= 2.4.74
-Requires: python3-impacket
+Requires: python3-impacket >= 0.9.23
 Requires: netdata < 1.11.0., fping, MySQL-python
 # OpenVAS
 Requires: openvas-cli
@@ -284,8 +284,6 @@ Requires: openvas-libraries
 # pki
 Requires: perl(Crypt::SMIME)
 
-# Windows AD domain
-Requires: perl(Digest::MD4)
 
 # dhcp-stress-test
 Requires: perl(Net::DHCP)

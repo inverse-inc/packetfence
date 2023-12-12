@@ -29,7 +29,7 @@ unless ($ini) {
 }
 
 my $updated = 0;
-my $ntlm_auth_host = "127.0.0.1";
+my $ntlm_auth_host = "100.64.0.1 ";
 my $ntlm_auth_port = 4999;
 
 my $tmp_dirname = pf_run("date +%Y%m%d_%H%M%S");
@@ -116,8 +116,12 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
         }
     }
 
-    unless ($dns_name ne "" && $work_group ne "") {
-        print("  Unable to retrieve dns_name or workgroup from config file. Section $section skipped\n");
+    unless (defined($dns_name) && $dns_name ne "") {
+        print("  Unable to retrieve dns_name from config file. Section $section skipped\n");
+        next;
+    }
+    unless (defined($work_group) && $work_group ne "") {
+        print("  Unable to retrieve work_group from config file. Section $section skipped\n");
         next;
     }
 

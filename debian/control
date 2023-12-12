@@ -53,7 +53,7 @@ Depends: ${misc:Depends}, vlan,
 # binary
  make, binutils,
  samba,
- python3-impacket,
+ python3-impacket (>= 0.9.23),
  python-is-python3,
  krb5-user,
  iproute2,

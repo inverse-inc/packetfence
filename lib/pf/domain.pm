@@ -16,7 +16,7 @@ use warnings;
 use Net::SNMP;
 use Template;
 use pf::util;
-use pf::config qw(%ConfigDomain $OS);
+use pf::config qw(%ConfigDomain);
 use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::file_paths qw($domains_chroot_dir);

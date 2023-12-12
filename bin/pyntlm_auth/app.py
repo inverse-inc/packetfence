@@ -110,7 +110,7 @@ def init_secure_connection():
     except NTSTATUSError as e:
         error_code = e.args[0]
         error_message = e.args[1]
-        print(f"Error in init secure connection: NT_Error, error_code={error_code}, error_message={error_message}")
+        print(f"Error in init secure connection: NT_Error, error_code={error_code}, error_message={error_message}.")
         print("Parameter used in establish secure channel are:")
         print(f"  lp.netbios_name: {netbios_name}")
         print(f"  lp.realm: {realm}")
@@ -133,7 +133,7 @@ def init_secure_connection():
     except Exception as e:
         error_code = e.args[0]
         error_message = e.args[1]
-        print(f"Error in init secure connection: General, error_code={error_code}, error_message={error_message}")
+        print(f"Error in init secure connection: General, error_code={error_code}, error_message={error_message}.")
     return secure_channel_connection, machine_cred, error_code, error_message
 
 
@@ -173,7 +173,7 @@ def ntlm_connect_handler():
     if error_code == ntstatus.NT_STATUS_ACCESS_DENIED:
         return "Test machine account failed. Access Denied", HTTPStatus.UNAUTHORIZED
     if error_code != 0:
-        return "Error while establishing secure channel connections: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
+        return "Error while establishing secure channel connection: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
 
     return "OK", HTTPStatus.OK
 
@@ -210,7 +210,7 @@ def test_password_handler():
     if error_code == ntstatus.NT_STATUS_ACCESS_DENIED:
         return "Test machine account failed. Access Denied", HTTPStatus.UNAUTHORIZED
     if error_code != 0:
-        return "Error while establishing secure channel connections: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
+        return "Error while establishing secure channel connection: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
 
     return "OK", HTTPStatus.OK
 
@@ -238,7 +238,7 @@ def ntlm_auth_handler():
 
     secure_channel_connection, machine_cred, connection_id, error_code, error_message = get_secure_channel_connection()
     if error_code != 0:
-        return "Error while establishing secure channel connections: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
+        return "Error while establishing secure channel connection: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
 
     with lock:
         try:
@@ -282,8 +282,7 @@ def ntlm_auth_handler():
             nt_key = [x if isinstance(x, str) else hex(x)[2:] for x in info.base.key.key]
             nt_key_str = ''.join(nt_key)
             nt_key_str = "NT_KEY: " + nt_key_str
-            print(
-                f"  Successful NTLM Authentication of user '{account_username}', NT_KEY is: '{mask_password(nt_key_str)}' ")
+            print(f"  Successful authenticated '{account_username}', NT_KEY is: '{mask_password(nt_key_str)}'.")
             return nt_key_str.encode("utf-8")
         except NTSTATUSError as e:
             nt_error_code = e.args[0]
@@ -300,12 +299,12 @@ def ntlm_auth_handler():
             if nt_error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
                 return nt_error_message, HTTPStatus.UNAUTHORIZED
 
-            print(f"  Failed while authenticating user: '{account_username}' with NT Error: ", e)
+            print(f"  Failed while authenticating user: '{account_username}' with NT Error: {e}.")
             reconnect_id = connection_id
             return f"NT Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
         except Exception as e:
             reconnect_id = connection_id
-            print(f"  Failed while authenticating user: '{account_username}' with General Error: ", e)
+            print(f"  Failed while authenticating user: '{account_username}' with General Error: {e}.")
             return "Error handling request", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -326,7 +325,10 @@ identifier = os.getenv("IDENTIFIER")
 
 print("NTLM auth api starts with the following parameters:")
 print(f"LISTEN = {listen_port}")
-print(f"IDENTIFIER = {identifier}")
+print(f"IDENTIFIER = {identifier}.")
+
+if identifier == "" or listen_port == "":
+    print("Unable to start NTLM auth API: Missing key arguments: 'IDENTIFIER' or 'LISTEN'.")
 
 config = ConfigParser()
 try:
@@ -353,13 +355,13 @@ try:
         domain = config.get(identifier, 'workgroup').lower()
         dns_servers = config.get(identifier, 'dns_servers')
     else:
-        print("The specified section does not exist in the config file.")
+        print(f"Section {identifier} does not exist in the config file.")
         sys.exit(1)
 except FileNotFoundError as e:
-    print("The specified config file does not exist.")
+    print(f"Specified config file not found in {conf_path}.")
     sys.exit(1)
 except configparser.Error as e:
-    print(f"Error reading config file: {e}")
+    print(f"Error reading config file: {e}.")
     sys.exit(1)
 
 if ad_fqdn == "":
@@ -374,27 +376,27 @@ print(f"  server_name (parsed): {server_name_or_hostname}")
 print(f"  dns_name: {realm}")
 print(f"  workgroup: {workgroup}")
 print(f"  machine_account_password: {mask_password(password)}")
-print(f"  dns_servers: {dns_servers}")
+print(f"  dns_servers: {dns_servers}.")
 
 if dns_servers != "":
     generate_resolv_conf(realm, dns_servers)
     time.sleep(1)
     ip, err_msg = dns_lookup(ad_fqdn, "")
     if ip != "" and err_msg == "":
-        print(f"AD FQDN: {ad_fqdn} resolved with IP: {ip}\n")
+        print(f"AD FQDN: {ad_fqdn} resolved with IP: {ip}.")
     else:
         if is_ipv4(ad_server):  # plan B: if it's not resolved then we use the static IP provided in the profile
-            print(f"AD FQDN resolve failed. Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}\n")
+            print(f"AD FQDN resolve failed. Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
             generate_hosts_entry(ad_server, ad_fqdn)
         else:
-            print("Failed to retrieve IP address of AD server. Terminated.\n")
+            print("Failed to retrieve IP address of AD server. Terminated.")
             exit(1)
 else:
     if is_ipv4(ad_server):
         generate_hosts_entry(ad_server, ad_fqdn)
-        print(f"Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}\n")
+        print(f"Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
     else:
-        print("Failed to start NTLM auth API. 'ad_server' is required when DNS servers are unavailable.\n")
+        print("Failed to start NTLM auth API. 'ad_server' is required when DNS servers are unavailable.")
         exit(1)
 
 server_name = ad_fqdn
