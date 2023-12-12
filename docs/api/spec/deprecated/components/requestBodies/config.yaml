@@ -1,0 +1,5 @@
+ConfigDomainJoin:
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigDomainJoin"

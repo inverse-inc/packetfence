@@ -6,5 +6,5 @@ ConfigMfa:
       TOTP: '#/components/schemas/ConfigMfaSubTypeTotp'
     propertyName: type
   oneOf:
-  - $ref: '#/components/schemas/ConfigMfaSubTypeAkamai'
   - $ref: '#/components/schemas/ConfigMfaSubTypeTotp'
+  - $ref: '#/components/schemas/ConfigMfaSubTypeAkamai'

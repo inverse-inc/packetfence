@@ -8,5 +8,5 @@ ConfigPkiProvider:
     propertyName: type
   oneOf:
   - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfencePki'
-  - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfenceLocal'
   - $ref: '#/components/schemas/ConfigPkiProviderSubTypeScep'
+  - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfenceLocal'

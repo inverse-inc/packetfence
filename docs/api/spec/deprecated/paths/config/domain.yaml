@@ -1,5 +1,6 @@
 /api/v1/config/domain/{domain_id}/test_join:
   get:
+    deprecated: true
     summary: Test Domain Join.
     description: Uses [Async](#/Async).
     parameters:
@@ -21,6 +22,7 @@
 
 /api/v1/config/domain/{domain_id}/join:
   post:
+    deprecated: true
     summary: Join Domain.
     description: Uses [Async](#/Async).
     parameters:
@@ -44,6 +46,7 @@
 
 /api/v1/config/domain/{domain_id}/rejoin:
   post:
+    deprecated: true
     summary: Rejoin Domain.
     description: Uses [Async](#/Async).
     parameters:
@@ -67,6 +70,7 @@
 
 /api/v1/config/domain/{domain_id}/unjoin:
   post:
+    deprecated: true
     summary: Unjoin Domain.
     description: Uses [Async](#/Async).
     parameters:
