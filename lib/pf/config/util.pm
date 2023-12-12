@@ -629,7 +629,7 @@ sub send_using_smtp_callback {
     {
         if ( $smtp->supports( 'AUTH', 500, ["Command unknown: 'AUTH'"] ) ) {
             my $sasl = Authen::SASL->new(
-              mechanism => 'LOGIN PLAIN',
+              mechanism => 'PLAIN LOGIN',
               callback => {
                 pass => $args{AuthPass},
                 user => $args{AuthUser},
