@@ -55,7 +55,7 @@ use pf::util::radius qw(perform_disconnect perform_coa);
 use Try::Tiny;
 use pf::locationlog;
 
-sub description { 'Aruba CX Switch' }
+sub description { 'Aruba CX Switch 10.x' }
 
 # CAPABILITIES
 # access technology supported
