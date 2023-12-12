@@ -24,7 +24,8 @@
 
         <form-group-server-name namespace="server_name"
                                 :column-label="$i18n.t(`This server's name`)"
-                                :text="$i18n.t(`This server's name (account name) in the Active Directory. Use '%h' to automatically use this server hostname.`)"
+                                :text="$i18n.t(`This server's name (machine account name) in the Active Directory. Use '%h' to automatically use this server hostname. It will be automatically converted to its real hostname and saved in config file.`)"
+                                :disabled="!isNew && !isClone"
         />
 
         <form-group-sticky-dc namespace="sticky_dc"
@@ -35,11 +36,12 @@
         <form-group-ad-fqdn namespace="ad_fqdn"
                               :column-label="$i18n.t('Active Directory FQDN')"
                               :text="$i18n.t('The FQDN of the Active Directory server.')"
+                              :disabled="!isNew && !isClone"
         />
 
         <form-group-ad-server namespace="ad_server"
                               :column-label="$i18n.t('Active Directory IP')"
-                              :text="$i18n.t('The IPv4 of the Active Directory server. This field is optional if Active Directory server\'s FQDN is resolvable using specified DNS servers. Note: If DNS server, Active Directory Server\'s FQDN and IP are all given, PacketFence will use the resolved IP address instead of this.')"
+                              :text="$i18n.t('The IPv4 of the Active Directory server. This field is optional if Active Directory server\'s FQDN is resolvable using DNS servers below. Note: If DNS server, Active Directory Server\'s FQDN and IP are all given, PacketFence will use the resolved IP instead of using the given Active Directory IP.')"
         />
 
         <form-group-dns-servers namespace="dns_servers"
@@ -72,13 +74,6 @@
         <form-group-bind-pass namespace="bind_pass"
                                           :column-label="$i18n.t('Domain administrator password')"
                                           :text="$i18n.t(`Domain administrator's password, PacketFence will only use this to update machine account in Active Directory, this will not be saved into config file.`)"
-        />
-
-        <form-group-ntlmv2-only namespace="ntlmv2_only"
-                                :column-label="$i18n.t('NTLM v2 only')"
-                                :text='$i18n.t(`If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level.`)'
-                                enabled-value="1"
-                                disabled-value="0"
         />
 
         <form-group-registration namespace="registration"
