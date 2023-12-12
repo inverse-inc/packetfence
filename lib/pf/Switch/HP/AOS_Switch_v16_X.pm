@@ -173,7 +173,7 @@ sub returnRadiusAccessAccept {
             } else {
                 $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }
-	}
+        }
     }
 
     $radius_reply_ref->{'Aruba-NAS-Filter-Rule'} = \@acls;
@@ -217,32 +217,32 @@ Return the reference to the deauth technique or the default deauth technique.
 
 =cut
 
-sub wiredeauthTechniques {
-    my ($self, $method, $connection_type) = @_;
+    sub wiredeauthTechniques {
+    my ( $self, $method, $connection_type ) = @_;
     my $logger = $self->logger;
-    if ($connection_type == $WIRED_802_1X) {
+    if ( $connection_type == $WIRED_802_1X ) {
         my $default = $SNMP::SNMP;
-        my %tech = (
-            $SNMP::SNMP => 'dot1xPortReauthenticate',
+        my %tech    = (
+            $SNMP::SNMP   => 'dot1xPortReauthenticate',
             $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
-       	if (!defined($method) || !defined($tech{$method})) {
-            $method = $default;
-       	}
-        return $method,$tech{$method};
-    }
-    if ($connection_type == $WIRED_MAC_AUTH) {
-       	my $default = $SNMP::SNMP;
-        my %tech = (
-            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
-            $SNMP::RADIUS => 'deauthenticateMacRadius',
-        );
-
-        if (!defined($method) || !defined($tech{$method})) {
+        if ( !defined($method) || !defined( $tech{$method} ) ) {
             $method = $default;
         }
-        return $method,$tech{$method};
+        return $method, $tech{$method};
+    }
+    if ( $connection_type == $WIRED_MAC_AUTH ) {
+        my $default = $SNMP::SNMP;
+        my %tech    = (
+            $SNMP::SNMP   => 'handleReAssignVlanTrapForWiredMacAuth',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if ( !defined($method) || !defined( $tech{$method} ) ) {
+            $method = $default;
+        }
+        return $method, $tech{$method};
     }
 }
 
@@ -259,15 +259,15 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 # TODO consider whether we should handle retries or not?
 
 sub radiusDisconnect {
-    my ($self, $mac, $add_attributes_ref) = @_;
+    my ( $self, $mac, $add_attributes_ref ) = @_;
     my $logger = $self->logger;
 
     # initialize
-    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+    $add_attributes_ref = {} if ( !defined($add_attributes_ref) );
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if ( !defined( $self->{'_radiusSecret'} ) ) {
         $logger->warn(
-            "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
+"[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
         );
         return;
     }
@@ -277,21 +277,25 @@ sub radiusDisconnect {
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
+
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
-        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
+      if ( defined( $add_attributes_ref->{'NAS-IP-Address'} ) );
 
     my $response;
     try {
         my $locationlog = locationlog_view_open_mac($mac);
-        my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
+        my $connection_info =
+          $self->radius_deauth_connection_info($send_disconnect_to);
 
-        $logger->debug("[$self->{'_ip'}] Network device supports roles. Evaluating role to be returned.");
+        $logger->debug(
+"[$self->{'_ip'}] Network device supports roles. Evaluating role to be returned."
+        );
         my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
+        my $role         = $roleResolver->getRoleForNode( $mac, $self );
 
         # transforming MAC to the expected format 00-11-22-33-ca-fe
-        my $mac = lc($mac);
+        my $mac      = lc($mac);
         my $username = $locationlog->{dot1x_username};
         $mac =~ s/:/-/g;
         my $time = time;
@@ -299,42 +303,58 @@ sub radiusDisconnect {
         # Standard Attributes
         my $vsa;
         my $attributes_ref = {
-            'User-Name' => $username,
+            'User-Name'          => $username,
             'Calling-Station-Id' => $mac,
-            'NAS-IP-Address' => $send_disconnect_to,
-            'NAS-Port-Id' => $locationlog->{port},
+            'NAS-IP-Address'     => $send_disconnect_to,
+            'NAS-Port-Id'        => $locationlog->{port},
 
         };
-        # merging additional attributes provided by caller to the standard attributes
+
+   # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        if ( $self->shouldUseCoA({role => $role}) ) {
+        if ( $self->shouldUseCoA( { role => $role } ) ) {
 
-            $attributes_ref = {
-                %$attributes_ref,
-                'Filter-Id' => $role,
-            };
+            $attributes_ref = { %$attributes_ref, 'Filter-Id' => $role, };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa($connection_info, $attributes_ref,$vsa);
+            $response = perform_coa( $connection_info, $attributes_ref, $vsa );
 
-        }
-        else {
-            $vsa = [{ 'vendor' => 'HP', 'attribute' => 'HP-Port-Bounce-Host', 'value' => '12' }];
-            $response = perform_coa($connection_info, $attributes_ref,$vsa);
+        } else {
+            $vsa = [
+                {
+                    'vendor'    => 'HP',
+                    'attribute' => 'HP-Port-Bounce-Host',
+                    'value'     => '12'
+                }
+            ];
+            $response = perform_coa( $connection_info, $attributes_ref, $vsa );
         }
     } catch {
-	chomp;
-	$logger->warn("[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: $_");
-        $logger->error("[$self->{'_ip'}] Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+        chomp;
+        $logger->warn(
+            "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: $_");
+        $logger->error(
+"[$self->{'_ip'}] Wrong RADIUS secret or unreachable network device..."
+        ) if ( $_ =~ /^Timeout/ );
     };
-    return if (!defined($response));
+    return if ( !defined($response) );
 
-    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
+    return $TRUE
+      if ( ( $response->{'Code'} eq 'Disconnect-ACK' )
+        || ( $response->{'Code'} eq 'CoA-ACK' ) );
 
     $logger->warn(
         "[$self->{'_ip'}] Unable to perform RADIUS Disconnect-Request."
-        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
-        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+          . (
+            defined( $response->{'Code'} ) ? " $response->{'Code'}"
+            : 'no RADIUS code'
+          )
+          . ' received'
+          . (
+            defined( $response->{'Error-Cause'} )
+            ? " with Error-Cause: $response->{'Error-Cause'}."
+            : ''
+          )
     );
     return;
 }
