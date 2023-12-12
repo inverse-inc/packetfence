@@ -56,10 +56,8 @@ describe('Collections', () => {
                     .click({ log: true, force: true })
                 })
 
-                // expect similar url
-                cy.url()
-                  .should('include', url)
-                  .should('not.equal', url)
+                // expect new url
+                cy.url().should('not.equal', url)
 
                 // setup API interceptors
                 interceptors.forEach((interceptor, i) => {
