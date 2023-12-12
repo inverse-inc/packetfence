@@ -58,12 +58,7 @@
           <icon name="circle" :class="{ 'text-success': item.ntlm_cache === 'enabled', 'text-danger': item.ntlm_cache !== 'enabled' }"
             v-b-tooltip.hover.left.d300 :title="$t(item.ntlm_cache)"></icon>
         </template>
-        <template #cell(joined)="{ item }">
-          <base-button-join
-            :id="item.id"
-            size="sm" variant="outline-light" toggle-class="text-wrap text-dark"
-            :auto-join="autoJoinDomain && autoJoinDomain === item.id" />
-        </template>
+
         <template #head(buttons)>
           <base-search-input-columns
             :disabled="isLoading"
@@ -107,12 +102,10 @@ import {
   BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
-import BaseButtonJoin from './BaseButtonJoin'
 
 const components = {
   BaseButtonConfirm,
   BaseButtonHelp,
-  BaseButtonJoin,
   BaseSearch,
   BaseSearchInputColumns,
   BaseServices,

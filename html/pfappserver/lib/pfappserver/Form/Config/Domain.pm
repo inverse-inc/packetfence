@@ -56,14 +56,24 @@ has_field 'workgroup' =>
    messages => { required => 'Please specify the workgroup' },
   );
 
+has_field 'ad_fqdn' =>
+  (
+   type => 'Text',
+   label => 'Active Directory server',
+   required => 1,
+   messages => { required => 'Please specify the FQDN of the Active Directory server' },
+   tags => { after_element => \&help,
+             help => 'The FQDN of the Active Directory server' },
+  );
+
 has_field 'ad_server' =>
   (
    type => 'Text',
    label => 'Active Directory server',
    required => 1,
-   messages => { required => 'Please specify the Active Directory server' },
+   messages => { required => 'Please specify the IPv4 of the Active Directory server' },
    tags => { after_element => \&help,
-             help => 'The IP address or DNS name of your Active Directory server' },
+             help => 'The IPv4 of the Active Directory server' },
   );
 
 has_field 'bind_pass' =>
@@ -146,14 +156,6 @@ has_field 'registration' =>
              help => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.' },
   );
 
-has_field 'ntlmv2_only' =>
-  (
-   type => 'Checkbox',
-   label => 'ntlmv2 only',
-   tags => { after_element => \&help,
-             help => 'If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level'},
-  );
-
 has_field 'ntlm_cache' =>
   (
    type => 'Toggle',
@@ -184,9 +186,43 @@ has_field 'ntlm_cache_expiry' =>
              help => 'The amount of seconds an entry should be cached.' },
   );
 
+has_field 'machine_account_password' =>
+    (
+        type => 'Text',
+        label => 'Password / password hash of the machine account',
+        required => 1,
+        messages => { required => 'Please specify the machine account password' },
+        tags => { after_element => \&help,
+            help => 'Password of the machine account to be added to Active Directory.' },
+    );
+has_field 'password_is_nt_hash' =>
+    (
+        type => 'Text',
+        label => 'Password is NT Hash',
+        default => '1',
+        tags => { after_element => \&help,
+            help => 'Password stored in the config file is NT hash.' },
+    );
+has_field 'ntlm_auth_host' =>
+    (
+        type => 'Text',
+        label => 'NTLM auth host',
+        default => '127.0.0.1',
+        tags => { after_element => \&help,
+            help => 'The IP address of NTLM auth API' },
+    );
+has_field 'ntlm_auth_port' =>
+    (
+        type => 'Text',
+        label => 'NTLM auth port',
+        default => '5000',
+        tags => { after_element => \&help,
+            help => 'The listening port of NTLM auth API.' },
+    );
+
 has_block definition =>
   (
-   render_list => [ qw(workgroup dns_name server_name sticky_dc ad_server dns_servers bind_dn bind_pass ou registration) ],
+   render_list => [ qw(workgroup dns_name server_name sticky_dc ad_fqdn ad_server dns_servers bind_dn bind_pass ou registration machine_account machine_account_password password_is_nt_hash) ],
   );
 
 has_block ntlm_cache =>
@@ -224,17 +260,17 @@ sub validate {
     if($self->field('server_name')->value() eq "%h") {
         my $hostname = [split(/\./,hostname())]->[0];
         if(length($hostname) > $self->field('server_name')->maxlength) {
-            $self->field("server_name")->add_error("You have selected %h as the server name but this server hostname ($hostname) is longer than 14 characters. Please change the value or modify the hostname of your server to a name of 14 characters or less.");            
-        }   
+            $self->field("server_name")->add_error("You have selected %h as the server name but this server hostname ($hostname) is longer than 14 characters. Please change the value or modify the hostname of your server to a name of 14 characters or less.");
+        }
     }
 
     if(isenabled($self->field('ntlm_cache')->value())) {
         get_logger->info("Validating NTLM cache fields because it is enabled.");
         unless($self->field('ntlm_cache_source')->value) {
-            $self->field("ntlm_cache_source")->add_error("A valid source must be selected when NTLM cache is enabled."); 
+            $self->field("ntlm_cache_source")->add_error("A valid source must be selected when NTLM cache is enabled.");
         }
         unless($self->field('ntlm_cache_expiry')->value) {
-            $self->field("ntlm_cache_expiry")->add_error("An expiration must be specified for caching when NTLM cache is enabled."); 
+            $self->field("ntlm_cache_expiry")->add_error("An expiration must be specified when NTLM cache is enabled.");
         }
     }
 }

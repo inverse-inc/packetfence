@@ -1506,18 +1506,6 @@ To add the default `tenant_id` (1) to all network configurations run:
 /usr/local/pf/addons/upgrade/to-10.3-network-conf.pl
 ----
 
-=== Regenerate domain(s) configuration
-
-Active Directory fail-over have been improved. To benefit from such
-improvements, you need to regenerate domain(s) configuration with following
-commands:
-
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd generatedomainconfig
-----
-
-IMPORTANT: During a cluster upgrade, you need to run these commands on each cluster member.
 
 === Database schema
 

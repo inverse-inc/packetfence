@@ -3,7 +3,9 @@ import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
+  BaseFormGroupInputTest,
   BaseFormGroupSwitch,
+  BaseFormGroupInputPassword,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -17,9 +19,14 @@ export {
   BaseFormGroupInput                  as FormGroupDnsName,
   BaseFormGroupInput                  as FormGroupServerName,
   BaseFormGroupInput                  as FormGroupStickyDc,
+  BaseFormGroupInput                  as FormGroupAdFqdn,
   BaseFormGroupInput                  as FormGroupAdServer,
   BaseFormGroupInput                  as FormGroupDnsServers,
   BaseFormGroupInput                  as FormGroupOu,
+  BaseFormGroupInputPassword          as FormGroupMachineAccountPasswordOnly,
+  BaseFormGroupInputTest              as FormGroupMachineAccountPassword,
+  BaseFormGroupInput                  as FormGroupBindDn,
+  BaseFormGroupInputPassword          as FormGroupBindPass,
   BaseFormGroupSwitch                 as FormGroupNtlmv2Only,
   BaseFormGroupSwitch                 as FormGroupRegistration,
 

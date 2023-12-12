@@ -38,12 +38,13 @@ The process is meant to be very short lived and never reused. */
 #include <sys/socket.h>
 #include <argp.h>
 #include <signal.h>
+#include <curl/curl.h>
+#include <cjson/cJSON.h>
+
 
 const char *argp_program_version = "ntlm_auth_wrapper 1.0";
 const char *argp_program_bug_address = "<info@inverse.ca>";
 
-// These have to be initialized early so they can be used in the signal handler.
-pid_t pid = 0 ; // initialize the child pid 
 
 /* Program documentation. */
 static char doc[] =
@@ -54,27 +55,26 @@ static char args_doc[] = "[arguments passed to ntlm_auth]";
 
 /* The options we understand. */
 static struct argp_option options[] = {
-    {"binary", 'b', "path", 0,
-     "ntlm_auth binary path. Defaults to /usr/bin/ntlm_auth."},
-    {"host", 'h', "hostname or ip", 0,
-     "StatsD host. Default is localhost."},
-    {"port", 'p', "port", 0, "StatsD port. Default is 8125."},
-    {"insecure", 'i', 0, 0, "Log insecure arguments such as the password."},
-    {"nostatsd", 's', 0, 0, "Don't send performance counters to statsd."},
-    {"noresolv", 'n', 0, 0, "Do not resolve value for host and port."},
-    {"log", 'l', 0, 0, "Send results to syslog."},
-    {"logfacility", 'f', "facility", 0,
-     "Syslog facility. Default is local5."},
-    {"loglevel", 'd', "level", 0, "Syslog level. Default is info."},
+    {"host"       ,'h', "hostname or ip", 0, "StatsD host. Default is localhost."},
+    {"port"       ,'p', "port", 0, "StatsD port. Default is 8125."},
+    {"insecure"   ,'i', 0, 0, "Log insecure arguments such as the password."},
+    {"nostatsd"   ,'s', 0, 0, "Don't send performance counters to statsd."},
+    {"noresolv"   ,'n', 0, 0, "Do not resolve value for host and port."},
+    {"log"        ,'l', 0, 0, "Send results to syslog."},
+    {"logfacility",'f', "facility", 0, "Syslog facility. Default is local5."},
+    {"loglevel"   ,'d', "level", 0, "Syslog level. Default is info."},
+    {"api_host"   ,'a', "hostname/ip" ,0, "NTLM auth API host or IP" },
+    {"api_port"   ,'t', "port" ,0, "NTLM auth API listening port" },
     {0}
 };
 
 /* Used by main to communicate with parse_opt. */
 struct arguments {
     int insecure, nostatsd, noresolv, log, facility, level;
-    char *binary;
     char *host;
     char *port;
+    char *api_host;
+    char *api_port;
 };
 
 /* Parse a single option. */
@@ -97,14 +97,17 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     case 'l':
         arguments->log = 1;
         break;
-    case 'b':
-        arguments->binary = arg;
-        break;
     case 'h':
         arguments->host = arg;
         break;
     case 'p':
         arguments->port = arg;
+        break;
+    case 'a':
+        arguments->api_host = arg;
+        break;
+    case 't':
+        arguments->api_port = arg;
         break;
     case 'f':
         if (strcasecmp(arg, "auth") == 0) {
@@ -180,17 +183,15 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 static struct argp argp = { options, parse_opt, args_doc, doc };
 
 // send results to syslog
-void
-log_result(int argc, char **argv, const struct arguments args, int status,
-       double elapsed, int ppid)
+void log_result(int argc, char **argv, const struct arguments args, int status, double elapsed)
 {
     openlog("radius-debug", LOG_PID, args.facility);
     // build the log message
     char *log_msg;
-    asprintf(&log_msg, "%s", args.binary);
+    asprintf(&log_msg, "http://%s:%s", args.api_host, args.api_port);
 
     // concatenate the command with all argv args separated by sep
-    int i = 1; 
+    int i = 1;
     while (i < argc ) {
         // split the argument on = and check the first part to reject excluded args.
         if (!args.insecure)
@@ -198,8 +199,8 @@ log_result(int argc, char **argv, const struct arguments args, int status,
                  (argv[i], "--password", strlen("--password")) == 0)
                 ||
                 (strncmp
-                 (argv[i], "--challenge", strlen("--challenge")) == 0)) 
-            { 
+                 (argv[i], "--challenge", strlen("--challenge")) == 0))
+            {
                 i=i+2; // will skip the next argument
                 continue;
             }
@@ -210,18 +211,7 @@ log_result(int argc, char **argv, const struct arguments args, int status,
         i++;
     }
 
-    if ( status == SIGTERM) {
-        (void) 0; // no op
-    }
-    else if ( WIFEXITED(status) ) {
-        status =  WEXITSTATUS(status); 
-    } 
-    else { 
-        status = 1;
-    }
-
-    syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i",
-           log_msg, elapsed, status, ppid);
+    syslog(args.level, "%s time: %g ms, status: %i", log_msg, elapsed, status);
     closelog();
 }
 
@@ -242,7 +232,7 @@ void send_statsd(const struct arguments args , int status, double elapsed)
     if ((err = getaddrinfo(args.host, args.port, &hint, &ailist)) != 0) {
         sprintf("getaddrinfo error: %s", gai_strerror(err));
         return;
-    } 
+    }
 
     if ((sockfd = socket(ailist->ai_family, SOCK_DGRAM, 0)) < 0) {
         err = errno;
@@ -279,39 +269,44 @@ double howlong(struct timeval t1)
     return elapsed;
 }
 
-// We set a handler for the TERM signal.
-// If we receive one, we kill the child and send ourselves a SIGALRM in one second.
-// This should be enough time to clean up, log the timeout and exit.
-// If it isn't, well... too bad. We _exit anyway.
-static void handler(int sig)
-{
-    if (sig == SIGTERM) {
-        if (pid == 0) _exit(SIGTERM); // we haven't forked yet or we are still in the child pre exec
-        kill(pid, SIGKILL);
-        alarm(1) ; // wake us up in one second, giving us just enough time to finish logging 
+struct MemoryStruct {
+    char *memory;
+    size_t size;
+};
+
+size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
+    size_t realsize = size * nmemb;
+    struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+
+    mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+    if (mem->memory == NULL) {
+        printf("Not enough memory (realloc returned NULL)\n");
+        return 0;
     }
-    if (sig == SIGALRM ) { 
-        kill(pid, SIGKILL); // just in case we may have forked in the meantime
-        _exit(SIGTERM); // we waited long enough
-    }
+
+    memcpy(&(mem->memory[mem->size]), contents, realsize);
+    mem->size += realsize;
+    mem->memory[mem->size] = 0;
+
+    return realsize;
 }
 
 int main(argc, argv, envp)
 int argc;
 char **argv, **envp;
 {
-
     /* Default values. */
     struct arguments arguments;
     arguments.insecure = 0;
     arguments.nostatsd = 0;
     arguments.noresolv = 0;
     arguments.log = 0;
-    arguments.binary = "/usr/bin/ntlm_auth";
     arguments.host = "localhost";
     arguments.port = "8125";
     arguments.facility = LOG_LOCAL5;
     arguments.level = LOG_INFO;
+    arguments.api_host = "";
+    arguments.api_port = "0";
     /* Parse our arguments; every option seen by parse_opt will
        be reflected in arguments. */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
@@ -319,22 +314,6 @@ char **argv, **envp;
     struct timeval t1;
     double elapsed;
     gettimeofday(&t1, NULL);
-
-    // set the signal handler
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sa.sa_handler = handler;
-    if (sigaction(SIGTERM, &sa, NULL) == -1) {
-        fprintf(stderr,
-            "Error: could not register TERM signal handler. Exiting.");
-        exit(1);
-    }
-    if (sigaction(SIGALRM, &sa, NULL) == -1) {
-        fprintf(stderr,
-            "Error: could not register ALRM signal handler. Exiting.");
-        exit(1);
-    }
 
     // Find the -- separator if any and reset the argv accordingly
     // so it does not get passed to the execed program.
@@ -345,54 +324,96 @@ char **argv, **envp;
             break;
         }
     }
-    if (opt_end) { 
-        // Here we move the pointer so that argv starts at opt_end 
+    if (opt_end) {
+        // Here we move the pointer so that argv starts at opt_end
         // We also need to change argc to reflect discarding the wrapper arguments.
         // This can have consequences so pay attention.
         argv += opt_end;
-        argv[0] = arguments.binary;
         argc = argc - opt_end;
     }
 
-    // Fork a process, exec it and then wait for the exit.
-    pid_t  ppid;
-    ppid = getpid();
-    int status;
-    if ((pid = fork()) < 0) {
-        perror(argv[0]);
+    // keep the same values we used before, so SIGTERM = timeout, other non-zero values = auth error
+    int status = 0;
+
+    if (strcmp(arguments.api_host, "") ==0 || strcmp(arguments.api_port, "0") == 0) {
+        fprintf(stderr, "Error: endpoint host or port not given, exiting");
         exit(1);
-    } else if (pid == 0) {  // child
-        execve(arguments.binary, argv, envp);
-        perror(argv[0]);
-        exit(127);
     }
-    
-    if (waitpid(pid, &status, 0) != pid) {  // wait for child
-        if (errno == EINTR) {  // we received a signal
-            wait(NULL); // reap to prevent zombies
-            status = SIGTERM;
-        }
-        else {
-            perror(argv[0]);
-            exit(1);
+
+    cJSON *json = cJSON_CreateObject();
+    if (json == NULL) {
+        fprintf(stderr, "Error: could not create JSON object. Exiting.");
+        exit(1);
+    }
+    for (int i = 1; i < argc; i++) {
+        if (strncmp(argv[i], "--username=", strlen("--username=")) == 0) {
+            cJSON_AddStringToObject(json, "username", argv[i] + strlen("--username="));
+        } else if (strncmp(argv[i], "--password=", strlen("--password=")) == 0) {
+            cJSON_AddStringToObject(json, "password", argv[i] + strlen("--password="));
+        } else if (strncmp(argv[i], "--request-nt-key", strlen("--request-nt-key")) == 0) {
+            cJSON_AddItemToObject(json, "request-nt-key", cJSON_CreateTrue());
+        } else if (strncmp(argv[i], "--challenge=", strlen("--challenge=")) == 0) {
+            cJSON_AddStringToObject(json, "challenge", argv[i] + strlen("--challenge="));
+        } else if (strncmp(argv[i], "--nt-response=", strlen("--nt-response=")) == 0) {
+            cJSON_AddStringToObject(json, "nt-response", argv[i] + strlen("--nt-response="));
         }
     }
+
+    char *json_string = cJSON_Print(json);
+    CURL *curl;
+    CURLcode cURLCode;
+    struct MemoryStruct chunk;
+
+    curl = curl_easy_init();
+    chunk.memory = malloc(1);
+    chunk.size = 0;
+    if(curl) {
+        char* uri;
+
+        asprintf(&uri, "http://%s:%s/ntlm/auth", arguments.api_host, arguments.api_port);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, 2500L);
+
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_easy_setopt(curl, CURLOPT_URL, uri);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
+
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_string);
+
+        cURLCode = curl_easy_perform(curl);
+        free(uri);
+        if (cURLCode == CURLE_OK) {
+            status = 0;
+            long http_response_code;
+            curl_easy_getinfo(curl, CURLINFO_HTTP_CODE, &http_response_code);
+            if (http_response_code != 200) {
+                status = http_response_code;  // consider non-200 response as auth failures.
+            }
+            printf("%s\n", chunk.memory);
+        } else {
+            status = cURLCode;
+            if (cURLCode==CURLE_OPERATION_TIMEDOUT || cURLCode == CURLE_COULDNT_RESOLVE_HOST || cURLCode == CURLE_COULDNT_CONNECT) {
+                status = SIGTERM; // timeout or any network errors, considered as time-outs
+            }
+            fprintf(stderr, "exec curl failed: %s\n", curl_easy_strerror(cURLCode));
+        }
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+    }
+    free(chunk.memory);
+    free(json_string);
+    cJSON_Delete(json);
 
     elapsed = howlong(t1);
 
     if (arguments.log)
-        log_result(argc, argv, arguments, status, elapsed, ppid);
+        log_result(argc, argv, arguments, status, elapsed);
     // open socket to StatsD server and send message
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
-
-    if (WIFEXITED(status)) { 
-        exit(WEXITSTATUS(status));
-    } 
-    else if ( status == SIGTERM ) { 
-        exit(SIGTERM);
-    } 
-    else { 
-        exit(1); // Just in case the child exited abnormally.
-    } 
 }

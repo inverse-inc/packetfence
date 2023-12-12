@@ -215,7 +215,6 @@ type PfConfServices struct {
 	Snmptrapd            string `json:"snmptrapd"`
 	TC                   string `json:"tc"`
 	TrackingConfig       string `json:"tracking-config"`
-	Winbindd             string `json:"winbindd"`
 }
 
 type PfConfWebservices struct {
@@ -864,6 +863,14 @@ type NtlmRedisCachedDomains struct {
 	PfconfigNS              string `val:"resource::NtlmRedisCachedDomains"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 []string
+}
+
+type Domain struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Domain"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
 }
 
 type Cloud struct {

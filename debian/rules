@@ -242,7 +242,6 @@ binary-arch: build install
 	dh_installinit --name=packetfence-redis_ntlm_cache
 	dh_installinit --name=packetfence-redis_queue
 	dh_installinit --name=packetfence-snmptrapd
-	dh_installinit --name=packetfence-winbindd
 	dh_installinit --name=packetfence-pfdhcp
 	dh_installinit --name=packetfence-pfipset
 	dh_installinit --name=packetfence-pfunified-api
@@ -252,6 +251,8 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfconnector-client
 	dh_installinit --name=packetfence-proxysql
 	dh_installinit --name=packetfence-pfldapexplorer
+	dh_installinit --name=packetfence-ntlm-auth-api
+	dh_installinit --name=packetfence-ntlm-auth-api-domain@
 	dh_installinit --name=packetfence-pfsetacls
 	dh_installinit --no-start --name=packetfence-tracking-config
 	dh_installinit --no-start --name=packetfence-kafka

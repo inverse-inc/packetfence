@@ -10,16 +10,11 @@ const components = {
   TheForm
 }
 
-import i18n from '@/utils/locale'
 import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
 
 const props = {
   ...useViewCollectionItemProps,
 
-  labelActionKey: {
-    type: String,
-    default: i18n.t('Join Domain')
-  }
 }
 
 import * as collection from '../_composables/useCollection'

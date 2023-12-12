@@ -65,6 +65,8 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 
 	router.POST("/api/v1/nodes/fingerbank_communications", apiHandler.nodeFingerbankCommunications)
 
+	router.POST("/api/v1/ntlm/test", apiHandler.ntlmTest)
+
 	var DBP **gorm.DB
 	var DB *gorm.DB
 	var sqlDB *sql.DB

@@ -30,6 +30,9 @@ BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
 BuildRequires: systemd
 BuildRequires: MariaDB-devel >= 10.1
+BuildRequires: libcurl-devel
+BuildRequires: cjson-devel
+
 
 # To handle migration from several packetfence packages
 # to only one
@@ -57,7 +60,7 @@ Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: packetfence-perl >= 1.2.1
+Requires: packetfence-perl >= 1.2.3
 Requires: MariaDB-server >= 10.5.15, MariaDB-server < 10.6.0
 Requires: MariaDB-client >= 10.5.15, MariaDB-client < 10.6.0
 Requires: perl(DBD::mysql)
@@ -271,9 +274,8 @@ Requires: perl(Graph)
 # Timezone
 Requires: perl(DateTime::TimeZone)
 
-Requires: samba-winbind-clients, samba-winbind
 Requires: libdrm >= 2.4.74
-Requires: python3-impacket
+Requires: python3-impacket >= 0.9.23
 Requires: netdata < 1.11.0., fping, MySQL-python
 # OpenVAS
 Requires: openvas-cli
@@ -281,6 +283,7 @@ Requires: openvas-libraries
 
 # pki
 Requires: perl(Crypt::SMIME)
+
 
 # dhcp-stress-test
 Requires: perl(Net::DHCP)
@@ -312,6 +315,8 @@ Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 Requires: fingerbank >= 4.3.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
+
+Requires: python3-samba
 
 %description
 
@@ -415,7 +420,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-redis_ntlm_cache.service %{buildroot}%{_unitdir}/packetfence-redis_ntlm_cache.service
 %{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service %{buildroot}%{_unitdir}/packetfence-redis_queue.service
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service %{buildroot}%{_unitdir}/packetfence-snmptrapd.service
-%{__install} -D -m0644 conf/systemd/packetfence-winbindd.service %{buildroot}%{_unitdir}/packetfence-winbindd.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service %{buildroot}%{_unitdir}/packetfence-pfdhcp.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfipset.service %{buildroot}%{_unitdir}/packetfence-pfipset.service
 %{__install} -D -m0644 conf/systemd/packetfence-netdata.service %{buildroot}%{_unitdir}/packetfence-netdata.service
@@ -425,6 +429,8 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
 %{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfldapexplorer.service %{buildroot}%{_unitdir}/packetfence-pfldapexplorer.service
+%{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api.service
+%{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api-domain@.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api-domain@.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
 %{__install} -D -m0644 conf/systemd/packetfence-kafka.service %{buildroot}%{_unitdir}/packetfence-kafka.service
 # systemd path
@@ -922,6 +928,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%dir                    /usr/local/pf/bin/pyntlm_auth
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/app.py
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector
@@ -941,6 +949,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/kafka-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-domain
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetacls-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
@@ -1313,7 +1323,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-go
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-backend
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
-%attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var

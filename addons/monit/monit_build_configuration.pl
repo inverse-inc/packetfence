@@ -26,7 +26,6 @@ my %CONFIGURATION_TO_TEMPLATE   = (
     'portsec'           => '10_packetfence-portsec',
     'drbd'              => '20_packetfence-drbd',
     'active-active'     => '30_packetfence-activeactive',
-    'os-winbind'        => '40_OS-winbind',
     'os-checks'         => '50_OS-checks',
 );
 
@@ -44,7 +43,6 @@ if ( $#ARGV eq "-1" ) {
     print "  - portsec: Will add some checks for port-security related services\n";
     print "  - drbd: Will add some checks for DRBD\n";
     print "  - active-active: Will add some checks for active-active clustering related services\n";
-    print "  - os-winbind: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence\n";
     print "  - os-checks: Will add some OS best-practices checks\n";
     print "mailserver: IP or resolvable FQDN of the mail server to use to send alerts (optional)\n";
     die "\n";
@@ -136,23 +134,18 @@ sub generate_specific_configurations {
         my $destination_file = catfile($MONIT_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION);
         print " - $destination_file\n";
 
-        # Handling domains (winbind configuration)
-        my $domains = handle_domains();
 
         my $tt = Template->new(ABSOLUTE => 1);
         my $freeradius_bin = ( $OS eq "rhel" ) ? "radiusd" : "freeradius";
         my $mail_bin = ( $OS eq "rhel" ) ? "/bin/mail" : "/usr/bin/mail";
         my $service_bin = ( $OS eq "rhel" ) ? "/sbin/service" : "/usr/sbin/service";
-        my $winbindd_pid = ( $OS eq "rhel" ) ? "/var/run/winbindd.pid" : "/var/run/samba/winbindd.pid";
         my $vars = {
             FREERADIUS_BIN      => $freeradius_bin,
             EMAILS              => \@emails,
             SUBJECT_IDENTIFIER  => $subject_identifier,
             MAILSERVER          => $mailserver,
-            DOMAINS             => $domains,
             MAIL_BIN            => $mail_bin,
             SERVICE_BIN         => $service_bin,
-            WINBINDD_PID        => $winbindd_pid,
             ACTIVE_ACTIVE       => (any { $_ eq 'active-active' } @configurations),
             FINGERBANK_ENABLED  => $fingerbank_enabled,
         };
@@ -161,21 +154,6 @@ sub generate_specific_configurations {
 }
 
 
-=head2 handle_domains
-
-Generate the managed by PacketFence domain list array to be used in configuration templates
-
-=cut
-
-sub handle_domains {
-    use pf::config;
-    use pf::file_paths;
-    my %domains = ();
-    foreach my $domain ( keys(%pf::config::ConfigDomain) ) {
-        $domains{$domain} = "$pf::file_paths::var_dir/run/$domain/winbindd.pid";
-    }
-    return \%domains;
-}
 
 
 1;
