@@ -1,0 +1,6 @@
+{
+  "id": "test",
+  "cert": "foo",
+  "key": "bar",
+  "intermediate": "baz"
+}
