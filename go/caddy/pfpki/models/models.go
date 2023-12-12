@@ -119,7 +119,7 @@ type (
 		P12MailFrom           string                  `json:"p12_mail_from,omitempty"`
 		P12MailHeader         string                  `json:"p12_mail_header,omitempty"`
 		P12MailFooter         string                  `json:"p12_mail_footer,omitempty"`
-		SCEPEnabled           int                     `json:"scep_enabled,omitempty,string"`
+		SCEPEnabled           int                     `json:"scep_enabled,omitempty"`
 		SCEPChallengePassword string                  `json:"scep_challenge_password,omitempty"`
 		SCEPDaysBeforeRenewal int                     `json:"scep_days_before_renewal,string" gorm:"default:14"`
 		DaysBeforeRenewal     int                     `json:"days_before_renewal,string" gorm:"default:14"`
