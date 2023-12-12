@@ -19,6 +19,7 @@ const securityEvents = require('./modules/securityEvents')
 const sources = require('./modules/sources')
 const switches = require('./modules/switches')
 const switchGroups = require('./modules/switchGroups')
+const switchTemplates = require('./modules/switchTemplates')
 const syslogParsers = require('./modules/syslogParsers')
 const wrixLocations = require('./modules/wrixLocations')
 
@@ -42,8 +43,9 @@ module.exports = {
 //  scanEngines,
 //  securityEvents,
 //  sources,
-  switches,
+//  switches,
 //  switchGroups,
+  switchTemplates,
 //  syslogParsers,
-  wrixLocations
+//  wrixLocations
 }
