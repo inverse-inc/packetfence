@@ -13,7 +13,7 @@ describe('Collections', () => {
       })
       let cache = {};
       collection.tests.forEach(test => {
-        const { description, fixture = 'empty.json', scope, url, interceptors = [], selectors, timeout,
+        const { description, fixture = 'empty.json', flatten: flattenFixture, scope, url, interceptors = [], selectors, timeout,
           idFrom = ({ id }) => id,
           beforeFormFill,
           map = (v) => v,
@@ -31,7 +31,7 @@ describe('Collections', () => {
 
         it(description, () => {
           cy.fixture(fixture).then((data) => {
-            const associative = flatten(data)
+            const associative = (flattenFixture) ? flatten(data): data
             const form = Object.entries(associative).reduce((items, [k, v]) => {
               return { ...items, [k]: map(v, k) }
             }, {})
@@ -56,8 +56,10 @@ describe('Collections', () => {
                     .click({ log: true, force: true })
                 })
 
-                // expect url changed
-                cy.url().should('include', `${url}/new`)
+                // expect similar url
+                cy.url()
+                  .should('include', url)
+                  .should('not.equal', url)
 
                 // setup API interceptors
                 interceptors.forEach((interceptor, i) => {

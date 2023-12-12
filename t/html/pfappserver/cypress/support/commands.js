@@ -55,9 +55,10 @@ Cypress.Commands.add('pfConfiguratorDisable', () => {
 })
 
 Cypress.Commands.add('formFillNamespace', (data, selector = 'body') => {
+  let list = Object.keys(data).map(key => `*[data-namespace="${key}"]`).join(',');
   return cy.get(selector)
     .should('exist')
-    .get('*[data-namespace]')
+    .get(list)
     .should("have.length.gte", 0)
     .each(element => {
       if (element.is(':visible')) {
