@@ -1,8 +1,12 @@
 ConfigDomain:
   properties:
+    ad_fqdn:
+      default: ~
+      description: The FQDN of the Active Directory server
+      type: string
     ad_server:
       default: ~
-      description: The IP address or DNS name of your Active Directory server
+      description: The IPv4 of the Active Directory server
       type: string
     bind_dn:
       default: ~
@@ -29,6 +33,18 @@ ConfigDomain:
       description: Specify a unique identifier for your configuration.<br/>This doesn't
         have to be related to your domain
       type: string
+    machine_account_password:
+      default: ~
+      description: Password of the machine account to be added to Active Directory.
+      type: string
+    ntlm_auth_host:
+      default: 127.0.0.1
+      description: The IP address of NTLM auth API
+      type: string
+    ntlm_auth_port:
+      default: '5000'
+      description: The listening port of NTLM auth API.
+      type: string
     ntlm_cache:
       default: ~
       description: Should the NTLM cache be enabled for this domain?
@@ -42,15 +58,14 @@ ConfigDomain:
       description: The source to use to connect to your Active Directory server for
         NTLM caching.
       type: string
-    ntlmv2_only:
-      default: ~
-      description: 'If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only
-        allow ntlm v2) in Network Security: LAN Manager authentication level'
-      type: string
     ou:
       default: Computers
       description: Use a specific OU for the PacketFence account. The OU string read
         from top to bottom without RDNs and delimited by a '/'. E.g. "Computers/Servers/Unix".
+      type: string
+    password_is_nt_hash:
+      default: '1'
+      description: Password stored in the config file is NT hash.
       type: string
     registration:
       default: ~
@@ -81,10 +96,12 @@ ConfigDomain:
   required:
   - id
   - workgroup
+  - ad_fqdn
   - ad_server
   - dns_servers
   - server_name
   - sticky_dc
   - dns_name
   - ou
+  - machine_account_password
   type: object

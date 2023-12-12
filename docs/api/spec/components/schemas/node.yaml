@@ -2,8 +2,8 @@ Node:
   properties:
     autoreg:
       enum:
-      - no
       - yes
+      - no
       type: string
     bandwidth_balance:
       nullable: true
