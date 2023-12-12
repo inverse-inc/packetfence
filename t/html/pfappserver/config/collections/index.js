@@ -20,6 +20,7 @@ const sources = require('./modules/sources')
 const switches = require('./modules/switches')
 const switchGroups = require('./modules/switchGroups')
 const syslogParsers = require('./modules/syslogParsers')
+const wrixLocations = require('./modules/wrixLocations')
 
 module.exports = {
 //  billingTiers,
@@ -34,14 +35,15 @@ module.exports = {
 //  mfas,
 //  pkiProviders,
 //  provisionings,
-  radiusProfiles,
-  radiusSslCertificates,
+//  radiusProfiles,
+//  radiusSslCertificates,
 //  realms,
 //  roles,
 //  scanEngines,
 //  securityEvents,
 //  sources,
-//  switches,
+  switches,
 //  switchGroups,
-//  syslogParsers
+//  syslogParsers,
+  wrixLocations
 }
