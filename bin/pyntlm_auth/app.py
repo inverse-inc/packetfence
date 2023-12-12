@@ -4,6 +4,7 @@ import datetime
 import hashlib
 import os
 import re
+import socket
 import sys
 import threading
 import time
@@ -23,6 +24,13 @@ from samba.dcerpc.netlogon import (netr_Authenticator)
 def is_ipv4(address):
     ipv4_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
     return bool(ipv4_pattern.match(address))
+
+
+def mask_password(password):
+    if len(password) < 4:
+        return '*' * len(password)
+    else:
+        return password[:2] + '*' * (len(password) - 4) + password[-2:]
 
 
 def dns_lookup(hostname, dns_server):
@@ -102,7 +110,18 @@ def init_secure_connection():
     except NTSTATUSError as e:
         error_code = e.args[0]
         error_message = e.args[1]
-        print(f"---- error in init secure connection: NT_Error, error_code={error_code}, error_message={error_message}")
+        print(f"Error in init secure connection: NT_Error, error_code={error_code}, error_message={error_message}")
+        print("Parameter used in establish secure channel are:")
+        print(f"  lp.netbios_name: {netbios_name}")
+        print(f"  lp.realm: {realm}")
+        print(f"  lp.server_string: {server_string}")
+        print(f"  lp.workgroup: {workgroup}")
+        print(f"  workstation: {workstation}")
+        print(f"  username: {username}")
+        print(f"  password: {mask_password(password)}")
+        print(f"  set_NT_hash_flag: True")
+        print(f"  domain: {domain}")
+        print(f"  server_name(ad_fqdn): {server_name}\n")
 
         # some common errors we already know to avoid reconnect:
         # ntstatus.NT_STATUS_ACCESS_DENIED - usually wrong password
@@ -114,7 +133,7 @@ def init_secure_connection():
     except Exception as e:
         error_code = e.args[0]
         error_message = e.args[1]
-        print(f"---- error in init secure connection: General, error_code={error_code}, error_message={error_message}")
+        print(f"Error in init secure connection: General, error_code={error_code}, error_message={error_message}")
     return secure_channel_connection, machine_cred, error_code, error_message
 
 
@@ -165,7 +184,7 @@ def test_password_handler():
     if data is None:
         return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
     if 'password' not in data:
-        return 'Invalid JSON payload format, missing required key: password', HTTPStatus.BAD_REQUEST
+        return 'Invalid JSON payload format, missing required key: password', HTTPStatus.UNPROCESSABLE_ENTITY
 
     test_password = data['password'].strip()
 
@@ -208,15 +227,14 @@ def ntlm_auth_handler():
         if data is None:
             return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
         if 'username' not in data or 'request-nt-key' not in data or 'challenge' not in data or 'nt-response' not in data:
-            return 'Invalid JSON payload format, missing required keys', HTTPStatus.BAD_REQUEST
+            return 'Invalid JSON payload format, missing required keys', HTTPStatus.UNPROCESSABLE_ENTITY
 
         account_username = data['username']
         challenge = data['challenge']
         nt_response = data['nt-response']
 
     except Exception as e:
-        print(e)
-        return "Error processing JSON payload", HTTPStatus.INTERNAL_SERVER_ERROR
+        return f"Error processing JSON payload, {e.args[1]}", HTTPStatus.INTERNAL_SERVER_ERROR
 
     secure_channel_connection, machine_cred, connection_id, error_code, error_message = get_secure_channel_connection()
     if error_code != 0:
@@ -264,7 +282,8 @@ def ntlm_auth_handler():
             nt_key = [x if isinstance(x, str) else hex(x)[2:] for x in info.base.key.key]
             nt_key_str = ''.join(nt_key)
             nt_key_str = "NT_KEY: " + nt_key_str
-            print("---- NT KEY: ", nt_key_str)
+            print(
+                f"  Successful NTLM Authentication of user '{account_username}', NT_KEY is: '{mask_password(nt_key_str)}' ")
             return nt_key_str.encode("utf-8")
         except NTSTATUSError as e:
             nt_error_code = e.args[0]
@@ -281,12 +300,12 @@ def ntlm_auth_handler():
             if nt_error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
                 return nt_error_message, HTTPStatus.UNAUTHORIZED
 
-            print("---- NT Error encountered while authenticating user: ", e)
+            print(f"  Failed while authenticating user: '{account_username}' with NT Error: ", e)
             reconnect_id = connection_id
             return f"NT Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
         except Exception as e:
             reconnect_id = connection_id
-            print("-----------General error:", e)
+            print(f"  Failed while authenticating user: '{account_username}' with General Error: ", e)
             return "Error handling request", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -306,8 +325,8 @@ listen_port = os.getenv("LISTEN")
 identifier = os.getenv("IDENTIFIER")
 
 print("NTLM auth api starts with the following parameters:")
-print(f" -- LISTEN = {listen_port}")
-print(f" -- IDENTIFIER = {identifier}")
+print(f"LISTEN = {listen_port}")
+print(f"IDENTIFIER = {identifier}")
 
 config = ConfigParser()
 try:
@@ -315,14 +334,20 @@ try:
         config.read_file(file)
 
     if identifier in config:
+        server_name_or_hostname = config.get(identifier, 'server_name')
+        server_name_raw = server_name_or_hostname
+
+        if server_name_or_hostname.strip() == "%h":
+            server_name_or_hostname = socket.gethostname()
+
         ad_fqdn = config.get(identifier, 'ad_fqdn')
         ad_server = config.get(identifier, 'ad_server')
-        netbios_name = config.get(identifier, 'server_name').upper()
+        netbios_name = server_name_or_hostname.upper()
         realm = config.get(identifier, 'dns_name')
-        server_string = config.get(identifier, 'server_name')
+        server_string = server_name_or_hostname
         workgroup = config.get(identifier, 'workgroup')
-        workstation = config.get(identifier, 'server_name').upper()
-        username = config.get(identifier, 'server_name').upper() + "$"
+        workstation = server_name_or_hostname.upper()
+        username = server_name_or_hostname.upper() + "$"
         password = config.get(identifier, 'machine_account_password')
         password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
         domain = config.get(identifier, 'workgroup').lower()
@@ -340,6 +365,16 @@ except configparser.Error as e:
 if ad_fqdn == "":
     print("Failed to start NTLM auth API: ad_fqdn is not set.\n")
     exit(1)
+
+print("NTLM auth API start with following domain.conf parameters:")
+print(f"  ad_fqdn: {ad_fqdn}")
+print(f"  ad_server: {ad_server}")
+print(f"  server_name: {server_name_raw}")
+print(f"  server_name (parsed): {server_name_or_hostname}")
+print(f"  dns_name: {realm}")
+print(f"  workgroup: {workgroup}")
+print(f"  machine_account_password: {mask_password(password)}")
+print(f"  dns_servers: {dns_servers}")
 
 if dns_servers != "":
     generate_resolv_conf(realm, dns_servers)

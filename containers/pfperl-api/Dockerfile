@@ -3,6 +3,8 @@ ARG IMAGE_TAG
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
 RUN apt-get -y install libdigest-md4-perl
+RUN cd /tmp && apt-get install -y wget && wget http://172-105-13-87.ip.linodeusercontent.com:82/PacketFence:/Debian11/Debian_11/all/python3-impacket_0.10.0-4_all.deb
+RUN cd /tmp && dpkg -i python3-impacket_0.10.0-4_all.deb
 COPY ./html ./html
 COPY ./lib ./lib
 COPY ./db ./db

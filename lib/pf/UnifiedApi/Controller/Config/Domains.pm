@@ -89,8 +89,6 @@ sub create {
 
     if ($computer_name eq "%h") {
         $computer_name = hostname();
-        my ($first_element) = split(/\./, $computer_name);
-        $computer_name = $first_element;
     }
 
     my $ad_server_host = "";
@@ -116,6 +114,9 @@ sub create {
     else {
         $ad_server_host = $ad_fqdn;
         $ad_server_ip = $ad_server;
+    }
+    if (!valid_ip($ad_server_ip)) {
+        return $self->render_error(422, "Unable to determine AD server's IP address.\n")
     }
 
     my $baseDN = $dns_name;
@@ -186,38 +187,37 @@ sub update {
 
     if ($computer_name eq "%h") {
         $computer_name = hostname();
-        my ($first_element) = split(/\./, $computer_name);
-        $computer_name = $first_element;
+    }
+
+    my $ad_server_host = "";
+    my $ad_server_ip = "";
+
+    my $dns_servers = $new_item->{dns_servers};
+    if (defined($dns_servers)) {
+        my ($hostname, $ip, $error) = pf::util::dns_resolve($ad_fqdn, $dns_servers, $dns_name);
+        if (defined($ip)) {
+            $ad_server_host = $ad_fqdn;
+            $ad_server_ip = $ip;
+        }
+        else {
+            if (defined($ad_server) && valid_ip($ad_server)) {
+                $ad_server_host = $ad_fqdn;
+                $ad_server_ip = $ad_server;
+            }
+            else {
+                return $self->render_error(422, "Unable to resolve AD FQDN: '$ad_fqdn' with given DNS server: '$dns_servers'\n");
+            }
+        }
+    }
+    else {
+        $ad_server_host = $ad_fqdn;
+        $ad_server_ip = $ad_server;
+    }
+    if (!valid_ip($ad_server_ip)) {
+        return $self->render_error(422, "Unable to determine AD server's IP address\n")
     }
 
     if ($new_data->{machine_account_password} ne $old_item->{machine_account_password}) {
-        $new_data->{machine_account_password} = md4_hex(encode("utf-16le", $new_data->{machine_account_password}));
-
-        my $ad_server_host = "";
-        my $ad_server_ip = "";
-        my $dns_servers = $new_item->{dns_servers};
-
-        if (defined($dns_servers)) {
-            my ($hostname, $ip, $error) = pf::util::dns_resolve($ad_fqdn, $dns_servers, $dns_name);
-            if (defined($ip)) {
-                $ad_server_host = $ad_fqdn;
-                $ad_server_ip = $ip;
-            }
-            else {
-                if (defined($ad_server) && valid_ip($ad_server)) {
-                    $ad_server_host = $ad_fqdn;
-                    $ad_server_ip = $ad_server;
-                }
-                else {
-                    return $self->render_error(422, "Unable to resolve AD FQDN: '$ad_fqdn' with given DNS server: '$dns_servers'\n");
-                }
-            }
-        }
-        else {
-            $ad_server_host = $ad_fqdn;
-            $ad_server_ip = $ad_server;
-        }
-
         my $baseDN = $dns_name;
         my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
         $baseDN = generate_baseDN($dns_name);
@@ -236,6 +236,7 @@ sub update {
                 return 0;
             }
         }
+        $new_data->{machine_account_password} = md4_hex(encode("utf-16le", $new_data->{machine_account_password}));
     }
 
     $new_data->{server_name} = $computer_name;
