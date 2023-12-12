@@ -1,0 +1,15 @@
+{
+  "id": "test",
+  "Provider_Identifier": "foobar",
+  "Location_Identifier": "foobar",
+  "Service_Provider_Brand": "foobar",
+  "Location_Type": "foobar",
+  "Sub_Location_Type": "foobar",
+  "English_Location_Name": "foobar",
+  "Location_Address1": "foobar",
+  "English_Location_City": "foobar",
+  "Location_Zip_Postal_Code": "foobar",
+  "Location_State_Province_Name": "foobar",
+  "Location_Country_Name": "foobar",
+  "Location_Phone_Number": "foobar"
+}

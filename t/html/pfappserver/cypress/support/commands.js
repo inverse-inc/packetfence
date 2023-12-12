@@ -55,46 +55,48 @@ Cypress.Commands.add('pfConfiguratorDisable', () => {
 })
 
 Cypress.Commands.add('formFillNamespace', (data, selector = 'body') => {
-  let list = Object.keys(data).map(key => `*[data-namespace="${key}"]`).join(',');
   return cy.get(selector)
     .should('exist')
-    .get(list)
-    .should("have.length.gte", 0)
-    .each(element => {
-      if (element.is(':visible')) {
-        const namespace = element.attr('data-namespace')
-        const chosen = element.attr('data-chosen')
-        if (namespace in data && data[namespace]) {
-          const value = data[namespace]
-          const type = element.attr('type')
-          const e = Cypress.$(element)[0]
-          const tagName = e.tagName.toLowerCase()
-          switch (true) {
-            case tagName === 'input' && ['text', 'password', 'number'].includes(type):
-            case tagName === 'textarea':
-              cy.get(`*[data-namespace="${namespace}"]`).as(namespace)
-              cy.get(`@${namespace}`)
-                .clear({ log: true, force: true })
-                .type(value, { log: true, force: true })
-              break
-            case tagName === 'input' && ['range'].includes(type):
-              // TODO
-              break
-            case tagName === 'div' && !!chosen:
-              cy.get(`*[data-namespace="${namespace}"]`).within(() => {
-                const values = ((Array.isArray(value)) ? value : [value]).reduce((values, _value) => {
-                  return `${values}${_value}{enter}`
-                }, '')
-                cy.get('input.multiselect__input').as(namespace)
-                cy.get(`@${namespace}`)
-                  .clear({ log: true, force: true })
-                  .type(values, { log: true, force: true })
-              })
-              break
-            default:
-              throw new Error(`unhandled element <${tagName} type="${type || ''}" data-chosen="${chosen}" data-namespace="${namespace}" />`)
-          }
-        }
-      }
-    })
+    .each(() => {
+      const list = Object.keys(data).map(key => `*[data-namespace="${key}"]`).join(',');
+      return cy.get(list)
+        .should("have.length.gte", 0)
+        .each(element => {
+//          if (element.is(':visible')) {
+            const namespace = element.attr('data-namespace')
+            const chosen = element.attr('data-chosen')
+            if (namespace in data && data[namespace]) {
+              const value = data[namespace]
+              const type = element.attr('type')
+              const e = Cypress.$(element)[0]
+              const tagName = e.tagName.toLowerCase()
+              switch (true) {
+                case tagName === 'input' && ['text', 'password', 'number'].includes(type):
+                case tagName === 'textarea':
+                  cy.get(`*[data-namespace="${namespace}"]`).as(namespace)
+                  cy.get(`@${namespace}`)
+                    .clear({ log: true, force: true })
+                    .type(value, { log: true, force: true })
+                  break
+                case tagName === 'input' && ['range'].includes(type):
+                  // TODO
+                  break
+                case tagName === 'div' && !!chosen:
+                  cy.get(`*[data-namespace="${namespace}"]`).within(() => {
+                    const values = ((Array.isArray(value)) ? value : [value]).reduce((values, _value) => {
+                      return `${values}${_value}{enter}`
+                    }, '')
+                    cy.get('input.multiselect__input').as(namespace)
+                    cy.get(`@${namespace}`)
+                      .clear({ log: true, force: true })
+                      .type(values, { log: true, force: true })
+                  })
+                  break
+                default:
+                  throw new Error(`unhandled element <${tagName} type="${type || ''}" data-chosen="${chosen}" data-namespace="${namespace}" />`)
+              }
+            }
+//          }
+        })
+  })
 })
