@@ -24,6 +24,7 @@ const sources = require('./modules/sources')
 const switches = require('./modules/switches')
 const switchGroups = require('./modules/switchGroups')
 const switchTemplates = require('./modules/switchTemplates')
+const syslogForwarders = require('./modules/syslogForwarders')
 const syslogParsers = require('./modules/syslogParsers')
 const wrixLocations = require('./modules/wrixLocations')
 
@@ -37,7 +38,7 @@ module.exports = {
 //  eventLoggers,
 //  filterEngines, // issue(s)
 //  firewalls,
-  floatingDevices,
+//  floatingDevices,
 //  networkBehaviorPolicies,
 //  maintenaceTasks,
 //  mfas,
@@ -54,6 +55,7 @@ module.exports = {
 //  switches,
 //  switchGroups,
 //  switchTemplates,
+  syslogForwarders,
 //  syslogParsers,
 //  wrixLocations
 }
