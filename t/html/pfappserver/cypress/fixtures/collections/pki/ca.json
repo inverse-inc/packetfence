@@ -1,0 +1,12 @@
+{
+  "cn": "test",
+  "mail": "email@test.local",
+  "organisation": "test",
+  "country": "CA",
+  "state": "Quebec",
+  "locality": "Montreal",
+  "key_type": "1",
+  "key_size": "2048",
+  "digest": "4",
+  "days": "365"
+}
