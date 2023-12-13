@@ -18,6 +18,7 @@ const realms = require('./modules/realms')
 const roles = require('./modules/roles')
 const scanEngines = require('./modules/scanEngines')
 const securityEvents = require('./modules/securityEvents')
+const selfServices = require('./modules/selfServices')
 const sources = require('./modules/sources')
 const switches = require('./modules/switches')
 const switchGroups = require('./modules/switchGroups')
@@ -26,11 +27,11 @@ const syslogParsers = require('./modules/syslogParsers')
 const wrixLocations = require('./modules/wrixLocations')
 
 module.exports = {
-  adminRoles,
+//  adminRoles,
 //  billingTiers,
 //  clouds,
-  connectionProfiles,
-  connectors,
+//  connectionProfiles,
+//  connectors,
 //  domains,
 //  eventLoggers,
 //  filterEngines, // issue(s)
@@ -46,6 +47,7 @@ module.exports = {
 //  roles,
 //  scanEngines,
 //  securityEvents,
+  selfServices,
 //  sources,
 //  switches,
 //  switchGroups,
