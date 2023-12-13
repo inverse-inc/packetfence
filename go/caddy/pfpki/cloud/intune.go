@@ -7,7 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -86,6 +86,34 @@ const intuneResourceUrl = "https://api.manage.microsoft.com/"
 
 const msGraphApiVersion = "1.0"
 const msGraphResourceUrl = "https://graph.microsoft.com/"
+
+var ErrorCode = []string{
+	"Unknown",
+	"Success",
+	"CertificateRequestDecodingFailed",
+	"ChallengePasswordMissing",
+	"ChallengeDeserializationError",
+	"ChallengeDecryptionError",
+	"ChallengeDecodingError",
+	"ChallengeInvalidTimestamp",
+	"ChallengeExpired",
+	"SubjectNameMissing",
+	"SubjectNameMismatch",
+	"SubjectAltNameMissing",
+	"SubjectAltNameMismatch",
+	"KeyUsageMismatch",
+	"KeyLengthMismatch",
+	"EnhancedKeyUsageMissing",
+	"EnhancedKeyUsageMismatch",
+	"AadKeyIdentifierListMissing",
+	"RegisteredKeyMismatch",
+	"SigningCertThumbprintMismatch",
+	"ScepProfileNoLongerTargetedToTheClient",
+	"SignatureValidationFailed",
+	"BadCertificateRequestIdInChallenge",
+	"BadDeviceIdInChallenge",
+	"BadUserIdInChallenge",
+}
 
 func NewIntuneCloud(ctx context.Context, name string) (Cloud, error) {
 
@@ -167,7 +195,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 
 	var Data interface{}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 
 	json.Unmarshal(body, &Data)
 
@@ -241,11 +269,28 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 		return err
 	}
 
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return errors.New("Unable to verify the scep request on intune")
+	var Data interface{}
+
+	body, err := io.ReadAll(resp.Body)
+
+	json.Unmarshal(body, &Data)
+
+	for k, v := range Data.(map[string]interface{}) {
+		if k == "code" {
+			if contains(ErrorCode, v.(string)) {
+				if v.(string) == "Success" {
+					return nil
+				} else {
+					return errors.New("Exception from Intune API: " + v.(string))
+				}
+			} else {
+				return errors.New("Unknown return code from Intune API")
+			}
+		}
 	}
-	return nil
+
+	defer resp.Body.Close()
+	return errors.New("Unable to verify the scep request on intune")
 }
 
 func (cl *Intune) SuccessReply(ctx context.Context, cert *x509.Certificate, data []byte, message string) error {
@@ -280,7 +325,7 @@ func (cl *Intune) SuccessReply(ctx context.Context, cert *x509.Certificate, data
 	}
 	defer resp.Body.Close()
 
-	_, err = ioutil.ReadAll(resp.Body)
+	_, err = io.ReadAll(resp.Body)
 
 	if resp.StatusCode != 200 {
 		return errors.New("Unable to verify the scep request on intune")
@@ -317,10 +362,21 @@ func (cl *Intune) FailureReply(ctx context.Context, cert *x509.Certificate, data
 		return err
 	}
 	defer resp.Body.Close()
-	_, err = ioutil.ReadAll(resp.Body)
+	_, err = io.ReadAll(resp.Body)
 
 	if resp.StatusCode != 200 {
 		return errors.New("Unable to verify the scep request on intune")
 	}
 	return nil
+}
+
+// contains checks if a string is present in a slice
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
