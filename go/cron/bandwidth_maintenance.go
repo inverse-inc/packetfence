@@ -96,6 +96,7 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflowTx(ctx context.C
 	window := 300
 	_, err := tx.ExecContext(ctx, "SET @end_bucket = DATE_SUB(?, INTERVAL ? SECOND);", now, window)
 	if err != nil {
+		log.LogError(ctx, "Error ProcessBandwidthAccountingNetflowTx end_bucket")
 		return 0, err
 	}
 
@@ -116,6 +117,7 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflowTx(ctx context.C
 	)
 
 	if err != nil {
+		log.LogError(ctx, "Error ProcessBandwidthAccountingNetflowTx UPDATE")
 		return 0, err
 	}
 
@@ -141,6 +143,7 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflowTx(ctx context.C
 	)
 
 	if err != nil {
+		log.LogError(ctx, "Error ProcessBandwidthAccountingNetflowTx INSERT")
 		return 0, err
 	}
 
@@ -154,15 +157,12 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflowTx(ctx context.C
 	)
 
 	if err != nil {
+		log.LogError(ctx, "Error ProcessBandwidthAccountingNetflowTx DELETE")
 		return 0, err
 	}
 
 	rows, err := results.RowsAffected()
 	if err != nil {
-		return 0, err
-	}
-
-	if err := tx.Commit(); err != nil {
 		return 0, err
 	}
 
@@ -246,25 +246,23 @@ func (j *BandwidthMaintenance) BandwidthAggregationTx(rounding_func, unit string
 		now := time.Now()
 		_, err := tx.ExecContext(ctx, sql1, now, interval)
 		if err != nil {
+			log.LogError(ctx, fmt.Sprintf("Error BandwidthAggregationTx-%s end_bucket", unit))
 			return 0, err
 		}
 
 		_, err = tx.ExecContext(ctx, sql2, j.Batch)
 		if err != nil {
+			log.LogError(ctx, fmt.Sprintf("Error BandwidthAggregationTx-%s INSERT", unit))
 			return 0, err
 		}
 
 		res, err := tx.ExecContext(ctx, sql3, j.Batch)
 		if err != nil {
+			log.LogError(ctx, fmt.Sprintf("Error BandwidthAggregationTx-%s DELETE", unit))
 			return 0, err
 		}
 
 		rows, err := res.RowsAffected()
-		if err != nil {
-			return 0, err
-		}
-
-		err = tx.Commit()
 		if err != nil {
 			return 0, err
 		}
@@ -293,6 +291,7 @@ func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistoryTx(ctx context.
 	)
 
 	if err != nil {
+		log.LogError(ctx, "Error BandwidthAccountingRadiusToHistoryTx end_bucket")
 		return 0, err
 	}
 
@@ -319,6 +318,7 @@ func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistoryTx(ctx context.
 	)
 
 	if err != nil {
+		log.LogError(ctx, "Error BandwidthAccountingRadiusToHistoryTx INSERT")
 		return 0, err
 	}
 
@@ -333,16 +333,11 @@ func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistoryTx(ctx context.
 	)
 
 	if err != nil {
+		log.LogError(ctx, "Error BandwidthAccountingRadiusToHistoryTx DELETE")
 		return 0, err
 	}
 
 	rows, err := res.RowsAffected()
-
-	if err != nil {
-		return 0, err
-	}
-
-	err = tx.Commit()
 
 	if err != nil {
 		return 0, err
@@ -401,6 +396,7 @@ func (j *BandwidthMaintenance) BandwidthHistoryAggregationTx(rounding_func, unit
 			interval,
 		)
 		if err != nil {
+			log.LogError(ctx, "Error BandwidthHistoryAggregationTx end_bucket")
 			return 0, err
 		}
 
@@ -410,6 +406,7 @@ func (j *BandwidthMaintenance) BandwidthHistoryAggregationTx(rounding_func, unit
 			j.Batch,
 		)
 		if err != nil {
+			log.LogError(ctx, "Error BandwidthHistoryAggregationTx INSERT")
 			return 0, err
 		}
 
@@ -419,15 +416,11 @@ func (j *BandwidthMaintenance) BandwidthHistoryAggregationTx(rounding_func, unit
 			j.Batch,
 		)
 		if err != nil {
+			log.LogError(ctx, "Error BandwidthHistoryAggregationTx DELETE")
 			return 0, err
 		}
 
 		rows, err := res.RowsAffected()
-		if err != nil {
-			return 0, err
-		}
-
-		err = tx.Commit()
 		if err != nil {
 			return 0, err
 		}

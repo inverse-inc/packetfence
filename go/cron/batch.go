@@ -81,8 +81,20 @@ func runTx(ctx context.Context, f func(context.Context, *sql.Tx) (int64, error))
 		return 0, err
 	}
 
-	defer tx.Rollback()
-	return f(ctx, tx)
+	count, err := f(ctx, tx)
+	if err != nil {
+		if rollBackErr := tx.Rollback(); rollBackErr != nil {
+			log.LogInfo(ctx, fmt.Sprintf("Error on rollback: %s", err.Error()))
+		}
+
+		return 0, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.LogInfo(ctx, fmt.Sprintf("Error on commit: %s", err.Error()))
+	}
+
+	return count, nil
 }
 
 func BatchStmtQueryWithCount(ctx context.Context, name string, time_limit time.Duration, stmt *sql.Stmt, args ...interface{}) int64 {
