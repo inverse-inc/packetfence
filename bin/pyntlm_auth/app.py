@@ -8,6 +8,8 @@ import socket
 import sys
 import threading
 import time
+import sdnotify
+import asyncio
 from configparser import ConfigParser
 from http import HTTPStatus
 
@@ -311,100 +313,114 @@ def ntlm_auth_handler():
 def ping_handler():
     return "pong", HTTPStatus.OK
 
+async def sd_notify():
+    n = sdnotify.SystemdNotifier()
+    n.notify("READY=1")
+    count = 1
+    while True:
+        print("Running... {}".format(count))
+        n.notify("STATUS=Count is {}".format(count))
+        count += 1
+        time.sleep(2)
 
-machine_cred = None
-secure_channel_connection = None
-connection_id = 1
-reconnect_id = 0
-connection_last_active_time = datetime.datetime.now()
-lock = threading.Lock()
+async def main():
+    machine_cred = None
+    secure_channel_connection = None
+    connection_id = 1
+    reconnect_id = 0
+    connection_last_active_time = datetime.datetime.now()
+    lock = threading.Lock()
 
-conf_path = "/usr/local/pf/conf/domain.conf"
-listen_port = os.getenv("LISTEN")
-identifier = os.getenv("IDENTIFIER")
+    conf_path = "/usr/local/pf/conf/domain.conf"
+    listen_port = os.getenv("LISTEN")
+    identifier = os.getenv("IDENTIFIER")
 
-print("NTLM auth api starts with the following parameters:")
-print(f"LISTEN = {listen_port}")
-print(f"IDENTIFIER = {identifier}.")
+    print("NTLM auth api starts with the following parameters:")
+    print(f"LISTEN = {listen_port}")
+    print(f"IDENTIFIER = {identifier}.")
 
-if identifier == "" or listen_port == "":
-    print("Unable to start NTLM auth API: Missing key arguments: 'IDENTIFIER' or 'LISTEN'.")
+    if identifier == "" or listen_port == "":
+        print("Unable to start NTLM auth API: Missing key arguments: 'IDENTIFIER' or 'LISTEN'.")
 
-config = ConfigParser()
-try:
-    with open(conf_path, 'r') as file:
-        config.read_file(file)
+    config = ConfigParser()
+    try:
+        with open(conf_path, 'r') as file:
+            config.read_file(file)
 
-    if identifier in config:
-        server_name_or_hostname = config.get(identifier, 'server_name')
-        server_name_raw = server_name_or_hostname
+        if identifier in config:
+            server_name_or_hostname = config.get(identifier, 'server_name')
+            server_name_raw = server_name_or_hostname
 
-        if server_name_or_hostname.strip() == "%h":
-            server_name_or_hostname = socket.gethostname()
+            if server_name_or_hostname.strip() == "%h":
+                server_name_or_hostname = socket.gethostname()
 
-        ad_fqdn = config.get(identifier, 'ad_fqdn')
-        ad_server = config.get(identifier, 'ad_server')
-        netbios_name = server_name_or_hostname.upper()
-        realm = config.get(identifier, 'dns_name')
-        server_string = server_name_or_hostname
-        workgroup = config.get(identifier, 'workgroup')
-        workstation = server_name_or_hostname.upper()
-        username = server_name_or_hostname.upper() + "$"
-        password = config.get(identifier, 'machine_account_password')
-        password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
-        domain = config.get(identifier, 'workgroup').lower()
-        dns_servers = config.get(identifier, 'dns_servers')
-    else:
-        print(f"Section {identifier} does not exist in the config file.")
-        sys.exit(1)
-except FileNotFoundError as e:
-    print(f"Specified config file not found in {conf_path}.")
-    sys.exit(1)
-except configparser.Error as e:
-    print(f"Error reading config file: {e}.")
-    sys.exit(1)
-
-if ad_fqdn == "":
-    print("Failed to start NTLM auth API: ad_fqdn is not set.\n")
-    exit(1)
-
-print("NTLM auth API start with following domain.conf parameters:")
-print(f"  ad_fqdn: {ad_fqdn}")
-print(f"  ad_server: {ad_server}")
-print(f"  server_name: {server_name_raw}")
-print(f"  server_name (parsed): {server_name_or_hostname}")
-print(f"  dns_name: {realm}")
-print(f"  workgroup: {workgroup}")
-print(f"  machine_account_password: {mask_password(password)}")
-print(f"  dns_servers: {dns_servers}.")
-
-if dns_servers != "":
-    generate_resolv_conf(realm, dns_servers)
-    time.sleep(1)
-    ip, err_msg = dns_lookup(ad_fqdn, "")
-    if ip != "" and err_msg == "":
-        print(f"AD FQDN: {ad_fqdn} resolved with IP: {ip}.")
-    else:
-        if is_ipv4(ad_server):  # plan B: if it's not resolved then we use the static IP provided in the profile
-            print(f"AD FQDN resolve failed. Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
-            generate_hosts_entry(ad_server, ad_fqdn)
+            ad_fqdn = config.get(identifier, 'ad_fqdn')
+            ad_server = config.get(identifier, 'ad_server')
+            netbios_name = server_name_or_hostname.upper()
+            realm = config.get(identifier, 'dns_name')
+            server_string = server_name_or_hostname
+            workgroup = config.get(identifier, 'workgroup')
+            workstation = server_name_or_hostname.upper()
+            username = server_name_or_hostname.upper() + "$"
+            password = config.get(identifier, 'machine_account_password')
+            password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
+            domain = config.get(identifier, 'workgroup').lower()
+            dns_servers = config.get(identifier, 'dns_servers')
         else:
-            print("Failed to retrieve IP address of AD server. Terminated.")
-            exit(1)
-else:
-    if is_ipv4(ad_server):
-        generate_hosts_entry(ad_server, ad_fqdn)
-        print(f"Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
-    else:
-        print("Failed to start NTLM auth API. 'ad_server' is required when DNS servers are unavailable.")
+            print(f"Section {identifier} does not exist in the config file.")
+            sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"Specified config file not found in {conf_path}.")
+        sys.exit(1)
+    except configparser.Error as e:
+        print(f"Error reading config file: {e}.")
+        sys.exit(1)
+
+    if ad_fqdn == "":
+        print("Failed to start NTLM auth API: ad_fqdn is not set.\n")
         exit(1)
 
-server_name = ad_fqdn
+    print("NTLM auth API start with following domain.conf parameters:")
+    print(f"  ad_fqdn: {ad_fqdn}")
+    print(f"  ad_server: {ad_server}")
+    print(f"  server_name: {server_name_raw}")
+    print(f"  server_name (parsed): {server_name_or_hostname}")
+    print(f"  dns_name: {realm}")
+    print(f"  workgroup: {workgroup}")
+    print(f"  machine_account_password: {mask_password(password)}")
+    print(f"  dns_servers: {dns_servers}.")
 
-app = Flask(__name__)
-app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)
-app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
-app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
-app.route('/ping', methods=['GET'])(ping_handler)
+    if dns_servers != "":
+        generate_resolv_conf(realm, dns_servers)
+        time.sleep(1)
+        ip, err_msg = dns_lookup(ad_fqdn, "")
+        if ip != "" and err_msg == "":
+            print(f"AD FQDN: {ad_fqdn} resolved with IP: {ip}.")
+        else:
+            if is_ipv4(ad_server):  # plan B: if it's not resolved then we use the static IP provided in the profile
+                print(f"AD FQDN resolve failed. Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
+                generate_hosts_entry(ad_server, ad_fqdn)
+            else:
+                print("Failed to retrieve IP address of AD server. Terminated.")
+                exit(1)
+    else:
+        if is_ipv4(ad_server):
+            generate_hosts_entry(ad_server, ad_fqdn)
+            print(f"Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
+        else:
+            print("Failed to start NTLM auth API. 'ad_server' is required when DNS servers are unavailable.")
+            exit(1)
 
-app.run(threaded=True, host='0.0.0.0', port=int(listen_port))
+    server_name = ad_fqdn
+
+    app = Flask(__name__)
+    app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)
+    app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
+    app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
+    app.route('/ping', methods=['GET'])(ping_handler)
+
+    await sd_notify()
+
+    app.run(threaded=True, host='0.0.0.0', port=int(listen_port))
+
+asyncio.run(main())
