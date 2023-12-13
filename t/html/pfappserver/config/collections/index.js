@@ -1,3 +1,4 @@
+const adminRoles = require('./modules/adminRoles')
 const billingTiers = require('./modules/billingTiers')
 const clouds = require('./modules/clouds')
 const connectionProfiles = require('./modules/connectionProfiles')
@@ -25,15 +26,16 @@ const syslogParsers = require('./modules/syslogParsers')
 const wrixLocations = require('./modules/wrixLocations')
 
 module.exports = {
+  adminRoles,
 //  billingTiers,
 //  clouds,
-//  connectionProfiles,
-//  connectors,
+  connectionProfiles,
+  connectors,
 //  domains,
 //  eventLoggers,
 //  filterEngines, // issue(s)
 //  firewalls,
-  networkBehaviorPolicies,
+//  networkBehaviorPolicies,
 //  maintenaceTasks,
 //  mfas,
 //  pkiProviders,

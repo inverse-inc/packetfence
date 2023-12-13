@@ -83,9 +83,7 @@ Cypress.Commands.add('formFillNamespace', (data, selector = 'body') => {
                   break
                 case tagName === 'div' && !!chosen:
                   cy.get(`*[data-namespace="${namespace}"]`).within(() => {
-                    const values = ((Array.isArray(value)) ? value : [value]).reduce((values, _value) => {
-                      return `${values}${_value}{enter}`
-                    }, '')
+                    const values = ((Array.isArray(value)) ? value : [value]).reduce((values, _value) => `${values}${_value}{selectAll}{enter}`, '')
                     cy.get('input.multiselect__input').as(namespace)
                     cy.get(`@${namespace}`)
                       .clear({ log: true, force: true })
