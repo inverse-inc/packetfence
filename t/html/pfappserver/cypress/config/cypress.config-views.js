@@ -26,6 +26,18 @@ module.exports = {
           await items.forEach(async item => {
             await fs.writeFile(`../fixtures/runtime/maintenanceTask-${item.id}.json`, JSON.stringify(item, null, 2));
           })
+
+          // get ACLs, write fixtures
+          response = await fetch(`${base.e2e.baseUrl}/api/v1/config/admin_roles`, { method: 'OPTIONS', headers });
+          body = await response.text();
+          let { meta: { actions: { item: { allowed = [] } = {} } = {} } = {} } = JSON.parse(body);
+          let acls = allowed.reduce((acls, { options }) => {
+            options.forEach(({ text, value }) => {
+              acls[value] = text
+            })
+            return acls
+          }, {})
+          await fs.writeFile('../fixtures/runtime/acls.json', JSON.stringify(acls, null, 2));
         })
       });
       return base.e2e.setupNodeEvents(on, config);

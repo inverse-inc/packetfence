@@ -1,0 +1,10 @@
+{
+  "id": "test",
+  "description": "test",
+  "actions": [
+    "NODES_READ",
+    "NODES_CREATE",
+    "NODES_UPDATE",
+    "NODES_DELETE"
+  ]
+}
