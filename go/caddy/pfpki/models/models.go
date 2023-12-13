@@ -123,16 +123,16 @@ type (
 		SCEPChallengePassword string                  `json:"scep_challenge_password,omitempty"`
 		SCEPDaysBeforeRenewal int                     `json:"scep_days_before_renewal,string" gorm:"default:14"`
 		DaysBeforeRenewal     int                     `json:"days_before_renewal,string" gorm:"default:14"`
-		RenewalMail           int                     `json:"renewal_mail,omitempty,string" gorm:"default:1"`
+		RenewalMail           int                     `json:"renewal_mail,omitempty" gorm:"default:1"`
 		DaysBeforeRenewalMail int                     `json:"days_before_renewal_mail,string" gorm:"default:14"`
 		RenewalMailSubject    string                  `json:"renewal_mail_subject,omitempty" gorm:"default:Certificate expiration"`
 		RenewalMailFrom       string                  `json:"renewal_mail_from,omitempty"`
 		RenewalMailHeader     string                  `json:"renewal_mail_header,omitempty"`
 		RenewalMailFooter     string                  `json:"renewal_mail_footer,omitempty"`
 		RevokedValidUntil     int                     `json:"revoked_valid_until,omitempty,string" gorm:"default:14"`
-		CloudEnabled          int                     `json:"cloud_enabled,omitempty,string"`
+		CloudEnabled          int                     `json:"cloud_enabled,omitempty"`
 		CloudService          string                  `json:"cloud_service,omitempty"`
-		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty,string" gorm:"default:0"`
+		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty" gorm:"default:0"`
 		ScepServer            SCEPServer              `json:"-"`
 		ScepServerID          uint                    `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
 	}
@@ -1050,7 +1050,7 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 		}
 	}
 
-	fieldsToExtract := []string{"Mail", "Organisation", "OrganisationalUnit", "Country", "State", "Locality", "StreetAddress", "PostalCode", "Validity", "KeyUsage", "ExtendedKeyUsage", "OCSPUrl", "P12MailPassword", "P12MailSubject", "P12MailFrom", "P12MailHeader", "P12MailFooter", "SCEPEnabled", "SCEPChallengePassword", "SCEPDaysBeforeRenewal", "DaysBeforeRenewal", "RenewalMail", "DaysBeforeRenewalMail", "RenewalMailSubject", "RenewalMailFrom", "RenewalMailHeader", "RenewalMailFooter", "RevokedValidUntil", "CloudEnabled", "ScepServerEnabled"}
+	fieldsToExtract := []string{"Mail", "Organisation", "OrganisationalUnit", "Country", "State", "Locality", "StreetAddress", "PostalCode", "Validity", "KeyUsage", "ExtendedKeyUsage", "OCSPUrl", "P12MailPassword", "P12MailSubject", "P12MailFrom", "P12MailHeader", "P12MailFooter", "SCEPEnabled", "SCEPChallengePassword", "SCEPDaysBeforeRenewal", "DaysBeforeRenewal", "RenewalMail", "DaysBeforeRenewalMail", "RenewalMailSubject", "RenewalMailFrom", "RenewalMailHeader", "RenewalMailFooter", "RevokedValidUntil", "CloudEnabled", "CloudService", "ScepServerEnabled"}
 
 	v := reflect.ValueOf(p)
 	typeOfS := v.Type()
