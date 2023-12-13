@@ -7,6 +7,7 @@ const domains = require('./modules/domains')
 const eventLoggers = require('./modules/eventLoggers')
 const filterEngines = require('./modules/filterEngines')
 const firewalls = require('./modules/firewalls')
+const floatingDevices = require('./modules/floatingDevices')
 const maintenaceTasks = require('./modules/maintenanceTasks')
 const mfas = require('./modules/mfas')
 const networkBehaviorPolicies = require('./modules/networkBehaviorPolicies')
@@ -36,6 +37,7 @@ module.exports = {
 //  eventLoggers,
 //  filterEngines, // issue(s)
 //  firewalls,
+  floatingDevices,
 //  networkBehaviorPolicies,
 //  maintenaceTasks,
 //  mfas,
@@ -47,7 +49,7 @@ module.exports = {
 //  roles,
 //  scanEngines,
 //  securityEvents,
-  selfServices,
+//  selfServices,
 //  sources,
 //  switches,
 //  switchGroups,
