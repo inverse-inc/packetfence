@@ -11,6 +11,7 @@ const floatingDevices = require('./modules/floatingDevices')
 const maintenaceTasks = require('./modules/maintenanceTasks')
 const mfas = require('./modules/mfas')
 const networkBehaviorPolicies = require('./modules/networkBehaviorPolicies')
+const pkiCas = require('./modules/pkiCas')
 const pkiProviders = require('./modules/pkiProviders')
 const provisionings = require('./modules/provisionings')
 const radiusProfiles = require('./modules/radiusProfiles')
@@ -42,6 +43,7 @@ module.exports = {
 //  networkBehaviorPolicies,
 //  maintenaceTasks,
 //  mfas,
+  pkiCas,
 //  pkiProviders,
 //  provisionings,
 //  radiusProfiles,
@@ -55,7 +57,7 @@ module.exports = {
 //  switches,
 //  switchGroups,
 //  switchTemplates,
-  syslogForwarders,
+//  syslogForwarders,
 //  syslogParsers,
 //  wrixLocations
 }

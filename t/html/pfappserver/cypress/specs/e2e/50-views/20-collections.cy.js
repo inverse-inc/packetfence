@@ -75,13 +75,14 @@ describe('Collections', () => {
                   }).as(`interceptor${i}`)
                 })
 
-                cy.get(containerSelector, selectorOptions).then($body => { // DOM ready
-                  // wait for progress
-                  cy.get('div.progress[style*="display: none"]', selectorOptions).should('exist')
+                // wait for progress
+                cy.get('div.progress[style*="display: none"]', selectorOptions).should('exist')
+
+                cy.get(containerSelector, selectorOptions).within($body => { // DOM ready
 
                   // iterate tabs (optional)
                   if ($body.find(tabSelector).length) {
-                    cy.get(tabSelector, selectorOptions).each((tab, n) => {
+                    cy.get(tabSelector, selectorOptions).should("have.length.gte", 0).then((tab, n) => {
                       // click tab
                       cy.get(tab, selectorOptions)
                         .click({ log: true })
@@ -108,11 +109,11 @@ describe('Collections', () => {
                   else {
                     // before form fill
                     if (beforeFormFill) {
-                      beforeFormFill(`@tab${n}`, selectorOptions)
+                      beforeFormFill($body, selectorOptions)
                     }
 
                     // fill form
-                    cy.formFillNamespace(form, containerSelector)
+                    cy.formFillNamespace(form, $body)
                   }
                 })
 

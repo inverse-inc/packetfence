@@ -38,10 +38,10 @@ module.exports = {
     {
       description: 'Security Events - Update Existing',
       scope: SCOPE_UPDATE,
-      idFrom: (_, cache) => cache.id,
       fixture,
       timeout,
       url: resource_url,
+      idFrom: (_, cache) => cache.id,
       interceptors: [
         {
           method: '+(PATCH|PUT)',
@@ -61,10 +61,10 @@ module.exports = {
     {
       description: 'Security Events - Delete Existing',
       scope: SCOPE_DELETE,
-      idFrom: (_, cache) => cache.id,
       fixture,
       timeout,
       url: resource_url,
+      idFrom: (_, cache) => cache.id,
       interceptors: [
         {
           method: 'DELETE', url: '/api/**/config/security_event/**', expectResponse: (response, fixture) => {
