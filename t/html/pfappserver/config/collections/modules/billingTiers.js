@@ -1,7 +1,9 @@
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
 const collection_url = '/configuration/billing_tiers';
 const resource_url = id => `/configuration/billing_tier/${id}`;
+
 const fixture = 'collections/billingTier.json';
+const flatten = true;
 
 const map = (value, namespace = '') => {
   if (namespace.endsWith('.unit')) { // re-map access durations
@@ -26,6 +28,7 @@ module.exports = {
       description: 'Billing Tiers - Create New',
       scope: SCOPE_INSERT,
       fixture,
+      flatten,
       map,
       url: collection_url,
       interceptors: [
@@ -48,6 +51,7 @@ module.exports = {
       description: 'Billing Tiers - Update Existing',
       scope: SCOPE_UPDATE,
       fixture,
+      flatten,
       url: resource_url,
       interceptors: [
         {
@@ -69,6 +73,7 @@ module.exports = {
       description: 'Billing Tiers - Delete Existing',
       scope: SCOPE_DELETE,
       fixture,
+      flatten,
       url: resource_url,
       interceptors: [
         {
