@@ -9,7 +9,7 @@ import sys
 import threading
 import time
 import sdnotify
-import asyncio
+from threading import Thread
 from configparser import ConfigParser
 from http import HTTPStatus
 
@@ -313,7 +313,7 @@ def ntlm_auth_handler():
 def ping_handler():
     return "pong", HTTPStatus.OK
 
-async def sd_notify():
+def sd_notify():
     n = sdnotify.SystemdNotifier()
     n.notify("READY=1")
     count = 1
@@ -321,9 +321,9 @@ async def sd_notify():
         print("Running... {}".format(count))
         n.notify("STATUS=Count is {}".format(count))
         count += 1
-        time.sleep(2)
+        time.sleep(30)
 
-async def main():
+def api():
     machine_cred = None
     secure_channel_connection = None
     connection_id = 1
@@ -419,8 +419,14 @@ async def main():
     app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
     app.route('/ping', methods=['GET'])(ping_handler)
 
-    await sd_notify()
-
     app.run(threaded=True, host='0.0.0.0', port=int(listen_port))
 
-asyncio.run(main())
+
+if __name__ == '__main__':
+    # Run tasks concurrently using multithreading
+    t1 = Thread(target=api)
+    t2 = Thread(target=sd_notify)
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
