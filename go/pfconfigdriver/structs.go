@@ -561,8 +561,12 @@ func (t *AuthenticationSourceLdap) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	if sharedutils.IsEnabled(dataGeneric["use_connector"].(string)) {
-		dataGeneric["use_connector"] = true
+	if use_connector, found := dataGeneric["use_connector"]; found {
+		if str, ok := use_connector.(string); ok {
+			dataGeneric["use_connector"] = sharedutils.IsEnabled(str)
+		} else {
+			dataGeneric["use_connector"] = false
+		}
 	} else {
 		dataGeneric["use_connector"] = false
 	}
