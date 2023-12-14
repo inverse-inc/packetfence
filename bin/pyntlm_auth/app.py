@@ -79,6 +79,15 @@ def generate_hosts_entry(ip, hostname):
 def init_secure_connection():
     global machine_cred
     global secure_channel_connection
+    global netbios_name
+    global realm
+    global server_string
+    global workgroup
+    global workstation
+    global password
+    global domain
+    global username
+    global server_name
     lp = param.LoadParm()
 
     try:
@@ -222,7 +231,9 @@ def ntlm_auth_handler():
     global secure_channel_connection
     global connection_id
     global reconnect_id
-
+    global server_name
+    global domain
+    global workstation
     try:
         data = request.get_json()
 
@@ -324,13 +335,15 @@ def sd_notify():
         time.sleep(30)
 
 def api():
-    machine_cred = None
-    secure_channel_connection = None
-    connection_id = 1
-    reconnect_id = 0
-    connection_last_active_time = datetime.datetime.now()
-    lock = threading.Lock()
-
+    global netbios_name
+    global realm
+    global server_string
+    global workgroup
+    global workstation
+    global domain
+    global password
+    global username
+    global server_name
     conf_path = "/usr/local/pf/conf/domain.conf"
     listen_port = os.getenv("LISTEN")
     identifier = os.getenv("IDENTIFIER")
@@ -423,6 +436,21 @@ def api():
 
 
 if __name__ == '__main__':
+    machine_cred = None
+    secure_channel_connection = None
+    connection_id = 1
+    reconnect_id = 0
+    connection_last_active_time = datetime.datetime.now()
+    lock = threading.Lock()
+    netbios_name = None
+    realm = None
+    server_string = None
+    workgroup = None
+    workstation = None
+    password = None
+    domain = None
+    username = None
+    server_name = None
     # Run tasks concurrently using multithreading
     t1 = Thread(target=api)
     t2 = Thread(target=sd_notify)
