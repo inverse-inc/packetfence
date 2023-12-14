@@ -34,6 +34,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Added TCP flags parameter from role configuration in ACL for Cisco
  * Added documentation for Azure AD EAP-TLS machine authentication
  * Reuse the websocket buffer to reduce memory usage.
+ * Force mechanism LOGIN PLAIN for SMTP. (Unable to select SASL mechanism and timeout not honored #7813)
 
 === Bug Fixes
 
