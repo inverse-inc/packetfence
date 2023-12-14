@@ -6,6 +6,7 @@ const connectors = require('./modules/connectors')
 const domains = require('./modules/domains')
 const eventLoggers = require('./modules/eventLoggers')
 const filterEngines = require('./modules/filterEngines')
+const fingerbankCombinations = require('./modules/fingerbankCombinations')
 const firewalls = require('./modules/firewalls')
 const floatingDevices = require('./modules/floatingDevices')
 const maintenaceTasks = require('./modules/maintenanceTasks')
@@ -38,12 +39,13 @@ module.exports = {
 //  domains,
 //  eventLoggers,
 //  filterEngines, // issue(s)
+  fingerbankCombinations,
 //  firewalls,
 //  floatingDevices,
 //  networkBehaviorPolicies,
 //  maintenaceTasks,
 //  mfas,
-  pkiCas,
+//  pkiCas, // incomplete
 //  pkiProviders,
 //  provisionings,
 //  radiusProfiles,
