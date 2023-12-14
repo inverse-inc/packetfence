@@ -522,11 +522,10 @@ sub get_send_email_config {
     }
     $args{Hostname} = $config->{smtpserver};
     $args{Hello} = $fqdn;
-    $args{Timeout} = $config->{smtp_timeout};
+    $args{Timeout} = $config->{smtp_timeout} || 20;
     $args{Port} = $config->{smtp_port} || $ALERTING_PORTS{$encryption};
     return \%args;
 }
-
 
 sub send_mime_lite_queued {
     my ($mime, @args) = @_;
@@ -584,6 +583,10 @@ sub send_using_smtp_callback {
     my $alerting_config = merge_with_alert_config(\%args);
     my $config = get_send_email_config($alerting_config);
     %args = (%$config, %args);
+    #ensure the timeout is defined
+    if (!defined $args{Timeout} || $args{Timeout} == 0) {
+        $args{Timeout} = $config->{smtp_timeout} // 20;
+    }
 
     # We may need the "From:" and "To:" headers to pass to the
     # SMTP mailer also.
