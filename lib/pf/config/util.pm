@@ -44,6 +44,7 @@ use Encode qw(encode encode_utf8);
 use File::Basename;
 use Net::MAC::Vendor;
 use Net::SMTP;
+use Authen::SASL;
 use MIME::Lite;
 use MIME::Lite::TT;
 use POSIX();
@@ -521,11 +522,10 @@ sub get_send_email_config {
     }
     $args{Hostname} = $config->{smtpserver};
     $args{Hello} = $fqdn;
-    $args{Timeout} = $config->{smtp_timeout};
+    $args{Timeout} = $config->{smtp_timeout} || 20;
     $args{Port} = $config->{smtp_port} || $ALERTING_PORTS{$encryption};
     return \%args;
 }
-
 
 sub send_mime_lite_queued {
     my ($mime, @args) = @_;
@@ -583,6 +583,10 @@ sub send_using_smtp_callback {
     my $alerting_config = merge_with_alert_config(\%args);
     my $config = get_send_email_config($alerting_config);
     %args = (%$config, %args);
+    #ensure the timeout is defined
+    if (!defined $args{Timeout} || $args{Timeout} == 0) {
+        $args{Timeout} = $config->{smtp_timeout} // 20;
+    }
 
     # We may need the "From:" and "To:" headers to pass to the
     # SMTP mailer also.
@@ -627,7 +631,15 @@ sub send_using_smtp_callback {
         and !$args{NoAuth} )
     {
         if ( $smtp->supports( 'AUTH', 500, ["Command unknown: 'AUTH'"] ) ) {
-            $smtp->auth( $args{AuthUser}, $args{AuthPass} )
+            my $sasl = Authen::SASL->new(
+              mechanism => 'PLAIN LOGIN',
+              callback => {
+                pass => $args{AuthPass},
+                user => $args{AuthUser},
+              }
+            );
+
+            $smtp->auth($sasl)
               or die "SMTP auth() command failed: $!\n" . $smtp->message . "\n";
         }
         else {
