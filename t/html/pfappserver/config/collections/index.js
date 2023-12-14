@@ -7,12 +7,13 @@ const domains = require('./modules/domains')
 const eventLoggers = require('./modules/eventLoggers')
 const filterEngines = require('./modules/filterEngines')
 const fingerbankCombinations = require('./modules/fingerbankCombinations')
+const fingerbankDevices = require('./modules/fingerbankDevices')
 const fingerbankDhcpFingerprints = require('./modules/fingerbankDhcpFingerprints')
 const fingerbankDhcpv6Enterprises = require('./modules/fingerbankDhcpv6Enterprises')
 const fingerbankDhcpv6Fingerprints = require('./modules/fingerbankDhcpv6Fingerprints')
 const fingerbankDhcpVendors = require('./modules/fingerbankDhcpVendors')
 const fingerbankMacVendors = require('./modules/fingerbankMacVendors')
-const fingerbankDevices = require('./modules/fingerbankDevices')
+const fingerbankUserAgents = require('./modules/fingerbankUserAgents')
 const firewalls = require('./modules/firewalls')
 const floatingDevices = require('./modules/floatingDevices')
 const maintenaceTasks = require('./modules/maintenanceTasks')
@@ -51,7 +52,8 @@ module.exports = {
 //  fingerbankDhcpv6Enterprises,
 //  fingerbankDhcpv6Fingerprints,
 //  fingerbankDhcpVendors,
-  fingerbankMacVendors,
+//  fingerbankMacVendors,
+  fingerbankUserAgents,
 //  firewalls,
 //  floatingDevices,
 //  networkBehaviorPolicies,
