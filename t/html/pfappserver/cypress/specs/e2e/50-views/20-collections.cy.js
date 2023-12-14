@@ -25,7 +25,7 @@ describe('Collections', () => {
           buttonDeleteSelector = 'button[type="button"]:contains(Delete)',
           buttonDeleteConfirmSelector = 'button[type="button"][data-confirm]:contains(Delete)',
           buttonSaveSelector = 'button[type="submit"]:contains(Save)',
-          tabSelector = 'div.tabs a[role="tab"]',
+          tabSelector = 'div.tabs a[role="tab"]:is(:visible)',
         } = selectors || {};
         const selectorOptions = { timeout }
 
