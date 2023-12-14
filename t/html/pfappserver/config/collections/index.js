@@ -7,6 +7,7 @@ const domains = require('./modules/domains')
 const eventLoggers = require('./modules/eventLoggers')
 const filterEngines = require('./modules/filterEngines')
 const fingerbankCombinations = require('./modules/fingerbankCombinations')
+const fingerbankDhcpFingerprints = require('./modules/fingerbankDhcpFingerprints')
 const fingerbankDevices = require('./modules/fingerbankDevices')
 const firewalls = require('./modules/firewalls')
 const floatingDevices = require('./modules/floatingDevices')
@@ -41,7 +42,8 @@ module.exports = {
 //  eventLoggers,
 //  filterEngines, // issue(s)
 //  fingerbankCombinations,
-  fingerbankDevices,
+//  fingerbankDevices,
+  fingerbankDhcpFingerprints,
 //  firewalls,
 //  floatingDevices,
 //  networkBehaviorPolicies,
