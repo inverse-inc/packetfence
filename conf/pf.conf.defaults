@@ -738,6 +738,11 @@ pfsetacls=enabled
 #
 # Should Kafka be started?
 kafka=disabled
+#
+# services.ntlm-auth-api
+#
+# Should ntlm-auth-api be started?
+ntlm-auth-api=enabled
 
 [snmp_traps]
 #
