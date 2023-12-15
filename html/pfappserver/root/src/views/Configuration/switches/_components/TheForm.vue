@@ -389,17 +389,15 @@
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
 
-        <form-group-push-acls v-show="supports(['PushACLs'])"
-          namespace="PushACLs"
-          :column-label="$i18n.t('Push ACLs')"
-          :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
-        />
-
-        <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
-          namespace="UseDownloadableACLs"
-          :column-label="$i18n.t('Downloadable ACLs')"
-          :text="$i18n.t('Enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
-        />
+        <form-group-acls-type
+          namespace="ACLsType"
+          :column-label="$i18n.t('ACLs Type')"
+          :options="ACLsTypeOptions"
+        >
+          <template v-slot:append>
+            <b-button :disabled="!ACLsPrecreate">Precreate ACLs</b-button>
+          </template>
+        </form-group-acls-type>
 
         <form-group-downloadable-acls-limit v-show="supports(['DownloadableListBasedEnforcement'])"
           namespace="DownloadableACLsLimit"
@@ -479,6 +477,7 @@ import {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupAclsType,
   FormGroupPushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
@@ -554,6 +553,7 @@ const components = {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupAclsType,
   FormGroupPushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupAclsLimit,
