@@ -11,6 +11,7 @@ import (
 )
 
 var dbh *sql.DB
+var localDbh *sql.DB
 var dbhOnce tryableonce.TryableOnce
 
 func getDb() (*sql.DB, error) {
@@ -43,7 +44,7 @@ func getLocalDb() (*sql.DB, error) {
 				return err
 			}
 
-			dbh = _dbh
+			localDbh = _dbh
 			return nil
 		},
 	)
@@ -52,7 +53,7 @@ func getLocalDb() (*sql.DB, error) {
 		return nil, err
 	}
 
-	return dbh, nil
+	return localDbh, nil
 }
 
 func rollBackOnErr(ctx context.Context, tx *sql.Tx, err error) {
