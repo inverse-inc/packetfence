@@ -2,8 +2,8 @@
 
 const { global, bases } = require('config');
 
-const PARALLEL = +Cypress.env('PARALLEL') || 1
-const SLICE = +Cypress.env('SLICE') || 0
+const PARALLEL = Cypress.env('PARALLEL')
+const SLICE = Cypress.env('SLICE')
 
 describe('Bases', () => {
   Object.values(bases).forEach((base, b) => {
@@ -63,7 +63,7 @@ describe('Bases', () => {
         }
         if (PARALLEL > 1 && ((b % PARALLEL) !== SLICE)) {
           // parallel processing, skip slice
-          return it.skip(`[skipped ${SLICE+1}/${PARALLEL}] ${description}`, unit)
+          return it.skip(`[skipped ${b % PARALLEL}/${PARALLEL}] ${description}`, unit)
         }
         it(description, unit)
       })

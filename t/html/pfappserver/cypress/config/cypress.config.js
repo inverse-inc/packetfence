@@ -57,8 +57,8 @@ module.exports = {
       return config;
     },
     env: {
-      PARALLEL: process.env.PARALLEL,
-      SLICE: process.env.SLICE,
+      PARALLEL: +process.env.PARALLEL || 1,
+      SLICE: +process.env.SLICE || 0,
     },
     specPattern: [
       'cypress/specs/e2e/*.cy.{js,jsx,ts,tsx}',

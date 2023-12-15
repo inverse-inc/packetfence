@@ -3,14 +3,8 @@ const { global, collections } = require('config');
 const { flatten } = require('utils')
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('config/collections/config');
 
-const PARALLEL = +Cypress.env('PARALLEL') || 1
-const SLICE = +Cypress.env('SLICE') || 0
-
-/*
-const slicedCollections = (PARALLEL > 1)
-  ? Object.values(collections).filter((collection, i) => (i % PARALLEL) === SLICE)
-  : Object.values(collections)
-*/
+const PARALLEL = Cypress.env('PARALLEL')
+const SLICE = Cypress.env('SLICE')
 
 describe('Collections', () => {
   Object.values(collections).forEach((collection, c) => {
@@ -252,7 +246,7 @@ describe('Collections', () => {
         }
         if (PARALLEL > 1 && ((c % PARALLEL) !== SLICE)) {
           // parallel processing, skip slice
-          return it.skip(`[skipped ${SLICE+1}/${PARALLEL}] ${description}`, unit)
+          return it.skip(`[skipped ${c % PARALLEL}/${PARALLEL}] ${description}`, unit)
         }
         it(description, unit)
       })
