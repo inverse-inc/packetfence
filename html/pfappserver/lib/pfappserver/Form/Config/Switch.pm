@@ -82,7 +82,7 @@ has_field 'deauthMethod' =>
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
   );
-  
+
 has_field 'useCoA' =>
   (
    type => 'Toggle',
@@ -456,6 +456,14 @@ has_field coaPort =>
     },
   );
 
+has_field ACLsType =>
+  (
+   type => 'Select',
+   label => 'ACLs Type',
+   widget_wrapper => 'None',
+   options_method => \&options_ACLs,
+  );
+
 has_field PushACLs => (
     type => 'Toggle',
 );
@@ -687,6 +695,18 @@ sub options_wsTransport {
     my @transports = map { {label => uc($_), value =>  $_ } } qw/http https/;
 
     return ({label => '' ,value => '' }, @transports);
+}
+
+=head2 options_ACLs
+
+=cut
+
+sub options_ACLs {
+    my $self = shift;
+
+    my @options = map { {label => $_, value =>  $_ } } qw/pushACLs downloadableACLs/;
+
+    return ({label => '' ,value => '' }, @options);
 }
 
 =head2 validate
