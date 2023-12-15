@@ -46,7 +46,7 @@ def dns_lookup(hostname, dns_server):
     except dns.resolver.NXDOMAIN:
         return "", "NXDOMAIN"
     except dns.exception.DNSException as e:
-        return "", e.args[1]
+        return "", str(e)
 
 
 def generate_empty_conf():
@@ -247,7 +247,7 @@ def ntlm_auth_handler():
         nt_response = data['nt-response']
 
     except Exception as e:
-        return f"Error processing JSON payload, {e.args[1]}", HTTPStatus.INTERNAL_SERVER_ERROR
+        return f"Error processing JSON payload, {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR
 
     secure_channel_connection, machine_cred, connection_id, error_code, error_message = get_secure_channel_connection()
     if error_code != 0:
