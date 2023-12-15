@@ -316,7 +316,10 @@ Requires: fingerbank >= 4.3.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
 
+# For NTLM-Auth
 Requires: python3-samba
+# For ntlm_auth_wrapper
+Requires: cjson >= 1.7.14
 
 %description
 
