@@ -1,5 +1,6 @@
 import { computed, ref, toRefs, unref } from '@vue/composition-api'
 import { useFormMetaSchema } from '@/composables/useMeta'
+import i18n from '@/utils/locale'
 import { baseRoles } from '../config'
 import schemaFn from '../schema'
 
@@ -144,6 +145,20 @@ const useForm = (props, context) => {
     ]
   })
 
+  const ACLsTypeOptions = computed(() => {
+    return [
+      { text: i18n.t('Disabled'), value: null },
+      ...((supports(['PushACLs']))
+        ? [{ text: i18n.t('Push ACLs'), value: 'pushACLs' }] : []),
+      ...((supports(['DownloadableListBasedEnforcement']))
+        ? [{ text: i18n.t('Downloadable ACLs'), value: 'downloadableACLs' }] : []),
+    ]
+  })
+  const ACLsPrecreate = computed(() => {
+    const { ACLsType } = form.value || {}
+    return ACLsType === 'downloadableACLs'
+  })
+
   return {
     advancedMode,
     schema: metaSchema,
@@ -156,7 +171,10 @@ const useForm = (props, context) => {
     isVpnMap,
     isUrlMap,
     isVlanMap,
-    roles
+    roles,
+
+    ACLsTypeOptions,
+    ACLsPrecreate
   }
 }
 

@@ -70,6 +70,7 @@ export {
   BaseFormGroupInput                      as FormGroupUplink,
   BaseFormGroupToggleStaticDynamicDefault as FormGroupUplinkDynamic,
   BaseFormGroupToggleNYDefault            as FormGroupUseCoa,
+  BaseFormGroupChosenOne                  as FormGroupAclsType,
   BaseFormGroupToggleNYDefault            as FormGroupPushAcls,
   BaseFormGroupToggleNYDefault            as FormGroupUseDownloadableAcls,
   BaseFormGroupInput                      as FormGroupDownloadableAclsLimit,
