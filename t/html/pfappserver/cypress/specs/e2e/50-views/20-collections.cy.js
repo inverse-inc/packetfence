@@ -3,8 +3,17 @@ const { global, collections } = require('config');
 const { flatten } = require('utils')
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('config/collections/config');
 
+const PARALLEL = +Cypress.env('PARALLEL') || 1
+const SLICE = +Cypress.env('SLICE') || 0
+
+/*
+const slicedCollections = (PARALLEL > 1)
+  ? Object.values(collections).filter((collection, i) => (i % PARALLEL) === SLICE)
+  : Object.values(collections)
+*/
+
 describe('Collections', () => {
-  Object.values(collections).forEach(collection => {
+  Object.values(collections).forEach((collection, c) => {
     context(`Collection - ${collection.description}`, () => {
       beforeEach('Login as system', () => {
         cy.session('system', () => {
@@ -29,7 +38,7 @@ describe('Collections', () => {
         } = selectors || {};
         const selectorOptions = { timeout }
 
-        it(description, () => {
+        const unit = () => {
           cy.fixture(fixture).then((data) => {
             const associative = (flattenFixture) ? flatten(data): data
             const form = Object.entries(associative).reduce((items, [k, v]) => {
@@ -240,7 +249,12 @@ describe('Collections', () => {
                 cy.task('error', `Unhandled scope '${scope || 'unknown'}'`)
             }
           })
-        })
+        }
+        if (PARALLEL > 1 && ((c % PARALLEL) !== SLICE)) {
+          // parallel processing, skip slice
+          return it.skip(`[skipped ${SLICE+1}/${PARALLEL}] ${description}`, unit)
+        }
+        it(description, unit)
       })
     })
   })
