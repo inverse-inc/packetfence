@@ -2,8 +2,11 @@
 
 const { global, bases } = require('config');
 
+const PARALLEL = +Cypress.env('PARALLEL') || 1
+const SLICE = +Cypress.env('SLICE') || 0
+
 describe('Bases', () => {
-  Object.values(bases).forEach(base => {
+  Object.values(bases).forEach((base, b) => {
     context(`Base - ${base.description}`, () => {
       beforeEach('Login as system', () => {
         cy.session('system', () => {
@@ -16,7 +19,7 @@ describe('Bases', () => {
           buttonSelector = 'button[type="submit"]'
         } = selectors || []
 
-        it(description, () => {
+        const unit = () => {
 
           // storage from getter (fixture) to setter (expect)
           let cache = {}
@@ -57,7 +60,12 @@ describe('Bases', () => {
             .should('not.have.class', 'disabled')
             .and('not.have.disabled', 'disabled')
             .click()
-        })
+        }
+        if (PARALLEL > 1 && ((b % PARALLEL) !== SLICE)) {
+          // parallel processing, skip slice
+          return it.skip(`[skipped ${SLICE+1}/${PARALLEL}] ${description}`, unit)
+        }
+        it(description, unit)
       })
     })
   })

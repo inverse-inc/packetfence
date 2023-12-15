@@ -4,6 +4,8 @@ const webpackOptions = {
   watchOptions: {}
 }
 
+require('dotenv').config()
+
 // screenshot and video resolution
 const width = 3840 // 4k
 const height = 2160 // 4k
@@ -53,6 +55,10 @@ module.exports = {
         }
       });
       return config;
+    },
+    env: {
+      PARALLEL: process.env.PARALLEL,
+      SLICE: process.env.SLICE,
     },
     specPattern: [
       'cypress/specs/e2e/*.cy.{js,jsx,ts,tsx}',
