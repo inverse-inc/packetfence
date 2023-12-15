@@ -287,6 +287,13 @@
                             enabled-value="enabled"
                             disabled-value="disabled"
     />
+
+    <form-group-ntlm-auth-api namespace="ntlm-auth-api"
+                            column-label="ntlm-auth-api"
+                            :text="$i18n.t(`Should ntlm-auth-api be started? Keep enabled unless you know what you're doing.`)"
+                            enabled-value="enabled"
+                            disabled-value="disabled"
+    />
   </base-form>
 </template>
 <script>
@@ -335,7 +342,8 @@ import {
   FormGroupRedisQueue,
   FormGroupSnmpTrapd,
   FormGroupTrackingConfig,
-  FormGroupKafka
+  FormGroupKafka,
+  FormGroupNtlmAuthApi
 } from './'
 
 const components = {
@@ -382,7 +390,8 @@ const components = {
   FormGroupSnmpTrapd,
   FormGroupTrackingConfig,
   FormGroupKafka,
-  FormGroupMysqlProbe
+  FormGroupMysqlProbe,
+  FormGroupNtlmAuthApi
 }
 
 export const props = {
