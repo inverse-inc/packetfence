@@ -11,4 +11,4 @@ RUN chown -R pf: /usr/local/pf/var
 
 COPY lib lib
 
-ENTRYPOINT timedatectl set-timezone $TIMEZONE;/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND
+ENTRYPOINT /usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND

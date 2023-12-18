@@ -16,4 +16,4 @@ RUN cd /usr/local/pf/go/ &&  make pfcron
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
 COPY --from=0 /usr/local/pf/go/pfcron /usr/local/pf/sbin/pfcron
-ENTRYPOINT timedatectl set-timezone $TIMEZONE;/usr/local/pf/sbin/pfcron
+ENTRYPOINT /usr/local/pf/sbin/pfcron
