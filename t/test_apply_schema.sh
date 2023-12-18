@@ -94,16 +94,24 @@ for db in $UPGRADED_DB $PRISTINE_DB;do
 done
 
 #Ignore sort of indexes but ensure sort order of columns
-if [ -n "$(diff -w <(sort "${PRISTINE_DB}.dump" | perl -p -e's/,$//;s/^.*sql_mode.*$//;s/ AUTO_INCREMENT=\d+//' )  <(sort "${UPGRADED_DB}.dump" | perl -p -e's/,$//;s/^.*sql_mode.*$//;s/ AUTO_INCREMENT=\d+//' ))" ] ||
-   [ -n "$(diff -w <(cat "${PRISTINE_DB}.dump" | perl -p -e's/^\s*(KEY|CONSTRAINT).*$//;s/^.*sql_mode.*$//;s/ AUTO_INCREMENT=\d+//' ) <(cat "${UPGRADED_DB}.dump" | perl -p -e's/^\s*(KEY|CONSTRAINT).*$//;s/^.*sql_mode.*$//;s/ AUTO_INCREMENT=\d+//' ))" ];then
+
+for dump in $UPGRADED_DB $PRISTINE_DB;do
+    sort "${dump}.dump" | perl -p -e's/,$//;s/^.*sql_mode.*$//;s/ AUTO_INCREMENT=\d+//' > ${dump}.dump.sort
+    cat "${dump}.dump" | perl -p -e's/^\s*(KEY|CONSTRAINT).*$//;s/^.*sql_mode.*$//;s/ AUTO_INCREMENT=\d+//' > ${dump}.dump.nokeys
+done
+
+if [ -n "$(diff -w ${PRISTINE_DB}.dump.sort ${UPGRADED_DB}.dump.sort)" ] ||
+   [ -n "$(diff -w ${PRISTINE_DB}.dump.nokeys ${UPGRADED_DB}.dump.nokeys)" ];then
     diff -uw "${PRISTINE_DB}.dump" "${UPGRADED_DB}.dump" > "${UPGRADED_DB}.diff"
     echo "${RED_COLOR}Upgrade did not create the same db"
     echo "Please look at ${UPGRADED_DB}.diff for the differences"
     echo "You can also look at ${PRISTINE_DB}.dump and ${UPGRADED_DB}.dump${RESET_COLOR}"
+    echo "You can also look at ${PRISTINE_DB}.dump.sort and ${UPGRADED_DB}.dump.sort${RESET_COLOR}"
+    echo "You can also look at ${PRISTINE_DB}.dump.nokeys and ${UPGRADED_DB}.dump.nokeys${RESET_COLOR}"
     exit 1
 else
     echo "Upgrade is successful"
-    rm -f "${PRISTINE_DB}".dump "${UPGRADED_DB}".dump
+    rm -f "${PRISTINE_DB}".dump{,.sort,.nokeys} "${UPGRADED_DB}".dump{,.sort,.nokeys}
 fi
 
 for db in $UPGRADED_DB $PRISTINE_DB;do
