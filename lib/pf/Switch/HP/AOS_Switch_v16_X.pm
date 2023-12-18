@@ -161,19 +161,39 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))) {
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
+    if ( isenabled( $self->{_AccessListMap} )
+        && $self->supportsAccessListBasedEnforcement )
+    {
+        if (
+               defined( $args->{'user_role'} )
+            && $args->{'user_role'} ne ""
+            && defined(
+                my $access_list = $self->getAccessListByName(
+                    $args->{'user_role'}, $args->{mac}
+                )
+            )
+          )
+        {
+            my $access_list =
+              $self->getAccessListByName( $args->{'user_role'} );
             if ($access_list) {
-                while($access_list =~ /([^\n]+)\n?/g){
-                    push(@acls, $1);
-                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                while ( $access_list =~ /([^\n]+)\n?/g ) {
+                    push( @acls, $1 );
+                    $logger->info( "("
+                          . $self->{'_id'}
+                          . ") Adding access list : $1 to the RADIUS reply" );
                 }
-                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+                $logger->info( "("
+                      . $self->{'_id'}
+                      . ") Added access lists to the RADIUS reply." );
             }
-	}
+            else {
+                $logger->info( "("
+                      . $self->{'_id'}
+                      . ") No access lists defined for this role "
+                      . $args->{'user_role'} );
+            }
+        }
     }
 
     $radius_reply_ref->{'Aruba-NAS-Filter-Rule'} = \@acls;
@@ -218,31 +238,31 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub wiredeauthTechniques {
-    my ($self, $method, $connection_type) = @_;
+    my ( $self, $method, $connection_type ) = @_;
     my $logger = $self->logger;
-    if ($connection_type == $WIRED_802_1X) {
+    if ( $connection_type == $WIRED_802_1X ) {
         my $default = $SNMP::SNMP;
-        my %tech = (
-            $SNMP::SNMP => 'dot1xPortReauthenticate',
+        my %tech    = (
+            $SNMP::SNMP   => 'dot1xPortReauthenticate',
             $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
-       	if (!defined($method) || !defined($tech{$method})) {
-            $method = $default;
-       	}
-        return $method,$tech{$method};
-    }
-    if ($connection_type == $WIRED_MAC_AUTH) {
-       	my $default = $SNMP::SNMP;
-        my %tech = (
-            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
-            $SNMP::RADIUS => 'deauthenticateMacRadius',
-        );
-
-        if (!defined($method) || !defined($tech{$method})) {
+        if ( !defined($method) || !defined( $tech{$method} ) ) {
             $method = $default;
         }
-        return $method,$tech{$method};
+        return $method, $tech{$method};
+    }
+    if ( $connection_type == $WIRED_MAC_AUTH ) {
+        my $default = $SNMP::SNMP;
+        my %tech    = (
+            $SNMP::SNMP   => 'handleReAssignVlanTrapForWiredMacAuth',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if ( !defined($method) || !defined( $tech{$method} ) ) {
+            $method = $default;
+        }
+        return $method, $tech{$method};
     }
 }
 
@@ -323,8 +343,9 @@ sub radiusDisconnect {
             $response = perform_coa($connection_info, $attributes_ref,$vsa);
         }
     } catch {
-	chomp;
-	$logger->warn("[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: $_");
+        chomp;
+        $logger->warn(
+            "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: $_");
         $logger->error("[$self->{'_ip'}] Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
