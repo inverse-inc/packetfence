@@ -1510,6 +1510,7 @@ sub setup_api_v1_config_switches_routes {
     );
 
     $resource_route->any(['POST'] => "/invalidate_cache")->to("Config::Switches#invalidate_cache", auditable => 1)->name("api.v1.Config.Switches.invalidate_cache");
+    $resource_route->any(['POST'] => "/precreate_acls")->to("Config::Switches#precreate_acls", auditable => 1)->name("api.v1.Config.Switches.precreate_acls");
 
     return ($collection_route, $resource_route);
 }

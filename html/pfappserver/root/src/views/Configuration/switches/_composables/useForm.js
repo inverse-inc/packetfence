@@ -37,10 +37,6 @@ const useForm = (props, context) => {
     isLoading
   } = toRefs(props)
 
-  const {
-    id
-  } = form.value || {}
-
   const { root: { $store } = {} } = context
   const {
     precreateItemAcls
@@ -170,10 +166,11 @@ const useForm = (props, context) => {
   })
 
   const onPrecreate = () => {
+    const { id } = form.value || {}
     precreateItemAcls({ id }).then(() => {
-      $store.dispatch('notification/info', { message: i18n.t('Successfully precreated ACLs for switch <code>{id}</code>.', { id }) })
+      $store.dispatch('notification/info', { message: i18n.t('Successfully precreated ACLs on switch <code>{id}</code>.', { id }) })
     }).catch(() => {
-      $store.dispatch('notification/info', { message: i18n.t('Failed to precreate ACLs for switch <code>{id}</code>.', { id }) })
+      $store.dispatch('notification/info', { message: i18n.t('Failed to precreate ACLs for on <code>{id}</code>.', { id }) })
     })
   }
 
