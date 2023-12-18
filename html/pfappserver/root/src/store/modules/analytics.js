@@ -60,7 +60,7 @@ const actions = {
             const unsubscribe = store.subscribeAction((storeAction, storeState) => {
               const { system: { summary: { send_anonymous_stats } = {} } = {} } = storeState
               if (send_anonymous_stats) { // may be disabled since subscribed
-                const { type, payload } = storeAction
+                const { type, payload = {} } = storeAction
                 const isCollection = type => /^\$_/.test(type) // $_ prefix
                 const isCluster = type => /^cluster\//.test(type) // ^cluster/
                 const isGetter = type => /\/get/.test(type) || /\/all/.test(type) || /\/files$/.test(type) // /get... || /all... || /files$
