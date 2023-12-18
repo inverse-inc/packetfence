@@ -50,7 +50,6 @@ func BatchTx(ctx context.Context, name string, time_limit time.Duration, f TxRun
 		i++
 		rows, err := runTx(ctx, f)
 		if err != nil {
-			fmt.Printf("%s error: %s\n", name, err.Error())
 			log.LogError(ctx, name+" error: "+err.Error())
 			break
 		}
@@ -73,11 +72,13 @@ func BatchTx(ctx context.Context, name string, time_limit time.Duration, f TxRun
 func runTx(ctx context.Context, f func(context.Context, *sql.Tx) (int64, error)) (int64, error) {
 	db, err := getDb()
 	if err != nil {
+		log.LogError(ctx, "GetDB error: "+err.Error())
 		return 0, err
 	}
 
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
+		log.LogError(ctx, "BeginTx error: "+err.Error())
 		return 0, err
 	}
 
