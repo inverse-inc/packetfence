@@ -13,6 +13,7 @@ import (
 var dbh *sql.DB
 var localDbh *sql.DB
 var dbhOnce tryableonce.TryableOnce
+var localDbhOnce tryableonce.TryableOnce
 
 func getDb() (*sql.DB, error) {
 	err := dbhOnce.Do(
@@ -36,7 +37,7 @@ func getDb() (*sql.DB, error) {
 }
 
 func getLocalDb() (*sql.DB, error) {
-	err := dbhOnce.Do(
+	err := localDbhOnce.Do(
 		func() error {
 			var ctx = context.Background()
 			_dbh, err := db.DbLocalFromConfig(ctx)
