@@ -3,6 +3,7 @@ package maint
 import (
 	"context"
 	"database/sql"
+	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
@@ -12,26 +13,21 @@ import (
 
 var dbh *sql.DB
 var localDbh *sql.DB
-var dbhOnce tryableonce.TryableOnce
+var dbhOnce sync.Once
 var localDbhOnce tryableonce.TryableOnce
 
 func getDb() (*sql.DB, error) {
-	err := dbhOnce.Do(
-		func() error {
+	dbhOnce.Do(
+		func() {
 			var ctx = context.Background()
-			_dbh, err := db.DbFromConfig(ctx)
+			_dbh, err := db.OpenDBFromConfig(ctx)
 			if err != nil {
-				return err
+				panic("Cannot database config: " + err.Error())
 			}
 
 			dbh = _dbh
-			return nil
 		},
 	)
-
-	if err != nil {
-		return nil, err
-	}
 
 	return dbh, nil
 }
