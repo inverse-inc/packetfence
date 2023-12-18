@@ -89,6 +89,8 @@ sub create {
 
     if ($computer_name eq "%h") {
         $computer_name = hostname();
+        my @s = split(/\./, $computer_name);
+        $computer_name = $s[0];
     }
 
     my $ad_server_host = "";
@@ -187,6 +189,8 @@ sub update {
 
     if ($computer_name eq "%h") {
         $computer_name = hostname();
+        my @s = split(/\./, $computer_name);
+        $computer_name = $s[0];
     }
 
     my $ad_server_host = "";

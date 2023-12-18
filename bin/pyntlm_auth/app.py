@@ -365,7 +365,7 @@ def api():
             server_name_raw = server_name_or_hostname
 
             if server_name_or_hostname.strip() == "%h":
-                server_name_or_hostname = socket.gethostname()
+                server_name_or_hostname = socket.gethostname().split(".")[0]
 
             ad_fqdn = config.get(identifier, 'ad_fqdn')
             ad_server = config.get(identifier, 'ad_server')
