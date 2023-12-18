@@ -292,7 +292,7 @@ def ntlm_auth_handler():
                                                                            netr_flags)
             (return_auth, info, foo, bar) = result
 
-            nt_key = [x if isinstance(x, str) else hex(x)[2:] for x in info.base.key.key]
+            nt_key = [x if isinstance(x, str) else hex(x)[2:].zfill(2) for x in info.base.key.key]
             nt_key_str = ''.join(nt_key)
             nt_key_str = "NT_KEY: " + nt_key_str
             print(f"  Successful authenticated '{account_username}', NT_KEY is: '{mask_password(nt_key_str)}'.")
