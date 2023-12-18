@@ -17,6 +17,8 @@ export const useStore = $store => {
     getItemOptions: params => $store.dispatch('$_switches/optionsById', params.id),
     updateItem: params => $store.dispatch('$_switches/updateSwitch', params),
     deleteItem: params => $store.dispatch('$_switches/deleteSwitch', params.id),
+    precreateItemAcls: params => $store.dispatch('$_switches/precreateAcls', params.id),
+    precreateAllAcls: () => $store.dispatch('$_switches/precreateAllAcls'),
   }
 }
 
@@ -145,7 +147,27 @@ const actions = {
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
     })
-  }
+  },
+  precreateAllAcls: ({ commit }) => {
+    commit('ITEM_REQUEST')
+    return api.precreateAllAcls().then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  precreateAcls: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
+    return api.precreateAcls(id).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
 }
 
 const mutations = {

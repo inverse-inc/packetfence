@@ -12,6 +12,7 @@
             :to="{ name: 'newSwitch', params: { switchGroup: switchGroup.id } }">{{ switchGroup.id }}</b-dropdown-item>
         </b-dropdown>
         <b-button variant="outline-primary" class="mr-1" :to="{ name: 'importSwitch' }">{{ $t('Import CSV') }}</b-button>
+        <b-button variant="outline-primary" class="mr-1" @click="onPrecreateAcls">{{ $t('Precreate ACLs') }}</b-button>
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading"
@@ -143,7 +144,8 @@ const setup = (props, context) => {
   const { root: { $router, $store } = {} } = context
 
   const {
-    deleteItem
+    deleteItem,
+    precreateAllAcls
   } = useStore($store)
 
   const router = useRouter($router)
@@ -197,6 +199,14 @@ const setup = (props, context) => {
       })
     })
 
+  const onPrecreateAcls = () => {
+    precreateAllAcls().then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Successfully precreated ACLs for all supported switches.') })
+    }).catch(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Failed to precreate ACLs for all supported switches.') })
+    })
+  }
+
   return {
     useSearch,
     tableRef,
@@ -207,7 +217,8 @@ const setup = (props, context) => {
     ...selected,
     ...toRefs(search),
     switchGroups,
-    switchTemplates
+    switchTemplates,
+    onPrecreateAcls,
   }
 }
 

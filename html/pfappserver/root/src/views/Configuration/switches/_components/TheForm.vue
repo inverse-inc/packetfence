@@ -395,7 +395,7 @@
           :options="ACLsTypeOptions"
         >
           <template v-slot:append>
-            <b-button :disabled="!ACLsPrecreate">Precreate ACLs</b-button>
+            <b-button :disabled="!ACLsPrecreate" variant="outline-primary" @click="onPrecreate">Precreate ACLs</b-button>
           </template>
         </form-group-acls-type>
 
