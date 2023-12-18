@@ -14,4 +14,4 @@ COPY db db
 
 RUN ln -s /usr/local/pf/bin/pfcmd.pl /usr/local/pf/bin/pfcmd
 
-ENTRYPOINT timedatectl set-timezone $TIMEZONE;/usr/local/pf/bin/pfcmd
+ENTRYPOINT /usr/local/pf/bin/pfcmd

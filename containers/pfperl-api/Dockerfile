@@ -11,4 +11,4 @@ RUN ln -s /usr/local/pf/bin/pfcmd.pl /usr/local/pf/bin/pfcmd
 RUN mkdir -p /usr/local/pf/var/run/ && chmod 0744 /usr/local/pf/var/run/
 RUN mkdir -p /usr/local/pf/var/control
 RUN bash -c 'cd /usr/local/pf/db && export VERSIONSQL=$(ls pf-schema-* |sort --version-sort -r | head -1) && ln -f -s $VERSIONSQL ./pf-schema.sql'
-ENTRYPOINT timedatectl set-timezone $TIMEZONE;/usr/local/pf/sbin/pfperl-api prefork -m production -l http://127.0.0.1:22224 -l http://100.64.0.1:22224 --pid-file /usr/local/pf/var/run/pfperl-api.pid
+ENTRYPOINT /usr/local/pf/sbin/pfperl-api prefork -m production -l http://127.0.0.1:22224 -l http://100.64.0.1:22224 --pid-file /usr/local/pf/var/run/pfperl-api.pid
