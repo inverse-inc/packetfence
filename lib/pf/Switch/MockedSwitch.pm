@@ -3311,11 +3311,28 @@ sub returnPushAclsRoleAttributes {
     return ($self->returnRoleAttribute() => $role);
 }
 
+=item getACLsType - get the ACLs type
+
+=cut
+
+sub getACLsType {
+    my ($self) = @_;
+    return $self->{_ACLsType};
+}
+
+=item isPushACLs - return True if $switch-E<gt>{_ACLs} eq 'pushACLs'
+
+=cut
+
+sub isPushACLs {
+    my ($self) = @_;
+    return ( $self->getACLsType() eq 'pushACLs' );
+}
 
 sub usePushACLs {
     my ($self) = @_;
     return $self->supportsPushACLs() &&
-        isenabled($self->{_PushACLs});
+        $self->isPushACLs();
 }
 
 =head2 acl_chewer
@@ -3382,7 +3399,7 @@ sub generateAnsibleConfiguration {
 
     return if ($self->{_id} =~ /.*\/.*/ or $self->{_id} =~ /.*\:.*/ or $self->{_id} eq 'default' or $self->{_id} eq '100.64.0.1' or $self->{_id} eq '127.0.0.1');
     my $switch_id = $self->{_id};
-    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_PushACLs'}));
+    return unless (defined($self->{'_cliUser'}) && $self->isPushACLs());
 
     my $switch_ip = $switch_id;
     $switch_id =~ s/\./_/g;
