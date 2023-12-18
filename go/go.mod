@@ -78,11 +78,11 @@ require (
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	github.com/ti-mo/netfilter v0.2.0
-	golang.org/x/crypto v0.14.0
+	golang.org/x/crypto v0.17.0
 	golang.org/x/net v0.17.0
 	golang.org/x/sync v0.3.0
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0
+	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/text v0.14.0
 	google.golang.org/api v0.136.0 // indirect
 	google.golang.org/grpc v1.57.1 // indirect
 	gopkg.in/DataDog/dd-trace-go.v1 v1.54.0 // indirect
@@ -238,7 +238,7 @@ require (
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
-	golang.org/x/term v0.13.0 // indirect
+	golang.org/x/term v0.15.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
