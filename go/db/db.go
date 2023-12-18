@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
@@ -18,6 +17,22 @@ const (
 	collation = "utf8mb4_bin"
 	sqlMode   = "NO_ENGINE_SUBSTITUTION"
 )
+
+func OpenDBFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
+	uri := ReturnURIFromConfig(context.Background(), dbName...)
+	config, err := mysql.ParseDSN(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	connector, err := mysql.NewConnector(config)
+	if err != nil {
+		return nil, err
+	}
+
+	db := sql.OpenDB(connector)
+	return db, nil
+}
 
 func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 
