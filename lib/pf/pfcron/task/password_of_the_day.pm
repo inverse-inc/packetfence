@@ -25,6 +25,7 @@ use DateTime;
 use DateTime::Format::MySQL;
 use pf::log;
 use pf::I18N;
+use DateTime::TimeZone;
 pf::I18N::setup_text_domain();
 
 extends qw(pf::pfcron::task);
@@ -37,7 +38,8 @@ run the password generation task
 
 sub run {
     my ( $self ) = @_;
-    my $now = DateTime->now(time_zone => $ENV{TZ});
+    my $tz = $ENV{TZ} || DateTime::TimeZone->new( name => 'local' )->name();
+    my $now = DateTime->now(time_zone => $tz);
     my $logger = get_logger();
     my $sources = pf::authentication::getAuthenticationSourcesByType("Potd");
     my $new_password;
