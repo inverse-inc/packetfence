@@ -19,7 +19,7 @@ from samba import param, NTSTATUSError, ntstatus
 from samba.credentials import Credentials, DONT_USE_KERBEROS
 from samba.dcerpc import netlogon
 from samba.dcerpc.misc import SEC_CHAN_WKSTA
-from samba.dcerpc.netlogon import (netr_Authenticator)
+from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT)
 
 
 # simplified IPv4 validator.
@@ -284,6 +284,7 @@ def ntlm_auth_handler():
         logon.identity_info.domain_name.string = domain
         logon.identity_info.account_name.string = account_username
         logon.identity_info.workstation.string = workstation
+        logon.identity_info.parameter_control = MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT
 
         try:
             result = secure_channel_connection.netr_LogonSamLogonWithFlags(server_name, workstation, current,
@@ -295,7 +296,7 @@ def ntlm_auth_handler():
             nt_key = [x if isinstance(x, str) else hex(x)[2:].zfill(2) for x in info.base.key.key]
             nt_key_str = ''.join(nt_key)
             nt_key_str = "NT_KEY: " + nt_key_str
-            print(f"  Successful authenticated '{account_username}', NT_KEY is: '{mask_password(nt_key_str)}'.")
+            print(f"  Successfully authenticated '{account_username}', NT_KEY is: '{mask_password(nt_key_str)}'.")
             return nt_key_str.encode("utf-8")
         except NTSTATUSError as e:
             nt_error_code = e.args[0]
