@@ -31,8 +31,13 @@ function useOpenLdap(form) {
       ['attributeTypes'],
       subSchemaDN)
       .then((response) => {
-        return response[Object.keys(response)[0]]['attributeTypes']
-      })
+        const keys = Object.keys(response)
+        if (keys.length) {
+          const { attributeTypes } =  response[keys[0]]
+          return attributeTypes
+        }
+        return []
+    })
   }
 
   const getAttributes = () => {
