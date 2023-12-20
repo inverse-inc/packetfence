@@ -11,7 +11,7 @@ import {
 function useAdLdap(form) {
 
   const performSearch = (filter, scope, attributes, base_dn) => {
-    let server = {...form.value}
+    let server = { ...form.value }
     return sendLdapSearchRequest(server, filter, scope, attributes, base_dn)
       .then((result) => {
           if (_.isEmpty(result)) {
@@ -48,8 +48,13 @@ function useAdLdap(form) {
       'base',
       ['attributetypes'],
       subSchemaDN)
-      .then((result) => {
-        return result[Object.keys(result)[0]]['attributeTypes']
+      .then((response) => {
+        const keys = Object.keys(response)
+        if (keys.length) {
+          const { attributeTypes } =  response[keys[0]]
+          return attributeTypes
+        }
+        return []
       })
   }
 

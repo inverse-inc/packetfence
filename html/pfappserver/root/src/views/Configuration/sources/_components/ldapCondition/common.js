@@ -31,7 +31,11 @@ export const parseLdapResponseToAttributeArray = (ldapResponse, ldapAttribute) =
 }
 
 export const extractAttributeFromFilter = (filter) => {
-  return _.trim(filter.split('=')[0], '(')
+  let attribute = _.trim(filter.split('=')[0], '(')
+  if (/^memberOf:([0-9.])+$/.test(attribute)) {
+    return 'memberOf'
+  }
+  return attribute
 }
 
 const getAllAttributes = (server, filter, scope, base_dn, limit) => {
@@ -42,7 +46,7 @@ const getAllAttributes = (server, filter, scope, base_dn, limit) => {
 }
 
 export const isAttributeDn = (server, filter, scope, base_dn) => {
-  return getAllAttributes(server, filter, scope, base_dn, 1).then((exampleEntry) => {
+  return getAllAttributes(server, filter, scope, base_dn).then((exampleEntry) => {
     if(_.isEmpty(exampleEntry)) {
       return false
     }
@@ -79,7 +83,7 @@ export const sendLdapSearchRequest = (server,
                                       scope = null,
                                       attributes = null,
                                       base_dn = null,
-                                      limit = null) => {
+                                      limit = 1E3) => {
   server = intsToStrings(server)
   return apiCall.postQuiet('ldap/search',
     {
