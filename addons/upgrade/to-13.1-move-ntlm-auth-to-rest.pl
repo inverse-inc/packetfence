@@ -21,6 +21,7 @@ use pf::util;
 use Digest::MD4;
 use Encode;
 use MIME::Base64;
+use Socket;
 
 my $ini = pf::IniFiles->new(-file => $domain_config_file, -allowempty => 1);
 
@@ -63,7 +64,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
         next;
     }
 
-    my $samba_conf_path = "/chroots/$section/etc/samba/$section.conf";
+    my $samba_conf_path = "/etc/samba/$section.conf";
     my $samba_ini = pf::IniFiles->new(-file => $samba_conf_path, -allowempty => 1);
     unless ($samba_ini) {
         print("  Unable to find correspond samba conf file in $samba_conf_path, section $section skipped\n");
@@ -256,3 +257,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
