@@ -26,6 +26,7 @@ use Socket;
 my $ini = pf::IniFiles->new(-file => $domain_config_file, -allowempty => 1);
 
 unless ($ini) {
+    print("Error loading domain config file. Terminated\n");
     exit;
 }
 
@@ -33,6 +34,7 @@ my $updated = 0;
 my $ntlm_auth_host = "100.64.0.1 ";
 my $ntlm_auth_port = 4999;
 
+# back up config files
 my $tmp_dirname = pf_run("date +%Y%m%d_%H%M%S");
 $tmp_dirname =~ s/^\s+|\s+$//g;
 my $target_dir = "/usr/local/pf/archive/$tmp_dirname";
@@ -224,11 +226,12 @@ sub extract_machine_password {
 
 sub umount_winbindd {
     print("Stopping winbindd and umount /chroots/*\n");
-    pf_run("systemctl stop packetfence-winbindd");
+    pf_run("sudo systemctl stop packetfence-winbindd");
     sleep(3);
     pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount");
     print("/chroots/* has been umounted. there're still some subdirs in use remaining. They will be removed at the next reboot")
 }
+
 
 
 =head1 AUTHOR

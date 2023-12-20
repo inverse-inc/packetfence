@@ -18,8 +18,8 @@ from flask import Flask, request
 from samba import param, NTSTATUSError, ntstatus
 from samba.credentials import Credentials, DONT_USE_KERBEROS
 from samba.dcerpc import netlogon
-from samba.dcerpc.misc import SEC_CHAN_WKSTA
-from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT)
+from samba.dcerpc.misc import SEC_CHAN_WKSTA, SEC_CHAN_DOMAIN
+from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT, MSV1_0_ALLOW_MSVCHAPV2)
 
 
 # simplified IPv4 validator.
@@ -117,7 +117,7 @@ def init_secure_connection():
     error_code = 0
     error_message = ""
     try:
-        secure_channel_connection = netlogon.netlogon("ncacn_np:%s[schannel,seal]" % server_name, lp, machine_cred)
+        secure_channel_connection = netlogon.netlogon(f"ncacn_np:{server_name}[schannel,seal]" , lp, machine_cred)
     except NTSTATUSError as e:
         error_code = e.args[0]
         error_message = e.args[1]
@@ -284,7 +284,7 @@ def ntlm_auth_handler():
         logon.identity_info.domain_name.string = domain
         logon.identity_info.account_name.string = account_username
         logon.identity_info.workstation.string = workstation
-        logon.identity_info.parameter_control = MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT
+        logon.identity_info.parameter_control = MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT | MSV1_0_ALLOW_MSVCHAPV2
 
         try:
             result = secure_channel_connection.netr_LogonSamLogonWithFlags(server_name, workstation, current,
