@@ -24,7 +24,7 @@ func NewFlushDNSAuditLog(config map[string]interface{}) JobSetupConfig {
 		Task:    SetupTask(config),
 		Batch:   int64(config["batch"].(float64)),
 		Timeout: time.Duration((config["timeout"].(float64))) * time.Second,
-		redis:   redisClient(),
+		redis:   getRedisClient(),
 	}
 }
 
