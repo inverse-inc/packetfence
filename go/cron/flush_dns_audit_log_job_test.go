@@ -79,7 +79,7 @@ func TestFlushDNSAuditLogFromRedis(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	redis := redisClient()
+	redis := getRedisClient()
 	redis.Del(ctx, "DNS_AUDIT_LOG")
 	redis.LPush(ctx, "DNS_AUDIT_LOG", DNS_ENTRY)
 

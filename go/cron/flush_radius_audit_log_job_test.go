@@ -80,7 +80,7 @@ func TestFlushRadiusAuditLogFromRedis(t *testing.T) {
 	if err != nil {
 		t.Fatalf("No database %s", err.Error())
 	}
-	redis := redisClient()
+	redis := getRedisClient()
 	redis.Del(ctx, "RADIUS_AUDIT_LOG")
 	redis.LPush(ctx, "RADIUS_AUDIT_LOG", RADIUS_ENTRY, base64.StdEncoding.EncodeToString([]byte(RADIUS_ENTRY)))
 
@@ -139,7 +139,7 @@ func TestFlushRadiusAuditLogFromRedisBad(t *testing.T) {
 	if err != nil {
 		t.Fatalf("No database %s", err.Error())
 	}
-	redis := redisClient()
+	redis := getRedisClient()
 	redis.Del(ctx, "RADIUS_AUDIT_LOG")
 	redis.LPush(ctx, "RADIUS_AUDIT_LOG", RADIUS_ENTRY_BAD, RADIUS_ENTRY)
 
