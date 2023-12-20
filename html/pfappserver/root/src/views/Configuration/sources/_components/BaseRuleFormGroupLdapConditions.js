@@ -2,8 +2,8 @@ import { BaseFormGroupArrayDraggableProps } from '@/components/new'
 import BaseRuleCondition from './BaseRuleCondition'
 import i18n from '@/utils/locale'
 import BaseFormGroupArrayDraggableStaticButtons
-  from '@/components/new/BaseFormGroupArrayDraggableStaticButtons.vue';
-import LdapRuleCondition from '@/views/Configuration/sources/_components/LdapRuleCondition.vue';
+  from '@/components/new/BaseFormGroupArrayDraggableStaticButtons';
+import LdapRuleCondition from '@/views/Configuration/sources/_components/LdapRuleCondition';
 
 export const props = {
   ...BaseFormGroupArrayDraggableProps,

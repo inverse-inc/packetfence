@@ -33,6 +33,7 @@ import BaseFormGroupInputPassword from './BaseFormGroupInputPassword'
 import BaseFormGroupInputPasswordGenerator from './BaseFormGroupInputPasswordGenerator'
 import BaseFormGroupInputPasswordTest, { props as BaseFormGroupInputPasswordTestProps } from './BaseFormGroupInputPasswordTest'
 import BaseFormGroupInputTest, { props as BaseFormGroupInputTestProps } from './BaseFormGroupInputTest'
+import BaseFormGroupSwitch from './BaseFormGroupSwitch';
 import BaseFormGroupTextarea from './BaseFormGroupTextarea'
 import BaseFormGroupTextareaTest, { props as BaseFormGroupTextareaTestProps } from './BaseFormGroupTextareaTest'
 import BaseFormGroupTextareaUpload, { props as BaseFormGroupTextareaUploadProps } from './BaseFormGroupTextareaUpload'
@@ -63,6 +64,7 @@ import BaseInputRange from './BaseInputRange'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
+import BaseLabel from './BaseLabel';
 import BaseSearch from './BaseSearch'
 import BaseSearchInputBasic from './BaseSearchInputBasic'
 import BaseSearchInputAdvanced from './BaseSearchInputAdvanced'
@@ -78,9 +80,7 @@ import BaseTableEmpty from './BaseTableEmpty'
 import BaseTableSortable from './BaseTableSortable'
 import BaseUpload from './BaseUpload'
 import BaseView from './BaseView'
-import BaseFormGroupSwitch from './BaseFormGroupSwitch.vue';
-import BaseLabel from './BaseLabel.vue';
-import OnChangeFormGroupSwitch from '@/components/new/OnChangeFormGroupSwitch.vue';
+import OnChangeFormGroupSwitch from './OnChangeFormGroupSwitch';
 
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
 
@@ -114,6 +114,7 @@ export {
   BaseFormGroupInputPasswordGenerator,
   BaseFormGroupInputPasswordTest, BaseFormGroupInputPasswordTestProps,
   BaseFormGroupInputTest, BaseFormGroupInputTestProps,
+  BaseFormGroupSwitch,
   BaseFormGroupTextarea,
   BaseFormGroupTextareaTest, BaseFormGroupTextareaTestProps,
   BaseFormGroupTextareaUpload, BaseFormGroupTextareaUploadProps,
@@ -123,7 +124,6 @@ export {
   BaseFormGroupToggleNoYes,
   BaseFormGroupToggleNY,
   BaseFormGroupToggleOffOn,
-  BaseFormGroupSwitch,
   OnChangeFormGroupSwitch,
 
   // icons

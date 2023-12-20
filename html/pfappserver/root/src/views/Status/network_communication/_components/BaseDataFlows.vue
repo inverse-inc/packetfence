@@ -40,7 +40,7 @@
 <script>
 import BaseDataFlow from './BaseDataFlow'
 import {OnChangeFormGroupSwitch, BaseLabel} from '@/components/new/'
-import BaseInputSwitch from '@/components/new/BaseInputSwitch.vue'
+import BaseInputSwitch from '@/components/new/BaseInputSwitch'
 import {computed, ref, toRefs, watch} from '@vue/composition-api'
 import usePreference from '@/composables/usePreference'
 

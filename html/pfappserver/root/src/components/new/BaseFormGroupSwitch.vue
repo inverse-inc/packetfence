@@ -44,7 +44,7 @@ import {
   useInputValueProps
 } from '@/composables/useInputValue'
 import BaseFormGroup from './BaseFormGroup'
-import BaseInputSwitch from './BaseInputSwitch.vue'
+import BaseInputSwitch from './BaseInputSwitch'
 import {computed, inject, unref} from '@vue/composition-api';
 
 const components = {
