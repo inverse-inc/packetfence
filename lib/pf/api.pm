@@ -510,7 +510,6 @@ sub _node_determine_and_set_into_VLAN {
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     my %locker_ref;
-    $locker_ref{$switch->{_ip}} = &share({});
 
     $switch->setVlan(
         $ifIndex,
