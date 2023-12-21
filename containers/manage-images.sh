@@ -14,6 +14,72 @@ source <(grep 'KNK_REGISTRY_URL' ${PF_SRC_DIR}/config.mk | tr -d ' ')
 source <(grep 'LOCAL_REGISTRY' ${PF_SRC_DIR}/config.mk | tr -d ' ')
 source ${PF_SRC_DIR}/conf/build_id
 
+function proxy_config_systemd {
+    service_name=$1
+    HTTP_PROXY=${HTTP_PROXY:-}
+    HTTPS_PROXY=${HTTPS_PROXY:-}
+    NO_PROXY=${NO_PROXY:-}
+    no_proxy=${no_proxy:-}
+    http_proxy=${http_proxy:-}
+    https_proxy=${https_proxy:-}
+
+    # Check if HTTP_PROXY and HTTPS_PROXY environment variables exist
+    if [ -n "$HTTP_PROXY" ] || [ -n "$HTTPS_PROXY" ] || [ -n "$NO_PROXY" ] || [ -n "$http_proxy" ] || [ -n "$https_proxy" ] || [ -n "$no_proxy" ]; then
+
+        SERVICE_FILE=$(systemctl show -p FragmentPath --value "$service_name")
+        if [ -z "$SERVICE_FILE" ]; then
+            echo "Service not found: $service_name"
+            exit 1
+        fi
+
+        # Check if [Service] section exists
+        if grep -q "\[Service\]" "$SERVICE_FILE"; then
+            config_count=()
+            # Check if HTTP_PROXY already exist in [Service] section
+            if ! grep -q "Environment=.*HTTP_PROXY" "$SERVICE_FILE" && ([ -n "$HTTP_PROXY" ] || [ -n "$http_proxy" ]); then
+                # Add HTTP_PROXY to [Service] section
+                [[ -n "${http_proxy}" ]] && HTTP_PROXY=$http_proxy
+                sed -i '/\[Service\]/a Environment="HTTP_PROXY='$HTTP_PROXY'"' "$SERVICE_FILE"
+                config_count+=("HTTP_PROXY=$HTTP_PROXY")
+            fi	
+
+            # Check if HTTPS_PROXY already exist in [Service] section
+            if ! grep -q "Environment=.*HTTPS_PROXY" "$SERVICE_FILE" && ([ -n "$HTTPS_PROXY" ] || [ -n "$https_proxy" ]); then
+                # Add  HTTPS_PROXY to [Service] section
+                [[ -n "${https_proxy}" ]] && HTTPS_PROXY=$https_proxy
+                sed -i '/\[Service\]/a Environment="HTTPS_PROXY='$HTTPS_PROXY'"' "$SERVICE_FILE"
+                config_count+=("HTTPS_PROXY="${HTTPS_PROXY})
+            fi
+
+
+            # Check if NO_PROXY already exist in [Service] section
+            if ! grep -q "Environment=.*NO_PROXY" "$SERVICE_FILE" && ([ -n "$NO_PROXY" ] || [ -n "$no_proxy" ]); then
+                # Add NO_PROXY to [Service] section
+                [[ -n "${no_proxy}" ]] && NO_PROXY=$no_proxy
+                sed -i '/\[Service\]/a Environment="NO_PROXY='$NO_PROXY'"' "$SERVICE_FILE"
+                config_count+=("NO_PROXY=$NO_PROXY")
+            fi
+
+        if [ ${#config_count[@]} -ne 0 ]; then
+
+                # Reload systemd configuration
+                systemctl daemon-reload
+
+                # Restart Docker service
+                systemctl restart $service_name
+
+                printf "Next proxy configuration were added to $service_name service in [Service] section, \n systemd docker file $SERVICE_FILE \n"
+                printf '%s\n' "${config_count[@]}"
+            else
+                printf "The proxy configuration already exist in [Service] section. No changes made. \n"
+            fi
+        else
+            printf "Error: [Service] section not found in $SERVICE_FILE. \n"
+        fi
+    fi
+}
+
+
 configure_and_check() {
     # yes=default
     CLEANUP_IMAGES=${CLEANUP_IMAGES:-yes}
@@ -89,6 +155,8 @@ delete_images() {
     # Remove all dangling images, images not referenced by any container are kept
     docker image prune -f > /dev/null 2>&1
 }
+
+proxy_config_systemd docker
 
 configure_and_check
 
