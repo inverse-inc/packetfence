@@ -23,6 +23,9 @@ use pf::IniFiles;
 use Sys::Hostname;
 
 use Template;
+use pf::constants qw($TRUE $FALSE);
+use pfconfig::cached_hash;
+tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
 use Moo;
 extends 'pf::services::manager';
@@ -47,10 +50,9 @@ sub generateConfig {
 sub env_vars {
     my ($self) = @_;
     my %env;
-    my $config = $self->config();
     my $hostname = hostname();
     for my $top ('cluster', $hostname) {
-        while (my ($k, $v) = each %{$config->{$top}}) {
+        while (my ($k, $v) = each %{$ConfigKafka{$top}}) {
             $env{$k} = $v;
         }
     }
@@ -58,14 +60,11 @@ sub env_vars {
     return \%env;
 }
 
-
-
-
-sub config {
-    tie my %ini, 'pf::IniFiles', (-file=> $kafka_config_file, -allowempty => 1) or die "Cannot open config file $kafka_config_file";
-    return {%ini}
+sub isManaged {
+    my ($self) = @_;
+    my $hostname = hostname();
+    ($self->SUPER::isManaged && exists $ConfigKafka{$hostname}) ? $TRUE : $FALSE
 }
-
 
 =head1 AUTHOR
 
