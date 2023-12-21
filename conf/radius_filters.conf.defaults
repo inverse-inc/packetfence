@@ -10,7 +10,7 @@ answer.0=reply:Cisco-AVPair = url-redirect-acl=$user_role;url-redirect=${switch.
 [EXAMPLE_Session-timeout_Idle-Timeout_Terminate_action]
 answer.1=reply:Idle-Timeout = 240
 status=disabled
-answer.0=reply:Session-Timeout = 10620..12600
+answer.0=reply:Session-Timeout = ${random_from_range("10620..12600")}
 top_op=and
 description=Change the session timeout, idle timeout and terminate action
 scopes=returnRadiusAccessAccept
