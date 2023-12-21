@@ -92,7 +92,7 @@ Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
 Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
-tie our %KafkaConfig, 'pfconfig::cached_hash', "config::Kafka";
+tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
 =head1 SUBROUTINES
 
@@ -239,11 +239,11 @@ generate_kafka_rules
 
 sub generate_kafka_rules {
     my ($self, $rule) = @_;
-    for my $client (@{$KafkaConfig{iptables}{clients}}) {
+    for my $client (@{$ConfigKafka{iptables}{clients}}) {
         $$rule .= "-A input-management-if --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT\n";
     }
 
-    for my $ip (@{$KafkaConfig{iptables}{cluster_ips}}) {
+    for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
         $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT\n";
         $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT\n";
         $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT\n";
