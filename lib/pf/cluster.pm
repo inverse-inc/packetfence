@@ -812,8 +812,13 @@ Return the db_write parameter from cluster.conf on a specific zone
 =cut
 
 sub getWriteDB {
-    if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_write})) {
-        return split(',', ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_write});
+    my $clusterConfig = pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id});
+    if (!defined $clusterConfig) {
+        return $FALSE;
+    }
+
+    if (defined $clusterConfig->{CLUSTER}{db_write}) {
+        return split(',', $clusterConfig->{CLUSTER}{db_write});
     }
     return $FALSE;
 }

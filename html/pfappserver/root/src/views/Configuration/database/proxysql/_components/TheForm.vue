@@ -6,20 +6,30 @@
     :isLoading="isLoading"
   >
     <form-group-status namespace="status"
-                       :column-label="$i18n.t('Enable')"
-                       :text="$i18n.t('Enable an external server for proxysql.')"
+                       :column-label="$i18n.t('Remote Database')"
+                       :text="$i18n.t('Enable external remote database on ProxySQL')"
                        enabled-value="enabled"
                        disabled-value="disabled"
     />
 
     <form-group-cacert namespace="cacert"
                        :column-label="$i18n.t('CA Certificate')"
-                       :text="$i18n.t('CA Certificate')"
+                       :text="$i18n.t('Database CA Certificate')"
     />
 
     <form-group-backend namespace="backend"
-                        :column-label="$i18n.t('Backend')"
-                        :text="$i18n.t('Backend Host')"
+                        :column-label="$i18n.t('Host')"
+                        :text="$i18n.t('Database Host')"
+    />
+
+    <form-group-backend-port namespace="backend_port"
+                        :column-label="$i18n.t('Port')"
+                        :text="$i18n.t('Database Port')"
+    />
+
+    <form-group-encryption namespace="encryption"
+                        :column-label="$i18n.t('Encryption')"
+                        :text="$i18n.t('Database Encryption')"
     />
 
   </base-form>
@@ -28,7 +38,13 @@
 import {computed} from '@vue/composition-api'
 import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
-import {FormGroupBackend, FormGroupCacert, FormGroupStatus} from './'
+import {
+  FormGroupBackend,
+  FormGroupCacert,
+  FormGroupEncryption,
+  FormGroupBackendPort,
+  FormGroupStatus
+} from './'
 
 const components = {
   BaseForm,
@@ -36,6 +52,8 @@ const components = {
   FormGroupCacert,
   FormGroupBackend,
   FormGroupStatus,
+  FormGroupBackendPort,
+  FormGroupEncryption,
 }
 
 export const props = {
