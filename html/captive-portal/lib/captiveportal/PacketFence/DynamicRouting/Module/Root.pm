@@ -116,6 +116,9 @@ sub handle_web_form_release {
             $switch = pf::SwitchFactory->instantiate($last_switch_id);
         }
     }
+    if (isenabled($switch->{_deauthOnPrevious})) {
+        return $FALSE;
+    }
     my $session = new pf::Portal::Session(client_mac => $self->current_mac)->session;
     if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
         get_logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
