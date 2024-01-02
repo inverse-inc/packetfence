@@ -1072,8 +1072,6 @@ sub setup_api_v1_config_domains_routes {
         "/domain/#domain_id",
         "api.v1.Config.Domains"
     );
-    $resource_route->register_sub_action({path => '/test_join', action => 'test_join', method => 'GET'});
-    $resource_route->register_sub_actions({method=> 'POST', actions => [qw(join unjoin rejoin)], auditable => 1});
     return ($collection_route, $resource_route);
 }
 
