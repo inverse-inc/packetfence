@@ -115,6 +115,7 @@ and return all the normal files under
 my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/bin/pfcmd
    /usr/local/pf/bin/ntlm_auth_wrapper
+   /usr/local/pf/sbin/ntlm-auth-api-domain
    /usr/local/pf/addons/sourcefire/pfdetect.pl
    /usr/local/pf/addons/packetfence-perl/find_dependencies.pl
 );
@@ -123,7 +124,7 @@ sub include_file {
     my ($f) = @_;
     my $go_binary = $f;
     $go_binary =~ s#/sbin/#/go/cmd/#;
-    my $r =  -f $f && !exists $exclusions{ $f } && $f !~ /docker-wrapper/ && !-d $go_binary && $f !~ /\.sh$/;
+    my $r =  -f $f && !exists $exclusions{ $f } && $f !~ /docker-wrapper/ && !-d $go_binary && $f !~ /\.sh$/ && $f !~ /__pycache__/;
     return $r;
 }
 
