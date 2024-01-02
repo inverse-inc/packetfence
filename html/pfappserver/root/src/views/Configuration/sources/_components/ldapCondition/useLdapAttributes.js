@@ -22,14 +22,16 @@ const useLdapAttributes = (props) => {
   watch(form, debouncedConnectionCheck, {deep: true})
 
   watch(connectedToLdap, (newConnectionState) => {
+    const { type } = form.value || {}
+    const extras = (type === 'AD') ? ['memberOf:1.2.840.113556.1.4.1941'] : []
     if (newConnectionState === true) {
       ldapAttributesLoading.value = true
       ldapClient.getAttributes().then((attributes) => {
-        ldapAttributes.value = attributes
+        ldapAttributes.value = [...attributes, ...extras]
         ldapAttributesLoading.value = false
       })
     } else {
-      ldapAttributes.value = []
+      ldapAttributes.value = extras
     }
   })
 
