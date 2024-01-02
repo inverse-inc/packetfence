@@ -64,59 +64,16 @@ is_deeply(
                 'meta' => {
                     'type'       => 'object',
                     'properties' => {
-                        'dns_servers' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'ad_server' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'registration' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'dns_name' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'bind_dn' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'workgroup' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'bind_pass' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'ntlm_cache_expiry' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'ou' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'id' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'server_name' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'ntlmv2_only' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'sticky_dc' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'ntlm_cache_source' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'status' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        },
-                        'ntlm_cache' => {
-                            '$ref' => '#/components/schemas/Meta'
-                        }
+                        (
+                            map {
+                                $_ => { '$ref' => '#/components/schemas/Meta' }
+                            } qw(password_is_nt_hash ntlm_auth_port machine_account_password ad_fqdn ntlm_auth_host dns_servers ad_server registration ad_server dns_name bind_dn workgroup bind_pass ntlm_cache_expiry ntlm_cache_expiry ou id server_name sticky_dc ntlm_cache_source status ntlm_cache )
+                        ),
                     }
                 }
             },
             'type' => 'object'
-        },
+          },
         'Domain' => {
             'properties' => {
                 'server_name' => {
@@ -124,12 +81,6 @@ is_deeply(
 'This server\'s name (account name) in your Active Directory. \'%h\' is a placeholder for this server hostname. In a cluster, you must use %h and ensure your hostnames are less than 14 characters. You can mix \'%h\' with a prefix or suffix (ex: \'pf-%h\') ',
                     'type'    => 'string',
                     'default' => '%h'
-                },
-                'ntlmv2_only' => {
-                    'description' =>
-'If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level',
-                    'default' => undef,
-                    'type'    => 'string'
                 },
                 'ntlm_cache_source' => {
                     'description' =>
@@ -162,7 +113,7 @@ is_deeply(
                 },
                 'ad_server' => {
                     'description' =>
-'The IP address or DNS name of your Active Directory server',
+'The IPv4 of the Active Directory server',
                     'default' => undef,
                     'type'    => 'string'
                 },
@@ -211,18 +162,45 @@ is_deeply(
 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain',
                     'default' => undef,
                     'type'    => 'string'
-                }
+                },
+                ntlm_auth_port => {
+                    description => 'The listening port of NTLM auth API.',
+                    default => 5000,
+                    type    => 'string'
+                },
+                ntlm_auth_host => {
+                    'description' => 'The IP address of NTLM auth API',
+                    'default'     => '127.0.0.1',
+                    'type'        => 'string'
+                  },
+                password_is_nt_hash => {
+                    description => 'Password stored in the config file is NT hash.',
+                    default     => 1,
+                    type        => 'string',
+                },
+                machine_account_password => {
+                    description => 'Password of the machine account to be added to Active Directory.',
+                    default     => undef,
+                    type        => 'string',
+                },
+                ad_fqdn => {
+                    description => 'The FQDN of the Active Directory server',
+                    default     => undef,
+                    type        => 'string',
+                },
             },
             'type'     => 'object',
             'required' => [
                 'id',
                 'workgroup',
+                'ad_fqdn',
                 'ad_server',
                 'dns_servers',
                 'server_name',
                 'sticky_dc',
                 'dns_name',
-                'ou'
+                'ou',
+                'machine_account_password',
             ]
         }
     },
