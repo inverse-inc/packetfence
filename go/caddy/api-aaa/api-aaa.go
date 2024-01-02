@@ -279,7 +279,7 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 }
 
 func (h ApiAAAHandler) handleSSOInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	adminLogin := pfconfigdriver.GetStruct(r.Context(), "AdminLogin").(*pfconfigdriver.PfConfAdminLogin)
+	adminLogin := pfconfigdriver.GetStruct(r.Context(), "PfConfAdminLogin").(*pfconfigdriver.PfConfAdminLogin)
 	info := struct {
 		LoginText string `json:"login_text"`
 		LoginURL  string `json:"login_url"`
