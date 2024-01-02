@@ -336,7 +336,9 @@ char **argv, **envp;
     int status = 0;
 
     if (strcmp(arguments.api_host, "") ==0 || strcmp(arguments.api_port, "0") == 0) {
-        fprintf(stderr, "Error: endpoint host or port not given, exiting");
+        fprintf(stderr, "Error: missing NTLM auth API host or port settings.\n");
+        fprintf(stderr, "This could happen if you previously manually joined this server to Windows AD.\n");
+        fprintf(stderr, "If this is the case, you need to go to the admin UI, re-create the domain configuration.\n");
         exit(1);
     }
 
