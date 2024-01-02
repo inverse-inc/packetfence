@@ -356,7 +356,7 @@ def api():
     if identifier == "" or listen_port == "":
         print("Unable to start NTLM auth API: Missing key arguments: 'IDENTIFIER' or 'LISTEN'.")
 
-    config = ConfigParser()
+    config = ConfigParser(interpolation=None)
     try:
         with open(conf_path, 'r') as file:
             config.read_file(file)
