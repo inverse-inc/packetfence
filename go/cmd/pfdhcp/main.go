@@ -522,7 +522,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool")
 						handler.available.FreeIPIndex(uint64(free))
 					}(ctx, free, ipaddr)
-					free = 0
+					free = -1
 					goto retry
 				}
 				// 5 seconds to send a request
