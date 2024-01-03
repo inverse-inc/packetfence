@@ -18,9 +18,9 @@ type PfqueueConsumerConfig struct {
 }
 
 type RedisArgsConfig struct {
-	Reconnect int    `json:"reconnect"`
-	Every     int    `json:"every"`
-	Server    string `json:"server"`
+	Reconnect pfconfigdriver.PfInt `json:"reconnect"`
+	Every     pfconfigdriver.PfInt `json:"every"`
+	Server    string               `json:"server"`
 }
 
 var Config = PfqueueConsumerConfig{
