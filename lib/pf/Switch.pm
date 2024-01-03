@@ -180,9 +180,10 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
+        '_UsePushACLs'                  => 'disabled',
+        '_UseDownloadableACLs'          => 'disabled',
         '_DownloadableACLsLimit'        => 0,
         '_ACLsLimit'                    => 0,
-        '_ACLsType'                     => undef,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -3983,43 +3984,16 @@ sub radius_deauth_connection_info {
     return $connection_info;
 }
 
-=item getACLsType - get the ACLs type
-
-=cut
-
-sub getACLsType {
-    my ($self) = @_;
-    return $self->{_ACLsType};
-}
-
-=item isPushACLs - return True if $switch-E<gt>{_ACLs} eq 'pushACLs'
-
-=cut
-
-sub isPushACLs {
-    my ($self) = @_;
-    return ( $self->getACLsType() eq 'pushACLs' );
-}
-
 sub usePushACLs {
     my ($self) = @_;
     return $self->supportsPushACLs() &&
-        $self->isPushACLs();
-}
-
-=item isDownloadableACLs - return True if $switch-E<gt>{_ACLs} eq 'downloadableACLs'
-
-=cut
-
-sub isDownloadableACLs {
-    my ($self) = @_;
-    return ( $self->getACLsType() eq 'downloadableACLs' );
+        isenabled($self->{_UsePushACLs});;
 }
 
 sub useDownloadableACLs {
     my ($self) = @_;
     return $self->supportsDownloadableListBasedEnforcement() &&
-        $self->isDownloadableACLs();
+        isenabled($self->{_UseDownloadableACLs});
 }
 
 sub defaultACLsLimit {
@@ -4245,7 +4219,7 @@ sub generateAnsibleConfiguration {
 
     return if ($self->{_id} =~ /.*\/.*/ or $self->{_id} =~ /.*\:.*/ or $self->{_id} eq 'default' or $self->{_id} eq '100.64.0.1' or $self->{_id} eq '127.0.0.1');
     my $switch_id = $self->{_id};
-    return unless (defined($self->{'_cliUser'}) && $self->isPushACLs());
+    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_UsePushACLs'}));
 
     my $switch_ip = $switch_id;
     $switch_id =~ s/\./_/g;

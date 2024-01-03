@@ -18,7 +18,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_switches/updateSwitch', params),
     deleteItem: params => $store.dispatch('$_switches/deleteSwitch', params.id),
     precreateItemAcls: params => $store.dispatch('$_switches/precreateAcls', params.id),
-    precreateAllAcls: () => $store.dispatch('$_switches/precreateAllAcls'),
   }
 }
 
@@ -37,13 +36,35 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
+  all: ({ commit }) => {
+    commit('ITEM_REQUEST')
     const params = {
       sort: 'id',
       fields: ['id', 'description', 'class'].join(',')
     }
     return api.list(params).then(response => {
+      commit('ITEM_SUCCESS')
       return response.items
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  allPreloadable: ({ commit }) => {
+    commit('ITEM_REQUEST')
+    const body = {
+      fields: ['id', 'UseDownloadableACLs'],
+      query: { op: 'and', values: [ { op: 'or', values: [ { field: 'UseDownloadableACLs', op: 'equals', value: 'Y' } ] } ] },
+      sort: ['id'],
+      limit: 1000
+    }
+    return api.search(body).then(response => {
+      commit('ITEM_SUCCESS')
+      const { items = [] } = response
+      return items.map(item => item.id)
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   optionsById: ({ commit }, id) => {
@@ -146,16 +167,6 @@ const actions = {
       })
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
-    })
-  },
-  precreateAllAcls: ({ commit }) => {
-    commit('ITEM_REQUEST')
-    return api.precreateAllAcls().then(response => {
-      commit('ITEM_SUCCESS')
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
     })
   },
   precreateAcls: ({ commit }, id) => {

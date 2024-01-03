@@ -96,6 +96,7 @@ VoIPLLDPDetect=Y
 PostMfaValidation=N
 
 # ACLs
-ACLsType=None
+UsePushACLs=N
+UseDownloadableACLs=N
 ACLsLimit=20
 DownloadableACLsLimit=384

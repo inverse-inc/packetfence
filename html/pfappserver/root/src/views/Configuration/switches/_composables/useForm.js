@@ -33,8 +33,7 @@ const useForm = (props, context) => {
 
   const {
     form,
-    meta,
-    isLoading
+    meta
   } = toRefs(props)
 
   const { root: { $store } = {} } = context
@@ -150,19 +149,15 @@ const useForm = (props, context) => {
     ]
   })
 
-  const ACLsTypeOptions = computed(() => {
-    return [
-      { text: i18n.t('Disabled'), value: undefined },
-      ...((supports(['PushACLs']))
-        ? [{ text: i18n.t('Push ACLs'), value: 'pushACLs' }] : []),
-      ...((supports(['DownloadableListBasedEnforcement']))
-        ? [{ text: i18n.t('Downloadable ACLs'), value: 'downloadableACLs' }] : []),
-    ]
-  })
+  const isUseDownloadableACLs = computed(() => {
+    // inspect form value for `VlanMap`
+    const { UseDownloadableACLs } = form.value
+    if (UseDownloadableACLs !== null)
+      return UseDownloadableACLs === 'Y'
 
-  const ACLsPrecreate = computed(() => {
-    const { ACLsType } = form.value || {}
-    return isLoading.value === false && ACLsType === 'downloadableACLs'
+    // inspect meta placeholder for `UseDownloadableACLs`
+    const { UseDownloadableACLs: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
   })
 
   const onPrecreate = () => {
@@ -188,8 +183,7 @@ const useForm = (props, context) => {
     isVlanMap,
     roles,
 
-    ACLsTypeOptions,
-    ACLsPrecreate,
+    isUseDownloadableACLs,
     onPrecreate
   }
 }

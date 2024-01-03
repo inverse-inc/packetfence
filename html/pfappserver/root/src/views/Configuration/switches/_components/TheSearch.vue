@@ -75,6 +75,22 @@
             {{ item.type }}
           </template>
         </template>
+        <template #cell(UsePushACLs)="item">
+          <span v-b-tooltip.right.d300 :title="$t('yes')" v-if="item.value === 'Y'">
+            <icon name="circle" class="text-success" />
+          </span>
+          <span v-b-tooltip.right.d300 :title="$t('no')" v-else-if="item.value === 'N'">
+            <icon name="circle" class="text-danger" />
+          </span>
+        </template>
+        <template #cell(UseDownloadableACLs)="item">
+          <span v-b-tooltip.right.d300 :title="$t('yes')" v-if="item.value === 'Y'">
+            <icon name="circle" class="text-success" />
+          </span>
+          <span v-b-tooltip.right.d300 :title="$t('no')" v-else-if="item.value === 'N'">
+            <icon name="circle" class="text-danger" />
+          </span>
+        </template>
         <template #cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right">
             <base-button-confirm v-if="!item.not_deletable"
@@ -145,7 +161,7 @@ const setup = (props, context) => {
 
   const {
     deleteItem,
-    precreateAllAcls
+    precreateItemAcls
   } = useStore($store)
 
   const router = useRouter($router)
@@ -200,10 +216,14 @@ const setup = (props, context) => {
     })
 
   const onPrecreateAcls = () => {
-    precreateAllAcls().then(() => {
-      $store.dispatch('notification/info', { message: i18n.t('Successfully precreated ACLs for all supported switches.') })
-    }).catch(() => {
-      $store.dispatch('notification/info', { message: i18n.t('Failed to precreate ACLs for all supported switches.') })
+    $store.dispatch('$_switches/allPreloadable').then(ids => {
+      ids.forEach(id => {
+        precreateItemAcls({ id }).then(() => {
+          $store.dispatch('notification/info', { message: i18n.t('Successfully precreated ACLs on switch <code>{id}</code>.', { id }) })
+        }).catch(() => {
+          $store.dispatch('notification/info', { message: i18n.t('Failed to precreate ACLs for on <code>{id}</code>.', { id }) })
+        })
+      })
     })
   }
 

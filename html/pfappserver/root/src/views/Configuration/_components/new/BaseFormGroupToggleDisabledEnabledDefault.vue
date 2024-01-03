@@ -1,5 +1,5 @@
 <template>
-  <base-form-group-toggle v-bind="bind"/>
+  <base-form-group-toggle v-bind="bind" />
 </template>
 <script>
 import { BaseFormGroupToggle, BaseFormGroupToggleProps as props } from '@/components/new/'
