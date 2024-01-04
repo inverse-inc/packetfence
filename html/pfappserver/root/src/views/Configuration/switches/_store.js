@@ -50,11 +50,11 @@ const actions = {
       throw err
     })
   },
-  allPreloadable: ({ commit }) => {
+  allPushACLs: ({ commit }) => {
     commit('ITEM_REQUEST')
     const body = {
-      fields: ['id', 'UseDownloadableACLs'],
-      query: { op: 'and', values: [ { op: 'or', values: [ { field: 'UseDownloadableACLs', op: 'equals', value: 'Y' } ] } ] },
+      fields: ['id', 'UsePushACLs'],
+      query: { op: 'and', values: [ { op: 'or', values: [ { field: 'UsePushACLs', op: 'equals', value: 'Y' } ] } ] },
       sort: ['id'],
       limit: 1000
     }

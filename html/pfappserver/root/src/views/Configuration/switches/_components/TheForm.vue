@@ -395,6 +395,11 @@
           :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
         />
 
+        <form-group-container v-show="supports(['PushACLs']) && isUsePushACLs">
+          <b-button :disabled="isLoading"
+            variant="outline-primary" @click="onPrecreate">Precreate ACLs</b-button>
+        </form-group-container>
+
         <form-group-downloadable-acls-limit v-show="supports(['DownloadableListBasedEnforcement'])"
           namespace="DownloadableACLsLimit"
           :column-label="$i18n.t('Maximum ACLs per switch')"
@@ -406,11 +411,6 @@
           :column-label="$i18n.t('Downloadable ACLs')"
           :text="$i18n.t('Enable Downloadable ACLs through RADIUS instead of Dynamic ACLs.')"
         />
-
-        <form-group-container v-show="supports(['DownloadableListBasedEnforcement']) && isUseDownloadableACLs">
-          <b-button :disabled="isLoading"
-            variant="outline-primary" @click="onPrecreate">Precreate ACLs</b-button>
-        </form-group-container>
 
         <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement']) && isUseDownloadableACLs"
           :column-label="$i18n.t('Maximum ACLs per RADIUS reply')"

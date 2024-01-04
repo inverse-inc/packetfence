@@ -149,8 +149,20 @@ const useForm = (props, context) => {
     ]
   })
 
+
+  const isUsePushACLs = computed(() => {
+    // inspect form value for `UsePushACLs`
+    const { UsePushACLs } = form.value
+    if (UsePushACLs !== null)
+      return UsePushACLs === 'Y'
+
+    // inspect meta placeholder for `UsePushACLs`
+    const { UsePushACLs: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
   const isUseDownloadableACLs = computed(() => {
-    // inspect form value for `VlanMap`
+    // inspect form value for `UseDownloadableACLs`
     const { UseDownloadableACLs } = form.value
     if (UseDownloadableACLs !== null)
       return UseDownloadableACLs === 'Y'
@@ -183,6 +195,7 @@ const useForm = (props, context) => {
     isVlanMap,
     roles,
 
+    isUsePushACLs,
     isUseDownloadableACLs,
     onPrecreate
   }
