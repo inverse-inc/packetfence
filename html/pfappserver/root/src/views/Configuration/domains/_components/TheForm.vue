@@ -24,7 +24,7 @@
 
         <form-group-server-name namespace="server_name"
                                 :column-label="$i18n.t(`This server's name`)"
-                                :text="$i18n.t(`This server's name (machine account name) in the Active Directory. Use '%h' to automatically use this server hostname. It will be automatically converted to its real hostname and saved in config file.`)"
+                                :text="$i18n.t(`This server's name (machine account name) in the Active Directory. Leaving this to %h will automatically use hostname as machine account name. If PacketFence is running in cluster mode, it will use hostname automatically.`)"
                                 :disabled="!isNew && !isClone"
         />
 
@@ -59,7 +59,7 @@
           <component namespace="machine_account_password"
                      :is="formGroupComputedMachineAccountPassword"
                      :column-label="$i18n.t('Machine account password')"
-                     :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. Type another value to change the password, or leave it as-is`)"
+                     :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. Type another value to change the password, or leave it as-is. If you added new node to a PacketFence cluster, you'll have to specify the original password / or set a new password here to force sync machine account.`)"
                      :buttonLabel="$i18n.t('Test')"
                      testLabel="Processing"
                      :test="testMachineAccount"
