@@ -6,5 +6,5 @@ ConfigSyslogForwarder:
       server: '#/components/schemas/ConfigSyslogForwarderSubTypeServer'
     propertyName: type
   oneOf:
-  - $ref: '#/components/schemas/ConfigSyslogForwarderSubTypeFile'
   - $ref: '#/components/schemas/ConfigSyslogForwarderSubTypeServer'
+  - $ref: '#/components/schemas/ConfigSyslogForwarderSubTypeFile'

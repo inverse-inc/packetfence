@@ -9,43 +9,21 @@ ConfigPkiProvidersMeta:
             $ref: '#/components/schemas/Meta'
           ca_cert_path_upload:
             $ref: '#/components/schemas/Meta'
-          cn_attribute:
+          client_cert_path:
             $ref: '#/components/schemas/Meta'
-          cn_format:
+          client_cert_path_upload:
             $ref: '#/components/schemas/Meta'
-          country:
+          client_key_path:
             $ref: '#/components/schemas/Meta'
-          host:
+          client_key_path_upload:
             $ref: '#/components/schemas/Meta'
           id:
-            $ref: '#/components/schemas/Meta'
-          locality:
-            $ref: '#/components/schemas/Meta'
-          organization:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          postalcode:
-            $ref: '#/components/schemas/Meta'
-          profile:
-            $ref: '#/components/schemas/Meta'
-          proto:
-            $ref: '#/components/schemas/Meta'
-          revoke_on_unregistration:
             $ref: '#/components/schemas/Meta'
           server_cert_path:
             $ref: '#/components/schemas/Meta'
           server_cert_path_upload:
             $ref: '#/components/schemas/Meta'
-          state:
-            $ref: '#/components/schemas/Meta'
-          streetaddress:
-            $ref: '#/components/schemas/Meta'
           type:
-            $ref: '#/components/schemas/Meta'
-          username:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -93,21 +71,43 @@ ConfigPkiProvidersMeta:
             $ref: '#/components/schemas/Meta'
           ca_cert_path_upload:
             $ref: '#/components/schemas/Meta'
-          client_cert_path:
+          cn_attribute:
             $ref: '#/components/schemas/Meta'
-          client_cert_path_upload:
+          cn_format:
             $ref: '#/components/schemas/Meta'
-          client_key_path:
+          country:
             $ref: '#/components/schemas/Meta'
-          client_key_path_upload:
+          host:
             $ref: '#/components/schemas/Meta'
           id:
+            $ref: '#/components/schemas/Meta'
+          locality:
+            $ref: '#/components/schemas/Meta'
+          organization:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          postalcode:
+            $ref: '#/components/schemas/Meta'
+          profile:
+            $ref: '#/components/schemas/Meta'
+          proto:
+            $ref: '#/components/schemas/Meta'
+          revoke_on_unregistration:
             $ref: '#/components/schemas/Meta'
           server_cert_path:
             $ref: '#/components/schemas/Meta'
           server_cert_path_upload:
             $ref: '#/components/schemas/Meta'
+          state:
+            $ref: '#/components/schemas/Meta'
+          streetaddress:
+            $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+          username:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
