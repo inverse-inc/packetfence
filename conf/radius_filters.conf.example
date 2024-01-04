@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 # Radius filter configuration
-# 
+#
 # you are able to rewrite the radius answer based on attributes values, by default the radius filter
 # answer will be merge with the original radius answer. (to overwrite it add merge_answer = no).
 # Also by default the status of the answer will be RLM_MODULE_OK but this status can be overwritten by
@@ -181,7 +181,6 @@
 #     node_info.category
 #     node_info.mac
 #     node_info.last_arp
-#     node_info.lastskip
 #     node_info.last_dhcp
 #     node_info.user_agent
 #     node_info.computername

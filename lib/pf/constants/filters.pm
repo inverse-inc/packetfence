@@ -98,7 +98,6 @@ our @NODE_INFO_FIELDS = qw(
   node_info.category_id
   node_info.mac
   node_info.last_arp
-  node_info.lastskip
   node_info.last_dhcp
   node_info.user_agent
   node_info.computername

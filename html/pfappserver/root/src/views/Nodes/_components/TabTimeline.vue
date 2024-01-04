@@ -120,18 +120,6 @@ const setup = (props, context) => {
           content: i18n.t('Last DHCP')
         })
       }
-      if (node.lastskip && node.lastskip !== '0000-00-00 00:00:00') {
-        addVisGroup({
-          id: `${id.value}-general`,
-          content: i18n.t('General')
-        })
-        addVisItem({
-          id: 'lastskip',
-          group: `${id.value}-general`,
-          start: new Date(node.lastskip),
-          content: i18n.t('Last Skip')
-        })
-      }
       try {
         node.ip4.history.forEach(function (ip4) {
           addVisGroup({

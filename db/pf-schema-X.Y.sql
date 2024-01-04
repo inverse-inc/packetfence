@@ -142,7 +142,6 @@ CREATE TABLE node (
   `detect_date` datetime NOT NULL default "0000-00-00 00:00:00",
   `regdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
-  `lastskip` datetime NOT NULL default "0000-00-00 00:00:00",
   `time_balance` int(10) unsigned DEFAULT NULL,
   `bandwidth_balance` bigint(20) unsigned DEFAULT NULL,
   `status` varchar(15) NOT NULL default "unreg",

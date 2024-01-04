@@ -84,7 +84,7 @@ sub options_filter_match_style {
     return  map { { value => $_, label => $_ } } qw(all any);
 }
 
-has_field 'advanced_filter' => 
+has_field 'advanced_filter' =>
 (
     type => 'FilterCondition',
 );
@@ -219,7 +219,6 @@ sub options_field_names {
           last_port
           last_role
           last_seen
-          lastskip
           last_ssid
           last_start_time
           last_start_timestamp

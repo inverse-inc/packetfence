@@ -158,7 +158,6 @@
           - last_arp
           - last_dhcp
           - last_seen
-          - lastskip
           - mac
           - machine_account
           - notes
@@ -192,7 +191,6 @@
             - last_arp
             - last_dhcp
             - last_seen
-            - lastskip
             - mac
             - machine_account
             - notes
@@ -258,8 +256,6 @@
             - last_dhcp DESC
             - last_seen ASC
             - last_seen DESC
-            - lastskip ASC
-            - lastskip DESC
             - mac ASC
             - mac DESC
             - machine_account ASC

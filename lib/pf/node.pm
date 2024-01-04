@@ -46,7 +46,7 @@ use pf::config qw(
 
 use constant NODE => 'node';
 
-# Delay in millisecond to wait for triggering internal::node_discovered after discovering a node 
+# Delay in millisecond to wait for triggering internal::node_discovered after discovering a node
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -210,7 +210,6 @@ our %DEFAULT_NODE_VALUES = (
     'dhcp_fingerprint' => '',
     'last_arp'         => $ZERO_DATE,
     'last_dhcp'        => $ZERO_DATE,
-    'lastskip'         => $ZERO_DATE,
     'notes'            => '',
     'pid'              => $default_pid,
     'regdate'          => $ZERO_DATE,
@@ -443,7 +442,6 @@ sub node_view_all {
 #           IF(node.detect_date = $ZERO_DATE, '', node.detect_date) as detect_date,
 #           IF(node.regdate = $ZERO_DATE, '', node.regdate) as regdate,
 #           IF(node.unregdate = $ZERO_DATE, '', node.unregdate) as unregdate,
-#           IF(node.lastskip = $ZERO_DATE, '', node.lastskip) as lastskip,
 #           node.user_agent, node.computername, device_class AS dhcp_fingerprint,
 #           node.last_arp, node.last_dhcp, node.last_seen,
 #           locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
@@ -468,7 +466,6 @@ sub node_view_all {
         \"IF(node.detect_date = '$ZERO_DATE', '', node.detect_date) as detect_date",
         \"IF(node.regdate = '$ZERO_DATE', '', node.regdate) as regdate",
         \"IF(node.unregdate = '$ZERO_DATE', '', node.unregdate) as unregdate",
-        \"IF(node.lastskip = '$ZERO_DATE', '', node.lastskip) as lastskip",
         qw(
           node.user_agent node.computername device_class|dhcp_fingerprint
           node.last_arp node.last_dhcp node.last_seen
@@ -485,7 +482,7 @@ sub node_view_all {
     ];
 
     my $from = [-join => qw(
-        node 
+        node
         =>{nr.category_id=node.bypass_role_id} node_category|nr
         =>{node.category_id=nc.category_id} node_category|nc
         ),
@@ -707,7 +704,7 @@ sub node_register {
         $logger->debug("Triggering Post Registration Scan Event");
         pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
     }
-    
+
     return (1);
 }
 
@@ -720,7 +717,6 @@ sub node_deregister {
     $info{'status'}    = 'unreg';
     $info{'regdate'}   = $ZERO_DATE;
     $info{'unregdate'} = $ZERO_DATE;
-    $info{'lastskip'}  = $ZERO_DATE;
     $info{'autoreg'}   = 'no';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
@@ -822,7 +818,7 @@ sub nodes_registered_not_violators {
 
 =item node_expire_lastseen
 
-Get the nodes that should be deleted based on the last_seen column 
+Get the nodes that should be deleted based on the last_seen column
 
 =cut
 
@@ -846,7 +842,7 @@ sub node_expire_lastseen {
 
 =item node_unreg_lastseen
 
-Get the nodes that should be unregistered based on the last_seen column 
+Get the nodes that should be unregistered based on the last_seen column
 
 =cut
 
@@ -879,7 +875,7 @@ sub node_cleanup {
     my ($delete_time, $unreg_time, $include_voip) = @_;
     my $logger = get_logger();
     $logger->debug("calling node_cleanup with delete_time=$delete_time unreg_time=$unreg_time");
-    
+
     if ($delete_time ne "0") {
         foreach my $row ( node_expire_lastseen($delete_time) ) {
             my $mac = $row->{'mac'};
@@ -934,7 +930,7 @@ sub node_update_bandwidth {
     my ($status, $rows) = pf::dal::node->update_items(
         -set => {
             bandwidth_balance => \['COALESCE(bandwidth_balance, 0) + ?', $bytes],
-        }, 
+        },
         -where => {
             mac => $mac
         }
@@ -956,7 +952,7 @@ sub node_search {
     my ($status, $iter) = pf::dal::node->search(
         -where => {
             mac => {-like => "${mac}%"}
-        }, 
+        },
         -columns => ['mac']
     );
     if (is_error($status)) {
@@ -991,7 +987,7 @@ sub is_node_voip {
     if (!defined $items) {
         return $FALSE;
     }
-    return scalar @$items ? $TRUE : $FALSE; 
+    return scalar @$items ? $TRUE : $FALSE;
 }
 
 =item * is_node_registered
@@ -1020,7 +1016,7 @@ sub is_node_registered {
     if (!defined $items) {
         return $FALSE;
     }
-    return scalar @$items ? $TRUE : $FALSE; 
+    return scalar @$items ? $TRUE : $FALSE;
 }
 
 =item * node_category_handling - assigns category_id based on provided data
@@ -1193,7 +1189,7 @@ sub node_defaults {
     return $node_info;
 }
 
-=item node_update_last_seen 
+=item node_update_last_seen
 
 Update the last_seen attribute of a node to now
 
@@ -1206,7 +1202,7 @@ sub node_update_last_seen {
         my ($status, $rows) = pf::dal::node->update_items(
             -set => {
                 last_seen => \['NOW()']
-            }, 
+            },
             -where => {
                 mac => $mac
             }

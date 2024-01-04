@@ -66,7 +66,7 @@ ConfigSecurityEvent:
           type: string
       type: object
     id:
-      default: 3000012
+      default: 3000013
       description: Use a number above 1500000 if you want to be able to delete this
         security event later.
       type: string

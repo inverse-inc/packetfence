@@ -41,7 +41,6 @@
 #     node_info.category
 #     node_info.mac
 #     node_info.last_arp
-#     node_info.lastskip
 #     node_info.last_dhcp
 #     node_info.user_agent
 #     node_info.computername
@@ -112,7 +111,7 @@
 #     owner.category
 #     radius_request
 #     params
-# 
+#
 # Operator can be:
 #     is
 #     is_not

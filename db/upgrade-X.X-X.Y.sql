@@ -272,7 +272,9 @@ ALTER TABLE pki_certs
 ALTER TABLE pki_revoked_certs
     CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
-
+\! echo "altering node"
+ALTER TABLE node
+    DROP IF EXISTS lastskip;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

@@ -55,11 +55,11 @@ We are slowly migrating away from an automated `perltidy` code style. The reason
     $node_statements->{'node_add_sql'} = get_db_handle()->prepare(<<'SQL');
         INSERT INTO node (
             mac, pid, category_id, status, voip, bypass_vlan,
-            detect_date, regdate, unregdate, lastskip,
+            detect_date, regdate, unregdate,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            notes,
+            notes
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     SQL

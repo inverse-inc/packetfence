@@ -16,7 +16,7 @@ new $builder = new pf::SearchBuilder;
 $builder
  ->select(qw(
     mac pid voip bypass_vlan status category_id
-    detect_date regdate unregdate lastskip
+    detect_date regdate unregdate
     user_agent computername dhcp_fingerprint
     last_arp last_dhcp notes)
 )->from(
