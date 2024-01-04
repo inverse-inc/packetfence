@@ -216,7 +216,7 @@ const setup = (props, context) => {
     })
 
   const onPrecreateAcls = () => {
-    $store.dispatch('$_switches/allPreloadable').then(ids => {
+    $store.dispatch('$_switches/allPushACLs').then(ids => {
       ids.forEach(id => {
         precreateItemAcls({ id }).then(() => {
           $store.dispatch('notification/info', { message: i18n.t('Successfully precreated ACLs on switch <code>{id}</code>.', { id }) })
