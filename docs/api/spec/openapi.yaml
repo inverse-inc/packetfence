@@ -2337,6 +2337,83 @@ components:
       - properties:
           meta:
             properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              lease_length:
+                $ref: '#/components/schemas/Meta'
+              place_in_dhcp_parking_group:
+                $ref: '#/components/schemas/Meta'
+              show_parking_portal:
+                $ref: '#/components/schemas/Meta'
+              threshold:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              detection_mecanism_bypass:
+                $ref: '#/components/schemas/Meta'
+              detection_mecanism_urls:
+                $ref: '#/components/schemas/Meta'
+              expose_fingerbank_info_all_templates:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              image_path:
+                $ref: '#/components/schemas/Meta'
+              ip_address:
+                $ref: '#/components/schemas/Meta'
+              loadbalancers_ip:
+                $ref: '#/components/schemas/Meta'
+              network_detection:
+                $ref: '#/components/schemas/Meta'
+              network_detection_initial_delay:
+                $ref: '#/components/schemas/Meta'
+              network_detection_ip:
+                $ref: '#/components/schemas/Meta'
+              network_detection_retry_delay:
+                $ref: '#/components/schemas/Meta'
+              network_redirect_delay:
+                $ref: '#/components/schemas/Meta'
+              other_domain_names:
+                $ref: '#/components/schemas/Meta'
+              rate_limiting:
+                $ref: '#/components/schemas/Meta'
+              rate_limiting_threshold:
+                $ref: '#/components/schemas/Meta'
+              request_timeout:
+                $ref: '#/components/schemas/Meta'
+              secure_redirect:
+                $ref: '#/components/schemas/Meta'
+              status_only_on_production:
+                $ref: '#/components/schemas/Meta'
+              wispr_redirection:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              db:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              pass:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              unix_socket:
+                $ref: '#/components/schemas/Meta'
+              user:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
               aaa:
                 $ref: '#/components/schemas/Meta'
               admin:
@@ -2352,57 +2429,6 @@ components:
               soap:
                 $ref: '#/components/schemas/Meta'
               unifiedapi:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              emailaddr:
-                $ref: '#/components/schemas/Meta'
-              fromaddr:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              smtp_encryption:
-                $ref: '#/components/schemas/Meta'
-              smtp_password:
-                $ref: '#/components/schemas/Meta'
-              smtp_port:
-                $ref: '#/components/schemas/Meta'
-              smtp_timeout:
-                $ref: '#/components/schemas/Meta'
-              smtp_username:
-                $ref: '#/components/schemas/Meta'
-              smtp_verifyssl:
-                $ref: '#/components/schemas/Meta'
-              smtpserver:
-                $ref: '#/components/schemas/Meta'
-              subjectprefix:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              dhcpservers:
-                $ref: '#/components/schemas/Meta'
-              domain:
-                $ref: '#/components/schemas/Meta'
-              hostname:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              send_anonymous_stats:
-                $ref: '#/components/schemas/Meta'
-              timezone:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -2448,6 +2474,8 @@ components:
               netflow_address:
                 $ref: '#/components/schemas/Meta'
               netflow_target_host_port:
+                $ref: '#/components/schemas/Meta'
+              ntlm-auth-api:
                 $ref: '#/components/schemas/Meta'
               pfacct:
                 $ref: '#/components/schemas/Meta'
@@ -2512,32 +2540,6 @@ components:
       - properties:
           meta:
             properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              pass:
-                $ref: '#/components/schemas/Meta'
-              user:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              bounce_duration:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              trap_limit:
-                $ref: '#/components/schemas/Meta'
-              trap_limit_action:
-                $ref: '#/components/schemas/Meta'
-              trap_limit_threshold:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
               enabled:
                 $ref: '#/components/schemas/Meta'
               id:
@@ -2553,68 +2555,15 @@ components:
       - properties:
           meta:
             properties:
-              connection_type_change_detection:
+              autoconfig:
                 $ref: '#/components/schemas/Meta'
-              dhcp_process_ipv6:
+              category:
                 $ref: '#/components/schemas/Meta'
-              dhcp_rate_limiting:
-                $ref: '#/components/schemas/Meta'
-              dhcpdetector:
-                $ref: '#/components/schemas/Meta'
-              dhcpoption82logger:
-                $ref: '#/components/schemas/Meta'
-              force_listener_update_on_ack:
-                $ref: '#/components/schemas/Meta'
-              hostname_change_detection:
+              certificate:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              interfaceSNAT:
-                $ref: '#/components/schemas/Meta'
-              rogue_dhcp_detection:
-                $ref: '#/components/schemas/Meta'
-              rogueinterval:
-                $ref: '#/components/schemas/Meta'
-              staticroutes:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              auth_on_management:
-                $ref: '#/components/schemas/Meta'
-              centralize_vips:
-                $ref: '#/components/schemas/Meta'
-              centralized_deauth:
-                $ref: '#/components/schemas/Meta'
-              conflict_resolution_threshold:
-                $ref: '#/components/schemas/Meta'
-              dns_on_vip_only:
-                $ref: '#/components/schemas/Meta'
-              galera_replication:
-                $ref: '#/components/schemas/Meta'
-              galera_replication_password:
-                $ref: '#/components/schemas/Meta'
-              galera_replication_username:
-                $ref: '#/components/schemas/Meta'
-              gateway_on_vip_only:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              portal_on_management:
-                $ref: '#/components/schemas/Meta'
-              probe_mysql_from_haproxy_db:
-                $ref: '#/components/schemas/Meta'
-              radius_proxy_with_vip:
-                $ref: '#/components/schemas/Meta'
-              use_vip_for_deauth:
-                $ref: '#/components/schemas/Meta'
-              virtual_router_id:
-                $ref: '#/components/schemas/Meta'
-              vrrp_unicast:
+              ssid:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -2670,71 +2619,6 @@ components:
             properties:
               id:
                 $ref: '#/components/schemas/Meta'
-              innodb_buffer_pool_size:
-                $ref: '#/components/schemas/Meta'
-              key_buffer_size:
-                $ref: '#/components/schemas/Meta'
-              masterslave:
-                $ref: '#/components/schemas/Meta'
-              max_allowed_packet:
-                $ref: '#/components/schemas/Meta'
-              max_connect_errors:
-                $ref: '#/components/schemas/Meta'
-              max_connections:
-                $ref: '#/components/schemas/Meta'
-              net_read_timeout:
-                $ref: '#/components/schemas/Meta'
-              net_write_timeout:
-                $ref: '#/components/schemas/Meta'
-              other_members:
-                $ref: '#/components/schemas/Meta'
-              performance_schema:
-                $ref: '#/components/schemas/Meta'
-              query_cache_size:
-                $ref: '#/components/schemas/Meta'
-              table_cache:
-                $ref: '#/components/schemas/Meta'
-              thread_cache_size:
-                $ref: '#/components/schemas/Meta'
-              thread_concurrency:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              lease_length:
-                $ref: '#/components/schemas/Meta'
-              place_in_dhcp_parking_group:
-                $ref: '#/components/schemas/Meta'
-              show_parking_portal:
-                $ref: '#/components/schemas/Meta'
-              threshold:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              device_class_whitelist:
-                $ref: '#/components/schemas/Meta'
-              enable:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              trigger_on_device_class_change:
-                $ref: '#/components/schemas/Meta'
-              triggers:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
               interfaceSNAT:
                 $ref: '#/components/schemas/Meta'
               ports_redirect:
@@ -2746,87 +2630,55 @@ components:
       - properties:
           meta:
             properties:
-              category:
+              dhcpservers:
+                $ref: '#/components/schemas/Meta'
+              domain:
+                $ref: '#/components/schemas/Meta'
+              hostname:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              pid:
+              send_anonymous_stats:
                 $ref: '#/components/schemas/Meta'
-              voip:
+              timezone:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
       - properties:
           meta:
             properties:
+              emailaddr:
+                $ref: '#/components/schemas/Meta'
+              fromaddr:
+                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              interception_proxy:
+              smtp_encryption:
                 $ref: '#/components/schemas/Meta'
-              interception_proxy_port:
+              smtp_password:
                 $ref: '#/components/schemas/Meta'
-              isolation_passthrough:
+              smtp_port:
                 $ref: '#/components/schemas/Meta'
-              isolation_passthroughs:
+              smtp_timeout:
                 $ref: '#/components/schemas/Meta'
-              passthrough:
+              smtp_username:
                 $ref: '#/components/schemas/Meta'
-              passthroughs:
+              smtp_verifyssl:
                 $ref: '#/components/schemas/Meta'
-              proxy_passthroughs:
+              smtpserver:
                 $ref: '#/components/schemas/Meta'
-              range:
-                $ref: '#/components/schemas/Meta'
-              wait_for_redirect:
-                $ref: '#/components/schemas/Meta'
-              whitelist:
+              subjectprefix:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
       - properties:
           meta:
             properties:
-              db:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
               pass:
                 $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              unix_socket:
-                $ref: '#/components/schemas/Meta'
               user:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              autoconfig:
-                $ref: '#/components/schemas/Meta'
-              category:
-                $ref: '#/components/schemas/Meta'
-              certificate:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              ssid:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              access_duration_choices:
-                $ref: '#/components/schemas/Meta'
-              default_access_duration:
-                $ref: '#/components/schemas/Meta'
-              default_access_duration_add:
-                $ref: '#/components/schemas/Meta'
-              id:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -2904,43 +2756,193 @@ components:
       - properties:
           meta:
             properties:
-              detection_mecanism_bypass:
+              id:
                 $ref: '#/components/schemas/Meta'
-              detection_mecanism_urls:
+              interception_proxy:
                 $ref: '#/components/schemas/Meta'
-              expose_fingerbank_info_all_templates:
+              interception_proxy_port:
+                $ref: '#/components/schemas/Meta'
+              isolation_passthrough:
+                $ref: '#/components/schemas/Meta'
+              isolation_passthroughs:
+                $ref: '#/components/schemas/Meta'
+              passthrough:
+                $ref: '#/components/schemas/Meta'
+              passthroughs:
+                $ref: '#/components/schemas/Meta'
+              proxy_passthroughs:
+                $ref: '#/components/schemas/Meta'
+              range:
+                $ref: '#/components/schemas/Meta'
+              wait_for_redirect:
+                $ref: '#/components/schemas/Meta'
+              whitelist:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              connection_type_change_detection:
+                $ref: '#/components/schemas/Meta'
+              dhcp_process_ipv6:
+                $ref: '#/components/schemas/Meta'
+              dhcp_rate_limiting:
+                $ref: '#/components/schemas/Meta'
+              dhcpdetector:
+                $ref: '#/components/schemas/Meta'
+              dhcpoption82logger:
+                $ref: '#/components/schemas/Meta'
+              force_listener_update_on_ack:
+                $ref: '#/components/schemas/Meta'
+              hostname_change_detection:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              image_path:
+              interfaceSNAT:
                 $ref: '#/components/schemas/Meta'
-              ip_address:
+              rogue_dhcp_detection:
                 $ref: '#/components/schemas/Meta'
-              loadbalancers_ip:
+              rogueinterval:
                 $ref: '#/components/schemas/Meta'
-              network_detection:
+              staticroutes:
                 $ref: '#/components/schemas/Meta'
-              network_detection_initial_delay:
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              auth_on_management:
                 $ref: '#/components/schemas/Meta'
-              network_detection_ip:
+              centralize_vips:
                 $ref: '#/components/schemas/Meta'
-              network_detection_retry_delay:
+              centralized_deauth:
                 $ref: '#/components/schemas/Meta'
-              network_redirect_delay:
+              conflict_resolution_threshold:
                 $ref: '#/components/schemas/Meta'
-              other_domain_names:
+              dns_on_vip_only:
                 $ref: '#/components/schemas/Meta'
-              rate_limiting:
+              galera_replication:
                 $ref: '#/components/schemas/Meta'
-              rate_limiting_threshold:
+              galera_replication_password:
                 $ref: '#/components/schemas/Meta'
-              request_timeout:
+              galera_replication_username:
                 $ref: '#/components/schemas/Meta'
-              secure_redirect:
+              gateway_on_vip_only:
                 $ref: '#/components/schemas/Meta'
-              status_only_on_production:
+              id:
                 $ref: '#/components/schemas/Meta'
-              wispr_redirection:
+              password:
+                $ref: '#/components/schemas/Meta'
+              portal_on_management:
+                $ref: '#/components/schemas/Meta'
+              probe_mysql_from_haproxy_db:
+                $ref: '#/components/schemas/Meta'
+              radius_proxy_with_vip:
+                $ref: '#/components/schemas/Meta'
+              use_vip_for_deauth:
+                $ref: '#/components/schemas/Meta'
+              virtual_router_id:
+                $ref: '#/components/schemas/Meta'
+              vrrp_unicast:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              device_class_whitelist:
+                $ref: '#/components/schemas/Meta'
+              enable:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              trigger_on_device_class_change:
+                $ref: '#/components/schemas/Meta'
+              triggers:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              innodb_buffer_pool_size:
+                $ref: '#/components/schemas/Meta'
+              key_buffer_size:
+                $ref: '#/components/schemas/Meta'
+              masterslave:
+                $ref: '#/components/schemas/Meta'
+              max_allowed_packet:
+                $ref: '#/components/schemas/Meta'
+              max_connect_errors:
+                $ref: '#/components/schemas/Meta'
+              max_connections:
+                $ref: '#/components/schemas/Meta'
+              net_read_timeout:
+                $ref: '#/components/schemas/Meta'
+              net_write_timeout:
+                $ref: '#/components/schemas/Meta'
+              other_members:
+                $ref: '#/components/schemas/Meta'
+              performance_schema:
+                $ref: '#/components/schemas/Meta'
+              query_cache_size:
+                $ref: '#/components/schemas/Meta'
+              table_cache:
+                $ref: '#/components/schemas/Meta'
+              thread_cache_size:
+                $ref: '#/components/schemas/Meta'
+              thread_concurrency:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              bounce_duration:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              trap_limit:
+                $ref: '#/components/schemas/Meta'
+              trap_limit_action:
+                $ref: '#/components/schemas/Meta'
+              trap_limit_threshold:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              access_duration_choices:
+                $ref: '#/components/schemas/Meta'
+              default_access_duration:
+                $ref: '#/components/schemas/Meta'
+              default_access_duration_add:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              category:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              pid:
+                $ref: '#/components/schemas/Meta'
+              voip:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -4565,18 +4567,18 @@ components:
           WatchGuard: '#/components/schemas/ConfigFirewallSubTypeWatchguard'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeWatchguard'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeBarracudang'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeCheckpoint'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeContentkeeper'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeFamilyzone'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypePaloalto'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeFortigate'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeIboss'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeJsonrpc'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeJunipersrx'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeLightspeedrocket'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeCheckpoint'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeFortigate'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeContentkeeper'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeBarracudang'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypePaloalto'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeSmoothwall'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeIboss'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeWatchguard'
     ConfigFirewallSubTypeBarracudang:
       properties:
         cache_timeout:
@@ -5458,6 +5460,124 @@ components:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
+              nac_name:
+                $ref: '#/components/schemas/Meta'
+              networks:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              uid:
+                $ref: '#/components/schemas/Meta'
+              use_connector:
+                $ref: '#/components/schemas/Meta'
+              username_format:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              cache_timeout:
+                $ref: '#/components/schemas/Meta'
+              cache_updates:
+                $ref: '#/components/schemas/Meta'
+              categories:
+                $ref: '#/components/schemas/Meta'
+              default_realm:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              networks:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              uid:
+                $ref: '#/components/schemas/Meta'
+              use_connector:
+                $ref: '#/components/schemas/Meta'
+              username_format:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              cache_timeout:
+                $ref: '#/components/schemas/Meta'
+              cache_updates:
+                $ref: '#/components/schemas/Meta'
+              categories:
+                $ref: '#/components/schemas/Meta'
+              default_realm:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              networks:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              uid:
+                $ref: '#/components/schemas/Meta'
+              use_connector:
+                $ref: '#/components/schemas/Meta'
+              username_format:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              cache_timeout:
+                $ref: '#/components/schemas/Meta'
+              cache_updates:
+                $ref: '#/components/schemas/Meta'
+              categories:
+                $ref: '#/components/schemas/Meta'
+              default_realm:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              networks:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              uid:
+                $ref: '#/components/schemas/Meta'
+              use_connector:
+                $ref: '#/components/schemas/Meta'
+              username_format:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              cache_timeout:
+                $ref: '#/components/schemas/Meta'
+              cache_updates:
+                $ref: '#/components/schemas/Meta'
+              categories:
+                $ref: '#/components/schemas/Meta'
+              default_realm:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
               networks:
                 $ref: '#/components/schemas/Meta'
               password:
@@ -5563,155 +5683,6 @@ components:
                 $ref: '#/components/schemas/Meta'
               use_connector:
                 $ref: '#/components/schemas/Meta'
-              username:
-                $ref: '#/components/schemas/Meta'
-              username_format:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              cache_timeout:
-                $ref: '#/components/schemas/Meta'
-              cache_updates:
-                $ref: '#/components/schemas/Meta'
-              categories:
-                $ref: '#/components/schemas/Meta'
-              default_realm:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              networks:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              uid:
-                $ref: '#/components/schemas/Meta'
-              use_connector:
-                $ref: '#/components/schemas/Meta'
-              username:
-                $ref: '#/components/schemas/Meta'
-              username_format:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              cache_timeout:
-                $ref: '#/components/schemas/Meta'
-              cache_updates:
-                $ref: '#/components/schemas/Meta'
-              categories:
-                $ref: '#/components/schemas/Meta'
-              default_realm:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              networks:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              uid:
-                $ref: '#/components/schemas/Meta'
-              use_connector:
-                $ref: '#/components/schemas/Meta'
-              username_format:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              cache_timeout:
-                $ref: '#/components/schemas/Meta'
-              cache_updates:
-                $ref: '#/components/schemas/Meta'
-              categories:
-                $ref: '#/components/schemas/Meta'
-              default_realm:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              networks:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              uid:
-                $ref: '#/components/schemas/Meta'
-              use_connector:
-                $ref: '#/components/schemas/Meta'
-              username_format:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              cache_timeout:
-                $ref: '#/components/schemas/Meta'
-              cache_updates:
-                $ref: '#/components/schemas/Meta'
-              categories:
-                $ref: '#/components/schemas/Meta'
-              default_realm:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              networks:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              uid:
-                $ref: '#/components/schemas/Meta'
-              use_connector:
-                $ref: '#/components/schemas/Meta'
-              username_format:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              cache_timeout:
-                $ref: '#/components/schemas/Meta'
-              cache_updates:
-                $ref: '#/components/schemas/Meta'
-              categories:
-                $ref: '#/components/schemas/Meta'
-              default_realm:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              networks:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              uid:
-                $ref: '#/components/schemas/Meta'
-              use_connector:
-                $ref: '#/components/schemas/Meta'
               username_format:
                 $ref: '#/components/schemas/Meta'
             type: object
@@ -5818,7 +5789,36 @@ components:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              nac_name:
+              networks:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              uid:
+                $ref: '#/components/schemas/Meta'
+              use_connector:
+                $ref: '#/components/schemas/Meta'
+              username:
+                $ref: '#/components/schemas/Meta'
+              username_format:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              cache_timeout:
+                $ref: '#/components/schemas/Meta'
+              cache_updates:
+                $ref: '#/components/schemas/Meta'
+              categories:
+                $ref: '#/components/schemas/Meta'
+              default_realm:
+                $ref: '#/components/schemas/Meta'
+              id:
                 $ref: '#/components/schemas/Meta'
               networks:
                 $ref: '#/components/schemas/Meta'
@@ -5831,6 +5831,8 @@ components:
               uid:
                 $ref: '#/components/schemas/Meta'
               use_connector:
+                $ref: '#/components/schemas/Meta'
+              username:
                 $ref: '#/components/schemas/Meta'
               username_format:
                 $ref: '#/components/schemas/Meta'
@@ -6174,34 +6176,34 @@ components:
           ubiquiti_ap_mac_to_ip: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeRadiusAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeDnsAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeClusterCheck'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodesMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePasswordOfTheDay'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp4logCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeCleanupChiDatabaseCache'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp6logCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodeCurrentSessionCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFingerbankDataUpdate'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeLocationlogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAuthLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeOption82Query'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAdminApiAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePkiCertificatesCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAuthLogCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeBandwidthMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodeCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePersonCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushRadiusAuditLog'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeCertificatesCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePurgeBinaryLogs'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeCleanupChiDatabaseCache'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeClusterCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeDnsAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFingerbankDataUpdate'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushDnsAuditLog'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushRadiusAuditLog'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp4logCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp6logCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeLocationlogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodeCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodeCurrentSessionCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodesMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeOption82Query'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePasswordOfTheDay'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePersonCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePkiCertificatesCheck'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeProvisioningCompliancePoll'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePurgeBinaryLogs'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeRadiusAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
     ConfigMaintenanceTaskSubTypeAcctCleanup:
       properties:
         batch:
@@ -7593,85 +7595,6 @@ components:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
-              window:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              batch:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              window:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              batch:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              window:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
             type: object
         type: object
       - properties:
@@ -7717,7 +7640,7 @@ components:
       - properties:
           meta:
             properties:
-              batch:
+              delete_window:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
@@ -7725,61 +7648,21 @@ components:
                 $ref: '#/components/schemas/Meta'
               status:
                 $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
               type:
+                $ref: '#/components/schemas/Meta'
+              unreg_window:
+                $ref: '#/components/schemas/Meta'
+              voip:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
       - properties:
           meta:
             properties:
-              batch:
+              certificates:
                 $ref: '#/components/schemas/Meta'
-              id:
+              delay:
                 $ref: '#/components/schemas/Meta'
-              rotate:
-                $ref: '#/components/schemas/Meta'
-              rotate_batch:
-                $ref: '#/components/schemas/Meta'
-              rotate_timeout:
-                $ref: '#/components/schemas/Meta'
-              rotate_window:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              window:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              batch:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              window:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
               id:
                 $ref: '#/components/schemas/Meta'
               schedule:
@@ -7806,102 +7689,6 @@ components:
               type:
                 $ref: '#/components/schemas/Meta'
               window:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              batch:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              window:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              batch:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              window:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              process_switchranges:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              batch:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -7952,8 +7739,6 @@ components:
       - properties:
           meta:
             properties:
-              delete_window:
-                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
               schedule:
@@ -7962,9 +7747,90 @@ components:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
-              unreg_window:
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
                 $ref: '#/components/schemas/Meta'
-              voip:
+              process_switchranges:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              batch:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              window:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              batch:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              window:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              batch:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              window:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -8001,10 +7867,55 @@ components:
       - properties:
           meta:
             properties:
-              certificates:
+              batch:
                 $ref: '#/components/schemas/Meta'
-              delay:
+              id:
                 $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              window:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              batch:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
               id:
                 $ref: '#/components/schemas/Meta'
               schedule:
@@ -8033,15 +7944,11 @@ components:
       - properties:
           meta:
             properties:
-              batch:
-                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
               schedule:
                 $ref: '#/components/schemas/Meta'
               status:
-                $ref: '#/components/schemas/Meta'
-              timeout:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -8060,6 +7967,101 @@ components:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              batch:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              batch:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              window:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              batch:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              rotate:
+                $ref: '#/components/schemas/Meta'
+              rotate_batch:
+                $ref: '#/components/schemas/Meta'
+              rotate_timeout:
+                $ref: '#/components/schemas/Meta'
+              rotate_window:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              window:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              batch:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              window:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
     ConfigMeta:
       discriminator:
         propertyName: type
@@ -8072,8 +8074,8 @@ components:
           TOTP: '#/components/schemas/ConfigMfaSubTypeTotp'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigMfaSubTypeTotp'
       - $ref: '#/components/schemas/ConfigMfaSubTypeAkamai'
+      - $ref: '#/components/schemas/ConfigMfaSubTypeTotp'
     ConfigMfaSubTypeAkamai:
       properties:
         app_id:
@@ -8238,25 +8240,6 @@ components:
       - properties:
           meta:
             properties:
-              cache_duration:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              post_mfa_validation_cache_duration:
-                $ref: '#/components/schemas/Meta'
-              radius_mfa_method:
-                $ref: '#/components/schemas/Meta'
-              scope:
-                $ref: '#/components/schemas/Meta'
-              split_char:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
               app_id:
                 $ref: '#/components/schemas/Meta'
               cache_duration:
@@ -8280,6 +8263,25 @@ components:
               type:
                 $ref: '#/components/schemas/Meta'
               verify_key:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              cache_duration:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              post_mfa_validation_cache_duration:
+                $ref: '#/components/schemas/Meta'
+              radius_mfa_method:
+                $ref: '#/components/schemas/Meta'
+              scope:
+                $ref: '#/components/schemas/Meta'
+              split_char:
+                $ref: '#/components/schemas/Meta'
+              type:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -8450,9 +8452,9 @@ components:
           scep: '#/components/schemas/ConfigPkiProviderSubTypeScep'
         propertyName: type
       oneOf:
+      - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfenceLocal'
       - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfencePki'
       - $ref: '#/components/schemas/ConfigPkiProviderSubTypeScep'
-      - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfenceLocal'
     ConfigPkiProviderSubTypePacketfenceLocal:
       properties:
         ca_cert_path:
@@ -8702,53 +8704,6 @@ components:
                 $ref: '#/components/schemas/Meta'
               country:
                 $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              locality:
-                $ref: '#/components/schemas/Meta'
-              organization:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              postalcode:
-                $ref: '#/components/schemas/Meta'
-              profile:
-                $ref: '#/components/schemas/Meta'
-              proto:
-                $ref: '#/components/schemas/Meta'
-              revoke_on_unregistration:
-                $ref: '#/components/schemas/Meta'
-              server_cert_path:
-                $ref: '#/components/schemas/Meta'
-              server_cert_path_upload:
-                $ref: '#/components/schemas/Meta'
-              state:
-                $ref: '#/components/schemas/Meta'
-              streetaddress:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              username:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              ca_cert_path:
-                $ref: '#/components/schemas/Meta'
-              ca_cert_path_upload:
-                $ref: '#/components/schemas/Meta'
-              cn_attribute:
-                $ref: '#/components/schemas/Meta'
-              cn_format:
-                $ref: '#/components/schemas/Meta'
-              country:
-                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
               locality:
@@ -8798,6 +8753,53 @@ components:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
+      - properties:
+          meta:
+            properties:
+              ca_cert_path:
+                $ref: '#/components/schemas/Meta'
+              ca_cert_path_upload:
+                $ref: '#/components/schemas/Meta'
+              cn_attribute:
+                $ref: '#/components/schemas/Meta'
+              cn_format:
+                $ref: '#/components/schemas/Meta'
+              country:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              locality:
+                $ref: '#/components/schemas/Meta'
+              organization:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              postalcode:
+                $ref: '#/components/schemas/Meta'
+              profile:
+                $ref: '#/components/schemas/Meta'
+              proto:
+                $ref: '#/components/schemas/Meta'
+              revoke_on_unregistration:
+                $ref: '#/components/schemas/Meta'
+              server_cert_path:
+                $ref: '#/components/schemas/Meta'
+              server_cert_path_upload:
+                $ref: '#/components/schemas/Meta'
+              state:
+                $ref: '#/components/schemas/Meta'
+              streetaddress:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              username:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
     ConfigPortalModule:
       description: 'Choose one of the request bodies by discriminator (`type`). '
       discriminator:
@@ -8835,37 +8837,37 @@ components:
           URL: '#/components/schemas/ConfigPortalModuleSubTypeUrl'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeSelectrole'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeSurvey'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeShowlocalaccount'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauth'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeFixedrole'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationChoice'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeMessage'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthentication'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeChained'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeRootsso'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationBilling'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationBlackhole'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationEmail'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationLogin'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationNull'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauth'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthFacebook'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthGithub'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthGoogle'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthLinkedin'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthOpenid'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationEmail'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSponsor'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeMfa'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthWindowslive'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeProvisioning'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthFacebook'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationPassword'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSaml'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSms'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeRoot'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationNull'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSponsor'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeChained'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeFixedrole'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeMessage'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeMfa'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeProvisioning'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeRoot'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeRootsso'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeSelectrole'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeShowlocalaccount'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeSslInspection'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthGoogle'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeSurvey'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeUrl'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationLogin'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationPassword'
     ConfigPortalModuleSubTypeAuthentication:
       properties:
         actions:
@@ -10747,17 +10749,25 @@ components:
             properties:
               actions:
                 $ref: '#/components/schemas/Meta'
-              admin_role:
+              aup_template:
+                $ref: '#/components/schemas/Meta'
+              custom_fields:
                 $ref: '#/components/schemas/Meta'
               description:
                 $ref: '#/components/schemas/Meta'
+              fields_to_save:
+                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              list_role:
+              pid_field:
                 $ref: '#/components/schemas/Meta'
-              template:
+              signup_template:
+                $ref: '#/components/schemas/Meta'
+              source_id:
                 $ref: '#/components/schemas/Meta'
               type:
+                $ref: '#/components/schemas/Meta'
+              with_aup:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -10770,7 +10780,30 @@ components:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              survey_id:
+              message:
+                $ref: '#/components/schemas/Meta'
+              skipable:
+                $ref: '#/components/schemas/Meta'
+              template:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              with_layout:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              custom_fields:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              fields_to_save:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              source_id:
                 $ref: '#/components/schemas/Meta'
               template:
                 $ref: '#/components/schemas/Meta'
@@ -10789,9 +10822,78 @@ components:
                 $ref: '#/components/schemas/Meta'
               skipable:
                 $ref: '#/components/schemas/Meta'
-              template:
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              aup_template:
+                $ref: '#/components/schemas/Meta'
+              custom_fields:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              fields_to_save:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              multi_source_ids:
+                $ref: '#/components/schemas/Meta'
+              pid_field:
+                $ref: '#/components/schemas/Meta'
+              signup_template:
                 $ref: '#/components/schemas/Meta'
               type:
+                $ref: '#/components/schemas/Meta'
+              with_aup:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              skipable:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              url:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              aup_template:
+                $ref: '#/components/schemas/Meta'
+              custom_fields:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              fields_to_save:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              landing_template:
+                $ref: '#/components/schemas/Meta'
+              pid_field:
+                $ref: '#/components/schemas/Meta'
+              signup_template:
+                $ref: '#/components/schemas/Meta'
+              source_id:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              with_aup:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -10833,7 +10935,49 @@ components:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              stone_roles:
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              aup_template:
+                $ref: '#/components/schemas/Meta'
+              custom_fields:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              fields_to_save:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              pid_field:
+                $ref: '#/components/schemas/Meta'
+              signup_template:
+                $ref: '#/components/schemas/Meta'
+              source_id:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              with_aup:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              skipable:
+                $ref: '#/components/schemas/Meta'
+              template:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -10879,15 +11023,28 @@ components:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              message:
-                $ref: '#/components/schemas/Meta'
-              skipable:
-                $ref: '#/components/schemas/Meta'
-              template:
+              modules:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
-              with_layout:
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              skipable:
+                $ref: '#/components/schemas/Meta'
+              ssl_mobileconfig_path:
+                $ref: '#/components/schemas/Meta'
+              ssl_path:
+                $ref: '#/components/schemas/Meta'
+              type:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -10905,6 +11062,84 @@ components:
               fields_to_save:
                 $ref: '#/components/schemas/Meta'
               id:
+                $ref: '#/components/schemas/Meta'
+              signup_template:
+                $ref: '#/components/schemas/Meta'
+              source_id:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              with_aup:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              modules:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              modules:
+                $ref: '#/components/schemas/Meta'
+              show_first_module_on_default:
+                $ref: '#/components/schemas/Meta'
+              template:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              admin_role:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              list_role:
+                $ref: '#/components/schemas/Meta'
+              template:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              aup_template:
+                $ref: '#/components/schemas/Meta'
+              custom_fields:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              fields_to_save:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              landing_template:
                 $ref: '#/components/schemas/Meta'
               pid_field:
                 $ref: '#/components/schemas/Meta'
@@ -10927,7 +11162,9 @@ components:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              modules:
+              survey_id:
+                $ref: '#/components/schemas/Meta'
+              template:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -10936,19 +11173,8 @@ components:
       - properties:
           meta:
             properties:
-              description:
+              actions:
                 $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              modules:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
               aup_template:
                 $ref: '#/components/schemas/Meta'
               custom_fields:
@@ -10967,53 +11193,7 @@ components:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
-              with_aup:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              custom_fields:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              fields_to_save:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              source_id:
-                $ref: '#/components/schemas/Meta'
-              template:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              actions:
-                $ref: '#/components/schemas/Meta'
-              aup_template:
-                $ref: '#/components/schemas/Meta'
-              custom_fields:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              fields_to_save:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              landing_template:
-                $ref: '#/components/schemas/Meta'
-              pid_field:
-                $ref: '#/components/schemas/Meta'
-              signup_template:
-                $ref: '#/components/schemas/Meta'
-              source_id:
-                $ref: '#/components/schemas/Meta'
-              type:
+              username:
                 $ref: '#/components/schemas/Meta'
               with_aup:
                 $ref: '#/components/schemas/Meta'
@@ -11035,62 +11215,6 @@ components:
               id:
                 $ref: '#/components/schemas/Meta'
               landing_template:
-                $ref: '#/components/schemas/Meta'
-              pid_field:
-                $ref: '#/components/schemas/Meta'
-              signup_template:
-                $ref: '#/components/schemas/Meta'
-              source_id:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              with_aup:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              actions:
-                $ref: '#/components/schemas/Meta'
-              aup_template:
-                $ref: '#/components/schemas/Meta'
-              custom_fields:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              fields_to_save:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              landing_template:
-                $ref: '#/components/schemas/Meta'
-              pid_field:
-                $ref: '#/components/schemas/Meta'
-              signup_template:
-                $ref: '#/components/schemas/Meta'
-              source_id:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              with_aup:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              actions:
-                $ref: '#/components/schemas/Meta'
-              aup_template:
-                $ref: '#/components/schemas/Meta'
-              custom_fields:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              fields_to_save:
-                $ref: '#/components/schemas/Meta'
-              id:
                 $ref: '#/components/schemas/Meta'
               pid_field:
                 $ref: '#/components/schemas/Meta'
@@ -11138,19 +11262,6 @@ components:
             properties:
               actions:
                 $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              actions:
-                $ref: '#/components/schemas/Meta'
               aup_template:
                 $ref: '#/components/schemas/Meta'
               custom_fields:
@@ -11172,21 +11283,6 @@ components:
               type:
                 $ref: '#/components/schemas/Meta'
               with_aup:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              actions:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              skipable:
-                $ref: '#/components/schemas/Meta'
-              type:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -11303,9 +11399,11 @@ components:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              signup_template:
+              multi_source_ids:
                 $ref: '#/components/schemas/Meta'
-              source_id:
+              pid_field:
+                $ref: '#/components/schemas/Meta'
+              signup_template:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -11322,30 +11420,7 @@ components:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              modules:
-                $ref: '#/components/schemas/Meta'
-              show_first_module_on_default:
-                $ref: '#/components/schemas/Meta'
-              template:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              actions:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              skipable:
-                $ref: '#/components/schemas/Meta'
-              ssl_mobileconfig_path:
-                $ref: '#/components/schemas/Meta'
-              ssl_path:
+              stone_roles:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -11375,79 +11450,6 @@ components:
               source_id:
                 $ref: '#/components/schemas/Meta'
               type:
-                $ref: '#/components/schemas/Meta'
-              with_aup:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              actions:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              skipable:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              url:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              actions:
-                $ref: '#/components/schemas/Meta'
-              aup_template:
-                $ref: '#/components/schemas/Meta'
-              custom_fields:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              fields_to_save:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              multi_source_ids:
-                $ref: '#/components/schemas/Meta'
-              pid_field:
-                $ref: '#/components/schemas/Meta'
-              signup_template:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              with_aup:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              actions:
-                $ref: '#/components/schemas/Meta'
-              aup_template:
-                $ref: '#/components/schemas/Meta'
-              custom_fields:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              fields_to_save:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              multi_source_ids:
-                $ref: '#/components/schemas/Meta'
-              pid_field:
-                $ref: '#/components/schemas/Meta'
-              signup_template:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              username:
                 $ref: '#/components/schemas/Meta'
               with_aup:
                 $ref: '#/components/schemas/Meta'
@@ -11472,19 +11474,19 @@ components:
           windows: '#/components/schemas/ConfigProvisioningSubTypeWindows'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeDpsk'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeWindows'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeIntune'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeAccept'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileconfig'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeAirwatch'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeKandji'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeAndroid'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeSentinelone'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeJamf'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeDeny'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeDpsk'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeGoogleWorkspaceChromebook'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeIntune'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeKandji'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileconfig'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeSentinelone'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeWindows'
     ConfigProvisioningSubTypeAccept:
       properties:
         apply_role:
@@ -13387,41 +13389,6 @@ components:
                 $ref: '#/components/schemas/Meta'
               autoregister:
                 $ref: '#/components/schemas/Meta'
-              category:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              dpsk_use_local_password:
-                $ref: '#/components/schemas/Meta'
-              enforce:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              non_compliance_security_event:
-                $ref: '#/components/schemas/Meta'
-              oses:
-                $ref: '#/components/schemas/Meta'
-              pki_provider:
-                $ref: '#/components/schemas/Meta'
-              psk_size:
-                $ref: '#/components/schemas/Meta'
-              role_to_apply:
-                $ref: '#/components/schemas/Meta'
-              ssid:
-                $ref: '#/components/schemas/Meta'
-              sync_pid:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              apply_role:
-                $ref: '#/components/schemas/Meta'
-              autoregister:
-                $ref: '#/components/schemas/Meta'
               broadcast:
                 $ref: '#/components/schemas/Meta'
               ca_cert_path:
@@ -13481,6 +13448,125 @@ components:
       - properties:
           meta:
             properties:
+              apply_role:
+                $ref: '#/components/schemas/Meta'
+              autoregister:
+                $ref: '#/components/schemas/Meta'
+              category:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              enforce:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              non_compliance_security_event:
+                $ref: '#/components/schemas/Meta'
+              oses:
+                $ref: '#/components/schemas/Meta'
+              pki_provider:
+                $ref: '#/components/schemas/Meta'
+              role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              sync_pid:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              api_password:
+                $ref: '#/components/schemas/Meta'
+              api_username:
+                $ref: '#/components/schemas/Meta'
+              apply_role:
+                $ref: '#/components/schemas/Meta'
+              autoregister:
+                $ref: '#/components/schemas/Meta'
+              category:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              device_type_detection:
+                $ref: '#/components/schemas/Meta'
+              enforce:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              non_compliance_security_event:
+                $ref: '#/components/schemas/Meta'
+              oses:
+                $ref: '#/components/schemas/Meta'
+              pki_provider:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              protocol:
+                $ref: '#/components/schemas/Meta'
+              query_computers:
+                $ref: '#/components/schemas/Meta'
+              query_mobiledevices:
+                $ref: '#/components/schemas/Meta'
+              role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              sync_pid:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              android_download_uri:
+                $ref: '#/components/schemas/Meta'
+              apply_role:
+                $ref: '#/components/schemas/Meta'
+              autoregister:
+                $ref: '#/components/schemas/Meta'
+              boarding_host:
+                $ref: '#/components/schemas/Meta'
+              boarding_port:
+                $ref: '#/components/schemas/Meta'
+              category:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              enforce:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              ios_download_uri:
+                $ref: '#/components/schemas/Meta'
+              non_compliance_security_event:
+                $ref: '#/components/schemas/Meta'
+              oses:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              pki_provider:
+                $ref: '#/components/schemas/Meta'
+              role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              sync_pid:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              username:
+                $ref: '#/components/schemas/Meta'
+              windows_phone_download_uri:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
               access_token:
                 $ref: '#/components/schemas/Meta'
               android_agent_download_uri:
@@ -13526,6 +13612,49 @@ components:
               sync_pid:
                 $ref: '#/components/schemas/Meta'
               tenantID:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              windows_agent_download_uri:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              api_password:
+                $ref: '#/components/schemas/Meta'
+              api_username:
+                $ref: '#/components/schemas/Meta'
+              apply_role:
+                $ref: '#/components/schemas/Meta'
+              autoregister:
+                $ref: '#/components/schemas/Meta'
+              category:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              enforce:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              mac_osx_agent_download_uri:
+                $ref: '#/components/schemas/Meta'
+              non_compliance_security_event:
+                $ref: '#/components/schemas/Meta'
+              oses:
+                $ref: '#/components/schemas/Meta'
+              pki_provider:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              protocol:
+                $ref: '#/components/schemas/Meta'
+              role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              sync_pid:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -13622,6 +13751,82 @@ components:
               sync_pid:
                 $ref: '#/components/schemas/Meta'
               type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              apply_role:
+                $ref: '#/components/schemas/Meta'
+              autoregister:
+                $ref: '#/components/schemas/Meta'
+              category:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              dpsk_use_local_password:
+                $ref: '#/components/schemas/Meta'
+              enforce:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              non_compliance_security_event:
+                $ref: '#/components/schemas/Meta'
+              oses:
+                $ref: '#/components/schemas/Meta'
+              pki_provider:
+                $ref: '#/components/schemas/Meta'
+              psk_size:
+                $ref: '#/components/schemas/Meta'
+              role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              ssid:
+                $ref: '#/components/schemas/Meta'
+              sync_pid:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              apply_role:
+                $ref: '#/components/schemas/Meta'
+              autoregister:
+                $ref: '#/components/schemas/Meta'
+              category:
+                $ref: '#/components/schemas/Meta'
+              customer_id:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              enforce:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              non_compliance_security_event:
+                $ref: '#/components/schemas/Meta'
+              oses:
+                $ref: '#/components/schemas/Meta'
+              pki_provider:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              protocol:
+                $ref: '#/components/schemas/Meta'
+              role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              service_account:
+                $ref: '#/components/schemas/Meta'
+              sync_pid:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              user:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -13708,51 +13913,6 @@ components:
       - properties:
           meta:
             properties:
-              android_download_uri:
-                $ref: '#/components/schemas/Meta'
-              apply_role:
-                $ref: '#/components/schemas/Meta'
-              autoregister:
-                $ref: '#/components/schemas/Meta'
-              boarding_host:
-                $ref: '#/components/schemas/Meta'
-              boarding_port:
-                $ref: '#/components/schemas/Meta'
-              category:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              enforce:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              ios_download_uri:
-                $ref: '#/components/schemas/Meta'
-              non_compliance_security_event:
-                $ref: '#/components/schemas/Meta'
-              oses:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              pki_provider:
-                $ref: '#/components/schemas/Meta'
-              role_to_apply:
-                $ref: '#/components/schemas/Meta'
-              sync_pid:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              username:
-                $ref: '#/components/schemas/Meta'
-              windows_phone_download_uri:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
               apply_role:
                 $ref: '#/components/schemas/Meta'
               autoregister:
@@ -13810,164 +13970,6 @@ components:
               sync_pid:
                 $ref: '#/components/schemas/Meta'
               type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              api_password:
-                $ref: '#/components/schemas/Meta'
-              api_username:
-                $ref: '#/components/schemas/Meta'
-              apply_role:
-                $ref: '#/components/schemas/Meta'
-              autoregister:
-                $ref: '#/components/schemas/Meta'
-              category:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              enforce:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              mac_osx_agent_download_uri:
-                $ref: '#/components/schemas/Meta'
-              non_compliance_security_event:
-                $ref: '#/components/schemas/Meta'
-              oses:
-                $ref: '#/components/schemas/Meta'
-              pki_provider:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              protocol:
-                $ref: '#/components/schemas/Meta'
-              role_to_apply:
-                $ref: '#/components/schemas/Meta'
-              sync_pid:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              windows_agent_download_uri:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              api_password:
-                $ref: '#/components/schemas/Meta'
-              api_username:
-                $ref: '#/components/schemas/Meta'
-              apply_role:
-                $ref: '#/components/schemas/Meta'
-              autoregister:
-                $ref: '#/components/schemas/Meta'
-              category:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              device_type_detection:
-                $ref: '#/components/schemas/Meta'
-              enforce:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              non_compliance_security_event:
-                $ref: '#/components/schemas/Meta'
-              oses:
-                $ref: '#/components/schemas/Meta'
-              pki_provider:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              protocol:
-                $ref: '#/components/schemas/Meta'
-              query_computers:
-                $ref: '#/components/schemas/Meta'
-              query_mobiledevices:
-                $ref: '#/components/schemas/Meta'
-              role_to_apply:
-                $ref: '#/components/schemas/Meta'
-              sync_pid:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              apply_role:
-                $ref: '#/components/schemas/Meta'
-              autoregister:
-                $ref: '#/components/schemas/Meta'
-              category:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              enforce:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              non_compliance_security_event:
-                $ref: '#/components/schemas/Meta'
-              oses:
-                $ref: '#/components/schemas/Meta'
-              pki_provider:
-                $ref: '#/components/schemas/Meta'
-              role_to_apply:
-                $ref: '#/components/schemas/Meta'
-              sync_pid:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              apply_role:
-                $ref: '#/components/schemas/Meta'
-              autoregister:
-                $ref: '#/components/schemas/Meta'
-              category:
-                $ref: '#/components/schemas/Meta'
-              customer_id:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              enforce:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              non_compliance_security_event:
-                $ref: '#/components/schemas/Meta'
-              oses:
-                $ref: '#/components/schemas/Meta'
-              pki_provider:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              protocol:
-                $ref: '#/components/schemas/Meta'
-              role_to_apply:
-                $ref: '#/components/schemas/Meta'
-              service_account:
-                $ref: '#/components/schemas/Meta'
-              sync_pid:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              user:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -14800,10 +14802,10 @@ components:
           pfappserver::Form::Config::Scan::Rapid7: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanOpenvas'
-      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus6'
-      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
       - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus'
+      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus6'
+      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanOpenvas'
+      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
     ConfigScanSubTypePfappserverFormConfigScanNessus:
       properties:
         categories:
@@ -15232,41 +15234,6 @@ components:
                 $ref: '#/components/schemas/Meta'
               duration:
                 $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              ip:
-                $ref: '#/components/schemas/Meta'
-              nessus_clientpolicy:
-                $ref: '#/components/schemas/Meta'
-              oses:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              post_registration:
-                $ref: '#/components/schemas/Meta'
-              pre_registration:
-                $ref: '#/components/schemas/Meta'
-              registration:
-                $ref: '#/components/schemas/Meta'
-              scannername:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              username:
-                $ref: '#/components/schemas/Meta'
-              verify_hostname:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              categories:
-                $ref: '#/components/schemas/Meta'
-              duration:
-                $ref: '#/components/schemas/Meta'
               engine_id:
                 $ref: '#/components/schemas/Meta'
               host:
@@ -15325,6 +15292,41 @@ components:
               type:
                 $ref: '#/components/schemas/Meta'
               username:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              categories:
+                $ref: '#/components/schemas/Meta'
+              duration:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              ip:
+                $ref: '#/components/schemas/Meta'
+              nessus_clientpolicy:
+                $ref: '#/components/schemas/Meta'
+              oses:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              post_registration:
+                $ref: '#/components/schemas/Meta'
+              pre_registration:
+                $ref: '#/components/schemas/Meta'
+              registration:
+                $ref: '#/components/schemas/Meta'
+              scannername:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              username:
+                $ref: '#/components/schemas/Meta'
+              verify_hostname:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -15396,7 +15398,7 @@ components:
               type: string
           type: object
         id:
-          default: 3000012
+          default: 3000013
           description: Use a number above 1500000 if you want to be able to delete
             this security event later.
           type: string
@@ -15705,38 +15707,38 @@ components:
           WindowsLive: '#/components/schemas/ConfigSourceSubTypeWindowslive'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigSourceSubTypeOpenid'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeWindowslive'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeAuthorization'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeKerberos'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeGoogleworkspaceldap'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeEaptls'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeRadius'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeAzuread'
       - $ref: '#/components/schemas/ConfigSourceSubTypeAd'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeLinkedin'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeAdminproxy'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeAuthorization'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeAzuread'
       - $ref: '#/components/schemas/ConfigSourceSubTypeBlackhole'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeHtpasswd'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeStripe'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeEdir'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeSms'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeGithub'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeFacebook'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeTwilio'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeSql'
       - $ref: '#/components/schemas/ConfigSourceSubTypeClickatell'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeSponsoremail'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeLdap'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeGoogle'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeKickbox'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeSaml'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeEaptls'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeEdir'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeEduroam'
       - $ref: '#/components/schemas/ConfigSourceSubTypeEmail'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeFacebook'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeGithub'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeGoogle'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeGoogleworkspaceldap'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeHtpasswd'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeHttp'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeKerberos'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeKickbox'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeLdap'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeLinkedin'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeNull'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeOpenid'
       - $ref: '#/components/schemas/ConfigSourceSubTypePaypal'
       - $ref: '#/components/schemas/ConfigSourceSubTypePotd'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeNull'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeAdminproxy'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeEduroam'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeHttp'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeRadius'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeSaml'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeSms'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeSponsoremail'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeSql'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeStripe'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeTwilio'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeWindowslive'
     ConfigSourceSubTypeAd:
       properties:
         administration_rules:
@@ -21727,537 +21729,9 @@ components:
       - properties:
           meta:
             properties:
-              access_token_path:
-                $ref: '#/components/schemas/Meta'
               administration_rules:
                 $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              authorize_path:
-                $ref: '#/components/schemas/Meta'
-              client_id:
-                $ref: '#/components/schemas/Meta'
-              client_secret:
-                $ref: '#/components/schemas/Meta'
-              create_local_account:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              domains:
-                $ref: '#/components/schemas/Meta'
-              hash_passwords:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              local_account_expiration:
-                $ref: '#/components/schemas/Meta'
-              local_account_logins:
-                $ref: '#/components/schemas/Meta'
-              password_length:
-                $ref: '#/components/schemas/Meta'
-              person_mappings:
-                $ref: '#/components/schemas/Meta'
-              protected_resource_url:
-                $ref: '#/components/schemas/Meta'
-              redirect_url:
-                $ref: '#/components/schemas/Meta'
-              scope:
-                $ref: '#/components/schemas/Meta'
-              site:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              username_attribute:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              access_token_param:
-                $ref: '#/components/schemas/Meta'
-              access_token_path:
-                $ref: '#/components/schemas/Meta'
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              authorize_path:
-                $ref: '#/components/schemas/Meta'
-              client_id:
-                $ref: '#/components/schemas/Meta'
-              client_secret:
-                $ref: '#/components/schemas/Meta'
-              create_local_account:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              domains:
-                $ref: '#/components/schemas/Meta'
-              hash_passwords:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              local_account_expiration:
-                $ref: '#/components/schemas/Meta'
-              local_account_logins:
-                $ref: '#/components/schemas/Meta'
-              password_length:
-                $ref: '#/components/schemas/Meta'
-              protected_resource_url:
-                $ref: '#/components/schemas/Meta'
-              redirect_url:
-                $ref: '#/components/schemas/Meta'
-              scope:
-                $ref: '#/components/schemas/Meta'
-              site:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              realms:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              authenticate_realm:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              realms:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              append_to_searchattributes:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              basedn:
-                $ref: '#/components/schemas/Meta'
-              binddn:
-                $ref: '#/components/schemas/Meta'
-              ca_file:
-                $ref: '#/components/schemas/Meta'
-              ca_file_upload:
-                $ref: '#/components/schemas/Meta'
-              cache_match:
-                $ref: '#/components/schemas/Meta'
-              client_cert_file:
-                $ref: '#/components/schemas/Meta'
-              client_cert_file_upload:
-                $ref: '#/components/schemas/Meta'
-              client_key_file:
-                $ref: '#/components/schemas/Meta'
-              client_key_file_upload:
-                $ref: '#/components/schemas/Meta'
-              connection_timeout:
-                $ref: '#/components/schemas/Meta'
-              dead_duration:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              email_attribute:
-                $ref: '#/components/schemas/Meta'
-              encryption:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              monitor:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              read_timeout:
-                $ref: '#/components/schemas/Meta'
-              realms:
-                $ref: '#/components/schemas/Meta'
-              scope:
-                $ref: '#/components/schemas/Meta'
-              searchattributes:
-                $ref: '#/components/schemas/Meta'
-              shuffle:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              use_connector:
-                $ref: '#/components/schemas/Meta'
-              usernameattribute:
-                $ref: '#/components/schemas/Meta'
-              verify:
-                $ref: '#/components/schemas/Meta'
-              write_timeout:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              realms:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              monitor:
-                $ref: '#/components/schemas/Meta'
-              nas_ip_address:
-                $ref: '#/components/schemas/Meta'
-              options:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              realms:
-                $ref: '#/components/schemas/Meta'
-              secret:
-                $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              use_connector:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              client_id:
-                $ref: '#/components/schemas/Meta'
-              client_secret:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              realms:
-                $ref: '#/components/schemas/Meta'
-              tenant_id:
-                $ref: '#/components/schemas/Meta'
-              timeout:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              user_groups_cache:
-                $ref: '#/components/schemas/Meta'
-              user_groups_url:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              append_to_searchattributes:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              basedn:
-                $ref: '#/components/schemas/Meta'
-              binddn:
-                $ref: '#/components/schemas/Meta'
-              ca_file:
-                $ref: '#/components/schemas/Meta'
-              ca_file_upload:
-                $ref: '#/components/schemas/Meta'
-              cache_match:
-                $ref: '#/components/schemas/Meta'
-              client_cert_file:
-                $ref: '#/components/schemas/Meta'
-              client_cert_file_upload:
-                $ref: '#/components/schemas/Meta'
-              client_key_file:
-                $ref: '#/components/schemas/Meta'
-              client_key_file_upload:
-                $ref: '#/components/schemas/Meta'
-              connection_timeout:
-                $ref: '#/components/schemas/Meta'
-              dead_duration:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              email_attribute:
-                $ref: '#/components/schemas/Meta'
-              encryption:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              monitor:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              read_timeout:
-                $ref: '#/components/schemas/Meta'
-              realms:
-                $ref: '#/components/schemas/Meta'
-              scope:
-                $ref: '#/components/schemas/Meta'
-              searchattributes:
-                $ref: '#/components/schemas/Meta'
-              shuffle:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              use_connector:
-                $ref: '#/components/schemas/Meta'
-              usernameattribute:
-                $ref: '#/components/schemas/Meta'
-              verify:
-                $ref: '#/components/schemas/Meta'
-              write_timeout:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              access_token_param:
-                $ref: '#/components/schemas/Meta'
-              access_token_path:
-                $ref: '#/components/schemas/Meta'
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              authorize_path:
-                $ref: '#/components/schemas/Meta'
-              client_id:
-                $ref: '#/components/schemas/Meta'
-              client_secret:
-                $ref: '#/components/schemas/Meta'
-              create_local_account:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              domains:
-                $ref: '#/components/schemas/Meta'
-              hash_passwords:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              local_account_expiration:
-                $ref: '#/components/schemas/Meta'
-              local_account_logins:
-                $ref: '#/components/schemas/Meta'
-              password_length:
-                $ref: '#/components/schemas/Meta'
-              protected_resource_url:
-                $ref: '#/components/schemas/Meta'
-              redirect_url:
-                $ref: '#/components/schemas/Meta'
-              scope:
-                $ref: '#/components/schemas/Meta'
-              site:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              path:
-                $ref: '#/components/schemas/Meta'
-              path_upload:
-                $ref: '#/components/schemas/Meta'
-              realms:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              create_local_account:
-                $ref: '#/components/schemas/Meta'
-              currency:
-                $ref: '#/components/schemas/Meta'
-              customer_portal:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              domains:
-                $ref: '#/components/schemas/Meta'
-              hash_passwords:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              local_account_expiration:
-                $ref: '#/components/schemas/Meta'
-              local_account_logins:
-                $ref: '#/components/schemas/Meta'
-              password_length:
-                $ref: '#/components/schemas/Meta'
-              publishable_key:
-                $ref: '#/components/schemas/Meta'
-              secret_key:
-                $ref: '#/components/schemas/Meta'
-              send_email_confirmation:
-                $ref: '#/components/schemas/Meta'
-              style:
-                $ref: '#/components/schemas/Meta'
-              test_mode:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              append_to_searchattributes:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              basedn:
-                $ref: '#/components/schemas/Meta'
-              binddn:
-                $ref: '#/components/schemas/Meta'
-              ca_file:
-                $ref: '#/components/schemas/Meta'
-              ca_file_upload:
-                $ref: '#/components/schemas/Meta'
-              cache_match:
-                $ref: '#/components/schemas/Meta'
-              client_cert_file:
-                $ref: '#/components/schemas/Meta'
-              client_cert_file_upload:
-                $ref: '#/components/schemas/Meta'
-              client_key_file:
-                $ref: '#/components/schemas/Meta'
-              client_key_file_upload:
-                $ref: '#/components/schemas/Meta'
-              connection_timeout:
-                $ref: '#/components/schemas/Meta'
-              dead_duration:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              email_attribute:
-                $ref: '#/components/schemas/Meta'
-              encryption:
-                $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              monitor:
-                $ref: '#/components/schemas/Meta'
-              password:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              read_timeout:
-                $ref: '#/components/schemas/Meta'
-              realms:
-                $ref: '#/components/schemas/Meta'
-              scope:
-                $ref: '#/components/schemas/Meta'
-              searchattributes:
-                $ref: '#/components/schemas/Meta'
-              shuffle:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              use_connector:
-                $ref: '#/components/schemas/Meta'
-              usernameattribute:
-                $ref: '#/components/schemas/Meta'
-              verify:
-                $ref: '#/components/schemas/Meta'
-              write_timeout:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
+              api_key:
                 $ref: '#/components/schemas/Meta'
               authentication_rules:
                 $ref: '#/components/schemas/Meta'
@@ -22279,10 +21753,6 @@ components:
                 $ref: '#/components/schemas/Meta'
               pin_code_length:
                 $ref: '#/components/schemas/Meta'
-              sms_activation_timeout:
-                $ref: '#/components/schemas/Meta'
-              sms_carriers:
-                $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
             type: object
@@ -22343,6 +21813,8 @@ components:
                 $ref: '#/components/schemas/Meta'
               authentication_rules:
                 $ref: '#/components/schemas/Meta'
+              authorize_path:
+                $ref: '#/components/schemas/Meta'
               client_id:
                 $ref: '#/components/schemas/Meta'
               client_secret:
@@ -22370,6 +21842,41 @@ components:
               scope:
                 $ref: '#/components/schemas/Meta'
               site:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              activation_domain:
+                $ref: '#/components/schemas/Meta'
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              allow_localdomain:
+                $ref: '#/components/schemas/Meta'
+              allowed_domains:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              banned_domains:
+                $ref: '#/components/schemas/Meta'
+              create_local_account:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              email_activation_timeout:
+                $ref: '#/components/schemas/Meta'
+              hash_passwords:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              local_account_expiration:
+                $ref: '#/components/schemas/Meta'
+              local_account_logins:
+                $ref: '#/components/schemas/Meta'
+              password_length:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -22428,15 +21935,25 @@ components:
       - properties:
           meta:
             properties:
+              access_token_param:
+                $ref: '#/components/schemas/Meta'
+              access_token_path:
+                $ref: '#/components/schemas/Meta'
               administration_rules:
                 $ref: '#/components/schemas/Meta'
-              api_key:
-                $ref: '#/components/schemas/Meta'
               authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              authorize_path:
+                $ref: '#/components/schemas/Meta'
+              client_id:
+                $ref: '#/components/schemas/Meta'
+              client_secret:
                 $ref: '#/components/schemas/Meta'
               create_local_account:
                 $ref: '#/components/schemas/Meta'
               description:
+                $ref: '#/components/schemas/Meta'
+              domains:
                 $ref: '#/components/schemas/Meta'
               hash_passwords:
                 $ref: '#/components/schemas/Meta'
@@ -22446,11 +21963,15 @@ components:
                 $ref: '#/components/schemas/Meta'
               local_account_logins:
                 $ref: '#/components/schemas/Meta'
-              message:
-                $ref: '#/components/schemas/Meta'
               password_length:
                 $ref: '#/components/schemas/Meta'
-              pin_code_length:
+              protected_resource_url:
+                $ref: '#/components/schemas/Meta'
+              redirect_url:
+                $ref: '#/components/schemas/Meta'
+              scope:
+                $ref: '#/components/schemas/Meta'
+              site:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -22459,29 +21980,103 @@ components:
       - properties:
           meta:
             properties:
-              activation_domain:
-                $ref: '#/components/schemas/Meta'
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              allow_localdomain:
-                $ref: '#/components/schemas/Meta'
-              allowed_domains:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              banned_domains:
-                $ref: '#/components/schemas/Meta'
-              create_local_account:
+              authorization_source_id:
                 $ref: '#/components/schemas/Meta'
               description:
                 $ref: '#/components/schemas/Meta'
-              email_activation_timeout:
+              id:
+                $ref: '#/components/schemas/Meta'
+              idp_ca_cert_path:
+                $ref: '#/components/schemas/Meta'
+              idp_ca_cert_path_upload:
+                $ref: '#/components/schemas/Meta'
+              idp_cert_path:
+                $ref: '#/components/schemas/Meta'
+              idp_cert_path_upload:
+                $ref: '#/components/schemas/Meta'
+              idp_entity_id:
+                $ref: '#/components/schemas/Meta'
+              idp_metadata_path:
+                $ref: '#/components/schemas/Meta'
+              idp_metadata_path_upload:
+                $ref: '#/components/schemas/Meta'
+              sp_cert_path:
+                $ref: '#/components/schemas/Meta'
+              sp_cert_path_upload:
+                $ref: '#/components/schemas/Meta'
+              sp_entity_id:
+                $ref: '#/components/schemas/Meta'
+              sp_key_path:
+                $ref: '#/components/schemas/Meta'
+              sp_key_path_upload:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              username_attribute:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              monitor:
+                $ref: '#/components/schemas/Meta'
+              nas_ip_address:
+                $ref: '#/components/schemas/Meta'
+              options:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              secret:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              use_connector:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              cert_file:
+                $ref: '#/components/schemas/Meta'
+              cert_file_upload:
+                $ref: '#/components/schemas/Meta'
+              cert_id:
+                $ref: '#/components/schemas/Meta'
+              create_local_account:
+                $ref: '#/components/schemas/Meta'
+              currency:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              domains:
+                $ref: '#/components/schemas/Meta'
+              email_address:
                 $ref: '#/components/schemas/Meta'
               hash_passwords:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              lang:
+              identity_token:
+                $ref: '#/components/schemas/Meta'
+              key_file:
+                $ref: '#/components/schemas/Meta'
+              key_file_upload:
                 $ref: '#/components/schemas/Meta'
               local_account_expiration:
                 $ref: '#/components/schemas/Meta'
@@ -22489,15 +22084,256 @@ components:
                 $ref: '#/components/schemas/Meta'
               password_length:
                 $ref: '#/components/schemas/Meta'
-              register_on_activation:
+              payment_type:
                 $ref: '#/components/schemas/Meta'
-              sources:
+              paypal_cert_file:
                 $ref: '#/components/schemas/Meta'
-              sponsorship_bcc:
+              paypal_cert_file_upload:
+                $ref: '#/components/schemas/Meta'
+              send_email_confirmation:
+                $ref: '#/components/schemas/Meta'
+              test_mode:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
-              validate_sponsor:
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              api_key:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              email_required:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              access_token_path:
+                $ref: '#/components/schemas/Meta'
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              authorize_path:
+                $ref: '#/components/schemas/Meta'
+              client_id:
+                $ref: '#/components/schemas/Meta'
+              client_secret:
+                $ref: '#/components/schemas/Meta'
+              create_local_account:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              domains:
+                $ref: '#/components/schemas/Meta'
+              hash_passwords:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              local_account_expiration:
+                $ref: '#/components/schemas/Meta'
+              local_account_logins:
+                $ref: '#/components/schemas/Meta'
+              password_length:
+                $ref: '#/components/schemas/Meta'
+              person_mappings:
+                $ref: '#/components/schemas/Meta'
+              protected_resource_url:
+                $ref: '#/components/schemas/Meta'
+              redirect_url:
+                $ref: '#/components/schemas/Meta'
+              scope:
+                $ref: '#/components/schemas/Meta'
+              site:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              username_attribute:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              password_email_update:
+                $ref: '#/components/schemas/Meta'
+              password_length:
+                $ref: '#/components/schemas/Meta'
+              password_rotation:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              append_to_searchattributes:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              basedn:
+                $ref: '#/components/schemas/Meta'
+              binddn:
+                $ref: '#/components/schemas/Meta'
+              ca_file:
+                $ref: '#/components/schemas/Meta'
+              ca_file_upload:
+                $ref: '#/components/schemas/Meta'
+              cache_match:
+                $ref: '#/components/schemas/Meta'
+              client_cert_file:
+                $ref: '#/components/schemas/Meta'
+              client_cert_file_upload:
+                $ref: '#/components/schemas/Meta'
+              client_key_file:
+                $ref: '#/components/schemas/Meta'
+              client_key_file_upload:
+                $ref: '#/components/schemas/Meta'
+              connection_timeout:
+                $ref: '#/components/schemas/Meta'
+              dead_duration:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              email_attribute:
+                $ref: '#/components/schemas/Meta'
+              encryption:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              monitor:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              read_timeout:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              scope:
+                $ref: '#/components/schemas/Meta'
+              searchattributes:
+                $ref: '#/components/schemas/Meta'
+              shuffle:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              use_connector:
+                $ref: '#/components/schemas/Meta'
+              usernameattribute:
+                $ref: '#/components/schemas/Meta'
+              verify:
+                $ref: '#/components/schemas/Meta'
+              write_timeout:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authenticate_realm:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              access_token_param:
+                $ref: '#/components/schemas/Meta'
+              access_token_path:
+                $ref: '#/components/schemas/Meta'
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              client_id:
+                $ref: '#/components/schemas/Meta'
+              client_secret:
+                $ref: '#/components/schemas/Meta'
+              create_local_account:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              domains:
+                $ref: '#/components/schemas/Meta'
+              hash_passwords:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              local_account_expiration:
+                $ref: '#/components/schemas/Meta'
+              local_account_logins:
+                $ref: '#/components/schemas/Meta'
+              password_length:
+                $ref: '#/components/schemas/Meta'
+              protected_resource_url:
+                $ref: '#/components/schemas/Meta'
+              redirect_url:
+                $ref: '#/components/schemas/Meta'
+              scope:
+                $ref: '#/components/schemas/Meta'
+              site:
+                $ref: '#/components/schemas/Meta'
+              type:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -22618,166 +22454,166 @@ components:
       - properties:
           meta:
             properties:
-              administration_rules:
+              authentication_url:
                 $ref: '#/components/schemas/Meta'
-              api_key:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
+              authorization_url:
                 $ref: '#/components/schemas/Meta'
               description:
                 $ref: '#/components/schemas/Meta'
-              email_required:
+              host:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              type:
+              password:
                 $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              authorization_source_id:
+              port:
                 $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              idp_ca_cert_path:
-                $ref: '#/components/schemas/Meta'
-              idp_ca_cert_path_upload:
-                $ref: '#/components/schemas/Meta'
-              idp_cert_path:
-                $ref: '#/components/schemas/Meta'
-              idp_cert_path_upload:
-                $ref: '#/components/schemas/Meta'
-              idp_entity_id:
-                $ref: '#/components/schemas/Meta'
-              idp_metadata_path:
-                $ref: '#/components/schemas/Meta'
-              idp_metadata_path_upload:
-                $ref: '#/components/schemas/Meta'
-              sp_cert_path:
-                $ref: '#/components/schemas/Meta'
-              sp_cert_path_upload:
-                $ref: '#/components/schemas/Meta'
-              sp_entity_id:
-                $ref: '#/components/schemas/Meta'
-              sp_key_path:
-                $ref: '#/components/schemas/Meta'
-              sp_key_path_upload:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              username_attribute:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              activation_domain:
-                $ref: '#/components/schemas/Meta'
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              allow_localdomain:
-                $ref: '#/components/schemas/Meta'
-              allowed_domains:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              banned_domains:
-                $ref: '#/components/schemas/Meta'
-              create_local_account:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              email_activation_timeout:
-                $ref: '#/components/schemas/Meta'
-              hash_passwords:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              local_account_expiration:
-                $ref: '#/components/schemas/Meta'
-              local_account_logins:
-                $ref: '#/components/schemas/Meta'
-              password_length:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              cert_file:
-                $ref: '#/components/schemas/Meta'
-              cert_file_upload:
-                $ref: '#/components/schemas/Meta'
-              cert_id:
-                $ref: '#/components/schemas/Meta'
-              create_local_account:
-                $ref: '#/components/schemas/Meta'
-              currency:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              domains:
-                $ref: '#/components/schemas/Meta'
-              email_address:
-                $ref: '#/components/schemas/Meta'
-              hash_passwords:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              identity_token:
-                $ref: '#/components/schemas/Meta'
-              key_file:
-                $ref: '#/components/schemas/Meta'
-              key_file_upload:
-                $ref: '#/components/schemas/Meta'
-              local_account_expiration:
-                $ref: '#/components/schemas/Meta'
-              local_account_logins:
-                $ref: '#/components/schemas/Meta'
-              password_length:
-                $ref: '#/components/schemas/Meta'
-              payment_type:
-                $ref: '#/components/schemas/Meta'
-              paypal_cert_file:
-                $ref: '#/components/schemas/Meta'
-              paypal_cert_file_upload:
-                $ref: '#/components/schemas/Meta'
-              send_email_confirmation:
-                $ref: '#/components/schemas/Meta'
-              test_mode:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              administration_rules:
-                $ref: '#/components/schemas/Meta'
-              authentication_rules:
-                $ref: '#/components/schemas/Meta'
-              description:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              password_email_update:
-                $ref: '#/components/schemas/Meta'
-              password_length:
-                $ref: '#/components/schemas/Meta'
-              password_rotation:
+              protocol:
                 $ref: '#/components/schemas/Meta'
               realms:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
+              username:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              append_to_searchattributes:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              basedn:
+                $ref: '#/components/schemas/Meta'
+              binddn:
+                $ref: '#/components/schemas/Meta'
+              ca_file:
+                $ref: '#/components/schemas/Meta'
+              ca_file_upload:
+                $ref: '#/components/schemas/Meta'
+              cache_match:
+                $ref: '#/components/schemas/Meta'
+              client_cert_file:
+                $ref: '#/components/schemas/Meta'
+              client_cert_file_upload:
+                $ref: '#/components/schemas/Meta'
+              client_key_file:
+                $ref: '#/components/schemas/Meta'
+              client_key_file_upload:
+                $ref: '#/components/schemas/Meta'
+              connection_timeout:
+                $ref: '#/components/schemas/Meta'
+              dead_duration:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              email_attribute:
+                $ref: '#/components/schemas/Meta'
+              encryption:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              monitor:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              read_timeout:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              scope:
+                $ref: '#/components/schemas/Meta'
+              searchattributes:
+                $ref: '#/components/schemas/Meta'
+              shuffle:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              use_connector:
+                $ref: '#/components/schemas/Meta'
+              usernameattribute:
+                $ref: '#/components/schemas/Meta'
+              verify:
+                $ref: '#/components/schemas/Meta'
+              write_timeout:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              append_to_searchattributes:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              basedn:
+                $ref: '#/components/schemas/Meta'
+              binddn:
+                $ref: '#/components/schemas/Meta'
+              ca_file:
+                $ref: '#/components/schemas/Meta'
+              ca_file_upload:
+                $ref: '#/components/schemas/Meta'
+              cache_match:
+                $ref: '#/components/schemas/Meta'
+              client_cert_file:
+                $ref: '#/components/schemas/Meta'
+              client_cert_file_upload:
+                $ref: '#/components/schemas/Meta'
+              client_key_file:
+                $ref: '#/components/schemas/Meta'
+              client_key_file_upload:
+                $ref: '#/components/schemas/Meta'
+              connection_timeout:
+                $ref: '#/components/schemas/Meta'
+              dead_duration:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              email_attribute:
+                $ref: '#/components/schemas/Meta'
+              encryption:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              monitor:
+                $ref: '#/components/schemas/Meta'
+              password:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              read_timeout:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              scope:
+                $ref: '#/components/schemas/Meta'
+              searchattributes:
+                $ref: '#/components/schemas/Meta'
+              shuffle:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              use_connector:
+                $ref: '#/components/schemas/Meta'
+              usernameattribute:
+                $ref: '#/components/schemas/Meta'
+              verify:
+                $ref: '#/components/schemas/Meta'
+              write_timeout:
+                $ref: '#/components/schemas/Meta'
             type: object
         type: object
       - properties:
@@ -22790,6 +22626,17 @@ components:
               description:
                 $ref: '#/components/schemas/Meta'
               email_required:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              description:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
@@ -22815,6 +22662,143 @@ components:
               type:
                 $ref: '#/components/schemas/Meta'
               user_header:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              create_local_account:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              hash_passwords:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              local_account_expiration:
+                $ref: '#/components/schemas/Meta'
+              local_account_logins:
+                $ref: '#/components/schemas/Meta'
+              message:
+                $ref: '#/components/schemas/Meta'
+              password_length:
+                $ref: '#/components/schemas/Meta'
+              pin_code_length:
+                $ref: '#/components/schemas/Meta'
+              sms_activation_timeout:
+                $ref: '#/components/schemas/Meta'
+              sms_carriers:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              create_local_account:
+                $ref: '#/components/schemas/Meta'
+              currency:
+                $ref: '#/components/schemas/Meta'
+              customer_portal:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              domains:
+                $ref: '#/components/schemas/Meta'
+              hash_passwords:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              local_account_expiration:
+                $ref: '#/components/schemas/Meta'
+              local_account_logins:
+                $ref: '#/components/schemas/Meta'
+              password_length:
+                $ref: '#/components/schemas/Meta'
+              publishable_key:
+                $ref: '#/components/schemas/Meta'
+              secret_key:
+                $ref: '#/components/schemas/Meta'
+              send_email_confirmation:
+                $ref: '#/components/schemas/Meta'
+              style:
+                $ref: '#/components/schemas/Meta'
+              test_mode:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              client_id:
+                $ref: '#/components/schemas/Meta'
+              client_secret:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              tenant_id:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              user_groups_cache:
+                $ref: '#/components/schemas/Meta'
+              user_groups_url:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              path:
+                $ref: '#/components/schemas/Meta'
+              path_upload:
+                $ref: '#/components/schemas/Meta'
+              realms:
+                $ref: '#/components/schemas/Meta'
+              type:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -22850,27 +22834,45 @@ components:
       - properties:
           meta:
             properties:
-              authentication_url:
+              activation_domain:
                 $ref: '#/components/schemas/Meta'
-              authorization_url:
+              administration_rules:
+                $ref: '#/components/schemas/Meta'
+              allow_localdomain:
+                $ref: '#/components/schemas/Meta'
+              allowed_domains:
+                $ref: '#/components/schemas/Meta'
+              authentication_rules:
+                $ref: '#/components/schemas/Meta'
+              banned_domains:
+                $ref: '#/components/schemas/Meta'
+              create_local_account:
                 $ref: '#/components/schemas/Meta'
               description:
                 $ref: '#/components/schemas/Meta'
-              host:
+              email_activation_timeout:
+                $ref: '#/components/schemas/Meta'
+              hash_passwords:
                 $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
-              password:
+              lang:
                 $ref: '#/components/schemas/Meta'
-              port:
+              local_account_expiration:
                 $ref: '#/components/schemas/Meta'
-              protocol:
+              local_account_logins:
                 $ref: '#/components/schemas/Meta'
-              realms:
+              password_length:
+                $ref: '#/components/schemas/Meta'
+              register_on_activation:
+                $ref: '#/components/schemas/Meta'
+              sources:
+                $ref: '#/components/schemas/Meta'
+              sponsorship_bcc:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
-              username:
+              validate_sponsor:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -24118,9 +24120,15 @@ components:
             properties:
               all_logs:
                 $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
               logs:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              proto:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -24131,15 +24139,9 @@ components:
             properties:
               all_logs:
                 $ref: '#/components/schemas/Meta'
-              host:
-                $ref: '#/components/schemas/Meta'
               id:
                 $ref: '#/components/schemas/Meta'
               logs:
-                $ref: '#/components/schemas/Meta'
-              port:
-                $ref: '#/components/schemas/Meta'
-              proto:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -24161,12 +24163,12 @@ components:
       oneOf:
       - $ref: '#/components/schemas/ConfigSyslogParserSubTypeDhcp'
       - $ref: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'
-      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricata'
-      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
       - $ref: '#/components/schemas/ConfigSyslogParserSubTypeNexpose'
       - $ref: '#/components/schemas/ConfigSyslogParserSubTypeRegex'
-      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSnort'
       - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSecurityOnion'
+      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSnort'
+      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricata'
+      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
     ConfigSyslogParserDryRun:
       properties:
         line:
@@ -24614,82 +24616,82 @@ components:
                 $ref: '#/components/schemas/Meta'
               path:
                 $ref: '#/components/schemas/Meta'
-              rate_limit:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              path:
-                $ref: '#/components/schemas/Meta'
-              rate_limit:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              path:
-                $ref: '#/components/schemas/Meta'
-              rate_limit:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              path:
-                $ref: '#/components/schemas/Meta'
-              rate_limit:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              path:
-                $ref: '#/components/schemas/Meta'
-              rate_limit:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              id:
-                $ref: '#/components/schemas/Meta'
-              path:
-                $ref: '#/components/schemas/Meta'
               rules:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              path:
+                $ref: '#/components/schemas/Meta'
+              rate_limit:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              path:
+                $ref: '#/components/schemas/Meta'
+              rate_limit:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              path:
+                $ref: '#/components/schemas/Meta'
+              rate_limit:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              path:
+                $ref: '#/components/schemas/Meta'
+              rate_limit:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              id:
+                $ref: '#/components/schemas/Meta'
+              path:
+                $ref: '#/components/schemas/Meta'
+              rate_limit:
                 $ref: '#/components/schemas/Meta'
               status:
                 $ref: '#/components/schemas/Meta'
@@ -27227,8 +27229,8 @@ components:
           type: string
         voip:
           enum:
-          - yes
           - no
+          - yes
           type: string
       type: object
     LocationlogsList:
@@ -27458,8 +27460,8 @@ components:
       properties:
         autoreg:
           enum:
-          - yes
           - no
+          - yes
           type: string
         bandwidth_balance:
           nullable: true
@@ -29473,8 +29475,8 @@ components:
           type: string
         potd:
           enum:
-          - yes
           - no
+          - yes
           type: string
         psk:
           nullable: true
@@ -29536,8 +29538,8 @@ components:
       properties:
         autoreg:
           enum:
-          - yes
           - no
+          - yes
           type: string
         bandwidth_balance:
           nullable: true
