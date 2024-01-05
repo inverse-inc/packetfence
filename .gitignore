@@ -46,6 +46,7 @@ conf/certmanager
 conf/mfa.conf
 conf/proxysql.conf
 conf/uploads
+conf/kafka.conf
 db/upgrade-tenant-11.2-12.0.sql
 bin/pfcmd
 bin/ntlm_auth_wrapper
