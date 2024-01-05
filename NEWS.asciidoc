@@ -41,6 +41,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Encode in base64 the Radius request and store it in redis (#7853)
  * Improve error handling if the calling station cannot be parsed in pfacct. (#7871)
  * Add mariadb to the OOM list
+ * Docker needs a specific configuration to pull images behind a proxy (#7946)
 
 == Version 13.0.0 released on 2023-08-09
 
