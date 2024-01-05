@@ -5,6 +5,8 @@ ConfigProvisioningsMeta:
   - properties:
       meta:
         properties:
+          api_token:
+            $ref: '#/components/schemas/Meta'
           apply_role:
             $ref: '#/components/schemas/Meta'
           autoregister:
@@ -15,6 +17,10 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           enforce:
             $ref: '#/components/schemas/Meta'
+          enroll_url:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           non_compliance_security_event:
@@ -23,8 +29,17 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           pki_provider:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+=======
+          port:
+            $ref: '#/components/schemas/Meta'
+          protocol:
+            $ref: '#/components/schemas/Meta'
+          role_to_apply:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
           sync_pid:
             $ref: '#/components/schemas/Meta'
           type:
@@ -69,6 +84,7 @@ ConfigProvisioningsMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           android_download_uri:
             $ref: '#/components/schemas/Meta'
           apply_role:
@@ -114,6 +130,8 @@ ConfigProvisioningsMeta:
   - properties:
       meta:
         properties:
+=======
+>>>>>>> 39fe6ade26 (upadte OAS)
           apply_role:
             $ref: '#/components/schemas/Meta'
           autoregister:
@@ -181,29 +199,9 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           autoregister:
             $ref: '#/components/schemas/Meta'
-          broadcast:
-            $ref: '#/components/schemas/Meta'
-          ca_cert_path:
-            $ref: '#/components/schemas/Meta'
-          ca_cert_path_upload:
-            $ref: '#/components/schemas/Meta'
-          can_sign_profile:
-            $ref: '#/components/schemas/Meta'
           category:
             $ref: '#/components/schemas/Meta'
-          cert_chain:
-            $ref: '#/components/schemas/Meta'
-          certificate:
-            $ref: '#/components/schemas/Meta'
-          company:
-            $ref: '#/components/schemas/Meta'
           description:
-            $ref: '#/components/schemas/Meta'
-          dpsk:
-            $ref: '#/components/schemas/Meta'
-          dpsk_use_local_password:
-            $ref: '#/components/schemas/Meta'
-          eap_type:
             $ref: '#/components/schemas/Meta'
           enforce:
             $ref: '#/components/schemas/Meta'
@@ -213,23 +211,9 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           oses:
             $ref: '#/components/schemas/Meta'
-          passcode:
-            $ref: '#/components/schemas/Meta'
           pki_provider:
             $ref: '#/components/schemas/Meta'
-          private_key:
-            $ref: '#/components/schemas/Meta'
-          psk_size:
-            $ref: '#/components/schemas/Meta'
           role_to_apply:
-            $ref: '#/components/schemas/Meta'
-          security_type:
-            $ref: '#/components/schemas/Meta'
-          server_certificate_path:
-            $ref: '#/components/schemas/Meta'
-          server_certificate_path_upload:
-            $ref: '#/components/schemas/Meta'
-          ssid:
             $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
@@ -281,6 +265,13 @@ ConfigProvisioningsMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
+=======
+          api_password:
+            $ref: '#/components/schemas/Meta'
+          api_username:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
           apply_role:
             $ref: '#/components/schemas/Meta'
           autoregister:
@@ -289,8 +280,15 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+          device_type_detection:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
           enforce:
             $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
           id:
             $ref: '#/components/schemas/Meta'
           non_compliance_security_event:
@@ -299,6 +297,17 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           pki_provider:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
+          port:
+            $ref: '#/components/schemas/Meta'
+          protocol:
+            $ref: '#/components/schemas/Meta'
+          query_computers:
+            $ref: '#/components/schemas/Meta'
+          query_mobiledevices:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
           role_to_apply:
             $ref: '#/components/schemas/Meta'
           sync_pid:
@@ -310,15 +319,30 @@ ConfigProvisioningsMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           api_token:
+=======
+          access_token:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          android_agent_download_uri:
+            $ref: '#/components/schemas/Meta'
+          applicationID:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
+          applicationSecret:
             $ref: '#/components/schemas/Meta'
           apply_role:
             $ref: '#/components/schemas/Meta'
           autoregister:
             $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
           category:
             $ref: '#/components/schemas/Meta'
           description:
+            $ref: '#/components/schemas/Meta'
+          domains:
             $ref: '#/components/schemas/Meta'
           enforce:
             $ref: '#/components/schemas/Meta'
@@ -328,6 +352,15 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
+          ios_agent_download_uri:
+            $ref: '#/components/schemas/Meta'
+          loginUrl:
+            $ref: '#/components/schemas/Meta'
+          mac_osx_agent_download_uri:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
           non_compliance_security_event:
             $ref: '#/components/schemas/Meta'
           oses:
@@ -342,8 +375,15 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
+          tenantID:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
           type:
             $ref: '#/components/schemas/Meta'
+          windows_agent_download_uri:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
         type: object
     type: object
   - properties:
@@ -433,6 +473,7 @@ ConfigProvisioningsMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           access_token:
             $ref: '#/components/schemas/Meta'
           android_agent_download_uri:
@@ -440,16 +481,66 @@ ConfigProvisioningsMeta:
           applicationID:
             $ref: '#/components/schemas/Meta'
           applicationSecret:
+=======
+          android_download_uri:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
+          apply_role:
+            $ref: '#/components/schemas/Meta'
+          autoregister:
+            $ref: '#/components/schemas/Meta'
+          boarding_host:
+            $ref: '#/components/schemas/Meta'
+          boarding_port:
+            $ref: '#/components/schemas/Meta'
+          category:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          domains:
+=======
+          enforce:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          ios_download_uri:
+            $ref: '#/components/schemas/Meta'
+          non_compliance_security_event:
+            $ref: '#/components/schemas/Meta'
+          oses:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          pki_provider:
+            $ref: '#/components/schemas/Meta'
+          role_to_apply:
+            $ref: '#/components/schemas/Meta'
+          sync_pid:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username:
+            $ref: '#/components/schemas/Meta'
+          windows_phone_download_uri:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           apply_role:
             $ref: '#/components/schemas/Meta'
           autoregister:
             $ref: '#/components/schemas/Meta'
           category:
             $ref: '#/components/schemas/Meta'
-          description:
+          customer_id:
             $ref: '#/components/schemas/Meta'
-          domains:
+          description:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           enforce:
             $ref: '#/components/schemas/Meta'
@@ -475,13 +566,19 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+          service_account:
+            $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
           tenantID:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           windows_agent_download_uri:
+=======
+          user:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -496,11 +593,33 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           autoregister:
             $ref: '#/components/schemas/Meta'
+          broadcast:
+            $ref: '#/components/schemas/Meta'
+          ca_cert_path:
+            $ref: '#/components/schemas/Meta'
+          ca_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          can_sign_profile:
+            $ref: '#/components/schemas/Meta'
           category:
+            $ref: '#/components/schemas/Meta'
+          cert_chain:
+            $ref: '#/components/schemas/Meta'
+          certificate:
+            $ref: '#/components/schemas/Meta'
+          company:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           device_type_detection:
+=======
+          dpsk:
+            $ref: '#/components/schemas/Meta'
+          dpsk_use_local_password:
+            $ref: '#/components/schemas/Meta'
+          eap_type:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           enforce:
             $ref: '#/components/schemas/Meta'
@@ -512,8 +631,11 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           oses:
             $ref: '#/components/schemas/Meta'
+          passcode:
+            $ref: '#/components/schemas/Meta'
           pki_provider:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           port:
             $ref: '#/components/schemas/Meta'
           protocol:
@@ -521,8 +643,21 @@ ConfigProvisioningsMeta:
           query_computers:
             $ref: '#/components/schemas/Meta'
           query_mobiledevices:
+=======
+          private_key:
+            $ref: '#/components/schemas/Meta'
+          psk_size:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           role_to_apply:
+            $ref: '#/components/schemas/Meta'
+          security_type:
+            $ref: '#/components/schemas/Meta'
+          server_certificate_path:
+            $ref: '#/components/schemas/Meta'
+          server_certificate_path_upload:
+            $ref: '#/components/schemas/Meta'
+          ssid:
             $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'

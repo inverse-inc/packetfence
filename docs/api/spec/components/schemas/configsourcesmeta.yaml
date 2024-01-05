@@ -5,6 +5,7 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           administration_rules:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
@@ -14,14 +15,27 @@ ConfigSourcesMeta:
           host:
             $ref: '#/components/schemas/Meta'
           id:
+=======
+          account_sid:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          auth_token:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           monitor:
             $ref: '#/components/schemas/Meta'
           nas_ip_address:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           options:
             $ref: '#/components/schemas/Meta'
           port:
+=======
+          hash_passwords:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           realms:
             $ref: '#/components/schemas/Meta'
@@ -29,6 +43,7 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           timeout:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           type:
             $ref: '#/components/schemas/Meta'
           use_connector:
@@ -45,15 +60,27 @@ ConfigSourcesMeta:
           description:
             $ref: '#/components/schemas/Meta'
           id:
+=======
+          message:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          pin_code_length:
+            $ref: '#/components/schemas/Meta'
+          twilio_phone_number:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           path:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           path_upload:
             $ref: '#/components/schemas/Meta'
           realms:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> 39fe6ade26 (upadte OAS)
         type: object
     type: object
   - properties:
@@ -102,77 +129,90 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+          activation_domain:
+            $ref: '#/components/schemas/Meta'
           administration_rules:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           append_to_searchattributes:
+=======
+          allow_localdomain:
+            $ref: '#/components/schemas/Meta'
+          allowed_domains:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
-          basedn:
+          banned_domains:
             $ref: '#/components/schemas/Meta'
-          binddn:
-            $ref: '#/components/schemas/Meta'
-          ca_file:
-            $ref: '#/components/schemas/Meta'
-          ca_file_upload:
-            $ref: '#/components/schemas/Meta'
-          cache_match:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file_upload:
-            $ref: '#/components/schemas/Meta'
-          client_key_file:
-            $ref: '#/components/schemas/Meta'
-          client_key_file_upload:
-            $ref: '#/components/schemas/Meta'
-          connection_timeout:
-            $ref: '#/components/schemas/Meta'
-          dead_duration:
+          create_local_account:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
-          email_attribute:
+          email_activation_timeout:
             $ref: '#/components/schemas/Meta'
-          encryption:
-            $ref: '#/components/schemas/Meta'
-          host:
+          hash_passwords:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          monitor:
+          local_account_expiration:
             $ref: '#/components/schemas/Meta'
-          password:
+          local_account_logins:
             $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          read_timeout:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          searchattributes:
-            $ref: '#/components/schemas/Meta'
-          shuffle:
+          password_length:
             $ref: '#/components/schemas/Meta'
           type:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
-            $ref: '#/components/schemas/Meta'
-          usernameattribute:
-            $ref: '#/components/schemas/Meta'
-          verify:
-            $ref: '#/components/schemas/Meta'
-          write_timeout:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
-          access_token_param:
+          activation_domain:
             $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          allow_localdomain:
+            $ref: '#/components/schemas/Meta'
+          allowed_domains:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          banned_domains:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_activation_timeout:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          lang:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          register_on_activation:
+            $ref: '#/components/schemas/Meta'
+          sources:
+            $ref: '#/components/schemas/Meta'
+          sponsorship_bcc:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          validate_sponsor:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           access_token_path:
             $ref: '#/components/schemas/Meta'
           administration_rules:
@@ -201,6 +241,8 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           password_length:
             $ref: '#/components/schemas/Meta'
+          person_mappings:
+            $ref: '#/components/schemas/Meta'
           protected_resource_url:
             $ref: '#/components/schemas/Meta'
           redirect_url:
@@ -211,6 +253,215 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
+          username_attribute:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+<<<<<<< HEAD
+          access_token_param:
+=======
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authenticate_realm:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          realms:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          authorize_path:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+=======
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          authorization_source_id:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          idp_ca_cert_path:
+            $ref: '#/components/schemas/Meta'
+          idp_ca_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          idp_cert_path:
+            $ref: '#/components/schemas/Meta'
+          idp_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          idp_entity_id:
+            $ref: '#/components/schemas/Meta'
+          idp_metadata_path:
+            $ref: '#/components/schemas/Meta'
+          idp_metadata_path_upload:
+            $ref: '#/components/schemas/Meta'
+          sp_cert_path:
+            $ref: '#/components/schemas/Meta'
+          sp_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          sp_entity_id:
+            $ref: '#/components/schemas/Meta'
+          sp_key_path:
+            $ref: '#/components/schemas/Meta'
+          sp_key_path_upload:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          domains:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+=======
+          username_attribute:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          access_token_param:
+            $ref: '#/components/schemas/Meta'
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          local_account_expiration:
+=======
+          authorize_path:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+=======
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          domains:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
+          site:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          cert_file:
+            $ref: '#/components/schemas/Meta'
+          cert_file_upload:
+            $ref: '#/components/schemas/Meta'
+          cert_id:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          currency:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          domains:
+            $ref: '#/components/schemas/Meta'
+          email_address:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          identity_token:
+            $ref: '#/components/schemas/Meta'
+          key_file:
+            $ref: '#/components/schemas/Meta'
+          key_file_upload:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          payment_type:
+            $ref: '#/components/schemas/Meta'
+          paypal_cert_file:
+            $ref: '#/components/schemas/Meta'
+          paypal_cert_file_upload:
+            $ref: '#/components/schemas/Meta'
+          send_email_confirmation:
+            $ref: '#/components/schemas/Meta'
+          test_mode:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
         type: object
     type: object
   - properties:
@@ -286,6 +537,10 @@ ConfigSourcesMeta:
       meta:
         properties:
           administration_rules:
+<<<<<<< HEAD
+            $ref: '#/components/schemas/Meta'
+          api_key:
+=======
             $ref: '#/components/schemas/Meta'
           api_key:
             $ref: '#/components/schemas/Meta'
@@ -316,6 +571,100 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          currency:
+            $ref: '#/components/schemas/Meta'
+          customer_portal:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          domains:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+=======
+          publishable_key:
+            $ref: '#/components/schemas/Meta'
+          secret_key:
+            $ref: '#/components/schemas/Meta'
+          send_email_confirmation:
+            $ref: '#/components/schemas/Meta'
+          style:
+            $ref: '#/components/schemas/Meta'
+          test_mode:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          access_token_param:
+            $ref: '#/components/schemas/Meta'
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          authorize_path:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
+          description:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          message:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          pin_code_length:
+=======
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          site:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           administration_rules:
             $ref: '#/components/schemas/Meta'
           append_to_searchattributes:
@@ -385,6 +734,7 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           activation_domain:
             $ref: '#/components/schemas/Meta'
           administration_rules:
@@ -421,6 +771,11 @@ ConfigSourcesMeta:
       meta:
         properties:
           account_sid:
+=======
+          access_token_param:
+            $ref: '#/components/schemas/Meta'
+          access_token_path:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           administration_rules:
             $ref: '#/components/schemas/Meta'
@@ -487,6 +842,7 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           access_token_param:
             $ref: '#/components/schemas/Meta'
           access_token_path:
@@ -500,32 +856,29 @@ ConfigSourcesMeta:
           client_id:
             $ref: '#/components/schemas/Meta'
           client_secret:
+=======
+          authentication_url:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
-          create_local_account:
+          authorization_url:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
-          domains:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
+          host:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          local_account_expiration:
+          password:
             $ref: '#/components/schemas/Meta'
-          local_account_logins:
+          port:
             $ref: '#/components/schemas/Meta'
-          password_length:
+          protocol:
             $ref: '#/components/schemas/Meta'
-          protected_resource_url:
-            $ref: '#/components/schemas/Meta'
-          redirect_url:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          site:
+          realms:
             $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+          username:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -611,12 +964,15 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           password:
             $ref: '#/components/schemas/Meta'
           port:
             $ref: '#/components/schemas/Meta'
           protocol:
             $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> 39fe6ade26 (upadte OAS)
           realms:
             $ref: '#/components/schemas/Meta'
           type:
@@ -634,6 +990,7 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           id:
             $ref: '#/components/schemas/Meta'
           password_email_update:
@@ -644,6 +1001,12 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           realms:
             $ref: '#/components/schemas/Meta'
+=======
+          email_required:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
           type:
             $ref: '#/components/schemas/Meta'
         type: object
@@ -651,6 +1014,7 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           access_token_param:
             $ref: '#/components/schemas/Meta'
           access_token_path:
@@ -676,20 +1040,47 @@ ConfigSourcesMeta:
           id:
             $ref: '#/components/schemas/Meta'
           local_account_expiration:
+=======
+          administration_rules:
             $ref: '#/components/schemas/Meta'
-          local_account_logins:
+          authentication_rules:
             $ref: '#/components/schemas/Meta'
-          password_length:
+          description:
             $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          monitor:
+            $ref: '#/components/schemas/Meta'
+          nas_ip_address:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          options:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           protected_resource_url:
             $ref: '#/components/schemas/Meta'
           redirect_url:
             $ref: '#/components/schemas/Meta'
           scope:
+=======
+          realms:
+            $ref: '#/components/schemas/Meta'
+          secret:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           site:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           type:
+=======
+          use_connector:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -704,6 +1095,7 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           type:
             $ref: '#/components/schemas/Meta'
         type: object
@@ -726,9 +1118,30 @@ ConfigSourcesMeta:
           idp_cert_path_upload:
             $ref: '#/components/schemas/Meta'
           idp_entity_id:
+=======
+          password_email_update:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          password_rotation:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           idp_metadata_path:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           idp_metadata_path_upload:
             $ref: '#/components/schemas/Meta'
           sp_cert_path:
@@ -773,45 +1186,8 @@ ConfigSourcesMeta:
           pin_code_length:
             $ref: '#/components/schemas/Meta'
           sms_activation_timeout:
-            $ref: '#/components/schemas/Meta'
-          sms_carriers:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
-          currency:
-            $ref: '#/components/schemas/Meta'
-          customer_portal:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          domains:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
-            $ref: '#/components/schemas/Meta'
+=======
           id:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          password_length:
-            $ref: '#/components/schemas/Meta'
-          publishable_key:
-            $ref: '#/components/schemas/Meta'
-          secret_key:
-            $ref: '#/components/schemas/Meta'
-          send_email_confirmation:
-            $ref: '#/components/schemas/Meta'
-          style:
-            $ref: '#/components/schemas/Meta'
-          test_mode:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -821,14 +1197,93 @@ ConfigSourcesMeta:
       meta:
         properties:
           administration_rules:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
-          authentication_rules:
+          sms_carriers:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          create_local_account:
+=======
+          client_id:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          currency:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          customer_portal:
+            $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> 39fe6ade26 (upadte OAS)
           description:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           realms:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          publishable_key:
+            $ref: '#/components/schemas/Meta'
+          secret_key:
+            $ref: '#/components/schemas/Meta'
+          send_email_confirmation:
+            $ref: '#/components/schemas/Meta'
+          style:
+            $ref: '#/components/schemas/Meta'
+          test_mode:
+=======
+          tenant_id:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          user_groups_cache:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          user_groups_url:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
+          auth_listening_port:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          id:
+            $ref: '#/components/schemas/Meta'
+          realms:
+=======
+          eduroam_operator_name:
+            $ref: '#/components/schemas/Meta'
+          eduroam_options:
+            $ref: '#/components/schemas/Meta'
+          eduroam_radius_auth:
+            $ref: '#/components/schemas/Meta'
+          eduroam_radius_auth_proxy_type:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_realm:
+            $ref: '#/components/schemas/Meta'
+          reject_realm:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -837,6 +1292,7 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           access_token_path:
             $ref: '#/components/schemas/Meta'
           administration_rules:
@@ -874,55 +1330,19 @@ ConfigSourcesMeta:
           scope:
             $ref: '#/components/schemas/Meta'
           site:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          username_attribute:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          activation_domain:
-            $ref: '#/components/schemas/Meta'
+=======
           administration_rules:
-            $ref: '#/components/schemas/Meta'
-          allow_localdomain:
-            $ref: '#/components/schemas/Meta'
-          allowed_domains:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
-          banned_domains:
-            $ref: '#/components/schemas/Meta'
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
-          email_activation_timeout:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
+          email_required:
             $ref: '#/components/schemas/Meta'
           id:
-            $ref: '#/components/schemas/Meta'
-          lang:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          password_length:
-            $ref: '#/components/schemas/Meta'
-          register_on_activation:
-            $ref: '#/components/schemas/Meta'
-          sources:
-            $ref: '#/components/schemas/Meta'
-          sponsorship_bcc:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           type:
-            $ref: '#/components/schemas/Meta'
-          validate_sponsor:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -936,8 +1356,6 @@ ConfigSourcesMeta:
           administration_rules:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          authorize_path:
             $ref: '#/components/schemas/Meta'
           client_id:
             $ref: '#/components/schemas/Meta'
@@ -953,12 +1371,21 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
+          lang:
+            $ref: '#/components/schemas/Meta'
           local_account_expiration:
             $ref: '#/components/schemas/Meta'
           local_account_logins:
             $ref: '#/components/schemas/Meta'
           password_length:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          register_on_activation:
+            $ref: '#/components/schemas/Meta'
+          sources:
+            $ref: '#/components/schemas/Meta'
+          sponsorship_bcc:
+=======
           protected_resource_url:
             $ref: '#/components/schemas/Meta'
           redirect_url:
@@ -966,22 +1393,110 @@ ConfigSourcesMeta:
           scope:
             $ref: '#/components/schemas/Meta'
           site:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+          validate_sponsor:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
-          administration_rules:
+<<<<<<< HEAD
+          access_token_param:
             $ref: '#/components/schemas/Meta'
-          auth_listening_port:
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
+          authorize_path:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+=======
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          append_to_searchattributes:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          basedn:
+            $ref: '#/components/schemas/Meta'
+          binddn:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          ca_file:
+            $ref: '#/components/schemas/Meta'
+          ca_file_upload:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          hash_passwords:
+=======
+          cache_match:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          client_cert_file_upload:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          local_account_expiration:
+=======
+          client_key_file:
+            $ref: '#/components/schemas/Meta'
+          client_key_file_upload:
+            $ref: '#/components/schemas/Meta'
+          connection_timeout:
+            $ref: '#/components/schemas/Meta'
+          dead_duration:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+          email_attribute:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          site:
+=======
+          encryption:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          monitor:
+            $ref: '#/components/schemas/Meta'
+          password:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          read_timeout:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          auth_listening_port:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+=======
+          realms:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           eduroam_operator_name:
             $ref: '#/components/schemas/Meta'
           eduroam_options:
@@ -995,8 +1510,21 @@ ConfigSourcesMeta:
           local_realm:
             $ref: '#/components/schemas/Meta'
           reject_realm:
+=======
+          searchattributes:
+            $ref: '#/components/schemas/Meta'
+          shuffle:
             $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          usernameattribute:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          verify:
+            $ref: '#/components/schemas/Meta'
+          write_timeout:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -1009,9 +1537,9 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
-          email_required:
-            $ref: '#/components/schemas/Meta'
           id:
+            $ref: '#/components/schemas/Meta'
+          realms:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -1047,6 +1575,7 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           id:
             $ref: '#/components/schemas/Meta'
           realms:
@@ -1107,6 +1636,15 @@ ConfigSourcesMeta:
           send_email_confirmation:
             $ref: '#/components/schemas/Meta'
           test_mode:
+=======
+          id:
+            $ref: '#/components/schemas/Meta'
+          path:
+            $ref: '#/components/schemas/Meta'
+          path_upload:
+            $ref: '#/components/schemas/Meta'
+          realms:
+>>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -1117,6 +1655,7 @@ ConfigSourcesMeta:
         properties:
           administration_rules:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           api_key:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
@@ -1145,10 +1684,36 @@ ConfigSourcesMeta:
           host:
             $ref: '#/components/schemas/Meta'
           id:
+=======
+          authentication_rules:
             $ref: '#/components/schemas/Meta'
-          realms:
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          message:
+>>>>>>> 39fe6ade26 (upadte OAS)
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          pin_code_length:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
+          sms_activation_timeout:
+            $ref: '#/components/schemas/Meta'
+          sms_carriers:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
+>>>>>>> 39fe6ade26 (upadte OAS)
         type: object
     type: object

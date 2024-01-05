@@ -16,8 +16,6 @@ ConfigSwitchesMeta:
           $ref: '#/components/schemas/Meta'
         PostMfaValidation:
           $ref: '#/components/schemas/Meta'
-        PushACLs:
-          $ref: '#/components/schemas/Meta'
         RoleMap:
           $ref: '#/components/schemas/Meta'
         SNMPAuthPasswordRead:
@@ -69,6 +67,8 @@ ConfigSwitchesMeta:
         UrlMapping:
           $ref: '#/components/schemas/Meta'
         UseDownloadableACLs:
+          $ref: '#/components/schemas/Meta'
+        UsePushACLs:
           $ref: '#/components/schemas/Meta'
         VlanMap:
           $ref: '#/components/schemas/Meta'

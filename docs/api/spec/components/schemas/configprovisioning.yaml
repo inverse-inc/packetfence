@@ -17,6 +17,7 @@ ConfigProvisioning:
       windows: '#/components/schemas/ConfigProvisioningSubTypeWindows'
     propertyName: type
   oneOf:
+<<<<<<< HEAD
   - $ref: '#/components/schemas/ConfigProvisioningSubTypeDeny'
   - $ref: '#/components/schemas/ConfigProvisioningSubTypeDpsk'
   - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
@@ -29,4 +30,18 @@ ConfigProvisioning:
   - $ref: '#/components/schemas/ConfigProvisioningSubTypeAirwatch'
   - $ref: '#/components/schemas/ConfigProvisioningSubTypeIntune'
   - $ref: '#/components/schemas/ConfigProvisioningSubTypeJamf'
+=======
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeKandji'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeDpsk'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeDeny'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeAccept'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeAirwatch'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeJamf'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeIntune'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeWindows'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeSentinelone'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeGoogleWorkspaceChromebook'
+  - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileconfig'
+>>>>>>> 39fe6ade26 (upadte OAS)
   - $ref: '#/components/schemas/ConfigProvisioningSubTypeAndroid'
