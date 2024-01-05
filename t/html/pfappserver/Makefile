@@ -1,4 +1,5 @@
 #!make
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
 include .local_env
 export $(shell sed 's/=.*//' .local_env)
 
@@ -55,6 +56,9 @@ test:
 	BROWSERSLIST_IGNORE_OLD_DATA=true \
 	CYPRESS_baseUrl=$(BASE_URL) \
 	npx cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --env tags=[$(TAGS)] ; \
+
+test-concurrent:
+	bash concurrent.sh $(MAKE) -f $(THIS_FILE) test
 
 test-project:
 	DEBUG=$(DEBUG) \
