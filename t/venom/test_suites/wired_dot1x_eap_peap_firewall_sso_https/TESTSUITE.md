@@ -64,6 +64,7 @@ AD server running
 1. Delete domain
 1. Delete connection profile
 1. Delete sources
+1. Stop NTLM Auth API service
 1. Restart RADIUS services (common test suite)
 
 ## Additional notes
