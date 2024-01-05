@@ -7,6 +7,292 @@ ConfigPortalModulesMeta:
         properties:
           actions:
             $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          modules:
+            $ref: '#/components/schemas/Meta'
+          multi_source_auth_classes:
+            $ref: '#/components/schemas/Meta'
+          multi_source_ids:
+            $ref: '#/components/schemas/Meta'
+          multi_source_object_classes:
+            $ref: '#/components/schemas/Meta'
+          multi_source_types:
+            $ref: '#/components/schemas/Meta'
+          show_first_module_on_default:
+            $ref: '#/components/schemas/Meta'
+          template:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          landing_template:
+            $ref: '#/components/schemas/Meta'
+          pid_field:
+            $ref: '#/components/schemas/Meta'
+          signup_template:
+            $ref: '#/components/schemas/Meta'
+          source_id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          landing_template:
+            $ref: '#/components/schemas/Meta'
+          pid_field:
+            $ref: '#/components/schemas/Meta'
+          signup_template:
+            $ref: '#/components/schemas/Meta'
+          source_id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          skipable:
+            $ref: '#/components/schemas/Meta'
+          ssl_mobileconfig_path:
+            $ref: '#/components/schemas/Meta'
+          ssl_path:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          multi_source_ids:
+            $ref: '#/components/schemas/Meta'
+          pid_field:
+            $ref: '#/components/schemas/Meta'
+          signup_template:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          landing_template:
+            $ref: '#/components/schemas/Meta'
+          pid_field:
+            $ref: '#/components/schemas/Meta'
+          signup_template:
+            $ref: '#/components/schemas/Meta'
+          source_id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          multi_source_ids:
+            $ref: '#/components/schemas/Meta'
+          pid_field:
+            $ref: '#/components/schemas/Meta'
+          signup_template:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          skipable:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          modules:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          signup_template:
+            $ref: '#/components/schemas/Meta'
+          source_id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          landing_template:
+            $ref: '#/components/schemas/Meta'
+          pid_field:
+            $ref: '#/components/schemas/Meta'
+          signup_template:
+            $ref: '#/components/schemas/Meta'
+          source_id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
           admin_role:
             $ref: '#/components/schemas/Meta'
           description:
@@ -47,80 +333,7 @@ ConfigPortalModulesMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          skipable:
-            $ref: '#/components/schemas/Meta'
-          template:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          landing_template:
-            $ref: '#/components/schemas/Meta'
-          pid_field:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          stone_roles:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
           modules:
-            $ref: '#/components/schemas/Meta'
-          multi_source_auth_classes:
-            $ref: '#/components/schemas/Meta'
-          multi_source_ids:
-            $ref: '#/components/schemas/Meta'
-          multi_source_object_classes:
-            $ref: '#/components/schemas/Meta'
-          multi_source_types:
             $ref: '#/components/schemas/Meta'
           show_first_module_on_default:
             $ref: '#/components/schemas/Meta'
@@ -135,126 +348,6 @@ ConfigPortalModulesMeta:
         properties:
           actions:
             $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          message:
-            $ref: '#/components/schemas/Meta'
-          skipable:
-            $ref: '#/components/schemas/Meta'
-          template:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_layout:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          pid_field:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          modules:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          modules:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          multi_source_ids:
-            $ref: '#/components/schemas/Meta'
-          pid_field:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          template:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
           aup_template:
             $ref: '#/components/schemas/Meta'
           custom_fields:
@@ -266,91 +359,6 @@ ConfigPortalModulesMeta:
           id:
             $ref: '#/components/schemas/Meta'
           landing_template:
-            $ref: '#/components/schemas/Meta'
-          pid_field:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          landing_template:
-            $ref: '#/components/schemas/Meta'
-          pid_field:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          landing_template:
-            $ref: '#/components/schemas/Meta'
-          pid_field:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
             $ref: '#/components/schemas/Meta'
           pid_field:
             $ref: '#/components/schemas/Meta'
@@ -396,13 +404,120 @@ ConfigPortalModulesMeta:
   - properties:
       meta:
         properties:
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          modules:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           actions:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
+          stone_roles:
+            $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          modules:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          message:
+            $ref: '#/components/schemas/Meta'
+          skipable:
+            $ref: '#/components/schemas/Meta'
+          template:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          with_layout:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          landing_template:
+            $ref: '#/components/schemas/Meta'
+          pid_field:
+            $ref: '#/components/schemas/Meta'
+          signup_template:
+            $ref: '#/components/schemas/Meta'
+          source_id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          actions:
+            $ref: '#/components/schemas/Meta'
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          pid_field:
+            $ref: '#/components/schemas/Meta'
+          signup_template:
+            $ref: '#/components/schemas/Meta'
+          source_id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -445,146 +560,6 @@ ConfigPortalModulesMeta:
           id:
             $ref: '#/components/schemas/Meta'
           skipable:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          landing_template:
-            $ref: '#/components/schemas/Meta'
-          pid_field:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          landing_template:
-            $ref: '#/components/schemas/Meta'
-          pid_field:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          pid_field:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          modules:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          aup_template:
-            $ref: '#/components/schemas/Meta'
-          custom_fields:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          fields_to_save:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          signup_template:
-            $ref: '#/components/schemas/Meta'
-          source_id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          with_aup:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          actions:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          modules:
-            $ref: '#/components/schemas/Meta'
-          show_first_module_on_default:
             $ref: '#/components/schemas/Meta'
           template:
             $ref: '#/components/schemas/Meta'
@@ -597,17 +572,25 @@ ConfigPortalModulesMeta:
         properties:
           actions:
             $ref: '#/components/schemas/Meta'
+          aup_template:
+            $ref: '#/components/schemas/Meta'
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
           description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          skipable:
+          multi_source_ids:
             $ref: '#/components/schemas/Meta'
-          ssl_mobileconfig_path:
+          pid_field:
             $ref: '#/components/schemas/Meta'
-          ssl_path:
+          signup_template:
             $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+          with_aup:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -625,8 +608,6 @@ ConfigPortalModulesMeta:
           fields_to_save:
             $ref: '#/components/schemas/Meta'
           id:
-            $ref: '#/components/schemas/Meta'
-          landing_template:
             $ref: '#/components/schemas/Meta'
           pid_field:
             $ref: '#/components/schemas/Meta'
@@ -660,6 +641,25 @@ ConfigPortalModulesMeta:
   - properties:
       meta:
         properties:
+          custom_fields:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          fields_to_save:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          source_id:
+            $ref: '#/components/schemas/Meta'
+          template:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           actions:
             $ref: '#/components/schemas/Meta'
           aup_template:
@@ -672,11 +672,11 @@ ConfigPortalModulesMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          multi_source_ids:
-            $ref: '#/components/schemas/Meta'
           pid_field:
             $ref: '#/components/schemas/Meta'
           signup_template:
+            $ref: '#/components/schemas/Meta'
+          source_id:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -699,15 +699,15 @@ ConfigPortalModulesMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          multi_source_ids:
+          landing_template:
             $ref: '#/components/schemas/Meta'
           pid_field:
             $ref: '#/components/schemas/Meta'
           signup_template:
             $ref: '#/components/schemas/Meta'
-          type:
+          source_id:
             $ref: '#/components/schemas/Meta'
-          username:
+          type:
             $ref: '#/components/schemas/Meta'
           with_aup:
             $ref: '#/components/schemas/Meta'

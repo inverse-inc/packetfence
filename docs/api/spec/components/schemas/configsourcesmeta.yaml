@@ -5,657 +5,6 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
-          access_token_path:
-            $ref: '#/components/schemas/Meta'
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          authorize_path:
-            $ref: '#/components/schemas/Meta'
-          client_id:
-            $ref: '#/components/schemas/Meta'
-          client_secret:
-            $ref: '#/components/schemas/Meta'
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          domains:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          password_length:
-            $ref: '#/components/schemas/Meta'
-          person_mappings:
-            $ref: '#/components/schemas/Meta'
-          protected_resource_url:
-            $ref: '#/components/schemas/Meta'
-          redirect_url:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          site:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          username_attribute:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          access_token_param:
-            $ref: '#/components/schemas/Meta'
-          access_token_path:
-            $ref: '#/components/schemas/Meta'
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          authorize_path:
-            $ref: '#/components/schemas/Meta'
-          client_id:
-            $ref: '#/components/schemas/Meta'
-          client_secret:
-            $ref: '#/components/schemas/Meta'
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          domains:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          password_length:
-            $ref: '#/components/schemas/Meta'
-          protected_resource_url:
-            $ref: '#/components/schemas/Meta'
-          redirect_url:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          site:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authenticate_realm:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          host:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          append_to_searchattributes:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          basedn:
-            $ref: '#/components/schemas/Meta'
-          binddn:
-            $ref: '#/components/schemas/Meta'
-          ca_file:
-            $ref: '#/components/schemas/Meta'
-          ca_file_upload:
-            $ref: '#/components/schemas/Meta'
-          cache_match:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file_upload:
-            $ref: '#/components/schemas/Meta'
-          client_key_file:
-            $ref: '#/components/schemas/Meta'
-          client_key_file_upload:
-            $ref: '#/components/schemas/Meta'
-          connection_timeout:
-            $ref: '#/components/schemas/Meta'
-          dead_duration:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          email_attribute:
-            $ref: '#/components/schemas/Meta'
-          encryption:
-            $ref: '#/components/schemas/Meta'
-          host:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          monitor:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          read_timeout:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          searchattributes:
-            $ref: '#/components/schemas/Meta'
-          shuffle:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
-            $ref: '#/components/schemas/Meta'
-          usernameattribute:
-            $ref: '#/components/schemas/Meta'
-          verify:
-            $ref: '#/components/schemas/Meta'
-          write_timeout:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          host:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          monitor:
-            $ref: '#/components/schemas/Meta'
-          nas_ip_address:
-            $ref: '#/components/schemas/Meta'
-          options:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          secret:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          client_id:
-            $ref: '#/components/schemas/Meta'
-          client_secret:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          tenant_id:
-            $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          user_groups_cache:
-            $ref: '#/components/schemas/Meta'
-          user_groups_url:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          append_to_searchattributes:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          basedn:
-            $ref: '#/components/schemas/Meta'
-          binddn:
-            $ref: '#/components/schemas/Meta'
-          ca_file:
-            $ref: '#/components/schemas/Meta'
-          ca_file_upload:
-            $ref: '#/components/schemas/Meta'
-          cache_match:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file_upload:
-            $ref: '#/components/schemas/Meta'
-          client_key_file:
-            $ref: '#/components/schemas/Meta'
-          client_key_file_upload:
-            $ref: '#/components/schemas/Meta'
-          connection_timeout:
-            $ref: '#/components/schemas/Meta'
-          dead_duration:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          email_attribute:
-            $ref: '#/components/schemas/Meta'
-          encryption:
-            $ref: '#/components/schemas/Meta'
-          host:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          monitor:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          read_timeout:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          searchattributes:
-            $ref: '#/components/schemas/Meta'
-          shuffle:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
-            $ref: '#/components/schemas/Meta'
-          usernameattribute:
-            $ref: '#/components/schemas/Meta'
-          verify:
-            $ref: '#/components/schemas/Meta'
-          write_timeout:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          access_token_param:
-            $ref: '#/components/schemas/Meta'
-          access_token_path:
-            $ref: '#/components/schemas/Meta'
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          authorize_path:
-            $ref: '#/components/schemas/Meta'
-          client_id:
-            $ref: '#/components/schemas/Meta'
-          client_secret:
-            $ref: '#/components/schemas/Meta'
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          domains:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          password_length:
-            $ref: '#/components/schemas/Meta'
-          protected_resource_url:
-            $ref: '#/components/schemas/Meta'
-          redirect_url:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          site:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          path:
-            $ref: '#/components/schemas/Meta'
-          path_upload:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
-          currency:
-            $ref: '#/components/schemas/Meta'
-          customer_portal:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          domains:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          password_length:
-            $ref: '#/components/schemas/Meta'
-          publishable_key:
-            $ref: '#/components/schemas/Meta'
-          secret_key:
-            $ref: '#/components/schemas/Meta'
-          send_email_confirmation:
-            $ref: '#/components/schemas/Meta'
-          style:
-            $ref: '#/components/schemas/Meta'
-          test_mode:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          append_to_searchattributes:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          basedn:
-            $ref: '#/components/schemas/Meta'
-          binddn:
-            $ref: '#/components/schemas/Meta'
-          ca_file:
-            $ref: '#/components/schemas/Meta'
-          ca_file_upload:
-            $ref: '#/components/schemas/Meta'
-          cache_match:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file_upload:
-            $ref: '#/components/schemas/Meta'
-          client_key_file:
-            $ref: '#/components/schemas/Meta'
-          client_key_file_upload:
-            $ref: '#/components/schemas/Meta'
-          connection_timeout:
-            $ref: '#/components/schemas/Meta'
-          dead_duration:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          email_attribute:
-            $ref: '#/components/schemas/Meta'
-          encryption:
-            $ref: '#/components/schemas/Meta'
-          host:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          monitor:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          read_timeout:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          searchattributes:
-            $ref: '#/components/schemas/Meta'
-          shuffle:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
-            $ref: '#/components/schemas/Meta'
-          usernameattribute:
-            $ref: '#/components/schemas/Meta'
-          verify:
-            $ref: '#/components/schemas/Meta'
-          write_timeout:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          message:
-            $ref: '#/components/schemas/Meta'
-          password_length:
-            $ref: '#/components/schemas/Meta'
-          pin_code_length:
-            $ref: '#/components/schemas/Meta'
-          sms_activation_timeout:
-            $ref: '#/components/schemas/Meta'
-          sms_carriers:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          access_token_param:
-            $ref: '#/components/schemas/Meta'
-          access_token_path:
-            $ref: '#/components/schemas/Meta'
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          authorize_path:
-            $ref: '#/components/schemas/Meta'
-          client_id:
-            $ref: '#/components/schemas/Meta'
-          client_secret:
-            $ref: '#/components/schemas/Meta'
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          domains:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          password_length:
-            $ref: '#/components/schemas/Meta'
-          protected_resource_url:
-            $ref: '#/components/schemas/Meta'
-          redirect_url:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          site:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          access_token_param:
-            $ref: '#/components/schemas/Meta'
-          access_token_path:
-            $ref: '#/components/schemas/Meta'
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          client_id:
-            $ref: '#/components/schemas/Meta'
-          client_secret:
-            $ref: '#/components/schemas/Meta'
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          domains:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          password_length:
-            $ref: '#/components/schemas/Meta'
-          protected_resource_url:
-            $ref: '#/components/schemas/Meta'
-          redirect_url:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          site:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
           account_sid:
             $ref: '#/components/schemas/Meta'
           administration_rules:
@@ -691,30 +40,25 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+          access_token_param:
+            $ref: '#/components/schemas/Meta'
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
           administration_rules:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
-          description:
+          authorize_path:
             $ref: '#/components/schemas/Meta'
-          id:
+          client_id:
             $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          api_key:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
+          client_secret:
             $ref: '#/components/schemas/Meta'
           create_local_account:
             $ref: '#/components/schemas/Meta'
           description:
+            $ref: '#/components/schemas/Meta'
+          domains:
             $ref: '#/components/schemas/Meta'
           hash_passwords:
             $ref: '#/components/schemas/Meta'
@@ -724,11 +68,50 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           local_account_logins:
             $ref: '#/components/schemas/Meta'
-          message:
-            $ref: '#/components/schemas/Meta'
           password_length:
             $ref: '#/components/schemas/Meta'
-          pin_code_length:
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          site:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          activation_domain:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          allow_localdomain:
+            $ref: '#/components/schemas/Meta'
+          allowed_domains:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          banned_domains:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_activation_timeout:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -782,69 +165,107 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
-          administration_rules:
+          access_token_path:
             $ref: '#/components/schemas/Meta'
-          append_to_searchattributes:
+          administration_rules:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
-          basedn:
+          authorize_path:
             $ref: '#/components/schemas/Meta'
-          binddn:
+          client_id:
             $ref: '#/components/schemas/Meta'
-          ca_file:
+          client_secret:
             $ref: '#/components/schemas/Meta'
-          ca_file_upload:
-            $ref: '#/components/schemas/Meta'
-          cache_match:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file_upload:
-            $ref: '#/components/schemas/Meta'
-          client_key_file:
-            $ref: '#/components/schemas/Meta'
-          client_key_file_upload:
-            $ref: '#/components/schemas/Meta'
-          connection_timeout:
-            $ref: '#/components/schemas/Meta'
-          dead_duration:
+          create_local_account:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
-          email_attribute:
+          domains:
             $ref: '#/components/schemas/Meta'
-          encryption:
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          person_mappings:
+            $ref: '#/components/schemas/Meta'
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          site:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username_attribute:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authenticate_realm:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
             $ref: '#/components/schemas/Meta'
           host:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          monitor:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          read_timeout:
-            $ref: '#/components/schemas/Meta'
           realms:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          searchattributes:
-            $ref: '#/components/schemas/Meta'
-          shuffle:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
-          use_connector:
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          authorization_source_id:
             $ref: '#/components/schemas/Meta'
-          usernameattribute:
+          description:
             $ref: '#/components/schemas/Meta'
-          verify:
+          id:
             $ref: '#/components/schemas/Meta'
-          write_timeout:
+          idp_ca_cert_path:
+            $ref: '#/components/schemas/Meta'
+          idp_ca_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          idp_cert_path:
+            $ref: '#/components/schemas/Meta'
+          idp_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          idp_entity_id:
+            $ref: '#/components/schemas/Meta'
+          idp_metadata_path:
+            $ref: '#/components/schemas/Meta'
+          idp_metadata_path_upload:
+            $ref: '#/components/schemas/Meta'
+          sp_cert_path:
+            $ref: '#/components/schemas/Meta'
+          sp_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          sp_entity_id:
+            $ref: '#/components/schemas/Meta'
+          sp_key_path:
+            $ref: '#/components/schemas/Meta'
+          sp_key_path_upload:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username_attribute:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -896,91 +317,9 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          api_key:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          email_required:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          authorization_source_id:
-            $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
           id:
-            $ref: '#/components/schemas/Meta'
-          idp_ca_cert_path:
-            $ref: '#/components/schemas/Meta'
-          idp_ca_cert_path_upload:
-            $ref: '#/components/schemas/Meta'
-          idp_cert_path:
-            $ref: '#/components/schemas/Meta'
-          idp_cert_path_upload:
-            $ref: '#/components/schemas/Meta'
-          idp_entity_id:
-            $ref: '#/components/schemas/Meta'
-          idp_metadata_path:
-            $ref: '#/components/schemas/Meta'
-          idp_metadata_path_upload:
-            $ref: '#/components/schemas/Meta'
-          sp_cert_path:
-            $ref: '#/components/schemas/Meta'
-          sp_cert_path_upload:
-            $ref: '#/components/schemas/Meta'
-          sp_entity_id:
-            $ref: '#/components/schemas/Meta'
-          sp_key_path:
-            $ref: '#/components/schemas/Meta'
-          sp_key_path_upload:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          username_attribute:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          activation_domain:
-            $ref: '#/components/schemas/Meta'
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          allow_localdomain:
-            $ref: '#/components/schemas/Meta'
-          allowed_domains:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          banned_domains:
-            $ref: '#/components/schemas/Meta'
-          create_local_account:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          email_activation_timeout:
-            $ref: '#/components/schemas/Meta'
-          hash_passwords:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          local_account_expiration:
-            $ref: '#/components/schemas/Meta'
-          local_account_logins:
-            $ref: '#/components/schemas/Meta'
-          password_length:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -1040,6 +379,467 @@ ConfigSourcesMeta:
         properties:
           administration_rules:
             $ref: '#/components/schemas/Meta'
+          append_to_searchattributes:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          basedn:
+            $ref: '#/components/schemas/Meta'
+          binddn:
+            $ref: '#/components/schemas/Meta'
+          ca_file:
+            $ref: '#/components/schemas/Meta'
+          ca_file_upload:
+            $ref: '#/components/schemas/Meta'
+          cache_match:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file_upload:
+            $ref: '#/components/schemas/Meta'
+          client_key_file:
+            $ref: '#/components/schemas/Meta'
+          client_key_file_upload:
+            $ref: '#/components/schemas/Meta'
+          connection_timeout:
+            $ref: '#/components/schemas/Meta'
+          dead_duration:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_attribute:
+            $ref: '#/components/schemas/Meta'
+          encryption:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          monitor:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          read_timeout:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          searchattributes:
+            $ref: '#/components/schemas/Meta'
+          shuffle:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          usernameattribute:
+            $ref: '#/components/schemas/Meta'
+          verify:
+            $ref: '#/components/schemas/Meta'
+          write_timeout:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          api_key:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          message:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          pin_code_length:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          currency:
+            $ref: '#/components/schemas/Meta'
+          customer_portal:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          domains:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          publishable_key:
+            $ref: '#/components/schemas/Meta'
+          secret_key:
+            $ref: '#/components/schemas/Meta'
+          send_email_confirmation:
+            $ref: '#/components/schemas/Meta'
+          style:
+            $ref: '#/components/schemas/Meta'
+          test_mode:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          access_token_param:
+            $ref: '#/components/schemas/Meta'
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          authorize_path:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          domains:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          site:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          append_to_searchattributes:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          basedn:
+            $ref: '#/components/schemas/Meta'
+          binddn:
+            $ref: '#/components/schemas/Meta'
+          ca_file:
+            $ref: '#/components/schemas/Meta'
+          ca_file_upload:
+            $ref: '#/components/schemas/Meta'
+          cache_match:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file_upload:
+            $ref: '#/components/schemas/Meta'
+          client_key_file:
+            $ref: '#/components/schemas/Meta'
+          client_key_file_upload:
+            $ref: '#/components/schemas/Meta'
+          connection_timeout:
+            $ref: '#/components/schemas/Meta'
+          dead_duration:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_attribute:
+            $ref: '#/components/schemas/Meta'
+          encryption:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          monitor:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          read_timeout:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          searchattributes:
+            $ref: '#/components/schemas/Meta'
+          shuffle:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          usernameattribute:
+            $ref: '#/components/schemas/Meta'
+          verify:
+            $ref: '#/components/schemas/Meta'
+          write_timeout:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          access_token_param:
+            $ref: '#/components/schemas/Meta'
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          authorize_path:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          domains:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          site:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          authentication_url:
+            $ref: '#/components/schemas/Meta'
+          authorization_url:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          protocol:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          append_to_searchattributes:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          basedn:
+            $ref: '#/components/schemas/Meta'
+          binddn:
+            $ref: '#/components/schemas/Meta'
+          ca_file:
+            $ref: '#/components/schemas/Meta'
+          ca_file_upload:
+            $ref: '#/components/schemas/Meta'
+          cache_match:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file_upload:
+            $ref: '#/components/schemas/Meta'
+          client_key_file:
+            $ref: '#/components/schemas/Meta'
+          client_key_file_upload:
+            $ref: '#/components/schemas/Meta'
+          connection_timeout:
+            $ref: '#/components/schemas/Meta'
+          dead_duration:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_attribute:
+            $ref: '#/components/schemas/Meta'
+          encryption:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          monitor:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          read_timeout:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          searchattributes:
+            $ref: '#/components/schemas/Meta'
+          shuffle:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          usernameattribute:
+            $ref: '#/components/schemas/Meta'
+          verify:
+            $ref: '#/components/schemas/Meta'
+          write_timeout:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          api_key:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_required:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          monitor:
+            $ref: '#/components/schemas/Meta'
+          nas_ip_address:
+            $ref: '#/components/schemas/Meta'
+          options:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          secret:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
           description:
@@ -1067,8 +867,6 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
-          email_required:
-            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           type:
@@ -1082,17 +880,25 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
-          description:
+          client_id:
             $ref: '#/components/schemas/Meta'
-          group_header:
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          description:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          proxy_addresses:
+          realms:
+            $ref: '#/components/schemas/Meta'
+          tenant_id:
+            $ref: '#/components/schemas/Meta'
+          timeout:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
-          user_header:
+          user_groups_cache:
+            $ref: '#/components/schemas/Meta'
+          user_groups_url:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -1128,27 +934,221 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
-          authentication_url:
+          administration_rules:
             $ref: '#/components/schemas/Meta'
-          authorization_url:
+          authentication_rules:
             $ref: '#/components/schemas/Meta'
           description:
+            $ref: '#/components/schemas/Meta'
+          email_required:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          access_token_param:
+            $ref: '#/components/schemas/Meta'
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          domains:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          site:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          append_to_searchattributes:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          basedn:
+            $ref: '#/components/schemas/Meta'
+          binddn:
+            $ref: '#/components/schemas/Meta'
+          ca_file:
+            $ref: '#/components/schemas/Meta'
+          ca_file_upload:
+            $ref: '#/components/schemas/Meta'
+          cache_match:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file_upload:
+            $ref: '#/components/schemas/Meta'
+          client_key_file:
+            $ref: '#/components/schemas/Meta'
+          client_key_file_upload:
+            $ref: '#/components/schemas/Meta'
+          connection_timeout:
+            $ref: '#/components/schemas/Meta'
+          dead_duration:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_attribute:
+            $ref: '#/components/schemas/Meta'
+          encryption:
             $ref: '#/components/schemas/Meta'
           host:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
+          monitor:
+            $ref: '#/components/schemas/Meta'
           password:
             $ref: '#/components/schemas/Meta'
           port:
             $ref: '#/components/schemas/Meta'
-          protocol:
+          read_timeout:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          searchattributes:
+            $ref: '#/components/schemas/Meta'
+          shuffle:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          usernameattribute:
+            $ref: '#/components/schemas/Meta'
+          verify:
+            $ref: '#/components/schemas/Meta'
+          write_timeout:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
             $ref: '#/components/schemas/Meta'
           realms:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
-          username:
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          group_header:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          proxy_addresses:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          user_header:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          path:
+            $ref: '#/components/schemas/Meta'
+          path_upload:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          message:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          pin_code_length:
+            $ref: '#/components/schemas/Meta'
+          sms_activation_timeout:
+            $ref: '#/components/schemas/Meta'
+          sms_carriers:
+            $ref: '#/components/schemas/Meta'
+          type:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
