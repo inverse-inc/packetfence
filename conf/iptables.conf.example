@@ -218,8 +218,6 @@
 
 %%filter_forward%%
 
-%%filter_forward_domain%%
-
 :OUTPUT ACCEPT [0:0]
 
 COMMIT
@@ -272,11 +270,6 @@ COMMIT
 # Comment the next two lines and do it here on the POSTROUTING chain.
 # Make sure to adjust the FORWARD rules also to allow traffic back-in.
 %%nat_postrouting_vlan%%
-
-#
-# Routing for the hidden domain network
-#
-%%domain_postrouting%%
 
 -N DOCKER
 -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER

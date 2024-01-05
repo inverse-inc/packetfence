@@ -122,13 +122,12 @@ sub iptables_generate {
     my $logger = get_logger();
     my %tags = (
         'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
-        'filter_forward_vlan' => '', 'filter_forward_domain' => '',
+        'filter_forward_vlan' => '', 'mangle_postrouting_inline' => '',
         'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '',
         'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
         'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
-        'domain_postrouting' => '','mangle_postrouting_inline' => '',
         'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
         'filter_forward' => '', 'forward_netflow' => '', 'kafka' => '',
     );
@@ -221,7 +220,6 @@ sub iptables_generate {
         $tags{'nat_if_src_to_chain'}, $tags{'nat_prerouting_inline'},
   );
 
-    generate_domain_rules(\$tags{'filter_forward_domain'}, \$tags{'domain_postrouting'});
     generate_netflow_rules(\$tags{'forward_netflow'});
 
     $tags{'input_include'} = "#BEGIN include iptables-input.conf.inc\n" . read_file("$conf_dir/iptables-input.conf.inc") . "#END include iptables-input.conf.inc\n";
@@ -846,24 +844,6 @@ sub generate_provisioning_passthroughs {
     }
 
 
-}
-
-sub generate_domain_rules {
-    my ( $filter_forward_domain, $domain_postrouting ) = @_;
-    my $logger = get_logger();
-    foreach my $name (@{pf::ConfigStore::Domain->new->readAllIds}){
-        $$filter_forward_domain .= "-A FORWARD -o $name-b -j ACCEPT\n";
-        $$filter_forward_domain .= "-A FORWARD -i $name-b -j ACCEPT\n";
-    }
-
-    return if !$management_network;
-
-    # MOVE ME TO SOMEWHERE - BUT WHERE ????? - ANYWHERE IS BETTER THAN THIS !
-    my $domain_network = "169.254.0.0/16";
-
-    my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
-    my $mgmt_int = $management_network->tag('int');
-    $$domain_postrouting .= "-A POSTROUTING -s $domain_network -o $mgmt_int -j SNAT --to-source $mgmt_ip \n"
 }
 
 sub generate_netflow_rules {
