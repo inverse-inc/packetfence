@@ -89,6 +89,20 @@ export const useSearch = makeSearch('switches', {
       visible: true
     },
     {
+      key: 'UsePushACLs',
+      label: 'Push ACLs', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'UseDownloadableACLs',
+      label: 'Downloadable ACLs', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true

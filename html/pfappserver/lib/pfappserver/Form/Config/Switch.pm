@@ -82,7 +82,7 @@ has_field 'deauthMethod' =>
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
   );
-  
+
 has_field 'useCoA' =>
   (
    type => 'Toggle',
@@ -456,7 +456,7 @@ has_field coaPort =>
     },
   );
 
-has_field PushACLs => (
+has_field UsePushACLs => (
     type => 'Toggle',
 );
 
