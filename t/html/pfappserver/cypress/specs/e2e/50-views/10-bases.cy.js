@@ -63,9 +63,9 @@ describe('Bases', () => {
         }
         if (PARALLEL > 1 && ((b % PARALLEL) !== SLICE)) {
           // parallel processing, skip slice
-          return it.skip(`[skipped ${b % PARALLEL}/${PARALLEL}] ${description}`, unit)
+          return it.skip(`[${b % PARALLEL}/${PARALLEL}: skip] ${description}`, unit)
         }
-        it(description, unit)
+        it(`[${b % PARALLEL}/${PARALLEL}: run] ${description}`, unit)
       })
     })
   })

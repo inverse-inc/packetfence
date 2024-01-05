@@ -246,9 +246,9 @@ describe('Collections', () => {
         }
         if (PARALLEL > 1 && ((c % PARALLEL) !== SLICE)) {
           // parallel processing, skip slice
-          return it.skip(`[skipped ${c % PARALLEL}/${PARALLEL}] ${description}`, unit)
+          return it.skip(`[${c % PARALLEL}/${PARALLEL}: skip] ${description}`, unit)
         }
-        it(description, unit)
+        it(`[${c % PARALLEL}/${PARALLEL}: run] ${description}`, unit)
       })
     })
   })

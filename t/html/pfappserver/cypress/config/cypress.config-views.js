@@ -47,5 +47,5 @@ module.exports = {
 //      'cypress/specs/e2e/*-views/10*.cy.{js,jsx,ts,tsx}',
       'cypress/specs/e2e/*-views/**/*.cy.{js,jsx,ts,tsx}',
     ],
-  }
+  },
 };
