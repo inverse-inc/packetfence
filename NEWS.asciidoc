@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+ * Add ACL Precreate for individual and ALL switches (#7936)
+
 === Enhancements
 
  * RADIUS proxy configuration documentation and examples
