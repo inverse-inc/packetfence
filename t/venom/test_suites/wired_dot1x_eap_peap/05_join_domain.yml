@@ -43,32 +43,32 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-  - name: start_ntlm_auth_api_service
-    steps:
-      - type: pf_api_service_start_async
-        service: 'ntlm-auth-api'
+- name: start_ntlm_auth_api_service
+  steps:
+    - type: pf_api_service_start_async
+      service: 'ntlm-auth-api'
 
-  - name: sleep_some_time
-    steps:
-      - type: exec
-        script: sleep 10
+- name: sleep_some_time
+  steps:
+    - type: exec
+      script: sleep 10
 
-  - name: test_machine_account
-    steps:
-      - type: http
-        method: POST
-        url: '{{.pfserver_webadmin_url}}/api/v1/ntlm/test'
-        ignore_verify_ssl: true
-        body: >-
-          {
-            "id": "{{.random_ad_domain_id}}",
-            "password": "{{.random_machine_account_password}}"
-          }
-        headers:
-          "Authorization": "{{.get_login_token.result.token}}"
-          "Content-Type": "application/json"
-        assertions:
-          - result.statuscode ShouldEqual 200
+- name: test_machine_account
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/ntlm/test'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "id": "{{.random_ad_domain_id}}",
+          "password": "{{.random_machine_account_password}}"
+        }
+      headers:
+        "Authorization": "{{.get_login_token.result.token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 200
 
 
 
