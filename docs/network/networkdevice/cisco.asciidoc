@@ -1360,7 +1360,51 @@ Let's say you want to enable it for the vlan 1 to 1024:
 On uplink interfaces:
 
  ip dhcp snooping trust
+
+===== IPFIX
+
+Draft of the cisco IPFIX configuration
+
+ flow record PF-Record
+  match ipv4 version
+  match ipv4 protocol
+  match application name
+  match connection client ipv4 address
+  match connection server ipv4 address
+  match connection server transport port
+  match ipv4 source address
+  match ipv4 destination address
+  match flow observation point
+  collect timestamp absolute first
+  collect timestamp absolute last
+  collect flow direction
+  collect connection initiator
+  collect datalink mac source address input
+  collect datalink mac source address output
+  collect datalink mac destination address input
+  collect datalink mac destination address output
+  collect transport destination-port
+  collect transport source-port
+  collect connection new-connections
  
+ flow exporter Fingerbank-collector
+  destination 192.168.0.5
+  source Vlan1
+  transport udp 2055
+  option interface-table timeout 300
+  option sampler-table timeout 300
+  option application-table timeout 300
+
+ flow monitor PFMonitor
+  exporter Fingerbank-collector
+  cache timeout active 60
+  record PF-Record
+
+ interface GigabitEthernet1/0/1
+  ...
+  ip flow monitor PFMonitor input
+  ip flow monitor PFMonitor output
+  ...
 
 ===== Router ISR 1800 Series 
 
