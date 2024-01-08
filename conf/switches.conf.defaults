@@ -49,6 +49,7 @@ cliEnablePwd =
 #
 
 # PacketFence -> Switch
+useSNMP=Y
 SNMPUseConnector=Y
 SNMPVersion = 1
 SNMPCommunityRead = public

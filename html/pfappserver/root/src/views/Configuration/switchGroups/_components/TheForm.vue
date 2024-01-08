@@ -257,6 +257,11 @@
       </base-form-tab>
       <base-form-tab :title="$i18n.t('SNMP')">
 
+        <form-group-use-snmp namespace="useSNMP"
+          :column-label="$i18n.t('Enable/Disable SNMP')"
+          :text="$i18n.t('Enable/Disable use of SNMP.')"
+        />
+
         <form-group-snmp-use-connector namespace="SNMPUseConnector"
                                        :column-label="$i18n.t('Use Connector')"
                                        :text="$i18n.t('Use the available PacketFence connectors to connect to this switch in SNMP. By default, a local connector is hosted on this server.')"
@@ -547,6 +552,7 @@ import {
   FormGroupSnmpUserNameRead,
   FormGroupSnmpVersion,
   FormGroupSnmpVersionTrap,
+  FormGroupUseSnmp,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
   FormGroupToggleVpnMap,
