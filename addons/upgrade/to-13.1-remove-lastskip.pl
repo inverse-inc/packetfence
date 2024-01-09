@@ -36,7 +36,7 @@ for my $section ($report_ini->Sections()) {
     }
 }
 
-$ini->RewriteConfig();
+$report_ini->RewriteConfig();
 
 print "All done\n";
 
