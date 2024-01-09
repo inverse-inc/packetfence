@@ -1849,24 +1849,34 @@ First run the following script:
 
 ==== Standalone server
 
-Running the previous script will be enough and it will extract the current configuration from Samba and convert it to the NTLM_AUTH_API format.
+Running the previous script will extract the current Samba configuration and convert it to the NTLM_AUTH_API format.
 
 ==== Cluster
 
-The script will detect if you are running PacketFence in a cluster environment and will detect 2 scenarios:
+The script will detect if you are running PacketFence in a cluster environment and will compare the Samba machine name with the hostname:
 
-1. If the script detect that the Samba machine name match the hostname then the script will migrate the configuration to the NTLM_AUTH_API format and remplace the machine name to %h.
+1. If the Samba machine name matches the hostname - the script will migrate the configuration to the NTLM_AUTH_API format and replace the machine name with %h.
 
-2. If the script detect that the Samba machine name doesn't match with the hostname then you will have to delete the machine accounts in the AD and reconfigure the join manually.
+2. If the Samba machine name does not match the hostname - manually delete the machine accounts in the AD and reconfigure the join.
 
-In both cases the NTLM_AUTH_API is supported in a cluster mode but each machine joined to the domain need to own the same exact password.
+In both cases the NTLM_AUTH_API is supported in a cluster, and each machine joined to the domain must have the exact same password.
 
-Depending of the action of the script, you should see or no a configuration for your domain(s) under _Configuration -> Policies and Access Control -> Active Directory Domains_
+Depending of the action of the script, there may be a configuration change for the domain(s) in _Configuration -> Policies and Access Control -> Active Directory Domains_.
 
-Create or edit a Domain and really important, specify the Server Name as %h (it will use the hostname of the server), fill all the informations and specify the Machine account password (keep it you will have to reuse it) and the credentials of a admin account who is able to join a machine to the Domain..
-And click Save and you should be able to see the Machine account created in the Active Directory Domain.
+IMPORTANT: When creating or editing a Domain, specifying the Server Name as %h will use the hostname of the server. The hostname differs for each member of a cluster.
 
-Next go on the server 2 (Status -> Services -> API Redirect and choose the server 2) and do the same thing that you did on the server 1 (the Domain will already there) and this time the Machine Account Password will be a hash, retype the same password you set on the previous server.
+Fill out the form and specify the _Machine account password_ (record it to reuse it again later) and the credentials of an AD admin account who is able to join a machine to the Domain.
+Click Save and you should be able to see the Machine account created in the Active Directory Domain.
+
+For each remaining server in the cluster:
+
+1. Visit _Status -> Services_ and on the right-side, click _API Redirect_, choose the Nth server.
+
+2. Visit _Configuration -> Policies and Access Control -> Active Directory Domains_ and choose the domain created or modified above.
+
+3. The Machine account password will be a hash or the original password. Retype the password used above.
+
+4. Click Save
 
 
 === Adding the LDAP search attributes
