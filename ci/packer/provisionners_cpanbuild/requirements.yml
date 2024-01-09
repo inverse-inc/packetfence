@@ -1,6 +1,8 @@
 ---
 roles:
   - src: inverse_inc.gitlab_buildpkg_tools
+    version: v1.3.5
+
 collections:
   - name: community.general
     version: 7.0.1
