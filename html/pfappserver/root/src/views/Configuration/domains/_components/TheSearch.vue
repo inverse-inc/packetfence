@@ -175,14 +175,14 @@ const setup = (props, context) => {
     items.value.forEach(item => {
       joinStatuses.value = { ...joinStatuses.value, [item.id]: null }
       getItem(item).then(_item => {
-        const { id, machine_account_password } = _item
-//        if (machine_account_password) {
+        const { machine_account_password } = _item
+        if (machine_account_password) {
           testItem(_item).then(test => {
             joinStatuses.value = { ...joinStatuses.value, [item.id]: true }
           }).catch(() => {
             joinStatuses.value = { ...joinStatuses.value, [item.id]: false }
           })
-//        }
+        }
       })
     })
   }, { deep: true, immediate: true })
@@ -196,8 +196,7 @@ const setup = (props, context) => {
     ...selected,
     ...toRefs(search),
     services,
-    decoratedItems,
-    joinStatuses
+    decoratedItems
   }
 }
 
