@@ -1835,6 +1835,33 @@ patch /etc/rc.local /tmp/rc-local.patch
 
 == Upgrading from a version prior to 13.0.0
 
+=== Domain join
+
+In this release of PacketFence we moved from Winbindd join to the new ntlm_auth_api service.
+In order to upgrade the domain join you will have to follow this instructions:
+
+First you need to run the following script.
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-13.1-move-ntlm-auth-to-rest.pl
+----
+
+In the case of a standalone server running the script will be enough and it will extract the current configuration from Samba and convert it to the NTLM_AUTH_API format.
+In the case of a cluster the script will raise an error and you will have to reconfigure the join manually.
+
+Right now the NTLM_AUTH_API is supported in a cluster mode but with each machine joined to the domain with the same exact password.
+So it mean that you will have to delete the machine accounts in the active directory and join each servers one by one from the admin UI.
+
+First go in the admin UI through the VIP and go in Configuration -> Policies and Access Control -> Active Directory Domains
+Create a New Domain and really important, specify the Server Name as %h (it will use the hostname of the server), fill all the informations and specify the Machine account password (keep it you will have to reuse it).
+And click Save and you should be able to see the Machine account created in the Active Directory Domain.
+
+Next go on the server 2 (Status -> Services -> API Redirect and choose the server 2) and do the same thing that you did on the server 1 (the Domain will already be created) and this time the Machine Account Password will be a hash, retype the same password you set on the server 1.
+
+Replicate the same steps on each cluster members.
+
+ 
 === Adding the LDAP search attributes
 
 LDAP conditions added in the LDAP authentication source use a LDAP search to retrieve the values.
