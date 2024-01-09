@@ -94,6 +94,12 @@ export const useSearch = makeSearch('domains', {
       visible: true
     },
     {
+      key: 'domain_joined',
+      label: 'Domain Joined', // i18n defer
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
