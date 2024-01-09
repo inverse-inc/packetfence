@@ -456,15 +456,7 @@ has_field coaPort =>
     },
   );
 
-has_field ACLsType =>
-  (
-   type => 'Select',
-   label => 'ACLs Type',
-   widget_wrapper => 'None',
-   options_method => \&options_ACLs,
-  );
-
-has_field PushACLs => (
+has_field UsePushACLs => (
     type => 'Toggle',
 );
 

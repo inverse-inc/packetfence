@@ -4,6 +4,7 @@ import {
 } from '@/views/Configuration/_components/new/'
 import {
   BaseFormButtonBar,
+  BaseFormGroup,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
@@ -19,7 +20,7 @@ import TheView from './TheView'
 
 export {
   BaseFormButtonBar                       as FormButtonBar,
-
+  BaseFormGroup                           as FormGroupContainer,
   BaseFormGroupToggleNYDefault            as FormGroupCliAccess,
   BaseFormGroupInputPassword              as FormGroupCliEnablePwd,
   BaseFormGroupInputPassword              as FormGroupCliPwd,
@@ -70,8 +71,7 @@ export {
   BaseFormGroupInput                      as FormGroupUplink,
   BaseFormGroupToggleStaticDynamicDefault as FormGroupUplinkDynamic,
   BaseFormGroupToggleNYDefault            as FormGroupUseCoa,
-  BaseFormGroupChosenOne                  as FormGroupAclsType,
-  BaseFormGroupToggleNYDefault            as FormGroupPushAcls,
+  BaseFormGroupToggleNYDefault            as FormGroupUsePushAcls,
   BaseFormGroupToggleNYDefault            as FormGroupUseDownloadableAcls,
   BaseFormGroupInput                      as FormGroupDownloadableAclsLimit,
   BaseFormGroupInput                      as FormGroupAclsLimit,

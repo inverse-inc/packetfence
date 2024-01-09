@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+ * Add ACL Precreate for individual and ALL switches (#7936)
+
 === Enhancements
 
  * RADIUS proxy configuration documentation and examples
@@ -35,6 +37,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Added documentation for Azure AD EAP-TLS machine authentication
  * Reuse the websocket buffer to reduce memory usage.
  * Force mechanism LOGIN PLAIN for SMTP. (Unable to select SASL mechanism and timeout not honored #7813)
+ * Use the same timezone in all docker images (#7862)
 
 === Bug Fixes
 
@@ -42,6 +45,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Improve error handling if the calling station cannot be parsed in pfacct. (#7871)
  * Add mariadb to the OOM list
  * Docker needs a specific configuration to pull images behind a proxy (#7946)
+ * Fix the password of the day password generation (#7862)
 
 == Version 13.0.0 released on 2023-08-09
 

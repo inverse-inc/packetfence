@@ -5,6 +5,38 @@ ConfigBasesMeta:
   - properties:
       meta:
         properties:
+          bounce_duration:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          trap_limit:
+            $ref: '#/components/schemas/Meta'
+          trap_limit_action:
+            $ref: '#/components/schemas/Meta'
+          trap_limit_threshold:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          dhcpservers:
+            $ref: '#/components/schemas/Meta'
+          domain:
+            $ref: '#/components/schemas/Meta'
+          hostname:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          send_anonymous_stats:
+            $ref: '#/components/schemas/Meta'
+          timezone:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           access_duration_choices:
             $ref: '#/components/schemas/Meta'
           default_access_duration:
@@ -18,81 +50,69 @@ ConfigBasesMeta:
   - properties:
       meta:
         properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          pass:
+            $ref: '#/components/schemas/Meta'
+          user:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          autoconfig:
+            $ref: '#/components/schemas/Meta'
           category:
             $ref: '#/components/schemas/Meta'
+          certificate:
+            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          pid:
-            $ref: '#/components/schemas/Meta'
-          voip:
+          ssid:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
-          aaa:
+          detection_mecanism_bypass:
             $ref: '#/components/schemas/Meta'
-          admin:
+          detection_mecanism_urls:
             $ref: '#/components/schemas/Meta'
-          collector:
-            $ref: '#/components/schemas/Meta'
-          httpd_portal_modstatus:
+          expose_fingerbank_info_all_templates:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          pfacct_netflow:
+          image_path:
             $ref: '#/components/schemas/Meta'
-          soap:
+          ip_address:
             $ref: '#/components/schemas/Meta'
-          unifiedapi:
+          loadbalancers_ip:
             $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          filter_in_eduroam_authorize:
+          network_detection:
             $ref: '#/components/schemas/Meta'
-          filter_in_eduroam_post_proxy:
+          network_detection_initial_delay:
             $ref: '#/components/schemas/Meta'
-          filter_in_eduroam_pre_proxy:
+          network_detection_ip:
             $ref: '#/components/schemas/Meta'
-          filter_in_eduroam_preacct:
+          network_detection_retry_delay:
             $ref: '#/components/schemas/Meta'
-          filter_in_packetfence-tunnel_authorize:
+          network_redirect_delay:
             $ref: '#/components/schemas/Meta'
-          filter_in_packetfence_accounting:
+          other_domain_names:
             $ref: '#/components/schemas/Meta'
-          filter_in_packetfence_authorize:
+          rate_limiting:
             $ref: '#/components/schemas/Meta'
-          filter_in_packetfence_post_proxy:
+          rate_limiting_threshold:
             $ref: '#/components/schemas/Meta'
-          filter_in_packetfence_pre_proxy:
+          request_timeout:
             $ref: '#/components/schemas/Meta'
-          filter_in_packetfence_preacct:
+          secure_redirect:
             $ref: '#/components/schemas/Meta'
-          forward_key_balanced:
+          status_only_on_production:
             $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          local_auth:
-            $ref: '#/components/schemas/Meta'
-          normalize_radius_machine_auth_username:
-            $ref: '#/components/schemas/Meta'
-          ntlm_redis_cache:
-            $ref: '#/components/schemas/Meta'
-          pfacct_work_queue_size:
-            $ref: '#/components/schemas/Meta'
-          pfacct_workers:
-            $ref: '#/components/schemas/Meta'
-          process_bandwidth_accounting:
-            $ref: '#/components/schemas/Meta'
-          radius_attributes:
-            $ref: '#/components/schemas/Meta'
-          record_accounting_in_sql:
-            $ref: '#/components/schemas/Meta'
-          username_attributes:
+          wispr_redirection:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -204,93 +224,6 @@ ConfigBasesMeta:
   - properties:
       meta:
         properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          lease_length:
-            $ref: '#/components/schemas/Meta'
-          place_in_dhcp_parking_group:
-            $ref: '#/components/schemas/Meta'
-          show_parking_portal:
-            $ref: '#/components/schemas/Meta'
-          threshold:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          pass:
-            $ref: '#/components/schemas/Meta'
-          user:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          bounce_duration:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          trap_limit:
-            $ref: '#/components/schemas/Meta'
-          trap_limit_action:
-            $ref: '#/components/schemas/Meta'
-          trap_limit_threshold:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          connection_type_change_detection:
-            $ref: '#/components/schemas/Meta'
-          dhcp_process_ipv6:
-            $ref: '#/components/schemas/Meta'
-          dhcp_rate_limiting:
-            $ref: '#/components/schemas/Meta'
-          dhcpdetector:
-            $ref: '#/components/schemas/Meta'
-          dhcpoption82logger:
-            $ref: '#/components/schemas/Meta'
-          force_listener_update_on_ack:
-            $ref: '#/components/schemas/Meta'
-          hostname_change_detection:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          interfaceSNAT:
-            $ref: '#/components/schemas/Meta'
-          rogue_dhcp_detection:
-            $ref: '#/components/schemas/Meta'
-          rogueinterval:
-            $ref: '#/components/schemas/Meta'
-          staticroutes:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          dhcpservers:
-            $ref: '#/components/schemas/Meta'
-          domain:
-            $ref: '#/components/schemas/Meta'
-          hostname:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          send_anonymous_stats:
-            $ref: '#/components/schemas/Meta'
-          timezone:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
           device_class_whitelist:
             $ref: '#/components/schemas/Meta'
           enable:
@@ -306,85 +239,115 @@ ConfigBasesMeta:
   - properties:
       meta:
         properties:
-          emailaddr:
+          aaa:
             $ref: '#/components/schemas/Meta'
-          fromaddr:
+          admin:
+            $ref: '#/components/schemas/Meta'
+          collector:
+            $ref: '#/components/schemas/Meta'
+          httpd_portal_modstatus:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          smtp_encryption:
+          pfacct_netflow:
             $ref: '#/components/schemas/Meta'
-          smtp_password:
+          soap:
             $ref: '#/components/schemas/Meta'
-          smtp_port:
-            $ref: '#/components/schemas/Meta'
-          smtp_timeout:
-            $ref: '#/components/schemas/Meta'
-          smtp_username:
-            $ref: '#/components/schemas/Meta'
-          smtp_verifyssl:
-            $ref: '#/components/schemas/Meta'
-          smtpserver:
-            $ref: '#/components/schemas/Meta'
-          subjectprefix:
+          unifiedapi:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
-          detection_mecanism_bypass:
-            $ref: '#/components/schemas/Meta'
-          detection_mecanism_urls:
-            $ref: '#/components/schemas/Meta'
-          expose_fingerbank_info_all_templates:
-            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          image_path:
+          innodb_buffer_pool_size:
             $ref: '#/components/schemas/Meta'
-          ip_address:
+          key_buffer_size:
             $ref: '#/components/schemas/Meta'
-          loadbalancers_ip:
+          masterslave:
             $ref: '#/components/schemas/Meta'
-          network_detection:
+          max_allowed_packet:
             $ref: '#/components/schemas/Meta'
-          network_detection_initial_delay:
+          max_connect_errors:
             $ref: '#/components/schemas/Meta'
-          network_detection_ip:
+          max_connections:
             $ref: '#/components/schemas/Meta'
-          network_detection_retry_delay:
+          net_read_timeout:
             $ref: '#/components/schemas/Meta'
-          network_redirect_delay:
+          net_write_timeout:
             $ref: '#/components/schemas/Meta'
-          other_domain_names:
+          other_members:
             $ref: '#/components/schemas/Meta'
-          rate_limiting:
+          performance_schema:
             $ref: '#/components/schemas/Meta'
-          rate_limiting_threshold:
+          query_cache_size:
             $ref: '#/components/schemas/Meta'
-          request_timeout:
+          table_cache:
             $ref: '#/components/schemas/Meta'
-          secure_redirect:
+          thread_cache_size:
             $ref: '#/components/schemas/Meta'
-          status_only_on_production:
-            $ref: '#/components/schemas/Meta'
-          wispr_redirection:
+          thread_concurrency:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
-          autoconfig:
+          id:
             $ref: '#/components/schemas/Meta'
+          interception_proxy:
+            $ref: '#/components/schemas/Meta'
+          interception_proxy_port:
+            $ref: '#/components/schemas/Meta'
+          isolation_passthrough:
+            $ref: '#/components/schemas/Meta'
+          isolation_passthroughs:
+            $ref: '#/components/schemas/Meta'
+          passthrough:
+            $ref: '#/components/schemas/Meta'
+          passthroughs:
+            $ref: '#/components/schemas/Meta'
+          proxy_passthroughs:
+            $ref: '#/components/schemas/Meta'
+          range:
+            $ref: '#/components/schemas/Meta'
+          wait_for_redirect:
+            $ref: '#/components/schemas/Meta'
+          whitelist:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           category:
             $ref: '#/components/schemas/Meta'
-          certificate:
+          id:
+            $ref: '#/components/schemas/Meta'
+          pid:
+            $ref: '#/components/schemas/Meta'
+          voip:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          db:
+            $ref: '#/components/schemas/Meta'
+          host:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          ssid:
+          pass:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          unix_socket:
+            $ref: '#/components/schemas/Meta'
+          user:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -393,11 +356,13 @@ ConfigBasesMeta:
         properties:
           id:
             $ref: '#/components/schemas/Meta'
-          interfaceSNAT:
+          lease_length:
             $ref: '#/components/schemas/Meta'
-          ports_redirect:
+          place_in_dhcp_parking_group:
             $ref: '#/components/schemas/Meta'
-          should_reauth_on_vlan_change:
+          show_parking_portal:
+            $ref: '#/components/schemas/Meta'
+          threshold:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -437,41 +402,6 @@ ConfigBasesMeta:
           virtual_router_id:
             $ref: '#/components/schemas/Meta'
           vrrp_unicast:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          innodb_buffer_pool_size:
-            $ref: '#/components/schemas/Meta'
-          key_buffer_size:
-            $ref: '#/components/schemas/Meta'
-          masterslave:
-            $ref: '#/components/schemas/Meta'
-          max_allowed_packet:
-            $ref: '#/components/schemas/Meta'
-          max_connect_errors:
-            $ref: '#/components/schemas/Meta'
-          max_connections:
-            $ref: '#/components/schemas/Meta'
-          net_read_timeout:
-            $ref: '#/components/schemas/Meta'
-          net_write_timeout:
-            $ref: '#/components/schemas/Meta'
-          other_members:
-            $ref: '#/components/schemas/Meta'
-          performance_schema:
-            $ref: '#/components/schemas/Meta'
-          query_cache_size:
-            $ref: '#/components/schemas/Meta'
-          table_cache:
-            $ref: '#/components/schemas/Meta'
-          thread_cache_size:
-            $ref: '#/components/schemas/Meta'
-          thread_concurrency:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -549,6 +479,19 @@ ConfigBasesMeta:
   - properties:
       meta:
         properties:
+          id:
+            $ref: '#/components/schemas/Meta'
+          interfaceSNAT:
+            $ref: '#/components/schemas/Meta'
+          ports_redirect:
+            $ref: '#/components/schemas/Meta'
+          should_reauth_on_vlan_change:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           enabled:
             $ref: '#/components/schemas/Meta'
           id:
@@ -564,6 +507,33 @@ ConfigBasesMeta:
   - properties:
       meta:
         properties:
+          emailaddr:
+            $ref: '#/components/schemas/Meta'
+          fromaddr:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          smtp_encryption:
+            $ref: '#/components/schemas/Meta'
+          smtp_password:
+            $ref: '#/components/schemas/Meta'
+          smtp_port:
+            $ref: '#/components/schemas/Meta'
+          smtp_timeout:
+            $ref: '#/components/schemas/Meta'
+          smtp_username:
+            $ref: '#/components/schemas/Meta'
+          smtp_verifyssl:
+            $ref: '#/components/schemas/Meta'
+          smtpserver:
+            $ref: '#/components/schemas/Meta'
+          subjectprefix:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           id:
             $ref: '#/components/schemas/Meta'
         type: object
@@ -571,46 +541,76 @@ ConfigBasesMeta:
   - properties:
       meta:
         properties:
-          db:
+          filter_in_eduroam_authorize:
             $ref: '#/components/schemas/Meta'
-          host:
+          filter_in_eduroam_post_proxy:
+            $ref: '#/components/schemas/Meta'
+          filter_in_eduroam_pre_proxy:
+            $ref: '#/components/schemas/Meta'
+          filter_in_eduroam_preacct:
+            $ref: '#/components/schemas/Meta'
+          filter_in_packetfence-tunnel_authorize:
+            $ref: '#/components/schemas/Meta'
+          filter_in_packetfence_accounting:
+            $ref: '#/components/schemas/Meta'
+          filter_in_packetfence_authorize:
+            $ref: '#/components/schemas/Meta'
+          filter_in_packetfence_post_proxy:
+            $ref: '#/components/schemas/Meta'
+          filter_in_packetfence_pre_proxy:
+            $ref: '#/components/schemas/Meta'
+          filter_in_packetfence_preacct:
+            $ref: '#/components/schemas/Meta'
+          forward_key_balanced:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          pass:
+          local_auth:
             $ref: '#/components/schemas/Meta'
-          port:
+          normalize_radius_machine_auth_username:
             $ref: '#/components/schemas/Meta'
-          unix_socket:
+          ntlm_redis_cache:
             $ref: '#/components/schemas/Meta'
-          user:
+          pfacct_work_queue_size:
+            $ref: '#/components/schemas/Meta'
+          pfacct_workers:
+            $ref: '#/components/schemas/Meta'
+          process_bandwidth_accounting:
+            $ref: '#/components/schemas/Meta'
+          radius_attributes:
+            $ref: '#/components/schemas/Meta'
+          record_accounting_in_sql:
+            $ref: '#/components/schemas/Meta'
+          username_attributes:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
+          connection_type_change_detection:
+            $ref: '#/components/schemas/Meta'
+          dhcp_process_ipv6:
+            $ref: '#/components/schemas/Meta'
+          dhcp_rate_limiting:
+            $ref: '#/components/schemas/Meta'
+          dhcpdetector:
+            $ref: '#/components/schemas/Meta'
+          dhcpoption82logger:
+            $ref: '#/components/schemas/Meta'
+          force_listener_update_on_ack:
+            $ref: '#/components/schemas/Meta'
+          hostname_change_detection:
+            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          interception_proxy:
+          interfaceSNAT:
             $ref: '#/components/schemas/Meta'
-          interception_proxy_port:
+          rogue_dhcp_detection:
             $ref: '#/components/schemas/Meta'
-          isolation_passthrough:
+          rogueinterval:
             $ref: '#/components/schemas/Meta'
-          isolation_passthroughs:
-            $ref: '#/components/schemas/Meta'
-          passthrough:
-            $ref: '#/components/schemas/Meta'
-          passthroughs:
-            $ref: '#/components/schemas/Meta'
-          proxy_passthroughs:
-            $ref: '#/components/schemas/Meta'
-          range:
-            $ref: '#/components/schemas/Meta'
-          wait_for_redirect:
-            $ref: '#/components/schemas/Meta'
-          whitelist:
+          staticroutes:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object

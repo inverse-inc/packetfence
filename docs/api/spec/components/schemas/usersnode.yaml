@@ -2,8 +2,8 @@ UsersNode:
   properties:
     autoreg:
       enum:
-      - yes
       - no
+      - yes
       type: string
     bandwidth_balance:
       nullable: true
