@@ -1855,7 +1855,7 @@ Running the previous script will be enough and it will extract the current confi
 
 The script will detect if you are running PacketFence in a cluster environment and will detect 2 scenarios:
 
-1. If the script detect that the Samba machine name match the hostname then the script will migrate the configuration to the NTLM_AUTH_API format.
+1. If the script detect that the Samba machine name match the hostname then the script will migrate the configuration to the NTLM_AUTH_API format and remplace the machine name to %h.
 
 2. If the script detect that the Samba machine name doesn't match with the hostname then you will have to delete the machine accounts in the AD and reconfigure the join manually.
 
