@@ -177,7 +177,7 @@ const setup = (props, context) => {
       getItem(item).then(_item => {
         const { machine_account_password } = _item
         if (machine_account_password) {
-          testItem(_item).then(test => {
+          testItem(_item).then(() => {
             joinStatuses.value = { ...joinStatuses.value, [item.id]: true }
           }).catch(() => {
             joinStatuses.value = { ...joinStatuses.value, [item.id]: false }
