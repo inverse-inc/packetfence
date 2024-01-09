@@ -62,7 +62,7 @@ testcases:
       body: >-
         {
           "id": "{{.random_ad_domain_id}}",
-          "password": "{{.random_machine_account_password}}"
+          "machine_account_password": "{{.random_machine_account_password}}"
         }
       headers:
         "Authorization": "{{.get_login_token.result.token}}"
