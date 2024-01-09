@@ -20,6 +20,7 @@ export const useStore = $store => {
     getItemOptions: params => $store.dispatch('$_domains/options', params.id),
     updateItem: params => $store.dispatch('$_domains/updateDomain', params),
     deleteItem: params => $store.dispatch('$_domains/deleteDomain', params.id),
+    testItem: params => $store.dispatch('$_domains/testMachineAccount', params)
   }
 }
 

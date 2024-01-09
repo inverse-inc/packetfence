@@ -13,8 +13,8 @@
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading"
-        :hover="items.length > 0"
-        :items="items"
+        :hover="decoratedItems.length > 0"
+        :items="decoratedItems"
         :fields="visibleColumns"
         :sort-by="sortBy"
         :sort-desc="sortDesc"
@@ -58,7 +58,9 @@
           <icon name="circle" :class="{ 'text-success': item.ntlm_cache === 'enabled', 'text-danger': item.ntlm_cache !== 'enabled' }"
             v-b-tooltip.hover.left.d300 :title="$t(item.ntlm_cache)"></icon>
         </template>
-
+        <template #cell(domain_joined)="{ item }">
+          <icon name="circle" :class="{ 'text-success': item.domain_joined === true, 'text-danger': item.domain_joined === false }"></icon>
+        </template>
         <template #head(buttons)>
           <base-search-input-columns
             :disabled="isLoading"
@@ -119,7 +121,7 @@ const props = {
   }
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
@@ -132,7 +134,9 @@ const setup = (props, context) => {
   const services = useServices()
 
   const {
-    deleteItem
+    deleteItem,
+    getItem,
+    testItem
   } = useStore($store)
 
   const search = useSearch()
@@ -163,6 +167,26 @@ const setup = (props, context) => {
       .then(() => reSearch())
   }
 
+  const joinStatuses = ref({})
+  const decoratedItems = computed(() => {
+    return items.value.map(item => ({ ...item, domain_joined: joinStatuses.value[item.id]  }))
+  })
+  watch(items, () => {
+    items.value.forEach(item => {
+      joinStatuses.value = { ...joinStatuses.value, [item.id]: null }
+      getItem(item).then(_item => {
+        const { id, machine_account_password } = _item
+//        if (machine_account_password) {
+          testItem(_item).then(test => {
+            joinStatuses.value = { ...joinStatuses.value, [item.id]: true }
+          }).catch(() => {
+            joinStatuses.value = { ...joinStatuses.value, [item.id]: false }
+          })
+//        }
+      })
+    })
+  }, { deep: true, immediate: true })
+
   return {
     useSearch,
     tableRef,
@@ -171,7 +195,9 @@ const setup = (props, context) => {
     ...router,
     ...selected,
     ...toRefs(search),
-    services
+    services,
+    decoratedItems,
+    joinStatuses
   }
 }
 
