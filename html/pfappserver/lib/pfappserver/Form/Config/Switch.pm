@@ -689,6 +689,18 @@ sub options_wsTransport {
     return ({label => '' ,value => '' }, @transports);
 }
 
+=head2 options_ACLs
+
+=cut
+
+sub options_ACLs {
+    my $self = shift;
+
+    my @options = map { {label => $_, value =>  $_ } } qw/pushACLs downloadableACLs/;
+
+    return ({label => '' ,value => '' }, @options);
+}
+
 =head2 validate
 
 If one of the inline triggers is $ALWAYS, ignore any other trigger.

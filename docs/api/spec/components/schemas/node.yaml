@@ -2,8 +2,8 @@ Node:
   properties:
     autoreg:
       enum:
-      - yes
       - no
+      - yes
       type: string
     bandwidth_balance:
       nullable: true
@@ -66,10 +66,6 @@ Node:
       example: 1970-01-01 00:00:00
       format: date-time
       type: string
-    lastskip:
-      example: 1970-01-01 00:00:00
-      format: date-time
-      type: string
     mac:
       description: '`PRIMARY KEY`'
       type: string
@@ -102,7 +98,7 @@ Node:
       type: string
     voip:
       enum:
-      - no
       - yes
+      - no
       type: string
   type: object

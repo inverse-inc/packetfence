@@ -12,11 +12,11 @@ ConfigSyslogParser:
       suricata_md5: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
     propertyName: type
   oneOf:
-  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSnort'
   - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricata'
-  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeDhcp'
-  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
   - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSecurityOnion'
-  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeNexpose'
-  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'
   - $ref: '#/components/schemas/ConfigSyslogParserSubTypeRegex'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeNexpose'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeDhcp'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSnort'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'

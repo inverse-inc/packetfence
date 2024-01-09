@@ -9,6 +9,6 @@ ConfigScan:
     propertyName: type
   oneOf:
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus'
-  - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus6'
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanOpenvas'
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
+  - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus6'

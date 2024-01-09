@@ -485,7 +485,12 @@ import {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+<<<<<<< HEAD
+  FormGroupAclsType,
+  FormGroupPushAcls,
+=======
   FormGroupUsePushAcls,
+>>>>>>> devel
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
@@ -561,7 +566,12 @@ const components = {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+<<<<<<< HEAD
+  FormGroupAclsType,
+  FormGroupPushAcls,
+=======
   FormGroupUsePushAcls,
+>>>>>>> devel
   FormGroupUseDownloadableAcls,
   FormGroupAclsLimit,
   FormGroupDownloadableAclsLimit,
