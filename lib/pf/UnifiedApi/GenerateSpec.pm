@@ -141,16 +141,22 @@ sub formHandlerProperties {
     return \%properties;
 }
 
-sub formUuid {
+sub FormFieldsToUuid {
     my ($form) = @_;
-    return 'foobar';
+    my @fields;
+    for my $field (grep { isAllowedField($_) } $form->fields) {
+        my $name = $field->name;
+        push @fields, $name;
+    }
+    my @sorted = sort @fields;
+    return join(',', @sorted);
 }
 
 sub subTypesMetaSchema {
     my (@forms) = @_;
     return {
         oneOf => [
-            map { metaSchema($_) } sort { formUuid($a) cmp formUuid($b) }  @forms
+            map { metaSchema($_) } sort { FormFieldsToUuid($a) cmp FormFieldsToUuid($b) }  @forms
         ],
         discriminator => {
             propertyName => 'type',
