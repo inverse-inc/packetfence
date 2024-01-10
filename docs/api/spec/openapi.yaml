@@ -22930,10 +22930,6 @@ components:
           default: ~
           description: PostMfaValidation
           type: string
-        PushACLs:
-          default: ~
-          description: PushACLs
-          type: string
         RoleMap:
           default: ~
           description: Role by Switch Role
@@ -23049,6 +23045,10 @@ components:
         UseDownloadableACLs:
           default: ~
           description: UseDownloadableACLs
+          type: string
+        UsePushACLs:
+          default: ~
+          description: UsePushACLs
           type: string
         VlanMap:
           default: ~
@@ -23299,10 +23299,6 @@ components:
           default: ~
           description: PostMfaValidation
           type: string
-        PushACLs:
-          default: ~
-          description: PushACLs
-          type: string
         RoleMap:
           default: ~
           description: Role by Switch Role
@@ -23418,6 +23414,10 @@ components:
         UseDownloadableACLs:
           default: ~
           description: UseDownloadableACLs
+          type: string
+        UsePushACLs:
+          default: ~
+          description: UsePushACLs
           type: string
         VlanMap:
           default: ~
@@ -23652,8 +23652,6 @@ components:
               $ref: '#/components/schemas/Meta'
             PostMfaValidation:
               $ref: '#/components/schemas/Meta'
-            PushACLs:
-              $ref: '#/components/schemas/Meta'
             RoleMap:
               $ref: '#/components/schemas/Meta'
             SNMPAuthPasswordRead:
@@ -23705,6 +23703,8 @@ components:
             UrlMapping:
               $ref: '#/components/schemas/Meta'
             UseDownloadableACLs:
+              $ref: '#/components/schemas/Meta'
+            UsePushACLs:
               $ref: '#/components/schemas/Meta'
             VlanMap:
               $ref: '#/components/schemas/Meta'
@@ -23816,8 +23816,6 @@ components:
               $ref: '#/components/schemas/Meta'
             PostMfaValidation:
               $ref: '#/components/schemas/Meta'
-            PushACLs:
-              $ref: '#/components/schemas/Meta'
             RoleMap:
               $ref: '#/components/schemas/Meta'
             SNMPAuthPasswordRead:
@@ -23869,6 +23867,8 @@ components:
             UrlMapping:
               $ref: '#/components/schemas/Meta'
             UseDownloadableACLs:
+              $ref: '#/components/schemas/Meta'
+            UsePushACLs:
               $ref: '#/components/schemas/Meta'
             VlanMap:
               $ref: '#/components/schemas/Meta'
@@ -27524,10 +27524,6 @@ components:
           example: 1970-01-01 00:00:00
           format: date-time
           type: string
-        lastskip:
-          example: 1970-01-01 00:00:00
-          format: date-time
-          type: string
         mac:
           description: '`PRIMARY KEY`'
           type: string
@@ -29599,10 +29595,6 @@ components:
           format: date-time
           type: string
         last_seen:
-          example: 1970-01-01 00:00:00
-          format: date-time
-          type: string
-        lastskip:
           example: 1970-01-01 00:00:00
           format: date-time
           type: string
@@ -44919,6 +44911,9 @@ paths:
         invalidate_cache
           invalidate switch cache
 
+        precreate_acls
+          precreate switch ACLs
+
         standardPlaceholder
           standardPlaceholder
     get:
@@ -45478,6 +45473,9 @@ paths:
         invalidate_cache
           invalidate switch cache
 
+        precreate_acls
+          precreate switch ACLs
+
         standardPlaceholder
           standardPlaceholder
     get:
@@ -45541,6 +45539,9 @@ paths:
         invalidate_cache
           invalidate switch cache
 
+        precreate_acls
+          precreate switch ACLs
+
         standardPlaceholder
           standardPlaceholder
     post:
@@ -45578,6 +45579,9 @@ paths:
         invalidate_cache
           invalidate switch cache
 
+        precreate_acls
+          precreate switch ACLs
+
         standardPlaceholder
           standardPlaceholder
     post:
@@ -45614,6 +45618,9 @@ paths:
         invalidate_cache
           invalidate switch cache
 
+        precreate_acls
+          precreate switch ACLs
+
         standardPlaceholder
           standardPlaceholder
     patch:
@@ -45649,6 +45656,9 @@ paths:
 
         invalidate_cache
           invalidate switch cache
+
+        precreate_acls
+          precreate switch ACLs
 
         standardPlaceholder
           standardPlaceholder
@@ -45704,6 +45714,9 @@ paths:
 
         invalidate_cache
           invalidate switch cache
+
+        precreate_acls
+          precreate switch ACLs
 
         standardPlaceholder
           standardPlaceholder
@@ -48484,7 +48497,6 @@ paths:
             - last_arp
             - last_dhcp
             - last_seen
-            - lastskip
             - mac
             - machine_account
             - notes
@@ -48518,7 +48530,6 @@ paths:
               - last_arp
               - last_dhcp
               - last_seen
-              - lastskip
               - mac
               - machine_account
               - notes
@@ -48584,8 +48595,6 @@ paths:
               - last_dhcp DESC
               - last_seen ASC
               - last_seen DESC
-              - lastskip ASC
-              - lastskip DESC
               - mac ASC
               - mac DESC
               - machine_account ASC
@@ -48704,7 +48713,6 @@ paths:
               - last_arp
               - last_dhcp
               - last_seen
-              - lastskip
               - mac
               - machine_account
               - notes
@@ -48782,9 +48790,6 @@ paths:
                   - field: last_seen
                     op: contains
                     value: foo
-                  - field: lastskip
-                    op: contains
-                    value: foo
                   - field: mac
                     op: contains
                     value: foo
@@ -48850,7 +48855,6 @@ paths:
                       - last_arp
                       - last_dhcp
                       - last_seen
-                      - lastskip
                       - mac
                       - machine_account
                       - notes
@@ -48913,8 +48917,6 @@ paths:
                       - last_dhcp DESC
                       - last_seen ASC
                       - last_seen DESC
-                      - lastskip ASC
-                      - lastskip DESC
                       - mac ASC
                       - mac DESC
                       - machine_account ASC
@@ -54013,7 +54015,6 @@ paths:
             - last_arp
             - last_dhcp
             - last_seen
-            - lastskip
             - mac
             - machine_account
             - notes
@@ -54047,7 +54048,6 @@ paths:
               - last_arp
               - last_dhcp
               - last_seen
-              - lastskip
               - mac
               - machine_account
               - notes
@@ -54113,8 +54113,6 @@ paths:
               - last_dhcp DESC
               - last_seen ASC
               - last_seen DESC
-              - lastskip ASC
-              - lastskip DESC
               - mac ASC
               - mac DESC
               - machine_account ASC
@@ -54567,7 +54565,6 @@ paths:
               - last_arp
               - last_dhcp
               - last_seen
-              - lastskip
               - mac
               - machine_account
               - notes
@@ -54645,9 +54642,6 @@ paths:
                   - field: last_seen
                     op: contains
                     value: foo
-                  - field: lastskip
-                    op: contains
-                    value: foo
                   - field: mac
                     op: contains
                     value: foo
@@ -54713,7 +54707,6 @@ paths:
                       - last_arp
                       - last_dhcp
                       - last_seen
-                      - lastskip
                       - mac
                       - machine_account
                       - notes
@@ -54776,8 +54769,6 @@ paths:
                       - last_dhcp DESC
                       - last_seen ASC
                       - last_seen DESC
-                      - lastskip ASC
-                      - lastskip DESC
                       - mac ASC
                       - mac DESC
                       - machine_account ASC
@@ -57511,7 +57502,6 @@ paths:
               - last_arp
               - last_dhcp
               - last_seen
-              - lastskip
               - mac
               - machine_account
               - notes
@@ -57589,9 +57579,6 @@ paths:
                   - field: last_seen
                     op: contains
                     value: foo
-                  - field: lastskip
-                    op: contains
-                    value: foo
                   - field: mac
                     op: contains
                     value: foo
@@ -57657,7 +57644,6 @@ paths:
                       - last_arp
                       - last_dhcp
                       - last_seen
-                      - lastskip
                       - mac
                       - machine_account
                       - notes
@@ -57720,8 +57706,6 @@ paths:
                       - last_dhcp DESC
                       - last_seen ASC
                       - last_seen DESC
-                      - lastskip ASC
-                      - lastskip DESC
                       - mac ASC
                       - mac DESC
                       - machine_account ASC

@@ -94,7 +94,6 @@ The following attributes are supported:
      category
      mac
      last_arp
-     lastskip
      last_dhcp
      user_agent
      computername
@@ -209,7 +208,6 @@ Example of attributes that can be filtered:
 'category' => 'Wire',
 'mac' => '00:11:22:33:44:55',
 'portal' => 'Wire',
-'lastskip' => '0000-00-00 00:00:00',
 'eap_type' => 26,
 'last_dhcp' => '0000-00-00 00:00:00',
 'user_agent' => 'ccmhttp',
@@ -270,7 +268,6 @@ Example of attributes that can be filtered:
   'dhcp6_fingerprint' => '',
   'category' => 'Wire',
   'mac' => '00:11:22:33:44:55',
-  'lastskip' => '0000-00-00 00:00:00',
   'last_dhcp' => '0000-00-00 00:00:00',
   'user_agent' => 'ccmhttp',
   'dhcp_fingerprint' => '1,15,3,6,44,46,47,31,33,121,249,43',

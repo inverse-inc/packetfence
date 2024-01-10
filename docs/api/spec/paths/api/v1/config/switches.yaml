@@ -5,6 +5,9 @@
       invalidate_cache
         invalidate switch cache
 
+      precreate_acls
+        precreate switch ACLs
+
       standardPlaceholder
         standardPlaceholder
   get:

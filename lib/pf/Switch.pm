@@ -166,7 +166,7 @@ sub new {
         '_coaPort'                      => undef,
         '_uplink'                       => undef,
         '_vlans'                        => undef,
-        '_ExternalPortalEnforcement'    => 'disabled',    
+        '_ExternalPortalEnforcement'    => 'disabled',
         '_VoIPEnabled'                  => undef,
         '_roles'                        => undef,
         '_inlineTrigger'                => undef,
@@ -180,10 +180,11 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
-        '_PushACLs'                     => 'disabled',
+        '_UsePushACLs'                  => 'disabled',
         '_UseDownloadableACLs'          => 'disabled',
         '_DownloadableACLsLimit'        => 0,
         '_ACLsLimit'                    => 0,
+        '_ACLsType'                     => undef,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -3266,8 +3267,8 @@ sub deauth_source_ip {
                            );
     if (defined($Config{ 'interface ' . $int })) {
         if($cluster_enabled && !$using_connector){
-            return (isenabled($Config{active_active}{centralized_deauth}) && isenabled($Config{active_active}{use_vip_for_deauth})) ? 
-                pf::cluster::cluster_ip($int) : 
+            return (isenabled($Config{active_active}{centralized_deauth}) && isenabled($Config{active_active}{use_vip_for_deauth})) ?
+                pf::cluster::cluster_ip($int) :
                 pf::cluster::current_server->{"interface $int"}->{ip};
         }
         else {
@@ -3897,7 +3898,7 @@ sub fingerbank_dynamic_acl {
     my $logger = $self->logger;
 
     my @acls;
-    
+
     # Always allow access to DHCP and DNS
     push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 67});
     push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 68});
@@ -3965,7 +3966,7 @@ sub radius_deauth_connection_info {
         my $connector = pf::factory::connector->for_ip($send_disconnect_to);
         # Skip using the local connector to do deauth if we're in a cluster since pfconnector will not use the VIP
         if($cluster_enabled && $connector->id eq pf::factory::connector->local_connector->id) {
-            get_logger->debug("Not using local connector to perform deauth because this is a cluster");            
+            get_logger->debug("Not using local connector to perform deauth because this is a cluster");
         }
         else {
             get_logger->info("Will be using connnector ".$connector->id." to perform the deauth");
@@ -3984,16 +3985,16 @@ sub radius_deauth_connection_info {
     return $connection_info;
 }
 
+sub usePushACLs {
+    my ($self) = @_;
+    return $self->supportsPushACLs() &&
+        isenabled($self->{_UsePushACLs});;
+}
+
 sub useDownloadableACLs {
     my ($self) = @_;
     return $self->supportsDownloadableListBasedEnforcement() &&
         isenabled($self->{_UseDownloadableACLs});
-}
-
-sub usePushACLs {
-    my ($self) = @_;
-    return $self->supportsPushACLs() &&
-        isenabled($self->{_PushACLs});
 }
 
 sub defaultACLsLimit {
@@ -4219,7 +4220,7 @@ sub generateAnsibleConfiguration {
 
     return if ($self->{_id} =~ /.*\/.*/ or $self->{_id} =~ /.*\:.*/ or $self->{_id} eq 'default' or $self->{_id} eq '100.64.0.1' or $self->{_id} eq '127.0.0.1');
     my $switch_id = $self->{_id};
-    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_PushACLs'}));
+    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_UsePushACLs'}));
 
     my $switch_ip = $switch_id;
     $switch_id =~ s/\./_/g;

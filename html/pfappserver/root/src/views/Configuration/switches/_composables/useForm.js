@@ -1,7 +1,9 @@
 import { computed, ref, toRefs, unref } from '@vue/composition-api'
 import { useFormMetaSchema } from '@/composables/useMeta'
+import i18n from '@/utils/locale'
 import { baseRoles } from '../config'
 import schemaFn from '../schema'
+import { useStore } from './useCollection'
 
 const useFormProps = {
   form: {
@@ -33,6 +35,11 @@ const useForm = (props, context) => {
     form,
     meta
   } = toRefs(props)
+
+  const { root: { $store } = {} } = context
+  const {
+    precreateItemAcls
+  } = useStore($store)
 
   const schema = computed(() => schemaFn(props))
   const metaSchema = computed(() => useFormMetaSchema(meta, schema))
@@ -135,14 +142,43 @@ const useForm = (props, context) => {
   })
 
   const roles = ref(baseRoles)
-
-  const { root: { $store } = {} } = context
   $store.dispatch('$_roles/all').then(allRoles => {
     roles.value = [
       ...roles.value,
       ...allRoles.map(role => role.id)
     ]
   })
+
+  const isUsePushACLs = computed(() => {
+    // inspect form value for `UsePushACLs`
+    const { UsePushACLs } = form.value
+    if (UsePushACLs !== null)
+      return UsePushACLs === 'Y'
+
+    // inspect meta placeholder for `UsePushACLs`
+    const { UsePushACLs: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
+  const isUseDownloadableACLs = computed(() => {
+    // inspect form value for `UseDownloadableACLs`
+    const { UseDownloadableACLs } = form.value
+    if (UseDownloadableACLs !== null)
+      return UseDownloadableACLs === 'Y'
+
+    // inspect meta placeholder for `UseDownloadableACLs`
+    const { UseDownloadableACLs: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
+  const onPrecreate = () => {
+    const { id } = form.value || {}
+    precreateItemAcls({ id }).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Successfully precreated ACLs on switch <code>{id}</code>.', { id }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Failed to precreate ACLs for on <code>{id}</code>.', { id }) })
+    })
+  }
 
   return {
     advancedMode,
@@ -156,7 +192,11 @@ const useForm = (props, context) => {
     isVpnMap,
     isUrlMap,
     isVlanMap,
-    roles
+    roles,
+
+    isUsePushACLs,
+    isUseDownloadableACLs,
+    onPrecreate
   }
 }
 

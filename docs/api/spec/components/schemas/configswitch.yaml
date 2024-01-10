@@ -52,10 +52,6 @@ ConfigSwitch:
       default: ~
       description: PostMfaValidation
       type: string
-    PushACLs:
-      default: ~
-      description: PushACLs
-      type: string
     RoleMap:
       default: ~
       description: Role by Switch Role
@@ -171,6 +167,10 @@ ConfigSwitch:
     UseDownloadableACLs:
       default: ~
       description: UseDownloadableACLs
+      type: string
+    UsePushACLs:
+      default: ~
+      description: UsePushACLs
       type: string
     VlanMap:
       default: ~

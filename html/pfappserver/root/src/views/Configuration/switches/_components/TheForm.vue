@@ -389,17 +389,16 @@
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
 
-        <form-group-push-acls v-show="supports(['PushACLs'])"
-          namespace="PushACLs"
+        <form-group-use-push-acls v-show="supports(['PushACLs'])"
+          namespace="UsePushACLs"
           :column-label="$i18n.t('Push ACLs')"
           :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
         />
 
-        <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
-          namespace="UseDownloadableACLs"
-          :column-label="$i18n.t('Downloadable ACLs')"
-          :text="$i18n.t('Enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
-        />
+        <form-group-container v-show="supports(['PushACLs']) && isUsePushACLs">
+          <b-button :disabled="isLoading"
+            variant="outline-primary" @click="onPrecreate">Precreate ACLs</b-button>
+        </form-group-container>
 
         <form-group-downloadable-acls-limit v-show="supports(['DownloadableListBasedEnforcement'])"
           namespace="DownloadableACLsLimit"
@@ -407,7 +406,13 @@
           :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch.')"
         />
 
-        <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement'])"
+        <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
+          namespace="UseDownloadableACLs"
+          :column-label="$i18n.t('Downloadable ACLs')"
+          :text="$i18n.t('Enable Downloadable ACLs through RADIUS instead of Dynamic ACLs.')"
+        />
+
+        <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement']) && isUseDownloadableACLs"
           :column-label="$i18n.t('Maximum ACLs per RADIUS reply')"
           :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"
         />
@@ -424,6 +429,7 @@ import {
   BaseInputToggleAdvancedMode
 } from '@/components/new/'
 import {
+  FormGroupContainer,
   FormGroupCliAccess,
   FormGroupCliEnablePwd,
   FormGroupCliPwd,
@@ -479,7 +485,7 @@ import {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
-  FormGroupPushAcls,
+  FormGroupUsePushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
@@ -499,6 +505,7 @@ const components = {
   BaseFormTab,
   BaseInputToggleAdvancedMode,
 
+  FormGroupContainer,
   FormGroupCliAccess,
   FormGroupCliEnablePwd,
   FormGroupCliPwd,
@@ -554,7 +561,7 @@ const components = {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
-  FormGroupPushAcls,
+  FormGroupUsePushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupAclsLimit,
   FormGroupDownloadableAclsLimit,

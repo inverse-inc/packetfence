@@ -53,9 +53,6 @@
         <base-form-group class="text-nowrap" :column-label="$t('Last Seen')">
           {{ node.last_seen | longDateTime }} <abbr v-if="node.last_seen && node.last_seen !== '0000-00-00 00:00:00'" :title="node.last_seen | longDateTime">(<timeago :datetime="node.last_seen" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </base-form-group>
-        <base-form-group class="text-nowrap" :column-label="$t('Last Skip')">
-          {{ node.lastskip | longDateTime }} <abbr v-if="node.lastskip && node.lastskip !== '0000-00-00 00:00:00'" :title="node.lastskip | longDateTime">(<timeago :datetime="node.lastskip" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
-        </base-form-group>
         <base-form-group class="text-nowrap" :column-label="$t('Last Connection Type')">
           {{ node.last_connection_type }} <span v-if="node.last_connection_sub_type">/</span> {{ node.last_connection_sub_type }}
         </base-form-group>

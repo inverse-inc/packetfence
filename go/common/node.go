@@ -28,7 +28,6 @@ type Node struct {
 	LastARP            string      `json:"last_arp,omitempty"`
 	LastDHCP           string      `json:"last_dhcp,omitempty"`
 	LastSeen           string      `json:"last_seen,omitempty"`
-	LastSkip           string      `json:"lastskip,omitempty"`
 	MAC                string      `json:"mac,omitempty"`
 	MachineAccount     string      `json:"machine_account,omitempty"`
 	Notes              string      `json:"notes,omitempty"`

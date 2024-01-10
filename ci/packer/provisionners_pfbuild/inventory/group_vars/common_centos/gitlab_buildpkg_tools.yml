@@ -1,7 +1,7 @@
 ---
 gitlab_buildpkg_tools__rpm_keys:
   - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
-  - 'https://rpm.nodesource.com/gpgkey/nodesource.gpg.key'
+  - 'https://rpm.nodesource.com/gpgkey/ns-operations-public.key'
 
 gitlab_buildpkg_tools__rpm_deps_repos:
   - name: packetfence

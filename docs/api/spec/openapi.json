@@ -31209,11 +31209,6 @@
                   "description" : "PostMfaValidation",
                   "type" : "string"
                },
-               "PushACLs" : {
-                  "default" : null,
-                  "description" : "PushACLs",
-                  "type" : "string"
-               },
                "RoleMap" : {
                   "default" : null,
                   "description" : "Role by Switch Role",
@@ -31358,6 +31353,11 @@
                "UseDownloadableACLs" : {
                   "default" : null,
                   "description" : "UseDownloadableACLs",
+                  "type" : "string"
+               },
+               "UsePushACLs" : {
+                  "default" : null,
+                  "description" : "UsePushACLs",
                   "type" : "string"
                },
                "VlanMap" : {
@@ -31673,11 +31673,6 @@
                   "description" : "PostMfaValidation",
                   "type" : "string"
                },
-               "PushACLs" : {
-                  "default" : null,
-                  "description" : "PushACLs",
-                  "type" : "string"
-               },
                "RoleMap" : {
                   "default" : null,
                   "description" : "Role by Switch Role",
@@ -31822,6 +31817,11 @@
                "UseDownloadableACLs" : {
                   "default" : null,
                   "description" : "UseDownloadableACLs",
+                  "type" : "string"
+               },
+               "UsePushACLs" : {
+                  "default" : null,
+                  "description" : "UsePushACLs",
                   "type" : "string"
                },
                "VlanMap" : {
@@ -32131,9 +32131,6 @@
                      "PostMfaValidation" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
-                     "PushACLs" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
                      "RoleMap" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
@@ -32210,6 +32207,9 @@
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "UseDownloadableACLs" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "UsePushACLs" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "VlanMap" : {
@@ -32383,9 +32383,6 @@
                      "PostMfaValidation" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
-                     "PushACLs" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
                      "RoleMap" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
@@ -32462,6 +32459,9 @@
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "UseDownloadableACLs" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "UsePushACLs" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "VlanMap" : {
@@ -37794,11 +37794,6 @@
                   "format" : "date-time",
                   "type" : "string"
                },
-               "lastskip" : {
-                  "example" : "1970-01-01 00:00:00",
-                  "format" : "date-time",
-                  "type" : "string"
-               },
                "mac" : {
                   "description" : "`PRIMARY KEY`",
                   "type" : "string"
@@ -40700,11 +40695,6 @@
                   "type" : "string"
                },
                "last_seen" : {
-                  "example" : "1970-01-01 00:00:00",
-                  "format" : "date-time",
-                  "type" : "string"
-               },
-               "lastskip" : {
                   "example" : "1970-01-01 00:00:00",
                   "format" : "date-time",
                   "type" : "string"
@@ -62541,7 +62531,7 @@
                "Config/Switches"
             ]
          },
-         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  standardPlaceholder\n    standardPlaceholder",
+         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  precreate_acls\n    precreate switch ACLs\n\n  standardPlaceholder\n    standardPlaceholder",
          "get" : {
             "description" : "Get an item.",
             "operationId" : "api.v1.Config.Switches.resource.get",
@@ -63330,7 +63320,7 @@
          }
       },
       "/api/v1/config/switches" : {
-         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  standardPlaceholder\n    standardPlaceholder",
+         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  precreate_acls\n    precreate switch ACLs\n\n  standardPlaceholder\n    standardPlaceholder",
          "get" : {
             "description" : "List all items.",
             "operationId" : "api.v1.Config.Switches.list",
@@ -63416,7 +63406,7 @@
          }
       },
       "/api/v1/config/switches/bulk_delete" : {
-         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  standardPlaceholder\n    standardPlaceholder",
+         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  precreate_acls\n    precreate switch ACLs\n\n  standardPlaceholder\n    standardPlaceholder",
          "post" : {
             "description" : "Delete one or more items.",
             "operationId" : "api.v1.Config.Switches.bulk_delete",
@@ -63463,7 +63453,7 @@
          }
       },
       "/api/v1/config/switches/bulk_import" : {
-         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  standardPlaceholder\n    standardPlaceholder",
+         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  precreate_acls\n    precreate switch ACLs\n\n  standardPlaceholder\n    standardPlaceholder",
          "post" : {
             "description" : "Create one or more items.",
             "operationId" : "api.v1.Config.Switches.bulk_import",
@@ -63509,7 +63499,7 @@
          }
       },
       "/api/v1/config/switches/bulk_update" : {
-         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  standardPlaceholder\n    standardPlaceholder",
+         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  precreate_acls\n    precreate switch ACLs\n\n  standardPlaceholder\n    standardPlaceholder",
          "patch" : {
             "description" : "Update one or more items.",
             "operationId" : "api.v1.Config.Switches.bulk_update",
@@ -63555,7 +63545,7 @@
          }
       },
       "/api/v1/config/switches/search" : {
-         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  standardPlaceholder\n    standardPlaceholder",
+         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  precreate_acls\n    precreate switch ACLs\n\n  standardPlaceholder\n    standardPlaceholder",
          "post" : {
             "description" : "Search all items.",
             "operationId" : "api.v1.Config.Switches.search",
@@ -63630,7 +63620,7 @@
          }
       },
       "/api/v1/config/switches/sort_items" : {
-         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  standardPlaceholder\n    standardPlaceholder",
+         "description" : "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n    invalidate switch cache\n\n  precreate_acls\n    precreate switch ACLs\n\n  standardPlaceholder\n    standardPlaceholder",
          "patch" : {
             "description" : "Sort items.",
             "operationId" : "api.v1.Config.Switches.sort_items",
@@ -67608,7 +67598,6 @@
                               "last_arp",
                               "last_dhcp",
                               "last_seen",
-                              "lastskip",
                               "mac",
                               "machine_account",
                               "notes",
@@ -67643,7 +67632,6 @@
                                  "last_arp",
                                  "last_dhcp",
                                  "last_seen",
-                                 "lastskip",
                                  "mac",
                                  "machine_account",
                                  "notes",
@@ -67719,8 +67707,6 @@
                                  "last_dhcp DESC",
                                  "last_seen ASC",
                                  "last_seen DESC",
-                                 "lastskip ASC",
-                                 "lastskip DESC",
                                  "mac ASC",
                                  "mac DESC",
                                  "machine_account ASC",
@@ -67896,7 +67882,6 @@
                            "last_arp",
                            "last_dhcp",
                            "last_seen",
-                           "lastskip",
                            "mac",
                            "machine_account",
                            "notes",
@@ -68017,11 +68002,6 @@
                                        "value" : "foo"
                                     },
                                     {
-                                       "field" : "lastskip",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
                                        "field" : "mac",
                                        "op" : "contains",
                                        "value" : "foo"
@@ -68118,7 +68098,6 @@
                                           "last_arp",
                                           "last_dhcp",
                                           "last_seen",
-                                          "lastskip",
                                           "mac",
                                           "machine_account",
                                           "notes",
@@ -68185,8 +68164,6 @@
                                           "last_dhcp DESC",
                                           "last_seen ASC",
                                           "last_seen DESC",
-                                          "lastskip ASC",
-                                          "lastskip DESC",
                                           "mac ASC",
                                           "mac DESC",
                                           "machine_account ASC",
@@ -75222,7 +75199,6 @@
                               "last_arp",
                               "last_dhcp",
                               "last_seen",
-                              "lastskip",
                               "mac",
                               "machine_account",
                               "notes",
@@ -75257,7 +75233,6 @@
                                  "last_arp",
                                  "last_dhcp",
                                  "last_seen",
-                                 "lastskip",
                                  "mac",
                                  "machine_account",
                                  "notes",
@@ -75333,8 +75308,6 @@
                                  "last_dhcp DESC",
                                  "last_seen ASC",
                                  "last_seen DESC",
-                                 "lastskip ASC",
-                                 "lastskip DESC",
                                  "mac ASC",
                                  "mac DESC",
                                  "machine_account ASC",
@@ -75842,7 +75815,6 @@
                            "last_arp",
                            "last_dhcp",
                            "last_seen",
-                           "lastskip",
                            "mac",
                            "machine_account",
                            "notes",
@@ -75963,11 +75935,6 @@
                                        "value" : "foo"
                                     },
                                     {
-                                       "field" : "lastskip",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
                                        "field" : "mac",
                                        "op" : "contains",
                                        "value" : "foo"
@@ -76064,7 +76031,6 @@
                                           "last_arp",
                                           "last_dhcp",
                                           "last_seen",
-                                          "lastskip",
                                           "mac",
                                           "machine_account",
                                           "notes",
@@ -76131,8 +76097,6 @@
                                           "last_dhcp DESC",
                                           "last_seen ASC",
                                           "last_seen DESC",
-                                          "lastskip ASC",
-                                          "lastskip DESC",
                                           "mac ASC",
                                           "mac DESC",
                                           "machine_account ASC",
@@ -80201,7 +80165,6 @@
                            "last_arp",
                            "last_dhcp",
                            "last_seen",
-                           "lastskip",
                            "mac",
                            "machine_account",
                            "notes",
@@ -80322,11 +80285,6 @@
                                        "value" : "foo"
                                     },
                                     {
-                                       "field" : "lastskip",
-                                       "op" : "contains",
-                                       "value" : "foo"
-                                    },
-                                    {
                                        "field" : "mac",
                                        "op" : "contains",
                                        "value" : "foo"
@@ -80423,7 +80381,6 @@
                                           "last_arp",
                                           "last_dhcp",
                                           "last_seen",
-                                          "lastskip",
                                           "mac",
                                           "machine_account",
                                           "notes",
@@ -80490,8 +80447,6 @@
                                           "last_dhcp DESC",
                                           "last_seen ASC",
                                           "last_seen DESC",
-                                          "lastskip ASC",
-                                          "lastskip DESC",
                                           "mac ASC",
                                           "mac DESC",
                                           "machine_account ASC",

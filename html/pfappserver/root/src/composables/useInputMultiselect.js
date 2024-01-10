@@ -315,7 +315,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
             .trim() // trim outside whitespace
             .split(' ') // separate terms by space
             .filter(q => q) // ignore multiple spaces
-            .map(query => ({ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }))
+            .map(query => ({ op: 'or', values: [{ field: valueName, op: 'contains', value: query }, { field: fieldName, op: 'contains', value: query }] }))
 
           apiCall.request({
             url,
@@ -333,7 +333,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
               const { data: { items = [] } = {} } = response
               searchResultOptions.value = items.map(item => {
                 const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
-                return { [label.value]: _field, [trackBy.value]: _value } // remap label/trackBy
+                return { [label.value]: `${_field} (${_value})`, [trackBy.value]: _value } // remap label/trackBy
               })
             }
           }).finally(() => {

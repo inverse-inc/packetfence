@@ -2,7 +2,7 @@ package pf::UnifiedApi::Controller::Config::Switches;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::Switches - 
+pf::UnifiedApi::Controller::Config::Switches -
 
 =cut
 
@@ -49,6 +49,24 @@ sub invalidate_cache {
     }
 
     $switch->invalidate_distributed_cache();
+    return $self->render(status => 200, json => { });
+}
+
+=head2 precreate_acls
+
+precreate switch ACLs
+
+=cut
+
+sub precreate_acls {
+    my ($self) = @_;
+    my $switch_id = $self->id;
+    my $switch = pf::SwitchFactory->instantiate($switch_id);
+    unless ( ref($switch) ) {
+        return $self->render_error(422, "Cannot instantiate switch $switch");
+    }
+
+    $switch->generateACL();
     return $self->render(status => 200, json => { });
 }
 
