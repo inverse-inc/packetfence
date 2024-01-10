@@ -87,7 +87,7 @@ sub subTypesSchema {
     return {
         description => 'Choose one of the request bodies by discriminator (`type`). ',
         oneOf => [
-            map { subTypeSchemaRef($item_path, $_, 1) } @forms
+            sort { $a->{'$ref'} cmp $b->{'$ref'} } map { subTypeSchemaRef($item_path, $_, 1) } @forms
         ],
         discriminator => {
             propertyName => 'type',

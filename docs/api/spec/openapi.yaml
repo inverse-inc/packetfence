@@ -4567,18 +4567,18 @@ components:
           WatchGuard: '#/components/schemas/ConfigFirewallSubTypeWatchguard'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeFamilyzone'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeSmoothwall'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeBarracudang'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeCheckpoint'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeContentkeeper'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeFamilyzone'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeFortigate'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeIboss'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeJsonrpc'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeJunipersrx'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeLightspeedrocket'
       - $ref: '#/components/schemas/ConfigFirewallSubTypePaloalto'
+      - $ref: '#/components/schemas/ConfigFirewallSubTypeSmoothwall'
       - $ref: '#/components/schemas/ConfigFirewallSubTypeWatchguard'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeBarracudang'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeCheckpoint'
-      - $ref: '#/components/schemas/ConfigFirewallSubTypeIboss'
     ConfigFirewallSubTypeBarracudang:
       properties:
         cache_timeout:
@@ -6176,34 +6176,34 @@ components:
           ubiquiti_ap_mac_to_ip: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFingerbankDataUpdate'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctMaintenance'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAdminApiAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePurgeBinaryLogs'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeCleanupChiDatabaseCache'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeProvisioningCompliancePoll'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodeCurrentSessionCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePkiCertificatesCheck'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeRadiusAuditLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePersonCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAuthLogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp6logCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeBandwidthMaintenance'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeCertificatesCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeCleanupChiDatabaseCache'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeClusterCheck'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeDnsAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFingerbankDataUpdate'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushDnsAuditLog'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushRadiusAuditLog'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp4logCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushDnsAuditLog'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeBandwidthMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeOption82Query'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp6logCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeLocationlogCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePasswordOfTheDay'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodeCleanup'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventMaintenance'
-      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeClusterCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodeCurrentSessionCleanup'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodesMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeOption82Query'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePasswordOfTheDay'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePersonCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePkiCertificatesCheck'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeProvisioningCompliancePoll'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePurgeBinaryLogs'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeRadiusAuditLogCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventMaintenance'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
     ConfigMaintenanceTaskSubTypeAcctCleanup:
       properties:
         batch:
@@ -8074,8 +8074,8 @@ components:
           TOTP: '#/components/schemas/ConfigMfaSubTypeTotp'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigMfaSubTypeTotp'
       - $ref: '#/components/schemas/ConfigMfaSubTypeAkamai'
+      - $ref: '#/components/schemas/ConfigMfaSubTypeTotp'
     ConfigMfaSubTypeAkamai:
       properties:
         app_id:
@@ -8452,9 +8452,9 @@ components:
           scep: '#/components/schemas/ConfigPkiProviderSubTypeScep'
         propertyName: type
       oneOf:
+      - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfenceLocal'
       - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfencePki'
       - $ref: '#/components/schemas/ConfigPkiProviderSubTypeScep'
-      - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfenceLocal'
     ConfigPkiProviderSubTypePacketfenceLocal:
       properties:
         ca_cert_path:
@@ -8837,37 +8837,37 @@ components:
           URL: '#/components/schemas/ConfigPortalModuleSubTypeUrl'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationLogin'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthentication'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationBilling'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationBlackhole'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauth'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeUrl'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthGithub'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationEmail'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationLogin'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationNull'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauth'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthFacebook'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthGithub'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthGoogle'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthLinkedin'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthOpenid'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthWindowslive'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationPassword'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSaml'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSms'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSponsor'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeChained'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeChoice'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeFixedrole'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeMessage'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeMfa'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSponsor'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationNull'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeChained'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSms'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthWindowslive'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthentication'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeShowlocalaccount'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeFixedrole'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthFacebook'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthOpenid'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeSslInspection'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeProvisioning'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeChoice'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationBilling'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationEmail'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthLinkedin'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeRoot'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeRootsso'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationOauthGoogle'
-      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeAuthenticationSaml'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeSelectrole'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeShowlocalaccount'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeSslInspection'
       - $ref: '#/components/schemas/ConfigPortalModuleSubTypeSurvey'
+      - $ref: '#/components/schemas/ConfigPortalModuleSubTypeUrl'
     ConfigPortalModuleSubTypeAuthentication:
       properties:
         actions:
@@ -11474,18 +11474,18 @@ components:
           windows: '#/components/schemas/ConfigProvisioningSubTypeWindows'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeDpsk'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeAccept'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeSentinelone'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeGoogleWorkspaceChromebook'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeDeny'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeIntune'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeKandji'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeJamf'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeAndroid'
-      - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileconfig'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeAirwatch'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeAndroid'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeDeny'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeDpsk'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeGoogleWorkspaceChromebook'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeIntune'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeKandji'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileconfig'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeSentinelone'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeWindows'
     ConfigProvisioningSubTypeAccept:
       properties:
@@ -14803,9 +14803,9 @@ components:
         propertyName: type
       oneOf:
       - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus'
-      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
-      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanOpenvas'
       - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus6'
+      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanOpenvas'
+      - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
     ConfigScanSubTypePfappserverFormConfigScanNessus:
       properties:
         categories:
@@ -15707,38 +15707,38 @@ components:
           WindowsLive: '#/components/schemas/ConfigSourceSubTypeWindowslive'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigSourceSubTypeHtpasswd'
-      - $ref: '#/components/schemas/ConfigSourceSubTypePaypal'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeNull'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeSms'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeLinkedin'
       - $ref: '#/components/schemas/ConfigSourceSubTypeAd'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeAuthorization'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeFacebook'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeEduroam'
       - $ref: '#/components/schemas/ConfigSourceSubTypeAdminproxy'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeClickatell'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeOpenid'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeBlackhole'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeLdap'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeEdir'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeRadius'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeAuthorization'
       - $ref: '#/components/schemas/ConfigSourceSubTypeAzuread'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeBlackhole'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeClickatell'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeEaptls'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeEdir'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeEduroam'
       - $ref: '#/components/schemas/ConfigSourceSubTypeEmail'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeSql'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeHttp'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeFacebook'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeGithub'
       - $ref: '#/components/schemas/ConfigSourceSubTypeGoogle'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeGoogleworkspaceldap'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeHtpasswd'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeHttp'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeKerberos'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeKickbox'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeLdap'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeLinkedin'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeNull'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeOpenid'
+      - $ref: '#/components/schemas/ConfigSourceSubTypePaypal'
+      - $ref: '#/components/schemas/ConfigSourceSubTypePotd'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeRadius'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeSaml'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeSms'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeSponsoremail'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeSql'
+      - $ref: '#/components/schemas/ConfigSourceSubTypeStripe'
       - $ref: '#/components/schemas/ConfigSourceSubTypeTwilio'
       - $ref: '#/components/schemas/ConfigSourceSubTypeWindowslive'
-      - $ref: '#/components/schemas/ConfigSourceSubTypePotd'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeGithub'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeKickbox'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeSaml'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeSponsoremail'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeKerberos'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeStripe'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeEaptls'
-      - $ref: '#/components/schemas/ConfigSourceSubTypeGoogleworkspaceldap'
     ConfigSourceSubTypeAd:
       properties:
         administration_rules:
@@ -23956,8 +23956,8 @@ components:
           server: '#/components/schemas/ConfigSyslogForwarderSubTypeServer'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigSyslogForwarderSubTypeServer'
       - $ref: '#/components/schemas/ConfigSyslogForwarderSubTypeFile'
+      - $ref: '#/components/schemas/ConfigSyslogForwarderSubTypeServer'
     ConfigSyslogForwarderSubTypeFile:
       properties:
         all_logs:
@@ -24161,14 +24161,14 @@ components:
           suricata_md5: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
         propertyName: type
       oneOf:
-      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricata'
-      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
-      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeRegex'
       - $ref: '#/components/schemas/ConfigSyslogParserSubTypeDhcp'
+      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'
+      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeNexpose'
+      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeRegex'
       - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSecurityOnion'
       - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSnort'
-      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeNexpose'
-      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'
+      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricata'
+      - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
     ConfigSyslogParserDryRun:
       properties:
         line:
