@@ -13,36 +13,7 @@ ConfigFirewallsMeta:
             $ref: '#/components/schemas/Meta'
           default_realm:
             $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          networks:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          uid:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
-            $ref: '#/components/schemas/Meta'
-          username:
-            $ref: '#/components/schemas/Meta'
-          username_format:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          cache_timeout:
-            $ref: '#/components/schemas/Meta'
-          cache_updates:
-            $ref: '#/components/schemas/Meta'
-          categories:
-            $ref: '#/components/schemas/Meta'
-          default_realm:
+          deviceid:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
@@ -74,6 +45,8 @@ ConfigFirewallsMeta:
           default_realm:
             $ref: '#/components/schemas/Meta'
           id:
+            $ref: '#/components/schemas/Meta'
+          nac_name:
             $ref: '#/components/schemas/Meta'
           networks:
             $ref: '#/components/schemas/Meta'
@@ -180,92 +153,7 @@ ConfigFirewallsMeta:
             $ref: '#/components/schemas/Meta'
           use_connector:
             $ref: '#/components/schemas/Meta'
-          username_format:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          cache_timeout:
-            $ref: '#/components/schemas/Meta'
-          cache_updates:
-            $ref: '#/components/schemas/Meta'
-          categories:
-            $ref: '#/components/schemas/Meta'
-          default_realm:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          networks:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          uid:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
-            $ref: '#/components/schemas/Meta'
-          username_format:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          cache_timeout:
-            $ref: '#/components/schemas/Meta'
-          cache_updates:
-            $ref: '#/components/schemas/Meta'
-          categories:
-            $ref: '#/components/schemas/Meta'
-          default_realm:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          networks:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          uid:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
-            $ref: '#/components/schemas/Meta'
-          username_format:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          cache_timeout:
-            $ref: '#/components/schemas/Meta'
-          cache_updates:
-            $ref: '#/components/schemas/Meta'
-          categories:
-            $ref: '#/components/schemas/Meta'
-          default_realm:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          networks:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          uid:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
+          username:
             $ref: '#/components/schemas/Meta'
           username_format:
             $ref: '#/components/schemas/Meta'
@@ -315,7 +203,34 @@ ConfigFirewallsMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
-          nac_name:
+          networks:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          uid:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          username_format:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          cache_timeout:
+            $ref: '#/components/schemas/Meta'
+          cache_updates:
+            $ref: '#/components/schemas/Meta'
+          categories:
+            $ref: '#/components/schemas/Meta'
+          default_realm:
+            $ref: '#/components/schemas/Meta'
+          id:
             $ref: '#/components/schemas/Meta'
           networks:
             $ref: '#/components/schemas/Meta'
@@ -344,7 +259,92 @@ ConfigFirewallsMeta:
             $ref: '#/components/schemas/Meta'
           default_realm:
             $ref: '#/components/schemas/Meta'
-          deviceid:
+          id:
+            $ref: '#/components/schemas/Meta'
+          networks:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          uid:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          username_format:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          cache_timeout:
+            $ref: '#/components/schemas/Meta'
+          cache_updates:
+            $ref: '#/components/schemas/Meta'
+          categories:
+            $ref: '#/components/schemas/Meta'
+          default_realm:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          networks:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          uid:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          username_format:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          cache_timeout:
+            $ref: '#/components/schemas/Meta'
+          cache_updates:
+            $ref: '#/components/schemas/Meta'
+          categories:
+            $ref: '#/components/schemas/Meta'
+          default_realm:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          networks:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          uid:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          username_format:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          cache_timeout:
+            $ref: '#/components/schemas/Meta'
+          cache_updates:
+            $ref: '#/components/schemas/Meta'
+          categories:
+            $ref: '#/components/schemas/Meta'
+          default_realm:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'

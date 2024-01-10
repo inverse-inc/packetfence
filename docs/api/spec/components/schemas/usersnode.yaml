@@ -98,7 +98,7 @@ UsersNode:
       type: string
     voip:
       enum:
-      - yes
       - no
+      - yes
       type: string
   type: object

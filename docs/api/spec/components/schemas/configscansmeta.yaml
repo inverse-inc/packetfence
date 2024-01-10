@@ -9,72 +9,6 @@ ConfigScansMeta:
             $ref: '#/components/schemas/Meta'
           duration:
             $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          ip:
-            $ref: '#/components/schemas/Meta'
-          nessus_clientpolicy:
-            $ref: '#/components/schemas/Meta'
-          oses:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          post_registration:
-            $ref: '#/components/schemas/Meta'
-          pre_registration:
-            $ref: '#/components/schemas/Meta'
-          registration:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          username:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          categories:
-            $ref: '#/components/schemas/Meta'
-          duration:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          ip:
-            $ref: '#/components/schemas/Meta'
-          openvas_alertid:
-            $ref: '#/components/schemas/Meta'
-          openvas_configid:
-            $ref: '#/components/schemas/Meta'
-          openvas_reportformatid:
-            $ref: '#/components/schemas/Meta'
-          oses:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          post_registration:
-            $ref: '#/components/schemas/Meta'
-          pre_registration:
-            $ref: '#/components/schemas/Meta'
-          registration:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          username:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          categories:
-            $ref: '#/components/schemas/Meta'
-          duration:
-            $ref: '#/components/schemas/Meta'
           engine_id:
             $ref: '#/components/schemas/Meta'
           host:
@@ -137,6 +71,72 @@ ConfigScansMeta:
           username:
             $ref: '#/components/schemas/Meta'
           verify_hostname:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          categories:
+            $ref: '#/components/schemas/Meta'
+          duration:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          ip:
+            $ref: '#/components/schemas/Meta'
+          nessus_clientpolicy:
+            $ref: '#/components/schemas/Meta'
+          oses:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          post_registration:
+            $ref: '#/components/schemas/Meta'
+          pre_registration:
+            $ref: '#/components/schemas/Meta'
+          registration:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          categories:
+            $ref: '#/components/schemas/Meta'
+          duration:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          ip:
+            $ref: '#/components/schemas/Meta'
+          openvas_alertid:
+            $ref: '#/components/schemas/Meta'
+          openvas_configid:
+            $ref: '#/components/schemas/Meta'
+          openvas_reportformatid:
+            $ref: '#/components/schemas/Meta'
+          oses:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          post_registration:
+            $ref: '#/components/schemas/Meta'
+          pre_registration:
+            $ref: '#/components/schemas/Meta'
+          registration:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
