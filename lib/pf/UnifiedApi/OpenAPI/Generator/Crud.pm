@@ -166,7 +166,7 @@ sub dalToOpenAPISchemaProperties {
             $properties{$k}->{nullable} = JSON::MaybeXS::true;
         };
         if ($v->{enums_values}) {
-            $properties{$k}->{enum} = [ keys %{$v->{enums_values}} ];
+            $properties{$k}->{enum} = [ sort { $a cmp $b } keys %{$v->{enums_values}} ];
         };
     }
     return \%properties;

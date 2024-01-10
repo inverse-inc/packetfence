@@ -8,7 +8,7 @@ ConfigScan:
       pfappserver::Form::Config::Scan::Rapid7: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
     propertyName: type
   oneOf:
+  - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus'
+  - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanOpenvas'
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus6'
-  - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
-  - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus'
