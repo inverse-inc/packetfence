@@ -230,9 +230,9 @@ halt_other_vm() {
 
 teardown() {
     log_section "Teardown"
-    halt
-    delete_ansible_files
+    #halt
     destroy
+    delete_ansible_files
 }
 
 delete_ansible_files() {
