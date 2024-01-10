@@ -87,7 +87,7 @@ sub subTypesSchema {
     return {
         description => 'Choose one of the request bodies by discriminator (`type`). ',
         oneOf => [
-            sort { $a->{'$ref'} cmp $b->{'$ref'} } map { subTypeSchemaRef($item_path, $_, 1) } @forms
+            map { subTypeSchemaRef($item_path, $_, 1) } @forms
         ],
         discriminator => {
             propertyName => 'type',
@@ -141,11 +141,16 @@ sub formHandlerProperties {
     return \%properties;
 }
 
+sub formUuid {
+    my ($form) = @_;
+    return 'foobar';
+}
+
 sub subTypesMetaSchema {
     my (@forms) = @_;
     return {
         oneOf => [
-            map { metaSchema($_) } @forms
+            map { metaSchema($_) } sort { formUuid($a) cmp formUuid($b) }  @forms
         ],
         discriminator => {
             propertyName => 'type',
@@ -170,7 +175,7 @@ sub metaSchema {
         properties => {
             meta => {
                 type => 'object',
-                properties => formHandlerMetaProperties($form)
+                properties => formHandlerMetaProperties($form),
             }
         },
     }
