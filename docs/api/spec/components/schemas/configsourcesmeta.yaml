@@ -129,6 +129,7 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           activation_domain:
             $ref: '#/components/schemas/Meta'
           administration_rules:
@@ -143,12 +144,31 @@ ConfigSourcesMeta:
           authentication_rules:
             $ref: '#/components/schemas/Meta'
           banned_domains:
+=======
+          access_token_param:
+            $ref: '#/components/schemas/Meta'
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          authorize_path:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           create_local_account:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           email_activation_timeout:
+=======
+          domains:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           hash_passwords:
             $ref: '#/components/schemas/Meta'
@@ -158,6 +178,7 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           local_account_logins:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           password_length:
             $ref: '#/components/schemas/Meta'
           type:
@@ -195,17 +216,24 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           local_account_logins:
             $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           password_length:
 >>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           register_on_activation:
             $ref: '#/components/schemas/Meta'
           sources:
             $ref: '#/components/schemas/Meta'
           sponsorship_bcc:
+=======
+          protected_resource_url:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-          type:
+          redirect_url:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           validate_sponsor:
             $ref: '#/components/schemas/Meta'
         type: object
@@ -234,6 +262,11 @@ ConfigSourcesMeta:
           hash_passwords:
             $ref: '#/components/schemas/Meta'
           id:
+=======
+          scope:
+            $ref: '#/components/schemas/Meta'
+          site:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           local_account_expiration:
             $ref: '#/components/schemas/Meta'
@@ -261,20 +294,35 @@ ConfigSourcesMeta:
       meta:
         properties:
 <<<<<<< HEAD
+<<<<<<< HEAD
           access_token_param:
 =======
           administration_rules:
+=======
+          access_token_param:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-          authenticate_realm:
+          access_token_path:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
+          authorize_path:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
-          host:
+          domains:
             $ref: '#/components/schemas/Meta'
-          id:
+          hash_passwords:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           realms:
 >>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
@@ -373,9 +421,19 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
 =======
           create_local_account:
+=======
+          id:
             $ref: '#/components/schemas/Meta'
-          description:
+          local_account_expiration:
             $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           domains:
             $ref: '#/components/schemas/Meta'
           hash_passwords:
@@ -407,9 +465,13 @@ ConfigSourcesMeta:
       meta:
         properties:
           description:
+=======
+          redirect_url:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-          id:
+          scope:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           type:
             $ref: '#/components/schemas/Meta'
         type: object
@@ -462,80 +524,63 @@ ConfigSourcesMeta:
           type:
             $ref: '#/components/schemas/Meta'
 >>>>>>> 39fe6ade26 (upadte OAS)
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          append_to_searchattributes:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          basedn:
-            $ref: '#/components/schemas/Meta'
-          binddn:
-            $ref: '#/components/schemas/Meta'
-          ca_file:
-            $ref: '#/components/schemas/Meta'
-          ca_file_upload:
-            $ref: '#/components/schemas/Meta'
-          cache_match:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file:
-            $ref: '#/components/schemas/Meta'
-          client_cert_file_upload:
-            $ref: '#/components/schemas/Meta'
-          client_key_file:
-            $ref: '#/components/schemas/Meta'
-          client_key_file_upload:
-            $ref: '#/components/schemas/Meta'
-          connection_timeout:
-            $ref: '#/components/schemas/Meta'
-          dead_duration:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          email_attribute:
-            $ref: '#/components/schemas/Meta'
-          encryption:
-            $ref: '#/components/schemas/Meta'
-          host:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          monitor:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          read_timeout:
-            $ref: '#/components/schemas/Meta'
-          realms:
-            $ref: '#/components/schemas/Meta'
-          scope:
-            $ref: '#/components/schemas/Meta'
-          searchattributes:
-            $ref: '#/components/schemas/Meta'
-          shuffle:
+=======
+          site:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
-          use_connector:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          access_token_param:
             $ref: '#/components/schemas/Meta'
-          usernameattribute:
+          access_token_path:
             $ref: '#/components/schemas/Meta'
-          verify:
+          administration_rules:
             $ref: '#/components/schemas/Meta'
-          write_timeout:
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          authorize_path:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          domains:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          protected_resource_url:
+            $ref: '#/components/schemas/Meta'
+          redirect_url:
+            $ref: '#/components/schemas/Meta'
+          scope:
+            $ref: '#/components/schemas/Meta'
+          site:
+            $ref: '#/components/schemas/Meta'
+          type:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           administration_rules:
 <<<<<<< HEAD
             $ref: '#/components/schemas/Meta'
@@ -572,10 +617,21 @@ ConfigSourcesMeta:
       meta:
         properties:
           create_local_account:
+=======
+          access_token_param:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-          currency:
+          access_token_path:
             $ref: '#/components/schemas/Meta'
-          customer_portal:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          client_id:
+            $ref: '#/components/schemas/Meta'
+          client_secret:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
@@ -593,18 +649,22 @@ ConfigSourcesMeta:
           password_length:
             $ref: '#/components/schemas/Meta'
 <<<<<<< HEAD
+<<<<<<< HEAD
           create_local_account:
             $ref: '#/components/schemas/Meta'
 =======
           publishable_key:
             $ref: '#/components/schemas/Meta'
           secret_key:
+=======
+          protected_resource_url:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-          send_email_confirmation:
+          redirect_url:
             $ref: '#/components/schemas/Meta'
-          style:
+          scope:
             $ref: '#/components/schemas/Meta'
-          test_mode:
+          site:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -613,8 +673,11 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           access_token_param:
             $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           access_token_path:
             $ref: '#/components/schemas/Meta'
           administration_rules:
@@ -628,6 +691,7 @@ ConfigSourcesMeta:
           client_secret:
             $ref: '#/components/schemas/Meta'
           create_local_account:
+<<<<<<< HEAD
             $ref: '#/components/schemas/Meta'
 >>>>>>> 39fe6ade26 (upadte OAS)
           description:
@@ -692,26 +756,50 @@ ConfigSourcesMeta:
           connection_timeout:
             $ref: '#/components/schemas/Meta'
           dead_duration:
+=======
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+          domains:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           email_attribute:
             $ref: '#/components/schemas/Meta'
           encryption:
             $ref: '#/components/schemas/Meta'
           host:
+=======
+          password_length:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-          id:
+          person_mappings:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           monitor:
             $ref: '#/components/schemas/Meta'
           password:
+=======
+          protected_resource_url:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-          port:
+          redirect_url:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           read_timeout:
+=======
+          scope:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-          realms:
+          site:
             $ref: '#/components/schemas/Meta'
           scope:
             $ref: '#/components/schemas/Meta'
@@ -721,6 +809,7 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           use_connector:
             $ref: '#/components/schemas/Meta'
           usernameattribute:
@@ -728,12 +817,16 @@ ConfigSourcesMeta:
           verify:
             $ref: '#/components/schemas/Meta'
           write_timeout:
+=======
+          username_attribute:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
 <<<<<<< HEAD
           activation_domain:
             $ref: '#/components/schemas/Meta'
@@ -747,12 +840,25 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           banned_domains:
             $ref: '#/components/schemas/Meta'
+=======
+          account_sid:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          auth_token:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           create_local_account:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           email_activation_timeout:
             $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           hash_passwords:
             $ref: '#/components/schemas/Meta'
           id:
@@ -761,8 +867,19 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           local_account_logins:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           password_length:
             $ref: '#/components/schemas/Meta'
+=======
+          message:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          pin_code_length:
+            $ref: '#/components/schemas/Meta'
+          twilio_phone_number:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           type:
             $ref: '#/components/schemas/Meta'
         type: object
@@ -770,6 +887,7 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
           account_sid:
 =======
           access_token_param:
@@ -805,17 +923,70 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
+=======
+          activation_domain:
+            $ref: '#/components/schemas/Meta'
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          allow_localdomain:
+            $ref: '#/components/schemas/Meta'
+          allowed_domains:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          banned_domains:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_activation_timeout:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          lang:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          register_on_activation:
+            $ref: '#/components/schemas/Meta'
+          sources:
+            $ref: '#/components/schemas/Meta'
+          sponsorship_bcc:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          validate_sponsor:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
         type: object
     type: object
   - properties:
       meta:
         properties:
+          activation_domain:
+            $ref: '#/components/schemas/Meta'
           administration_rules:
+            $ref: '#/components/schemas/Meta'
+          allow_localdomain:
+            $ref: '#/components/schemas/Meta'
+          allowed_domains:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
+          banned_domains:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           group_header:
             $ref: '#/components/schemas/Meta'
           id:
@@ -834,6 +1005,19 @@ ConfigSourcesMeta:
           description:
             $ref: '#/components/schemas/Meta'
           id:
+=======
+          email_activation_timeout:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -842,6 +1026,7 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
 <<<<<<< HEAD
           access_token_param:
             $ref: '#/components/schemas/Meta'
@@ -859,11 +1044,19 @@ ConfigSourcesMeta:
 =======
           authentication_url:
 >>>>>>> 39fe6ade26 (upadte OAS)
+=======
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          api_key:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           authorization_url:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           host:
             $ref: '#/components/schemas/Meta'
           id:
@@ -875,6 +1068,40 @@ ConfigSourcesMeta:
           protocol:
             $ref: '#/components/schemas/Meta'
           realms:
+=======
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          message:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          pin_code_length:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          api_key:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_required:
+            $ref: '#/components/schemas/Meta'
+          id:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -1014,6 +1241,7 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
 <<<<<<< HEAD
           access_token_param:
             $ref: '#/components/schemas/Meta'
@@ -1088,13 +1316,17 @@ ConfigSourcesMeta:
       meta:
         properties:
           administration_rules:
+=======
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          append_to_searchattributes:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           authentication_rules:
             $ref: '#/components/schemas/Meta'
-          description:
+          basedn:
             $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
 <<<<<<< HEAD
           type:
             $ref: '#/components/schemas/Meta'
@@ -1128,14 +1360,13 @@ ConfigSourcesMeta:
           realms:
             $ref: '#/components/schemas/Meta'
           type:
+=======
+          binddn:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
+          ca_file:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           authentication_rules:
 >>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
@@ -1153,9 +1384,19 @@ ConfigSourcesMeta:
           sp_key_path:
             $ref: '#/components/schemas/Meta'
           sp_key_path_upload:
+=======
+          ca_file_upload:
             $ref: '#/components/schemas/Meta'
-          type:
+          cache_match:
             $ref: '#/components/schemas/Meta'
+          client_cert_file:
+            $ref: '#/components/schemas/Meta'
+          client_cert_file_upload:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          client_key_file:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           username_attribute:
             $ref: '#/components/schemas/Meta'
         type: object
@@ -1164,13 +1405,17 @@ ConfigSourcesMeta:
       meta:
         properties:
           administration_rules:
+=======
+          client_key_file_upload:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
-          authentication_rules:
+          connection_timeout:
             $ref: '#/components/schemas/Meta'
-          create_local_account:
+          dead_duration:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           hash_passwords:
             $ref: '#/components/schemas/Meta'
           id:
@@ -1235,11 +1480,31 @@ ConfigSourcesMeta:
           send_email_confirmation:
             $ref: '#/components/schemas/Meta'
           style:
+=======
+          email_attribute:
+            $ref: '#/components/schemas/Meta'
+          encryption:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          monitor:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          read_timeout:
+            $ref: '#/components/schemas/Meta'
+          realms:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           test_mode:
 =======
           tenant_id:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           timeout:
             $ref: '#/components/schemas/Meta'
           type:
@@ -1322,6 +1587,21 @@ ConfigSourcesMeta:
           password_length:
             $ref: '#/components/schemas/Meta'
           person_mappings:
+=======
+          searchattributes:
+            $ref: '#/components/schemas/Meta'
+          shuffle:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          usernameattribute:
+            $ref: '#/components/schemas/Meta'
+          verify:
+            $ref: '#/components/schemas/Meta'
+          write_timeout:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           protected_resource_url:
             $ref: '#/components/schemas/Meta'
@@ -1533,10 +1813,16 @@ ConfigSourcesMeta:
         properties:
           administration_rules:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
+          auth_listening_port:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           authentication_rules:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           id:
             $ref: '#/components/schemas/Meta'
           realms:
@@ -1557,6 +1843,21 @@ ConfigSourcesMeta:
           id:
             $ref: '#/components/schemas/Meta'
           realms:
+=======
+          eduroam_operator_name:
+            $ref: '#/components/schemas/Meta'
+          eduroam_options:
+            $ref: '#/components/schemas/Meta'
+          eduroam_radius_auth:
+            $ref: '#/components/schemas/Meta'
+          eduroam_radius_auth_proxy_type:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_realm:
+            $ref: '#/components/schemas/Meta'
+          reject_realm:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -1565,6 +1866,30 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
+<<<<<<< HEAD
+=======
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authenticate_realm:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           administration_rules:
             $ref: '#/components/schemas/Meta'
           authentication_rules:
@@ -1573,6 +1898,7 @@ ConfigSourcesMeta:
             $ref: '#/components/schemas/Meta'
           client_secret:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           description:
             $ref: '#/components/schemas/Meta'
 <<<<<<< HEAD
@@ -1587,8 +1913,321 @@ ConfigSourcesMeta:
           type:
             $ref: '#/components/schemas/Meta'
           user_groups_cache:
+=======
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          tenant_id:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          user_groups_cache:
             $ref: '#/components/schemas/Meta'
           user_groups_url:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          create_local_account:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          hash_passwords:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          local_account_expiration:
+            $ref: '#/components/schemas/Meta'
+          local_account_logins:
+            $ref: '#/components/schemas/Meta'
+          message:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          pin_code_length:
+            $ref: '#/components/schemas/Meta'
+          sms_activation_timeout:
+            $ref: '#/components/schemas/Meta'
+          sms_carriers:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          user_groups_url:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_required:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          group_header:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          proxy_addresses:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          user_header:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          monitor:
+            $ref: '#/components/schemas/Meta'
+          nas_ip_address:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          test_mode:
+=======
+          id:
+            $ref: '#/components/schemas/Meta'
+          path:
+            $ref: '#/components/schemas/Meta'
+          path_upload:
+            $ref: '#/components/schemas/Meta'
+          realms:
+>>>>>>> 39fe6ade26 (upadte OAS)
+=======
+          options:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          secret:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          password_email_update:
+            $ref: '#/components/schemas/Meta'
+          password_length:
+            $ref: '#/components/schemas/Meta'
+          password_rotation:
+            $ref: '#/components/schemas/Meta'
+          realms:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+<<<<<<< HEAD
+          api_key:
+=======
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          description:
+            $ref: '#/components/schemas/Meta'
+          email_required:
+=======
+          path:
+            $ref: '#/components/schemas/Meta'
+          path_upload:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          administration_rules:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          authenticate_realm:
+            $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+=======
+          authentication_rules:
+            $ref: '#/components/schemas/Meta'
+=======
+          id:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          authentication_url:
+            $ref: '#/components/schemas/Meta'
+          authorization_url:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          protocol:
+            $ref: '#/components/schemas/Meta'
+          realms:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          authorization_source_id:
+            $ref: '#/components/schemas/Meta'
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          idp_ca_cert_path:
+            $ref: '#/components/schemas/Meta'
+          idp_ca_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          idp_cert_path:
+            $ref: '#/components/schemas/Meta'
+          idp_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          idp_entity_id:
+            $ref: '#/components/schemas/Meta'
+          idp_metadata_path:
+            $ref: '#/components/schemas/Meta'
+          idp_metadata_path_upload:
+            $ref: '#/components/schemas/Meta'
+          sp_cert_path:
+            $ref: '#/components/schemas/Meta'
+          sp_cert_path_upload:
+            $ref: '#/components/schemas/Meta'
+          sp_entity_id:
+            $ref: '#/components/schemas/Meta'
+          sp_key_path:
+            $ref: '#/components/schemas/Meta'
+          sp_key_path_upload:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username_attribute:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -1636,15 +2275,6 @@ ConfigSourcesMeta:
           send_email_confirmation:
             $ref: '#/components/schemas/Meta'
           test_mode:
-=======
-          id:
-            $ref: '#/components/schemas/Meta'
-          path:
-            $ref: '#/components/schemas/Meta'
-          path_upload:
-            $ref: '#/components/schemas/Meta'
-          realms:
->>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
@@ -1653,41 +2283,12 @@ ConfigSourcesMeta:
   - properties:
       meta:
         properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-<<<<<<< HEAD
-          api_key:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          email_required:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          administration_rules:
-            $ref: '#/components/schemas/Meta'
-          authenticate_realm:
-            $ref: '#/components/schemas/Meta'
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
-          description:
-            $ref: '#/components/schemas/Meta'
-          host:
-            $ref: '#/components/schemas/Meta'
-          id:
-=======
-          authentication_rules:
-            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           create_local_account:
+            $ref: '#/components/schemas/Meta'
+          currency:
+            $ref: '#/components/schemas/Meta'
+          customer_portal:
             $ref: '#/components/schemas/Meta'
           description:
             $ref: '#/components/schemas/Meta'
@@ -1702,6 +2303,7 @@ ConfigSourcesMeta:
           message:
 >>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           password_length:
             $ref: '#/components/schemas/Meta'
           pin_code_length:
@@ -1711,6 +2313,28 @@ ConfigSourcesMeta:
           sms_activation_timeout:
             $ref: '#/components/schemas/Meta'
           sms_carriers:
+=======
+          publishable_key:
+            $ref: '#/components/schemas/Meta'
+          secret_key:
+            $ref: '#/components/schemas/Meta'
+          send_email_confirmation:
+            $ref: '#/components/schemas/Meta'
+          style:
+            $ref: '#/components/schemas/Meta'
+          test_mode:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          description:
+            $ref: '#/components/schemas/Meta'
+          id:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'

@@ -9,37 +9,6 @@ ConfigScansMeta:
             $ref: '#/components/schemas/Meta'
           duration:
             $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          ip:
-            $ref: '#/components/schemas/Meta'
-          nessus_clientpolicy:
-            $ref: '#/components/schemas/Meta'
-          oses:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          post_registration:
-            $ref: '#/components/schemas/Meta'
-          pre_registration:
-            $ref: '#/components/schemas/Meta'
-          registration:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          username:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          categories:
-            $ref: '#/components/schemas/Meta'
-          duration:
-            $ref: '#/components/schemas/Meta'
           engine_id:
             $ref: '#/components/schemas/Meta'
           host:
@@ -77,19 +46,19 @@ ConfigScansMeta:
             $ref: '#/components/schemas/Meta'
           duration:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          engine_id:
+            $ref: '#/components/schemas/Meta'
+          host:
+            $ref: '#/components/schemas/Meta'
+          id:
+=======
           id:
             $ref: '#/components/schemas/Meta'
           ip:
             $ref: '#/components/schemas/Meta'
-<<<<<<< HEAD
           nessus_clientpolicy:
-=======
-          openvas_alertid:
-            $ref: '#/components/schemas/Meta'
-          openvas_configid:
-            $ref: '#/components/schemas/Meta'
-          openvas_reportformatid:
->>>>>>> 39fe6ade26 (upadte OAS)
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           oses:
             $ref: '#/components/schemas/Meta'
@@ -103,11 +72,67 @@ ConfigScansMeta:
             $ref: '#/components/schemas/Meta'
           registration:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+          site_id:
+            $ref: '#/components/schemas/Meta'
+          template_id:
+=======
+          scannername:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          username:
+            $ref: '#/components/schemas/Meta'
+          verify_hostname:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          categories:
+            $ref: '#/components/schemas/Meta'
+          duration:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          ip:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+<<<<<<< HEAD
+          nessus_clientpolicy:
+=======
+          openvas_alertid:
+            $ref: '#/components/schemas/Meta'
+          openvas_configid:
+            $ref: '#/components/schemas/Meta'
+          openvas_reportformatid:
+>>>>>>> 39fe6ade26 (upadte OAS)
+=======
+          nessus_clientpolicy:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          oses:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          post_registration:
+            $ref: '#/components/schemas/Meta'
+          pre_registration:
+            $ref: '#/components/schemas/Meta'
+          registration:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
 <<<<<<< HEAD
           scannername:
             $ref: '#/components/schemas/Meta'
 =======
 >>>>>>> 39fe6ade26 (upadte OAS)
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           type:
             $ref: '#/components/schemas/Meta'
           username:
@@ -126,14 +151,20 @@ ConfigScansMeta:
           host:
             $ref: '#/components/schemas/Meta'
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           openvas_alertid:
             $ref: '#/components/schemas/Meta'
           openvas_configid:
             $ref: '#/components/schemas/Meta'
           openvas_reportformatid:
+<<<<<<< HEAD
 =======
           id:
 >>>>>>> 39fe6ade26 (upadte OAS)
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           oses:
             $ref: '#/components/schemas/Meta'
@@ -147,15 +178,16 @@ ConfigScansMeta:
             $ref: '#/components/schemas/Meta'
           registration:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           site_id:
             $ref: '#/components/schemas/Meta'
           template_id:
             $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           type:
             $ref: '#/components/schemas/Meta'
           username:
-            $ref: '#/components/schemas/Meta'
-          verify_hostname:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object

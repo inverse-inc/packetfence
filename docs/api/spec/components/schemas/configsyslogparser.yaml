@@ -13,6 +13,7 @@ ConfigSyslogParser:
     propertyName: type
   oneOf:
 <<<<<<< HEAD
+<<<<<<< HEAD
   - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
   - $ref: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'
   - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSnort'
@@ -30,3 +31,13 @@ ConfigSyslogParser:
   - $ref: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'
 >>>>>>> 39fe6ade26 (upadte OAS)
   - $ref: '#/components/schemas/ConfigSyslogParserSubTypeRegex'
+=======
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeDhcp'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeFortianalyser'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeNexpose'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeRegex'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSecurityOnion'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSnort'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricata'
+  - $ref: '#/components/schemas/ConfigSyslogParserSubTypeSuricataMd5'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))

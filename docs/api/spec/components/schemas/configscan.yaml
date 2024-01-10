@@ -10,6 +10,7 @@ ConfigScan:
   oneOf:
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus'
 <<<<<<< HEAD
+<<<<<<< HEAD
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus6'
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanOpenvas'
@@ -18,3 +19,8 @@ ConfigScan:
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanOpenvas'
   - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
 >>>>>>> 39fe6ade26 (upadte OAS)
+=======
+  - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanNessus6'
+  - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanOpenvas'
+  - $ref: '#/components/schemas/ConfigScanSubTypePfappserverFormConfigScanRapid7'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))

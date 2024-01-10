@@ -33,6 +33,7 @@ ConfigMaintenanceTask:
     propertyName: type
   oneOf:
 <<<<<<< HEAD
+<<<<<<< HEAD
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeCertificatesCheck'
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeClusterCheck'
@@ -91,3 +92,33 @@ ConfigMaintenanceTask:
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription'
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeLocationlogCleanup'
 >>>>>>> 39fe6ade26 (upadte OAS)
+=======
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctMaintenance'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAdminApiAuditLogCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeAuthLogCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeBandwidthMaintenance'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeCertificatesCheck'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeCleanupChiDatabaseCache'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeClusterCheck'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeDnsAuditLogCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFingerbankDataUpdate'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushDnsAuditLog'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushRadiusAuditLog'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp4logCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp6logCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeLocationlogCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodeCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodeCurrentSessionCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeNodesMaintenance'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeOption82Query'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePasswordOfTheDay'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePersonCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePkiCertificatesCheck'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeProvisioningCompliancePoll'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePurgeBinaryLogs'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeRadiusAuditLogCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventMaintenance'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))

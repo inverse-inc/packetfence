@@ -8,5 +8,10 @@ ConfigPkiProvider:
     propertyName: type
   oneOf:
   - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfenceLocal'
+<<<<<<< HEAD
   - $ref: '#/components/schemas/ConfigPkiProviderSubTypeScep'
   - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfencePki'
+=======
+  - $ref: '#/components/schemas/ConfigPkiProviderSubTypePacketfencePki'
+  - $ref: '#/components/schemas/ConfigPkiProviderSubTypeScep'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))

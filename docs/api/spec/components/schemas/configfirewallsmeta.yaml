@@ -13,6 +13,8 @@ ConfigFirewallsMeta:
             $ref: '#/components/schemas/Meta'
           default_realm:
             $ref: '#/components/schemas/Meta'
+          deviceid:
+            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           networks:
@@ -44,6 +46,8 @@ ConfigFirewallsMeta:
             $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
+          nac_name:
+            $ref: '#/components/schemas/Meta'
           networks:
             $ref: '#/components/schemas/Meta'
           password:
@@ -60,6 +64,47 @@ ConfigFirewallsMeta:
             $ref: '#/components/schemas/Meta'
           username_format:
             $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          cache_timeout:
+            $ref: '#/components/schemas/Meta'
+          cache_updates:
+            $ref: '#/components/schemas/Meta'
+          categories:
+            $ref: '#/components/schemas/Meta'
+          default_realm:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          networks:
+            $ref: '#/components/schemas/Meta'
+          password:
+            $ref: '#/components/schemas/Meta'
+          port:
+            $ref: '#/components/schemas/Meta'
+          transport:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          uid:
+            $ref: '#/components/schemas/Meta'
+          use_connector:
+            $ref: '#/components/schemas/Meta'
+          username:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
+          username_format:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+>>>>>>> 39fe6ade26 (upadte OAS)
+=======
+          vsys:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
         type: object
     type: object
   - properties:
@@ -93,36 +138,7 @@ ConfigFirewallsMeta:
 =======
           username_format:
             $ref: '#/components/schemas/Meta'
->>>>>>> 39fe6ade26 (upadte OAS)
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          cache_timeout:
-            $ref: '#/components/schemas/Meta'
-          cache_updates:
-            $ref: '#/components/schemas/Meta'
-          categories:
-            $ref: '#/components/schemas/Meta'
-          default_realm:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          networks:
-            $ref: '#/components/schemas/Meta'
-          password:
-            $ref: '#/components/schemas/Meta'
-          port:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          uid:
-            $ref: '#/components/schemas/Meta'
-          use_connector:
-            $ref: '#/components/schemas/Meta'
-          username_format:
-            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
         type: object
     type: object
   - properties:
@@ -182,6 +198,8 @@ ConfigFirewallsMeta:
           uid:
             $ref: '#/components/schemas/Meta'
           use_connector:
+            $ref: '#/components/schemas/Meta'
+          username:
             $ref: '#/components/schemas/Meta'
           username_format:
             $ref: '#/components/schemas/Meta'

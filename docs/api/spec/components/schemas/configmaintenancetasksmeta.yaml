@@ -8,13 +8,28 @@ ConfigMaintenanceTasksMeta:
 <<<<<<< HEAD
           certificates:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           delay:
             $ref: '#/components/schemas/Meta'
 =======
 >>>>>>> 39fe6ade26 (upadte OAS)
+=======
+          history_batch:
+            $ref: '#/components/schemas/Meta'
+          history_timeout:
+            $ref: '#/components/schemas/Meta'
+          history_window:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           id:
             $ref: '#/components/schemas/Meta'
           schedule:
+            $ref: '#/components/schemas/Meta'
+          session_batch:
+            $ref: '#/components/schemas/Meta'
+          session_timeout:
+            $ref: '#/components/schemas/Meta'
+          session_window:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
@@ -27,24 +42,48 @@ ConfigMaintenanceTasksMeta:
         properties:
           id:
             $ref: '#/components/schemas/Meta'
+          rotate:
+            $ref: '#/components/schemas/Meta'
+          rotate_batch:
+            $ref: '#/components/schemas/Meta'
+          rotate_timeout:
+            $ref: '#/components/schemas/Meta'
+          rotate_window:
+            $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
           id:
+            $ref: '#/components/schemas/Meta'
+          rotate:
+            $ref: '#/components/schemas/Meta'
+          rotate_batch:
+            $ref: '#/components/schemas/Meta'
+          rotate_timeout:
+            $ref: '#/components/schemas/Meta'
+          rotate_window:
             $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -54,6 +93,7 @@ ConfigMaintenanceTasksMeta:
 <<<<<<< HEAD
           delete_window:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
 =======
 >>>>>>> 39fe6ade26 (upadte OAS)
           id:
@@ -63,9 +103,13 @@ ConfigMaintenanceTasksMeta:
           status:
             $ref: '#/components/schemas/Meta'
           type:
+=======
+          id:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           unreg_window:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           voip:
             $ref: '#/components/schemas/Meta'
         type: object
@@ -79,6 +123,9 @@ ConfigMaintenanceTasksMeta:
           process_switchranges:
             $ref: '#/components/schemas/Meta'
           schedule:
+=======
+          status:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
@@ -131,6 +178,7 @@ ConfigMaintenanceTasksMeta:
           batch:
             $ref: '#/components/schemas/Meta'
 <<<<<<< HEAD
+<<<<<<< HEAD
           history_batch:
             $ref: '#/components/schemas/Meta'
           history_timeout:
@@ -139,6 +187,8 @@ ConfigMaintenanceTasksMeta:
             $ref: '#/components/schemas/Meta'
 =======
 >>>>>>> 39fe6ade26 (upadte OAS)
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           id:
             $ref: '#/components/schemas/Meta'
           schedule:
@@ -179,13 +229,38 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
           type:
+            $ref: '#/components/schemas/Meta'
+          window:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -230,30 +305,9 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
           batch:
             $ref: '#/components/schemas/Meta'
           id:
-            $ref: '#/components/schemas/Meta'
-          rotate:
-            $ref: '#/components/schemas/Meta'
-          rotate_batch:
-            $ref: '#/components/schemas/Meta'
-          rotate_timeout:
-            $ref: '#/components/schemas/Meta'
-          rotate_window:
             $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
@@ -265,6 +319,34 @@ ConfigMaintenanceTasksMeta:
             $ref: '#/components/schemas/Meta'
           window:
             $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+<<<<<<< HEAD
+          certificates:
+            $ref: '#/components/schemas/Meta'
+          delay:
+=======
+          batch:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
+=======
+          type:
+            $ref: '#/components/schemas/Meta'
+          window:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
         type: object
     type: object
   - properties:
@@ -287,22 +369,14 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
+<<<<<<< HEAD
           batch:
             $ref: '#/components/schemas/Meta'
 <<<<<<< HEAD
+=======
+          delete_window:
+            $ref: '#/components/schemas/Meta'
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           id:
             $ref: '#/components/schemas/Meta'
 =======
@@ -315,7 +389,13 @@ ConfigMaintenanceTasksMeta:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           window:
+=======
+          unreg_window:
+            $ref: '#/components/schemas/Meta'
+          voip:
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -325,6 +405,8 @@ ConfigMaintenanceTasksMeta:
           delete_window:
             $ref: '#/components/schemas/Meta'
           id:
+            $ref: '#/components/schemas/Meta'
+          process_switchranges:
             $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
@@ -358,8 +440,6 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           rotate:
@@ -374,8 +454,6 @@ ConfigMaintenanceTasksMeta:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
           window:
@@ -415,38 +493,26 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
           type:
-            $ref: '#/components/schemas/Meta'
-          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
           type:
-            $ref: '#/components/schemas/Meta'
-          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
@@ -454,10 +520,13 @@ ConfigMaintenanceTasksMeta:
       meta:
         properties:
 <<<<<<< HEAD
+<<<<<<< HEAD
           batch:
             $ref: '#/components/schemas/Meta'
 =======
 >>>>>>> 39fe6ade26 (upadte OAS)
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           id:
             $ref: '#/components/schemas/Meta'
           rotate:
@@ -472,32 +541,30 @@ ConfigMaintenanceTasksMeta:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
-          timeout:
-            $ref: '#/components/schemas/Meta'
           type:
-            $ref: '#/components/schemas/Meta'
-          window:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object
   - properties:
       meta:
         properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
           status:
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           timeout:
 <<<<<<< HEAD
 =======
             $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
           type:
 >>>>>>> 39fe6ade26 (upadte OAS)
             $ref: '#/components/schemas/Meta'
+<<<<<<< HEAD
           type:
             $ref: '#/components/schemas/Meta'
         type: object
@@ -513,6 +580,8 @@ ConfigMaintenanceTasksMeta:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
+=======
+>>>>>>> c659ce191e (Sort OAS Schemas (#7954))
         type: object
     type: object
   - properties:
@@ -546,15 +615,11 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
-          batch:
-            $ref: '#/components/schemas/Meta'
           id:
             $ref: '#/components/schemas/Meta'
           schedule:
             $ref: '#/components/schemas/Meta'
           status:
-            $ref: '#/components/schemas/Meta'
-          timeout:
             $ref: '#/components/schemas/Meta'
           type:
             $ref: '#/components/schemas/Meta'
