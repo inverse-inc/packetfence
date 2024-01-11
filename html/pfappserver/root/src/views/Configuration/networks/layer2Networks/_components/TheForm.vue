@@ -57,8 +57,8 @@
     />
 
     <form-group-dns namespace="dns"
-      :column-label="$i18n.t('DNS')"
-      :text="$i18n.t('The DNS server(s) of your network. (comma limited)')"
+                    :column-label="$i18n.t('DNS')"
+                    :text="$i18n.t('The DNS server(s) of your network. (comma limited)')"
     />
 
     <form-group-portal-fqdn namespace="portal_fqdn"
@@ -86,6 +86,7 @@ import {
   FormGroupDhcpEnd,
   FormGroupDhcpMaxLeaseTime,
   FormGroupDhcpStart,
+  FormGroupDns,
   FormGroupIdentifier,
   FormGroupIpAssigned,
   FormGroupIpReserved,
