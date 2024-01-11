@@ -75,7 +75,7 @@ func (qw *QueueWorkers) runSingleWorkerQueue(q string, r *atomic.Bool) {
 			continue
 		}
 
-		logErrorf(ctx, "Error Next: %s", err.Error())
+		logErrorf(ctx, "Error runSingleWorkerQueue: %s", err.Error())
 	}
 }
 
@@ -112,7 +112,7 @@ func (qw *QueueWorkers) runMultiWorkerQueue(r *atomic.Bool) {
 			continue
 		}
 
-		logErrorf(ctx, "Error Next: %s", err.Error())
+		logErrorf(ctx, "Error runMultiWorkerQueue: %s", err.Error())
 	}
 }
 
