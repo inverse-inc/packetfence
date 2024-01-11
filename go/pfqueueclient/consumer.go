@@ -6,12 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
 type Consumer struct {
+	name  string
 	redis *redis.Client
 	conn  *BackendConn
 }
@@ -22,7 +24,7 @@ func NewConsumer(redis *redis.Client, name string) (*Consumer, error) {
 		return nil, err
 	}
 
-	return &Consumer{redis: redis, conn: conn}, nil
+	return &Consumer{name: name, redis: redis, conn: conn}, nil
 }
 
 func (c *Consumer) Close() {
@@ -71,19 +73,34 @@ func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) er
 		statusUpdater.Start(ctx)
 	}
 
-	out, err := c.conn.Send(taskInfo.Data)
-	if err != nil {
-		if statusUpdater != nil {
-			data, _ := json.Marshal(out)
-			statusUpdater.Failed(ctx, data)
+	retry := 3
+	for retry > 0 {
+		out, err := c.conn.Send(taskInfo.Data)
+		retry--
+		if err != nil {
+			if errors.Is(err, syscall.EPIPE) {
+				c.conn.Close()
+				conn, err2 := NewBackendConn(c.name)
+				if err2 == nil {
+					c.conn = conn
+					continue
+				}
+			}
+
+			if statusUpdater != nil {
+				data, _ := json.Marshal(out)
+				statusUpdater.Failed(ctx, data)
+			}
+
+			return err
 		}
 
-		return err
-	}
+		if statusUpdater != nil && out != nil {
+			data, _ := json.Marshal(out)
+			statusUpdater.Complete(ctx, data)
+		}
 
-	if statusUpdater != nil && out != nil {
-		data, _ := json.Marshal(out)
-		statusUpdater.Complete(ctx, data)
+		break
 	}
 
 	return nil
