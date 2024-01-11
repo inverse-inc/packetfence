@@ -46,6 +46,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Add mariadb to the OOM list
  * Docker needs a specific configuration to pull images behind a proxy (#7946)
  * Fix the password of the day password generation (#7862)
+ * Add back missing thread support in radiusd (Undefined Subroutine $main::shared_clone (EAP TTLS/PAP and EntraID) #7963)
 
 == Version 13.0.0 released on 2023-08-09
 
