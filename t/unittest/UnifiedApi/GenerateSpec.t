@@ -645,20 +645,20 @@ cmp_deeply(
                 '$ref' => '#/components/schemas/PfdetectSubTypeFortianalyser'
             },
             {
+                '$ref' => '#/components/schemas/PfdetectSubTypeRegex'
+            },
+            {
                 '$ref' => '#/components/schemas/PfdetectSubTypeSecurityOnion'
             },
             {
                 '$ref' => '#/components/schemas/PfdetectSubTypeSnort'
             },
             {
-                '$ref' => '#/components/schemas/PfdetectSubTypeSuricataMd5'
-            },
-            {
                 '$ref' => '#/components/schemas/PfdetectSubTypeSuricata'
             },
             {
-                '$ref' => '#/components/schemas/PfdetectSubTypeRegex'
-            }
+                '$ref' => '#/components/schemas/PfdetectSubTypeSuricataMd5'
+            },
         ],
         'discriminator' => {
             'mapping' => {
