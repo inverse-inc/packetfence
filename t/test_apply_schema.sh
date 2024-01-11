@@ -96,7 +96,7 @@ done
 #Ignore sort of indexes but ensure sort order of columns
 
 for dump in $UPGRADED_DB $PRISTINE_DB;do
-    sort "${dump}.dump" | perl -p -e's/,$//;s/^.*sql_mode.*$//;s/ AUTO_INCREMENT=\d+//' > ${dump}.dump.sort
+    perl -p -e's/,$//;s/^.*sql_mode.*$//;s/ AUTO_INCREMENT=\d+//' < "${dump}.dump" | sort > ${dump}.dump.sort
     cat "${dump}.dump" | perl -p -e's/^\s*(KEY|CONSTRAINT).*$//;s/^.*sql_mode.*$//;s/ AUTO_INCREMENT=\d+//' > ${dump}.dump.nokeys
 done
 
