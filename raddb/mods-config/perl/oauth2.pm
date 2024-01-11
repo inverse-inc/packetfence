@@ -13,6 +13,9 @@ use lib qw(
 use strict;
 use warnings;
 
+use threads;
+use threads::shared;
+
 use HTTP::Status qw/is_client_error is_server_error/;
 use JSON::PP;
 use List::Util qw/reduce/;
