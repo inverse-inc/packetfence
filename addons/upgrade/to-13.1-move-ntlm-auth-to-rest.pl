@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
-use pf::file_paths qw($authentication_config_file $domain_config_file);
+use pf::file_paths qw($authentication_config_file $domain_config_file $cluster_config_file);
 use pf::util;
 use Digest::MD4;
 use Encode;
@@ -30,8 +30,27 @@ unless ($ini) {
     exit;
 }
 
+my $ini_cluster = pf::IniFiles->new(-file => $cluster_config_file, -allowempty => 1);
+unless ($ini_cluster) {
+    print("Error loading cluster config file. Terminated\n");
+    exit;
+}
+
+for my $section ($ini_cluster->Sections()) {
+    if ($section eq "CLUSTER") {
+        if ($ini_cluster->exists('CLUSTER', 'management_ip')) {
+            my $management_ip = $ini_cluster->val('CLUSTER', 'management_ip');
+            if ($management_ip ne "") {
+                print("This packetfence node is running in cluster mode. You need to re-config the domain settings in admin panel.\n");
+                print("Please follow the upgrade guide in documentation and add a new machine account with same password for each cluster member\n");
+                exit;
+            }
+        }
+    }
+}
+
 my $updated = 0;
-my $ntlm_auth_host = "100.64.0.1 ";
+my $ntlm_auth_host = "100.64.0.1";
 my $ntlm_auth_port = 4999;
 
 # back up config files
@@ -62,14 +81,14 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     $ntlm_auth_port += 1;
 
     if ($ini->exists($section, 'machine_account_password')) {
-        print("  Section: ", $section, " already has machine_account and machine_account_password set. skipped\n");
+        print("  Section: ", $section, " already has machine_account and machine_account_password set. skipped.\n");
         next;
     }
 
     my $samba_conf_path = "/etc/samba/$section.conf";
     my $samba_ini = pf::IniFiles->new(-file => $samba_conf_path, -allowempty => 1);
     unless ($samba_ini) {
-        print("  Unable to find correspond samba conf file in $samba_conf_path, section $section skipped\n");
+        print("  Unable to find correspond samba conf file in $samba_conf_path, section $section skipped.\n");
         next;
     }
 
