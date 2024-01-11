@@ -555,7 +555,7 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 
 		Error := types.Errors{Status: 0}
 
-		vars := types.Params(req, "id", "cn")
+		vars := types.Params(req, "id", "cn", "profile", "password")
 		if len(regexp.MustCompile(`^[0-9]+$`).FindStringIndex(vars["id"])) > 0 {
 			delete(vars, "cn")
 		} else {
