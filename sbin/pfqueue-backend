@@ -148,6 +148,10 @@ sub handle_socket {
         }
 
         if ($data eq 'ping') {
+            if ($TASKS > 0) {
+                $TASKS++;
+            }
+
             $len = send_data_with_length($socket, 'true');
         } else {
             my $results = process_data($data);
