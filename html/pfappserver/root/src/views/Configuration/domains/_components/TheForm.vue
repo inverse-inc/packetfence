@@ -203,7 +203,7 @@ export const setup = (props, context) => {
     return (props.isNew) ? FormGroupMachineAccountPasswordOnly : FormGroupMachineAccountPassword
   })
 
-  const testMachineAccount = () => $store.dispatch('$_domains/testMachineAccount', props.form)
+  const testMachineAccount = () => $store.dispatch('$_domains/testMachineAccount', { ...props.form, quiet: true })
   return {
     schema,
     testMachineAccount,

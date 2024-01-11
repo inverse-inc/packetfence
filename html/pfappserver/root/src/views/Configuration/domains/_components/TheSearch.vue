@@ -121,6 +121,7 @@ const props = {
   }
 }
 
+import { createDebouncer } from 'promised-debounce'
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
@@ -144,6 +145,7 @@ const setup = (props, context) => {
     reSearch
   } = search
   const {
+    columns,
     items,
     visibleColumns
   } = toRefs(search)
@@ -167,25 +169,36 @@ const setup = (props, context) => {
       .then(() => reSearch())
   }
 
+  let joinDebouncer
   const joinStatuses = ref({})
   const decoratedItems = computed(() => {
     return items.value.map(item => ({ ...item, domain_joined: joinStatuses.value[item.id]  }))
   })
-  watch(items, () => {
-    items.value.forEach(item => {
-      joinStatuses.value = { ...joinStatuses.value, [item.id]: null }
-      getItem(item).then(_item => {
-        const { machine_account_password } = _item
-        if (machine_account_password) {
-          testItem(_item).then(() => {
-            joinStatuses.value = { ...joinStatuses.value, [item.id]: true }
+  const showJoined = computed(() => columns.value.filter(column => column.key === 'domain_joined' && column.visible).length > 0)
+  watch([items, showJoined], () => {
+    if (!joinDebouncer) {
+      joinDebouncer = createDebouncer()
+    }
+    joinDebouncer({ handler: () => {
+      if (showJoined.value) {
+        items.value.forEach(item => {
+          joinStatuses.value = { ...joinStatuses.value, [item.id]: null }
+          getItem({ ...item, quiet: true }).then(_item => {
+            const { machine_account_password } = _item
+            if (machine_account_password) {
+              testItem(_item).then(() => {
+                joinStatuses.value = { ...joinStatuses.value, [item.id]: true }
+              }).catch(() => {
+                joinStatuses.value = { ...joinStatuses.value, [item.id]: false }
+              })
+            }
           }).catch(() => {
             joinStatuses.value = { ...joinStatuses.value, [item.id]: false }
           })
-        }
-      })
-    })
-  }, { deep: true, immediate: true })
+        })
+      }
+    }, time: 1E3 }) // debounce DOM mutations
+  }, { deep: true })
 
   return {
     useSearch,

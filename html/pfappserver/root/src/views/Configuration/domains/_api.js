@@ -47,7 +47,8 @@ export default {
     })
   },
   testMachineAccount: data => {
-    return apiCall.postQuiet('ntlm/test', data).then(response => {
+    const post = data.quiet ? 'postQuiet' : 'post'
+    return apiCall[post]('ntlm/test', data).then(response => {
       return response.data
     }).catch(err=> {
       throw err
