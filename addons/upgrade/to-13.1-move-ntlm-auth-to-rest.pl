@@ -16,8 +16,9 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
-use pf::file_paths qw($authentication_config_file $domain_config_file $cluster_config_file);
+use pf::file_paths qw($authentication_config_file $domain_config_file);
 use pf::util;
+use pf::cluster qw($cluster_enabled $host_id);;
 use Digest::MD4;
 use Encode;
 use MIME::Base64;
@@ -28,25 +29,6 @@ my $ini = pf::IniFiles->new(-file => $domain_config_file, -allowempty => 1);
 unless ($ini) {
     print("Error loading domain config file. Terminated\n");
     exit;
-}
-
-my $ini_cluster = pf::IniFiles->new(-file => $cluster_config_file, -allowempty => 1);
-unless ($ini_cluster) {
-    print("Error loading cluster config file. Terminated\n");
-    exit;
-}
-
-for my $section ($ini_cluster->Sections()) {
-    if ($section eq "CLUSTER") {
-        if ($ini_cluster->exists('CLUSTER', 'management_ip')) {
-            my $management_ip = $ini_cluster->val('CLUSTER', 'management_ip');
-            if ($management_ip ne "") {
-                print("This packetfence node is running in cluster mode. You need to re-config the domain settings in admin panel.\n");
-                print("Please follow the upgrade guide in documentation and add a new machine account with same password for each cluster member\n");
-                exit;
-            }
-        }
-    }
 }
 
 my $updated = 0;
@@ -97,12 +79,21 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     my $realm = $samba_ini->val("global", "realm");
 
     my $ad_server = $ini->val($section, "ad_server");
-    my $dns_server = $ini->val($section, "dns_server");
+    my $dns_servers = $ini->val($section, "dns_servers");
     my $ad_fqdn = $ini->val($section, "ad_fqdn");
+    my $samba_server_name = $samba_ini->val("global", "server string");
 
+    if ($cluster_enabled) {
+        if ($samba_server_name ne $host_id) {
+            print("  In a cluster mode the Samba server ($samba_server_name) name needs to match the hostname of the server ($host_id)");
+            print("  The configuration will be migrated but the server name in the domain configuration will be replaced by %h (the return of the hostname command)");
+            print("  You have to manually rejoin the server to the domain from the Admin UI in Configuration -> Policies and Access Control -> Active Directory Domains");
+            $ini->setval($section, 'server_name', "%h");
+        }
+    }
     if (!defined($ad_fqdn) || $ad_fqdn eq "") {
         if (valid_ip($ad_server)) {
-            my ($ad_fqdn_from_dns, $i, $msg) = pf::util::dns_resolve($ad_server, $dns_server, $dns_name);
+            my ($ad_fqdn_from_dns, $i, $msg) = pf::util::dns_resolve($ad_server, $dns_servers, $dns_name);
             if (defined($ad_fqdn_from_dns) && $ad_fqdn_from_dns ne "") {
                 $ad_fqdn = $ad_fqdn_from_dns;
             }
@@ -122,7 +113,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
         }
         else {
             $ad_fqdn = $ad_server;
-            my ($h, $ip_from_dns, $msg) = pf::util::dns_resolve($ad_fqdn, $dns_server, $dns_name);
+            my ($h, $ip_from_dns, $msg) = pf::util::dns_resolve($ad_fqdn, $dns_servers, $dns_name);
             if (defined($ip_from_dns) && $ip_from_dns ne "") {
                 $ad_server = $ip_from_dns;
             }
@@ -182,7 +173,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     }
 
     my $server_name = $ini->val($section, 'server_name');
-    if (lc($server_name) ne lc($machine_account)) {
+    if ((lc($server_name) ne lc($machine_account)) && $server_name ne "%h") {
         print("  Unable to rewrite server_name values, current value is: $server_name, expected is: $machine_account, Section $section Skipped\n");
         next;
     }
