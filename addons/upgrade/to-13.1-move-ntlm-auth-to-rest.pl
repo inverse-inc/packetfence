@@ -56,7 +56,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     pf_run("mkdir -p $target_dir/chroots/$section/etc && cp -R /chroots/$section/etc/samba $target_dir/chroots/$section/etc");
     pf_run("mkdir -p $target_dir/chroots/$section/var/cache && cp -R /chroots/$section/var/cache/samba $target_dir/chroots/$section/var/cache");
 }
-pf_run("cd /usr/local/pf/archive && tar -cvzf $tmp_dirname.tgz $tmp_dirname && rm -rf $tmp_dirname");
+pf_run("cd /usr/local/pf/archive && tar --warning=no-file-ignored -cvzf $tmp_dirname.tgz $tmp_dirname && rm -rf $tmp_dirname");
 
 for my $section (grep {/^\S+$/} $ini->Sections()) {
     print("Generating config for section: $section\n");
