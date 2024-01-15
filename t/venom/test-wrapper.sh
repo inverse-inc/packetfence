@@ -235,7 +235,7 @@ halt_other_vm() {
 teardown() {
     log_section "Teardown"
     #halt
-    ansible_teardown()
+    ansible_teardown
     destroy
     delete_ansible_files
 }
