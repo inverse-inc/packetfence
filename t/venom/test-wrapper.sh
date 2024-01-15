@@ -213,7 +213,7 @@ halt() {
     # We always want VM to be halted even if Ansible failed
     local force=${1:-}
     if [ -z "$force" ]; then
-        ansible_teardown()
+        ansible_teardown
     else
 	echo "Halt force detected: only halting VM"
     fi
