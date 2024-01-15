@@ -15,6 +15,10 @@ set -e
 
 disable_service_if_exists() {
     SERVICE=$1
+    NOTFOUND=`set +e;systemctl list-units --full -all --state=not-found| grep -Fq "$SERVICE";echo $?`
+    if [ $NOTFOUND -eq 0 ]; then
+        return 0
+    fi
     NUM=`set +e;systemctl list-units --full -all | grep -Fq "$SERVICE";echo $?`
     if [ $NUM -eq 0 ]; then
         systemctl disable $SERVICE
