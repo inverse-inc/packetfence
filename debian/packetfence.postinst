@@ -178,6 +178,7 @@ case "$1" in
         if [ -n "$2" ]; then
             if dpkg --compare-versions "$2" lt "12"; then
                 echo "Migrating from a version prior to 12.0. Need to restart some services..."
+                systemctl start packetfence-config
                 systemctl restart packetfence-mariadb
                 systemctl restart packetfence-redis-cache
             fi
