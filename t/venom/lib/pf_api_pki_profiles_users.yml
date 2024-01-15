@@ -14,7 +14,7 @@ input:
   state: ""
   locality: ""
   ocsp_url: ""
-  scep_enabled: ""
+  scep_enabled: 0
   scep_challenge_password: ""
   scep_days_before_renewal: ""
 steps:
