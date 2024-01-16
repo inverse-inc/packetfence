@@ -257,7 +257,7 @@ sub umount_winbindd {
     pf_run("sudo systemctl stop packetfence-winbindd");
     sleep(3);
     pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount");
-    print("/chroots/* has been umounted. Some sub directories are still in use. They will be removed at the next reboot")
+    print("/chroots/* has been umounted. Some sub directories are still in use. They will be removed at the next reboot\n")
 }
 
 sub parsePh {
