@@ -1837,7 +1837,7 @@ patch /etc/rc.local /tmp/rc-local.patch
 
 === Domain join
 
-In this release of PacketFence we moved from Samba to a new NTLM_AUTH_API service.
+Since v13.1, Packetfence moved from Samba to a new NTLM_AUTH_API service.
 In order to upgrade the domain join perform the following:
 
 First run the following script:
