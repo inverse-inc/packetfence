@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-addons/upgrade/to-10.1-move-radius-configuration-parameter.pl
+addons/upgrade/to-13.1-move-ntlm-auth-to-rest.pl
 
 =cut
 
