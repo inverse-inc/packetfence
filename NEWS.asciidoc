@@ -42,7 +42,6 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Use the same timezone in all Docker images (#7862)
  * Integrated Fingerbank Perl client into PacketFence's source code
  * Added many PKI improvements (generate CSR from CA, SCEP server proxy and resign certificate)
- * Moved Fingebank Perl client source code into PacketFence's repository
 
 === Bug Fixes
 
@@ -51,7 +50,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Add MariaDB to the OOM list
  * Docker needs a specific configuration to pull images behind a proxy (#7946)
  * Fix the password of the day password generation (#7862)
- * Add back missing thread support in radiusd (Undefined Subroutine $main::shared_clone (EAP TTLS/PAP and EntraID) #7963)
+ * Add back missing thread support in radiusd (#7963)
 
 == Version 13.0.0 released on 2023-08-09
 
