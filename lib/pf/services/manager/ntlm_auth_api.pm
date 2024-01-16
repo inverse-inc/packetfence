@@ -70,7 +70,9 @@ sub isAlive {
 
 sub isManaged {
     my ($self) = @_;
-    return $TRUE if ($self->SUPER::isManaged && keys(%ConfigDomain));
+    if ($self->SUPER::isManaged && keys(%ConfigDomain) > 0) {
+        return $TRUE;
+    }
     return $FALSE;
 }
 
