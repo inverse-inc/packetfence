@@ -112,22 +112,28 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     }
     if (!defined($ad_fqdn) || $ad_fqdn eq "") {
         if (valid_ip($ad_server)) {
-            my ($ad_fqdn_from_dns, $i, $msg) = pf::util::dns_resolve($ad_server, $dns_servers, $dns_name);
-            if (defined($ad_fqdn_from_dns) && $ad_fqdn_from_dns ne "") {
-                $ad_fqdn = $ad_fqdn_from_dns;
+            print("  Trying to resolve '$ad_server' to a fqdn \n");
+            my $ad_fqdn_from_system = gethostbyaddr(inet_aton($ad_server), AF_INET);
+            if (defined($ad_fqdn_from_system) && $ad_fqdn_from_system ne "") {
+                $ad_fqdn = $ad_fqdn_from_system;
             }
             else {
-                print("  AD server '$ad_server' does not have a PRT record retrieved using given DNS server. Trying 'gethostbyaddr' instead. Got: ");
-                my $ad_fqdn_from_system = gethostbyaddr(inet_aton($ad_server), "AF_INET");
-                if (defined($ad_fqdn_from_system) && $ad_fqdn_from_system ne "") {
-                    print("'$ad_fqdn_from_system'.\n");
-                    $ad_fqdn = $ad_fqdn_from_system;
-                }
-                else {
-                    print("Nothing. You need to input the AD's FQDN manually here: ");
-                    $ad_fqdn = <STDIN>;
-                    chomp($ad_fqdn);
-                }
+                print("Nothing. You need to input the AD's FQDN manually here (Run hostname command on the AD server): ");
+                $ad_fqdn = <STDIN>;
+                chomp($ad_fqdn);
+            }
+            print("Verify that the fqdn matches with the ip\n");
+            my ($ad_fqdn_from_dns, $ip, $msg) = pf::util::dns_resolve($ad_fqdn, $dns_servers);
+            if (defined($ip) && ($ip ne $ad_server)) {
+                print("The dns resolution of the fqdn '$ad_fqdn' does not match with the ip of the ad server '$ad_server', the dns returned $ip\n");
+                print("Unable to use the AD fqdn. Section $section skipped\n");
+                next;
+            } elsif (!defined($ip)) {
+                print("The dns resolution of the fqdn '$ad_fqdn' does not returned any ip address\n");
+                print("Unable to use the AD fqdn. Section $section skipped\n");
+                next;
+            } else {
+                print("The dns resolution of the fqdn '$ad_fqdn' match with the ip of the ad server '$ad_server', the dns returned $ip, continue ...\n");
             }
         }
         else {
