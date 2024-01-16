@@ -1835,6 +1835,50 @@ patch /etc/rc.local /tmp/rc-local.patch
 
 == Upgrading from a version prior to 13.0.0
 
+=== Domain join
+
+Since v13.1, Packetfence moved from Samba to a new NTLM_AUTH_API service.
+In order to upgrade the domain join, please, perform the following steps:
+
+First run the following script:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-13.1-move-ntlm-auth-to-rest.pl
+----
+
+==== Standalone server
+
+Running the previous script will extract the current Samba configuration and convert it to the NTLM_AUTH_API format.
+
+==== Cluster
+
+The script will detect if you are running PacketFence in a cluster environment and will compare the Samba machine name with the hostname:
+
+1. If the Samba machine name matches the hostname - the script will migrate the configuration to the NTLM_AUTH_API format and replace the machine name with %h.
+
+2. If the Samba machine name does not match the hostname - manually delete the machine accounts in the AD and reconfigure the join.
+
+In both cases the NTLM_AUTH_API is supported in a cluster, and each machine joined to the domain must have the exact same password.
+
+Depending of the action of the script, there may be a configuration change for the domain(s) in _Configuration -> Policies and Access Control -> Active Directory Domains_.
+
+IMPORTANT: When creating or editing a Domain, specifying the Server Name as %h will use the hostname of the server. The hostname differs for each member of a cluster.
+
+Fill out the form and specify the _Machine account password_ (record it to reuse it again later) and the credentials of an AD admin account who is able to join a machine to the Domain.
+Click Save and you should be able to see the Machine account created in the Active Directory Domain.
+
+For each remaining server in the cluster:
+
+1. Visit _Status -> Services_ and on the right-side, click _API Redirect_, choose the Nth server.
+
+2. Visit _Configuration -> Policies and Access Control -> Active Directory Domains_ and choose the domain created or modified above.
+
+3. The Machine account password will be a hash or the original password. Retype the password used above.
+
+4. Click Save
+
+
 === Adding the LDAP search attributes
 
 LDAP conditions added in the LDAP authentication source use a LDAP search to retrieve the values.
