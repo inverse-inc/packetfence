@@ -27,7 +27,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
- * New NTLM authentication service
+ * New NTLM authentication service (no more domain joins, Cloud-ready)
  * Added ACL precreation for individual and all switches (#7936)
  * Integrated Apache Kafka for flows reporting
 
@@ -42,6 +42,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Use the same timezone in all Docker images (#7862)
  * Integrated Fingerbank Perl client into PacketFence's source code
  * Added many PKI improvements (generate CSR from CA, SCEP server proxy and resign certificate)
+ * Moved Fingebank Perl client source code into PacketFence's repository
 
 === Bug Fixes
 
