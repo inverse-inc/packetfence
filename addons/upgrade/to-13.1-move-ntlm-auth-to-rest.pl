@@ -75,7 +75,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
 
     my $samba_conf_path = "/etc/samba/$section.conf";
     unless (-e $samba_conf_path) {
-        print("  $samba_conf_path not found, skipped.");
+        print("  $samba_conf_path not found, skipped.\n");
         next;
     }
 
@@ -96,10 +96,10 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
 
     if ($cluster_enabled) {
         if ($samba_server_name ne $host_id) {
-            print("  In a cluster mode the Samba server ($samba_server_name) name needs to match the hostname of the server ($host_id)");
-            print("  The configuration will be migrated but the server name in the domain configuration will be replaced by %h (the return of the hostname command)");
-            print("  You have to manually rejoin the server to the domain from the Admin UI in Configuration -> Policies and Access Control -> Active Directory Domains");
-            print("  By editing the domain configuration, fill in the domain administrator username and password, and save the configuration.");
+            print("  In a cluster mode the Samba server ($samba_server_name) name needs to match the hostname of the server ($host_id)\n");
+            print("  The configuration will be migrated but the server name in the domain configuration will be replaced by %h (the return of the hostname command)\n");
+            print("  You have to manually rejoin the server to the domain from the Admin UI in Configuration -> Policies and Access Control -> Active Directory Domains\n");
+            print("  By editing the domain configuration, fill in the domain administrator username and password, and save the configuration.\n");
             $ini->setval($section, 'server_name', "%h");
         }
         my $parsedPh = parsePh();
@@ -257,7 +257,7 @@ sub umount_winbindd {
     pf_run("sudo systemctl stop packetfence-winbindd");
     sleep(3);
     pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount");
-    print("/chroots/* has been umounted. Some sub directories are stinn in use. They will be removed at the next reboot")
+    print("/chroots/* has been umounted. Some sub directories are still in use. They will be removed at the next reboot")
 }
 
 sub parsePh {
