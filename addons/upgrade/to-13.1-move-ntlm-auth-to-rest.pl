@@ -23,10 +23,11 @@ use Digest::MD4;
 use Encode;
 use MIME::Base64;
 use Socket;
+use Sys::Hostname;
 
 my $ini = pf::IniFiles->new(-file => $domain_config_file, -allowempty => 1);
 
-unless ($ini) {
+unless (defined $ini) {
     print("Error loading domain config file. Terminated\n");
     exit;
 }
@@ -40,37 +41,47 @@ my $tmp_dirname = pf_run("date +%Y%m%d_%H%M%S");
 $tmp_dirname =~ s/^\s+|\s+$//g;
 my $target_dir = "/usr/local/pf/archive/$tmp_dirname";
 
-print("Backing up configuration files, they can be found in $target_dir\n");
-
+print("Backing up PacketFence domain configuration files, they can be found at $target_dir\n");
 pf_run("mkdir -p $target_dir", accepted_exit_status => [ 0 ], working_directory => "/usr/local/pf/archive");
 pf_run("cp -R /usr/local/pf/conf/domain.conf $target_dir");
 pf_run("cp -R /usr/local/pf/conf/realm.conf $target_dir");
 
-umount_winbindd();
-
 for my $section (grep {/^\S+$/} $ini->Sections()) {
-    if ($ini->exists($section, 'machine_account_password')) {
-        next;
+    if (-d "/chroots/$section/etc/samba" && -d "/chroots/$section/var/cache/samba") {
+        print "  processing /chroots/$section/\n";
+        pf_run("mkdir -p $target_dir/chroots/$section/etc");
+        pf_run("mkdir -p $target_dir/chroots/$section/var/cache/samba");
+        pf_run("cp -R /chroots/$section/etc/samba $target_dir/chroots/$section/etc");
+        pf_run("cp -R /chroots/$section/var/cache/samba/*.tdb $target_dir/chroots/$section/var/cache/samba");
+        pf_run("cp -R /chroots/$section/var/cache/samba/smb_krb5 $target_dir/chroots/$section/var/cache/samba");
     }
-
-    pf_run("mkdir -p $target_dir/chroots/$section/etc && cp -R /chroots/$section/etc/samba $target_dir/chroots/$section/etc");
-    pf_run("mkdir -p $target_dir/chroots/$section/var/cache && cp -R /chroots/$section/var/cache/samba $target_dir/chroots/$section/var/cache");
+    else {
+        print "  /chroots/$section/etc/samba or /chroots/$section/var/cache/samba does not exist, maybe domain config ($section) is not in use any more. skipped.\n";
+    }
 }
 pf_run("cd /usr/local/pf/archive && tar --warning=no-file-ignored -cvzf $tmp_dirname.tgz $tmp_dirname && rm -rf $tmp_dirname");
 
+print("Stopping winbindd and umount /chroot\n");
+umount_winbindd();
+
 for my $section (grep {/^\S+$/} $ini->Sections()) {
-    print("Generating config for section: $section\n");
+    print("Updating config for section: $section\n");
     $ntlm_auth_port += 1;
 
     if ($ini->exists($section, 'machine_account_password')) {
-        print("  Section: ", $section, " already has machine_account and machine_account_password set. skipped.\n");
+        print("  Section: ", $section, " already has machine_account_password. section $section skipped.\n");
         next;
     }
 
     my $samba_conf_path = "/etc/samba/$section.conf";
+    unless (-e $samba_conf_path) {
+        print("  $samba_conf_path not found, skipped.");
+        next;
+    }
+
     my $samba_ini = pf::IniFiles->new(-file => $samba_conf_path, -allowempty => 1);
-    unless ($samba_ini) {
-        print("  Unable to find correspond samba conf file in $samba_conf_path, section $section skipped.\n");
+    unless (defined $samba_ini) {
+        print("  Unable to find corresponding Samba configuration file in $samba_conf_path, section $section skipped.\n");
         next;
     }
 
@@ -88,7 +99,15 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
             print("  In a cluster mode the Samba server ($samba_server_name) name needs to match the hostname of the server ($host_id)");
             print("  The configuration will be migrated but the server name in the domain configuration will be replaced by %h (the return of the hostname command)");
             print("  You have to manually rejoin the server to the domain from the Admin UI in Configuration -> Policies and Access Control -> Active Directory Domains");
+            print("  By editing the domain configuration, fill in the domain administrator username and password, and save the configuration.");
             $ini->setval($section, 'server_name', "%h");
+        }
+        my $parsedPh = parsePh();
+        print("  This node will use %h (parsed as '$parsedPh' as machine account, Samba was using '$samba_server_name')\n");
+        print("  You may need to change the hostname of this node if \n");
+        print("    1) two or more nodes in the cluster will return with same value for '%h' ('$parsedPh' for this node), we will use the first word of the hostname splitting by '.'.\n");
+        if ($samba_server_name ne $host_id) {
+            print("    2) Samba was not using cluster's 'host_id' as server name. Samba server name is: '$samba_server_name', host_id is: '$host_id'\n");
         }
     }
     if (!defined($ad_fqdn) || $ad_fqdn eq "") {
@@ -235,13 +254,17 @@ sub extract_machine_password {
 }
 
 sub umount_winbindd {
-    print("Stopping winbindd and umount /chroots/*\n");
     pf_run("sudo systemctl stop packetfence-winbindd");
     sleep(3);
     pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount");
-    print("/chroots/* has been umounted. there're still some subdirs in use remaining. They will be removed at the next reboot")
+    print("/chroots/* has been umounted. Some sub directories are stinn in use. They will be removed at the next reboot")
 }
 
+sub parsePh {
+    my $real_computer_name = hostname();
+    my @s = split(/\./, $real_computer_name);
+    return $s[0];
+}
 
 
 =head1 AUTHOR
