@@ -18,20 +18,22 @@ use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw($authentication_config_file $domain_config_file);
 use pf::util;
+use pf::cluster qw($cluster_enabled $host_id);;
 use Digest::MD4;
 use Encode;
 use MIME::Base64;
 use Socket;
+use Sys::Hostname;
 
 my $ini = pf::IniFiles->new(-file => $domain_config_file, -allowempty => 1);
 
-unless ($ini) {
+unless (defined $ini) {
     print("Error loading domain config file. Terminated\n");
     exit;
 }
 
 my $updated = 0;
-my $ntlm_auth_host = "100.64.0.1 ";
+my $ntlm_auth_host = "100.64.0.1";
 my $ntlm_auth_port = 4999;
 
 # back up config files
@@ -39,37 +41,47 @@ my $tmp_dirname = pf_run("date +%Y%m%d_%H%M%S");
 $tmp_dirname =~ s/^\s+|\s+$//g;
 my $target_dir = "/usr/local/pf/archive/$tmp_dirname";
 
-print("Backing up configuration files, they can be found in $target_dir\n");
-
+print("Backing up PacketFence domain configuration files, they can be found at $target_dir\n");
 pf_run("mkdir -p $target_dir", accepted_exit_status => [ 0 ], working_directory => "/usr/local/pf/archive");
 pf_run("cp -R /usr/local/pf/conf/domain.conf $target_dir");
 pf_run("cp -R /usr/local/pf/conf/realm.conf $target_dir");
 
+for my $section (grep {/^\S+$/} $ini->Sections()) {
+    if (-d "/chroots/$section/etc/samba" && -d "/chroots/$section/var/cache/samba") {
+        print "  processing /chroots/$section/\n";
+        pf_run("mkdir -p $target_dir/chroots/$section/etc");
+        pf_run("mkdir -p $target_dir/chroots/$section/var/cache/samba");
+        pf_run("cp -R /chroots/$section/etc/samba $target_dir/chroots/$section/etc");
+        pf_run("cp -R /chroots/$section/var/cache/samba/*.tdb $target_dir/chroots/$section/var/cache/samba");
+        pf_run("cp -R /chroots/$section/var/cache/samba/smb_krb5 $target_dir/chroots/$section/var/cache/samba");
+    }
+    else {
+        print "  /chroots/$section/etc/samba or /chroots/$section/var/cache/samba does not exist, maybe domain config ($section) is not in use any more. skipped.\n";
+    }
+}
+pf_run("cd /usr/local/pf/archive && tar --warning=no-file-ignored -cvzf $tmp_dirname.tgz $tmp_dirname && rm -rf $tmp_dirname");
+
+print("Stopping winbindd and umount /chroot\n");
 umount_winbindd();
 
 for my $section (grep {/^\S+$/} $ini->Sections()) {
-    if ($ini->exists($section, 'machine_account_password')) {
-        next;
-    }
-
-    pf_run("mkdir -p $target_dir/chroots/$section/etc && cp -R /chroots/$section/etc/samba $target_dir/chroots/$section/etc");
-    pf_run("mkdir -p $target_dir/chroots/$section/var/cache && cp -R /chroots/$section/var/cache/samba $target_dir/chroots/$section/var/cache");
-}
-pf_run("cd /usr/local/pf/archive && tar -cvzf $tmp_dirname.tgz $tmp_dirname && rm -rf $tmp_dirname");
-
-for my $section (grep {/^\S+$/} $ini->Sections()) {
-    print("Generating config for section: $section\n");
+    print("Updating config for section: $section\n");
     $ntlm_auth_port += 1;
 
     if ($ini->exists($section, 'machine_account_password')) {
-        print("  Section: ", $section, " already has machine_account and machine_account_password set. skipped\n");
+        print("  Section: ", $section, " already has machine_account_password. section $section skipped.\n");
         next;
     }
 
     my $samba_conf_path = "/etc/samba/$section.conf";
+    unless (-e $samba_conf_path) {
+        print("  $samba_conf_path not found, skipped.\n");
+        next;
+    }
+
     my $samba_ini = pf::IniFiles->new(-file => $samba_conf_path, -allowempty => 1);
-    unless ($samba_ini) {
-        print("  Unable to find correspond samba conf file in $samba_conf_path, section $section skipped\n");
+    unless (defined $samba_ini) {
+        print("  Unable to find corresponding Samba configuration file in $samba_conf_path, section $section skipped.\n");
         next;
     }
 
@@ -78,32 +90,55 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     my $realm = $samba_ini->val("global", "realm");
 
     my $ad_server = $ini->val($section, "ad_server");
-    my $dns_server = $ini->val($section, "dns_server");
+    my $dns_servers = $ini->val($section, "dns_servers");
     my $ad_fqdn = $ini->val($section, "ad_fqdn");
+    my $samba_server_name = $samba_ini->val("global", "server string");
 
+    if ($cluster_enabled) {
+        if ($samba_server_name ne $host_id) {
+            print("  In a cluster mode the Samba server ($samba_server_name) name needs to match the hostname of the server ($host_id)\n");
+            print("  The configuration will be migrated but the server name in the domain configuration will be replaced by %h (the return of the hostname command)\n");
+            print("  You have to manually rejoin the server to the domain from the Admin UI in Configuration -> Policies and Access Control -> Active Directory Domains\n");
+            print("  By editing the domain configuration, fill in the domain administrator username and password, and save the configuration.\n");
+            $ini->setval($section, 'server_name', "%h");
+        }
+        my $parsedPh = parsePh();
+        print("  This node will use %h (parsed as '$parsedPh' as machine account, Samba was using '$samba_server_name')\n");
+        print("  You may need to change the hostname of this node if \n");
+        print("    1) two or more nodes in the cluster will return with same value for '%h' ('$parsedPh' for this node), we will use the first word of the hostname splitting by '.'.\n");
+        if ($samba_server_name ne $host_id) {
+            print("    2) Samba was not using cluster's 'host_id' as server name. Samba server name is: '$samba_server_name', host_id is: '$host_id'\n");
+        }
+    }
     if (!defined($ad_fqdn) || $ad_fqdn eq "") {
         if (valid_ip($ad_server)) {
-            my ($ad_fqdn_from_dns, $i, $msg) = pf::util::dns_resolve($ad_server, $dns_server, $dns_name);
-            if (defined($ad_fqdn_from_dns) && $ad_fqdn_from_dns ne "") {
-                $ad_fqdn = $ad_fqdn_from_dns;
+            print("  Trying to resolve '$ad_server' to a fqdn \n");
+            my $ad_fqdn_from_system = gethostbyaddr(inet_aton($ad_server), AF_INET);
+            if (defined($ad_fqdn_from_system) && $ad_fqdn_from_system ne "") {
+                $ad_fqdn = $ad_fqdn_from_system;
             }
             else {
-                print("  AD server '$ad_server' does not have a PRT record retrieved using given DNS server. Trying 'gethostbyaddr' instead. Got: ");
-                my $ad_fqdn_from_system = gethostbyaddr(inet_aton($ad_server), "AF_INET");
-                if (defined($ad_fqdn_from_system) && $ad_fqdn_from_system ne "") {
-                    print("'$ad_fqdn_from_system'.\n");
-                    $ad_fqdn = $ad_fqdn_from_system;
-                }
-                else {
-                    print("Nothing. You need to input the AD's FQDN manually here: ");
-                    $ad_fqdn = <STDIN>;
-                    chomp($ad_fqdn);
-                }
+                print("Nothing. You need to input the AD's FQDN manually here (Run hostname command on the AD server): ");
+                $ad_fqdn = <STDIN>;
+                chomp($ad_fqdn);
+            }
+            print("Verify that the fqdn matches with the ip\n");
+            my ($ad_fqdn_from_dns, $ip, $msg) = pf::util::dns_resolve($ad_fqdn, $dns_servers);
+            if (defined($ip) && ($ip ne $ad_server)) {
+                print("The dns resolution of the fqdn '$ad_fqdn' does not match with the ip of the ad server '$ad_server', the dns returned $ip\n");
+                print("Unable to use the AD fqdn. Section $section skipped\n");
+                next;
+            } elsif (!defined($ip)) {
+                print("The dns resolution of the fqdn '$ad_fqdn' does not returned any ip address\n");
+                print("Unable to use the AD fqdn. Section $section skipped\n");
+                next;
+            } else {
+                print("The dns resolution of the fqdn '$ad_fqdn' match with the ip of the ad server '$ad_server', the dns returned $ip, continue ...\n");
             }
         }
         else {
             $ad_fqdn = $ad_server;
-            my ($h, $ip_from_dns, $msg) = pf::util::dns_resolve($ad_fqdn, $dns_server, $dns_name);
+            my ($h, $ip_from_dns, $msg) = pf::util::dns_resolve($ad_fqdn, $dns_servers, $dns_name);
             if (defined($ip_from_dns) && $ip_from_dns ne "") {
                 $ad_server = $ip_from_dns;
             }
@@ -163,7 +198,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     }
 
     my $server_name = $ini->val($section, 'server_name');
-    if (lc($server_name) ne lc($machine_account)) {
+    if ((lc($server_name) ne lc($machine_account)) && $server_name ne "%h") {
         print("  Unable to rewrite server_name values, current value is: $server_name, expected is: $machine_account, Section $section Skipped\n");
         next;
     }
@@ -225,13 +260,17 @@ sub extract_machine_password {
 }
 
 sub umount_winbindd {
-    print("Stopping winbindd and umount /chroots/*\n");
     pf_run("sudo systemctl stop packetfence-winbindd");
     sleep(3);
     pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount");
-    print("/chroots/* has been umounted. there're still some subdirs in use remaining. They will be removed at the next reboot")
+    print("/chroots/* has been umounted. Some sub directories are still in use. They will be removed at the next reboot\n")
 }
 
+sub parsePh {
+    my $real_computer_name = hostname();
+    my @s = split(/\./, $real_computer_name);
+    return $s[0];
+}
 
 
 =head1 AUTHOR
