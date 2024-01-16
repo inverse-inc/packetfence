@@ -148,8 +148,8 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 		r.Get("/pki/checkrenewal", handlers.CheckRenewal(PFPki))
 		// OCSP api endpoint
 		r.Route("/pki/ocsp", func(r chi.Router) {
-			r.Get("/ocsp", handlers.ManageOcsp(PFPki))
-			r.Post("/ocsp", handlers.ManageOcsp(PFPki))
+			r.Get("/", handlers.ManageOcsp(PFPki))
+			r.Post("/", handlers.ManageOcsp(PFPki))
 		})
 		// SCEP api endpoint
 		r.Route("/pki/scep", func(r chi.Router) {
