@@ -170,7 +170,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
 
     # extract machine account from tdb file
     my $machine_account = "";
-    my $machine_account_key = "SECRETS/SALTING_PRINCIPAL/DES/$dns_name";
+    my $machine_account_key = uc("SECRETS/SALTING_PRINCIPAL/DES/$dns_name");
     my $tdb_secret_host_value;
     ($exit_code, $tdb_secret_host_value) = tdbdump_get_value("/chroots/$section/var/cache/samba/secrets.tdb", $machine_account_key);
     if ($exit_code == 0 && $tdb_secret_host_value ne "") {
@@ -183,7 +183,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
 
     # extract machine account password from tdb file
     my $machine_password = "";
-    my $machine_account_password_key = "SECRETS/MACHINE_PASSWORD/$work_group";
+    my $machine_account_password_key = uc("SECRETS/MACHINE_PASSWORD/$work_group");
     my $tdb_secret_machine_password_value;
 
     ($exit_code, $tdb_secret_machine_password_value) = tdbdump_get_value("/chroots/$section/var/cache/samba/secrets.tdb", $machine_account_password_key);
