@@ -4,6 +4,30 @@ testcases:
   steps:
   - type: get_login_token
 
+- name: bulk_delete_roles
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles/bulk_delete'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "items": [
+          "{{.eap_peap.roles.ad_user.id}}",
+          "{{.eap_peap.roles.ad_machine.id}}",
+          "{{.mac_auth.roles.headless_device.id}}",
+          "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.id}}",
+          "{{.wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.id}}",
+          "{{.inline_l2_and_radius.roles.first}}",
+          "{{.inline_l2_and_radius.roles.second}}"
+        ]
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
 - name: delete_access_level
   steps:
   - type: http
