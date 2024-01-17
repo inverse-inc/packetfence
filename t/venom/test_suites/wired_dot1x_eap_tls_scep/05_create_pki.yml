@@ -276,7 +276,7 @@ testcases:
         "state": "{{.wired_dot1x_eap_tls_scep.certs.state}}",
         "locality": "{{.wired_dot1x_eap_tls_scep.certs.locality}}",
         "ocsp_url": "{{.wired_dot1x_eap_tls_scep.certs.ocsp_url}}",
-        "scep_enabled": "{{.wired_dot1x_eap_tls_scep.certs.user.scep_enabled}}",
+        "scep_enabled": {{.wired_dot1x_eap_tls_scep.certs.user.scep_enabled}},
         "scep_challenge_password": "{{.wired_dot1x_eap_tls_scep.certs.user.scep_challenge_password}}",
         "scep_days_before_renewal": "{{.wired_dot1x_eap_tls_scep.certs.user.scep_days_before_renewal}}"
       }
