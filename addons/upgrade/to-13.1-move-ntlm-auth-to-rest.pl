@@ -79,7 +79,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
 
     my $samba_ini = pf::IniFiles->new(-file => $samba_conf_path, -allowempty => 1);
     unless (defined $samba_ini) {
-        print("  Unable to find corresponding Samba configuration file in $samba_conf_path, section $section skipped.\n");
+        print("  Unable to find corresponding Samba configuration file in $samba_conf_path, section $section skipped. If $section is a domain in use, you need to reconfigure it in admin UI\n");
         next;
     }
 
@@ -124,15 +124,15 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
             print("  Verify that the fqdn matches with the ip\n");
             my ($ad_fqdn_from_dns, $ip, $msg) = pf::util::dns_resolve($ad_fqdn, $dns_servers);
             if (defined($ip) && ($ip ne $ad_server)) {
-                print("The dns resolution of the fqdn '$ad_fqdn' does not match with the ip of the ad server '$ad_server', the dns returned $ip\n");
-                print("Unable to use the AD fqdn. Section $section skipped\n");
+                print("  The dns resolution of the fqdn '$ad_fqdn' does not match with the ip of the ad server '$ad_server', the dns returned $ip\n");
+                print("  Unable to use the AD fqdn. Section $section skipped. If $section is a domain in use, you need to reconfigure it in admin UI\n");
                 next;
             } elsif (!defined($ip)) {
-                print("The dns resolution of the fqdn '$ad_fqdn' does not returned any ip address\n");
-                print("Unable to use the AD fqdn. Section $section skipped\n");
+                print("  The dns resolution of the fqdn '$ad_fqdn' does not returned any ip address\n");
+                print("  Unable to use the AD fqdn. Section $section skipped. If $section is a domain in use, you need to reconfigure it in admin UI\n");
                 next;
             } else {
-                print("The dns resolution of the fqdn '$ad_fqdn' match with the ip of the ad server '$ad_server', the dns returned $ip, continue ...\n");
+                print("  The dns resolution of the fqdn '$ad_fqdn' match with the ip of the ad server '$ad_server', the dns returned $ip, continue ...\n");
             }
         }
         else {
@@ -154,11 +154,11 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     }
 
     unless (defined($dns_name) && $dns_name ne "") {
-        print("  Unable to retrieve dns_name from config file. Section $section skipped\n");
+        print("  Unable to retrieve dns_name from config file. Section $section skipped. If $section is a domain in use, you need to reconfigure it in admin UI \n");
         next;
     }
     unless (defined($work_group) && $work_group ne "") {
-        print("  Unable to retrieve work_group from config file. Section $section skipped\n");
+        print("  Unable to retrieve work_group from config file. Section $section skipped. If $section is a domain in use, you need to reconfigure it in admin UI\n");
         next;
     }
 
@@ -192,13 +192,13 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
         $machine_password = extract_machine_password($tdb_secret_machine_password_value);
     }
     else {
-        print("  Unable to retrieve machine account password from tdb file. Please check samba tdb database. Section $section Skipped\n");
+        print("  Unable to retrieve machine account password from tdb file. Please check samba tdb database. Section $section Skipped. If $section is a domain in use, you need to reconfigure it in admin UI\n");
         next;
     }
 
     my $server_name = $ini->val($section, 'server_name');
     if ((lc($server_name) ne lc($machine_account)) && $server_name ne "%h") {
-        print("  Unable to rewrite server_name values, current value is: $server_name, expected is: $machine_account, Section $section Skipped\n");
+        print("  Unable to rewrite server_name values, current value is: $server_name, expected is: $machine_account, Section $section Skipped. If $section is a domain in use, you need to reconfigure it in admin UI\n");
         next;
     }
 
