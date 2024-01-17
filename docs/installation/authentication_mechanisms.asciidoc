@@ -18,13 +18,15 @@ endif::[]
 
 //== Authentication Mechanisms
 
-This section details most of the authentication mechasnisms supported by PacketFence. It walks you through the required steps to properly use an authentication mechanism on your captive portal, for example. For Public Key Infrastructure (PKI) integration, please refer to the PKI Integration section from this document.
+This section details most of the authentication mechanisms supported by PacketFence. It walks you through the required steps to properly use an authentication mechanism on your captive portal, for example. For Public Key Infrastructure (PKI) integration, please refer to the PKI Integration section from this document.
 
 === Microsoft Active Directory (AD)
 
 Go in the Administration interface under _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_.
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
+
+NOTE: If you are running a windows server earlier than *Windows Server 2008* as a domain controller, you'll need to upgrade your windows server. From PacketFence 13.1, we use secure channel to perform ntlm authentication, it is only supported in windows server 2008 and later.
 
 Click *New Domain* and fill in the information about your domain.
 
