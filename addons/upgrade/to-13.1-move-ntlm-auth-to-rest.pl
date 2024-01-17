@@ -28,7 +28,7 @@ use Sys::Hostname;
 my $ini = pf::IniFiles->new(-file => $domain_config_file, -allowempty => 1);
 
 unless (defined $ini) {
-    print("Error loading domain config file. Terminated\n");
+    print("Error loading domain config file. Terminated. Try re-run this script or edit domain settings in admin UI manually. /\n");
     exit;
 }
 
@@ -61,8 +61,6 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
 }
 pf_run("cd /usr/local/pf/archive && tar --warning=no-file-ignored -cvzf $tmp_dirname.tgz $tmp_dirname && rm -rf $tmp_dirname");
 
-print("Stopping winbindd and umount /chroot\n");
-umount_winbindd();
 
 for my $section (grep {/^\S+$/} $ini->Sections()) {
     print("Updating config for section: $section\n");
@@ -75,7 +73,7 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
 
     my $samba_conf_path = "/etc/samba/$section.conf";
     unless (-e $samba_conf_path) {
-        print("  $samba_conf_path not found, skipped.\n");
+        print("  $samba_conf_path not found, skipped. If $section is a domain in use, you need to reconfigure it in admin UI\n");
         next;
     }
 
@@ -112,17 +110,18 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
     }
     if (!defined($ad_fqdn) || $ad_fqdn eq "") {
         if (valid_ip($ad_server)) {
-            print("  Trying to resolve '$ad_server' to a fqdn \n");
+            print("  Trying to resolve '$ad_server' to a fqdn ");
             my $ad_fqdn_from_system = gethostbyaddr(inet_aton($ad_server), AF_INET);
             if (defined($ad_fqdn_from_system) && $ad_fqdn_from_system ne "") {
                 $ad_fqdn = $ad_fqdn_from_system;
             }
             else {
-                print("Nothing. You need to input the AD's FQDN manually here (Run hostname command on the AD server): ");
+                print("Got nothing. You need to input the AD's FQDN manually here (Run hostname command on the AD server): ");
                 $ad_fqdn = <STDIN>;
                 chomp($ad_fqdn);
+                $ad_fqdn=~ s/^\s+|\s+$//g;
             }
-            print("Verify that the fqdn matches with the ip\n");
+            print("  Verify that the fqdn matches with the ip\n");
             my ($ad_fqdn_from_dns, $ip, $msg) = pf::util::dns_resolve($ad_fqdn, $dns_servers);
             if (defined($ip) && ($ip ne $ad_server)) {
                 print("The dns resolution of the fqdn '$ad_fqdn' does not match with the ip of the ad server '$ad_server', the dns returned $ip\n");
@@ -218,6 +217,9 @@ if ($updated) {
     $ini->RewriteConfig();
 }
 
+print("Stopping winbindd and umount /chroot\n");
+umount_winbindd();
+
 sub tdbdump_get_value {
     my ($tdb_file, $key) = @_;
     my $cmd = "/usr/bin/tdbdump $tdb_file -k $key";
@@ -260,9 +262,9 @@ sub extract_machine_password {
 }
 
 sub umount_winbindd {
-    pf_run("sudo systemctl stop packetfence-winbindd");
+    pf_run("sudo systemctl stop packetfence-winbindd 2>/dev/null");
     sleep(3);
-    pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount");
+    pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount 2>/dev/null");
     print("/chroots/* has been umounted. Some sub directories are still in use. They will be removed at the next reboot\n")
 }
 
