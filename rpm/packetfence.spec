@@ -318,6 +318,7 @@ Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
 
 # For NTLM-Auth
 Requires: python3-samba
+Requires: tdb-tools
 # For ntlm_auth_wrapper
 Requires: cjson >= 1.7.14
 
