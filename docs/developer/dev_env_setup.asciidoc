@@ -35,6 +35,7 @@ Next, install PacketFence from the RPM repository:
 yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-99.9.el8.noarch.rpm -y
 yum install kernel-devel-$(uname -r) -y
 yum install packetfence --enablerepo=packetfence --allowerasing
+git config --global --add safe.directory /usr/local/pf
 ----
 
 Now, you must go through the configurator and validate you can login into the admin interface at the end.
