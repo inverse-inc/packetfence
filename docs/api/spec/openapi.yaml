@@ -3370,7 +3370,7 @@ components:
           type: string
         network_logoff:
           default: ~
-          description: This allows users to access the network logoff page (http://172.105.97.105.nip.io/networklogoff)
+          description: This allows users to access the network logoff page (http://packetfence.packetfence.org/networklogoff)
             in order to terminate their network access (switch their device back to
             unregistered)
           type: string
@@ -15398,7 +15398,7 @@ components:
               type: string
           type: object
         id:
-          default: 3000013
+          default: ~
           description: Use a number above 1500000 if you want to be able to delete
             this security event later.
           type: string

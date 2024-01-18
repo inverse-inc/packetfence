@@ -141,7 +141,7 @@ ConfigConnectionProfile:
       type: string
     network_logoff:
       default: ~
-      description: This allows users to access the network logoff page (http://172.105.97.105.nip.io/networklogoff)
+      description: This allows users to access the network logoff page (http://packetfence.packetfence.org/networklogoff)
         in order to terminate their network access (switch their device back to unregistered)
       type: string
     network_logoff_popup:
