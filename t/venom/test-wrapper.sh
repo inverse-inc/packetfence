@@ -252,14 +252,16 @@ destroy() {
     log_subsection "Destroy virtual machine(s)"
 
     if [ "$DESTROY_ALL" = "yes" ]; then
-        echo "Destroy all VM"
+        echo "Destroy all VM and clean all directories"
         destroy_pf_vm
         destroy_other_vm
         delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
         delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}
     else
+        echo "Destroy all VM and clean only PF"
         destroy_pf_vm
         delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
+	destroy_other_vm
     fi
 }
 
