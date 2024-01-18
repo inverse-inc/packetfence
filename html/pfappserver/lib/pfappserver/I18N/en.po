@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 12.2.0\n"
+"Project-Id-Version: 13.1.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2023-02-13 18:55-0400\n"
+"PO-Revision-Date: 2024-01-18 15:26-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -834,19 +834,12 @@ msgstr ""
 msgid "Client ID"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
-msgid "Client Key"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Eduroam.pm
 msgid "Client Port Balance"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Cloud/Intune.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/ibm.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/symantec.pm
 msgid "Client Secret"
 msgstr ""
 
@@ -2024,10 +2017,6 @@ msgstr ""
 msgid "If using the HTTP transport, specify the password for the Palo Alto API"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
-msgid "If you enabled \"Send NTLMv2 Response Only. Refuse LM & NTLM\" (only allow ntlm v2) in Network Security: LAN Manager authentication level"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JuniperSRX.pm
@@ -2306,6 +2295,10 @@ msgstr ""
 msgid "Location of the netdata binary."
 msgstr ""
 
+# conf/documentation.conf (services.ntlm_auth_api_binary)
+msgid "Location of the ntlm_auth_api binary. Only necessary to change if you arenot running the RPMed version."
+msgstr ""
+
 # conf/documentation.conf (services.openssl_binary)
 msgid "Location of the openssl binary. Only necessary to change if you are not running the RPMed version."
 msgstr ""
@@ -2350,16 +2343,8 @@ msgstr ""
 msgid "Location of the snmptrapd binary. Only necessary to change if you are not running the RPMed version. "
 msgstr ""
 
-# conf/documentation.conf (services.tc_binary)
-msgid "Location of the tc binary. Only necessary to change if you are notrunning the RPMed version."
-msgstr ""
-
 # conf/documentation.conf (services.tracking-config_binary)
 msgid "Location of the tracking-config binary."
-msgstr ""
-
-# conf/documentation.conf (services.winbindd_binary)
-msgid "Location of the winbindd binary. Only necessary to change if you arenot running the RPMed version."
 msgstr ""
 
 # html/pfappserver/root/interface/list.tt
@@ -2546,6 +2531,14 @@ msgstr "Nodes - Read"
 # pf::admin_roles (Actions)
 msgid "NODES_UPDATE"
 msgstr "Nodes - Update"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "NTLM auth host"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "NTLM auth port"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "NTLM cache"
@@ -2953,6 +2946,10 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Password / password hash of the machine account"
+msgstr ""
+
 # conf/documentation.conf (mse_tab.pass)
 msgid "Password for MSE service"
 msgstr ""
@@ -2966,8 +2963,20 @@ msgstr ""
 msgid "Password for the username filled in above"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Password is NT Hash"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Password of the machine account to be added to Active Directory."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Potd.pm
 msgid "Password rotation"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Password stored in the config file is NT hash."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
@@ -2998,6 +3007,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 msgid "Path of the client key that will be used to generate the p12"
+msgstr ""
+
+# conf/documentation.conf (advanced.pfupdate_custom_script_path)
+msgid "Path to a custom script called by pfupdate"
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_path)
@@ -3117,10 +3130,6 @@ msgstr ""
 msgid "Please specify an identifier for the security event."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
-msgid "Please specify the Active Directory server"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Mfa/Akamai.pm
 msgid "Please specify the Application ID"
 msgstr ""
@@ -3149,6 +3158,10 @@ msgstr ""
 msgid "Please specify the Description Provisioning entry."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the FQDN of the Active Directory server"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the FQDN of the portal."
 msgstr ""
@@ -3159,6 +3172,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Please specify the IP address/MAC address/Range (CIDR) of the switch."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the IPv4 of the Active Directory server"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
@@ -3222,6 +3239,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Rapid7.pm
 msgid "Please specify the hostname or IP of the scan engine"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the machine account password"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
@@ -3583,10 +3604,6 @@ msgstr "Reports"
 msgid "REPORTS_READ"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
-msgid "Raise the non compliance security event the number of critical issues is greater or equal than this. 0 deactivates it"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Random"
 msgstr ""
@@ -3715,7 +3732,6 @@ msgid "Require the user to accept the AUP"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
-# html/pfappserver/lib/pfappserver/Form/Config/TrafficShaping.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
@@ -4199,6 +4215,10 @@ msgstr ""
 msgid "Should Fingerbank interact with WWW using a proxy ?"
 msgstr ""
 
+# conf/documentation.conf (services.kafka)
+msgid "Should Kafka be started? Keep disabled unless you know what you're doing."
+msgstr ""
+
 # conf/documentation.conf (services.api-frontend)
 msgid "Should api-frontend be managed by PacketFence?"
 msgstr ""
@@ -4239,10 +4259,6 @@ msgstr ""
 msgid "Should httpd.admin_dispatcher be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
-# conf/documentation.conf (services.httpd_collector)
-msgid "Should httpd.collector be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
 # conf/documentation.conf (services.httpd_dispatcher)
 msgid "Should httpd.dispatcher be started? Keep enabled unless you know what you're doing."
 msgstr ""
@@ -4281,6 +4297,10 @@ msgstr ""
 
 # conf/documentation.conf (services.netdata)
 msgid "Should netdata be managed by PacketFence?"
+msgstr ""
+
+# conf/documentation.conf (services.ntlm-auth-api)
+msgid "Should ntlm-auth-api be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (services.pfacct)
@@ -4329,6 +4349,14 @@ msgstr ""
 
 # conf/documentation.conf (services.pfqueue)
 msgid "Should pfqueue be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.pfqueue-backend)
+msgid "Should pfqueue-backend be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.pfqueue-go)
+msgid "Should pfqueue-go be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (services.pfsso)
@@ -4395,16 +4423,8 @@ msgstr ""
 msgid "Should tracking-config be managed by PacketFence?"
 msgstr ""
 
-# conf/documentation.conf (services.tc)
-msgid "Should traffic shaping be managed by PacketFence?"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes ?"
-msgstr ""
-
-# conf/documentation.conf (services.winbindd)
-msgid "Should winbindd be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Choice.pm
@@ -4577,26 +4597,6 @@ msgstr ""
 msgid "System's timezone in string format. List generated from Perl library DataTime::TimeZoneWhen left empty, it will use the timezone of the server"
 msgstr ""
 
-# pf::admin_roles (Actions groups)
-msgid "TRAFFIC_SHAPING"
-msgstr "Traffic Shaping"
-
-# pf::admin_roles (Actions)
-msgid "TRAFFIC_SHAPING_CREATE"
-msgstr "Traffic Shaping - Create"
-
-# pf::admin_roles (Actions)
-msgid "TRAFFIC_SHAPING_DELETE"
-msgstr "Traffic Shaping - Delete"
-
-# pf::admin_roles (Actions)
-msgid "TRAFFIC_SHAPING_READ"
-msgstr "Traffic Shaping - Read"
-
-# pf::admin_roles (Actions)
-msgid "TRAFFIC_SHAPING_UPDATE"
-msgstr "Traffic Shaping - Update"
-
 # html/pfappserver/lib/pfappserver/Form/Config/SwitchImport.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -4667,12 +4667,16 @@ msgstr ""
 msgid "The EAP configuration to use for this realm"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "The FQDN of the Active Directory server"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "The ID of the Switch"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
-msgid "The IP address or DNS name of your Active Directory server"
+msgid "The IP address of NTLM auth API"
 msgstr ""
 
 # conf/documentation.conf (captive_portal.ip_address)
@@ -4681,6 +4685,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The IP address(es) of the DNS server(s) for this domain. Comma delimited if multiple."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "The IPv4 of the Active Directory server"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
@@ -4851,6 +4859,10 @@ msgstr ""
 msgid "The list of roles that are allowed to unregister devices using the self-service portal. Leaving this empty will allow all users to unregister their devices."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "The listening port of NTLM auth API."
+msgstr ""
+
 # conf/documentation.conf (database_advanced.masterslave)
 msgid "The masterslave configuration to enable or disable the master/slave configuration."
 msgstr ""
@@ -4984,10 +4996,6 @@ msgstr ""
 msgid "The redis server that the pfconnector should use. Only change if you know what you're doing."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/TrafficShaping.pm
-msgid "The role to apply traffic shaping"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/SelfService.pm
 msgid "The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used. If multiples are defined then the user will have to choose"
 msgstr ""
@@ -5038,6 +5046,10 @@ msgstr ""
 
 # conf/documentation.conf (services_url.pfipset)
 msgid "The service URL for pfipset"
+msgstr ""
+
+# conf/documentation.conf (services_url.pfldapexplorer)
+msgid "The service URL for pfldapexplorer"
 msgstr ""
 
 # conf/documentation.conf (services_url.pfperl-api)
@@ -6103,6 +6115,10 @@ msgid "advanced.pfperl_api_timeout"
 msgstr ""
 
 # conf/documentation.conf
+msgid "advanced.pfupdate_custom_script_path"
+msgstr ""
+
+# conf/documentation.conf
 msgid "advanced.portal_csp_security_headers"
 msgstr "CSP headers for Captive portal"
 
@@ -6724,15 +6740,16 @@ msgstr ""
 # conf/documentation.conf (services.haproxy-portal options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin_dispatcher options)
-# conf/documentation.conf (services.httpd_collector options)
 # conf/documentation.conf (services.httpd_dispatcher options)
 # conf/documentation.conf (services.httpd_portal options)
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.ip6tables options)
 # conf/documentation.conf (services.iptables options)
+# conf/documentation.conf (services.kafka options)
 # conf/documentation.conf (services.keepalived options)
 # conf/documentation.conf (services.mysql-probe options)
 # conf/documentation.conf (services.netdata options)
+# conf/documentation.conf (services.ntlm-auth-api options)
 # conf/documentation.conf (services.pfacct options)
 # conf/documentation.conf (services.pfconnector-client options)
 # conf/documentation.conf (services.pfconnector-server options)
@@ -6745,6 +6762,8 @@ msgstr ""
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfpki options)
 # conf/documentation.conf (services.pfqueue options)
+# conf/documentation.conf (services.pfqueue-backend options)
+# conf/documentation.conf (services.pfqueue-go options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.pfstats options)
 # conf/documentation.conf (services.proxysql options)
@@ -6756,9 +6775,7 @@ msgstr ""
 # conf/documentation.conf (services.redis_ntlm_cache options)
 # conf/documentation.conf (services.redis_queue options)
 # conf/documentation.conf (services.snmptrapd options)
-# conf/documentation.conf (services.tc options)
 # conf/documentation.conf (services.tracking-config options)
-# conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (snmp_traps.trap_limit options)
 msgid "disabled"
 msgstr ""
@@ -6926,15 +6943,16 @@ msgstr ""
 # conf/documentation.conf (services.haproxy-portal options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin_dispatcher options)
-# conf/documentation.conf (services.httpd_collector options)
 # conf/documentation.conf (services.httpd_dispatcher options)
 # conf/documentation.conf (services.httpd_portal options)
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.ip6tables options)
 # conf/documentation.conf (services.iptables options)
+# conf/documentation.conf (services.kafka options)
 # conf/documentation.conf (services.keepalived options)
 # conf/documentation.conf (services.mysql-probe options)
 # conf/documentation.conf (services.netdata options)
+# conf/documentation.conf (services.ntlm-auth-api options)
 # conf/documentation.conf (services.pfacct options)
 # conf/documentation.conf (services.pfconnector-client options)
 # conf/documentation.conf (services.pfconnector-server options)
@@ -6947,6 +6965,8 @@ msgstr ""
 # conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfpki options)
 # conf/documentation.conf (services.pfqueue options)
+# conf/documentation.conf (services.pfqueue-backend options)
+# conf/documentation.conf (services.pfqueue-go options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.pfstats options)
 # conf/documentation.conf (services.proxysql options)
@@ -6958,9 +6978,7 @@ msgstr ""
 # conf/documentation.conf (services.redis_ntlm_cache options)
 # conf/documentation.conf (services.redis_queue options)
 # conf/documentation.conf (services.snmptrapd options)
-# conf/documentation.conf (services.tc options)
 # conf/documentation.conf (services.tracking-config options)
-# conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (snmp_traps.trap_limit options)
 msgid "enabled"
 msgstr ""
@@ -7147,12 +7165,8 @@ msgstr "Host"
 msgid "hours"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/ibm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/intune.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/kandji.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/servicenow.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/symantec.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/HTTP.pm
 msgid "http"
 msgstr ""
@@ -7165,10 +7179,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Source/HTTP.pm
 msgid "https"
 msgstr ""
-
-# pf::provisioner (Provisioners)
-msgid "ibm"
-msgstr "IBM"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "ifindex"
@@ -7368,6 +7378,13 @@ msgstr ""
 # pf::Authentication::Source::GoogleWorkspaceLDAPSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "memberOf"
+msgstr ""
+
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::EDIRSource (available_attributes)
+# pf::Authentication::Source::GoogleWorkspaceLDAPSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "memberOf:1.2.840.113556.1.4.1941"
 msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
@@ -7578,14 +7595,6 @@ msgstr ""
 # conf/documentation.conf (advanced.hash_passwords options)
 msgid "ntlm"
 msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
-msgid "ntlmv2 only"
-msgstr ""
-
-# pf::provisioner (Provisioners)
-msgid "opswat"
-msgstr "OPSWAT"
 
 # pf::dhcp_option82 (DHCP Option 82)
 msgid "option82_switch"
@@ -8271,10 +8280,6 @@ msgstr "SentinelOne"
 msgid "servicePrincipalName"
 msgstr ""
 
-# pf::provisioner (Provisioners)
-msgid "servicenow"
-msgstr ""
-
 # conf/documentation.conf
 msgid "services"
 msgstr "Services"
@@ -8340,10 +8345,6 @@ msgid "services.httpd_binary"
 msgstr "httpd path"
 
 # conf/documentation.conf
-msgid "services.httpd_collector"
-msgstr "httpd.collector"
-
-# conf/documentation.conf
 msgid "services.httpd_dispatcher"
 msgstr "httpd.dispatcher"
 
@@ -8372,6 +8373,10 @@ msgid "services.iptables_binary"
 msgstr "iptables path"
 
 # conf/documentation.conf
+msgid "services.kafka"
+msgstr ""
+
+# conf/documentation.conf
 msgid "services.keepalived"
 msgstr "Keepalived"
 
@@ -8393,6 +8398,14 @@ msgstr "netdata path"
 
 # conf/documentation.conf
 msgid "services.netflow_address"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.ntlm-auth-api"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.ntlm_auth_api_binary"
 msgstr ""
 
 # conf/documentation.conf
@@ -8472,6 +8485,14 @@ msgid "services.pfqueue"
 msgstr "pfqueue"
 
 # conf/documentation.conf
+msgid "services.pfqueue-backend"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.pfqueue-go"
+msgstr ""
+
+# conf/documentation.conf
 msgid "services.pfsso"
 msgstr "pfsso"
 
@@ -8540,28 +8561,12 @@ msgid "services.snmptrapd_binary"
 msgstr "snmptrapd path"
 
 # conf/documentation.conf
-msgid "services.tc"
-msgstr "tc"
-
-# conf/documentation.conf
-msgid "services.tc_binary"
-msgstr "tc path"
-
-# conf/documentation.conf
 msgid "services.tracking-config"
 msgstr ""
 
 # conf/documentation.conf
 msgid "services.tracking-config_binary"
 msgstr ""
-
-# conf/documentation.conf
-msgid "services.winbindd"
-msgstr "winbindd"
-
-# conf/documentation.conf
-msgid "services.winbindd_binary"
-msgstr "winbindd path"
 
 # conf/documentation.conf
 msgid "services_url"
@@ -8605,6 +8610,10 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "services_url.pfipset"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services_url.pfldapexplorer"
 msgstr ""
 
 # conf/documentation.conf
@@ -8738,10 +8747,6 @@ msgstr "Switch IP Address"
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "switch_mac"
 msgstr "Switch MAC"
-
-# pf::provisioner (Provisioners)
-msgid "symantec"
-msgstr "Symantec App Center"
 
 # pf::Switch::constants (Modes)
 msgid "testing"
@@ -8926,3 +8931,4 @@ msgstr ""
 # conf/documentation.conf (node_import.voip options)
 msgid "yes"
 msgstr ""
+
