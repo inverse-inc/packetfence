@@ -65,6 +65,13 @@ halt_pf_force:
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	./test-wrapper.sh halt_force
 
+teardown:
+	PF_VM_NAMES="$(PF_VM_NAMES)" \
+	CLUSTER_NAME="$(CLUSTER_NAME)" \
+	RESULT_DIR=$(RESULT_DIR) \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	./test-wrapper.sh teardown
+
 clean: clean_pf clean_cache
 
 clean_pf:
