@@ -622,7 +622,7 @@ func RevokeCert(pfpki *types.Handler) http.HandlerFunc {
 
 		Error := types.Errors{Status: 0}
 
-		vars := types.Params(req, "id", "cn", "profile")
+		vars := types.Params(req, "id", "cn", "profile", "reason")
 		if _, ok := vars["cn"]; ok {
 			delete(vars, "id")
 		}
