@@ -28,6 +28,9 @@ log_section "Replace /usr/local/pf by git repository"
 mv /usr/local/pf /usr/local/pf-pkg
 git clone https://github.com/inverse-inc/packetfence /usr/local/pf
 
+log_section "Set the safe.directory in git"
+git config --global --add safe.directory /usr/local/pf
+
 cd /usr/local/pf/
 
 BRANCH=${BRANCH:-devel}
