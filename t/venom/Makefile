@@ -65,7 +65,8 @@ halt_pf_force:
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	./test-wrapper.sh halt_force
 
-teardown:
+teardown: teardown_pf clean_cache
+teardown_pf:
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
 	CLUSTER_NAME="$(CLUSTER_NAME)" \
 	RESULT_DIR=$(RESULT_DIR) \
@@ -221,9 +222,9 @@ inline_l2_and_radius_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01 node03" \
+
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
-
 inline_l2_and_radius_deb11:
 	make \
 	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
