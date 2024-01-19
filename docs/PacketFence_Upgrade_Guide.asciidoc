@@ -1833,7 +1833,23 @@ wget https://github.com/inverse-inc/packetfence/files/10897043/rc-local.patch
 patch /etc/rc.local /tmp/rc-local.patch
 ----
 
+
 == Upgrading from a version prior to 13.0.0
+
+=== Adding the LDAP search attributes
+
+LDAP conditions added in the LDAP authentication source use a LDAP search to retrieve the values.
+
+=== Switch types conversion
+
+Two switch types will be converted to the new way of defining a switch. Now, a switch could be defined according the OS and not only the model.
+
+=== Some unused or outdated provisionners will be removed
+
+The following provisioners will be removed from Packetfence configuration IBM, ServiceNow, SEPM, Symantec, Opswat
+
+
+== Upgrading from a version prior to 13.1.0
 
 === Domain join
 
@@ -1878,20 +1894,6 @@ For each remaining server in the cluster:
 
 4. Click Save
 
-
-=== Adding the LDAP search attributes
-
-LDAP conditions added in the LDAP authentication source use a LDAP search to retrieve the values.
-
-=== Switch types conversion
-
-Two switch types will be converted to the new way of defining a switch. Now, a switch could be defined according the OS and not only the model.
-
-=== Some unused or outdated provisionners will be removed
-
-The following provisioners will be removed from Packetfence configuration IBM, ServiceNow, SEPM, Symantec, Opswat
-
-== Upgrading from a version prior to X.Y.Z
 
 == Archived upgrade notes
 

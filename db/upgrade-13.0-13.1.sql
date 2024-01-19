@@ -60,22 +60,22 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 --
 
 CREATE TABLE IF NOT EXISTS `pki_scep_servers` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `deleted_at` datetime(3) DEFAULT NULL,
-  `name` varchar(191) DEFAULT NULL,
-  `url` longtext DEFAULT NULL,
-  `shared_secret` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `idx_pki_scep_servers_deleted_at` (`deleted_at`)
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `created_at` datetime(3) DEFAULT NULL,
+    `updated_at` datetime(3) DEFAULT NULL,
+    `deleted_at` datetime(3) DEFAULT NULL,
+    `name` varchar(191) DEFAULT NULL,
+    `url` longtext DEFAULT NULL,
+    `shared_secret` longtext DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `name` (`name`),
+    KEY `idx_pki_scep_servers_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 --
 -- Default values for pki_scep_servers table
 --
 
-INSERT INTO `pki_scep_servers` VALUES (1,'2023-11-09 10:36:34.489','2023-11-09 10:36:34.489',NULL,'Null','http://127.0.0.1','password');
+INSERT IGNORE INTO `pki_scep_servers` VALUES (1,'2023-11-09 10:36:34.489','2023-11-09 10:36:34.489',NULL,'Null','http://127.0.0.1','password');
 
 \! echo "altering pki_cas"
 ALTER TABLE `pki_cas`
