@@ -4,7 +4,7 @@
 # 
 # Translators:
 # Alessio <alessio.leonarduzzi@gmail.com>, 2013
-# Antonino Calio' <ballot1982@gmail.com>, 2021
+# Antonino <ballot1982@gmail.com>, 2021
 # anzelu fais <afais@tiscali.it>, 2016
 # eb3636d0cd085dc945aaabdcb73fa72d, 2018
 # c.mammoli <c.mammoli@apra.it>, 2017
