@@ -1894,6 +1894,7 @@ For each remaining server in the cluster:
 
 4. Click Save
 
+== Upgrading from a version prior to X.Y.Z
 
 == Archived upgrade notes
 
