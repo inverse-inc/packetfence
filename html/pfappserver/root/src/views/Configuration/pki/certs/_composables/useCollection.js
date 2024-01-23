@@ -35,6 +35,14 @@ export const useItemTitle = (props) => {
   })
 }
 
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Creating or modifying the PKI configuration requires services restart.'),
+    services: ['pfpki'],
+    k8s_services: ['pfpki']
+  }
+})
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
