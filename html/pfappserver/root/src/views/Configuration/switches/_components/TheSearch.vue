@@ -221,7 +221,7 @@ const setup = (props, context) => {
         precreateItemAcls({ id }).then(() => {
           $store.dispatch('notification/info', { message: i18n.t('Successfully precreated ACLs on switch <code>{id}</code>.', { id }) })
         }).catch(() => {
-          $store.dispatch('notification/info', { message: i18n.t('Failed to precreate ACLs for on <code>{id}</code>.', { id }) })
+          $store.dispatch('notification/info', { message: i18n.t('Failed to precreate ACLs on switch <code>{id}</code>.', { id }) })
         })
       })
     })
