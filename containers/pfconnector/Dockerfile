@@ -13,7 +13,7 @@ COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
 RUN cd /usr/local/pf/go/ &&  make pfconnector
 
-FROM scratch
+FROM busybox:latest
 WORKDIR /usr/local/pf/
 COPY ./config.mk /usr/local/pf/config.mk
 COPY --from=0 /usr/local/pf/go/pfconnector /usr/local/pf/sbin/pfconnector

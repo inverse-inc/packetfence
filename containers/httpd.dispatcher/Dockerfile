@@ -24,7 +24,7 @@ RUN apt install nodejs -y && \
     make vendor  && \
     make light-dist
 
-FROM scratch
+FROM busybox:latest
 WORKDIR /usr/local/pf/
 COPY --from=0 /usr/local/pf/html /usr/local/pf/html
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd

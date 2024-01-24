@@ -13,7 +13,7 @@ COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
 RUN cd /usr/local/pf/go/ &&  make pfhttpd
 
-FROM scratch
+FROM busybox:latest
 
 WORKDIR /usr/local/pf/
 
