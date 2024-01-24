@@ -11,7 +11,7 @@ import (
 )
 
 type ConnInfo struct {
-	Pid int `json:pid`
+	Pid int `json:"pid"`
 }
 
 type BackendConn struct {

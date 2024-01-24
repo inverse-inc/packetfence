@@ -225,7 +225,7 @@ type (
 		DB           gorm.DB         `json:"-" gorm:"-"`
 		Ctx          context.Context `json:"-" gorm:"-"`
 		Name         string          `json:"name,omitempty" gorm:"UNIQUE"`
-		URL          string          `json:"url,omitempty""`
+		URL          string          `json:"url,omitempty"`
 		SharedSecret string          `json:"shared_secret,omitempty"`
 	}
 )

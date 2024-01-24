@@ -17,7 +17,7 @@ import (
 
 var logs pfconfigdriver.SyslogFiles
 
-func (h LogTailerHandler) optionsSessions(c *gin.Context) {
+func (h *LogTailerHandler) optionsSessions(c *gin.Context) {
 	pfconfigdriver.FetchDecodeSocketCache(c, &logs)
 	files := []gin.H{}
 
@@ -60,7 +60,7 @@ func (h LogTailerHandler) optionsSessions(c *gin.Context) {
 	})
 }
 
-func (h LogTailerHandler) createNewSession(c *gin.Context) {
+func (h *LogTailerHandler) createNewSession(c *gin.Context) {
 	h.sessionsLock.Lock()
 	defer h.sessionsLock.Unlock()
 
@@ -100,7 +100,7 @@ func (h LogTailerHandler) createNewSession(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Tailing session started", "session_id": sessionId})
 }
 
-func (h LogTailerHandler) getSession(c *gin.Context) {
+func (h *LogTailerHandler) getSession(c *gin.Context) {
 	func() {
 		h.sessionsLock.RLock()
 		defer h.sessionsLock.RUnlock()
@@ -132,7 +132,7 @@ func (h LogTailerHandler) getSession(c *gin.Context) {
 	h.eventsManager.SubscriptionHandler(c.Writer, c.Request)
 }
 
-func (h LogTailerHandler) touchSession(c *gin.Context) {
+func (h *LogTailerHandler) touchSession(c *gin.Context) {
 	h.sessionsLock.RLock()
 	defer h.sessionsLock.RUnlock()
 
@@ -148,7 +148,7 @@ func (h LogTailerHandler) touchSession(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Touched session"})
 }
 
-func (h LogTailerHandler) deleteSession(c *gin.Context) {
+func (h *LogTailerHandler) deleteSession(c *gin.Context) {
 	h.sessionsLock.Lock()
 	defer h.sessionsLock.Unlock()
 
@@ -161,7 +161,7 @@ func (h LogTailerHandler) deleteSession(c *gin.Context) {
 	}
 }
 
-func (h LogTailerHandler) _deleteSession(sessionId string, session *TailingSession) {
+func (h *LogTailerHandler) _deleteSession(sessionId string, session *TailingSession) {
 	session.Stop()
 	delete(h.sessions, sessionId)
 }

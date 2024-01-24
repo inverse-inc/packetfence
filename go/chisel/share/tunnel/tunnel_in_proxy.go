@@ -101,6 +101,7 @@ func (p *Proxy) runStdio(ctx context.Context) error {
 
 func (p *Proxy) runTCP(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	done := make(chan struct{})
 	//implements missing net.ListenContext
 	go func() {
@@ -161,7 +162,6 @@ func (p *Proxy) runTCP(ctx context.Context) error {
 				}
 
 				p.Infof("Closing due to inactivity timeout")
-				cancel()
 				p.tcp.Close()
 				return nil
 			}

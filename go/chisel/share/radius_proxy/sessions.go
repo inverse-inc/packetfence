@@ -31,15 +31,16 @@ func NewRadiusSession(id string, timeout time.Duration, backend *Backend) *Radiu
 
 func (sb *SessionBackend) Cleanup(tick time.Duration, stop chan struct{}) {
 	ticker := time.NewTicker(tick)
+loop:
 	for {
 		select {
 		case <-ticker.C:
 			sb.cleanup()
 		case <-stop:
-			break
+			ticker.Stop()
+			break loop
 		}
 	}
-	ticker.Stop()
 }
 
 func (sb *SessionBackend) GetBackend(packet *radius.Packet) *Backend {

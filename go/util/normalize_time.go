@@ -38,5 +38,4 @@ func NormalizeTime(spec string) (time.Duration, error) {
 	case "Y":
 		return time.Duration(i) * time.Hour * 24 * 365, nil
 	}
-	return 0, err
 }

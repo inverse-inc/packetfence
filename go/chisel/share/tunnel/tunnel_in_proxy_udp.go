@@ -67,6 +67,7 @@ func (u *udpListener) run(ctx context.Context) error {
 	//and therefore only needs to listen
 	eg, ctx := errgroup.WithContext(ctx)
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	eg.Go(func() error {
 		return u.runInbound(ctx)
 	})
