@@ -13,7 +13,7 @@ COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
 RUN cd /usr/local/pf/go/ &&  make pfacct
 
-FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+FROM scratch
 
 WORKDIR /usr/local/pf/
 

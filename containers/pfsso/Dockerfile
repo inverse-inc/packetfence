@@ -13,7 +13,7 @@ COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
 RUN cd /usr/local/pf/go/ &&  make pfhttpd
 
-FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+FROM scratch
 WORKDIR /usr/local/pf/
 COPY ./config.mk /usr/local/pf/config.mk
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd

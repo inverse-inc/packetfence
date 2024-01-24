@@ -15,7 +15,7 @@ COPY ./Makefile /usr/local/pf/Makefile
 RUN cd /usr/local/pf/go/ && \
     make pfhttpd
 
-FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+FROM scratch
 WORKDIR /usr/local/pf/
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 ENTRYPOINT /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfpki.conf -log-name=pfpki

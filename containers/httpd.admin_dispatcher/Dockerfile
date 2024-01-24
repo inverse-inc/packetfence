@@ -47,7 +47,7 @@ RUN if [[ "$BUILD_PFAPPSERVER_VUE" == "yes" ]]; then \
       mkdir -p /usr/local/pf/html ; \
     fi
 
-FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+FROM scratch
 WORKDIR /usr/local/pf/
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 COPY --from=0 /usr/local/pf/go/httpdispatcher /usr/local/pf/sbin/httpdispatcher
