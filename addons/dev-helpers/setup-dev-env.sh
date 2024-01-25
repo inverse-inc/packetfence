@@ -31,6 +31,10 @@ git clone https://github.com/inverse-inc/packetfence /usr/local/pf
 log_section "Set the safe.directory in git"
 git config --global --add safe.directory /usr/local/pf
 
+log_section "install epel and required header files"
+dnf install -y epel-release
+dnf install -y libcurl-devel cjson-devel
+
 cd /usr/local/pf/
 
 BRANCH=${BRANCH:-devel}
