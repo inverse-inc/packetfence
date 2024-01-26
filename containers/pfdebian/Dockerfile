@@ -1,4 +1,4 @@
-FROM debian:11
+FROM debian:11-slim
 
 RUN apt-get update && apt-get install -y aptitude wget gnupg
 
