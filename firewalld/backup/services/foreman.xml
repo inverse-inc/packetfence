@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>foreman</short>
+  <description>Foreman is a complete lifecycle management tool for physical and virtual servers.</description>
+  <include service="dns"/>
+  <include service="http"/>
+  <include service="https"/>
+  <include service="dhcp"/>
+  <include service="tftp"/>
+  <port protocol="udp" port="68"/>
+  <port protocol="tcp" port="8140"/>
+</service>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>BitTorrent Local Peer Discovery (LSD)</short>
+  <description>Local Peer Discovery is a protocol designed to support the discovery of BitTorrent peers on a local area network. Enable this service if you run a BitTorrent client.</description>
+  <port protocol="udp" port="6771"/>
+  <destination ipv4="239.192.152.143" ipv6="ff15::efc0:988f"/>
+</service>

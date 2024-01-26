@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>DNS</short>
+  <description>The Domain Name System (DNS) is used to provide and request host and domain names. Enable this option, if you plan to provide a domain name service (e.g. with bind).</description>
+  <port protocol="tcp" port="53"/>
+  <port protocol="udp" port="53"/>
+</service>

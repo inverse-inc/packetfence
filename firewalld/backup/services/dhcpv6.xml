@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>DHCPv6</short>
+  <description>This allows a DHCPv6 server to accept messages from DHCPv6 clients and relay agents.</description>
+  <port protocol="udp" port="547"/>
+</service>

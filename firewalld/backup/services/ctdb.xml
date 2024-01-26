@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>CTDB</short>
+  <description>CTDB is a cluster implementation of the TDB database used by Samba and other projects to store temporary data.</description>
+  <port protocol="tcp" port="4379"/>
+  <port protocol="udp" port="4379"/>
+</service>

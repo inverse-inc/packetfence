@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>OpenVPN</short>
+  <description>OpenVPN is a virtual private network (VPN) solution. It is used to create encrypted point-to-point tunnels between computers. If you plan to provide a VPN service, enable this option.</description>
+  <port protocol="udp" port="1194"/>
+</service>

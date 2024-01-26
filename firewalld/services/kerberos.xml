@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Kerberos</short>
+  <description>Kerberos network authentication protocol server</description>
+  <port protocol="tcp" port="88"/>
+  <port protocol="udp" port="88"/>
+</service>

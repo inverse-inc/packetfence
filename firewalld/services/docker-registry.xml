@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Docker Registry</short>
+  <description>Docker Registry is the protocol used to serve Docker images. If you plan to make your Docker Registry server publicly available, enable this option. This option is not required for developing Docker images locally.</description>
+  <port protocol="tcp" port="5000"/>
+</service>

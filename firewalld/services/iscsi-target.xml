@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>iSCSI target</short>
+  <description>Internet SCSI target is a storage resource located on an iSCSI server.</description>
+  <port protocol="tcp" port="3260"/>
+  <port protocol="udp" port="3260"/>
+</service>

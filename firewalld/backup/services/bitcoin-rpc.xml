@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Bitcoin RPC</short>
+  <description>Enable this option if you need access to the Bitcoin RPC interface.  This is not required when connecting on localhost.</description>
+  <port protocol="tcp" port="8332"/>
+</service>

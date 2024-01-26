@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>TTL Zero During Reassembly</short>
+  <description>This error message is sent if a host fails to reassemble a fragmented datagram within its time limit.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="yes"/>
+</icmptype>

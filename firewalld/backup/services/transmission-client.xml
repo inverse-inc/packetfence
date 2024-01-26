@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Transmission</short>
+  <description>Transmission is a lightweight BitTorrent client.</description>
+  <port protocol="tcp" port="51413"/>
+  <port protocol="udp" port="51413"/>
+</service>

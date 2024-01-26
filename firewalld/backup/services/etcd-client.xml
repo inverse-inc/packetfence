@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>etcd Client</short>
+  <description>etcd implements a distributed key value store that provides a reliably way to store data across a cluster of machines. This is the client side port.</description>
+  <port port="2379" protocol="tcp"/>
+</service>

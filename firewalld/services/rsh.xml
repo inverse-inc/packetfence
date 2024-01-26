@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>rsh</short>
+  <description>Rsh is a protocol for logging into remote machines. It is unencrypted, and provides little security from network snooping attacks. Enabling rsh is not recommended.</description>
+  <port port="514" protocol="tcp"/>
+</service>

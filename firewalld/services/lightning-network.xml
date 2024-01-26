@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Lightning Network</short>
+  <description>The default port used by Lightning Network.  Enable this option if you plan to be a Lightning Network node.</description>
+  <port protocol="tcp" port="9735"/>
+</service>

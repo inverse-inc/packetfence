@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>mqtt-tls</short>
+  <description>The Message Queuing Telemetry Transport (MQTT) is a machine-to-machine connectivity protocol. This variant of the protocol uses TLS encryption.</description>
+  <port port="8883" protocol="tcp"/>
+</service>

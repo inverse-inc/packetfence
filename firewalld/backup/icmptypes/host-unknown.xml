@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Host Unknown</short>
+  <description>This error message is sent if the destination host is unknown.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

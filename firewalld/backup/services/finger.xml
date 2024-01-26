@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>finger</short>
+  <description>Finger is a protocol for obtaining information about users on remote hosts.</description>
+  <port port="79" protocol="tcp"/>
+</service>

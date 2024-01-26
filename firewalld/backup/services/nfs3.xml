@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>NFS3</short>
+  <description>The NFS3 protocol is used to share files. You will need to have the NFS tools installed and properly configure your NFS server for this option to be useful.</description>
+  <port protocol="tcp" port="2049"/>
+  <port protocol="udp" port="2049"/>
+</service>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Bitcoin testnet</short>
+  <description>The default port used by Bitcoin testnet.  Enable this option if you plan to be a Bitcoin full node on the test network.</description>
+  <port protocol="tcp" port="18333"/>
+</service>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>NRPE</short>
+  <description>NRPE allows you to execute Nagios plugins on a remote host in as transparent a manner as possible.</description>
+  <port protocol="tcp" port="5666"/>
+</service>

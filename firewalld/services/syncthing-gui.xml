@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Syncthing GUI</short>
+  <description>Enable this option in addition to the Syncthing option to allow traffic to the Syncthing web interface. (Be sure to secure it accordingly).</description>
+  <port protocol="tcp" port="8384"/>
+</service>

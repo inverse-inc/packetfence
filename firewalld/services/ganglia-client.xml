@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>ganglia-client</short>
+  <description>Ganglia monitoring daemon</description>
+  <port protocol="tcp" port="8660"/>
+</service>

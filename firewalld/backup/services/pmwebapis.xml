@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Secure performance metrics web API (pmwebapis)</short>
+  <description>This option allows web clients to use PCP (Performance Co-Pilot) monitoring services over a secure connection. If you need to allow remote web clients to connect to your machine to monitor aspects of its performance, and you consider that information to be sensitive, enable this option. You need the pcp package installed for this option to be useful.</description>
+  <port protocol="tcp" port="44324"/>
+</service>

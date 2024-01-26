@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Neighbour Solicitation (Neighbor Solicitation)</short>
+  <description>This informational message is sent by a node to determine the link-layer address of a neighbor, or to verify that a neighbor is still reachable via a cached link-layer address. Neighbor Solicitations are also used for Duplicate Address Detection.</description>
+  <destination ipv4="no"/>
+  <destination ipv6="yes"/>
+</icmptype>

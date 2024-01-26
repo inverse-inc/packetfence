@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Elasticsearch</short>
+  <description>Elasticsearch is a distributed, open source search and analytics engine, designed for horizontal scalability, reliability, and easy management.</description>
+  <port protocol="tcp" port="9300"/>
+  <port protocol="tcp" port="9200"/>
+</service>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>apcupsd</short>
+  <description>The American Power Conversion (APC) uninterruptible power supply (UPS) daemon protocol allows to monitor and control APC UPS devices.</description>
+  <port port="3551" protocol="tcp"/>
+</service>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Matrix</short>
+  <description>Matrix is an ambitious new ecosystem for open federated Instant Messaging and VoIP. Port 443 is the 'client' port, whereas port 8448 is the Federation port. Federation is the process by which users on different servers can participate in the same room.</description>
+  <include service="https"/>
+  <port port="8448" protocol="tcp"/>
+</service>

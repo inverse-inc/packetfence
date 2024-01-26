@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>TFTP Client</short>
+  <description>This option allows you to access Trivial File Transfer Protocol (TFTP) servers. You need the tftp package installed for this option to be useful.</description>
+  <helper name="tftp"/>
+</service>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Kpasswd</short>
+  <description>Kerberos password (Kpasswd) server</description>
+  <port protocol="tcp" port="464"/>
+  <port protocol="udp" port="464"/>
+</service>

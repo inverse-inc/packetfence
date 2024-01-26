@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>ManageSieve</short>
+  <description>The ManageSieve Protocol allows a local client to manage eMail sieve scripts on a remote server. If you plan to provide a ManageSieve service (e.g. with dovecot pigeonhole), enable this option.</description>
+  <port protocol="tcp" port="4190"/>
+</service>

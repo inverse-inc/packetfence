@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Virtual Machine Management</short>
+  <description>Enable this option if you want to allow remote virtual machine management with SASL authentication and encryption (digest-md5 passwords or GSSAPI/Kerberos). The libvirtd service is needed for this option to be useful.</description>
+  <port protocol="tcp" port="16509"/>
+</service>

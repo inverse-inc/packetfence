@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>nmea-0183</short>
+  <description>NMEA-0183 Navigational Data server for use with Global Navigation Satellite System (GNSS) devices.</description>
+  <port protocol="tcp" port="10110" />
+  <port protocol="udp" port="10110" />
+</service>

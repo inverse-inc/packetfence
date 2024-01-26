@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Network Printing Server (IPP)</short>
+  <description>The Internet Printing Protocol (IPP) is used for distributed printing. IPP (over tcp) provides the ability to share printers over the network. Enable this option if you plan to share printers via cups over the network.</description>
+  <port protocol="tcp" port="631"/>
+  <port protocol="udp" port="631"/>
+</service>

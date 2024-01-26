@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>WWW (HTTPS PF ADMIN)</short>
+  <description>Get access to packetfence admin.</description>
+  <port protocol="tcp" port="1443"/>
+</service>

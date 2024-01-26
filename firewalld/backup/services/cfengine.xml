@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>CFEngine</short>
+  <description>CFEngine server</description>
+  <port protocol="tcp" port="5308"/>
+</service>

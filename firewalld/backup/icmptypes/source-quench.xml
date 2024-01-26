@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Source Quench</short>
+  <description>This error message is generated to tell a host to reduce the pace at which it is sending packets.</description>
+  <destination ipv4="yes"/>
+</icmptype>

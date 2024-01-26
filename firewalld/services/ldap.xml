@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>LDAP</short>
+  <description>Lightweight Directory Access Protocol (LDAP) server</description>
+  <port protocol="tcp" port="389"/>
+</service>

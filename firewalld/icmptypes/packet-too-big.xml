@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Packet Too Big</short>
+  <description>This error message is sent by a router in response to a packet that it cannot forward because the packet is larger than the MTU of the outgoing link.</description>
+  <destination ipv4="no"/>
+  <destination ipv6="yes"/>
+</icmptype>

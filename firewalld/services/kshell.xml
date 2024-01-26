@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>kshell</short>
+  <description>Kerberized rshell server accepts rshell commands authenticated and encrypted with Kerberos 5</description>
+  <port port="544" protocol="tcp"/>
+</service>

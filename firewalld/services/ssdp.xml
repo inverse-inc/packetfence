@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Simple Service Discovery Protocol (SSDP)</short>
+  <description>The Simple Service Discovery Protocol (SSDP) is a network protocol based on the Internet protocol suite for advertisement and discovery of network services and presence information.</description>
+  <port protocol="udp" port="1900"/>
+  <destination ipv4="239.255.255.250" ipv6="FF02::C"/>
+</service>

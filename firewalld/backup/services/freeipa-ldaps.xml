@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>FreeIPA with LDAPS (deprecated)</short>
+  <description>This service is deprecated. Please use freeipa-4 service instead.</description>
+  <port protocol="tcp" port="80"/>
+  <port protocol="tcp" port="443"/>
+  <port protocol="tcp" port="88"/>
+  <port protocol="udp" port="88"/>
+  <port protocol="tcp" port="464"/>
+  <port protocol="udp" port="464"/>
+  <port protocol="udp" port="123"/>
+  <port protocol="tcp" port="636"/>
+</service>

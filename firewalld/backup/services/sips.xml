@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SIP-TLS (SIPS)</short>
+  <description>SIP-TLS is a modified SIP (Session Initiation Protocol) using TLS for secure signaling.</description>
+  <port protocol="tcp" port="5061"/>
+  <port protocol="udp" port="5061"/>
+</service>

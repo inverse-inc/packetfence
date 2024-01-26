@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Router Solicitation</short>
+  <description>This message is used by a host attached to a multicast link to request a Router Advertisement.</description>
+</icmptype>

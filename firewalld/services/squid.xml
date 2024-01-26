@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>squid</short>
+  <description>Squid HTTP proxy server</description>
+  <port protocol="tcp" port="3128"/>
+</service>

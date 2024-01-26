@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>tentacle</short>
+  <description>Tentacle is a protocol for monitoring computer networks. Pandora FMS is one server implementation.</description>
+  <port protocol="tcp" port="41121"/>
+</service>

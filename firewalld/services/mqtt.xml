@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>mqtt</short>
+  <description>The Message Queuing Telemetry Transport (MQTT) is a machine-to-machine connectivity protocol. This variant of the protocol is unencrypted.</description>
+  <port port="1883" protocol="tcp"/>
+</service>

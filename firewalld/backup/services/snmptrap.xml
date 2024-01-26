@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SNMPTRAP</short>
+  <description>SNMP traps enable an agent to notify the management station of significant events by way of an unsolicited SNMP message.</description>
+  <port protocol="tcp" port="162"/>
+  <port protocol="udp" port="162"/>
+</service>

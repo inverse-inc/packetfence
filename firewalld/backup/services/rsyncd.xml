@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Rsync in daemon mode</short>
+  <description>Rsync in daemon mode works as a central server, in order to house centralized files and keep them synchronized.</description>
+  <port protocol="tcp" port="873"/>
+  <port protocol="udp" port="873"/>
+</service>

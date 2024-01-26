@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>syslog-tls</short>
+  <description>Syslog is a client/server protocol: a logging application transmits a text message to the syslog receiver. The receiver is commonly called syslogd, syslog daemon or syslog server. Syslog-tls uses TLS encryption to protect the messages during transport.</description>
+  <port protocol="tcp" port="6514"/>
+  <port protocol="udp" port="6514"/>
+</service>
