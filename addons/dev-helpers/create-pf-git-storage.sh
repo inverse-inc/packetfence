@@ -36,7 +36,7 @@ mkdir -p $dst_dir
 tmpdir=`mktemp -d`
 
 git clone -b $pf_ref https://github.com/inverse-inc/packetfence $tmpdir/packetfence
-git clone -b $fb_ref https://github.com/fingerbank/perl-client $tmpdir/fingerbank
+cp -a $tmpdir/packetfence/addons/perl-client/  $tmpdir/fingerbank
 
 ## Happens in the PF dir (chdir)
 cd $tmpdir/packetfence

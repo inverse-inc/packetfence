@@ -36,7 +36,7 @@ dst_dir=`echo $dst_dir | sed 's|/$||'`
 tmpdir=`mktemp -d`
 
 git clone -b $pf_ref https://github.com/inverse-inc/packetfence $tmpdir/packetfence
-git clone -b $fb_ref https://github.com/fingerbank/perl-client $tmpdir/fingerbank
+cp -a $tmpdir/packetfence/addons/perl-client/  $tmpdir/fingerbank
 
 cd $tmpdir/packetfence
 make configurations
