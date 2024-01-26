@@ -2,16 +2,16 @@
 [Unit]
 Description=PacketFence Config Service
 After=network.target packetfence-redis-cache.service
-Wants=packetfence-redis-cache.service
+Wants=packetfence-redis-cache.service packetfence-firewalld.service
 
 [Service]
 Type=notify
 NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStartPre=/usr/local/pf/containers/docker-minimal-rules.sh
+ExecStartPre=/bin/bash -c "/usr/local/pf/firewalld/scripts/docker-firewalld-interface.sh ; /usr/local/pf/firewalld/scripts/firewalld-service.sh pfconfig"
 ExecStart=/usr/local/pf/sbin/pfconfig-docker-wrapper
-ExecStop=/bin/bash -c "docker stop pfconfig ; echo Stopped"
+ExecStop=/bin/bash -c "docker stop pfconfig ; echo Stopped ; /usr/local/pf/firewalld/scripts/firewalld-service.sh pfconfig remove"
 Slice=packetfence-base.slice
 Restart=on-failure
 TimeoutStopSec=30
