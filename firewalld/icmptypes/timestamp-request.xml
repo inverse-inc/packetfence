@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Timestamp Request</short>
+  <description>This message is used for time synchronization.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Virtual Machine Management (TLS)</short>
+  <description>Enable this option if you want to allow remote virtual machine management with TLS encryption, x509 certificates and optional SASL authentication. The libvirtd service is needed for this option to be useful.</description>
+  <port protocol="tcp" port="16514"/>
+</service>

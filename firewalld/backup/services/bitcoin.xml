@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Bitcoin</short>
+  <description>The default port used by Bitcoin.  Enable this option if you plan to be a full Bitcoin node.</description>
+  <port protocol="tcp" port="8333"/>
+</service>

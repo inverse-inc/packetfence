@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Bacula Client</short>
+  <description>This option allows a Bacula server to connect to the local machine to schedule backups. You need the bacula-client package installed for this option to be useful.</description>
+  <port protocol="tcp" port="9102"/>
+</service>

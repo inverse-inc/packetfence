@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<whitelist>
+  <command name="/usr/libexec/platform-python -s /usr/bin/firewall-config"/>
+  <selinux context="system_u:system_r:NetworkManager_t:s0"/>
+  <selinux context="system_u:system_r:virtd_t:s0-s0:c0.c1023"/>
+  <user id="0"/>
+</whitelist>

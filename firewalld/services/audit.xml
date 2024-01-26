@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+    <short>Audit</short>
+    <description>The Linux Audit subsystem is used to log security events. Enable this option, if you plan to aggregate audit events to/from a remote server/client.</description>
+    <port protocol="tcp" port="60"/>
+</service>

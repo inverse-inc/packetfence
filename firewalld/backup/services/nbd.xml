@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>NBD</short>
+  <description>Network Block Device (NBD) is a high-performance protocol for exporting disk images between machines.</description>
+  <port protocol="tcp" port="10809"/>
+</service>

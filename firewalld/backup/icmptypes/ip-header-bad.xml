@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Ip Header Bad</short>
+  <description>This error message is sent if the IP header is bad.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

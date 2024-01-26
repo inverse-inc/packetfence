@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Host Precedence Violation</short>
+  <description>This error message is sent if the communication administratively prohibited.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

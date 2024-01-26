@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Bacula</short>
+  <description>Bacula is a network backup solution. Enable this option, if you plan to provide Bacula backup, file and storage services.</description>
+  <port protocol="tcp" port="9101"/>
+  <port protocol="tcp" port="9102"/>
+  <port protocol="tcp" port="9103"/>
+</service>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SLP</short>
+  <description>The Service Location Protocol (SLP) is used for discovering services in a local network without prior configuration.</description>
+  <port port="427" protocol="tcp"/>
+  <port port="427" protocol="udp"/>
+</service>

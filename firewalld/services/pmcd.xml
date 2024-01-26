@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Performance metrics collector (pmcd)</short>
+  <description>This option allows PCP (Performance Co-Pilot) monitoring. If you need to allow remote hosts to connect directly to your machine to monitor aspects of its performance, enable this option. You need the pcp package installed for this option to be useful.</description>
+  <port protocol="tcp" port="44321"/>
+</service>

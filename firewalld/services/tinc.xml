@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>tinc VPN</short>
+  <description>tinc is a Virtual Private Network (VPN) daemon that uses tunnelling and encryption to create a secure private network between hosts on the Internet.</description>
+  <port protocol="tcp" port="655"/>
+  <port protocol="udp" port="655"/>
+</service>

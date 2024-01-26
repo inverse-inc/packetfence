@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>XMPP (Jabber) client</short>
+  <description>Extensible Messaging and Presence Protocol (XMPP) client connection protocol allows XMPP (Jabber) clients such as Empathy, Pidgin, Kopete and Jitsi to connect to an XMPP (Jabber) server. Enable this if you run an XMPP (Jabber) server and you wish clients to be able to connect to the server and communicate with each other.</description>
+  <port protocol="tcp" port="5222"/>
+</service>

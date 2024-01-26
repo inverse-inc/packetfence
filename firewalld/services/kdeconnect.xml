@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>KDE Connect</short>
+  <description>KDE Connect is an application to connect your phone to your computer.</description>
+  <port port="1714-1764" protocol="tcp"/>
+  <port port="1714-1764" protocol="udp"/>
+</service>

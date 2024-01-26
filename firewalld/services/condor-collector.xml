@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>HT Condor Collector</short>
+  <description>The HT Condor Collector is needed to organize the condor worker nodes.</description>
+  <port protocol="tcp" port="9618"/> <!-- condor_collector -->
+</service>

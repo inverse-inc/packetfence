@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>MiniDLNA</short>
+  <description>MiniDLNA is a simple media server software with the aim to be fully compliant with DLNA/UPNP-AV clients. Enable this service if you run minidlna service.</description>
+  <port protocol="tcp" port="8200"/>
+  <port protocol="udp" port="1900"/>
+</service>

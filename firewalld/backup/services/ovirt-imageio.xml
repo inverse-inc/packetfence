@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>oVirt Image I/O</short>
+  <description>oVirt Image I/O simplifies the workflow of introducing new oVirt images into the oVirt environment.</description>
+  <port protocol="tcp" port="54322"/>
+</service>

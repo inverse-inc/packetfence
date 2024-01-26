@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>PulseAudio</short>
+  <description>A PulseAudio server provides an ability to stream audio over network. You want to enable this service in case you are using module-native-protocol-tcp in the PulseAudio configuration. If you are using module-zeroconf-publish you want also enable mdns service.</description>
+  <port protocol="tcp" port="4713"/>
+</service>

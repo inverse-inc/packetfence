@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Precision Time Protocol (PTP) Master</short>
+  <description>The Precision Time Protocol (PTP) allows to synchronize computers to a time master. Enable this option, if you are providing a PTP master. You need the linuxptp package installed for this option to be useful.</description>
+  <port protocol="udp" port="319"/>
+  <port protocol="udp" port="320"/>
+</service>

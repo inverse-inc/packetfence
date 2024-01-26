@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Samba DC</short>
+  <description>This option allows you to use this computer as a Samba Active Directory Domain Controller. You need the samba-dc package installed for this option to be useful.</description>
+  <port protocol="tcp" port="53"/><!-- DNS -->
+  <port protocol="udp" port="53"/><!-- DNS -->
+  <port protocol="tcp" port="88"/><!-- Kerberos -->
+  <port protocol="udp" port="88"/><!-- Kerberos -->
+  <port protocol="tcp" port="135"/><!-- End Point Mapper (DCE/RPC Locator Service -->
+  <port protocol="udp" port="137"/><!-- NetBIOS Name Service -->
+  <port protocol="udp" port="138"/><!-- NetBIOS Datagram -->
+  <port protocol="tcp" port="139"/><!-- NetBIOS Session -->
+  <port protocol="tcp" port="389"/><!-- LDAP -->
+  <port protocol="udp" port="389"/><!-- CLDAP -->
+  <port protocol="tcp" port="445"/><!-- SMB over TCP -->
+  <port protocol="tcp" port="464"/><!-- Kerberos kpasswd -->
+  <port protocol="udp" port="464"/><!-- Kerberos kpasswd -->
+  <port protocol="tcp" port="636"/><!-- LDAPS -->
+  <port protocol="tcp" port="49152-65535"/><!-- Dynamic RPC Ports -->
+  <port protocol="tcp" port="3268"/><!-- Global Catalog -->
+  <port protocol="tcp" port="3269"/><!-- Global Catalog SSL -->
+  <helper name="netbios-ns"/>
+</service>

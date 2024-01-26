@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>IPsec</short>
+  <description>Internet Protocol Security (IPsec) is the standarized IETF VPN architecture defined in RFC 4301. IPsec is negotiated using the IKEv1 (RFC 2409) or IKEv2 (RFC 7296) protocol, which in itself uses encryption and authentication. IPsec provides Internet Protocol (IP) packet encryption and authentication. Both IKE and IPsec can be encapsulated in UDP (RFC 3948) or TCP (RFC 8229 to make it easier to traverse NAT. Enabling this service will enable IKE, IPsec and their encapsulation protocols and ports. Note that IKE and IPsec can also be configured to use non-default ports, but this is not common practise.</description>
+  <port protocol="ah" port=""/>
+  <port protocol="esp" port=""/>
+  <port protocol="udp" port="500"/>
+  <port protocol="udp" port="4500"/>
+  <port protocol="tcp" port="4500"/>
+</service>

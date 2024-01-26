@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Galera</short>
+  <description>MariaDB-Galera Database Server</description>
+  <port protocol="tcp" port="3306"/>
+  <port protocol="tcp" port="4567"/>
+  <port protocol="tcp" port="4568"/>
+  <port protocol="tcp" port="4444"/>
+</service>

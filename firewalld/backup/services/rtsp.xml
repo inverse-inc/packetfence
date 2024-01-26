@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>RTSP</short>
+  <description>The Real Time Streaming Protocol (RTSP) is a network control protocol designed for use in entertainment and communications systems to control streaming media servers.</description>
+  <port port="554" protocol="tcp"/>
+  <port port="554" protocol="udp"/>
+</service>

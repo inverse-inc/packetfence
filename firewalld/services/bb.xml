@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Big Brother</short>
+  <description>Big Brother is a plain text protocol for sending and receiving client data, reports, and queries to a BB-compatible monitoring server or proxy. The standard IANA port for a listening Big Brother service is 1984, because of course it is.</description>
+  <port protocol="tcp" port="1984"/>
+  <port protocol="udp" port="1984"/>
+</service>

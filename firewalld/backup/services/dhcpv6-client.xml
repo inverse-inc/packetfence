@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>DHCPv6 Client</short>
+  <description>This option allows a DHCP for IPv6 (DHCPv6) client to obtain addresses and other IPv6 settings from DHCPv6 server.</description>
+  <port protocol="udp" port="546"/>
+  <destination ipv6="fe80::/64"/>
+</service>

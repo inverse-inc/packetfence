@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>NFS4</short>
+  <description>The NFS4 protocol is used to share files via TCP networking. You will need to have the NFS tools installed and properly configure your NFS server for this option to be useful.</description>
+  <port protocol="tcp" port="2049"/>
+</service>

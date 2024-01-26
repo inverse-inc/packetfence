@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Proxy DHCP</short>
+  <description>PXE redirection service (Proxy DHCP) responds to PXE clients and provides redirection to PXE boot servers.</description>
+  <port protocol="udp" port="4011"/>
+</service>

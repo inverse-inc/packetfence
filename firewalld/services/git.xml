@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>git</short>
+  <description>The git daemon for supporting git:// access to git repositories.</description>
+  <port protocol="tcp" port="9418"/>
+</service>

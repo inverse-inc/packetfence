@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>LDAPS</short>
+  <description>Lightweight Directory Access Protocol (LDAP) over Secure Sockets Layer (SSL) server</description>
+  <port protocol="tcp" port="636"/>
+</service>

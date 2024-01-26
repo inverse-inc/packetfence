@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>TTL Zero During Transit</short>
+  <description>This error message is sent if the time to live exceeded in transit.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="yes"/>
+</icmptype>

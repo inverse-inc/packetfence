@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>TOS Network Redirect</short>
+  <description>This message is sent if the datagram is redirected for the type of service and network.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

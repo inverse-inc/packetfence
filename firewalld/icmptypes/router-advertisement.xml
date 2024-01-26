@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Router Advertisement</short>
+  <description>This message is used by routers to periodically announce the IP address of a multicast interface.</description>
+</icmptype>

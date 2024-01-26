@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>distcc</short>
+  <description>Distcc is a protocol used for distributed compilation.</description>
+  <port port="3632" protocol="tcp"/>
+</service>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>ms-wbt</short>
+  <description>Microsoft Windows-based Terminal Server</description>
+  <port protocol="tcp" port="3389"/>
+</service>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Neighbour Advertisement (Neighbor Advertisement)</short>
+  <description>This informational message is sent in response to a neighbour-solicitation message in order to (unreliably) propagate new information quickly.</description>
+  <destination ipv4="no"/>
+  <destination ipv6="yes"/>
+</icmptype>

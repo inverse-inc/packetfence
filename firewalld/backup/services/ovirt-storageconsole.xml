@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>oVirt Storage-Console</short>
+  <description>oVirt Storage Console is a web-based storage management platform specially designed to efficiently manage oVirt's storage-defined storage.</description>
+  <port protocol="tcp" port="55863"/>
+  <port protocol="tcp" port="39543"/>
+</service>

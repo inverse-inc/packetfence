@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Spotify Client Sync</short>
+  <description>The Spotify Client allows you to sync local music files with your phone.</description>
+  <port port="57621" protocol="udp"/>
+  <port port="57621" protocol="tcp"/>
+</service>

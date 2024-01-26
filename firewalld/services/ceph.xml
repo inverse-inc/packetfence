@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>ceph</short>
+  <description>Ceph is a distributed object store and file system. Enable this option to support Ceph's Object Storage Daemons (OSD), Metadata Server Daemons (MDS), or Manager Daemons (MGR).</description>
+  <port protocol="tcp" port="6800-7300"/>
+</service>

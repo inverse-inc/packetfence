@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>mountd</short>
+  <description>NFS Mount Lock Daemon</description>
+  <port protocol="tcp" port="20048"/>
+  <port protocol="udp" port="20048"/>
+</service>

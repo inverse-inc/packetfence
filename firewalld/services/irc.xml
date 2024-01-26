@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>IRC</short>
+  <description>An IRCd, short for Internet Relay Chat daemon, is server software that implements the IRC protocol.</description>
+  <port protocol="tcp" port="6667"/>
+</service>

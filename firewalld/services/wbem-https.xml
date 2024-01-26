@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>wbem-https</short>
+  <description>Web-Based Enterprise Management (WBEM) is a set of systems management technologies developed to unify the management of distributed computing environments</description>
+  <port protocol="tcp" port="5989"/>
+</service>
+

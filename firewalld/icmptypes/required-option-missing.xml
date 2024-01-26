@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Required Option Missing</short>
+  <description>This message is sent if a required option is missing.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

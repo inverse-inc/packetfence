@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Puppet Master</short>
+  <description>Puppet is a network tool for managing many disparate systems. Puppet Master is a server which Puppet Agents pull their configurations from.</description>
+  <port protocol="tcp" port="8140"/>
+</service>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Fragmentation Needed</short>
+  <description>This error message is sent if fragmentation is required, and Don not Fragment (DF) flag is set.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Tor - SOCKS Proxy</short>
+  <description>Tor enables online anonymity and censorship resistance by directing Internet traffic through a network of relays. It conceals user's location from anyone conducting network surveillance and traffic analysis. A user wishing to use Tor for anonymity can configure a program such as a web browser to direct traffic to a Tor client using its SOCKS proxy port. Enable this if you run Tor and would like to configure your web browser or other programs to channel their traffic through the Tor SOCKS proxy port. It is recommended that you make this service available only for your computer or your internal networks.</description>
+  <port protocol="tcp" port="9050"/>
+</service>

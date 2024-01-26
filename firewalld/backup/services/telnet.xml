@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Telnet</short>
+  <description>Telnet is a protocol for logging into remote machines. It is unencrypted, and provides little security from network snooping attacks. Enabling telnet is not recommended. You need the telnet-server package installed for this option to be useful.</description>
+  <port port="23" protocol="tcp"/>
+</service>

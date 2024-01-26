@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>NUT</short>
+  <description>Network UPS Tools (NUT) is a protocol that allows to monitor and control power devices like uninterruptible power supplies.</description>
+  <port port="3493" protocol="tcp"/>
+  <!-- <port port="3493" protocol="udp"/> according to upstream never really worked over UDP -->
+</service>
