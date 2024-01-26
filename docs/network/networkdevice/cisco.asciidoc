@@ -1406,6 +1406,53 @@ Draft of the cisco IPFIX configuration
   ip flow monitor PFMonitor output
   ...
 
+
+Cisco 2960X
+
+ flow record pfRecord
+  match datalink mac source address input
+  match datalink mac destination address input
+  match ipv4 tos
+  match ipv4 protocol
+  match ipv4 source address
+  match ipv4 destination address
+  match transport source-port
+  match transport destination-port
+  collect transport tcp flags rst
+  collect interface input
+  collect flow sampler
+  collect counter bytes long
+  collect counter packets long
+  collect timestamp sys-uptime first
+  collect timestamp sys-uptime last
+ !
+ !
+ flow exporter pfAgent
+  destination 172.20.20.237
+  transport udp 2055
+  template data timeout 60
+  option interface-table
+  option exporter-stats
+  option sampler-table
+ !
+ !
+ flow monitor pfMonitor
+  exporter pfAgent
+  cache timeout active 60
+  statistics packet protocol
+  record pfRecord
+ !
+ !
+ sampler pfSampler
+  mode random 1 out-of 512
+ !
+
+interface GigabitEthernet1/0/1
+ description Laptop
+ switchport access vlan 112
+ ip flow monitor guardicoreAgent sampler guardicoreSampler input
+!
+
 ===== Router ISR 1800 Series 
 
 PacketFence supports the 1800 series Router with linkUp / linkDown traps. It cannot do 
