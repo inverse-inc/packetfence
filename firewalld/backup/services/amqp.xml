@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>amqp</short>
+  <description>The Advanced Message Queuing Protocol (AMQP) is an open standard application layer protocol for message-oriented middleware.</description>
+  <port protocol="tcp" port="5672"/>
+</service>

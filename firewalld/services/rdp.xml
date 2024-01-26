@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>rdp</short>
+  <description>Microsoft's Remote Desktop Protocol</description>
+  <port protocol="tcp" port="3389"/>
+</service>

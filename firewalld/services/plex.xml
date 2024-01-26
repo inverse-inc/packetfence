@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>PLEX</short>
+  <description> Plex Media Server (PMS) is the back-end media server component of Plex.
+  It organizes audio (music) and visual (photos and videos) content from personal media
+  libraries and streams it to their player counterparts, either on the same machine,
+  the same local area network, or over the Internet. </description>
+  <port protocol="tcp" port="32400"/><port protocol="udp" port="32400"/> <!-- Plex media server access (required)> -->
+  <port protocol="tcp" port="32469"/><port protocol="udp" port="1900"/> <!-- Plex DLNA -->
+  <port protocol="tcp" port="3005"/><!-- plex home theater control (plex companion) -->
+  <port protocol="tcp" port="8324"/><!-- Roku control (plex companion) -->
+  <port protocol="udp" port="32410"/><!-- gdm discovery -->
+  <port protocol="udp" port="32412"/><!-- gdm discovery -->
+  <port protocol="udp" port="32413"/><!-- gdm discovery -->
+  <port protocol="udp" port="32414"/><!-- gdm discovery -->
+</service>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Performance metrics proxy (pmproxy)</short>
+  <description>This option allows indirect PCP (Performance Co-Pilot) monitoring via a proxy. If you need to allow remote hosts to connect through your machine to monitor aspects of performance of one or more proxied hosts, enable this option. You need the pcp package installed for this option to be useful.</description>
+  <port protocol="tcp" port="44322"/>
+</service>

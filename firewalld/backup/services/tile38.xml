@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>tile38</short>
+  <description>Tile38 is a geospatial database, spatial index, and realtime geofence.</description>
+  <port protocol="tcp" port="9851"/>
+</service>

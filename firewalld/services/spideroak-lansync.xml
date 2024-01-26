@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SpiderOak ONE LAN-Sync</short>
+  <description>SpiderOak ONE is online backup and file hosting service that allows users to access, synchronize and share data using a cloud-based server. Enable this option if you use LAN-Sync option of SpiderOak.</description>
+  <port protocol="udp" port="21327"/>
+  <port protocol="udp" port="21328"/>
+</service>

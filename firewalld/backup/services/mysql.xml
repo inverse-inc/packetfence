@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>MySQL</short>
+  <description>MySQL Database Server</description>
+  <port protocol="tcp" port="3306"/>
+</service>

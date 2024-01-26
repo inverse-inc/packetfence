@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>XMPP (Jabber) web client</short>
+  <description>Extensible Messaging and Presence Protocol (XMPP) web client protocol allows web based chat clients such as JWChat to connect to the XMPP (Jabber) server. This is also known as the Bidirectional-streams Over Synchronous HTTP (BOSH) protocol. Enable this if you run an XMPP (Jabber) server and you wish web clients to connect to your server.</description>
+  <port protocol="tcp" port="5280"/>
+</service>

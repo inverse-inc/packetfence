@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Subversion</short>
+  <description>The custom, unencrypted protocol used the Subversion Version Control System.</description>
+  <port port="3690" protocol="tcp"/>
+</service>

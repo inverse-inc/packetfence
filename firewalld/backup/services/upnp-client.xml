@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>UPnP Client</short>
+  <description>Universal Plug and Play client for auto-configuration of network routers (use only in trusted zones).</description>
+  <source-port port="1900" protocol="udp"/>
+</service>

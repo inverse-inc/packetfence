@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>No Route</short>
+  <description>This error message is set if there is no route to the destination.</description>
+  <destination ipv4="no"/>
+  <destination ipv6="yes"/>
+</icmptype>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Network Printing Client (IPP)</short>
+  <description>The Internet Printing Protocol (IPP) is used for distributed printing. IPP (over udp) provides the ability to get information about a printer (e.g. capability and status) and to control printer jobs. If you plan to use a remote network printer via cups, do not disable this option.</description>
+  <port protocol="udp" port="631"/>
+</service>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Amanda Backup Client (kerberized)</short>
+  <description>The Amanda backup client option allows you to connect to a Amanda backup and archiving server. You need the amanda-client package installed for this option to be useful. This service specifically allows krb5 authentication</description>
+  <port protocol="tcp" port="10082"/>
+  <helper name="amanda"/>
+</service>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>oVirt's Virtual Desktop and Server Manager</short>
+  <description>The VDSM service is required by a Virtualization Manager to manage the Linux hosts. VDSM manages and monitors the host's storage, memory and networks as well as virtual machine creation, other host administration tasks, statistics gathering, and log collection.</description>
+  <port protocol="tcp" port="54321"/> <!-- vdsmd -->
+  <port protocol="tcp" port="5900-6923"/> <!-- guest consoles -->
+  <port protocol="tcp" port="49152-49216"/> <!-- migration -->
+</service>

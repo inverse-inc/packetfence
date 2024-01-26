@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>FreeIPA trust setup</short>
+  <description>FreeIPA is an LDAP and Kerberos domain controller for Linux systems. Enable this option of you plan to deploy cross-forest trusts with FreeIPA and Active Directory</description>
+  <port protocol="tcp" port="135"/>
+  <port protocol="tcp" port="138-139"/>
+  <port protocol="udp" port="138-139"/>
+  <port protocol="tcp" port="389"/>
+  <port protocol="udp" port="389"/>
+  <port protocol="tcp" port="445"/>
+  <port protocol="udp" port="445"/>
+  <port protocol="tcp" port="49152-65535"/><!-- Dynamic RPC Ports -->
+  <port protocol="tcp" port="3268"/>
+</service>

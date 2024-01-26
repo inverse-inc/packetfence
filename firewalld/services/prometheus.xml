@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>prometheus</short>
+  <description>The Prometheus monitoring system and time series database.</description>
+  <port protocol="tcp" port="9090"/>
+</service>

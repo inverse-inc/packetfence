@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SVDRP</short>
+  <description>The Simple Video Disk Recorder Protocol (SVDRP) allows to control video disk recorder functionality.</description>
+  <port port="6419" protocol="tcp"/>
+  <port port="6419" protocol="udp"/>
+</service>

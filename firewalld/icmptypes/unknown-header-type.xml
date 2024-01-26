@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Unknown Header Type</short>
+  <description>This error message is sent if an unrecognized Next Header type encountered.</description>
+  <destination ipv4="no"/>
+  <destination ipv6="yes"/>
+</icmptype>

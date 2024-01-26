@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>XDMCP</short>
+  <description>The X Display Manager Control Protocol (XDMCP) allows to remotely log in to an X desktop environment from any X Window System compatible client.</description>
+  <port port="177" protocol="tcp"/>
+  <port port="177" protocol="udp"/>
+</service>

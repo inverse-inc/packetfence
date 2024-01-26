@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Amanda Backup Client</short>
+  <description>The Amanda backup client option allows you to connect to a Amanda backup and archiving server. You need the amanda-client package installed for this option to be useful.</description>
+  <port protocol="udp" port="10080"/>
+  <port protocol="tcp" port="10080"/>
+  <helper name="amanda"/>
+</service>

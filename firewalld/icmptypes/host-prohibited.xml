@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Host Prohibited</short>
+  <description>This error message is sent if access from a host administratively prohibited.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

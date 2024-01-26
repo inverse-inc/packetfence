@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Mail (SMTP over SSL)</short>
+  <description>This option allows incoming SMTPs mail delivery. If you need to allow remote hosts to connect directly to your machine to deliver mail in a secure way, enable this option. You do not need to enable this if you collect your mail from your ISP's server by POP3 or IMAP, or if you use a tool such as fetchmail. Note that an improperly configured SMTP server can allow remote machines to use your server to send spam.</description>
+  <port protocol="tcp" port="465"/>
+</service>

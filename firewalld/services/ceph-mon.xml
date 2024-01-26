@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>ceph-mon</short>
+  <description>Ceph is a distributed object store and file system. Enable this option to support Ceph's Monitor Daemon.</description>
+  <port protocol="tcp" port="3300"/>
+  <port protocol="tcp" port="6789"/>
+</service>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SIP</short>
+  <description>The Session Initiation Protocol (SIP) is a communications protocol for signaling and controlling multimedia communication sessions. The most common applications of SIP are in Internet telephony for voice and video calls, as well as instant messaging, over Internet Protocol (IP) networks.</description>
+  <port protocol="tcp" port="5060"/>
+  <port protocol="udp" port="5060"/>
+  <helper name="sip"/>
+</service>

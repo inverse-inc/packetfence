@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helper module="nf_conntrack_irc" family="ipv4">
+  <port protocol="tcp" port="194"/>
+</helper>

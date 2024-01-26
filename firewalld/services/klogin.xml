@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>klogin</short>
+  <description>The kerberized rlogin server accepts BSD-style rlogin sessions, but uses Kerberos 5 authentication.</description>
+  <port port="543" protocol="tcp"/>
+</service>

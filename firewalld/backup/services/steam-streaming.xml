@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Steam In-Home Streaming</short>
+  <description>Steam in-home streaming allows you to play a game on one computer when the game process is actually running on another computer elsewhere in your home. Through Steam, game audio and video is captured on the remote computer and sent to the player's computer. The game input (keyboard, mouse or gamepad) is sent from the player's computer to the game process on the remote computer.</description>
+  <port protocol="tcp" port="27036"/>
+  <port protocol="tcp" port="27037"/>
+  <port protocol="udp" port="27031-27036"/>
+</service>

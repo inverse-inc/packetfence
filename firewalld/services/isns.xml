@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>iSNS</short>
+  <description>The Internet Storage Name Service (iSNS) is a protocol that allows automated discovery, management and configuration of iSCSI and Fibre Channel devices on a TCP/IP network.</description>
+  <port port="3205" protocol="tcp"/>
+  <port port="3205" protocol="udp"/>
+</service>

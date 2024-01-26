@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Beyond Scope</short>
+  <description>This error message is sent if transmitting a package whould cross a zone boundary of the scope of the source address.</description>
+  <destination ipv4="no"/>
+  <destination ipv6="yes"/>
+</icmptype>

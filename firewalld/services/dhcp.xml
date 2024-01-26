@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>DHCP</short>
+  <description>This allows a DHCP server to accept messages from DHCP clients and relay agents.</description>
+  <port protocol="udp" port="67"/>
+</service>

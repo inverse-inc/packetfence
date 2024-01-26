@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Mail (SMTP-Submission)</short>
+  <description>SMTP-Submission allows remote users to submit mail over port 587.</description>
+  <port protocol="tcp" port="587"/>
+</service>

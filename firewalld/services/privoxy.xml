@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Privoxy - A Privacy Enhancing Proxy Server</short>
+  <description>Privoxy is a web proxy for enhancing privacy by filtering web page content, managing cookies, controlling access, removing ads, banners, pop-ups and other obnoxious Internet junk. It does not cache web content. Enable this if you run Privoxy and would like to configure your web browser to browse the Internet via Privoxy.</description>
+  <port protocol="tcp" port="8118"/>
+</service>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>mongodb</short>
+  <description>MongoDB is a free and open-source cross-platform document-oriented database program.</description>
+  <port protocol="tcp" port="27017"/>
+</service>

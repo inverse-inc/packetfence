@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Bad Header</short>
+  <description>This error message is created if there has been an error in the header of a packet.</description>
+  <destination ipv4="no"/>
+  <destination ipv6="yes"/>
+</icmptype>

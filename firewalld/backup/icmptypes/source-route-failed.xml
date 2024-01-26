@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Source Route Failed</short>
+  <description>This message is sent if the source route has failed.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

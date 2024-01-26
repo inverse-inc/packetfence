@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Synergy</short>
+  <description>Synergy lets you easily share your mouse and keyboard between multiple computers, where each computer has its own display. No special hardware is required, all you need is a local area network. Synergy is supported on Windows, Mac OS X and Linux. Redirecting the mouse and keyboard is as simple as moving the mouse off the edge of your screen.</description>
+  <port protocol="tcp" port="24800"/>
+</service>

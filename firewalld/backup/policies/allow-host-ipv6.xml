@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policy target="CONTINUE" priority="-15000">
+  <short>Allow host IPv6</short>
+  <description>Allows basic IPv6 functionality for the host running firewalld.</description>
+  <ingress-zone name="ANY" />
+  <egress-zone name="HOST" />
+  <rule family="ipv6">
+    <icmp-type name="neighbour-advertisement" />
+    <accept />
+  </rule>
+  <rule family="ipv6">
+    <icmp-type name="neighbour-solicitation" />
+    <accept />
+  </rule>
+  <rule family="ipv6">
+    <icmp-type name="router-advertisement" />
+    <accept />
+  </rule>
+  <rule family="ipv6">
+    <icmp-type name="redirect" />
+    <accept />
+  </rule>
+</policy>

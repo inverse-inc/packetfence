@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>XMPP Link-Local Messaging</short>
+  <description>Serverless XMPP-like communication over local networks based on zero-configuration networking.</description>
+  <port protocol="tcp" port="5298"/>
+</service>

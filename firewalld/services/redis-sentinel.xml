@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>redis-sentinel</short>
+  <description>Redis Sentinel provides high availability for Redis.</description>
+  <port protocol="tcp" port="26379"/>
+</service>

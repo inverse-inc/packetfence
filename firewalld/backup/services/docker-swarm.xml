@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Docker integrated swarm mode</short>
+  <description>Natively managed cluster of Docker Engines (>=1.12.0), where you deploy services.</description>
+  <port port="2377" protocol="tcp"/>
+  <port port="7946" protocol="tcp"/>
+  <port port="7946" protocol="udp"/>
+  <port port="4789" protocol="udp"/>
+  <protocol value="esp"/>
+</service>

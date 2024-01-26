@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Murmur</short>
+  <description>Murmur is the server of the Mumble VoIP chat system.</description>
+  <port protocol="tcp" port="64738"/>
+  <port protocol="udp" port="64738"/>
+</service>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>kprop</short>
+  <description>Kerberos KDC Propagation Protocol</description>
+  <port protocol="tcp" port="754"/>
+</service>

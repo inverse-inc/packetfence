@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Collectd</short>
+  <description>Collectd is a monitoring system that allows metrics to be sent over the network. This rule allows incoming collectd traffic from remote boxes.</description>
+  <port protocol="udp" port="25826"/>
+</service>

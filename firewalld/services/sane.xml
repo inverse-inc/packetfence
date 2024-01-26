@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>SANE network daemon (saned)</short>
+  <description>The SANE (Scanner Access Now Easy) daemon allows remote clients to access image acquisition devices available on the local host.</description>
+  <port protocol="tcp" port="6566"/>
+  <helper name="sane"/>
+</service>

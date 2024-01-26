@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Salt Master</short>
+  <description>Salt is a protocol used for infrastructure management via a dynamic communication bus. These ports are required on the salt master node.</description>
+  <port port="4505" protocol="tcp"/>
+  <port port="4506" protocol="tcp"/>
+</service>

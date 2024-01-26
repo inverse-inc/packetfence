@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>FreeIPA replication (deprecated)</short>
+  <description>This service is deprecated. Please use freeipa-4 service instead.</description>
+  <port protocol="tcp" port="7389"/>
+</service>

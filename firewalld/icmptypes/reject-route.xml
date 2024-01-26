@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Reject Route</short>
+  <description>This error message is sent if the route to destination is rejected.</description>
+  <destination ipv4="no"/>
+  <destination ipv6="yes"/>
+</icmptype>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>mssql</short>
+  <description>Microsoft SQL Server</description>
+  <port protocol="tcp" port="1433"/>
+</service>

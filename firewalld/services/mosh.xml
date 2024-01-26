@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Mobile shell that supports roaming and intelligent local echo.</short>
+  <description>Mosh is a remote terminal application that supports intermittent network connectivity, roaming to different IP address without dropping the connection, intelligent local echo and line editing to reduct the effects of "network lag" on high-latency connections.</description>
+  <port protocol="udp" port="60000-61000"/>
+</service>

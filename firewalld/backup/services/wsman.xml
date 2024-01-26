@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>wsman</short>
+  <description>Web Services for Management (WSMAN) is a protocol for managing PCs, servers, devices, Web services and other applications. This variant of the protocol is unencrypted</description>
+  <port port="5985" protocol="tcp"/>
+</service>

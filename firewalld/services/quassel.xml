@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Quassel IRC</short>
+  <description>Quassel is a distributed IRC client, meaning that one or more clients can attach to and detach from the central core.</description>
+  <port protocol="tcp" port="4242"/>
+</service>

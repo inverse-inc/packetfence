@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>TFTP</short>
+  <description>The Trivial File Transfer Protocol (TFTP) is a protocol used to transfer files to and from a remote machine in a simple way. It is normally used only for booting diskless workstations and also to transfer data in the Preboot eXecution Environment (PXE).</description>
+  <port protocol="udp" port="69"/>
+  <helper name="tftp"/>
+</service>

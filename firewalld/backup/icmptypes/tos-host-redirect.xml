@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>TOS Host Redirect</short>
+  <description>This message is the datagram is redirected for the type of service and host.</description>
+  <destination ipv4="yes"/>
+  <destination ipv6="no"/>
+</icmptype>

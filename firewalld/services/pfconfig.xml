@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Packetfence Config</short>
+  <description>Allow port for Packetfence Config.</description>
+  <port protocol="tcp" port="4444"/>
+</service>

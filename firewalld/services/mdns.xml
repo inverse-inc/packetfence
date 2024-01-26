@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Multicast DNS (mDNS)</short>
+  <description>mDNS provides the ability to use DNS programming interfaces, packet formats and operating semantics in a small network without a conventional DNS server. If you plan to use Avahi, do not disable this option.</description>
+  <port protocol="udp" port="5353"/>
+  <destination ipv4="224.0.0.251" ipv6="ff02::fb"/>
+</service>

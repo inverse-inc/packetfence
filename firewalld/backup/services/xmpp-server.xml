@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>XMPP (Jabber) server</short>
+  <description>Extensible Messaging and Presence Protocol (XMPP) server connection protocols allows multiple XMPP (Jabber) servers to work in a federated fashion. Users on one server will be able to see the presence of and communicate with users on another servers. Enable this if you run an XMPP (Jabber) server and you wish users on your server to communicate with users on other XMPP servers.</description>
+  <port protocol="tcp" port="5269"/>
+</service>

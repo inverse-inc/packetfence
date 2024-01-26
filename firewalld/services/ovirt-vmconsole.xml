@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>oVirt VM Console</short>
+  <description>oVirt VM Consoles enables secure access to virtual machine serial console.</description>
+  <port protocol="tcp" port="2223"/>
+</service>

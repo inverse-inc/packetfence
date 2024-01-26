@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icmptype>
+  <short>Time Exceeded</short>
+  <description>This error message is generated if the time-to-live was exceeded either of a packet or of the reassembling of a fragmented packet.</description>
+</icmptype>

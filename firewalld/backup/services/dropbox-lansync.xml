@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service version="1.0">
+  <short>dropboxlansync</short>
+  <description>Dropbox LAN sync</description>
+  <port protocol="udp" port="17500"/>
+  <port protocol="tcp" port="17500"/>
+</service>
