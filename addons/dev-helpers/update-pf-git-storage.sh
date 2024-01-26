@@ -14,7 +14,6 @@ function exit_usage() {
 
 dst_dir="$1"
 pf_ref="$2"
-fb_ref="$3"
 
 if [ -z "$dst_dir" ] || ! [ -d "$dst_dir" ]; then
   echo "!!! - Missing destination directory or it doesn't exist"
@@ -23,11 +22,6 @@ fi
 
 if [ -z "$pf_ref" ]; then
   echo "!!! - Missing PF repo branch or tag name"
-  exit_usage
-fi
-
-if [ -z "$fb_ref" ]; then
-  echo "!!! - Missing Fingerbank perl client repo branch or tag name"
   exit_usage
 fi
 
