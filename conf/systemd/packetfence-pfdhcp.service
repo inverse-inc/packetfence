@@ -12,9 +12,11 @@ Type=notify
 WatchdogSec=30s
 Environment=LOG_LEVEL=INFO
 EnvironmentFile=-/usr/local/pf/conf/pfdhcp.conf
+ExecStartPre=/usr/local/pf/firewalld/scripts/firewalld-service.sh pf-pfdhcp
 ExecStart=/usr/local/pf/sbin/pfdhcp
 Restart=on-failure
 Slice=packetfence.slice
+ExecStop=/usr/local/pf/firewalld/scripts/firewalld-service.sh pf-pfdhcp remove
 
 [Install]
 WantedBy=packetfence.target
