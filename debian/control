@@ -22,7 +22,8 @@ Pre-Depends:  ca-certificates,
  fingerbank-collector (>= 1.4.1), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
  packetfence-perl (>= 1.2.4),
- netdata (= 1:1.10.0-1)
+ netdata (= 1:1.10.0-1),
+ firewalld (>= 0.9.3-2)
 # Removed for now
 # libmariadbd-dev (>= 10.1), libmariadbd-dev (<< 10.5.18)
 Breaks: libdata-alias-perl
