@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INTERFACE=${1:-eth0}
-ZONE=${2:-external}
+ZONE=${2:-eth0}
 MASQUERADE=${3:-yes}
 FIREWALLD_CMD_PATH=${4:-/usr/bin/firewall-cmd}
 PERMANENT=${5:-yes}
