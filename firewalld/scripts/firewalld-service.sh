@@ -2,7 +2,7 @@
 
 SERVICE=${1:-noservice}
 STATUS=${2:-add}
-ZONE=${3:-trusted}
+ZONE=${3:-eth0}
 PERMANENT=${4:-yes}
 FIREWALLD_CMD_PATH=${5:-/usr/bin/firewall-cmd}
 
