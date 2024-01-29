@@ -3,5 +3,4 @@
   <short>Trusted</short>
   <description>All network connections are accepted.</description>
   <masquerade/>
-  <interface name="docker0"/>
 </zone>
