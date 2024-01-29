@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<zone target="default">
-  <short>Work</short>
-  <description>For use in work areas. You mostly trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
-</zone>
