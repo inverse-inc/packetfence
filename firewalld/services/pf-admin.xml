@@ -3,4 +3,5 @@
   <short>WWW (HTTPS PF ADMIN)</short>
   <description>Get access to packetfence admin.</description>
   <port protocol="tcp" port="1443"/>
+  <port protocol="udp" port="1443"/>
 </service>
