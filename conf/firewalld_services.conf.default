@@ -1,0 +1,22 @@
+[hostname pf-admin]
+short: pf-admin
+description: Firewalld rules for pf-admin services
+helper_name: pf-admin
+
+[hostname pf-admin rule1]
+port: 1443
+type: TCP
+
+[pf-admin rule2]
+port: 1443
+type: UDP
+
+[pf-config]
+short: pf-config
+description: Firewalld rules for pf-config services
+helper_name: pf-config
+
+[pf-config rule1]
+port: 4444
+type: TCP
+

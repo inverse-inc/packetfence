@@ -315,12 +315,13 @@ Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 Requires: fingerbank >= 4.3.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
-
 # For NTLM-Auth
 Requires: python3-samba
 Requires: tdb-tools
 # For ntlm_auth_wrapper
 Requires: cjson >= 1.7.14
+# For FirewallD
+Requires: firewalld >= 0.9.11-1.el8_8.noarch
 
 %description
 
@@ -437,6 +438,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api-domain@.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api-domain@.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
 %{__install} -D -m0644 conf/systemd/packetfence-kafka.service %{buildroot}%{_unitdir}/packetfence-kafka.service
+%{__install} -D -m0644 conf/systemd/packetfence-firewalld.service %{buildroot}%{_unitdir}/packetfence-firewalld.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -471,6 +473,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/webadmin_cache
 %{__install} -d %{buildroot}/usr/local/pf/var/control
 %{__install} -d %{buildroot}/usr/local/pf/var/kafka
+%{__install} -d %{buildroot}/usr/local/pf/var/firewalld
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
 %{__install} -d %{buildroot}/etc/docker
@@ -514,6 +517,8 @@ cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
 cp -r containers %{buildroot}/usr/local/pf
+# Firewalld
+cp -r firewalld %{buildroot}/usr/local/pf
 
 # install Golang binaries
 %{__make} -C go DESTDIR=%{buildroot} copy
@@ -573,7 +578,8 @@ rm -rf %{buildroot}
 # Disable libvirtd and kill its dnsmasq if its there so that it doesn't prevent pfdns from starting
 /usr/bin/systemctl --now mask libvirtd
 /usr/bin/pkill -f dnsmasq
-
+# Disable default firewalld
+/usr/bin/systemctl --now mask firewalld
 
 # This (extremelly) ugly hack below will make the current processes part of a cgroup other than the one for user-0.slice
 # This will allow for the current shells that are opened to be protected against stopping when we'll be calling isolate below which stops user-0.slice
