@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Packetfence pfdhcp</short>
+  <description>This allows a DHCP server to accept messages from DHCP clients and relay agents.</description>
+  <port protocol="tcp" port="67"/>
+  <port protocol="udp" port="67"/>
+</service>
