@@ -16,11 +16,11 @@ short: pf-pfdhcp
 description: Firewalld rules for pf-pfdhcp services
 helper_name: pf-pfdhcp
 
-[pf-pfdhcp rule1]
+[hostname pf-pfdhcp rule1]
 port: 67
 type: TCP
 
-[pf-pfdhcp rule2]
+[hostname pf-pfdhcp rule2]
 port: 67
 type: UDP
 
