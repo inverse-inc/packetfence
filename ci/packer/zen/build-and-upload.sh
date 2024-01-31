@@ -16,9 +16,6 @@ VMX_ZIP_NAME=`echo -n $VMX_ZIP_NAME | tr '/' '-'`
 
 # upload
 SF_RESULT_DIR=results/sf/${PF_VERSION}
-PUBLIC_REPO_DIR="/home/frs/project/p/pa/packetfence/PacketFence\ ZEN/${PF_VERSION}"
-DEPLOY_SF_USER=${DEPLOY_SF_USER:-inverse-bot,packetfence}
-DEPLOY_SF_HOST=${DEPLOY_SF_HOST:-frs.sourceforge.net}
 
 declare -p VM_NAME
 declare -p VBOX_RESULT_DIR VBOX_OVA_NAME VBOX_OVF_NAME
@@ -40,29 +37,10 @@ compress_vmware_ova() {
     zip -qdgds 100m -9 -j ${zip_file} ${ova_file}
 }
 
-upload_to_sf() {
-    # warning: slashs at end of dirs are significant for rsync
-    local src_dir="${SF_RESULT_DIR}/"
-    local zip_file="${src_dir}${VMX_ZIP_NAME}"
-    # Get file zip size
-    local file_size=$(du -bs ${zip_file} | cut -f1)
-    echo "zip file is ${zip_file} with size ${file_size}"
-    # Source Forge limit is 7.0 GB
-    local check_size=7516192768
-    echo "Max file is ${check_size}"
-
-    if [ "$file_size" -le "$check_size" ]; then
-      local dst_repo="${PUBLIC_REPO_DIR}/"
-      local dst_dir="${DEPLOY_SF_USER}@${DEPLOY_SF_HOST}:${dst_repo}"
-      declare -p src_dir dst_dir
-      # quotes to handle space in filename
-      echo "rsync: $src_dir -> $dst_dir"
-      # quotes to handle space in filename
-      rsync -avz $src_dir "$dst_dir"
-    else
-      echo "The file is bigger than Sourceforge Limite 7.0 GB.\nIt will not be uploaded.\n${zip_file} size is ${file_size}"
-      exit 27
-    fi
+upload_to_linode() {
+    # using rclone config
+    rclone mkdir pfzen:packetfence-zen/${PF_VERSION}/
+    rclone copyto ${SF_RESULT_DIR}/${VMX_ZIP_NAME} pfzen:packetfence-zen/${VMX_ZIP_NAME}
 }
 
 mkdir -p ${VMWARE_RESULT_DIR} ${SF_RESULT_DIR}
@@ -84,5 +62,5 @@ ovftool --shaAlgorithm=SHA1 --lax ${VMWARE_RESULT_DIR}/${VBOX_OVF_NAME} ${VMWARE
 echo "===> Compress VMware OVA"
 compress_vmware_ova
 
-echo "===> Upload to Sourceforge"
-upload_to_sf
+echo "===> Upload to Linode"
+upload_to_linode
