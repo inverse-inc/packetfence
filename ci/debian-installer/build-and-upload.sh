@@ -12,8 +12,8 @@ SF_RESULT_DIR=results/sf/${PF_VERSION}
 
 upload_to_linode() {
     # using rclone config
-    rclone mkdir pfzen:packetfence-zen/${PF_VERSION}/
-    rclone copyto ${SF_RESULT_DIR}/${ISO_NAME} pfzen:packetfence-zen/${ISO_NAME}
+    rclone mkdir pfiso:packetfence-iso/${PF_VERSION}/
+    rclone copyto ${SF_RESULT_DIR}/${ISO_NAME} pfiso:packetfence-iso/${ISO_NAME}
 }
 
 mkdir -p ${SF_RESULT_DIR}
