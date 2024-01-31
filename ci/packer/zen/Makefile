@@ -21,6 +21,7 @@ PKR_ON_ERROR=cleanup
 .PHONY: zen
 zen: zen-packer zen-build
 
+.PHONY: zen-packer
 zen-packer:
 	PKR_VAR_pf_version=$(PKR_VAR_pf_version) \
 	PKR_VAR_vm_name=$(PKR_VAR_vm_name) \
@@ -29,6 +30,7 @@ zen-packer:
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	packer build -only="virtualbox-iso.$(BUILD_NAME)" -on-error=$(PKR_ON_ERROR) .
 
+.PHONY: zen-build
 zen-build:
 	PF_VERSION=$(PF_VERSION) \
 	VBOX_RESULT_DIR=$(PKR_VAR_output_vbox_directory) \
