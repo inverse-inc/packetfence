@@ -40,7 +40,7 @@ compress_vmware_ova() {
 upload_to_linode() {
     # using rclone config
     rclone mkdir pfzen:packetfence-zen/${PF_VERSION}/
-    rclone copyto ${SF_RESULT_DIR}/${VMX_ZIP_NAME} pfzen:packetfence-zen/${VMX_ZIP_NAME}
+    rclone copyto ${SF_RESULT_DIR}/${VMX_ZIP_NAME} pfzen:packetfence-zen/${PF_VERSION}/${VMX_ZIP_NAME}
 }
 
 mkdir -p ${VMWARE_RESULT_DIR} ${SF_RESULT_DIR}
