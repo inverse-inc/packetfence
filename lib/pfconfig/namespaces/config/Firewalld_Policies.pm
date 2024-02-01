@@ -39,7 +39,7 @@ sub init {
 
     $self->{file} = $firewalld_policies_config_file;
 
-    my $defaults = pf::IniFiles->new( -file => $firewalld_policies_config_defaults_file, -envsubst => 1);
+    my $defaults = pf::IniFiles->new( -file => $firewalld_policies_config_defaults_file, -envsubst => 1, -allowempty => 1);
     $self->{added_params}->{'-import'} = $defaults;
 }
 
