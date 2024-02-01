@@ -1,4 +1,4 @@
-[%h interface eth0]
+[interface eth0]
 masquerade: yes
 based_on: external
 services:
@@ -8,7 +8,7 @@ services:
  - https
 port:
 
-[%h interface docker0]
+[interface docker0]
 masquerade: yes
 based_on: trusted
 services:
