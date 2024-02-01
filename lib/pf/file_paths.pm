@@ -128,7 +128,12 @@ our (
     $connectors_config_file,
     $kafka_config_file,
     $git_commit_id_file,
-    $pfqueue_backend_socket
+    $pfqueue_backend_socket,
+    $firewalld_services_config_file, $firewalld_services_config_defaults_file,
+    $firewalld_policies_config_file, $firewalld_policies_config_defaults_file,
+    $firewalld_icmptypes_config_file, $firewalld_icmptypes_config_defaults_file,
+    $firewalld_ipsets_config_file, $firewalld_ipsets_config_defaults_file,
+    $firewalld_zones_config_file, $firewalld_zones_config_defaults_file
 );
 
 BEGIN {
@@ -232,6 +237,11 @@ BEGIN {
         $kafka_config_file
         $git_commit_id_file
         $pfqueue_backend_socket
+	$firewalld_services_config_file $firewalld_services_config_defaults_file
+	$firewalld_zones_config_file $firewalld_zones_config_defaults_file
+	$firewalld_policies_config_file $firewalld_policies_config_defaults_file
+	$firewalld_ipsets_config_file $firewalld_ipsets_config_defaults_file
+	$firewalld_icmptypes_config_file $firewalld_icmptypes_config_defaults_file
     );
 }
 
@@ -347,11 +357,6 @@ $cron_default_config_file = catfile($conf_dir,"pfcron.conf.defaults");
 $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
-$iptable_config_file = catfile($conf_dir, "iptables.conf");
-$iptable_input_config_file = catfile($conf_dir, "iptables-input.conf.inc");
-$iptable_input_management_config_file = catfile($conf_dir, "iptables-input-management.conf.inc");
-$ip6table_config_file = catfile($conf_dir, "ip6tables.conf");
-$ip6table_input_management_config_file = catfile($conf_dir, "ip6tables-input-management.conf.inc");
 $ssl_config_file = catfile($conf_dir,"ssl.conf");
 $ssl_default_config_file = catfile($conf_dir,"ssl.conf.defaults");
 $tls_config_file = catfile($conf_dir,"radiusd/tls.conf");
@@ -375,6 +380,18 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
 $mfa_config_file = catdir($conf_dir,"mfa.conf");
 $kafka_config_file = catdir($conf_dir, "kafka.conf");
 $connectors_config_file = catdir($conf_dir,"connectors.conf");
+
+$firewalld_services_config_defaults_file = catfile($conf_dir,"firewalld_services.conf.defaults");
+$firewalld_services_config_file = catfile($conf_dir,"firewalld_services.conf");
+$firewalld_zones_config_defaults_file = catfile($conf_dir,"firewalld_zones.conf.defaults");
+$firewalld_zones_config_file = catfile($conf_dir,"firewalld_zones.conf");
+$firewalld_icmptypes_config_defaults_file = catfile($conf_dir,"firewalld_icmptypes.conf.defaults");
+$firewalld_icmptypes_config_file = catfile($conf_dir,"firewalld_icmptypes.conf");
+$firewalld_ipsets_config_defaults_file = catfile($conf_dir,"firewalld_ipsets.conf.defaults");
+$firewalld_ipsets_config_file = catfile($conf_dir,"firewalld_ipsets.conf");
+$firewalld_policies_config_defaults_file = catfile($conf_dir,"firewalld_policies.conf.defaults");
+$firewalld_policies_config_file = catfile($conf_dir,"firewalld_policies.conf");
+
 
 @log_files = map {catfile($log_dir, $_)}
   qw(
