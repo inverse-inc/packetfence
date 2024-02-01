@@ -1,16 +1,11 @@
 [interface eth0]
-masquerade: yes
-based_on: external
-services:
- - pf-admin
- - ssh
- - http
- - https
-port:
+masquerade=yes
+based_on=external
+services=pf-admin,ssh,http,https
+port=
 
 [interface docker0]
-masquerade: yes
-based_on: trusted
-services:
- - pfconfig
-port:
+masquerade=yes
+based_on=trusted
+services=pfconfig
+port=
