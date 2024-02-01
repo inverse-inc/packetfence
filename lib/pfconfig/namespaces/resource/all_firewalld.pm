@@ -16,6 +16,9 @@ use strict;
 use warnings;
 use pf::util;
 
+
+use Data::Dumper;
+
 use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Firewalld_Services;
 use pfconfig::namespaces::config::Firewalld_Zones;
@@ -25,6 +28,10 @@ use pfconfig::namespaces::config::Firewalld_Policies;
 
 sub init {
     my ($self) = @_;
+    my $firewalld_service_config = pfconfig::namespaces::config::Firewalld_Services->new( $self->{cache} );
+    $firewalld_service_config->build();
+    print "#######################\n############# BLIBLIBLU of:\n################\n";
+    print Dumper($firewalld_service_config);
 
     $self->{firewalld_services} = $self->{cache}->get_cache("config::Firewalld_Services");
     $self->{firewalld_zones} = $self->{cache}->get_cache("config::Firewalld_Zones");
