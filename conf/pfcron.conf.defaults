@@ -1048,3 +1048,35 @@ timeout=10s
 #
 # Local task
 local=1
+
+[pfflow]
+#
+# type
+#
+# Task type
+type=pfflow
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Pfflow processing job
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1m
+#
+# batch
+#
+# How many flush_radius_audit_log entries to clean up in one run
+batch=100
+#
+# local
+#
+# Local task
+local=0
