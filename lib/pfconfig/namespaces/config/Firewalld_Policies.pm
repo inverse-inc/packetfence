@@ -34,10 +34,12 @@ use DateTime::TimeZone;
 
 use base 'pfconfig::namespaces::config';
 
+
 sub init {
     my ($self) = @_;
 
     $self->{file} = $firewalld_policies_config_file;
+    $self->{child_resources} = [ "resource::all_firewalld" ];
 
     my $defaults = pf::IniFiles->new( -file => $firewalld_policies_config_defaults_file, -envsubst => 1, -allowempty => 1);
     $self->{added_params}->{'-import'} = $defaults;
