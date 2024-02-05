@@ -115,6 +115,7 @@ EOT
             my $process_tracking = "haproxy_portal";
             my $cluster_ip = pf::cluster::cluster_ip($interface);
             if ($Config{"interface $interface"}{'type'} =~ /management/i) {
+                # Defined list of ports we have to listen
                 foreach my $port ( 2055,6343 ) {
                     $tags{'lvs'} .= <<"EOT";
 virtual_server $cluster_ip $port {
