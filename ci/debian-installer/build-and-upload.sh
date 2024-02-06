@@ -12,8 +12,8 @@ SF_RESULT_DIR=results/sf/${PF_VERSION}
 
 upload_to_linode() {
     # using rclone config
-    rclone mkdir pfiso:packetfence-iso/${PF_VERSION}/
-    rclone copyto ${SF_RESULT_DIR}/${ISO_NAME} pfiso:packetfence-iso/${PF_VERSION}/${ISO_NAME}
+    rclone mkdir --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private :s3:packetfence-iso/${PF_VERSION}/
+    rclone copyto  --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private  ${SF_RESULT_DIR}/${ISO_NAME} :s3:packetfence-iso/${PF_VERSION}/${ISO_NAME}
 }
 
 mkdir -p ${SF_RESULT_DIR}
