@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 set -o nounset -o pipefail -o errexit
 
 VM_NAME=${VM_NAME:-vm}
