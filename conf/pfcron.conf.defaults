@@ -1081,10 +1081,30 @@ description=Pfflow processing job
 # The schedule of task
 schedule=@every 1m
 #
-# batch
+# kafka_brokers
 #
-# How many flush_radius_audit_log entries to clean up in one run
-batch=100
+# Kafka Brokers to read from
+kafka_brokers=
+#
+# read_topic
+#
+# Read topic for Pfflows Events
+read_topic=pfflows_events
+#
+# write_topic
+#
+# Write topic for Network Events
+write_topic=network_events
+#
+# group_id
+#
+# Write topic for Network Events
+group_id=network_group
+#
+# submit_batch
+#
+# How many batch entries to clean up in one run
+submit_batch=100
 #
 # local
 #

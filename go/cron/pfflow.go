@@ -43,7 +43,8 @@ type PfFlow struct {
 	SrcAS           uint16     `json:"src_as"`
 	DstAS           uint16     `json:"dst_as"`
 	TCPFlags        uint8      `json:"tcp_flags"`
-	Biflow          uint8      `json:"biflow"`
+	BiFlow          uint8      `json:"biflow"`
+	Direction       uint8      `json:"direction"`
 	Proto           uint8      `json:"proto"`
 	SrcMask         uint8      `json:"src_mask"`
 	DstMask         uint8      `json:"dst_mask"`
@@ -51,7 +52,7 @@ type PfFlow struct {
 }
 
 func (f *PfFlow) Key(h *PfFlowHeader) (EventKey, bool) {
-	switch f.Biflow {
+	switch f.BiFlow {
 	default:
 		return EventKey{}, false
 	case 1:
@@ -71,8 +72,15 @@ func (f *PfFlow) Key(h *PfFlowHeader) (EventKey, bool) {
 	}
 }
 
+func (f *PfFlow) SessionKey() AggregatorSession {
+	if f.BiFlow == 2 {
+		return AggregatorSession{Port: f.DstPort}
+	}
+	return AggregatorSession{Port: f.SrcPort}
+}
+
 func (f *PfFlow) NetworkEventDirection() NetworkEventDirection {
-	switch f.Biflow {
+	switch f.BiFlow {
 	default:
 		return NetworkEventDirectionBiDirectional
 	case 1:
