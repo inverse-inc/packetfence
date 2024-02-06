@@ -26,7 +26,7 @@ RUN adduser --disabled-password -u 1002 --gecos 0 semaphore && \
     ssh-keygen -t rsa -q -f "/root/.ssh/id_rsa" -N ""       && \
     ssh-keyscan -H github.com > /root/.ssh/known_hosts
 
-RUN cd $(go env GOPATH) && curl -sL https://taskfile.dev/install.sh | sh
+RUN cd $(go env GOPATH) && curl -sL https://taskfile.dev/install.sh | sh -s -- "v3.33.0"
 
 RUN npm install -g npm@9.6.7
 
