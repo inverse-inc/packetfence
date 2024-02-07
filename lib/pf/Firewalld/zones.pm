@@ -52,7 +52,7 @@ sub is_source_name {
 
 sub is_service_available {
    my $s = shift;
-   my %available_services = get_all_firewalld_services();
+   my %available_services = get_all_firewalld_services(); # firewall-cmd --get-services 
    foreach $s ( $v.keys() ) {
      if ( exists $available_services{$s} ) {
        return $s;
@@ -61,6 +61,32 @@ sub is_service_available {
    get_logger->error("Service $s does not exist.");
    return undef;
 }
+
+sub is_protocol_available {
+   my $s = shift;
+   my %available_protocols = get_all_linux_protocols(); # from /etc/protocols
+   foreach $s ( $v.keys() ) {
+     if ( exists $available_protocols{$s} ) {
+       return $s;
+     }
+   }
+   get_logger->error("Protocol $s does not exist.");
+   return undef;
+}
+
+sub is_ipset_available {
+   my $s = shift;
+   my %available_ipsets = get_all_firewalld_ipsets(); # firewall-cmd --get-icmptypes
+   foreach $s ( $v.keys() ) {
+     if ( exists $available_ipsets{$s} ) {
+       return $s;
+     }
+   }
+   get_logger->error("Ipsets $s does not exist.");
+   return undef;
+}
+
+
 
 # need a function that return a structured content of the config file
 # Check and return string for xml file
@@ -103,7 +129,7 @@ sub zone_target {
 sub zone_interface {
   my $v = shift;
   if ( length $v ) {
-    my %all_interfaces = grab_all_interfaces();
+    my %all_interfaces = get_all_interfaces();
     if ( not exists $all_interfaces{$v} ) {
       get_logger->error("Unknown interface zone. ==> Apply management interface");
       $v = get_management_interface();
@@ -141,6 +167,48 @@ sub zone_services {
   }
   return %t;
 }
+
+sub zone_ports {
+  my %v = shift;
+  my %t;
+  foreach $s ( $v.keys() ) {
+    if ( exists $v{$s}{"protocol"} && exists $v{$s}{"portid"} ) {
+      if ( is_proto($v{$s}{"protocol"}) ) {
+        $t{$s}=$v{$s};
+      }
+    } else {
+      get_logger->error("==> Port is removed.");
+    }
+  }
+  return %t;
+}
+
+sub zone_protocols {
+  my %v = shift;
+  my %t;
+  foreach $s ( $v.keys() ) {
+    if ( exists $v{$s}{"protocol"} && is_protocol_available($v{$s}{"protocol"}) ) {
+      $t{$s}=$v{$s};
+    } else {
+      get_logger->error("==> Protocol is removed.");
+    }
+  }
+  return %t;
+}
+
+sub zone_icmp_blocks {
+  my %v = shift;
+  my %t;
+  foreach $s ( $v.keys() ) {
+    if ( is_icmp_blocks_available($s) ) {
+      $t{$s}=$v{$s};
+    } else {
+      get_logger->error("==> Icmp Blocks is removed.");
+    }
+  }
+  return %t;
+}
+
 
 sub zone_forward_ports {
   my %v = shift;
