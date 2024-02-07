@@ -51,7 +51,7 @@ Looks like some optional variable can be defined with empty string, like version
     <icmp-block name="[% icmp_block %]"/>
   [% END %]
 
-  [% IF zone.masquerade != "" %]
+  [% IF zone.masquerade == "yes" %]
     <masquerade/>
   [% END %]
 
