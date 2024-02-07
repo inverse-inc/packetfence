@@ -1,0 +1,123 @@
+<!-- source: https://firewalld.org/documentation/man-pages/firewalld.zone.html -->
+
+<!--
+NOTE: VARIABLES ending with _xml are optional and need to be rewritten in xml format before.
+Looks like some optional variable can be defined with empty string, like version in zone tag
+--> 
+
+<?xml version="1.0" encoding="utf-8"?>
+<zone [% zone.version_xml %] [% zone.target_xml %]>
+    <interface name="[% zone.interface %]"/>
+
+  [% FOREACH source IN zone.sources %]
+    [% IF source.name == 'address' %]
+    <source address="[% source.address %]"/>
+    [% ELSIF source.name == 'mac' %]
+    <source mac="[% source.MAC %]"/>
+    [% ELSIF source.name == 'ipset' %]
+    <source ipset="[% source.ipset %]"/>
+    [% END %]
+  [% END %]
+
+  [% IF zone.icmp-block-inversion == "yes" %]
+    <icmp-block-inversion/>
+  [% END %]
+
+  [% IF zone.forward == "yes" %]
+    <forward/>
+  [% END %]
+
+  [% IF zone.short_description != "" %]
+    <short>[% zone.short_description %]</short>
+  [% END %]
+
+  [% IF zone.description != "" %]
+    <description>[% zone.description %]</description>
+  [% END %]
+
+  [% FOREACH service IN zone.services %]
+    <service name="[% service %]"/>
+  [% END %]
+
+  [% FOREACH port IN zone.ports %]
+    <port port="[% port.portid %]" protocol="[% port.protocol %]"/>
+  [% END %]
+
+  [% FOREACH protocol IN zone.protocols %]
+    <protocol value="[% protocol %]"/>
+  [% END %]
+
+  [% FOREACH icmp_block IN zone.icmp_blocks %]
+    <icmp-block name="[% icmp_block %]"/>
+  [% END %]
+
+  [% IF zone.masquerade != "" %]
+    <masquerade/>
+  [% END %]
+
+  [% FOREACH forward_port IN zone.forward_ports %]
+    <forward-port port="[% forward_port.portid %]" protocol="[% forward_port.protocol %]" [% forward_port.to_port_xml %] [% forward_port.to_addr_xml %] />
+  [% END %]
+
+  [% FOREACH source_port IN zone.source_ports %]
+    <source-port port="[% source_port.portid %]" protocol="[% source_port.protocol %]"/>
+  [% END %]
+
+  [% FOREACH rule IN zone.rules %]
+    <!-- First Match = First WIN -->
+    <!-- also read: https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html -->
+    <rule [% rule.family_xml %] [% rule.priority_xml %] >
+    [% IF rule.source.name == "address" %]
+        <source address="[% rule.source.address %]" [% rule.source.invert_xml %]/> 
+    [% ELSIF rule.source.name == "mac" %]
+        <source mac="[% rule.source.MAC %]" [% rule.source.invert_xml %]/> ]
+    [% ELSIF rule.source.name == "ipset" %]
+        <source ipset="[% rule.source.ipset %]" [% rule.source.invert_xml %]/>
+    [% END %]
+
+    [% IF rule.destination.name == "address" %]
+        <destination address="[% rule.destination.address %]" [% rule.destination.invert_xml %]/>
+    [% ELSIF rule.destination.name == "ipset" %]
+        <destination ipset="[% rule.destination.ipset %]" [% rule.destination.invert_xml %]/>
+    [% END %]
+
+    [% FOREACH match_rule IN zone.rules.matches %]
+      [% IF match_rule.name == "service" %]
+        <service name="[% match_rule.service %]"/>
+      [% ELSIF match_rule.name == "port" %]
+        <port port="[% match_rule.portid %]" protocol="[% match_rule.port_protocol %]"/>
+      [% ELSIF match_rule.name == "protocol" %]
+        <protocol value="match_rule.protocol %]"/>
+      [% ELSIF match_rule.name == "icmp_block" %]
+        <icmp-block name="[% match_rule.icmp_block %]"/>
+      [% ELSIF match_rule.name == "icmp_type" %]
+        <icmp-type name="[% match_rule.icmp_type %]"/>
+      [% ELSIF match_rule.name == "masquerade" %]
+        <masquerade/>
+      [% ELSIF match_rule.name == "forward_port" %]
+        <forward-port port="[% match_rule.portid %]" protocol="[% match_rule.procotol %]" [% match_rule.to_port_xml %] [% match_rule.to_addr_xml %] />
+      [% END %]
+    [% END %]
+
+    [% IF rule.log_rule.name == "log" %]
+        <log [% rule.log_rule.prefix_xml %] [% rule.log_rule.level_xml %] > [% rule.log_rule.limit_value_xml %] </log>
+    [% ELSIF rule.log_rule.name == "nflog" %]
+        <nflog [% rule.log_rule.group_xml %] [% rule.log_rule.prefix_xml %] [% rule.log_rule.queue_size_xml %] > [% rule.log_rule.limit_value_xml %]</nflog>
+    [% END %]
+
+    [% IF rule.audit_xml != "" %]
+        <audit> [% rule.audit_xml %]</audit>
+    [% END %]
+
+    [% IF rule.action.name == "accept" %]
+        <accept> [% rule.action.limit_value %]</accept>
+    [% ELSIF rule.action.name == "reject" %]
+        <reject [% rule.action.type_xml %] > [% rule.action.limit_value_xml %] </reject>
+    [% ELSIF rule.action.name == "drop" %]
+        <drop> [% rule.action.limit_value_xml %] </drop>
+    [% ELSIF rule.action.name == "mark" %]
+        <mark [% rule.action.set_xml %] > [% rule.action.limit_value_xml %] </mark>
+    [% END %]
+    </rule>
+  [% END %]
+</zone>
