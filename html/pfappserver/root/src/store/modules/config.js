@@ -18,7 +18,7 @@ const encodeURL = (url) => {
 
 const api = {
   getAdminRoles () {
-    return apiCall({ url: 'config/admin_roles', method: 'get' })
+    return apiCall({ url: 'config/admin_roles', method: 'get', params: { limit: 1000 } })
   },
   getBaseActiveActive () {
     return apiCall({ url: 'config/base/active_active', method: 'get' })
