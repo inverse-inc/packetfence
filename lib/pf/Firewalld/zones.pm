@@ -19,6 +19,18 @@ use warnings;
 use Exporter;
 use pf::log;
 
+use pf::config qw(%ConfigFirewalld);
+
+# need a function that return a structured content of the config file
+sub generate_zone_config {
+  my %firewalld_zones = $ConfigFirewalld{"firewalld_zones"};
+  foreach $k ( keys $firewalld_zones ) {
+    my $val = $firewalld_zones->{$k};
+  }
+}
+
+
+
 # need a function that is creating the xml file from the config
 # need a function that check if service exist (xml, firewalld-cmd)
 # need a function that add interfaces in the config file
@@ -51,12 +63,10 @@ sub is_source_name {
 }
 
 sub is_service_available {
-   my $s = shift;
+   my %s = shift;
    my %available_services = get_all_firewalld_services(); # firewall-cmd --get-services 
-   foreach $s ( $v.keys() ) {
-     if ( exists $available_services{$s} ) {
-       return $s;
-     }
+   if ( exists $available_services{$s} ) {
+     return $s;
    }
    get_logger->error("Service $s does not exist.");
    return undef;
@@ -65,10 +75,8 @@ sub is_service_available {
 sub is_protocol_available {
    my $s = shift;
    my %available_protocols = get_all_linux_protocols(); # from /etc/protocols
-   foreach $s ( $v.keys() ) {
-     if ( exists $available_protocols{$s} ) {
-       return $s;
-     }
+   if ( exists $available_protocols{$s} ) {
+     return $s;
    }
    get_logger->error("Protocol $s does not exist.");
    return undef;
@@ -77,10 +85,8 @@ sub is_protocol_available {
 sub is_ipset_available {
    my $s = shift;
    my %available_ipsets = get_all_firewalld_ipsets(); # firewall-cmd --get-icmptypes
-   foreach $s ( $v.keys() ) {
-     if ( exists $available_ipsets{$s} ) {
-       return $s;
-     }
+   if ( exists $available_ipsets{$s} ) {
+     return $s;
    }
    get_logger->error("Ipsets $s does not exist.");
    return undef;
@@ -112,14 +118,14 @@ sub zone_version {
 }
 
 sub zone_target {
-  my $v = shift;
+  my $s = shift;
   my %zone_target_option=qw(ACCEPT 0
                 %%REJECT%% 1
                 DROP 2
                 default 3);
-  if ( exists $zone_target_option{$v} ) {
-    get_logger->info("Target zone is $v");
-    return create_string_for_xml("target",$v);
+  if ( exists $zone_target_option{$s} ) {
+    get_logger->info("Target zone is $s");
+    return create_string_for_xml("target",$s);
   } else {
     get_logger->error("Unknown target zone. ==> Apply %%REJECT%%");
     return create_string_for_xml("target","%%REJECT%%");
@@ -144,7 +150,7 @@ sub zone_interface {
 sub zone_sources {
   my %v = shift;
   my %t;
-  foreach $s ( $v.keys() ) {
+  foreach $s ( keys %v ) {
     my $s_name = $v{$s}{"name"};
     if ( is_source_name($s_name) ) {
       $t{$s}=$v{$s};
@@ -158,7 +164,7 @@ sub zone_sources {
 sub zone_services {
   my %v = shift;
   my %t;
-  foreach $s ( $v.keys() ) {
+  foreach $s ( keys %v ) {
     if ( is_service_available($s) ) {
       $t{$s}=$v{$s};
     } else {
@@ -171,7 +177,7 @@ sub zone_services {
 sub zone_ports {
   my %v = shift;
   my %t;
-  foreach $s ( $v.keys() ) {
+  foreach $s ( keys %v ) {
     if ( exists $v{$s}{"protocol"} && exists $v{$s}{"portid"} ) {
       if ( is_proto($v{$s}{"protocol"}) ) {
         $t{$s}=$v{$s};
@@ -186,7 +192,7 @@ sub zone_ports {
 sub zone_protocols {
   my %v = shift;
   my %t;
-  foreach $s ( $v.keys() ) {
+  foreach $s ( keys %v ) {
     if ( exists $v{$s}{"protocol"} && is_protocol_available($v{$s}{"protocol"}) ) {
       $t{$s}=$v{$s};
     } else {
@@ -199,7 +205,7 @@ sub zone_protocols {
 sub zone_icmp_blocks {
   my %v = shift;
   my %t;
-  foreach $s ( $v.keys() ) {
+  foreach $s ( keys %v ) {
     if ( is_icmp_blocks_available($s) ) {
       $t{$s}=$v{$s};
     } else {
@@ -213,7 +219,7 @@ sub zone_icmp_blocks {
 sub zone_forward_ports {
   my %v = shift;
   my %t;
-  foreach $s ( $v.keys() ) {
+  foreach $s ( keys %v ) {
     if ( exists $v{$s}{"protocol"} && exists $v{$s}{"portid"} ) {
       if ( is_proto($v{$s}{"protocol"}) ) {
         if ( exists $v{$s}{"to_port"} ) {
@@ -242,7 +248,7 @@ sub zone_forward_ports {
 sub zone_source_ports {
   my %v = shift;
   my %t;
-  foreach $s ( $v.keys() ) {
+  foreach $s ( keys %v ) {
     if ( exists $v{$s}{"protocol"} && exists $v{$s}{"portid"} ) {
       if ( is_proto($v{$s}{"protocol"}) ) {
         $t{$s}=$v{$s};
@@ -258,7 +264,7 @@ sub zone_rules {
   my %v = shift;
   my %t;
   my $flag=0;
-  foreach $r ( $v.keys() ) {
+  foreach $r ( keys %v ) {
     if ( exists $v{$r}{"family"} ) {
       $v{$r}{"family_xml"} = create_string_for_xml("family",$v{$r}{"family"});
     } else {
