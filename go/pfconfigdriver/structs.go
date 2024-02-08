@@ -393,6 +393,7 @@ type NetworkConf struct {
 	Algorithm                string `json:"algorithm"`
 	PoolBackend              string `json:"pool_backend"`
 	NetflowAccountingEnabled string `json:"netflow_accounting_enabled"`
+	DhcpReplyIp              string `json:"dhcp_reply_ip"`
 }
 
 type Interface struct {
@@ -435,6 +436,7 @@ type RessourseNetworkConf struct {
 	NetflowAccountingEnabled string    `json:"netflow_accounting_enabled"`
 	NatDNS                   string    `json:"nat_dns"`
 	ForceGatewayVIP          string    `json:"force_gateway_vip"`
+	DhcpReplyIp              string    `json:"dhcp_reply_ip"`
 }
 
 type PfRoles struct {
