@@ -1,6 +1,6 @@
 module github.com/inverse-inc/packetfence/go
 
-go 1.21
+go 1.22
 
 require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible // indirect
@@ -26,7 +26,6 @@ require (
 	github.com/go-acme/lego v2.5.0+incompatible
 	github.com/go-errors/errors v1.0.1
 	github.com/go-kit/kit v0.10.0 // indirect
-	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -249,15 +248,13 @@ require (
 	github.com/huandu/go-clone/generic v1.6.0
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10
+	github.com/redis/go-redis/v9 v9.3.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
 	layeh.com/radius v0.0.0-00010101000000-000000000000
 )
 
-require (
-	github.com/redis/go-redis/v9 v9.3.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230807174057-1744710a1577 // indirect
-)
+require google.golang.org/genproto/googleapis/rpc v0.0.0-20230807174057-1744710a1577 // indirect
 
 replace layeh.com/radius => github.com/inverse-inc/go-radius v0.0.0-20221114145510-67bfba021ae4
 
