@@ -27,4 +27,3 @@ END
 echo "decrypt repository" > /proc/1/fd/1
 git-crypt unlock
 
-
