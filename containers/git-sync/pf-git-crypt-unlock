@@ -1,3 +1,25 @@
 #!/bin/sh
 
-git-crypt unlock /var/run/git-crypt-key/git-crypt.key
+# import the  gpg private key
+gpg  --batch --allow-secret-key-import --passphrase $GPG_OWN_KEY_PASSSWORD --pinentry-mode loopback --import /var/run/git-crypt-key/git-crypt.key
+
+#search the id 
+gpg_key_id=$(gpg --list-keys --with-colons  | awk -F: '/fpr:/ {print $10}')
+
+# trust the gpg private key
+gpg --command-fd 0 --expert --edit-key $gpg_key_id <<END
+5
+y
+
+END
+
+#remove the passphrase 
+gpg --command-fd 0 --pinentry-mode loopback --change-passphrase $gpg_key_id <<END
+$GPG_OWN_KEY_PASSSWORD
+
+END
+
+#decrypt repository
+git-crypt unlock
+
+
