@@ -16,9 +16,6 @@ VMX_ZIP_NAME=`echo -n $VMX_ZIP_NAME | tr '/' '-'`
 
 # upload
 SF_RESULT_DIR=results/sf/${PF_VERSION}
-PUBLIC_REPO_DIR="/home/frs/project/p/pa/packetfence/PacketFence\ ZEN/${PF_VERSION}"
-DEPLOY_SF_USER=${DEPLOY_SF_USER:-inverse-bot,packetfence}
-DEPLOY_SF_HOST=${DEPLOY_SF_HOST:-frs.sourceforge.net}
 
 declare -p VM_NAME
 declare -p VBOX_RESULT_DIR VBOX_OVA_NAME VBOX_OVF_NAME
@@ -37,32 +34,17 @@ compress_vmware_ova() {
 
     echo "zip source ${ova_file} =>  dest: ${zip_file}"
 
-    zip -qdgds 100m -9 -j ${zip_file} ${ova_file}
+    zip -j ${zip_file} ${ova_file}
 }
 
-upload_to_sf() {
-    # warning: slashs at end of dirs are significant for rsync
-    local src_dir="${SF_RESULT_DIR}/"
-    local zip_file="${src_dir}${VMX_ZIP_NAME}"
-    # Get file zip size
-    local file_size=$(du -bs ${zip_file} | cut -f1)
-    echo "zip file is ${zip_file} with size ${file_size}"
-    # Source Forge limit is 7.0 GB
-    local check_size=7516192768
-    echo "Max file is ${check_size}"
-
-    if [ "$file_size" -le "$check_size" ]; then
-      local dst_repo="${PUBLIC_REPO_DIR}/"
-      local dst_dir="${DEPLOY_SF_USER}@${DEPLOY_SF_HOST}:${dst_repo}"
-      declare -p src_dir dst_dir
-      # quotes to handle space in filename
-      echo "rsync: $src_dir -> $dst_dir"
-      # quotes to handle space in filename
-      rsync -avz $src_dir "$dst_dir"
-    else
-      echo "The file is bigger than Sourceforge Limite 7.0 GB.\nIt will not be uploaded.\n${zip_file} size is ${file_size}"
-      exit 27
-    fi
+upload_to_linode() {
+    echo "Create directory packetfence-zen/${PF_VERSION}/"
+    rclone mkdir --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private :s3:packetfence-zen/${PF_VERSION}/
+    echo "rclone ${VMX_ZIP_NAME} to packetfence-zen/${PF_VERSION}/"
+    rclone copyto  --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private  ${SF_RESULT_DIR}/${VMX_ZIP_NAME} :s3:packetfence-zen/${PF_VERSION}/${VMX_ZIP_NAME}
+    echo "Add md5sum of ${VMX_ZIP_NAME} in ${VMX_ZIP_NAME}.md5sums.txt"
+    echo "`md5sum ${SF_RESULT_DIR}/${VMX_ZIP_NAME} | cut -d ' ' -f 1` ${VMX_ZIP_NAME}" | tee -a ${SF_RESULT_DIR}/${VMX_ZIP_NAME}.md5sums.txt
+    rclone copyto  --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private  ${SF_RESULT_DIR}/${VMX_ZIP_NAME}.md5sums.txt :s3:packetfence-zen/${PF_VERSION}/${VMX_ZIP_NAME}.md5sums.txt
 }
 
 mkdir -p ${VMWARE_RESULT_DIR} ${SF_RESULT_DIR}
@@ -84,5 +66,5 @@ ovftool --shaAlgorithm=SHA1 --lax ${VMWARE_RESULT_DIR}/${VBOX_OVF_NAME} ${VMWARE
 echo "===> Compress VMware OVA"
 compress_vmware_ova
 
-echo "===> Upload to Sourceforge"
-upload_to_sf
+echo "===> Upload to Linode"
+upload_to_linode

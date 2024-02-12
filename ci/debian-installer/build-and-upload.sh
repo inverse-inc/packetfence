@@ -9,20 +9,16 @@ ISO_NAME=PacketFence-ISO-${PF_VERSION}.iso
 
 # upload
 SF_RESULT_DIR=results/sf/${PF_VERSION}
-PUBLIC_REPO_DIR="/home/frs/project/p/pa/packetfence/PacketFence\ ISO/${PF_VERSION}"
-DEPLOY_SF_USER=${DEPLOY_SF_USER:-inverse-bot,packetfence}
-DEPLOY_SF_HOST=${DEPLOY_SF_HOST:-frs.sourceforge.net}
 
-upload_to_sf() {
-    # warning: slashs at end of dirs are significant for rsync
-    local src_dir="${SF_RESULT_DIR}/"
-    local dst_repo="${PUBLIC_REPO_DIR}/"
-    local dst_dir="${DEPLOY_SF_USER}@${DEPLOY_SF_HOST}:${dst_repo}"
-    declare -p src_dir dst_dir
-    echo "rsync: $src_dir -> $dst_dir"
-
-    # quotes to handle space in filename
-    rsync -avz $src_dir "$dst_dir"
+upload_to_linode() {
+    echo "Create directory packetfence-iso/${PF_VERSION}/"
+    rclone mkdir --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private :s3:packetfence-iso/${PF_VERSION}/
+    echo "rclone ${ISO_NAME} to packetfence-iso/${PF_VERSION}/" 
+    rclone copyto  --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private  ${SF_RESULT_DIR}/${ISO_NAME} :s3:packetfence-iso/${PF_VERSION}/${ISO_NAME}
+    echo "Add md5sum ${ISO_NAME} in ${ISO_NAME}.md5sums.txt"
+    echo "`md5sum ${SF_RESULT_DIR}/${ISO_NAME} | cut -d ' ' -f 1` ${ISO_NAME}" | tee -a ${SF_RESULT_DIR}/${ISO_NAME}.md5sums.txt
+    rclone copyto  --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private  ${SF_RESULT_DIR}/${ISO_NAME}.md5sums.txt :s3:packetfence-iso/${PF_VERSION}/${ISO_NAME}.md5sums.txt
+    
 }
 
 mkdir -p ${SF_RESULT_DIR}
@@ -30,5 +26,5 @@ mkdir -p ${SF_RESULT_DIR}
 echo "===> Build ISO for release $PF_RELEASE"
 docker run --rm -e PF_RELEASE=$PF_RELEASE -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/debian-installer debian:11 /debian-installer/create-debian-installer-docker.sh
 
-echo "===> Upload to Sourceforge"
-upload_to_sf
+echo "===> Upload to Linode"
+upload_to_linode
