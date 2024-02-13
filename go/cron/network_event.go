@@ -50,6 +50,10 @@ type NetworkEvent struct {
 	ReportingEntity     *ReportingEntity        `json:"reporting-entity"` //   integration-specific e.g. broker-id, cloud-app
 }
 
+var GlobalReportingEntity = ReportingEntity{
+	Type: "packetfence",
+}
+
 var InvalidEventTypeErr = errors.New("Invalid Proto")
 
 func ProtoToIpProtocol(proto int) (IpProtocol, error) {

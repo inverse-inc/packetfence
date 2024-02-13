@@ -124,6 +124,7 @@ func interfaceArrayToStringArray(a []interface{}) []string {
 
 func SetupKafka(config map[string]interface{}) {
 	aggregatorOnce.Do(func() {
+		GlobalReportingEntity.UUID = config["uuid"].(string)
 		batch_submit := int(config["submit_batch"].(float64))
 		hosts := interfaceArrayToStringArray(config["kafka_brokers"].([]interface{}))
 		aggregatorChan := make(chan []*NetworkEvent, batch_submit)

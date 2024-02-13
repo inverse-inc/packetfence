@@ -16,6 +16,7 @@ type PfFlowJob struct {
 	ReadTopic string
 	Brokers   []string
 	GroupID   string
+	UUID      string
 }
 
 func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
@@ -26,6 +27,7 @@ func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
 		Brokers:   hosts,
 		GroupID:   config["group_id"].(string),
 		ReadTopic: config["read_topic"].(string),
+		UUID:      config["uuid"].(string),
 	}
 }
 
