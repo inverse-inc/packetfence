@@ -143,7 +143,7 @@ all:
               disk_size: 130
             pf1deb11dev:
               box: inverse-inc/pfdeb11dev
-              box_version: 13.2.20240122192949
+              box_version: 13.2.20240213141053
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -153,7 +153,7 @@ all:
               disk_size: 130
             pf2deb11dev:
               box: inverse-inc/pfdeb11dev
-              box_version: 13.2.20240122192949
+              box_version: 13.2.20240213141053
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -163,7 +163,7 @@ all:
               disk_size: 130
             pf3deb11dev:
               box: inverse-inc/pfdeb11dev
-              box_version: 13.2.20240122192949
+              box_version: 13.2.20240213141053
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -203,7 +203,7 @@ all:
               disk_size: 130
             pf1deb11localdev:
               box: inverse-inc/pfdeb11dev
-              box_version: 13.2.20240122192949
+              box_version: 13.2.20240213141053
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb11localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -213,7 +213,7 @@ all:
               disk_size: 130
             pf2deb11localdev:
               box: inverse-inc/pfdeb11dev
-              box_version: 13.2.20240122192949
+              box_version: 13.2.20240213141053
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb11localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -223,7 +223,7 @@ all:
               disk_size: 130
             pf3deb11localdev:
               box: inverse-inc/pfdeb11dev
-              box_version: 13.2.20240122192949
+              box_version: 13.2.20240213141053
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb11localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -246,7 +246,7 @@ all:
               disk_size: 130
             pfdeb11dev:
               box: inverse-inc/pfdeb11dev
-              box_version: 13.2.20240122192949
+              box_version: 13.2.20240213141053
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -290,7 +290,7 @@ all:
               disk_size: 130
             pfdeb11localdev:
               box: inverse-inc/pfdeb11dev
-              box_version: 13.2.20240122192949
+              box_version: 13.2.20240213141053
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
