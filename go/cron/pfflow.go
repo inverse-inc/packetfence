@@ -97,16 +97,38 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 	}
 
 	return &NetworkEvent{
-		EventType:        NetworkEventTypeSuccessful,
-		SourceIp:         f.SrcIp.String(),
-		DestIp:           f.DstIp.String(),
-		DestPort:         int(f.DstPort),
-		IpProtocol:       ipProto,
-		IpVersion:        IpVersionIpv4,
-		EnforcementState: EnforcementStateRevealOnly,
-		Count:            1,
-		StartTime:        uint64(time.Now().Unix()),
-		Direction:        f.NetworkEventDirection(),
-		ReportingEntity:  &GlobalReportingEntity,
+		EventType:           NetworkEventTypeSuccessful,
+		SourceIp:            f.SrcIp.String(),
+		DestIp:              f.DstIp.String(),
+		DestPort:            int(f.DstPort),
+		IpProtocol:          ipProto,
+		IpVersion:           IpVersionIpv4,
+		EnforcementState:    EnforcementStateRevealOnly,
+		Count:               1,
+		StartTime:           uint64(time.Now().Unix()),
+		Direction:           f.NetworkEventDirection(),
+		DestInventoryitem:   f.DestInventoryitem(),
+		SourceInventoryItem: f.SourceInventoryitem(),
+		ReportingEntity:     &GlobalReportingEntity,
+	}
+}
+
+func (f *PfFlow) DestInventoryitem() *InventoryItem {
+	if f.DstMac == "" {
+		return nil
+	}
+
+	return &InventoryItem{
+		ExternalIDS: []string{f.DstMac},
+	}
+}
+
+func (f *PfFlow) SourceInventoryitem() *InventoryItem {
+	if f.SrcMac == "" {
+		return nil
+	}
+
+	return &InventoryItem{
+		ExternalIDS: []string{f.SrcMac},
 	}
 }
