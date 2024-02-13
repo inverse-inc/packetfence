@@ -1,8 +1,8 @@
-package pf::Switch::Extreme::EXOS;
+package pf::Switch::Extreme::EXOS_v32_x;
 
 =head1 NAME
 
-pf::Switch::Extreme::EXOS - Object oriented module to parse SNMP traps 
+pf::Switch::Extreme::EXOS_v32_x - Object oriented module to parse SNMP traps 
 and manage Extreme Networks' Summit X250e switches
 
 =head1 STATUS
@@ -18,7 +18,7 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 use Net::SNMP;
-use base ('pf::Switch::Extreme::Summit');
+use base ('pf::Switch::Extreme::Summit:EXOS');
 
 # importing switch constants
 use pf::Switch::constants;
@@ -37,7 +37,7 @@ use pf::SwitchSupports qw(
     ~AccessListBasedEnforcement
 );
 
-sub description { "Extreme EXOS" } 
+sub description { "Extreme EXOS v32.x" } 
 
 sub returnRoleAttribute { "Filter-Id" }
 
