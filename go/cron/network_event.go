@@ -125,8 +125,9 @@ const (
 type NetworkEventDirection string
 
 const (
-	NetworkEventDirectionOutGoing      NetworkEventDirection = "outgoing"
-	NetworkEventDirectionInGoing       NetworkEventDirection = "ingoing"
+	NetworkEventDirectionOutBound      NetworkEventDirection = "outbound"
+	NetworkEventDirectionOutBoundOnly  NetworkEventDirection = "outbound-only"
+	NetworkEventDirectionInBound       NetworkEventDirection = "ingoing"
 	NetworkEventDirectionBiDirectional NetworkEventDirection = "bi-directional"
 )
 

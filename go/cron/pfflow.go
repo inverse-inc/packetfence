@@ -84,9 +84,9 @@ func (f *PfFlow) NetworkEventDirection() NetworkEventDirection {
 	default:
 		return NetworkEventDirectionBiDirectional
 	case 1:
-		return NetworkEventDirectionInGoing
+		return NetworkEventDirectionInBound
 	case 2:
-		return NetworkEventDirectionOutGoing
+		return NetworkEventDirectionOutBound
 	}
 }
 
