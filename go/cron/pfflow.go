@@ -107,5 +107,6 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 		Count:            1,
 		StartTime:        uint64(time.Now().Unix()),
 		Direction:        f.NetworkEventDirection(),
+		ReportingEntity:  &GlobalReportingEntity,
 	}
 }
