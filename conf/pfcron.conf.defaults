@@ -1096,6 +1096,11 @@ group_id=network_group
 # How many batch entries to clean up in one run
 submit_batch=100
 #
+# uuid
+#
+# The UUID of the packetfence aggregator
+uuid=
+#
 # local
 #
 # Local task
