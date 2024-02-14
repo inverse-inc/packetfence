@@ -6,10 +6,11 @@ import (
 )
 
 type EventKey struct {
-	SrcIp   netip.Addr
-	DstIp   netip.Addr
-	DstPort uint16
-	Proto   uint8
+	SrcIp     netip.Addr
+	DstIp     netip.Addr
+	DstPort   uint16
+	Proto     uint8
+	HasBiFlow bool
 }
 
 func NewAggregator(o *AggregatorOptions) *Aggregator {
@@ -50,10 +51,9 @@ loop:
 		case pfflowsArray := <-ChanPfFlow:
 			for _, pfflows := range pfflowsArray {
 				for _, f := range *pfflows.Flows {
-					if key, ok := f.Key(&pfflows.Header); ok {
-						val := a.events[key]
-						a.events[key] = append(val, f)
-					}
+					key := f.Key(&pfflows.Header)
+					val := a.events[key]
+					a.events[key] = append(val, f)
 				}
 			}
 		case <-ticker.C:
