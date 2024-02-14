@@ -191,8 +191,8 @@ type ProcessInfo struct {
 }
 
 type InventoryItem struct {
-	ExternalIDS        []string               `json:"external_ids,omitempty"`
+	ExternalIDS        []string               `json:"external-ids,omitempty"`
 	ItemType           string                 `json:"item-type"`           //     Optional e.g. asset. If not set can assumed to be an asset
-	ItemID             string                 `json:"item-id"`             // reference to Centra inventory item
+	ItemID             string                 `json:"item-id,omitempty"`   // reference to Centra inventory item
 	MetadataAttributes map[string]interface{} `json:"metadata-attributes"` // container for item-specific attributes
 }
