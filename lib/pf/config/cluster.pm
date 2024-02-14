@@ -148,7 +148,7 @@ sub getClusterConfig {
 
         return \%cluster_servers;
     }
-    return;
+    return {};
 }
 
 
