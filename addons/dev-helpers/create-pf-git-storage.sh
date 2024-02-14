@@ -30,7 +30,6 @@ mkdir -p $dst_dir
 tmpdir=`mktemp -d`
 
 git clone -b $pf_ref https://github.com/inverse-inc/packetfence $tmpdir/packetfence
-cp -a $tmpdir/packetfence/addons/perl-client/  $tmpdir/fingerbank
 
 ## Happens in the PF dir (chdir)
 cd $tmpdir/packetfence
@@ -56,7 +55,7 @@ EOF
 cd -
 ## End of the commands in the PF dir
 
-cd $tmpdir/fingerbank
+cd  $tmpdir/packetfence/addons/perl-client/
 perl db/upgrade.pl --database=db/fingerbank_Local.db
 cp db/fingerbank_Local.db db/fingerbank_Upstream.db
 cd -
@@ -68,7 +67,7 @@ mkdir -p $dst_dir/html/captive-portal/profile-templates/
 touch $dst_dir/html/captive-portal/profile-templates/.empty
 
 mkdir -p $dst_dir/fingerbank
-cp -a $tmpdir/fingerbank/conf $dst_dir/fingerbank/
+cp -a $tmpdir/packetfence/addons/perl-client/conf  $dst_dir/fingerbank/
 touch $dst_dir/fingerbank/conf/fingerbank.conf
 
 find $dst_dir -name .gitignore -delete

@@ -30,7 +30,6 @@ dst_dir=`echo $dst_dir | sed 's|/$||'`
 tmpdir=`mktemp -d`
 
 git clone -b $pf_ref https://github.com/inverse-inc/packetfence $tmpdir/packetfence
-cp -a $tmpdir/packetfence/addons/perl-client/  $tmpdir/fingerbank
 
 cd $tmpdir/packetfence
 make configurations
@@ -61,7 +60,7 @@ ln -s ../sites-available/dynamic-clients dynamic-clients
 cd -
 
 mkdir -p $dst_dir/fingerbank
-cp -a $tmpdir/fingerbank/conf $dst_dir/fingerbank/
+cp -a $tmpdir/packetfence/addons/perl-client/conf $dst_dir/fingerbank/
 
 for file in $files; do
   file=`echo $file | sed 's|^/usr/local/pf/||'`
