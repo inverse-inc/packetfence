@@ -51,24 +51,32 @@ type PfFlow struct {
 	ToS             uint8      `json:"tos"`
 }
 
-func (f *PfFlow) Key(h *PfFlowHeader) (EventKey, bool) {
+func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 	switch f.BiFlow {
 	default:
-		return EventKey{}, false
+		return EventKey{
+			SrcIp:     f.SrcIp,
+			DstIp:     f.DstIp,
+			DstPort:   f.DstPort,
+			Proto:     f.Proto,
+			HasBiFlow: false,
+		}
 	case 1:
 		return EventKey{
-			SrcIp:   f.SrcIp,
-			DstIp:   f.DstIp,
-			DstPort: f.DstPort,
-			Proto:   f.Proto,
-		}, true
+			SrcIp:     f.SrcIp,
+			DstIp:     f.DstIp,
+			DstPort:   f.DstPort,
+			Proto:     f.Proto,
+			HasBiFlow: true,
+		}
 	case 2:
 		return EventKey{
-			DstIp:   f.SrcIp,
-			SrcIp:   f.DstIp,
-			DstPort: f.SrcPort,
-			Proto:   f.Proto,
-		}, true
+			DstIp:     f.SrcIp,
+			SrcIp:     f.DstIp,
+			DstPort:   f.SrcPort,
+			Proto:     f.Proto,
+			HasBiFlow: true,
+		}
 	}
 }
 
@@ -82,7 +90,7 @@ func (f *PfFlow) SessionKey() AggregatorSession {
 func (f *PfFlow) NetworkEventDirection() NetworkEventDirection {
 	switch f.BiFlow {
 	default:
-		return NetworkEventDirectionBiDirectional
+		return NetworkEventDirection("")
 	case 1:
 		return NetworkEventDirectionInBound
 	case 2:
