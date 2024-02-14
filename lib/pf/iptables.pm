@@ -29,6 +29,7 @@ use pf::constants;
 use pf::config::cluster;
 use File::Slurp qw(read_file);
 use URI ();
+use Sys::Hostname;
 
 BEGIN {
     use Exporter ();
@@ -237,15 +238,21 @@ generate_kafka_rules
 
 sub generate_kafka_rules {
     my ($self, $rule) = @_;
-    for my $client (@{$ConfigKafka{iptables}{clients}}) {
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT\n";
-    }
+    return if !exists $ConfigKafka{hostname()};
 
-    for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT\n";
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT\n";
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT\n";
-    }
+    $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 9092 --jump ACCEPT\n";
+    $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 9093 --jump ACCEPT\n";
+    $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 29092 --jump ACCEPT\n";
+
+#    for my $client (@{$ConfigKafka{iptables}{clients}}) {
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT\n";
+#    }
+#
+#    for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT\n";
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT\n";
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT\n";
+#    }
 }
 
 =item generate_filter_if_src_to_chain
