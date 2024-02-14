@@ -5,6 +5,7 @@ source /usr/local/pf/containers/systemd-service
 name=kafka
 
 chown -R 1000:1000 /usr/local/pf/var/kafka
+chown -R 1000:1000 /usr/local/pf/conf/kafka
 
 args=`base_args $name`
 args+=" -v /usr/local/pf/var/kafka:/usr/local/pf/var/kafka"
