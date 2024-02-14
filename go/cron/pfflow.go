@@ -114,21 +114,19 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 }
 
 func (f *PfFlow) DestInventoryitem() *InventoryItem {
-	if f.DstMac == "" {
-		return nil
-	}
-
-	return &InventoryItem{
-		ExternalIDS: []string{f.DstMac},
-	}
+	return macToInventoryitem(f.DstMac)
 }
 
 func (f *PfFlow) SourceInventoryitem() *InventoryItem {
-	if f.SrcMac == "" {
+	return macToInventoryitem(f.SrcMac)
+}
+
+func macToInventoryitem(mac string) *InventoryItem {
+	if mac == "" || mac != "00:00:00:00:00:00" {
 		return nil
 	}
 
 	return &InventoryItem{
-		ExternalIDS: []string{f.SrcMac},
+		ExternalIDS: []string{mac},
 	}
 }
