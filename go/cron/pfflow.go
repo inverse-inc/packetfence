@@ -135,6 +135,7 @@ func macToInventoryitem(mac string) *InventoryItem {
 	}
 
 	return &InventoryItem{
+		ItemType:    "asset",
 		ExternalIDS: []string{mac},
 	}
 }
