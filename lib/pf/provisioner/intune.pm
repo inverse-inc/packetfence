@@ -36,7 +36,7 @@ tenant ID
 
 =cut
 
-has tenantID => => (is => 'rw');
+has tenantID => (is => 'rw');
 
 =head2 applicationID
 
