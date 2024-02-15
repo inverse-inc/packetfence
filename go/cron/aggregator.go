@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"math"
 	"net/netip"
 	"time"
 )
@@ -59,6 +60,8 @@ loop:
 		case <-ticker.C:
 			networkEvents := []*NetworkEvent{}
 			for _, events := range a.events {
+				startTime := int64(math.MaxInt64)
+				endTime := int64(0)
 				networkEvent := events[0].ToNetworkEvent()
 				if networkEvent == nil {
 					continue
@@ -66,6 +69,8 @@ loop:
 
 				ports := map[AggregatorSession]struct{}{}
 				for _, e := range events {
+					startTime = min(startTime, e.StartTime)
+					endTime = max(endTime, e.EndTime)
 					ports[e.SessionKey()] = struct{}{}
 				}
 
