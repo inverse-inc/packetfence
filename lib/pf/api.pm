@@ -1565,6 +1565,24 @@ sub firewallsso_accounting : Public {
     }
 }
 
+=head2 firewall_sso_call
+
+Trigger a firewall SSO
+
+=cut
+
+sub firewall_sso_call : Public :AllowedAsAction(mac, $mac, ip, $ip, timeout, $timeout) {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac ip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $timeout = $postdata{'timeout'} || '3600';
+    my $node = node_view($postdata{'mac'});
+    my $client = pf::client::getClient();
+    $client->notify( 'firewallsso', (method => "Update", mac => $postdata{'mac'}, ip => $postdata{'ip'}, timeout => $timeout, username => $node->{'pid'}) );
+}
+
 =head2 services_status
 
 Returns a hash of the managed services along with their status (0 means dead, otherwise it is the PID of the process)
