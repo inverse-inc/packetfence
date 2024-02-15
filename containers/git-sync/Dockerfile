@@ -1,4 +1,4 @@
-FROM registry.k8s.io/git-sync/git-sync:v3.6.3
+FROM registry.k8s.io/git-sync/git-sync:v3.6.8
 
 USER 0:0
 
