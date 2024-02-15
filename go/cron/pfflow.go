@@ -32,6 +32,8 @@ type PfFlow struct {
 	NextAddr        netip.Addr `json:"next_addr"`
 	SrcMac          string     `json:"src_mac"`
 	DstMac          string     `json:"dst_mac"`
+	StartTime       int64      `json:"start_time"`
+	EndTime         int64      `json:"end_time"`
 	ByteCount       uint32     `json:"byte_count"`
 	First           uint32     `json:"first"`
 	Last            uint32     `json:"last"`
