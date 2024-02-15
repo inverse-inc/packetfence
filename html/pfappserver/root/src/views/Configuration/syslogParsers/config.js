@@ -16,7 +16,7 @@ export const typeOptions = Object.keys(types)
   .sort((a, b) => types[a].localeCompare(types[b]))
   .map(key => ({ value: key, text: types[key] }))
 
-  export const regexRuleActions = {
+export const regexRuleActions = {
   add_person: {
     value: 'add_person',
     text: i18n.t('Create new user account'),
@@ -47,6 +47,14 @@ export const typeOptions = Object.keys(types)
     types: [pfFieldType.SUBSTRING],
     siblings: {
       api_parameters: { default: 'mac, $mac, username, $username' }
+    }
+  },
+  firewall_sso_call: {
+    value: 'firewall_sso_call',
+    text: i18n.t('Trigger a FirewallSSO call'),
+    types: [pfFieldType.SUBSTRING],
+    siblings: {
+      api_parameters: { default: 'mac, $mac, ip, $ip, timeout, $timeout' }
     }
   },
   modify_node: {
@@ -153,7 +161,7 @@ export const typeOptions = Object.keys(types)
       api_parameters: { default: 'role, $role' }
     }
   }
-  }
+}
 
 export const analytics = {
   track: ['syslogParserType']
