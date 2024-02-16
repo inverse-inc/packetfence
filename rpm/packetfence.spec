@@ -1039,6 +1039,8 @@ fi
 %dir                    /usr/local/pf/conf/I18N
 %dir                    /usr/local/pf/conf/I18N/api
                         /usr/local/pf/conf/I18N/api/*
+%dir                    /usr/local/pf/conf/kafka
+%config                 /usr/local/pf/conf/kafka/kafka_server_jaas.conf.tt
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
