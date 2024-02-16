@@ -14,6 +14,8 @@
 /usr/local/pf/conf/dns_filters.conf
 /usr/local/pf/conf/domain.conf
 /usr/local/pf/conf/firewall_sso.conf
+/usr/local/pf/conf/firewalld_services.conf
+/usr/local/pf/conf/firewalld_zones.conf
 /usr/local/pf/conf/floating_network_device.conf
 /usr/local/pf/conf/guest-managers.conf
 /usr/local/pf/conf/haproxy-admin.conf

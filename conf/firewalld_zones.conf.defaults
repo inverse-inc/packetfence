@@ -1,11 +1,13 @@
-[interface eth0]
+[eth0]
 masquerade=yes
-based_on=external
-services=pf-admin,ssh,http,https
+target=default
+services=haproxy-admin,ssh,http,https
 port=
+interface=eth0
 
-[interface docker0]
+[docker0]
 masquerade=yes
-based_on=trusted
-services=pfconfig
+target=ACCEPT
+services=
 port=
+interface=docker0

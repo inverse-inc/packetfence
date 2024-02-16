@@ -1,26 +1,26 @@
-[pf-admin]
-short=pf-admin
+[haproxy-admin]
+short=packetfence-haproxy-admin
 description=Firewalld rules for pf-admin services
-helper_name=pf-admin
+helper_name=haproxy-admin
 
-[pf-admin rule1]
+[haproxy-admin rule1]
 port=1443
 type=TCP
 
-[pf-admin rule2]
+[haproxy-admin rule2]
 port=1443
 type=UDP
 
-[pf-pfdhcp]
-short=pf-pfdhcp
+[pfdhcp]
+short=packetfence-pfdhcp
 description=Firewalld rules for pf-pfdhcp services
-helper_name=pf-pfdhcp
+helper_name=pfdhcp
 
-[pf-pfdhcp rule1]
+[pfdhcp rule1]
 port=67
 type=TCP
 
-[pf-pfdhcp rule2]
+[pfdhcp rule2]
 port=67
 type=UDP
 
