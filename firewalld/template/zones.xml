@@ -13,7 +13,7 @@ Looks like some optional variable can be defined with empty string, like version
     [% IF source.name == 'address' %]
     <source address="[% source.address %]"/>
     [% ELSIF source.name == 'mac' %]
-    <source mac="[% source.MAC %]"/>
+    <source mac="[% source.mac %]"/>
     [% ELSIF source.name == 'ipset' %]
     <source ipset="[% source.ipset %]"/>
     [% END %]
@@ -35,7 +35,7 @@ Looks like some optional variable can be defined with empty string, like version
     <description>[% zone.description %]</description>
   [% END %]
 
-  [% FOREACH service IN zone.services %]
+  [% FOREACH service IN zone.all_services %]
     <service name="[% service %]"/>
   [% END %]
 
@@ -67,10 +67,12 @@ Looks like some optional variable can be defined with empty string, like version
     <!-- First Match = First WIN -->
     <!-- also read: https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html -->
     <rule [% rule.family_xml %] [% rule.priority_xml %] >
-    [% IF rule.source.name == "address" %]
+    [% IF ( rule.source.name == "address" ) AND ( rule.source.mask != "") %]
+        <source address="[% rule.source.address %]/[% rule.source.mask %]" [% rule.source.invert_xml %]/> 
+    [% ELSIF rule.source.name == "address" %]
         <source address="[% rule.source.address %]" [% rule.source.invert_xml %]/> 
     [% ELSIF rule.source.name == "mac" %]
-        <source mac="[% rule.source.MAC %]" [% rule.source.invert_xml %]/> ]
+        <source mac="[% rule.source.mac %]" [% rule.source.invert_xml %]/> ]
     [% ELSIF rule.source.name == "ipset" %]
         <source ipset="[% rule.source.ipset %]" [% rule.source.invert_xml %]/>
     [% END %]
@@ -89,7 +91,7 @@ Looks like some optional variable can be defined with empty string, like version
       [% ELSIF match_rule.name == "protocol" %]
         <protocol value="match_rule.protocol %]"/>
       [% ELSIF match_rule.name == "icmp_block" %]
-        <icmp-block name="[% match_rule.icmp_block %]"/>
+        <icmp-block name="[% match_rule.icmp_type %]"/>
       [% ELSIF match_rule.name == "icmp_type" %]
         <icmp-type name="[% match_rule.icmp_type %]"/>
       [% ELSIF match_rule.name == "masquerade" %]
