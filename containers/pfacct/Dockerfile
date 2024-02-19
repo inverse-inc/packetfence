@@ -11,15 +11,17 @@ RUN cd /usr/local/pf/go/ && go mod download
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
+RUN apt update && apt install freeradius-utils -y
+
 RUN cd /usr/local/pf/go/ &&  make pfacct
 
 FROM busybox:latest
 
 WORKDIR /usr/local/pf/
 
+COPY --from=0 /usr/share/freeradius/dictionary /usr/share/freeradius/dictionary
 COPY --from=0 /usr/local/pf/go/pfacct /usr/local/pf/sbin/pfacct
 
-RUN apt update && apt install freeradius-utils -y
 
 ENTRYPOINT /usr/local/pf/sbin/pfacct
 
