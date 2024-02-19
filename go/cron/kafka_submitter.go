@@ -2,7 +2,6 @@ package maint
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"net"
 	"sync"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/compress"
+	"github.com/segmentio/kafka-go/sasl/plain"
 )
 
 var aggregatorOnce sync.Once
@@ -19,6 +19,8 @@ type KafkaSubmiterOptions struct {
 	Hosts      []string
 	Topic      string
 	UseTLS     bool
+	Username   string
+	Password   string
 }
 
 type KafkaSubmiter struct {
@@ -28,18 +30,18 @@ type KafkaSubmiter struct {
 }
 
 func (o *KafkaSubmiterOptions) Transport() *kafka.Transport {
-	if !o.UseTLS {
-		if defaultTransport, ok := kafka.DefaultTransport.(*kafka.Transport); ok {
-			return defaultTransport
-		}
-	}
-
 	transport := &kafka.Transport{
 		Dial: (&net.Dialer{
 			Timeout:   3 * time.Second,
 			DualStack: true,
 		}).DialContext,
-		TLS: &tls.Config{},
+	}
+
+	if o.Username != "" && o.Password != "" {
+		transport.SASL = plain.Mechanism{
+			Username: o.Username,
+			Password: o.Password,
+		}
 	}
 
 	return transport
@@ -132,6 +134,8 @@ func SetupKafka(config map[string]interface{}) {
 			SubmitChan: aggregatorChan,
 			Hosts:      hosts,
 			Topic:      config["write_topic"].(string),
+			Username:   config["kafka_user"].(string),
+			Password:   config["kafka_pass"].(string),
 		}
 
 		submitter, err := NewKafkaSubmiter(&options)
