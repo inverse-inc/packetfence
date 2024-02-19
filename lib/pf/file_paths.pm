@@ -130,6 +130,8 @@ our (
     $git_commit_id_file,
     $pfqueue_backend_socket,
     $kafka_config_dir
+    $provisioner_filters_config_file,
+    $provisioner_filters_config_default_file,
 );
 
 BEGIN {
@@ -234,6 +236,8 @@ BEGIN {
         $git_commit_id_file
         $pfqueue_backend_socket
         $kafka_config_dir
+        $provisioner_filters_config_file
+        $provisioner_filters_config_default_file
     );
 }
 
@@ -314,6 +318,8 @@ $allowed_device_oui_file   = catfile($conf_dir,"allowed_device_oui.txt");
 $allowed_device_types_file = catfile($conf_dir,"allowed_device_types.txt");
 $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $vlan_filters_config_default_file = catfile($conf_dir, "vlan_filters.conf.defaults");
+$provisioner_filters_config_file = catfile($conf_dir, "provisioner_filters.conf");
+$provisioner_filters_config_default_file = catfile($conf_dir, "provisioner_filters.conf.defaults");
 $cloud_config_file = catfile($conf_dir,"cloud.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
