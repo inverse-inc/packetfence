@@ -32,8 +32,8 @@ func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
 		GroupID:   config["group_id"].(string),
 		ReadTopic: config["read_topic"].(string),
 		UUID:      config["uuid"].(string),
-		UserName:  config["kakfa_user"].(string),
-		Password:  config["kakfa_pass"].(string),
+		UserName:  config["kafka_user"].(string),
+		Password:  config["kafka_pass"].(string),
 	}
 }
 
