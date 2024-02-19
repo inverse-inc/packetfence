@@ -35,10 +35,13 @@ use pf::config qw(
 
 # need a function that return a structured content of the config file
 sub generate_zone_config {
-  my %conf = prepare_config($ConfigFirewalld{"firewalld_zones"});
-  foreach $k ( keys $conf ) {
-    create_zone_config_file(%conf);
-    set_zone($k);
+  my %zconf = prepare_config($ConfigFirewalld{"firewalld_zones"});
+  foreach $k ( keys $zconf ) {
+    my %all_interfaces = listen_ints_hash();
+    if ( exists $all_interfaces{$v} ) {
+      create_zone_config_file($zconf{$k}, %zconf);
+      set_zone($k);
+    }
   }
 }
 
@@ -48,37 +51,19 @@ sub prepare_config {
   my %zconf = shift;
   my %conf;
   foreach $k ( keys %zconf ) {
-    my @v = split( " ", $k);
-    if ( scalar @v == 1 ) {
-      $conf{"$v[0]"} = $zconf{$k};
-    } elsif ( scalar @v == 2 ) {
-      my $def = $v[1];
-      $def =~ s/[1-9]*$//g # remove tailed digits
-      my %s;
-      $s{$v[1]} = $zconf{$k};
-      $conf{"$v[0]"}{$def."s"} = %s;
-    } elsif ( scalar @v == 3 ) {
-      my ( %s0, %s1 );
-      # level1
-      my $def1 = $v[1];
-      $def1 =~ s/[1-9]*$//g # remove tailed digits
-      $s1{$v[2]} = $zconf{$k};
-      $s0{$v[1]} = %s1;
-      $conf{"$v[0]"}{$def1."s"} = %s0;
-    } elsif ( scalar @v == 4 ) {
-      my ( %s0, %s1, %s2 );
-      # level1
-      my $def1 = $v[1];
-      $def1 =~ s/[1-9]*$//g # remove tailed digits
-      # level2
-      my $def2 = $v[2];
-      $def2 =~ s/[1-9]*$//g # remove tailed digits
-      $s2{$v[3]} = $zconf{$k};
-      $s1{$v[2]}{$def2."s"} = %s2;
-      $s0{$v[1]} = %s1;
-      $conf{"$v[0]"}{$def1."s"} = %s;
-    } else {
-      get_logger->error("$zone has an unknown configuration");
+    $conf{$k} = $zconf->{$k};
+    my %val = $conf->{$k};
+    foreach $k2 ( keys %val ) {
+      my @vals = split ( ",", $val{$k2} );
+      my @nvals;
+      foreach $v ( @vals ) {
+        if ( exists ( $conf{$v} ) ) {
+          push( @nvals, $conf->{$k} );
+        }
+      }
+      if ( @nvals ){
+        $conf->{$k}->{$k2} = @nvals ;
+      }
     }
   }
   return %conf;
@@ -86,10 +71,11 @@ sub prepare_config {
 
 sub create_zone_config_file {
   my %conf = shift;
+  my %zconf = shift;
   %conf = zone_version(%conf);
   %conf = zone_target(%conf); 
   %conf = zone_interface($conf);
-  %conf = zone_sources(%conf);
+  %conf = zone_sources(%conf,%zconf);
   %conf = zone_services(%conf);
   %conf = zone_ports(%conf);
   %conf = zone_protocols(%conf);
@@ -140,7 +126,11 @@ sub zone_target {
     my $v = lc($c{"target"});
     if ( exists $zone_target_option{$v} ) {
       get_logger->info("Target zone is $v");
-      $c{"target_xml"} = create_string_for_xml("target",$v);
+      if ( $v eq "reject" ) {
+        $c{"target_xml"} = create_string_for_xml("target","%%REJECT%%");
+      } else {
+        $c{"target_xml"} = create_string_for_xml("target",$v);
+      }
     } else {
       $b = 1;
     }
@@ -177,11 +167,12 @@ sub zone_interface {
 
 sub zone_sources {
   my %c = shift;
+  my %zc = shift;
   my %t;
   if ( exists $c{"sources"} ) {
-    my %vl = $c{"sources"} ;
-    foreach $k ( keys %vl ) {
-      my $st = source_or_destination_validation($vl{$k});
+    my @vl = $c{"sources"} ;
+    foreach $v ( @vl ) {
+      my $st = source_or_destination_validation($v);
       if ( $st eq "" ) {
         get_logger->info("Source ($k) is added");
         $t{$k}=$vl{$k};
