@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/segmentio/kafka-go"
+	"github.com/segmentio/kafka-go/sasl/plain"
 )
 
 var ChanPfFlow chan []*PfFlows = make(chan []*PfFlows, 1000)
@@ -17,6 +19,8 @@ type PfFlowJob struct {
 	Brokers   []string
 	GroupID   string
 	UUID      string
+	UserName  string
+	Password  string
 }
 
 func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
@@ -28,7 +32,25 @@ func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
 		GroupID:   config["group_id"].(string),
 		ReadTopic: config["read_topic"].(string),
 		UUID:      config["uuid"].(string),
+		UserName:  config["kakfa_user"].(string),
+		Password:  config["kakfa_pass"].(string),
 	}
+}
+
+func (j *PfFlowJob) kafkaDialer() *kafka.Dialer {
+	dialer := kafka.Dialer{
+		DualStack: true,
+		Timeout:   10 * time.Second,
+	}
+
+	if j.UserName != "" && j.Password != "" {
+		dialer.SASLMechanism = plain.Mechanism{
+			Username: j.UserName,
+			Password: j.Password,
+		}
+	}
+
+	return &dialer
 }
 
 func (j *PfFlowJob) Run() {
@@ -38,6 +60,7 @@ func (j *PfFlowJob) Run() {
 		Topic:    j.ReadTopic,
 		GroupID:  j.GroupID,
 		MaxBytes: 10e6, // 10MB
+		Dialer:   j.kafkaDialer(),
 	})
 
 	defer func() {

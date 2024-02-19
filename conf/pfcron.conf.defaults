@@ -1101,6 +1101,16 @@ submit_batch=100
 # The UUID of the packetfence aggregator
 uuid=
 #
+# kafka_user
+#
+# The Kafka username
+kafka_user=
+#
+# kafka_pass
+#
+# The Kafka password
+kafka_pass=
+#
 # local
 #
 # Local task
