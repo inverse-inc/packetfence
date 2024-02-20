@@ -21,6 +21,9 @@ use pf::config qw(
     @listen_ints
 );
 
+my $Config_path_default="/usr/local/pf/firewalld/";
+my $Config_path_applied="/usr/local/pf/var/firewalld/";
+
 sub get_firewalld_bin {
   my $fbin = `which firewalld`;
   if $fbin =~ "/usr/bin/which: no" {
