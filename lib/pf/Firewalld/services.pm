@@ -1,8 +1,8 @@
-package pf::firewalld::services;
+package pf::Firewalld::services;
 
 =head1 NAME
 
-pf::firewalld::services
+pf::Firewalld::services
 
 =cut
 
@@ -23,13 +23,13 @@ use pf::log;
 use File::Slurp qw(read_file write_file);
 use pf::util;
 use pf::IniFiles;
+use pf::Firewalld::util;
 use Sys::Hostname;
 use pf::constants qw($TRUE $FALSE);
 use pf::cluster qw($host_id);
 use pf::file_paths qw(
     $firewalld_services_config_file
 );
-
 
 sub firewalld_services_hash {
   my $fd_cmd = get_firewalld_cmd();
@@ -62,10 +62,8 @@ sub is_service_available {
 # need a function that check xml file integrity
 
 # Vars
-my $path_bin=`which firewalld-cmd`;
-my $path_services_default=`which firewalld-cmd`;
-my $config_path_default="/usr/local/pf/firewalld/services";
-my $config_path_applied="/usr/local/pf/var/firewalld/services"
+my $config_path_default="$Config_path_default/services";
+my $config_path_applied="$Config_path_applied/services";
 
 # Functions
 sub service_in_default {
@@ -104,10 +102,21 @@ sub service_remove_from_applied {
   unlink "$config_path_applied/$service.xml"
 }
 
-sub service_create_xml {
-  
+
+
+sub generate_zone_config {
+  my $sconf = $ConfigFirewalld{"firewalld_services"};
+  foreach my $k ( keys %{ $sconf } ) {
+    create_service_config_file( $zconf->{ $k } );
+  }
 }
 
+sub create_service_config_file {
+  my $conf    = shift ;
+  my $service = $conf->{"name"};
+  util_prepare_version($conf);
+  parse_template( $conf, "$Config_path_default_template/services.xml", "$Config_path_default/zones/$service.xml" );
+}
 
 =head1 AUTHOR
 
