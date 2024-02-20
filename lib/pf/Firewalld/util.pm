@@ -1,8 +1,8 @@
-package pf::firewalld::util;
+package pf::Firewalld::util;
 
 =head1 NAME
 
-pf::firewalld::util
+pf::Firewalld::util
 
 =cut
 
@@ -48,13 +48,13 @@ sub listen_ints_hash {
 }
 
 sub source_or_destination_validation {
-  my %s = shift;
+  my $s = shift;
   my $st = "";
-  if ( $s{"name"} eq "address" && not ( valid_ip_range( $s{"address"} ) || valid_mac_or_ip( $s{"address"} ) ) ) {
+  if ( $s->{"name"} eq "address" && not ( valid_ip_range( $s->{"address"} ) || valid_mac_or_ip( $s->{"address"} ) ) ) {
     $st += "Address is not a valid ip or an ip range. ");
-  } elsif ( $s{"name"} eq "mac" && not valid_mac_or_ip( $s{"mac"} ) ) {
+  } elsif ( $s->{"name"} eq "mac" && not valid_mac_or_ip( $s->{"mac"} ) ) {
     $st += "Mac is not a valid mac. ");
-  } elsif ( $s{"name"} eq "ipset" && not is_ipset_available($s{"ipset"} ) {
+  } elsif ( $s->{"name"} eq "ipset" && not is_ipset_available( $s->{"ipset"} ) ) {
     $st += "Ipset is unknown. ");
   }
   return $st;
