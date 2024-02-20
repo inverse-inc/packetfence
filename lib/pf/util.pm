@@ -58,7 +58,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        valid_date valid_ip valid_ips reverse_ip clean_ip
+        valid_date valid_ip valid_ips valid_ip_fqdn valid_fqdn reverse_ip clean_ip
         clean_mac valid_mac mac2nb macoui2nb format_mac_for_acct format_mac_as_cisco
         ip2int int2ip sort_ip
         isenabled isdisabled isempty
@@ -164,6 +164,7 @@ sub valid_date {
 our $VALID_IP_REGEX = qr/^(?:\d{1,3}\.){3}\d{1,3}$/;
 our $VALID_IPS_REGEX = qr/^((?:\d{1,3}\.){3}\d{1,3},*)+?$/;
 our $NON_VALID_IP_REGEX = qr/^(?:0\.){3}0$/;
+our $VALID_FQDN_REGEX = qr/(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)/;
 
 sub valid_ip {
     my ($ip) = @_;
@@ -185,6 +186,29 @@ sub valid_ips {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
         $logger->debug("invalid IPs: $ip from $caller");
+        return (0);
+    } else {
+        return (1);
+    }
+}
+
+sub valid_ip_fqdn {
+    my ($id) = @_;
+    if (valid_ip($id)) {
+        return (1);
+    } elsif(valid_fqdn($id)) {
+        return (1);
+    }
+    return (0);
+}
+
+sub valid_fqdn {
+    my ($fqdn) = @_;
+    my $logger = get_logger();
+    if ( !$fqdn || $fqdn !~ $VALID_FQDN_REGEX) {
+        my $caller = ( caller(1) )[3] || basename($0);
+        $caller =~ s/^(pf::\w+|main):://;
+        $logger->debug("invalid FQDN: $fqdn from $caller");
         return (0);
     } else {
         return (1);
