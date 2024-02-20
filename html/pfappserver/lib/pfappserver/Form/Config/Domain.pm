@@ -207,7 +207,7 @@ has_field 'ntlm_auth_host' =>
     (
         type => 'Text',
         label => 'NTLM auth host',
-        default => '127.0.0.1',
+        default => '100.64.0.1',
         tags => { after_element => \&help,
             help => 'The IP address of NTLM auth API' },
     );
