@@ -41,9 +41,9 @@ type NetworkEvent struct {
 	DestProcessInfo     *ProcessInfo            `json:"dest-process-info"`
 	SourceInventoryItem *InventoryItem          `json:"source-inventory-item"`
 	DestInventoryitem   *InventoryItem          `json:"dest-inventory-item"`
-	SourceUsername      string                  `json:"source-username"`
-	DestUsername        string                  `json:"dest-username"`
-	DestDomain          string                  `json:"dest-domain"`
+	SourceUsername      string                  `json:"source-username,omitempty"`
+	DestUsername        string                  `json:"dest-username,omitempty"`
+	DestDomain          string                  `json:"dest-domain,omitempty"`
 	StartTime           uint64                  `json:"start-time"`
 	EndTime             uint64                  `json:"end-time"`
 	Count               int                     `json:"count"`
