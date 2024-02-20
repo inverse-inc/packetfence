@@ -21,8 +21,9 @@ use pf::config qw(
     @listen_ints
 );
 
-my $Config_path_default="/usr/local/pf/firewalld/";
-my $Config_path_applied="/usr/local/pf/var/firewalld/";
+my $Config_path_default="/usr/local/pf/firewalld";
+my $Config_path_default_template="$Config_path_default/template";
+my $Config_path_applied="/usr/local/pf/var/firewalld";
 
 sub get_firewalld_bin {
   my $fbin = `which firewalld`;
@@ -61,6 +62,18 @@ sub source_or_destination_validation {
     $st += "Ipset is unknown. ");
   }
   return $st;
+}
+
+sub util_prepare_version {
+  my $c = shift;
+  if (exists $c->{"version"} ) {
+    my $v = $c->{"version"};
+    if ( length $v ) {
+      $c->{"version_xml"} = create_string_for_xml("version","$v");
+    } else {
+      $c->{"version_xml"} = "";
+    }
+  }
 }
 
 sub create_string_for_xml {
