@@ -1,8 +1,8 @@
-package pf::firewalld::zones;
+package pf::Firewalld::zones;
 
 =head1 NAME
 
-pf::firewalld::zones
+pf::Firewalld::zones
 
 =cut
 
@@ -18,11 +18,11 @@ use warnings;
 
 use Exporter;
 use pf::log;
-use pf::firewalld::services;
-use pf::firewalld::policies;
-use pf::firewalld::icmptypes;
-use pf::firewalld::ipsets;
-use pf::firewalld::util;
+use pf::Firewalld::services;
+use pf::Firewalld::policies;
+use pf::Firewalld::icmptypes;
+use pf::Firewalld::ipsets;
+use pf::Firewalld::util;
 use pf::util::system_protocols;
 use pf::config::util;
 use pf::config qw(
@@ -35,11 +35,11 @@ use pf::config qw(
 
 # need a function that return a structured content of the config file
 sub generate_zone_config {
-  my %zconf = prepare_config($ConfigFirewalld{"firewalld_zones"});
-  foreach $k ( keys $zconf ) {
+  my $zconf = prepare_config( $ConfigFirewalld{"firewalld_zones"} );
+  foreach my $k ( keys %{ $zconf } ) {
     my %all_interfaces = listen_ints_hash();
-    if ( exists $all_interfaces{$v} ) {
-      create_zone_config_file($zconf{$k}, %zconf);
+    if ( exists $all_interfaces{ $k } ) {
+      create_zone_config_file( $zconf->{ $k }, $k );
       set_zone($k);
     }
   }
@@ -48,88 +48,86 @@ sub generate_zone_config {
 # need a function that is creating the xml file from the config
 # need a function that add interfaces in the config file
 sub prepare_config {
-  my %zconf = shift;
+  my $zconf = shift;
   my %conf;
-  foreach $k ( keys %zconf ) {
+  foreach my $k ( keys %{ $zconf } ) {
     $conf{$k} = $zconf->{$k};
     my %val = $conf->{$k};
-    foreach $k2 ( keys %val ) {
-      my @vals = split ( ",", $val{$k2} );
+    foreach my $k2 ( keys %val ) {
+      my @vals = split ( ",", $val->{$k2} );
       my @nvals;
-      foreach $v ( @vals ) {
-        if ( exists ( $conf{$v} ) ) {
+      foreach my $v ( @vals ) {
+        if ( exists ( $conf->{$v} ) ) {
           push( @nvals, $conf->{$k} );
         }
       }
       if ( @nvals ){
-        $conf->{$k}->{$k2} = @nvals ;
+        $conf->{$k}->{$k2} = \@nvals ;
       }
     }
   }
-  return %conf;
+  return \%conf;
 }
 
 sub create_zone_config_file {
-  my %conf = shift;
-  my %zconf = shift;
-  %conf = zone_version(%conf);
-  %conf = zone_target(%conf); 
-  %conf = zone_interface($conf);
-  %conf = zone_sources(%conf,%zconf);
-  %conf = zone_services(%conf);
-  %conf = zone_ports(%conf);
-  %conf = zone_protocols(%conf);
-  %conf = zone_icmp_blocks(%conf);
-  %conf = zone_forward_ports(%conf);
-  %conf = zone_source_ports(%conf);
-  %conf = zone_rules(%conf);
+  my $conf = shift;
+  my $zone = shift;
+  zone_version($conf);
+  zone_target($conf); 
+  zone_interface($conf);
+  zone_sources($conf);
+  zone_services($conf);
+  zone_ports($conf);
+  zone_protocols($conf);
+  zone_icmp_blocks($conf);
+  zone_forward_ports($conf);
+  zone_source_ports($conf);
+  zone_rules($conf);
 
   # Create the xml file
 
-  # parse_template(%conf); # from pf::lib::util
-
-  return %conf;
+  parse_template( $conf, "$pf_dir/firewalld/template/zones.xml", "$pf_dir/firewalld/zones/$zone.xml" );
 }
 
 sub set_zone {
   my $zone = shift;
   my $fd_cmd = get_firewalld_cmd();
   if ( $fd_cmd ) {
+    `/bin/cp  $pf_dir/firewalld/zones/$zone.xml $generated_conf_dir/firewalld/zone/$zone.xml`;
     `$fd_cmd --permanent --zone=$zone --add-interface=$zone`;
-    get_logger->info("$zone has been applied permanently to $zone");
+    get_logger->info( "$zone has been applied permanently to $zone" );
   }
 }
 
 # need a function that add services according to interface usage (see how lib/pf/iptables.pm is working)
 # need a function that return a structured content of the config file
 sub zone_version {
-  my %c = shift;
-  if (exists $c{"version"} ) {
-    my $v = $c{"version"};
+  my $c = shift;
+  if (exists $c->{"version"} ) {
+    my $v = $c->{"version"};
     if ( length $v ) {
-      $c{"version_xml"} = create_string_for_xml("version","$v");
+      $c->{"version_xml"} = create_string_for_xml("version","$v");
     } else {
-      $c{"version_xml"} = "";
+      $c->{"version_xml"} = "";
     }
   }
-  return %lzc;
 }
 
 sub zone_target {
-  my %c = shift;
+  my $c = shift;
   my $b = 0;
-  if ( exists $c{"target"} ) {
+  if ( exists $c->{"target"} ) {
     my %zone_target_option=qw(accept 0
                   reject 1
                   drop 2
                   default 3);
-    my $v = lc($c{"target"});
+    my $v = lc($c->{"target"});
     if ( exists $zone_target_option{$v} ) {
       get_logger->info("Target zone is $v");
       if ( $v eq "reject" ) {
-        $c{"target_xml"} = create_string_for_xml("target","%%REJECT%%");
+        $c->{"target_xml"} = create_string_for_xml("target","%%REJECT%%");
       } else {
-        $c{"target_xml"} = create_string_for_xml("target",$v);
+        $c->{"target_xml"} = create_string_for_xml("target",$v);
       }
     } else {
       $b = 1;
@@ -139,16 +137,15 @@ sub zone_target {
   }
   if ( $b ==1 ){
     get_logger->error("Unknown target zone. ==> Apply %%REJECT%%");
-    $c{"target_xml"} = create_string_for_xml("target","%%REJECT%%");
+    $c->{"target_xml"} = create_string_for_xml("target","%%REJECT%%");
   }
-  return %s;
 }
 
 sub zone_interface {
-  my %c = shift;
+  my $c = shift;
   my $b = 0 ;
-  if ( exists $c{"interface"} ) {
-    my $v = $c{"interface"};
+  if ( exists $c->{"interface"} ) {
+    my $v = $c->{"interface"};
     if ( length $v ) {
       my %all_interfaces = listen_ints_hash();
       if ( not exists $all_interfaces{$v} ) {
@@ -160,88 +157,83 @@ sub zone_interface {
   }
   if ( $b ==1 ){
     get_logger->error("Unknown interface. ==> Apply management interface");
-    $c{"interface"} = $management_network->{"Tint"};
+    $c->{"interface"} = $management_network->{"Tint"};
   }
-  return %c;
 }
 
 sub zone_sources {
-  my %c = shift;
-  my %zc = shift;
-  my %t;
-  if ( exists $c{"sources"} ) {
-    my @vl = $c{"sources"} ;
-    foreach $v ( @vl ) {
+  my $c  = shift;
+  my $zc = shift;
+  if ( exists $c->{"sources"} ) {
+    my @t;
+    my $vl = $c->{"sources"} ;
+    foreach my $v ( @{ $vl } ) {
       my $st = source_or_destination_validation($v);
       if ( $st eq "" ) {
-        get_logger->info("Source ($k) is added");
-        $t{$k}=$vl{$k};
+        get_logger->info("Source ($v->{"name"}) is added");
+	push( @t, $v} );
       } else {
-        get_logger->error("$st ==> Source ($k) is removed.");
+        get_logger->error("$st ==> Source ($v->{"name"}) is removed.");
       }
     }
+    $c->{"all_sources"} = \@t;
   }
-  $c{"all_sources"} = %t;
-  return %c;
 }
 
 sub zone_services {
-  my %c = shift;
-  my @t;
-  if ( exists $c{"services"} ) {
+  my $c = shift;
+  if ( exists $c->{"services"} ) {
+    my @t;
     my @vl = split(',', $c{"services"});
-    foreach $k ( @vl ) {
+    foreach my $k ( @vl ) {
       if ( is_service_available($k) ) {
         push(@t, $k);
       } else {
         get_logger->error("==> Service is removed.");
       }
     }
+    $c->{"all_services"} = \@t;
   }
-  $c{"all_services"} = @t;
-  return %c;
 }
 
 sub zone_ports {
-  my %c = shift;
-  my %t;
-  if ( exists $c{"ports"} ) {
-    my %vl = $c{"ports"};
-    foreach $k ( keys %vl ) {
-      if ( exists $vl{$k}{"protocol"} && exists $vl{$k}{"portid"} ) {
-        if ( is_fd_protocol($vl{$k}{"protocol"}) ) {
-          $t{$k}=$vl{$k};
+  my $c = shift;
+  if ( exists $c->{"ports"} ) {
+    my @t;
+    my $vl = $c->{"ports"};
+    foreach my $k ( @{ $vl } ) {
+      if ( exists $k->{"protocol"} && exists $k->{"portid"} ) {
+        if ( is_fd_protocol($k->{"protocol"}) ) {
+          push(@t, $k);
         }
       } else {
         get_logger->error("==> Port is removed.");
       }
     }
+    $c->{"all_ports"} = \%t;
   }
-  $c{"all_ports"} = %t;
-  return %c;
 }
 
 sub zone_protocols {
-  my %c = shift;
-  my @t;
-  if ( exists $c{"protocols"} ) {
-    my @vl = split(',', $c{"protocols"});
-    foreach $k ( @vl ) {
+  my $c = shift;
+  if ( exists $c->{"protocols"} ) {
+    my @t;
+    my @vl = split(',', $c->{"protocols"});
+    foreach my $k ( @vl ) {
       if ( is_protocol_available($k) ) {
         push(@t, $k);
       } else {
         get_logger->error("==> Protocol ($k) is removed.");
       }
     }
+    $c->{"all_protocols"} = \@t;
   }
-  $c{"all_protocols"} = @t;
-  return %c;
 }
 
 sub zone_icmp_blocks {
-  my %c = shift;
-  my @t;
-  if ( exists $c{"icmpblocks"} ) {
+  my $c = shift;
+  if ( exists $c->{"icmpblocks"} ) {
+    my @t;
     my @vl = split(',', $c{"icmpblocks"});
     foreach $k ( @vl ) {
       if ( is_icmptypes_available($k) ) {
@@ -250,30 +242,29 @@ sub zone_icmp_blocks {
         get_logger->error("==> Icmpblocks ($k) is removed.");
       }
     }
+    $c->{"all_icmpblocks"} = \@t;
   }
-  $c{"all_icmpblocks"} = @t;
-  return %c;
 }
 
 sub zone_forward_ports {
-  my %c = shift;
-  my %t;
-  if ( exists $c{"forwardports"} ) {
-    my %vl = $c{"forwardports"};
-    foreach $k ( keys %vl ) {
-      if ( exists $vl{$k}{"protocol"} && exists $vl{$k}{"portid"} ) {
-        if ( is_fd_protocol($vl{$k}{"protocol"}) ) {
-          $t{$k}=$vl{$k};
-          if ( exists $t{$k}{"to_port"} ) {
-            my $to_port=$t{$k}{"to_port"};
+  my $c = shift;
+  if ( exists $c->{"forwardports"} ) {
+    my @t;
+    my $vl = $c->{"forwardports"};
+    foreach my $k ( @{ $vl } ) {
+      if ( exists $k->{"protocol"} && exists $k->{"portid"} ) {
+        if ( is_fd_protocol( $k->{"protocol"} ) ) {
+          push(@t, $k);
+          if ( exists $k->{"to_port"} ) {
+            my $to_port = $k->{"to_port"};
             if ( length $to_port ) {
-              $t{$k}{"to_port_xml"} = create_string_for_xml("to-port",$to_port);
+              $k->{"to_port_xml"} = create_string_for_xml("to-port",$to_port);
             }
           }
-          if ( exists $t{$k}{"to_addr"} ) {
-            my $to_addr=$t{$k}{"to_addr"};
+          if ( exists $k->{"to_addr"} ) {
+            my $to_addr = $k->{"to_addr"};
             if ( length $to_addr ) {
-              $t{$k}{"to_addr_xml"} = create_string_for_xml("to-addr",$to_addr);
+              $k->{"to_addr_xml"} = create_string_for_xml("to-addr",$to_addr);
             }
           }
         } else {
@@ -283,20 +274,19 @@ sub zone_forward_ports {
         get_logger->error("Forward Port needs a valid Protocol type and Portid ==> Forward Port is removed.");
       }
     }
+    $c->{"all_forwardports"} = \@t;
   }
-  $c{"all_forwardports"} = %t;
-  return %c;
 }
 
 sub zone_source_ports {
-  my %c = shift;
-  my %t;
-  if ( exists $c{"sourceports"} ) {
-    my %vl = $c{"sourceports"};
-    foreach $k ( keys %vl ) {
-      if ( exists $vl{$k}{"protocol"} && exists $vl{$k}{"portid"} ) {
-        if ( is_fd_protocol($vl{$k}{"protocol"}) ) {
-          $t{$k}=$vl{$k};
+  my $c = shift;
+  if ( exists $c->{"sourceports"} ) {
+    my @t;
+    my $vl = $c->{"sourceports"};
+    foreach my $k ( @{ $vl } ) {
+      if ( exists $k->{"protocol"} && exists $k->{"portid"} ) {
+        if ( is_fd_protocol($k->{"protocol"}) ) {
+          push(@t, $k);
         } else {
           get_logger->error("==> Source Port is removed.");
         }
@@ -304,177 +294,168 @@ sub zone_source_ports {
         get_logger->error("Source Port needs a valid Protocol type and Portid ==> Source Port is removed.");
       }
     }
+    $c->{"all_sourceports"} = \@t;
   }
-  $c{"all_sourceports"} = %t;
-  return %c;
 }
 
 sub zone_rules {
-  my %c = shift;
-  my %t;
-  if ( exists $c{"rules"} ) {
-    my %vl = $c{"rules"};
-    my $b = 0;
-    foreach $k ( keys %vl ) {
-      my %r = $vl{$k};
-      if ( exists $r{"family"} ) {
-        $vl{$k}{"family_xml"} = create_string_for_xml("family",$r{"family"});
+  my $c = shift;
+  if ( exists $c->{"rules"} ) {
+    my @t;
+    my $vl   = $c->{"rules"};
+    my $flag = 0;
+    foreach my $h ( @{ $vl } ) {
+      if ( exists $h->{"family"} ) {
+        $h->{"family_xml"} = create_string_for_xml( "family", $h->{"family"} );
       } else {
-        $vl{$k}{"family_xml"} = "";
+        $h->{"family_xml"} = "";
       }
-      if ( exists $r{"priority"} ) {
-        $vl{$k}{"priority_xml"} = create_string_for_xml("priority",$r{"priority"});
+      if ( exists $h->{"priority"} ) {
+        $h->{"priority_xml"} = create_string_for_xml( "priority", $h->{"priority"} );
       } else {
-        $vl{$k}{"priority_xml"} = "";
+        $h->{"priority_xml"} = "";
       }
-      if ( exists $r{"source"} ) {
-        my $st = source_or_destination_validation($r{"source"});
+      if ( exists $h->{"source"} ) {
+        my $source = $h->{"source"};
+        my $st = source_or_destination_validation( $source );
         if ( $st ne "" ) {
           $flag=undef;
-          get_logger->error("$st ==> Source ($r{"source"}{"name"}) is removed.");
+          get_logger->error( "$st ==> Source ($source->{"name"}) is removed." );
         }
-        if ( exists $r{"source"}{"invert"} ) {
-          $vl{$k}{"source"}{"invert_xml"} = create_string_for_xml("invert",$r{"source"}{"invert"});
+        if ( exists $source->{"invert"} ) {
+          $source->{"invert_xml"} = create_string_for_xml( "invert",$source->{"invert"} );
         }
       }
-      if ( exists $r{"destination"} ) {
-        my $st = source_or_destination_validation($r{"destination"});
+      if ( exists $h->{"destination"} ) {
+        my $dest = $h->{"destination"};
+        my $st = source_or_destination_validation( $destination );
         if ( $st ne "" ) {
           $flag=undef;
-          get_logger->error("$st ==> Destination ($r{"destination"}{"name"}) is removed.");
+          get_logger->error( "$st ==> Destination ($destination->{"name"}) is removed." );
         }
-        if ( exists $r{"destination"}{"invert"} ) {
-          $vl{$k}{"destination"}{"invert_xml"} = create_string_for_xml("invert",$r{"destination"}{"invert"});
-        }
-      }
-      if ( exists $r{"service"} ) {
-        if (not is_service_available($v{$r}{"service"}) ) {
-          $flag=undef;
-        }
-        if ( exists $r{"destination"}{"invert"} ) {
-          $vl{$k}{"destination"}{"invert_xml"} = create_string_for_xml("invert",$r{"destination"}{"invert"});
+        if ( exists $destination->{"invert"} ) {
+          $destination->{"invert_xml"} = create_string_for_xml( "invert",$destination->{"invert"} );
         }
       }
-      if ( exists $r{"matchrules"} ) {
-        my %match_rules = $v{$r}{"matchrules"};
-        foreach $k2 ( keys %match_rules ) {
-          my %match_rule = $match_rules{$k2};
-          if ( $match_rule{"name"} eq "service" ) {
-            if ( not is_service_available($match_rule{"service"}) ) {
+
+      if ( exists $h->{"matchrules"} ) {
+        my $match_rules = $h->{"matchrules"};
+        foreach my $h2 ( keys %{ $match_rules } ) {
+          my $match_rule = $match_rules->{$h2};
+          if ( $match_rule->{"name"} eq "service" ) {
+            if ( not is_service_available( $match_rule->{"service"} ) ) {
               $flag=undef;
             }
-          } elsif ( $match_rule{"name"} eq "port" ) {
-            if ( exists $match_rule{"portid"} && exists $match_rule{"port_protocol"}) {
-              if ( not is_fd_protocol($match_rule{"port_protocol"}) ) {
+          } elsif ( $match_rule->{"name"} eq "port" ) {
+            if ( exists $match_rule->{"portid"} && exists $match_rule->{"port_protocol"} ) {
+              if ( not is_fd_protocol( $match_rule->{"port_protocol"} ) ) {
                 $flag=undef;
               }
             } else {
-              get_logger->error("Port needs a protocol and a portid.");
+              get_logger->error( "Port needs a protocol and a portid." );
               $flag=undef;
             }
-          } elsif ( $match_rule{"name"} eq "protocol" ) {
-           if ( not is_fd_protocol($match_rule{"protocol"}) ) {
+          } elsif ( $match_rule->{"name"} eq "protocol" ) {
+           if ( not is_fd_protocol( $match_rule->{"protocol"} ) ) {
               $flag=undef;
             }
-          } elsif ( $match_rule{"name"} eq "forward_port" ) {
-            if ( exists $match_rule{"portid"} && exists $match_rule{"protocol"} ) {
-              if ( is_fd_protocol($match_rule{"protocol"}) ) {
-                if ( exists $match_rule{"to_port"} ) {
-                  $vl{$k}{"matchrules"}{$k2}{"to_port_xml"} = create_string_for_xml("to-port",$match_rule{"to_port"});
+          } elsif ( $match_rule->{"name"} eq "forward_port" ) {
+            if ( exists $match_rule->{"portid"} && exists $match_rule->{"protocol"} ) {
+              if ( is_fd_protocol($match_rule->{"protocol"} ) ) {
+                if ( exists $match_rule->{"to_port"} ) {
+                  $match_rule->{"to_port_xml"} = create_string_for_xml( "to-port", $match_rule->{"to_port"} );
                 }
-                if ( exists $match_rule{"to_addr"} ) {
-                  $vl{$k}{"matchrules"}{$k2}{"to_addr_xml"} = create_string_for_xml("to-addr",$match_rule{"to_addr"});
+                if ( exists $match_rule->{"to_addr"} ) {
+                  $match_rule->{"to_addr_xml"} = create_string_for_xml( "to-addr", $match_rule->{"to_addr"} );
                 }
               } else {
-                get_logger->error("Match forward port not used.");
+                get_logger->error( "Match forward port not used." );
                 $flag=undef;
               }
             } else {
-              get_logger->error("Match forward port rule needs a portid and a protocol");
+              get_logger->error( "Match forward port rule needs a portid and a protocol" );
               $flag=undef;
             }
-          } elsif ( ( $match_rule{"name"} eq "icmp_block" || $match_rule{"name"} eq "icmp_type" ) {
-            if ( not is_icmptypes_available($match_rule{"icmp_type"} ) {
+          } elsif ( ( $match_rule{"name"}-> eq "icmp_block" || $match_rule->{"name"} eq "icmp_type" ) {
+            if ( not is_icmptypes_available( $match_rule->{"icmp_type"} ) ) {
               $flag=undef;
             }
-          } elsif ( $match_rule{"name"} ne "masquerade" ) {
+          } elsif ( $match_rule->{"name"} ne "masquerade" ) {
             get_logger->error("Unknown match rule.");
             $flag=undef;
           }
         }
       }
-      if ( exists $r{"log_rule"} ) {
-        my %log_rule = $r{"log_rule"};
-        if ( $log_rule{"name"} eq "log" ) {
-          if ( exists $log_rule{"prefix"} ) {
-            $vl{$k}{"log_rule"}{"prefix_xml"} = create_string_for_xml("prefix",$log_rule{"prefix"});
+      if ( exists $h->{"log_rule"} ) {
+        my $log_rule = $h->{"log_rule"};
+        if ( $log_rule->{"name"} eq "log" ) {
+          if ( exists $log_rule->{"prefix"} ) {
+            $log_rule->{"prefix_xml"} = create_string_for_xml( "prefix", $log_rule->{"prefix"} );
           }
-          if ( exists $log_rule{"level"} ) {
-            $vl{$k}{"log_rule"}{"level_xml"} = create_string_for_xml("level",$log_rule{"level"});
+          if ( exists $log_rule->{"level"} ) {
+            $log_rule->{"level_xml"} = create_string_for_xml( "level", $log_rule->{"level"} );
           }
-          if ( exists $log_rule{"limit_value"} ) {
-            $vl{$k}{"log_rule"}{"limit_value_xml"} = create_limit_for_xml($log_rule{"limit_value"});
+          if ( exists $log_rule->{"limit_value"} ) {
+            $log_rule->{"limit_value_xml"} = create_limit_for_xml( $log_rule->{"limit_value"} );
           }
-        } elsif ( $log_rule{"name"} eq "nflog" ) {
-          if ( exists $log_rule{"group"} ) {
-            $vl{$k}{"log_rule"}{"group_xml"} = create_string_for_xml("group",$log_rule{"group"});
+        } elsif ( $log_rule->{"name"} eq "nflog" ) {
+          if ( exists $log_rule->{"group"} ) {
+            $log_rule->{"group_xml"} = create_string_for_xml( "group", $log_rule->{"group"} );
           }
-          if ( exists $log_rule{"prefix"} ) {
-            $vl{$k}{"log_rule"}{"prefix_xml"} = create_string_for_xml("prefix",$log_rule{"prefix"});
+          if ( exists $log_rule->{"prefix"} ) {
+            $log_rule->{"prefix_xml"} = create_string_for_xml( "prefix", $log_rule->{"prefix"} );
           }
-          if ( exists $log_rule{"level"} ) {
-            $vl{$k}{"log_rule"}{"queue_size_xml"} = create_string_for_xml("queue size",$log_rule{"queue_size"});
+          if ( exists $log_rule->{"level"} ) {
+            $log_rule->{"queue_size_xml"} = create_string_for_xml( "queue size", $log_rule->{"queue_size"} );
           }
-          if ( exists $log_rule{"limit_value"} ) {
-            $vl{$k}{"log_rule"}{"limit_value_xml"} = create_limit_for_xml($log_rule{"limit_value"});
+          if ( exists $log_rule->{"limit_value"} ) {
+            $log_rule->{"limit_value_xml"} = create_limit_for_xml( $log_rule->{"limit_value"} );
           }
         } else {
           print "Unknown log rule.";
           $flag=undef;
         }
       }
-      if ( exists $r{"audit"} ){
-        $vl{$r}{"audit_xml"} = create_limit_for_xml($r{"audit"});
+      if ( exists $h->{"audit"} ){
+        $h->{"audit_xml"} = create_limit_for_xml( $h->{"audit"} );
       }
-      if ( exists $r{"action"} ){
-        my %action = $r{"action"};
-        if ( $action{"name"} eq "accept" ) {
-          if ( exists $action{"limit_value"} ) {
-            $vl{$k}{"action"}{"limit_value_xml"} = create_limit_for_xml($action{"limit_value"});
+      if ( exists $h->{"action"} ){
+        my $action = $h->{"action"};
+        if ( $action->{"name"} eq "accept" ) {
+          if ( exists $action->{"limit_value"} ) {
+            $action->{"limit_value_xml"} = create_limit_for_xml( $action->{"limit_value"} );
           }
-        } elsif ( $action{"name"} eq "reject" ) {
-          if ( exists $action{"type"} ) {
-            $vl{$k}{"action"}{"type_xml"} = create_string_for_xml("type",$action{"type"});
+        } elsif ( $action->{"name"} eq "reject" ) {
+          if ( exists $action->{"type"} ) {
+            $action->{"type_xml"} = create_string_for_xml( "type", $action->{"type"} );
           }
-          if ( exists $action{"limit_value"} ) {
-            $vl{$k}{"action"}{"limit_value_xml"} = create_limit_for_xml($action{"limit_value"});
+          if ( exists $action->{"limit_value"} ) {
+            $action->{"limit_value_xml"} = create_limit_for_xml( $action->{"limit_value"} );
           }
-        } elsif ( $action{"name"} eq "drop" ) {
-          if ( exists $action{"limit_value"} ) {
-            $vl{$k}{"action"}{"limit_value_xml"} = create_limit_for_xml($action{"limit_value"});
+        } elsif ( $action->{"name"} eq "drop" ) {
+          if ( exists $action->{"limit_value"} ) {
+            $action->{"limit_value_xml"} = create_limit_for_xml( $action->{"limit_value"} );
           }
-        } elsif ( $action{"name"} eq "mark" ) {
-          if ( exists $action{"set"} ) {
-            $vl{$k}{"action"}{"set_xml"} = create_string_for_xml("set",$action{"set"});
+        } elsif ( $action->{"name"} eq "mark" ) {
+          if ( exists $action->{"set"} ) {
+            $action->{"set_xml"} = create_string_for_xml( "set", $action->{"set"} );
           }
-          if ( exists $action{"limit_value"} ) {
-            $vl{$k}{"action"}{"limit_value_xml"} = create_limit_for_xml($action{"limit_value"});
+          if ( exists $action->{"limit_value"} ) {
+            $action->{"limit_value_xml"} = create_limit_for_xml( $action->{"limit_value"} );
           }
-        } elsif ( $action{"name"} ne "" ) {
+        } elsif ( $action->{"name"} ne "" ) {
           print "Unknown action rule.";
           $flag=undef;
         }
       }
       if ( $flag ){
-        $t{$k}=$v{$k};
+        push(@t, $h);
       } else {
-        print "Rule $r{"name"} is not correct and has been removed.";
+        get_logger->error(" Rule $h->{"name"} is not correct and has been removed." );
       }
     }
+    $c->{"all_rules"} = \@t;
   }
-  $c{"all_rules"} = %t;
-  return %c;
-
 }
 
 
