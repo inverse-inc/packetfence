@@ -1,13 +1,13 @@
-package pf::Switch::Meraki::MS220_8;
+package pf::Switch::Meraki::MS;
 
 =head1 NAME
 
-pf::Switch::Meraki::MS220_8
+pf::Switch::Meraki::MS
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::MS220_8 module implements an object oriented interface to
-manage the connection with MS220_8 switch model.
+The pf::Switch::Meraki::MS module implements an object oriented interface to
+manage the connection with MS series switch model.
 
 =head1 STATUS
 
@@ -42,7 +42,7 @@ use pf::Switch::Meraki::MR_v2;
 
 # CAPABILITIES
 # access technology supported
-sub description { 'Meraki switch MS220_8' }
+sub description { 'Meraki switch MS' }
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
