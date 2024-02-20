@@ -69,7 +69,7 @@ func NewKafkaSubmiter(o *KafkaSubmiterOptions) (*KafkaSubmiter, error) {
 			Compression:            compress.None,
 			Logger:                 nil,
 			ErrorLogger:            nil,
-			Transport:              nil,
+			Transport:              o.Transport(),
 			AllowAutoTopicCreation: true,
 		},
 	}, nil
