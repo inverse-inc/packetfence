@@ -9,7 +9,7 @@ Looks like some optional variable can be defined with empty string, like version
 <zone [% zone.version_xml %] [% zone.target_xml %]>
     <interface name="[% zone.interface %]"/>
 
-  [% FOREACH source IN zone.sources %]
+  [% FOREACH source IN zone.all_sources %]
     [% IF source.name == 'address' %]
     <source address="[% source.address %]"/>
     [% ELSIF source.name == 'mac' %]
@@ -43,11 +43,11 @@ Looks like some optional variable can be defined with empty string, like version
     <port port="[% port.portid %]" protocol="[% port.protocol %]"/>
   [% END %]
 
-  [% FOREACH protocol IN zone.protocols %]
+  [% FOREACH protocol IN zone.all_protocols %]
     <protocol value="[% protocol %]"/>
   [% END %]
 
-  [% FOREACH icmp_block IN zone.icmp_blocks %]
+  [% FOREACH icmp_block IN zone.all_icmpblocks %]
     <icmp-block name="[% icmp_block %]"/>
   [% END %]
 
@@ -55,15 +55,15 @@ Looks like some optional variable can be defined with empty string, like version
     <masquerade/>
   [% END %]
 
-  [% FOREACH forward_port IN zone.forward_ports %]
+  [% FOREACH forward_port IN zone.all_forwardports %]
     <forward-port port="[% forward_port.portid %]" protocol="[% forward_port.protocol %]" [% forward_port.to_port_xml %] [% forward_port.to_addr_xml %] />
   [% END %]
 
-  [% FOREACH source_port IN zone.source_ports %]
+  [% FOREACH source_port IN zone.all_sourceports %]
     <source-port port="[% source_port.portid %]" protocol="[% source_port.protocol %]"/>
   [% END %]
 
-  [% FOREACH rule IN zone.rules %]
+  [% FOREACH rule IN zone.all_rules %]
     <!-- First Match = First WIN -->
     <!-- also read: https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html -->
     <rule [% rule.family_xml %] [% rule.priority_xml %] >
@@ -83,7 +83,7 @@ Looks like some optional variable can be defined with empty string, like version
         <destination ipset="[% rule.destination.ipset %]" [% rule.destination.invert_xml %]/>
     [% END %]
 
-    [% FOREACH match_rule IN zone.rules.matches %]
+    [% FOREACH match_rule IN zone.matches %]
       [% IF match_rule.name == "service" %]
         <service name="[% match_rule.service %]"/>
       [% ELSIF match_rule.name == "port" %]
