@@ -86,7 +86,7 @@ sub create_zone_config_file {
 
   # Create the xml file
 
-  parse_template( $conf, "$pf_dir/firewalld/template/zones.xml", "$pf_dir/firewalld/zones/$zone.xml" );
+  parse_template( $conf, "$Config_path_default_template/zones.xml", "$Config_path_default/zones/$zone.xml" );
 }
 
 sub set_zone {
