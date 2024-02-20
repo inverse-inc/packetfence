@@ -72,7 +72,7 @@ sub prepare_config {
 sub create_zone_config_file {
   my $conf = shift;
   my $zone = shift;
-  zone_version($conf);
+  util_prepare_version($conf);
   zone_target($conf); 
   zone_interface($conf);
   zone_sources($conf);
@@ -83,9 +83,6 @@ sub create_zone_config_file {
   zone_forward_ports($conf);
   zone_source_ports($conf);
   zone_rules($conf);
-
-  # Create the xml file
-
   parse_template( $conf, "$Config_path_default_template/zones.xml", "$Config_path_default/zones/$zone.xml" );
 }
 
