@@ -1,0 +1,37 @@
+<!-- source: https://firewalld.org/documentation/man-pages/firewalld.service.html -->
+<?xml version="1.0" encoding="utf-8"?>
+<service [% service.version_xml %]>
+  [% IF service.short_description != "" %]
+  <short>[% service.short_description %]</short>
+  [% END %]
+  [% IF service.description != "" %]
+  <description>[% service.description %]</description>
+  [% END %]
+  [% IF service.port != "" %]
+  <description>[% service.description %]</description>
+  [% END %]
+  [% IF ( service.port != "" ) AND ( service.port_protocol )  %]
+  <port port="[% service.port %]" protocol="[% service.prot_protocol %]"/>
+  [% END %]
+  [% IF service.protocol != ""  %]
+  <protocol value="[% service.protocol %]"/>
+  [% END %]
+  [% IF service.module != "" %]
+  <module name="[% service.module %]"/>
+  [% END %]
+  [% IF (service.ipv4 != "") AND (service.ipv6 == "")  %]
+  <destination ipv4="[% service.ipv4 %]"/>
+  [% END %]
+  [% IF (service.ipv4 == "") AND (service.ipv6 != "")  %]
+  <destination ipv6="[% service.ipv6 %]"/>
+  [% END %]
+  [% IF (service.ipv4 == "") AND (service.ipv6 == "")  %]
+  <destination ipv4="[% service.ipv6 %]" ipv6="[% service.ipv6 %]"/>
+  [% END %]
+  [% IF service.include != "" %]
+  <include service="[% service.include %]"/>
+  [% END %]
+  [% IF service.helper != "" %]
+  <helper name="[% service.helper %]"/>
+  [% END %]
+</service>
