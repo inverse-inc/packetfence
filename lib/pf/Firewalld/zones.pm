@@ -39,8 +39,12 @@ sub generate_zone_config {
   foreach my $k ( keys %{ $conf } ) {
     my %all_interfaces = listen_ints_hash();
     if ( exists $all_interfaces{ $k } ) {
-      create_zone_config_file( $conf->{ $k }, $k );
-      set_zone($k);
+      if ( length($k) <= 17 ){
+        create_zone_config_file( $conf->{ $k }, $k );
+        set_zone($k);
+      } else {
+        get_logger->error( "$k can not be bigger than 17 chars" );
+      }
     }
   }
 }
