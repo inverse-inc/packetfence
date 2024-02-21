@@ -39,7 +39,7 @@ Looks like some optional variable can be defined with empty string, like version
     <service name="[% service %]"/>
   [% END %]
 
-  [% FOREACH port IN zone.ports %]
+  [% FOREACH port IN zone.all_ports %]
     <port port="[% port.portid %]" protocol="[% port.protocol %]"/>
   [% END %]
 
