@@ -31,6 +31,12 @@ use pf::file_paths qw(
     $firewalld_services_config_file
 );
 
+
+# Vars
+my $service_config_path_default="$Config_path_default/services";
+my $service_config_path_applied="$Config_path_applied/services";
+
+# Functions
 sub firewalld_services_hash {
   my $fd_cmd = get_firewalld_cmd();
   if ( $fd_cmd ) {
@@ -56,58 +62,47 @@ sub is_service_available {
   return undef;
 }
 
-
-# need a function that read the config file and create an xml file related to the service (use of template toolkit)
-# need a function that return structured content of the config file
-# need a function that check xml file integrity
-
-# Vars
-my $config_path_default="$Config_path_default/services";
-my $config_path_applied="$Config_path_applied/services";
-
-# Functions
 sub service_in_default {
   my $service   = shift;
-  if ( -s $config_path_default/$service.xml ) {
-    print "Service $service Available in $config_path_default";
+  if ( -s $service_config_path_default/$service.xml ) {
+    get_logger->info( "Service $service Available in $service_config_path_default" );
     return 1 ;
   } else {
-    print "Service $service Unavailable in $config_path_default";
+    get_logger->error( "Service $service Unavailable in $service_config_path_default" );
     return 0 ;
   }
 }
 
 sub service_is_in_config {
   my $service   = shift;
-  if ( -s $config_path_applied/$service.xml ) {
-    print "Service $service Available in $config_path_applied";
+  if ( -s $service_config_path_applied/$service.xml ) {
+    get_logger->info( "Service $service Available in $service_config_path_applied" );
     return 1 ;
   } else {
-    print "Service $service Unavailable in $config_path_applied";
+    get_logger->error( "Service $service Unavailable in $service_config_path_applied" );
     return 0 ;
   }
 }
 
-sub service_is_available {
-
-}
-
 sub service_copy_from_default_to_applied {
-  print "Service $service is added in Firewalld applied configuration.\n";
-  copy("$config_path_default/$service.xml", "$config_path_applied/$service.xml") or die "copy failed: $!";
+  get_logger->info( "Service $service is added in Firewalld applied configuration.\n" );
+  copy("$service_config_path_default/$service.xml", "$service_config_path_applied/$service.xml") or die "copy failed: $!";
 }
 
 sub service_remove_from_applied {
-  print "Service $service is removed from Firewalld applied configuration.\n";
-  unlink "$config_path_applied/$service.xml"
+  get_logger->info( "Service $service is removed from Firewalld applied configuration.\n" );
+  unlink "$service_config_path_applied/$service.xml";
 }
 
 
-
-sub generate_zone_config {
-  my $sconf = $ConfigFirewalld{"firewalld_services"};
-  foreach my $k ( keys %{ $sconf } ) {
-    create_service_config_file( $zconf->{ $k } );
+# Generate config
+sub generate_service_config {
+  my $conf = prepare_config( $ConfigFirewalld{"firewalld_services"} );
+  foreach my $k ( keys %{ $conf } ) {
+    my $service = $conf->{ $k };
+    if ( exists $service->{"name"} ){
+      create_service_config_file( $service );
+    }
   }
 }
 
@@ -115,7 +110,7 @@ sub create_service_config_file {
   my $conf    = shift ;
   my $service = $conf->{"name"};
   util_prepare_version($conf);
-  parse_template( $conf, "$Config_path_default_template/services.xml", "$Config_path_default/zones/$service.xml" );
+  parse_template( $conf, "$Config_path_default_template/services.xml", "$service_config_path_default/$service.xml" );
 }
 
 =head1 AUTHOR
