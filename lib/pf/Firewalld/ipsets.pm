@@ -1,8 +1,8 @@
-package pf::firewalld::ipsets;
+package pf::Firewalld::ipsets;
 
 =head1 NAME
 
-pf::firewalld::ipsets
+pf::Firewalld::ipsets
 
 =cut
 
@@ -29,17 +29,43 @@ use pf::cluster qw($host_id);
 use pf::file_paths qw(
     $firewalld_services_config_file
 );
-use pf::firewalld::util;
+use pf::Firewalld::util;
+
+# Utils
+sub firewalld_ipset_types_hash {
+  my $fd_cmd = get_firewalld_cmd();
+  if ( $fd_cmd ) {
+    my $c = `$fb_cmd --get-ipset-types`;
+    get_logger->info("Ipset types are: $c");
+    my @cs = split(/ /, $c);
+    my %h;
+    foreach $val ( @cs ) {
+      $h{$val}="1";
+    }
+    return %h;
+  }
+  return undef;
+}
+
+sub is_ipset_type_available {
+  my $s = shift;
+  my %available_ipset_types = firewalld_ipset_types_hash();
+  if ( exists $available_ipset_types{$s} ) {
+    return $s;
+  }
+  get_logger->error("Ipset type $s does not exist.");
+  return undef;
+}
 
 sub firewalld_ipsets_hash {
   my $fd_cmd = get_firewalld_cmd();
   if ( $fd_cmd ) {
-    my $c = `$fb_cmd --get-ipset-types`;
+    my $c = `$fb_cmd --get-ipsets`;
     get_logger->info("Ipsets are: $c");
     my @cs = split(/ /, $c);
     my %h;
     foreach $val ( @cs ) {
-      $h{$val}="1"; 
+      $h{$val}="1";
     }
     return %h;
   }
@@ -54,6 +80,28 @@ sub is_ipset_available {
   }
   get_logger->error("Ipsets $s does not exist.");
   return undef;
+}
+
+# Generate config
+sub generate_ipset_config {
+  my $conf = prepare_config( $ConfigFirewalld{"firewalld_ipsets"} );
+  foreach my $k ( keys %{ $conf } ) {
+    my $ipset = $conf->{ $k };
+    if ( exists $ipset->{"type"} ){
+      create_service_config_file( $ipset );
+    }
+  }
+}
+
+sub create_service_config_file {
+  my $conf  = shift ;
+  if ( is_ipset_type_available( $conf->{"type"} ) ){
+    my $ipset = $conf->{"name"};
+    util_prepare_version($conf);
+    parse_template( $conf, "$Config_path_default_template/ipset.xml", "$service_config_path_default/$ipset.xml" );
+  } else {
+    get_logger->error( "Ipset $conf->{"name"} is not installed. Ipset type is invalid." );
+  }
 }
 
 =head1 AUTHOR
