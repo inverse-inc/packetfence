@@ -308,6 +308,20 @@ sub returnRadiusAccessAccept {
         }
     }
 
+    if ($args->{profile}->dpskEnabled()) {
+        if (defined($args->{owner}->{psk})) {
+            $radius_reply_ref = {
+                %$radius_reply_ref,
+                'Mikrotik-Wireless-PSK' => $args->{owner}->{psk},
+            };
+        } else {
+            $radius_reply_ref = {
+                %$radius_reply_ref,
+                'Mikrotik-Wireless-PSK' => $args->{profile}->{_default_psk_key},
+            };
+        }
+    }
+
     $logger->info("(".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} and role $role");
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
