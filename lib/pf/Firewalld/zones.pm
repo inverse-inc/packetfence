@@ -61,7 +61,7 @@ sub create_zone_config_file {
   zone_forward_ports($conf);
   zone_source_ports($conf);
   zone_rules($conf);
-  parse_template( $conf, "$Config_path_default_template/zones.xml", "$Config_path_default/zones/$zone.xml" );
+  parse_template( $conf, "$Config_path_default_template/zone.xml", "$Config_path_default/zones/$zone.xml" );
 }
 
 sub set_zone {
