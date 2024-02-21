@@ -20,10 +20,31 @@ use pf::util;
 use pf::config qw(
     @listen_ints
 );
+use pf::Firewalld::ipsets;
+
 
 my $Config_path_default="/usr/local/pf/firewalld";
 my $Config_path_default_template="$Config_path_default/template";
 my $Config_path_applied="/usr/local/pf/var/firewalld";
+
+sub prepare_config {
+  my $conf = shift;
+  foreach my $k ( keys %{ $zconf } ) {
+    my $val = $conf->{$k};
+    foreach my $k2 ( keys %{ $val } ) {
+      my @vals = split ( ",", $val->{$k2} );
+      my @nvals;
+      foreach my $v ( @vals ) {
+        if ( exists ( $conf->{$v} ) ) {
+          push( @nvals, $conf->{$k} );
+        }
+      }
+      if ( @nvals ){
+        $val->{$k2} = \@nvals ;
+      }
+    }
+  }
+}
 
 sub get_firewalld_bin {
   my $fbin = `which firewalld`;
