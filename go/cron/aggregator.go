@@ -75,6 +75,18 @@ loop:
 				}
 
 				networkEvent.Count = len(ports)
+				if startTime != 0 {
+					networkEvent.StartTime = uint64(startTime)
+				}
+
+				if endTime != 0 {
+					networkEvent.EndTime = uint64(endTime)
+				}
+
+				if networkEvent.EndTime == 0 {
+					networkEvent.EndTime = networkEvent.StartTime
+				}
+
 				networkEvents = append(networkEvents, networkEvent)
 			}
 
