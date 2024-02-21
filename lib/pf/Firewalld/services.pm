@@ -110,7 +110,7 @@ sub create_service_config_file {
   my $conf    = shift ;
   my $service = $conf->{"name"};
   util_prepare_version($conf);
-  parse_template( $conf, "$Config_path_default_template/services.xml", "$service_config_path_default/$service.xml" );
+  parse_template( $conf, "$Config_path_default_template/service.xml", "$service_config_path_default/$service.xml" );
 }
 
 =head1 AUTHOR
