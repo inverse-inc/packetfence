@@ -1121,6 +1121,11 @@ kafka_user=
 # The Kafka password
 kafka_pass=
 #
+# filter events
+#
+# Filter events
+filter_events=1
+#
 # local
 #
 # Local task
