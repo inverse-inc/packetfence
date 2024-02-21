@@ -35,11 +35,11 @@ use pf::config qw(
 
 # need a function that return a structured content of the config file
 sub generate_zone_config {
-  my $zconf = prepare_config( $ConfigFirewalld{"firewalld_zones"} );
-  foreach my $k ( keys %{ $zconf } ) {
+  my $conf = prepare_config( $ConfigFirewalld{"firewalld_zones"} );
+  foreach my $k ( keys %{ $conf } ) {
     my %all_interfaces = listen_ints_hash();
     if ( exists $all_interfaces{ $k } ) {
-      create_zone_config_file( $zconf->{ $k }, $k );
+      create_zone_config_file( $conf->{ $k }, $k );
       set_zone($k);
     }
   }
@@ -47,28 +47,6 @@ sub generate_zone_config {
 
 # need a function that is creating the xml file from the config
 # need a function that add interfaces in the config file
-sub prepare_config {
-  my $zconf = shift;
-  my %conf;
-  foreach my $k ( keys %{ $zconf } ) {
-    $conf{$k} = $zconf->{$k};
-    my %val = $conf->{$k};
-    foreach my $k2 ( keys %val ) {
-      my @vals = split ( ",", $val->{$k2} );
-      my @nvals;
-      foreach my $v ( @vals ) {
-        if ( exists ( $conf->{$v} ) ) {
-          push( @nvals, $conf->{$k} );
-        }
-      }
-      if ( @nvals ){
-        $conf->{$k}->{$k2} = \@nvals ;
-      }
-    }
-  }
-  return \%conf;
-}
-
 sub create_zone_config_file {
   my $conf = shift;
   my $zone = shift;
