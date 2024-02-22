@@ -15,18 +15,20 @@ import (
 var aggregatorOnce sync.Once
 
 type KafkaSubmiterOptions struct {
-	SubmitChan chan []*NetworkEvent
-	Hosts      []string
-	Topic      string
-	UseTLS     bool
-	Username   string
-	Password   string
+	SubmitChan   chan []*NetworkEvent
+	Hosts        []string
+	Topic        string
+	UseTLS       bool
+	Username     string
+	Password     string
+	FilterEvents int
 }
 
 type KafkaSubmiter struct {
 	batchSubmitChan chan []*NetworkEvent
 	writer          *kafka.Writer
 	stop            chan struct{}
+	filterEvents    bool
 }
 
 func (o *KafkaSubmiterOptions) Transport() *kafka.Transport {
@@ -72,6 +74,7 @@ func NewKafkaSubmiter(o *KafkaSubmiterOptions) (*KafkaSubmiter, error) {
 			Transport:              o.Transport(),
 			AllowAutoTopicCreation: true,
 		},
+		filterEvents: o.FilterEvents != 0,
 	}, nil
 }
 
@@ -98,8 +101,31 @@ func (s *KafkaSubmiter) shutdown() {
 }
 
 func (s *KafkaSubmiter) send(events []*NetworkEvent) {
-	messages := make([]kafka.Message, 0, len(events))
-	for i := 0; i < len(events); i++ {
+	var filteredEvents []*NetworkEvent
+	if s.filterEvents {
+		db, err := getDb()
+		if err != nil {
+		} else {
+			tmpEvents := make([]*NetworkEvent, 0, len(events))
+			filter, err := GetFilterFromNetworkEvents(db, events)
+			if err != nil {
+			} else {
+				for _, e := range events {
+					if filter.Filter(e) {
+						tmpEvents = append(tmpEvents, e)
+					}
+				}
+
+				filteredEvents = tmpEvents
+			}
+		}
+
+	} else {
+		filteredEvents = events
+	}
+
+	messages := make([]kafka.Message, 0, len(filteredEvents))
+	for i := 0; i < len(filteredEvents); i++ {
 		data, err := json.Marshal(events[i])
 		if err != nil {
 			//TODO log error
@@ -131,11 +157,12 @@ func SetupKafka(config map[string]interface{}) {
 		hosts := interfaceArrayToStringArray(config["kafka_brokers"].([]interface{}))
 		aggregatorChan := make(chan []*NetworkEvent, batch_submit)
 		options := KafkaSubmiterOptions{
-			SubmitChan: aggregatorChan,
-			Hosts:      hosts,
-			Topic:      config["write_topic"].(string),
-			Username:   config["kafka_user"].(string),
-			Password:   config["kafka_pass"].(string),
+			SubmitChan:   aggregatorChan,
+			Hosts:        hosts,
+			Topic:        config["write_topic"].(string),
+			Username:     config["kafka_user"].(string),
+			Password:     config["kafka_pass"].(string),
+			FilterEvents: int(config["filter_events"].(float64)),
 		}
 
 		submitter, err := NewKafkaSubmiter(&options)
