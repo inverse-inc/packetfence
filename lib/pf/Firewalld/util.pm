@@ -22,14 +22,15 @@ use pf::config qw(
 );
 use pf::Firewalld::ipsets;
 
-
-my $Config_path_default="/usr/local/pf/firewalld";
-my $Config_path_default_template="$Config_path_default/template";
-my $Config_path_applied="/usr/local/pf/var/firewalld";
+use pf::file_paths qw(
+    $firewalld_config_path_default 
+    $firewalld_config_path_default_template
+    $firewalld_config_path_applied
+);
 
 sub util_prepare_firewalld_config {
   my $conf = shift;
-  foreach my $k ( keys %{ $zconf } ){
+  foreach my $k ( keys %{ $conf } ){
     my $val = $conf->{$k};
     foreach my $k2 ( keys %{ $val } ){
       my @vals = split ( ",", $val->{$k2} );
@@ -65,22 +66,22 @@ sub util_get_firewalld_cmd {
 }
 
 sub util_listen_ints_hash {
-  my %listen_ints;
-  foreach $val ( @listen_ints ) {
-    $listen_ints{$val} = 1;
+  my %listen_ints_hash;
+  foreach my $val ( @listen_ints ) {
+    $listen_ints_hash{ $val } = 1;
   }
-  return \%listen_ints;
+  return \%listen_ints_hash;
 }
 
 sub util_source_or_destination_validation {
   my $s = shift;
   my $st = "";
   if ( $s->{"name"} eq "address" && not ( valid_ip_range( $s->{"address"} ) || valid_mac_or_ip( $s->{"address"} ) ) ){
-    $st += "Address is not a valid ip or an ip range. ");
+    $st += "Address is not a valid ip or an ip range.";
   } elsif ( $s->{"name"} eq "mac" && not valid_mac_or_ip( $s->{"mac"} ) ){
-    $st += "Mac is not a valid mac. ");
+    $st += "Mac is not a valid mac.";
   } elsif ( $s->{"name"} eq "ipset" && not is_ipset_available( $s->{"ipset"} ) ){
-    $st += "Ipset is unknown. ");
+    $st += "Ipset is unknown.";
   }
   return $st;
 }

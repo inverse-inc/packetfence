@@ -26,16 +26,20 @@ use pf::config qw(
     $management_network
     %ConfigFirewalld
 );
-
+use pf::file_paths qw(
+    $firewalld_config_path_default 
+    $firewalld_config_path_default_template
+    $firewalld_config_path_applied
+);
 
 sub firewalld_zones_hash {
   my $std_out = util_firewalld_cmd( "--get-zones" );
   if ( $std_out ne "" ) {
     get_logger->info( "Zones are: $std_out" );
-    my @all_services = split / /, $services;
+    my @zones = split( / /, $std_out );
     my %h;
-    foreach $val ( @allservices ) {
-      $h{$val} = 1;
+    foreach my $val ( @zones ) {
+      $h{ $val } = 1;
     }
     return \%h;
   }
@@ -74,7 +78,7 @@ sub create_zone_config_file {
   zone_forward_ports( $conf );
   zone_source_ports( $conf );
   zone_rules( $conf );
-  parse_template( $conf, "$Config_path_default_template/zone.xml", "$Config_path_default/zones/$zone.xml" );
+  parse_template( $conf, "$firewalld_config_path_default_template/zone.xml", "$firewalld_config_path_default/zones/$zone.xml" );
 }
 
 sub set_zone {
@@ -123,7 +127,7 @@ sub zone_interface {
     my $v = $c->{"interface"};
     if ( length( $v ) ) {
       my $all_interfaces = util_listen_ints_hash();
-      if ( !undef $all_interfaces && not exists( $all_interfaces{$v} ) ) {
+      if ( !undef $all_interfaces && not exists( $all_interfaces->{$v} ) ) {
         $b = 1;
       }
     }
@@ -145,10 +149,10 @@ sub zone_sources {
     foreach my $v ( @{ $vl } ) {
       my $st = util_source_or_destination_validation( $v );
       if ( $st eq "" ) {
-        get_logger->info( "Source ($v->{"name"}) is added" );
-	push( @t, $v} );
+        get_logger->info( "Source ($v->{'name'}) is added" );
+	push( @t, $v );
       } else {
-        get_logger->error( "$st ==> Source ($v->{"name"}) is removed." );
+        get_logger->error( "$st ==> Source ($v->{'name'}) is removed." );
       }
     }
     $c->{"all_sources"} = \@t;
@@ -159,7 +163,7 @@ sub zone_services {
   my $c = shift;
   if ( exists( $c->{"services"} ) ) {
     my @t;
-    my @vl = split( ',', $c{"services"} );
+    my @vl = split( ',', $c->{"services"} );
     foreach my $k ( @vl ) {
       if ( !undef is_service_available( $k ) ) {
         push( @t, $k );
@@ -185,7 +189,7 @@ sub zone_ports {
         get_logger->error( "==> Port is removed." );
       }
     }
-    $c->{"all_ports"} = \%t;
+    $c->{"all_ports"} = \@t;
   }
 }
 
@@ -209,8 +213,8 @@ sub zone_icmp_blocks {
   my $c = shift;
   if ( exists( $c->{"icmpblocks"} ) ) {
     my @t;
-    my @vl = split( ',', $c{"icmpblocks"} );
-    foreach $k ( @vl ) {
+    my @vl = split( ',', $c->{"icmpblocks"} );
+    foreach my $k ( @vl ) {
       if ( !undef is_icmptypes_available( $k ) ) {
         push(@t, $k);
       } else {
@@ -295,18 +299,18 @@ sub zone_rules {
         my $st = util_source_or_destination_validation( $source );
         if ( $st ne "" ) {
           $flag=undef;
-          get_logger->error( "$st ==> Source ($source->{"name"}) is removed." );
+          get_logger->error( "$st ==> Source ($source->{'name'}) is removed." );
         }
         if ( exists( $source->{"invert"} ) ) {
           $source->{"invert_xml"} = util_create_string_for_xml( "invert",$source->{"invert"} );
         }
       }
       if ( exists( $h->{"destination"} ) ) {
-        my $dest = $h->{"destination"};
+        my $destination = $h->{"destination"};
         my $st = util_source_or_destination_validation( $destination );
         if ( $st ne "" ) {
           $flag=undef;
-          get_logger->error( "$st ==> Destination ($destination->{"name"}) is removed." );
+          get_logger->error( "$st ==> Destination ($destination->{'name'}) is removed." );
         }
         if ( exists( $destination->{"invert"} ) ) {
           $destination->{"invert_xml"} = util_create_string_for_xml( "invert",$destination->{"invert"} );
@@ -351,7 +355,7 @@ sub zone_rules {
               get_logger->error( "Match forward port rule needs a portid and a protocol" );
               $flag=undef;
             }
-          } elsif ( $match_rule{"name"}-> eq "icmp_block" || $match_rule->{"name"} eq "icmp_type" ) {
+          } elsif ( $match_rule->{"name"} eq "icmp_block" || $match_rule->{"name"} eq "icmp_type" ) {
             if ( !defined is_icmptypes_available( $match_rule->{"icmp_type"} ) ) {
               $flag=undef;
             }
@@ -426,7 +430,7 @@ sub zone_rules {
       if ( defined $flag ){
         push( @t, $h );
       } else {
-        get_logger->error(" Rule $h->{"name"} is not correct and has been removed." );
+        get_logger->error( "Rule $h->{'name'} is not correct and has been removed." );
       }
     }
     $c->{"all_rules"} = \@t;
