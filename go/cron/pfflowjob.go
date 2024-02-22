@@ -15,12 +15,13 @@ var ChanPfFlow chan []*PfFlows = make(chan []*PfFlows, 1000)
 
 type PfFlowJob struct {
 	Task
-	ReadTopic string
-	Brokers   []string
-	GroupID   string
-	UUID      string
-	UserName  string
-	Password  string
+	ReadTopic    string
+	Brokers      []string
+	GroupID      string
+	UUID         string
+	UserName     string
+	Password     string
+	FilterEvents int
 }
 
 func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
@@ -68,7 +69,7 @@ func (j *PfFlowJob) Run() {
 			log.Fatal("failed to close reader:", err)
 		}
 	}()
-	fmt.Println("Helloe")
+
 	for {
 		m, err := r.ReadMessage(context.Background())
 		if err != nil {
