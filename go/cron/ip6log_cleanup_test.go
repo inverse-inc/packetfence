@@ -44,7 +44,7 @@ INSERT INTO ip6log_history (mac, ip, start_time, end_time) VALUES
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "ip6log_history entries kept",
 				sql:           "SELECT COUNT(*) FROM ip6log_history",
 				expectedCount: 8,
@@ -97,12 +97,12 @@ func TestIp6logCleanupRotate(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "ip6log_history entries kept",
 				sql:           ` SELECT COUNT(*) FROM ip6log_history `,
 				expectedCount: 8,
 			},
-			sqlCountTest{
+			{
 				name:          "ip6log_archive created",
 				sql:           `SELECT COUNT(*) FROM ip6log_archive`,
 				expectedCount: 6,

@@ -45,7 +45,7 @@ func TestIp4logCleanupNoRotate(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name: "ip4log_history entries gone",
 				sql: `
                     SELECT
@@ -62,7 +62,7 @@ func TestIp4logCleanupNoRotate(t *testing.T) {
                 `,
 				expectedCount: 0,
 			},
-			sqlCountTest{
+			{
 				name: "ip4log_history entries kept",
 				sql: `
                     SELECT
@@ -127,7 +127,7 @@ func TestIp4logCleanupRotate(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name: "ip4log_history entries gone",
 				sql: `
                     SELECT
@@ -144,12 +144,12 @@ func TestIp4logCleanupRotate(t *testing.T) {
                 `,
 				expectedCount: 0,
 			},
-			sqlCountTest{
+			{
 				name:          "ip4log_history entries kept",
 				sql:           ` SELECT COUNT(*) FROM ip4log_history `,
 				expectedCount: 8,
 			},
-			sqlCountTest{
+			{
 				name:          "ip4log_archive created",
 				sql:           `SELECT COUNT(*) FROM ip4log_archive`,
 				expectedCount: 6,
