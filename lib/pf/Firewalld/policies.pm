@@ -26,7 +26,11 @@ use pf::util::system_protocols;
 use pf::config qw(
     %ConfigFirewalld
 );
-
+use pf::file_paths qw(
+    $firewalld_config_path_default 
+    $firewalld_config_path_default_template
+    $firewalld_config_path_applied
+);
 
 # need a function that return a structured content of the config file
 sub generate_policy_config {
@@ -57,7 +61,7 @@ sub create_policy_config_file {
   policy_forward_ports( $conf );
   policy_source_ports( $conf );
   policy_rules( $conf );
-  parse_template( $conf, "$Config_path_default_template/policy.xml", "$Config_path_default/policies/$policy.xml" );
+  parse_template( $conf, "$firewalld_config_path_default_template/policy.xml", "$firewalld_config_path_default/policies/$policy.xml" );
 }
 
 sub apply_policy {
@@ -119,10 +123,10 @@ sub policy_egress {
     $zones_hash->{"HOST"} = 1;
     foreach my $v ( @{ $vl } ) {
       if ( exists( $zones_hash->{ $v->{"name"} } ) ) {
-        get_logger->info( "Egress policy ($v->{"name"}) is added" );
+        get_logger->info( "Egress policy ($v->{'name'}) is added" );
         push( @t, $v );
       } else {
-        get_logger->error( "Egress Policy ($v->{"name"}) does not exist." );
+        get_logger->error( "Egress Policy ($v->{'name'}) does not exist." );
       }
     }
     $c->{"all_egress_policies"} = \@t;
@@ -141,10 +145,10 @@ sub policy_ingress {
     $zones_hash->{"HOST"} = 1;
     foreach my $v ( @{ $vl } ) {
       if ( exists( $zones_hash->{ $v->{"name"} } ) ) {
-        get_logger->info( "Ingress policy ($v->{"name"}) is added" );
+        get_logger->info( "Ingress policy ($v->{'name'}) is added" );
         push( @t, $v );
       } else {
-        get_logger->error( "Ingress Policy ($v->{"name"}) does not exist." );
+        get_logger->error( "Ingress Policy ($v->{'name'}) does not exist." );
       }
     }
     $c->{"all_ingress_policies"} = \@t;
@@ -155,7 +159,7 @@ sub policy_services {
   my $c = shift;
   if ( exists( $c->{"services"} ) ) {
     my @t;
-    my @vl = split( ',', $c{"services"} );
+    my @vl = split( ',', $c->{"services"} );
     foreach my $k ( @vl ) {
       if ( !undef is_service_available( $k ) ) {
         push( @t, $k );
@@ -181,7 +185,7 @@ sub policy_ports {
         get_logger->error( "==> Port is removed." );
       }
     }
-    $c->{"all_ports"} = \%t;
+    $c->{"all_ports"} = \@t;
   }
 }
 
@@ -205,8 +209,8 @@ sub policy_icmp_blocks {
   my $c = shift;
   if ( exists( $c->{"icmpblocks"} ) ) {
     my @t;
-    my @vl = split( ',', $c{"icmpblocks"} );
-    foreach $k ( @vl ) {
+    my @vl = split( ',', $c->{"icmpblocks"} );
+    foreach my $k ( @vl ) {
       if ( !undef is_icmptypes_available( $k ) ) {
         push( @t, $k );
       } else {
@@ -291,18 +295,18 @@ sub policy_rules {
         my $st = source_or_destination_validation( $source );
         if ( $st ne "" ) {
           $flag=undef;
-          get_logger->error( "$st ==> Source ($source->{"name"}) is removed." );
+          get_logger->error( "$st ==> Source ($source->{'name'}) is removed." );
         }
         if ( exists( $source->{"invert"} ) ) {
           $source->{"invert_xml"} = util_create_string_for_xml( "invert", $source->{"invert"} );
         }
       }
       if ( exists( $h->{"destination"} ) ) {
-        my $dest = $h->{"destination"};
+        my $destination = $h->{"destination"};
         my $st = source_or_destination_validation( $destination );
         if ( $st ne "" ) {
           $flag=undef;
-          get_logger->error( "$st ==> Destination ($destination->{"name"}) is removed." );
+          get_logger->error( "$st ==> Destination ($destination->{'name'}) is removed." );
         }
         if ( exists( $destination->{"invert"} ) ) {
           $destination->{"invert_xml"} = util_create_string_for_xml( "invert", $destination->{"invert"} );
@@ -347,7 +351,7 @@ sub policy_rules {
               get_logger->error( "Match forward port rule needs a portid and a protocol" );
               $flag=undef;
             }
-          } elsif ( $match_rule{"name"}-> eq "icmp_block" || $match_rule->{"name"} eq "icmp_type" ) {
+          } elsif ( $match_rule->{"name"} eq "icmp_block" || $match_rule->{"name"} eq "icmp_type" ) {
             if ( !defined is_icmptypes_available( $match_rule->{"icmp_type"} ) ) {
               $flag=undef;
             }
@@ -422,7 +426,7 @@ sub policy_rules {
       if ( defined $flag ){
         push( @t, $h );
       } else {
-        get_logger->error( "Rule $h->{"name"} is not correct and has been removed." );
+        get_logger->error( "Rule $h->{'name'} is not correct and has been removed." );
       }
     }
     $c->{"all_rules"} = \@t;

@@ -21,6 +21,11 @@ use pf::Firewalld::util;
 use pf::config qw(
     %ConfigFirewalld
 );
+use pf::file_paths qw(
+    $firewalld_config_path_default 
+    $firewalld_config_path_default_template
+    $firewalld_config_path_applied
+);
 
 # Utils
 sub firewalld_ipset_types_hash {
@@ -64,7 +69,7 @@ sub firewalld_ipsets_hash {
 sub is_ipset_available {
   my $s = shift;
   my $available_ipsets = firewalld_ipsets_hash();
-  if ( !undef $available_ipsets && exists( $available_ipsets{$s} ) ) {
+  if ( !undef $available_ipsets && exists( $available_ipsets->{$s} ) ) {
     return $s;
   }
   get_logger->error("Ipsets $s does not exist.");
@@ -84,12 +89,12 @@ sub generate_ipset_config {
 
 sub create_service_config_file {
   my $conf = shift ;
-  if ( !undef is_ipset_type_available( $conf->{"type"} ) ) {
+  if ( defined is_ipset_type_available( $conf->{"type"} ) ) {
     my $ipset = $conf->{"name"};
     util_prepare_version( $conf );
-    parse_template( $conf, "$Config_path_default_template/ipset.xml", "$service_config_path_default/$ipset.xml" );
+    parse_template( $conf, "$firewalld_config_path_default_template/ipset.xml", "$firewalld_config_path_default/ipsets/$ipset.xml" );
   } else {
-    get_logger->error( "Ipset $conf->{"name"} is not installed. Ipset type is invalid." );
+    get_logger->error( "Ipset $conf->{'name'} is not installed. Ipset type is invalid." );
   }
 }
 

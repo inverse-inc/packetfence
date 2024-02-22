@@ -18,20 +18,20 @@ use pf::log;
 
 sub system_protocols_hash {
     my $protocols_file = shift;
-    if ( not length( $protocols_file ) ) {
+    if ( undef $protocols_file ) {
         $protocols_file = "/etc/protocols";
     }
     open( my $info, $protocols_file or die "Not able to open $protocols_file: $!" );
-    my %procotols;
+    my %protocols;
     while( my $line = <$info>)  {
       chomp $line;
-      if ( not $line =~ /^#/ ){
+      if ( not $line =~ /^#/ ) {
         my @s = split(/\s{1,}/, $line);
-	my $prot_name_lower= shift(@s);
-	my $prot_id        = shift(@s);
-	my $prot_name_upper= shift(@s);
+	my $prot_name_lower= shift( @s );
+	my $prot_id        = shift( @s );
+	my $prot_name_upper= shift( @s );
 	my $prot_comment   = join( " ", @s );
-        $prococols{$prot_name_lower} = ( "prot_id" => $prot_id, "prot_name_upper" => $prot_name_upper , "prot_comment" => $prot_comment );
+        $protocols{ $prot_name_lower } = ( "prot_id" => $prot_id, "prot_name_upper" => $prot_name_upper , "prot_comment" => $prot_comment );
       }
     }
     close( $info );
@@ -40,9 +40,9 @@ sub system_protocols_hash {
 
 sub is_protocol_available {
   my $s = shift;
-  $ls = lc( $s );
+  my $ls = lc( $s );
   my $available_protocols = system_protocols_hash();
-  if ( !undef $available_protocols && exists( $available_protocols->{ $ls } ) ) {
+  if ( defined $available_protocols && exists( $available_protocols->{ $ls } ) ) {
     return $s;
   }
   get_logger->error("Protocol $s does not exist.");
