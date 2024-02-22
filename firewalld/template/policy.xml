@@ -3,15 +3,23 @@
 <!--
 NOTE: VARIABLES ending with _xml are optional and need to be rewritten in xml format before.
 Looks like some optional variable can be defined with empty string, like version in policy tag
+
+
+The following rules apply to policy priorities:
+* policies with negative priorities apply before rules in zones
+* policies with positive priorities apply after rules in zones
+This is especially important to understand because many zones have catch all accept/drop/reject. This applies to zone with a -\-set-target that is not default.
+* priority 0 is reserved and not usable
+
 --> 
 
 <?xml version="1.0" encoding="utf-8"?>
 <policy [% policy.version_xml %] [% policy.target_xml %] [% policy.priority %]>
-  [% FOREACH ingress-policy IN policy.all_ingress_policies %]
-    <ingress-policy name="[% ingress-policy %]"/>
+  [% FOREACH ingress_policy IN policy.all_ingress_policies %]
+    <ingress-policy name="[% ingress_policy.name %]"/>
   [% END %]
-  [% FOREACH egress-policy IN policy.all_egress_policies %]
-    <egress-policy name="[% egress-policy %]"/>
+  [% FOREACH egress_policy IN policy.all_egress_policies %]
+    <egress-policy name="[% egress_policy.name %]"/>
   [% END %]
 
   [% IF policy.short_description != "" %]
