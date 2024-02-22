@@ -93,6 +93,14 @@ The oses to match against
 
 has oses => (is => 'rw', default => sub { [] } );
 
+=head2 rules
+
+The rules to match against
+
+=cut
+
+has rules => (is => 'rw', default => sub { [] } );
+
 =head2 enforce
 
 If the provisioner has to be enforced on each connection

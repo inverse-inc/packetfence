@@ -123,6 +123,18 @@ has_field 'oses' =>
    fingerbank_model => "fingerbank::Model::Device",
   );
 
+has_field 'rules' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Roles',
+   options_method => \&options_rules,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a rule'},
+   tags => { after_element => \&help,
+             help => 'Nodes with the selected roles will be affected' },
+  );
+
 has_field 'non_compliance_security_event' =>
   (
    type => 'Select',
@@ -170,13 +182,24 @@ sub options_pki_provider {
     return { value => '', label => '' }, map { { value => $_, label => $_ } } sort keys %ConfigPKI_Provider;
 }
 
+=head2 options_rules
+
+=cut
+
+sub options_rules {
+    my $self = shift;
+    my @rules;
+    return @rules;
+}
+
 =head2 options_roles
 
 =cut
 
 sub options_roles {
     my $self = shift;
-    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
+    my @roles;
+    @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
     return @roles;
 }
 
