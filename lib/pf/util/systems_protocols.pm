@@ -8,7 +8,7 @@ pf::util::system_protocols extract data from /etc/protocols
 
 =head1 DESCRIPTION
 
-=head1 WARNING
+Get hash of /etc/protocols
 
 =cut
 
@@ -16,20 +16,12 @@ use strict;
 use warnings;
 use pf::log;
 
-=head1 SUBROUTINES
-
-=head2 $id = task_counter_id($queue, $type, $args)
-
-Get hash of /etc/protocols
-
-=cut
-
 sub system_protocols_hash {
     my $protocols_file = shift;
-    if ( not length $protocols_file ) {
+    if ( not length( $protocols_file ) ) {
         $protocols_file = "/etc/protocols";
     }
-    open my $info, $protocols_file or die "Not able to open $protocols_file: $!";
+    open( my $info, $protocols_file or die "Not able to open $protocols_file: $!" );
     my %procotols;
     while( my $line = <$info>)  {
       chomp $line;
@@ -42,14 +34,15 @@ sub system_protocols_hash {
         $prococols{$prot_name_lower} = ( "prot_id" => $prot_id, "prot_name_upper" => $prot_name_upper , "prot_comment" => $prot_comment );
       }
     }
-    return %protocols;
+    close( $info );
+    return \%protocols;
 }
 
 sub is_protocol_available {
   my $s = shift;
-  $ls = lc $s;
-  my %available_protocols = system_protocols_hash();
-  if ( exists $available_protocols{$ls} ) {
+  $ls = lc( $s );
+  my $available_protocols = system_protocols_hash();
+  if ( !undef $available_protocols && exists( $available_protocols->{ $ls } ) ) {
     return $s;
   }
   get_logger->error("Protocol $s does not exist.");
