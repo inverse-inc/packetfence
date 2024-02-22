@@ -1,8 +1,8 @@
-package pf::firewalld::icmptypes;
+package pf::Firewalld::icmptypes;
 
 =head1 NAME
 
-pf::firewalld::icmptypes
+pf::Firewalld::icmptypes
 
 =cut
 
