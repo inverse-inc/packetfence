@@ -19,7 +19,6 @@ use warnings;
 use Exporter;
 use pf::log;
 use pf::Firewalld::services;
-use pf::Firewalld::policies;
 use pf::Firewalld::icmptypes;
 use pf::Firewalld::ipsets;
 use pf::Firewalld::util;
@@ -32,6 +31,21 @@ use pf::config qw(
     @listen_ints
 );
 
+
+sub firewalld_zones_hash {
+  my $fd_cmd = get_firewalld_cmd();
+  if ( $fd_cmd ) {
+    my $services = `$fd_cmd --get-zones`;
+    get_logger->info("Services are: $services");
+    my @all_services = split / /, $services;
+    my %h;
+    foreach $val ( @allservices ) {
+      $h{$val}=1;
+    }
+    return \%h;
+  }
+  return undef;
+}
 
 # need a function that return a structured content of the config file
 sub generate_zone_config {
