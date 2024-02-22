@@ -31,7 +31,7 @@ sub system_protocols_hash {
 	my $prot_id        = shift( @s );
 	my $prot_name_upper= shift( @s );
 	my $prot_comment   = join( " ", @s );
-        $protocols{ $prot_name_lower } = ( "prot_id" => $prot_id, "prot_name_upper" => $prot_name_upper , "prot_comment" => $prot_comment );
+        $protocols{ $prot_name_lower } = { "prot_id" => $prot_id, "prot_name_upper" => $prot_name_upper , "prot_comment" => $prot_comment };
       }
     }
     close( $info );
