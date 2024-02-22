@@ -7,3 +7,5 @@ collections:
       version: 5.0.0
     - name: cisco.asa
       version: 4.0.1
+    - name: cisco.meraki
+      version: 2.16.0
