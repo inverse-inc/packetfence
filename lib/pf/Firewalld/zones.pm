@@ -122,8 +122,7 @@ sub create_zone_config_file {
     copy( $zone_file, $bk_file )
     or die "copy failed: $!";
   }
-  print Dumper ($conf);
-  parse_template( $conf, $template_file, $zone_file );
+  parse_template( $conf, $template_file, $zone_file, "<!--", "-->" );
 }
 
 sub set_zone {
@@ -172,7 +171,7 @@ sub zone_interface {
     my $v = $c->{"interface"};
     if ( length( $v ) ) {
       my $all_interfaces = util_listen_ints_hash();
-      if ( !undef $all_interfaces && not exists( $all_interfaces->{$v} ) ) {
+      if ( defined $all_interfaces && not exists( $all_interfaces->{$v} ) ) {
         $b = 1;
       }
     }
@@ -181,6 +180,7 @@ sub zone_interface {
   }
   if ( $b ==1 ){
     get_logger->error( "Unknown interface. ==> Apply management interface" );
+    print ( "Unknown interface. ==> Apply management interface" );
     $c->{"interface"} = $management_network->{"Tint"};
   }
 }
@@ -244,7 +244,7 @@ sub zone_protocols {
     my @t;
     my @vl = split( ',', $c->{"protocols"} );
     foreach my $k ( @vl ) {
-      if ( !undef is_protocol_available( $k ) ) {
+      if ( defined is_protocol_available( $k ) ) {
         push( @t, $k );
       } else {
         get_logger->error( "==> Protocol ($k) is removed." );
