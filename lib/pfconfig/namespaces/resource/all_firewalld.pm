@@ -30,9 +30,6 @@ sub init {
     my ($self) = @_;
     my $firewalld_service_config = pfconfig::namespaces::config::Firewalld_Services->new( $self->{cache} );
     $firewalld_service_config->build();
-    print "#######################\n############# BLIBLIBLU of:\n################\n";
-    print Dumper($firewalld_service_config);
-
     $self->{firewalld_services} = $self->{cache}->get_cache("config::Firewalld_Services");
     $self->{firewalld_zones} = $self->{cache}->get_cache("config::Firewalld_Zones");
     $self->{firewalld_icmptypes} = $self->{cache}->get_cache("config::Firewalld_Icmptypes");
