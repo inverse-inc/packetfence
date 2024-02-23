@@ -1,35 +1,41 @@
-package pfconfig::namespaces::FilterEngine::ProvisionerScopes;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pfconfig::namespaces::FilterEngine::ProvisionerScopes
-
-=cut
+provisioner
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::FilterEngine::ProvisionerScopes
+unit test for provisioner
 
 =cut
 
 use strict;
 use warnings;
-use pf::log;
-use pfconfig::namespaces::config;
-use pfconfig::namespaces::config::ProvisionerFilters;
-use pf::config::builder::filter_engine::provisioner;
 
-use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
-
-sub parentConfig {
-    my ($self) = @_;
-    return pfconfig::namespaces::config::ProvisionerFilters->new($self->{cache});
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
 }
 
+use Test::More tests => 3;
+use pfconfig::cached_hash;
+tie our %ProvisionerScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
+use pf::factory::provisioner;
 
-sub builder {
-    return pf::config::builder::filter_engine::provisioner->new();
-}
+#This test will running last
+use Test::NoWarnings;
+
+use Data::Dumper;
+
+#print Dumper(\%ProvisionerScopes);
+my $p = pf::factory::provisioner->new('filtered_match');
+#print Dumper($p);
+
+ok(!$p->matchRules({}), "Rules don't match");
+ok($p->matchRules({connection_type => "Ethernet-NoEAP"}), "Rules do match");
 
 =head1 AUTHOR
 
@@ -37,7 +43,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

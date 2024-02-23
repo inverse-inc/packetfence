@@ -26,6 +26,9 @@ use pf::CHI;
 use fingerbank::Model::Device;
 use pf::util qw(isenabled);
 use Time::HiRes qw(time);
+use pfconfig::cached_hash;
+
+tie our %ProvisionerScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
 
 =head1 Constants
 
@@ -216,6 +219,22 @@ sub matchOS {
 
     for my $os (@oses) {
         return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
+    }
+
+    return $FALSE;
+}
+
+sub matchRules {
+    my ($self, $node_attributes) = @_;
+    my @rules = @{$self->rules};
+
+    #if no rules are defined then it is true
+    return $TRUE if @rules == 0;
+    for my $rule (@rules) {
+        next if !exists $ProvisionerScopes{lookup}{$rule};        
+        my $filter = $ProvisionerScopes{lookup}{$rule};
+        my $answer = $filter->match_first($node_attributes);
+        return $TRUE if defined $answer;
     }
 
     return $FALSE;

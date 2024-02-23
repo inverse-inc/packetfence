@@ -1,34 +1,33 @@
-package pfconfig::namespaces::FilterEngine::ProvisionerScopes;
+package pf::config::builder::filter_engine::provisioner;
 
 =head1 NAME
 
-pfconfig::namespaces::FilterEngine::ProvisionerScopes
-
-=cut
+pf::config::builder::filter_engine::provisioner -
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::FilterEngine::ProvisionerScopes
+pf::config::builder::filter_engine::provisioner
 
 =cut
 
 use strict;
 use warnings;
-use pf::log;
-use pfconfig::namespaces::config;
-use pfconfig::namespaces::config::ProvisionerFilters;
-use pf::config::builder::filter_engine::provisioner;
+use base qw(pf::config::builder::filter_engine);
+=head2 cleanupBuildData
 
-use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
+Merge all conditions and filters to build the scoped filter engines
 
-sub parentConfig {
-    my ($self) = @_;
-    return pfconfig::namespaces::config::ProvisionerFilters->new($self->{cache});
-}
+=cut
 
-
-sub builder {
-    return pf::config::builder::filter_engine::provisioner->new();
+sub cleanupBuildData {
+    my ($self, $buildData) = @_;
+    while ( my ( $scope, $filters ) = each %{ $buildData->{scopes} } ) {
+        for my $f (@$filters) {
+            my $id = $f->{answer}{_rule};
+            $buildData->{entries}{$scope}{$id} =
+              pf::filter_engine->new( { filters => [$f] } );
+      }
+    }
 }
 
 =head1 AUTHOR
@@ -37,7 +36,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
