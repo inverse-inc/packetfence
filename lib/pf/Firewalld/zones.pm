@@ -16,11 +16,10 @@ Module to get basic configuration about firewalld zone/interface configurations
 use strict;
 use warnings;
 use File::Copy;
+use Template;
 
 use pf::log;
-use pf::util qw (
-    parse_template
-);
+use pf::util;
 use pf::Firewalld::services qw(
     firewalld_services_hash
     is_service_available
@@ -122,7 +121,12 @@ sub create_zone_config_file {
     copy( $zone_file, $bk_file )
     or die "copy failed: $!";
   }
-  parse_template( $conf, $template_file, $zone_file, "<!--", "-->" );
+  my $tt = Template->new(
+      ABSOLUTE => 1,
+      FILTERS  => { escape_string => \&escape_freeradius_string },
+  );
+  $tt->process( $template_file, $conf, $zone_file ) or die $tt->error();
+  #parse_template( $conf, $template_file, $zone_file, "<!--", "-->" );
 }
 
 sub set_zone {
