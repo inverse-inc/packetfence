@@ -15,9 +15,35 @@ Module to get/set basic configuration about firewalld ipsets
 use strict;
 use warnings;
 
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT_OK );
+    @ISA = qw(Exporter);
+    @EXPORT_OK = qw(
+        is_ipset_type_available
+        is_ipset_available
+        generate_ipset_config
+        create_service_config_file
+    );
+}
+
 use pf::log;
 use pf::util;
-use pf::Firewalld::util;
+use pf::Firewalld::util qw(
+    util_prepare_firewalld_config
+    util_get_firewalld_bin
+    util_get_firewalld_cmd
+    util_listen_ints_hash
+    util_source_or_destination_validation
+    util_prepare_version
+    util_create_string_for_xml
+    util_create_limit_for_xml
+    util_is_firewalld_protocol
+    util_is_fd_source_name
+    util_firewalld_cmd
+    util_firewalld_action
+    util_reload_firewalld
+);
 use pf::config qw(
     %ConfigFirewalld
 );

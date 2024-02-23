@@ -15,18 +15,44 @@ Module with utils function for firewalld
 use strict;
 use warnings;
 
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT_OK );
+    @ISA = qw(Exporter);
+    @EXPORT_OK = qw(
+        util_prepare_firewalld_config
+        util_get_firewalld_bin
+        util_get_firewalld_cmd
+        util_listen_ints_hash
+        util_source_or_destination_validation
+        util_prepare_version
+        util_create_string_for_xml
+        util_create_limit_for_xml
+        util_is_firewalld_protocol
+        util_is_fd_source_name
+        util_firewalld_cmd
+        util_firewalld_action
+        util_reload_firewalld
+    );
+}
+
 use pf::log;
 use pf::util;
 use pf::config qw(
     @listen_ints
 );
-use pf::Firewalld::ipsets;
+use pf::Firewalld::ipsets qw(
+    is_ipset_available
+    is_ipset_type_available
+);
 
 use pf::file_paths qw(
     $firewalld_config_path_default 
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
+
+use Data::Dumper;
 
 sub util_prepare_firewalld_config {
   my $conf = shift;
@@ -36,8 +62,8 @@ sub util_prepare_firewalld_config {
       my @vals = split ( ",", $val->{$k2} );
       my @nvals;
       foreach my $v ( @vals ){
-        if ( exists ( $conf->{$v} ) ){
-          push( @nvals, $conf->{$k} );
+        if ( $v ne $k && exists ( $conf->{$v} ) ){
+          push( @nvals, $conf->{$v} );
         }
       }
       if ( @nvals ){
@@ -53,22 +79,28 @@ sub util_get_firewalld_bin {
     get_logger->error( "Firewalld has not been found on the system." );
     return undef;
   }
+  $fbin =~ s/\n//g;
   return $fbin;
 }
 
 sub util_get_firewalld_cmd {
-  my $fbin = `which firewalld-cmd`;
+  my $fbin = `which firewall-cmd`;
   if ( $fbin =~ "/usr/bin/which: no" ){
     get_logger->error( "Firewalld has not been found on the system." );
     return undef;
   }
+  $fbin =~ s/\n//g;
   return $fbin;
 }
 
 sub util_listen_ints_hash {
   my %listen_ints_hash;
-  foreach my $val ( @listen_ints ) {
-    $listen_ints_hash{ $val } = 1;
+  my @interfaces = `basename -a /sys/class/net/*`;
+  foreach my $int (@interfaces){
+    $int =~ s/\n//g;
+    if ( $int !~ "veth" ) {
+      $listen_ints_hash{ $int } = 1;
+    }
   }
   return \%listen_ints_hash;
 }
@@ -77,11 +109,11 @@ sub util_source_or_destination_validation {
   my $s = shift;
   my $st = "";
   if ( $s->{"name"} eq "address" && not ( valid_ip_range( $s->{"address"} ) || valid_mac_or_ip( $s->{"address"} ) ) ){
-    $st += "Address is not a valid ip or an ip range.";
+    $st .= "Address is not a valid ip or an ip range.";
   } elsif ( $s->{"name"} eq "mac" && not valid_mac_or_ip( $s->{"mac"} ) ){
-    $st += "Mac is not a valid mac.";
+    $st .= "Mac is not a valid mac.";
   } elsif ( $s->{"name"} eq "ipset" && not is_ipset_available( $s->{"ipset"} ) ){
-    $st += "Ipset is unknown.";
+    $st .= "Ipset is unknown.";
   }
   return $st;
 }
@@ -138,12 +170,15 @@ sub util_is_fd_source_name {
 # Firewalld cd
 sub util_firewalld_cmd {
   my $action = shift;
-  my $firewalld_cmd = get_firewalld_cmd();
+  my $firewalld_cmd = util_get_firewalld_cmd();
   if ( $firewalld_cmd ){
-    my $std_out = `$firewalld_cmd $action`;
+    my $cmd = $firewalld_cmd." ".$action;
+    my $std_out = `$cmd`;
     my $exit_status = `echo "$?"`;
+    $exit_status =~ s/\n//g;
     if ($exit_status eq "0") {
       get_logger->info( "Command exit with success" );
+      $std_out  =~ s/\n//g;
       return $std_out;
     } else {
       get_logger->error( "Command exit without success" );
