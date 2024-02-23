@@ -351,7 +351,7 @@ tie %ConfigAuthenticationEdir, 'pfconfig::cached_hash', 'resource::authenticatio
 
 tie %ConfigMfa, 'pfconfig::cached_hash', 'config::Mfa';
 
-tie %ConfigFirewalld, 'pfconfig::cached_hash', 'ressource::all_firewalld';
+tie %ConfigFirewalld, 'pfconfig::cached_hash', 'resource::all_firewalld';
 
 $thread = 0;
 
