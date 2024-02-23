@@ -15,12 +15,46 @@ Module to get basic configuration about firewalld zone/interface configurations
 
 use strict;
 use warnings;
+use File::Copy;
 
 use pf::log;
-use pf::Firewalld::services;
-use pf::Firewalld::icmptypes;
-use pf::Firewalld::ipsets;
-use pf::Firewalld::util;
+use pf::util qw (
+    parse_template
+);
+use pf::Firewalld::services qw(
+    firewalld_services_hash
+    is_service_available
+    service_in_default
+    service_is_in_config
+    service_copy_from_default_to_applied
+    service_remove_from_applied
+    generate_service_config
+    create_service_config_file
+);
+use pf::Firewalld::icmptypes qw(
+    is_icmptypes_available
+);
+use pf::Firewalld::ipsets qw(
+    is_ipset_type_available
+    is_ipset_available
+    generate_ipset_config
+    create_service_config_file
+);
+use pf::Firewalld::util qw(
+    util_prepare_firewalld_config
+    util_get_firewalld_bin
+    util_get_firewalld_cmd
+    util_listen_ints_hash
+    util_source_or_destination_validation
+    util_prepare_version
+    util_create_string_for_xml
+    util_create_limit_for_xml
+    util_is_firewalld_protocol
+    util_is_fd_source_name
+    util_firewalld_cmd
+    util_firewalld_action
+    util_reload_firewalld
+);
 use pf::util::system_protocols;
 use pf::config qw(
     $management_network
@@ -31,6 +65,8 @@ use pf::file_paths qw(
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
+
+use Data::Dumper;
 
 sub firewalld_zones_hash {
   my $std_out = util_firewalld_cmd( "--get-zones" );
@@ -48,13 +84,14 @@ sub firewalld_zones_hash {
 
 # need a function that return a structured content of the config file
 sub generate_zone_config {
-  my $conf = prepare_config( $ConfigFirewalld{"firewalld_zones"} );
+  my $conf = $ConfigFirewalld{"firewalld_zones"};
+  util_prepare_firewalld_config( $conf );
+  my $all_interfaces = util_listen_ints_hash();
   foreach my $k ( keys %{ $conf } ) {
-    my $all_interfaces = util_listen_ints_hash();
-    if ( !undef $all_interfaces && exists( $all_interfaces->{ $k } ) ) {
+    if ( defined $all_interfaces && exists( $all_interfaces->{ $k } ) ) {
       if ( length( $k ) <= 17 ) {
         create_zone_config_file( $conf->{ $k }, $k );
-        set_zone( $k );
+	#set_zone( $k );
       } else {
         get_logger->error( "$k can not be bigger than 17 chars" );
       }
@@ -78,7 +115,15 @@ sub create_zone_config_file {
   zone_forward_ports( $conf );
   zone_source_ports( $conf );
   zone_rules( $conf );
-  parse_template( $conf, "$firewalld_config_path_default_template/zone.xml", "$firewalld_config_path_default/zones/$zone.xml" );
+  my $zone_file = "$firewalld_config_path_default/zones/$zone.xml";
+  my $template_file = "$firewalld_config_path_default_template/zone.xml";
+  if ( -e $zone_file ) {
+    my $bk_file = $zone_file.".bk";
+    copy( $zone_file, $bk_file )
+    or die "copy failed: $!";
+  }
+  print Dumper ($conf);
+  parse_template( $conf, $template_file, $zone_file );
 }
 
 sub set_zone {
@@ -165,7 +210,7 @@ sub zone_services {
     my @t;
     my @vl = split( ',', $c->{"services"} );
     foreach my $k ( @vl ) {
-      if ( !undef is_service_available( $k ) ) {
+      if ( defined is_service_available( $k ) ) {
         push( @t, $k );
       } else {
         get_logger->error( "==> Service is removed." );
@@ -182,7 +227,7 @@ sub zone_ports {
     my $vl = $c->{"ports"};
     foreach my $k ( @{ $vl } ) {
       if ( exists( $k->{"protocol"} ) && exists( $k->{"portid"} ) ) {
-        if ( !undef util_is_firewalld_protocol( $k->{"protocol"} ) ) {
+        if ( defined util_is_firewalld_protocol( $k->{"protocol"} ) ) {
           push( @t, $k );
         }
       } else {
@@ -215,7 +260,7 @@ sub zone_icmp_blocks {
     my @t;
     my @vl = split( ',', $c->{"icmpblocks"} );
     foreach my $k ( @vl ) {
-      if ( !undef is_icmptypes_available( $k ) ) {
+      if ( defined is_icmptypes_available( $k ) ) {
         push(@t, $k);
       } else {
         get_logger->error( "==> Icmpblocks ($k) is removed." );
@@ -232,7 +277,7 @@ sub zone_forward_ports {
     my $vl = $c->{"forwardports"};
     foreach my $k ( @{ $vl } ) {
       if ( exists( $k->{"protocol"} ) && exists( $k->{"portid"} ) ) {
-        if ( !undef util_is_firewalld_protocol( $k->{"protocol"} ) ) {
+        if ( defined util_is_firewalld_protocol( $k->{"protocol"} ) ) {
           push( @t, $k );
           if ( exists( $k->{"to_port"} ) ) {
             my $to_port = $k->{"to_port"};
@@ -264,7 +309,7 @@ sub zone_source_ports {
     my $vl = $c->{"sourceports"};
     foreach my $k ( @{ $vl } ) {
       if ( exists( $k->{"protocol"} ) && exists( $k->{"portid"} ) ) {
-        if ( !undef util_is_firewalld_protocol( $k->{"protocol"} ) ) {
+        if ( defined util_is_firewalld_protocol( $k->{"protocol"} ) ) {
           push( @t, $k );
         } else {
           get_logger->error( "==> Source Port is removed." );
@@ -340,7 +385,7 @@ sub zone_rules {
             }
           } elsif ( $match_rule->{"name"} eq "forward_port" ) {
             if ( exists( $match_rule->{"portid"} ) && exists( $match_rule->{"protocol"} ) ) {
-              if ( !undef util_is_firewalld_protocol($match_rule->{"protocol"} ) ) {
+              if ( defined util_is_firewalld_protocol($match_rule->{"protocol"} ) ) {
                 if ( exists( $match_rule->{"to_port"} ) ) {
                   $match_rule->{"to_port_xml"} = util_create_string_for_xml( "to-port", $match_rule->{"to_port"} );
                 }
