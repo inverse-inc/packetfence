@@ -2,7 +2,6 @@
 masquerade=yes
 target=default
 services=haproxy-admin,ssh,http,https
-port=
 interface=eth0
 version = 1.2
 sources = eth0_source1,eth0_source2,eth0_source3
@@ -22,6 +21,4 @@ ipset = my_super_ipset
 [docker0]
 masquerade=yes
 target=ACCEPT
-services=
-port=
 interface=docker0
