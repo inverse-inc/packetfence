@@ -1,15 +1,9 @@
-<!-- source: https://firewalld.org/documentation/man-pages/firewalld.zone.html -->
-
-<!--
-NOTE: VARIABLES ending with _xml are optional and need to be rewritten in xml format before.
-Looks like some optional variable can be defined with empty string, like version in zone tag
---> 
-
 <?xml version="1.0" encoding="utf-8"?>
-<zone [% zone.version_xml %] [% zone.target_xml %]>
-    <interface name="[% zone.interface %]"/>
+<zone [% version_xml %] [% target_xml %]>
+    <!-- source: https://firewalld.org/documentation/man-pages/firewalld.zone.html -->
+    <interface name="[% interface %]"/>
 
-  [% FOREACH source IN zone.all_sources %]
+  [% FOREACH source IN all_sources %]
     [% IF source.name == 'address' %]
     <source address="[% source.address %]"/>
     [% ELSIF source.name == 'mac' %]
@@ -19,51 +13,51 @@ Looks like some optional variable can be defined with empty string, like version
     [% END %]
   [% END %]
 
-  [% IF zone.icmp-block-inversion == "yes" %]
+  [% IF icmp_block_inversion == "yes" %]
     <icmp-block-inversion/>
   [% END %]
 
-  [% IF zone.forward == "yes" %]
+  [% IF forward == "yes" %]
     <forward/>
   [% END %]
 
-  [% IF zone.short_description != "" %]
-    <short>[% zone.short_description %]</short>
+  [% IF short_description != "" %]
+    <short>[% short_description %]</short>
   [% END %]
 
-  [% IF zone.description != "" %]
-    <description>[% zone.description %]</description>
+  [% IF description != "" %]
+    <description>[% description %]</description>
   [% END %]
 
-  [% FOREACH service IN zone.all_services %]
+  [% FOREACH service IN all_services %]
     <service name="[% service %]"/>
   [% END %]
 
-  [% FOREACH port IN zone.all_ports %]
+  [% FOREACH port IN all_ports %]
     <port port="[% port.portid %]" protocol="[% port.protocol %]"/>
   [% END %]
 
-  [% FOREACH protocol IN zone.all_protocols %]
+  [% FOREACH protocol IN all_protocols %]
     <protocol value="[% protocol %]"/>
   [% END %]
 
-  [% FOREACH icmp_block IN zone.all_icmpblocks %]
+  [% FOREACH icmp_block IN all_icmpblocks %]
     <icmp-block name="[% icmp_block %]"/>
   [% END %]
 
-  [% IF zone.masquerade == "yes" %]
+  [% IF masquerade == "yes" %]
     <masquerade/>
   [% END %]
 
-  [% FOREACH forward_port IN zone.all_forwardports %]
+  [% FOREACH forward_port IN all_forwardports %]
     <forward-port port="[% forward_port.portid %]" protocol="[% forward_port.protocol %]" [% forward_port.to_port_xml %] [% forward_port.to_addr_xml %] />
   [% END %]
 
-  [% FOREACH source_port IN zone.all_sourceports %]
+  [% FOREACH source_port IN all_sourceports %]
     <source-port port="[% source_port.portid %]" protocol="[% source_port.protocol %]"/>
   [% END %]
 
-  [% FOREACH rule IN zone.all_rules %]
+  [% FOREACH rule IN all_rules %]
     <!-- First Match = First WIN -->
     <!-- also read: https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html -->
     <rule [% rule.family_xml %] [% rule.priority_xml %] >
@@ -83,7 +77,7 @@ Looks like some optional variable can be defined with empty string, like version
         <destination ipset="[% rule.destination.ipset %]" [% rule.destination.invert_xml %]/>
     [% END %]
 
-    [% FOREACH match_rule IN zone.matches %]
+    [% FOREACH match_rule IN matches %]
       [% IF match_rule.name == "service" %]
         <service name="[% match_rule.service %]"/>
       [% ELSIF match_rule.name == "port" %]
