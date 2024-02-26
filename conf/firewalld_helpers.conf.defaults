@@ -1,1 +1,9 @@
 # Copyright (C) Inverse inc.
+[netbios_ns]
+module=netbios_ns
+family=ipv4
+ports=netbios_ns_port1
+
+[netbios_ns_port1]
+prot=137
+type=udp
