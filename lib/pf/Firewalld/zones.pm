@@ -114,18 +114,20 @@ sub create_zone_config_file {
   zone_forward_ports( $conf );
   zone_source_ports( $conf );
   zone_rules( $conf );
-  my $zone_file = "$firewalld_config_path_default/zones/$zone.xml";
-  my $template_file = "$firewalld_config_path_default_template/zone.xml";
-  if ( -e $zone_file ) {
-    my $bk_file = $zone_file.".bk";
-    copy( $zone_file, $bk_file )
-    or die "copy failed: $!";
+  my $file = "$firewalld_config_path_default/zones/$zone.xml";
+  my $file_template = "$firewalld_config_path_default_template/zone.xml";
+  if ( -e $file ) {
+    my $bk_file = $file.".bk";
+    if ( -e $bk_file ) {
+      unlink $bk_file or warn "Could not unlink $file: $!";
+    }
+    copy( $file, $bk_file ) or die "copy failed: $!";
   }
   my $tt = Template->new(
       ABSOLUTE => 1,
       FILTERS  => { escape_string => \&escape_freeradius_string },
   );
-  $tt->process( $template_file, $conf, $zone_file ) or die $tt->error();
+  $tt->process( $template_file, $conf, $file ) or die $tt->error();
 }
 
 sub set_zone {
