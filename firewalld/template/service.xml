@@ -1,6 +1,6 @@
-<!-- source: https://firewalld.org/documentation/man-pages/firewalld.service.html -->
 <?xml version="1.0" encoding="utf-8"?>
 <service [% service.version_xml %]>
+  <!-- source: https://firewalld.org/documentation/man-pages/firewalld.service.html -->
   [% IF service.short_description != "" %]
   <short>[% service.short_description %]</short>
   [% END %]
