@@ -126,7 +126,6 @@ sub create_zone_config_file {
       FILTERS  => { escape_string => \&escape_freeradius_string },
   );
   $tt->process( $template_file, $conf, $zone_file ) or die $tt->error();
-  #parse_template( $conf, $template_file, $zone_file, "<!--", "-->" );
 }
 
 sub set_zone {
@@ -153,6 +152,8 @@ sub zone_target {
       get_logger->info( "Target zone is $v" );
       if ( $v eq "reject" ) {
         $c->{"target_xml"} = util_create_string_for_xml( "target", "%%REJECT%%" );
+      } elsif ($v eq "default") {
+        $c->{"target_xml"} = util_create_string_for_xml( "target", $v );
       } else {
         $c->{"target_xml"} = util_create_string_for_xml( "target", uc( $v ) );
       }
