@@ -125,7 +125,6 @@ sub create_zone_config_file {
   }
   my $tt = Template->new(
       ABSOLUTE => 1,
-      FILTERS  => { escape_string => \&escape_freeradius_string },
   );
   $tt->process( $file_template, $conf, $file ) or die $tt->error();
 }

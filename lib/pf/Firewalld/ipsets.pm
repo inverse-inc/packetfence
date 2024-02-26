@@ -105,20 +105,32 @@ sub is_ipset_available {
 # Generate config
 sub generate_ipset_config {
   my $conf = prepare_config( $ConfigFirewalld{"firewalld_ipsets"} );
-  foreach my $k ( keys %{ $conf } ) {
-    my $ipset = $conf->{ $k };
-    if ( exists( $ipset->{"type"} ) ){
-      create_service_config_file( $ipset );
+  foreach my $name ( keys %{ $conf } ) {
+    my $v = $conf->{ $name };
+    if ( exists( $v->{"type"} ) ){
+      create_ipset_config_file( $v, $name );
     }
   }
 }
 
-sub create_service_config_file {
+sub create_ipset_config_file {
   my $conf = shift ;
+  my $name = shift ;
   if ( defined is_ipset_type_available( $conf->{"type"} ) ) {
-    my $ipset = $conf->{"name"};
     util_prepare_version( $conf );
-    parse_template( $conf, "$firewalld_config_path_default_template/ipset.xml", "$firewalld_config_path_default/ipsets/$ipset.xml" );
+    my $file = "$firewalld_config_path_default/ipsets/$name.xml";
+    my $file_template = "$firewalld_config_path_default_template/ipset.xml";
+    if ( -e $file ) {
+      my $bk_file = $file.".bk";
+      if ( -e $bk_file ) {
+        unlink $bk_file or warn "Could not unlink $file: $!";
+      }
+      copy( $file, $bk_file ) or die "copy failed: $!";
+    }
+    my $tt = Template->new(
+      ABSOLUTE => 1,
+    );
+    $tt->process( $file_template, $conf, $file ) or die $tt->error();
   } else {
     get_logger->error( "Ipset $conf->{'name'} is not installed. Ipset type is invalid." );
   }
