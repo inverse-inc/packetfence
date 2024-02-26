@@ -35,12 +35,13 @@ use pf::file_paths qw(
 # need a function that return a structured content of the config file
 sub generate_policy_config {
   my $conf = prepare_config( $ConfigFirewalld{"firewalld_policies"} );
-  foreach my $k ( keys %{ $conf } ) {
-    if ( length( $k ) <= 17 ) {
-      create_policy_config_file( $conf->{ $k }, $k );
-      apply_policy( $k , $conf->{ $k }{"priority"} );
+  foreach my $name ( keys %{ $conf } ) {
+    if ( length( $name ) <= 17 ) {
+      my $val = $conf->{ $name };
+      create_policy_config_file( $val, $name );
+      apply_policy( $val->{"priority"}, $name );
     } else {
-      get_logger->error( "$k can not be bigger than 17 chars" );
+      get_logger->error( "$name can not be bigger than 17 chars" );
     }
   }
 }
@@ -49,7 +50,7 @@ sub generate_policy_config {
 # need a function that add interfaces in the config file
 sub create_policy_config_file {
   my $conf = shift;
-  my $policy = shift;
+  my $name = shift;
   util_prepare_version( $conf );
   policy_target( $conf ); 
   policy_interface( $conf );
@@ -61,23 +62,35 @@ sub create_policy_config_file {
   policy_forward_ports( $conf );
   policy_source_ports( $conf );
   policy_rules( $conf );
-  parse_template( $conf, "$firewalld_config_path_default_template/policy.xml", "$firewalld_config_path_default/policies/$policy.xml" );
+  my $file = "$firewalld_config_path_default/policies/$name.xml";
+  my $file_template = "$firewalld_config_path_default_template/policy.xml";
+  if ( -e $file ) {
+    my $bk_file = $file.".bk";
+    if ( -e $bk_file ) {
+      unlink $bk_file or warn "Could not unlink $file: $!";
+    }
+    copy( $file, $bk_file ) or die "copy failed: $!";
+  }
+  my $tt = Template->new(
+    ABSOLUTE => 1,
+  );
+  $tt->process( $file_template, $conf, $file ) or die $tt->error();
 }
 
 sub apply_policy {
-  my $policy = shift;
   my $priority = shift;
+  my $name = shift;
   my $set_priority = "";
   if ( defined $priority ){
     $set_priority = "--set-proprity $priority";
   }
-  if ( util_firewalld_action( "--permanent --policy $policy $set_priority" ) ) {
+  if ( util_firewalld_action( "--permanent --policy $name $set_priority" ) ) {
     if ( $set_priority ne "" ) {
       $set_priority = "with the priority $priority";
     }
-    get_logger->info( "$policy has been applied permanently $set_priority" );
+    get_logger->info( "Policy named $name has been applied permanently $set_priority" );
   } else {
-    get_logger->error( "$policy has NOT been applied." );
+    get_logger->error( "Policy named $name has NOT been applied." );
   }
 }
 
