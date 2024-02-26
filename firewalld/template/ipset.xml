@@ -1,13 +1,13 @@
-<!-- source: https://firewalld.org/documentation/man-pages/firewalld.ipset.html -->
 <?xml version="1.0" encoding="utf-8"?>
-<ipset type="[% ipset.type %]" [% ipset.version_xml %]>
-  [% IF ipset.short_description != "" %]
-    <short>[% ipset.short_description %]</short>
+<ipset type="[% type %]" [% version_xml %]>
+  <!-- source: https://firewalld.org/documentation/man-pages/firewalld.ipset.html -->
+  [% IF short_description != "" %]
+    <short>[% short_description %]</short>
   [% END %]
-  [% IF ipset.description != "" %]
-    <description>[% ipset.description %]</description>
+  [% IF description != "" %]
+    <description>[% description %]</description>
   [% END %]
-  [% FOREACH entry IN ipset.entries %]
+  [% FOREACH entry IN entries %]
   <entry>[% entry %]</entry>
   [% END %]
 </ipset>
