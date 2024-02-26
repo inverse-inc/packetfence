@@ -28,7 +28,8 @@ use pf::util qw(isenabled);
 use Time::HiRes qw(time);
 use pfconfig::cached_hash;
 
-tie our %ProvisionerScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
+our %ProvisionerScopes;
+tie %ProvisionerScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
 
 =head1 Constants
 
@@ -224,16 +225,29 @@ sub matchOS {
     return $FALSE;
 }
 
+sub _getRulesForScope {
+    my ($self, $scope) = @_;
+    return if !exists $ProvisionerScopes{$scope};
+    my @rulesIds = @{$self->rules};
+    return if @rulesIds == 0;
+    my $scopeLookup = $ProvisionerScopes{$scope};
+    my @rules;
+    for my $id (@rulesIds) {
+        next if !exists $scopeLookup->{$id};
+        my $rule = $scopeLookup->{$id};
+        push @rules, $rule if defined $rule;
+    }
+
+    return @rules;
+}
+
 sub matchRules {
     my ($self, $node_attributes) = @_;
-    my @rules = @{$self->rules};
-
+    my @rules = $self->_getRulesForScope('lookup');
     #if no rules are defined then it is true
     return $TRUE if @rules == 0;
     for my $rule (@rules) {
-        next if !exists $ProvisionerScopes{lookup}{$rule};        
-        my $filter = $ProvisionerScopes{lookup}{$rule};
-        my $answer = $filter->match_first($node_attributes);
+        my $answer = $rule->match_first($node_attributes);
         return $TRUE if defined $answer;
     }
 
