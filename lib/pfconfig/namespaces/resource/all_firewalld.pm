@@ -20,32 +20,40 @@ use pf::util;
 use Data::Dumper;
 
 use base 'pfconfig::namespaces::resource';
+use pfconfig::namespaces::config::Firewalld;
 use pfconfig::namespaces::config::Firewalld_Services;
 use pfconfig::namespaces::config::Firewalld_Zones;
 use pfconfig::namespaces::config::Firewalld_Icmptypes;
 use pfconfig::namespaces::config::Firewalld_Ipsets;
 use pfconfig::namespaces::config::Firewalld_Policies;
+use pfconfig::namespaces::config::Firewalld_Helpers;
 
 sub init {
     my ($self) = @_;
-    my $firewalld_service_config = pfconfig::namespaces::config::Firewalld_Services->new( $self->{cache} );
-    $firewalld_service_config->build();
+    my $firewalld_config = pfconfig::namespaces::config::Firewalld->new( $self->{cache} );
+
+    $firewalld_config->build();
+
+    $self->{firewalld} = $self->{cache}->get_cache("config::Firewalld");
     $self->{firewalld_services} = $self->{cache}->get_cache("config::Firewalld_Services");
     $self->{firewalld_zones} = $self->{cache}->get_cache("config::Firewalld_Zones");
     $self->{firewalld_icmptypes} = $self->{cache}->get_cache("config::Firewalld_Icmptypes");
     $self->{firewalld_ipsets} = $self->{cache}->get_cache("config::Firewalld_Ipsets");
     $self->{firewalld_policies} = $self->{cache}->get_cache("config::Firewalld_Policies");
+    $self->{firewalld_helpers} = $self->{cache}->get_cache("config::Firewalld_Helpers");
 }
 
 sub build {
     my ($self) = @_;
 
     my %ConfigFirewalld;
+    $ConfigFirewalld{firewalld} = $self->{firewalld};
     $ConfigFirewalld{firewalld_services} = $self->{firewalld_services};
     $ConfigFirewalld{firewalld_zones}    = $self->{firewalld_zones};
     $ConfigFirewalld{firewalld_icmptypes}= $self->{firewalld_icmptypes};
     $ConfigFirewalld{firewalld_ipsets}   = $self->{firewalld_ipsets};
     $ConfigFirewalld{firewalld_policies} = $self->{firewalld_policies};
+    $ConfigFirewalld{firewalld_helpers} = $self->{firewalld_helpers};
 
     return \%ConfigFirewalld;
 }
