@@ -1,8 +1,8 @@
-package pf::Switch::Juniper::EX2200;
+package pf::Switch::Juniper::Junos_v12_x;
 
 =head1 NAME
 
-pf::SNMP::Juniper::EX2200 - Object oriented module to manage Juniper's EX Series switches
+pf::SNMP::Juniper::Junos_v12_x - Object oriented module to manage Juniper's EX Series switches
 
 =head1 STATUS
 
@@ -29,14 +29,14 @@ Currently, these two technologies cannot be enabled at the same time on the port
 use strict;
 use warnings;
 
-use base ('pf::Switch::Juniper');
+use base ('pf::Switch::Juniper::Junos');
 
 use pf::constants;
 use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
 );
-sub description { 'Juniper EX 2200 Series' }
+sub description { 'Junos v12.x' }
 
 # importing switch constants
 use pf::Switch::constants;
