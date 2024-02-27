@@ -126,7 +126,7 @@ sub service_remove_from_applied {
 
 # Generate config
 sub generate_service_config {
-  my $conf = prepare_config( $ConfigFirewalld{"firewalld_services"} );
+  my $conf = util_prepare_firewalld_config( $ConfigFirewalld{"firewalld_services"} );
   foreach my $k ( keys %{ $conf } ) {
     my $service = $conf->{ $k };
     if ( exists( $service->{"name"} ) ){

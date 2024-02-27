@@ -31,6 +31,7 @@ BEGIN {
 use pf::log;
 use pf::util;
 use pf::Firewalld::util qw(
+    util_prepare_firewalld_config
     util_prepare_version
     util_firewalld_cmd
 );
@@ -88,7 +89,7 @@ sub helper_family {
 
 # Generate config
 sub generate_helper_config {
-  my $conf = prepare_config( $ConfigFirewalld{"firewalld_helpers"} );
+  my $conf = util_prepare_firewalld_config( $ConfigFirewalld{"firewalld_helpers"} );
   foreach my $name ( keys %{ $conf } ) {
     my $val = $conf->{ $name };
     if ( exists($val->{"module"} ) ){
