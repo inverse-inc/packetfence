@@ -131,6 +131,15 @@ const (
 	NetworkEventDirectionBiDirectional NetworkEventDirection = "bi-directional"
 )
 
+type TCPFlags uint8
+
+const TCPFlagURG = 32
+const TCPFlagACK = 16
+const TCPFlagPSH = 8
+const TCPFlagRST = 4
+const TCPFlagSYN = 2
+const TCPFlagFIN = 1
+
 type IpProtocol string
 
 const (
