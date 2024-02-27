@@ -106,7 +106,8 @@ sub is_ipset_available {
 
 # Generate config
 sub generate_ipset_config {
-  my $conf = util_prepare_firewalld_config( $ConfigFirewalld{"firewalld_ipsets"} );
+  my $conf = $ConfigFirewalld{ "firewalld_ipsets" };
+  util_prepare_firewalld_config( $conf );
   foreach my $name ( keys %{ $conf } ) {
     my $v = $conf->{ $name };
     if ( exists( $v->{"type"} ) ){
