@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 use pfconfig::cached_hash;
 tie our %ProvisionerScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
 use pf::factory::provisioner;
@@ -36,6 +36,9 @@ my $p = pf::factory::provisioner->new('filtered_match');
 
 ok(!$p->matchRules({}), "Rules don't match");
 ok($p->matchRules({connection_type => "Ethernet-NoEAP"}), "Rules do match");
+
+$p = pf::factory::provisioner->new('simple_accept');
+ok($p->matchRules({}), "No Rules match");
 
 =head1 AUTHOR
 
