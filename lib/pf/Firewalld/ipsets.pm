@@ -14,6 +14,8 @@ Module to get/set basic configuration about firewalld ipsets
 
 use strict;
 use warnings;
+use File::Copy;
+use Template;
 
 BEGIN {
     use Exporter ();
