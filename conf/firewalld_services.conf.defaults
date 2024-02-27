@@ -150,7 +150,7 @@ type=udp
 port=4011
 
 [syslog]
-name=proxy_dhcp
+name=syslog
 short=syslog
 description=Syslog is a client/server protocol: a logging application transmits a text message to the syslog receiver. The receiver is commonly called syslogd, syslog daemon or syslog server.
 ports=syslog_port1
