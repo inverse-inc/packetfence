@@ -243,15 +243,10 @@ sub _getRulesForScope {
 
 sub matchRules {
     my ($self, $node_attributes) = @_;
-    my @rules = $self->_getRulesForScope('lookup');
     #if no rules are defined then it is true
-    return $TRUE if @rules == 0;
-    for my $rule (@rules) {
-        my $answer = $rule->match_first($node_attributes);
-        return $TRUE if defined $answer;
-    }
-
-    return $FALSE;
+    my %data = (node_info => $node_attributes);
+    my $answer = $self->getAnswerForScope('lookup', \%data);
+    return defined $answer ? $TRUE : $FALSE;
 }
 
 =head2 match
@@ -339,6 +334,18 @@ sub authorize_apply_role {
     }
 
     return $result;
+}
+
+sub getAnswerForScope {
+    my ($self, $scope, $data) = @_;
+    my @rules = $self->_getRulesForScope($scope);
+    return undef if @rules == 0;
+    for my $rule (@rules) {
+        my $answer = $rule->match_first($data);
+        return $answer if defined $answer;
+    }
+
+    return undef;
 }
 
 
