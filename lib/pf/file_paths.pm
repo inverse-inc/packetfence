@@ -139,10 +139,12 @@ our (
     $firewalld_config_path_default,
     $firewalld_config_path_default_template,
     $firewalld_config_path_applied,
+    $firewalld_config_config_file, $firewalld_config_config_defaults_file,
     $firewalld_services_config_file, $firewalld_services_config_defaults_file,
     $firewalld_policies_config_file, $firewalld_policies_config_defaults_file,
     $firewalld_icmptypes_config_file, $firewalld_icmptypes_config_defaults_file,
     $firewalld_ipsets_config_file, $firewalld_ipsets_config_defaults_file,
+    $firewalld_helpers_config_file, $firewalld_helpers_config_defaults_file,
     $firewalld_zones_config_file, $firewalld_zones_config_defaults_file
 );
 
@@ -254,14 +256,16 @@ BEGIN {
         $provisioning_filters_meta_config_file
         $provisioning_filters_meta_config_default_file
         $pfperl_api_restart_task
-        $firewalld_config_path_default 
+        $firewalld_config_path_default
         $firewalld_config_path_default_template
         $firewalld_config_path_applied
+        $firewalld_config_config_file $firewalld_config_config_defaults_file	
 	$firewalld_services_config_file $firewalld_services_config_defaults_file
 	$firewalld_zones_config_file $firewalld_zones_config_defaults_file
 	$firewalld_policies_config_file $firewalld_policies_config_defaults_file
 	$firewalld_ipsets_config_file $firewalld_ipsets_config_defaults_file
 	$firewalld_icmptypes_config_file $firewalld_icmptypes_config_defaults_file
+	$firewalld_helpers_config_file $firewalld_helpers_config_defaults_file
     );
 }
 
@@ -418,6 +422,10 @@ $firewalld_ipsets_config_defaults_file = catfile($conf_dir,"firewalld_ipsets.con
 $firewalld_ipsets_config_file = catfile($conf_dir,"firewalld_ipsets.conf");
 $firewalld_policies_config_defaults_file = catfile($conf_dir,"firewalld_policies.conf.defaults");
 $firewalld_policies_config_file = catfile($conf_dir,"firewalld_policies.conf");
+$firewalld_helpers_config_defaults_file = catfile($conf_dir,"firewalld_helpers.conf.defaults");
+$firewalld_helpers_config_file = catfile($conf_dir,"firewalld_helpers.conf");
+$firewalld_config_config_file = catfile($conf_dir,"firewalld.conf");
+$firewalld_config_config_defaults_file = catfile($conf_dir,"firewalld.conf.defaults");
 $firewalld_config_path_default = catdir($install_dir,"/firewalld");
 $firewalld_config_path_default_template = catdir($firewalld_config_path_default, "/template");
 $firewalld_config_path_applied = catdir($var_dir,"/firewalld");
