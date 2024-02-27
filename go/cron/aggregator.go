@@ -22,6 +22,7 @@ func NewAggregator(o *AggregatorOptions) *Aggregator {
 		events:           make(map[EventKey][]PfFlow),
 		stop:             make(chan struct{}),
 		PfFlowsChan:      ChanPfFlow,
+		Heuristics:       true,
 	}
 }
 
@@ -42,6 +43,7 @@ type Aggregator struct {
 	networkEventChan chan []*NetworkEvent
 	backlog          int
 	timeout          time.Duration
+	Heuristics       bool
 }
 
 func (a *Aggregator) handleEvents() {
@@ -54,6 +56,9 @@ loop:
 				for _, f := range *pfflows.Flows {
 					key := f.Key(&pfflows.Header)
 					val := a.events[key]
+					if a.Heuristics {
+						f.Heuristics()
+					}
 					a.events[key] = append(val, f)
 				}
 			}
