@@ -1,14 +1,14 @@
-package pfconfig::namespaces::config::Firewalld;
+package pfconfig::namespaces::config::Firewalld_Config;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Firewalld
+pfconfig::namespaces::config::Firewalld_Config
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Firewalld
+pfconfig::namespaces::config::Firewalld_Config
 
 This module creates the configuration hash associated to firewalld.conf* files
 
@@ -23,8 +23,8 @@ use pf::IniFiles;
 use File::Slurp qw(read_file);
 use pf::log;
 use pf::file_paths qw(
-    $firewalld_config_defaults_file
-    $firewalld_config_file
+    $firewalld_config_config_defaults_file
+    $firewalld_config_config_file
 );
 use pf::util;
 use pf::constants::config; 
@@ -37,10 +37,10 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
 
-    $self->{file} = $firewalld_config_file;
+    $self->{file} = $firewalld_config_config_file;
     $self->{child_resources} = [ "resource::all_firewalld" ];
 
-    my $defaults = pf::IniFiles->new( -file => $firewalld_config_defaults_file, -envsubst => 1, -allowempty => 1);
+    my $defaults = pf::IniFiles->new( -file => $firewalld_config_config_defaults_file, -envsubst => 1, -allowempty => 1);
     $self->{added_params}->{'-import'} = $defaults;
 }
 
