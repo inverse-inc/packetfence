@@ -17,7 +17,7 @@ Developed and tested on Juniper ex2200 running on JUNOS 15.1
 use strict;
 use warnings;
 
-use base ('pf::Switch::Juniper::EX2200');
+use base ('pf::Switch::Juniper::Junos::Junos_v13_x');
 
 use pf::constants;
 use pf::config qw(
