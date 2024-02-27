@@ -51,7 +51,8 @@ use pf::file_paths qw(
 
 # need a function that return a structured content of the config file
 sub generate_policy_config {
-  my $conf = util_prepare_firewalld_config( $ConfigFirewalld{"firewalld_policies"} );
+  my $conf = $ConfigFirewalld{ "firewalld_policies" };
+  util_prepare_firewalld_config( $conf );
   foreach my $name ( keys %{ $conf } ) {
     if ( length( $name ) <= 17 ) {
       my $val = $conf->{ $name };
