@@ -14,6 +14,8 @@ Module to get/set basic configuration about firewalld services
 
 use strict;
 use warnings;
+use File::Copy;
+use Template;
 
 use pf::log;
 use pf::util;
@@ -56,7 +58,6 @@ BEGIN {
         create_service_config_file
     );
 }
-
 
 # Vars
 my $service_config_path_default="$firewalld_config_path_default/services";
@@ -126,7 +127,8 @@ sub service_remove_from_applied {
 
 # Generate config
 sub generate_service_config {
-  my $conf = util_prepare_firewalld_config( $ConfigFirewalld{"firewalld_services"} );
+  my $conf = $ConfigFirewalld{"firewalld_services"};
+  util_prepare_firewalld_config( $conf );
   foreach my $k ( keys %{ $conf } ) {
     my $service = $conf->{ $k };
     if ( exists( $service->{"name"} ) ){

@@ -12,6 +12,11 @@ Module to get basic configuration about firewalld policies configurations
 
 =cut
 
+use strict;
+use warnings;
+use File::Copy;
+use Template;
+
 use pf::log;
 use pf::util;
 use pf::Firewalld::util qw(
