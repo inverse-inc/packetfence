@@ -12,18 +12,30 @@ Module to get basic configuration about firewalld policies configurations
 
 =cut
 
-
-use strict;
-use warnings;
-
 use pf::log;
-use pf::Firewalld::services;
-use pf::Firewalld::icmptypes;
-use pf::Firewalld::ipsets;
-use pf::Firewalld::zones;
-use pf::Firewalld::util;
+use pf::util;
+use pf::Firewalld::util qw(
+    util_prepare_version
+    util_target
+    util_all_sources
+    util_all_services
+    util_all_ports
+    util_all_protocols
+    util_all_icmp_blocks
+    util_all_forward_ports
+    util_all_source_ports
+    util_all_rules
+    util_prepare_firewalld_config
+    util_get_firewalld_bin
+    util_get_firewalld_cmd
+    util_listen_ints_hash
+    util_firewalld_cmd
+    util_firewalld_action
+    util_reload_firewalld
+);
 use pf::util::system_protocols;
 use pf::config qw(
+    $management_network
     %ConfigFirewalld
 );
 use pf::file_paths qw(
@@ -52,16 +64,17 @@ sub create_policy_config_file {
   my $conf = shift;
   my $name = shift;
   util_prepare_version( $conf );
-  policy_target( $conf ); 
-  policy_interface( $conf );
-  policy_sources( $conf );
-  policy_services( $conf );
-  policy_ports( $conf );
-  policy_protocols( $conf );
-  policy_icmp_blocks( $conf );
-  policy_forward_ports( $conf );
-  policy_source_ports( $conf );
-  policy_rules( $conf );
+  util_target( $conf ); 
+  policy_ingress( $conf ); 
+  policy_egress( $conf ); 
+  util_all_sources( $conf );
+  util_all_services( $conf );
+  util_all_ports( $conf );
+  util_all_protocols( $conf );
+  util_all_icmp_blocks( $conf );
+  util_all_forward_ports( $conf );
+  util_all_source_ports( $conf );
+  util_all_rules( $conf );
   my $file = "$firewalld_config_path_default/policies/$name.xml";
   my $file_template = "$firewalld_config_path_default_template/policy.xml";
   if ( -e $file ) {
@@ -96,34 +109,6 @@ sub apply_policy {
 
 # need a function that add services according to interface usage (see how lib/pf/iptables.pm is working)
 # need a function that return a structured content of the config file
-sub policy_target {
-  my $c = shift;
-  my $b = 0;
-  if ( exists( $c->{"target"} ) ) {
-    my %policy_target_option=qw(accept 0
-                  reject 1
-                  drop 2
-                  default 3);
-    my $v = lc( $c->{"target"} );
-    if ( exists( $policy_target_option{$v} ) ) {
-      get_logger->info( "Target policy is $v" );
-      if ( $v eq "reject" ){
-        $c->{"target_xml"} = util_create_string_for_xml( "target", "%%REJECT%%" );
-      } else {
-        $c->{"target_xml"} = util_create_string_for_xml( "target", uc( $v ) );
-      }
-    } else {
-      $b = 1;
-    }
-  } else {
-    $b = 1;
-  }
-  if ( $b == 1 ){
-    get_logger->error( "Unknown target policy. ==> Apply %%REJECT%%" );
-    $c->{"target_xml"} = util_create_string_for_xml( "target", "%%REJECT%%" );
-  }
-}
-
 sub policy_egress {
   my $c = shift;
   my $b = 0 ;
@@ -167,285 +152,6 @@ sub policy_ingress {
     $c->{"all_ingress_policies"} = \@t;
   }
 }
-
-sub policy_services {
-  my $c = shift;
-  if ( exists( $c->{"services"} ) ) {
-    my @t;
-    my @vl = split( ',', $c->{"services"} );
-    foreach my $k ( @vl ) {
-      if ( !undef is_service_available( $k ) ) {
-        push( @t, $k );
-      } else {
-        get_logger->error( "==> Service is removed." );
-      }
-    }
-    $c->{"all_services"} = \@t;
-  }
-}
-
-sub policy_ports {
-  my $c = shift;
-  if ( exists( $c->{"ports"} ) ) {
-    my @t;
-    my $vl = $c->{"ports"};
-    foreach my $k ( @{ $vl } ) {
-      if ( exists( $k->{"protocol"} ) && exists( $k->{"portid"} ) ) {
-        if ( !undef util_is_firewalld_protocol( $k->{"protocol"} ) ) {
-          push( @t, $k );
-        }
-      } else {
-        get_logger->error( "==> Port is removed." );
-      }
-    }
-    $c->{"all_ports"} = \@t;
-  }
-}
-
-sub policy_protocols {
-  my $c = shift;
-  if ( exists( $c->{"protocols"} ) ) {
-    my @t;
-    my @vl = split( ',', $c->{"protocols"} );
-    foreach my $k ( @vl ) {
-      if ( !undef is_protocol_available( $k ) ) {
-        push( @t, $k );
-      } else {
-        get_logger->error( "==> Protocol ($k) is removed." );
-      }
-    }
-    $c->{"all_protocols"} = \@t;
-  }
-}
-
-sub policy_icmp_blocks {
-  my $c = shift;
-  if ( exists( $c->{"icmpblocks"} ) ) {
-    my @t;
-    my @vl = split( ',', $c->{"icmpblocks"} );
-    foreach my $k ( @vl ) {
-      if ( !undef is_icmptypes_available( $k ) ) {
-        push( @t, $k );
-      } else {
-        get_logger->error( "==> Icmpblocks ($k) is removed." );
-      }
-    }
-    $c->{"all_icmpblocks"} = \@t;
-  }
-}
-
-sub policy_forward_ports {
-  my $c = shift;
-  if ( exists( $c->{"forwardports"} ) ) {
-    my @t;
-    my $vl = $c->{"forwardports"};
-    foreach my $k ( @{ $vl } ) {
-      if ( exists( $k->{"protocol"} ) && exists( $k->{"portid"} ) ) {
-        if ( !undef util_is_firewalld_protocol( $k->{"protocol"} ) ) {
-          push( @t, $k );
-          if ( exists( $k->{"to_port"} ) ) {
-            my $to_port = $k->{"to_port"};
-            if ( length( $to_port ) ) {
-              $k->{"to_port_xml"} = util_create_string_for_xml( "to-port", $to_port );
-            }
-          }
-          if ( exists( $k->{"to_addr"} ) ) {
-            my $to_addr = $k->{"to_addr"};
-            if ( length( $to_addr ) ) {
-              $k->{"to_addr_xml"} = util_create_string_for_xml( "to-addr", $to_addr );
-            }
-          }
-        } else {
-          get_logger->error( "==> Forward Port is removed." );
-        }
-      } else {
-        get_logger->error( "Forward Port needs a valid Protocol type and Portid ==> Forward Port is removed." );
-      }
-    }
-    $c->{"all_forwardports"} = \@t;
-  }
-}
-
-sub policy_source_ports {
-  my $c = shift;
-  if ( exists( $c->{"sourceports"} ) ) {
-    my @t;
-    my $vl = $c->{"sourceports"};
-    foreach my $k ( @{ $vl } ) {
-      if ( exists( $k->{"protocol"} ) && exists( $k->{"portid"} ) ) {
-        if ( !undef util_is_firewalld_protocol( $k->{"protocol"} ) ) {
-          push( @t, $k );
-        } else {
-          get_logger->error( "==> Source Port is removed." );
-        }
-      } else {
-        get_logger->error( "Source Port needs a valid Protocol type and Portid ==> Source Port is removed." );
-      }
-    }
-    $c->{"all_sourceports"} = \@t;
-  }
-}
-
-sub policy_rules {
-  my $c = shift;
-  if ( exists( $c->{"rules"} ) ) {
-    my @t;
-    my $vl   = $c->{"rules"};
-    my $flag = 0;
-    foreach my $h ( @{ $vl } ) {
-      if ( exists( $h->{"family"} ) ) {
-        $h->{"family_xml"} = util_create_string_for_xml( "family", $h->{"family"} );
-      } else {
-        $h->{"family_xml"} = "";
-      }
-      if ( exists( $h->{"priority"} ) ) {
-        $h->{"priority_xml"} = util_create_string_for_xml( "priority", $h->{"priority"} );
-      } else {
-        $h->{"priority_xml"} = "";
-      }
-      if ( exists( $h->{"source"} ) ) {
-        my $source = $h->{"source"};
-        my $st = source_or_destination_validation( $source );
-        if ( $st ne "" ) {
-          $flag=undef;
-          get_logger->error( "$st ==> Source ($source->{'name'}) is removed." );
-        }
-        if ( exists( $source->{"invert"} ) ) {
-          $source->{"invert_xml"} = util_create_string_for_xml( "invert", $source->{"invert"} );
-        }
-      }
-      if ( exists( $h->{"destination"} ) ) {
-        my $destination = $h->{"destination"};
-        my $st = source_or_destination_validation( $destination );
-        if ( $st ne "" ) {
-          $flag=undef;
-          get_logger->error( "$st ==> Destination ($destination->{'name'}) is removed." );
-        }
-        if ( exists( $destination->{"invert"} ) ) {
-          $destination->{"invert_xml"} = util_create_string_for_xml( "invert", $destination->{"invert"} );
-        }
-      }
-
-      if ( exists( $h->{"matchrules"} ) ) {
-        my $match_rules = $h->{"matchrules"};
-        foreach my $h2 ( keys %{ $match_rules } ) {
-          my $match_rule = $match_rules->{$h2};
-          if ( $match_rule->{"name"} eq "service" ) {
-            if ( !defined is_service_available( $match_rule->{"service"} ) ) {
-              $flag=undef;
-            }
-          } elsif ( $match_rule->{"name"} eq "port" ) {
-            if ( exists( $match_rule->{"portid"} ) && exists( $match_rule->{"port_protocol"} ) ) {
-              if ( !defined util_is_firewalld_protocol( $match_rule->{"port_protocol"} ) ) {
-                $flag=undef;
-              }
-            } else {
-              get_logger->error( "Port needs a protocol and a portid." );
-              $flag=undef;
-            }
-          } elsif ( $match_rule->{"name"} eq "protocol" ) {
-           if ( !defined util_is_firewalld_protocol( $match_rule->{"protocol"} ) ) {
-              $flag=undef;
-            }
-          } elsif ( $match_rule->{"name"} eq "forward_port" ) {
-            if ( exists( $match_rule->{"portid"} ) && exists( $match_rule->{"protocol"} ) ) {
-              if ( !undef util_is_firewalld_protocol( $match_rule->{"protocol"} ) ) {
-                if ( exists( $match_rule->{"to_port"} ) ) {
-                  $match_rule->{"to_port_xml"} = util_create_string_for_xml( "to-port", $match_rule->{"to_port"} );
-                }
-                if ( exists( $match_rule->{"to_addr"} ) ) {
-                  $match_rule->{"to_addr_xml"} = util_create_string_for_xml( "to-addr", $match_rule->{"to_addr"} );
-                }
-              } else {
-                get_logger->error( "Match forward port not used." );
-                $flag=undef;
-              }
-            } else {
-              get_logger->error( "Match forward port rule needs a portid and a protocol" );
-              $flag=undef;
-            }
-          } elsif ( $match_rule->{"name"} eq "icmp_block" || $match_rule->{"name"} eq "icmp_type" ) {
-            if ( !defined is_icmptypes_available( $match_rule->{"icmp_type"} ) ) {
-              $flag=undef;
-            }
-          } elsif ( $match_rule->{"name"} ne "masquerade" ) {
-            get_logger->error( "Unknown match rule." );
-            $flag=undef;
-          }
-        }
-      }
-      if ( exists( $h->{"log_rule"} ) ) {
-        my $log_rule = $h->{"log_rule"};
-        if ( $log_rule->{"name"} eq "log" ) {
-          if ( exists( $log_rule->{"prefix"} ) ) {
-            $log_rule->{"prefix_xml"} = util_create_string_for_xml( "prefix", $log_rule->{"prefix"} );
-          }
-          if ( exists( $log_rule->{"level"} ) ) {
-            $log_rule->{"level_xml"} = util_create_string_for_xml( "level", $log_rule->{"level"} );
-          }
-          if ( exists( $log_rule->{"limit_value"} ) ) {
-            $log_rule->{"limit_value_xml"} = util_create_limit_for_xml( $log_rule->{"limit_value"} );
-          }
-        } elsif ( $log_rule->{"name"} eq "nflog" ) {
-          if ( exists( $log_rule->{"group"} ) ) {
-            $log_rule->{"group_xml"} = util_create_string_for_xml( "group", $log_rule->{"group"} );
-          }
-          if ( exists( $log_rule->{"prefix"} ) ) {
-            $log_rule->{"prefix_xml"} = util_create_string_for_xml( "prefix", $log_rule->{"prefix"} );
-          }
-          if ( exists( $log_rule->{"level"} ) ) {
-            $log_rule->{"queue_size_xml"} = util_create_string_for_xml( "queue size", $log_rule->{"queue_size"} );
-          }
-          if ( exists( $log_rule->{"limit_value"} ) ) {
-            $log_rule->{"limit_value_xml"} = util_create_limit_for_xml( $log_rule->{"limit_value"} );
-          }
-        } else {
-          get_logger->error( "Unknown log rule." );
-          $flag=undef;
-        }
-      }
-      if ( exists( $h->{"audit"} ) ){
-        $h->{"audit_xml"} = util_create_limit_for_xml( $h->{"audit"} );
-      }
-      if ( exists $h->{"action"} ){
-        my $action = $h->{"action"};
-        if ( $action->{"name"} eq "accept" ) {
-          if ( exists( $action->{"limit_value"} ) ) {
-            $action->{"limit_value_xml"} = util_create_limit_for_xml( $action->{"limit_value"} );
-          }
-        } elsif ( $action->{"name"} eq "reject" ) {
-          if ( exists( $action->{"type"} ) ) {
-            $action->{"type_xml"} = util_create_string_for_xml( "type", $action->{"type"} );
-          }
-          if ( exists( $action->{"limit_value"} ) ) {
-            $action->{"limit_value_xml"} = util_create_limit_for_xml( $action->{"limit_value"} );
-          }
-        } elsif ( $action->{"name"} eq "drop" ) {
-          if ( exists( $action->{"limit_value"} ) ) {
-            $action->{"limit_value_xml"} = util_create_limit_for_xml( $action->{"limit_value"} );
-          }
-        } elsif ( $action->{"name"} eq "mark" ) {
-          if ( exists( $action->{"set"} ) ) {
-            $action->{"set_xml"} = util_create_string_for_xml( "set", $action->{"set"} );
-          }
-          if ( exists( $action->{"limit_value"} ) ) {
-            $action->{"limit_value_xml"} = util_create_limit_for_xml( $action->{"limit_value"} );
-          }
-        } elsif ( $action->{"name"} ne "" ) {
-          print "Unknown action rule.";
-          $flag=undef;
-        }
-      }
-      if ( defined $flag ){
-        push( @t, $h );
-      } else {
-        get_logger->error( "Rule $h->{'name'} is not correct and has been removed." );
-      }
-    }
-    $c->{"all_rules"} = \@t;
-  }
-}
-
 
 =head1
 Inverse inc. <info@inverse.ca>
