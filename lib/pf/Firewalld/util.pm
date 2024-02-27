@@ -65,6 +65,7 @@ use pf::file_paths qw(
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
+use pf::util::system_protocols;
 
 use Data::Dumper;
 
