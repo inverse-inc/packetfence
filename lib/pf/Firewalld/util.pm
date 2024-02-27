@@ -16,24 +16,33 @@ use strict;
 use warnings;
 
 BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT_OK );
-    @ISA = qw(Exporter);
-    @EXPORT_OK = qw(
-        util_prepare_firewalld_config
-        util_get_firewalld_bin
-        util_get_firewalld_cmd
-        util_listen_ints_hash
-        util_source_or_destination_validation
-        util_prepare_version
-        util_create_string_for_xml
-        util_create_limit_for_xml
-        util_is_firewalld_protocol
-        util_is_fd_source_name
-        util_firewalld_cmd
-        util_firewalld_action
-        util_reload_firewalld
-    );
+  use Exporter ();
+  our ( @ISA, @EXPORT_OK );
+  @ISA = qw(Exporter);
+  @EXPORT_OK = qw(
+    util_prepare_firewalld_config
+    util_get_firewalld_bin
+    util_get_firewalld_cmd
+    util_listen_ints_hash
+    util_source_or_destination_validation
+    util_prepare_version
+    util_create_string_for_xml
+    util_create_limit_for_xml
+    util_is_firewalld_protocol
+    util_is_fd_source_name
+    util_firewalld_cmd
+    util_firewalld_action
+    util_reload_firewalld
+    util_target
+    util_all_ports
+    util_all_services
+    util_all_protocols
+    util_all_icmp_blocks
+    util_all_sources
+    util_all_forward_ports
+    util_all_source_ports
+    util_all_rules
+  );
 }
 
 use pf::log;
@@ -205,7 +214,7 @@ sub util_all_protocols {
     my @t;
     my @vl = split( ',', $c->{"protocols"} );
     foreach my $k ( @vl ) {
-      if ( !undef is_protocol_available( $k ) ) {
+      if ( defined is_protocol_available( $k ) ) {
         push( @t, $k );
       } else {
         get_logger->error( "==> Protocol ($k) is removed." );
@@ -221,7 +230,7 @@ sub util_all_icmp_blocks {
     my @t;
     my @vl = split( ',', $c->{"icmpblocks"} );
     foreach my $k ( @vl ) {
-      if ( !undef is_icmptypes_available( $k ) ) {
+      if ( defined is_icmptypes_available( $k ) ) {
         push( @t, $k );
       } else {
         get_logger->error( "==> Icmpblocks ($k) is removed." );
