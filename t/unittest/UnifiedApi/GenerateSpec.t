@@ -170,7 +170,7 @@ is_deeply(
                 },
                 ntlm_auth_host => {
                     'description' => 'The IP address of NTLM auth API',
-                    'default'     => '127.0.0.1',
+                    'default'     => '100.64.0.1',
                     'type'        => 'string'
                   },
                 password_is_nt_hash => {
