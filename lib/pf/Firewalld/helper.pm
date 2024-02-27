@@ -31,19 +31,8 @@ BEGIN {
 use pf::log;
 use pf::util;
 use pf::Firewalld::util qw(
-    util_prepare_firewalld_config
-    util_get_firewalld_bin
-    util_get_firewalld_cmd
-    util_listen_ints_hash
-    util_source_or_destination_validation
     util_prepare_version
-    util_create_string_for_xml
-    util_create_limit_for_xml
-    util_is_firewalld_protocol
-    util_is_fd_source_name
     util_firewalld_cmd
-    util_firewalld_action
-    util_reload_firewalld
 );
 use pf::config qw(
     %ConfigFirewalld
@@ -79,6 +68,24 @@ sub is_helper_available {
   return undef;
 }
 
+sub helper_module {
+  my $conf =  shift;
+  my $module = $conf->{"module"};
+  $conf->{"module_xml"} = "nf_conntrack_$module";
+}
+
+sub helper_family {
+  my $conf = shift;
+  if ( exists $conf->{"family"} ) {
+    my $fam = $conf->{"family"};
+    if ( $fam ne "ipv4" || $fam ne "ipv6" ) {
+      get_logger->error( "Helper family $fam needs to be ipv4 or ipv6." );
+    } else {
+      $conf->{"family_xml"} = 'family="'.$fam.'"';
+    }
+  }
+}
+
 # Generate config
 sub generate_helper_config {
   my $conf = prepare_config( $ConfigFirewalld{"firewalld_helpers"} );
@@ -94,6 +101,9 @@ sub create_helper_config_file {
   my $conf = shift ;
   my $name = shift ;
   util_prepare_version( $conf );
+  util_all_ports( $conf );
+  helper_module ( $conf );
+  helper_family ( $conf );
   my $file = "$firewalld_config_path_default/helpers/$name.xml";
   my $file_template = "$firewalld_config_path_default_template/helper.xml";
   if ( -e $file ) {

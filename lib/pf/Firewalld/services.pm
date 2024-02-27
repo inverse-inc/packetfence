@@ -139,7 +139,19 @@ sub create_service_config_file {
   my $conf    = shift ;
   my $service = $conf->{"name"};
   util_prepare_version( $conf );
-  parse_template( $conf, "$firewalld_config_path_default_template/service.xml", "$service_config_path_default/$service.xml" );
+  my $file = "$firewalld_config_path_default/services/$service.xml";
+  my $file_template = "$firewalld_config_path_default_template/service.xml";
+  if ( -e $file ) {
+    my $bk_file = $file.".bk";
+    if ( -e $bk_file ) {
+      unlink $bk_file or warn "Could not unlink $file: $!";
+    }
+    copy( $file, $bk_file ) or die "copy failed: $!";
+  }
+  my $tt = Template->new(
+      ABSOLUTE => 1,
+  );
+  $tt->process( $file_template, $conf, $file ) or die $tt->error();
 }
 
 =head1 AUTHOR
