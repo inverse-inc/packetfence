@@ -81,6 +81,21 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 		}
 	}
 }
+func (f *PfFlow) Heuristics() {
+	if f.BiFlow != 1 && f.BiFlow != 2 && f.Proto == 6 {
+		if f.TCPFlags == TCPFlagSYN {
+			f.Direction = 2
+			return
+		}
+		if f.DstPort <= 1024 && f.SrcPort >= 10000 {
+			f.Direction = 2
+			return
+		}
+		if f.SrcPort <= 1024 && f.DstPort >= 10000 {
+			f.Direction = 1
+		}
+	}
+}
 
 func (f *PfFlow) SessionKey() AggregatorSession {
 	if f.BiFlow == 2 {
