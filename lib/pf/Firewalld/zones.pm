@@ -38,7 +38,6 @@ use pf::Firewalld::util qw(
     util_firewalld_cmd
     util_firewalld_action
 );
-use pf::util::system_protocols;
 use pf::config qw(
     $management_network
     %ConfigFirewalld
