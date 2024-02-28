@@ -35,7 +35,7 @@ use pf::config qw(
     %ConfigFirewalld
 );
 use pf::file_paths qw(
-    $firewalld_config_path_default 
+    $firewalld_config_path_generated
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
@@ -102,7 +102,9 @@ sub create_helper_config_file {
   util_all_ports( $conf );
   helper_module ( $conf );
   helper_family ( $conf );
-  my $file = "$firewalld_config_path_default/helpers/$name.xml";
+  my $dir = "$firewalld_config_path_generated/helpers";
+  pf_make_dir($dir);
+  my $file = "$dir/$name.xml";
   my $file_template = "$firewalld_config_path_default_template/helper.xml";
   if ( -e $file ) {
     my $bk_file = $file.".bk";

@@ -26,7 +26,7 @@ use pf::config qw(
     %ConfigFirewalld
 );
 use pf::file_paths qw(
-    $firewalld_config_path_default 
+    $firewalld_config_path_generated
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
@@ -63,7 +63,9 @@ sub create_policy_config_file {
   util_all_forward_ports( $conf );
   util_all_source_ports( $conf );
   util_all_rules( $conf );
-  my $file = "$firewalld_config_path_default/policies/$name.xml";
+  my $dir = "$firewalld_config_path_generated/policies";
+  pf_make_dir($dir);
+  my $file = "$dir/$name.xml";
   my $file_template = "$firewalld_config_path_default_template/policy.xml";
   if ( -e $file ) {
     my $bk_file = $file.".bk";
