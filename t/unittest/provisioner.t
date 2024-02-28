@@ -20,19 +20,69 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 15;
 use pfconfig::cached_hash;
-tie our %ProvisionerScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
+use_ok("pf::provisioner");
 use pf::factory::provisioner;
 
 #This test will running last
 use Test::NoWarnings;
 
 use Data::Dumper;
+our $TEST_CATEGORY = "test";
 
-#print Dumper(\%ProvisionerScopes);
+our $ANDROID_OS = 'Android OS';
+our $TEST_OS = 'iOS';
+our $TEST_OS_FINGERBANK_ID = '33450';
+
+our %TEST_NODE_ATTRIBUTE = ( category => $TEST_CATEGORY, device_type => $TEST_OS, device_name => $TEST_OS );
+
+=head2 test_node_attributes
+
+test_node_attributes
+
+=cut
+
+sub test_node_attributes {
+    return {%TEST_NODE_ATTRIBUTE};
+}
+
+use_ok("pf::provisioner");
+
+my $provisioner = new_ok(
+    "pf::provisioner",
+    [{
+        type     => 'autoconfig',
+        category => [$TEST_CATEGORY],
+        template => 'dummy',
+        oses     => [$TEST_OS_FINGERBANK_ID],
+    }]
+);
+
+ok($provisioner->match($TEST_OS, test_node_attributes()),"Match both os and category");
+
+ok(!$provisioner->match($ANDROID_OS, test_node_attributes()),"Don't Match os but Matching category");
+
+ok($provisioner->match(undef, test_node_attributes()),"Use device_name as the device_type");
+
+ok(!$provisioner->match($ANDROID_OS, {category => 'not_matching', device_type => $ANDROID_OS, 'device_name' => $ANDROID_OS}),"Don't Match os and category");
+
+$provisioner->category(['not_matching']);
+
+ok(!$provisioner->match($TEST_OS, test_node_attributes()),"Match os but not category");
+
+$provisioner->category([]);
+
+ok($provisioner->match($TEST_OS, test_node_attributes()),"Match os with the any category");
+
+ok(!$provisioner->match($ANDROID_OS, test_node_attributes()),"Don't match os with the any category");
+
+$provisioner->category([$TEST_CATEGORY]);
+$provisioner->oses([]);
+
+ok($provisioner->match($TEST_OS, test_node_attributes()),"Match both os and category");
+
 my $p = pf::factory::provisioner->new('filtered_match');
-#print Dumper($p);
 
 ok(!$p->matchRules({}), "Rules don't match");
 ok($p->matchRules({connection_type => "Ethernet-NoEAP"}), "Rules do match");
