@@ -415,8 +415,8 @@ $firewalld_helpers_config_defaults_file  = catfile($firewalld_config_path_defaul
 $firewalld_helpers_config_file           = catfile($firewalld_config_path_default,"firewalld_helpers.conf");
 $firewalld_config_config_file            = catfile($firewalld_config_path_default,"firewalld.conf");
 $firewalld_config_config_defaults_file   = catfile($firewalld_config_path_default,"firewalld.conf.defaults");
-$firewalld_lockdown_whitelist_config_file =catfile($firewalld_config_path_default,"firewalld.lockdown_whitelist.conf");
-$firewalld_lockdown_whitelist_config_defaults_file = catfile($firewalld_config_path_default,"firewalld.lockdown_whitelist.conf.defaults");
+$firewalld_lockdown_whitelist_config_file =catfile($firewalld_config_path_default,"firewalld_lockdown_whitelist.conf");
+$firewalld_lockdown_whitelist_config_defaults_file = catfile($firewalld_config_path_default,"firewalld_lockdown_whitelist.conf.defaults");
 
 
 @log_files = map {catfile($log_dir, $_)}
