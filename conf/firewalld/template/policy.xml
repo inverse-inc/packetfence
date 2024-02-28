@@ -21,8 +21,8 @@ This is especially important to understand because many zones have catch all acc
     <egress-policy name="[% egress_name %]"/>
   [% END %]
 
-  [% IF short_description != "" %]
-    <short>[% short_description %]</short>
+  [% IF short != "" %]
+    <short>[% short %]</short>
   [% END %]
 
   [% IF description != "" %]
