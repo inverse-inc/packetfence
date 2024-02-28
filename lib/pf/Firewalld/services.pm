@@ -17,18 +17,6 @@ use warnings;
 use File::Copy;
 use Template;
 
-use pf::log;
-use pf::util;
-use pf::Firewalld::util;
-use pf::config qw(
-    %ConfigFirewalld
-);
-use pf::file_paths qw(
-    $firewalld_config_path_default 
-    $firewalld_config_path_default_template
-    $firewalld_config_path_applied
-);
-
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT_OK );
@@ -45,8 +33,20 @@ BEGIN {
     );
 }
 
+use pf::log;
+use pf::util;
+use pf::Firewalld::util;
+use pf::config qw(
+    %ConfigFirewalld
+);
+use pf::file_paths qw(
+    $firewalld_config_path_generated
+    $firewalld_config_path_default_template
+    $firewalld_config_path_applied
+);
+
 # Vars
-my $service_config_path_default="$firewalld_config_path_default/services";
+my $service_config_path_default="$firewalld_config_path_generated/services";
 my $service_config_path_applied="$firewalld_config_path_applied/services";
 
 # Functions
@@ -127,7 +127,9 @@ sub create_service_config_file {
   my $conf    = shift ;
   my $service = $conf->{"name"};
   util_prepare_version( $conf );
-  my $file = "$firewalld_config_path_default/services/$service.xml";
+  my $dir = "$firewalld_config_path_generated/services";
+  pf_make_dir($dir);
+  my $file = "$dir/$name.xml";
   my $file_template = "$firewalld_config_path_default_template/service.xml";
   if ( -e $file ) {
     my $bk_file = $file.".bk";

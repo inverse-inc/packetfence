@@ -36,7 +36,7 @@ use pf::config qw(
     %ConfigFirewalld
 );
 use pf::file_paths qw(
-    $firewalld_config_path_default 
+    $firewalld_config_path_generated
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
@@ -59,7 +59,7 @@ sub firewalld_ipset_types_hash {
 sub is_ipset_type_available {
   my $s = shift;
   my $available_ipset_types = firewalld_ipset_types_hash();
-  if ( !undef $available_ipset_types &&  exists( $available_ipset_types->{ $s } ) ) {
+  if ( defined $available_ipset_types &&  exists( $available_ipset_types->{ $s } ) ) {
     return $s;
   }
   get_logger->error( "Ipset type $s does not exist." );
@@ -83,7 +83,7 @@ sub firewalld_ipsets_hash {
 sub is_ipset_available {
   my $s = shift;
   my $available_ipsets = firewalld_ipsets_hash();
-  if ( !undef $available_ipsets && exists( $available_ipsets->{$s} ) ) {
+  if ( defined $available_ipsets && exists( $available_ipsets->{$s} ) ) {
     return $s;
   }
   get_logger->error("Ipsets $s does not exist.");
@@ -107,7 +107,9 @@ sub create_ipset_config_file {
   my $name = shift ;
   if ( defined is_ipset_type_available( $conf->{"type"} ) ) {
     util_prepare_version( $conf );
-    my $file = "$firewalld_config_path_default/ipsets/$name.xml";
+    my $dir = "$firewalld_config_path_generated/ipsets";
+    pf_make_dir($dir);
+    my $file = "$dir/$name.xml";
     my $file_template = "$firewalld_config_path_default_template/ipset.xml";
     if ( -e $file ) {
       my $bk_file = $file.".bk";
