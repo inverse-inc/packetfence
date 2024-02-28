@@ -77,7 +77,7 @@
         <destination ipset="[% rule.destination.ipset %]" [% rule.destination.invert_xml %]/>
     [% END %]
 
-    [% FOREACH match_rule IN matches %]
+    [% FOREACH match_rule IN match_rules %]
       [% IF match_rule.name == "service" %]
         <service name="[% match_rule.service %]"/>
       [% ELSIF match_rule.name == "port" %]

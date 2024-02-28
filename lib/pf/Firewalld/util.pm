@@ -351,8 +351,8 @@ sub util_all_rules {
           $destination->{"invert_xml"} = util_create_string_for_xml( "invert",$destination->{"invert"} );
         }
       }
-      if ( exists( $h->{"matchrules"} ) ) {
-        my $match_rules = $h->{"matchrules"};
+      if ( exists( $h->{"match_rules"} ) ) {
+        my $match_rules = $h->{"match_rules"};
         foreach my $h2 ( keys %{ $match_rules } ) {
           my $match_rule = $match_rules->{$h2};
           if ( $match_rule->{"name"} eq "service" ) {
