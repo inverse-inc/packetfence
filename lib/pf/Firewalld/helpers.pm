@@ -34,6 +34,7 @@ use pf::Firewalld::util qw(
     util_prepare_firewalld_config
     util_prepare_version
     util_firewalld_cmd
+    util_all_ports
 );
 use pf::config qw(
     %ConfigFirewalld
@@ -89,7 +90,8 @@ sub helper_family {
 
 # Generate config
 sub generate_helper_config {
-  my $conf = util_prepare_firewalld_config( $ConfigFirewalld{"firewalld_helpers"} );
+  my $conf = $ConfigFirewalld{"firewalld_helpers"} ;
+  util_prepare_firewalld_config( $conf );
   foreach my $name ( keys %{ $conf } ) {
     my $val = $conf->{ $name };
     if ( exists($val->{"module"} ) ){
