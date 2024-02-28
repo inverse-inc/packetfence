@@ -26,6 +26,7 @@ use pfconfig::namespaces::config::Firewalld_Icmptypes;
 use pfconfig::namespaces::config::Firewalld_Ipsets;
 use pfconfig::namespaces::config::Firewalld_Policies;
 use pfconfig::namespaces::config::Firewalld_Helpers;
+use pfconfig::namespaces::config::Firewalld_Lockdown_Whitelist;
 
 sub init {
     my ($self) = @_;
@@ -39,6 +40,7 @@ sub init {
     $self->{firewalld_ipsets} = $self->{cache}->get_cache("config::Firewalld_Ipsets");
     $self->{firewalld_policies} = $self->{cache}->get_cache("config::Firewalld_Policies");
     $self->{firewalld_helpers} = $self->{cache}->get_cache("config::Firewalld_Helpers");
+    $self->{firewalld_lockdown_whitelist} = $self->{cache}->get_cache("config::Firewalld_Lockdown_Whitelist");
 }
 
 sub build {
@@ -52,6 +54,7 @@ sub build {
     $ConfigFirewalld{firewalld_ipsets}   = $self->{firewalld_ipsets};
     $ConfigFirewalld{firewalld_policies} = $self->{firewalld_policies};
     $ConfigFirewalld{firewalld_helpers} = $self->{firewalld_helpers};
+    $ConfigFirewalld{firewalld_lockdown_whitelist} = $self->{firewalld_lockdown_whitelist};
 
     return \%ConfigFirewalld;
 }

@@ -5,7 +5,7 @@
   <selinux context="[% selinux.context %]"/>
   [% END %]
   [% FOREACH command IN all_commands %]
-  <command name="[% commnand.name %]"/>
+  <command name="[% command.name %]"/>
   [% END %]
   [% FOREACH user IN all_users %]
     [% IF user.name != '' %]
