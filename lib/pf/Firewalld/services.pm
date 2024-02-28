@@ -124,8 +124,8 @@ sub generate_service_config {
 }
 
 sub create_service_config_file {
-  my $conf    = shift ;
-  my $service = $conf->{"name"};
+  my $conf = shift ;
+  my $name = $conf->{"name"};
   util_prepare_version( $conf );
   my $dir = "$firewalld_config_path_generated/services";
   pf_make_dir($dir);
