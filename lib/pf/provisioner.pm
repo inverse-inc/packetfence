@@ -27,6 +27,7 @@ use fingerbank::Model::Device;
 use pf::util qw(isenabled);
 use Time::HiRes qw(time);
 use pfconfig::cached_hash;
+use pf::access_filter::provisioner;
 
 our %ProvisionerScopes;
 tie %ProvisionerScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
@@ -153,6 +154,8 @@ The id of the pki provider
 
 has pki_provider => (is => 'rw');
 
+has access_filter => (is => 'rw', default => sub { pf::access_filter::provisioner->new() });
+
 =head1 METHODS
 
 =head2 _build_template
@@ -241,11 +244,15 @@ sub _getRulesForScope {
     return @rules;
 }
 
+sub handleAnswer {
+    my ($self, $answer, $data) = @_;
+}
+
 sub matchRules {
     my ($self, $node_attributes) = @_;
     #if no rules are defined then it is true
     my %data = (node_info => $node_attributes);
-    my ($answer, $empty) = $self->getAnswerForScope('lookup', \%data);
+    my ($answer, $empty) = $self->access_filter->filterRules('lookup', \%data, $self->rules);
     return defined $answer || $empty  ? $TRUE : $FALSE;
 }
 
@@ -338,7 +345,7 @@ sub authorize_apply_role {
 
 sub getAnswerForScope {
     my ($self, $scope, $data) = @_;
-    my @rules = $self->_getRulesForScope($scope);
+    my @rules = $self->access_filter->_getRulesForScope($scope, $self->rules);
     return (undef, 1) if @rules == 0;
     for my $rule (@rules) {
         my $answer = $rule->match_first($data);
