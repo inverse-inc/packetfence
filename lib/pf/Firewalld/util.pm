@@ -17,9 +17,9 @@ use warnings;
 
 BEGIN {
   use Exporter ();
-  our ( @ISA, @EXPORT_OK );
+  our ( @ISA, @EXPORT );
   @ISA = qw(Exporter);
-  @EXPORT_OK = qw(
+  @EXPORT = qw(
     util_prepare_firewalld_config
     util_get_firewalld_bin
     util_get_firewalld_cmd
