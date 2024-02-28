@@ -246,13 +246,15 @@ sub _getRulesForScope {
 
 sub handleAnswer {
     my ($self, $answer, $data) = @_;
+    $self->access_filter->dispatchActions($answer, $data);
+    return;
 }
 
 sub matchRules {
     my ($self, $node_attributes) = @_;
     #if no rules are defined then it is true
     my %data = (node_info => $node_attributes);
-    my ($answer, $empty) = $self->access_filter->filterRules('lookup', \%data, $self->rules);
+    my ($answer, $empty) = $self->getAnswerForScope('lookup', \%data);
     return defined $answer || $empty  ? $TRUE : $FALSE;
 }
 
@@ -345,16 +347,8 @@ sub authorize_apply_role {
 
 sub getAnswerForScope {
     my ($self, $scope, $data) = @_;
-    my @rules = $self->access_filter->_getRulesForScope($scope, $self->rules);
-    return (undef, 1) if @rules == 0;
-    for my $rule (@rules) {
-        my $answer = $rule->match_first($data);
-        return ($answer, 0) if defined $answer;
-    }
-
-    return (undef, 0);
+    return $self->access_filter->filterRules('lookup', $data, $self->rules);
 }
-
 
 =head1 AUTHOR
 
@@ -384,4 +378,3 @@ USA.
 =cut
 
 1;
-
