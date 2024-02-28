@@ -20,24 +20,7 @@ use Template;
 
 use pf::log;
 use pf::util;
-use pf::Firewalld::util qw(
-    util_prepare_version
-    util_target
-    util_all_sources
-    util_all_services
-    util_all_ports
-    util_all_protocols
-    util_all_icmp_blocks
-    util_all_forward_ports
-    util_all_source_ports
-    util_all_rules
-    util_prepare_firewalld_config
-    util_get_firewalld_bin
-    util_get_firewalld_cmd
-    util_listen_ints_hash
-    util_firewalld_cmd
-    util_firewalld_action
-);
+use pf::Firewalld::util;
 use pf::config qw(
     $management_network
     %ConfigFirewalld

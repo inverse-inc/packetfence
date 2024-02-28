@@ -30,12 +30,7 @@ BEGIN {
 
 use pf::log;
 use pf::util;
-use pf::Firewalld::util qw(
-    util_prepare_firewalld_config
-    util_prepare_version
-    util_firewalld_cmd
-    util_all_ports
-);
+use pf::Firewalld::util;
 use pf::config qw(
     %ConfigFirewalld
 );
