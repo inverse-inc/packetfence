@@ -131,6 +131,7 @@ our (
     $pfqueue_backend_socket,
     $firewalld_config_path_default,
     $firewalld_config_path_default_template,
+    $firewalld_config_path_generated,
     $firewalld_config_path_applied,
     $firewalld_config_config_file, $firewalld_config_config_defaults_file,
     $firewalld_services_config_file, $firewalld_services_config_defaults_file,
@@ -245,6 +246,7 @@ BEGIN {
         $pfqueue_backend_socket
         $firewalld_config_path_default
         $firewalld_config_path_default_template
+        $firewalld_config_path_generated
         $firewalld_config_path_applied
         $firewalld_config_config_file $firewalld_config_config_defaults_file	
 	$firewalld_services_config_file $firewalld_services_config_defaults_file
@@ -396,8 +398,8 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
 # Firewalld Generic path
 $firewalld_config_path_default = catdir($conf_dir,"/firewalld");
 $firewalld_config_path_default_template = catdir($firewalld_config_path_default, "/template");
-$firewalld_config_path_generated = catdir($var_dir,"/firewalld/generated");
-$firewalld_config_path_applied = catdir($var_dir,"/firewalld/applied");
+$firewalld_config_path_generated = catdir($generated_conf_dir,"/firewalld");
+$firewalld_config_path_applied = catdir($generated_conf_dir,"/firewalld");
 # Firewalld Specific path/files
 $firewalld_services_config_defaults_file = catfile($firewalld_config_path_default,"firewalld_services.conf.defaults");
 $firewalld_services_config_file          = catfile($firewalld_config_path_default,"firewalld_services.conf");
