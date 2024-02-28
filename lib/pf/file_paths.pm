@@ -138,6 +138,7 @@ our (
     $firewalld_icmptypes_config_file, $firewalld_icmptypes_config_defaults_file,
     $firewalld_ipsets_config_file, $firewalld_ipsets_config_defaults_file,
     $firewalld_helpers_config_file, $firewalld_helpers_config_defaults_file,
+    $firewalld_lockdown_whitelist_config_file, $firewalld_lockdown_whitelist_config_defaults_file,
     $firewalld_zones_config_file, $firewalld_zones_config_defaults_file
 );
 
@@ -252,6 +253,7 @@ BEGIN {
 	$firewalld_ipsets_config_file $firewalld_ipsets_config_defaults_file
 	$firewalld_icmptypes_config_file $firewalld_icmptypes_config_defaults_file
 	$firewalld_helpers_config_file $firewalld_helpers_config_defaults_file
+	$firewalld_lockdown_whitelist_config_file $firewalld_lockdown_whitelist_config_defaults_file
     );
 }
 
@@ -391,23 +393,29 @@ $mfa_config_file = catdir($conf_dir,"mfa.conf");
 $kafka_config_file = catdir($conf_dir, "kafka.conf");
 $connectors_config_file = catdir($conf_dir,"connectors.conf");
 
-$firewalld_services_config_defaults_file = catfile($conf_dir,"firewalld_services.conf.defaults");
-$firewalld_services_config_file = catfile($conf_dir,"firewalld_services.conf");
-$firewalld_zones_config_defaults_file = catfile($conf_dir,"firewalld_zones.conf.defaults");
-$firewalld_zones_config_file = catfile($conf_dir,"firewalld_zones.conf");
-$firewalld_icmptypes_config_defaults_file = catfile($conf_dir,"firewalld_icmptypes.conf.defaults");
-$firewalld_icmptypes_config_file = catfile($conf_dir,"firewalld_icmptypes.conf");
-$firewalld_ipsets_config_defaults_file = catfile($conf_dir,"firewalld_ipsets.conf.defaults");
-$firewalld_ipsets_config_file = catfile($conf_dir,"firewalld_ipsets.conf");
-$firewalld_policies_config_defaults_file = catfile($conf_dir,"firewalld_policies.conf.defaults");
-$firewalld_policies_config_file = catfile($conf_dir,"firewalld_policies.conf");
-$firewalld_helpers_config_defaults_file = catfile($conf_dir,"firewalld_helpers.conf.defaults");
-$firewalld_helpers_config_file = catfile($conf_dir,"firewalld_helpers.conf");
-$firewalld_config_config_file = catfile($conf_dir,"firewalld.conf");
-$firewalld_config_config_defaults_file = catfile($conf_dir,"firewalld.conf.defaults");
-$firewalld_config_path_default = catdir($install_dir,"/firewalld");
+# Firewalld Generic path
+$firewalld_config_path_default = catdir($conf_dir,"/firewalld");
 $firewalld_config_path_default_template = catdir($firewalld_config_path_default, "/template");
-$firewalld_config_path_applied = catdir($var_dir,"/firewalld");
+$firewalld_config_path_generated = catdir($var_dir,"/firewalld/generated");
+$firewalld_config_path_applied = catdir($var_dir,"/firewalld/applied");
+# Firewalld Specific path/files
+$firewalld_services_config_defaults_file = catfile($firewalld_config_path_default,"firewalld_services.conf.defaults");
+$firewalld_services_config_file          = catfile($firewalld_config_path_default,"firewalld_services.conf");
+$firewalld_zones_config_defaults_file    = catfile($firewalld_config_path_default,"firewalld_zones.conf.defaults");
+$firewalld_zones_config_file             = catfile($firewalld_config_path_default,"firewalld_zones.conf");
+$firewalld_icmptypes_config_defaults_file = catfile($firewalld_config_path_default,"firewalld_icmptypes.conf.defaults");
+$firewalld_icmptypes_config_file         = catfile($firewalld_config_path_default,"firewalld_icmptypes.conf");
+$firewalld_ipsets_config_defaults_file   = catfile($firewalld_config_path_default,"firewalld_ipsets.conf.defaults");
+$firewalld_ipsets_config_file            = catfile($firewalld_config_path_default,"firewalld_ipsets.conf");
+$firewalld_policies_config_defaults_file = catfile($firewalld_config_path_default,"firewalld_policies.conf.defaults");
+$firewalld_policies_config_file          = catfile($firewalld_config_path_default,"firewalld_policies.conf");
+$firewalld_helpers_config_defaults_file  = catfile($firewalld_config_path_default,"firewalld_helpers.conf.defaults");
+$firewalld_helpers_config_file           = catfile($firewalld_config_path_default,"firewalld_helpers.conf");
+$firewalld_config_config_file            = catfile($firewalld_config_path_default,"firewalld.conf");
+$firewalld_config_config_defaults_file   = catfile($firewalld_config_path_default,"firewalld.conf.defaults");
+$firewalld_lockdown_whitelist_config_file =catfile($firewalld_config_path_default,"firewalld.lockdown_whitelist.conf");
+$firewalld_lockdown_whitelist_config_defaults_file = catfile($firewalld_config_path_default,"firewalld.lockdown_whitelist.conf.defaults");
+
 
 @log_files = map {catfile($log_dir, $_)}
   qw(
