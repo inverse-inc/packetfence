@@ -19,21 +19,7 @@ use Template;
 
 use pf::log;
 use pf::util;
-use pf::Firewalld::util qw(
-    util_prepare_firewalld_config
-    util_get_firewalld_bin
-    util_get_firewalld_cmd
-    util_listen_ints_hash
-    util_source_or_destination_validation
-    util_prepare_version
-    util_create_string_for_xml
-    util_create_limit_for_xml
-    util_is_firewalld_protocol
-    util_is_fd_source_name
-    util_firewalld_cmd
-    util_firewalld_action
-    util_reload_firewalld
-);
+use pf::Firewalld::util;
 use pf::config qw(
     %ConfigFirewalld
 );
