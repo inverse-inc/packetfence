@@ -21,8 +21,8 @@
     <forward/>
   [% END %]
 
-  [% IF short_description != "" %]
-    <short>[% short_description %]</short>
+  [% IF short != "" %]
+    <short>[% short %]</short>
   [% END %]
 
   [% IF description != "" %]

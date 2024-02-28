@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <service [% version_xml %]>
   <!-- source: https://firewalld.org/documentation/man-pages/firewalld.service.html -->
-  [% IF short_description != "" %]
-  <short>[% short_description %]</short>
+  [% IF short != "" %]
+  <short>[% short %]</short>
   [% END %]
   [% IF description != "" %]
   <description>[% description %]</description>
