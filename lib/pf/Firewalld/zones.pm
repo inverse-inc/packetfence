@@ -42,6 +42,10 @@ sub firewalld_zones_hash {
     }
     return \%h;
   }
+  my $xml_files = util_get_xml_files_from_dir("zones");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
   return undef;
 }
 
@@ -66,9 +70,9 @@ sub generate_zone_config {
 # need a function that add interfaces in the config file
 sub create_zone_config_file {
   my $conf = shift;
-  my $zone = shift;
+  my $name = shift;
   util_prepare_version( $conf );
-  util_target( $conf ); 
+  util_target( $conf, "zone" ); 
   zone_interface( $conf );
   util_all_sources( $conf );
   util_all_services( $conf );
@@ -78,21 +82,7 @@ sub create_zone_config_file {
   util_all_forward_ports( $conf );
   util_all_source_ports( $conf );
   util_all_rules( $conf );
-  my $dir = "$firewalld_config_path_generated/zones";
-  pf_make_dir($dir);
-  my $file = "$dir/$name.xml";
-  my $file_template = "$firewalld_config_path_default_template/zone.xml";
-  if ( -e $file ) {
-    my $bk_file = $file.".bk";
-    if ( -e $bk_file ) {
-      unlink $bk_file or warn "Could not unlink $file: $!";
-    }
-    copy( $file, $bk_file ) or die "copy failed: $!";
-  }
-  my $tt = Template->new(
-      ABSOLUTE => 1,
-  );
-  $tt->process( $file_template, $conf, $file ) or die $tt->error();
+  util_create_config_file( $conf, "zones", $name, "zone" );
 }
 
 sub set_zone {
@@ -114,16 +104,10 @@ sub zone_interface {
     if ( length( $v ) ) {
       my $all_interfaces = util_listen_ints_hash();
       if ( defined $all_interfaces && not exists( $all_interfaces->{$v} ) ) {
-        $b = 1;
+        get_logger->error( "Unknown interface. ==> Apply management interface" );
+        $c->{"interface"} = $management_network->{"Tint"};
       }
     }
-  } else {
-    $b = 1;
-  }
-  if ( $b ==1 ){
-    get_logger->error( "Unknown interface. ==> Apply management interface" );
-    print ( "Unknown interface. ==> Apply management interface" );
-    $c->{"interface"} = $management_network->{"Tint"};
   }
 }
 

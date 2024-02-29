@@ -14,6 +14,9 @@ Module with utils function for firewalld
 
 use strict;
 use warnings;
+use File::Basename;
+use File::Copy;
+use Template;
 
 BEGIN {
   use Exporter ();
@@ -26,6 +29,16 @@ BEGIN {
     util_listen_ints_hash
     util_source_or_destination_validation
     util_prepare_version
+    util_target
+    util_all_ports
+    util_all_services
+    util_all_protocols
+    util_all_helpers
+    util_all_icmp_blocks
+    util_all_sources
+    util_all_forward_ports
+    util_all_source_ports
+    util_all_rules
     util_create_string_for_xml
     util_create_limit_for_xml
     util_is_firewalld_protocol
@@ -33,15 +46,8 @@ BEGIN {
     util_firewalld_cmd
     util_firewalld_action
     util_reload_firewalld
-    util_target
-    util_all_ports
-    util_all_services
-    util_all_protocols
-    util_all_icmp_blocks
-    util_all_sources
-    util_all_forward_ports
-    util_all_source_ports
-    util_all_rules
+    util_get_xml_files_from_dir
+    util_create_config_file
   );
 }
 
@@ -60,8 +66,11 @@ use pf::Firewalld::ipsets qw(
     is_ipset_type_available
     is_ipset_available
 );
+use pf::Firewalld::helpers qw(
+    is_helper_available
+);
 use pf::file_paths qw(
-    $firewalld_config_path_default 
+    $firewalld_config_path_generated 
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
@@ -117,6 +126,9 @@ sub util_listen_ints_hash {
       $listen_ints_hash{ $int } = 1;
     }
   }
+  $listen_ints_hash{ "block" } = 1;
+  $listen_ints_hash{ "drop" } = 1;
+  $listen_ints_hash{ "trusted" } = 1;
   return \%listen_ints_hash;
 }
 
@@ -146,7 +158,14 @@ sub util_prepare_version {
 }
 
 sub util_target {
+  my $type = "";
   my $c = shift;
+  $type = shift;
+  if ( defined $type && $type eq "zone" ) {
+    $type = "%%";
+  } else {
+    $type = "";
+  }
   my $b = 0;
   if ( exists( $c->{"target"} ) ) {
     my %target_option=qw(accept 0
@@ -155,9 +174,9 @@ sub util_target {
                   default 3);
     my $v = lc( $c->{"target"} );
     if ( exists( $target_option{$v} ) ) {
-      get_logger->info( "Target zone is $v" );
+      get_logger->info( "Target is $v" );
       if ( $v eq "reject" ) {
-        $c->{"target_xml"} = util_create_string_for_xml( "target", "%%REJECT%%" );
+        $c->{"target_xml"} = util_create_string_for_xml( "target", $type."REJECT".$type );
       } elsif ($v eq "default") {
         $c->{"target_xml"} = util_create_string_for_xml( "target", $v );
       } else {
@@ -170,8 +189,8 @@ sub util_target {
     $b = 1;
   }
   if ( $b ==1 ) {
-    get_logger->error( "Unknown target. ==> Apply %%REJECT%%" );
-    $c->{"target_xml"} = util_create_string_for_xml( "target", "%%REJECT%%" );
+    get_logger->error( "Unknown target. ==> Apply ".$type."REJECT".$type );
+    $c->{"target_xml"} = util_create_string_for_xml( "target", $type."REJECT".$type );
   }
 }
 
@@ -181,12 +200,12 @@ sub util_all_ports {
     my @t;
     my $vl = $c->{"ports"};
     foreach my $k ( @{ $vl } ) {
-      if ( exists( $k->{"protocol"} ) && exists( $k->{"portid"} ) ) {
-        if ( defined util_is_firewalld_protocol( $k->{"protocol"} ) ) {
+      if ( exists( $k->{"type"} ) && exists( $k->{"port"} ) ) {
+        if ( defined util_is_firewalld_protocol( $k->{"type"} ) ) {
           push( @t, $k );
         }
       } else {
-        get_logger->error( "==> Port is removed." );
+        get_logger->error( "==> Port is removed. Needs type and port" );
       }
     }
     $c->{"all_ports"} = \@t;
@@ -224,6 +243,23 @@ sub util_all_protocols {
     $c->{"all_protocols"} = \@t;
   }
 }
+
+sub util_all_helpers {
+  my $c = shift;
+  if ( exists( $c->{"helpers"} ) ) {
+    my @t;
+    my @vl = split( ',', $c->{"helpers"} );
+    foreach my $k ( @vl ) {
+      if ( defined is_helper_available( $k ) ) {
+        push( @t, $k );
+      } else {
+        get_logger->error( "==> Helper ($k) is removed." );
+      }
+    }
+    $c->{"all_helpers"} = \@t;
+  }
+}
+
 
 sub util_all_icmp_blocks {
   my $c = shift;
@@ -298,8 +334,8 @@ sub util_all_source_ports {
     my @t;
     my $vl = $c->{"sourceports"};
     foreach my $k ( @{ $vl } ) {
-      if ( exists( $k->{"protocol"} ) && exists( $k->{"portid"} ) ) {
-        if ( defined util_is_firewalld_protocol( $k->{"protocol"} ) ) {
+      if ( exists( $k->{"type"} ) && exists( $k->{"port"} ) ) {
+        if ( defined util_is_firewalld_protocol( $k->{"type"} ) ) {
           push( @t, $k );
         } else {
           get_logger->error( "==> Source Port is removed." );
@@ -517,12 +553,12 @@ sub util_firewalld_cmd {
     my $std_out = `$cmd`;
     my $exit_status = `echo "$?"`;
     $exit_status =~ s/\n//g;
+    $std_out  =~ s/\n//g;
     if ($exit_status eq "0") {
       get_logger->info( "Command exit with success" );
-      $std_out  =~ s/\n//g;
       return $std_out;
     } else {
-      get_logger->error( "Command exit without success" );
+      get_logger->error( "Command exit without success ".$std_out );
     }
   }
   return "";
@@ -532,7 +568,7 @@ sub util_firewalld_cmd {
 sub util_firewalld_action {
   my $action= shift;
   my $result = util_firewalld_cmd( $action );
-  if ( $result eq "success" ){
+  if ( $result =~ "success" ){
     return 1;
   } else {
     return 0;
@@ -548,6 +584,53 @@ sub util_reload_firewalld {
     get_logger->error( "Reload Failed" );
     return 0;
   }
+}
+
+sub util_get_xml_files_from_dir {
+  my $dir_name = shift;
+  my @files = read_dir_recursive("$firewalld_config_path_generated/$dir_name");
+  if ( scalar( @files ) > 0 ) {
+    my %xml;
+    foreach my $file ( @files ) {
+      my $b = basename($file);
+      $b =~ s/\.[^.]+$//;
+      $xml{$b} = 1;
+    }
+    return \%xml;
+  }
+  return undef;
+}
+
+sub util_create_config_file {
+  my $ext   = "";
+  my $conf  = shift;
+  my $type  = shift;
+  my $name  = shift;
+  my $tname = shift;
+  $ext   = shift;
+  if ( ! defined $ext || $ext eq '' ) {
+    $ext = ".xml";
+  }
+  my $sep = "";
+  if ( $type ne "") {
+    $sep = "/";
+  }
+  my $dir = $firewalld_config_path_generated."".$sep."".$type;
+  pf_make_dir($dir);
+  my $file = $dir."/".$name."".$ext;
+  my $file_template = $firewalld_config_path_default_template."/".$tname."".$ext;
+  if ( -e $file ) {
+    my $bk_file = $file.".bk";
+    if ( -e $bk_file ) {
+      unlink $bk_file or warn "Could not unlink $file: $!";
+    }
+    copy( $file, $bk_file ) or die "copy failed: $!";
+  }
+  my $tt = Template->new(
+    ABSOLUTE => 1,
+  );
+  $tt->process( $file_template, $conf, $file ) or die $tt->error();
+  fix_file_permissions($file);
 }
 
 

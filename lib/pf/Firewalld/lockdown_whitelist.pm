@@ -105,21 +105,7 @@ sub create_lockdown_whitelist_config_file {
   lockdown_whitelist_all_selinuxs( $conf );
   lockdown_whitelist_all_commands( $conf );
   lockdown_whitelist_all_users( $conf );
-  my $dir = "$firewalld_config_path_generated/";
-  pf_make_dir($dir);
-  my $file = "$dir/lockdown-whitelist.xml";
-  my $file_template = "$firewalld_config_path_default_template/lockdown_whitelist.xml";
-  if ( -e $file ) {
-    my $bk_file = $file.".bk";
-    if ( -e $bk_file ) {
-      unlink $bk_file or warn "Could not unlink $file: $!";
-    }
-    copy( $file, $bk_file ) or die "copy failed: $!";
-  }
-  my $tt = Template->new(
-    ABSOLUTE => 1,
-  );
-  $tt->process( $file_template, $conf, $file ) or die $tt->error();
+  util_create_config_file( $conf, "", "lockdown_whitelist", "lockdown_whitelist" );
 }
 
 =head1 AUTHOR

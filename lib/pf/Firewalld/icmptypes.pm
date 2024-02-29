@@ -49,6 +49,10 @@ sub firewalld_icmptypes_hash {
     }
     return \%h;
   }
+  my $xml_files = util_get_xml_files_from_dir("ipsets");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
   return undef;
 }
 
@@ -107,21 +111,7 @@ sub create_icmptype_config_file {
   my $name = shift ;
   util_prepare_version( $conf );
   icmptype_all_destinations( $conf );
-  my $dir = "$firewalld_config_path_generated/icmptypes";
-  pf_make_dir($dir);
-  my $file = "$dir/$name.xml";
-  my $file_template = "$firewalld_config_path_default_template/icmptype.xml";
-  if ( -e $file ) {
-    my $bk_file = $file.".bk";
-    if ( -e $bk_file ) {
-      unlink $bk_file or warn "Could not unlink $file: $!";
-    }
-    copy( $file, $bk_file ) or die "copy failed: $!";
-  }
-  my $tt = Template->new(
-    ABSOLUTE => 1,
-  );
-  $tt->process( $file_template, $conf, $file ) or die $tt->error();
+  util_create_config_file( $conf, "icmptypes", $name, "icmptype" );
 }
 
 =head1 AUTHOR

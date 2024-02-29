@@ -49,6 +49,53 @@ use pf::file_paths qw(
 my $service_config_path_default="$firewalld_config_path_generated/services";
 my $service_config_path_applied="$firewalld_config_path_applied/services";
 
+sub service_all_includes {
+  my $c = shift;
+  if ( exists( $c->{"includes"} ) ) {
+    my @t;
+    my @vl = split( ',', $c->{"includes"} );
+    foreach my $k ( @vl ) {
+      if ( defined is_service_available( $k ) ) {
+        push( @t, $k );
+      } else {
+        get_logger->error( "==> Include ($k) is removed." );
+      }
+    }
+    $c->{"all_includes"} = \@t;
+  }
+}
+
+sub service_all_destinations {
+  my $conf = shift;
+  if ( exists $conf->{"destinations"} ) {
+    my @all_destinations;
+    my $destinations = $conf->{"destinations"};
+    if ( $destinations ne "" ) {
+      my @all_dest = split( /,/, $destinations );
+      foreach my $dest ( @all_dest ) {
+        my ($key, $val ) = split( /:/, $dest );
+        if ( $key eq "ipv4" || $key eq "ipv6" ) {
+          if ( valid_ip_range( $val ) ) {
+            my $xml_dest = $key.'="'.$val.'"';
+            push( @all_destinations, $xml_dest );
+          } else {
+            get_logger->error( "Service destination needs to be a valid ipv4 or ipv6 address with or without mask." );
+          }
+        } else {
+          get_logger->error( "Service destination needs to be ipv4 or ipv6." );
+        }
+      }
+      if ( scalar(@all_destinations) > 0 ) {
+        my $all_destinations_joined = join( " ", @all_destinations );
+        $conf->{"all_destinations"} = \$all_destinations_joined;
+      }
+    } else {
+      get_logger->error( "Service destination is empty." );
+    }
+  }
+}
+
+
 # Functions
 sub firewalld_services_hash {
   my $std_out = util_firewalld_cmd( "--get-services" );
@@ -60,9 +107,12 @@ sub firewalld_services_hash {
       $h{ $val } = 1;
     }
     return \%h;
-  } else {
-    get_logger->info( "No Service available" );
   }
+  my $xml_files = util_get_xml_files_from_dir("services");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
+  get_logger->error( "No Service available" );
   return undef;
 }
 
@@ -116,32 +166,22 @@ sub generate_service_config {
   my $conf = $ConfigFirewalld{"firewalld_services"};
   util_prepare_firewalld_config( $conf );
   foreach my $k ( keys %{ $conf } ) {
-    my $service = $conf->{ $k };
-    if ( exists( $service->{"name"} ) ){
-      create_service_config_file( $service );
+    my $val = $conf->{ $k };
+    if ( exists( $val->{"short"} ) ){
+      create_service_config_file( $val, $k);
     }
   }
 }
 
 sub create_service_config_file {
   my $conf = shift ;
-  my $name = $conf->{"name"};
+  my $name = shift ;
   util_prepare_version( $conf );
-  my $dir = "$firewalld_config_path_generated/services";
-  pf_make_dir($dir);
-  my $file = "$dir/$name.xml";
-  my $file_template = "$firewalld_config_path_default_template/service.xml";
-  if ( -e $file ) {
-    my $bk_file = $file.".bk";
-    if ( -e $bk_file ) {
-      unlink $bk_file or warn "Could not unlink $file: $!";
-    }
-    copy( $file, $bk_file ) or die "copy failed: $!";
-  }
-  my $tt = Template->new(
-      ABSOLUTE => 1,
-  );
-  $tt->process( $file_template, $conf, $file ) or die $tt->error();
+  util_all_ports( $conf );
+  util_all_helpers( $conf );
+  service_all_destinations( $conf );
+  service_all_includes( $conf );
+  util_create_config_file( $conf , "services", $name, "service" );
 }
 
 =head1 AUTHOR

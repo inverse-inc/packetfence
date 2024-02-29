@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<icmptype type="[% type %]" [% version_xml %]>
+<icmptype [% version_xml %]>
   <!-- source: https://firewalld.org/documentation/man-pages/firewalld.ipset.html -->
   [% IF short != "" %]
   <short>[% short %]</short>
