@@ -7,31 +7,22 @@
   [% IF description != "" %]
   <description>[% description %]</description>
   [% END %]
-  [% IF port != "" %]
-  <description>[% description %]</description>
+  [% FOREACH port IN all_ports %] 
+  <port port="[% port.port %]" protocol="[% port.type %]"/>
   [% END %]
-  [% IF ( port != "" ) AND ( port_protocol )  %]
-  <port port="[% port %]" protocol="[% prot_protocol %]"/>
-  [% END %]
-  [% IF protocol != ""  %]
-  <protocol value="[% protocol %]"/>
+  [% FOREACH protocol IN all_protocols %]
+  <protocol value="[% protocol.value %]"/>
   [% END %]
   [% IF module != "" %]
   <module name="[% module %]"/>
   [% END %]
-  [% IF (ipv4 != "") AND (ipv6 == "")  %]
-  <destination ipv4="[% ipv4 %]"/>
+  [% IF (all_destinations_joined != "") %]
+  <destination [% $all_destinations_joined %]/>
   [% END %]
-  [% IF (ipv4 == "") AND (ipv6 != "")  %]
-  <destination ipv6="[% ipv6 %]"/>
+  [% FOREACH service IN all_includes %]
+  <include service="[% service %]"/>
   [% END %]
-  [% IF (ipv4 == "") AND (ipv6 == "")  %]
-  <destination ipv4="[% ipv6 %]" ipv6="[% ipv6 %]"/>
-  [% END %]
-  [% IF include != "" %]
-  <include service="[% include %]"/>
-  [% END %]
-  [% IF helper != "" %]
-  <helper name="[% helper %]"/>
+  [% FOREACH helper IN all_helpers %]
+  <helper name="[% helper.name %]"/>
   [% END %]
 </service>

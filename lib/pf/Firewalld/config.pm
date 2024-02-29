@@ -28,26 +28,12 @@ BEGIN {
 
 use pf::log;
 use pf::util;
-use pf::Firewalld::util qw(
-    util_prepare_firewalld_config
-    util_get_firewalld_bin
-    util_get_firewalld_cmd
-    util_listen_ints_hash
-    util_source_or_destination_validation
-    util_prepare_version
-    util_create_string_for_xml
-    util_create_limit_for_xml
-    util_is_firewalld_protocol
-    util_is_fd_source_name
-    util_firewalld_cmd
-    util_firewalld_action
-    util_reload_firewalld
-);
+use pf::Firewalld::util;
 use pf::config qw(
     %ConfigFirewalld
 );
 use pf::file_paths qw(
-    $firewalld_config_path_default 
+    $firewalld_config_path_generated
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
@@ -60,19 +46,7 @@ sub generate_firewalld_config {
 
 sub create_firewalld_config_file {
   my $conf = shift ;
-  my $file = "$firewalld_config_path_default/firewalld.conf";
-  my $file_template = "$firewalld_config_path_default_template/firewalld.conf";
-  if ( -e $file ) {
-    my $bk_file = $file.".bk";
-    if ( -e $bk_file ) {
-      unlink $bk_file or warn "Could not unlink $file: $!";
-    }
-    copy( $file, $bk_file ) or die "copy failed: $!";
-  }
-  my $tt = Template->new(
-    ABSOLUTE => 1,
-  );
-  $tt->process( $file_template, $conf, $file ) or die $tt->error();
+  util_create_config_file( $conf, "", "firewalld", "firewalld", ".conf" );
 }
 
 =head1 AUTHOR
