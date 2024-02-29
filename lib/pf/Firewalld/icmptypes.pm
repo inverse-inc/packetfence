@@ -82,7 +82,7 @@ sub icmptype_all_destinations {
           get_logger->error( "Icmptype destination needs to be ipv4 or ipv6." );
         }
       }
-      $conf->{"all_destinations"} = \@all_dest;
+      $conf->{"all_destinations"} = \@all_destinations;
     } else {
       get_logger->error( "Icmptype destination is empty." );
     }
