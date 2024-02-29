@@ -34,7 +34,7 @@ This is especially important to understand because many zones have catch all acc
   [% END %]
 
   [% FOREACH port IN all_ports %]
-    <port port="[% port.portid %]" protocol="[% port.protocol %]"/>
+    <port port="[% port.port %]" protocol="[% port.type %]"/>
   [% END %]
 
   [% FOREACH protocol IN all_protocols %]
@@ -50,11 +50,11 @@ This is especially important to understand because many zones have catch all acc
   [% END %]
 
   [% FOREACH forward_port IN all_forwardports %]
-    <forward-port port="[% forward_port.portid %]" protocol="[% forward_port.protocol %]" [% forward_port.to_port_xml %] [% forward_port.to_addr_xml %] />
+    <forward-port port="[% forward_port.port %]" protocol="[% forward_port.type %]" [% forward_port.to_port_xml %] [% forward_port.to_addr_xml %] />
   [% END %]
 
   [% FOREACH source_port IN all_sourceports %]
-    <source-port port="[% source_port.portid %]" protocol="[% source_port.protocol %]"/>
+    <source-port port="[% source_port.port %]" protocol="[% source_port.type %]"/>
   [% END %]
 
   [% FOREACH rule IN all_rules %]
@@ -81,7 +81,7 @@ This is especially important to understand because many zones have catch all acc
       [% IF match_rule.name == "service" %]
         <service name="[% match_rule.service %]"/>
       [% ELSIF match_rule.name == "port" %]
-        <port port="[% match_rule.portid %]" protocol="[% match_rule.port_protocol %]"/>
+        <port port="[% match_rule.port %]" protocol="[% match_rule.type %]"/>
       [% ELSIF match_rule.name == "protocol" %]
         <protocol value="match_rule.protocol %]"/>
       [% ELSIF match_rule.name == "icmp_block" %]
@@ -91,7 +91,7 @@ This is especially important to understand because many zones have catch all acc
       [% ELSIF match_rule.name == "masquerade" %]
         <masquerade/>
       [% ELSIF match_rule.name == "forward_port" %]
-        <forward-port port="[% match_rule.portid %]" protocol="[% match_rule.procotol %]" [% match_rule.to_port_xml %] [% match_rule.to_addr_xml %] />
+        <forward-port port="[% match_rule.port %]" protocol="[% match_rule.type %]" [% match_rule.to_port_xml %] [% match_rule.to_addr_xml %] />
       [% END %]
     [% END %]
 

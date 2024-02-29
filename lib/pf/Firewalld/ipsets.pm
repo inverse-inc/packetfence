@@ -53,6 +53,10 @@ sub firewalld_ipset_types_hash {
     }
     return \%h;
   }
+  my $xml_files = util_get_xml_files_from_dir("ipsettypes");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
   return undef;
 }
 
@@ -77,6 +81,10 @@ sub firewalld_ipsets_hash {
     }
     return \%h;
   }
+  my $xml_files = util_get_xml_files_from_dir("ipsets");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
   return undef;
 }
 
@@ -96,7 +104,7 @@ sub generate_ipset_config {
   util_prepare_firewalld_config( $conf );
   foreach my $name ( keys %{ $conf } ) {
     my $v = $conf->{ $name };
-    if ( exists( $v->{"type"} ) ){
+    if ( exists( $v->{"short"} ) ){
       create_ipset_config_file( $v, $name );
     }
   }
@@ -107,23 +115,9 @@ sub create_ipset_config_file {
   my $name = shift ;
   if ( defined is_ipset_type_available( $conf->{"type"} ) ) {
     util_prepare_version( $conf );
-    my $dir = "$firewalld_config_path_generated/ipsets";
-    pf_make_dir($dir);
-    my $file = "$dir/$name.xml";
-    my $file_template = "$firewalld_config_path_default_template/ipset.xml";
-    if ( -e $file ) {
-      my $bk_file = $file.".bk";
-      if ( -e $bk_file ) {
-        unlink $bk_file or warn "Could not unlink $file: $!";
-      }
-      copy( $file, $bk_file ) or die "copy failed: $!";
-    }
-    my $tt = Template->new(
-      ABSOLUTE => 1,
-    );
-    $tt->process( $file_template, $conf, $file ) or die $tt->error();
+    util_create_config_file( $conf, "ipsets", $name, "ipset" );
   } else {
-    get_logger->error( "Ipset $conf->{'name'} is not installed. Ipset type is invalid." );
+    get_logger->error( "Ipset $name is not installed. Ipset type is invalid." );
   }
 }
 

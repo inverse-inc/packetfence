@@ -38,8 +38,10 @@ sub generate_policy_config {
   foreach my $name ( keys %{ $conf } ) {
     if ( length( $name ) <= 17 ) {
       my $val = $conf->{ $name };
-      create_policy_config_file( $val, $name );
-      apply_policy( $val->{"priority"}, $name );
+      if ( exists( $val->{"short"} ) ){
+        create_policy_config_file( $val, $name );
+        #apply_policy( $val->{"priority"}, $name );
+      }
     } else {
       get_logger->error( "$name can not be bigger than 17 chars" );
     }
@@ -63,21 +65,7 @@ sub create_policy_config_file {
   util_all_forward_ports( $conf );
   util_all_source_ports( $conf );
   util_all_rules( $conf );
-  my $dir = "$firewalld_config_path_generated/policies";
-  pf_make_dir($dir);
-  my $file = "$dir/$name.xml";
-  my $file_template = "$firewalld_config_path_default_template/policy.xml";
-  if ( -e $file ) {
-    my $bk_file = $file.".bk";
-    if ( -e $bk_file ) {
-      unlink $bk_file or warn "Could not unlink $file: $!";
-    }
-    copy( $file, $bk_file ) or die "copy failed: $!";
-  }
-  my $tt = Template->new(
-    ABSOLUTE => 1,
-  );
-  $tt->process( $file_template, $conf, $file ) or die $tt->error();
+  util_create_config_file( $conf, "policies", $name, "policy" );
 }
 
 sub apply_policy {

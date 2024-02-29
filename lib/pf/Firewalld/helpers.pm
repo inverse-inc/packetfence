@@ -14,8 +14,6 @@ Module to get/set basic configuration about firewalld helpers
 
 use strict;
 use warnings;
-use File::Copy;
-use Template;
 
 BEGIN {
     use Exporter ();
@@ -23,7 +21,6 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         is_helper_available
-        generate_helper_config
         create_helper_config_file
     );
 }
@@ -40,6 +37,8 @@ use pf::file_paths qw(
     $firewalld_config_path_applied
 );
 
+use Data::Dumper;
+
 # Utils
 sub firewalld_helpers_hash {
   my $std_out = util_firewalld_cmd( "--get-helpers" );
@@ -52,13 +51,17 @@ sub firewalld_helpers_hash {
     }
     return \%h;
   }
+  my $xml_files = util_get_xml_files_from_dir("helpers");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
   return undef;
 }
 
 sub is_helper_available {
   my $s = shift;
   my $available_helpers = firewalld_helpers_hash();
-  if ( !undef $available_helpers &&  exists( $available_helpers->{ $s } ) ) {
+  if ( defined $available_helpers &&  exists( $available_helpers->{ $s } ) ) {
     return $s;
   }
   get_logger->error( "Helper $s does not exist." );
@@ -75,7 +78,7 @@ sub helper_family {
   my $conf = shift;
   if ( exists $conf->{"family"} ) {
     my $fam = $conf->{"family"};
-    if ( $fam ne "ipv4" || $fam ne "ipv6" ) {
+    if ( $fam ne "ipv4" && $fam ne "ipv6" ) {
       get_logger->error( "Helper family $fam needs to be ipv4 or ipv6." );
     } else {
       $conf->{"family_xml"} = 'family="'.$fam.'"';
@@ -89,7 +92,7 @@ sub generate_helper_config {
   util_prepare_firewalld_config( $conf );
   foreach my $name ( keys %{ $conf } ) {
     my $val = $conf->{ $name };
-    if ( exists($val->{"module"} ) ){
+    if ( exists($val->{"short"} ) ){
       create_helper_config_file( $val, $name );
     }
   }
@@ -102,21 +105,7 @@ sub create_helper_config_file {
   util_all_ports( $conf );
   helper_module ( $conf );
   helper_family ( $conf );
-  my $dir = "$firewalld_config_path_generated/helpers";
-  pf_make_dir($dir);
-  my $file = "$dir/$name.xml";
-  my $file_template = "$firewalld_config_path_default_template/helper.xml";
-  if ( -e $file ) {
-    my $bk_file = $file.".bk";
-    if ( -e $bk_file ) {
-      unlink $bk_file or warn "Could not unlink $file: $!";
-    }
-    copy( $file, $bk_file ) or die "copy failed: $!";
-  }
-  my $tt = Template->new(
-    ABSOLUTE => 1,
-  );
-  $tt->process( $file_template, $conf, $file ) or die $tt->error();
+  util_create_config_file( $conf, "helpers", $name, "helper" );
 }
 
 =head1 AUTHOR
