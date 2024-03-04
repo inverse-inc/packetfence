@@ -48,6 +48,11 @@ BEGIN {
     util_reload_firewalld
     util_get_xml_files_from_dir
     util_create_config_file
+    is_service_available
+    is_icmptypes_available
+    is_ipset_type_available
+    is_ipset_available
+    is_helper_available
   );
 }
 
@@ -55,19 +60,6 @@ use pf::log;
 use pf::util;
 use pf::config qw(
     @listen_ints
-);
-use pf::Firewalld::services qw(
-    is_service_available
-);
-use pf::Firewalld::icmptypes qw(
-    is_icmptypes_available
-);
-use pf::Firewalld::ipsets qw(
-    is_ipset_type_available
-    is_ipset_available
-);
-use pf::Firewalld::helpers qw(
-    is_helper_available
 );
 use pf::file_paths qw(
     $firewalld_config_path_generated 
@@ -633,6 +625,179 @@ sub util_create_config_file {
   fix_file_permissions($file);
 }
 
+# Services Functions
+sub firewalld_services_hash {
+  my $std_out = util_firewalld_cmd( "--get-services" );
+  if ( $std_out ne "" ) {
+    get_logger->info( "Services are: $std_out" );
+    my @services = split( / /, $std_out );
+    my %h;
+    foreach my $val ( @services ) {
+      $h{ $val } = 1;
+    }
+    return \%h;
+  }
+  my $xml_files = util_get_xml_files_from_dir("services");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
+  get_logger->error( "No Service available" );
+  return undef;
+}
+
+sub is_service_available {
+  my $s = shift;
+  my $available_services = firewalld_services_hash();
+  if ( exists $available_services->{ $s } ) {
+    return $s;
+  }
+  get_logger->error( "Service $s does not exist." );
+  return undef;
+}
+
+# Icmptypes Functions
+sub firewalld_icmptypes_hash {
+  my $std_out = util_firewalld_cmd( "--get-icmptypes" );
+  if ( $std_out ne "" ) {
+    get_logger->info("Icmptypes are: $std_out");
+    my @all_c = split( / /, $std_out );
+    my %h;
+    foreach my $val ( @all_c ) {
+      $h{ $val } = 1;
+    }
+    return \%h;
+  }
+  my $xml_files = util_get_xml_files_from_dir("ipsets");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
+  return undef;
+}
+
+sub is_icmptypes_available {
+  my $s = shift;
+  my $available_icmptypes = firewalld_icmptypes_hash();
+  if ( defined $available_icmptypes && exists( $available_icmptypes->{$s} ) ) {
+    return $s;
+  }
+  get_logger->error( "Icmp type $s does not exist." );
+  return undef;
+}
+
+# Ipset types Functions
+sub firewalld_ipset_types_hash {
+  my $std_out = util_firewalld_cmd( "--get-ipset-types" );
+  if ( $std_out ne "" ) {
+    get_logger->info( "Ipset types are: $std_out" );
+    my @all_c = split( / /, $std_out );
+    my %h;
+    foreach my $val ( @all_c ) {
+      $h{ $val } = 1;
+    }
+    return \%h;
+  }
+  # https://github.com/firewalld/firewalld/blob/main/src/firewall/core/ipset.py#L21
+  my %default_ipsets = ( "hash:ip" => 1,
+                         "hash:ip,port" => 1,
+                         "hash:ip,port,ip" => 1,
+                         "hash:ip,port,net" => 1,
+                         "hash:ip,mark" => 1,
+                         "hash:net" => 1,
+                         "hash:net,net" => 1,
+                         "hash:net,port" => 1,
+                         "hash:net,port,net" => 1,
+                         "hash:net,iface" => 1,
+                         "hash:mac" => 1
+  );
+  return \%default_ipsets;
+}
+
+sub is_ipset_type_available {
+  my $s = shift;
+  my $available_ipset_types = firewalld_ipset_types_hash();
+  if ( defined $available_ipset_types &&  exists( $available_ipset_types->{ $s } ) ) {
+    return $s;
+  }
+  get_logger->error( "Ipset type $s does not exist." );
+  return undef;
+}
+
+# Ipsets Functions
+sub firewalld_ipsets_hash {
+  my $std_out = util_firewalld_cmd( "--get-ipsets" );
+  if ( $std_out ne "" ) {
+    get_logger->info( "Ipsets are: $std_out" );
+    my @all_c = split( / /, $std_out );
+    my %h;
+    foreach my $val ( @all_c ) {
+      $h{ $val } = 1;
+    }
+    return \%h;
+  }
+  my $xml_files = util_get_xml_files_from_dir("ipsets");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
+  return undef;
+}
+
+sub is_ipset_available {
+  my $s = shift;
+  my $available_ipsets = firewalld_ipsets_hash();
+  if ( defined $available_ipsets && exists( $available_ipsets->{$s} ) ) {
+    return $s;
+  }
+  get_logger->error("Ipsets $s does not exist.");
+  return undef;
+}
+
+# Zones Functions
+sub firewalld_zones_hash {
+  my $std_out = util_firewalld_cmd( "--get-zones" );
+  if ( $std_out ne "" ) {
+    get_logger->info( "Zones are: $std_out" );
+    my @zones = split( / /, $std_out );
+    my %h;
+    foreach my $val ( @zones ) {
+      $h{ $val } = 1;
+    }
+    return \%h;
+  }
+  my $xml_files = util_get_xml_files_from_dir("zones");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
+  return undef;
+}
+
+# Helpers Functions
+sub firewalld_helpers_hash {
+  my $std_out = util_firewalld_cmd( "--get-helpers" );
+  if ( $std_out ne "" ) {
+    get_logger->info( "Helpers are: $std_out" );
+    my @all_c = split( / /, $std_out );
+    my %h;
+    foreach my $val ( @all_c ) {
+      $h{ $val } = 1;
+    }
+    return \%h;
+  }
+  my $xml_files = util_get_xml_files_from_dir("helpers");
+  if ( defined $xml_files ) {
+    return $xml_files;
+  }
+  return undef;
+}
+
+sub is_helper_available {
+  my $s = shift;
+  my $available_helpers = firewalld_helpers_hash();
+  if ( defined $available_helpers &&  exists( $available_helpers->{ $s } ) ) {
+    return $s;
+  }
+  get_logger->error( "Helper $s does not exist." );
+  return undef;
+}
 
 =head1 AUTHOR
 

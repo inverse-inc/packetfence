@@ -17,6 +17,15 @@ use warnings;
 use File::Copy;
 use Template;
 
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT_OK );
+    @ISA = qw(Exporter);
+    @EXPORT_OK = qw(
+        generate_policy_config
+    );
+}
+
 use pf::log;
 use pf::util;
 use pf::Firewalld::util;
@@ -32,6 +41,13 @@ use pf::file_paths qw(
 );
 
 # need a function that return a structured content of the config file
+# need a function that is creating the xml file from the config
+# need a function that add interfaces in the config file
+# need a function that add services according to interface usage (see how lib/pf/iptables.pm is working)
+# need a function that return a structured content of the config file
+# need a function that return a structured content of the config file
+
+# Generate config
 sub generate_policy_config {
   my $conf = $ConfigFirewalld{ "firewalld_policies" };
   util_prepare_firewalld_config( $conf );
@@ -48,8 +64,6 @@ sub generate_policy_config {
   }
 }
 
-# need a function that is creating the xml file from the config
-# need a function that add interfaces in the config file
 sub create_policy_config_file {
   my $conf = shift;
   my $name = shift;
@@ -85,8 +99,7 @@ sub apply_policy {
   }
 }
 
-# need a function that add services according to interface usage (see how lib/pf/iptables.pm is working)
-# need a function that return a structured content of the config file
+# Create Config sub functions
 sub policy_egress {
   my $c = shift;
   my $b = 0 ;
