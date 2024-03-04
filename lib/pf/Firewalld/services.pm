@@ -22,14 +22,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
-        firewalld_services_hash
-        is_service_available
-        service_in_default
-        service_is_in_config
-        service_copy_from_default_to_applied
-        service_remove_from_applied
         generate_service_config
-        create_service_config_file
     );
 }
 
@@ -49,6 +42,30 @@ use pf::file_paths qw(
 my $service_config_path_default="$firewalld_config_path_generated/services";
 my $service_config_path_applied="$firewalld_config_path_applied/services";
 
+# Generate config
+sub generate_service_config {
+  my $conf = $ConfigFirewalld{"firewalld_services"};
+  util_prepare_firewalld_config( $conf );
+  foreach my $k ( keys %{ $conf } ) {
+    my $val = $conf->{ $k };
+    if ( exists( $val->{"short"} ) ){
+      create_service_config_file( $val, $k);
+    }
+  }
+}
+
+sub create_service_config_file {
+  my $conf = shift ;
+  my $name = shift ;
+  util_prepare_version( $conf );
+  util_all_ports( $conf );
+  util_all_helpers( $conf );
+  service_all_destinations( $conf );
+  service_all_includes( $conf );
+  util_create_config_file( $conf , "services", $name, "service" );
+}
+
+# Create Config sub functions
 sub service_all_includes {
   my $c = shift;
   if ( exists( $c->{"includes"} ) ) {
@@ -96,93 +113,6 @@ sub service_all_destinations {
 }
 
 
-# Functions
-sub firewalld_services_hash {
-  my $std_out = util_firewalld_cmd( "--get-services" );
-  if ( $std_out ne "" ) {
-    get_logger->info( "Services are: $std_out" );
-    my @services = split( / /, $std_out );
-    my %h;
-    foreach my $val ( @services ) {
-      $h{ $val } = 1;
-    }
-    return \%h;
-  }
-  my $xml_files = util_get_xml_files_from_dir("services");
-  if ( defined $xml_files ) {
-    return $xml_files;
-  }
-  get_logger->error( "No Service available" );
-  return undef;
-}
-
-sub is_service_available {
-  my $s = shift;
-  my $available_services = firewalld_services_hash();
-  if ( exists $available_services->{ $s } ) {
-    return $s;
-  }
-  get_logger->error( "Service $s does not exist." );
-  return undef;
-}
-
-sub service_in_default {
-  my $service = shift;
-  if ( -s "$service_config_path_default/$service.xml" ) {
-    get_logger->info( "Service $service Available in $service_config_path_default" );
-    return 1 ;
-  } else {
-    get_logger->error( "Service $service Unavailable in $service_config_path_default" );
-    return 0 ;
-  }
-}
-
-sub service_is_in_config {
-  my $service = shift;
-  if ( -s "$service_config_path_applied/$service.xml" ) {
-    get_logger->info( "Service $service Available in $service_config_path_applied" );
-    return 1 ;
-  } else {
-    get_logger->error( "Service $service Unavailable in $service_config_path_applied" );
-    return 0 ;
-  }
-}
-
-sub service_copy_from_default_to_applied {
-  my $service = shift;
-  get_logger->info( "Service $service is added in Firewalld applied configuration.\n" );
-  copy( "$service_config_path_default/$service.xml", "$service_config_path_applied/$service.xml" ) or die "copy failed: $!";
-}
-
-sub service_remove_from_applied {
-  my $service = shift;
-  get_logger->info( "Service $service is removed from Firewalld applied configuration.\n" );
-  unlink( "$service_config_path_applied/$service.xml" );
-}
-
-
-# Generate config
-sub generate_service_config {
-  my $conf = $ConfigFirewalld{"firewalld_services"};
-  util_prepare_firewalld_config( $conf );
-  foreach my $k ( keys %{ $conf } ) {
-    my $val = $conf->{ $k };
-    if ( exists( $val->{"short"} ) ){
-      create_service_config_file( $val, $k);
-    }
-  }
-}
-
-sub create_service_config_file {
-  my $conf = shift ;
-  my $name = shift ;
-  util_prepare_version( $conf );
-  util_all_ports( $conf );
-  util_all_helpers( $conf );
-  service_all_destinations( $conf );
-  service_all_includes( $conf );
-  util_create_config_file( $conf , "services", $name, "service" );
-}
 
 =head1 AUTHOR
 

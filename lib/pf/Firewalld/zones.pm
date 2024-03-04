@@ -18,6 +18,15 @@ use warnings;
 use File::Copy;
 use Template;
 
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT_OK );
+    @ISA = qw(Exporter);
+    @EXPORT_OK = qw(
+        generate_zone_config
+    );
+}
+
 use pf::log;
 use pf::util;
 use pf::Firewalld::util;
@@ -31,25 +40,13 @@ use pf::file_paths qw(
     $firewalld_config_path_applied
 );
 
-sub firewalld_zones_hash {
-  my $std_out = util_firewalld_cmd( "--get-zones" );
-  if ( $std_out ne "" ) {
-    get_logger->info( "Zones are: $std_out" );
-    my @zones = split( / /, $std_out );
-    my %h;
-    foreach my $val ( @zones ) {
-      $h{ $val } = 1;
-    }
-    return \%h;
-  }
-  my $xml_files = util_get_xml_files_from_dir("zones");
-  if ( defined $xml_files ) {
-    return $xml_files;
-  }
-  return undef;
-}
-
 # need a function that return a structured content of the config file
+# need a function that is creating the xml file from the config
+# need a function that add interfaces in the config file
+# need a function that add services according to interface usage (see how lib/pf/iptables.pm is working)
+# need a function that return a structured content of the config file
+
+# Generate config
 sub generate_zone_config {
   my $conf = $ConfigFirewalld{"firewalld_zones"};
   util_prepare_firewalld_config( $conf );
@@ -66,8 +63,6 @@ sub generate_zone_config {
   }
 }
 
-# need a function that is creating the xml file from the config
-# need a function that add interfaces in the config file
 sub create_zone_config_file {
   my $conf = shift;
   my $name = shift;
@@ -94,8 +89,7 @@ sub set_zone {
   }
 }
 
-# need a function that add services according to interface usage (see how lib/pf/iptables.pm is working)
-# need a function that return a structured content of the config file
+# Create Config sub functions
 sub zone_interface {
   my $c = shift;
   my $b = 0 ;

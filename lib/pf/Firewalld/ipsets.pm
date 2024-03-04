@@ -22,10 +22,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
-        is_ipset_type_available
-        is_ipset_available
         generate_ipset_config
-        create_service_config_file
     );
 }
 
@@ -40,72 +37,6 @@ use pf::file_paths qw(
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
-
-# Utils
-sub firewalld_ipset_types_hash {
-  my $std_out = util_firewalld_cmd( "--get-ipset-types" );
-  if ( $std_out ne "" ) {
-    get_logger->info( "Ipset types are: $std_out" );
-    my @all_c = split( / /, $std_out );
-    my %h;
-    foreach my $val ( @all_c ) {
-      $h{ $val } = 1;
-    }
-    return \%h;
-  }
-  # https://github.com/firewalld/firewalld/blob/main/src/firewall/core/ipset.py#L21
-  my %default_ipsets = ( "hash:ip" => 1,
-                         "hash:ip,port" => 1,
-                         "hash:ip,port,ip" => 1,
-                         "hash:ip,port,net" => 1,
-                         "hash:ip,mark" => 1,
-                         "hash:net" => 1,
-                         "hash:net,net" => 1,
-                         "hash:net,port" => 1,
-                         "hash:net,port,net" => 1,
-                         "hash:net,iface" => 1,
-                         "hash:mac" => 1
-  );
-  return \%default_ipsets;
-}
-
-sub is_ipset_type_available {
-  my $s = shift;
-  my $available_ipset_types = firewalld_ipset_types_hash();
-  if ( defined $available_ipset_types &&  exists( $available_ipset_types->{ $s } ) ) {
-    return $s;
-  }
-  get_logger->error( "Ipset type $s does not exist." );
-  return undef;
-}
-
-sub firewalld_ipsets_hash {
-  my $std_out = util_firewalld_cmd( "--get-ipsets" );
-  if ( $std_out ne "" ) {
-    get_logger->info( "Ipsets are: $std_out" );
-    my @all_c = split( / /, $std_out );
-    my %h;
-    foreach my $val ( @all_c ) {
-      $h{ $val } = 1;
-    }
-    return \%h;
-  }
-  my $xml_files = util_get_xml_files_from_dir("ipsets");
-  if ( defined $xml_files ) {
-    return $xml_files;
-  }
-  return undef;
-}
-
-sub is_ipset_available {
-  my $s = shift;
-  my $available_ipsets = firewalld_ipsets_hash();
-  if ( defined $available_ipsets && exists( $available_ipsets->{$s} ) ) {
-    return $s;
-  }
-  get_logger->error("Ipsets $s does not exist.");
-  return undef;
-}
 
 # Generate config
 sub generate_ipset_config {
@@ -129,6 +60,8 @@ sub create_ipset_config_file {
     get_logger->error( "Ipset $name is not installed. Ipset type is invalid." );
   }
 }
+
+# Create Config sub functions
 
 =head1 AUTHOR
 

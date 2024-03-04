@@ -22,7 +22,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
-        is_icmptypes_available
+        generate_icmptype_config
     );
 }
 
@@ -38,34 +38,27 @@ use pf::file_paths qw(
     $firewalld_config_path_applied
 );
 
-sub firewalld_icmptypes_hash {
-  my $std_out = util_firewalld_cmd( "--get-icmptypes" );
-  if ( $std_out ne "" ) {
-    get_logger->info("Icmptypes are: $std_out");
-    my @all_c = split( / /, $std_out );
-    my %h;
-    foreach my $val ( @all_c ) {
-      $h{ $val } = 1;
+# Generate config
+sub generate_icmptype_config {
+  my $conf = $ConfigFirewalld{ "firewalld_icmptypes" };
+  util_prepare_firewalld_config( $conf );
+  foreach my $name ( keys %{ $conf } ) {
+    my $v = $conf->{ $name };
+    if ( exists( $v->{"short"} ) ){
+      create_icmptype_config_file( $v, $name );
     }
-    return \%h;
   }
-  my $xml_files = util_get_xml_files_from_dir("ipsets");
-  if ( defined $xml_files ) {
-    return $xml_files;
-  }
-  return undef;
 }
 
-sub is_icmptypes_available {
-  my $s = shift;
-  my $available_icmptypes = firewalld_icmptypes_hash();
-  if ( defined $available_icmptypes && exists( $available_icmptypes->{$s} ) ) {
-    return $s;
-  }
-  get_logger->error( "Icmp type $s does not exist." );
-  return undef;
+sub create_icmptype_config_file {
+  my $conf = shift ;
+  my $name = shift ;
+  util_prepare_version( $conf );
+  icmptype_all_destinations( $conf );
+  util_create_config_file( $conf, "icmptypes", $name, "icmptype" );
 }
 
+# Create Config sub functions
 sub icmptype_all_destinations {
   my $conf = shift;
   if ( exists $conf->{"destinations"} ) {
@@ -91,27 +84,6 @@ sub icmptype_all_destinations {
       get_logger->error( "Icmptype destination is empty." );
     }
   }
-}
-
-
-# Generate config
-sub generate_icmptype_config {
-  my $conf = $ConfigFirewalld{ "firewalld_icmptypes" };
-  util_prepare_firewalld_config( $conf );
-  foreach my $name ( keys %{ $conf } ) {
-    my $v = $conf->{ $name };
-    if ( exists( $v->{"short"} ) ){
-      create_icmptype_config_file( $v, $name );
-    }
-  }
-}
-
-sub create_icmptype_config_file {
-  my $conf = shift ;
-  my $name = shift ;
-  util_prepare_version( $conf );
-  icmptype_all_destinations( $conf );
-  util_create_config_file( $conf, "icmptypes", $name, "icmptype" );
 }
 
 =head1 AUTHOR
