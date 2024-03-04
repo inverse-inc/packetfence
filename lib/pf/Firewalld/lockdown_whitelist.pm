@@ -38,8 +38,26 @@ use pf::file_paths qw(
     $firewalld_config_path_applied
 );
 
-use Data::Dumper;
+# Generate config
+sub generate_lockdown_whitelist_config {
+  my $conf = $ConfigFirewalld{"firewalld_lockdown_whitelist"} ;
+  if ( exists $conf->{"whitelist"} ) {
+    util_prepare_firewalld_config( $conf );
+    create_lockdown_whitelist_config_file( $conf->{"whitelist"} );
+  } else {
+    get_logger->info( "No lockdown whitelist configuration");
+  }
+}
 
+sub create_lockdown_whitelist_config_file {
+  my $conf = shift ;
+  lockdown_whitelist_all_selinuxs( $conf );
+  lockdown_whitelist_all_commands( $conf );
+  lockdown_whitelist_all_users( $conf );
+  util_create_config_file( $conf, "", "lockdown_whitelist", "lockdown_whitelist" );
+}
+
+# Create Config sub functions
 sub lockdown_whitelist_all_selinuxs {
   my $conf  = shift;
   if ( exists( $conf->{"selinuxs"} ) ) {
@@ -89,24 +107,6 @@ sub lockdown_whitelist_all_users {
 }
 
 
-# Generate config
-sub generate_lockdown_whitelist_config {
-  my $conf = $ConfigFirewalld{"firewalld_lockdown_whitelist"} ;
-  if ( exists $conf->{"whitelist"} ) {
-    util_prepare_firewalld_config( $conf );
-    create_lockdown_whitelist_config_file( $conf->{"whitelist"} );
-  } else {
-    get_logger->info( "No lockdown whitelist configuration");
-  }
-}
-
-sub create_lockdown_whitelist_config_file {
-  my $conf = shift ;
-  lockdown_whitelist_all_selinuxs( $conf );
-  lockdown_whitelist_all_commands( $conf );
-  lockdown_whitelist_all_users( $conf );
-  util_create_config_file( $conf, "", "lockdown_whitelist", "lockdown_whitelist" );
-}
 
 =head1 AUTHOR
 
