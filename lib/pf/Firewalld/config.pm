@@ -22,7 +22,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
-        generate_firewalld_config
+        generate_firewalld_file_config
     );
 }
 
@@ -39,7 +39,7 @@ use pf::file_paths qw(
 );
 
 # Generate config
-sub generate_firewalld_config {
+sub generate_firewalld_file_config {
   my $conf = $ConfigFirewalld{ "firewalld_config" };
   create_firewalld_config_file( $conf->{"config"} );
 }

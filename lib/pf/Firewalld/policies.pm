@@ -22,7 +22,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
-        generate_policy_config
+        generate_policies_config
     );
 }
 
@@ -48,7 +48,7 @@ use pf::file_paths qw(
 # need a function that return a structured content of the config file
 
 # Generate config
-sub generate_policy_config {
+sub generate_policies_config {
   my $conf = $ConfigFirewalld{ "firewalld_policies" };
   util_prepare_firewalld_config( $conf );
   foreach my $name ( keys %{ $conf } ) {

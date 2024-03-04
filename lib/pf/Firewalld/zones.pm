@@ -23,7 +23,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
-        generate_zone_config
+        generate_zones_config
     );
 }
 
@@ -47,7 +47,7 @@ use pf::file_paths qw(
 # need a function that return a structured content of the config file
 
 # Generate config
-sub generate_zone_config {
+sub generate_zones_config {
   my $conf = $ConfigFirewalld{"firewalld_zones"};
   util_prepare_firewalld_config( $conf );
   my $all_interfaces = util_listen_ints_hash();
