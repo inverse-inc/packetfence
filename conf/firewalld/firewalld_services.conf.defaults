@@ -6,10 +6,10 @@ ports=haproxy-admin_port1,haproxy-admin_port2
 
 [haproxy-admin_port1]
 port=1443
-type=TCP
+type=tcp
 [haproxy-admin_port2]
 port=1443
-type=UDP
+type=upd
 
 [pfdhcp]
 short=packetfence-pfdhcp
@@ -19,10 +19,10 @@ ports=pfdhcp_port1,pfdhcp_port2
 
 [pfdhcp_port1]
 port=67
-type=TCP
+type=tcp
 [pfdhcp_port2]
 port=67
-type=UDP
+type=udp
 
 [ssh]
 short=SSH
@@ -48,7 +48,7 @@ description=HTTPS is a modified HTTP used to serve Web pages when security is im
 ports=https_port1
 
 [https_port1]
-type="tcp"
+type=tcp
 port=443
 
 [docker_swarm]
