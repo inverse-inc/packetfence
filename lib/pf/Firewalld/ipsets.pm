@@ -54,18 +54,17 @@ sub firewalld_ipset_types_hash {
     return \%h;
   }
   # https://github.com/firewalld/firewalld/blob/main/src/firewall/core/ipset.py#L21
-  my %default_ipsets = qw(
-    hash:ip  1
-    hash:ip,port  1
-    hash:ip,port,ip  1
-    hash:ip,port,net  1
-    hash:ip,mark  1
-    hash:net  1
-    hash:net,net  1
-    hash:net,port  1
-    hash:net,port,net  1
-    hash:net,iface  1
-    hash:mac  1
+  my %default_ipsets = ( "hash:ip" => 1,
+                         "hash:ip,port" => 1,
+                         "hash:ip,port,ip" => 1,
+                         "hash:ip,port,net" => 1,
+                         "hash:ip,mark" => 1,
+                         "hash:net" => 1,
+                         "hash:net,net" => 1,
+                         "hash:net,port" => 1,
+                         "hash:net,port,net" => 1,
+                         "hash:net,iface" => 1,
+                         "hash:mac" => 1
   );
   return \%default_ipsets;
 }
