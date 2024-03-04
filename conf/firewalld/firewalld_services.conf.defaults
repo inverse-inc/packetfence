@@ -2,7 +2,7 @@
 short=packetfence-haproxy-admin
 description=Firewalld rules for pf-admin services
 helper_name=haproxy-admin
-prots=haproxy-admin_port1,haproxy-admin_port2
+ports=haproxy-admin_port1,haproxy-admin_port2
 
 [haproxy-admin_port1]
 port=1443
@@ -27,7 +27,7 @@ type=UDP
 [ssh]
 short=SSH
 description=Secure Shell (SSH) is a protocol for logging into and executing commands on remote machines. It provides secure encrypted communications. If you plan on accessing your machine remotely via SSH over a firewalled interface, enable this option. You need the openssh-server package installed for this option to be useful.
-prots=ssh_port1
+ports=ssh_port1
 
 [ssh_port1]
 type=tcp
@@ -36,7 +36,7 @@ port=22
 [http]
 short=WWW (HTTP)
 description=HTTP is the protocol used to serve Web pages. If you plan to make your Web server publicly available, enable this option. This option is not required for viewing pages locally or developing Web pages.
-prots=http_port1
+ports=http_port1
 
 [http_port1]
 type=tcp
@@ -45,7 +45,7 @@ port=80
 [https]
 short=Secure WWW (HTTPS)
 description=HTTPS is a modified HTTP used to serve Web pages when security is important. Examples are sites that require logins like stores or web mail. This option is not required for viewing pages locally or developing Web pages. You need the httpd package installed for this option to be useful.
-prots=https_port1
+ports=https_port1
 
 [https_port1]
 type="tcp"
