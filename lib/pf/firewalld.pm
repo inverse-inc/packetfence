@@ -14,36 +14,30 @@ Interface to get information based on /usr/local/pf/conf/firewalld
 
 use strict;
 use warnings;
-
-use pf::firewalld::services;
 use File::Copy;
+use Template;
 
-my $path_bin=`which firewalld-cmd`;
-my $path_services_default=`which firewalld-cmd`;
-my $config_path_default="/usr/local/pf/firewalld/services";
-my $config_path_applied="/usr/local/pf/var/firewalld/services";
+use pf::Firewalld::util;
+use pf::Firewalld::config qw ( generate_firewalld_file_config );
+use pf::Firewalld::lockdown_whitelist qw ( generate_lockdown_whitelist_config );
+use pf::Firewalld::helpers qw ( generate_helpers_config );
+use pf::Firewalld::icmptypes qw ( generate_icmptypes_config );
+use pf::Firewalld::ipsets qw ( generate_ipsets_config );
+use pf::Firewalld::services qw ( generate_services_config );
+use pf::Firewalld::zones qw ( generate_zones_config );
+use pf::Firewalld::policies qw ( generate_policies_config );
 
-# Firewalld action
-sub firewalld_action {
-  my $action= shift;
-  my $result=`$path_bin $action`;
-  if ($result eq "success") {
-    return 1;
-  } else {
-    return 0;
-  }
+sub generate_firewalld_configs {
+  generate_firewalld_file_config();
+  generate_lockdown_whitelist_config();
+  generate_helpers_config();
+  generate_icmptypes_config();
+  generate_ipsets_config();
+  generate_services_config();
+  generate_zones_config();
+  generate_policies_config();
 }
 
-# need a function that reload the service
-sub reload_firewalld {
-  if (firewalld_action("--reload")) {
-    print "Reload Success";
-    return 1;
-  } else {
-    print "Reload Failed";
-    return 0;
-  }
-}
 
 # need a function that return information like a wrapper of firewalld-cmd
 # need a function that return services from a zone
@@ -56,28 +50,28 @@ sub service_to_zone {
   my $zone      = shift;
   my $permanent = shift;
   my $p_value   = "--permanent";
-
-  $service   ||= "noservice";
-  $status    ||= "add";
-  $zone      ||= "eth0";
-  $permanent ||= "yes";
+ 
+  #$service   ||= "noservice";
+  #$status    ||= "add";
+  #$zone      ||= "eth0";
+  #$permanent ||= "yes";
 
   if ($service ne "noservice") {
-    print "provide a service"
+    print("provide a service");
     return 0 ;
   }
 
   if ( $status ne "add" && $status ne "remove") {
-    print "Status $status is unknown. Should be 'add' or 'remove'";
+    print("Status $status is unknown. Should be 'add' or 'remove'");
     return 0 ;
   }
 
-  if ! ( service_is_in_default($service) ) {
-    print "Please run generate config to create file services";
+  if ( not service_is_in_default( $service ) ) {
+    print("Please run generate config to create file services");
     return 0 ;
   }
 
-  if ($permanent ne "yes") {
+  if ( $permanent ne "yes" ) {
     $p_value="";
   }
 
@@ -85,16 +79,16 @@ sub service_to_zone {
   if ( $status eq "add" ){
     service_copy_from_default_to_applied($service);
   } else {
-    service_remove_from_applied($service};
+    service_remove_from_applied( $service );
   }
 
   # handle service in zone
   if ( $status eq "add" ) {
-    print "Service $service added from Zone $zone configuration status:"
+    print("Service $service added from Zone $zone configuration status:");
   } else {
-    print "Service $service removed from Zone $zone configuration status:"
+    print("Service $service removed from Zone $zone configuration status:");
   }
-  if (firewalld_action("--zone=$zone --$status-service $service $permanent_val")){
+  if (firewalld_action("--zone=$zone --$status-service $service $p_value")){
     return reload_firewalld();
   } else {
     return 1 ;
