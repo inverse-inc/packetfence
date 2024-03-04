@@ -525,7 +525,7 @@ sub util_is_firewalld_protocol {
                    udp 1
                    sctp 2
                    dccp 3);
-  if ( exists $protos{$proto} ){
+  if ( exists $protos{ lc( $proto ) } ){
     return $proto;
   }
   get_logger->error( "Protocol ($proto) is an unknown protocol." );
