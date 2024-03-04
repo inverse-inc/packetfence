@@ -22,7 +22,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
-        generate_service_config
+        generate_services_config
     );
 }
 
@@ -43,7 +43,7 @@ my $service_config_path_default="$firewalld_config_path_generated/services";
 my $service_config_path_applied="$firewalld_config_path_applied/services";
 
 # Generate config
-sub generate_service_config {
+sub generate_services_config {
   my $conf = $ConfigFirewalld{"firewalld_services"};
   util_prepare_firewalld_config( $conf );
   foreach my $k ( keys %{ $conf } ) {

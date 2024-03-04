@@ -20,7 +20,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
-      generate_helper_config
+      generate_helpers_config
     );
 }
 
@@ -37,7 +37,7 @@ use pf::file_paths qw(
 );
 
 # Generate config
-sub generate_helper_config {
+sub generate_helpers_config {
   my $conf = $ConfigFirewalld{"firewalld_helpers"} ;
   util_prepare_firewalld_config( $conf );
   foreach my $name ( keys %{ $conf } ) {

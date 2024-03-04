@@ -22,7 +22,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
-        generate_ipset_config
+        generate_ipsets_config
     );
 }
 
@@ -39,7 +39,7 @@ use pf::file_paths qw(
 );
 
 # Generate config
-sub generate_ipset_config {
+sub generate_ipsets_config {
   my $conf = $ConfigFirewalld{ "firewalld_ipsets" };
   util_prepare_firewalld_config( $conf );
   foreach my $name ( keys %{ $conf } ) {
