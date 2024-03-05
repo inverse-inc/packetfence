@@ -1126,6 +1126,11 @@ kafka_pass=
 # Filter events
 filter_events=1
 #
+# heuristics
+#
+# flow aggregator heuristics
+heuristics=0
+#
 # local
 #
 # Local task

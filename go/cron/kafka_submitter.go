@@ -176,6 +176,7 @@ func SetupKafka(config map[string]interface{}) {
 			&AggregatorOptions{
 				NetworkEventChan: aggregatorChan,
 				Timeout:          time.Minute,
+				Heuristics:       int(config["heuristics"].(float64)),
 			},
 		)
 		go aggregator.handleEvents()
