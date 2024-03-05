@@ -1,6 +1,6 @@
 [haproxy-admin]
 short=packetfence-haproxy-admin
-description=Firewalld rules for pf-admin services
+description=Firewalld ports for pf-admin service
 helper_name=haproxy-admin
 ports=haproxy-admin_port1,haproxy-admin_port2
 
@@ -9,7 +9,117 @@ port=1443
 type=tcp
 [haproxy-admin_port2]
 port=1443
-type=upd
+type=udp
+
+[web-portal]
+short=packetfence-httpd.portal
+description=Firewalld ports for httpd.portal service
+ports=web-portal_port1
+
+[web-portal_port1]
+port=8080
+type=tcp
+
+[radius]
+short=radius port
+description=Firewalld ports for radius service
+ports=radius_port1,radius_port2,radius_port3,radius_port4,radius_port5,radius_port6,radius_port7,radius_port8,radius_port9,radius_port10
+
+[radius_port1]
+port=1813
+type=tcp
+[radius_port2]
+port=1813
+type=udp
+[radius_port3]
+port=1823
+type=udp
+[radius_port4]
+port=1812
+type=tcp
+[radius_port5]
+port=1812
+type=udp
+[radius_port6]
+port=1822
+type=udp
+[radius_port7]
+port=1815
+type=tcp
+[radius_port8]
+port=1815
+type=udp
+[radius_port9]
+port=1825
+type=udp
+[radius_port10]
+port=2083
+type=tcp
+
+[snmptrap]
+short=SNMPTRAP
+description=SNMP traps enable an agent to notify the management station of significant events by way of an unsolicited SNMP message.
+ports=snmptrap_port1,snmptrap_port2
+
+[snmptrap_port1]
+type=tcp
+port=162
+[snmptrap_port2]
+type=udp
+port=162
+
+[openvas]
+short=openvas
+description=OpenVAS Administration Interface
+ports=openvas_port1
+
+[openvas_port1]
+type=tcp
+port=9392
+
+[nessus]
+short=nessus
+description=Nessus Administration Interface
+ports=nessus_port1
+
+[nessus_port1]
+type=tcp
+port=8834
+
+[fingerbank]
+short=Fingerbank
+description=Fingerbank collector (replication, NetFlow, API, sFlow)
+ports=fingerbank_port1,fingerbank_port2,fingerbank_port3,fingerbank_port4
+
+[fingerbank_port1]
+type=udp
+port=1192
+[fingerbank_port2]
+type=udp
+port=2055
+[fingerbank_port3]
+type=tcp
+port=4723
+[fingerbank_port4]
+type=udp
+port=6343
+
+[netflow]
+short=Netflow
+description=NetFlow from network devices on non-standard port
+ports=netflow_port1
+
+[netflow_port1]
+type=udp
+port=2056
+
+[vrrp]
+short=vrrp
+description=vrrp
+protocols=vrrp_protocol1
+
+[vrrp_protocol1]
+value=vrrp
 
 [pfdhcp]
 short=packetfence-pfdhcp
