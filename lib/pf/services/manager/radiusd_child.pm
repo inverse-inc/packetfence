@@ -917,6 +917,12 @@ EOT
 }
 EOT
         }
+        #Add radius sources defined in eduroam source
+        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+        if (@eduroam_authentication_source) {
+            my $eduroam_source = $eduroam_authentication_source[0];
+            push(@radius_sources, @{$eduroam_source->{'eduroam_radius_auth'}});
+        }
         if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
             $tags{'config'} .= <<"EOT";
 home_server_pool auth_pool_$realm {
