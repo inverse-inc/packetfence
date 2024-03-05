@@ -24,6 +24,7 @@ BEGIN {
   @ISA = qw(Exporter);
   @EXPORT = qw(
     util_prepare_firewalld_config
+    util_prepare_firewalld_config_simple
     util_get_firewalld_bin
     util_get_firewalld_cmd
     util_listen_ints_hash
@@ -66,7 +67,7 @@ use pf::file_paths qw(
     $firewalld_config_path_default_template
     $firewalld_config_path_applied
 );
-use pf::util::system_protocols;
+use pf::util::system_protocols qw ( is_protocol_available );
 
 use Data::Dumper;
 
@@ -74,20 +75,42 @@ sub util_prepare_firewalld_config {
   my $conf = shift;
   foreach my $k ( keys %{ $conf } ){
     my $val = $conf->{$k};
-    foreach my $k2 ( keys %{ $val } ){
-      my @vals = split ( ",", $val->{$k2} );
-      my @nvals;
-      foreach my $v ( @vals ){
-        if ( $v ne $k && exists ( $conf->{$v} ) ){
-          push( @nvals, $conf->{$v} );
+    if ( exists $val->{"short"} ) {
+      foreach my $k2 ( keys %{ $val } ){
+        my @vals = split ( ",", $val->{$k2} );
+        my @nvals;
+        foreach my $v ( @vals ){
+          if ( $v ne $k && exists ( $conf->{$v} ) ){
+            push( @nvals, $conf->{$v} );
+          }
         }
-      }
-      if ( @nvals ){
-        $val->{$k2} = \@nvals;
+        if ( @nvals ){
+          $val->{$k2} = \@nvals;
+        }
       }
     }
   }
 }
+
+sub util_prepare_firewalld_config_simple {
+  my $conf = shift;
+  foreach my $k ( keys %{ $conf } ){
+    my $val = $conf->{$k};
+      foreach my $k2 ( keys %{ $val } ){
+        my @vals = split ( ",", $val->{$k2} );
+        my @nvals;
+        foreach my $v ( @vals ){
+          if ( $v ne $k && exists ( $conf->{$v} ) ){
+            push( @nvals, $conf->{$v} );
+          }
+        }
+        if ( @nvals ){
+          $val->{$k2} = \@nvals;
+        }
+    }
+  }
+}
+
 
 sub util_get_firewalld_bin {
   my $fbin = `which firewalld`;
@@ -224,12 +247,13 @@ sub util_all_protocols {
   my $c = shift;
   if ( exists( $c->{"protocols"} ) ) {
     my @t;
-    my @vl = split( ',', $c->{"protocols"} );
-    foreach my $k ( @vl ) {
-      if ( defined is_protocol_available( $k ) ) {
+    my $vl = $c->{"protocols"};
+    foreach my $k ( @{ $vl } ) {
+      my $val = $k->{"value"};
+      if ( defined is_protocol_available( $val ) ) {
         push( @t, $k );
       } else {
-        get_logger->error( "==> Protocol ($k) is removed." );
+        get_logger->error( "==> Protocol ($val) is removed." );
       }
     }
     $c->{"all_protocols"} = \@t;
