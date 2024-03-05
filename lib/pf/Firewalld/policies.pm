@@ -52,14 +52,14 @@ sub generate_policies_config {
   my $conf = $ConfigFirewalld{ "firewalld_policies" };
   util_prepare_firewalld_config( $conf );
   foreach my $name ( keys %{ $conf } ) {
-    if ( length( $name ) <= 17 ) {
-      my $val = $conf->{ $name };
-      if ( exists( $val->{"short"} ) ){
+    my $val = $conf->{ $name };
+    if ( exists( $val->{"short"} ) ){
+      if ( length( $name ) <= 17 ){
         create_policy_config_file( $val, $name );
         #apply_policy( $val->{"priority"}, $name );
+      } else {
+        get_logger->error( "$name can not be bigger than 17 chars" );
       }
-    } else {
-      get_logger->error( "$name can not be bigger than 17 chars" );
     }
   }
 }
