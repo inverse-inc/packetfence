@@ -40,6 +40,20 @@ has_field 'voip' =>  (
              help => 'Enable voip device cleanup' },
 );
 
+has_field 'batch' => (
+    type => 'PosInteger',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&batch_help_text },
+);
+
+has_field 'timeout' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
+);
+
 =head2 default_type
 
 default value of type
