@@ -16,12 +16,18 @@ use strict;
 use warnings;
 use pf::log;
 
+BEGIN {
+  use Exporter ();
+  our ( @ISA, @EXPORT );
+  @ISA = qw(Exporter);
+  @EXPORT = qw(
+    is_protocol_available
+  );
+}
+
 sub system_protocols_hash {
-    my $protocols_file = shift;
-    if ( undef $protocols_file ) {
-        $protocols_file = "/etc/protocols";
-    }
-    open( my $info, $protocols_file or die "Not able to open $protocols_file: $!" );
+    my $protocols_file = "/etc/protocols";
+    open( my $info, "<" , $protocols_file) or die "Not able to open $protocols_file: $!" ;
     my %protocols;
     while( my $line = <$info>)  {
       chomp $line;
@@ -31,7 +37,10 @@ sub system_protocols_hash {
 	my $prot_id        = shift( @s );
 	my $prot_name_upper= shift( @s );
 	my $prot_comment   = join( " ", @s );
-        $protocols{ $prot_name_lower } = { "prot_id" => $prot_id, "prot_name_upper" => $prot_name_upper , "prot_comment" => $prot_comment };
+        if ( defined $prot_name_lower ) {
+          my %val = ( 'prot_id' => $prot_id, 'prot_name_upper' => $prot_name_upper , 'prot_comment' => $prot_comment );
+          $protocols{ $prot_name_lower } = %val;
+        }
       }
     }
     close( $info );
