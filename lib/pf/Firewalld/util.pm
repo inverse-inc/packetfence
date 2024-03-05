@@ -74,20 +74,8 @@ use Data::Dumper;
 sub util_prepare_firewalld_config {
   my $conf = shift;
   foreach my $k ( keys %{ $conf } ){
-    my $val = $conf->{$k};
-    if ( exists $val->{"short"} ) {
-      foreach my $k2 ( keys %{ $val } ){
-        my @vals = split ( ",", $val->{$k2} );
-        my @nvals;
-        foreach my $v ( @vals ){
-          if ( $v ne $k && exists ( $conf->{$v} ) ){
-            push( @nvals, $conf->{$v} );
-          }
-        }
-        if ( @nvals ){
-          $val->{$k2} = \@nvals;
-        }
-      }
+    if ( exists $conf->{$k}->{"short"} ) {
+      fix_val_children($conf,$k);
     }
   }
 }
@@ -95,22 +83,27 @@ sub util_prepare_firewalld_config {
 sub util_prepare_firewalld_config_simple {
   my $conf = shift;
   foreach my $k ( keys %{ $conf } ){
-    my $val = $conf->{$k};
-      foreach my $k2 ( keys %{ $val } ){
-        my @vals = split ( ",", $val->{$k2} );
-        my @nvals;
-        foreach my $v ( @vals ){
-          if ( $v ne $k && exists ( $conf->{$v} ) ){
-            push( @nvals, $conf->{$v} );
-          }
-        }
-        if ( @nvals ){
-          $val->{$k2} = \@nvals;
-        }
-    }
+    fix_val_children($conf,$k);
   }
 }
 
+sub fix_val_children {
+  my $conf =  shift;
+  my $k  =  shift;
+  my $val = $conf->{$k};
+  foreach my $k2 ( keys %{ $val } ){
+    my @vals = split ( ",", $val->{$k2} );
+    my @nvals; 
+    foreach my $v ( @vals ){
+      if ( $v ne $k && exists ( $conf->{$v} ) ){
+        push( @nvals, $conf->{$v} );
+      }
+    }
+    if ( @nvals ){
+      $val->{$k2} = \@nvals;
+    }
+  }
+}
 
 sub util_get_firewalld_bin {
   my $fbin = `which firewalld`;
