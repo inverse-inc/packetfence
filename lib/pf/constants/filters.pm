@@ -112,6 +112,30 @@ our @NODE_INFO_FIELDS = qw(
   node_info.last_connection_type
 );
 
+our @KANDJI_FIELDS = qw(
+  kandji.device_id
+  kandji.device_name
+  kandji.model
+  kandji.serial_number
+  kandji.platform
+  kandji.os_version
+  kandji.supplemental_build_version
+  kandji.supplemental_os_version_extra
+  kandji.last_check_in
+  kandji.user
+  kandji.asset_tag
+  kandji.blueprint_id
+  kandji.mdm_enabled
+  kandji.agent_installed
+  kandji.is_missing
+  kandji.is_removed
+  kandji.agent_version
+  kandji.first_enrollment
+  kandji.last_enrollment
+  kandji.blueprint_name
+  kandji.lost_mode_status
+);
+
 our @SWITCH_FIELDS = qw(
   switch._ExternalPortalEnforcement
   switch._RoleMap
