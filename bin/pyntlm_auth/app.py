@@ -39,8 +39,11 @@ def dns_lookup(hostname, dns_server):
     if dns_server != "":
         resolver = dns.resolver.Resolver(configure=False)
         resolver.nameservers = dns_server.split(",")
+    else:
+        resolver = dns.resolver.Resolver()
+
     try:
-        answers = dns.resolver.resolve(hostname, 'A')
+        answers = resolver.query(hostname, 'A')
         for answer in answers:
             return answer.address, ""
     except dns.resolver.NXDOMAIN:
@@ -117,7 +120,7 @@ def init_secure_connection():
     error_code = 0
     error_message = ""
     try:
-        secure_channel_connection = netlogon.netlogon(f"ncacn_np:{server_name}[schannel,seal]" , lp, machine_cred)
+        secure_channel_connection = netlogon.netlogon(f"ncacn_np:{server_name}[schannel,seal]", lp, machine_cred)
     except NTSTATUSError as e:
         error_code = e.args[0]
         error_message = e.args[1]
@@ -325,6 +328,7 @@ def ntlm_auth_handler():
 def ping_handler():
     return "pong", HTTPStatus.OK
 
+
 def sd_notify():
     n = sdnotify.SystemdNotifier()
     n.notify("READY=1")
@@ -334,6 +338,40 @@ def sd_notify():
         n.notify("STATUS=Count is {}".format(count))
         count += 1
         time.sleep(30)
+
+
+def password_change_notifier_handler():
+    try:
+        data = request.get_json()
+    except Exception as e:
+        return f"Error processing JSON payload, {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+    if data is None:
+        return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
+    if len(data) == 0:
+        return 'No entries was reported', HTTPStatus.OK
+
+    for entry in data:
+        required_keys = ['recordID', 'eventTime', 'TargetUserName', 'TargetDomainName']
+        for required_key in required_keys:
+            if required_key not in entry:
+                return f'Invalid JSON payload: {required_key} is required', HTTPStatus.UNPROCESSABLE_ENTITY
+        record_id = entry['recordID']
+        date_match = re.search(r"(\d+)", entry['eventTime'])
+        if date_match:
+            event_timestamp = date_match.group()
+        else:
+            return 'Invalid eventTime format', HTTPStatus.UNPROCESSABLE_ENTITY
+        target_domain = entry['TargetDomainName']
+        target_username = entry['TargetUserName']
+
+        print(f'record_id      : {record_id}')
+        print(f'event_time     : {event_timestamp}')
+        print(f'target_domain  : {target_domain}')
+        print(f'target_username: {target_username}')
+
+    return f"Password change notification accepted.", HTTPStatus.ACCEPTED
+
 
 def api():
     global netbios_name
@@ -412,7 +450,8 @@ def api():
             print(f"AD FQDN: {ad_fqdn} resolved with IP: {ip}.")
         else:
             if is_ipv4(ad_server):  # plan B: if it's not resolved then we use the static IP provided in the profile
-                print(f"AD FQDN resolve failed. Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
+                print(
+                    f"AD FQDN resolve failed. Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
                 generate_hosts_entry(ad_server, ad_fqdn)
             else:
                 print("Failed to retrieve IP address of AD server. Terminated.")
@@ -432,6 +471,7 @@ def api():
     app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
     app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
     app.route('/ping', methods=['GET'])(ping_handler)
+    app.route('/password_change', methods=['POST'])(password_change_notifier_handler)
 
     app.run(threaded=True, host='0.0.0.0', port=int(listen_port))
 
