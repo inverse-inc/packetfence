@@ -14,6 +14,8 @@ pf::services::manager::ntlm_auth_api
 
 use strict;
 use warnings;
+use pf::db;
+
 use Moo;
 use pf::config qw(
     %ConfigDomain
@@ -39,6 +41,16 @@ sub generateConfig {
     pf_run("sudo mkdir -p $generated_conf_dir/" . $self->name() . ".d/");
     pf_run("sudo rm -rf $generated_conf_dir/" . $self->name() . ".d/*.env");
 
+
+    my $db_config = pf::db::db_config();
+
+    my $db_host=$db_config->{'host'};
+    my $db_port=$db_config->{'port'};
+    my $db_user=$db_config->{'user'};
+    my $db_pass=$db_config->{'pass'};
+    my $db=$db_config->{'db'};
+
+
     for my $identifier (keys(%ConfigDomain)) {
         my %conf = %{$ConfigDomain{$identifier}};
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
@@ -48,6 +60,12 @@ sub generateConfig {
             pf_run("sudo echo 'HOST=$ntlm_auth_host' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'LISTEN=$ntlm_auth_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'IDENTIFIER=$identifier' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+
+            pf_run("sudo echo 'DB_HOST=$db_host' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            pf_run("sudo echo 'DB_PORT=$db_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            pf_run("sudo echo 'DB_USER=$db_user' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            pf_run("sudo echo 'DB_PASS=$db_pass' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            pf_run("sudo echo 'DB=$db' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
         }
     }
 }
