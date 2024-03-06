@@ -182,6 +182,7 @@ sub new {
         '_VpnMap'                       => 'enabled',
         '_NetworkMap'                   => 'enabled',
         '_NetworkFromMap'               => 'disabled',
+        '_InterfaceMap'                 => 'enabled',
         '_UsePushACLs'                  => 'disabled',
         '_UseDownloadableACLs'          => 'disabled',
         '_DownloadableACLsLimit'        => 0,

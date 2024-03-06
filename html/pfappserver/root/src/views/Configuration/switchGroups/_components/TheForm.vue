@@ -177,6 +177,17 @@
                   />
                 </template>
               </div>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Interface mapping to Access List'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <template v-if="isInterfaceMap">
+                  <form-group-role-map-interface v-for="role in roles" :key="`${role}Interface`"
+                                                   :namespace="`${role}Interface`"
+                                                   :column-label="role"
+                  />
+                </template>
+              </div>
             </b-card>
           </base-form-tab>
 
@@ -559,6 +570,7 @@ import {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleMapInterface,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -587,6 +599,7 @@ import {
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
   FormGroupToggleNetworkMap,
+  FormGroupToggleInterfaceMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
@@ -640,6 +653,7 @@ const components = {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleMapInterface,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -668,6 +682,7 @@ const components = {
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
   FormGroupToggleNetworkMap,
+  FormGroupToggleInterfaceMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,

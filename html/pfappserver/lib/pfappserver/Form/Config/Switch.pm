@@ -145,6 +145,12 @@ has_field 'UrlMap' =>
    label => 'Role by Web Auth URL',
    default => undef,
   );
+has_field 'InterfaceMap' =>
+  (
+   type => 'Toggle',
+   label => 'Interface to apply Role ACL',
+   default => undef,
+  );
 has_field 'cliAccess' =>
   (
    type => 'Toggle',
@@ -512,6 +518,7 @@ addRoleMapping("AccessListMapping", "accesslist");
 addRoleMapping("VpnMapping", "vpn");
 addRoleMapping("NetworkMapping", "network");
 addRoleMapping("NetworkFromMapping", "networkfrom");
+addRoleMapping("InterfaceMapping", "interface");
 
 sub _validate_acl_switch {
     my ($field) = @_;

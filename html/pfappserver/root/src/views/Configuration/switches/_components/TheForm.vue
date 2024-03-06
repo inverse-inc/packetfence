@@ -178,6 +178,21 @@
                   />
                 </template>
               </div>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Interface mapping by Access List'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-interface-map namespace="InterfaceMap"
+                  :column-label="$i18n.t('Interface by Access List')"
+                  :text="$i18n.t('Define the interface name where the acl associated to the role will be applied.')"
+                />
+
+                <template v-if="isInterfaceMap">
+                  <form-group-role-map-interface v-for="role in roles" :key="`${role}Interface`" :namespace="`${role}Interface`"
+                    :column-label="role"
+                  />
+                </template>
+              </div>
             </b-card>
           </base-form-tab>
 
