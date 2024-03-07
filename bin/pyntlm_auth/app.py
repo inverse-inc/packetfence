@@ -340,39 +340,6 @@ def sd_notify():
         time.sleep(30)
 
 
-def password_change_notifier_handler():
-    try:
-        data = request.get_json()
-    except Exception as e:
-        return f"Error processing JSON payload, {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-    if data is None:
-        return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
-    if len(data) == 0:
-        return 'No entries was reported', HTTPStatus.OK
-
-    for entry in data:
-        required_keys = ['recordID', 'eventTime', 'TargetUserName', 'TargetDomainName']
-        for required_key in required_keys:
-            if required_key not in entry:
-                return f'Invalid JSON payload: {required_key} is required', HTTPStatus.UNPROCESSABLE_ENTITY
-        record_id = entry['recordID']
-        date_match = re.search(r"(\d+)", entry['eventTime'])
-        if date_match:
-            event_timestamp = date_match.group()
-        else:
-            return 'Invalid eventTime format', HTTPStatus.UNPROCESSABLE_ENTITY
-        target_domain = entry['TargetDomainName']
-        target_username = entry['TargetUserName']
-
-        print(f'record_id      : {record_id}')
-        print(f'event_time     : {event_timestamp}')
-        print(f'target_domain  : {target_domain}')
-        print(f'target_username: {target_username}')
-
-    return f"Password change notification accepted.", HTTPStatus.ACCEPTED
-
-
 def api():
     global netbios_name
     global realm
@@ -471,7 +438,6 @@ def api():
     app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
     app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
     app.route('/ping', methods=['GET'])(ping_handler)
-    app.route('/password_change', methods=['POST'])(password_change_notifier_handler)
 
     app.run(threaded=True, host='0.0.0.0', port=int(listen_port))
 
