@@ -19,8 +19,8 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw(
-    $provisioner_filters_config_file
-    $provisioner_filters_config_default_file
+    $provisioning_filters_config_file
+    $provisioning_filters_config_default_file
 );
 use pf::IniFiles;
 
@@ -28,10 +28,10 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $provisioner_filters_config_file;
+    $self->{file} = $provisioning_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::ProvisionerScopes'];
 
-    my $defaults = pf::IniFiles->new( -file => $provisioner_filters_config_default_file, -envsubst => 1 );
+    my $defaults = pf::IniFiles->new( -file => $provisioning_filters_config_default_file, -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
 }
 
