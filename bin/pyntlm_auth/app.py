@@ -8,17 +8,17 @@ import socket
 import sys
 import threading
 import time
-import sdnotify
-from threading import Thread
 from configparser import ConfigParser
 from http import HTTPStatus
+from threading import Thread
 
 import dns.resolver
+import sdnotify
 from flask import Flask, request
 from samba import param, NTSTATUSError, ntstatus
 from samba.credentials import Credentials, DONT_USE_KERBEROS
 from samba.dcerpc import netlogon
-from samba.dcerpc.misc import SEC_CHAN_WKSTA, SEC_CHAN_DOMAIN
+from samba.dcerpc.misc import SEC_CHAN_WKSTA
 from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT, MSV1_0_ALLOW_MSVCHAPV2)
 
 
@@ -229,7 +229,7 @@ def test_password_handler():
     return "OK", HTTPStatus.OK
 
 
-def ntlm_auth_handler():
+def transitive_login(account_username, challenge, nt_response):
     global machine_cred
     global secure_channel_connection
     global connection_id
@@ -237,21 +237,6 @@ def ntlm_auth_handler():
     global server_name
     global domain
     global workstation
-    try:
-        data = request.get_json()
-
-        if data is None:
-            return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
-        if 'username' not in data or 'request-nt-key' not in data or 'challenge' not in data or 'nt-response' not in data:
-            return 'Invalid JSON payload format, missing required keys', HTTPStatus.UNPROCESSABLE_ENTITY
-
-        account_username = data['username']
-        challenge = data['challenge']
-        nt_response = data['nt-response']
-
-    except Exception as e:
-        return f"Error processing JSON payload, {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR
-
     secure_channel_connection, machine_cred, connection_id, error_code, error_message = get_secure_channel_connection()
     if error_code != 0:
         return "Error while establishing secure channel connection: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
@@ -309,7 +294,7 @@ def ntlm_auth_handler():
                 return nt_error_message, HTTPStatus.NOT_FOUND
             if nt_error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
                 return nt_error_message, HTTPStatus.UNAUTHORIZED
-            if nt_error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:  # we should stop retrying after failures, then it will probably lock the user.
+            if nt_error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:  # we should stop retrying after failures
                 return nt_error_message, HTTPStatus.LOCKED
             if nt_error_code == ntstatus.NT_STATUS_LOGIN_WKSTA_RESTRICTION:
                 return nt_error_message, HTTPStatus.UNAUTHORIZED
@@ -323,6 +308,35 @@ def ntlm_auth_handler():
             reconnect_id = connection_id
             print(f"  Failed while authenticating user: '{account_username}' with General Error: {e}.")
             return "Error handling request", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def ntlm_auth_handler():
+    global nt_key_cache_enabled
+    global nt_key_cache_expire
+    global nt_key_cache
+
+    try:
+        data = request.get_json()
+
+        if data is None:
+            return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
+        if 'username' not in data or 'request-nt-key' not in data or 'challenge' not in data or 'nt-response' not in data:
+            return 'Invalid JSON payload format, missing required keys', HTTPStatus.UNPROCESSABLE_ENTITY
+
+        mac = data['mac']
+        account_username = data['username']
+        challenge = data['challenge']
+        nt_response = data['nt-response']
+
+    except Exception as e:
+        return f"Error processing JSON payload, {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+    if nt_key_cache_enabled:
+        print(f"  NT Key cache is enabled.")
+    else:
+        resp_body, resp_code = transitive_login(account_username=account_username, challenge=challenge,
+                                                nt_response=nt_response)
+        return resp_body, resp_code
 
 
 def ping_handler():
@@ -350,6 +364,11 @@ def api():
     global password
     global username
     global server_name
+
+    global nt_key_cache_enabled
+    global nt_key_cache_expire
+    global nt_key_cache
+
     conf_path = "/usr/local/pf/conf/domain.conf"
     listen_port = os.getenv("LISTEN")
     identifier = os.getenv("IDENTIFIER")
@@ -385,6 +404,8 @@ def api():
             password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
             domain = config.get(identifier, 'workgroup').lower()
             dns_servers = config.get(identifier, 'dns_servers')
+            nt_key_cache_enabled = config.get(identifier, 'nt_key_cache_enabled')
+            nt_key_cache_expire = config.get(identifier, 'nt_key_cache_expire')
         else:
             print(f"Section {identifier} does not exist in the config file.")
             sys.exit(1)
@@ -408,6 +429,8 @@ def api():
     print(f"  workgroup: {workgroup}")
     print(f"  machine_account_password: {mask_password(password)}")
     print(f"  dns_servers: {dns_servers}.")
+    print(f"  nt_key_cache_enabled: {nt_key_cache_enabled}")
+    print(f"  nt_key_cache_expire: {nt_key_cache_expire}")
 
     if dns_servers != "":
         generate_resolv_conf(realm, dns_servers)
@@ -458,6 +481,10 @@ if __name__ == '__main__':
     domain = None
     username = None
     server_name = None
+    nt_key_cache_enabled = None
+    nt_key_cache_expire = None
+    nt_key_cache = None
+
     # Run tasks concurrently using multithreading
     t1 = Thread(target=api)
     t2 = Thread(target=sd_notify)
