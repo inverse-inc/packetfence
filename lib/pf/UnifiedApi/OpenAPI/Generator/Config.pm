@@ -18,6 +18,7 @@ use Module::Load;
 use Moo;
 use pf::UnifiedApi::GenerateSpec;
 use pf::constants::pfconf;
+use JSON::MaybeXS;
 
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
@@ -99,6 +100,7 @@ sub resourceParameters {
     if (ref($c) =~ /Config::.*(?<!Subtype)$/ && $c->config_store->importConfigFile) {
         my $ini = Config::IniFiles->new(
             -file => $c->config_store->importConfigFile,
+            -allowempty => 1,
         );
         my $enum = [];
         for my $section ($ini->Sections) {
