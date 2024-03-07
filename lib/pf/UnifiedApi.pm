@@ -2234,6 +2234,15 @@ sub setup_api_v1_config_filter_engines_routes {
         "api.v1.Config.FilterEngines.Switch"
       );
 
+    ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $filter_engines_root,
+        "Config::FilterEngines::ProvisioningFilters",
+        "/provisioning_filters",
+        "/provisioning_filter/#provisioning_filter_id",
+        "api.v1.Config.FilterEngines.Provisioning"
+      );
+
     return ($collection_route, $resource_route);
 }
 
