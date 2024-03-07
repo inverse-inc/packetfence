@@ -1,0 +1,11 @@
+---
+# rsync before tests when doing local development
+- import_playbook: ../pfappserver_common/playbooks/rsync.yml
+  when: lookup("env", "CI") != 'true'
+
+- import_playbook: ../pfappserver_common/playbooks/configure.yml
+
+- import_playbook: ../pfappserver_common/playbooks/localdev.yml
+  when: lookup("env", "CI") != 'true'
+
+- import_playbook: playbooks/run_tests.yml
