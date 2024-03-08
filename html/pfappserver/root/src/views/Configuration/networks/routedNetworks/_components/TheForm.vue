@@ -88,6 +88,11 @@
                                  :disabled="isFakeMacEnabled"
         />
 
+        <form-group-dhcp-reply-ip namespace="dhcp_reply_ip"
+                                 :column-label="$i18n.t('IP Address to reply to')"
+                                 :disabled="isFakeMacEnabled"
+        />
+
         <form-group-dhcp-start namespace="dhcp_start"
                                :column-label="$i18n.t('Starting IP Address')"
                                :disabled="isFakeMacEnabled"
@@ -159,6 +164,7 @@ import {
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpEnd,
   FormGroupDhcpMaxLeaseTime,
+  FormGroupDhcpReplyIp,
   FormGroupDhcpStart,
   FormGroupDns,
   FormGroupFakeMacEnabled,
@@ -187,6 +193,7 @@ const components = {
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpEnd,
   FormGroupDhcpMaxLeaseTime,
+  FormGroupDhcpReplyIp,
   FormGroupDhcpStart,
   FormGroupDns,
   FormGroupFakeMacEnabled,

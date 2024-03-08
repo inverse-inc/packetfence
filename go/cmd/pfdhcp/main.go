@@ -552,7 +552,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			}
 			GlobalOptions = options
 			leaseDuration := handler.leaseDuration
-
+			answer.DstIP = handler.dstIp
 			// Add network options on the fly
 			x, err := decodeOptions(NetScope.IP.String())
 			if err == nil {

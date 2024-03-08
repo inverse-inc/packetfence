@@ -18,6 +18,7 @@ export {
   BaseFormGroupSwitch                       as FormGroupDhcpd,
   BaseFormGroupInput                        as FormGroupDhcpDefaultLeaseTime,
   BaseFormGroupInput                        as FormGroupDhcpEnd,
+  BaseFormGroupChosenOne                    as FormGroupDhcpReplyIp,
   BaseFormGroupInput                        as FormGroupDhcpMaxLeaseTime,
   BaseFormGroupInput                        as FormGroupDhcpStart,
   BaseFormGroupInput                        as FormGroupDns,
