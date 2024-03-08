@@ -1,0 +1,14 @@
+name: Run Cypress E2E Tests
+testcases:
+
+- name: run_e2e
+  steps:
+  - type: html_e2e
+    base_url: "{{.html.pfappserver_baseurl}}"
+    browser: firefox
+    config_file: "cypress/config/cypress.config-configuration.js"
+    tag: "pfappserver_configuration"
+    info:
+    - "{{.result.html_e2e_systemout}}"
+    assertions:
+    - result.html_e2e_code ShouldEqual 0
