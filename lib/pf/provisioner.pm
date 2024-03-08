@@ -258,6 +258,16 @@ sub matchRules {
     return defined $answer || $empty  ? $TRUE : $FALSE;
 }
 
+sub handleAuthorizeEnforce {
+    my ($self, $mac, $data) = @_;
+    my ($answer, $empty) = $self->getAnswerForScope('authorize_enforce', $data);
+    return $TRUE if $empty;
+    return $FALSE if !defined $answer;
+
+    $self->handleAnswer($answer, $data);
+    return $TRUE;
+}
+
 =head2 match
 
 =cut
@@ -347,7 +357,7 @@ sub authorize_apply_role {
 
 sub getAnswerForScope {
     my ($self, $scope, $data) = @_;
-    return $self->access_filter->filterRules('lookup', $data, $self->rules);
+    return $self->access_filter->filterRules($scope, $data, $self->rules);
 }
 
 =head1 AUTHOR

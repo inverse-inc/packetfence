@@ -109,12 +109,7 @@ sub authorize {
     return $FALSE if !$entry->{agent_installed} || $entry->{is_missing} || $entry->{is_removed};
     $node_info = node_view($mac) if !defined $node_info;
     my %data = (node_info => $node_info, kandji => $entry);
-    my ($answer, $empty) = $self->getAnswerForScope('lookup', \%data);
-    return $TRUE if $empty;
-    return $FALSE if !defined $answer;
-
-    $self->handleAnswer($answer, \%data);
-    return $TRUE;
+    return $self->handleAuthorizeEnforce($mac, \%data);
 }
 
 =head2 logger
