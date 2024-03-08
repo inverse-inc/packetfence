@@ -1578,7 +1578,7 @@ sub firewall_sso_call : Public :AllowedAsAction(mac, $mac, ip, $ip, timeout, $ti
     return unless pf::util::validate_argv(\@require,  \@found);
 
     my $timeout = $postdata{'timeout'} || '3600';
-    my $node = node_view($postdata{'mac'});
+    my $node = pf::node::node_view($postdata{'mac'});
     my $client = pf::client::getClient();
     $client->notify( 'firewallsso', (method => "Update", mac => $postdata{'mac'}, ip => $postdata{'ip'}, timeout => $timeout, username => $node->{'pid'}) );
 }
