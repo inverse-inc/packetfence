@@ -47,6 +47,8 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+          rules:
+            $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
           tenantID:
@@ -91,6 +93,8 @@ ConfigProvisioningsMeta:
           pki_provider:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
+            $ref: '#/components/schemas/Meta'
+          rules:
             $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
@@ -141,6 +145,8 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+          rules:
+            $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
           type:
@@ -181,6 +187,8 @@ ConfigProvisioningsMeta:
           protocol:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
+            $ref: '#/components/schemas/Meta'
+          rules:
             $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
@@ -223,6 +231,8 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+          rules:
+            $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
           tenant_code:
@@ -264,6 +274,8 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+          rules:
+            $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
           type:
@@ -318,6 +330,8 @@ ConfigProvisioningsMeta:
           psk_size:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
+            $ref: '#/components/schemas/Meta'
+          rules:
             $ref: '#/components/schemas/Meta'
           security_type:
             $ref: '#/components/schemas/Meta'
@@ -382,6 +396,8 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+          rules:
+            $ref: '#/components/schemas/Meta'
           security_type:
             $ref: '#/components/schemas/Meta'
           server_certificate_path:
@@ -444,6 +460,8 @@ ConfigProvisioningsMeta:
           psk_size:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
+            $ref: '#/components/schemas/Meta'
+          rules:
             $ref: '#/components/schemas/Meta'
           security_type:
             $ref: '#/components/schemas/Meta'
@@ -490,6 +508,8 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+          rules:
+            $ref: '#/components/schemas/Meta'
           service_account:
             $ref: '#/components/schemas/Meta'
           sync_pid:
@@ -527,6 +547,8 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+          rules:
+            $ref: '#/components/schemas/Meta'
           ssid:
             $ref: '#/components/schemas/Meta'
           sync_pid:
@@ -558,6 +580,8 @@ ConfigProvisioningsMeta:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
             $ref: '#/components/schemas/Meta'
+          rules:
+            $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
           type:
@@ -586,6 +610,8 @@ ConfigProvisioningsMeta:
           pki_provider:
             $ref: '#/components/schemas/Meta'
           role_to_apply:
+            $ref: '#/components/schemas/Meta'
+          rules:
             $ref: '#/components/schemas/Meta'
           sync_pid:
             $ref: '#/components/schemas/Meta'
