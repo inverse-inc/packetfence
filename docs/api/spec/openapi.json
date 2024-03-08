@@ -6197,6 +6197,176 @@
             },
             "type" : "object"
          },
+         "ConfigFilterEnginesProvisioningFilter" : {
+            "properties" : {
+               "actions" : {
+                  "default" : null,
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "default" : null,
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "default" : null,
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "actions_synchronous" : {
+                  "default" : "disabled",
+                  "description" : "Actions synchronous",
+                  "type" : "string"
+               },
+               "condition" : {
+                  "default" : {
+                     "op" : "and"
+                  },
+                  "description" : "Condition",
+                  "properties" : {
+                     "field" : {
+                        "default" : null,
+                        "description" : "Field",
+                        "type" : "string"
+                     },
+                     "op" : {
+                        "default" : "and",
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "value" : {
+                        "default" : null,
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "values" : {
+                        "default" : null,
+                        "description" : "Values",
+                        "items" : {
+                           "description" : "Value",
+                           "type" : "string"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Rule Name",
+                  "type" : "string"
+               },
+               "role" : {
+                  "default" : null,
+                  "description" : "Role",
+                  "type" : "string"
+               },
+               "run_actions" : {
+                  "default" : "enabled",
+                  "description" : "Run Actions",
+                  "type" : "string"
+               },
+               "scopes" : {
+                  "default" : [],
+                  "description" : "Scopes",
+                  "items" : {
+                     "description" : "Scopes",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "status" : {
+                  "default" : "enabled",
+                  "description" : "Enable Rule",
+                  "type" : "string"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "condition",
+               "scopes"
+            ],
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilterWrapped" : {
+            "properties" : {
+               "item" : {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+               },
+               "status" : {
+                  "type" : "integer"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFiltersList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ConfigFilterEnginesProvisioningFiltersMeta" : {
+            "properties" : {
+               "meta" : {
+                  "properties" : {
+                     "actions" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "actions_synchronous" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "condition" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "description" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "id" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "role" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "run_actions" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "scopes" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "status" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     }
+                  },
+                  "type" : "object"
+               }
+            },
+            "type" : "object"
+         },
          "ConfigFilterEnginesRADIUSFilter" : {
             "properties" : {
                "answers" : {
@@ -48745,6 +48915,532 @@
             },
             "tags" : [
                "Config/FilterEngines/DNSFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filter/{provisioning_filter_id}" : {
+         "delete" : {
+            "description" : "Delete an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.remove",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/Deleted"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "description" : "Configure vlan filters",
+         "get" : {
+            "description" : "Get an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.get",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "options" : {
+            "description" : "Get meta for an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.resource_options",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFiltersMeta"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains meta for a resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "patch" : {
+            "description" : "Update an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.update",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "201" : {
+                  "$ref" : "#/components/responses/Updated"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "put" : {
+            "description" : "Replace an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.replace",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "201" : {
+                  "$ref" : "#/components/responses/Created"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters" : {
+         "description" : "Configure vlan filters",
+         "get" : {
+            "description" : "List all items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.list",
+            "parameters" : [],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFiltersList"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a list of resources."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "options" : {
+            "description" : "Get meta for a new item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.options",
+            "parameters" : [],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFiltersMeta"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains meta for a resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "post" : {
+            "description" : "Create a new item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.create",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "201" : {
+                  "$ref" : "#/components/responses/Created"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "409" : {
+                  "$ref" : "#/components/responses/Duplicate"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/bulk_delete" : {
+         "description" : "Configure vlan filters",
+         "post" : {
+            "description" : "Delete one or more items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.bulk_delete",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "properties" : {
+                           "items" : {
+                              "items" : {
+                                 "description" : "`PRIMARY_KEY`",
+                                 "type" : "string"
+                              },
+                              "type" : "array"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/bulk_import" : {
+         "description" : "Configure vlan filters",
+         "post" : {
+            "description" : "Create one or more items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.bulk_import",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "properties" : {
+                           "items" : {
+                              "items" : {
+                                 "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                              },
+                              "type" : "array"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/bulk_update" : {
+         "description" : "Configure vlan filters",
+         "patch" : {
+            "description" : "Update one or more items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.bulk_update",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "properties" : {
+                           "items" : {
+                              "items" : {
+                                 "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                              },
+                              "type" : "array"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/search" : {
+         "description" : "Configure vlan filters",
+         "post" : {
+            "description" : "Search all items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.search",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "example" : {
+                        "cursor" : 0,
+                        "limit" : 25
+                     },
+                     "schema" : {
+                        "allOf" : [
+                           {
+                              "$ref" : "#/components/schemas/Search"
+                           },
+                           {
+                              "properties" : {
+                                 "cursor" : {
+                                    "required" : false,
+                                    "type" : "string"
+                                 },
+                                 "fields" : {
+                                    "items" : {
+                                       "type" : "string"
+                                    },
+                                    "required" : true,
+                                    "type" : "array"
+                                 },
+                                 "limit" : {
+                                    "maximum" : 1000,
+                                    "minimum" : 1,
+                                    "required" : false,
+                                    "type" : "integer"
+                                 },
+                                 "sort" : {
+                                    "items" : {
+                                       "type" : "string"
+                                    },
+                                    "required" : true,
+                                    "type" : "array"
+                                 }
+                              },
+                              "required" : [
+                                 "fields"
+                              ]
+                           }
+                        ]
+                     }
+                  }
+               },
+               "description" : "Search for items."
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFiltersList"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a list of resources."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/sort_items" : {
+         "description" : "Configure vlan filters",
+         "patch" : {
+            "description" : "Sort items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.sort_items",
+            "parameters" : [],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
             ]
          }
       },
