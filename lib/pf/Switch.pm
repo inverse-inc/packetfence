@@ -190,6 +190,7 @@ sub new {
         '_ACLsType'                     => undef,
         '_networks'                     => undef,
         '_networks_from'                => undef,
+        '_interfaces'                   => undef,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -4395,7 +4396,12 @@ sub generateAnsibleConfiguration {
 
     foreach my $role (keys %ConfigRoles) {
         my $acls = $self->getRoleAccessListByName($role);
-        next if !defined($acls);
+        my $interfaces = $self->getInterfaceByName($role);
+        if ($interfaces) {
+            my @interfaces = split(',',$interfaces);
+            $vars{'switches'}{$switch_id}{'interface'}{$role} = \@interfaces;
+        }
+	next if !defined($acls);
         my $out_acls;
         my $in_acls;
         while($acls =~ /([^\n]+)\n?/g) {
