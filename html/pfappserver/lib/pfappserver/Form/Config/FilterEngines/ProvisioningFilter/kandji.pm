@@ -32,6 +32,16 @@ sub scopes {
     );
 }
 
+has_field 'type' =>
+  (
+   type => 'Hidden',
+   label => 'Provisioning type',
+   required => 1,
+   messages => { required => 'Please select Provisioning type' },
+   default => 'kandji',
+  );
+
+
 has_field 'role' => (
     type     => 'Select',
     options_method => \&options_role,
