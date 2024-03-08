@@ -72,9 +72,14 @@ ConfigFilterEnginesProvisioningFilter:
       default: enabled
       description: Enable Rule
       type: string
+    type:
+      default: kandji
+      description: Provisioning type
+      type: string
   required:
   - id
   - description
   - condition
   - scopes
+  - type
   type: object

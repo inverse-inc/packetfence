@@ -20,5 +20,7 @@ ConfigFilterEnginesProvisioningFiltersMeta:
           $ref: '#/components/schemas/Meta'
         status:
           $ref: '#/components/schemas/Meta'
+        type:
+          $ref: '#/components/schemas/Meta'
       type: object
   type: object

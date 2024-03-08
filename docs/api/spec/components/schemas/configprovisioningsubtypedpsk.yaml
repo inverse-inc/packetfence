@@ -60,6 +60,13 @@ ConfigProvisioningSubTypeDpsk:
       description: When "Apply role" is enabled, this defines the role to apply when
         the device is authorized with the provisioner.
       type: string
+    rules:
+      default: []
+      description: Nodes with the selected roles will be affected
+      items:
+        description: Nodes with the selected roles will be affected
+        type: string
+      type: array
     ssid:
       default: ~
       description: SSID
