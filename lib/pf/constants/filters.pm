@@ -136,6 +136,62 @@ our @KANDJI_FIELDS = qw(
   kandji.lost_mode_status
 );
 
+our @INTUNE_FIELDS = qw(
+  udid
+  operatingSystem
+  freeStorageSpaceInBytes
+  remoteAssistanceSessionErrorDetails
+  exchangeAccessState
+  managementAgent
+  deviceName
+  ethernetMacAddress
+  userDisplayName
+  managementCertificateExpirationDate
+  userPrincipalName
+  enrolledDateTime
+  emailAddress
+  deviceRegistrationState
+  manufacturer
+  exchangeAccessStateReason
+  deviceEnrollmentType
+  notes
+  azureADRegistered
+  remoteAssistanceSessionUrl
+  managedDeviceName
+  androidSecurityPatchLevel
+  isEncrypted
+  userId
+  activationLockBypassCode
+  easDeviceId
+  subscriberCarrier
+  jailBroken
+  exchangeLastSuccessfulSyncDateTime
+  physicalMemoryInBytes
+  complianceGracePeriodExpirationDateTime
+  serialNumber
+  complianceState
+  lastSyncDateTime
+  deviceHealthAttestationState
+  meid
+  configurationManagerClientEnabledFeatures
+  id
+  azureADDeviceId
+  requireUserEnrollmentApproval
+  imei
+  totalStorageSpaceInBytes
+  osVersion
+  wiFiMacAddress
+  phoneNumber
+  iccid
+  easActivated
+  easActivationDateTime
+  partnerReportedThreatState
+  model
+  deviceCategoryDisplayName
+  managedDeviceOwnerType
+  isSupervised
+);
+
 our @SWITCH_FIELDS = qw(
   switch._ExternalPortalEnforcement
   switch._RoleMap
