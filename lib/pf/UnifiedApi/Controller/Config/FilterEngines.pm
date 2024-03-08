@@ -50,6 +50,11 @@ sub engines {
                     resource   => "switch_filter",
                     name       => "Switch Filters"
                 },
+                {
+                    collection => "provisioning_filters",
+                    resource   => "provisioning_filter",
+                    name       => "Provisioning Filters"
+                },
             ]
         }
     );
