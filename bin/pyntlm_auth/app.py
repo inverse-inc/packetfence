@@ -14,7 +14,8 @@ from threading import Thread
 
 import dns.resolver
 import sdnotify
-from flask import Flask, request
+from flask import Flask, request, g
+from flaskext.mysql import MySQL
 from samba import param, NTSTATUSError, ntstatus
 from samba.credentials import Credentials, DONT_USE_KERBEROS
 from samba.dcerpc import netlogon
@@ -26,6 +27,18 @@ from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_
 def is_ipv4(address):
     ipv4_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
     return bool(ipv4_pattern.match(address))
+
+
+def nt_time_to_datetime(nt_time):
+    if nt_time == 9223372036854775807:
+        return "inf"
+    return datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=nt_time / 10)
+
+
+def to_ymd_hms(unix_timestamp):
+    dt_object = datetime.datetime.fromtimestamp(unix_timestamp)
+    formatted_time = dt_object.strftime('%Y-%m-%d %H:%M:%S')
+    return formatted_time
 
 
 def mask_password(password):
@@ -285,7 +298,7 @@ def transitive_login(account_username, challenge, nt_response):
             nt_key_str = ''.join(nt_key)
             nt_key_str = "NT_KEY: " + nt_key_str
             print(f"  Successfully authenticated '{account_username}', NT_KEY is: '{mask_password(nt_key_str)}'.")
-            return nt_key_str.encode("utf-8")
+            return nt_key_str.encode("utf-8"), HTTPStatus.OK
         except NTSTATUSError as e:
             nt_error_code = e.args[0]
             nt_error_message = e.args[1]
@@ -314,14 +327,17 @@ def ntlm_auth_handler():
     global nt_key_cache_enabled
     global nt_key_cache_expire
     global nt_key_cache
+    global domain
 
     try:
-        data = request.get_json()
+        required_keys = {'username', 'mac', 'request-nt-key', 'challenge', 'nt-response'}
 
+        data = request.get_json()
         if data is None:
             return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
-        if 'username' not in data or 'request-nt-key' not in data or 'challenge' not in data or 'nt-response' not in data:
-            return 'Invalid JSON payload format, missing required keys', HTTPStatus.UNPROCESSABLE_ENTITY
+        for required_key in required_keys:
+            if required_key not in data:
+                return f'Invalid payload format, missing required key {required_key}', HTTPStatus.UNPROCESSABLE_ENTITY
 
         mac = data['mac']
         account_username = data['username']
@@ -333,7 +349,26 @@ def ntlm_auth_handler():
 
     if nt_key_cache_enabled:
         print(f"  NT Key cache is enabled.")
+
+        cache_key_prefix="nt_key_cache"
+        cache_key_root=f"{cache_key_prefix}|{domain}|{account_username}"
+        cache_key_device=f"{cache_key_prefix}|{domain}|{account_username}|{mac}"
+
+        print(f"authoritative cache entry: {cache_key_root}")
+        print(f"device cache entry: {cache_key_device}")
+
+        if hasattr(g, 'db'):
+            query = "SELECT * FROM `chi_cache` WHERE `key` = %s"
+            g.db.execute(query, cache_key_root)
+            cache_entry_root = g.db.fetchall()
+            g.db.execute(query, cache_key_device)
+            cache_entry_device = g.db.fetchall()
+
+            print(f"    -- root entry: {cache_entry_root}")
+            print(f"    -- dev entry: {cache_entry_device}")
+        return '', HTTPStatus.OK
     else:
+        print(f"  NT key cache is disabled.")
         resp_body, resp_code = transitive_login(account_username=account_username, challenge=challenge,
                                                 nt_response=nt_response)
         return resp_body, resp_code
@@ -373,9 +408,16 @@ def api():
     listen_port = os.getenv("LISTEN")
     identifier = os.getenv("IDENTIFIER")
 
+    db_host = os.getenv("DB_HOST")
+    db_port = os.getenv("DB_PORT")
+    db_user = os.getenv("DB_USER")
+    db_pass = os.getenv("DB_PASS")
+    db = os.getenv("DB")
+
     print("NTLM auth api starts with the following parameters:")
     print(f"LISTEN = {listen_port}")
     print(f"IDENTIFIER = {identifier}.")
+    print(f"DB {db_user}:***@{db_host}:{db_port}/{db}")
 
     if identifier == "" or listen_port == "":
         print("Unable to start NTLM auth API: Missing key arguments: 'IDENTIFIER' or 'LISTEN'.")
@@ -404,8 +446,11 @@ def api():
             password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
             domain = config.get(identifier, 'workgroup').lower()
             dns_servers = config.get(identifier, 'dns_servers')
-            nt_key_cache_enabled = config.get(identifier, 'nt_key_cache_enabled')
-            nt_key_cache_expire = config.get(identifier, 'nt_key_cache_expire')
+            nt_key_cache_enabled = config.get(identifier, 'nt_key_cache_enabled', fallback=False)
+            nt_key_cache_expire = config.get(identifier, 'nt_key_cache_expire', fallback=3600)
+
+            if nt_key_cache_enabled and nt_key_cache_expire < 60:
+                nt_key_cache_expire = 60  # we set min nt_key_expiration time to 1 min.
         else:
             print(f"Section {identifier} does not exist in the config file.")
             sys.exit(1)
@@ -457,6 +502,27 @@ def api():
     server_name = ad_fqdn
 
     app = Flask(__name__)
+
+    app.config['MYSQL_DATABASE_HOST'] = db_host
+    app.config['MYSQL_DATABASE_PORT'] = int(db_port)
+    app.config['MYSQL_DATABASE_USER'] = db_user
+    app.config['MYSQL_DATABASE_PASSWORD'] = db_pass
+    app.config['MYSQL_DATABASE_DB'] = db
+
+    mysql = MySQL(autocommit=True)
+    mysql.init_app(app)
+
+    @app.before_request
+    def before_request():
+        g.db = mysql.get_db().cursor()
+        print(f"  ----db is: {g.db}")
+
+    @app.teardown_request
+    def teardown_request(exception=None):
+        if hasattr(g, 'db'):
+            print("  ---- db on closing...")
+            g.db.close()
+
     app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)
     app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
     app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
