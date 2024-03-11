@@ -7,7 +7,7 @@
 #
 # TODO this test should be migrated into `bin/pfcmd service ... watch`
 #
-# Copyright (C) 2005-2023 Inverse inc.
+# Copyright (C) 2005-2024 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #
