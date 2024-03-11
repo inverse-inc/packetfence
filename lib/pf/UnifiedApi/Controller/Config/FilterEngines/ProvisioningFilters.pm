@@ -24,10 +24,12 @@ has 'primary_key' => 'provisioning_filter_id';
 use pf::ConfigStore::ProvisioningFilters;
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::kandji;
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::intune;
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::google_workspace_chromebook;
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::FilterEngines::ProvisioningFilter::$_" } qw(
       kandji
       intune
+      google_workspace_chromebook
     )
 );
 
