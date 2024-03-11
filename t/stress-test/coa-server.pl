@@ -90,7 +90,7 @@ Christopher Masto.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 Changes (c) 2002,2003 Luis E. Muñoz <luismunoz@cpan.org>.
 
