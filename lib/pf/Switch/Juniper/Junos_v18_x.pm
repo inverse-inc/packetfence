@@ -28,7 +28,7 @@ Currently, these two technologies cannot be enabled at the same time on the port
 use strict;
 use warnings;
 
-use base ('pf::Switch::Juniper::Junos::Junos_v15_x');
+use base ('pf::Switch::Juniper::Junos_v15_x');
 
 use pf::constants;
 sub description { 'Junos v18.x' }
