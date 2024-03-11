@@ -4401,29 +4401,30 @@ sub generateAnsibleConfiguration {
             my @interfaces = split(',',$interfaces);
             $vars{'switches'}{$switch_id}{'interface'}{$role} = \@interfaces;
         }
-	next if !defined($acls);
-        my $out_acls;
-        my $in_acls;
-        while($acls =~ /([^\n]+)\n?/g) {
-            my $acl_line = $1;
-            if ($acl_line =~ /^(out\|)(.*)/) {
-                $out_acls .= $2."\n";
-            } elsif ($acl_line =~ /^(in\|)(.*)/) {
-                $in_acls .= $2."\n";
-            } else {
-                $in_acls .= $acl_line."\n";
+        if (defined($acls)) {
+            my $out_acls;
+            my $in_acls;
+            while($acls =~ /([^\n]+)\n?/g) {
+                my $acl_line = $1;
+                if ($acl_line =~ /^(out\|)(.*)/) {
+                    $out_acls .= $2."\n";
+                } elsif ($acl_line =~ /^(in\|)(.*)/) {
+                    $in_acls .= $2."\n";
+                } else {
+                    $in_acls .= $acl_line."\n";
+                }
             }
-        }
-        my $implicit_acl = $self->implicit_acl();
-        if ((!defined($in_acls) || $in_acls eq "") && $implicit_acl) {
-            $vars{'switches'}{$switch_id}{'acls'}{$role} = $implicit_acl;
-        } elsif (defined($in_acls)) {
-            $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
-        }
-        if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
-            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
-        } elsif (defined($out_acls)) {
-            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+            my $implicit_acl = $self->implicit_acl();
+            if ((!defined($in_acls) || $in_acls eq "") && $implicit_acl) {
+                $vars{'switches'}{$switch_id}{'acls'}{$role} = $implicit_acl;
+            } elsif (defined($in_acls)) {
+                $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
+            }
+            if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
+                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
+            } elsif (defined($out_acls)) {
+                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+            }
         }
     }
 
@@ -4431,7 +4432,7 @@ sub generateAnsibleConfiguration {
 
     $tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/inventory.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/ansible.cfg") or die $tt->error();
-    $tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/switch_acls.yml", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
     find(\&pf::util::chown_pf, "$var_dir/conf/pfsetacls/$switch_id/");
     if (-e "$var_dir/conf/pfsetacls/$switch_id/ansible.log") { unlink "$var_dir/conf/pfsetacls/$switch_id/ansible.log" };

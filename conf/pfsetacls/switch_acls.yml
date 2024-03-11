@@ -31,3 +31,19 @@
       arubanetworks.aoscx.aoscx_config:
         src: "{{ acl_config }}"
       when: ansible_network_os == 'arubanetworks.aoscx.aoscx'
+
+[% FOREACH role IN interfaces.keys %]
+[% FOREACH interface IN interfaces.$role %]
+    - name: Merge module attributes of given access-groups
+      cisco.ios.ios_acl_interfaces:
+        config:
+          - name: [% interface %]
+            access_groups:
+              - afi: ipv4
+                acls:
+                  - name: [% role %]
+                    direction: in
+        state: merged
+      when: ansible_network_os == 'cisco.ios.ios'
+[% END %]
+[% END %]
