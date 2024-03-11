@@ -1,4 +1,4 @@
-package pfconfig::namespaces::config::ProvisionerFilters;
+package pfconfig::namespaces::config::ProvisioningFilters;
 
 =head1 NAME
 
@@ -29,7 +29,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $provisioning_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::ProvisionerScopes'];
+    $self->{child_resources} = [ 'FilterEngine::ProvisioningScopes'];
 
     my $defaults = pf::IniFiles->new( -file => $provisioning_filters_config_default_file, -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
