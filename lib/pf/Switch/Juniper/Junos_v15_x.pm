@@ -17,13 +17,9 @@ Developed and tested on Juniper ex2200 running on JUNOS 15.1
 use strict;
 use warnings;
 
-use base ('pf::Switch::Juniper::Junos::Junos_v13_x');
+use base ('pf::Switch::Juniper::Junos_v13_x');
 
 use pf::constants;
-use pf::config qw(
-    $WIRED_802_1X
-    $WIRED_MAC_AUTH
-);
 sub description { 'Junos v15.x' }
 
 # importing switch constants
