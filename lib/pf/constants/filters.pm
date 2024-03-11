@@ -192,6 +192,54 @@ our @INTUNE_FIELDS = qw(
   intune.isSupervised
 );
 
+our @GOOGLE_FIELDS = qw(
+  deviceId
+  serialNumber
+  status
+  lastSync
+  supportEndDate
+  annotatedUser
+  annotatedLocation
+  notes
+  model
+  meid
+  orderNumber
+  willAutoRenew
+  osVersion
+  platformVersion
+  firmwareVersion
+  macAddress
+  bootMode
+  lastEnrollmentTime
+  kind
+  ethernetMacAddress
+  annotatedAssetId
+  etag
+  systemRamTotal
+  autoUpdateExpiration
+  ethernetMacAddress0
+  dockMacAddress
+  manufactureDate
+  orgUnitPath
+  tpmVersionInfo.family
+  tpmVersionInfo.specLevel
+  tpmVersionInfo.manufacturer
+  tpmVersionInfo.tpmModel
+  tpmVersionInfo.firmwareVersion
+  tpmVersionInfo.vendorSpecific
+  orgUnitId
+  osUpdateStatus.state
+  osUpdateStatus.targetOsVersion
+  osUpdateStatus.targetKioskAppVersion
+  osUpdateStatus.updateTime
+  osUpdateStatus.updateCheckTime
+  osUpdateStatus.rebootTime
+  firstEnrollmentTime
+  lastDeprovisionTimestamp
+  deprovisionReason
+  deviceLicenseType
+);
+
 our @SWITCH_FIELDS = qw(
   switch._ExternalPortalEnforcement
   switch._RoleMap
