@@ -6198,6 +6198,250 @@
             "type" : "object"
          },
          "ConfigFilterEnginesProvisioningFilter" : {
+            "description" : "Choose one of the request bodies by discriminator (`type`). ",
+            "discriminator" : {
+               "mapping" : {
+                  "google_workspace_chromebook" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook",
+                  "intune" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune",
+                  "kandji" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji"
+               },
+               "propertyName" : "type"
+            },
+            "oneOf" : [
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji"
+               }
+            ]
+         },
+         "ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook" : {
+            "properties" : {
+               "actions" : {
+                  "default" : null,
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "default" : null,
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "default" : null,
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "actions_synchronous" : {
+                  "default" : "disabled",
+                  "description" : "Actions synchronous",
+                  "type" : "string"
+               },
+               "condition" : {
+                  "default" : {
+                     "op" : "and"
+                  },
+                  "description" : "Condition",
+                  "properties" : {
+                     "field" : {
+                        "default" : null,
+                        "description" : "Field",
+                        "type" : "string"
+                     },
+                     "op" : {
+                        "default" : "and",
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "value" : {
+                        "default" : null,
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "values" : {
+                        "default" : null,
+                        "description" : "Values",
+                        "items" : {
+                           "description" : "Value",
+                           "type" : "string"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Rule Name",
+                  "type" : "string"
+               },
+               "role" : {
+                  "default" : null,
+                  "description" : "Role",
+                  "type" : "string"
+               },
+               "run_actions" : {
+                  "default" : "enabled",
+                  "description" : "Run Actions",
+                  "type" : "string"
+               },
+               "scopes" : {
+                  "default" : [],
+                  "description" : "Scopes",
+                  "items" : {
+                     "description" : "Scopes",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "status" : {
+                  "default" : "enabled",
+                  "description" : "Enable Rule",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "google_workspace_chromebook",
+                  "description" : "Discriminator `google_workspace_chromebook`",
+                  "type" : "string",
+                  "value" : "google_workspace_chromebook"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "condition",
+               "scopes",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilterSubTypeIntune" : {
+            "properties" : {
+               "actions" : {
+                  "default" : null,
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "default" : null,
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "default" : null,
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "actions_synchronous" : {
+                  "default" : "disabled",
+                  "description" : "Actions synchronous",
+                  "type" : "string"
+               },
+               "condition" : {
+                  "default" : {
+                     "op" : "and"
+                  },
+                  "description" : "Condition",
+                  "properties" : {
+                     "field" : {
+                        "default" : null,
+                        "description" : "Field",
+                        "type" : "string"
+                     },
+                     "op" : {
+                        "default" : "and",
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "value" : {
+                        "default" : null,
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "values" : {
+                        "default" : null,
+                        "description" : "Values",
+                        "items" : {
+                           "description" : "Value",
+                           "type" : "string"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Rule Name",
+                  "type" : "string"
+               },
+               "role" : {
+                  "default" : null,
+                  "description" : "Role",
+                  "type" : "string"
+               },
+               "run_actions" : {
+                  "default" : "enabled",
+                  "description" : "Run Actions",
+                  "type" : "string"
+               },
+               "scopes" : {
+                  "default" : [],
+                  "description" : "Scopes",
+                  "items" : {
+                     "description" : "Scopes",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "status" : {
+                  "default" : "enabled",
+                  "description" : "Enable Rule",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "intune",
+                  "description" : "Discriminator `intune`",
+                  "type" : "string",
+                  "value" : "intune"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "condition",
+               "scopes",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilterSubTypeKandji" : {
             "properties" : {
                "actions" : {
                   "default" : null,
@@ -6294,8 +6538,9 @@
                },
                "type" : {
                   "default" : "kandji",
-                  "description" : "Provisioning type",
-                  "type" : "string"
+                  "description" : "Discriminator `kandji`",
+                  "type" : "string",
+                  "value" : "kandji"
                }
             },
             "required" : [
@@ -6337,44 +6582,131 @@
             ]
          },
          "ConfigFilterEnginesProvisioningFiltersMeta" : {
-            "properties" : {
-               "meta" : {
+            "discriminator" : {
+               "propertyName" : "type"
+            },
+            "oneOf" : [
+               {
                   "properties" : {
-                     "actions" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "actions_synchronous" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "condition" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "description" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "id" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "role" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "run_actions" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "scopes" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "status" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "type" : {
-                        "$ref" : "#/components/schemas/Meta"
+                     "meta" : {
+                        "properties" : {
+                           "actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "actions_synchronous" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "condition" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "run_actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "scopes" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               },
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "actions_synchronous" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "condition" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "run_actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "scopes" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               },
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "actions_synchronous" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "condition" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "run_actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "scopes" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
                      }
                   },
                   "type" : "object"
                }
-            },
-            "type" : "object"
+            ]
          },
          "ConfigFilterEnginesRADIUSFilter" : {
             "properties" : {
@@ -21694,7 +22026,7 @@
                   "type" : "object"
                },
                "id" : {
-                  "default" : 3000008,
+                  "default" : null,
                   "description" : "Use a number above 1500000 if you want to be able to delete this security event later.",
                   "type" : "string"
                },
