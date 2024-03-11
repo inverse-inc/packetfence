@@ -44,6 +44,13 @@ export default [
     beforeEnter
   },
   {
+    path: 'filter_engines/:collection/:type/new',
+    name: 'newFilterEngineSubType',
+    component: TheView,
+    props: (route) => ({ collection: route.params.collection, type: route.params.type, isNew: true }),
+    beforeEnter
+  },
+  {
     path: 'filter_engines/:collection/:id',
     name: 'filter_engine',
     component: TheView,
