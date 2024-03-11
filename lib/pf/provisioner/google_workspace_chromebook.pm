@@ -147,7 +147,8 @@ sub authorize {
             node_modify($mac, pid => $recent_user);
         }
 
-        return $TRUE;
+        my $node_info = node_view($mac);
+        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, google_workspace_chromebook => $device});
     }
 
     return $FALSE;
