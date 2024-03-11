@@ -29,8 +29,8 @@ use Time::HiRes qw(time);
 use pfconfig::cached_hash;
 use pf::access_filter::provisioner;
 
-our %ProvisionerScopes;
-tie %ProvisionerScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
+our %ProvisioningScopes;
+tie %ProvisioningScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
 
 =head1 Constants
 
@@ -230,10 +230,10 @@ sub matchOS {
 
 sub _getRulesForScope {
     my ($self, $scope) = @_;
-    return if !exists $ProvisionerScopes{$scope};
+    return if !exists $ProvisioningScopes{$scope};
     my @rulesIds = @{$self->rules};
     return if @rulesIds == 0;
-    my $scopeLookup = $ProvisionerScopes{$scope};
+    my $scopeLookup = $ProvisioningScopes{$scope};
     my @rules;
     for my $id (@rulesIds) {
         next if !exists $scopeLookup->{$id};

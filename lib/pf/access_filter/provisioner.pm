@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use base qw(pf::access_filter);
 
-tie our %ProvisionerScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
+tie our %ProvisioningScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisioningScopes';
 
 
 sub filterRules {
@@ -32,8 +32,8 @@ sub filterRules {
 sub _getRulesForScope {
     my ($self, $scope, $ruleIds) = @_;
     return if @{$ruleIds} == 0;
-    return if !exists $ProvisionerScopes{$scope};
-    my $scopeLookup = $ProvisionerScopes{$scope};
+    return if !exists $ProvisioningScopes{$scope};
+    my $scopeLookup = $ProvisioningScopes{$scope};
     return if !defined $scopeLookup;
     my @rules;
     for my $id (@$ruleIds) {
