@@ -18,7 +18,7 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 use Net::SNMP;
-use base ('pf::Switch::Extreme::Summit::EXOS');
+use base ('pf::Switch::Extreme::EXOS');
 
 # importing switch constants
 use pf::Switch::constants;
@@ -173,7 +173,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
