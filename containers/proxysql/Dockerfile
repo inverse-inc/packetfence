@@ -6,7 +6,7 @@ FROM ${from} as build
 
 ENV MAKE=make
 ENV MAKEOPT="-j 1"
-ENV CURVER=2.4.1
+ENV CURVER=2.6.0
 ENV PKG_RELEASE=debian11
 ENV PROXYSQL_BUILD_TYPE=clickhouse
 ENV CC=cc
@@ -52,7 +52,7 @@ WORKDIR /opt
 ARG source=https://github.com/inverse-inc/proxysql.git
 
 RUN mkdir -p /root/ctl
-ARG COMMIT_ID=df2e941a72195b040c52f4c8a877d00c8166d924
+ARG COMMIT_ID=9878ed32d7e130d3b812b488ea5958b7cd5a7e35
 RUN git clone -qq ${source}
 WORKDIR proxysql
 RUN git checkout $COMMIT_ID
