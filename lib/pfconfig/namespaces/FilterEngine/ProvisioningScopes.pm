@@ -1,14 +1,14 @@
-package pfconfig::namespaces::FilterEngine::ProvisionerScopes;
+package pfconfig::namespaces::FilterEngine::ProvisioningScopes;
 
 =head1 NAME
 
-pfconfig::namespaces::FilterEngine::ProvisionerScopes
+pfconfig::namespaces::FilterEngine::ProvisioningScopes
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::FilterEngine::ProvisionerScopes
+pfconfig::namespaces::FilterEngine::ProvisioningScopes
 
 =cut
 
@@ -16,14 +16,14 @@ use strict;
 use warnings;
 use pf::log;
 use pfconfig::namespaces::config;
-use pfconfig::namespaces::config::ProvisionerFilters;
+use pfconfig::namespaces::config::ProvisioningFilters;
 use pf::config::builder::filter_engine::provisioner;
 
 use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
 
 sub parentConfig {
     my ($self) = @_;
-    return pfconfig::namespaces::config::ProvisionerFilters->new($self->{cache});
+    return pfconfig::namespaces::config::ProvisioningFilters->new($self->{cache});
 }
 
 
