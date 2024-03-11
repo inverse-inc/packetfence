@@ -78,16 +78,16 @@ sub id {
 }
 
 sub post_update {
-    my ($self, $switch_id) = @_;
+    my ($self, $switch_id, $old) = @_;
     my $switch = pf::SwitchFactory->instantiate($switch_id);
     if ($switch) {
-        $switch->generateAnsibleConfiguration();
+        $switch->generateAnsibleConfiguration($old);
     }
 }
 
 sub post_create {
-    my ($self, $switch_id) = @_;
-    $self->post_update($switch_id);
+    my ($self, $switch_id, $old) = @_;
+    $self->post_update($switch_id, $old);
 }
 
 =head2 standardPlaceholder

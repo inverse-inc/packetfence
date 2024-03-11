@@ -397,6 +397,7 @@ sub create {
         return 0;
     }
 
+    my $old_config = $self->item_from_store($id);
     $item = $self->cleanupItemForCreate($item);
     (my $status, $item, my $form) = $self->validate_item($item);
     if (is_error($status)) {
@@ -410,7 +411,7 @@ sub create {
 
     $cs->create($id, $item);
     return unless($self->commit($cs));
-    $self->post_create($id);
+    $self->post_create($id, $old_config);
     my $additional_out = $self->additional_create_out($form, $item);
     $self->stash( $self->primary_key => $id );
     $self->res->headers->location($self->make_location_url($id));
@@ -568,7 +569,7 @@ sub update {
     my $id =  $self->id;
     $cs->update($id, $new_data);
     return unless($self->commit($cs));
-    $self->post_update($id);
+    $self->post_update($id, $old_item);
     $self->render(status => 200, json => $self->update_response($form));
 }
 
