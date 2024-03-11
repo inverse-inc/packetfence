@@ -2,6 +2,7 @@ import binascii
 import configparser
 import datetime
 import hashlib
+import json
 import os
 import re
 import socket
@@ -12,7 +13,7 @@ from configparser import ConfigParser
 from http import HTTPStatus
 from threading import Thread
 
-import dns.resolver
+import pymysql
 import sdnotify
 from flask import Flask, request, g
 from flaskext.mysql import MySQL
@@ -22,74 +23,8 @@ from samba.dcerpc import netlogon
 from samba.dcerpc.misc import SEC_CHAN_WKSTA
 from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT, MSV1_0_ALLOW_MSVCHAPV2)
 
-
-# simplified IPv4 validator.
-def is_ipv4(address):
-    ipv4_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
-    return bool(ipv4_pattern.match(address))
-
-
-def nt_time_to_datetime(nt_time):
-    if nt_time == 9223372036854775807:
-        return "inf"
-    return datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=nt_time / 10)
-
-
-def to_ymd_hms(unix_timestamp):
-    dt_object = datetime.datetime.fromtimestamp(unix_timestamp)
-    formatted_time = dt_object.strftime('%Y-%m-%d %H:%M:%S')
-    return formatted_time
-
-
-def mask_password(password):
-    if len(password) < 4:
-        return '*' * len(password)
-    else:
-        return password[:2] + '*' * (len(password) - 4) + password[-2:]
-
-
-def dns_lookup(hostname, dns_server):
-    if dns_server != "":
-        resolver = dns.resolver.Resolver(configure=False)
-        resolver.nameservers = dns_server.split(",")
-    else:
-        resolver = dns.resolver.Resolver()
-
-    try:
-        answers = resolver.query(hostname, 'A')
-        for answer in answers:
-            return answer.address, ""
-    except dns.resolver.NXDOMAIN:
-        return "", "NXDOMAIN"
-    except dns.exception.DNSException as e:
-        return "", str(e)
-
-
-def generate_empty_conf():
-    with open('/root/default.conf', 'w') as file:
-        file.write("\n")
-
-
-def generate_resolv_conf(dns_name, dns_servers_string):
-    with open('/etc/resolv.conf', 'w') as file:
-        file.write(f"\n")
-        file.write(f"search {dns_name}\n")
-        file.write("\n")
-        file.write("options timeout:1\n")
-        file.write("options attempts:1\n")
-        file.write("\n")
-
-        dns_servers = dns_servers_string.split(",")
-        for dns_server in dns_servers:
-            file.write(f"nameserver {dns_server}\n")
-        file.write("\n")
-
-
-def generate_hosts_entry(ip, hostname):
-    with open('/etc/hosts', 'a') as file:
-        file.write(f"\n")
-        file.write(f"{ip}    {hostname}")
-        file.write("\n")
+import utils
+import config_generator
 
 
 def init_secure_connection():
@@ -107,7 +42,7 @@ def init_secure_connection():
     lp = param.LoadParm()
 
     try:
-        generate_empty_conf()
+        config_generator.generate_empty_conf()
         lp.load("/root/default.conf")
     except KeyError:
         raise KeyError("SMB_CONF_PATH not set")
@@ -145,7 +80,7 @@ def init_secure_connection():
         print(f"  lp.workgroup: {workgroup}")
         print(f"  workstation: {workstation}")
         print(f"  username: {username}")
-        print(f"  password: {mask_password(password)}")
+        print(f"  password: {utils.mask_password(password)}")
         print(f"  set_NT_hash_flag: True")
         print(f"  domain: {domain}")
         print(f"  server_name(ad_fqdn): {server_name}\n")
@@ -297,7 +232,7 @@ def transitive_login(account_username, challenge, nt_response):
             nt_key = [x if isinstance(x, str) else hex(x)[2:].zfill(2) for x in info.base.key.key]
             nt_key_str = ''.join(nt_key)
             nt_key_str = "NT_KEY: " + nt_key_str
-            print(f"  Successfully authenticated '{account_username}', NT_KEY is: '{mask_password(nt_key_str)}'.")
+            print(f"  Successfully authenticated '{account_username}', NT_KEY is: '{utils.mask_password(nt_key_str)}'.")
             return nt_key_str.encode("utf-8"), HTTPStatus.OK
         except NTSTATUSError as e:
             nt_error_code = e.args[0]
@@ -321,6 +256,49 @@ def transitive_login(account_username, challenge, nt_response):
             reconnect_id = connection_id
             print(f"  Failed while authenticating user: '{account_username}' with General Error: {e}.")
             return "Error handling request", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def build_cache_struct(domain, mac, account, nt_key, dirty, bad_password_count, expires_at, last_login):
+    cache = {
+        "domain": domain,
+        "mac": mac,
+        "account": account,
+        "nt_key": nt_key,
+        "dirty": dirty,
+        "bad_password_count": bad_password_count,
+        "expires_at": expires_at,
+        "last_login": last_login
+    }
+    return cache
+
+
+def build_cache_key(domain, account_username, mac):
+    cache_key_prefix = "nt_key_cache"
+    mac = mac.strip()
+    if mac == '':
+        return f"{cache_key_prefix}:{domain}:{account_username}"
+    else:
+        mac = mac.replace(':', '-')
+        return f"{cache_key_prefix}:{domain}:{account_username}:{mac}"
+
+
+def update_cache_entry(key, value, expires_at):
+    query = "INSERT INTO `chi_cache` (`key`, `value`, `expires_at`) VALUES (%s, %s, %s) " \
+            "ON DUPLICATE KEY UPDATE `value` = %s"
+    if hasattr(g, 'db'):
+        g.db.execute(query, key, value, expires_at, value)
+
+
+def expires():
+    return datetime.datetime.now().timestamp() + 3600
+
+
+def now():
+    return datetime.datetime.now().timestamp()
+
+
+def invalid_cache():
+    return
 
 
 def ntlm_auth_handler():
@@ -349,23 +327,45 @@ def ntlm_auth_handler():
 
     if nt_key_cache_enabled:
         print(f"  NT Key cache is enabled.")
-
-        cache_key_prefix="nt_key_cache"
-        cache_key_root=f"{cache_key_prefix}|{domain}|{account_username}"
-        cache_key_device=f"{cache_key_prefix}|{domain}|{account_username}|{mac}"
+        cache_key_root = build_cache_key(domain, account_username, '')
+        cache_key_device = build_cache_key(domain, account_username, mac)
 
         print(f"authoritative cache entry: {cache_key_root}")
         print(f"device cache entry: {cache_key_device}")
 
         if hasattr(g, 'db'):
-            query = "SELECT * FROM `chi_cache` WHERE `key` = %s"
+            query = "SELECT `key`, `value`, `expires_at` FROM `chi_cache` WHERE `key` = %s LIMIT 1"
             g.db.execute(query, cache_key_root)
-            cache_entry_root = g.db.fetchall()
+            cache_entry_root = g.db.fetchone()
             g.db.execute(query, cache_key_device)
-            cache_entry_device = g.db.fetchall()
+            cache_entry_device = g.db.fetchone()
 
-            print(f"    -- root entry: {cache_entry_root}")
-            print(f"    -- dev entry: {cache_entry_device}")
+            if cache_entry_root is None and cache_entry_device is None:
+                resp_body, resp_code = transitive_login(account_username=account_username, challenge=challenge,
+                                                        nt_response=nt_response)
+                if resp_code == HTTPStatus.OK:
+                    pk_root = build_cache_key(domain, account_username, '')
+                    pk_device = build_cache_key(domain, account_username, mac)
+
+                    value = json.dumps(build_cache_struct(
+                        domain=domain,
+                        mac=mac,
+                        nt_key=resp_body,
+                        dirty=False,
+                        bad_password_count=0,
+                        expires_at=int(datetime.datetime.now().timestamp()) + 3600,
+                        last_login=int(datetime.datetime.now().timestamp())
+                    ))
+                    update_cache_entry(pk_root, value, expires())
+                else:
+                    if resp_code == HTTPStatus.UNAUTHORIZED:
+                        invalid_cache()
+
+            if cache_entry_root is None and cache_entry_device is not None:
+                print("  **** root entry x, device entry y")
+            if cache_entry_root is not None and cache_entry_device is None:
+                print("  **** root entry y, device entry x")
+                cache_value = json.loads(cache_entry_root['value'])
         return '', HTTPStatus.OK
     else:
         print(f"  NT key cache is disabled.")
@@ -472,28 +472,29 @@ def api():
     print(f"  server_name (parsed): {server_name_or_hostname}")
     print(f"  dns_name: {realm}")
     print(f"  workgroup: {workgroup}")
-    print(f"  machine_account_password: {mask_password(password)}")
+    print(f"  machine_account_password: {utils.mask_password(password)}")
     print(f"  dns_servers: {dns_servers}.")
     print(f"  nt_key_cache_enabled: {nt_key_cache_enabled}")
     print(f"  nt_key_cache_expire: {nt_key_cache_expire}")
 
     if dns_servers != "":
-        generate_resolv_conf(realm, dns_servers)
+        config_generator.generate_resolv_conf(realm, dns_servers)
         time.sleep(1)
-        ip, err_msg = dns_lookup(ad_fqdn, "")
+        ip, err_msg = utils.dns_lookup(ad_fqdn, "")
         if ip != "" and err_msg == "":
             print(f"AD FQDN: {ad_fqdn} resolved with IP: {ip}.")
         else:
-            if is_ipv4(ad_server):  # plan B: if it's not resolved then we use the static IP provided in the profile
+            if utils.is_ipv4(
+                    ad_server):  # plan B: if it's not resolved then we use the static IP provided in the profile
                 print(
                     f"AD FQDN resolve failed. Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
-                generate_hosts_entry(ad_server, ad_fqdn)
+                config_generator.generate_hosts_entry(ad_server, ad_fqdn)
             else:
                 print("Failed to retrieve IP address of AD server. Terminated.")
                 exit(1)
     else:
-        if is_ipv4(ad_server):
-            generate_hosts_entry(ad_server, ad_fqdn)
+        if utils.is_ipv4(ad_server):
+            config_generator.generate_hosts_entry(ad_server, ad_fqdn)
             print(f"Starting NTLM auth API using static hosts entry: {ad_server} {ad_fqdn}.")
         else:
             print("Failed to start NTLM auth API. 'ad_server' is required when DNS servers are unavailable.")
@@ -508,8 +509,9 @@ def api():
     app.config['MYSQL_DATABASE_USER'] = db_user
     app.config['MYSQL_DATABASE_PASSWORD'] = db_pass
     app.config['MYSQL_DATABASE_DB'] = db
+    app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
 
-    mysql = MySQL(autocommit=True)
+    mysql = MySQL(autocommit=True, cursorclass=pymysql.cursors.DictCursor)
     mysql.init_app(app)
 
     @app.before_request
