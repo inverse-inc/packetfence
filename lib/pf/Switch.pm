@@ -4399,7 +4399,7 @@ sub generateAnsibleConfiguration {
         my $interfaces = $self->getInterfaceByName($role);
         if ($interfaces) {
             my @interfaces = split(',',$interfaces);
-            $vars{'switches'}{$switch_id}{'interface'}{$role} = \@interfaces;
+            $vars{'switches'}{$switch_id}{'interfaces'}{$role} = \@interfaces;
         }
         if (defined($acls)) {
             my $out_acls;
