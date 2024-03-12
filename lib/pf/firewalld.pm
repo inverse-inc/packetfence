@@ -17,6 +17,38 @@ use warnings;
 use File::Copy;
 use Template;
 
+BEGIN {
+  use Exporter ();
+  our ( @ISA, @EXPORT );
+  @ISA = qw(Exporter);
+  @EXPORT = qw(
+    generate_firewalld_configs
+    generate_filter_if_src_to_chain
+
+    internal_interfaces_handling
+    portal_interfaces_handling
+    radius_interfaces_handling
+    dhcp_interfaces_handling
+    dns_interfaces_handling
+    management_interface_handling
+    high_availability_interfaces_handling
+    nat_back_inline_enabled
+
+    dns_interfaces_handling
+    management_interface_handling
+    high_availability_interfaces_handling
+    nat_back_inline_enabled
+    generate_netdata_firewalld_config
+    generate_FB_collector_firewalld_config
+    generate_eduroam_radius_config
+    generate_inline_enforcement
+
+    generate_interception_rules
+    generate_dnat_from_docker
+    generate_kafka_firewalld_config
+  );
+}
+
 use pf::config qw(
     %ConfigNetworks
     %Config
