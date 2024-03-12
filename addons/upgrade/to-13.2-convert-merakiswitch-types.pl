@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-to-13.1-convert-fortiswitch-types.pl
+to-13.2-convert-merakiswitch-types.pl
 
 =head1 DESCRIPTION
 
