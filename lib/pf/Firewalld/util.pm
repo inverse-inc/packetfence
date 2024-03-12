@@ -27,6 +27,8 @@ BEGIN {
     util_prepare_firewalld_config_simple
     util_get_firewalld_bin
     util_get_firewalld_cmd
+    util_apply_rich_rule
+    util_apply_direct_add_rule
     util_listen_ints_hash
     util_source_or_destination_validation
     util_prepare_version
@@ -123,6 +125,19 @@ sub util_get_firewalld_cmd {
   }
   $fbin =~ s/\n//g;
   return $fbin;
+}
+
+sub util_apply_rich_rule {
+  my $zone = shift;
+  my $rule = shift;
+  my $action = " --permanent --zone=".$mgnt_zone." --add-rich-rule='".$rule."'";
+  util_firewalld_action( $action );
+}
+
+sub util_apply_direct_add_rule {
+  my $rule = shift;
+  my $action = " --direct --add-rule ".$rule." ";
+  util_firewalld_action( $action );
 }
 
 sub util_listen_ints_hash {
@@ -268,7 +283,6 @@ sub util_all_helpers {
     $c->{"all_helpers"} = \@t;
   }
 }
-
 
 sub util_all_icmp_blocks {
   my $c = shift;
