@@ -18,7 +18,7 @@ use Moo;
 use pf::file_paths qw($install_dir);
 use pf::log;
 use pf::util;
-use pf::firewalld qw( generate_config );
+use pf::firewalld;
 use pf::config qw(%Config);
 
 extends 'pf::services::manager';
