@@ -523,14 +523,18 @@ sub remove {
 
     my $id = $self->id;
     my $cs = $self->config_store;
+    my $old_item = $self->item_from_store($id);
     ($msg, my $deleted) = $cs->remove($id, 'id');
     if (!$deleted) {
         return $self->render_error(422, "Unable to delete $id - $msg");
     }
 
     return unless($self->commit($cs));
+    $self->post_remove($id, $old_item);
     return $self->render(json => {message => "Deleted $id successfully"}, status => 200);
 }
+
+sub post_remove { }
 
 sub addFormWarnings {
     my ($self, $form, $response) = @_;

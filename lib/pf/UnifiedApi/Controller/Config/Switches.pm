@@ -90,6 +90,11 @@ sub post_create {
     $self->post_update($switch_id, $old);
 }
 
+sub post_remove {
+    my ($self, $id, $item) = @_;
+}
+
+
 =head2 standardPlaceholder
 
 standardPlaceholder
