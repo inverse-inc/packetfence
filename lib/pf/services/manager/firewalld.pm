@@ -8,7 +8,7 @@ pf::services::manager::firewalld add documentation
 
 =head1 DESCRIPTION
 
-pf::services::manager::iptables
+pf::services::manager::firewalld
 
 =cut
 
@@ -18,7 +18,7 @@ use Moo;
 use pf::file_paths qw($install_dir);
 use pf::log;
 use pf::util;
-use pf::iptables;
+use pf::firewalld qw( generate_config );
 use pf::config qw(%Config);
 
 extends 'pf::services::manager';
@@ -61,18 +61,6 @@ sub generateConfig {
     return 1;
 }
 
-=head2 getIptablesTechnique
-
-getIptablesTechnique
-
-=cut
-
-sub getIptablesTechnique {
-    require pf::inline::custom;
-    my $iptables = pf::inline::custom->new();
-    return $iptables->{_technique};
-}
-
 =head2 start
 
 Wrapper around systemctl. systemctl should in turn call the actuall _start.
@@ -81,7 +69,7 @@ Wrapper around systemctl. systemctl should in turn call the actuall _start.
 
 sub start {
     my ($self,$quick) = @_;
-    system('sudo systemctl start packetfence-iptables');
+    system('sudo systemctl start packetfence-firewalld');
     return $? == 0;
 }
 
@@ -123,7 +111,7 @@ sub stop {
 
 =head2 _stop
 
-stop iptables (called from systemd)
+stop iptables
 
 =cut
 
@@ -144,6 +132,8 @@ sub _stop {
     pf_run("sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER");
     pf_run("sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE");
     pf_run("sudo iptables -t nat -A DOCKER -i docker0 -j RETURN");
+    pf_run("sudo systemctl stop packetfence-iptables");
+    pf_run("sudo systemctl disable packetfence-iptables");
 
     return 1;
 }
@@ -161,7 +151,7 @@ sub isAlive {
     my $result;
     my $pid = $self->pid;
     my $_EXIT_CODE_EXISTS = "0";
-    my $rules_applied = pf_run( "sudo iptables -S | grep -- \"-A input-management-if -p tcp -m tcp --dport 1443 -j ACCEPT\"",accepted_exit_status => [$_EXIT_CODE_EXISTS, 1]);
+    my $rules_applied = pf_run( "sudo firewall-cmd --status",accepted_exit_status => [$_EXIT_CODE_EXISTS, 1]);
     return ($rules_applied) ? 1 : 0;
 }
 
