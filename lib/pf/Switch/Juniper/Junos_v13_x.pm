@@ -32,19 +32,7 @@ use warnings;
 use base ('pf::Switch::Juniper::Junos_v12_x');
 
 use pf::constants;
-use pf::config qw(
-    $WIRED_802_1X
-    $WIRED_MAC_AUTH
-);
 sub description { 'Junos v13.x' }
-
-# importing switch constants
-use pf::Switch::constants;
-use pf::accounting qw(node_accounting_current_sessionid);
-use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_disconnect);
-use Try::Tiny;
-use pf::util;
 
 use pf::SwitchSupports qw(
     WiredMacAuth
