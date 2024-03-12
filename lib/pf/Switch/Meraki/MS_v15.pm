@@ -42,7 +42,7 @@ use pf::Switch::Meraki::MR_v2;
 
 # CAPABILITIES
 # access technology supported
-sub description { 'Meraki MS v16' }
+sub description { 'Meraki MS v15' }
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
