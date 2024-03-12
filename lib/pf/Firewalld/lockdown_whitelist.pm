@@ -42,7 +42,7 @@ use pf::file_paths qw(
 sub generate_lockdown_whitelist_config {
   my $conf = $ConfigFirewalld{"firewalld_lockdown_whitelist"} ;
   if ( exists $conf->{"whitelist"} ) {
-    util_prepare_firewalld_config( $conf );
+    util_prepare_firewalld_config_simple( $conf );
     create_lockdown_whitelist_config_file( $conf->{"whitelist"} );
   } else {
     get_logger->info( "No lockdown whitelist configuration");
