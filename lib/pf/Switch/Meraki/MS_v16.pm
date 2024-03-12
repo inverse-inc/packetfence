@@ -26,14 +26,7 @@ use warnings;
 
 use base ('pf::Switch::Meraki::MS');
 
-use pf::config qw(
-    $WIRED_802_1X
-    $WIRED_MAC_AUTH
-);
 use pf::constants;
-use pf::util;
-use pf::node;
-use Try::Tiny;
 use pf::Switch::Meraki::MR_v2;
 
 =head1 SUBROUTINES
