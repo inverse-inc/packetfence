@@ -41,6 +41,7 @@ use pf::file_paths qw(
 # Generate config
 sub generate_firewalld_file_config {
   my $conf = $ConfigFirewalld{ "firewalld_config" };
+  util_prepare_firewalld_config( $conf );
   create_firewalld_config_file( $conf->{"config"} );
 }
 
