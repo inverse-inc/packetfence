@@ -24,7 +24,7 @@ VoIP devices cannot be detected via CDP/LLDP via an SNMP lookup.
 use strict;
 use warnings;
 
-use base ('pf::Switch::Meraki::MS');
+use base ('pf::Switch::Meraki::MS_v15');
 
 use pf::constants;
 use pf::Switch::Meraki::MR_v2;
