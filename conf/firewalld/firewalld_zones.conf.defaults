@@ -21,6 +21,7 @@ target=default
 services=haproxy-admin,ssh,http,https
 interface=eth0
 version = 0.1
+sources=127.0.0.1
 
 [docker0]
 short=Docker Interface
