@@ -1,12 +1,12 @@
-package pf::Switch::Meraki::MS220_8;
+package pf::Switch::Meraki::MS_v15;
 
 =head1 NAME
 
-pf::Switch::Meraki::MS220_8
+pf::Switch::Meraki::MS_v15
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::MS220_8 module implements an object oriented interface to
+The pf::Switch::Meraki::MS_v15 module implements an object oriented interface to
 manage the connection with MS220_8 switch model.
 
 =head1 STATUS
@@ -24,7 +24,7 @@ VoIP devices cannot be detected via CDP/LLDP via an SNMP lookup.
 use strict;
 use warnings;
 
-use base ('pf::Switch::Meraki');
+use base ('pf::Switch::Meraki::MS');
 
 use pf::config qw(
     $WIRED_802_1X
@@ -42,7 +42,7 @@ use pf::Switch::Meraki::MR_v2;
 
 # CAPABILITIES
 # access technology supported
-sub description { 'Meraki switch MS220_8' }
+sub description { 'Meraki MS v16' }
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
