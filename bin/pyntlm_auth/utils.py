@@ -44,3 +44,11 @@ def dns_lookup(hostname, dns_server):
         return "", "NXDOMAIN"
     except dns.exception.DNSException as e:
         return "", str(e)
+
+
+def expires(in_second):
+    return datetime.datetime.now().timestamp() + in_second
+
+
+def now():
+    return datetime.datetime.now().timestamp()

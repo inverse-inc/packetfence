@@ -23,8 +23,25 @@ from samba.dcerpc import netlogon
 from samba.dcerpc.misc import SEC_CHAN_WKSTA
 from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT, MSV1_0_ALLOW_MSVCHAPV2)
 
-import utils
 import config_generator
+import ncache
+import utils
+
+
+def format_response(nt_key_or_error_msg, error_code):
+    if error_code == 0:
+        return f'NT_KEY: {nt_key_or_error_msg}', HTTPStatus.OK
+
+    if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
+        return nt_key_or_error_msg, HTTPStatus.UNAUTHORIZED
+
+    if error_code == ntstatus.NT_STATUS_NO_SUCH_USER:
+        return nt_key_or_error_msg, HTTPStatus.NOT_FOUND
+
+    if error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
+        return nt_key_or_error_msg, HTTPStatus.LOCKED
+
+    return nt_key_or_error_msg, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def init_secure_connection():
@@ -91,7 +108,8 @@ def init_secure_connection():
         # ntstatus.NT_STATUS_OBJECT_NAME_NOT_FOUND - usually AD FQDN not resolved
         # ntstatus.NT_STATUS_NO_SUCH_DOMAIN
         # ntstatus.NT_STATUS_NO_MEMORY (0xC0000017) - usually windows AD is shutdown
-        # ---- error in init secure connection: NT_Error, error_code=3221225653, error_message={Device Timeout} The specified I/O operation on %hs was not completed before the time-out period expired.
+        # ---- error in init secure connection: NT_Error, error_code=3221225653,
+        # error_message={Device Timeout} The specified I/O operation on %hs was not completed before the time-out period expired.
     except Exception as e:
         error_code = e.args[0]
         error_message = e.args[1]
@@ -187,7 +205,7 @@ def transitive_login(account_username, challenge, nt_response):
     global workstation
     secure_channel_connection, machine_cred, connection_id, error_code, error_message = get_secure_channel_connection()
     if error_code != 0:
-        return "Error while establishing secure channel connection: " + error_message, HTTPStatus.INTERNAL_SERVER_ERROR
+        return f"Error while establishing secure channel connection: {error_message}", error_code, None
 
     with lock:
         try:
@@ -195,7 +213,7 @@ def transitive_login(account_username, challenge, nt_response):
         except Exception as e:
             # usually we won't reach this if machine cred is authenticated successfully. Just in case.
             reconnect_id = connection_id
-            return "Error in creating authenticator.", HTTPStatus.INTERNAL_SERVER_ERROR
+            return f"Error in creating authenticator: {str(e)}", e.args[0], None
 
         logon_level = netlogon.NetlogonNetworkTransitiveInformation
         validation_level = netlogon.NetlogonValidationSamInfo4
@@ -231,74 +249,21 @@ def transitive_login(account_username, challenge, nt_response):
 
             nt_key = [x if isinstance(x, str) else hex(x)[2:].zfill(2) for x in info.base.key.key]
             nt_key_str = ''.join(nt_key)
-            nt_key_str = "NT_KEY: " + nt_key_str
             print(f"  Successfully authenticated '{account_username}', NT_KEY is: '{utils.mask_password(nt_key_str)}'.")
-            return nt_key_str.encode("utf-8"), HTTPStatus.OK
+            return nt_key_str.encode('utf-8').strip().decode('utf-8'), 0, info
         except NTSTATUSError as e:
             nt_error_code = e.args[0]
-            nt_error_message = e.args[1]
-
-            if nt_error_code == ntstatus.NT_STATUS_NO_SUCH_USER:
-                return nt_error_message, HTTPStatus.NOT_FOUND
-            if nt_error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
-                return nt_error_message, HTTPStatus.UNAUTHORIZED
-            if nt_error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:  # we should stop retrying after failures
-                return nt_error_message, HTTPStatus.LOCKED
-            if nt_error_code == ntstatus.NT_STATUS_LOGIN_WKSTA_RESTRICTION:
-                return nt_error_message, HTTPStatus.UNAUTHORIZED
-            if nt_error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
-                return nt_error_message, HTTPStatus.UNAUTHORIZED
-
+            nt_error_message = str(e)
             print(f"  Failed while authenticating user: '{account_username}' with NT Error: {e}.")
             reconnect_id = connection_id
-            return f"NT Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+            return nt_error_message, nt_error_code, None
         except Exception as e:
             reconnect_id = connection_id
             print(f"  Failed while authenticating user: '{account_username}' with General Error: {e}.")
-            return "Error handling request", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
-def build_cache_struct(domain, mac, account, nt_key, dirty, bad_password_count, expires_at, last_login):
-    cache = {
-        "domain": domain,
-        "mac": mac,
-        "account": account,
-        "nt_key": nt_key,
-        "dirty": dirty,
-        "bad_password_count": bad_password_count,
-        "expires_at": expires_at,
-        "last_login": last_login
-    }
-    return cache
-
-
-def build_cache_key(domain, account_username, mac):
-    cache_key_prefix = "nt_key_cache"
-    mac = mac.strip()
-    if mac == '':
-        return f"{cache_key_prefix}:{domain}:{account_username}"
-    else:
-        mac = mac.replace(':', '-')
-        return f"{cache_key_prefix}:{domain}:{account_username}:{mac}"
-
-
-def update_cache_entry(key, value, expires_at):
-    query = "INSERT INTO `chi_cache` (`key`, `value`, `expires_at`) VALUES (%s, %s, %s) " \
-            "ON DUPLICATE KEY UPDATE `value` = %s"
-    if hasattr(g, 'db'):
-        g.db.execute(query, key, value, expires_at, value)
-
-
-def expires():
-    return datetime.datetime.now().timestamp() + 3600
-
-
-def now():
-    return datetime.datetime.now().timestamp()
-
-
-def invalid_cache():
-    return
+            if isinstance(e.args, tuple) and len(e.args) > 0:
+                return f"General Error: code {e.args[0]}, {str(e)}", e.args[0], None
+            else:
+                return f"General Error: {str(e)}", -1, None
 
 
 def ntlm_auth_handler():
@@ -323,55 +288,143 @@ def ntlm_auth_handler():
         nt_response = data['nt-response']
 
     except Exception as e:
-        return f"Error processing JSON payload, {str(e)}", HTTPStatus.INTERNAL_SERVER_ERROR
+        return f"Error processing JSON payload, {str(e)}", HTTPStatus.UNPROCESSABLE_ENTITY
 
-    if nt_key_cache_enabled:
+    if nt_key_cache_enabled and hasattr(g, 'db'):
         print(f"  NT Key cache is enabled.")
-        cache_key_root = build_cache_key(domain, account_username, '')
-        cache_key_device = build_cache_key(domain, account_username, mac)
+        cache_key_root = ncache.build_cache_key(domain, account_username, '')
+        cache_key_device = ncache.build_cache_key(domain, account_username, mac)
 
-        print(f"authoritative cache entry: {cache_key_root}")
-        print(f"device cache entry: {cache_key_device}")
+        cache_entry_device = ncache.get_cache_entry(cache_key_device)
 
-        if hasattr(g, 'db'):
-            query = "SELECT `key`, `value`, `expires_at` FROM `chi_cache` WHERE `key` = %s LIMIT 1"
-            g.db.execute(query, cache_key_root)
-            cache_entry_root = g.db.fetchone()
-            g.db.execute(query, cache_key_device)
-            cache_entry_device = g.db.fetchone()
+        if cache_entry_device is None:
+            print("  ------device cache miss:")
+            cache_v = ncache.cache_v_template(domain, account_username, mac)
+            nt_key, error_code, info = transitive_login(account_username, challenge, nt_response)
+            if error_code == 0:
+                cache_v = ncache.cache_v_set(cache_v, {"nt_key": nt_key, })
+                cache_v_json = json.dumps(cache_v)
+                ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+            else:
+                if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
+                    cache_v = ncache.cache_v_set(cache_v, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
+                                                           'bad_password_count': 1})
+                    cache_v_json = json.dumps(cache_v)
+                    ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                    ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                if error_code == ntstatus.NT_STATUS_NO_SUCH_USER or \
+                        error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or \
+                        error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
+                    cache_v = ncache.cache_v_set(cache_v, {'nt_status': error_code})
+                    cache_v_json = json.dumps(cache_v)
+                    ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                    ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+            return format_response(nt_key, error_code)
+        else:
+            print("  ------device cache hit:")
+            cache_entry_root = ncache.get_cache_entry(cache_key_root)
 
-            if cache_entry_root is None and cache_entry_device is None:
-                resp_body, resp_code = transitive_login(account_username=account_username, challenge=challenge,
-                                                        nt_response=nt_response)
-                if resp_code == HTTPStatus.OK:
-                    pk_root = build_cache_key(domain, account_username, '')
-                    pk_device = build_cache_key(domain, account_username, mac)
+            if cache_entry_root is None:
+                # this shouldn't happen, but just in case, we use device entry instead.
+                cache_entry_root = cache_entry_device
+            bad_password_count = cache_entry_root['bad_password_count']
+            cache_v = json.loads(cache_entry_device['value'])
 
-                    value = json.dumps(build_cache_struct(
-                        domain=domain,
-                        mac=mac,
-                        nt_key=resp_body,
-                        dirty=False,
-                        bad_password_count=0,
-                        expires_at=int(datetime.datetime.now().timestamp()) + 3600,
-                        last_login=int(datetime.datetime.now().timestamp())
-                    ))
-                    update_cache_entry(pk_root, value, expires())
-                else:
-                    if resp_code == HTTPStatus.UNAUTHORIZED:
-                        invalid_cache()
-
-            if cache_entry_root is None and cache_entry_device is not None:
-                print("  **** root entry x, device entry y")
-            if cache_entry_root is not None and cache_entry_device is None:
-                print("  **** root entry y, device entry x")
-                cache_value = json.loads(cache_entry_root['value'])
-        return '', HTTPStatus.OK
+            if not cache_v['dirty']:
+                print("  -------- cache is not dirty.")
+                nt_key = cache_v['nt_key']
+                nt_status = cache_v['nt_status']
+                if nt_status == 0:
+                    return format_response(nt_key, 0)
+                if nt_status == ntstatus.NT_STATUS_NO_SUCH_USER or \
+                        nt_status == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or \
+                        nt_status == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
+                    return format_response(nt_key, nt_status)
+                if nt_status == ntstatus.NT_STATUS_WRONG_PASSWORD:
+                    if bad_password_count < max_allowed_password_attempt - 1:
+                        nt_key, error_code, info = transitive_login(account_username, challenge, nt_response)
+                        if error_code == 0:
+                            cache_v = ncache.cache_v_set(cache_v, {"nt_key": nt_key, 'bad_password_count': 0})
+                            cache_v_json = json.dumps(cache_v)
+                            ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                            ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                        else:
+                            if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
+                                cache_v = ncache.cache_v_set(cache_v, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
+                                                                       'bad_password_count': bad_password_count+1})
+                                cache_v_json = json.dumps(cache_v)
+                                ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                                ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                            if error_code == ntstatus.NT_STATUS_NO_SUCH_USER or \
+                                    error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or \
+                                    error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
+                                cache_v = ncache.cache_v_set(cache_v, {'nt_status': error_code})
+                                cache_v_json = json.dumps(cache_v)
+                                ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                                ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                        return format_response(nt_key, error_code)
+                    else:
+                        if utils.now() - cache_v['last_login_attempt'] > reset_account_lockout_counter_after:
+                            ncache.delete_cache_entry(cache_key_device)
+                            ncache.delete_cache_entry(cache_key_root)
+                            nt_key, error_code, info = transitive_login(account_username, challenge, nt_response)
+                            if error_code == 0:
+                                cache_v = ncache.cache_v_set(cache_v, {"nt_key": nt_key, 'bad_password_count': 0})
+                                cache_v_json = json.dumps(cache_v)
+                                ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                                ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                            else:
+                                if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
+                                    cache_v = ncache.cache_v_set(cache_v, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
+                                                                           'bad_password_count': 1})
+                                    cache_v_json = json.dumps(cache_v)
+                                    ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                                    ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                                if error_code == ntstatus.NT_STATUS_NO_SUCH_USER or \
+                                        error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or \
+                                        error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
+                                    cache_v = ncache.cache_v_set(cache_v, {'nt_status': error_code})
+                                    cache_v_json = json.dumps(cache_v)
+                                    ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                                    ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                            return format_response(nt_key, error_code)
+                return format_response(nt_key, nt_status)
+            else:
+                print("  -------- cache is dirty.")
+                if bad_password_count < max_allowed_password_attempt - 1:
+                    nt_key, error_code, info = transitive_login(account_username, challenge, nt_response)
+                    if error_code == 0:
+                        # it's still within the "old password still valid" window, we don't know if we got new NT key
+                        # or old one after transitive login, so we just keep this for a short time.
+                        if utils.now() - utils.nt_time_to_datetime(info.base.last_password_change) < old_password_allowed_period:
+                            cache_life = old_password_allowed_period + utils.now() - utils.nt_time_to_datetime(info.base.last_password_change)
+                        else:
+                            cache_life = nt_key_cache_expire
+                        cache_v = ncache.cache_v_set(cache_v, {"nt_key": nt_key, 'bad_password_count': 0})
+                        cache_v_json = json.dumps(cache_v)
+                        ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(cache_life))
+                        ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(cache_life))
+                    else:
+                        if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
+                            cache_v = ncache.cache_v_set(cache_v, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
+                                                                   'bad_password_count': bad_password_count+1})
+                            cache_v_json = json.dumps(cache_v)
+                            ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                            ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                        if error_code == ntstatus.NT_STATUS_NO_SUCH_USER or \
+                                error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or \
+                                error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
+                            cache_v = ncache.cache_v_set(cache_v, {'nt_status': error_code})
+                            cache_v_json = json.dumps(cache_v)
+                            ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                            ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                    return format_response(nt_key, error_code)
+        return '', HTTPStatus.INTERNAL_SERVER_ERROR
     else:
         print(f"  NT key cache is disabled.")
-        resp_body, resp_code = transitive_login(account_username=account_username, challenge=challenge,
-                                                nt_response=nt_response)
-        return resp_body, resp_code
+        nt_key, error_code, info = transitive_login(account_username, challenge, nt_response)
+        return format_response(nt_key, error_code)
 
 
 def ping_handler():
@@ -552,6 +605,9 @@ if __name__ == '__main__':
     nt_key_cache_enabled = None
     nt_key_cache_expire = None
     nt_key_cache = None
+    max_allowed_password_attempt = 3
+    reset_account_lockout_counter_after = 3600
+    old_password_allowed_period = 0
 
     # Run tasks concurrently using multithreading
     t1 = Thread(target=api)
