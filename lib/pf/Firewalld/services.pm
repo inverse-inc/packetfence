@@ -59,6 +59,7 @@ sub create_service_config_file {
   my $name = shift ;
   util_prepare_version( $conf );
   util_all_ports( $conf );
+  util_all_protocols( $conf );
   util_all_helpers( $conf );
   service_all_destinations( $conf );
   service_all_includes( $conf );
