@@ -130,7 +130,7 @@ sub util_get_firewalld_cmd {
 sub util_apply_rich_rule {
   my $zone = shift;
   my $rule = shift;
-  my $action = " --permanent --zone=".$mgnt_zone." --add-rich-rule='".$rule."'";
+  my $action = " --permanent --zone=".$zone." --add-rich-rule='".$rule."'";
   util_firewalld_action( $action );
 }
 
