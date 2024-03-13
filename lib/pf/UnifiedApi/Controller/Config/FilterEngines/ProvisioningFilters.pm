@@ -22,11 +22,18 @@ has 'form_class' => 'pfappserver::Form::Config::FilterEngines::ProvisioningFilte
 has 'primary_key' => 'provisioning_filter_id';
 
 use pf::ConfigStore::ProvisioningFilters;
-use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::kandji;
-use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::intune;
-use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::google_workspace_chromebook;
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::kandji qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::intune qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::google_workspace_chromebook qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::accept qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::airwatch qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::lookup qw();
+
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::FilterEngines::ProvisioningFilter::$_" } qw(
+      accept
+      airwatch
+      lookup
       kandji
       intune
       google_workspace_chromebook
