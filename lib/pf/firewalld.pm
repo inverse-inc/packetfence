@@ -79,6 +79,8 @@ use pf::config qw(
     @dhcp_ints
     @dns_ints
     netflow_enabled
+    $NET_TYPE_INLINE_L3
+    %mark_type_to_str
 );
 use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::util;
@@ -121,6 +123,9 @@ Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
 Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
+tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
 sub generate_firewalld_configs {
   generate_firewalld_file_config();
@@ -295,7 +300,7 @@ sub nat_back_inline_enabled {
           util_apply_rich_rule( $dev , 'rule family="ipv4" destination address="'.$network.'/'.$inline_obj->{BITS}.'" accept' );
         }
       }
-      util_apply_direct_add_rule("ipv4 filter FORWARD 0 -i $val -m state --state ESTABLISHED,RELATED -j ACCEPT");
+      util_apply_direct_add_rule("ipv4 filter FORWARD 0 -i $dev -m state --state ESTABLISHED,RELATED -j ACCEPT");
     }
     if($management_network) {
       my $mgmt_int = $management_network->tag("int");
@@ -310,7 +315,7 @@ sub generate_netdata_firewalld_config {
   if ($cluster_enabled) {
     push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
     foreach my $mgmt_back (uniq(@mgmt_backend)) {
-      util_apply_rich_rule( $mgnt_zone, 'rule family="ipv4" port="19999/tcp" source address="'.$rule.'" accept' );
+      util_apply_rich_rule( $mgnt_zone, 'rule family="ipv4" port="19999/tcp" source address="'.$mgmt_back.'" accept' );
     }
   }
   util_apply_rich_rule( $mgnt_zone, 'rule family="ipv4" port="19999/tcp" drop' );
@@ -319,7 +324,6 @@ sub generate_netdata_firewalld_config {
 sub generate_FB_collector_firewalld_config {
   # The dynamic range used to access the fingerbank collector that are connected via a remote connector
   my $mgnt_zone =  $management_network->{Tip};
-  $tags{'pfconnector'} = "";
   my @pfconnector_ips = ("127.0.0.1");
   push @pfconnector_ips, (map { $_->{management_ip} } pf::cluster::config_enabled_servers()) if ($cluster_enabled);
   push @pfconnector_ips, $management_network->{Tip};
@@ -382,7 +386,7 @@ sub generate_inline_rules {
 
     my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
     util_apply_direct_add_rule("ipv4 filter $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway");
-    util_apply_direct_add_rule("ipv4 filter $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway";
+    util_apply_direct_add_rule("ipv4 filter $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway");
 
     if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
       $rule = "--protocol udp --destination-port 53 -s $ConfigNetworks{$network}{'reg_network'}";
@@ -473,8 +477,6 @@ sub generate_inline_if_src_to_chain {
 }
 
 sub generate_mangle_rules {
-  $tags{'mangle_prerouting_inline'} .= $self->generate_mangle_rules();                # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
-  my ($self) =@_;
   my $logger = get_logger();
   my $mangle_rules = '';
   my @ops = ();
@@ -560,7 +562,6 @@ sub generate_mangle_rules {
 }
 
 sub generate_nat_redirect_rules {
-  $tags{'nat_prerouting_inline'} .= $self->generate_nat_redirect_rules();
   my $logger = get_logger();
   my $rule = '';
 
@@ -605,7 +606,7 @@ sub generate_interception_rules {
     # vlan enforcement
     if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
       # send everything from vlan interfaces to the vlan chain
-      $$nat_if_src_to_chain .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_VLAN\n";
+      util_apply_direct_add_rule("ipv4 filter PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_VLAN");
       foreach my $network ( keys %ConfigNetworks ) {
         next if (pf::config::is_network_type_inline($network));
         my %net = %{$ConfigNetworks{$network}};
@@ -652,12 +653,10 @@ sub generate_passthrough_rules {
   if ($passthrough_enabled) {
     my $logger = get_logger();
     $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
-    if ($passthrough) {
-      util_apply_direct_add_rule("ipv4 filter $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT");
-      util_apply_direct_add_rule("ipv4 filter $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough src,src --jump ACCEPT");
-      util_apply_direct_add_rule("ipv4 filter $FW_FILTER_FORWARD_INT_ISOL_VLAN -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT");
-      util_apply_direct_add_rule("ipv4 filter $FW_FILTER_FORWARD_INT_ISOL_VLAN -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT");
-    }
+    util_apply_direct_add_rule("ipv4 filter $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT");
+    util_apply_direct_add_rule("ipv4 filter $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough src,src --jump ACCEPT");
+    util_apply_direct_add_rule("ipv4 filter $FW_FILTER_FORWARD_INT_ISOL_VLAN -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT");
+     util_apply_direct_add_rule("ipv4 filter $FW_FILTER_FORWARD_INT_ISOL_VLAN -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT");
 
     # add passthroughs required by the provisionings
     generate_provisioning_passthroughs();
