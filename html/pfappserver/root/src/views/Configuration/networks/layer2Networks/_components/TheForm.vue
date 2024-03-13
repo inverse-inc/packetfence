@@ -56,6 +56,11 @@
                             :text="$i18n.t('List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13.')"
     />
 
+    <form-group-dns namespace="dns"
+                    :column-label="$i18n.t('DNS')"
+                    :text="$i18n.t('The DNS server(s) of your network. (comma limited)')"
+    />
+
     <form-group-portal-fqdn namespace="portal_fqdn"
                             :disabled="isFakeMac"
                             :column-label="$i18n.t('Portal FQDN')"
@@ -81,6 +86,7 @@ import {
   FormGroupDhcpEnd,
   FormGroupDhcpMaxLeaseTime,
   FormGroupDhcpStart,
+  FormGroupDns,
   FormGroupIdentifier,
   FormGroupIpAssigned,
   FormGroupIpReserved,
@@ -100,6 +106,7 @@ const components = {
   FormGroupDhcpMaxLeaseTime,
   FormGroupDhcpEnd,
   FormGroupDhcpStart,
+  FormGroupDns,
   FormGroupIdentifier,
   FormGroupIpAssigned,
   FormGroupIpReserved,

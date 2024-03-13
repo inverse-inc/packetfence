@@ -18,7 +18,6 @@ export {
   BaseFormGroupChosenMultiple               as FormGroupAdditionalListeneningDaemons,
   BaseFormGroupSwitch                       as FormGroupCoa,
   BaseFormGroupSwitch                       as FormGroupDhcpdEnabled,
-  BaseFormGroupInput                        as FormGroupDns,
   BaseFormGroupSwitch                       as FormGroupHighAvailability,
   BaseFormGroupInput                        as FormGroupIdentifier,
   BaseFormGroupInput                        as FormGroupIpAddress,
