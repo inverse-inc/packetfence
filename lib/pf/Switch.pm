@@ -57,7 +57,7 @@ use pf::roles::custom $ROLES_API_LEVEL;
 use pf::error::switch;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
-use List::MoreUtils qw(any all);
+use List::MoreUtils qw(any all uniq);
 use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
 use pf::StatsD;
@@ -4359,7 +4359,7 @@ Generate Ansible configuration to push ACLs
 =cut
 
 sub generateAnsibleConfiguration {
-    my ($self) = @_;
+    my ($self,$oldSwitchConfig) = @_;
     my %vars;
     umask(0002);
     my $tt = Template->new(
@@ -4393,6 +4393,22 @@ sub generateAnsibleConfiguration {
             case /Cisco::WLC/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
             case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
+    }
+
+    # Remove
+    my %diff;
+    foreach my $old_role_interface (@{$oldSwitchConfig->{InterfaceMapping}}) {
+        #Old interface list
+        my @oldinterfaces = uniq split(',',$old_role_interface->{interface});
+        my $newinterfaces = $self->getInterfaceByName($old_role_interface->{role});
+        if ($newinterfaces) {
+            # New interface list
+            my @newinterfaces = uniq split(',',$newinterfaces);
+            @diff{ @oldinterfaces } = @oldinterfaces;
+            delete @diff{ @newinterfaces };
+            @oldinterfaces = uniq %diff;
+        }
+        $vars{'switches'}{$switch_id}{'interfaces_delete'}{$old_role_interface->{role}} = \@oldinterfaces;
     }
 
     foreach my $role (keys %ConfigRoles) {
