@@ -17,6 +17,17 @@ use warnings;
 use File::Copy;
 use Template;
 
+use IO::Interface::Simple;
+use pf::log;
+use Readonly;
+use NetAddr::IP;
+use List::MoreUtils qw(uniq);
+use pf::constants;
+use pf::config::cluster;
+use File::Slurp qw(read_file);
+use URI ();
+
+
 BEGIN {
   use Exporter ();
   our ( @ISA, @EXPORT );
@@ -87,6 +98,29 @@ use pf::Firewalld::ipsets qw ( generate_ipsets_config );
 use pf::Firewalld::services qw ( generate_services_config );
 use pf::Firewalld::zones qw ( generate_zones_config );
 use pf::Firewalld::policies qw ( generate_policies_config );
+
+# This is the content that needs to match in the iptable rules for the service
+# to be considered as running
+Readonly our $FW_FILTER_INPUT_MGMT      => 'input-management-if';
+Readonly our $FW_FILTER_INPUT_PORTAL    => 'input-portal-if';
+Readonly our $FW_FILTER_INPUT_RADIUS    => 'input-radius-if';
+Readonly our $FW_FILTER_INPUT_DHCP      => 'input-dhcp-if';
+Readonly our $FW_FILTER_INPUT_DNS       => 'input-dns-if';
+
+Readonly my $FW_TABLE_FILTER => 'filter';
+Readonly my $FW_TABLE_MANGLE => 'mangle';
+Readonly my $FW_TABLE_NAT => 'nat';
+Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
+Readonly my $FW_FILTER_INPUT_INT_ISOL_VLAN => 'input-internal-isol_vlan-if';
+Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
+Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
+Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
+Readonly my $FW_FILTER_FORWARD_INT_VLAN => 'forward-internal-vlan-if';
+Readonly my $FW_FILTER_FORWARD_INT_ISOL_VLAN => 'forward-internal-isolvlan-if';
+Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
+Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
+Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
+Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
 
 sub generate_firewalld_configs {
   generate_firewalld_file_config();
