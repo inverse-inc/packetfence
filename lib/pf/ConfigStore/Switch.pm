@@ -109,7 +109,7 @@ sub _expandMapping {
     # We put it back as a string so it works in the admin UI
     my $toset = {};
     while (my ($attr, $val) = each %$switch) {
-        if ($attr =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Network|NetworkFrom)$/) {
+        if ($attr =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom)$/) {
             my $type = $2;
             my $role = $1;
             if ($type eq 'AccessList' && ref($val) eq 'ARRAY') {
