@@ -463,12 +463,17 @@ export const setup = (props, context) => {
     isCreatingUser.value = true
     userCreationError.value = null
     const root_username = remoteDatabaseForm.value.username
+    const { username: root_username, encryption, cert, hostname, port } = remoteDatabaseForm.value
     return $store.dispatch('$_bases/assignDatabase', {
       root_username,
       root_password: form.value.root_pass,
       pf_username: form.value.user,
       pf_password: form.value.pass,
-      database: form.value.db
+      database: form.value.db,
+      encryption,
+      cert,
+      hostname,
+      port
     }).then(() => {
       userIsValid.value = true
     }).catch(err => {
