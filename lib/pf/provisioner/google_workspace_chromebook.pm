@@ -22,7 +22,7 @@ use URI::Escape qw(uri_escape);
 use pf::util qw(clean_mac);
 use pf::log;
 use pf::person qw(person_add);
-use pf::node qw(node_register node_modify);
+use pf::node qw(node_register node_modify node_view);
 use pf::security_event;
 use fingerbank::Constant;
 use WWW::Curl::Easy;
