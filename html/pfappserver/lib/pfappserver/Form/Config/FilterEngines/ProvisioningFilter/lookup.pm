@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::FilterEngines::ProvisioningFilter::kandji;
+package pfappserver::Form::Config::FilterEngines::ProvisioningFilter::lookup;
 
 =head1 NAME
 
-pfappserver::Form::Config::FilterEngines::ProvisioningFilter::kandji -
+pfappserver::Form::Config::FilterEngines::ProvisioningFilter::lookup -
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::FilterEngines::ProvisioningFilter::kandji
+pfappserver::Form::Config::FilterEngines::ProvisioningFilter::lookup
 
 =cut
 
@@ -38,7 +38,7 @@ has_field 'type' =>
    label => 'Provisioning type',
    required => 1,
    messages => { required => 'Please select Provisioning type' },
-   default => 'kandji',
+   default => 'lookup',
   );
 
 
