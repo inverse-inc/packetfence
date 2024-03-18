@@ -427,6 +427,27 @@ def ntlm_auth_handler():
         return format_response(nt_key, error_code)
 
 
+def ntlm_expire_handler():
+    try:
+        required_keys = {'domain', 'account'}
+
+        data = request.get_json()
+        if data is None:
+            return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
+        for required_key in required_keys:
+            if required_key not in data:
+                return f'Invalid payload format, missing required key {required_key}', HTTPStatus.UNPROCESSABLE_ENTITY
+        domain = data['domain']
+        account = data['account']
+        cache_key_root = ncache.build_cache_key(domain, account, '')
+
+        ncache.delete_cache_entry(cache_key_root)
+        ncache.delete_cache_entries(f"{cache_key_root}:%")
+
+    except Exception as e:
+        return f"Error processing JSON payload, {str(e)}", HTTPStatus.UNPROCESSABLE_ENTITY
+
+
 def ping_handler():
     return "pong", HTTPStatus.OK
 
@@ -579,6 +600,7 @@ def api():
             g.db.close()
 
     app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)
+    app.route('/ntlm/expire', methods=['POST'])(ntlm_auth_handler)
     app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
     app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
     app.route('/ping', methods=['GET'])(ping_handler)

@@ -69,3 +69,7 @@ def delete_cache_entry(key):
         g.db.execute(query, key)
 
 
+def delete_cache_entries(key_pattern):
+    query = "DELETE FROM `chi_cache` WHERE `key` LIKE %s "
+    if hasattr(g, 'db'):
+        g.db.execute(query, key_pattern)
