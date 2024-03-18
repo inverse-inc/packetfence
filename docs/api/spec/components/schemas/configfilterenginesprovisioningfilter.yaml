@@ -2,11 +2,17 @@ ConfigFilterEnginesProvisioningFilter:
   description: 'Choose one of the request bodies by discriminator (`type`). '
   discriminator:
     mapping:
+      accept: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAccept'
+      airwatch: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAirwatch'
       google_workspace_chromebook: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook'
       intune: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune'
       kandji: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji'
+      lookup: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeLookup'
     propertyName: type
   oneOf:
+  - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAccept'
+  - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAirwatch'
   - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook'
   - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune'
   - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji'
+  - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeLookup'
