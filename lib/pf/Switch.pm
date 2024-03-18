@@ -4408,7 +4408,9 @@ sub generateAnsibleConfiguration {
             delete @diff{ @newinterfaces };
             @oldinterfaces = uniq %diff;
         }
-        $vars{'switches'}{$switch_id}{'interfaces_delete'}{$old_role_interface->{role}} = \@oldinterfaces;
+        if (@oldinterfaces) {
+            $vars{'switches'}{$switch_id}{'interfaces_delete'}{$old_role_interface->{role}} = \@oldinterfaces;
+        }
     }
 
     foreach my $role (keys %ConfigRoles) {

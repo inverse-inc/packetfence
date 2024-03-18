@@ -34,17 +34,13 @@
 
 [% FOREACH role IN interfaces_delete.keys %]
 [% FOREACH interface IN interfaces_delete.$role %]
-    - name: Merge module attributes of given access-groups
-      cisco.ios.ios_acl_interfaces:
-        config:
-          - name: [% interface %]
-            access_groups:
-              - afi: ipv4
-                acls:
-                  - name: [% role %]
-                    direction: in
-        state: deleted
-      when: ansible_network_os == 'cisco.ios.ios'
+    - name: remove acl on interface
+      cisco.ios.ios_config:
+        lines:
+          - no ip access-group [% role %] in
+        parents: "{{ item }}"
+      with_items:
+       - interface [% interface %]
 [% END %]
 [% END %]
 
