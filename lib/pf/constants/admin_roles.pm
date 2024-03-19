@@ -216,6 +216,11 @@ our @ADMIN_ACTIONS = qw(
     MFA_DELETE
     MFA_READ
     MFA_UPDATE
+
+    API_CALL_CREATE
+    API_CALL_READ
+    API_CALL_UPDATE
+    API_CALL_DELETE
 );
 
 # Actions not allowed in readonly mode

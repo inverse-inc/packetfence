@@ -427,6 +427,10 @@ def ntlm_auth_handler():
         return format_response(nt_key, error_code)
 
 
+def event_report_handler():
+    return "", HTTPStatus.ACCEPTED
+
+
 def ntlm_expire_handler():
     try:
         required_keys = {'domain', 'account'}
@@ -600,7 +604,8 @@ def api():
             g.db.close()
 
     app.route('/ntlm/auth', methods=['POST'])(ntlm_auth_handler)
-    app.route('/ntlm/expire', methods=['POST'])(ntlm_auth_handler)
+    app.route('/ntlm/expire', methods=['POST'])(ntlm_expire_handler)
+    app.route('/event/report', methods=['POST'])(event_report_handler)
     app.route('/ntlm/connect', methods=['GET'])(ntlm_connect_handler)
     app.route('/ntlm/connect', methods=['POST'])(test_password_handler)
     app.route('/ping', methods=['GET'])(ping_handler)

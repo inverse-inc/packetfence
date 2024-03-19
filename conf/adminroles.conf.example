@@ -11,3 +11,7 @@ allowed_access_levels=User Manager
 [Security Event Manager]
 description=Security Events managements
 actions=SECURITY_EVENTS_READ,SECURITY_EVENTS_CREATE,SECURITY_EVENTS_UPDATE,SECURITY_EVENTS_DELETE,USERS_READ,NODES_READ
+
+[External API Receiver]
+description=Receives and execute external api calls
+actions=API_CALL_READ, API_CALL_CREATE, API_CALL_UPDATE, API_CALL_DELETE
