@@ -107,15 +107,18 @@ sub authorize {
     
     my $data = decode_json($res);
 
-    if(defined($data->{Total}) && $data->{Total} == 1 && $data->{Devices}->[0]->{EnrollmentStatus} eq $AIRWATCH_ENROLLED_STATUS) {
-        if(isenabled($self->sync_pid) && $data->{Devices}->[0]->{UserName}) {
-            my $pid = $data->{Devices}->[0]->{UserName};
+    if(defined($data->{Total}) && $data->{Total} == 1 && $data->{Devices}[0]{EnrollmentStatus} eq $AIRWATCH_ENROLLED_STATUS) {
+        my $device = $data->{Devices}[0];
+        if(isenabled($self->sync_pid) && $device->{UserName}) {
+            my $pid = $device->{UserName};
             get_logger->info("Found username $pid through Airwatch");
             person_add($pid);
             node_modify($mac, pid => $pid);
+
         }
 
-        return $TRUE;
+        my $node_info = node_view($mac);
+        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, airwatch => $device});
     }
     else {
         return $FALSE;
