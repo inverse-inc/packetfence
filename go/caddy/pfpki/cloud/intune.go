@@ -278,7 +278,10 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	for k, v := range Data.(map[string]interface{}) {
 		if k == "code" {
 			if contains(ErrorCode, v.(string)) {
-				if v.(string) == "Success" {
+				if v.(string) == "Success" || v.(string) == "ChallengePasswordMissing" {
+					if v.(string) == "ChallengePasswordMissing" {
+						log.Print("Bypass intune exception for ChallengePasswordMissing")
+					}
 					return nil
 				} else {
 					return errors.New("Exception from Intune API: " + v.(string))
