@@ -294,6 +294,7 @@ sub authorize {
     unless($info->{pid} eq $default_pid) {
         $self->for_username($info->{pid});
     }
+    $self->handleAuthorizeEnforce($mac, {node_info => $info});
     return $FALSE;
 }
 
