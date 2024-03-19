@@ -5,6 +5,7 @@
 
   vars:
     test_suites:
+    - pfappserver_configurator
     - pfappserver_configuration
 
   tasks:
