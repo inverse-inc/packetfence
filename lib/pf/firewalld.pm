@@ -201,7 +201,7 @@ sub internal_interfaces_handling {
       if ($dev =~ m/(\w+):\d+/) {
         $dev = $1;
       }
-      my $action = $pf::config::NET_TYPE_VLAN_REG;
+      my $type = $pf::config::NET_TYPE_VLAN_REG;
       my $chain = $FW_FILTER_INPUT_INT_VLAN;
       foreach my $network ( keys %ConfigNetworks ) {
         # We skip non-inline networks/interfaces
@@ -211,7 +211,7 @@ sub internal_interfaces_handling {
           my $ip_test = new NetAddr::IP::Lite clean_ip($ip);
           if ($net_addr->contains($ip_test)) {
             $chain = $FW_FILTER_INPUT_INT_ISOL_VLAN;
-            $action = $pf::config::NET_TYPE_VLAN_ISOL;
+            $type = $pf::config::NET_TYPE_VLAN_ISOL;
           }
         }
       }
@@ -225,11 +225,11 @@ sub internal_interfaces_handling {
       util_rich_rule( $dev , 'rule family="ipv4" destination="'. $interface->tag("ip") .'" '. $chain .' ', $action );
       util_rich_rule( $dev , 'rule family="ipv4" destination="255.255.255.255" '. $chain .' ' , $action );
 
-      if ($passthrough_enabled && ($action eq $pf::config::NET_TYPE_VLAN_REG)) {
+      if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
         util_direct_rule( "ipv4 filter FORWARD 0 -i $dev -j $FW_FILTER_FORWARD_INT_VLAN", $action );
         util_direct_rule( "ipv4 filter FORWARD 0 -o $dev -j $FW_FILTER_FORWARD_INT_VLAN", $action );
       }
-      if ($isolation_passthrough_enabled && ($action eq $pf::config::NET_TYPE_VLAN_ISOL)) {
+      if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
         util_direct_rule( "ipv4 filter FORWARD 0 -i $dev -j $FW_FILTER_FORWARD_INT_ISOL_VLAN", $action );
         util_direct_rule( "ipv4 filter FORWARD 0 -o $dev -j $FW_FILTER_FORWARD_INT_ISOL_VLAN", $action );
       }
