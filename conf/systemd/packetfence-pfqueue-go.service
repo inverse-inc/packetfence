@@ -8,8 +8,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Wants=packetfence-pfqueue-backend.service
 After=packetfence-pfqueue-backend.service
 Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
+Requires=packetfence-docker-iptables.service packetfence-pfqueue-backend.service
+PartOf=packetfence-docker-iptables.service packetfence-pfqueue-backend.service
 
 [Service]
 Type=notify
