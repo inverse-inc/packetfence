@@ -34,9 +34,21 @@ BEGIN {
   our ( @ISA, @EXPORT );
   @ISA = qw(Exporter);
   @EXPORT = qw(
-    generate_firewalld_configs
-    generate_filter_if_src_to_chain
-
+    firewalld_clean_configs
+    firewalld_clean_pfconf_configs
+    firewalld_generate_configs
+    firewalld_generate_pfconf_configs
+    firewalld_generate_pfconfig_configs
+    generate_chains
+    generate_default_chain_rules
+    generate_input_portal_if
+    generate_input_radius_if
+    generate_input_dns_if
+    generate_input_dhcp_if
+    generate_input_internal_vlan_if
+    generate_input_internal_isol_vlan_if
+    generate_input_internal_inline_if
+    generate_input_highavailability_if
     internal_interfaces_handling
     portal_interfaces_handling
     radius_interfaces_handling
@@ -45,18 +57,19 @@ BEGIN {
     management_interface_handling
     high_availability_interfaces_handling
     nat_back_inline_enabled
-
-    dns_interfaces_handling
-    management_interface_handling
-    high_availability_interfaces_handling
-    nat_back_inline_enabled
     generate_netdata_firewalld_config
     generate_FB_collector_firewalld_config
     generate_eduroam_radius_config
     generate_inline_enforcement
-
+    generate_inline_rules
+    generate_inline_if_src_to_chain
+    generate_mangle_rules
+    generate_nat_redirect_rules
     generate_interception_rules
     generate_dnat_from_docker
+    generate_passthrough_rules
+    generate_provisioning_passthroughs
+    generate_netflow_rules
     generate_kafka_firewalld_config
   );
 }
