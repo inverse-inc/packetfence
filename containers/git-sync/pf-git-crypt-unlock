@@ -1,12 +1,15 @@
 #!/bin/sh
 
 # import the  gpg private key
+echo "import the gpg private key" > /proc/1/fd/1
 gpg --no-tty --batch --allow-secret-key-import --passphrase $GPG_OWN_KEY_PASSSWORD --pinentry-mode loopback --import /var/run/git-crypt-key/git-crypt.key
 
 #search the id 
+echo "search the id" > /proc/1/fd/1
 gpg_key_id=$(gpg --no-tty --list-keys --with-colons  | awk -F: '/fpr:/ {print $10}')
 
 # trust the gpg private key
+echo "trust the gpg private key" > /proc/1/fd/1
 gpg --no-tty --command-fd 0 --expert --edit-key $gpg_key_id <<END
 5
 y
@@ -14,12 +17,14 @@ y
 END
 
 #remove the passphrase 
+echo "remove the passphrase" > /proc/1/fd/1
 gpg --no-tty --command-fd 0 --pinentry-mode loopback --change-passphrase $gpg_key_id <<END
 $GPG_OWN_KEY_PASSSWORD
 
 END
 
 #decrypt repository
+echo "decrypt repository" > /proc/1/fd/1
 git-crypt unlock
 
 
