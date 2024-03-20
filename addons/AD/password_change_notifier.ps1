@@ -26,6 +26,7 @@ foreach ($event in $events)
     $xmlObject = [xml]$event.ToXml()
     $e['recordID'] = $event.RecordId
     $e['eventTime'] = $event.TimeCreated
+    $e['eventTypeID'] = $event.Id
 
     if ($xmlObject.Event.EventData.Data.Length -ge 0)
     {
