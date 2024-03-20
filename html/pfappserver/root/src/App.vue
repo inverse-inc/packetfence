@@ -67,8 +67,9 @@
           <b-form-text v-t="'Server Hostname'"/> {{ hostname }}
         </div>
       </app-documentation>
-      <router-view data-router-view="true" />
     </b-container>
+    <!-- Router -->
+    <router-view data-router-view="true" />
     <!-- Show login if session expires -->
     <app-login modal />
     <!-- Show notifications late in DOM for z-index above b-modal -->

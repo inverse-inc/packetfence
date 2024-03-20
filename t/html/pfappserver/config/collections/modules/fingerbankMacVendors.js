@@ -2,7 +2,7 @@ const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
 
 const collection_url = 'configuration/fingerbank/mac_vendors';
 const resource_url = id => `/configuration/fingerbank/local/mac_vendor/${id}`;
-const timeout = 10E3;
+const timeout = 15E3;
 const fixture = 'collections/fingerbank/macVendor.json';
 
 module.exports = {

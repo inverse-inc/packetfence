@@ -4,5 +4,5 @@
   "dns_name": "test.local",
   "ad_server": "1.2.3.4",
   "dns_servers": "8.8.8.8",
-  "machine_account_password": "foobar"
+  "machine_account_password": "foobarbaz"
 }
