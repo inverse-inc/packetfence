@@ -26,7 +26,7 @@ jobs:
     runs-on: package-build
     needs: git_checkout
     container:
-      image: registry.gitlab.com/orange-opensource/gitlab-buildpkg/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos:8' || 'debian:bullseye'}}
+      image: registry.gitlab.com/orange-opensource/gitlab-buildpkg/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos:8' || 'debian:bookworm'}}
       env:
         EXECUTION_DIRECTORY: '/mnt/packetfence/'
 #      volumes:
@@ -63,7 +63,7 @@ jobs:
           cd "${EXECUTION_DIRECTORY}"/addons/perl-client/
           set -e && export FINGERBANK_API_KEY=$(set -e && python3  "${EXECUTION_DIRECTORY}"/addons/packetfence-perl/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_BUILDS_KEY_FINGERBANK }} --return_value=password)
           set -e &&  make SHELL='sh' -e ${{ inputs._IMAGE_TYPE == 'rhel8' && 'build_rpm' || 'build_deb'}}
-          ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || 'debian/bullseye'}}
+          ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || 'debian/bookworm'}}
         env:
           CI_COMMIT_REF_NAME: ${{ inputs._BRANCH_NAME }}
     
@@ -71,8 +71,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACTORY_NAME }}
-#          path:  /__w/packetfence/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || 'debian/bullseye'}}/${{ env.PACKAGE_NAME }}
-          path:  /mnt/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || 'debian/bullseye'}}/${{ env.PACKAGE_NAME }}
+#          path:  /__w/packetfence/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || 'debian/bookworm'}}/${{ env.PACKAGE_NAME }}
+          path:  /mnt/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || 'debian/bookworm'}}/${{ env.PACKAGE_NAME }}
         env:
           PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'fingerbank-*.noarch.rpm' || 'fingerbank*.deb' }}
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}

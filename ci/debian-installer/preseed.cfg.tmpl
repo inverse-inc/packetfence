@@ -1,5 +1,5 @@
 #_preseed_V1
-#### Contents of the preconfiguration file (for bullseye)
+#### Contents of the preconfiguration file (for bookworm)
 ### Localization
 # Preseeding only locale sets language, country and locale.
 d-i debian-installer/locale string en_US
@@ -340,7 +340,7 @@ d-i partman/confirm_nooverwrite boolean true
 # currently not supported.
 
 d-i apt-setup/local0/repository string \
-  http://inverse.ca/downloads/PacketFence/debian/%%PF_VERSION%% bullseye bullseye
+  http://inverse.ca/downloads/PacketFence/debian/%%PF_VERSION%% bookworm bookworm
 d-i apt-setup/local0/source boolean true
 d-i apt-setup/local0/key string https://inverse.ca/downloads/GPG_PUBLIC_KEY
 

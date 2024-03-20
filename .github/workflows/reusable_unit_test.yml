@@ -43,7 +43,7 @@ jobs:
           PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
           PF_MINOR_RELEASE=$(curl -s ${PF_RELEASE_PATH}  | grep -oE '[0-9]+\.[0-9]+')
           wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
-          echo "deb http://inverse.ca/downloads/PacketFence/debian/${PF_MINOR_RELEASE} bullseye bullseye" > /etc/apt/sources.list.d/packetfence.list
+          echo "deb http://inverse.ca/downloads/PacketFence/debian/${PF_MINOR_RELEASE} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
           apt update
           set -e && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.deb -exec bash -c 'apt install -f -y {}' \;
           echo "Next packages ${{ inputs._PACKAGE_NAME }} was installed successfuly: "

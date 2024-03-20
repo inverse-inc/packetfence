@@ -7,7 +7,7 @@
     docker_images:
       - pfdebian
       - radiusd
-      - pfbuild-debian-bullseye
+      - pfbuild-debian-bookworm
 
   tasks:
     - name: Install python3-docker for images

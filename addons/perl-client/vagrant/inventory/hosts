@@ -15,8 +15,8 @@ all:
               mgmt_netmask: 255.255.255.0              
               ansible_host: "{{ mgmt_ip}}"
             fbdeb11dev:
-              box: debian/bullseye64
-              box_version: 11.20210409.1
+              box: debian/bookworm64
+              box_version: 12.20240212.1 
               mgmt_ip: 172.17.18.11
               mgmt_netmask: 255.255.255.0              
               ansible_host: "{{ mgmt_ip }}"

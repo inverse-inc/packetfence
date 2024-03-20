@@ -57,7 +57,7 @@
       
     - name: add apt source
       ansible.builtin.apt_repository:
-        repo: "deb https://samba.tranquil.it/debian/samba-4.16/ bullseye main"
+        repo: "deb https://samba.tranquil.it/debian/samba-4.16/ bookworm main"
         state: present
   
     - name: update and upgrade

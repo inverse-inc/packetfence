@@ -28,8 +28,8 @@ variables:
   PIPELINE_TIMEOUT_SCRIPT: 160m
   PIPELINE_TIMEOUT_CLEANUP: 10m
   BUILD_PFAPPSERVER_VUE: "yes"
-  PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
-  PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
+  PFBUILD_RHEL_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
+  PFBUILD_DEB_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bookworm
   KANIKO_DEBUG_IMG: gcr.io/kaniko-project/executor:debug
   KANIKOBUILD_IMG: ghcr.io/inverse-inc/packetfence/kaniko-build
   KNK_REGISTRY: ghcr.io
@@ -583,7 +583,7 @@ variables:
 # CHECK JOBS
 ########################################
 run_pipeline_if_necessary:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .check_job
     - .check_devel_branches_and_maintenance_rules
@@ -965,7 +965,7 @@ build_img_docker_deb11_devel:
     - .build_img_docker_devel_rules
   variables:
     DOCKER_TAGS: latest,devel,maintenance-99-9
-    ACTIVE_BUILDS: 'pfbuild-bullseye'
+    ACTIVE_BUILDS: 'pfbuild-bookworm'
 
 build_img_docker_deb11_branches_and_maintenance:
   extends:
@@ -973,7 +973,7 @@ build_img_docker_deb11_branches_and_maintenance:
     - .build_img_docker_branches_and_maintenance_rules
   variables:
     DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
-    ACTIVE_BUILDS: 'pfbuild-bullseye'
+    ACTIVE_BUILDS: 'pfbuild-bookworm'
 
 # build a docker image at release
 # used to build release and maintenance packages
@@ -987,7 +987,7 @@ build_img_docker_deb11_release:
     ANSIBLE_CENTOS8_GROUP: stable_centos8
     ANSIBLE_DEBIAN_GROUP: common_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
-    ACTIVE_BUILDS: 'pfbuild-bullseye'
+    ACTIVE_BUILDS: 'pfbuild-bookworm'
 
 ### build Docker images on cloud nac branches
 build_img_docker_el8_cloud_nac:
@@ -1004,7 +1004,7 @@ build_img_docker_deb11_cloud_nac:
     - .build_img_docker_cloud_nac_rules
   variables:
     DOCKER_TAGS: ${CI_COMMIT_REF_SLUG},${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-    ACTIVE_BUILDS: 'pfbuild-bullseye'
+    ACTIVE_BUILDS: 'pfbuild-bookworm'
 
 ### build_img_vagrant jobs
 # build_img_vagrant_devel_and_branches_el_8:
@@ -1014,7 +1014,7 @@ build_img_docker_deb11_cloud_nac:
 #   variables:
 #     BOX_NAME: pfel8dev
 
-build_img_vagrant_devel_and_branches_debian_bullseye:
+build_img_vagrant_devel_and_branches_debian_bookworm:
   extends:
     - .build_img_vagrant_devel_and_branches_job
     - .build_img_vagrant_devel_and_branches_rules
@@ -1026,14 +1026,14 @@ build_img_vagrant_devel_and_branches_debian_bullseye:
 ########################################
 # build_artifacts_pkg jobs for development (devel)
 build_artifacts_pkg_devel_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_RHEL_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_artifacts_pkg_job
     - .rpm_script_job
     - .build_artifacts_pkg_devel_rules
 
-build_artifacts_pkg_devel_debian_bullseye:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+build_artifacts_pkg_devel_debian_bookworm:
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_artifacts_pkg_job
     - .deb_script_job
@@ -1041,14 +1041,14 @@ build_artifacts_pkg_devel_debian_bullseye:
 
 # build_artifacts_pkg jobs for development (branches other than devel and maintenance)
 build_artifacts_pkg_branches_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_REF_SLUG}
+  image: ${PFBUILD_RHEL_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .build_artifacts_pkg_job
     - .rpm_script_job
     - .build_artifacts_pkg_branches_rules
 
-build_artifacts_pkg_branches_debian_bullseye:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_REF_SLUG}
+build_artifacts_pkg_branches_debian_bookworm:
+  image: ${PFBUILD_DEB_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .build_artifacts_pkg_job
     - .deb_script_job
@@ -1057,14 +1057,14 @@ build_artifacts_pkg_branches_debian_bullseye:
 # build_artifacts_pkg jobs for release
 # CI_COMMIT_TAG contains vX.Y.X
 build_artifacts_pkg_release_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_TAG}
+  image: ${PFBUILD_RHEL_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_artifacts_pkg_job
     - .rpm_script_job
     - .release_only_rules
 
-build_artifacts_pkg_release_debian_bullseye:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+build_artifacts_pkg_release_debian_bookworm:
+  image: ${PFBUILD_DEB_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_artifacts_pkg_job
     - .deb_script_job
@@ -1072,14 +1072,14 @@ build_artifacts_pkg_release_debian_bullseye:
 
 # CI_COMMIT_REF_SLUG contains maintenance-X-Y
 build_artifacts_pkg_maintenance_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_REF_SLUG}
+  image: ${PFBUILD_RHEL_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .build_artifacts_pkg_job
     - .rpm_script_job
     - .maintenance_only_rules
 
-build_artifacts_pkg_maintenance_debian_bullseye:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_REF_SLUG}
+build_artifacts_pkg_maintenance_debian_bookworm:
+  image: ${PFBUILD_DEB_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .build_artifacts_pkg_job
     - .deb_script_job
@@ -1087,7 +1087,7 @@ build_artifacts_pkg_maintenance_debian_bullseye:
 
 # build_artifacts_website jobs for development
 build_artifacts_website_devel_and_branches:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_artifacts_website_job
     - .build_artifacts_website_devel_and_branches_rules
@@ -1095,35 +1095,35 @@ build_artifacts_website_devel_and_branches:
 # build_artifacts_website job for release
 # CI_COMMIT_TAG contains vX.Y.X
 build_artifacts_website_release:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+  image: ${PFBUILD_DEB_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_artifacts_website_job
     - .release_only_rules
 
 # build_artificats_material job for development
 material_devel_and_branches:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_artifacts_material_job
     - .build_artifacts_material_devel_and_branches_rules
 
 # build_artificats_material job for release
 material_release:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+  image: ${PFBUILD_DEB_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_artifacts_material_job
     - .release_only_rules
 
 # build_artifacts_doc jobs for development
 build_artifacts_doc_devel_and_branches:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_artifacts_doc_job
     - .build_artifacts_doc_devel_and_branches_rules
 
 # build_artifacts_doc jobs for release
 build_artifacts_doc_release:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+  image: ${PFBUILD_DEB_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_artifacts_doc_job
     - .release_only_rules
@@ -1140,13 +1140,13 @@ sign_devel_release_branches_and_maintenance:
     - ci-sign-pkg
   dependencies:
     - build_artifacts_pkg_devel_centos_8
-    - build_artifacts_pkg_devel_debian_bullseye
+    - build_artifacts_pkg_devel_debian_bookworm
     - build_artifacts_pkg_branches_centos_8
-    - build_artifacts_pkg_branches_debian_bullseye
+    - build_artifacts_pkg_branches_debian_bookworm
     - build_artifacts_pkg_release_centos_8
-    - build_artifacts_pkg_release_debian_bullseye
+    - build_artifacts_pkg_release_debian_bookworm
     - build_artifacts_pkg_maintenance_centos_8
-    - build_artifacts_pkg_maintenance_debian_bullseye
+    - build_artifacts_pkg_maintenance_debian_bookworm
   artifacts:
     expire_in: 1 day
     paths:
@@ -1721,7 +1721,7 @@ build_pf_img_iso_release:
 #       when: manual
 #       allow_failure: true
 
-build_pf_img_vagrant_release_debian_bullseye:
+build_pf_img_vagrant_release_debian_bookworm:
   extends:
     - .build_pf_img_vagrant_release_job
   variables:
