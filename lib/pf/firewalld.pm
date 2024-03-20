@@ -40,15 +40,16 @@ BEGIN {
     firewalld_generate_pfconf_configs
     firewalld_generate_pfconfig_configs
     generate_chains
-    generate_default_chain_rules
-    generate_input_portal_if
-    generate_input_radius_if
-    generate_input_dns_if
-    generate_input_dhcp_if
-    generate_input_internal_vlan_if
-    generate_input_internal_isol_vlan_if
-    generate_input_internal_inline_if
-    generate_input_highavailability_if
+    generate_chain
+    generate_input_management_if_chained_rules
+    input_portal_if_chained_rules
+    input_radius_if_chained_rules
+    input_dns_if_chained_rules
+    input_dhcp_if_chained_rules
+    input_internal_vlan_if_chained_rules
+    input_internal_isol_vlan_if_chained_rules
+    input_internal_inline_if_chained_rules
+    input_highavailability_if_chained_rules
     internal_interfaces_handling
     portal_interfaces_handling
     radius_interfaces_handling
@@ -57,14 +58,14 @@ BEGIN {
     management_interface_handling
     high_availability_interfaces_handling
     nat_back_inline_enabled
-    generate_netdata_firewalld_config
-    generate_FB_collector_firewalld_config
-    generate_eduroam_radius_config
-    generate_inline_enforcement
-    generate_inline_rules
-    generate_inline_if_src_to_chain
-    generate_mangle_rules
-    generate_nat_redirect_rules
+    netdata_firewalld_config
+    fingerbank_collector_firewalld_config
+    eduroam_radius_firewalld_config
+    inline_enforcement_firewalld_config
+    inline_rules_firewalld_config
+    inline_if_src_to_chain_firewalld_config
+    mangle_rules_firewalld_config
+    nat_redirect_rules_firewalld_config
     generate_interception_rules
     generate_dnat_from_docker
     generate_passthrough_rules
@@ -218,11 +219,31 @@ sub generate_chains {
     prerouting-int-vlan-if
   );
   for my $chain (@chains) {
-    util_chain( "ipv4", "filter", $chain, $action);
+    generate_chain( "ipv4", "filter", $chain, $action );
   }
 }
 
-sub generate_default_chain_rules {
+sub generate_chain {
+  my $ipv   = shift;
+  my $table = shift;
+  my $chain = shift;
+  my $action = shift;
+  if ( ! defined $ipv || $ipv eq "" ){
+    get_logger->error( "The generate_chain ipv is not defined or empty. default will be 'ipv4'." );
+    $ipv = "ipv4";
+  }
+  if ( ! defined $table || $table eq "" ){
+    get_logger->error( "The generate_chain table is not defined or empty. default will be 'filter'." );
+    $table = "filter";
+  }
+  if ( ! defined $action || $action eq "" ){
+    get_logger->error( "The generate_chain action is not defined or empty. default will be 'add'." );
+    $action = "add";
+  }
+  util_chain( "ipv4", "filter", $chain, $action );
+}
+
+sub generate_input_management_if_chained_rules {
   my $action = shift;
   my $web_admin_port = $Config{'ports'}{'admin'};
   my $webservices_port = $Config{'ports'}{'soap'};
@@ -245,14 +266,14 @@ sub generate_default_chain_rules {
   management_interface_handling( $action );
 }
 
-sub generate_input_portal_if {
+sub input_portal_if_chained_rules {
   my $action = shift;
   util_direct_rule( "ipv4 filter input-portal-if 0 -p tcp --match tcp --dport 80 --jump ACCEPT", $action );
   util_direct_rule( "ipv4 filter input-portal-if 0 -p tcp --match tcp --dport 443 --jump ACCEPT", $action );
   util_direct_rule( "ipv4 filter input-portal-if 0 -p tcp --match tcp --dport 8080 --jump ACCEPT", $action );
 }
 
-sub generate_input_radius_if {
+sub input_radius_if_chained_rules {
   my $action = shift;
   util_direct_rule( "ipv4 filter input-radius-if 0 -p tcp --match tcp --dport 1812 --jump ACCEPT", $action );
   util_direct_rule( "ipv4 filter input-radius-if 0 -p udp --match udp --dport 1812 --jump ACCEPT", $action );
@@ -263,20 +284,20 @@ sub generate_input_radius_if {
   util_direct_rule( "ipv4 filter input-radius-if 0 -p tcp --match tcp --dport 2083 --jump ACCEPT", $action );
 }
 
-sub generate_input_dns_if {
+sub input_dns_if_chained_rules {
   my $action = shift;
   util_direct_rule( "ipv4 filter input-dns-if 0 --protocol tcp --match tcp --dport 53 --jump ACCEPT", $action );
   util_direct_rule( "ipv4 filter input-dns-if 0 --protocol udp --match udp --dport 53 --jump ACCEPT", $action );
 }
 
-sub generate_input_dhcp_if {
+sub input_dhcp_if_chained_rules {
   my $action = shift;
   util_direct_rule( "ipv4 filter input-dhcp-if 0 --protocol udp --match udp --dport 67  --jump ACCEPT", $action );
   util_direct_rule( "ipv4 filter input-dhcp-if 0 --protocol tcp --match tcp --dport 67  --jump ACCEPT", $action );
 }
 
 
-sub generate_input_internal_vlan_if {
+sub input_internal_vlan_if_chained_rules {
   my $action = shift;
 # DNS
   util_direct_rule( "ipv4 filter input-internal-vlan-if 0 --protocol tcp --match tcp --dport 53  --jump ACCEPT", $action );
@@ -290,7 +311,7 @@ sub generate_input_internal_vlan_if {
   util_direct_rule( "ipv4 filter input-internal-vlan-if 0 --protocol tcp --match tcp --dport 5252 --jump ACCEPT", $action );
 }
 
-sub generate_input_internal_isol_vlan_if {
+sub input_internal_isol_vlan_if_chained_rules {
   my $action = shift;
 # DNS
   util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol tcp --match tcp --dport 53  --jump ACCEPT", $action );
@@ -307,7 +328,7 @@ sub generate_input_internal_isol_vlan_if {
   util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol tcp --match tcp --dport 5252 --jump ACCEPT", $action );
 }
 
-sub generate_input_internal_inline_if {
+sub input_internal_inline_if_chained_rules {
   my $action = shift;
 # DNS
   util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol tcp --match tcp --dport 53  --jump ACCEPT", $action );
@@ -324,7 +345,7 @@ sub generate_input_internal_inline_if {
   util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol tcp --match tcp --dport 647 --jump ACCEPT", $action );
 }
 
-sub generate_input_highavailability_if {
+sub input_highavailability_if_chained_rules {
   my $action = shift;
 #SSH
   util_direct_rule( "ipv4 filter input-highavailability-if 0 --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT", $action );
@@ -451,7 +472,7 @@ sub dhcp_interfaces_handling {
   # 'dhcp' interfaces handling
   foreach my $dhcp_interface ( @dhcp_ints ) {
     my $dev = $dhcp_interface->tag("int");
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev --j $FW_FILTER_INPUT_DHCP", $action );
+    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_DHCP", $action );
   }
 }
 
@@ -460,7 +481,7 @@ sub dns_interfaces_handling {
   # 'dns' interfaces handling
   foreach my $dns_interface ( @dns_ints ) {
     my $dev = $dns_interface->tag("int");
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev --j $FW_FILTER_INPUT_DNS", $action );
+    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_DNS", $action );
   }
 }
 
@@ -469,7 +490,7 @@ sub management_interface_handling {
   # management interface handling
   if( $management_network ) {
     my $dev = $management_network->tag("int");
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev --j $FW_FILTER_INPUT_MGMT", $action );
+    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_MGMT", $action );
   }
 }
 
@@ -477,7 +498,7 @@ sub high_availability_interfaces_handling {
   my $action = shift;
   # high-availability interfaces handling
   foreach my $dev (map { $_ ? $_->{Tint} : () } @ha_ints) {
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev --j $FW_FILTER_INPUT_INT_HA", $action );
+    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_INT_HA", $action );
   }
 }
 
@@ -504,7 +525,7 @@ sub nat_back_inline_enabled {
   }
 }
 
-sub generate_netdata_firewalld_config {
+sub netdata_firewalld_config {
   my $action = shift;
   my $mgnt_zone =  $management_network->{Tip};
   util_direct_rule("ipv4 filter input-management-if -p tcp --match tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
@@ -517,7 +538,7 @@ sub generate_netdata_firewalld_config {
   util_direct_rule("ipv4 filter input-management-if 0 -p tcp --match tcp --dport 19999 -j DROP", $action );
 }
 
-sub generate_FB_collector_firewalld_config {
+sub fingerbank_collector_firewalld_config {
   my $action = shift;
   # The dynamic range used to access the fingerbank collector that are connected via a remote connector
   my $mgnt_zone =  $management_network->{Tip};
@@ -530,7 +551,7 @@ sub generate_FB_collector_firewalld_config {
   }
 }
 
-sub generate_eduroam_radius_config {
+sub eduroam_radius_firewalld_config {
   my $action = shift;
   # eduroam RADIUS virtual-server
   if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
@@ -552,185 +573,166 @@ sub generate_eduroam_radius_config {
   }
 }
 
-sub generate_inline_enforcement {
+sub inline_enforcement_firewalld_config {
   my $action = shift;
-  if ( is_inline_enforcement_enabled() ) {
-    # Note: I'm giving references to this guy here so he can directly mess with the tables
-    generate_inline_rules($action);
-    # Mangle
-    generate_inline_if_src_to_chain($FW_TABLE_MANGLE,$action);
-    generate_mangle_rules($action);
-    # NAT chain targets and redirections (other rules injected by generate_inline_rules)
-    generate_inline_if_src_to_chain($FW_TABLE_NAT,$action);
-    generate_nat_redirect_rules($action);
-  }
-
+  # Note: I'm giving references to this guy here so he can directly mess with the tables
+  inline_rules_firewalld_config($action);
+  # Mangle
+  inline_if_src_to_chain_firewalld_config($FW_TABLE_MANGLE,$action);
+  mangle_rules_firewalld_config($action);
+  # NAT chain targets and redirections (other rules injected by generate_inline_rules)
+  inline_if_src_to_chain_firewalld_config($FW_TABLE_NAT,$action);
+  nat_redirect_rules_firewalld_config($action);
 }
 
-sub generate_inline_rules {
+sub inline_rules_firewalld_config {
   my $action = shift;
   my $logger = get_logger();
-  $logger->info("Adding DNS DNAT rules for unregistered and isolated inline clients.");
+  if ( is_inline_enforcement_enabled() ) {
+    $logger->info("The action $action has been set on DNS DNAT rules for unregistered and isolated inline clients.");
+    foreach my $network ( keys %ConfigNetworks ) {
+      # We skip non-inline networks/interfaces
+      next if ( !pf::config::is_network_type_inline($network) );
+      # Set the correct gateway if it is an inline Layer 3 network
+      my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+      my $gateway = $Config{"interface $dev"}{'ip'};
 
-  foreach my $network ( keys %ConfigNetworks ) {
-    # We skip non-inline networks/interfaces
-    next if ( !pf::config::is_network_type_inline($network) );
-    # Set the correct gateway if it is an inline Layer 3 network
-    my $dev = $NetworkConfig{$network}{'interface'}{'int'};
-    my $gateway = $Config{"interface $dev"}{'ip'};
-
-    my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-    util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
-    util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
-
-    if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
-      $rule = "--protocol udp --destination-port 53 -s $ConfigNetworks{$network}{'reg_network'}";
+      my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
       util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
       util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
+
+      if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
+        $rule = "--protocol udp --destination-port 53 -s $ConfigNetworks{$network}{'reg_network'}";
+        util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
+        util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
+      }
+
+      if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+        $logger->info("Adding Proxy interception rules");
+        foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
+          my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
+          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
+          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
+        }
+      }
     }
 
     if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
       $logger->info("Adding Proxy interception rules");
       foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-        my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
-        util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
-        util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
+        util_direct_rule("ipv4 filter $FW_FILTER_INPUT_INT_INLINE 0 --protocol tcp --match tcp --dport $intercept_port --match mark --mark 0x$IPTABLES_MARK_UNREG  --jump ACCEPT", $action );
+        util_direct_rule("ipv4 filter $FW_FILTER_INPUT_INT_INLINE 0 --protocol tcp --match tcp --dport $intercept_port --match mark --mark 0x$IPTABLES_MARK_UNREG  --jump ACCEPT", $action );
+        util_direct_rule("ipv4 filter $FW_FILTER_INPUT_INT_INLINE 0 --protocol tcp --match tcp --dport $intercept_port --match mark --mark 0x$IPTABLES_MARK_REG  --jump DROP", $action );
       }
     }
-  }
 
-  if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
-    $logger->info("Adding Proxy interception rules");
-    foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-      util_direct_rule("ipv4 filter $FW_FILTER_INPUT_INT_INLINE 0 --protocol tcp --match tcp --dport $intercept_port --match mark --mark 0x$IPTABLES_MARK_UNREG  --jump ACCEPT", $action );
-      util_direct_rule("ipv4 filter $FW_FILTER_INPUT_INT_INLINE 0 --protocol tcp --match tcp --dport $intercept_port --match mark --mark 0x$IPTABLES_MARK_UNREG  --jump ACCEPT", $action );
-      util_direct_rule("ipv4 filter $FW_FILTER_INPUT_INT_INLINE 0 --protocol tcp --match tcp --dport $intercept_port --match mark --mark 0x$IPTABLES_MARK_REG  --jump DROP", $action );
+    $logger->info("Adding NAT Masquarade statement (PAT)");
+    util_direct_rule("ipv4 filter $FW_POSTROUTING_INT_INLINE 0 --jump MASQUERADE", $action );
+
+    $logger->info("Addind ROUTED statement");
+    util_direct_rule("ipv4 filter $FW_POSTROUTING_INT_INLINE_ROUTED 0 --jump ACCEPT", $action );
+
+    $logger->info("building firewall to accept registered users through inline interface");
+    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
+
+    if ($passthrough_enabled) {
+      util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_INLINE 0 --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
+      util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_INLINE 0 --match mark --mark 0x$IPTABLES_MARK_ISOLATION -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
     }
+    util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_INLINE 0 --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT", $action );
+  } else {
+    $logger->info("NO Action taken on DNS DNAT rules for unregistered and isolated inline clients.");
   }
-
-  $logger->info("Adding NAT Masquarade statement (PAT)");
-  util_direct_rule("ipv4 filter $FW_POSTROUTING_INT_INLINE 0 --jump MASQUERADE", $action );
-
-  $logger->info("Addind ROUTED statement");
-  util_direct_rule("ipv4 filter $FW_POSTROUTING_INT_INLINE_ROUTED 0 --jump ACCEPT", $action );
-
-  $logger->info("building firewall to accept registered users through inline interface");
-  my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
-
-  if ($passthrough_enabled) {
-    util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_INLINE 0 --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_INLINE 0 --match mark --mark 0x$IPTABLES_MARK_ISOLATION -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
-  }
-  util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_INLINE 0 --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT", $action );
 }
 
-sub generate_inline_if_src_to_chain {
+sub inline_if_src_to_chain_firewalld_config {
   my $table = shift;
   my $action = shift;
   my $logger = get_logger();
-  # internal interfaces handling
-  foreach my $interface (@internal_nets) {
-    my $dev = $interface->tag("int");
-    my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
+  if ( is_inline_enforcement_enabled() ) {
+    $logger->info("The action $action has been set on inline clients for table $table.");
+    # internal interfaces handling
+    foreach my $interface (@internal_nets) {
+      my $dev = $interface->tag("int");
+      my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
 
-    # inline enforcement
-    if (is_type_inline($enforcement_type)) {
-      # send everything from inline interfaces to the inline chain
-      util_direct_rule("ipv4 filter PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_INLINE", $action );
-      util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $dev --jump $FW_POSTROUTING_INT_INLINE", $action );
-    }
-  }
-
-  # POSTROUTING
-  if ( $table ne $FW_TABLE_NAT ) {
-    my @values = split(',', get_inline_snat_interface());
-    foreach my $val (@values) {
-      util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $val --jump $FW_POSTROUTING_INT_INLINE", $action );
-    }
-  }
-
-  # NAT POSTROUTING
-  if ($table eq $FW_TABLE_NAT) {
-    my $mgmt_int = $management_network->tag("int");
-
-    # Every marked packet should be NATed
-    # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
-    foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-      my @values = split(',', get_inline_snat_interface());
-      foreach my $val (@values) {
-        foreach my $network ( keys %ConfigNetworks ) {
-          next if ( !pf::config::is_network_type_inline($network) );
-          my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-          my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-          if (defined ($nat) && (isdisabled($nat))) {
-            util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$inline_obj->{BITS} --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE_ROUTED", $action );
-          }
-        }
-        util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
+      # inline enforcement
+      if (is_type_inline($enforcement_type)) {
+        # send everything from inline interfaces to the inline chain
+        util_direct_rule("ipv4 filter PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_INLINE", $action );
+        util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $dev --jump $FW_POSTROUTING_INT_INLINE", $action );
       }
     }
+
+    # POSTROUTING
+    if ( $table ne $FW_TABLE_NAT ) {
+      my @values = split(',', get_inline_snat_interface());
+      foreach my $val (@values) {
+        util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $val --jump $FW_POSTROUTING_INT_INLINE", $action );
+      }
+    }
+
+    # NAT POSTROUTING
+    if ($table eq $FW_TABLE_NAT) {
+      my $mgmt_int = $management_network->tag("int");
+
+      # Every marked packet should be NATed
+      # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
+      foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
+        my @values = split(',', get_inline_snat_interface());
+        foreach my $val (@values) {
+          foreach my $network ( keys %ConfigNetworks ) {
+            next if ( !pf::config::is_network_type_inline($network) );
+            my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+            if (defined ($nat) && (isdisabled($nat))) {
+              util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$inline_obj->{BITS} --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE_ROUTED", $action );
+            }
+          }
+          util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
+        }
+      }
+    }
+  } else {
+    $logger->info("NO Action taken on inline clients for table $table.");
   }
 }
 
-sub generate_mangle_rules {
+sub mangle_rules_firewalld_config {
   my $action = shift;
   my $logger = get_logger();
-  my $mangle_rules = '';
-  my @ops = ();
+  if ( is_inline_enforcement_enabled() ) {
+    $logger->info("The action $action has been set on mangle rules.");
+    my $mangle_rules = '';
+    my @ops = ();
 
-  # pfdhcplistener in most cases will be enforcing access
-  # however we insert these marks on startup in case PacketFence is restarted
+    # pfdhcplistener in most cases will be enforcing access
+    # however we insert these marks on startup in case PacketFence is restarted
 
-  # default catch all: mark unreg
-  util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG", $action );
-  foreach my $network ( keys %ConfigNetworks ) {
-    next if ( !pf::config::is_network_type_inline($network) );
-    foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-      my $rule = "";
-      if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-        $rule = "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src ";
-      } else {
-        $rule .= "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
-      }
-      $rule .= "--jump MARK --set-mark 0x$IPTABLES_MARK";
-      util_direct_rule("ipv4 filter $rule", $action );
-    }
-  }
-
-  # Build lookup table for MAC/IP mapping
-  my @iplog_open = pf::ip4log::list_open();
-  my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
-
-  # mark registered nodes that should not be isolated
-  # TODO performance: mark all *inline* registered users only
-  my @registered = nodes_registered_not_violators();
-  foreach my $row (@registered) {
+    # default catch all: mark unreg
+    util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", $action );
     foreach my $network ( keys %ConfigNetworks ) {
       next if ( !pf::config::is_network_type_inline($network) );
-      my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-      my $mac = $row->{'mac'};
-      my $iplog = $iplog_lookup{clean_mac($mac)};
-      if (defined $iplog) {
-        my $ip = new NetAddr::IP::Lite clean_ip($iplog);
-        if ($net_addr->contains($ip)) {
-          if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog");
-            push(@ops, "add PF-iL3_ID$row->{'category_id'}_$network $iplog");
-          } else {
-            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
-            push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog");
-          }
+      foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
+        my $rule = "";
+        if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+          $rule = "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src ";
+        } else {
+          $rule .= "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
         }
+        $rule .= "-j MARK --set-mark 0x$IPTABLES_MARK";
+        util_direct_rule("ipv4 filter $rule", $action );
       }
     }
-  }
 
-  # mark all open security_events
-  # TODO performance: only those whose's last connection_type is inline?
-  require pf::security_event;
-  my @macarray = pf::security_event::security_event_view_open_uniq();
-  if ( $macarray[0] ) {
-    foreach my $row (@macarray) {
+    # Build lookup table for MAC/IP mapping
+    my @iplog_open = pf::ip4log::list_open();
+    my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
+
+    # mark registered nodes that should not be isolated
+    # TODO performance: mark all *inline* registered users only
+    my @registered = nodes_registered_not_violators();
+    foreach my $row (@registered) {
       foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
@@ -740,57 +742,89 @@ sub generate_mangle_rules {
           my $ip = new NetAddr::IP::Lite clean_ip($iplog);
           if ($net_addr->contains($ip)) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-              push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog");
+              push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog");
+              push(@ops, "add PF-iL3_ID$row->{'category_id'}_$network $iplog");
             } else {
-              push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac");
+              push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
+              push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog");
             }
           }
         }
       }
     }
-  }
 
-  if (@ops) {
-    my $cmd = "LANG=C sudo ipset restore 2>&1";
-    open(IPSET, "| $cmd") || die "$cmd failed: $!\n";
-    print IPSET join("\n", @ops);
-    close IPSET;
+    # mark all open security_events
+    # TODO performance: only those whose's last connection_type is inline?
+    require pf::security_event;
+    my @macarray = pf::security_event::security_event_view_open_uniq();
+    if ( $macarray[0] ) {
+      foreach my $row (@macarray) {
+        foreach my $network ( keys %ConfigNetworks ) {
+          next if ( !pf::config::is_network_type_inline($network) );
+          my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+          my $mac = $row->{'mac'};
+          my $iplog = $iplog_lookup{clean_mac($mac)};
+          if (defined $iplog) {
+            my $ip = new NetAddr::IP::Lite clean_ip($iplog);
+            if ($net_addr->contains($ip)) {
+              if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog");
+              } else {
+                push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac");
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (@ops) {
+      my $cmd = "LANG=C sudo ipset restore 2>&1";
+      open(IPSET, "| $cmd") || die "$cmd failed: $!\n";
+      print IPSET join("\n", @ops);
+      close IPSET;
+    }
+  } else {
+    $logger->info("NO Action taken on mangle rules.");
   }
 }
 
-sub generate_nat_redirect_rules {
+sub nat_redirect_rules_firewalld_config {
   my $action = shift;
   my $logger = get_logger();
-  my $rule = '';
+  if ( is_inline_enforcement_enabled() ) {
+    $logger->info("The action $action has been set on nat redirect rules.");
+    my $rule = '';
 
-  # Exclude the OAuth from the DNAT
-  my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
+    # Exclude the OAuth from the DNAT
+    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
 
-  if ($passthrough_enabled) {
-    $rule = "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_passthrough dst,dst ".
-    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT";
-    util_direct_rule("ipv4 filter $rule", $action );
-    $rule = "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_isol_passthrough dst,dst ".
-    "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump ACCEPT";
-    util_direct_rule("ipv4 filter $rule", $action );
-  }
-
-  # Now, do your magic
-  foreach my $redirectport ( split( /\s*,\s*/, $Config{'inline'}{'ports_redirect'} ) ) {
-    my ( $port, $protocol ) = split( "/", $redirectport );
-    foreach my $network ( keys %ConfigNetworks ) {
-      # We skip non-inline networks/interfaces
-      next if ( !pf::config::is_network_type_inline($network) );
-      # Set the correct gateway if it is an inline Layer 3 network
-      my $dev = $NetworkConfig{$network}{'interface'}{'int'};
-      my $gateway = $Config{"interface $dev"}{'ip'};
-
-      # Destination NAT to the portal on the ISOLATION mark
-      $rule =
-      " $FW_PREROUTING_INT_INLINE 0 --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
-      "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway";
+    if ($passthrough_enabled) {
+      $rule = "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_passthrough dst,dst --match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT";
+      util_direct_rule("ipv4 filter $rule", $action );
+      $rule = "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_isol_passthrough dst,dst --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump ACCEPT";
       util_direct_rule("ipv4 filter $rule", $action );
     }
+
+    # Now, do your magic
+    foreach my $redirectport ( split( /\s*,\s*/, $Config{'inline'}{'ports_redirect'} ) ) {
+      my ( $port, $protocol ) = split( "/", $redirectport );
+      foreach my $network ( keys %ConfigNetworks ) {
+        # We skip non-inline networks/interfaces
+        next if ( !pf::config::is_network_type_inline($network) );
+        # Set the correct gateway if it is an inline Layer 3 network
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        my $gateway = $Config{"interface $dev"}{'ip'};
+
+        # Destination NAT to the portal on the ISOLATION mark
+        $rule =
+        " $FW_PREROUTING_INT_INLINE 0 --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
+        "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway";
+        util_direct_rule("ipv4 filter $rule", $action );
+      }
+    }
+  } else {
+    $logger->info("NO Action taken nat redirect rules.");
   }
 }
 
