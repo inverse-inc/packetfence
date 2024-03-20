@@ -38,9 +38,10 @@ foreach ($event in $events)
     }
     $eventArr += $e
 }
-$payload = @()
-$payload['Domain'] = $domain
-$eventJson = $eventArr | ConvertTo-Json
-$response = Invoke-RestMethod -Uri $password_notifier_url -Method Post -Body $eventJson -ContentType "application/json" -Headers @{ "Authorization" = $token }
+$payload = @{}
+$payload['Domain'] = $domainID
+$payload['Events'] = $eventArr
+$payloadJson = $payload | ConvertTo-Json
+$response = Invoke-RestMethod -Uri $password_notifier_url -Method Post -Body $payloadJson -ContentType "application/json" -Headers @{ "Authorization" = $token }
 
 Write-Output($response)
