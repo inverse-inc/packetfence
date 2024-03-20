@@ -7,9 +7,10 @@
 $base_url = "https://#PACKETFENCE_IP:9999"
 $username = ""         # Username for the webservice, change to your own username.
 $password = ""         # Password for the webservice, change to your own password.
+$domainID = ""         # your domain identifier in domain.conf
 
 $token_url = $base_url + "/api/v1/login"
-$password_notifier_url = $base_url + "/api/v1/ntlm/password_change"
+$password_notifier_url = $base_url + "/api/v1/ntlm/event-report"
 
 $credential = @{ "username" = $username; "password" = $password }
 $credJson = $credential| ConvertTo-Json
@@ -24,9 +25,9 @@ foreach ($event in $events)
 {
     $e = @{ }
     $xmlObject = [xml]$event.ToXml()
-    $e['recordID'] = $event.RecordId
-    $e['eventTime'] = $event.TimeCreated
-    $e['eventTypeID'] = $event.Id
+    $e['RecordID'] = $event.RecordId
+    $e['EventTime'] = $event.TimeCreated
+    $e['EventTypeID'] = $event.Id
 
     if ($xmlObject.Event.EventData.Data.Length -ge 0)
     {
@@ -37,6 +38,8 @@ foreach ($event in $events)
     }
     $eventArr += $e
 }
+$payload = @()
+$payload['Domain'] = $domain
 $eventJson = $eventArr | ConvertTo-Json
 $response = Invoke-RestMethod -Uri $password_notifier_url -Method Post -Body $eventJson -ContentType "application/json" -Headers @{ "Authorization" = $token }
 
