@@ -120,20 +120,19 @@
           </base-form-tab>
 
           <base-form-tab v-if="supports(['RoleBasedEnforcement'])"
-                         :title="$i18n.t('Switch Role')">
+            :title="$i18n.t('Switch Role')">
             <b-card class="mb-3 pb-0" no-body>
               <b-card-header>
                 <h4 class="mb-0" v-t="'Role mapping by Switch Role'"></h4>
               </b-card-header>
               <div class="card-body pb-0">
                 <form-group-toggle-role-map namespace="RoleMap"
-                                            :column-label="$i18n.t('Role by Switch Role')"
+                  :column-label="$i18n.t('Role by Switch Role')"
                 />
 
                 <template v-if="isRoleMap">
-                  <form-group-role-map-role v-for="role in roles" :key="`${role}Role`"
-                                            :namespace="`${role}Role`"
-                                            :column-label="role"
+                  <form-group-role-map-role v-for="role in roles" :key="`${role}Role`" :namespace="`${role}Role`"
+                    :column-label="role"
                   />
                 </template>
               </div>
@@ -141,20 +140,19 @@
           </base-form-tab>
 
           <base-form-tab v-if="supports(['VPNRoleBasedEnforcement'])"
-                         :title="$i18n.t('Vpn Role')">
+            :title="$i18n.t('Vpn Role')">
             <b-card class="mb-3 pb-0" no-body>
               <b-card-header>
                 <h4 class="mb-0" v-t="'Role mapping by Vpn Role'"></h4>
               </b-card-header>
               <div class="card-body pb-0">
                 <form-group-toggle-access-list-map namespace="VpnMap"
-                                                   :column-label="$i18n.t('Role by Vpn Role')"
+                  :column-label="$i18n.t('Role by Vpn Role')"
                 />
 
                 <template v-if="isVpnMap">
-                  <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`"
-                                           :namespace="`${role}Vpn`"
-                                           :column-label="role"
+                  <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`" :namespace="`${role}Vpn`"
+                    :column-label="role"
                   />
                 </template>
               </div>
@@ -162,16 +160,20 @@
           </base-form-tab>
 
           <base-form-tab v-if="supports(['AccessListBasedEnforcement'])"
-                         :title="$i18n.t('Access List')">
+            :title="$i18n.t('Access List')">
             <b-card class="mb-3 pb-0" no-body>
               <b-card-header>
                 <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
               </b-card-header>
               <div class="card-body pb-0">
+                <form-group-toggle-access-list-map namespace="AccessListMap"
+                  :column-label="$i18n.t('Role by Access List')"
+                  :text="$i18n.t('Defining an ACL will supersede the one defined directly in the role configuration.')"
+                />
+
                 <template v-if="isAccessListMap">
-                  <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`"
-                                                   :namespace="`${role}AccessList`"
-                                                   :column-label="role"
+                  <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" :namespace="`${role}AccessList`"
+                    :column-label="role"
                   />
                 </template>
               </div>
@@ -179,20 +181,19 @@
           </base-form-tab>
 
           <base-form-tab v-if="supports(['ExternalPortal'])"
-                         :title="$i18n.t('Web Auth URL')">
+            :title="$i18n.t('Web Auth URL')">
             <b-card class="mb-3 pb-0" no-body>
               <b-card-header>
                 <h4 class="mb-0" v-t="'Role mapping by Web Auth URL'"></h4>
               </b-card-header>
               <div class="card-body pb-0">
                 <form-group-toggle-url-map namespace="UrlMap"
-                                           :column-label="$i18n.t('Role by Web Auth URL')"
+                  :column-label="$i18n.t('Role by Web Auth URL')"
                 />
 
                 <template v-if="isUrlMap">
-                  <form-group-role-map-url v-for="role in roles" :key="`${role}Url`"
-                                            :namespace="`${role}Url`"
-                                            :column-label="role"
+                  <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" :namespace="`${role}Url`"
+                    :column-label="role"
                   />
                 </template>
               </div>
