@@ -2,6 +2,7 @@ const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
 
 const collection_url = 'configuration/fingerbank/mac_vendors';
 const resource_url = id => `/configuration/fingerbank/local/mac_vendor/${id}`;
+const timeout = 10E3;
 const fixture = 'collections/fingerbank/macVendor.json';
 
 module.exports = {
@@ -11,6 +12,7 @@ module.exports = {
     {
       description: 'Fingerbank MAC Vendors - Create New',
       scope: SCOPE_INSERT,
+      timeout,
       fixture,
       url: collection_url,
       selectors: {
@@ -36,6 +38,7 @@ module.exports = {
     {
       description: 'Fingerbank MAC Vendors - Update Existing',
       scope: SCOPE_UPDATE,
+      timeout,
       fixture,
       url: resource_url,
       idFrom: (_, cache) => cache.id,
@@ -58,6 +61,7 @@ module.exports = {
     {
       description: 'Fingerbank MAC Vendors - Delete Existing',
       scope: SCOPE_DELETE,
+      timeout,
       fixture,
       url: resource_url,
       idFrom: (_, cache) => cache.id,

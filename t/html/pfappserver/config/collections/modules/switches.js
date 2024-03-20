@@ -2,6 +2,7 @@ const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
 const collection_url = '/configuration/switches';
 const resource_url = id => `/configuration/switch/${id}`;
 const fixture = 'collections/switch.json';
+const timeout = 10E3;
 
 module.exports = {
   id: 'switches',
@@ -11,6 +12,7 @@ module.exports = {
       description: 'Switches - Create New',
       scope: SCOPE_INSERT,
       url: collection_url,
+      timeout,
       fixture,
       selectors: {
         buttonNewSelectors: ['button[type="button"]:contains(New)', 'ul li a[href]:contains(default)'],
@@ -34,6 +36,7 @@ module.exports = {
     {
       description: 'Switches - Update Existing',
       scope: SCOPE_UPDATE,
+      timeout,
       fixture,
       url: resource_url,
       interceptors: [
@@ -55,6 +58,7 @@ module.exports = {
     {
       description: 'Switches - Delete Existing',
       scope: SCOPE_DELETE,
+      timeout,
       fixture,
       url: resource_url,
       interceptors: [
