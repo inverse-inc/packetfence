@@ -2,6 +2,7 @@ const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
 const collection_url = '/configuration/switch_groups';
 const resource_url = id => `/configuration/switch_group/${id}`;
 const fixture = 'collections/switchGroup.json';
+const timeout = 10E3;
 
 module.exports = {
   id: 'switchGroups',
@@ -11,6 +12,7 @@ module.exports = {
       description: 'Switch Groups - Create New',
       scope: SCOPE_INSERT,
       url: collection_url,
+      timeout,
       fixture,
       selectors: {
         buttonNewSelectors: ['button[type="button"]:contains(New Switch Group)'],
@@ -34,6 +36,7 @@ module.exports = {
     {
       description: 'Switch Groups - Update Existing',
       scope: SCOPE_UPDATE,
+      timeout,
       fixture,
       url: resource_url,
       interceptors: [
@@ -55,6 +58,7 @@ module.exports = {
     {
       description: 'Switch Groups - Delete Existing',
       scope: SCOPE_DELETE,
+      timeout,
       fixture,
       url: resource_url,
       interceptors: [
