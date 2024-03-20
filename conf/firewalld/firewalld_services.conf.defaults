@@ -59,14 +59,11 @@ type=tcp
 [snmptrap]
 short=SNMPTRAP
 description=SNMP traps enable an agent to notify the management station of significant events by way of an unsolicited SNMP message.
-ports=snmptrap_port1,snmptrap_port2
+ports=snmptrap_port1
 
 [snmptrap_port1]
-type=tcp
 port=162
-[snmptrap_port2]
 type=udp
-port=162
 
 [openvas]
 short=openvas
@@ -273,6 +270,15 @@ ports=mysql_port1
 [mysql_port1]
 type=tcp
 port=3306
+
+[mysql_prob]
+short=MySQL_prob
+description=MySQL Database Server prob.
+ports=mysql_prob_port1
+
+[mysql_prob_port1]
+type=tcp
+port=3307
 
 [samba]
 short=Samba
