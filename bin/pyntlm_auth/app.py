@@ -24,6 +24,7 @@ from samba.dcerpc.misc import SEC_CHAN_WKSTA
 from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT, MSV1_0_ALLOW_MSVCHAPV2)
 
 import config_generator
+import ms_event
 import ncache
 import utils
 
@@ -347,22 +348,27 @@ def ntlm_auth_handler():
                         if error_code == 0:
                             cache_v = ncache.cache_v_set(cache_v, {"nt_key": nt_key, 'bad_password_count': 0})
                             cache_v_json = json.dumps(cache_v)
-                            ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                            ncache.update_cache_entry(cache_key_device, cache_v_json,
+                                                      utils.expires(nt_key_cache_expire))
                             ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
                         else:
                             if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
                                 cache_v = ncache.cache_v_set(cache_v, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
-                                                                       'bad_password_count': bad_password_count+1})
+                                                                       'bad_password_count': bad_password_count + 1})
                                 cache_v_json = json.dumps(cache_v)
-                                ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
-                                ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                                ncache.update_cache_entry(cache_key_device, cache_v_json,
+                                                          utils.expires(nt_key_cache_expire))
+                                ncache.update_cache_entry(cache_key_root, cache_v_json,
+                                                          utils.expires(nt_key_cache_expire))
                             if error_code == ntstatus.NT_STATUS_NO_SUCH_USER or \
                                     error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or \
                                     error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
                                 cache_v = ncache.cache_v_set(cache_v, {'nt_status': error_code})
                                 cache_v_json = json.dumps(cache_v)
-                                ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
-                                ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                                ncache.update_cache_entry(cache_key_device, cache_v_json,
+                                                          utils.expires(nt_key_cache_expire))
+                                ncache.update_cache_entry(cache_key_root, cache_v_json,
+                                                          utils.expires(nt_key_cache_expire))
                         return format_response(nt_key, error_code)
                     else:
                         if utils.now() - cache_v['last_login_attempt'] > reset_account_lockout_counter_after:
@@ -372,22 +378,29 @@ def ntlm_auth_handler():
                             if error_code == 0:
                                 cache_v = ncache.cache_v_set(cache_v, {"nt_key": nt_key, 'bad_password_count': 0})
                                 cache_v_json = json.dumps(cache_v)
-                                ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
-                                ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                                ncache.update_cache_entry(cache_key_device, cache_v_json,
+                                                          utils.expires(nt_key_cache_expire))
+                                ncache.update_cache_entry(cache_key_root, cache_v_json,
+                                                          utils.expires(nt_key_cache_expire))
                             else:
                                 if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
-                                    cache_v = ncache.cache_v_set(cache_v, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
-                                                                           'bad_password_count': 1})
+                                    cache_v = ncache.cache_v_set(cache_v,
+                                                                 {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
+                                                                  'bad_password_count': 1})
                                     cache_v_json = json.dumps(cache_v)
-                                    ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
-                                    ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                                    ncache.update_cache_entry(cache_key_device, cache_v_json,
+                                                              utils.expires(nt_key_cache_expire))
+                                    ncache.update_cache_entry(cache_key_root, cache_v_json,
+                                                              utils.expires(nt_key_cache_expire))
                                 if error_code == ntstatus.NT_STATUS_NO_SUCH_USER or \
                                         error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or \
                                         error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
                                     cache_v = ncache.cache_v_set(cache_v, {'nt_status': error_code})
                                     cache_v_json = json.dumps(cache_v)
-                                    ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
-                                    ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
+                                    ncache.update_cache_entry(cache_key_device, cache_v_json,
+                                                              utils.expires(nt_key_cache_expire))
+                                    ncache.update_cache_entry(cache_key_root, cache_v_json,
+                                                              utils.expires(nt_key_cache_expire))
                             return format_response(nt_key, error_code)
                 return format_response(nt_key, nt_status)
             else:
@@ -397,8 +410,10 @@ def ntlm_auth_handler():
                     if error_code == 0:
                         # it's still within the "old password still valid" window, we don't know if we got new NT key
                         # or old one after transitive login, so we just keep this for a short time.
-                        if utils.now() - utils.nt_time_to_datetime(info.base.last_password_change) < old_password_allowed_period:
-                            cache_life = old_password_allowed_period + utils.now() - utils.nt_time_to_datetime(info.base.last_password_change)
+                        if utils.now() - utils.nt_time_to_datetime(
+                                info.base.last_password_change) < old_password_allowed_period:
+                            cache_life = old_password_allowed_period + utils.now() - utils.nt_time_to_datetime(
+                                info.base.last_password_change)
                         else:
                             cache_life = nt_key_cache_expire
                         cache_v = ncache.cache_v_set(cache_v, {"nt_key": nt_key, 'bad_password_count': 0})
@@ -408,16 +423,18 @@ def ntlm_auth_handler():
                     else:
                         if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
                             cache_v = ncache.cache_v_set(cache_v, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
-                                                                   'bad_password_count': bad_password_count+1})
+                                                                   'bad_password_count': bad_password_count + 1})
                             cache_v_json = json.dumps(cache_v)
-                            ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                            ncache.update_cache_entry(cache_key_device, cache_v_json,
+                                                      utils.expires(nt_key_cache_expire))
                             ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
                         if error_code == ntstatus.NT_STATUS_NO_SUCH_USER or \
                                 error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or \
                                 error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
                             cache_v = ncache.cache_v_set(cache_v, {'nt_status': error_code})
                             cache_v_json = json.dumps(cache_v)
-                            ncache.update_cache_entry(cache_key_device, cache_v_json, utils.expires(nt_key_cache_expire))
+                            ncache.update_cache_entry(cache_key_device, cache_v_json,
+                                                      utils.expires(nt_key_cache_expire))
                             ncache.update_cache_entry(cache_key_root, cache_v_json, utils.expires(nt_key_cache_expire))
                     return format_response(nt_key, error_code)
         return '', HTTPStatus.INTERNAL_SERVER_ERROR
@@ -428,7 +445,27 @@ def ntlm_auth_handler():
 
 
 def event_report_handler():
-    return "", HTTPStatus.ACCEPTED
+    try:
+        required_keys = {'Domain', 'Events'}
+        data = request.get_json()
+        if data is None:
+            return 'No JSON payload found in request', HTTPStatus.BAD_REQUEST
+        for required_key in required_keys:
+            if required_key not in data:
+                return f'Invalid payload format, missing required key {required_key}', HTTPStatus.UNPROCESSABLE_ENTITY
+
+        events = data['Events']
+        for event in events:
+            if not ms_event.check_event(event):
+                return f"Event validation failed. Invalid event format.", HTTPStatus.UNPROCESSABLE_ENTITY
+
+    except Exception as e:
+        return f"Error processing JSON payload, {str(e)}", HTTPStatus.UNPROCESSABLE_ENTITY
+
+    for event in data['Events']:
+        ms_event.process_event(event)
+
+    return "Event Accepted", HTTPStatus.ACCEPTED
 
 
 def ntlm_expire_handler():

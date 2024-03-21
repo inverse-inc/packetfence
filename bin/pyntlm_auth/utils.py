@@ -52,3 +52,13 @@ def expires(in_second):
 
 def now():
     return datetime.datetime.now().timestamp()
+
+
+def extract_event_timestamp(s):
+    match = re.search(r'\d+', s)
+
+    if match:
+        number = float(match.group())
+        return number
+    else:
+        return 0

@@ -11,14 +11,14 @@ import (
 )
 
 type PasswordChangeEvent struct {
-	RecordID          int    `json:"RecordID"` // modify
+	RecordID          int    `json:"RecordID"`
 	TargetUserName    string `json:"TargetUserName"`
 	SubjectUserSid    string `json:"SubjectUserSid"`
-	EventTime         string `json:"EventTime"` // need to modify
+	EventTime         string `json:"EventTime"`
 	SubjectLogonId    string `json:"SubjectLogonId"`
 	SubjectUserName   string `json:"SubjectUserName"`
 	SubjectDomainName string `json:"SubjectDomainName"`
-	EventTypeID       int    `json:"EventTypeID"` // modify
+	EventTypeID       int    `json:"EventTypeID"`
 	TargetSid         string `json:"TargetSid"`
 	TargetDomainName  string `json:"TargetDomainName"`
 }

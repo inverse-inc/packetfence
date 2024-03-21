@@ -37,7 +37,7 @@ def cache_v_set(cache_v, dict):
     return cache_v
 
 
-def build_cache_key(domain, account_username, mac):
+def build_cache_key(domain, account_username, mac = ''):
     cache_key_prefix = "nt_key_cache"
     mac = mac.strip()
     if mac == '':
@@ -59,6 +59,15 @@ def get_cache_entry(key):
     if hasattr(g, 'db'):
         g.db.execute(query, key)
         return g.db.fetchone()
+    else:
+        return None
+
+
+def search_cache_entries(key):
+    query = "SELECT `key`, `value`, `expires_at` FROM `chi_cache` WHERE `key` LIKE %s "
+    if hasattr(g, 'db'):
+        g.db.execute(query, key)
+        return g.db.fetchall()
     else:
         return None
 
