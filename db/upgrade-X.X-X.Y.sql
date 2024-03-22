@@ -51,9 +51,13 @@ call ValidateVersion;
 
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
---
--- UPGRADE STATEMENTS GO HERE
---
+\! echo "altering sms_carrier"
+ALTER TABLE sms_carrier
+    CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+\! echo "altering admin_api_audit_log"
+ALTER TABLE admin_api_audit_log
+    CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

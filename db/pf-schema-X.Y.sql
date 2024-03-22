@@ -188,7 +188,7 @@ CREATE TABLE node_current_session (
   `last_session_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
   `is_online` BOOLEAN DEFAULT 1,
   PRIMARY KEY (mac)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `action`
@@ -495,7 +495,7 @@ CREATE TABLE sms_carrier (
     `email_pattern` varchar(255) not null comment 'sprintf pattern for making an email address from a phone number',
     `created` datetime not null comment 'date this record was created',
     `modified` timestamp comment 'date this record was modified'
-) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_bin AUTO_INCREMENT = 100056;
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci' AUTO_INCREMENT = 100056;
 
 --
 -- Insert data for table `sms_carrier`
@@ -646,7 +646,7 @@ CREATE TABLE radacct (
   KEY `nasipaddress` (`nasipaddress`),
   KEY `callingstationid` (`callingstationid`),
   KEY `acctstart_acctstop` (`acctstarttime`,`acctstoptime`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 -- Adding RADIUS update log table
 
@@ -1320,7 +1320,7 @@ CREATE TABLE `admin_api_audit_log` (
    KEY `user_name` (`user_name`),
    KEY `object_id_action` (`object_id`, `action`),
    KEY `created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPRESSED;
 
 
 --
@@ -1397,7 +1397,7 @@ CREATE TABLE `pki_cas` (
   KEY `idx_pki_cas_deleted_at` (`deleted_at`),
   KEY `mail` (`mail`),
   KEY `organisation` (`organisation`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_profiles`
@@ -1505,7 +1505,7 @@ CREATE TABLE `pki_certs` (
   KEY `profile_name` (`profile_name`),
   CONSTRAINT `fk_pki_certs_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
   CONSTRAINT `fk_pki_certs_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_revoked_certs`

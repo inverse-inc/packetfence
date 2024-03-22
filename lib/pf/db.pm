@@ -198,9 +198,11 @@ sub init_command {
     if (my $new_timeout = db_get_max_statement_timeout()) {
         my ($name, $current_timeout) = $dbh->selectrow_array("SHOW VARIABLES WHERE Variable_name in ('max_statement_time', 'max_execution_time')");
         if ($name) {
-            $sql .= "SET SESSION $name=" . convert_timeout($current_timeout, $new_timeout);
+            $sql .= "SET SESSION $name=" . convert_timeout($current_timeout, $new_timeout) . ";";
         }
     }
+
+    $sql .= "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci';";
     return $sql;
 }
 

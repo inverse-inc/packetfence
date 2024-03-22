@@ -15,7 +15,7 @@ import (
 
 const (
 	charset   = "utf8mb4"
-	collation = "utf8mb4_bin"
+	collation = "utf8mb4_general_ci"
 	sqlMode   = "NO_ENGINE_SUBSTITUTION"
 )
 
