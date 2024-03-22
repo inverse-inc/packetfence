@@ -14,7 +14,6 @@ function exit_usage() {
 
 dst_dir="$1"
 pf_ref="$2"
-fb_ref="$3"
 
 if [ -z "$dst_dir" ] || ! [ -d "$dst_dir" ]; then
   echo "!!! - Missing destination directory or it doesn't exist"
@@ -26,17 +25,11 @@ if [ -z "$pf_ref" ]; then
   exit_usage
 fi
 
-if [ -z "$fb_ref" ]; then
-  echo "!!! - Missing Fingerbank perl client repo branch or tag name"
-  exit_usage
-fi
-
 dst_dir=`echo $dst_dir | sed 's|/$||'`
 
 tmpdir=`mktemp -d`
 
 git clone -b $pf_ref https://github.com/inverse-inc/packetfence $tmpdir/packetfence
-git clone -b $fb_ref https://github.com/fingerbank/perl-client $tmpdir/fingerbank
 
 cd $tmpdir/packetfence
 make configurations
@@ -67,7 +60,7 @@ ln -s ../sites-available/dynamic-clients dynamic-clients
 cd -
 
 mkdir -p $dst_dir/fingerbank
-cp -a $tmpdir/fingerbank/conf $dst_dir/fingerbank/
+cp -a $tmpdir/packetfence/addons/perl-client/conf $dst_dir/fingerbank/
 
 for file in $files; do
   file=`echo $file | sed 's|^/usr/local/pf/||'`
