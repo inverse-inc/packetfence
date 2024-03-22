@@ -142,11 +142,12 @@ sub authorize {
     
     if ( $result eq $TRUE ) {
         $logger->info("MAC address '$mac' seems to be managed by JAMF");
-        return $TRUE;
-    } else {
-        $logger->info("MAC address '$mac' does not seems to be managed by JAMF");
-        return $FALSE;
+        my $node_info = node_view($mac);
+        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, jamf => $device_information});
     }
+
+    $logger->info("MAC address '$mac' does not seems to be managed by JAMF");
+    return $FALSE;
 }
 
 
