@@ -22,22 +22,38 @@ has 'form_class' => 'pfappserver::Form::Config::FilterEngines::ProvisioningFilte
 has 'primary_key' => 'provisioning_filter_id';
 
 use pf::ConfigStore::ProvisioningFilters;
-use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::kandji qw();
-use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::intune qw();
-use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::google_workspace_chromebook qw();
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::accept qw();
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::airwatch qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::android qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::deny qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::dpsk qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::google_workspace_chromebook qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::intune qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::jamf qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::kandji qw();
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::lookup qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::mobileconfig qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::mobileiron qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::sentinelone qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::windows qw();
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::FilterEngines::ProvisioningFilter::$_" } qw(
       accept
       airwatch
-      lookup
-      kandji
-      intune
+      android
+      deny
+      dpsk
       google_workspace_chromebook
-    )
+      intune
+      jamf
+      kandji
+      lookup
+      mobileconfig
+      mobileiron
+      sentinelone
+      windows
+      )
 );
 
 sub type_lookup {
