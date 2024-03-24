@@ -132,7 +132,7 @@ sub authorize {
         return $FALSE;
     }
 
-    my ($result, $pid) = $self->parse_device_information($device_type, $device_information);
+    my ($result, $pid, $device) = $self->parse_device_information($device_type, $device_information);
 
     if($pid) {
         get_logger->info("Found username $pid through JAMF");
@@ -143,7 +143,7 @@ sub authorize {
     if ( $result eq $TRUE ) {
         $logger->info("MAC address '$mac' seems to be managed by JAMF");
         my $node_info = node_view($mac);
-        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, jamf => $device_information});
+        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, jamf => $device});
     }
 
     $logger->info("MAC address '$mac' does not seems to be managed by JAMF");
@@ -271,10 +271,12 @@ sub parse_device_information {
     my $json = decode_json($device_information);
  
     if ( $device_type eq $JAMF_COMPUTERS_INVENTORY ) {
-        return $json->{'computer'}{'general'}{'remote_management'}{'managed'}, $json->{computer}->{location}->{username};
+        my $device = $json->{computer};
+        return $device->{'general'}{'remote_management'}{'managed'}, $device->{location}->{username}, $device;
     }
     elsif ( $device_type eq $JAMF_MOBILEDEVICES_INVENTORY ) {
-        return $json->{'mobile_device'}{'general'}{'managed'}, $json->{mobile_device}->{location}->{username};
+        my $device = $json->{mobile_device};
+        return $device->{'general'}{'managed'}, $device->{location}->{username}, $device;
     }
 }
 
