@@ -1,16 +1,12 @@
-package pfconfig::namespaces::config::ProvisioningFilters;
+package pfconfig::namespaces::config::ProvisioningFiltersMeta;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
-
-=cut
+pfconfig::namespaces::config::ProvisioningFiltersMeta -
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
-
-This module creates the configuration hash associated to somefile.conf
+pfconfig::namespaces::config::ProvisioningFiltersMeta
 
 =cut
 
@@ -19,8 +15,8 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw(
-    $provisioning_filters_config_file
-    $provisioning_filters_config_default_file
+    $provisioning_filters_meta_config_file
+    $provisioning_filters_meta_config_default_file
 );
 use pf::IniFiles;
 
@@ -28,11 +24,12 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $provisioning_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::ProvisioningScopes', 'resource::provisioning_rules'];
+    $self->{file} = $provisioning_filters_meta_config_file;
 
-    my $defaults = pf::IniFiles->new( -file => $provisioning_filters_config_default_file, -envsubst => 1 );
+    my $defaults = pf::IniFiles->new( -file => $provisioning_filters_meta_config_default_file, -envsubst => 1 );
+    print $provisioning_filters_meta_config_default_file,"\n";
     $self->{added_params}->{'-import'} = $defaults;
+    $self->{added_params}->{'-allowempty'} = 1;
 }
 
 sub build_child {
@@ -40,8 +37,10 @@ sub build_child {
     my %tmp_cfg = %{ $self->{cfg} };
 
     $self->cleanup_whitespaces( \%tmp_cfg );
-    #TODO takecare of the following line
-    $self->roleReverseLookup(\%tmp_cfg, 'vlan_filters', qw(role));
+    while (my ($k, $v) = each %tmp_cfg) {
+        $v->{fields} = [split(/\n/, $v->{fields})]; 
+    }
+
     return \%tmp_cfg;
 
 }
@@ -52,7 +51,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
@@ -74,7 +73,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:

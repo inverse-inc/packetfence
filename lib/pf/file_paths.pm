@@ -130,8 +130,10 @@ our (
     $git_commit_id_file,
     $pfqueue_backend_socket,
     $kafka_config_dir,
-    $provisioner_filters_config_file,
-    $provisioner_filters_config_default_file,
+    $provisioning_filters_config_file,
+    $provisioning_filters_config_default_file,
+    $provisioning_filters_meta_config_file,
+    $provisioning_filters_meta_config_default_file,
 );
 
 BEGIN {
@@ -236,8 +238,10 @@ BEGIN {
         $git_commit_id_file
         $pfqueue_backend_socket
         $kafka_config_dir
-        $provisioner_filters_config_file
-        $provisioner_filters_config_default_file
+        $provisioning_filters_config_file
+        $provisioning_filters_config_default_file
+        $provisioning_filters_meta_config_file
+        $provisioning_filters_meta_config_default_file
     );
 }
 
@@ -320,6 +324,8 @@ $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $vlan_filters_config_default_file = catfile($conf_dir, "vlan_filters.conf.defaults");
 $provisioning_filters_config_file = catfile($conf_dir, "provisioning_filters.conf");
 $provisioning_filters_config_default_file = catfile($conf_dir, "provisioning_filters.conf.defaults");
+$provisioning_filters_meta_config_file = catfile($conf_dir, "provisioning_filters_meta.conf");
+$provisioning_filters_meta_config_default_file = catfile($conf_dir, "provisioning_filters_meta.conf.defaults");
 $cloud_config_file = catfile($conf_dir,"cloud.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
