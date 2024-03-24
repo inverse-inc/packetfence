@@ -27,7 +27,6 @@ sub init {
     $self->{file} = $provisioning_filters_meta_config_file;
 
     my $defaults = pf::IniFiles->new( -file => $provisioning_filters_meta_config_default_file, -envsubst => 1 );
-    print $provisioning_filters_meta_config_default_file,"\n";
     $self->{added_params}->{'-import'} = $defaults;
     $self->{added_params}->{'-allowempty'} = 1;
 }
@@ -38,7 +37,7 @@ sub build_child {
 
     $self->cleanup_whitespaces( \%tmp_cfg );
     while (my ($k, $v) = each %tmp_cfg) {
-        $v->{fields} = [split(/\n/, $v->{fields})]; 
+        $v->{fields} = [map {"${k}.$_"} split(/\n/, $v->{fields} // '')];
     }
 
     return \%tmp_cfg;
