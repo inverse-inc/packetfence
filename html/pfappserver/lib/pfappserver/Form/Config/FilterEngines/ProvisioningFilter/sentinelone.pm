@@ -12,107 +12,8 @@ pfappserver::Form::Config::FilterEngines::ProvisioningFilter::sentinelone
 
 use strict;
 use warnings;
-use pfappserver::Form::Field::DynamicList;
-use pfappserver::Form::Config::FilterEngines;
-use pf::config qw(%Config);
 use HTML::FormHandler::Moose;
-use pf::constants::role qw(@ROLES);
-use pf::constants::filters qw(@BASE_FIELDS @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS @OWNER_FIELDS @SECURITY_EVENT_FIELDS @SENTINELONE_FIELDS);
-extends 'pfappserver::Form::Config::FilterEngines';
-with qw(
-    pfappserver::Base::Form::Role::Help
-    pfappserver::Base::Form::Role::AllowedOptions
-    pfappserver::Role::Form::RolesAttribute
-);
-
-sub scopes {
-    return map { { value => $_, label => $_ } } qw(
-      lookup
-      authorize_enforce
-    );
-}
-
-has_field 'type' =>
-  (
-   type => 'Hidden',
-   label => 'Provisioning type',
-   required => 1,
-   messages => { required => 'Please select Provisioning type' },
-   default => 'sentinelone',
-  );
-
-
-has_field 'role' => (
-    type     => 'Select',
-    options_method => \&options_role,
-);
-
-has_field 'run_actions' => (
-   type => 'Toggle',
-   label => 'Run Actions',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'enabled'
-);
-
-has_field 'actions_synchronous' => (
-   type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled'
-);
-
-=head2 actions
-
-The list of action
-
-=cut
-
-has_field 'actions' => (
-    'type' => 'DynamicList',
-);
-
-=head2 actions.contains
-
-The definition for the list of actions
-
-=cut
-
-has_field 'actions.contains' => (
-    type  => 'ApiAction',
-    label => 'Action',
-    pfappserver::Form::Field::DynamicList::child_options(),
-);
-
-=head2 options_role
-
-=cut
-
-sub options_role {
-    my $self = shift;
-    return (
-        (
-            map { { value => $_->{name}, label => $_->{name} } }
-              @{ $self->form->roles // [] }
-        ),
-        ( map { { value => $_, label => $_ } } @ROLES )
-    );
-}
-
-my %ADDITIONAL_FIELD_OPTIONS = (
-    %pfappserver::Form::Config::FilterEngines::ADDITIONAL_FIELD_OPTIONS
-);
-
-sub _additional_field_options {
-    return \%ADDITIONAL_FIELD_OPTIONS;
-}
-
-sub options_field_names {
-    (
-        @NODE_INFO_FIELDS,
-        @SENTINELONE_FIELDS,
-    );
-}
+extends 'pfappserver::Form::Config::FilterEngines::ProvisioningFilter';
 
 =head1 AUTHOR
 
@@ -142,4 +43,3 @@ USA.
 =cut
 
 1;
-
