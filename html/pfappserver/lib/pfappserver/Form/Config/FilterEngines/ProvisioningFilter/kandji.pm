@@ -12,14 +12,7 @@ pfappserver::Form::Config::FilterEngines::ProvisioningFilter::kandji
 
 use strict;
 use warnings;
-use pfappserver::Form::Field::DynamicList;
-use pfappserver::Form::Config::FilterEngines;
-use pf::config qw(%Config);
 use HTML::FormHandler::Moose;
-use pf::constants::role qw(@ROLES);
-use pf::constants::filters qw(@BASE_FIELDS @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS @OWNER_FIELDS @SECURITY_EVENT_FIELDS);
-use pfconfig::cached_hash;
-tie our %ConfigProvisioningFiltersMeta, 'pfconfig::cached_hash', "config::ProvisioningFiltersMeta";
 extends 'pfappserver::Form::Config::FilterEngines::ProvisioningFilter';
 
 =head1 AUTHOR

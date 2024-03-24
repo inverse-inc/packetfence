@@ -29,7 +29,7 @@ with qw(
 
 sub scopes {
     return map { { value => $_, label => $_ } } qw(
-      lookup
+      authorize_enforce
     );
 }
 
