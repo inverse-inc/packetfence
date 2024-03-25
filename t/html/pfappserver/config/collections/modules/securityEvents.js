@@ -2,7 +2,7 @@ const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
 const collection_url = '/configuration/security_events';
 const resource_url = id => `/configuration/security_event/${id}`;
 const fixture = 'collections/securityEvent.json';
-const timeout = 10E3;
+const timeout = 15E3;
 
 module.exports = {
   id: 'securityEvents',

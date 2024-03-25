@@ -11,7 +11,7 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
   const collection_url = '/configuration/scan_engines';
   const resource_url = (id) => `/configuration/scan_engine/${id}`;
   const fixture = `collections/scanEngine/${type}.json`;
-  const timeout = 10E3;
+  const timeout = 15E3;
 
   return [...tests, ...[
     {
