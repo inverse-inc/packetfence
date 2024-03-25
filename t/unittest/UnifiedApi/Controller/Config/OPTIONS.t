@@ -221,6 +221,15 @@ meta => {
                                     {
                                         sibling => {
                                             api_parameters => {
+                                                default => 'mac, $mac, ip, $ip, timeout, $timeout'
+                                            },
+                                        },
+                                        text => "firewall_sso_call",
+                                        value => "firewall_sso_call",
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
                                                 default => "mac, \$mac"
                                             }
                                         },
