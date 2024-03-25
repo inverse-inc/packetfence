@@ -50,6 +50,11 @@
                      namespace="oses"
     />
 
+    <form-group-rules :column-label="$i18n.t('Rules')"
+                     :text="$i18n.t('Rules to apply.')"
+                     namespace="rules"
+    />
+
     <form-group-username :column-label="$i18n.t('Username')"
                          namespace="username"
     />
@@ -100,6 +105,7 @@ import {
   FormGroupOses,
   FormGroupPassword,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupUsername,
   FormGroupWindowsPhoneDownloadUri
 } from './'
@@ -122,6 +128,7 @@ const components = {
   FormGroupOses,
   FormGroupPassword,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupUsername,
   FormGroupWindowsPhoneDownloadUri
 }

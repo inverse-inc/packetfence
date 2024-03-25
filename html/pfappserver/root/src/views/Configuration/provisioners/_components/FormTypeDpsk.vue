@@ -54,6 +54,11 @@
                      namespace="oses"
     />
 
+    <form-group-rules :column-label="$i18n.t('Rules')"
+                     :text="$i18n.t('Rules to apply.')"
+                     namespace="rules"
+    />
+
     <form-group-dpsk-use-local-password
       :column-label="$i18n.t('Reuse the local password for DPSK')"
       :text="$i18n.t('When DPSK is enabled and a local account with a plaintext password exists for the user, then it will reuse this password instead of generating a new PSK. This feature will only work with local users that have a plaintext password entry.')"
@@ -83,6 +88,7 @@ import {
   FormGroupOses,
   FormGroupPskSize,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupSsid
 } from './'
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'
@@ -100,6 +106,7 @@ const components = {
   FormGroupOses,
   FormGroupPskSize,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupSsid
 }
 
