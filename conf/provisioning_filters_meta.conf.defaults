@@ -1,5 +1,5 @@
 [kandji]
-fields=<<EOT
+fields= <<EOT
 device_id
 device_name
 model
@@ -24,7 +24,7 @@ lost_mode_status
 EOT
 
 [intune]
-fields=<<EOT
+fields= <<EOT
 udid
 operatingSystem
 freeStorageSpaceInBytes
@@ -81,7 +81,7 @@ isSupervised
 EOT
 
 [google_workspace_chromebook]
-fields=<<EOT
+fields= <<EOT
 deviceId
 serialNumber
 status
@@ -130,7 +130,7 @@ deviceLicenseType
 EOT
 
 [jamf]
-fields=<<EOT
+fields= <<EOT
 general.alt_mac_address
 general.alt_network_adapter_type
 general.app_analytics
@@ -289,11 +289,45 @@ security.secure_boot_level
 EOT
 
 [airwatch]
-fields=<<EOT
+fields= <<EOT
+AcLineStatus
+AssetNumber
+ComplianceStatus
+DataEncryptionYN
+DeviceFriendlyName
+EasId
+EnrollmentStatus
+Id
+Imei
+IsRemoteManagementEnabled
+LastComplianceCheckOn
+LastCompromisedCheckOn
+LastEnrolledOn
+LastSeen
+LocationGroupId.Id.Value
+LocationGroupName
+MacAddress
+Model
+ModelId.Id.Value
+ModelId.Name
+OEMInfo
+OperatingSystem
+Ownership
+PhoneNumber
+Platform
+PlatformId.Id.Value
+PlatformId.Name
+SerialNumber
+Udid
+UserEmailAddress
+UserId.Id.Value
+UserId.Name
+UserName
+VirtualMemory
 EOT
 
 [mobileiron]
-fields=<<EOT
+fields= <<EOT
 blockReason
 clientId
 compliance
@@ -332,5 +366,3 @@ uuid
 EOT
 
 [sentinelone]
-fields=<<EOT
-EOT
