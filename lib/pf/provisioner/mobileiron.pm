@@ -147,7 +147,7 @@ sub validate_mac_is_compliant{
         if ($info->{device}->{compliance} == 0){
             $logger->info("Device $mac was found as compliant");
             my $node_info = node_view($mac);
-            return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, airwatch => $info->{device}});
+            return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, mobileiron => $info->{device}});
         } else {
             $logger->info("Device $mac was found, but is not compliant");
             return 0;
