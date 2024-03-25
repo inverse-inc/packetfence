@@ -78,22 +78,22 @@ BEGIN {
 use pf::config qw(
     %ConfigNetworks
     %Config
-    $IPTABLES_MARK_UNREG
-    $management_network
-    @internal_nets
-    $IF_ENFORCEMENT_VLAN
     %ConfigProvisioning
+    $IPTABLES_MARK_UNREG
+    $IF_ENFORCEMENT_VLAN
     $IF_ENFORCEMENT_DNS
-    @portal_ints
-    @ha_ints
     $IPTABLES_MARK_ISOLATION
     $IPTABLES_MARK_REG
     is_inline_enforcement_enabled
     is_type_inline
+    netflow_enabled
+    $management_network
+    @ha_ints
+    @portal_ints
+    @internal_nets
     @radius_ints
     @dhcp_ints
     @dns_ints
-    netflow_enabled
     $NET_TYPE_INLINE_L3
     %mark_type_to_str
 );
@@ -101,6 +101,7 @@ use pf::file_paths qw(
     $generated_conf_dir
     $conf_dir
     $firewalld_config_path_generated
+    $firewalld_config_path_applied
 );
 use pf::util;
 use pf::security_event qw(security_event_view_open_uniq security_event_count);
@@ -108,7 +109,6 @@ use pf::authentication;
 use pf::cluster;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::Domain;
-
 
 use pf::Firewalld::util;
 use pf::Firewalld::config qw ( generate_firewalld_file_config );
@@ -184,10 +184,6 @@ sub firewalld_generate_pfconfig_configs {
   high_availability_interfaces_handling($action);
   nat_back_inline_enabled($action);
 
-  dns_interfaces_handling($action);
-  management_interface_handling($action);
-  high_availability_interfaces_handling($action);
-  nat_back_inline_enabled($action);
   generate_netdata_firewalld_config($action);
   generate_FB_collector_firewalld_config($action);
   generate_eduroam_radius_config($action);
@@ -243,89 +239,200 @@ sub generate_chain {
   util_chain( "ipv4", "filter", $chain, $action );
 }
 
-sub generate_input_management_if_chained_rules {
-  my $action = shift;
-  my $web_admin_port = $Config{'ports'}{'admin'};
-  my $webservices_port = $Config{'ports'}{'soap'};
-  my $aaa_port = $Config{'ports'}{'aaa'};
-  my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
-  my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
+sub fd_create_all_zones {
+  my $name_files = util_get_name_files_from_dir("zones");
+  foreach my $tint ( @listen_ints ) {
+    if ( defined $name_files && exists $name_files->{$tint} ) {
+      get_logger->error( "Network Interface $tint  is handle by configuration files" );
+    } else {
+      util_firewalld_job( " --permanent --delete-zone=$tint" );
+      util_firewalld_job( " --permanent --new-zone=$tint" );
+      util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
+      util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
+      util_reload_firewalld();
+    }
+  }
+}
+
+
+sub fd_keepalived_rules {
+  foreach my $tint ( @listen_ints ){
+    # Never remove, used several time
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -d 224.0.0.0/8 -j ACCEPT", "add" );
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p vrrp -j ACCEPT", "add" ) if ($cluster_enabled);
+  }
+}
+
+sub fd_haproxy_admin_rules {
   # Web Admin
-  util_direct_rule( "ipv4 filter input-management-if 0 -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  my $web_admin_port = $Config{'ports'}{'admin'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
+}
+
+sub fd_management_webservices {
   # Webservices
-  util_direct_rule( "ipv4 filter input-management-if 0 -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  my $webservices_port = $Config{'ports'}{'soap'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $tint 0 -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
+}
+
+sub fd_httpd_aaa_rules {
   # AAA
-  util_direct_rule( "ipv4 filter input-management-if 0 -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  my $aaa_port = $Config{'ports'}{'aaa'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
+}
+
+sub fd_management_unified_api {
   # Unified API
-  util_direct_rule( "ipv4 filter input-management-if 0 -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
+  my $action = shift;
+  my $mgnt_zone =  $management_network->{Tint};
+  my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
+}
+
+sub fd_management_httpd_portal {
   # httpd.portal modstatus
-  util_direct_rule( "ipv4 filter input-management-if 0 -p tcp --match tcp --dport $httpd_portal_modstatus -j ACCEPT", $action );
-  # haproxy stats (uncomment if activating the haproxy dashboard) - 1025 for haproxy-portal, 1026 for haproxy-db
-  # util_direct_rule( "ipv4 filter input-management-if 0 -p tcp --match tcp --dport 1025 -j ACCEPT", $action );
-  # util_direct_rule( "ipv4 filter input-management-if 0 -p tcp --match tcp --dport 1026 -j ACCEPT", $action );
-  management_interface_handling( $action );
+  my $action = shift;
+  my $mgnt_zone =  $management_network->{Tint};
+  my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $httpd_portal_modstatus -j ACCEPT", $action );
 }
 
-sub input_portal_if_chained_rules {
+sub fd_haproxy_db_rules {
   my $action = shift;
-  util_direct_rule( "ipv4 filter input-portal-if 0 -p tcp --match tcp --dport 80 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-portal-if 0 -p tcp --match tcp --dport 443 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-portal-if 0 -p tcp --match tcp --dport 8080 --jump ACCEPT", $action );
+  my $mgnt_zone =  $management_network->{Tint};
+  service_to_zone($mgnt_zone, $action, "haproxy-db");
 }
 
-sub input_radius_if_chained_rules {
+sub fd_haproxy_portal_rules {
   my $action = shift;
-  util_direct_rule( "ipv4 filter input-radius-if 0 -p tcp --match tcp --dport 1812 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-radius-if 0 -p udp --match udp --dport 1812 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-radius-if 0 -p tcp --match tcp --dport 1813 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-radius-if 0 -p udp --match udp --dport 1813 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-radius-if 0 -p tcp --match tcp --dport 1815 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-radius-if 0 -p udp --match udp --dport 1815 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-radius-if 0 -p tcp --match tcp --dport 2083 --jump ACCEPT", $action );
+  foreach my $tint (@ha_ints){
+    service_to_zone($tint, $action, "haproxy-portal");
+  }
 }
 
-sub input_dns_if_chained_rules {
+sub fd_portal_rules {
   my $action = shift;
-  util_direct_rule( "ipv4 filter input-dns-if 0 --protocol tcp --match tcp --dport 53 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-dns-if 0 --protocol udp --match udp --dport 53 --jump ACCEPT", $action );
+  foreach my $tint ( @portal_ints ) {
+    service_to_zone($tint, $action, "http");
+    service_to_zone($tint, $action, "https");
+    service_to_zone($tint, $action, "web-portal");
+  }
 }
 
-sub input_dhcp_if_chained_rules {
+sub fd_radius_rules {
   my $action = shift;
-  util_direct_rule( "ipv4 filter input-dhcp-if 0 --protocol udp --match udp --dport 67  --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-dhcp-if 0 --protocol tcp --match tcp --dport 67  --jump ACCEPT", $action );
+  foreach my $tint ( @radius_ints ) {
+    service_to_zone($tint, $action, "radius");
+  }
+}
+
+sub fd_dns_rules {
+  my $tint = shift;
+  foreach my $tint ( @dns_ints ) {
+    service_to_zone($tint, $action, "dns");
+  }
+  foreach my $network ( @inline_enforcement_nets ) {
+    my $tint =  $network->{Tint};
+    service_to_zone($tint, $action, "dns");
+  }
+}
+
+sub fd_dhcp_rules {
+  my $action = shift;
+  foreach my $interface ( @dhcp_ints ) {
+    service_to_zone($tint, $action, "dhcp");
+  }
+  foreach my $tint (@dhcplistener_ints) {
+    service_to_zone($tint, $action, "dhcp");
+  }
+  foreach my $network ( @inline_enforcement_nets ) {
+    my $tint =  $network->{Tint};
+    service_to_zone($tint, $action, "dns");
+  }
+}
+
+sub fd_netdata_rules {
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
+  if ($cluster_enabled) {
+    push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+    foreach my $mgmt_back (uniq(@mgmt_backend)) {
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
+    }
+  }
+  util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
+}
+
+sub fd_pfconnector_rules {
+  my $action = shift;
+  # The dynamic range used to access the fingerbank collector that are connected via a remote connector
+  my $tint =  $management_network->{Tint};
+  my @pfconnector_ips = ("127.0.0.1");
+  push @pfconnector_ips, (map { $_->{management_ip} } pf::cluster::config_enabled_servers()) if ($cluster_enabled);
+  push @pfconnector_ips, $management_network->{Tip};
+  @pfconnector_ips = uniq sort @pfconnector_ips;
+  for my $ip (@pfconnector_ips) {
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
+  }
+}
+
+sub fd_galera_autofix_rules {
+  my $action = shift;
+  foreach my $tint (map { $_ ? $_->{Tint} : () } @ha_ints) {
+    service_to_zone($tint, $action, "galera-autofix");
+  }
+}
+
+sub fd_httpd_dispatcher_rules {
+  my $action = shift;
+  
 }
 
 
-sub input_internal_vlan_if_chained_rules {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sub fd_internal_rules {
+  my $tint = shift;
   my $action = shift;
-# DNS
-  util_direct_rule( "ipv4 filter input-internal-vlan-if 0 --protocol tcp --match tcp --dport 53  --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-vlan-if 0 --protocol udp --match udp --dport 53  --jump ACCEPT", $action );
-# HTTP (captive-portal)
-  util_direct_rule( "ipv4 filter input-internal-vlan-if 0 --protocol tcp --match tcp --dport 80  --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-vlan-if 0 --protocol tcp --match tcp --dport 443 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-vlan-if 0 --protocol tcp --match tcp --dport 8080 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-vlan-if 0 --protocol tcp --match tcp --dport 647 --jump ACCEPT", $action );
-# HTTP (parking portal)
-  util_direct_rule( "ipv4 filter input-internal-vlan-if 0 --protocol tcp --match tcp --dport 5252 --jump ACCEPT", $action );
+  foreach my $interface ( @internal_nets ) {
+    #filter
+    #inline
+    #interceptor
+    service_to_zone($tint, $action, "dns");
+    service_to_zone($tint, $action, "captive-portal");
+    service_to_zone($tint, $action, "parking-portal");
+  }
 }
 
-sub input_internal_isol_vlan_if_chained_rules {
+sub internal_isol_vlan_rules {
+  my $tint = shift;
   my $action = shift;
-# DNS
-  util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol tcp --match tcp --dport 53  --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol udp --match udp --dport 53  --jump ACCEPT", $action );
-# DHCP
-  util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol udp --match udp --dport 67  --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol tcp --match tcp --dport 67  --jump ACCEPT", $action );
-# HTTP (captive-portal)
-  util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol tcp --match tcp --dport 80  --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol tcp --match tcp --dport 443 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol tcp --match tcp --dport 8080 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol tcp --match tcp --dport 647 --jump ACCEPT", $action );
-# HTTP (parking portal)
-  util_direct_rule( "ipv4 filter input-internal-isol_vlan-if 0 --protocol tcp --match tcp --dport 5252 --jump ACCEPT", $action );
+  service_to_zone($tint, $action, "dns");
+  service_to_zone($tint, $action, "dhcp");
+  service_to_zone($tint, $action, "captive-portal");
+  service_to_zone($tint, $action, "parking-portal");
 }
 
 sub input_internal_inline_if_chained_rules {
@@ -473,15 +580,6 @@ sub dhcp_interfaces_handling {
   foreach my $dhcp_interface ( @dhcp_ints ) {
     my $dev = $dhcp_interface->tag("int");
     util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_DHCP", $action );
-  }
-}
-
-sub dns_interfaces_handling {
-  my $action = shift;
-  # 'dns' interfaces handling
-  foreach my $dns_interface ( @dns_ints ) {
-    my $dev = $dns_interface->tag("int");
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_DNS", $action );
   }
 }
 
@@ -1024,6 +1122,21 @@ sub generate_kafka_firewalld_config {
 
 # need a function that add/remove a service into/from a zone
 sub service_to_zone {
+  my $zone = shift;
+  my $action = shift;
+  my $service = shift;
+
+  my $logger = get_logger();
+  if ( ! defined is_service_available( $service ) ) {
+    get_logger->error( "Please run generate config to create services." );
+  } elsif ( ! defined is_zone_available( $zone ) {
+    get_logger->error( "Please run generate config to create zones" );
+  } else {
+    util_firewalld_job( " --zone=$zone --$action-service=$service --permanent" );
+  }
+}
+
+sub service_to_zone2 {
   my $service   = shift;
   my $status    = shift;
   my $zone      = shift;
