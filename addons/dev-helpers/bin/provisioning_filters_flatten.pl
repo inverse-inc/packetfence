@@ -16,8 +16,11 @@ use lib qw(/usr/local/pf/lib);
 use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use JSON::MaybeXS;
 use Data::Dumper;
+use pf::file_paths qw($provisioning_filters_meta_config_default_file);
+use pf::IniFiles;
 
 my $file = $ARGV[0];
+my $entry = $ARGV[1];
 my $data = do {
     open(my $fh, "<", $file) or die "$!";
     local $/ = undef;
@@ -25,17 +28,33 @@ my $data = do {
 };
 
 my $json = decode_json($data);
-flatten("", $json);
+my @fields;
+flatten("", $json, \@fields);
+@fields = sort @fields;
+if (defined $entry) {
+    my $ini = pf::IniFiles->new(-file => $provisioning_filters_meta_config_default_file) or die "";
+    use Data::Dumper;
+    print Dumper($ini);
+    $ini->AddSection($entry);
+    $ini->delval($entry, 'fields');
+    $ini->newval($entry, 'fields', @fields);
+    #$ini->push($entry, @fields);
+    $ini->RewriteConfig();
+} else {
+    for my $f (@fields) {
+        print "$f\n";
+    }
+}
 
 sub flatten {
-    my ($prefix, $data) = @_;
+    my ($prefix, $data, $array) = @_;
     while (my ($k, $v) = each %$data) {
         my $t = ref($v);
         if ($t eq 'HASH') {
-            flatten("${prefix}${k}.", $v);
+            flatten("${prefix}${k}.", $v, $array);
         }
         elsif ($t eq '') {
-            print "${prefix}${k}\n";
+            push @$array, "${prefix}${k}";
         }
     }
 }
