@@ -11,9 +11,12 @@ def is_ipv4(address):
 
 
 def nt_time_to_datetime(nt_time):
+    if nt_time == 0:
+        return 0
     if nt_time == 9223372036854775807:
-        return "inf"
-    return datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=nt_time / 10)
+        return 2147483647
+    d = datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=nt_time / 10)
+    return int(d.timestamp())
 
 
 def to_ymd_hms(unix_timestamp):

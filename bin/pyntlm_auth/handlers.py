@@ -26,6 +26,9 @@ def format_response(nt_key_or_error_msg, error_code):
     if error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
         return nt_key_or_error_msg, HTTPStatus.LOCKED
 
+    if error_code == global_vars.n_device_blocked:
+        return nt_key_or_error_msg, HTTPStatus.UNAUTHORIZED
+
     return nt_key_or_error_msg, HTTPStatus.INTERNAL_SERVER_ERROR
 
 

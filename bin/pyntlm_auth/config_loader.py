@@ -10,6 +10,29 @@ import global_vars
 import utils
 
 
+def get_boolean_value(v):
+    false_dict = ('', '0', 'no', 'n', 'false', 'off', 'disabled')
+
+    if v is None:
+        return False
+
+    v = v.lower().strip()
+    if v in false_dict:
+        return False
+
+    return True
+
+
+def get_int_value(v):
+    try:
+        ret = int(v)
+        return ret, None
+    except ValueError as e:
+        return None, 'Value error, can not convert specified value to int'
+    except Exception as e:
+        return None, 'General error, can not convert specified value to int'
+
+
 def config_load():
     conf_path = "/usr/local/pf/conf/domain.conf"
 
@@ -53,18 +76,85 @@ def config_load():
         dns_servers = config.get(identifier, 'dns_servers')
         username = server_name_or_hostname.upper() + "$"
         password = config.get(identifier, 'machine_account_password')
-        password_is_nt_hash = config.get(identifier, 'password_is_nt_hash')
+        password_is_nt_hash = get_boolean_value(config.get(identifier, 'password_is_nt_hash'))
 
         netbios_name = server_name_or_hostname.upper()
         workstation = server_name_or_hostname.upper()
         server_string = server_name_or_hostname
         domain = workgroup.lower()
 
-        nt_key_cache_enabled = config.get(identifier, 'nt_key_cache_enabled', fallback=False)
+        nt_key_cache_enabled = get_boolean_value(config.get(identifier, 'nt_key_cache_enabled', fallback=False))
         nt_key_cache_expire = config.get(identifier, 'nt_key_cache_expire', fallback=3600)
 
+        ad_account_lockout_threshold = config.get(identifier, 'ad_account_lockout_threshold', fallback='0')
+        ad_account_lockout_duration = config.get(identifier, 'ad_account_lockout_duration', fallback=None)
+        ad_reset_account_lockout_counter_after = config.get(identifier, 'ad_reset_account_lockout_counter_after',
+                                                            fallback=None)
+        ad_old_password_allowed_period = config.get(identifier, 'ad_old_password_allowed_period', fallback=None)
+
+        nt_key_cache_expire, error = get_int_value(nt_key_cache_expire)
+        if error is not None:
+            print("  Error while applying NT key cache settings: can not parse 'nt_key_cache_expire'")
+            sys.exit(1)
+
         if nt_key_cache_enabled and nt_key_cache_expire < 60:
+            print("  NT key cache expire set to minimum value: 60")
             nt_key_cache_expire = 60  # we set min nt_key_expiration time to 1 min.
+
+        if ad_account_lockout_threshold is None or ad_account_lockout_threshold.strip() == '':
+            ad_account_lockout_threshold = 0
+        else:
+            ad_account_lockout_threshold, error = get_int_value(ad_account_lockout_threshold)
+            if error is not None:
+                print("  Error while applying NT key cache settings: can not parse 'ad_account_lockout_threshold'")
+                sys.exit(1)
+
+        if ad_account_lockout_threshold == 0:
+            ad_account_lockout_duration = None
+            ad_reset_account_lockout_counter_after = None
+        else:
+            if ad_account_lockout_threshold < 0 or ad_account_lockout_threshold > 999:
+                print(f"  Error applying NT key cache settings: 'ad_account_lock_threshold' ranges from 0..999")
+                sys.exit(1)
+
+            if ad_account_lockout_duration is None or ad_account_lockout_duration.strip() == '':
+                ad_account_lockout_duration = None
+            else:
+                ad_account_lockout_duration, error = get_int_value(ad_account_lockout_duration)
+                if error is not None:
+                    print(f"  Error applying NT key cache settings: unable to parse 'ad_account_lockout_duration'")
+                    sys.exit(1)
+                if ad_account_lockout_duration < 0 or ad_account_lockout_duration > 99999:
+                    print(f"  Error applying NT key cache settings: 'ad_account_lockout_duration' ranges from 0..99999")
+                    sys.exit(1)
+
+            if ad_reset_account_lockout_counter_after is None or ad_reset_account_lockout_counter_after.strip() == '':
+                ad_reset_account_lockout_counter_after = None
+            else:
+                ad_reset_account_lockout_counter_after, error = get_int_value(ad_reset_account_lockout_counter_after)
+                if error is not None:
+                    print(f"  Error applying NT key cache settings: unable to parse 'ad_reset_account_lockout_after'")
+                    sys.exit(1)
+                if ad_reset_account_lockout_counter_after < 0 or ad_reset_account_lockout_counter_after > 99999:
+                    print(f"  Error applying NT key cache settings: 'ad_reset_account_lockout_counter_after' ranges from 0..99999")
+                    sys.exit(1)
+
+            if ad_old_password_allowed_period is None or ad_old_password_allowed_period.strip() == '':
+                ad_old_password_allowed_period = 60
+            else:
+                ad_old_password_allowed_period, error = get_int_value(ad_old_password_allowed_period)
+                if error is not None:
+                    print(f"  Error applying NT key cache settings: unable to parse 'ad_old_password_allowed_period'")
+                    sys.exit(1)
+                if ad_old_password_allowed_period < 0 or ad_old_password_allowed_period > 99999:
+                    print(f"  Error while applying NT key cache settings: 'ad_old_password_allowed_period' ranges from 0..99999")
+                    sys.exit(1)
+
+            if ad_account_lockout_threshold > 0 and ad_account_lockout_duration > 0:
+                if ad_reset_account_lockout_counter_after > ad_account_lockout_duration:
+                    print(f"  Error applying NT key cache settings: 'ad_reset_account_lockout_counter_after' must <= 'ad_account_lockout_duration'")
+                    sys.exit(1)
+
     except FileNotFoundError as e:
         print(f"  {conf_path} not found or unreadable. Terminated.")
         sys.exit(1)
@@ -74,7 +164,7 @@ def config_load():
 
     if ad_fqdn == "":
         print("  'ad_fqdn' is not set. NTLM Auth API wasn't able to start")
-        exit(1)
+        sys.exit(1)
 
     print("NTLM Auth API started with the following parameters:")
     print(f"  ad_fqdn                   : {ad_fqdn}")
@@ -100,14 +190,20 @@ def config_load():
                 config_generator.generate_hosts_entry(ad_server, ad_fqdn)
             else:
                 print("Failed to retrieve IP address of AD server. Terminated.")
-                exit(1)
+                sys.exit(1)
     else:
         if utils.is_ipv4(ad_server):
             config_generator.generate_hosts_entry(ad_server, ad_fqdn)
             print(f"DNS servers not available, Starting using static hosts entry: {ad_server} {ad_fqdn}.")
         else:
             print("Unable to start NTLM Auth API. 'ad_server' must be a valid IPv4 if DNS servers not specified.")
-            exit(1)
+            sys.exit(1)
+
+    print("NT Key caching:")
+    print(f"  ad_account_lockout_threshold                         : {ad_account_lockout_threshold}")
+    print(f"  ad_account_lockout_duration (in minutes)             : {ad_account_lockout_duration}")
+    print(f"  ad_reset_account_lockout_counter_after (in minutes)  : {ad_reset_account_lockout_counter_after}")
+    print(f"  ad_old_password_allowed_period (in minutes)          : {ad_old_password_allowed_period}")
 
     global_vars.c_server_name = ad_fqdn
     global_vars.c_realm = realm
@@ -118,3 +214,11 @@ def config_load():
     global_vars.c_workstation = workstation
     global_vars.c_server_string = server_string
     global_vars.c_domain = domain
+
+    global_vars.c_nt_key_cache_enabled = int(nt_key_cache_enabled)
+    global_vars.c_nt_key_cache_expire = int(nt_key_cache_expire)
+
+    global_vars.c_ad_account_lockout_threshold = ad_account_lockout_threshold
+    global_vars.c_ad_account_lockout_duration = ad_account_lockout_duration
+    global_vars.c_ad_reset_account_lockout_counter_after = ad_reset_account_lockout_counter_after
+    global_vars.c_ad_old_password_allowed_period = ad_old_password_allowed_period
