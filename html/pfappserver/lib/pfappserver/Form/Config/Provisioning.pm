@@ -9,6 +9,8 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 =cut
 
 use HTML::FormHandler::Moose;
+use pfconfig::cached_hash;
+tie our %Rules, 'pfconfig::cached_hash', 'resource::provisioning_rules';
 extends 'pfappserver::Base::Form';
 with qw (
     pfappserver::Base::Form::Role::Help
@@ -188,8 +190,9 @@ sub options_pki_provider {
 
 sub options_rules {
     my $self = shift;
-    my @rules;
-    return @rules;
+    my $type = ref($self) || $self;
+    $type =~ s/^pfappserver::Form::Config::Provisioning:://;
+    return map { {value => $_, label => $_} } @{$Rules{$type} // []};
 }
 
 =head2 options_roles
