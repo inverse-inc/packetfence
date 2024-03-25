@@ -813,7 +813,7 @@ $edir_options
     }
     user {
         base_dn = "\${..base_dn}"
-        filter = "(&(|$searchattributes($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{%{Stripped-User-Name}:-%{User-Name}}))$append)"
+        filter = "(&(|$searchattributes($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{Stripped-User-Name})($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{User-Name}))$append)"
     }
     options {
         chase_referrals = yes
