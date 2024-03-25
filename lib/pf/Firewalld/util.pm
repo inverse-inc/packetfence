@@ -27,8 +27,9 @@ BEGIN {
     util_prepare_firewalld_config_simple
     util_get_firewalld_bin
     util_get_firewalld_cmd
-    util_apply_rich_rule
-    util_apply_direct_add_rule
+    util_chain
+    util_rich_rule
+    util_direct_rule
     util_listen_ints_hash
     util_source_or_destination_validation
     util_prepare_version
@@ -47,9 +48,9 @@ BEGIN {
     util_is_firewalld_protocol
     util_is_fd_source_name
     util_firewalld_cmd
-    util_firewalld_action
+    util_firewalld_job
     util_reload_firewalld
-    util_get_xml_files_from_dir
+    util_get_name_files_from_dir
     util_create_config_file
     is_service_available
     is_icmptypes_available
@@ -127,17 +128,51 @@ sub util_get_firewalld_cmd {
   return $fbin;
 }
 
-sub util_apply_rich_rule {
-  my $zone = shift;
-  my $rule = shift;
-  my $action = " --permanent --zone=".$zone." --add-rich-rule='".$rule."'";
-  util_firewalld_action( $action );
+sub util_chain {
+  my $ipv   = shift;
+  my $table = shift;
+  my $chain = shift;
+  my $action = shift;
+  if ( ! defined $ipv || $ipv eq ""){
+    get_logger->error( "The util_chain ipv is not defined or empty. default will be 'ipv4'." );
+    $ipv = "ipv4";
+  }
+  if ( ! defined $table || $table eq ""){
+    get_logger->error( "The util_chain table is not defined or empty. default will be 'filter'." );
+    $table = "filter";
+  }
+  if ( ! defined $action || $action eq ""){
+    get_logger->error( "The util_chain action is not defined or empty. default will be 'add'." );
+    $action = "add";
+  }
+  get_logger->info( "The util_chain action is $action on $ipv with table $table." );
+  my $job = " --direct --".$action."-chain ".$ipv." ".$table." ".$chain;
+  util_firewalld_job( $job );
 }
 
-sub util_apply_direct_add_rule {
+sub util_rich_rule {
+  my $zone = shift;
   my $rule = shift;
-  my $action = " --direct --add-rule ".$rule." ";
-  util_firewalld_action( $action );
+  my $action = shift;
+  if ( ! defined $action || $action eq "" ){
+    get_logger->error( "The util_rich_rule action is not defined or empty. default will be add." );
+    $action = "add";
+  }
+  get_logger->info( "The util_rich_rule action is $action ." );
+  my $job = " --permanent --zone=".$zone." --".$action."-rich-rule='".$rule."'";
+  util_firewalld_job( $job );
+}
+
+sub util_direct_rule {
+  my $rule = shift;
+  my $action = shift;
+  if ( ! defined $action || $action eq ""){
+    get_logger->error( "The util_direct_rule action is not defined or empty. default will be add." );
+    $action = "add";
+  }
+  get_logger->info( "The util_rich_rule type is $action ." );
+  my $job = " --direct --".$action."-rule $rule";
+  util_firewalld_job( $job );
 }
 
 sub util_listen_ints_hash {
@@ -588,7 +623,7 @@ sub util_firewalld_cmd {
 }
 
 # Firewalld action
-sub util_firewalld_action {
+sub util_firewalld_job {
   my $action= shift;
   my $result = util_firewalld_cmd( $action );
   if ( $result =~ "success" ){
@@ -600,7 +635,7 @@ sub util_firewalld_action {
 
 # need a function that reload the service
 sub util_reload_firewalld {
-  if ( firewalld_action( "--reload" ) ){
+  if ( util_firewalld_job( "--reload" ) ){
     get_logger->info( "Reload Success" );
     return 1;
   } else {
@@ -609,7 +644,7 @@ sub util_reload_firewalld {
   }
 }
 
-sub util_get_xml_files_from_dir {
+sub util_get_name_files_from_dir {
   my $dir_name = shift;
   my @files = read_dir_recursive("$firewalld_config_path_generated/$dir_name");
   if ( scalar( @files ) > 0 ) {
@@ -668,7 +703,7 @@ sub firewalld_services_hash {
     }
     return \%h;
   }
-  my $xml_files = util_get_xml_files_from_dir("services");
+  my $xml_files = util_get_name_files_from_dir("services");
   if ( defined $xml_files ) {
     return $xml_files;
   }
@@ -698,7 +733,7 @@ sub firewalld_icmptypes_hash {
     }
     return \%h;
   }
-  my $xml_files = util_get_xml_files_from_dir("ipsets");
+  my $xml_files = util_get_name_files_from_dir("ipsets");
   if ( defined $xml_files ) {
     return $xml_files;
   }
@@ -765,7 +800,7 @@ sub firewalld_ipsets_hash {
     }
     return \%h;
   }
-  my $xml_files = util_get_xml_files_from_dir("ipsets");
+  my $xml_files = util_get_name_files_from_dir("ipsets");
   if ( defined $xml_files ) {
     return $xml_files;
   }
@@ -794,10 +829,20 @@ sub firewalld_zones_hash {
     }
     return \%h;
   }
-  my $xml_files = util_get_xml_files_from_dir("zones");
+  my $xml_files = util_get_name_files_from_dir("zones");
   if ( defined $xml_files ) {
     return $xml_files;
   }
+  return undef;
+}
+
+sub is_zone_available {
+  my $s = shift;
+  my $available_zones = firewalld_zones_hash();
+  if ( exists $available_zones->{ $s } ) {
+    return $s;
+  }
+  get_logger->error( "Zone $s does not exist." );
   return undef;
 }
 
@@ -813,7 +858,7 @@ sub firewalld_helpers_hash {
     }
     return \%h;
   }
-  my $xml_files = util_get_xml_files_from_dir("helpers");
+  my $xml_files = util_get_name_files_from_dir("helpers");
   if ( defined $xml_files ) {
     return $xml_files;
   }
