@@ -69,7 +69,7 @@
       </app-documentation>
     </b-container>
     <!-- Router -->
-    <router-view data-router-view="true" />
+    <router-view data-router-view="true" class="px-3" />
     <!-- Show login if session expires -->
     <app-login modal />
     <!-- Show notifications late in DOM for z-index above b-modal -->
