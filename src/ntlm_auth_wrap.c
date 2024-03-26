@@ -358,6 +358,8 @@ char **argv, **envp;
             cJSON_AddStringToObject(json, "challenge", argv[i] + strlen("--challenge="));
         } else if (strncmp(argv[i], "--nt-response=", strlen("--nt-response=")) == 0) {
             cJSON_AddStringToObject(json, "nt-response", argv[i] + strlen("--nt-response="));
+        } else if (strncmp(argv[i], "--mac=", strlen("--mac=")) == 0) {
+            cJSON_AddStringToObject(json, "mac", argv[i] + strlen("--mac="));
         }
     }
 
