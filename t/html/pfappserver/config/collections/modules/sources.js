@@ -1,5 +1,4 @@
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
-const timeout = 10E3;
 
 const typeCategories = {
   INTERNAL: 'Internal',
@@ -64,7 +63,6 @@ const tests = types.reduce((tests, typeCategory) => {
     {
       description: `Sources (${category}/${type}) - Create New`,
       scope: SCOPE_INSERT,
-      timeout,
       url: collection_url,
       fixture,
       selectors: {
@@ -126,6 +124,5 @@ const tests = types.reduce((tests, typeCategory) => {
 module.exports = {
   id: 'sources',
   description: 'Sources',
-  timeout,
   tests
 };

@@ -4,7 +4,6 @@ const resource_url = id => `/configuration/connection_profile/${id}`;
 
 const fixture = 'collections/connectionProfile.json';
 const flatten = true;
-const timeout = 10E3;
 
 module.exports = {
   id: 'connectionProfiles',
@@ -16,7 +15,6 @@ module.exports = {
       url: collection_url,
       fixture,
       flatten,
-      timeout,
       selectors: {
         buttonNewSelectors: ['button[type="button"]:contains(New Connection Profile)'],
       },
@@ -53,7 +51,6 @@ module.exports = {
       scope: SCOPE_UPDATE,
       fixture,
       flatten,
-      timeout,
       url: resource_url,
       interceptors: [
         {
@@ -76,7 +73,6 @@ module.exports = {
       scope: SCOPE_DELETE,
       fixture,
       flatten,
-      timeout,
       url: resource_url,
       interceptors: [
         {
