@@ -71,6 +71,9 @@ sub build_child {
         }
 
         $task_data->{interval} = $interval;
+        if (exists $task_data->{kafka_brokers}) {
+            $task_data->{kafka_brokers} = [split(/\s*,\s*/, $task_data->{kafka_brokers})];
+        }
     }
 
     return $tmp_cfg;

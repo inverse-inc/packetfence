@@ -29,6 +29,7 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"ip4log_cleanup":               NewIp4logCleanup,
 	"ip6log_cleanup":               NewIp6logCleanup,
 	"flush_dns_audit_log":          NewFlushDNSAuditLog,
+	"pfflow":                       NewPfFlowJob,
 	"purge_binary_logs":            MakeSingleWindowSqlJobSetupConfig(`PURGE BINARY LOGS BEFORE (NOW() - INTERVAL ? SECOND)`),
 	"admin_api_audit_log_cleanup":  MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"auth_log_cleanup":             MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),

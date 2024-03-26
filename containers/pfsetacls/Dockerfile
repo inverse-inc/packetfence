@@ -28,6 +28,7 @@ RUN adduser --disabled-password -u 1002 --gecos 0 semaphore && \
 
 RUN cd $(go env GOPATH) && curl -sL https://taskfile.dev/install.sh | sh -s -- "v3.33.0"
 
+
 RUN npm install -g npm@9.6.7
 
 RUN git config --global --add safe.directory /go/src/github.com/ansible-semaphore/semaphore
