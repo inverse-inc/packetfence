@@ -3,7 +3,6 @@ const collection_url = 'configuration/admin_roles';
 const resource_url = id => `/configuration/admin_role/${id}`;
 
 const fixture = 'collections/adminRole.json';
-const timeout = 10E3;
 
 const acls = require('../../../cypress/fixtures/runtime/acls.json');
 const map = (value, namespace = '') => {
@@ -21,7 +20,6 @@ module.exports = {
       description: 'Admin Roles - Create New',
       scope: SCOPE_INSERT,
       fixture,
-      timeout,
       map,
       url: collection_url,
       selectors: {
@@ -47,7 +45,6 @@ module.exports = {
       description: 'Admin Roles - Update Existing',
       scope: SCOPE_UPDATE,
       fixture,
-      timeout,
       url: resource_url,
       interceptors: [
         {
@@ -69,7 +66,6 @@ module.exports = {
       description: 'Admin Roles - Delete Existing',
       scope: SCOPE_DELETE,
       fixture,
-      timeout,
       url: resource_url,
       interceptors: [
         {

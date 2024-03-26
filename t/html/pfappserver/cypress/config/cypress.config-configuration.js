@@ -43,6 +43,7 @@ module.exports = {
       return base.e2e.setupNodeEvents(on, config);
     },
 
+    defaultCommandTimeout: 20E3,
     specPattern: [
       'cypress/specs/e2e/*-configuration/**/*.cy.{js,jsx,ts,tsx}',
     ],

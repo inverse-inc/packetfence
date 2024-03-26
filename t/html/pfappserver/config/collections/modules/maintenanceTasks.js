@@ -2,7 +2,6 @@ const { SCOPE_UPDATE } = require('../config');
 const maintenanceTasks = require('../../../cypress/fixtures/runtime/maintenanceTasks.json');
 const collection_url = '/configuration/maintenance_tasks';
 const resource_url = id => `/configuration/maintenance_task/${id}`;
-const timeout = 10E3;
 
 module.exports = {
   id: 'maintenaceTasks',
@@ -13,7 +12,6 @@ module.exports = {
       description: `Maintenance Task (${id}) - Update Existing`,
       scope: SCOPE_UPDATE,
       fixture: `/runtime/maintenanceTask-${id}.json`,
-      timeout,
       url: resource_url,
       interceptors: [
         {

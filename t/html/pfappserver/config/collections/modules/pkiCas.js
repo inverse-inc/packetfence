@@ -5,7 +5,6 @@ const { digests, keyTypes } = require('../../../config/global/pki');
 const collection_url = 'configuration/pki/cas';
 const resource_url = id => `/configuration/pki/ca/${id}`;
 const fixture = 'collections/pki/ca.json';
-const timeout = 10E3;
 
 const map = (value, namespace = '') => {
   if (namespace === 'country') { // remap country
@@ -28,7 +27,6 @@ module.exports = {
       description: 'PKI Certificate Authorities - Create New',
       scope: SCOPE_INSERT,
       fixture,
-      timeout,
       map,
       url: collection_url,
       selectors: {
@@ -56,7 +54,6 @@ module.exports = {
       description: 'PKI Certificate Authorities - Resign Existing',
       scope: SCOPE_DELETE,
       fixture,
-      timeout,
       url: resource_url,
       idFrom: (_, cache) => cache.ID,
       selectors: {

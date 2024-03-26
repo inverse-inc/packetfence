@@ -6,7 +6,6 @@ const types = { // singular, 's' is appended for plural
   fast: 'Fast Profile',
   ocsp: 'OCSP Profile'
 };
-const timeout = 10E3;
 
 
 const tests = Object.entries(types).reduce((tests, [type, name]) => {
@@ -20,7 +19,6 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
       scope: SCOPE_INSERT,
       url: collection_url,
       fixture,
-      timeout,
       selectors: {
         buttonNewSelectors: [`button[type="button"]:contains(New ${name})`],
         tabSelector: false,
@@ -45,7 +43,6 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
       description: `RADIUS Profiles (${name}) - Update Existing`,
       scope: SCOPE_UPDATE,
       fixture,
-      timeout,
       url: resource_url,
       interceptors: [
         {
@@ -67,7 +64,6 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
       description: `RADIUS Profiles (${name}) - Delete Existing`,
       scope: SCOPE_DELETE,
       fixture,
-      timeout,
       url: resource_url,
       interceptors: [
         {

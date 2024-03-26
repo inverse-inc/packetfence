@@ -2,7 +2,6 @@ const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
 const collection_url = '/configuration/security_events';
 const resource_url = id => `/configuration/security_event/${id}`;
 const fixture = 'collections/securityEvent.json';
-const timeout = 15E3;
 
 module.exports = {
   id: 'securityEvents',
@@ -13,7 +12,6 @@ module.exports = {
       scope: SCOPE_INSERT,
       url: collection_url,
       fixture,
-      timeout,
       selectors: {
         buttonNewSelectors: ['button[type="button"]:contains(New)'],
       },
@@ -39,7 +37,6 @@ module.exports = {
       description: 'Security Events - Update Existing',
       scope: SCOPE_UPDATE,
       fixture,
-      timeout,
       url: resource_url,
       idFrom: (_, cache) => cache.id,
       interceptors: [
@@ -62,7 +59,6 @@ module.exports = {
       description: 'Security Events - Delete Existing',
       scope: SCOPE_DELETE,
       fixture,
-      timeout,
       url: resource_url,
       idFrom: (_, cache) => cache.id,
       interceptors: [

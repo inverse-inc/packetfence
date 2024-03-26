@@ -1,5 +1,4 @@
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
-const timeout = 15E3;
 
 const types = {
   BarracudaNG: 'BarracudaNG',
@@ -87,6 +86,5 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
 module.exports = {
   id: 'firewalls',
   description: 'Firewalls',
-  timeout,
   tests
 };

@@ -11,14 +11,12 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
   const collection_url = '/configuration/scan_engines';
   const resource_url = (id) => `/configuration/scan_engine/${id}`;
   const fixture = `collections/scanEngine/${type}.json`;
-  const timeout = 15E3;
 
   return [...tests, ...[
     {
       description: `ScanEngines (${name}) - Create New`,
       scope: SCOPE_INSERT,
       url: collection_url,
-      timeout,
       fixture,
       selectors: {
         buttonNewSelectors: [`button[type="button"]:contains(New Scan Engine)`, `ul li a[href$="/new/${type}"]`],
@@ -42,7 +40,6 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
     {
       description: `ScanEngines (${name}) - Update Existing`,
       scope: SCOPE_UPDATE,
-      timeout,
       fixture,
       url: resource_url,
       interceptors: [
@@ -64,7 +61,6 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
     {
       description: `ScanEngines (${name}) - Delete Existing`,
       scope: SCOPE_DELETE,
-      timeout,
       fixture,
       url: resource_url,
       interceptors: [

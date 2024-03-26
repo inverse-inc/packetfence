@@ -1,5 +1,4 @@
 const { SCOPE_INSERT, SCOPE_UPDATE, SCOPE_DELETE } = require('../config');
-const timeout = 15E3;
 
 const types = {
   accept: 'Accept',
@@ -28,7 +27,6 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
       scope: SCOPE_INSERT,
       url: collection_url,
       fixture,
-      timeout,
       selectors: {
         buttonNewSelectors: [`button[type="button"]:contains(New Provisioner)`, `ul li a[href$="/new/${type}"]`],
       },
@@ -52,7 +50,6 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
       description: `Provisionings (${name}) - Update Existing`,
       scope: SCOPE_UPDATE,
       fixture,
-      timeout,
       url: resource_url,
       interceptors: [
         {
@@ -74,7 +71,6 @@ const tests = Object.entries(types).reduce((tests, [type, name]) => {
       description: `Provisionings (${name}) - Delete Existing`,
       scope: SCOPE_DELETE,
       fixture,
-      timeout,
       url: resource_url,
       interceptors: [
         {
