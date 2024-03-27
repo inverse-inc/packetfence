@@ -150,8 +150,12 @@ describe('Collections', () => {
 
                 // setup API interceptors
                 interceptors.forEach((interceptor, i) => {
-                  const { method, url, timeout = global.interceptorTimeoutMs, block } = interceptor
+                  const { method, url, expectRequest, timeout = global.interceptorTimeoutMs, block } = interceptor
                   cy.intercept({ method, url }, (req) => {
+                    if (expectRequest) {
+                      let retVal = expectRequest(request, data, cache) // expect
+                      request = retVal || request
+                    }
                     if (block) {
                       req.destroy() // block
                     }
