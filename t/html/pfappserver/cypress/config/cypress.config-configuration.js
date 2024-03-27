@@ -44,6 +44,7 @@ module.exports = {
     },
 
     defaultCommandTimeout: 60E3,
+    requestTimeout: 60E3,
     specPattern: [
       'cypress/specs/e2e/*-configuration/**/*.cy.{js,jsx,ts,tsx}',
     ],
