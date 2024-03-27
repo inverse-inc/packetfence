@@ -66,14 +66,15 @@ describe('Collections', () => {
                 interceptors.forEach((interceptor, i) => {
                   const { method, url, expectRequest, timeout = global.interceptorTimeoutMs, block } = interceptor
                   cy.intercept({ method, url }, (request) => {
+                    if (expectRequest) {
+                      let retVal = expectRequest(request, data, cache) // expect
+                      request = retVal || request
+                    }
                     if (block) {
                       request.destroy() // block
                     }
                     else {
                       request.continue() // passthrough
-                    }
-                    if (expectRequest) {
-                      expectRequest(request, data, cache) // expect
                     }
                   }).as(`interceptor${i}`)
                 })
