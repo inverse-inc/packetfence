@@ -1033,12 +1033,10 @@ sub service_to_zone {
   my $action = shift;
   my $service = shift;
 
-  if ( ! defined is_service_available( $service ) ) {
-    get_logger->error( "Please run generate config to create services." );
-  } elsif ( ! defined is_zone_available( $zone ) {
-    get_logger->error( "Please run generate config to create zones" );
-  } else {
+  if ( defined is_service_available($service) && defined is_zone_available( $zone ) ) {
     util_firewalld_job( " --zone=$zone --$action-service=$service --permanent" );
+  } else {
+    get_logger->error( "Please run generate config to create services and zones" );
   }
 }
 
