@@ -1,6 +1,6 @@
-ARG from=debian:bullseye
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
+ARG from=${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
 
 FROM ${from} as build
 
@@ -47,12 +47,25 @@ RUN mkdir -p /opt
 WORKDIR /opt
 
 #
+# Shallow clone the pxc_scheduler_handler source
+#
+
+ARG source_pxc=https://github.com/percona/pxc_scheduler_handler.git
+ARG COMMIT_ID_PXC=4255853347c353436c239491c0858f0ffbb5ca75
+RUN git clone -qq ${source_pxc}
+WORKDIR pxc_scheduler_handler
+RUN git checkout $COMMIT_ID_PXC
+RUN go build
+
+#
 #  Shallow clone the proxysql source
 #
 ARG source=https://github.com/inverse-inc/proxysql.git
 
+WORKDIR /opt
+
 RUN mkdir -p /root/ctl
-ARG COMMIT_ID=9878ed32d7e130d3b812b488ea5958b7cd5a7e35
+ARG COMMIT_ID=47368be71ffcb70af664d751bafdae3b23087e84
 RUN git clone -qq ${source}
 WORKDIR proxysql
 RUN git checkout $COMMIT_ID
@@ -68,6 +81,7 @@ RUN docker/images/proxysql/deb-compliant/entrypoint/entrypoint.bash
 #
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
+COPY --from=build /opt/pxc_scheduler_handler/pxc_scheduler_handler /pxc_scheduler_handler
 COPY --from=build /opt/proxysql/binaries/*.deb /tmp/
 
 RUN apt-get -qq update \
