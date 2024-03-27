@@ -124,22 +124,10 @@ use pf::Firewalld::policies qw ( generate_policies_config );
 
 # This is the content that needs to match in the iptable rules for the service
 # to be considered as running
-Readonly our $FW_FILTER_INPUT_MGMT      => 'input-management-if';
-Readonly our $FW_FILTER_INPUT_PORTAL    => 'input-portal-if';
-Readonly our $FW_FILTER_INPUT_RADIUS    => 'input-radius-if';
-Readonly our $FW_FILTER_INPUT_DHCP      => 'input-dhcp-if';
-Readonly our $FW_FILTER_INPUT_DNS       => 'input-dns-if';
-
-Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
 Readonly my $FW_TABLE_NAT => 'nat';
-Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
-Readonly my $FW_FILTER_INPUT_INT_ISOL_VLAN => 'input-internal-isol_vlan-if';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
-Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
-Readonly my $FW_FILTER_FORWARD_INT_VLAN => 'forward-internal-vlan-if';
-Readonly my $FW_FILTER_FORWARD_INT_ISOL_VLAN => 'forward-internal-isolvlan-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
@@ -298,7 +286,7 @@ sub fd_radius_rules {
 sub get_network_type_and_chain {
   my $ip = shift;
   my $type = $pf::config::NET_TYPE_VLAN_REG;
-  my $chain = $FW_FILTER_INPUT_INT_VLAN;
+  my $chain = "input-internal-vlan-if";
   foreach my $network ( keys %ConfigNetworks ) {
     # We skip non-inline networks/interfaces
     next if ( pf::config::is_network_type_inline($network) );
@@ -307,7 +295,7 @@ sub get_network_type_and_chain {
       my $ip_test = new NetAddr::IP::Lite clean_ip($ip);
       if ($net_addr->contains($ip_test)) {
         $type = $pf::config::NET_TYPE_VLAN_ISOL;
-        $chain = $FW_FILTER_INPUT_INT_ISOL_VLAN;
+        $chain = "input-internal-isol_vlan-if";
       }
     }
   }
@@ -445,7 +433,7 @@ sub fd_dhcp_rules {
         $tint = $1;
       }
       my ($type,$chain) = get_network_type_and_chain($ip);
-      if ( $type eq $pf::config::NET_TYPE_VLAN_REG && $chain eq $FW_FILTER_INPUT_INT_ISOL_VLAN ) {
+      if ( $type eq $pf::config::NET_TYPE_VLAN_REG && $chain eq "input-internal-isol_vlan-if" ) {
         util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action );
         util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p udp -m udp --dport 67 -j ACCEPT", $action );
         util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
@@ -668,6 +656,7 @@ sub fd_eduroam_radius_rules {
 
 sub fd_firewalld_rules {
   my $action = shift;
+  generate_chains("add");
   nat_back_inline_rules($action);
   #NAT Intercept Proxy
   interception_rules($action);
@@ -684,18 +673,8 @@ sub fd_firewalld_rules {
 sub generate_chains {
   my $action = shift;
   my @chains = qw (
-    input-management-if
-    input-portal-if
-    input-radius-if
-    input-dhcp-if
-    input-dns-if
-    input-internal-vlan-if
-    input-internal-isol_vlan-if
     input-internal-inline-if
-    input-highavailability-if
     forward-internal-inline-if
-    forward-internal-vlan-if
-    forward-internal-isolvlan-if
     prerouting-int-inline-if
     postrouting-int-inline-if
     postrouting-inline-routed
@@ -725,8 +704,6 @@ sub generate_chain {
   }
   util_chain( "ipv4", "filter", $chain, $action );
 }
-
-
 
 sub nat_back_inline_rules {
   my $action = shift;
@@ -789,9 +766,16 @@ sub interception_rules {
     }
   }
   if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+    my $internal_portal_ip = $Config{captive_portal}{ip_address};
     foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-      my $rule = "--protocol tcp --destination-port $intercept_port";
-      util_direct_rule("ipv4 filter $FW_FILTER_INPUT_INT_VLAN 0 $rule --jump ACCEPT", $action );
+      foreach my $interface (@internal_nets) {
+        my $tint = $interface->tag("int");
+        my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+        if (is_type_inline($enforcement_type)) {
+          my $rule = "--protocol tcp --destination-port $intercept_port";
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip $rule -j ACCEPT", $action );
+        }
+      }
     }
   }
 }
@@ -1058,56 +1042,6 @@ sub service_to_zone {
   }
 }
 
-sub service_to_zone2 {
-  my $service   = shift;
-  my $status    = shift;
-  my $zone      = shift;
-  my $permanent = shift;
-  my $p_value   = "--permanent";
- 
-  #$service   ||= "noservice";
-  #$status    ||= "add";
-  #$zone      ||= "eth0";
-  #$permanent ||= "yes";
-
-  if ($service ne "noservice") {
-    print("provide a service");
-    return 0 ;
-  }
-
-  if ( $status ne "add" && $status ne "remove") {
-    print("Status $status is unknown. Should be 'add' or 'remove'");
-    return 0 ;
-  }
-
-  if ( not service_is_in_default( $service ) ) {
-    print("Please run generate config to create file services");
-    return 0 ;
-  }
-
-  if ( $permanent ne "yes" ) {
-    $p_value="";
-  }
-
-  # handle service's file
-  if ( $status eq "add" ){
-    service_copy_from_default_to_applied($service);
-  } else {
-    service_remove_from_applied( $service );
-  }
-
-  # handle service in zone
-  if ( $status eq "add" ) {
-    print("Service $service added from Zone $zone configuration status:");
-  } else {
-    print("Service $service removed from Zone $zone configuration status:");
-  }
-  if (firewalld_action("--zone=$zone --$status-service $service $p_value")){
-    return reload_firewalld();
-  } else {
-    return 1 ;
-  }
-}
 
 =head1 AUTHOR
 
