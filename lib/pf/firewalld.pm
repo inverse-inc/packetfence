@@ -71,7 +71,6 @@ BEGIN {
     generate_passthrough_rules
     generate_provisioning_passthroughs
     generate_netflow_rules
-    generate_kafka_firewalld_config
   );
 }
 
@@ -88,11 +87,14 @@ use pf::config qw(
     is_type_inline
     netflow_enabled
     $management_network
+    @inline_enforcement_nets
+    @internal_nets
+    @listen_ints
     @ha_ints
     @portal_ints
-    @internal_nets
     @radius_ints
     @dhcp_ints
+    @dhcplistener_ints
     @dns_ints
     $NET_TYPE_INLINE_L3
     %mark_type_to_str
@@ -157,6 +159,8 @@ sub firewalld_clean_pfconf_configs {
 
 sub firewalld_generate_configs {
   firewalld_generate_pfconf_configs();
+  fd_create_all_zones();
+  fd_provisioning_passthroughs();
   firewalld_generate_pfconfig_configs("add");
 }
 
@@ -192,6 +196,489 @@ sub firewalld_generate_pfconfig_configs {
   generate_interception_rules($action);
   generate_dnat_from_docker($action);
   generate_kafka_firewalld_config($action);
+}
+
+sub fd_create_all_zones {
+  my $name_files = util_get_name_files_from_dir("zones");
+  foreach my $tint ( @listen_ints ) {
+    if ( defined $name_files && exists $name_files->{$tint} ) {
+      get_logger->error( "Network Interface $tint  is handle by configuration files" );
+    } else {
+      util_firewalld_job( " --permanent --delete-zone=$tint" );
+      util_firewalld_job( " --permanent --new-zone=$tint" );
+      util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
+      util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
+      util_reload_firewalld();
+      if ( scalar grep( { $_ eq $tint } @dhcplistener_ints ) ) { # Why DHCP interfaces need ssh?
+        service_to_zone($tint, "add", "ssh");
+      }
+      util_reload_firewalld();
+      # need to get services that are running and use the dedicated function to restart accordingly
+    }
+  }
+}
+
+sub fd_keepalived_rules {
+  foreach my $tint ( @listen_ints ){
+    # Never remove, used several time
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -d 224.0.0.0/8 -j ACCEPT", "add" );
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p vrrp -j ACCEPT", "add" ) if ($cluster_enabled);
+  }
+}
+
+sub fd_haproxy_admin_rules {
+  # Web Admin
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  my $web_admin_port = $Config{'ports'}{'admin'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
+}
+
+sub fd_webservices_rules {
+  # Webservices
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  my $webservices_port = $Config{'ports'}{'soap'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $tint 0 -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
+}
+
+sub fd_httpd_aaa_rules {
+  # AAA
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  my $aaa_port = $Config{'ports'}{'aaa'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
+}
+
+sub fd_unified_api_rules {
+  # Unified API
+  my $action = shift;
+  my $mgnt_zone =  $management_network->{Tint};
+  my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
+}
+
+sub fd_httpd_portal_rules {
+  # httpd.portal modstatus
+  my $action = shift;
+  my $mgnt_zone =  $management_network->{Tint};
+  my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
+  util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $httpd_portal_modstatus -j ACCEPT", $action );
+}
+
+sub fd_haproxy_db_rules {
+  my $action = shift;
+  my $mgnt_zone =  $management_network->{Tint};
+  service_to_zone($mgnt_zone, $action, "haproxy-db");
+}
+
+sub fd_haproxy_portal_rules {
+  my $action = shift;
+  foreach my $tint (@ha_ints){
+    service_to_zone($tint, $action, "haproxy-portal");
+  }
+}
+
+sub fd_portal_rules {
+  my $action = shift;
+  foreach my $tint ( @portal_ints ) {
+    service_to_zone($tint, $action, "http");
+    service_to_zone($tint, $action, "https");
+    service_to_zone($tint, $action, "web-portal");
+  }
+}
+
+sub fd_radius_rules {
+  my $action = shift;
+  foreach my $tint ( @radius_ints ) {
+    service_to_zone($tint, $action, "radius");
+  }
+}
+
+sub get_network_type_and_chain {
+  my $ip = shift;
+  my $type = $pf::config::NET_TYPE_VLAN_REG;
+  my $chain = $FW_FILTER_INPUT_INT_VLAN;
+  foreach my $network ( keys %ConfigNetworks ) {
+    # We skip non-inline networks/interfaces
+    next if ( pf::config::is_network_type_inline($network) );
+    if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_VLAN_ISOL ) {
+      my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+      my $ip_test = new NetAddr::IP::Lite clean_ip($ip);
+      if ($net_addr->contains($ip_test)) {
+        $type = $pf::config::NET_TYPE_VLAN_ISOL;
+        $chain = $FW_FILTER_INPUT_INT_ISOL_VLAN;
+      }
+    }
+  }
+  return ($type,$chain);
+}
+
+sub fd_dns_rules {
+  my $action = shift;
+  foreach my $tint ( @dns_ints ) {
+    service_to_zone($tint, $action, "dns");
+  }
+  foreach my $network ( @inline_enforcement_nets ) {
+    my $tint =  $network->{Tint};
+    service_to_zone($tint, $action, "dns");
+  }
+  # OAuth
+  oauth_passthrough_rules();
+  my $internal_portal_ip = $Config{captive_portal}{ip_address};
+  foreach my $interface (@internal_nets) {
+    my @all_dev_rules;
+    my $tint = $interface->tag("int");
+    my $ip = $interface->tag("vip") || $interface->tag("ip");
+    my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+    my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
+
+    if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
+      if ($tint =~ m/(\w+):\d+/) {
+        $tint = $1;
+      }
+      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p tcp -m tcp --dport 53 -j ACCEPT", $action );
+      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p udp -m udp --dport 53 -j ACCEPT", $action );
+    }
+  }
+}
+
+sub oauth_passthrough_rules {
+  my $action = shift;
+  # OAuth
+  my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
+  if ($passthrough_enabled) {
+    my $logger = get_logger();
+    $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
+    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
+    my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
+    foreach my $interface (@internal_nets) {
+      my $tint = $interface->tag("int");
+      my $ip = $interface->tag("vip") || $interface->tag("ip");
+      my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+
+      my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
+      # VLAN enforcement
+      if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
+        if ($tint =~ m/(\w+):\d+/) {
+            $tint = $1;
+        }
+        my ($type,$chain) = get_network_type_and_chain($ip);
+        if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
+          util_direct_rule("ipv4 filter FORWARD 0 --in-interface $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD 0 --in-interface $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
+        }
+        if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
+          util_direct_rule("ipv4 filter FORWARD 0 --in-interface $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD 0 --in-interface $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
+        }            
+      }
+    }
+    $logger->info("Adding NAT Masquerade statement.");
+    my ($SNAT_ip, $mgmt_int);
+    if ($management_network) {
+      $mgmt_int = $management_network->tag("int");
+      if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+          $SNAT_ip = $management_network->{'Tvip'};
+        } else {
+          $SNAT_ip = $management_network->{'Tip'};
+        }
+      }
+    }
+    if ($SNAT_ip) {
+      foreach my $network ( keys %ConfigNetworks ) {
+        my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+        if ( pf::config::is_network_type_inline($network) ) {
+          my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+          if (defined ($nat) && (isenabled($nat))) {
+            util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $action );
+          }
+        } else {
+          util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $action );
+        }
+      }
+    }
+   # Enable nat if we defined another interface to route to internet
+    my @ints = split(',', get_network_snat_interface());
+    foreach my $int (@ints) {
+      my $if   = IO::Interface::Simple->new($int);
+      next unless defined($if);
+      foreach my $network ( keys %ConfigNetworks ) {
+        my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+        if ( pf::config::is_network_type_inline($network) ) {
+          my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+          if (defined ($nat) && (isenabled($nat))) {
+            util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
+          }
+        } else {
+          util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
+        }
+      }
+    }
+  }
+}
+
+sub fd_dhcp_rules {
+  my $action = shift;
+  my $logger = get_logger();
+  foreach my $tint ( @dhcp_ints ) {
+    service_to_zone($tint, $action, "dhcp");
+  }
+  foreach my $tint ( @dhcplistener_ints ) {
+    service_to_zone($tint, $action, "dhcp");
+  }
+  my $internal_portal_ip = $Config{captive_portal}{ip_address};
+  foreach my $interface ( @internal_nets ) {
+    my @all_dev_rules;
+    my $tint = $interface->tag("int");
+    my $ip = $interface->tag("vip") || $interface->tag("ip");
+    my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+    my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
+
+    if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
+      if ($tint =~ m/(\w+):\d+/) {
+        $tint = $1;
+      }
+      my ($type,$chain) = get_network_type_and_chain($ip);
+      if ( $type eq $pf::config::NET_TYPE_VLAN_REG && $chain eq $FW_FILTER_INPUT_INT_ISOL_VLAN ) {
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p udp -m udp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p udp -m udp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $interface->tag('vip') -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $interface->tag('vip') -p udp -m udp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $interface->tag('ip') -p tcp -m tcp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $interface->tag('ip') -p udp -m udp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT", $action );
+      }
+    } elsif (is_type_inline($enforcement_type)) {
+      if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+        $logger->info("Adding Proxy interception rules");
+        foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
+        }
+      }
+    }
+  }
+}
+
+sub fd_pfipset_rules {
+  my $action = shift;
+  pfipset_provisioning_passthroughs();
+  my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
+  my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
+  foreach my $interface (@internal_nets) {
+    my @all_dev_rules;
+    my $tint = $interface->tag("int");
+    my $ip = $interface->tag("vip") || $interface->tag("ip");
+    my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+    my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
+
+    if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
+      if ($tint =~ m/(\w+):\d+/) {
+        $tint = $1;
+      }
+      my ($type,$chain) = get_network_type_and_chain($ip);
+      if ( $type eq $pf::config::NET_TYPE_VLAN_REG) {
+        if ( $passthrough_enabled && ( $type eq $pf::config::NET_TYPE_VLAN_REG ) ) {
+          util_direct_rule( "ipv4 filter FORWARD 0 --in-interface  $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD 0 --in-interface  $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
+        }
+        if ( $isolation_passthrough_enabled && ( $type eq $pf::config::NET_TYPE_VLAN_ISOL ) ) {
+          util_direct_rule( "ipv4 filter FORWARD 0 --in-interface  $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD 0 --in-interface  $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
+        }
+      }
+    }
+  }
+}
+
+sub pfipset_provisioning_passthroughs {
+  my $logger = get_logger();
+  $logger->debug("Installing passthroughs for provisioning");
+  foreach my $config (tied(%ConfigProvisioning)->search(type => 'kandji')) {
+    $logger->info("Adding passthrough for Kandji");
+    my $enroll_host = $config->{enroll_url} ? URI->new($config->{enroll_url})->host : $config->{host};
+    my $enroll_port = $config->{enroll_url} ? URI->new($config->{enroll_url})->port : $config->{port};
+    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough ".$enroll_host.",".$enroll_port." 2>&1");
+    pf_run($cmd);
+  }
+
+  foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
+    $logger->info("Adding passthrough for MobileIron");
+    # Allow the host for the onboarding of devices
+    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
+    my @lines  = pf_run($cmd);
+    # Allow http communication with the MobileIron server
+    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
+    pf_run($cmd);
+    # Allow https communication with the MobileIron server
+    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
+    pf_run($cmd);
+  }
+
+  foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
+    $logger->info("Adding passthrough for OPSWAT");
+    # Allow http communication with the OSPWAT server
+    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
+    pf_run($cmd);
+    # Allow https communication with the OPSWAT server
+    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
+    pf_run($cmd);
+  }
+
+  foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
+    $logger->info("Adding passthrough for SentinelOne");
+    # Allow http communication with the SentinelOne server
+    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
+    pf_run($cmd);
+    # Allow https communication with the SentinelOne server
+    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1" );
+    pf_run($cmd);
+  }
+  my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
+  if ($passthrough_enabled) {
+    $logger->info("Adding IP based passthrough for connectivitycheck.gstatic.com");
+    # Allow the host for the onboarding of devices
+    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,80 2>&1");
+    pf_run($cmd);
+    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,443 2>&1");
+    pf_run($cmd);
+  }
+}
+
+sub fd_netdata_rules {
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
+  if ($cluster_enabled) {
+    push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+    foreach my $mgmt_back (uniq(@mgmt_backend)) {
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
+    }
+  }
+  util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
+}
+
+sub fd_pfconnector_rules {
+  my $action = shift;
+  # The dynamic range used to access the fingerbank collector that are connected via a remote connector
+  my $tint =  $management_network->{Tint};
+  my @pfconnector_ips = ("127.0.0.1");
+  push @pfconnector_ips, (map { $_->{management_ip} } pf::cluster::config_enabled_servers()) if ($cluster_enabled);
+  push @pfconnector_ips, $management_network->{Tip};
+  @pfconnector_ips = uniq sort @pfconnector_ips;
+  for my $ip (@pfconnector_ips) {
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
+  }
+}
+
+sub fd_galera_autofix_rules {
+  my $action = shift;
+  foreach my $tint (map { $_ ? $_->{Tint} : () } @ha_ints) {
+    service_to_zone($tint, $action, "galera-autofix");
+  }
+  foreach my $tint (map { $_ ? $_->{Tint} : () } @dhcplistener_ints) {
+    service_to_zone($tint, $action, "galera-autofix");
+  }
+}
+
+sub fd_mariadb_rules {
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  service_to_zone($tint, $action, "mysql");
+}
+
+sub fd_mariadb_prob_rules {
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  service_to_zone($tint, $action, "mysql-prob");
+}
+
+sub fd_kafka_rules {
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  for my $client (@{$ConfigKafka{iptables}{clients}}) {
+    util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT" , $action );
+  }
+  for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
+    util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT" , $action );
+    util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT" , $action );
+    util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT" , $action );
+  }
+}
+
+sub fd_docker_dnat_rules {
+  my $action = shift;
+  #DNAT traffic from docker to mgmt ip
+  my $logger = get_logger();
+  my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
+  util_direct_rule("ipv4 filter PREROUTING 0 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
+}
+
+sub fd_fingerbank_collector_netflow_rules {
+  my $action = shift;
+  if (netflow_enabled()) {
+    util_direct_rule( "ipv4 filter FORWARD 0 -j NETFLOW" , $action );
+  }
+}
+
+sub fd_eduroam_radius_rules {
+  my $action = shift;
+  my $logger = get_logger();
+  # eduroam RADIUS virtual-server
+  if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+    my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+    my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+    my $eduroam_listening_port_backend = $eduroam_listening_port + 10;
+    my $mgnt_zone =  $management_network->{Tint};
+    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT", $action );
+    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
+    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
+    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
+    foreach my $tint ( @radius_ints ) {
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
+    }
+  }
+  else {
+    get_logger->info( "# eduroam integration is not configured" );
+  }
+}
+
+sub fd_firewalld_rules {
+  my $action = shift;
+  nat_back_inline_rules($action);
+  #NAT Intercept Proxy
+  interception_rules($action);
+  # Note: I'm giving references to this guy here so he can directly mess with the tables
+  inline_rules($action);
+  # Mangle
+  inline_if_src_rules($FW_TABLE_MANGLE,$action);
+  fd_mangle_rules($action);
+  # NAT chain targets and redirections (other rules injected by generate_inline_rules)
+  inline_if_src_rules($FW_TABLE_NAT,$action);
+  nat_redirect_rules($action);
 }
 
 sub generate_chains {
@@ -239,368 +726,9 @@ sub generate_chain {
   util_chain( "ipv4", "filter", $chain, $action );
 }
 
-sub fd_create_all_zones {
-  my $name_files = util_get_name_files_from_dir("zones");
-  foreach my $tint ( @listen_ints ) {
-    if ( defined $name_files && exists $name_files->{$tint} ) {
-      get_logger->error( "Network Interface $tint  is handle by configuration files" );
-    } else {
-      util_firewalld_job( " --permanent --delete-zone=$tint" );
-      util_firewalld_job( " --permanent --new-zone=$tint" );
-      util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
-      util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
-      util_reload_firewalld();
-    }
-  }
-}
 
 
-sub fd_keepalived_rules {
-  foreach my $tint ( @listen_ints ){
-    # Never remove, used several time
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -d 224.0.0.0/8 -j ACCEPT", "add" );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p vrrp -j ACCEPT", "add" ) if ($cluster_enabled);
-  }
-}
-
-sub fd_haproxy_admin_rules {
-  # Web Admin
-  my $action = shift;
-  my $tint =  $management_network->{Tint};
-  my $web_admin_port = $Config{'ports'}{'admin'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
-}
-
-sub fd_management_webservices {
-  # Webservices
-  my $action = shift;
-  my $tint =  $management_network->{Tint};
-  my $webservices_port = $Config{'ports'}{'soap'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $tint 0 -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
-}
-
-sub fd_httpd_aaa_rules {
-  # AAA
-  my $action = shift;
-  my $tint =  $management_network->{Tint};
-  my $aaa_port = $Config{'ports'}{'aaa'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
-}
-
-sub fd_management_unified_api {
-  # Unified API
-  my $action = shift;
-  my $mgnt_zone =  $management_network->{Tint};
-  my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
-}
-
-sub fd_management_httpd_portal {
-  # httpd.portal modstatus
-  my $action = shift;
-  my $mgnt_zone =  $management_network->{Tint};
-  my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $httpd_portal_modstatus -j ACCEPT", $action );
-}
-
-sub fd_haproxy_db_rules {
-  my $action = shift;
-  my $mgnt_zone =  $management_network->{Tint};
-  service_to_zone($mgnt_zone, $action, "haproxy-db");
-}
-
-sub fd_haproxy_portal_rules {
-  my $action = shift;
-  foreach my $tint (@ha_ints){
-    service_to_zone($tint, $action, "haproxy-portal");
-  }
-}
-
-sub fd_portal_rules {
-  my $action = shift;
-  foreach my $tint ( @portal_ints ) {
-    service_to_zone($tint, $action, "http");
-    service_to_zone($tint, $action, "https");
-    service_to_zone($tint, $action, "web-portal");
-  }
-}
-
-sub fd_radius_rules {
-  my $action = shift;
-  foreach my $tint ( @radius_ints ) {
-    service_to_zone($tint, $action, "radius");
-  }
-}
-
-sub fd_dns_rules {
-  my $tint = shift;
-  foreach my $tint ( @dns_ints ) {
-    service_to_zone($tint, $action, "dns");
-  }
-  foreach my $network ( @inline_enforcement_nets ) {
-    my $tint =  $network->{Tint};
-    service_to_zone($tint, $action, "dns");
-  }
-}
-
-sub fd_dhcp_rules {
-  my $action = shift;
-  foreach my $interface ( @dhcp_ints ) {
-    service_to_zone($tint, $action, "dhcp");
-  }
-  foreach my $tint (@dhcplistener_ints) {
-    service_to_zone($tint, $action, "dhcp");
-  }
-  foreach my $network ( @inline_enforcement_nets ) {
-    my $tint =  $network->{Tint};
-    service_to_zone($tint, $action, "dns");
-  }
-}
-
-sub fd_netdata_rules {
-  my $action = shift;
-  my $tint =  $management_network->{Tint};
-  util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
-  if ($cluster_enabled) {
-    push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
-    foreach my $mgmt_back (uniq(@mgmt_backend)) {
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
-    }
-  }
-  util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
-}
-
-sub fd_pfconnector_rules {
-  my $action = shift;
-  # The dynamic range used to access the fingerbank collector that are connected via a remote connector
-  my $tint =  $management_network->{Tint};
-  my @pfconnector_ips = ("127.0.0.1");
-  push @pfconnector_ips, (map { $_->{management_ip} } pf::cluster::config_enabled_servers()) if ($cluster_enabled);
-  push @pfconnector_ips, $management_network->{Tip};
-  @pfconnector_ips = uniq sort @pfconnector_ips;
-  for my $ip (@pfconnector_ips) {
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
-  }
-}
-
-sub fd_galera_autofix_rules {
-  my $action = shift;
-  foreach my $tint (map { $_ ? $_->{Tint} : () } @ha_ints) {
-    service_to_zone($tint, $action, "galera-autofix");
-  }
-}
-
-sub fd_httpd_dispatcher_rules {
-  my $action = shift;
-  
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-sub fd_internal_rules {
-  my $tint = shift;
-  my $action = shift;
-  foreach my $interface ( @internal_nets ) {
-    #filter
-    #inline
-    #interceptor
-    service_to_zone($tint, $action, "dns");
-    service_to_zone($tint, $action, "captive-portal");
-    service_to_zone($tint, $action, "parking-portal");
-  }
-}
-
-sub internal_isol_vlan_rules {
-  my $tint = shift;
-  my $action = shift;
-  service_to_zone($tint, $action, "dns");
-  service_to_zone($tint, $action, "dhcp");
-  service_to_zone($tint, $action, "captive-portal");
-  service_to_zone($tint, $action, "parking-portal");
-}
-
-sub input_internal_inline_if_chained_rules {
-  my $action = shift;
-# DNS
-  util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol tcp --match tcp --dport 53  --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol udp --match udp --dport 53  --jump ACCEPT", $action );
-# HTTP (captive-portal)
-# prevent registered users from reaching it
-# TODO: Must work in dispatcher and Catalyst to redirect registered client out of the portal
-#  util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol tcp --match tcp --dport 80  --match mark --mark 0x1 --jump DROP", $action );
-#  util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol tcp --match tcp --dport 443 --match mark --mark 0x1 --jump DROP", $action );
-# allow everyone else behind inline interface (not registered, isolated, etc.)
-  util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol tcp --match tcp --dport 80  --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol tcp --match tcp --dport 443 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol tcp --match tcp --dport 8080 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-internal-inline-if 0 --protocol tcp --match tcp --dport 647 --jump ACCEPT", $action );
-}
-
-sub input_highavailability_if_chained_rules {
-  my $action = shift;
-#SSH
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT", $action );
-#Galera autofix
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol udp --match udp --dport 4253 --jump ACCEPT", $action );
-#Galera cluster
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol tcp --match tcp --dport 4444 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol tcp --match tcp --dport 4567 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol tcp --match tcp --dport 4568 --jump ACCEPT", $action );
-#PacketFence MariaDB Quorum server
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol tcp --match tcp --dport 7890 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol tcp --match tcp --dport 7891 --jump ACCEPT", $action );
-# Corosync
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol udp --match udp --dport 5405 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol udp --match udp --dport 5407 --jump ACCEPT", $action );
-#DRBD
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol tcp --match tcp --dport 7788 --jump ACCEPT", $action );
-# Heartbeat
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol udp --match udp --dport 694 --jump ACCEPT", $action );
-#PCS
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol tcp --match tcp --dport 2224 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol tcp --match tcp --dport 3121 --jump ACCEPT", $action );
-  util_direct_rule( "ipv4 filter input-highavailability-if 0 --protocol tcp --match tcp --dport 21064 --jump ACCEPT", $action );
-}
-
-sub internal_interfaces_handling {
-  my $action = shift;
-  my $logger = get_logger();
-  my $passthrough_enabled = ( isenabled( $Config{'fencing'}{'passthrough'} ) || isenabled( $Config{'fencing'}{'isolation_passthrough'} ) );
-  my $isolation_passthrough_enabled = isenabled( $Config{'fencing'}{'isolation_passthrough'} );
-  my $internal_portal_ip = $Config{captive_portal}{ip_address};
-
-  # internal interfaces handling
-  foreach my $interface (@internal_nets) {
-    my @all_dev_rules;
-    my $dev = $interface->tag("int");
-    my $ip = $interface->tag("vip") || $interface->tag("ip");
-    my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
-    my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $dev"}->{ip};
-    # VLAN enforcement
-    if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
-      if ($dev =~ m/(\w+):\d+/) {
-        $dev = $1;
-      }
-      my $type = $pf::config::NET_TYPE_VLAN_REG;
-      my $chain = $FW_FILTER_INPUT_INT_VLAN;
-      foreach my $network ( keys %ConfigNetworks ) {
-        # We skip non-inline networks/interfaces
-        next if ( pf::config::is_network_type_inline($network) );
-        if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_VLAN_ISOL ) {
-          my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-          my $ip_test = new NetAddr::IP::Lite clean_ip($ip);
-          if ($net_addr->contains($ip_test)) {
-            $chain = $FW_FILTER_INPUT_INT_ISOL_VLAN;
-            $type = $pf::config::NET_TYPE_VLAN_ISOL;
-          }
-        }
-      }
-      util_direct_rule("ipv4 filter INPUT -i $dev -d 224.0.0.0/8 -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT -i $dev -p vrrp -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT -i $dev -p tcp --match tcp --dport 647 -j ACCEPT", $action ) if ($pf::cluster_enabled);
-      util_direct_rule("ipv4 filter INPUT -i $dev -p udp --match udp --dport 67 -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT -i $dev -d $internal_portal_ip -j $chain\n";
-      util_direct_rule("ipv4 filter INPUT -i $dev -d ".$cluster_ip." -j $chain", $action ) if ($cluster_enabled);
-      util_direct_rule("ipv4 filter INPUT -i $dev -d " . $interface->tag("vip") . " -j $chain", $action ) if $interface->tag("vip");
-      util_direct_rule("ipv4 filter INPUT -i $dev -d " . $interface->tag("ip") . " -j $chain", $action );
-      util_direct_rule("ipv4 filter INPUT -i $dev -d 255.255.255.255 -j $chain", $action );
-
-      if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
-        util_direct_rule( "ipv4 filter FORWARD 0 -i $dev -j $FW_FILTER_FORWARD_INT_VLAN", $action );
-        util_direct_rule( "ipv4 filter FORWARD 0 -o $dev -j $FW_FILTER_FORWARD_INT_VLAN", $action );
-      }
-      if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
-        util_direct_rule( "ipv4 filter FORWARD 0 -i $dev -j $FW_FILTER_FORWARD_INT_ISOL_VLAN", $action );
-        util_direct_rule( "ipv4 filter FORWARD 0 -o $dev -j $FW_FILTER_FORWARD_INT_ISOL_VLAN", $action );
-      }
-
-    # inline enforcement
-    } elsif (is_type_inline($enforcement_type)) {
-      my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -d 224.0.0.0/8 -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -p vrrp -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -p tcp --match tcp --dport 647 -j ACCEPT", $action ) if ($cluster_enabled);
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -p udp --match udp --dport 67 -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -d $internal_portal_ip -j $FW_FILTER_INPUT_INT_VLAN", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -d ".$cluster_ip." -j $FW_FILTER_INPUT_INT_INLINE", $action ) if ($cluster_enabled);
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -d $internal_portal_ip -p tcp --match tcp --dport 53  -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -d $internal_portal_ip -p udp --match udp --dport 53  -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -d $ip -j $FW_FILTER_INPUT_INT_INLINE", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -d 255.255.255.255 -j $FW_FILTER_INPUT_INT_INLINE", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $dev -d $mgmt_ip -p tcp --match tcp --dport 443 -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter FORWARD 0 -i $dev -j $FW_FILTER_FORWARD_INT_INLINE", $action );
-    # nothing? something is wrong
-    } else {
-      $logger->warn("Didn't assign any firewall rules to interface $dev.");
-    }
-  }
-}
-
-sub portal_interfaces_handling {
-  my $action = shift;
-  # 'portal' interfaces handling
-  foreach my $portal_interface ( @portal_ints ) {
-    my $dev = $portal_interface->tag("int");
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -d 224.0.0.0/8 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -p vrrp -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_PORTAL", $action );
-  }
-}
-
-sub radius_interfaces_handling {
-  my $action = shift;
-  # 'radius' interfaces handling
-  foreach my $radius_interface ( @radius_ints ) {
-    my $dev = $radius_interface->tag("int");
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -d 224.0.0.0/8 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -p vrrp -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_RADIUS", $action );
-  }
-}
-
-sub dhcp_interfaces_handling {
-  my $action = shift;
-  # 'dhcp' interfaces handling
-  foreach my $dhcp_interface ( @dhcp_ints ) {
-    my $dev = $dhcp_interface->tag("int");
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_DHCP", $action );
-  }
-}
-
-sub management_interface_handling {
-  my $action = shift;
-  # management interface handling
-  if( $management_network ) {
-    my $dev = $management_network->tag("int");
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_MGMT", $action );
-  }
-}
-
-sub high_availability_interfaces_handling {
-  my $action = shift;
-  # high-availability interfaces handling
-  foreach my $dev (map { $_ ? $_->{Tint} : () } @ha_ints) {
-    util_direct_rule("ipv4 filter INPUT 0 -i $dev -j $FW_FILTER_INPUT_INT_HA", $action );
-  }
-}
-
-sub nat_back_inline_enabled {
+sub nat_back_inline_rules {
   my $action = shift;
   # Allow the NAT back inside through the forwarding table if inline is enabled
   if ( is_inline_enforcement_enabled() ) {
@@ -623,67 +751,52 @@ sub nat_back_inline_enabled {
   }
 }
 
-sub netdata_firewalld_config {
+sub interception_rules {
   my $action = shift;
-  my $mgnt_zone =  $management_network->{Tip};
-  util_direct_rule("ipv4 filter input-management-if -p tcp --match tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
-  if ($cluster_enabled) {
-    push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
-    foreach my $mgmt_back (uniq(@mgmt_backend)) {
-      util_direct_rule("ipv4 filter input-management-if -p tcp --match tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
+  my $logger = get_logger();
+  # internal interfaces handling
+  foreach my $interface (@internal_nets) {
+    my $dev = $interface->tag("int");
+    my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
+    my $net_addr = NetAddr::IP->new($Config{"interface $dev"}{'ip'},$Config{"interface $dev"}{'mask'});
+    # vlan enforcement
+    if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
+      # send everything from vlan interfaces to the vlan chain
+      util_direct_rule("ipv4 filter PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_VLAN");
+      foreach my $network ( keys %ConfigNetworks ) {
+        next if (pf::config::is_network_type_inline($network));
+        my %net = %{$ConfigNetworks{$network}};
+        my $ip;
+        if (defined($net{'next_hop'})) {
+          $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'});
+        } else {
+          $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
+        }
+        if ($net_addr->contains($ip)) {
+          my $destination = $Config{"interface $dev"}{'vip'} || $Config{"interface $dev"}{'ip'};
+          if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+            foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
+              my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
+              util_direct_rule("ipv4 filter $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
+            }
+          }
+          my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
+          $rule = "--protocol tcp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
+        }
+      }
     }
   }
-  util_direct_rule("ipv4 filter input-management-if 0 -p tcp --match tcp --dport 19999 -j DROP", $action );
-}
-
-sub fingerbank_collector_firewalld_config {
-  my $action = shift;
-  # The dynamic range used to access the fingerbank collector that are connected via a remote connector
-  my $mgnt_zone =  $management_network->{Tip};
-  my @pfconnector_ips = ("127.0.0.1");
-  push @pfconnector_ips, (map { $_->{management_ip} } pf::cluster::config_enabled_servers()) if ($cluster_enabled);
-  push @pfconnector_ips, $management_network->{Tip};
-  @pfconnector_ips = uniq sort @pfconnector_ips;
-  for my $ip (@pfconnector_ips) {
-    util_direct_rule("ipv4 filter input-management-if -p tcp --match multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
+  if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+    foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
+      my $rule = "--protocol tcp --destination-port $intercept_port";
+      util_direct_rule("ipv4 filter $FW_FILTER_INPUT_INT_VLAN 0 $rule --jump ACCEPT", $action );
+    }
   }
 }
 
-sub eduroam_radius_firewalld_config {
-  my $action = shift;
-  # eduroam RADIUS virtual-server
-  if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
-    my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-    my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
-    my $eduroam_listening_port_backend = $eduroam_listening_port + 10;
-    my $mgnt_zone =  $management_network->{Tip};
-    util_direct_rule("ipv4 filter input-management-if 0 -p tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter input-management-if 0 -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter input-radius-if 0 -p tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter input-radius-if 0 -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter input-management-if 0 -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter input-management-if 0 -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter input-radius-if 0 -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter input-radius-if 0 -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
-  }
-  else {
-    get_logger->info( "# eduroam integration is not configured" );
-  }
-}
-
-sub inline_enforcement_firewalld_config {
-  my $action = shift;
-  # Note: I'm giving references to this guy here so he can directly mess with the tables
-  inline_rules_firewalld_config($action);
-  # Mangle
-  inline_if_src_to_chain_firewalld_config($FW_TABLE_MANGLE,$action);
-  mangle_rules_firewalld_config($action);
-  # NAT chain targets and redirections (other rules injected by generate_inline_rules)
-  inline_if_src_to_chain_firewalld_config($FW_TABLE_NAT,$action);
-  nat_redirect_rules_firewalld_config($action);
-}
-
-sub inline_rules_firewalld_config {
+sub inline_rules {
   my $action = shift;
   my $logger = get_logger();
   if ( is_inline_enforcement_enabled() ) {
@@ -743,7 +856,7 @@ sub inline_rules_firewalld_config {
   }
 }
 
-sub inline_if_src_to_chain_firewalld_config {
+sub inline_if_src_rules {
   my $table = shift;
   my $action = shift;
   my $logger = get_logger();
@@ -796,7 +909,7 @@ sub inline_if_src_to_chain_firewalld_config {
   }
 }
 
-sub mangle_rules_firewalld_config {
+sub mangle_rules {
   my $action = shift;
   my $logger = get_logger();
   if ( is_inline_enforcement_enabled() ) {
@@ -887,7 +1000,7 @@ sub mangle_rules_firewalld_config {
   }
 }
 
-sub nat_redirect_rules_firewalld_config {
+sub nat_redirect_rules {
   my $action = shift;
   my $logger = get_logger();
   if ( is_inline_enforcement_enabled() ) {
@@ -926,196 +1039,6 @@ sub nat_redirect_rules_firewalld_config {
   }
 }
 
-sub generate_interception_rules {
-  my $action = shift;
-  my $logger = get_logger();
-  # internal interfaces handling
-  foreach my $interface (@internal_nets) {
-    my $dev = $interface->tag("int");
-    my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
-    my $net_addr = NetAddr::IP->new($Config{"interface $dev"}{'ip'},$Config{"interface $dev"}{'mask'});
-    # vlan enforcement
-    if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
-      # send everything from vlan interfaces to the vlan chain
-      util_direct_rule("ipv4 filter PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_VLAN");
-      foreach my $network ( keys %ConfigNetworks ) {
-        next if (pf::config::is_network_type_inline($network));
-        my %net = %{$ConfigNetworks{$network}};
-        my $ip;
-        if (defined($net{'next_hop'})) {
-          $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'});
-        } else {
-          $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
-        }
-        if ($net_addr->contains($ip)) {
-          my $destination = $Config{"interface $dev"}{'vip'} || $Config{"interface $dev"}{'ip'};
-          if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
-            foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-              my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
-              util_direct_rule("ipv4 filter $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
-            }
-          }
-          my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
-          $rule = "--protocol tcp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
-        }
-      }
-    }
-  }
-  if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
-    foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-      my $rule = "--protocol tcp --destination-port $intercept_port";
-      util_direct_rule("ipv4 filter $FW_FILTER_INPUT_INT_VLAN 0 $rule --jump ACCEPT", $action );
-    }
-  }
-}
-
-sub generate_dnat_from_docker {
-  my $action = shift;
-  #DNAT traffic from docker to mgmt ip
-  my $logger = get_logger();
-  my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
-  util_direct_rule("ipv4 filter PREROUTING 0 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
-}
-
-sub generate_passthrough_rules {
-  my $action = shift;
-  # OAuth
-  my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
-  if ($passthrough_enabled) {
-    my $logger = get_logger();
-    $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
-    util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_VLAN 0 -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_VLAN 0 -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_ISOL_VLAN 0 -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
-    util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_ISOL_VLAN 0 -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
-
-    # add passthroughs required by the provisionings
-    generate_provisioning_passthroughs();
-
-    $logger->info("Adding IP based passthrough for connectivitycheck.gstatic.com");
-    # Allow the host for the onboarding of devices
-    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,80 2>&1");
-    pf_run($cmd);
-    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,443 2>&1");
-    pf_run($cmd);
-
-    $logger->info("Adding NAT Masquerade statement.");
-    my ($SNAT_ip, $mgmt_int);
-    if ($management_network) {
-      $mgmt_int = $management_network->tag("int");
-      if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-          $SNAT_ip = $management_network->{'Tvip'};
-        } else {
-          $SNAT_ip = $management_network->{'Tip'};
-        }
-      }
-    }
-
-    if ($SNAT_ip) {
-      foreach my $network ( keys %ConfigNetworks ) {
-        my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-        if ( pf::config::is_network_type_inline($network) ) {
-          my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-          if (defined ($nat) && (isenabled($nat))) {
-            util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $action );
-          }
-        } else {
-          util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $action );
-        }
-      }
-    }
-
-    # Enable nat if we defined another interface to route to internet
-    my @ints = split(',', get_network_snat_interface());
-    foreach my $int (@ints) {
-      my $if   = IO::Interface::Simple->new($int);
-      next unless defined($if);
-      foreach my $network ( keys %ConfigNetworks ) {
-        my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-        if ( pf::config::is_network_type_inline($network) ) {
-          my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-          if (defined ($nat) && (isenabled($nat))) {
-            util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
-          }
-        } else {
-          util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
-        }
-      }
-    }
-    generate_passthrough_rules($action);
-    generate_netflow_rules($action);
-  }
-}
-
-sub generate_provisioning_passthroughs {
-  my $logger = get_logger();
-  $logger->debug("Installing passthroughs for provisioning");
-  foreach my $config (tied(%ConfigProvisioning)->search(type => 'kandji')) {
-    $logger->info("Adding passthrough for Kandji");
-    my $enroll_host = $config->{enroll_url} ? URI->new($config->{enroll_url})->host : $config->{host};
-    my $enroll_port = $config->{enroll_url} ? URI->new($config->{enroll_url})->port : $config->{port};
-    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough ".$enroll_host.",".$enroll_port." 2>&1");
-    pf_run($cmd);
-  }
-
-  foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
-    $logger->info("Adding passthrough for MobileIron");
-    # Allow the host for the onboarding of devices
-    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
-    my @lines  = pf_run($cmd);
-    # Allow http communication with the MobileIron server
-    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
-    pf_run($cmd);
-    # Allow https communication with the MobileIron server
-    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
-    pf_run($cmd);
-  }
-
-  foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
-    $logger->info("Adding passthrough for OPSWAT");
-    # Allow http communication with the OSPWAT server
-    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-    pf_run($cmd);
-    # Allow https communication with the OPSWAT server
-    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
-    pf_run($cmd);
-  }
-
-  foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
-    $logger->info("Adding passthrough for SentinelOne");
-    # Allow http communication with the SentinelOne server
-    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-    pf_run($cmd);
-    # Allow https communication with the SentinelOne server
-    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1" );
-    pf_run($cmd);
-  }
-}
-
-sub generate_netflow_rules {
-  my $action = shift;
-  if (netflow_enabled()) {
-    util_direct_rule( "ipv4 filter FORWARD 0 -j NETFLOW" , $action );
-  }
-}
-
-sub generate_kafka_firewalld_config {
-  my $action = shift;
-  my $mgnt_zone =  $management_network->{Tip};
-  for my $client (@{$ConfigKafka{iptables}{clients}}) {
-    util_direct_rule( "ipv4 filter input-management-if 0 --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT" , $action );
-  }
-  for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
-    util_direct_rule( "ipv4 filter input-management-if --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT" , $action );
-    util_direct_rule( "ipv4 filter input-management-if --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT" , $action );
-    util_direct_rule( "ipv4 filter input-management-if --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT" , $action );
-  }
-}
-
-
 # need a function that return information like a wrapper of firewalld-cmd
 # need a function that return services from a zone
 # need a function that check integrity for zones and services
@@ -1126,7 +1049,6 @@ sub service_to_zone {
   my $action = shift;
   my $service = shift;
 
-  my $logger = get_logger();
   if ( ! defined is_service_available( $service ) ) {
     get_logger->error( "Please run generate config to create services." );
   } elsif ( ! defined is_zone_available( $zone ) {
