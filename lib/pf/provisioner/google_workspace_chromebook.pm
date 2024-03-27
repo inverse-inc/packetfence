@@ -22,7 +22,7 @@ use URI::Escape qw(uri_escape);
 use pf::util qw(clean_mac);
 use pf::log;
 use pf::person qw(person_add);
-use pf::node qw(node_register node_modify);
+use pf::node qw(node_register node_modify node_view);
 use pf::security_event;
 use fingerbank::Constant;
 use WWW::Curl::Easy;
@@ -147,7 +147,8 @@ sub authorize {
             node_modify($mac, pid => $recent_user);
         }
 
-        return $TRUE;
+        my $node_info = node_view($mac);
+        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, google_workspace_chromebook => $device});
     }
 
     return $FALSE;

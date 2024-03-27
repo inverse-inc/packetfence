@@ -8,6 +8,9 @@ export const useItemProps = {
   id: {
     type: String
   },
+  type: {
+    type: String
+  }
 }
 
 export const useItemTitle = (props) => {
@@ -55,6 +58,12 @@ export const useSearch = makeSearch('filterEngines', {
     {
       key: 'status',
       label: 'Status', // i18n defer
+      visible: true
+    },
+    {
+      key: 'type',
+      label: 'Type', // i18n defer
+      searchable: true,
       visible: true
     },
     {

@@ -1,0 +1,9 @@
+ConfigFilterEnginesProvisioningFiltersList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilter'
+        type: array
+    type: object

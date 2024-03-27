@@ -5578,7 +5578,7 @@
                   "type" : "string"
                },
                "ntlm_auth_host" : {
-                  "default" : "127.0.0.1",
+                  "default" : "100.64.0.1",
                   "description" : "The IP address of NTLM auth API",
                   "type" : "string"
                },
@@ -6196,6 +6196,982 @@
                }
             },
             "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilter" : {
+            "description" : "Choose one of the request bodies by discriminator (`type`). ",
+            "discriminator" : {
+               "mapping" : {
+                  "accept" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAccept",
+                  "airwatch" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAirwatch",
+                  "google_workspace_chromebook" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook",
+                  "intune" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune",
+                  "kandji" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji",
+                  "lookup" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeLookup"
+               },
+               "propertyName" : "type"
+            },
+            "oneOf" : [
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAccept"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAirwatch"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeLookup"
+               }
+            ]
+         },
+         "ConfigFilterEnginesProvisioningFilterSubTypeAccept" : {
+            "properties" : {
+               "actions" : {
+                  "default" : null,
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "default" : null,
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "default" : null,
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "actions_synchronous" : {
+                  "default" : "disabled",
+                  "description" : "Actions synchronous",
+                  "type" : "string"
+               },
+               "condition" : {
+                  "default" : {
+                     "op" : "and"
+                  },
+                  "description" : "Condition",
+                  "properties" : {
+                     "field" : {
+                        "default" : null,
+                        "description" : "Field",
+                        "type" : "string"
+                     },
+                     "op" : {
+                        "default" : "and",
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "value" : {
+                        "default" : null,
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "values" : {
+                        "default" : null,
+                        "description" : "Values",
+                        "items" : {
+                           "description" : "Value",
+                           "type" : "string"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Rule Name",
+                  "type" : "string"
+               },
+               "role" : {
+                  "default" : null,
+                  "description" : "Role",
+                  "type" : "string"
+               },
+               "run_actions" : {
+                  "default" : "enabled",
+                  "description" : "Run Actions",
+                  "type" : "string"
+               },
+               "scopes" : {
+                  "default" : [],
+                  "description" : "Scopes",
+                  "items" : {
+                     "description" : "Scopes",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "status" : {
+                  "default" : "enabled",
+                  "description" : "Enable Rule",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "accept",
+                  "description" : "Discriminator `accept`",
+                  "type" : "string",
+                  "value" : "accept"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "condition",
+               "scopes",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilterSubTypeAirwatch" : {
+            "properties" : {
+               "actions" : {
+                  "default" : null,
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "default" : null,
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "default" : null,
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "actions_synchronous" : {
+                  "default" : "disabled",
+                  "description" : "Actions synchronous",
+                  "type" : "string"
+               },
+               "condition" : {
+                  "default" : {
+                     "op" : "and"
+                  },
+                  "description" : "Condition",
+                  "properties" : {
+                     "field" : {
+                        "default" : null,
+                        "description" : "Field",
+                        "type" : "string"
+                     },
+                     "op" : {
+                        "default" : "and",
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "value" : {
+                        "default" : null,
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "values" : {
+                        "default" : null,
+                        "description" : "Values",
+                        "items" : {
+                           "description" : "Value",
+                           "type" : "string"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Rule Name",
+                  "type" : "string"
+               },
+               "role" : {
+                  "default" : null,
+                  "description" : "Role",
+                  "type" : "string"
+               },
+               "run_actions" : {
+                  "default" : "enabled",
+                  "description" : "Run Actions",
+                  "type" : "string"
+               },
+               "scopes" : {
+                  "default" : [],
+                  "description" : "Scopes",
+                  "items" : {
+                     "description" : "Scopes",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "status" : {
+                  "default" : "enabled",
+                  "description" : "Enable Rule",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "airwatch",
+                  "description" : "Discriminator `airwatch`",
+                  "type" : "string",
+                  "value" : "airwatch"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "condition",
+               "scopes",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook" : {
+            "properties" : {
+               "actions" : {
+                  "default" : null,
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "default" : null,
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "default" : null,
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "actions_synchronous" : {
+                  "default" : "disabled",
+                  "description" : "Actions synchronous",
+                  "type" : "string"
+               },
+               "condition" : {
+                  "default" : {
+                     "op" : "and"
+                  },
+                  "description" : "Condition",
+                  "properties" : {
+                     "field" : {
+                        "default" : null,
+                        "description" : "Field",
+                        "type" : "string"
+                     },
+                     "op" : {
+                        "default" : "and",
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "value" : {
+                        "default" : null,
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "values" : {
+                        "default" : null,
+                        "description" : "Values",
+                        "items" : {
+                           "description" : "Value",
+                           "type" : "string"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Rule Name",
+                  "type" : "string"
+               },
+               "role" : {
+                  "default" : null,
+                  "description" : "Role",
+                  "type" : "string"
+               },
+               "run_actions" : {
+                  "default" : "enabled",
+                  "description" : "Run Actions",
+                  "type" : "string"
+               },
+               "scopes" : {
+                  "default" : [],
+                  "description" : "Scopes",
+                  "items" : {
+                     "description" : "Scopes",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "status" : {
+                  "default" : "enabled",
+                  "description" : "Enable Rule",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "google_workspace_chromebook",
+                  "description" : "Discriminator `google_workspace_chromebook`",
+                  "type" : "string",
+                  "value" : "google_workspace_chromebook"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "condition",
+               "scopes",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilterSubTypeIntune" : {
+            "properties" : {
+               "actions" : {
+                  "default" : null,
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "default" : null,
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "default" : null,
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "actions_synchronous" : {
+                  "default" : "disabled",
+                  "description" : "Actions synchronous",
+                  "type" : "string"
+               },
+               "condition" : {
+                  "default" : {
+                     "op" : "and"
+                  },
+                  "description" : "Condition",
+                  "properties" : {
+                     "field" : {
+                        "default" : null,
+                        "description" : "Field",
+                        "type" : "string"
+                     },
+                     "op" : {
+                        "default" : "and",
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "value" : {
+                        "default" : null,
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "values" : {
+                        "default" : null,
+                        "description" : "Values",
+                        "items" : {
+                           "description" : "Value",
+                           "type" : "string"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Rule Name",
+                  "type" : "string"
+               },
+               "role" : {
+                  "default" : null,
+                  "description" : "Role",
+                  "type" : "string"
+               },
+               "run_actions" : {
+                  "default" : "enabled",
+                  "description" : "Run Actions",
+                  "type" : "string"
+               },
+               "scopes" : {
+                  "default" : [],
+                  "description" : "Scopes",
+                  "items" : {
+                     "description" : "Scopes",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "status" : {
+                  "default" : "enabled",
+                  "description" : "Enable Rule",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "intune",
+                  "description" : "Discriminator `intune`",
+                  "type" : "string",
+                  "value" : "intune"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "condition",
+               "scopes",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilterSubTypeKandji" : {
+            "properties" : {
+               "actions" : {
+                  "default" : null,
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "default" : null,
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "default" : null,
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "actions_synchronous" : {
+                  "default" : "disabled",
+                  "description" : "Actions synchronous",
+                  "type" : "string"
+               },
+               "condition" : {
+                  "default" : {
+                     "op" : "and"
+                  },
+                  "description" : "Condition",
+                  "properties" : {
+                     "field" : {
+                        "default" : null,
+                        "description" : "Field",
+                        "type" : "string"
+                     },
+                     "op" : {
+                        "default" : "and",
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "value" : {
+                        "default" : null,
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "values" : {
+                        "default" : null,
+                        "description" : "Values",
+                        "items" : {
+                           "description" : "Value",
+                           "type" : "string"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Rule Name",
+                  "type" : "string"
+               },
+               "role" : {
+                  "default" : null,
+                  "description" : "Role",
+                  "type" : "string"
+               },
+               "run_actions" : {
+                  "default" : "enabled",
+                  "description" : "Run Actions",
+                  "type" : "string"
+               },
+               "scopes" : {
+                  "default" : [],
+                  "description" : "Scopes",
+                  "items" : {
+                     "description" : "Scopes",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "status" : {
+                  "default" : "enabled",
+                  "description" : "Enable Rule",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "kandji",
+                  "description" : "Discriminator `kandji`",
+                  "type" : "string",
+                  "value" : "kandji"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "condition",
+               "scopes",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilterSubTypeLookup" : {
+            "properties" : {
+               "actions" : {
+                  "default" : null,
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "default" : null,
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "default" : null,
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "actions_synchronous" : {
+                  "default" : "disabled",
+                  "description" : "Actions synchronous",
+                  "type" : "string"
+               },
+               "condition" : {
+                  "default" : {
+                     "op" : "and"
+                  },
+                  "description" : "Condition",
+                  "properties" : {
+                     "field" : {
+                        "default" : null,
+                        "description" : "Field",
+                        "type" : "string"
+                     },
+                     "op" : {
+                        "default" : "and",
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "value" : {
+                        "default" : null,
+                        "description" : "Value",
+                        "type" : "string"
+                     },
+                     "values" : {
+                        "default" : null,
+                        "description" : "Values",
+                        "items" : {
+                           "description" : "Value",
+                           "type" : "string"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Rule Name",
+                  "type" : "string"
+               },
+               "role" : {
+                  "default" : null,
+                  "description" : "Role",
+                  "type" : "string"
+               },
+               "run_actions" : {
+                  "default" : "enabled",
+                  "description" : "Run Actions",
+                  "type" : "string"
+               },
+               "scopes" : {
+                  "default" : [],
+                  "description" : "Scopes",
+                  "items" : {
+                     "description" : "Scopes",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "status" : {
+                  "default" : "enabled",
+                  "description" : "Enable Rule",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "lookup",
+                  "description" : "Discriminator `lookup`",
+                  "type" : "string",
+                  "value" : "lookup"
+               }
+            },
+            "required" : [
+               "id",
+               "description",
+               "condition",
+               "scopes",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFilterWrapped" : {
+            "properties" : {
+               "item" : {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+               },
+               "status" : {
+                  "type" : "integer"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigFilterEnginesProvisioningFiltersList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ConfigFilterEnginesProvisioningFiltersMeta" : {
+            "discriminator" : {
+               "propertyName" : "type"
+            },
+            "oneOf" : [
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "actions_synchronous" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "condition" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "run_actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "scopes" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               },
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "actions_synchronous" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "condition" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "run_actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "scopes" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               },
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "actions_synchronous" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "condition" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "run_actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "scopes" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               },
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "actions_synchronous" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "condition" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "run_actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "scopes" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               },
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "actions_synchronous" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "condition" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "run_actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "scopes" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               },
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "actions_synchronous" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "condition" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "run_actions" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "scopes" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
          },
          "ConfigFilterEnginesRADIUSFilter" : {
             "properties" : {
@@ -10038,6 +11014,11 @@
          },
          "ConfigMaintenanceTaskSubTypeNodeCleanup" : {
             "properties" : {
+               "batch" : {
+                  "default" : "100",
+                  "description" : "Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.",
+                  "type" : "integer"
+               },
                "delete_window" : {
                   "default" : {
                      "interval" : "0",
@@ -10072,6 +11053,26 @@
                   "default" : "disabled",
                   "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                   "type" : "string"
+               },
+               "timeout" : {
+                  "default" : {
+                     "interval" : "10",
+                     "unit" : "s"
+                  },
+                  "description" : "Maximum amount of time this task can run.",
+                  "properties" : {
+                     "interval" : {
+                        "default" : "10",
+                        "description" : "Interval",
+                        "type" : "integer"
+                     },
+                     "unit" : {
+                        "default" : "s",
+                        "description" : "Unit",
+                        "type" : "string"
+                     }
+                  },
+                  "type" : "object"
                },
                "type" : {
                   "default" : "node_cleanup",
@@ -10652,6 +11653,43 @@
                            "batch" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
+                           "delete_window" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "schedule" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "status" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "timeout" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "unreg_window" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "voip" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               },
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "batch" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
                            "history_batch" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
@@ -11129,37 +12167,6 @@
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "type" : {
-                              "$ref" : "#/components/schemas/Meta"
-                           }
-                        },
-                        "type" : "object"
-                     }
-                  },
-                  "type" : "object"
-               },
-               {
-                  "properties" : {
-                     "meta" : {
-                        "properties" : {
-                           "delete_window" : {
-                              "$ref" : "#/components/schemas/Meta"
-                           },
-                           "id" : {
-                              "$ref" : "#/components/schemas/Meta"
-                           },
-                           "schedule" : {
-                              "$ref" : "#/components/schemas/Meta"
-                           },
-                           "status" : {
-                              "$ref" : "#/components/schemas/Meta"
-                           },
-                           "type" : {
-                              "$ref" : "#/components/schemas/Meta"
-                           },
-                           "unreg_window" : {
-                              "$ref" : "#/components/schemas/Meta"
-                           },
-                           "voip" : {
                               "$ref" : "#/components/schemas/Meta"
                            }
                         },
@@ -16271,6 +17278,15 @@
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
                },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
                "sync_pid" : {
                   "default" : "disabled",
                   "description" : "Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.",
@@ -16373,6 +17389,15 @@
                   "default" : null,
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
+               },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
                },
                "sync_pid" : {
                   "default" : "disabled",
@@ -16526,6 +17551,15 @@
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
                },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
                "security_type" : {
                   "default" : null,
                   "description" : "Select the type of security applied for your SSID",
@@ -16625,6 +17659,15 @@
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
                },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
                "sync_pid" : {
                   "default" : "disabled",
                   "description" : "Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.",
@@ -16712,6 +17755,15 @@
                   "default" : null,
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
+               },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
                },
                "ssid" : {
                   "default" : null,
@@ -16815,6 +17867,15 @@
                   "default" : null,
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
+               },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
                },
                "service_account" : {
                   "default" : null,
@@ -17079,6 +18140,15 @@
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
                },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
                "sync_pid" : {
                   "default" : "disabled",
                   "description" : "Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.",
@@ -17216,6 +18286,15 @@
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
                },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
                "sync_pid" : {
                   "default" : "disabled",
                   "description" : "Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.",
@@ -17321,6 +18400,15 @@
                   "default" : null,
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
+               },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
                },
                "sync_pid" : {
                   "default" : "disabled",
@@ -17467,6 +18555,15 @@
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
                },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
                "security_type" : {
                   "default" : null,
                   "description" : "Select the type of security applied for your SSID",
@@ -17595,6 +18692,15 @@
                   "default" : null,
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
+               },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
                },
                "sync_pid" : {
                   "default" : "disabled",
@@ -17850,6 +18956,15 @@
                   "default" : null,
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
+               },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
                },
                "sync_pid" : {
                   "default" : "disabled",
@@ -18366,6 +19481,15 @@
                   "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
                   "type" : "string"
                },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
                "security_type" : {
                   "default" : null,
                   "description" : "Select the type of security applied for your SSID",
@@ -18506,6 +19630,9 @@
                            "role_to_apply" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
+                           "rules" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
                            "sync_pid" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
@@ -18574,6 +19701,9 @@
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "role_to_apply" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "rules" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "sync_pid" : {
@@ -18652,6 +19782,9 @@
                            "role_to_apply" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
+                           "rules" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
                            "sync_pid" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
@@ -18714,6 +19847,9 @@
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "role_to_apply" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "rules" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "sync_pid" : {
@@ -18780,6 +19916,9 @@
                            "role_to_apply" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
+                           "rules" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
                            "sync_pid" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
@@ -18844,6 +19983,9 @@
                            "role_to_apply" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
+                           "rules" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
                            "sync_pid" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
@@ -18927,6 +20069,9 @@
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "role_to_apply" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "rules" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "security_type" : {
@@ -19026,6 +20171,9 @@
                            "role_to_apply" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
+                           "rules" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
                            "security_type" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
@@ -19121,6 +20269,9 @@
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "role_to_apply" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "rules" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "security_type" : {
@@ -19193,6 +20344,9 @@
                            "role_to_apply" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
+                           "rules" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
                            "service_account" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
@@ -19251,6 +20405,9 @@
                            "role_to_apply" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
+                           "rules" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
                            "ssid" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
@@ -19300,6 +20457,9 @@
                            "role_to_apply" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
+                           "rules" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
                            "sync_pid" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
@@ -19344,6 +20504,9 @@
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "role_to_apply" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "rules" : {
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "sync_pid" : {
@@ -21312,7 +22475,7 @@
                   "type" : "object"
                },
                "id" : {
-                  "default" : null,
+                  "default" : 3000008,
                   "description" : "Use a number above 1500000 if you want to be able to delete this security event later.",
                   "type" : "string"
                },
@@ -28370,7 +29533,7 @@
                   "type" : "string"
                },
                "lang" : {
-                  "default" : "en_US",
+                  "default" : "fr_FR",
                   "description" : "Language for sponsor email.",
                   "type" : "string"
                },
@@ -48698,6 +49861,532 @@
             },
             "tags" : [
                "Config/FilterEngines/DNSFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filter/{provisioning_filter_id}" : {
+         "delete" : {
+            "description" : "Delete an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.remove",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/Deleted"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "description" : "Configure vlan filters",
+         "get" : {
+            "description" : "Get an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.get",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "options" : {
+            "description" : "Get meta for an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.resource_options",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFiltersMeta"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains meta for a resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "patch" : {
+            "description" : "Update an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.update",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "201" : {
+                  "$ref" : "#/components/responses/Updated"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "put" : {
+            "description" : "Replace an item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.resource.replace",
+            "parameters" : [
+               {
+                  "description" : "`PRIMARY KEY`",
+                  "in" : "path",
+                  "name" : "provisioning_filter_id",
+                  "required" : true,
+                  "schema" : {
+                     "enum" : [],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "201" : {
+                  "$ref" : "#/components/responses/Created"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters" : {
+         "description" : "Configure vlan filters",
+         "get" : {
+            "description" : "List all items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.list",
+            "parameters" : [],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFiltersList"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a list of resources."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "options" : {
+            "description" : "Get meta for a new item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.options",
+            "parameters" : [],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFiltersMeta"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains meta for a resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         },
+         "post" : {
+            "description" : "Create a new item.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.create",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "201" : {
+                  "$ref" : "#/components/responses/Created"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "409" : {
+                  "$ref" : "#/components/responses/Duplicate"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/bulk_delete" : {
+         "description" : "Configure vlan filters",
+         "post" : {
+            "description" : "Delete one or more items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.bulk_delete",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "properties" : {
+                           "items" : {
+                              "items" : {
+                                 "description" : "`PRIMARY_KEY`",
+                                 "type" : "string"
+                              },
+                              "type" : "array"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/bulk_import" : {
+         "description" : "Configure vlan filters",
+         "post" : {
+            "description" : "Create one or more items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.bulk_import",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "properties" : {
+                           "items" : {
+                              "items" : {
+                                 "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                              },
+                              "type" : "array"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/bulk_update" : {
+         "description" : "Configure vlan filters",
+         "patch" : {
+            "description" : "Update one or more items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.bulk_update",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "properties" : {
+                           "items" : {
+                              "items" : {
+                                 "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilter"
+                              },
+                              "type" : "array"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/search" : {
+         "description" : "Configure vlan filters",
+         "post" : {
+            "description" : "Search all items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.search",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "example" : {
+                        "cursor" : 0,
+                        "limit" : 25
+                     },
+                     "schema" : {
+                        "allOf" : [
+                           {
+                              "$ref" : "#/components/schemas/Search"
+                           },
+                           {
+                              "properties" : {
+                                 "cursor" : {
+                                    "required" : false,
+                                    "type" : "string"
+                                 },
+                                 "fields" : {
+                                    "items" : {
+                                       "type" : "string"
+                                    },
+                                    "required" : true,
+                                    "type" : "array"
+                                 },
+                                 "limit" : {
+                                    "maximum" : 1000,
+                                    "minimum" : 1,
+                                    "required" : false,
+                                    "type" : "integer"
+                                 },
+                                 "sort" : {
+                                    "items" : {
+                                       "type" : "string"
+                                    },
+                                    "required" : true,
+                                    "type" : "array"
+                                 }
+                              },
+                              "required" : [
+                                 "fields"
+                              ]
+                           }
+                        ]
+                     }
+                  }
+               },
+               "description" : "Search for items."
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFiltersList"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a list of resources."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
+            ]
+         }
+      },
+      "/api/v1/config/filter_engines/provisioning_filters/sort_items" : {
+         "description" : "Configure vlan filters",
+         "patch" : {
+            "description" : "Sort items.",
+            "operationId" : "api.v1.Config.FilterEngines.Provisioning.sort_items",
+            "parameters" : [],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped"
+                        }
+                     }
+                  },
+                  "description" : "Request successful. Response contains a specific resource."
+               },
+               "401" : {
+                  "$ref" : "#/components/responses/Forbidden"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            },
+            "tags" : [
+               "Config/FilterEngines/ProvisioningFilters"
             ]
          }
       },

@@ -42,6 +42,8 @@ conf/radiusd/tls.conf
 conf/radiusd/radiusd_cli.conf
 conf/radiusd/cert
 conf/pfcron.conf
+conf/provisioning_filters.conf
+conf/provisioning_filters_meta.conf
 conf/certmanager
 conf/mfa.conf
 conf/proxysql.conf

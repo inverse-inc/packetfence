@@ -64,6 +64,7 @@ export {
   BaseFormGroupInputNumber                  as FormGroupPskSize,
   BaseFormGroupSwitch                       as FormGroupQueryComputers,
   BaseFormGroupSwitch                       as FormGroupQueryMobileDevices,
+  BaseFormGroupChosenMultiple               as FormGroupRules,
   BaseFormGroupChosenOne                    as FormGroupRoleToApply,
   BaseFormGroupChosenOne                    as FormGroupSecurityType,
   BaseFormGroupFileUpload                   as FormGroupServerCertificatePath,

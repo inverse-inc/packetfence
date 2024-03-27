@@ -50,6 +50,11 @@
                      namespace="oses"
     />
 
+    <form-group-rules :column-label="$i18n.t('Rules')"
+                     :text="$i18n.t('Rules to apply.')"
+                     namespace="rules"
+    />
+
     <form-group-api-token :column-label="$i18n.t('API token')"
                           namespace="api_token"
     />
@@ -88,7 +93,8 @@ import {
   FormGroupOses,
   FormGroupPort,
   FormGroupProtocol,
-  FormGroupRoleToApply
+  FormGroupRoleToApply,
+  FormGroupRules,
 } from './'
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
@@ -107,7 +113,8 @@ const components = {
   FormGroupOses,
   FormGroupPort,
   FormGroupProtocol,
-  FormGroupRoleToApply
+  FormGroupRoleToApply,
+  FormGroupRules,
 }
 
 // @vue/component

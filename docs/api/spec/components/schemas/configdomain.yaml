@@ -38,7 +38,7 @@ ConfigDomain:
       description: Password of the machine account to be added to Active Directory.
       type: string
     ntlm_auth_host:
-      default: 127.0.0.1
+      default: 100.64.0.1
       description: The IP address of NTLM auth API
       type: string
     ntlm_auth_port:
