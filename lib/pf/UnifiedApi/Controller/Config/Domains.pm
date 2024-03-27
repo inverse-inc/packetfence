@@ -127,18 +127,21 @@ sub create {
     my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
     $baseDN = generate_baseDN($dns_name);
 
-    my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
-    if ($add_status == $FALSE) {
-        if ($add_result =~ /already exists(.+)use \-no\-add/) {
-            ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
-            if ($add_status == $FALSE) {
+    my $ad_skip = delete $item->{ad_skip};
+    if(!$ad_skip) {
+        my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+        if ($add_status == $FALSE) {
+            if ($add_result =~ /already exists(.+)use \-no\-add/) {
+                ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+                if ($add_status == $FALSE) {
+                    $self->render_error(422, "Unable to add machine account with following error: $add_result");
+                    return 0;
+                }
+            }
+            else {
                 $self->render_error(422, "Unable to add machine account with following error: $add_result");
                 return 0;
             }
-        }
-        else {
-            $self->render_error(422, "Unable to add machine account with following error: $add_result");
-            return 0;
         }
     }
 

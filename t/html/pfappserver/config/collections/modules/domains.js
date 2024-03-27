@@ -21,6 +21,8 @@ module.exports = {
               expect(request.body).to.have.property(key)
               expect(request.body[key]).to.deep.equal(fixture[key], key)
             })
+            request.body.ad_skip = true // don't use backend AD
+            return request
           },
           expectResponse: (response, fixture) => {
             expect(response.statusCode).to.equal(201)
