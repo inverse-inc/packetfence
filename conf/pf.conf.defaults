@@ -758,6 +758,11 @@ kafka=disabled
 #
 # Should ntlm-auth-api be started?
 ntlm-auth-api=enabled
+#
+# services.firewalld
+#
+# Should firewalld be started?
+firewalld=enabled
 
 [snmp_traps]
 #
