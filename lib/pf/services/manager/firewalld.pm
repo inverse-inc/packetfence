@@ -14,6 +14,7 @@ pf::services::manager::firewalld
 
 use strict;
 use warnings;
+use Moo;
 use pf::file_paths qw($install_dir);
 use pf::log;
 use pf::util;
