@@ -18,6 +18,101 @@ endif::[]
 
 //== Performance Optimizations
 
+=== NT Key Caching ===
+
+NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Authentication Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
+
+CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work. To ensure a better performance and flexible NTLM authentication caching, Windows 2012 R2 or later version is recommended.
+
+When using NTLM authentication against an Active Directory for 802.1X EAP-PEAP connections, this can become a bottleneck when handling dozens of authentications per seconds.
+
+To overcome this limitation, it is possible to use a cache inside PacketFence to reduce the amount of authentications requiring an external NTLM authentication call. If NT Key cache is enabled, PacketFence will try to find a valid NT key for device connected, if it's found, if the device being authenticated has granted network access before, NT Key will be returned immediately without doing a transitive login with domain controller.
+
+Otherwise, it will fallback to a traditional transitive login with the domain controller and cache the session key (NT Key) if successful authenticated.
+
+NOTE: The NT Key cache doesn't cache any NT hashes or user passwords, it caches the NT session key for each connected device for a period of time if enabled.
+
+NOTE: NT Key cache will also caches the wrong password count in order to block the device that keep trying using wrong password (or old password) to avoid an account lockout.
+
+
+==== PacketFence Configuration
+
+To Enable NT key caching, you'll have need a valid domain config entry in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_
+
+At the bottom of the domain configuration page
+
+* Enable NT Key cache.
+* Specify a cache expiration time. Default is 3600 (in seconds)
+* Fill in the Windows Group Policy Settings
+ ** Account Lockout Threshold
+ ** Reset Account Lockout Counter After
+ ** Account Lockout Duration
+ ** Old Password Allowed Period
+
+Those settings can be found on the Windows Domain Controller by the following steps:
+
+Go to _Start menu -> Administrative Tools -> Group Policy Management_
+In the console tree, expand *Forest* -> *Domains* -> *Your Domain* -> *Group Policy Objects* -> *Default Domain Policy*
+In the right panel, navigate to *Settings* page, You will have these parameters in *Policies* -> *Windows Settings* -> *Security Settings* -> *Account Policies, Account lockout policies*
+image::domain-windows-account-policy.png[scaledwidth="100%",alt="Windows Account Policies"]
+
+NOTE: Steps may vary on different windows versions. The steps above are for Windows Server 2022.
+
+NOTE: If you didn't see some of the values listed above, means they are set to default value. You can leave the settings in blank or as-is in PacketFence's configuration.
+
+NOTE: If you'd like to change the values, follow the default Windows GPO best practise guide.
+
+For *Old Password Allowed Period*, There's currently no GPO settings. The default value is 60 min. It can be changed following this guide:
+
+https://learn.microsoft.com/en-US/troubleshoot/windows-server/windows-security/new-setting-modifies-ntlm-network-authentication
+
+You'll still need to create a dedicated user that receives Windows Events from Domain Controller. You can create the user by the following steps:
+* log on to PacketFence Admin UI, in *Users* section, create a user with a strong, unique password.
+* change the user's *Access Level* to *Windows Event Receiver NTLM*
+
+This username and password will be required when you set up the Windows Event Notifier PowerShell script later.
+
+==== Active Directory Configuration
+
+Once configuration is done on PacketFence side, you'll still need some changes made on Windows Domain Controller
+
+===== Config Windows Event Notifier
+
+Windows Event Notifier is a powershell script used to filter, analyze and report accout events to PacketFence.
+Includes:
+ * Password reset
+ * Password change
+ * User account locked
+ * User account unlocked
+ * User account disabled
+
+
+
+*Password reset* and *Password change* Events must be reported to ensure Windows NT Key cache works properly.
+Other events listed above will be optional but recommended.
+
+To attach the Windows Event Notifier, you'll need
+
+ * copy the windows event notifier powershell script in /usr/local/pf/addons/AD/password_change_notifier.ps1 to *each* domain controller you want to have NT Key cache enabled.
+ * Modify the script, Fill in the PacketFence server IP and username and password of Event Reporter.
+ * Go to windows event viewer, try to find an event of specific category. e.g. 4724 for password reset and 4723 for password change.
+ * Right click on the event you want to monitor and report, select *attache tasks to this event*, then choose *Launch a program* for action option, fill in the path of the script, and save.
+ * After saving the task, it can be find and modified in *Task Scheduler*, Make sure this script will run under *Administrator Privilege*, otherwise it will fail to read windows events.
+
+image::domain-windows-events-viewer.png[scaledwidth="100%",alt="Windows Events Viewer"]
+image::domain-event-trigger-in-task-scheduler.png[scaledwidth="100%",alt="Windows Events Trigger in Task Scheduler"]
+
+==== Restart NTLM Auth API
+
+Restart PacketFence NTLM Auth API to take effect.
+
+```
+systemctl restart packetfence-ntlm-auth-api
+```
+
+or restart the service form Admin UI.
+
+
 === NTLM Authentication Caching
 
 NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Authentication Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
