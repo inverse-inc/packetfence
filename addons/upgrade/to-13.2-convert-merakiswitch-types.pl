@@ -18,7 +18,6 @@ use pf::IniFiles;
 use pf::file_paths qw(
     $switches_config_file
 );
-use File::Copy;
 use pf::util qw(run_as_pf);
 run_as_pf();
 
