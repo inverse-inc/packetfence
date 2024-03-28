@@ -4,3 +4,4 @@
 !.gitignore
 
 conf/domain.conf
+.gitattributes

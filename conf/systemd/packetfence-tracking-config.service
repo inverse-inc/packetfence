@@ -6,7 +6,7 @@ Documentation=http://packetfence.org
 [Service]
 Type=oneshot
 WorkingDirectory=/usr/local/pf/conf
-ExecStartPre=/bin/sh -c "if [ ! -d \"/usr/local/pf/conf/.git\" ]; then /usr/bin/git init /usr/local/pf/conf/;cd /usr/local/pf/conf/;/usr/bin/git add /usr/local/pf/conf/*;fi"
+ExecStartPre=/bin/sh -c "if [ ! -d \"/usr/local/pf/conf/.git\" ]; then /usr/bin/git init /usr/local/pf/conf/;git config --system --add safe.directory /usr/local/pf/conf;cd /usr/local/pf/conf/;/usr/bin/git add .gitignore .gitignore.example /usr/local/pf/conf/*;fi"
 ExecStart=/bin/bash -c "/usr/bin/git -c user.name=\'PacketFence Tracking\' -c user.email=\'tracking@packetfence.org\' --git-dir=/usr/local/pf/conf/.git commit -a -m \"Commit `date +%%F-%%T`\""
 
 
