@@ -27,6 +27,7 @@ use pf::constants;
 use pf::config::cluster;
 use File::Slurp qw(read_file);
 use URI ();
+use pf::services;
 
 
 BEGIN {
@@ -38,39 +39,34 @@ BEGIN {
     firewalld_clean_pfconf_configs
     firewalld_generate_configs
     firewalld_generate_pfconf_configs
-    firewalld_generate_pfconfig_configs
-    generate_chains
-    generate_chain
-    generate_input_management_if_chained_rules
-    input_portal_if_chained_rules
-    input_radius_if_chained_rules
-    input_dns_if_chained_rules
-    input_dhcp_if_chained_rules
-    input_internal_vlan_if_chained_rules
-    input_internal_isol_vlan_if_chained_rules
-    input_internal_inline_if_chained_rules
-    input_highavailability_if_chained_rules
-    internal_interfaces_handling
-    portal_interfaces_handling
-    radius_interfaces_handling
-    dhcp_interfaces_handling
-    dns_interfaces_handling
-    management_interface_handling
-    high_availability_interfaces_handling
-    nat_back_inline_enabled
-    netdata_firewalld_config
-    fingerbank_collector_firewalld_config
-    eduroam_radius_firewalld_config
-    inline_enforcement_firewalld_config
-    inline_rules_firewalld_config
-    inline_if_src_to_chain_firewalld_config
-    mangle_rules_firewalld_config
-    nat_redirect_rules_firewalld_config
-    generate_interception_rules
-    generate_dnat_from_docker
-    generate_passthrough_rules
-    generate_provisioning_passthroughs
-    generate_netflow_rules
+    fd_create_all_zones
+    fd_services_rules
+    fd_keepalived_rules
+    fd_radius_lb_rules
+    fd_proxysql_rules
+    fd_haproxy_admin_rules
+    fd_httpd_webservices_rules
+    fd_httpd_aaa_rules
+    fd_api_frontend_rules
+    fd_httpd_portal_rules
+    fd_haproxy_db_rules
+    fd_haproxy_portal_rules
+    fd_radius_acct_rules
+    fd_radius_auth_rules
+    fd_radius_cli_rules
+    fd_pfdns_rules
+    fd_pfdhcp_rules
+    fd_pfipset_rules
+    fd_netdata_rules
+    fd_pfconnector_server_rules
+    fd_galera_autofix_rules
+    fd_mariadb_rules
+    fd_mysql_prob_rules
+    fd_kafka_rules
+    fd_docker_dnat_rules
+    fd_fingerbank_collector_rules
+    fd_eduroam_radius_rules
+    fd_firewalld_rules
   );
 }
 
@@ -124,8 +120,6 @@ use pf::Firewalld::policies qw ( generate_policies_config );
 
 # This is the content that needs to match in the iptable rules for the service
 # to be considered as running
-Readonly my $FW_TABLE_MANGLE => 'mangle';
-Readonly my $FW_TABLE_NAT => 'nat';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
@@ -148,8 +142,8 @@ sub firewalld_clean_pfconf_configs {
 sub firewalld_generate_configs {
   firewalld_generate_pfconf_configs();
   fd_create_all_zones();
-  fd_provisioning_passthroughs();
-  firewalld_generate_pfconfig_configs("add");
+  fd_firewalld_rules("add");
+  fd_services_rules("add");
 }
 
 sub firewalld_generate_pfconf_configs {
@@ -163,29 +157,6 @@ sub firewalld_generate_pfconf_configs {
   generate_policies_config();
 }
 
-sub firewalld_generate_pfconfig_configs {
-  my $action = shift;
-  generate_chains($action);
-  generate_default_chain_rules($action);
-  internal_interfaces_handling($action);
-  portal_interfaces_handling($action);
-  radius_interfaces_handling($action);
-  dhcp_interfaces_handling($action);
-  dns_interfaces_handling($action);
-  management_interface_handling($action);
-  high_availability_interfaces_handling($action);
-  nat_back_inline_enabled($action);
-
-  generate_netdata_firewalld_config($action);
-  generate_FB_collector_firewalld_config($action);
-  generate_eduroam_radius_config($action);
-  generate_inline_enforcement($action);
-
-  generate_interception_rules($action);
-  generate_dnat_from_docker($action);
-  generate_kafka_firewalld_config($action);
-}
-
 sub fd_create_all_zones {
   my $name_files = util_get_name_files_from_dir("zones");
   foreach my $tint ( @listen_ints ) {
@@ -196,12 +167,134 @@ sub fd_create_all_zones {
       util_firewalld_job( " --permanent --new-zone=$tint" );
       util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
       util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
-      util_reload_firewalld();
       if ( scalar grep( { $_ eq $tint } @dhcplistener_ints ) ) { # Why DHCP interfaces need ssh?
         service_to_zone($tint, "add", "ssh");
       }
-      util_reload_firewalld();
-      # need to get services that are running and use the dedicated function to restart accordingly
+    }
+  }
+  my $tint =  $management_network->{Tint};
+  service_to_zone($tint, $action, "ssh");
+  service_to_zone($tint, $action, "haproxy-admin");
+  util_reload_firewalld();
+}
+
+# need to get services that are running and use the dedicated function to restart accordingly
+sub fd_services_rules {
+  my $action = shift;
+  my $services = [qw(
+      docker.service
+      packetfence-api-frontend.service
+      packetfence-base.slice
+      packetfence-base.target
+      packetfence-cluster.target
+      packetfence-config.service
+      packetfence-docker-iptables.service
+      packetfence-fingerbank-collector.service
+      packetfence-firewalld.service
+      packetfence-galera-autofix.service
+      packetfence-haproxy-admin.service
+      packetfence-haproxy-db.service
+      packetfence-haproxy-portal.service
+      packetfence-httpd.aaa.service
+      packetfence-httpd.admin_dispatcher.service
+      packetfence-httpd.dispatcher.service
+      packetfence-httpd.portal.service
+      packetfence-httpd.webservices.service
+      packetfence-ip6tables.service
+      packetfence-iptables.service
+      packetfence-kafka.service
+      packetfence-keepalived.service
+      packetfence-mariadb.service
+      packetfence-mysql-probe.service
+      packetfence-netdata.service
+      packetfence-ntlm-auth-api-domain@.service
+      packetfence-ntlm-auth-api.service
+      packetfence-pfacct.service
+      packetfence-pfconnector-client.service
+      packetfence-pfconnector-server.service
+      packetfence-pfcron.service
+      packetfence-pfdetect.service
+      packetfence-pfdhcp.service
+      packetfence-pfdhcplistener.service
+      packetfence-pfdns.service
+      packetfence-pffilter.service
+      packetfence-pfipset.service
+      packetfence-pfldapexplorer.service
+      packetfence-pfperl-api.service
+      packetfence-pfpki.service
+      packetfence-pfqueue-backend.service
+      packetfence-pfqueue-go.service
+      packetfence-pfqueue-perl.service
+      packetfence-pfsetacls.service
+      packetfence-pfsso.service
+      packetfence-pfstats.service
+      packetfence-proxysql.service
+      packetfence-radiusd-acct.service
+      packetfence-radiusd-auth.service
+      packetfence-radiusd-cli.service
+      packetfence-radiusd-eduroam.service
+      packetfence-radiusd-load_balancer.service
+      packetfence-radsniff.service
+      packetfence-redis-cache.service
+      packetfence-redis_ntlm_cache.service
+      packetfence-redis_queue.service
+      packetfence-snmptrapd.service
+      packetfence-tracking-config.service
+      )];
+  my $states = pf::services::getServiveState($services,[qw(Id ActiveState)]);
+  foreach my $state ( @{ \$states } ) {
+    if ( $state->{"ActiveState"} eq "active" ) {
+      if ( $state->{"Id"} eq "packetfence-api-frontend.service" ){
+        fd_api_frontend_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-keepalived.service" ){
+        fd_keepalived_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-haproxy-portal.service" ){
+        fd_haproxy_portal_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-haproxy-admin.service" ){
+        fd_haproxy_admin_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-httpd.webservices.service" ){
+        fd_httpd_webservices_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-httpd.aaa.service" ){
+        fd_httpd_aaa_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-httpd.portal.service" ){
+        fd_httpd_portal_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-haproxy-db.service" ){
+        fd_haproxy_db_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-pfdns.service" ){
+        fd_pfdns_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-pfdhcp.service" ){
+        fd_pfdhcp_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-pfipset.service" ){
+        fd_pfipset_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-netdata.service" ){
+        fd_netdata_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-pfconnector-server.service" ){
+        fd_pfconnector_server_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-galera-autofix.service" ){
+        fd_galera_autofix_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-mariadb.service" ){
+        fd_mariadb_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-mysql-probe.service" ){
+        fd_mysql_prob_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-kafka.service" ){
+        fd_kafka_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-fingerbank-collector.service" ){
+        fd_fingerbank_collector_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-radiusd-eduroam.service" ){
+        fd_eduroam_radius_rules($action);
+      } elsif ( $state->{"Id"} eq "docker.service" ){
+        fd_docker_dnat_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-radiusd-cli.service" ){
+        fd_radius_cli_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-radiusd-auth.service" ){
+        fd_radius_auth_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-radiusd-acct.service" ){
+        fd_radius_acct_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-proxysql.service" ){
+        fd_proxysql_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-radiusd-load_balancer.service" ){
+        fd_radius_lb_rules($action);
+      }
     }
   }
 }
@@ -214,6 +307,22 @@ sub fd_keepalived_rules {
   }
 }
 
+sub fd_radius_lb_rules {
+  my $action = shift;
+  foreach my $tint ( @radius_ints ) {
+    service_to_zone($tint, $action, "radius_lb");
+  }
+  my $tint =  $management_network->{Tint};
+  service_to_zone($tint, $action, "radius_lb");
+}
+
+sub fd_proxysql_rules {
+  # Proxysql
+  my $action = shift;
+  my $tint =  $management_network->{Tint};
+  service_to_zone($tint, $action, "proxysql");
+}
+
 sub fd_haproxy_admin_rules {
   # Web Admin
   my $action = shift;
@@ -222,7 +331,7 @@ sub fd_haproxy_admin_rules {
   util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
 }
 
-sub fd_webservices_rules {
+sub fd_httpd_webservices_rules {
   # Webservices
   my $action = shift;
   my $tint =  $management_network->{Tint};
@@ -238,12 +347,13 @@ sub fd_httpd_aaa_rules {
   util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
 }
 
-sub fd_unified_api_rules {
+sub fd_api_frontend_rules {
   # Unified API
   my $action = shift;
   my $mgnt_zone =  $management_network->{Tint};
   my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
   util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
+  service_to_zone($tint, $action, "api_frontend");
 }
 
 sub fd_httpd_portal_rules {
@@ -252,6 +362,11 @@ sub fd_httpd_portal_rules {
   my $mgnt_zone =  $management_network->{Tint};
   my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
   util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $httpd_portal_modstatus -j ACCEPT", $action );
+  foreach my $tint ( @portal_ints ) {
+    service_to_zone($tint, $action, "http");
+    service_to_zone($tint, $action, "https");
+    service_to_zone($tint, $action, "web-portal");
+  }
 }
 
 sub fd_haproxy_db_rules {
@@ -267,19 +382,27 @@ sub fd_haproxy_portal_rules {
   }
 }
 
-sub fd_portal_rules {
+sub fd_radius_acct_rules {
   my $action = shift;
-  foreach my $tint ( @portal_ints ) {
-    service_to_zone($tint, $action, "http");
-    service_to_zone($tint, $action, "https");
-    service_to_zone($tint, $action, "web-portal");
+  foreach my $tint ( @radius_ints ) {
+    service_to_zone($tint, $action, "radius_acct");
+    service_to_zone($tint, $action, "radius_acct_clu") if ($cluster_enabled);
   }
 }
 
-sub fd_radius_rules {
+sub fd_radius_auth_rules {
   my $action = shift;
   foreach my $tint ( @radius_ints ) {
-    service_to_zone($tint, $action, "radius");
+    service_to_zone($tint, $action, "radius_auth");
+    service_to_zone($tint, $action, "radius_auth_clu") if ($cluster_enabled);
+  }
+}
+
+sub fd_radius_cli_rules {
+  my $action = shift;
+  foreach my $tint ( @radius_ints ) {
+    service_to_zone($tint, $action, "radius_cli");
+    service_to_zone($tint, $action, "radius_cli_clu") if ($cluster_enabled);
   }
 }
 
@@ -302,7 +425,7 @@ sub get_network_type_and_chain {
   return ($type,$chain);
 }
 
-sub fd_dns_rules {
+sub fd_pfdns_rules {
   my $action = shift;
   foreach my $tint ( @dns_ints ) {
     service_to_zone($tint, $action, "dns");
@@ -411,7 +534,17 @@ sub oauth_passthrough_rules {
   }
 }
 
-sub fd_dhcp_rules {
+sub get_inline_snat_interface {
+  my ($self) = @_;
+  my $logger = get_logger();
+  if (defined ($Config{'inline'}{'interfaceSNAT'}) && $Config{'inline'}{'interfaceSNAT'} ne '') {
+    return $Config{'inline'}{'interfaceSNAT'};
+  } else {
+    return  $management_network->tag("int");
+  }
+}
+
+sub fd_pfdhcp_rules {
   my $action = shift;
   my $logger = get_logger();
   foreach my $tint ( @dhcp_ints ) {
@@ -566,7 +699,7 @@ sub fd_netdata_rules {
   util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
 }
 
-sub fd_pfconnector_rules {
+sub fd_pfconnector_server_rules {
   my $action = shift;
   # The dynamic range used to access the fingerbank collector that are connected via a remote connector
   my $tint =  $management_network->{Tint};
@@ -595,7 +728,7 @@ sub fd_mariadb_rules {
   service_to_zone($tint, $action, "mysql");
 }
 
-sub fd_mariadb_prob_rules {
+sub fd_mysql_prob_rules {
   my $action = shift;
   my $tint =  $management_network->{Tint};
   service_to_zone($tint, $action, "mysql-prob");
@@ -622,7 +755,7 @@ sub fd_docker_dnat_rules {
   util_direct_rule("ipv4 filter PREROUTING 0 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
 }
 
-sub fd_fingerbank_collector_netflow_rules {
+sub fd_fingerbank_collector_rules {
   my $action = shift;
   if (netflow_enabled()) {
     util_direct_rule( "ipv4 filter FORWARD 0 -j NETFLOW" , $action );
@@ -640,13 +773,13 @@ sub fd_eduroam_radius_rules {
     my $mgnt_zone =  $management_network->{Tint};
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT", $action );
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
-    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
-    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
+    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
+    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
     foreach my $tint ( @radius_ints ) {
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT", $action );
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
     }
   }
   else {
@@ -663,10 +796,10 @@ sub fd_firewalld_rules {
   # Note: I'm giving references to this guy here so he can directly mess with the tables
   inline_rules($action);
   # Mangle
-  inline_if_src_rules($FW_TABLE_MANGLE,$action);
-  fd_mangle_rules($action);
+  inline_if_src_rules("mangle",$action);
+  mangle_rules($action);
   # NAT chain targets and redirections (other rules injected by generate_inline_rules)
-  inline_if_src_rules($FW_TABLE_NAT,$action);
+  inline_if_src_rules("nat",$action);
   nat_redirect_rules($action);
 }
 
@@ -860,7 +993,7 @@ sub inline_if_src_rules {
     }
 
     # POSTROUTING
-    if ( $table ne $FW_TABLE_NAT ) {
+    if ( $table ne "nat" ) {
       my @values = split(',', get_inline_snat_interface());
       foreach my $val (@values) {
         util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $val --jump $FW_POSTROUTING_INT_INLINE", $action );
@@ -868,7 +1001,7 @@ sub inline_if_src_rules {
     }
 
     # NAT POSTROUTING
-    if ($table eq $FW_TABLE_NAT) {
+    if ($table eq "nat" ) {
       my $mgmt_int = $management_network->tag("int");
 
       # Every marked packet should be NATed
