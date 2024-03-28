@@ -34,8 +34,8 @@ use Module::Pluggable
     'except' =>
     qr/^pf::services::manager::roles|^pf::services::manager::(systemd|httpd|submanager|radiusd_child|redis|haproxy)$/,
     ;
-
-
+use IPC::Open3 qw(open3);
+use Symbol qw(gensym);
 
 our @MANAGERS = __PACKAGE__->managers;
 
@@ -129,6 +129,37 @@ sub getManagers {
     return @serviceManagers;
 }
 
+sub getServiveState {
+    my ($services, $props) = @_;
+    return [] if @$services == 0;
+    my @args = ((map { ('-p' => $_) } @$props), @$services);
+    my $pid = open3(my $chld_in, my $chld_out, my $chld_err = gensym, 'sudo', 'systemctl', 'show', @args);
+    waitpid( $pid, 0 );
+    my $child_exit_status = $? >> 8;
+    my $out = do {
+        local $/ = undef;
+        <$chld_out>
+    };
+    close($chld_in);
+    close($chld_out);
+    close($chld_err);
+
+    my @states;
+    my $state = {};
+    for my $line (split '\n', $out) {
+        if ($line eq '') {
+            push @states, $state;
+            $state = {};
+            next;
+        }
+
+        my ($k, $v) = split('=', $line, 2);
+        $state->{$k} = $v;
+    }
+
+    push @states, $state;
+    return \@states;
+}
 
 =head1 AUTHOR
 
