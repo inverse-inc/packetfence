@@ -11,9 +11,11 @@ Documentation=man:firewalld(1)
 EnvironmentFile=-/usr/local/pf/conf/firewalld
 # supress service that is using the same dbus
 ExecStartPre=/bin/bash -c "/bin/rm /usr/lib/systemd/system/firewalld.service || true"
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::firewalld_generate_configs()'
 ExecStart=/usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/local/pf/var/conf/firewalld
 ExecReload=/bin/kill -HUP $MAINPID
 # supress to log debug and error output also to /var/log/messages
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::firewalld_clean_configs()'
 StandardOutput=null
 StandardError=null
 Type=dbus
