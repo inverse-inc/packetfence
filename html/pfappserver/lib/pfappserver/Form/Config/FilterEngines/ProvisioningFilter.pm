@@ -115,6 +115,7 @@ sub options_field_names {
     $type =~ s/^.*:://;
     my $data = $ConfigProvisioningFiltersMeta{$type} // {};
     (
+        'compliant_check',
         @NODE_INFO_FIELDS,
         @{$data->{fields} || []}
     );
@@ -124,7 +125,6 @@ sub option_type {
     my ($field) = @_;
     my $type = ref($field->form);
     $type =~ s/^.*:://;
-    print STDERR "type $type\n";
     return $type;
 }
 
