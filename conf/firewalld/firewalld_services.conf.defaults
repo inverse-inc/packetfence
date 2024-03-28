@@ -193,6 +193,18 @@ ports=nessus_port1
 type=tcp
 port=8834
 
+[api_frontend]
+short=api_fontend
+description=API Frontend Interface
+ports=api_frontend_port1,api_frontend_port2
+
+[api_frontend_port1]
+type=tcp
+port=9999
+[api_frontend_port1]
+type=udp
+port=9999
+
 [fingerbank]
 short=Fingerbank
 description=Fingerbank collector (replication, NetFlow, API, sFlow)
