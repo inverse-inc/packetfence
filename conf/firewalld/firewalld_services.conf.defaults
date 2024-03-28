@@ -143,12 +143,16 @@ type=tcp
 [radius_lb]
 short=radius load balancer port
 description=Firewalld ports for radius load balancer service
-ports=radius_lb_port1,radius_lb_port2
 
-[radius_lb_port1]
+[httpd_aaa]
+short=httpd port
+description=Firewalld ports for radius load balancer service
+ports=httpd_aaa_port1,httpd_aaa_port2
+
+[httpd_aaa_port1]
 port=7070
 type=udp
-[radius_lb_port2]
+[httpd_aaa_port2]
 port=7070
 type=tcp
 
