@@ -16,12 +16,9 @@ use lib qw(/usr/local/pf/lib);
 use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use NetAddr::IP;
-use pf::util qw(valid_ip valid_mac run_as_pf);
 use pf::file_paths qw(
     $switches_config_file
 );
-use File::Copy;
-
 run_as_pf();
 
 my $file = $switches_config_file;
@@ -64,7 +61,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
