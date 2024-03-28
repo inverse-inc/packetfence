@@ -107,12 +107,12 @@ type=tcp
 [radius_cli_clu]
 short=radius cli cluster port
 description=Firewalld ports for radius cli service
-ports=radius_cli_port1,radius_cli_port2
+ports=radius_cli_clu_port1,radius_cli_clu_port2
 
-[radius_cli_port1]
+[radius_cli_clu_port1]
 port=1825
 type=udp
-[radius_cli_port2]
+[radius_cli_clu_port2]
 port=1825
 type=tcp
 
@@ -138,6 +138,18 @@ port=11822
 type=udp
 [radius_eduroam_cl_port2]
 port=11822
+type=tcp
+
+[radius_lb]
+short=radius load balancer port
+description=Firewalld ports for radius load balancer service
+ports=radius_lb_port1,radius_lb_port2
+
+[radius_lb_port1]
+port=7070
+type=udp
+[radius_lb_port2]
+port=7070
 type=tcp
 
 [radius]
