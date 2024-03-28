@@ -19,8 +19,6 @@ use pf::IniFiles;
 use pf::file_paths qw(
     $switches_config_file
 );
-use File::Copy;
-
 run_as_pf();
 
 my $file = $switches_config_file;
@@ -61,7 +59,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
