@@ -20,41 +20,135 @@ ports=web-portal_port1
 port=8080
 type=tcp
 
-[radius]
-short=radius port
-description=Firewalld ports for radius service
-ports=radius_port1,radius_port2,radius_port3,radius_port4,radius_port5,radius_port6,radius_port7,radius_port8,radius_port9,radius_port10
+[proxysql]
+short=proxysql
+description=Firewalld ports for proxysql service
+ports=proxysql_port1,proxysql_port2,proxysql_port3,proxysql_port4
 
-[radius_port1]
-port=1813
+[proxysql_port1]
+port=6033
+type=udp
+[proxysql_port2]
+port=6033
 type=tcp
-[radius_port2]
+[proxysql_port3]
+port=6080
+type=udp
+[proxysql_port4]
+port=6080
+type=tcp
+
+[radius_acct]
+short=radius acct port
+description=Firewalld ports for radius acct service
+ports=radius_acct_port1,radius_acct_port2
+
+[radius_acct_port1]
 port=1813
 type=udp
-[radius_port3]
+[radius_acct_port2]
+port=1813
+type=tcp
+
+[radius_acct_clu]
+short=radius acct cluster port
+description=Firewalld ports for radius acct service
+ports=radius_acct_clu_port1,radius_acct_clu_port2
+
+[radius_acct_clu_port1]
 port=1823
 type=udp
-[radius_port4]
+[radius_acct_clu_port2]
+port=1823
+type=tcp
+
+[radius_auth]
+short=radius auth port
+description=Firewalld ports for radius auth service
+ports=radius_auth_port1,radius_auth_port2,radius_auth_port3
+
+[radius_auth_port1]
+port=1812
+type=udp
+[radius_auth_port2]
 port=1812
 type=tcp
-[radius_port5]
-port=1812
-type=udp
-[radius_port6]
-port=1822
-type=udp
-[radius_port7]
-port=1815
-type=tcp
-[radius_port8]
-port=1815
-type=udp
-[radius_port9]
-port=1825
-type=udp
-[radius_port10]
+[radius_auth_port3]
 port=2083
 type=tcp
+
+[radius_auth_clu]
+short=radius auth cluster port
+description=Firewalld ports for radius auth service
+ports=radius_auth_clu_port1,radius_auth_clu_port2,radius_auth_clu_port2
+
+[radius_auth_clu_port1]
+port=1822
+type=udp
+[radius_auth_clu_port2]
+port=1822
+type=tcp
+[radius_auth_clu_port3]
+port=2093
+type=tcp
+
+[radius_cli]
+short=radius cli port
+description=Firewalld ports for radius cli service
+ports=radius_cli_port1,radius_cli_port2
+
+[radius_cli_port1]
+port=1815
+type=udp
+[radius_cli_port2]
+port=1815
+type=tcp
+
+[radius_cli_clu]
+short=radius cli cluster port
+description=Firewalld ports for radius cli service
+ports=radius_cli_port1,radius_cli_port2
+
+[radius_cli_port1]
+port=1825
+type=udp
+[radius_cli_port2]
+port=1825
+type=tcp
+
+[radius_eduroam]
+short=radius eduroam port
+description=Firewalld ports for radius eduroam service
+ports=radius_eduroam_port1,radius_eduroam_port2
+
+[radius_eduroam_port1]
+port=11812
+type=udp
+[radius_eduroam_port2]
+port=11812
+type=tcp
+
+[radius_eduroam_cl]
+short=radius eduroam cluster port
+description=Firewalld ports for radius eduroam service
+ports=radius_eduroam_cl_port1,radius_eduroam_cl_port2
+
+[radius_eduroam_cl_port1]
+port=11822
+type=udp
+[radius_eduroam_cl_port2]
+port=11822
+type=tcp
+
+[radius]
+short=all radius port
+description=Firewalld ports for radius service
+services=radius_cli,radius_auth,radius_acct,radius_eduroam
+
+[radius_clu]
+short=all radius cluster port
+description=Firewalld ports for radius service
+services=radius_cli_clu,radius_auth_clu,radius_acct_clu,radius_eduroam_cl
 
 [snmptrap]
 short=SNMPTRAP
@@ -118,18 +212,26 @@ protocols=vrrp_protocol1
 [vrrp_protocol1]
 value=vrrp
 
-[pfdhcp]
-short=packetfence-pfdhcp
-description=Firewalld rules for pf-pfdhcp services
-helper_name=pfdhcp
-ports=pfdhcp_port1,pfdhcp_port2
+[dhcp]
+short=dhcp
+description=Firewalld rules for dhcp services
+ports=dhcp_port1,dhcp_port2
 
-[pfdhcp_port1]
+[dhcp_port1]
 port=67
 type=tcp
-[pfdhcp_port2]
+[dhcp_port2]
 port=67
 type=udp
+
+[dhcp-sync]
+short=dhcp sync for cluster
+description=Firewalld rules for ISC DHCP API services
+ports=dhcp-sync_port1
+
+[dhcp-sync_port1]
+port=647
+type=tcp
 
 [ssh]
 short=SSH
@@ -300,4 +402,84 @@ type=tcp
 port=445
 [samba_helper1]
 name=netbios-ns
+
+[haproxy-portal]
+short=Haproxy portal
+description=Haproxy Portal
+services=http,https
+ports=haproxy-portal_port1
+
+[haproxy-portal_port1]
+port=1025
+type=tcp
+
+[haproxy-db]
+short=Haproxy DB
+description=Haproxy DB
+ports=haproxy-db_port1
+services=mysql
+
+[haproxy-db_port1]
+port=1025
+type=tcp
+
+[captive-portal]
+short=captive-portal
+description=Firewalld rules for captive-portal
+services=https,http,web-portal
+
+[parking-portal]
+short=parking-portal
+description=Firewalld rules for parking-portal
+ports=parking-portal_port1
+
+[parking-portal_port1]
+port=5252
+type=tcp
+
+[galera-autofix]
+short=galera-autofix
+description=Firewalld rules for galera-autofix
+services=galera-cluster,mariadb-quorum
+ports=galera-autofix_port1
+
+[galera-autofix_port1]
+port=4253
+type=udp
+
+[galera-cluster]
+short=galera-cluster
+description=Firewalld rules for galera-cluster
+ports=galera-cluster_port1,galera-cluster_port2,galera-cluster_port3
+
+[galera-cluster_port1]
+port=4444
+type=tcp
+[galera-cluster_port2]
+port=4567
+type=tcp
+[galera-cluster_port3]
+port=4568
+type=tcp
+
+[mariadb-quorum]
+short=mariadb-quorum
+description=Firewalld rules for mariadb-quorum
+ports=mariadb-quorum_port1,mariadb-quorum_port2
+
+[mariadb-quorum_port1]
+port=7890
+type=tcp
+[mariadb-quorum_port2]
+port=7891
+type=tcp
+
+[httpd-dispatcher]
+short=httpd dispatcher
+description=Firewalld rules for httpd-dispatcher
+ports=httpd-dispatcher_port1
+
+[httpd-dispatcher_port1]
+port=5252
+type=tcp
 
