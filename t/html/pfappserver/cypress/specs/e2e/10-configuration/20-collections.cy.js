@@ -151,16 +151,16 @@ describe('Collections', () => {
                 // setup API interceptors
                 interceptors.forEach((interceptor, i) => {
                   const { method, url, expectRequest, timeout = global.interceptorTimeoutMs, block } = interceptor
-                  cy.intercept({ method, url }, (req) => {
+                  cy.intercept({ method, url }, (request) => {
                     if (expectRequest) {
                       let retVal = expectRequest(request, data, cache) // expect
                       request = retVal || request
                     }
                     if (block) {
-                      req.destroy() // block
+                      request.destroy() // block
                     }
                     else {
-                      req.continue() // passthrough
+                      request.continue() // passthrough
                     }
                   }).as(`interceptor${i}`)
                 })
@@ -201,12 +201,12 @@ describe('Collections', () => {
                 // setup API interceptors
                 interceptors.forEach((interceptor, i) => {
                   const { method, url, timeout = global.interceptorTimeoutMs, block } = interceptor
-                  cy.intercept({ method, url }, (req) => {
+                  cy.intercept({ method, url }, (request) => {
                     if (block) {
-                      req.destroy() // block
+                      request.destroy() // block
                     }
                     else {
-                      req.continue() // passthrough
+                      request.continue() // passthrough
                     }
                   }).as(`interceptor${i}`)
                 })
