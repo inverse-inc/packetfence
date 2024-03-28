@@ -24,7 +24,7 @@ PacketFence supports VoIP on the EX2200 (JUNOS 12.6) and EX4200 (JUNOS 13.2)
 
 ==== Junos Modules
 
-This is a standared switch module designed to support all the legacy Juniper Switch series using Junos version earlier than v12.x.
+This is a standard switch module designed to support all the legacy Juniper Switch series using Junos version earlier than v12.x.
 
 ===== Junos v12.x and Junos v13.x
 
