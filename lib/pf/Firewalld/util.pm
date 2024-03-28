@@ -53,6 +53,7 @@ BEGIN {
     util_get_name_files_from_dir
     util_create_config_file
     is_service_available
+    is_zone_available
     is_icmptypes_available
     is_ipset_type_available
     is_ipset_available
@@ -290,13 +291,12 @@ sub util_all_protocols {
   my $c = shift;
   if ( exists( $c->{"protocols"} ) ) {
     my @t;
-    my $vl = $c->{"protocols"};
-    foreach my $k ( @{ $vl } ) {
-      my $val = $k->{"value"};
-      if ( defined is_protocol_available( $val ) ) {
+    my @vl = split( ',', $c->{"protocols"} );
+    foreach my $k ( @vl ) {
+      if ( defined is_protocol_available( $k ) ) {
         push( @t, $k );
       } else {
-        get_logger->error( "==> Protocol ($val) is removed." );
+        get_logger->error( "==> Protocol ($k) is removed." );
       }
     }
     $c->{"all_protocols"} = \@t;

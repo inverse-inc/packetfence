@@ -20,8 +20,16 @@ masquerade=yes
 target=default
 services=haproxy-admin,ssh,http,https
 interface=eth0
-version = 0.1
-sources=127.0.0.1
+version=0.1
+sources=eth0_source1,eth0_source2
+protocols=vrrp
+
+[eth0_source1]
+name=address
+address=127.0.0.1
+[eth0_source2]
+name=address
+address=224.0.0.0/8
 
 [docker0]
 short=Docker Interface

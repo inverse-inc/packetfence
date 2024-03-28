@@ -40,7 +40,7 @@
   [% END %]
 
   [% FOREACH protocol IN all_protocols %]
-    <protocol value="[% protocol.value %]"/>
+    <protocol value="[% protocol %]"/>
   [% END %]
 
   [% FOREACH icmp_block IN all_icmpblocks %]

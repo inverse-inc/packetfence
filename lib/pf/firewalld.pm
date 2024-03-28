@@ -28,7 +28,7 @@ use pf::config::cluster;
 use File::Slurp qw(read_file);
 use URI ();
 use pf::services;
-
+use pf::Firewalld::util;
 
 BEGIN {
   use Exporter ();
@@ -173,8 +173,8 @@ sub fd_create_all_zones {
     }
   }
   my $tint =  $management_network->{Tint};
-  service_to_zone($tint, $action, "ssh");
-  service_to_zone($tint, $action, "haproxy-admin");
+  service_to_zone($tint, "add", "ssh");
+  service_to_zone($tint, "add", "haproxy-admin");
   util_reload_firewalld();
 }
 
@@ -242,7 +242,7 @@ sub fd_services_rules {
       packetfence-tracking-config.service
       )];
   my $states = pf::services::getServiveState($services,[qw(Id ActiveState)]);
-  foreach my $state ( @{ \$states } ) {
+  foreach my $state ( @{ $states } ) {
     if ( $state->{"ActiveState"} eq "active" ) {
       if ( $state->{"Id"} eq "packetfence-api-frontend.service" ){
         fd_api_frontend_rules($action);
@@ -353,7 +353,7 @@ sub fd_api_frontend_rules {
   my $mgnt_zone =  $management_network->{Tint};
   my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
   util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
-  service_to_zone($tint, $action, "api_frontend");
+  service_to_zone( $mgnt_zone, $action, "api_frontend");
 }
 
 sub fd_httpd_portal_rules {
