@@ -175,6 +175,7 @@ sub fd_create_all_zones {
   my $tint =  $management_network->{Tint};
   service_to_zone($tint, "add", "ssh");
   service_to_zone($tint, "add", "haproxy-admin");
+  util_set_default_zone($tint);
   util_reload_firewalld();
 }
 
