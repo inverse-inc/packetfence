@@ -169,7 +169,7 @@ EOT
     $tags{'mysql_pf_pass'} = $DB_Config->{pass};
     $tags{'mysql_pf_pass'} =~ s/"/\\"/g;
     $tt->process($self->proxysql_config_template, \%tags, "$generated_conf_dir/".$self->name.".conf") or die $tt->error();
-    $tt->process($self->pxc_scheduler_handler, \%tags, "$generated_conf_dir/config.toml") or die $tt->error();
+    $tt->process($self->pxc_scheduler_handler_template, \%tags, "$generated_conf_dir/config.toml") or die $tt->error();
 
     return 1;
 }
