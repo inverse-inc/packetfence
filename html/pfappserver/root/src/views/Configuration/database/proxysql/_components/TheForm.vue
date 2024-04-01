@@ -34,7 +34,7 @@
 import {computed} from '@vue/composition-api'
 import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
-import {FormGroupBackend, FormGroupCacert, FormGroupStatus} from './'
+import {FormGroupBackend, FormGroupCacert, FormGroupStatus, FormGroupScheduler} from './'
 
 const components = {
   BaseForm,
