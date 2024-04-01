@@ -21,6 +21,12 @@
                         :column-label="$i18n.t('Backend')"
                         :text="$i18n.t('Backend Host')"
     />
+    <form-group-scheduler namespace="scheduler"
+                       :column-label="$i18n.t('Default')"
+                       :text="$i18n.t('Use the default galera implementation of ProxySQL or use pxc_scheduler_handler.')"
+                       enabled-value="default"
+                       disabled-value="pxc_scheduler"
+    />
 
   </base-form>
 </template>
@@ -36,6 +42,7 @@ const components = {
   FormGroupCacert,
   FormGroupBackend,
   FormGroupStatus,
+  FormGroupScheduler,
 }
 
 export const props = {

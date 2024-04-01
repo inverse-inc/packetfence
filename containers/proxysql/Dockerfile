@@ -50,8 +50,8 @@ WORKDIR /opt
 # Shallow clone the pxc_scheduler_handler source
 #
 
-ARG source_pxc=https://github.com/percona/pxc_scheduler_handler.git
-ARG COMMIT_ID_PXC=4255853347c353436c239491c0858f0ffbb5ca75
+ARG source_pxc=https://github.com/fdurand/pxc_scheduler_handler.git
+ARG COMMIT_ID_PXC=259c92b93426b2ae92b543c2cd776104de2519e0
 RUN git clone -qq ${source_pxc}
 WORKDIR pxc_scheduler_handler
 RUN git checkout $COMMIT_ID_PXC
