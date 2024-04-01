@@ -309,7 +309,8 @@ sub fd_keepalived_rules {
 
 sub fd_radiusd_lb_rules {
   my $action = shift;
-  foreach my $tint ( @radius_ints ) {
+  foreach my $network ( @radius_ints ) {
+    my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "radius_lb");
   }
   my $tint =  $management_network->{Tint};
@@ -384,7 +385,8 @@ sub fd_haproxy_portal_rules {
 
 sub fd_radiusd_acct_rules {
   my $action = shift;
-  foreach my $tint ( @radius_ints ) {
+  foreach my $network ( @radius_ints ) {
+    my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "radius_acct");
     service_to_zone($tint, $action, "radius_acct_clu") if ($cluster_enabled);
   }
@@ -392,7 +394,8 @@ sub fd_radiusd_acct_rules {
 
 sub fd_radiusd_auth_rules {
   my $action = shift;
-  foreach my $tint ( @radius_ints ) {
+  foreach my $network ( @radius_ints ) {
+    my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "radius_auth");
     service_to_zone($tint, $action, "radius_auth_clu") if ($cluster_enabled);
   }
@@ -400,7 +403,8 @@ sub fd_radiusd_auth_rules {
 
 sub fd_radiusd_cli_rules {
   my $action = shift;
-  foreach my $tint ( @radius_ints ) {
+  foreach my $network ( @radius_ints ) {
+    my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "radius_cli");
     service_to_zone($tint, $action, "radius_cli_clu") if ($cluster_enabled);
   }
@@ -775,7 +779,8 @@ sub fd_radiusd_eduroam_rules {
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
-    foreach my $tint ( @radius_ints ) {
+    foreach my $network ( @radius_ints ) {
+      my $tint =  $network->{Tint};
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT", $action );
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
