@@ -34,6 +34,7 @@ BEGIN {
     util_source_or_destination_validation
     util_prepare_version
     util_target
+    util_prepare_priority
     util_all_ports
     util_all_services
     util_all_protocols
@@ -230,7 +231,9 @@ sub util_target {
     my %target_option=qw(accept 0
                   reject 1
                   drop 2
-                  default 3);
+                  default 3
+                  continue 4
+    );
     my $v = lc( $c->{"target"} );
     if ( exists( $target_option{$v} ) ) {
       get_logger->info( "Target is $v" );
@@ -251,6 +254,15 @@ sub util_target {
     use Data::Dumper;
     get_logger->error( "Unknown target for". print Dumper ($c)."\n==> Apply ".$type."REJECT".$type );
     $c->{"target_xml"} = util_create_string_for_xml( "target", $type."REJECT".$type );
+  }
+}
+
+sub util_prepare_priority {
+  my $c = shift;
+  if ( exists( $c->{"priority"} ) ) {
+    $c->{"priority_xml"} = util_create_string_for_xml( "priority", $c->{"priority"} );
+  } else {
+    $c->{"priority_xml"} = "";
   }
 }
 

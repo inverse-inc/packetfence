@@ -5,6 +5,8 @@ description=Allows basic IPv6 functionality for the host running firewalld.
 ingress_zones=allow-host-ipv6.ingress_zone1
 egress_zones=allow-host-ipv6.egress_zone1
 match_rules=allow-host-ipv6_rule1,allow-host-ipv6_rule2,allow-host-ipv6_rule3,allow-host-ipv6_rule4
+target=continue
+priority=-15000
 
 [allow-host-ipv6.ingress_zone1]
 name=ANY
