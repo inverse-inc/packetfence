@@ -18,8 +18,8 @@ ExecStop=/bin/bash -c "docker stop proxysql ; docker container rm proxysql -f ; 
 TimeoutStopSec=60
 Restart=on-failure
 # Firewalld
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_proxysql_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_proxysql_rules("remove")'
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_proxysql_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_proxysql_rules("remove")'
 
 [Install]
 WantedBy=packetfence-cluster.target

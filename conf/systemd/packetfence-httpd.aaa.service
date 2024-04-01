@@ -23,8 +23,8 @@ Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/httpd.aaa-systemd-notify.pid
 # Firewalld
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_httpd_aaa_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_httpd_aaa_rules("remove")'
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_aaa_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_aaa_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target

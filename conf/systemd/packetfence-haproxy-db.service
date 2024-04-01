@@ -16,8 +16,8 @@ ExecReload=/bin/kill -USR2 $MAINPID
 Restart=on-failure
 SuccessExitStatus=143
 # Firewalld
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::db' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_db_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::db' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_db_rules("remove")'
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::db' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_db_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::db' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_db_rules("remove")'
 
 [Install]
 WantedBy=packetfence-cluster.target
