@@ -27,6 +27,7 @@ BEGIN {
     util_prepare_firewalld_config_simple
     util_get_firewalld_bin
     util_get_firewalld_cmd
+    util_set_default_zone
     util_chain
     util_rich_rule
     util_direct_rule
@@ -645,6 +646,15 @@ sub util_firewalld_job {
     return 1;
   } else {
     return 0;
+  }
+}
+
+sub util_set_default_zone {
+  my $zone= shift;
+  if ( util_firewalld_job( " --set-default-zone=$zone" ) ){
+    get_logger->info( "Set default zone is a success" );
+  } else {
+    get_logger->error( "Set default zone failed" );
   }
 }
 
