@@ -2,17 +2,15 @@
 [Unit]
 Description=PacketFence Config Service
 After=network.target packetfence-redis-cache.service
-Wants=packetfence-redis-cache.service packetfence-firewalld.service
+Wants=packetfence-redis-cache.service
 
 [Service]
 Type=notify
 NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::firewalld_generate_configs()'
 ExecStart=/usr/local/pf/sbin/pfconfig-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconfig ; echo Stopped"
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::firewalld_clean_configs()'
 Slice=packetfence-base.slice
 Restart=on-failure
 TimeoutStopSec=30

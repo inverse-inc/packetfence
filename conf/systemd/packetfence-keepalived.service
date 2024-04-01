@@ -17,8 +17,8 @@ ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 Slice=packetfence.slice
 # Firewalld
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_keepalived_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_keepalived_rules("remove")'
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("remove")'
 
 
 [Install]

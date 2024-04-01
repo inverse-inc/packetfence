@@ -18,8 +18,8 @@ Restart=on-failure
 Slice=packetfence.slice
 ExecStop=/usr/local/pf/firewalld/scripts/firewalld-service.sh pf-pfdhcp remove
 # Firewalld
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_pfdhcp_rules("add")'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_pfdhcp_rules("remove")'
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target
