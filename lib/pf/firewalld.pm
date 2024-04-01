@@ -539,6 +539,20 @@ sub oauth_passthrough_rules {
   }
 }
 
+=item get_network_snat_interface
+
+Return the list of network interface to enable SNAT for passthrough.
+
+=cut
+
+sub get_network_snat_interface {
+    my ($self) = @_;
+    my $logger = get_logger();
+    if (defined ($Config{'network'}{'interfaceSNAT'}) && $Config{'network'}{'interfaceSNAT'} ne '') {
+        return $Config{'network'}{'interfaceSNAT'};
+    }
+}
+
 sub get_inline_snat_interface {
   my ($self) = @_;
   my $logger = get_logger();
