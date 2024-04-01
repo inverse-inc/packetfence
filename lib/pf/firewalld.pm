@@ -132,7 +132,7 @@ tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
 sub firewalld_clean_configs {
   firewalld_clean_pfconf_configs();
-  firewalld_generate_pfconfig_configs("remove");
+  fd_firewalld_rules("remove");
 }
 
 sub firewalld_clean_pfconf_configs {
