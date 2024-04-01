@@ -69,6 +69,7 @@ sub create_policy_config_file {
   my $name = shift;
   util_prepare_version( $conf );
   util_target( $conf ); 
+  util_prepare_priority( $conf );
   policy_ingress( $conf ); 
   policy_egress( $conf ); 
   util_all_sources( $conf );

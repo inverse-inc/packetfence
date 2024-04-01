@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<policy [% version_xml %] [% target_xml %] [% priority %]>
+<policy [% version_xml %] [% target_xml %] [% priority_xml %]>
 <!-- source: https://firewalld.org/documentation/man-pages/firewalld.policy.html -->
 <!--
      NOTE: VARIABLES ending with _xml are optional and need to be rewritten in xml format before.
