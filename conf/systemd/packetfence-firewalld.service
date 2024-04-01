@@ -6,6 +6,8 @@ After=dbus.service
 After=polkit.service
 Conflicts=iptables.service ip6tables.service ebtables.service ipset.service nftables.service firewalld.service
 Documentation=man:firewalld(1)
+Wants=packetfence-config.service
+After=packetfence-config.service
 
 [Service]
 EnvironmentFile=-/usr/local/pf/conf/firewalld
