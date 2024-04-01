@@ -1,10 +1,11 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence HAProxy Load Balancer for the captive portal
-Wants=packetfence-config.service 
+Wants=packetfence-config.service packetfence-firewalld.service
 Before=packetfence-docker-iptables.service
 Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
+After=packetfence-firewalld.service 
 
 [Service]
 Type=notify
@@ -12,14 +13,15 @@ NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_portal_rules("add")'
 ExecStart=/usr/local/pf/sbin/haproxy-portal-docker-wrapper
 ExecStop=/bin/bash -c "docker stop haproxy-portal ; echo Stopped"
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_portal_rules("remove")'
 Restart=on-failure
 TimeoutStopSec=30
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/haproxy-portal-systemd-notify.pid
+# Firewalld
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_portal_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_portal_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target

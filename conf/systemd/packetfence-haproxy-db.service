@@ -2,20 +2,22 @@
 [Unit]
 Description=PacketFence HAProxy Load Balancer for connecting to clustered databases
 Before=packetfence-httpd.portal.service packetfence-api-frontend.service
-Wants=packetfence-config.service 
+Wants=packetfence-config.service packetfence-firewalld.service
+After=packetfence-firewalld.service 
 
 [Service]
 Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::db' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_db_rules("add")'
 ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-db.conf -p /usr/local/pf/var/run/haproxy-db.pid
 ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::db' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_db_rules("remove")'
 ExecReload=/bin/kill -USR2 $MAINPID
 Restart=on-failure
 SuccessExitStatus=143
+# Firewalld
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::db' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_db_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::db' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_db_rules("remove")'
 
 [Install]
 WantedBy=packetfence-cluster.target

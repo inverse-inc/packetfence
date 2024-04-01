@@ -1,7 +1,7 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence MariaDB Galera conflict resolution
-After=network.target
+After=network.target packetfence-firewalld.service
 
 [Service]
 EnvironmentFile=-/usr/local/pf/conf/log.conf.d/galera-autofix.conf
@@ -11,6 +11,9 @@ Slice=packetfence-base.slice
 User=root
 # Prevents systemd on giving up on the restart of this service
 StartLimitInterval=0
+#Firewalld
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_galera_autofix_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_galera_autofix_rules("remove")'
 
 [Install]
 WantedBy=packetfence-base.target
