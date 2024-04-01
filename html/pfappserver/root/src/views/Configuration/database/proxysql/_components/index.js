@@ -14,7 +14,7 @@ export {
   BaseFormGroupSwitch                 as FormGroupStatus,
   BaseFormGroupFileUpload             as FormGroupCacert,
   BaseFormGroupInput                  as FormGroupBackend,
-  BaseFormGroupScheduler              as FormGroupStatus,
+  BaseFormGroupSwitch                 as FormGroupScheduler,
   BaseViewResource                    as BaseView,
   TheForm,
   TheView
