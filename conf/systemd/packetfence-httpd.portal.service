@@ -1,8 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Captive Portal Apache HTTP Server 
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 Before=packetfence-docker-iptables.service
 Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
@@ -13,14 +13,15 @@ NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_httpd_portal_rules("add")'
 ExecStart=/usr/local/pf/sbin/httpd.portal-docker-wrapper
 ExecStop=/bin/bash -c "docker stop httpd.portal ; echo Stopped"
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_httpd_portal_rules("remove")'
 TimeoutStopSec=60
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/httpd.portal-systemd-notify.pid
+# Firewalld
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_httpd_portal_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_httpd_portal_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target

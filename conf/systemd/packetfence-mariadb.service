@@ -3,8 +3,8 @@
 Description=PacketFence MariaDB instance
 After=syslog.target
 After=network.target
-After=packetfence-config.service
-Wants=packetfence-config.service
+After=packetfence-config.service packetfence-firewalld.service
+Wants=packetfence-config.service packetfence-firewalld.service
 Conflicts=mysql.service mariadb.service
 
 [Service]
@@ -35,6 +35,10 @@ PrivateTmp=true
 LimitNOFILE=4096
 
 KillMode=control-group
+
+# Firewalld
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("remove")'
 
 [Install]
 WantedBy=packetfence-base.target

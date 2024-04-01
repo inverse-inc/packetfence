@@ -42,7 +42,7 @@ BEGIN {
     fd_create_all_zones
     fd_services_rules
     fd_keepalived_rules
-    fd_radius_lb_rules
+    fd_radiusd_lb_rules
     fd_proxysql_rules
     fd_haproxy_admin_rules
     fd_httpd_webservices_rules
@@ -51,9 +51,9 @@ BEGIN {
     fd_httpd_portal_rules
     fd_haproxy_db_rules
     fd_haproxy_portal_rules
-    fd_radius_acct_rules
-    fd_radius_auth_rules
-    fd_radius_cli_rules
+    fd_radiusd_acct_rules
+    fd_radiusd_auth_rules
+    fd_radiusd_cli_rules
     fd_pfdns_rules
     fd_pfdhcp_rules
     fd_pfipset_rules
@@ -65,7 +65,7 @@ BEGIN {
     fd_kafka_rules
     fd_docker_dnat_rules
     fd_fingerbank_collector_rules
-    fd_eduroam_radius_rules
+    fd_radiusd_eduroam_rules
     fd_firewalld_rules
   );
 }
@@ -281,19 +281,19 @@ sub fd_services_rules {
       } elsif ( $state->{"Id"} eq "packetfence-fingerbank-collector.service" ){
         fd_fingerbank_collector_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-radiusd-eduroam.service" ){
-        fd_eduroam_radius_rules($action);
+        fd_radiusd_eduroam_rules($action);
       } elsif ( $state->{"Id"} eq "docker.service" ){
         fd_docker_dnat_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-radiusd-cli.service" ){
-        fd_radius_cli_rules($action);
+        fd_radiusd_cli_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-radiusd-auth.service" ){
-        fd_radius_auth_rules($action);
+        fd_radiusd_auth_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-radiusd-acct.service" ){
-        fd_radius_acct_rules($action);
+        fd_radiusd_acct_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-proxysql.service" ){
         fd_proxysql_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-radiusd-load_balancer.service" ){
-        fd_radius_lb_rules($action);
+        fd_radiusd_lb_rules($action);
       }
     }
   }
@@ -307,7 +307,7 @@ sub fd_keepalived_rules {
   }
 }
 
-sub fd_radius_lb_rules {
+sub fd_radiusd_lb_rules {
   my $action = shift;
   foreach my $tint ( @radius_ints ) {
     service_to_zone($tint, $action, "radius_lb");
@@ -382,7 +382,7 @@ sub fd_haproxy_portal_rules {
   }
 }
 
-sub fd_radius_acct_rules {
+sub fd_radiusd_acct_rules {
   my $action = shift;
   foreach my $tint ( @radius_ints ) {
     service_to_zone($tint, $action, "radius_acct");
@@ -390,7 +390,7 @@ sub fd_radius_acct_rules {
   }
 }
 
-sub fd_radius_auth_rules {
+sub fd_radiusd_auth_rules {
   my $action = shift;
   foreach my $tint ( @radius_ints ) {
     service_to_zone($tint, $action, "radius_auth");
@@ -398,7 +398,7 @@ sub fd_radius_auth_rules {
   }
 }
 
-sub fd_radius_cli_rules {
+sub fd_radiusd_cli_rules {
   my $action = shift;
   foreach my $tint ( @radius_ints ) {
     service_to_zone($tint, $action, "radius_cli");
@@ -762,7 +762,7 @@ sub fd_fingerbank_collector_rules {
   }
 }
 
-sub fd_eduroam_radius_rules {
+sub fd_radiusd_eduroam_rules {
   my $action = shift;
   my $logger = get_logger();
   # eduroam RADIUS virtual-server
