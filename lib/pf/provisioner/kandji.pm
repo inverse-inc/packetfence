@@ -106,10 +106,28 @@ sub authorize {
 
     $self->logger->info("$mac was found in the Kandji inventory, checking if agent is still installed and active");
     my $entry = $data->[0];
-    return $FALSE if !$entry->{agent_installed} || $entry->{is_missing} || $entry->{is_removed};
     $node_info = node_view($mac) if !defined $node_info;
-    my %data = (node_info => $node_info, kandji => $entry);
-    return $self->handleAuthorizeEnforce($mac, \%data);
+    if ( !$entry->{agent_installed} || $entry->{is_missing} || $entry->{is_removed} ) {
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info       => $node_info,
+                kandji          => $entry,
+                compliant_check => 0
+            },
+            $FALSE
+        );
+    }
+
+    return $self->handleAuthorizeEnforce(
+        $mac,
+        {
+            node_info => $node_info,
+            kandji => $entry,
+            compliant_check => 1
+        },
+        $TRUE
+    );
 }
 
 =head2 logger

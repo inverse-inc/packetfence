@@ -140,6 +140,7 @@ sub authorize {
         return $err;
     }
 
+    my $node_info = node_view($mac);
     if ($device->{status} eq $ACTIVE_STATUS) {
         my $recent_user = $self->getRecentUser($device);
         if (defined $recent_user) {
@@ -147,11 +148,10 @@ sub authorize {
             node_modify($mac, pid => $recent_user);
         }
 
-        my $node_info = node_view($mac);
-        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, google_workspace_chromebook => $device});
+        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, compliant_check => 1, google_workspace_chromebook => $device}, $TRUE);
     }
 
-    return $FALSE;
+    return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, compliant_check => 0, google_workspace_chromebook => $device}, $FALSE);
 }
 
 sub pollAndEnforce {

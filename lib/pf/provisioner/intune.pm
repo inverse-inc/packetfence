@@ -305,19 +305,18 @@ sub verify_compliance {
     my ($self, $mac, $info) = @_;
     my $logger = get_logger();
     # Format the mac to the azure format
-    my $azuremac = uc($mac);
-    $azuremac =~ s/://g;
+    my $device = $self->get_device_by_id($info->{id});
+    my $node_info = node_view($mac);
     if ($info->{complianceState} ne 'compliant') {
         if ($self->{non_compliance_security_event}) {
             pf::security_event::security_event_add($mac, $self->{non_compliance_security_event}, ());
         }
-        return $FALSE;
+
+        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, compliant_check => 0, intune => $device}, $FALSE);
     }
 
-    my $device = $self->get_device_by_id($info->{id});
     $logger->info("Device $mac is compliant.");
-    my $node_info = node_view($mac);
-    return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, intune => $device});
+    return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, intune => $device, compliant_check => 1}, $TRUE);
 }
 
 sub decode_response {

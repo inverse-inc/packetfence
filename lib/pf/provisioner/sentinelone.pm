@@ -252,19 +252,43 @@ sub authorize {
         return $FALSE;
     }
 
+    my $node_info = node_view($mac);
     if ($info->{is_uninstalled} || $info->{isUninstalled}) {
         $logger->info("Agent is uninstalled on device");
-        return $FALSE;
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info => $node_info,
+                sentinelone => $info,
+                compliant_check => 0
+            },
+            $FALSE
+        );
     }
 
     if ($info->{is_active} || $info->{isActive}) {
         $logger->info("Agent is installed and active.");
-        my $node_info = node_view($mac);
-        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, sentinelone => $info});
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info => $node_info,
+                sentinelone => $info,
+                compliant_check => 1
+            },
+            $TRUE
+        );
     }
 
     $logger->info("Agent is not active on device");
-    return $FALSE;
+    return $self->handleAuthorizeEnforce(
+        $mac,
+        {
+            node_info => $node_info,
+            sentinelone => $info,
+            compliant_check => 0
+        },
+        $FALSE
+    );
 }
 
 =head2 _build_uri

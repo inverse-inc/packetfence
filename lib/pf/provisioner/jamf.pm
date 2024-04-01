@@ -140,14 +140,30 @@ sub authorize {
         node_modify($mac, pid => $pid);
     }
     
+    my $node_info = node_view($mac);
     if ( $result eq $TRUE ) {
         $logger->info("MAC address '$mac' seems to be managed by JAMF");
-        my $node_info = node_view($mac);
-        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, jamf => $device});
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info => $node_info,
+                jamf => $device,
+                compliant_check => 1
+            },
+            $TRUE
+        );
     }
 
     $logger->info("MAC address '$mac' does not seems to be managed by JAMF");
-    return $FALSE;
+    return $self->handleAuthorizeEnforce(
+        $mac,
+        {
+            node_info => $node_info,
+            jamf => $device,
+            compliant_check => 0
+        },
+        $FALSE
+    );
 }
 
 

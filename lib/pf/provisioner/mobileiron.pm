@@ -24,6 +24,7 @@ use XML::Simple;
 use pf::log;
 use pf::ip4log;
 use MIME::Base64;
+use pf::constants qw($TRUE $FALSE);
 
 =head1 Atrributes
 
@@ -144,17 +145,32 @@ sub validate_mac_is_compliant{
     my $logger = $self->logger;
     my $info = $self->get_device_info($mac);
     if (defined($info) && ($info != $pf::provisioner::COMMUNICATION_FAILED && $info != 0)) {
+        my $node_info = node_view($mac);
         if ($info->{device}->{compliance} == 0){
             $logger->info("Device $mac was found as compliant");
-            my $node_info = node_view($mac);
-            return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, mobileiron => $info->{device}});
-        } else {
-            $logger->info("Device $mac was found, but is not compliant");
-            return 0;
+            return $self->handleAuthorizeEnforce(
+                $mac,
+                {
+                    node_info => $node_info,
+                    mobileiron => $info->{device},
+                    compliant_check => 1
+                },
+                $TRUE
+            );
         }
-    } else {
-        return $info;
+        $logger->info("Device $mac was found, but is not compliant");
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info => $node_info,
+                mobileiron => $info->{device},
+                compliant_check => 0
+            },
+            $FALSE
+        );
     }
+
+    return $info;
 }
 
 sub authorize {

@@ -94,10 +94,9 @@ always authorize user
 
 sub authorize {
     my ($self, $mac) = @_;
-
-    $mac = uc($mac);
-    $mac =~ s/://g;
-    my $payload = {"BulkValues" => {"value" => [$mac]}};
+    my $umac = uc($mac);
+    $umac =~ s/://g;
+    my $payload = {"BulkValues" => {"value" => [$umac]}};
     my ($status, $res) = $self->execute_request(POST($self->build_uri("/api/mdm/devices?searchby=Macaddress"), Content => encode_json($payload)));
 
     if($status != 200 && $status != 404) {
@@ -107,22 +106,40 @@ sub authorize {
     
     my $data = decode_json($res);
 
-    if(defined($data->{Total}) && $data->{Total} == 1 && $data->{Devices}[0]{EnrollmentStatus} eq $AIRWATCH_ENROLLED_STATUS) {
-        my $device = $data->{Devices}[0];
+    if (!(defined($data->{Total}) && $data->{Total} == 1)) {
+        return $FALSE;
+    }
+
+    my $device = $data->{Devices}[0];
+    my $node_info = node_view($mac);
+    if ($device->{EnrollmentStatus} eq $AIRWATCH_ENROLLED_STATUS) {
         if(isenabled($self->sync_pid) && $device->{UserName}) {
             my $pid = $device->{UserName};
             get_logger->info("Found username $pid through Airwatch");
             person_add($pid);
             node_modify($mac, pid => $pid);
-
         }
 
-        my $node_info = node_view($mac);
-        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, airwatch => $device});
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info       => $node_info,
+                airwatch        => $device,
+                compliant_check => 1
+            },
+            $TRUE
+        );
     }
-    else {
-        return $FALSE;
-    }
+
+    return $self->handleAuthorizeEnforce(
+        $mac,
+        {
+            node_info => $node_info,
+            airwatch => $device,
+            compliant_check => 0,
+        },
+        $FALSE
+    );
 };
 
 sub build_uri {
