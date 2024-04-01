@@ -248,7 +248,8 @@ sub util_target {
     $b = 1;
   }
   if ( $b ==1 ) {
-    get_logger->error( "Unknown target. ==> Apply ".$type."REJECT".$type );
+    use Data::Dumper;
+    get_logger->error( "Unknown target for". print Dumper ($c)."\n==> Apply ".$type."REJECT".$type );
     $c->{"target_xml"} = util_create_string_for_xml( "target", $type."REJECT".$type );
   }
 }
@@ -280,7 +281,7 @@ sub util_all_services {
       if ( defined is_service_available( $k ) ) {
         push( @t, $k );
       } else {
-        get_logger->error( "==> Service is removed." );
+        get_logger->error( "==> Service ($k) is removed." );
       }
     }
     $c->{"all_services"} = \@t;
@@ -291,12 +292,13 @@ sub util_all_protocols {
   my $c = shift;
   if ( exists( $c->{"protocols"} ) ) {
     my @t;
-    my @vl = split( ',', $c->{"protocols"} );
-    foreach my $k ( @vl ) {
-      if ( defined is_protocol_available( $k ) ) {
-        push( @t, $k );
+    my @vl = $c->{"protocols"};
+    foreach my $k ( $c->{"protocols"} ) {
+      my $val = $k->{ "value" };
+      if ( defined is_protocol_available( $val ) ) {
+        push( @t, $val );
       } else {
-        get_logger->error( "==> Protocol ($k) is removed." );
+        get_logger->error( "==> Protocol ($val) is removed." );
       }
     }
     $c->{"all_protocols"} = \@t;
@@ -307,12 +309,13 @@ sub util_all_helpers {
   my $c = shift;
   if ( exists( $c->{"helpers"} ) ) {
     my @t;
-    my @vl = split( ',', $c->{"helpers"} );
+    my @vl = $c->{"helpers"};
     foreach my $k ( @vl ) {
-      if ( defined is_helper_available( $k ) ) {
-        push( @t, $k );
+      my $val = $k->{ "name" };
+      if ( defined is_helper_available( $val ) ) {
+        push( @t, $val );
       } else {
-        get_logger->error( "==> Helper ($k) is removed." );
+        get_logger->error( "==> Helper ($val) is removed." );
       }
     }
     $c->{"all_helpers"} = \@t;
@@ -613,10 +616,10 @@ sub util_firewalld_cmd {
     $exit_status =~ s/\n//g;
     $std_out  =~ s/\n//g;
     if ($exit_status eq "0") {
-      get_logger->info( "Command exit with success" );
+      get_logger->info( "Command \"$cmd\" exit with success" );
       return $std_out;
     } else {
-      get_logger->error( "Command exit without success ".$std_out );
+      get_logger->error( "Command \"$cmd\" exit without success. Error is: ".$std_out );
     }
   }
   return "";
