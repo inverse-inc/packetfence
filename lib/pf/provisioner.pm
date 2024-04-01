@@ -259,9 +259,10 @@ sub matchRules {
 }
 
 sub handleAuthorizeEnforce {
-    my ($self, $mac, $data) = @_;
+    my ($self, $mac, $data, $return_empty) = @_;
+    $return_empty //= $TRUE;
     my ($answer, $empty) = $self->getAnswerForScope('authorize_enforce', $data);
-    return $TRUE if $empty;
+    return $return_empty if $empty;
     return $FALSE if !defined $answer;
 
     $self->handleAnswer($answer, $data);
