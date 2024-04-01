@@ -52,7 +52,11 @@ apply
     {
         transform => sub {
             my ($val) = @_;
-            return clean_mac( $val ) if !valid_ip($val) && valid_mac($val);
+            if (!valid_ip($val)) {
+                return clean_mac($val) if valid_mac($val);
+                return $val if pf::util::valid_fqdn($val);
+            }
+
             my $ip = NetAddr::IP->new($val);
             if ($ip->num == 1) {
                 return $ip->addr;
