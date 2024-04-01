@@ -201,7 +201,7 @@ ports=api_frontend_port1,api_frontend_port2
 [api_frontend_port1]
 type=tcp
 port=9999
-[api_frontend_port1]
+[api_frontend_port2]
 type=udp
 port=9999
 
