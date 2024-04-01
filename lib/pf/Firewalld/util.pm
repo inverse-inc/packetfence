@@ -292,8 +292,8 @@ sub util_all_protocols {
   my $c = shift;
   if ( exists( $c->{"protocols"} ) ) {
     my @t;
-    my @vl = $c->{"protocols"};
-    foreach my $k ( $c->{"protocols"} ) {
+    my $vl = $c->{"protocols"};
+    foreach my $k ( @{ $vl } ) {
       my $val = $k->{ "value" };
       if ( defined is_protocol_available( $val ) ) {
         push( @t, $val );
@@ -309,8 +309,8 @@ sub util_all_helpers {
   my $c = shift;
   if ( exists( $c->{"helpers"} ) ) {
     my @t;
-    my @vl = $c->{"helpers"};
-    foreach my $k ( @vl ) {
+    my $vl = $c->{"helpers"};
+    foreach my $k ( @{ $vl } ) {
       my $val = $k->{ "name" };
       if ( defined is_helper_available( $val ) ) {
         push( @t, $val );
