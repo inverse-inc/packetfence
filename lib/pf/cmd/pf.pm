@@ -21,7 +21,7 @@ pfcmd <command> [options]
   fingerbank                  | Fingerbank related commands
   fixpermissions              | fix permissions on pf tree
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
-  generatedockeriptables      | generate and apply the rules for docker images
+  generatefirewalldconfig     | generate and apply the rules for firewalld
   generatemariadbconfig       | generate the MariaDB configuration
   generatemonitconfig         | generate the monit configuration
   generatesyslogconfig        | generate the syslog configuration
