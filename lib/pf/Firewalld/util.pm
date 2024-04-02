@@ -149,7 +149,7 @@ sub util_chain {
     $action = "add";
   }
   get_logger->info( "The util_chain action is $action on $ipv with table $table." );
-  my $job = " --direct --".$action."-chain ".$ipv." ".$table." ".$chain;
+  my $job = " --permanent --direct --".$action."-chain ".$ipv." ".$table." ".$chain;
   util_firewalld_job( $job );
 }
 
@@ -161,7 +161,7 @@ sub util_rich_rule {
     get_logger->error( "The util_rich_rule action is not defined or empty. default will be add." );
     $action = "add";
   }
-  get_logger->info( "The util_rich_rule action is $action ." );
+  get_logger->info( "The util_rich_rule action is \"$action\"." );
   my $job = " --permanent --zone=".$zone." --".$action."-rich-rule='".$rule."'";
   util_firewalld_job( $job );
 }
@@ -173,8 +173,8 @@ sub util_direct_rule {
     get_logger->error( "The util_direct_rule action is not defined or empty. default will be add." );
     $action = "add";
   }
-  get_logger->info( "The util_rich_rule type is $action ." );
-  my $job = " --direct --".$action."-rule $rule";
+  get_logger->info( "The util_direct_rule type is \"$action\"." );
+  my $job = " --permanent --direct --".$action."-rule $rule";
   util_firewalld_job( $job );
 }
 
@@ -629,7 +629,7 @@ sub util_firewalld_cmd {
     $exit_status =~ s/\n//g;
     $std_out  =~ s/\n//g;
     if ($exit_status eq "0") {
-      get_logger->info( "Command \"$cmd\" exit with success" );
+      get_logger->info( "Command \"$cmd\" exit with success." );
       return $std_out;
     } else {
       get_logger->error( "Command \"$cmd\" exit without success. Error is: ".$std_out );
