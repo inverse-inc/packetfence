@@ -40,5 +40,6 @@ performance = false
 OS = "na"
 lockfiletimeout = 60 #seconds
 lockclustertimeout = 600 #120 # seconds
+LockRefreshTime = 449
 mariaDB = true
 TrackDataBase = "[% database %]"
