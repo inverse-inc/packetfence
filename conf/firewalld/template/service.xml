@@ -11,7 +11,7 @@
   <port port="[% port.port %]" protocol="[% port.type %]"/>
   [% END %]
   [% FOREACH protocol IN all_protocols %]
-  <protocol value="[% protocol.value %]"/>
+  <protocol value="[% protocol %]"/>
   [% END %]
   [% IF module != "" %]
   <module name="[% module %]"/>
