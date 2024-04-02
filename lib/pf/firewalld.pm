@@ -305,6 +305,7 @@ sub fd_keepalived_rules {
     # Never remove, used several time
     util_direct_rule("ipv4 filter INPUT 0 -i $tint -d 224.0.0.0/8 -j ACCEPT", "add" );
     util_direct_rule("ipv4 filter INPUT 0 -i $tint -p vrrp -j ACCEPT", "add" ) if ($cluster_enabled);
+    util_reload_firewalld();
   }
 }
 
@@ -316,6 +317,7 @@ sub fd_radiusd_lb_rules {
   }
   my $tint =  $management_network->{Tint};
   service_to_zone($tint, $action, "radius_lb");
+  util_reload_firewalld();
 }
 
 sub fd_proxysql_rules {
@@ -323,6 +325,7 @@ sub fd_proxysql_rules {
   my $action = shift;
   my $tint =  $management_network->{Tint};
   service_to_zone($tint, $action, "proxysql");
+  util_reload_firewalld();
 }
 
 sub fd_haproxy_admin_rules {
@@ -331,6 +334,7 @@ sub fd_haproxy_admin_rules {
   my $tint =  $management_network->{Tint};
   my $web_admin_port = $Config{'ports'}{'admin'};
   util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
+  util_reload_firewalld();
 }
 
 sub fd_httpd_webservices_rules {
@@ -339,6 +343,7 @@ sub fd_httpd_webservices_rules {
   my $tint =  $management_network->{Tint};
   my $webservices_port = $Config{'ports'}{'soap'};
   util_direct_rule( "ipv4 filter INPUT 0 -i $tint 0 -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
+  util_reload_firewalld();
 }
 
 sub fd_httpd_aaa_rules {
@@ -347,6 +352,7 @@ sub fd_httpd_aaa_rules {
   my $tint =  $management_network->{Tint};
   my $aaa_port = $Config{'ports'}{'aaa'};
   util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
+  util_reload_firewalld();
 }
 
 sub fd_api_frontend_rules {
@@ -356,6 +362,7 @@ sub fd_api_frontend_rules {
   my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
   util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
   service_to_zone( $mgnt_zone, $action, "api_frontend");
+  util_reload_firewalld();
 }
 
 sub fd_httpd_portal_rules {
@@ -369,12 +376,14 @@ sub fd_httpd_portal_rules {
     service_to_zone($tint, $action, "https");
     service_to_zone($tint, $action, "web-portal");
   }
+  util_reload_firewalld();
 }
 
 sub fd_haproxy_db_rules {
   my $action = shift;
   my $mgnt_zone =  $management_network->{Tint};
   service_to_zone($mgnt_zone, $action, "haproxy-db");
+  util_reload_firewalld();
 }
 
 sub fd_haproxy_portal_rules {
@@ -382,6 +391,7 @@ sub fd_haproxy_portal_rules {
   foreach my $tint (@ha_ints){
     service_to_zone($tint, $action, "haproxy-portal");
   }
+  util_reload_firewalld();
 }
 
 sub fd_radiusd_acct_rules {
@@ -391,6 +401,7 @@ sub fd_radiusd_acct_rules {
     service_to_zone($tint, $action, "radius_acct");
     service_to_zone($tint, $action, "radius_acct_clu") if ($cluster_enabled);
   }
+  util_reload_firewalld();
 }
 
 sub fd_radiusd_auth_rules {
@@ -400,6 +411,7 @@ sub fd_radiusd_auth_rules {
     service_to_zone($tint, $action, "radius_auth");
     service_to_zone($tint, $action, "radius_auth_clu") if ($cluster_enabled);
   }
+  util_reload_firewalld();
 }
 
 sub fd_radiusd_cli_rules {
@@ -409,6 +421,7 @@ sub fd_radiusd_cli_rules {
     service_to_zone($tint, $action, "radius_cli");
     service_to_zone($tint, $action, "radius_cli_clu") if ($cluster_enabled);
   }
+  util_reload_firewalld();
 }
 
 sub get_network_type_and_chain {
@@ -457,6 +470,7 @@ sub fd_pfdns_rules {
       util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p udp -m udp --dport 53 -j ACCEPT", $action );
     }
   }
+  util_reload_firewalld();
 }
 
 sub oauth_passthrough_rules {
@@ -546,11 +560,11 @@ Return the list of network interface to enable SNAT for passthrough.
 =cut
 
 sub get_network_snat_interface {
-    my ($self) = @_;
-    my $logger = get_logger();
-    if (defined ($Config{'network'}{'interfaceSNAT'}) && $Config{'network'}{'interfaceSNAT'} ne '') {
-        return $Config{'network'}{'interfaceSNAT'};
-    }
+  my ($self) = @_;
+  my $logger = get_logger();
+  if (defined ($Config{'network'}{'interfaceSNAT'}) && $Config{'network'}{'interfaceSNAT'} ne '') {
+    return $Config{'network'}{'interfaceSNAT'};
+  }
 }
 
 sub get_inline_snat_interface {
@@ -614,6 +628,7 @@ sub fd_pfdhcp_rules {
       }
     }
   }
+  util_reload_firewalld();
 }
 
 sub fd_pfipset_rules {
@@ -649,6 +664,7 @@ sub fd_pfipset_rules {
       }
     }
   }
+  util_reload_firewalld();
 }
 
 sub pfipset_provisioning_passthroughs {
@@ -716,6 +732,7 @@ sub fd_netdata_rules {
     }
   }
   util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
+  util_reload_firewalld();
 }
 
 sub fd_pfconnector_server_rules {
@@ -729,6 +746,7 @@ sub fd_pfconnector_server_rules {
   for my $ip (@pfconnector_ips) {
     util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
   }
+  util_reload_firewalld();
 }
 
 sub fd_galera_autofix_rules {
@@ -739,18 +757,21 @@ sub fd_galera_autofix_rules {
   foreach my $tint (map { $_ ? $_->{Tint} : () } @dhcplistener_ints) {
     service_to_zone($tint, $action, "galera-autofix");
   }
+  util_reload_firewalld();
 }
 
 sub fd_mariadb_rules {
   my $action = shift;
   my $tint =  $management_network->{Tint};
   service_to_zone($tint, $action, "mysql");
+  util_reload_firewalld();
 }
 
 sub fd_mysql_prob_rules {
   my $action = shift;
   my $tint =  $management_network->{Tint};
   service_to_zone($tint, $action, "mysql-prob");
+  util_reload_firewalld();
 }
 
 sub fd_kafka_rules {
@@ -764,6 +785,7 @@ sub fd_kafka_rules {
     util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT" , $action );
     util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT" , $action );
   }
+  util_reload_firewalld();
 }
 
 sub fd_docker_dnat_rules {
@@ -772,6 +794,7 @@ sub fd_docker_dnat_rules {
   my $logger = get_logger();
   my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
   util_direct_rule("ipv4 filter PREROUTING 0 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
+  util_reload_firewalld();
 }
 
 sub fd_fingerbank_collector_rules {
@@ -779,6 +802,7 @@ sub fd_fingerbank_collector_rules {
   if (netflow_enabled()) {
     util_direct_rule( "ipv4 filter FORWARD 0 -j NETFLOW" , $action );
   }
+  util_reload_firewalld();
 }
 
 sub fd_radiusd_eduroam_rules {
@@ -801,6 +825,7 @@ sub fd_radiusd_eduroam_rules {
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
     }
+    util_reload_firewalld();
   }
   else {
     get_logger->info( "# eduroam integration is not configured" );
@@ -821,6 +846,7 @@ sub fd_firewalld_rules {
   # NAT chain targets and redirections (other rules injected by generate_inline_rules)
   inline_if_src_rules("nat",$action);
   nat_redirect_rules($action);
+  util_reload_firewalld();
 }
 
 sub generate_chains {
