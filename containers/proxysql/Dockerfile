@@ -51,7 +51,7 @@ WORKDIR /opt
 #
 
 ARG source_pxc=https://github.com/fdurand/pxc_scheduler_handler.git
-ARG COMMIT_ID_PXC=259c92b93426b2ae92b543c2cd776104de2519e0
+ARG COMMIT_ID_PXC=198f14b007c68df69600a7883a4a53df6c7a850b
 RUN git clone -qq ${source_pxc}
 WORKDIR pxc_scheduler_handler
 RUN git checkout $COMMIT_ID_PXC
