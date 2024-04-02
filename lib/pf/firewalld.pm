@@ -131,8 +131,8 @@ tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host
 tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
 sub firewalld_clean_configs {
-  firewalld_clean_pfconf_configs();
   fd_firewalld_rules("remove");
+  firewalld_clean_pfconf_configs();
 }
 
 sub firewalld_clean_pfconf_configs {
@@ -140,7 +140,7 @@ sub firewalld_clean_pfconf_configs {
 }
 
 sub firewalld_generate_configs {
-  firewalld_generate_pfconf_configs();
+  #firewalld_generate_pfconf_configs();
   fd_create_all_zones();
   fd_firewalld_rules("add");
   fd_services_rules("add");
@@ -173,9 +173,9 @@ sub fd_create_all_zones {
     }
   }
   my $tint =  $management_network->{Tint};
+  util_set_default_zone( $tint );
   service_to_zone($tint, "add", "ssh");
   service_to_zone($tint, "add", "haproxy-admin");
-  util_set_default_zone($tint);
   util_reload_firewalld();
 }
 
@@ -342,7 +342,7 @@ sub fd_httpd_webservices_rules {
   my $action = shift;
   my $tint =  $management_network->{Tint};
   my $webservices_port = $Config{'ports'}{'soap'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $tint 0 -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
+  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
   util_reload_firewalld();
 }
 
@@ -751,10 +751,11 @@ sub fd_pfconnector_server_rules {
 
 sub fd_galera_autofix_rules {
   my $action = shift;
-  foreach my $tint (map { $_ ? $_->{Tint} : () } @ha_ints) {
+  foreach my $network ( @ha_ints ) {
+    my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "galera-autofix");
   }
-  foreach my $tint (map { $_ ? $_->{Tint} : () } @dhcplistener_ints) {
+  foreach my $tint ( @dhcplistener_ints ) {
     service_to_zone($tint, $action, "galera-autofix");
   }
   util_reload_firewalld();
@@ -793,7 +794,7 @@ sub fd_docker_dnat_rules {
   #DNAT traffic from docker to mgmt ip
   my $logger = get_logger();
   my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
-  util_direct_rule("ipv4 filter PREROUTING 0 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
+  util_direct_rule("ipv4 nat PREROUTING 0 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
   util_reload_firewalld();
 }
 
@@ -886,6 +887,8 @@ sub generate_chain {
 
 sub nat_back_inline_rules {
   my $action = shift;
+  my $logger = get_logger();
+  $logger->info("Nat back inline rules to forward is starting.");
   # Allow the NAT back inside through the forwarding table if inline is enabled
   if ( is_inline_enforcement_enabled() ) {
     my @values = split( ',' , get_inline_snat_interface() );
@@ -903,13 +906,19 @@ sub nat_back_inline_rules {
     if($management_network) {
       my $mgmt_int = $management_network->tag("int");
       util_direct_rule("ipv4 filter FORWARD 0 -i $mgmt_int -m state --state ESTABLISHED,RELATED -j ACCEPT", $action );
+    } else {
+      $logger->info("NO Action taken on nat back inline rules to forwaard for management network.");
     }
+  } else {
+    $logger->info("NO Action taken on nat back inline rules to forward.");
   }
+  $logger->info("Nat back inline rules to forward are done.");
 }
 
 sub interception_rules {
   my $action = shift;
   my $logger = get_logger();
+  $logger->info("Interception rules are starting.");
   # internal interfaces handling
   foreach my $interface (@internal_nets) {
     my $dev = $interface->tag("int");
@@ -933,13 +942,13 @@ sub interception_rules {
           if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
             foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
               my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
-              util_direct_rule("ipv4 filter $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
+              util_direct_rule("ipv4 nat $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
             }
           }
           my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
+          util_direct_rule("ipv4 nat $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
           $rule = "--protocol tcp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
+          util_direct_rule("ipv4 nat $FW_PREROUTING_INT_VLAN 0 $rule --jump DNAT --to $destination", $action );
         }
       }
     }
@@ -957,11 +966,13 @@ sub interception_rules {
       }
     }
   }
+  $logger->info("Interception rules are done.");
 }
 
 sub inline_rules {
   my $action = shift;
   my $logger = get_logger();
+  $logger->info("Inline rules are starting.");
   if ( is_inline_enforcement_enabled() ) {
     $logger->info("The action $action has been set on DNS DNAT rules for unregistered and isolated inline clients.");
     foreach my $network ( keys %ConfigNetworks ) {
@@ -972,21 +983,21 @@ sub inline_rules {
       my $gateway = $Config{"interface $dev"}{'ip'};
 
       my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-      util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
-      util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
+      util_direct_rule("ipv4 nat $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
+      util_direct_rule("ipv4 nat $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
 
       if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
         $rule = "--protocol udp --destination-port 53 -s $ConfigNetworks{$network}{'reg_network'}";
-        util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
-        util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
+        util_direct_rule("ipv4 nat $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
+        util_direct_rule("ipv4 nat $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
       }
 
       if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
         $logger->info("Adding Proxy interception rules");
         foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
           my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
-          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
-          util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
+          util_direct_rule("ipv4 nat $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway", $action );
+          util_direct_rule("ipv4 nat $FW_PREROUTING_INT_INLINE 0 $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway", $action );
         }
       }
     }
@@ -1017,12 +1028,14 @@ sub inline_rules {
   } else {
     $logger->info("NO Action taken on DNS DNAT rules for unregistered and isolated inline clients.");
   }
+  $logger->info("Inline rules are done.");
 }
 
 sub inline_if_src_rules {
   my $table = shift;
   my $action = shift;
   my $logger = get_logger();
+  $logger->info("Inline if src rules are starting for $table.");
   if ( is_inline_enforcement_enabled() ) {
     $logger->info("The action $action has been set on inline clients for table $table.");
     # internal interfaces handling
@@ -1070,11 +1083,13 @@ sub inline_if_src_rules {
   } else {
     $logger->info("NO Action taken on inline clients for table $table.");
   }
+  $logger->info("Inline if src rules are done for $table.");
 }
 
 sub mangle_rules {
   my $action = shift;
   my $logger = get_logger();
+  $logger->info("Mangle rules are starting.");
   if ( is_inline_enforcement_enabled() ) {
     $logger->info("The action $action has been set on mangle rules.");
     my $mangle_rules = '';
@@ -1161,11 +1176,13 @@ sub mangle_rules {
   } else {
     $logger->info("NO Action taken on mangle rules.");
   }
+  $logger->info("Mangle rules are done.");
 }
 
 sub nat_redirect_rules {
   my $action = shift;
   my $logger = get_logger();
+  $logger->info("Nat redirect rules are starting.");
   if ( is_inline_enforcement_enabled() ) {
     $logger->info("The action $action has been set on nat redirect rules.");
     my $rule = '';
@@ -1194,12 +1211,13 @@ sub nat_redirect_rules {
         $rule =
         " $FW_PREROUTING_INT_INLINE 0 --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
         "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway";
-        util_direct_rule("ipv4 filter $rule", $action );
+        util_direct_rule("ipv4 nat $rule", $action );
       }
     }
   } else {
     $logger->info("NO Action taken nat redirect rules.");
   }
+  $logger->info("Nat redirect rules are done.");
 }
 
 # need a function that return information like a wrapper of firewalld-cmd
