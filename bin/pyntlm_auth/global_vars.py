@@ -62,6 +62,5 @@ c_ad_reset_account_lockout_counter_after = None     # Default not set
 c_ad_old_password_allowed_period = None             # Windows 2003+, Default not set, if not set, 60
 
 c_max_allowed_password_attempts_per_device = None
-c_perform_transitive_login_after_cache_hit_for = None
 
 n_device_blocked = -2

@@ -92,6 +92,8 @@ def config_load():
                                                             fallback=None)
         ad_old_password_allowed_period = config.get(identifier, 'ad_old_password_allowed_period', fallback=None)
 
+        max_allowed_password_attempts_per_device = config.get(identifier, 'max_allowed_password_attempts_per_device', fallback=None)
+
         nt_key_cache_expire, error = get_int_value(nt_key_cache_expire)
         if error is not None:
             print("  Error while applying NT key cache settings: can not parse 'nt_key_cache_expire'")
@@ -112,6 +114,7 @@ def config_load():
         if ad_account_lockout_threshold == 0:
             ad_account_lockout_duration = None
             ad_reset_account_lockout_counter_after = None
+            max_allowed_password_attempts_per_device = None
         else:
             if ad_account_lockout_threshold < 0 or ad_account_lockout_threshold > 999:
                 print(f"  Error applying NT key cache settings: 'ad_account_lock_threshold' ranges from 0..999")
@@ -154,6 +157,19 @@ def config_load():
                 if ad_reset_account_lockout_counter_after > ad_account_lockout_duration:
                     print(f"  Error applying NT key cache settings: 'ad_reset_account_lockout_counter_after' must <= 'ad_account_lockout_duration'")
                     sys.exit(1)
+
+            if max_allowed_password_attempts_per_device is None or max_allowed_password_attempts_per_device.strip() == '':
+                max_allowed_password_attempts_per_device = None
+            else:
+                max_allowed_password_attempts_per_device, error = get_int_value(max_allowed_password_attempts_per_device)
+                if error is not None:
+                    print(f"  Error applying NT key cache settings: unable to parse 'max_allowed_password_attempts_per_device'")
+                    sys.exit(1)
+                if max_allowed_password_attempts_per_device < 0 or max_allowed_password_attempts_per_device > 999:
+                    print(f"  Error while applying NT key cache settings: 'max_allowed_password_attempts_per_device' ranges from 0..999")
+                    sys.exit(1)
+                if max_allowed_password_attempts_per_device > ad_account_lockout_threshold:
+                    print(f"  Error while applying NT key cache settings: 'max_allowed_password_attempts_per_device', must less or equal than ad_account_lockout_threshold")
 
     except FileNotFoundError as e:
         print(f"  {conf_path} not found or unreadable. Terminated.")
@@ -204,6 +220,7 @@ def config_load():
     print(f"  ad_account_lockout_duration (in minutes)             : {ad_account_lockout_duration}")
     print(f"  ad_reset_account_lockout_counter_after (in minutes)  : {ad_reset_account_lockout_counter_after}")
     print(f"  ad_old_password_allowed_period (in minutes)          : {ad_old_password_allowed_period}")
+    print(f"  max_allowed_password_attempts_per_device             : {max_allowed_password_attempts_per_device}")
 
     global_vars.c_server_name = ad_fqdn
     global_vars.c_realm = realm
@@ -222,3 +239,4 @@ def config_load():
     global_vars.c_ad_account_lockout_duration = ad_account_lockout_duration
     global_vars.c_ad_reset_account_lockout_counter_after = ad_reset_account_lockout_counter_after
     global_vars.c_ad_old_password_allowed_period = ad_old_password_allowed_period
+    global_vars.c_max_allowed_password_attempts_per_device = max_allowed_password_attempts_per_device

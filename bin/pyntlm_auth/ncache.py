@@ -12,7 +12,12 @@ NT_KEY_USER_DOES_NOT_EXIST = "x"
 
 
 def is_ndl(code):
-    if code == ntstatus.NT_STATUS_NO_SUCH_USER or code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
+    ndl_list = [
+        ntstatus.NT_STATUS_NO_SUCH_USER,
+        ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT,
+        ntstatus.NT_STATUS_ACCOUNT_DISABLED
+    ]
+    if code in ndl_list:
         return True
     return False
 
@@ -26,7 +31,7 @@ def determine_cache_expire_time(last_password_changed):
         return d
 
     if l < utils.now():
-        return l
+        return utils.now()
 
     if utils.now() < l < d:
         return l
@@ -37,31 +42,36 @@ def determine_cache_expire_time(last_password_changed):
 def is_hitting_bad_password_threshold(c_device, c_root):
     if global_vars.c_ad_account_lockout_threshold > 0:
         if c_root['last_login_attempt'] + global_vars.c_ad_reset_account_lockout_counter_after * 60 >= utils.now():
-            if c_device['bad_password_count'] >= global_vars.c_max_allowed_password_attempts_per_device or c_root['bad_password_count'] >= global_vars.c_ad_account_lockout_threshold - 1:
+            if c_device['bad_password_count'] >= global_vars.c_max_allowed_password_attempts_per_device:
                 return True
+            if c_root['bad_password_count'] >= global_vars.c_ad_account_lockout_threshold - 1:
+                return True
+    return False
 
-    if c_device['nt_status'] == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:
-        if c_device['last_login_attempt'] + global_vars.c_ad_account_lockout_duration * 60 >= utils.now():
-            return True
 
+def is_still_locked_out(c_device):
+    if global_vars.c_ad_account_lockout_duration == 0:    # indicates that the account will not be auto unlocked.
+        return True
+    if global_vars.c_ad_account_lockout_duration > 0:
+        if c_device['nt_status'] == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:
+            if c_device['lockout_time'] + global_vars.c_ad_account_lockout_duration * 60 >= utils.now():
+                return True
     return False
 
 
 def cache_v_template(domain, account, mac):
     return {
-        "domain": domain,
-        "account": account,
-        "mac": mac,                         # mac here will be the one that successfully logins
         "nt_key": '',
         "dirty": False,
 
-        "last_login_attempt": utils.now(),  # datetime on our side
+        "last_login_attempt": utils.now(),  # last time that performs a transitive login.
         "nt_status": 0,
         "update_time": utils.now(),         # last update time on our side
         "bad_password_count": 0,            # AD or our side
         "last_password_change": 0,          # AD or windows events
         "last_successful_logon": 0,         # AD or our side
         "last_failed_logon": 0,             # AD or our side
+        "lockout_time" : 0,                 # lock out time from our side or AD
 
         "expires_at": utils.expires(global_vars.c_nt_key_cache_expire),
     }
@@ -71,13 +81,6 @@ def cache_v_set(cache_v, dict):
     for key in dict:
         if key in cache_v:
             cache_v[key] = dict[key]
-        if key == "nt_status":
-            if dict[key] == ntstatus.NT_STATUS_NO_SUCH_USER:
-                cache_v['nt_key'] = NT_KEY_USER_DOES_NOT_EXIST
-            if dict[key] == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:
-                cache_v['nt_key'] = NT_KEY_USER_LOCKED
-            if dict[key] == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
-                cache_v['nt_key'] = NT_KEY_USER_DISABLED
     return cache_v
 
 
@@ -142,13 +145,13 @@ def trigger_security_event():
 
 
 def cached_login(domain, account_username, mac, challenge, nt_response):
+    cache_entry_root = None
+    cache_entry_device = None
     cache_key_root = build_cache_key(domain, account_username, '')
     cache_key_device = build_cache_key(domain, account_username, mac)
 
-    cache_entry_root = None
-    cache_entry_device = None
-    device_cache_entries = get_cache_entries(cache_key_root, cache_key_device)
-    for cache_entry in device_cache_entries:
+    cache_entries = get_cache_entries(cache_key_root, cache_key_device)
+    for cache_entry in cache_entries:
         if cache_entry['key'] == cache_key_root:
             cache_entry_root = cache_entry
         if cache_entry['key'] == cache_key_device:
