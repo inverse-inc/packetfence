@@ -30,6 +30,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Enhancements
 
  * Adapted the ldap search filter in FreeRADIUS to do the sAMAccountName lookup (#8000)
+ * Moved Extreme switches to OS-based modules (#8010)
 
 === Bug Fixes
 
