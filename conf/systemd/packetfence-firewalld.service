@@ -17,12 +17,15 @@ ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-
 ExecStart=/usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/local/pf/var/conf/firewalld
 ExecReload=/bin/kill -HUP $MAINPID
 # supress to log debug and error output also to /var/log/messages
-ExecStopPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::firewalld_clean_configs()'
 StandardOutput=null
 StandardError=null
 Type=dbus
 BusName=org.fedoraproject.FirewallD1
 KillMode=mixed
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::firewalld_generate_configs()'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::firewalld_clean_configs()'
+
 
 [Install]
 WantedBy=multi-user.target
