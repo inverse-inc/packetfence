@@ -651,11 +651,17 @@ sub util_firewalld_job {
 
 sub util_set_default_zone {
   my $zone= shift;
-  if ( util_firewalld_job( " --set-default-zone=$zone" ) ){
-    get_logger->info( "Set default zone is a success" );
+  my $default_zone = util_firewalld_cmd( " --get-default-zone" );
+  if ( $zone ne $default_zone ) {
+    if ( util_firewalld_job( " --set-default-zone=$zone" ) ){
+      get_logger->info( "Set default zone is a success" );
+    } else {
+      get_logger->error( "Set default zone failed" );
+    }
   } else {
-    get_logger->error( "Set default zone failed" );
+    get_logger->error( "The default zone is already set" );
   }
+  util_reload_firewalld();
 }
 
 # need a function that reload the service
