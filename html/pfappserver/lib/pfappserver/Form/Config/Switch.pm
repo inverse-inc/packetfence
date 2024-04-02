@@ -46,6 +46,14 @@ has_field 'id' =>
    accept => ['default'],
    required => 1,
    messages => { required => 'Please specify the IP address/MAC address/Range (CIDR) of the switch.' },
+   tags => {
+       option_pattern => sub {
+           return {
+               regex => qq{(([0-9a-fA-f]{2}([:\\.-][0-9a-fA-f]{2}){5})|([0-9a-fA-F]{4}([\\.-][0-9a-fA-F]{4}){2})|([0-9a-fA-F]{12})|(\\d{1,3}(\\.\\d{1,3}){3})|((?=^.{4,253}\$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\\.)+[a-zA-Z]{2,63}\$))|default)},
+               message => "The id must be a MAC, or IP address, or a fqdn.",
+           };
+       },
+   }
   );
 has_field 'description' =>
   (
