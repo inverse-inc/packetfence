@@ -654,6 +654,7 @@ sub util_set_default_zone {
   my $default_zone = util_firewalld_cmd( " --get-default-zone" );
   if ( $zone ne $default_zone ) {
     if ( util_firewalld_job( " --set-default-zone=$zone" ) ){
+      util_firewalld_cmd( " --permanent --zone=$zone --add-masquerade" );
       get_logger->info( "Set default zone is a success" );
     } else {
       get_logger->error( "Set default zone failed" );
