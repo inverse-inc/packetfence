@@ -31,7 +31,7 @@ def determine_cache_expire_time(last_password_changed):
         return d
 
     if l < utils.now():
-        return utils.now()
+        return d
 
     if utils.now() < l < d:
         return l
@@ -51,7 +51,8 @@ def is_hitting_bad_password_threshold(c_device, c_root):
 
 def is_still_locked_out(c_device):
     if global_vars.c_ad_account_lockout_duration == 0:    # indicates that the account will not be auto unlocked.
-        return True
+        if c_device['nt_status'] == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:
+            return True
     if global_vars.c_ad_account_lockout_duration > 0:
         if c_device['nt_status'] == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:
             if c_device['lockout_time'] + global_vars.c_ad_account_lockout_duration * 60 >= utils.now():
@@ -62,18 +63,16 @@ def is_still_locked_out(c_device):
 def cache_v_template(domain, account, mac):
     return {
         "nt_key": '',
+        "nt_status": 0,
         "dirty": False,
 
         "last_login_attempt": utils.now(),  # last time that performs a transitive login.
-        "nt_status": 0,
         "update_time": utils.now(),         # last update time on our side
         "bad_password_count": 0,            # AD or our side
         "last_password_change": 0,          # AD or windows events
         "last_successful_logon": 0,         # AD or our side
         "last_failed_logon": 0,             # AD or our side
         "lockout_time" : 0,                 # lock out time from our side or AD
-
-        "expires_at": utils.expires(global_vars.c_nt_key_cache_expire),
     }
 
 
@@ -199,15 +198,22 @@ def device_miss_root_miss(domain, account_username, mac, challenge, nt_response)
         update_cache_entry(cache_key_root, cache_v_json, exp)
 
     if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
-        cache_v = cache_v_set(cache_v, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD, 'bad_password_count': 1})
+        cache_v = cache_v_set(cache_v, {
+            'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
+            'bad_password_count': 1,
+            'last_failed_logon': utils.now()
+        })
         cache_v_json = json.dumps(cache_v)
         update_cache_entry(cache_key_device, cache_v_json, utils.expires(global_vars.c_nt_key_cache_expire))
         update_cache_entry(cache_key_root, cache_v_json, utils.expires(global_vars.c_nt_key_cache_expire))
 
     if is_ndl(error_code):
         cache_v = cache_v_set(cache_v, {'nt_status': error_code})
+        if error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:
+            cache_v = cache_v_set(cache_v, {'lockout_time': utils.now()})
         cache_v_json = json.dumps(cache_v)
         update_cache_entry(cache_key_device, cache_v_json, utils.expires(60))
+
     return nt_key, error_code, info
 
 
@@ -215,7 +221,7 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
     print("  cache status: device [ ], root [*]")
     cache_key_root = build_cache_key(domain, account_username)
     cache_key_device = build_cache_key(domain, account_username, mac)
-    cache_v = cache_v_template(domain, account_username, mac)
+    cache_v_device = cache_v_template(domain, account_username, mac)
 
     try:
         cache_v_root = json.loads(c_root['value'])
@@ -223,19 +229,19 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
         print(f"  Exception caught while handling cached authentication, error was: {e}")
         return '', -1, None
 
-    if global_vars.c_ad_account_lockout_threshold > 0 and cache_v_root['bad_password_count'] >= global_vars.c_ad_account_lockout_threshold - 1:
+    if is_hitting_bad_password_threshold(cache_v_device, cache_v_root):
         trigger_security_event()
         return '', global_vars.n_device_blocked, None
 
     nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response)
 
     if error_code == 0:
-        cache_v = cache_v_set(cache_v, {
+        cache_v_device = cache_v_set(cache_v_device, {
             "nt_key": nt_key,
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
             "last_successful_logon": utils.nt_time_to_datetime(info.base.last_successful_logon),
             "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon)})
-        cache_v_json = json.dumps(cache_v)
+        cache_v_json = json.dumps(cache_v_device)
         exp = determine_cache_expire_time(info.base.last_password_change)
         update_cache_entry(cache_key_device, cache_v_json, exp)
 
@@ -258,8 +264,8 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
         update_cache_entry(cache_key_root, cache_v_json_root, exp)
 
     if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
-        cache_v = cache_v_set(cache_v, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD, 'bad_password_count': 1})
-        cache_v_json = json.dumps(cache_v)
+        cache_v_device = cache_v_set(cache_v_device, {'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD, 'bad_password_count': 1})
+        cache_v_json = json.dumps(cache_v_device)
         update_cache_entry(cache_key_device, cache_v_json, utils.expires(global_vars.c_nt_key_cache_expire))
         cache_v_root = cache_v_set(cache_v_root, {
             "bad_password_count": cache_v_root["bad_password_count"] +1,
@@ -270,8 +276,8 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
         update_cache_entry(cache_key_root, cache_v_json_root, utils.expires(global_vars.c_nt_key_cache_expire))
 
     if is_ndl(error_code):
-        cache_v = cache_v_set(cache_v, {'nt_status': error_code})
-        cache_v_json = json.dumps(cache_v)
+        cache_v_device = cache_v_set(cache_v_device, {'nt_status': error_code})
+        cache_v_json = json.dumps(cache_v_device)
         update_cache_entry(cache_key_device, cache_v_json, utils.expires(60))
 
     return nt_key, error_code, info
