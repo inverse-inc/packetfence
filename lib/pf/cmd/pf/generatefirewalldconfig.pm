@@ -1,25 +1,28 @@
-package pf::cmd::pf::generatedockeriptables;
+package pf::cmd::pf::generatefirewalldconfig;
 
 =head1 NAME
 
-pf::cmd::pf::generatedockeriptables
+pf::cmd::pf::generatefirewalldconfig
 
 =head1 SYNOPSIS
 
-  pfcmd generatedockeriptables
+  pfcmd generatefirewalldconfig
 
-Generates and apply the docker iptables rules
+Generates and apply firewalld rules
 
 =cut
 
 use strict;
 use warnings;
+use pf::firewalld;
 
 use base qw(pf::cmd);
 
 sub _run {
     my ($self) = @_;
-    return system("/usr/local/pf/containers/docker_iptables.sh");
+    firewalld_generate_pfconf_configs();
+    firewalld_generate_configs();
+    return 0;
 }
 
 =head1 AUTHOR
