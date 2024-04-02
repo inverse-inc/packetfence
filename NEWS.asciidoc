@@ -29,6 +29,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+ * Adapted the ldap search filter in FreeRADIUS to do the sAMAccountName lookup (#8000)
+
 === Bug Fixes
 
 == Version 13.1.0 released on 2024-01-19
