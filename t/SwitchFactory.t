@@ -10,7 +10,7 @@ BEGIN {
 }
 
 
-use Test::More tests => 62;
+use Test::More tests => 63;
 use Test::NoWarnings;
 use_ok('pf::SwitchFactory');
 
@@ -128,6 +128,9 @@ is($switch->{_id}, '192.168.190.217', "Proper id is set for 192.168.190.217");
 $switch = pf::SwitchFactory->instantiate('172.16.8.25');
 isa_ok($switch, 'pf::Switch::Template');
 is(ref($switch->{_template}), 'HASH', "template args are passed");
+
+$switch = pf::SwitchFactory->instantiate('aruba.com');
+isa_ok($switch, 'pf::Switch::Aruba::Instant');
 
 =head1 AUTHOR
 
