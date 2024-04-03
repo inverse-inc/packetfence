@@ -12,8 +12,6 @@ hgW = 10
 hgR = 30
 ConfigHgRange=800
 maintenanceHgRange=900
-#bckHgW = 810
-#bckHgR = 830
 singlePrimary = true
 maxNumWriters = 1
 writerIsAlsoReader = 1
@@ -31,7 +29,7 @@ lockfilepath ="/var/run/"
 
 
 [global]
-logLevel = "debug"
+logLevel = "info"
 logTarget = "file" #stdout | file
 logFile = "/usr/local/pf/logs/pscheduler.log"
 daemonize = false
