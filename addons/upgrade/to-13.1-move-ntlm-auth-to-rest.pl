@@ -8,7 +8,7 @@ addons/upgrade/to-13.1-move-ntlm-auth-to-rest.pl
 
 =head1 DESCRIPTION
 
-Move radius configuration parameters to associated new files
+Modify domain.conf to work with new NTLM auth API.
 
 =cut
 
