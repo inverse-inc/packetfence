@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net"
+	"os"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -22,6 +22,7 @@ var (
 	bootAndRejoinClusterTimeout  = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_BOOT_AND_REJOIN_CLUSTER_TIMEOUT", time.Duration(1*time.Minute))
 	connectDBTries               = sharedutils.EnvOrDefaultInt("GALERA_AUTOFIX_CONNECT_DB_TRIES", 10)
 	connectDBTriesInterval       = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_CONNECT_DB_TRIES_INTERVAL", time.Duration(30*time.Second))
+	connectPfConfigTriesInterval = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_CONNECT_PFCONFIG_TRIES_INTERVAL", time.Duration(1*time.Second))
 
 	ChitChatPort = 4253
 )
@@ -76,12 +77,14 @@ func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
 
 func recordLiveSeqno(ctx context.Context, seqno int) {
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Found the following live sequence number: %d", seqno))
-	err := ioutil.WriteFile(mariadb.GaleraAutofixSeqnoFile, []byte(fmt.Sprintf("%d", seqno)), 0644)
+	err := os.WriteFile(mariadb.GaleraAutofixSeqnoFile, []byte(fmt.Sprintf("%d", seqno)), 0644)
 	sharedutils.CheckError(err)
 }
 
 func seqnoReporting(ctx context.Context) {
 	servers := pfconfigdriver.AllClusterServers{}
+	loop := seqnoReportingInterval.Seconds() / connectPfConfigTriesInterval.Seconds()
+	i := float64(0)
 	for {
 		seqno := mariadb.DefaultSeqno
 		if liveSeqno := mariadb.GetLocalLiveSeqno(ctx); liveSeqno != mariadb.DefaultSeqno {
@@ -94,15 +97,26 @@ func seqnoReporting(ctx context.Context) {
 			seqno = mariadb.InexistantSeqno
 		}
 
-		pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
+		_, err := pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
+		if err != nil {
+			if i == loop {
+				log.LoggerWContext(ctx).Error("Too many tries to contact pfconfig, will continue")
+				loop = seqnoReportingInterval.Seconds() / connectPfConfigTriesInterval.Seconds()
+				i = float64(0)
+			}
+			log.LoggerWContext(ctx).Warn("Unable to load config from pfconfig: " + err.Error())
+			time.Sleep(connectPfConfigTriesInterval)
+			i++
+			continue
+		}
 		for _, server := range servers.Element {
 			conn, err := net.Dial("udp", fmt.Sprintf("%s:%d", server.ManagementIp, ChitChatPort))
+			defer conn.Close()
 			if err != nil {
 				log.LoggerWContext(ctx).Warn("Unable to dial " + server.ManagementIp + ": " + err.Error())
 			}
 			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Reported sequence number %d to %s", seqno, server.ManagementIp))
 			sendMessage(ctx, conn, MSG_SET_SEQNO, seqno)
-			conn.Close()
 		}
 		time.Sleep(seqnoReportingInterval)
 	}
@@ -110,8 +124,21 @@ func seqnoReporting(ctx context.Context) {
 
 func decisionLoop(ctx context.Context) {
 	servers := pfconfigdriver.AllClusterServers{}
+	loop := seqnoReportingInterval.Seconds() / connectPfConfigTriesInterval.Seconds()
+	i := float64(0)
 	for {
-		pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
+		_, err := pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
+		if err != nil {
+			if i == loop {
+				log.LoggerWContext(ctx).Error("Too many tries to contact pfconfig, will continue")
+				loop = seqnoReportingInterval.Seconds() / connectPfConfigTriesInterval.Seconds()
+				i = float64(0)
+			}
+			log.LoggerWContext(ctx).Warn("Unable to load config from pfconfig: " + err.Error())
+			time.Sleep(connectPfConfigTriesInterval)
+			i++
+			continue
+		}
 		nodes := NewNodeList()
 		for _, server := range servers.Element {
 			node := NewNode(net.ParseIP(server.ManagementIp), server.Host)

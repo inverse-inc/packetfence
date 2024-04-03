@@ -36,6 +36,7 @@ func sendMessage(ctx context.Context, conn net.Conn, t string, payload interface
 	}
 	jsonPayload, err := json.Marshal(message)
 	if err != nil {
+		log.LoggerWContext(ctx).Error(err.Error())
 		return err
 	}
 

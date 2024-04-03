@@ -3,7 +3,6 @@ package mariadb
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -44,7 +43,7 @@ func ForceStop(ctx context.Context) error {
 }
 
 func ClearAndStart(ctx context.Context) error {
-	dir, err := ioutil.ReadDir("/var/lib/mysql")
+	dir, err := os.ReadDir("/var/lib/mysql")
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Failed to list the /var/lib/mysql/ directory: " + err.Error())
 		return err
@@ -104,7 +103,7 @@ func WsrepRecover(ctx context.Context) error {
 }
 
 func GetColdSeqno(ctx context.Context) (int, error) {
-	data, err := ioutil.ReadFile(GaleraAutofixSeqnoFile)
+	data, err := os.ReadFile(GaleraAutofixSeqnoFile)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to get cold sequence number from %s: %s", GaleraAutofixSeqnoFile, err.Error()))
 		return DefaultSeqno, err
@@ -131,17 +130,18 @@ func GetLiveSeqno(ctx context.Context, host string) int {
 	ctx = log.AddToLogContext(ctx, "function", "GetLiveSeqno")
 	conf := DatabaseConfig(ctx)
 	db, err := db.ManualConnectDb(ctx, conf.User, conf.Pass, host, "3306", conf.Db)
-	if err != nil {
-		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
-		return DefaultSeqno
-	}
 	defer db.Close()
-	rows, err := db.Query("show status like 'wsrep_last_committed'")
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 		return DefaultSeqno
 	}
+	rows, err := db.Query("show status like 'wsrep_last_committed'")
 	defer rows.Close()
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+		return DefaultSeqno
+	}
+
 	for rows.Next() {
 		var name string
 		var lastCommitted int
@@ -159,17 +159,18 @@ func IsDBAvailable(ctx context.Context, host string) bool {
 	ctx = log.AddToLogContext(ctx, "function", "IsDBAvailable")
 	conf := DatabaseConfig(ctx)
 	db, err := db.ManualConnectDb(ctx, conf.User, conf.Pass, host, "3306", conf.Db)
-	if err != nil {
-		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
-		return false
-	}
 	defer db.Close()
-	rows, err := db.Query("show status like 'wsrep_cluster_status'")
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 		return false
 	}
+
+	rows, err := db.Query("show status like 'wsrep_cluster_status'")
 	defer rows.Close()
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+		return false
+	}
 	for rows.Next() {
 		var name string
 		var status string
@@ -198,17 +199,18 @@ func IsDBReady(ctx context.Context, host string) bool {
 	if ready {
 		conf := DatabaseConfig(ctx)
 		db, err := db.ManualConnectDb(ctx, conf.User, conf.Pass, host, "3306", conf.Db)
-		if err != nil {
-			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
-			return false
-		}
 		defer db.Close()
-		rows, err := db.Query("show variables like 'read_only'")
 		if err != nil {
 			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 			return false
 		}
+
+		rows, err := db.Query("show variables like 'read_only'")
 		defer rows.Close()
+		if err != nil {
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+			return false
+		}
 
 		for rows.Next() {
 			var name string
@@ -223,11 +225,11 @@ func IsDBReady(ctx context.Context, host string) bool {
 			}
 		}
 		rows, err = db.Query("show variables like 'wsrep_desync'")
+		defer rows.Close()
 		if err != nil {
 			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
 			return false
 		}
-		defer rows.Close()
 
 		for rows.Next() {
 			var name string
