@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 78;
+use Test::More tests => 80;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -65,6 +65,16 @@ my $defaults = $cs->read('defaults');
 {
 
     my $id =  "arubra.packetfence.org";
+    $t->post_ok(
+        $collection_base_url => json => {
+            type => 'Aruba',
+            id                     => $id,
+            voiceVlan              => '222',
+            description            => "Bob",
+
+        }
+    )->status_is(422);
+
     $t->post_ok(
         $collection_base_url => json => {
             type => 'Aruba::Instant',

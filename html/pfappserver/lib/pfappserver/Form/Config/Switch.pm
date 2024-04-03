@@ -730,7 +730,8 @@ sub validate {
 
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$value->{inlineTrigger}};
-    if ($value->{type}) {
+    my $type = $value->{type};
+    if ($type) {
         my $switch = $self->getSwitch();
         if ($switch) {
             @triggers = map { $_->{type} } @{$value->{inlineTrigger}};
@@ -757,7 +758,12 @@ sub validate {
             $self->validateAccessListMapping($switch);
 
         } else {
-            $self->field('type')->add_error("The chosen type (" . $value->{type} . ") is not supported.");
+            $self->field('type')->add_error("The chosen type (" . $type . ") is not supported.");
+        }
+
+        my $id = $value->{id};
+        if ($id) {
+            $self->validateFqdnId($id, $type);
         }
     } else {
         my $group_name = $value->{group} || '';
@@ -766,6 +772,8 @@ sub validate {
         unless(defined $default->{type} || defined $group->{type}) {
             $self->field('type')->add_error("A type is required");
         }
+        my $type = $group->{type} // $default->{type};
+        $self->validateFqdnId($value->{id}, $type);
     }
 
     unless ($self->has_errors) {
@@ -786,6 +794,13 @@ sub validate {
     #        $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
     #    }
     #}
+}
+
+sub validateFqdnId {
+    my ($self, $id, $type) = @_;
+    if (defined $id && defined $type && valid_fqdn($id) && $type ne 'Aruba::Instant') {
+        $self->field('id')->add_error("The chosen type does not supported a fqdn as an id.");
+    }
 }
 
 sub validateAccessListMapping {
