@@ -1,13 +1,13 @@
-package pf::Switch::Meraki::MS220_8;
+package pf::Switch::Meraki::MS;
 
 =head1 NAME
 
-pf::Switch::Meraki::MS220_8
+pf::Switch::Meraki::MS
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::MS220_8 module implements an object oriented interface to
-manage the connection with MS220_8 switch model.
+The pf::Switch::Meraki::MS module implements an object oriented interface to
+manage the connection with MS series switch model.
 
 =head1 STATUS
 
@@ -33,7 +33,6 @@ use pf::config qw(
 use pf::constants;
 use pf::util;
 use pf::node;
-use Try::Tiny;
 use pf::Switch::Meraki::MR_v2;
 
 =head1 SUBROUTINES
@@ -42,7 +41,7 @@ use pf::Switch::Meraki::MR_v2;
 
 # CAPABILITIES
 # access technology supported
-sub description { 'Meraki switch MS220_8' }
+sub description { 'Meraki switch MS' }
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
@@ -97,7 +96,7 @@ sub parseRequest {
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
-    my $session_id = $self->getCiscoAvPairAttribute($radius_request, "audit-session-id");
+    my $session_id      = $self->getCiscoAvPairAttribute($radius_request, "audit-session-id");
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
 }
 
