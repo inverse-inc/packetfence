@@ -18,5 +18,4 @@ steps:
 - type: systemctl_service_status
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
-  substring: "inactive (dead)"
-  service_code: 3
+  substring: "ActiveState=inactive"

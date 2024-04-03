@@ -23,13 +23,11 @@ testcases:
     assertions:
     - result.statuscode ShouldEqual 200
 
-- name: reset_iptables_rules
-  steps:
-  - type: exec
-    script: /usr/local/pf/addons/reset-iptables-rules-and-policies.sh
-  
-  - type: exec
-    script: systemctl restart packetfence-iptables
+- name: restart_firewalld                         
+  steps:                                          
+  - type: systemctl_service_restart               
+    service: packetfence-firewalld                
+    time_to_sleep: 10                             
 
 - name: ping_to_wan_should_work
   steps:
@@ -38,11 +36,11 @@ testcases:
     assertions:
     - result.code ShouldEqual 0
 
-
 - name: restart_collector_and_clear_cache
-  steps:
-  - type: exec
-    script: systemctl restart packetfence-fingerbank-collector
+  steps:                                          
+  - type: systemctl_service_restart
+    service: packetfence-fingerbank-collector
+    time_to_sleep: 5
 
   - type: exec
     script: /usr/local/pf/bin/pfcmd cache fingerbank clear

@@ -1,40 +1,36 @@
 name: Restart services
 testcases:
-- name: get_login_token
+- name: restart_firewalld
   steps:
-  - type: get_login_token
-
-- name: restart_iptables
-  steps:
-    - type: pf_api_service_restart
-      service: iptables
+  - type: systemctl_service_restart
+    service: packetfence-firewalld
 
 - name: restart_pfdns
   steps:
-    - type: pf_api_service_restart
-      service: pfdns
+  - type: pf_api_service_restart
+    service: pfdns
 
 - name: restart_pfdhcp
   steps:
-    - type: pf_api_service_restart
-      service: pfdhcp
+  - type: pf_api_service_restart
+    service: pfdhcp
 
 - name: restart_haproxy-portal
   steps:
-    - type: pf_api_service_restart
-      service: haproxy-portal
+  - type: pf_api_service_restart
+    service: haproxy-portal
 
 - name: restart_keepalived
   steps:
-    - type: pf_api_service_restart
-      service: keepalived
+  - type: pf_api_service_restart
+    service: keepalived
 
 - name: restart_pfdhcplistener
   steps:
-    - type: pf_api_service_restart
-      service: pfdhcplistener
+  - type: pf_api_service_restart
+    service: pfdhcplistener
 
 - name: restart_pfacct
   steps:
-    - type: pf_api_service_restart
-      service: pfacct
+  - type: pf_api_service_restart
+    service: pfacct
