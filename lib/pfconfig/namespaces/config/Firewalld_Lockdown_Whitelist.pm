@@ -17,20 +17,13 @@ This module creates the configuration hash associated to firewalld_lockdown_whit
 use strict;
 use warnings;
 
-use JSON::MaybeXS;
 use pfconfig::namespaces::config;
 use pf::IniFiles;
-use File::Slurp qw(read_file);
-use pf::log;
 use pf::file_paths qw(
     $firewalld_lockdown_whitelist_config_defaults_file
     $firewalld_lockdown_whitelist_config_file
 );
 use pf::util;
-use pf::constants::config; 
-use pf::constants qw($TRUE $FALSE);
-use List::MoreUtils qw(uniq any);
-use DateTime::TimeZone;
 
 use base 'pfconfig::namespaces::config';
 

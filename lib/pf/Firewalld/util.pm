@@ -8,7 +8,7 @@ pf::Firewalld::util
 
 =head1 DESCRIPTION
 
-Module with utils function for firewalld
+Module with util functions for firewalld
 
 =cut
 

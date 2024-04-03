@@ -2,14 +2,11 @@
 short=packetfence-haproxy-admin
 description=Firewalld ports for pf-admin service
 helper_name=haproxy-admin
-ports=haproxy-admin_port1,haproxy-admin_port2
+ports=haproxy-admin_port1
 
 [haproxy-admin_port1]
 port=1443
 type=tcp
-[haproxy-admin_port2]
-port=1443
-type=udp
 
 [web-portal]
 short=packetfence-httpd.portal
@@ -23,122 +20,89 @@ type=tcp
 [proxysql]
 short=proxysql
 description=Firewalld ports for proxysql service
-ports=proxysql_port1,proxysql_port2,proxysql_port3,proxysql_port4
+ports=proxysql_port1
 
 [proxysql_port1]
 port=6033
-type=udp
-[proxysql_port2]
-port=6033
-type=tcp
-[proxysql_port3]
-port=6080
-type=udp
-[proxysql_port4]
-port=6080
 type=tcp
 
 [radius_acct]
 short=radius acct port
 description=Firewalld ports for radius acct service
-ports=radius_acct_port1,radius_acct_port2
+ports=radius_acct_port1
 
 [radius_acct_port1]
 port=1813
 type=udp
-[radius_acct_port2]
-port=1813
-type=tcp
 
 [radius_acct_clu]
 short=radius acct cluster port
 description=Firewalld ports for radius acct service
-ports=radius_acct_clu_port1,radius_acct_clu_port2
+ports=radius_acct_clu_port1
 
 [radius_acct_clu_port1]
-port=1823
-type=udp
-[radius_acct_clu_port2]
 port=1823
 type=tcp
 
 [radius_auth]
 short=radius auth port
 description=Firewalld ports for radius auth service
-ports=radius_auth_port1,radius_auth_port2,radius_auth_port3
+ports=radius_auth_port1,radius_auth_port2
 
 [radius_auth_port1]
 port=1812
 type=udp
 [radius_auth_port2]
-port=1812
-type=tcp
-[radius_auth_port3]
 port=2083
 type=tcp
 
 [radius_auth_clu]
 short=radius auth cluster port
 description=Firewalld ports for radius auth service
-ports=radius_auth_clu_port1,radius_auth_clu_port2,radius_auth_clu_port2
+ports=radius_auth_clu_port1,radius_auth_clu_port2
 
 [radius_auth_clu_port1]
 port=1822
 type=udp
 [radius_auth_clu_port2]
-port=1822
-type=tcp
-[radius_auth_clu_port3]
 port=2093
 type=tcp
 
 [radius_cli]
 short=radius cli port
 description=Firewalld ports for radius cli service
-ports=radius_cli_port1,radius_cli_port2
+ports=radius_cli_port1
 
 [radius_cli_port1]
 port=1815
 type=udp
-[radius_cli_port2]
-port=1815
-type=tcp
 
 [radius_cli_clu]
 short=radius cli cluster port
 description=Firewalld ports for radius cli service
-ports=radius_cli_clu_port1,radius_cli_clu_port2
+ports=radius_cli_clu_port1
 
 [radius_cli_clu_port1]
 port=1825
 type=udp
-[radius_cli_clu_port2]
-port=1825
-type=tcp
 
 [radius_eduroam]
 short=radius eduroam port
 description=Firewalld ports for radius eduroam service
-ports=radius_eduroam_port1,radius_eduroam_port2
+ports=radius_eduroam_port1
 
 [radius_eduroam_port1]
 port=11812
 type=udp
-[radius_eduroam_port2]
-port=11812
-type=tcp
 
 [radius_eduroam_cl]
 short=radius eduroam cluster port
 description=Firewalld ports for radius eduroam service
-ports=radius_eduroam_cl_port1,radius_eduroam_cl_port2
+ports=radius_eduroam_cl_port1
 
 [radius_eduroam_cl_port1]
 port=11822
 type=udp
-[radius_eduroam_cl_port2]
-port=11822
-type=tcp
 
 [radius_lb]
 short=radius load balancer port
@@ -147,12 +111,9 @@ description=Firewalld ports for radius load balancer service
 [httpd_aaa]
 short=httpd port
 description=Firewalld ports for radius load balancer service
-ports=httpd_aaa_port1,httpd_aaa_port2
+ports=httpd_aaa_port1
 
 [httpd_aaa_port1]
-port=7070
-type=udp
-[httpd_aaa_port2]
 port=7070
 type=tcp
 
@@ -196,13 +157,10 @@ port=8834
 [api_frontend]
 short=api_fontend
 description=API Frontend Interface
-ports=api_frontend_port1,api_frontend_port2
+ports=api_frontend_port1
 
 [api_frontend_port1]
 type=tcp
-port=9999
-[api_frontend_port2]
-type=udp
 port=9999
 
 [fingerbank]
@@ -230,7 +188,7 @@ ports=netflow_port1
 
 [netflow_port1]
 type=udp
-port=2056
+port=2055
 
 [vrrp]
 short=vrrp
@@ -243,23 +201,11 @@ value=vrrp
 [dhcp]
 short=dhcp
 description=Firewalld rules for dhcp services
-ports=dhcp_port1,dhcp_port2
+ports=dhcp_port1
 
 [dhcp_port1]
 port=67
-type=tcp
-[dhcp_port2]
-port=67
 type=udp
-
-[dhcp-sync]
-short=dhcp sync for cluster
-description=Firewalld rules for ISC DHCP API services
-ports=dhcp-sync_port1
-
-[dhcp-sync_port1]
-port=647
-type=tcp
 
 [ssh]
 short=SSH
