@@ -16,8 +16,6 @@ use strict;
 use warnings;
 use pf::util;
 
-use Data::Dumper;
-
 use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Firewalld_Config;
 use pfconfig::namespaces::config::Firewalld_Services;

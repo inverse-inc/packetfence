@@ -8,7 +8,7 @@ pf::Firewalld::icmptypes
 
 =head1 DESCRIPTION
 
-Module to get/set basic configuration about firewalld servics
+Module to get/set basic configuration about firewalld icmptypes
 
 =cut
 
