@@ -46,12 +46,24 @@ sub _get_db {
     if($@) {
         $logger->error("DB handler is unable to ping the DB, reconnecting...");
     }
+
     if($self_dbh_valid) {
         return $self->{_db};
     }
 
+    $self->{_db} = undef;
+    my $last_failed_time = $self->{_last_failed_time};
+    if (defined $last_failed_time ) {
+        my $diff = time() - $last_failed_time;
+        if ($diff < 5) {
+            $diff = 5 - $diff;
+            $logger->error("Retry connections in $diff");
+            return undef;
+        }
+    }
+
+    $self->{_last_failed_time} = undef;
     $logger->info("Connecting to MySQL database");
-    
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
     eval {
@@ -59,9 +71,11 @@ sub _get_db {
             $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1 } );
     };
     if($@) {
+        $self->{_last_failed_time} = time();
         $logger->error("Caught error $@ while connecting to database.");
         return undef;
     }
+
     $self->{_db} = $db;
     $self->{_table} = $cfg->{table} // 'keyed';
     return $db;
