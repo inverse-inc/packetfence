@@ -22,8 +22,8 @@
                         :text="$i18n.t('Backend Host')"
     />
     <form-group-scheduler namespace="scheduler"
-                       :column-label="$i18n.t('Default')"
-                       :text="$i18n.t('Use the default galera implementation of ProxySQL or use pxc_scheduler_handler.')"
+                       :column-label="$i18n.t('Use PXC Scheduler')"
+                       :text="$i18n.t('Use the PXC Scheduler handler to monitor cluster availability. Disabled by default.')"
                        enabled-value="default"
                        disabled-value="pxc_scheduler"
     />
