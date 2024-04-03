@@ -942,7 +942,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/ncache.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/rpc.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/t_api.py
-%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/t_sd_notify.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/t_sdnotify.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/utils.py
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
