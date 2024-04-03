@@ -1,8 +1,8 @@
-package pf::Switch::Juniper::EX2300;
+package pf::Switch::Juniper::Junos_v18_x;
 
 =head1 NAME
 
-pf::SNMP::Juniper::EX2300 - Object oriented module to manage Juniper's EX Series switches
+pf::SNMP::Juniper::Junos_v18_x - Object oriented module to manage Juniper's EX Series switches
 
 =head1 STATUS
 
@@ -28,10 +28,10 @@ Currently, these two technologies cannot be enabled at the same time on the port
 use strict;
 use warnings;
 
-use base ('pf::Switch::Juniper::EX2200');
+use base ('pf::Switch::Juniper::Junos_v15_x');
 
 use pf::constants;
-sub description { 'Juniper EX 2300 Series' }
+sub description { 'Junos v18.x' }
 
 # importing switch constants
 use pf::Switch::constants;

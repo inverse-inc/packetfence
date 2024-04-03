@@ -1,8 +1,8 @@
-package pf::Switch::Juniper::EX2200;
+package pf::Switch::Juniper::Junos;
 
 =head1 NAME
 
-pf::SNMP::Juniper::EX2200 - Object oriented module to manage Juniper's EX Series switches
+pf::SNMP::Juniper::Junos - Object oriented module to manage Juniper's EX Series switches
 
 =head1 STATUS
 
@@ -36,7 +36,7 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
 );
-sub description { 'Juniper EX 2200 Series' }
+sub description { 'Junos' }
 
 # importing switch constants
 use pf::Switch::constants;
