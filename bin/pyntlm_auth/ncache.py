@@ -212,8 +212,8 @@ def device_miss_root_miss(domain, account_username, mac, challenge, nt_response)
         if error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:
             cache_v = cache_v_set(cache_v, {'lockout_time': utils.now()})
         cache_v_json = json.dumps(cache_v)
-        update_cache_entry(cache_key_device, cache_v_json, utils.expires(60))
-
+        update_cache_entry(cache_key_device, cache_v_json, utils.expires(global_vars.c_nt_key_cache_expire))
+        update_cache_entry(cache_key_root, cache_v_json, utils.expires(global_vars.c_nt_key_cache_expire))
     return nt_key, error_code, info
 
 
