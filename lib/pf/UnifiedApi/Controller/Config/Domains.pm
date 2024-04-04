@@ -67,6 +67,7 @@ sub create {
         return 0;
     }
 
+    my $ad_skip = $item->{ad_skip};
     $item = $self->cleanupItemForCreate($item);
     (my $status, $item, my $form) = $self->validate_item($item);
     if (is_error($status)) {
@@ -180,6 +181,7 @@ sub update {
     }
 
     my $cs = $self->config_store;
+    my $ad_skip = delete $data->{ad_skip};
     $self->cleanupItemForUpdate($old_item, $new_data, $data);
 
     my $bind_dn = $new_item->{bind_dn};
