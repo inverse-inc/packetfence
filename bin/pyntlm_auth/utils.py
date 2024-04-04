@@ -26,10 +26,13 @@ def to_ymd_hms(unix_timestamp):
 
 
 def mask_password(password):
-    if len(password) < 4:
-        return '*' * len(password)
-    else:
-        return password[:2] + '*' * (len(password) - 4) + password[-2:]
+    try:
+        if len(password) < 4:
+            return '*' * len(password)
+        else:
+            return password[:2] + '*' * (len(password) - 4) + password[-2:]
+    except (TypeError, AttributeError):
+        return '*'
 
 
 def dns_lookup(hostname, dns_server):
