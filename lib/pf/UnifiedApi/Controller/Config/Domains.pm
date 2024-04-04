@@ -67,6 +67,7 @@ sub create {
         return 0;
     }
 
+    my $ad_skip = $item->{ad_skip};
     $item = $self->cleanupItemForCreate($item);
     (my $status, $item, my $form) = $self->validate_item($item);
     if (is_error($status)) {
@@ -87,7 +88,6 @@ sub create {
     my $dns_name = $item->{dns_name};
     my $workgroup = $item->{workgroup};
     my $real_computer_name = $item->{server_name};
-
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
@@ -127,8 +127,7 @@ sub create {
     my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
     $baseDN = generate_baseDN($dns_name);
 
-    my $ad_skip = delete $item->{ad_skip};
-    if(!$ad_skip) {
+    if (!defined($ad_skip) || $ad_skip == $FALSE) {
         my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
         if ($add_status == $FALSE) {
             if ($add_result =~ /already exists(.+)use \-no\-add/) {
@@ -181,6 +180,7 @@ sub update {
     }
 
     my $cs = $self->config_store;
+    my $ad_skip = delete $data->{ad_skip};
     $self->cleanupItemForUpdate($old_item, $new_data, $data);
 
     my $bind_dn = $new_item->{bind_dn};
@@ -227,8 +227,7 @@ sub update {
         return $self->render_error(422, "Unable to determine AD server's IP address\n")
     }
 
-    my $ad_skip = delete $item->{ad_skip};
-    if(!$ad_skip) {
+    if (!defined($ad_skip) || $ad_skip == $FALSE) {
         if (($new_data->{machine_account_password} ne $old_item->{machine_account_password}) || ($computer_name eq "%h")) {
             my $baseDN = $dns_name;
             my $domain_auth = "$workgroup/$bind_dn:$bind_pass";

@@ -3,6 +3,8 @@ const collection_url = '/configuration/domains';
 const resource_url = id => `/configuration/domain/${id}`;
 const fixture = 'collections/domain.json';
 
+const mutatedKeys = ['machine_account_password']; // form values mutated post-create
+
 module.exports = {
   id: 'domains',
   description: 'Domains',
@@ -21,7 +23,7 @@ module.exports = {
               expect(request.body).to.have.property(key)
               expect(request.body[key]).to.deep.equal(fixture[key], key)
             })
-            request.body.ad_skip = true // don't use AD
+            request.body.ad_skip = true // skip add_computer w/ AD
             return request
           },
           expectResponse: (response, fixture) => {
@@ -42,7 +44,9 @@ module.exports = {
           expectRequest: (request, fixture) => {
             Object.keys(fixture).forEach(key => {
               expect(request.body).to.have.property(key)
-              expect(request.body[key]).to.deep.equal(fixture[key], key)
+              if (!mutatedKeys.includes(key)) { // ignore mutated
+                expect(request.body[key]).to.deep.equal(fixture[key], key)
+              }
             })
             request.body.ad_skip = true // don't use AD
             return request
