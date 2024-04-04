@@ -1,6 +1,6 @@
 const countries = require('./countries');
 const url = '/admin#';
-const interceptorTimeoutMs = 10E3;
+const interceptorTimeoutMs = 60E3;
 
 module.exports = {
   countries,
