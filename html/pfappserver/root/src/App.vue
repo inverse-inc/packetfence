@@ -193,6 +193,8 @@ const setup = (props, context) => {
       })
   }, { immediate: true })
 
+  const CatchNavigationDuplicated = e => {  if (e.name !== "NavigationDuplicated") throw e }
+
   useEvent('keydown', e => {
     const { altKey = false, shiftKey = false, keyCode = false } = e
     if (altKey && shiftKey) {
@@ -200,37 +202,37 @@ const setup = (props, context) => {
         case keyCode === 65 && canRoute('/auditing'): // A
           e.preventDefault()
           $router.push('/auditing')
-            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+            .catch(CatchNavigationDuplicated)
           break
         case keyCode === 67 && canRoute('/configuration'): // C
           e.preventDefault()
           $router.push('/configuration')
-            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+            .catch(CatchNavigationDuplicated)
           break
         case keyCode === 72: // H
           e.preventDefault()
           $store.dispatch('documentation/toggleViewer')
-            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+            .catch(CatchNavigationDuplicated)
           break
         case keyCode === 78 && canRoute('/nodes'): // N
           e.preventDefault()
           $router.push('/nodes')
-            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+            .catch(CatchNavigationDuplicated)
           break
         case keyCode === 82 && canRoute('/reports'): // R
           e.preventDefault()
           $router.push('/reports')
-            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+            .catch(CatchNavigationDuplicated)
           break
         case keyCode === 83 && canRoute('/status'): // S
           e.preventDefault()
           $router.push('/status')
-            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+            .catch(CatchNavigationDuplicated)
           break
         case keyCode === 85 && canRoute('/users'): // U
           e.preventDefault()
           $router.push('/users')
-            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+            .catch(CatchNavigationDuplicated)
           break
         default:
           break
