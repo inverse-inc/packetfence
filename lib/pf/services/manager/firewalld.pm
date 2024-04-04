@@ -38,13 +38,8 @@ start firewalld
 
 sub startService {
     my ($self) = @_;
-    my $technique;
-    unless ($self->isAlive()) {
-        #$technique = getIptablesTechnique();
-        #$technique->iptables_save($install_dir . '/var/iptables.bak');
-    }
-    #$technique ||= getIptablesTechnique();
-    #$technique->iptables_generate();
+    firewalld_generate_pfconf_configs();
+    firewalld_generate_configs();
     return 1;
 }
 
@@ -55,9 +50,7 @@ generateConfig
 =cut
 
 sub generateConfig {
-    my $technique;
-    #$technique ||= getIptablesTechnique();
-    #$technique->iptables_generate();
+    firewalld_generate_pfconf_configs();
     return 1;
 }
 
@@ -134,7 +127,7 @@ sub _stop {
     pf_run("sudo iptables -t nat -A DOCKER -i docker0 -j RETURN");
     pf_run("sudo systemctl stop packetfence-iptables");
     pf_run("sudo systemctl disable packetfence-iptables");
-
+    pf_run("sudo systemctl stop packetfence-firewalld");
     return 1;
 }
 
