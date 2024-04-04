@@ -16,7 +16,16 @@ ipset tables used when using PacketFence in ARP or DHCP mode.
 use strict;
 use warnings;
 
-use base ('pf::iptables');
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT );
+    @ISA = qw(Exporter);
+    @EXPORT = qw(
+        iptables_generate iptables_save iptables_restore
+        iptables_mark_node iptables_unmark_node get_mangle_mark_for_mac update_mark
+    );
+}
+
 use pf::log;
 use Readonly;
 use NetAddr::IP;
@@ -46,6 +55,19 @@ use pf::authentication;
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
 use pf::config::cluster;
+use pf::constants;
+use pf::config::cluster;
+use pf::file_paths qw($generated_conf_dir $conf_dir);
+use pf::security_event qw(security_event_view_open_uniq security_event_count);
+use pf::authentication;
+use pf::cluster;
+use pf::ConfigStore::Provisioning;
+use pf::ConfigStore::Domain;
+
+use File::Slurp qw(read_file);
+use IO::Interface::Simple;
+use List::MoreUtils qw(uniq);
+use URI ();
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -124,7 +146,6 @@ sub iptables_generate {
         my @lines  = safe_pf_run(qw(sudo ipset --create pfsession_passthrough),  'hash:ip,port');
         @lines  = safe_pf_run(qw(sudo ipset --create pfsession_isol_passthrough), 'hash:ip,port');
     }
-    $self->SUPER::iptables_generate();
 }
 
 
