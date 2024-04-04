@@ -31,6 +31,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
  * Adapted the ldap search filter in FreeRADIUS to do the sAMAccountName lookup (#8000)
  * Moved Extreme switches to OS-based modules (#8010)
+ * Moved Juniper switches to OS-based modules (#8011)
+ * Moved Meraki switches to OS-based modules (#8018)
+ * Removed outdated Cisco Catalyst switch modules (#8027)
 
 === Bug Fixes
 
