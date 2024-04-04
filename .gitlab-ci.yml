@@ -650,7 +650,10 @@ pfdeb_based_dev:
           - "netdata"
           - "git-sync"
           - "github-apps-token"
+<<<<<<< HEAD
           - "caddy-l4"
+=======
+>>>>>>> 20cfc8d5bd (add github apps token)
 
 img_dev:
   extends:
