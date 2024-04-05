@@ -12,6 +12,7 @@ DEBUG ?=
 CI_PIPELINE_ID ?= $$(openssl rand -hex 16)
 PROJECT_ID ?=
 RECORD_KEY ?=
+CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT ?= 300000
 
 .PHONY: all install test
 
@@ -55,6 +56,7 @@ test:
 	NO_COLOR=1 \
 	BROWSERSLIST_IGNORE_OLD_DATA=true \
 	CYPRESS_baseUrl=$(BASE_URL) \
+	CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT=$(CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT) \
 	npx cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --env tags=[$(TAGS)] ; \
 
 test-concurrent:
@@ -66,6 +68,7 @@ test-project:
 	NO_COLOR=1 \
 	BROWSERSLIST_IGNORE_OLD_DATA=true \
 	CYPRESS_baseUrl=$(BASE_URL) \
+	CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT=$(CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT) \
 	npx cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
 
 test-x11:
