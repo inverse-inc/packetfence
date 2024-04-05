@@ -515,8 +515,6 @@ cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
 cp -r containers %{buildroot}/usr/local/pf
-# Firewalld
-cp -r firewalld %{buildroot}/usr/local/pf
 
 # install Golang binaries
 %{__make} -C go DESTDIR=%{buildroot} copy
