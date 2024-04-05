@@ -1,5 +1,5 @@
 def generate_empty_conf():
-    with open('/root/default.conf', 'w') as file:
+    with open('/usr/local/pf/var/conf/default.conf', 'w') as file:
         file.write("\n")
 
 

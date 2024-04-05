@@ -5,6 +5,7 @@ import json
 import global_vars
 
 import utils
+import datetime
 
 NT_KEY_USER_LOCKED = "*"
 NT_KEY_USER_DISABLED = "-"
@@ -61,6 +62,21 @@ def is_hitting_bad_password_threshold(c_device, c_root):
             if c_root['bad_password_count'] >= global_vars.c_ad_account_lockout_threshold - 1:
                 return True
     return False
+
+
+def reset_bad_password_count(c_root):
+    if c_root['last_login_attempt'] + global_vars.c_ad_reset_account_lockout_counter_after * 60 < utils.now():
+        c_root['bad_password_count'] = 0
+    return c_root
+
+
+def reset_bad_password_count_for_device(c_root, c_device):
+    if c_device['last_login_attempt'] + global_vars.c_ad_reset_account_lockout_counter_after * 60 < utils.now():
+        c_device['bad_password_count'] = 0
+
+    if c_root['last_successful_logon'] > c_device['update_time']:
+        c_device['bad_password_count'] = 0
+    return c_device
 
 
 def calc_unlock_time(lockout_time):
@@ -167,7 +183,29 @@ def delete_cache_entries(key_pattern):
         g.db.execute(query, key_pattern)
 
 
-def trigger_security_event():
+def trigger_security_event(mac, domain, account):
+    security_event_blocker_key = f"security_event:{domain}:{account}:{mac}"
+    if get_cache_entry(security_event_blocker_key) is not None:
+        return
+    else:
+        update_cache_entry(security_event_blocker_key, '', utils.expires(1800))
+
+    query = "INSERT INTO `security_event` " \
+            "(`id`, `mac`, `security_event_id`, `start_date`, `release_date`, `status`, `ticket_ref`, `notes`)VALUES " \
+            "(NULL, %s, 3000008, %s, %s, %s, %s, %s)"
+    if hasattr(g, 'db'):
+        start_date = datetime.datetime.fromtimestamp(utils.now()).strftime("%Y-%m-%d %H:%M:%S")
+        release_date = datetime.datetime.fromtimestamp(utils.expires(1800)).strftime("%Y-%m-%d %H:%M:%S")
+        status = 'open'
+        ticket_ref = ''
+
+        detail = {
+            "domain": domain,
+            "user": account,
+        }
+        notes = json.dumps(detail)
+
+        g.db.execute(query, (mac, start_date, release_date, status, ticket_ref, notes))
     return
 
 
@@ -233,7 +271,7 @@ def device_miss_root_miss(domain, account_username, mac, challenge, nt_response)
         cache_v = cache_v_set(cache_v, {
             "nt_key": nt_key,
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
-            "last_successful_logon": utils.nt_time_to_datetime(info.base.last_successful_logon),
+            "last_successful_logon": utils.now(),
             "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon)
         })
 
@@ -263,8 +301,10 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
     if is_ndl(cache_v_root['nt_status']):
         return '', cache_v_root['nt_status'], None
 
+    cache_v_root = reset_bad_password_count(cache_v_root)
+
     if is_hitting_bad_password_threshold(cache_v_device, cache_v_root):
-        trigger_security_event()
+        trigger_security_event(mac, domain, account_username)
         return '', global_vars.n_device_blocked, None
 
     nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response)
@@ -295,7 +335,7 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
         cache_v_device = cache_v_set(cache_v_device, {
             "nt_key": nt_key,
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
-            "last_successful_logon": utils.nt_time_to_datetime(info.base.last_successful_logon),
+            "last_successful_logon": utils.now(),
             "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon)
         })
         exp = determine_cache_expire_time(info.base.last_password_change)
@@ -322,7 +362,7 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
             "update_time": utils.now(),
             "bad_password_count": 0,
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
-            "last_successful_logon": utils.nt_time_to_datetime(info.base.last_successful_logon),
+            "last_successful_logon": utils.now(),
             "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon),
         })
         cache_v_json_device = json.dumps(cache_v_device)
@@ -348,16 +388,19 @@ def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c
     if is_ndl(cache_v_root['nt_status']):
         return '', cache_v_root['nt_status'], None
 
+    cache_v_root = reset_bad_password_count(cache_v_root)
+    cache_v_device = reset_bad_password_count_for_device(cache_v_root, cache_v_device)
+
     if cache_v_device['nt_key'] != "":
         if not cache_v_device['dirty']:
             return cache_v_device['nt_key'], cache_v_device['nt_status'], None
         else:
             if is_hitting_bad_password_threshold(cache_v_device, cache_v_root):
-                trigger_security_event()
+                trigger_security_event(mac, domain, account_username)
                 return cache_v_device['nt_key'], cache_v_device['nt_status'], None
     else:
         if is_hitting_bad_password_threshold(cache_v_device, cache_v_root):
-            trigger_security_event()
+            trigger_security_event(mac, domain, account_username)
             return cache_v_device['nt_key'], cache_v_device['nt_status'], None
 
     nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response)
@@ -414,7 +457,7 @@ def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c
             "update_time": utils.now(),
             "bad_password_count": 0,
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
-            "last_successful_logon": utils.nt_time_to_datetime(info.base.last_successful_logon),
+            "last_successful_logon": utils.now(),
             "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon)
         })
         cache_v_set(cache_v_root, {
@@ -423,7 +466,7 @@ def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c
             "update_time": utils.now(),
             "bad_password_count": 0,
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
-            "last_successful_logon": utils.nt_time_to_datetime(info.base.last_successful_logon),
+            "last_successful_logon": utils.now(),
             "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon)
         })
         exp = determine_cache_expire_time(info.base.last_password_change)
