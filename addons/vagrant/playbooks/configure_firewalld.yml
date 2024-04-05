@@ -1,5 +1,5 @@
 - hosts: pfservers
-  name: Configure iptables
+  name: Configure firewalld
   become: True
   gather_facts: False
 
@@ -10,4 +10,4 @@
         - "!all"
 
   tasks:
-  - import_tasks: tasks/vagrant_iptables.yml
+  - import_tasks: tasks/vagrant_firewalld.yml

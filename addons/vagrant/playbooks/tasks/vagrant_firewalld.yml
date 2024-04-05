@@ -1,0 +1,21 @@
+---
+- name: allow ssh on default interface for vagrant management
+  ansible.builtin.command:
+    cmd: /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::service_to_zone({{ ansible_default_ipv4.interface }}, "add", "ssh");'
+
+- name: allow external services on management interface
+  ansible.builtin.command:
+    cmd: "/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::Firewalld::util -Mpf::config -e 'pf::Firewalld::util::util_direct_rule({{ item }})'"
+  loop:
+      # allow MailHog (SMTP and web interface) on management interface
+    - '"ipv4 filter INPUT 0 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__smtp_port }} --jump ACCEPT", "add"'
+    - '"ipv4 filter INPUT 0 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__api_port }} --jump ACCEPT", "add"'
+      # allow Smocker interface on management interface
+    - '"ipv4 filter INPUT 0 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ smocker__port_config }} --jump ACCEPT", "add"'
+      # allow RADIUS mock ports on management interface
+    - '"ipv4 filter INPUT 0 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__api_port }} --jump ACCEPT", "add"'
+    - '"ipv4 filter INPUT 0 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__radius_port }} --jump ACCEPT", "add"'
+
+- name: reload firewalld
+  ansible.builtin.command:
+    cmd: /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::Firewalld::util -Mpf::config -e 'pf::Firewalld::util::util_reload_firewalld();'
