@@ -4,10 +4,10 @@ index 64f5e73f3d..90319cfc09 100644
 +++ b/conf/monitoring/netdata.conf.example
 @@ -8,7 +8,7 @@
  [global]
- 	run as user = netdata
- 	web files owner = root
--	web files group = netdata
-+	web files group = root
+        run as user = netdata
+        web files owner = root
+        web files group = netdata
+        web files group = root
          config directory = /usr/local/pf/var/conf/monitoring
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
