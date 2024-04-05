@@ -1,9 +1,5 @@
-diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-<<<<<<< HEAD
+diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
 index ac7975cbbd..6601d93350 100644
-=======
-index 8bd29779de..0ab4c38e54 100644
->>>>>>> cfafa2da9f (Firewalld Remove iptables from debian patch)
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -479,7 +479,7 @@ radiusd=enabled
