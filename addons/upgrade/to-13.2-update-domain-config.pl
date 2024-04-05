@@ -41,7 +41,8 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
         $ini->newval($section, 'ad_account_lockout_duration', '0');
         $ini->newval($section, 'ad_reset_account_lockout_counter_after', '0');
         $ini->newval($section, 'ad_old_password_allowed_period', '0');
-        $ini->setval($section, 'max_allowed_password_attempts_per_device', '0');
+        $ini->newval($section, 'max_allowed_password_attempts_per_device', '0');
+        $ini->newval($section, 'ad_minimum_password_age', '1');
 
         $updated = 1;
     }

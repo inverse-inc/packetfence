@@ -52,6 +52,7 @@ def process_event_password_reset(event):
         if event_time > cache_v['update_time']:
             cache_v['dirty'] = True
             cache_v['update_time'] = utils.now()
+            cache_v['dirty_time'] = utils.now()
             cache_v_json = json.dumps(cache_v)
             ncache.update_cache_entry(key_root, cache_v_json, cache_entry_root['expires_at'])
 
@@ -61,6 +62,7 @@ def process_event_password_reset(event):
             if event_time > cache_v['update_time']:
                 cache_v['dirty'] = True
                 cache_v['update_time'] = utils.now()
+                cache_v['dirty_time'] = utils.now()
                 cache_v_json = json.dumps(cache_v)
                 ncache.update_cache_entry(cache_entry_device['key'], cache_v_json, cache_entry_device['expires_at'])
 
@@ -86,6 +88,7 @@ def process_event_password_change(event):
         if event_time > cache_v['update_time']:
             cache_v['dirty'] = True
             cache_v['update_time'] = utils.now()
+            cache_v['dirty_time'] = utils.now()
             cache_v_json = json.dumps(cache_v)
             ncache.update_cache_entry(key_root, cache_v_json, cache_entry_root['expires_at'])
 
@@ -95,6 +98,7 @@ def process_event_password_change(event):
             if event_time > cache_v['update_time']:
                 cache_v['dirty'] = True
                 cache_v['update_time'] = utils.now()
+                cache_v['dirty_time'] = utils.now()
                 cache_v_json = json.dumps(cache_v)
                 ncache.update_cache_entry(cache_entry_device['key'], cache_v_json, cache_entry_device['expires_at'])
 

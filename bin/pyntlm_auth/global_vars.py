@@ -60,6 +60,7 @@ c_ad_account_lockout_threshold = 0                  # 0..999. Default=0, never l
 c_ad_account_lockout_duration = None                # Default not set
 c_ad_reset_account_lockout_counter_after = None     # Default not set
 c_ad_old_password_allowed_period = None             # Windows 2003+, Default not set, if not set, 60
+c_ad_minimum_password_age = None                    # Default 1 day
 
 c_max_allowed_password_attempts_per_device = None
 
