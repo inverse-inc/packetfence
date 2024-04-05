@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/syslog"
 	"net/url"
+	"strconv"
 	"text/template"
 
 	"github.com/inverse-inc/packetfence/go/log"
@@ -104,6 +105,7 @@ func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeo
 
 // Get the SSO start payload for the firewall
 func (fw *PaloAlto) startHttpPayload(ctx context.Context, info map[string]string, timeout int) string {
+	info["timeoutsec"] = strconv.Itoa(timeout)
 	// PaloAlto XML API expects the timeout in minutes
 	timeout = timeout / 60
 	t := template.New("PaloAlto.startHttp")
@@ -118,7 +120,7 @@ func (fw *PaloAlto) startHttpPayload(ctx context.Context, info map[string]string
 		<register-user>
 			<entry user="{{.Username}}">
 				<tag>
-					<member timeout="{{.Timeout}}">{{.Role}}</member>
+					<member timeout="{{.Timeoutsec}}">{{.Role}}</member>
 				</tag>
 			</entry>
 		</register-user>
