@@ -19,6 +19,7 @@ use NetAddr::IP;
 use pf::file_paths qw(
     $switches_config_file
 );
+use pf::util qw(run_as_pf);
 run_as_pf();
 
 my $file = $switches_config_file;
@@ -47,8 +48,13 @@ for my $section ($cs->Sections()) {
 }
 
 if ($update) {
-    $cs->RewriteConfig();
-    print "All done\n";
+    print $cs->{cf},"\n";
+    my $results = $cs->RewriteConfig();
+    if ($results) {
+        print "All done\n";
+    } else {
+        print "Error writing \n";
+    }
     exit 0;
 }
 
