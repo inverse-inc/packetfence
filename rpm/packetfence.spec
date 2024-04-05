@@ -770,8 +770,8 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl enable packetfence-mariadb
     /bin/systemctl enable packetfence-redis-cache
     /bin/systemctl enable packetfence-config
-    /bin/systemctl disable packetfence-iptables
-    /bin/systemctl stop packetfence-iptables
+    /bin/systemctl disable packetfence-firewalld
+    /bin/systemctl stop packetfence-firewalld
     /bin/systemctl start packetfence-config
     # next command need packetfence-config started
     /usr/local/pf/bin/pfcmd generatemariadbconfig --force
@@ -786,9 +786,8 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl start packetfence-httpd.admin_dispatcher
     /bin/systemctl start packetfence-haproxy-admin
 
-    /bin/systemctl enable packetfence-iptables
-    /bin/systemctl stop packetfence-iptables
-    /usr/local/pf/containers/docker-minimal-rules.sh
+    /bin/systemctl enable packetfence-firewalld
+    /bin/systemctl stop packetfence-firewalld
 
     /usr/local/pf/bin/pfcmd service pf updatesystemd
 
@@ -797,7 +796,7 @@ if /usr/local/pf/containers/manage-images.sh; then
 
     echo Installation complete
     echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
-    echo "  * Please stop your iptables service if you don't have access to configurator."
+    echo "  * Please stop your firewalld service if you don't have access to configurator."
 
     rm -f /usr/local/pf/var/run/pkg_install_in_progress
 else
@@ -1247,11 +1246,22 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
-%config                 /usr/local/pf/conf/iptables.conf
-%config(noreplace)      /usr/local/pf/conf/iptables-input.conf.inc
-%config(noreplace)      /usr/local/pf/conf/iptables-input-management.conf.inc
-%config                 /usr/local/pf/conf/ip6tables.conf
-%config(noreplace)      /usr/local/pf/conf/ip6tables-input-management.conf.inc
+%config(noreplace)      /usr/local/pf/conf/firewalld/firewalld.conf
+                        /usr/local/pf/conf/firewalld/firewalld_helpers.conf
+                        /usr/local/pf/conf/firewalld/firewalld_icmptypes.conf
+                        /usr/local/pf/conf/firewalld/firewalld_ipsets.conf
+                        /usr/local/pf/conf/firewalld/firewalld_lockdown_whitelist.conf
+                        /usr/local/pf/conf/firewalld/firewalld_policies.conf
+                        /usr/local/pf/conf/firewalld/firewalld_services.conf
+                        /usr/local/pf/conf/firewalld/firewalld_zones.conf
+%config                 /usr/local/pf/conf/firewalld/template/firewalld.conf
+                        /usr/local/pf/conf/firewalld/template/helper.xml
+                        /usr/local/pf/conf/firewalld/template/icmptype.xml
+                        /usr/local/pf/conf/firewalld/template/ipset.xml
+                        /usr/local/pf/conf/firewalld/template/lockdown_whitelist.xml
+                        /usr/local/pf/conf/firewalld/template/policy.xml
+                        /usr/local/pf/conf/firewalld/template/service.xml
+                        /usr/local/pf/conf/firewalld/template/zone.xml
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
 %config(noreplace)      /usr/local/pf/conf/cluster.conf
