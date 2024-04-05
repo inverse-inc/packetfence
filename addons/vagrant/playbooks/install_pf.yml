@@ -19,8 +19,8 @@
   # We use another interface than the default as management
   # it's possible to do this until current SSH session has not been cut  
   tasks:
-    - import_tasks: tasks/vagrant_iptables.yml
-      tags: iptables
+    - import_tasks: tasks/vagrant_firewalld.yml
+      tags: firewalld
 
     # packetfence-test need to be installed
     - import_tasks: tasks/install_venom_local_vars.yml
