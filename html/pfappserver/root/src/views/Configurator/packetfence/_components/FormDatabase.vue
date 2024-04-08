@@ -462,7 +462,6 @@ export const setup = (props, context) => {
   const assignDatabase = () => {
     isCreatingUser.value = true
     userCreationError.value = null
-    const root_username = remoteDatabaseForm.value.username
     const { username: root_username, encryption, cert, hostname, port } = remoteDatabaseForm.value
     return $store.dispatch('$_bases/assignDatabase', {
       root_username,
