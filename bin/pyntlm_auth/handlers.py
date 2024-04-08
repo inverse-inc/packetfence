@@ -100,7 +100,12 @@ def ntlm_auth_handler():
     except Exception as e:
         return f"Error processing JSON payload, {str(e)}", HTTPStatus.UNPROCESSABLE_ENTITY
 
-    if global_vars.c_nt_key_cache_enabled == 1 and hasattr(g, 'db'):
+    if isinstance(mac, str):
+        mac = mac.strip()
+    else:
+        mac = ""
+
+    if global_vars.c_nt_key_cache_enabled == 1 and hasattr(g, 'db') and mac != "":
         domain = global_vars.c_domain_identifier
         nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response, )
     else:

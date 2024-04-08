@@ -11,6 +11,10 @@ NT_KEY_USER_LOCKED = "*"
 NT_KEY_USER_DISABLED = "-"
 NT_KEY_USER_DOES_NOT_EXIST = "x"
 
+YES = 1
+NO = 0
+UNKNOWN = -1
+
 
 def is_ndl(code):
     ndl_list = [
@@ -79,44 +83,23 @@ def reset_bad_password_count_for_device(c_root, c_device):
     return c_device
 
 
-def calc_unlock_time(lockout_time):
-    if global_vars.c_ad_account_lockout_duration == 0:
-        return 2147483647
-    return lockout_time + global_vars.c_ad_account_lockout_duration * 60
-
-
-def is_still_locked_out(c_device):
-    if global_vars.c_ad_account_lockout_duration == 0:    # indicates that the account will not be auto unlocked.
-        if c_device['nt_status'] == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:
-            return True
-    if global_vars.c_ad_account_lockout_duration > 0:
-        if c_device['nt_status'] == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT:
-            if c_device['lockout_time'] + global_vars.c_ad_account_lockout_duration * 60 >= utils.now():
-                return True
-    return False
-
-
 def is_min_password_age_required():
-    if global_vars.c_ad_minimum_password_age > 0:
-        return True
-    return False
+    return True
 
 
 def cache_v_template(domain, account, mac):
     return {
         "nt_key": '',
         "nt_status": 0,
-        "dirty": False,
+        "dirty": UNKNOWN,                        # if cache is dirty. 0 - no, 1 - yes, -1 - unknown / can not determine.
 
-        "last_login_attempt": utils.now(),  # last time that performs a transitive login.
         "create_time": utils.now(),         # cache entry creation time.
         "update_time": utils.now(),         # last update time on our side
-        "dirty_time": 0,
+        "nt_key_cache_time": 0,             # first successful login time, and got this NT key.
+        "last_login_attempt": utils.now(),  # last time that performs a transitive login.
         "bad_password_count": 0,            # AD or our side
         "last_password_change": 0,          # AD or windows events
         "last_successful_logon": 0,         # AD or our side
-        "last_failed_logon": 0,             # AD or our side
-        "lockout_time": 0,                 # lock out time from our side or AD
     }
 
 
@@ -261,23 +244,22 @@ def device_miss_root_miss(domain, account_username, mac, challenge, nt_response)
         cache_v = cache_v_set(cache_v, {
             'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
             'bad_password_count': 1,
-            'last_failed_logon': utils.now()
         })
         cache_v_json = json.dumps(cache_v)
         update_cache_entry(cache_key_device, cache_v_json, utils.expires(global_vars.c_nt_key_cache_expire))
         update_cache_entry(cache_key_root, cache_v_json, utils.expires(global_vars.c_nt_key_cache_expire))
 
     if error_code == 0:
+        dirty = UNKNOWN if is_still_accept_old_password(info.base.last_password_change) else NO
+
         cache_v = cache_v_set(cache_v, {
             "nt_key": nt_key,
+            "dirty": dirty,
+            "nt_key_cache_time": utils.now(),
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
             "last_successful_logon": utils.now(),
-            "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon)
         })
 
-        if not is_min_password_age_required():
-            if is_still_accept_old_password(info.base.last_password_change):
-                cache_v = cache_v_set(cache_v, {"dirty": True})
         cache_v_json = json.dumps(cache_v)
         exp = determine_cache_expire_time(info.base.last_password_change)
         update_cache_entry(cache_key_device, cache_v_json, exp)
@@ -312,18 +294,16 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
     if is_ndl(error_code):
         cache_v_root = cache_v_set(cache_v_root, {"nt_status": error_code})
         cache_v_json_root = json.dumps(cache_v_root)
-        update_cache_entry(cache_key_device, cache_v_json_root, 60)
+        update_cache_entry(cache_key_root, cache_v_json_root, 60)
 
     if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
         cache_v_device = cache_v_set(cache_v_device, {
             'nt_status': ntstatus.NT_STATUS_WRONG_PASSWORD,
             'bad_password_count': 1,
-            'last_failed_login': utils.now(),
         })
         cache_v_root = cache_v_set(cache_v_root, {
             "bad_password_count": cache_v_root["bad_password_count"] + 1,
             "last_login_attempt": utils.now(),
-            "last_failed_logon": utils.now(),
             "update_time": utils.now()
         })
         cache_v_json_device = json.dumps(cache_v_device)
@@ -332,38 +312,25 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
         update_cache_entry(cache_key_root, cache_v_json_root, utils.expires(global_vars.c_nt_key_cache_expire))
 
     if error_code == 0:
+        dirty = UNKNOWN if is_still_accept_old_password(info.base.last_password_change) else NO
+
         cache_v_device = cache_v_set(cache_v_device, {
             "nt_key": nt_key,
+            "dirty": dirty,
+            "nt_key_cache_time": utils.now(),
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
             "last_successful_logon": utils.now(),
-            "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon)
         })
-        exp = determine_cache_expire_time(info.base.last_password_change)
 
-        if is_min_password_age_required():
-            if cache_v_root['nt_key'] != "":
-                if cache_v_root['dirty']:
-                    if nt_key != cache_v_root['nt_key']:
-                        cache_v_root = cache_v_set(cache_v_root, {"nt_key": nt_key, "dirty": False})
-            if not is_still_accept_old_password(info.base.last_password_change):
-                cache_v_root = cache_v_set(cache_v_root, {"nt_key": nt_key, "dirty": False})
-        else:
-            if is_still_accept_old_password(info.base.last_password_change):
-                cache_v_device = cache_v_set(cache_v_device, {"dirty": True})
-                cache_v_root = cache_v_set(cache_v_root, {"dirty": True})
-            else:
-                if cache_v_root['nt_key'] != nt_key and (not cache_v_root['dirty']):
-                    print("  Warning: different solid nt_key detected in root and dev entries.")
-                cache_v_set(cache_v_root, {'nt_key': nt_key, 'dirty': False})
+        exp = determine_cache_expire_time(info.base.last_password_change)
 
         cache_v_root = cache_v_set(cache_v_root, {
             "nt_status": 0,
-            "last_login_attempt": utils.now(),
             "update_time": utils.now(),
+            "last_login_attempt": utils.now(),
             "bad_password_count": 0,
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
             "last_successful_logon": utils.now(),
-            "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon),
         })
         cache_v_json_device = json.dumps(cache_v_device)
         cache_v_json_root = json.dumps(cache_v_root)
@@ -392,7 +359,7 @@ def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c
     cache_v_device = reset_bad_password_count_for_device(cache_v_root, cache_v_device)
 
     if cache_v_device['nt_key'] != "":
-        if not cache_v_device['dirty']:
+        if cache_v_device['dirty'] == NO:
             return cache_v_device['nt_key'], cache_v_device['nt_status'], None
         else:
             if is_hitting_bad_password_threshold(cache_v_device, cache_v_root):
@@ -411,17 +378,17 @@ def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c
         cache_v_json_device = json.dumps(cache_v_device)
         cache_v_json_root = json.dumps(cache_v_root)
         update_cache_entry(cache_key_device, cache_v_json_device, 1)
-        update_cache_entry(cache_key_device, cache_v_json_root, 60)
+        update_cache_entry(cache_key_root, cache_v_json_root, 60)
 
     if error_code == ntstatus.NT_STATUS_WRONG_PASSWORD:
         cache_v_device = cache_v_set(cache_v_device, {
-            "bad_password_count": cache_v_device["bad_password_count"] + 1,
             "update_time": utils.now(),
+            "bad_password_count": cache_v_device["bad_password_count"] + 1,
             "last_login_attempt": utils.now(),
         })
         cache_v_root = cache_v_set(cache_v_root, {
-            "bad_password_count": cache_v_root["bad_password_count"] + 1,
             "update_time": utils.now(),
+            "bad_password_count": cache_v_root["bad_password_count"] + 1,
             "last_login_attempt": utils.now()
         })
         cache_v_json_device = json.dumps(cache_v_device)
@@ -430,44 +397,28 @@ def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c
         update_cache_entry(cache_key_root, cache_v_json_root, utils.expires(global_vars.c_nt_key_cache_expire))
 
     if error_code == 0:
-        if is_min_password_age_required():
-            if cache_v_device['nt_key'] != "":
-                if cache_v_device['dirty']:
-                    if cache_v_device['nt_key'] != nt_key:
-                        cache_v_device = cache_v_set(cache_v_device, {"dirty": False})
-            if cache_v_root['nt_key'] != "":
-                if cache_v_root['dirty']:
-                    if cache_v_root['nt_key'] != nt_key:
-                        cache_v_root = cache_v_set(cache_v_root, {"nt_key": nt_key, "dirty": False})
-
-            if not is_still_accept_old_password(info.base.last_password_change):
-                cache_v_root = cache_v_set(cache_v_root, {"nt_key": nt_key, "dirty": False})
-        else:
-            if is_still_accept_old_password(info.base.last_password_change):
-                cache_v_device = cache_v_set(cache_v_device, {"dirty": True})
-                cache_v_root = cache_v_set(cache_v_root, {"dirty": True})
-            else:
-                cache_v_device = cache_v_set(cache_v_device, {"dirty": False})
-                cache_v_root = cache_v_set(cache_v_root, {"dirty": False})
+        dirty = UNKNOWN if is_still_accept_old_password(info.base.last_password_change) else NO
 
         cache_v_set(cache_v_device, {
             "nt_key": nt_key,
+            "dirty": dirty,
             "nt_status": 0,
             "last_login_attempt": utils.now(),
             "update_time": utils.now(),
             "bad_password_count": 0,
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
             "last_successful_logon": utils.now(),
-            "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon)
         })
+
         cache_v_set(cache_v_root, {
+            "nt_key": nt_key,
+            "dirty": dirty,
             "nt_status": 0,
             "last_login_attempt": utils.now(),
             "update_time": utils.now(),
             "bad_password_count": 0,
             "last_password_change": utils.nt_time_to_datetime(info.base.last_password_change),
             "last_successful_logon": utils.now(),
-            "last_failed_logon": utils.nt_time_to_datetime(info.base.last_failed_logon)
         })
         exp = determine_cache_expire_time(info.base.last_password_change)
 

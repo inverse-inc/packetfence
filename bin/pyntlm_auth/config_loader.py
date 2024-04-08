@@ -115,14 +115,6 @@ def config_load():
                 print("  Error while applying NT key cache settings: can not parse 'ad_account_lockout_threshold'")
                 sys.exit(1)
 
-        if ad_minimum_password_age is None or ad_minimum_password_age.strip() == '':
-            ad_minimum_password_age = 1
-        else:
-            ad_minimum_password_age, error = get_int_value(ad_minimum_password_age)
-            if error is not None:
-                print(f"  Error applying NT key cache settings: unable to parse 'ad_minimum_password_age'")
-                sys.exit(1)
-
         if ad_account_lockout_threshold == 0:
             ad_account_lockout_duration = None
             ad_reset_account_lockout_counter_after = None
@@ -233,7 +225,6 @@ def config_load():
     print(f"  ad_reset_account_lockout_counter_after (in minutes)  : {ad_reset_account_lockout_counter_after}")
     print(f"  ad_old_password_allowed_period (in minutes)          : {ad_old_password_allowed_period}")
     print(f"  max_allowed_password_attempts_per_device             : {max_allowed_password_attempts_per_device}")
-    print(f"  ad_minimum_password_age (in days)                    : {ad_minimum_password_age}")
 
     global_vars.c_server_name = ad_fqdn
     global_vars.c_realm = realm
@@ -252,5 +243,4 @@ def config_load():
     global_vars.c_ad_account_lockout_duration = ad_account_lockout_duration
     global_vars.c_ad_reset_account_lockout_counter_after = ad_reset_account_lockout_counter_after
     global_vars.c_ad_old_password_allowed_period = ad_old_password_allowed_period
-    global_vars.c_ad_minimum_password_age = ad_minimum_password_age
     global_vars.c_max_allowed_password_attempts_per_device = max_allowed_password_attempts_per_device
