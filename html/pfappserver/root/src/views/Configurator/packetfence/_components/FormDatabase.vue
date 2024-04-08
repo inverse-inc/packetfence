@@ -204,12 +204,17 @@
         :isLoading="remoteDatabaseLoading"
         :readonly="remoteDatabaseDisabled"
       >
-        <base-form-group-input namespace="username"
+        <base-form-group-input namespace="remote_username"
           :column-label="$i18n.t('MYSQL privileged username')"
           :text="$i18n.t('This user requires SUPER priviliges.')"
           :disabled="remoteDatabaseDisabled"
         />
-        <base-form-group-chosen-one namespace="encryption"
+        <base-form-group-input namespace="remote_password"
+          :column-label="$i18n.t('MYSQL privileged password')"
+          :text="$i18n.t('This SUPER user password.')"
+          :disabled="remoteDatabaseDisabled"
+        />
+        <base-form-group-chosen-one namespace="remote_encryption"
           :column-label="$i18n.t('MYSQL encryption type')"
           :text="$i18n.t('Only secure connections are supported.')"
           :disabled="remoteDatabaseDisabled"
@@ -217,17 +222,17 @@
             { text: 'TLS', value: 'tls' }
           ]"
         />
-        <base-form-group-textarea-upload namespace="cert"
-          :column-label="$i18n.t('MYSQL client certificate')"
-          :text="$i18n.t('Click the upload icon on the right-side to choose the certificate from disk.')"
+        <base-form-group-textarea-upload namespace="remote_ca_cert"
+          :column-label="$i18n.t('MYSQL CA certificate')"
+          :text="$i18n.t('Click the upload icon on the right-side to choose the CA certificate from disk.')"
           :disabled="remoteDatabaseDisabled"
         />
-        <base-form-group-input namespace="hostname"
+        <base-form-group-input namespace="remote_hostname"
           :column-label="$i18n.t('MYSQL server hostname')"
           :text="$i18n.t('FQDN or IPv4.')"
           :disabled="remoteDatabaseDisabled"
         />
-        <base-form-group-input-number namespace="port"
+        <base-form-group-input-number namespace="remote_port"
           :column-label="$i18n.t('MYSQL server port')"
           :disabled="remoteDatabaseDisabled"
         />
@@ -362,7 +367,7 @@ export const setup = (props, context) => {
       // noop
     }).finally(() => {
       // Check if user credentials are valid
-      $store.dispatch('$_bases/testDatabase', { username: form.value.user, password: form.value.pass, database: form.value.db }).then(() => {
+      $store.dispatch('$_bases/testDatabase', { ...remoteDatabaseForm.value, username: form.value.user, password: form.value.pass, database: form.value.db }).then(() => {
         databaseExists.value = true
         userIsValid.value = true
         rootPasswordIsRequired.value = false // we no longer need the root password
@@ -570,21 +575,23 @@ export const setup = (props, context) => {
   const remoteDatabase = ref(false)
   const remoteDatabaseModal = ref(false)
   const _remoteDatabaseForm = {
-    username: 'root'
+    remote_username: 'root',
+    remote_port: 3306
   }
   const remoteDatabaseForm = ref({ ..._remoteDatabaseForm })
   const remoteDatabaseSchema = computed(() => {
     return yup.object({
-      username: yup.string().nullable()
+      remote_username: yup.string().nullable()
         .required(i18n.t('MySQL priviledged username required.')),
-      encryption: yup.string().nullable()
+      remote_password: yup.string().nullable()
+        .required(i18n.t('MySQL priviledged password required.')),
+      remote_encryption: yup.string().nullable()
         .required(i18n.t('MySQL database client encryption type required.')),
-      cert: yup.string().nullable()
-        .required(i18n.t('MySQL database client certificate required.')),
-      hostname: yup.string().nullable()
+      remote_ca_cert: yup.string().nullable(),
+      remote_hostname: yup.string().nullable()
         .required(i18n.t('MySQL database hostname required.'))
         .isHostname(),
-      port: yup.string().nullable()
+      remote_port: yup.string().nullable()
         .required(i18n.t('MySQL database port required.'))
         .isPort(),
     })
