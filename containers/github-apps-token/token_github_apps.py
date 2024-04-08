@@ -111,7 +111,7 @@ def main():
     parser.add_argument("--private_key_file", default=os.environ.get('PRIVATE_KEY_FILE'), help="Path to private key file")
     parser.add_argument("--github_org_apps_id", default=os.environ.get('GITHUB_ORG_APPS_ID'), type=int, help="GitHub organization apps ID")
     parser.add_argument("--github_installed_apps_id", default=os.environ.get('GITHUB_INSTALLED_APPS_ID'), type=int, help="GitHub installed apps ID")
-    parser.add_argument("--github_client_repository_name", default=os.environ.get('GITHUB_CLIENT_REPOSITORY_NAME'), type=int, help="GitHub client repostory name")
+    parser.add_argument("--github_client_repository_name", default=os.environ.get('GITHUB_CLIENT_REPOSITORY_NAME'), help="GitHub client repostory name")
     parser.add_argument("--k8s_namespace_name", default=os.environ.get('K8S_NAMESPACE_NAME'), help="Kubernetes namespace name")
     parser.add_argument("--k8s_secret_name", default=os.environ.get('K8S_SECRET_NAME'), help="Kubernetes secret name")
     args =  parser.parse_args()
