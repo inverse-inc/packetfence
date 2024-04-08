@@ -93,6 +93,39 @@
         </b-form-group>
 
       </base-form-tab>
+
+      <base-form-tab :title="$i18n.t('NT Key cache')">
+        <form-group-nt-key-cache-enabled namespace="nt_key_cache_enabled"
+                               :column-label="$i18n.t('Enable NT Key cache')"
+                               :text="$i18n.t('Enable NT Key cache for this domain.')"
+        />
+        <form-group-nt-key-cache-expire namespace="nt_key_cache_expire"
+                                        :column-label="$i18n.t('Expiration')"
+                                        :text="$i18n.t('The amount of seconds an entry should be cached.')"
+        />
+
+        <form-group-ad-account-lockout-threshold namespace="ad_account_lockout_threshold"
+                                        :column-label="$i18n.t('Account Lockout Threshold')"
+                                        :text="$i18n.t('Max attempts before an account get auto lockout. This should be identical with the value set in domain policy')"
+        />
+        <form-group-ad-account-lockout-duration namespace="ad_account_lockout_duration"
+                                        :column-label="$i18n.t('Account Lockout Duration')"
+                                        :text="$i18n.t('The amount of minutes that Windows Domain Controller keeps an account being locked after maximum bad login attempts reached. This should be identical with the value set in domain policy.')"
+        />
+        <form-group-max-allowed-password-attempts-per-device namespace="max_allowed_password_attempts_per_device"
+                                                             :column-label="$i18n.t('Max bad logins per device')"
+                                                             :text="$i18n.t('Maximum login attempts a device that shares the same account(e.g., an iPhone and Android phone belongs to the same person) can perform before getting auto-banned. This must be less than or equal to Account Lockout Duration')"
+        />
+        <form-group-ad-reset-account-lockout-counter-after namespace="ad_reset_account_lockout_counter_after"
+                                        :column-label="$i18n.t('Lockout resets after')"
+                                        :text="$i18n.t('The amount of minutes before Windows DC resets the bad password count if no bad login attempt was performed.')"
+        />
+        <form-group-ad-old-password-allowed-period namespace="ad_old_password_allowed_period"
+                                        :column-label="$i18n.t('Old Password Allowed Period')"
+                                        :text="$i18n.t('The amount of minutes an old password will be accepted in NTLM Authentication after a password change or password reset. The default value is 60. This should be identical with the value set in domain controller.')"
+        />
+      </base-form-tab>
+
       <base-form-tab :title="$i18n.t('NTLM cache')">
 
         <form-group-ntlm-cache namespace="ntlm_cache"
@@ -140,7 +173,16 @@ import {
 
   FormGroupNtlmCache,
   FormGroupNtlmCacheSource,
-  FormGroupNtlmCacheExpiry
+  FormGroupNtlmCacheExpiry,
+
+  FormGroupNtKeyCacheEnabled,
+  FormGroupNtKeyCacheExpire,
+  FormGroupAdAccountLockoutThreshold,
+  FormGroupAdAccountLockoutDuration,
+  FormGroupAdResetAccountLockoutCounterAfter,
+  FormGroupAdOldPasswordAllowedPeriod,
+  FormGroupMaxAllowedPasswordAttemptsPerDevice,
+
 } from './'
 
 const components = {
@@ -165,7 +207,15 @@ const components = {
 
   FormGroupNtlmCache,
   FormGroupNtlmCacheSource,
-  FormGroupNtlmCacheExpiry
+  FormGroupNtlmCacheExpiry,
+
+  FormGroupNtKeyCacheEnabled,
+  FormGroupNtKeyCacheExpire,
+  FormGroupAdAccountLockoutThreshold,
+  FormGroupAdAccountLockoutDuration,
+  FormGroupAdResetAccountLockoutCounterAfter,
+  FormGroupAdOldPasswordAllowedPeriod,
+  FormGroupMaxAllowedPasswordAttemptsPerDevice,
 }
 
 export const props = {

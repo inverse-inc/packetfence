@@ -156,6 +156,67 @@ has_field 'registration' =>
              help => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.' },
   );
 
+has_field 'nt_key_cache_enabled' =>
+    (
+        type => 'Toggle',
+        checkbox_value => "enabled",
+        unchecked_value => "disabled",
+        label => 'NT Key cache',
+        tags => { after_element => \&help,
+            help => 'Should the NT Key cache be enabled for this domain?' },
+    );
+
+has_field 'nt_key_cache_expire' =>
+    (
+        type => 'PosInteger',
+        label => 'Expiration',
+        default => 3600,
+        tags => { after_element => \&help,
+            help => 'The amount of seconds an entry should be cached.' },
+    );
+
+has_field 'ad_account_lockout_threshold' =>
+    (
+        type => 'PosInteger',
+        label => 'Account Lockout Threshold',
+        default => 0,
+        tags => { after_element => \&help,
+            help => 'Max bad login attempts before an account is locked out automatically, default is 0, never locks.' },
+    );
+
+has_field 'ad_account_lockout_duration' =>
+    (
+        type => 'PosInteger',
+        label => 'Account Lockout Duration',
+        default => 30,
+        tags => { after_element => \&help,
+            help => 'How long will an account keep locked after hitting bad password threshold. In minutes' },
+    );
+has_field 'ad_reset_account_lockout_counter_after' =>
+    (
+        type => 'PosInteger',
+        label => 'Lockout resets after',
+        default => 30,
+        tags => { after_element => \&help,
+            help => 'After how long will the lockout counter resets. In minutes.' },
+    );
+has_field 'ad_old_password_allowed_period' =>
+    (
+        type => 'PosInteger',
+        label => 'Old Password Allowed Period',
+        default => 60,
+        tags => { after_element => \&help,
+            help => 'Old Password Allowed Period in NTLM Authentication. In minutes' },
+    );
+has_field 'max_allowed_password_attempts_per_device' =>
+    (
+        type => 'PosInteger',
+        label => 'Max bad logins per device',
+        default => 0,
+        tags => { after_element => \&help,
+            help => 'Maximum bad login attempt for a single device.' },
+    );
+
 has_field 'ntlm_cache' =>
   (
    type => 'Toggle',
@@ -229,6 +290,19 @@ has_block ntlm_cache =>
   (
    render_list => [ qw(ntlm_cache ntlm_cache_source ntlm_cache_expiry) ],
   );
+
+has_block ntlm_key_cache =>
+    (
+        render_list => [ qw(
+            nt_key_cache_enabled
+            nt_key_cache_expire
+            ad_account_lockout_threshold
+            ad_account_lockout_duration
+            ad_reset_account_lockout_counter_after
+            ad_old_password_allowed_period
+            max_allowed_password_attempts_per_device
+        ) ],
+    );
 
 =head2 options_ntlm_cache_sources
 

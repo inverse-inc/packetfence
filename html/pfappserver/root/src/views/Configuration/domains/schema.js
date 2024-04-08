@@ -73,6 +73,12 @@ export default (props) => {
     machine_account_password: yup.string().nullable().label(i18n.t('Machine Account Password'))
       .required(i18n.t('Password required.'))
       .min(8),
+    nt_key_cache_expire: yup.string().nullable().label(i18n.t('Expiration')),
+    ad_account_lockout_threshold: yup.string().nullable().label(i18n.t('Account Lockout Threshold')),
+    ad_account_lockout_duration: yup.string().nullable().label(i18n.t('Account Lockout Duration')),
+    max_allowed_password_attempts_per_device: yup.string().nullable().label(i18n.t('Max bad logins per device')),
+    ad_reset_account_lockout_counter_after: yup.string().nullable().label(i18n.t('Lockout resets after')),
+    ad_old_password_allowed_period: yup.string().nullable().label(i18n.t('Old Password Allowed Period')),
     ntlm_cache_source: yup.string().nullable().label( i18n.t('Source')),
     ntlm_cache_filter: yup.string().nullable().label(i18n.t('Filter')),
     ntlm_cache_expiry: yup.string().nullable().label(i18n.t('Expiration')),
@@ -82,5 +88,5 @@ export default (props) => {
     workgroup: yup.string().nullable().label(i18n.t('Workgroup'))
       .required(i18n.t('Workgroup required.'))
       .domainUniqueNamesNotExistsExcept({ id, ...form })
-    })
+  })
 }

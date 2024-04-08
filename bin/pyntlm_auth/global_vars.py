@@ -52,9 +52,6 @@ c_db = None
 # config for domain.conf - nt key cache
 c_nt_key_cache_enabled = None
 c_nt_key_cache_expire = None
-c_nt_key_cache_in_memory = None                     # enable in memory cache or not. NOT recommended for clusters
-c_nt_key_cache_persistence = None                   # enable persistence cache
-c_nt_key_cache_persistence_interval = None          # interval of in-memory cache writes back to persistence cache.
 
 c_ad_account_lockout_threshold = 0                  # 0..999. Default=0, never locks
 c_ad_account_lockout_duration = None                # Default not set
