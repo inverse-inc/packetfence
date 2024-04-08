@@ -71,7 +71,7 @@ def generate_jwt_token(pem, app_id):
     # If 5 attempts fail, raise an error
     raise RuntimeError("Failed to generate jwt token after 5 attempts.")
 
-def  generate_token(jwt_token, org_github_apps_id):
+def  generate_token(jwt_token, org_github_apps_id, github_client_repository_name):
     # Set the headers
     headers = {
         "Accept": "application/vnd.github+json",
@@ -81,7 +81,7 @@ def  generate_token(jwt_token, org_github_apps_id):
 
     # Set the data payload
     data = {
-        "repositories": ["playbook_test_igor"]
+        "repositories": [f"{github_client_repository_name}"]
     }
 
     # Set the URL
@@ -111,6 +111,7 @@ def main():
     parser.add_argument("--private_key_file", default=os.environ.get('PRIVATE_KEY_FILE'), help="Path to private key file")
     parser.add_argument("--github_org_apps_id", default=os.environ.get('GITHUB_ORG_APPS_ID'), type=int, help="GitHub organization apps ID")
     parser.add_argument("--github_installed_apps_id", default=os.environ.get('GITHUB_INSTALLED_APPS_ID'), type=int, help="GitHub installed apps ID")
+    parser.add_argument("--github_client_repository_name", default=os.environ.get('GITHUB_CLIENT_REPOSITORY_NAME'), type=int, help="GitHub client repostory name")
     parser.add_argument("--k8s_namespace_name", default=os.environ.get('K8S_NAMESPACE_NAME'), help="Kubernetes namespace name")
     parser.add_argument("--k8s_secret_name", default=os.environ.get('K8S_SECRET_NAME'), help="Kubernetes secret name")
     args =  parser.parse_args()
@@ -118,10 +119,11 @@ def main():
     private_key_file=args.private_key_file
     github_org_apps_id=args.github_org_apps_id
     github_installed_apps_id=args.github_installed_apps_id
+    github_client_repository_name=args.github_client_repository_name
     k8s_namespace_name=args.k8s_namespace_name
     k8s_secret_name=args.k8s_secret_name
 
-    if not private_key_file or not github_org_apps_id or not github_installed_apps_id or not k8s_namespace_name or not k8s_secret_name:
+    if not private_key_file or not github_org_apps_id or not github_installed_apps_id or not k8s_namespace_name or not k8s_secret_name or not github_client_repository_name:
         exit(parser.print_usage())
 
     try:
@@ -132,7 +134,7 @@ def main():
 
 
     try:
-        fine_graned_token = generate_token(jwt_token, github_installed_apps_id)
+        fine_graned_token = generate_token(jwt_token, github_installed_apps_id, github_client_repository_name)
     except RuntimeError as e:
         print("Error: ", e)
         exit(1)
