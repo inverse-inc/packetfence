@@ -346,7 +346,7 @@ sub generate_dpsk {
         person_modify($username,psk => $password->{password});
         return $password->{password};
     }
-    elsif (defined $person->{psk} && $person->{psk} ne '') {
+    elsif (ref($person) eq 'HASH' && defined $person->{psk} && $person->{psk} ne '') {
         get_logger->debug("Returning psk key $person->{psk} for user $username");
         return $person->{psk};
     }
