@@ -37,6 +37,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+ * Fixes error message in portal on non HASH variable for DPSK (#8068)
+
 == Version 13.1.0 released on 2024-01-19
 
 === New Features
