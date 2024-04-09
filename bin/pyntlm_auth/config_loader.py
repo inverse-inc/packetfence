@@ -16,9 +16,13 @@ def get_boolean_value(v):
     if v is None:
         return False
 
-    v = v.lower().strip()
-    if v in false_dict:
-        return False
+    if isinstance(v, bool):
+        return v
+
+    if isinstance(v, str):
+        v = v.lower().strip()
+        if v in false_dict:
+            return False
 
     return True
 
