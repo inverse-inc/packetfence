@@ -1,0 +1,16 @@
+[whitelist]
+commands=whitelist_command1
+selinuxs=whitelist_selinux1,whitelist_selinux2
+users=whitelist_user1
+
+[whitelist_command1]
+name=/usr/libexec/platform-python -s /usr/bin/firewall-config
+
+[whitelist_selinux1]
+context=system_u:system_r:virtd_t:s0-s0:c0.c1023
+
+[whitelist_selinux2]
+context=system_u:system_r:NetworkManager_t:s0
+
+[whitelist_user1]
+id=0
