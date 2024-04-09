@@ -24,7 +24,7 @@ def init_secure_connection():
     lp = param.LoadParm()
     try:
         config_generator.generate_empty_conf()
-        lp.load("/root/default.conf")
+        lp.load("/usr/local/pf/var/conf/default.conf")
     except KeyError:
         raise KeyError("SMB_CONF_PATH not set")
 
