@@ -209,9 +209,8 @@
           :text="$i18n.t('This user requires SUPER priviliges.')"
           :disabled="remoteDatabaseDisabled"
         />
-        <base-form-group-input namespace="remote_password"
+        <base-form-group-input-password namespace="remote_password"
           :column-label="$i18n.t('MYSQL privileged password')"
-          :text="$i18n.t('This SUPER user password.')"
           :disabled="remoteDatabaseDisabled"
         />
         <base-form-group-chosen-one namespace="remote_encryption"
