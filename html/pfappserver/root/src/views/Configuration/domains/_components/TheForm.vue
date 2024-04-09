@@ -100,7 +100,7 @@
                                :text="$i18n.t('Enable NT Key cache for this domain.')"
         />
         <form-group-nt-key-cache-expire namespace="nt_key_cache_expire"
-                                        :column-label="$i18n.t('Expiration')"
+                                        :column-label="$i18n.t('Cache key expiration')"
                                         :text="$i18n.t('The amount of seconds an entry should be cached.')"
         />
 
@@ -117,7 +117,7 @@
                                                              :text="$i18n.t('Maximum login attempts a device that shares the same account(e.g., an iPhone and Android phone belongs to the same person) can perform before getting auto-banned. This must be less than or equal to Account Lockout Duration')"
         />
         <form-group-ad-reset-account-lockout-counter-after namespace="ad_reset_account_lockout_counter_after"
-                                        :column-label="$i18n.t('Lockout resets after')"
+                                        :column-label="$i18n.t('Lockout count resets after')"
                                         :text="$i18n.t('The amount of minutes before Windows DC resets the bad password count if no bad login attempt was performed.')"
         />
         <form-group-ad-old-password-allowed-period namespace="ad_old_password_allowed_period"

@@ -1,6 +1,6 @@
 import datetime
 import re
-
+import constants
 import dns.resolver
 
 
@@ -13,8 +13,8 @@ def is_ipv4(address):
 def nt_time_to_datetime(nt_time):
     if nt_time == 0:
         return 0
-    if nt_time == 9223372036854775807:
-        return 2147483647
+    if nt_time == constants.NT_TIME_INF:
+        return constants.MAX_INT32
     d = datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=nt_time / 10)
     return int(d.timestamp())
 
@@ -53,11 +53,13 @@ def dns_lookup(hostname, dns_server):
 
 
 def expires(in_second):
-    return datetime.datetime.now().timestamp() + in_second
+    ts = datetime.datetime.now().timestamp() + in_second
+    return int(ts)
 
 
 def now():
-    return datetime.datetime.now().timestamp()
+    ts= datetime.datetime.now().timestamp()
+    return int(ts)
 
 
 def extract_event_timestamp(s):

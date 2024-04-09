@@ -43,6 +43,8 @@ export default (props) => {
 
   const { ad_fqdn, ad_server, dns_servers } = form || {}
 
+  const {nt_key_cache_enabled} = form || {}
+  const {ad_account_lockout_threshold, ad_account_lockout_duration} = form || {}
   const schemaAdServer = yup.string().nullable().label(i18n.t('IP address')).isIpv4('Invalid IP address.')
   const schemaDnsServers = yup.string().nullable().label(i18n.t('Servers')).isIpv4Csv()
 
@@ -73,12 +75,42 @@ export default (props) => {
     machine_account_password: yup.string().nullable().label(i18n.t('Machine Account Password'))
       .required(i18n.t('Password required.'))
       .min(8),
-    nt_key_cache_expire: yup.string().nullable().label(i18n.t('Expiration')),
-    ad_account_lockout_threshold: yup.string().nullable().label(i18n.t('Account Lockout Threshold')),
-    ad_account_lockout_duration: yup.string().nullable().label(i18n.t('Account Lockout Duration')),
-    max_allowed_password_attempts_per_device: yup.string().nullable().label(i18n.t('Max bad logins per device')),
-    ad_reset_account_lockout_counter_after: yup.string().nullable().label(i18n.t('Lockout resets after')),
-    ad_old_password_allowed_period: yup.string().nullable().label(i18n.t('Old Password Allowed Period')),
+
+    nt_key_cache_expire: yup.number().nullable().when('nt_key_cache_enabled', {
+      is: true,
+      then: yup.number().min(60).max(86400).required(),
+      otherwise: yup.number()
+    }).label(i18n.t('Cache entry expiration')),
+
+    ad_account_lockout_threshold: yup.number().nullable().when('nt_key_cache_enabled', {
+      is: true,
+      then: yup.number().min(0).max(999).required(),
+      otherwise: yup.number().default(0)
+    }).label(i18n.t('Account Lockout Threshold')),
+
+    ad_account_lockout_duration: yup.number().nullable().when(
+      ['nt_key_cache_enabled', 'ad_account_lockout_threshold'], {
+        is: (val1, val2) => val1 === true && val2 > 0,
+        then:yup.number().min(1).max(999).required('"Account Lockout Duration" is required when "Account Lockout Threshold" is enabled'),
+        otherwise: yup.number().default(0)
+      }).label(i18n.t('Account Lockout Duration')),
+    ad_reset_account_lockout_counter_after: yup.number().nullable().when(
+      ['nt_key_cache_enabled', 'ad_account_lockout_threshold'], {
+        is: (val1, val2) => val1 === true && val2 > 0,
+        then: yup.number().min(1).max(ad_account_lockout_duration, '"Lockout count resets after" must be less or equal to "Account Lockout Duration"'),
+        otherwise: yup.number().default(0)
+      }).label(i18n.t('Lockout count resets after')),
+
+    max_allowed_password_attempts_per_device: yup.number().nullable().when(
+      ['nt_key_cache_enabled', 'ad_account_lockout_threshold'], {
+        is: (val1, val2) => val1 === true && val2 > 0,
+        then: yup.number().min(1).max(ad_account_lockout_threshold, '"Max bad logins per device" must be less or equal than "Account Lockout Threshold"'),
+        otherwise: yup.number().default(0)
+      }
+    ).label(i18n.t('Max bad logins per device')),
+
+    ad_old_password_allowed_period: yup.number().min(0).max(99999).nullable().label(i18n.t('Old Password Allowed Period')),
+
     ntlm_cache_source: yup.string().nullable().label( i18n.t('Source')),
     ntlm_cache_filter: yup.string().nullable().label(i18n.t('Filter')),
     ntlm_cache_expiry: yup.string().nullable().label(i18n.t('Expiration')),

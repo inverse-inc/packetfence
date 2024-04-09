@@ -60,4 +60,3 @@ c_ad_old_password_allowed_period = None             # Windows 2003+, Default not
 
 c_max_allowed_password_attempts_per_device = None
 
-n_device_blocked = -2

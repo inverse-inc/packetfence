@@ -936,6 +936,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/app.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/config_generator.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/config_loader.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/constants.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/flags.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/global_vars.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/handlers.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/ms_event.py

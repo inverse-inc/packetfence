@@ -3,6 +3,7 @@ from samba import ntstatus
 import rpc
 import json
 import global_vars
+import flags
 
 import utils
 import datetime
@@ -287,7 +288,7 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
 
     if is_hitting_bad_password_threshold(cache_v_device, cache_v_root):
         trigger_security_event(mac, domain, account_username)
-        return '', global_vars.n_device_blocked, None
+        return '', flags.STATUS_DEVICE_BLOCKED, None
 
     nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response)
 
