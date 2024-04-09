@@ -191,7 +191,7 @@
       remote database
       -->
     <b-modal v-model="remoteDatabaseModal" size="lg" centered id="remoteDatabaseModal" hide-header-close
-      :title="$t('Remote Database')"
+      :title="$t('Remote MySQL Database')"
       @cancel="remoteDatabaseCancel"
     >
       <b-alert variant="danger" v-model="remoteDatabaseTestError" fade>
@@ -205,16 +205,16 @@
         :readonly="remoteDatabaseDisabled"
       >
         <base-form-group-input namespace="remote_username"
-          :column-label="$i18n.t('MYSQL privileged username')"
+          :column-label="$i18n.t('Privileged user name')"
           :text="$i18n.t('This user requires SUPER priviliges.')"
           :disabled="remoteDatabaseDisabled"
         />
         <base-form-group-input-password namespace="remote_password"
-          :column-label="$i18n.t('MYSQL privileged password')"
+          :column-label="$i18n.t('Privileged user password')"
           :disabled="remoteDatabaseDisabled"
         />
         <base-form-group-chosen-one namespace="remote_encryption"
-          :column-label="$i18n.t('MYSQL encryption type')"
+          :column-label="$i18n.t('Encryption type')"
           :text="$i18n.t('Only secure connections are supported.')"
           :disabled="remoteDatabaseDisabled"
           :options="[
@@ -222,17 +222,17 @@
           ]"
         />
         <base-form-group-textarea-upload namespace="remote_ca_cert"
-          :column-label="$i18n.t('MYSQL CA certificate')"
+          :column-label="$i18n.t('CA certificate')"
           :text="$i18n.t('Click the upload icon on the right-side to choose the CA certificate from disk.')"
           :disabled="remoteDatabaseDisabled"
         />
         <base-form-group-input namespace="remote_hostname"
-          :column-label="$i18n.t('MYSQL server hostname')"
+          :column-label="$i18n.t('Server hostname')"
           :text="$i18n.t('FQDN or IPv4.')"
           :disabled="remoteDatabaseDisabled"
         />
         <base-form-group-input-number namespace="remote_port"
-          :column-label="$i18n.t('MYSQL server port')"
+          :column-label="$i18n.t('Server port')"
           :disabled="remoteDatabaseDisabled"
         />
       </base-form>
@@ -581,17 +581,17 @@ export const setup = (props, context) => {
   const remoteDatabaseSchema = computed(() => {
     return yup.object({
       remote_username: yup.string().nullable()
-        .required(i18n.t('MySQL priviledged username required.')),
+        .required(i18n.t('Priviledged user name required.')),
       remote_password: yup.string().nullable()
-        .required(i18n.t('MySQL priviledged password required.')),
+        .required(i18n.t('Priviledged user password required.')),
       remote_encryption: yup.string().nullable()
-        .required(i18n.t('MySQL database client encryption type required.')),
+        .required(i18n.t('Database client encryption type required.')),
       remote_ca_cert: yup.string().nullable(),
       remote_hostname: yup.string().nullable()
-        .required(i18n.t('MySQL database hostname required.'))
+        .required(i18n.t('Server hostname required.'))
         .isHostname(),
       remote_port: yup.string().nullable()
-        .required(i18n.t('MySQL database port required.'))
+        .required(i18n.t('Server port required.'))
         .isPort(),
     })
   })
