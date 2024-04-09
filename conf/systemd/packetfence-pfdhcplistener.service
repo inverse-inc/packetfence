@@ -3,8 +3,8 @@
 Description=PacketFence DHCP Listener Service
 Wants=packetfence-pfqueue-go.service
 After=packetfence-pfqueue-go.service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-pfqueue-go.service
+Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-base.target packetfence-config.service packetfence-firewalld.service packetfence-pfqueue-go.service
 
 [Service]
 Type=notify
