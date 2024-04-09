@@ -597,6 +597,7 @@ fi
 # clean up the old systemd files if it's an upgrade
 if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-redis-cache
+    /usr/bin/systemctl disable packetfence-iptables
     /usr/bin/systemctl disable packetfence-config
     /usr/bin/systemctl disable packetfence.service
     /usr/bin/systemctl disable packetfence-haproxy.service
@@ -765,8 +766,6 @@ fi
 # get containers images and tag them locally
 if /usr/local/pf/containers/manage-images.sh; then
     rm -rf /usr/local/pf/var/cache/
-    /usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
-    /bin/systemctl disable firewalld
     /bin/systemctl enable packetfence-mariadb
     /bin/systemctl enable packetfence-redis-cache
     /bin/systemctl enable packetfence-config
@@ -788,6 +787,7 @@ if /usr/local/pf/containers/manage-images.sh; then
 
     /bin/systemctl enable packetfence-firewalld
     /bin/systemctl stop packetfence-firewalld
+    /usr/local/pf/containers/docker-minimal-rules.sh
 
     /usr/local/pf/bin/pfcmd service pf updatesystemd
 
