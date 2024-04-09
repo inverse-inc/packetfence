@@ -1,12 +1,9 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence HTTP Admin Dispatcher
-Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
-After=packetfence-base.target packetfence-config.service packetfence-firewalld.service
+Wants=packetfence-base.target packetfence-config.service
+After=packetfence-base.target packetfence-config.service
 Before=packetfence-haproxy-admin.service
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
 
 [Service]
 Type=notify
