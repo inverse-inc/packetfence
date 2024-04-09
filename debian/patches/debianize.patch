@@ -706,7 +706,7 @@ diff --git a/conf/systemd/packetfence-redis_ntlm_cache.service b/conf/systemd/pa
 index 04bcced7b5..8e735efcb0 100644
 --- a/conf/systemd/packetfence-redis_ntlm_cache.service
 +++ b/conf/systemd/packetfence-redis_ntlm_cache.service
-@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service packetfence-firewalld.se
  [Service]
  StartLimitBurst=3
  StartLimitInterval=10
@@ -719,7 +719,7 @@ diff --git a/conf/systemd/packetfence-redis_queue.service b/conf/systemd/packetf
 index b648a3a9d7..70d0af1ac3 100644
 --- a/conf/systemd/packetfence-redis_queue.service
 +++ b/conf/systemd/packetfence-redis_queue.service
-@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service packetfence-firewalld.se
  [Service]
  StartLimitBurst=3
  StartLimitInterval=10
@@ -732,7 +732,7 @@ diff --git a/conf/systemd/packetfence-snmptrapd.service b/conf/systemd/packetfen
 index 8e2e760d54..306af96f9d 100644
 --- a/conf/systemd/packetfence-snmptrapd.service
 +++ b/conf/systemd/packetfence-snmptrapd.service
-@@ -8,7 +8,7 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -8,7 +8,7 @@ Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.se
  StartLimitBurst=3
  StartLimitInterval=10
  Type=simple
