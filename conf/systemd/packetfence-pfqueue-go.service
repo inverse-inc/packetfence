@@ -3,8 +3,8 @@
 Description=PacketFence pfqueue go Service
 Wants=packetfence-redis_queue.service
 After=packetfence-redis_queue.service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 Wants=packetfence-pfqueue-backend.service
 After=packetfence-pfqueue-backend.service
 Before=packetfence-docker-iptables.service
