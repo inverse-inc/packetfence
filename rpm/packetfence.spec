@@ -1263,6 +1263,14 @@ fi
                         /usr/local/pf/conf/firewalld/firewalld_policies.conf.example
                         /usr/local/pf/conf/firewalld/firewalld_services.conf.example
                         /usr/local/pf/conf/firewalld/firewalld_zones.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_helpers.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_icmptypes.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_ipsets.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_lockdown_whitelist.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_policies.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_services.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_zones.conf.defaults
 %dir                    /usr/local/pf/conf/firewalld/template
 %config                 /usr/local/pf/conf/firewalld/template/firewalld.conf
                         /usr/local/pf/conf/firewalld/template/helper.xml
