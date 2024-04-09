@@ -1246,6 +1246,7 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
+%dir                    /usr/local/pf/conf/firewalld
 %config(noreplace)      /usr/local/pf/conf/firewalld/firewalld.conf
                         /usr/local/pf/conf/firewalld/firewalld_helpers.conf
                         /usr/local/pf/conf/firewalld/firewalld_icmptypes.conf
@@ -1254,6 +1255,15 @@ fi
                         /usr/local/pf/conf/firewalld/firewalld_policies.conf
                         /usr/local/pf/conf/firewalld/firewalld_services.conf
                         /usr/local/pf/conf/firewalld/firewalld_zones.conf
+%config                 /usr/local/pf/conf/firewalld/firewalld.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_helpers.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_icmptypes.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_ipsets.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_lockdown_whitelist.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_policies.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_services.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_zones.conf.example
+%dir                    /usr/local/pf/conf/firewalld/template
 %config                 /usr/local/pf/conf/firewalld/template/firewalld.conf
                         /usr/local/pf/conf/firewalld/template/helper.xml
                         /usr/local/pf/conf/firewalld/template/icmptype.xml
