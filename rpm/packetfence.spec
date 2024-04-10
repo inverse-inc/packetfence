@@ -320,8 +320,8 @@ Requires: python3-samba
 Requires: tdb-tools
 # For ntlm_auth_wrapper
 Requires: cjson >= 1.7.14
-# For FirewallD
-Requires: firewalld >= 0.9.11-1.el8_8.noarch
+# For FirewallD in Rockylinux 8
+#Requires: firewalld >= 0.9.11-1.el8_8.noarch
 
 %description
 
