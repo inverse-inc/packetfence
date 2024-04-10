@@ -57,7 +57,7 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Identifier required.'))
-      .maxAsInt(10)
+      .max(10)
       .isAlphaNumeric()
       .domainIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
     ad_fqdn: yup.string().nullable().label(i18n.t('FQDN')).isFQDN('Invalid FQDN.'),
