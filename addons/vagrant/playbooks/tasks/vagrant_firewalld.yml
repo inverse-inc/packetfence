@@ -1,7 +1,10 @@
 ---
 - name: allow ssh on default interface for vagrant management
   ansible.builtin.command:
-    cmd: /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::service_to_zone({{ ansible_default_ipv4.interface }}, "add", "ssh");'
+    cmd: "/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::Firewalld::util -Mpf::config -e 'pf::Firewalld::util::util_direct_rule({{ item }})'"
+  loop:
+    - '"ipv4 filter INPUT 0 -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT", "add"'
+    - '"ipv4 filter OUTPUT 0 -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT", "add"'
 
 - name: allow external services on management interface
   ansible.builtin.command:
