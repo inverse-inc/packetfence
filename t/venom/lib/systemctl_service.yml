@@ -7,7 +7,7 @@ steps:
 - type: exec
   script: '{{.input.sudo}} systemctl {{.input.unit_command}} {{.input.service}}'
   vars:
-    status_line:
+    status_lines:
       from: result.systemout
 
 output:
