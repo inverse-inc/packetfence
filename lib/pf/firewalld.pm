@@ -191,7 +191,6 @@ sub fd_services_rules {
       packetfence-base.target
       packetfence-cluster.target
       packetfence-config.service
-      packetfence-docker-iptables.service
       packetfence-fingerbank-collector.service
       packetfence-firewalld.service
       packetfence-galera-autofix.service
