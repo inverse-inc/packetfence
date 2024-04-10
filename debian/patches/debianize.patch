@@ -124,10 +124,10 @@ index d2dfd5781a..d4650a8011 100644
  [Install]
  WantedBy=packetfence-cluster.target
 diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
-index 9927cc7c51..6f24752091 100644
+index d52504fe1e..4444d5165d 100644
 --- a/conf/systemd/packetfence-haproxy-portal.service
 +++ b/conf/systemd/packetfence-haproxy-portal.service
-@@ -12,7 +12,7 @@ Type=notify
+@@ -9,7 +9,7 @@ Type=notify
  NotifyAccess=all
  StartLimitBurst=3
  StartLimitInterval=10
@@ -136,7 +136,7 @@ index 9927cc7c51..6f24752091 100644
  ExecStart=/usr/local/pf/sbin/haproxy-portal-docker-wrapper
  ExecStop=/bin/bash -c "docker stop haproxy-portal ; echo Stopped"
  Restart=on-failure
-@@ -20,8 +20,8 @@ TimeoutStopSec=30
+@@ -17,8 +17,8 @@ TimeoutStopSec=30
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/haproxy-portal-systemd-notify.pid
  # Firewalld
@@ -148,10 +148,10 @@ index 9927cc7c51..6f24752091 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
-index d8e76a02d1..1fe3c262e9 100644
+index d0df94fdde..eef5d1f3cb 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
 +++ b/conf/systemd/packetfence-httpd.aaa.service
-@@ -15,7 +15,7 @@ Type=notify
+@@ -12,7 +12,7 @@ Type=notify
  NotifyAccess=all
  StartLimitBurst=3
  StartLimitInterval=10
@@ -160,7 +160,7 @@ index d8e76a02d1..1fe3c262e9 100644
  ExecStart=/usr/local/pf/sbin/httpd.aaa-docker-wrapper
  ExecStop=/bin/bash -c "docker stop httpd.aaa ; echo Stopped"
  TimeoutStopSec=30
-@@ -23,8 +23,8 @@ Restart=on-failure
+@@ -20,8 +20,8 @@ Restart=on-failure
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/httpd.aaa-systemd-notify.pid
  # Firewalld
@@ -185,10 +185,10 @@ index 6b775bc2a8..e0ab593fdc 100644
  ExecStop=/bin/bash -c "docker stop httpd.admin_dispatcher ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.dispatcher.service b/conf/systemd/packetfence-httpd.dispatcher.service
-index 0894d4cf10..70f4594295 100644
+index 04c54729ac..5a6e36b4ee 100644
 --- a/conf/systemd/packetfence-httpd.dispatcher.service
 +++ b/conf/systemd/packetfence-httpd.dispatcher.service
-@@ -13,7 +13,7 @@ Type=notify
+@@ -10,7 +10,7 @@ Type=notify
  TimeoutStopSec=60
  NotifyAccess=all
  LimitNOFILE=8192
@@ -198,10 +198,10 @@ index 0894d4cf10..70f4594295 100644
  ExecStop=/bin/bash -c "docker stop httpd.dispatcher ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index d0e496057a..9de398fdac 100644
+index 1992741bd4..aa271480e0 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
-@@ -12,7 +12,7 @@ Type=notify
+@@ -9,7 +9,7 @@ Type=notify
  NotifyAccess=all
  StartLimitBurst=3
  StartLimitInterval=10
@@ -210,7 +210,7 @@ index d0e496057a..9de398fdac 100644
  ExecStart=/usr/local/pf/sbin/httpd.portal-docker-wrapper
  ExecStop=/bin/bash -c "docker stop httpd.portal ; echo Stopped"
  TimeoutStopSec=60
-@@ -20,8 +20,8 @@ Restart=on-failure
+@@ -17,8 +17,8 @@ Restart=on-failure
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/httpd.portal-systemd-notify.pid
  # Firewalld
@@ -222,10 +222,10 @@ index d0e496057a..9de398fdac 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
-index 7c342f4aba..4ad9d637fa 100644
+index 016236e648..a93750f5e3 100644
 --- a/conf/systemd/packetfence-httpd.webservices.service
 +++ b/conf/systemd/packetfence-httpd.webservices.service
-@@ -14,7 +14,7 @@ Type=notify
+@@ -11,7 +11,7 @@ Type=notify
  NotifyAccess=all
  StartLimitBurst=3
  StartLimitInterval=10
@@ -234,7 +234,7 @@ index 7c342f4aba..4ad9d637fa 100644
  ExecStart=/usr/local/pf/sbin/httpd.webservices-docker-wrapper
  ExecStop=/bin/bash -c "docker stop httpd.webservices ; echo Stopped"
  TimeoutStartSec=300
-@@ -23,8 +23,8 @@ Restart=on-failure
+@@ -20,8 +20,8 @@ Restart=on-failure
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/httpd.webservices-systemd-notify.pid
  # Firewalld
@@ -246,10 +246,10 @@ index 7c342f4aba..4ad9d637fa 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-kafka.service b/conf/systemd/packetfence-kafka.service
-index d75a02bf89..8b4179e346 100644
+index c6e3848ff5..98f87a3dcc 100644
 --- a/conf/systemd/packetfence-kafka.service
 +++ b/conf/systemd/packetfence-kafka.service
-@@ -11,15 +11,15 @@ StartLimitBurst=3
+@@ -8,15 +8,15 @@ StartLimitBurst=3
  StartLimitInterval=10
  Type=simple
  TimeoutStopSec=60
@@ -330,10 +330,10 @@ index 87a707232e..52d0c4d7c1 100644
  
  [Install]
 diff --git a/conf/systemd/packetfence-ntlm-auth-api.service b/conf/systemd/packetfence-ntlm-auth-api.service
-index d9890b5485..39009741c4 100644
+index d1dcc888ce..8f5b6c6ae0 100644
 --- a/conf/systemd/packetfence-ntlm-auth-api.service
 +++ b/conf/systemd/packetfence-ntlm-auth-api.service
-@@ -11,7 +11,7 @@ Type=forking
+@@ -10,7 +10,7 @@ Type=forking
  TimeoutStopSec=60
  NotifyAccess=all
  LimitNOFILE=8192
@@ -356,10 +356,10 @@ index daef67ae9a..a55c8692f4 100644
  ExecStop=/bin/bash -c "docker stop pfacct ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfconnector-client.service b/conf/systemd/packetfence-pfconnector-client.service
-index ae2d4ba848..e6f98627e9 100644
+index 030e909024..3babe3d186 100644
 --- a/conf/systemd/packetfence-pfconnector-client.service
 +++ b/conf/systemd/packetfence-pfconnector-client.service
-@@ -9,7 +9,7 @@ PartOf=packetfence-docker-iptables.service
+@@ -6,7 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-firewalld.s
  
  [Service]
  LimitNOFILE=infinity
@@ -369,10 +369,10 @@ index ae2d4ba848..e6f98627e9 100644
  ExecStop=/bin/bash -c "docker stop pfconnector-client ; echo Stopped"
  Restart=always
 diff --git a/conf/systemd/packetfence-pfconnector-server.service b/conf/systemd/packetfence-pfconnector-server.service
-index 4dffc3a60d..0d8907319f 100644
+index edd66eefc6..184c733a3b 100644
 --- a/conf/systemd/packetfence-pfconnector-server.service
 +++ b/conf/systemd/packetfence-pfconnector-server.service
-@@ -9,15 +9,15 @@ PartOf=packetfence-docker-iptables.service
+@@ -6,15 +6,15 @@ After=packetfence-base.target packetfence-config.service packetfence-firewalld.s
  
  [Service]
  LimitNOFILE=infinity
@@ -462,10 +462,10 @@ index 0349626b3b..2764a9530e 100644
  
  [Install]
 diff --git a/conf/systemd/packetfence-pfldapexplorer.service b/conf/systemd/packetfence-pfldapexplorer.service
-index a8bbaa18ce..d0e2c0c030 100644
+index a0218c4f9b..1b9f2ab7a0 100644
 --- a/conf/systemd/packetfence-pfldapexplorer.service
 +++ b/conf/systemd/packetfence-pfldapexplorer.service
-@@ -13,7 +13,7 @@ Type=notify
+@@ -10,7 +10,7 @@ Type=notify
  TimeoutStopSec=60
  NotifyAccess=all
  LimitNOFILE=8192
@@ -475,10 +475,10 @@ index a8bbaa18ce..d0e2c0c030 100644
  ExecStop=/bin/bash -c "docker stop pfldapexplorer; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfpki.service b/conf/systemd/packetfence-pfpki.service
-index 60b56efd2b..203cde19f5 100644
+index c6a9e44b87..0bc806e1d3 100644
 --- a/conf/systemd/packetfence-pfpki.service
 +++ b/conf/systemd/packetfence-pfpki.service
-@@ -11,7 +11,7 @@ PartOf=packetfence-docker-iptables.service
+@@ -8,7 +8,7 @@ Before=packetfence-httpd.portal.service
  Type=notify
  TimeoutStopSec=60
  NotifyAccess=all
@@ -488,10 +488,10 @@ index 60b56efd2b..203cde19f5 100644
  ExecStop=/bin/bash -c "docker stop pfpki ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfqueue-backend.service b/conf/systemd/packetfence-pfqueue-backend.service
-index 4282263938..7fc5b80dbb 100644
+index 5c2fbefd21..eedde83066 100644
 --- a/conf/systemd/packetfence-pfqueue-backend.service
 +++ b/conf/systemd/packetfence-pfqueue-backend.service
-@@ -15,7 +15,7 @@ TimeoutStopSec=60
+@@ -12,7 +12,7 @@ TimeoutStopSec=60
  NotifyAccess=all
  StartLimitBurst=3
  StartLimitInterval=10
@@ -514,10 +514,10 @@ index 4cb08c9e82..2d253c61a3 100644
  TimeoutStopSec=30
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfqueue-perl.service b/conf/systemd/packetfence-pfqueue-perl.service
-index e240c27530..5745a9523f 100644
+index e4c5ea75ba..bed71bb77e 100644
 --- a/conf/systemd/packetfence-pfqueue-perl.service
 +++ b/conf/systemd/packetfence-pfqueue-perl.service
-@@ -15,7 +15,7 @@ TimeoutStopSec=60
+@@ -12,7 +12,7 @@ TimeoutStopSec=60
  NotifyAccess=all
  StartLimitBurst=3
  StartLimitInterval=10
@@ -527,10 +527,10 @@ index e240c27530..5745a9523f 100644
  TimeoutStopSec=30
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfsetacls.service b/conf/systemd/packetfence-pfsetacls.service
-index 9a50ea9a19..cce6bd483a 100644
+index 91928ae0ff..0b7b894eba 100644
 --- a/conf/systemd/packetfence-pfsetacls.service
 +++ b/conf/systemd/packetfence-pfsetacls.service
-@@ -12,7 +12,7 @@ StartLimitBurst=3
+@@ -9,7 +9,7 @@ StartLimitBurst=3
  StartLimitInterval=10
  Type=simple
  TimeoutStopSec=60
@@ -540,10 +540,10 @@ index 9a50ea9a19..cce6bd483a 100644
  ExecStartPre=chown -R :1002 /usr/local/pf/var/conf/pfsetacls
  ExecStartPre=chmod 775 /usr/local/pf/var/conf/pfsetacls
 diff --git a/conf/systemd/packetfence-pfsso.service b/conf/systemd/packetfence-pfsso.service
-index fb9c4d2444..e43b8511c5 100644
+index be9667d9b9..9fbf9daebd 100644
 --- a/conf/systemd/packetfence-pfsso.service
 +++ b/conf/systemd/packetfence-pfsso.service
-@@ -13,7 +13,7 @@ Type=notify
+@@ -10,7 +10,7 @@ Type=notify
  TimeoutStopSec=60
  NotifyAccess=all
  LimitNOFILE=8192
@@ -566,10 +566,10 @@ index aa3e5b32ba..e71bbe974e 100644
  ExecStop=/bin/bash -c "docker stop proxysql ; docker container rm proxysql -f ; echo Stopped" ; /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_proxysql_rules("remove")'
  TimeoutStopSec=60
 diff --git a/conf/systemd/packetfence-radiusd-acct.service b/conf/systemd/packetfence-radiusd-acct.service
-index 5cda2be9bb..f86611b096 100644
+index b5d7d9d359..6cc49ece89 100644
 --- a/conf/systemd/packetfence-radiusd-acct.service
 +++ b/conf/systemd/packetfence-radiusd-acct.service
-@@ -23,8 +23,8 @@ Restart=on-failure
+@@ -20,8 +20,8 @@ Restart=on-failure
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/radiusd-acct-systemd-notify.pid
  # Firewalld
@@ -605,10 +605,10 @@ index b6a0d146b4..be281586b1 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-radiusd-cli.service b/conf/systemd/packetfence-radiusd-cli.service
-index 9009ad1b94..16ef5b2acc 100644
+index 1bac350471..f9608daa2f 100644
 --- a/conf/systemd/packetfence-radiusd-cli.service
 +++ b/conf/systemd/packetfence-radiusd-cli.service
-@@ -23,8 +23,8 @@ Restart=on-failure
+@@ -20,8 +20,8 @@ Restart=on-failure
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/radiusd-cli-systemd-notify.pid
  # Firewalld
@@ -620,10 +620,10 @@ index 9009ad1b94..16ef5b2acc 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
-index 5a3fb3e52c..79ce92b9b3 100644
+index e14313ea36..95a5674586 100644
 --- a/conf/systemd/packetfence-radiusd-eduroam.service
 +++ b/conf/systemd/packetfence-radiusd-eduroam.service
-@@ -14,14 +14,14 @@ Type=notify
+@@ -11,14 +11,14 @@ Type=notify
  WatchdogSec=10
  StartLimitBurst=3
  StartLimitInterval=10
@@ -644,10 +644,10 @@ index 5a3fb3e52c..79ce92b9b3 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
-index e378ab3978..c45a829ad5 100644
+index ee69908e95..54a5ade3d0 100644
 --- a/conf/systemd/packetfence-radiusd-load_balancer.service
 +++ b/conf/systemd/packetfence-radiusd-load_balancer.service
-@@ -23,8 +23,8 @@ Restart=on-failure
+@@ -20,8 +20,8 @@ Restart=on-failure
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/radiusd-load-balancer-systemd-notify.pid
  # Firewalld
