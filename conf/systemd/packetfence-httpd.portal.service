@@ -3,9 +3,6 @@
 Description=PacketFence Captive Portal Apache HTTP Server 
 Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 After=packetfence-base.target packetfence-config.service packetfence-firewalld.service
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
 
 [Service]
 Type=notify

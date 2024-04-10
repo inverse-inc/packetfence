@@ -5,9 +5,6 @@ Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ htt
 Wants=packetfence-httpd.aaa.service 
 Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 After=packetfence-base.target packetfence-config.service packetfence-firewalld.service 
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
 
 [Service]
 Type=notify
