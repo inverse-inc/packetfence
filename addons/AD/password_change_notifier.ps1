@@ -17,7 +17,8 @@ $credJson = $credential| ConvertTo-Json
 $token_response = Invoke-RestMethod -Uri $token_url -Method Post -Body $credJson -ContentType "application/json"
 $token = $token_response.token
 
-$eventTypeID = 4724
+$eventTypeID = @(4723,4724, 4624)
+
 $events = Get-WinEvent -MaxEvents 10  -FilterHashTable @{ Logname = "Security"; ID = $eventTypeID }
 
 $eventArr = @()
