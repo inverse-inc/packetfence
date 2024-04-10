@@ -187,7 +187,6 @@ case "$1" in
         systemctl enable packetfence-mariadb
         systemctl enable packetfence-redis-cache
         systemctl enable packetfence-config
-        systemctl disable packetfence-firewalld
         systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
         systemctl start packetfence-config
@@ -213,7 +212,6 @@ case "$1" in
         fi
         /usr/local/pf/bin/pfcmd fixpermissions
         echo "Starting PacketFence Administration GUI..."
-        systemctl enable packetfence-firewalld
         /bin/systemctl start packetfence-httpd.admin_dispatcher
         /bin/systemctl start packetfence-haproxy-admin
         if [ "$DEBIAN_ISO_INSTALLER" = "no" ];  then

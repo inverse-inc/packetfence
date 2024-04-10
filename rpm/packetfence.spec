@@ -576,6 +576,9 @@ rm -rf %{buildroot}
 /usr/bin/pkill -f dnsmasq
 # Disable default firewalld
 /usr/bin/systemctl --now mask firewalld
+/usr/bin/systemctl --now stop firewalld
+/usr/bin/systemctl --now disable firewalld
+/bin/rm /usr/lib/systemd/system/firewalld.service || true
 
 # This (extremelly) ugly hack below will make the current processes part of a cgroup other than the one for user-0.slice
 # This will allow for the current shells that are opened to be protected against stopping when we'll be calling isolate below which stops user-0.slice
@@ -769,8 +772,6 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl enable packetfence-mariadb
     /bin/systemctl enable packetfence-redis-cache
     /bin/systemctl enable packetfence-config
-    /bin/systemctl disable packetfence-firewalld
-    /bin/systemctl stop packetfence-firewalld
     /bin/systemctl start packetfence-config
     # next command need packetfence-config started
     /usr/local/pf/bin/pfcmd generatemariadbconfig --force
@@ -785,8 +786,6 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl start packetfence-httpd.admin_dispatcher
     /bin/systemctl start packetfence-haproxy-admin
 
-    /bin/systemctl enable packetfence-firewalld
-    /bin/systemctl stop packetfence-firewalld
     /usr/local/pf/containers/docker-minimal-rules.sh
 
     /usr/local/pf/bin/pfcmd service pf updatesystemd
