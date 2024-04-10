@@ -91,13 +91,13 @@ def config_load():
         nt_key_cache_expire = config.get(identifier, 'nt_key_cache_expire', fallback=3600)
 
         ad_account_lockout_threshold = config.get(identifier, 'ad_account_lockout_threshold', fallback='0')
-        ad_account_lockout_duration = config.get(identifier, 'ad_account_lockout_duration', fallback=None)
+        max_allowed_password_attempts_per_device = config.get(identifier, 'max_allowed_password_attempts_per_device',
+                                                              fallback='0')
+        ad_account_lockout_duration = config.get(identifier, 'ad_account_lockout_duration', fallback='0')
         ad_reset_account_lockout_counter_after = config.get(identifier, 'ad_reset_account_lockout_counter_after',
-                                                            fallback=None)
-        ad_old_password_allowed_period = config.get(identifier, 'ad_old_password_allowed_period', fallback=None)
-        ad_minimum_password_age = config.get(identifier, 'ad_minimum_password_age', fallback=None)
+                                                            fallback='0')
 
-        max_allowed_password_attempts_per_device = config.get(identifier, 'max_allowed_password_attempts_per_device', fallback=None)
+        ad_old_password_allowed_period = config.get(identifier, 'ad_old_password_allowed_period', fallback='0')
 
         nt_key_cache_expire, error = get_int_value(nt_key_cache_expire)
         if error is not None:
@@ -120,9 +120,10 @@ def config_load():
                 sys.exit(1)
 
         if ad_account_lockout_threshold == 0:
-            ad_account_lockout_duration = None
-            ad_reset_account_lockout_counter_after = None
-            max_allowed_password_attempts_per_device = None
+            ad_account_lockout_threshold = 999
+            ad_account_lockout_duration = 0
+            ad_reset_account_lockout_counter_after = 0
+            max_allowed_password_attempts_per_device = 999
         else:
             if ad_account_lockout_threshold < 0 or ad_account_lockout_threshold > 999:
                 print(f"  Error applying NT key cache settings: 'ad_account_lock_threshold' ranges from 0..999")

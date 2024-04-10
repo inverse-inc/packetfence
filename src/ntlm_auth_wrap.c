@@ -420,4 +420,8 @@ char **argv, **envp;
     // open socket to StatsD server and send message
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
+
+    if status != 0 {
+        exit(1)
+    }
 }
