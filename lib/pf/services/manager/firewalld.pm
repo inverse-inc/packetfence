@@ -25,11 +25,6 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'firewalld' } );
 
-has '+shouldCheckup' => ( default => sub { 1 }  );
-
-has 'runningServices' => (is => 'rw', default => sub { 0 } );
-
-
 =head2 start
 
 start firewalld
@@ -104,7 +99,7 @@ sub stop {
 
 =head2 _stop
 
-stop iptables
+stop firewalld
 
 =cut
 
@@ -125,8 +120,6 @@ sub _stop {
     pf_run("sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER");
     pf_run("sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE");
     pf_run("sudo iptables -t nat -A DOCKER -i docker0 -j RETURN");
-    pf_run("sudo systemctl stop packetfence-iptables");
-    pf_run("sudo systemctl disable packetfence-iptables");
     pf_run("sudo systemctl stop packetfence-firewalld");
     return 1;
 }

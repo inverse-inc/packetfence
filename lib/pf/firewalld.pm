@@ -202,8 +202,6 @@ sub fd_services_rules {
       packetfence-httpd.dispatcher.service
       packetfence-httpd.portal.service
       packetfence-httpd.webservices.service
-      packetfence-ip6tables.service
-      packetfence-iptables.service
       packetfence-kafka.service
       packetfence-keepalived.service
       packetfence-mariadb.service
