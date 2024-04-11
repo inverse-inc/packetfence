@@ -153,6 +153,10 @@ Handle a database error
 sub _db_error {
     my ($self) = @_;
     my $logger = get_logger;
+    if (!$self->{_last_failed_time}) {
+        $self->{_db} = undef;
+        $self->{_last_failed_time} = time();
+    }
     $logger->error("Couldn't connect to MySQL database to access L2. This is a major problem ! Check the MySQL section in /usr/local/pf/conf/pfconfig.conf and make sure your database schema is up to date !");
 }
 
