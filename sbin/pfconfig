@@ -115,6 +115,7 @@ $pfconfig::constants::CONFIG_FILE_PATH = $args{c} if($args{c});
 my $socket_path = $args{s};
 unlink($socket_path);
 
+Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 #Ensure that the file permissions of the socket is correct 0770
 umask(0007);
 
@@ -157,7 +158,6 @@ our %DISPATCH = (
     'pull_expire'        => \&pull_expire,
 );
 
-Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 # Used to set the current prefered encoding
 my $encoding;
 
