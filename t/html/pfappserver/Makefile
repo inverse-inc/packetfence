@@ -55,6 +55,7 @@ test:
 	DISPLAY= \
 	NO_COLOR=1 \
 	BROWSERSLIST_IGNORE_OLD_DATA=true \
+	LIBGL_ALWAYS_INDIRECT=1 \
 	CYPRESS_baseUrl=$(BASE_URL) \
 	CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT=$(CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT) \
 	npx cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --env tags=[$(TAGS)] ; \
@@ -67,6 +68,7 @@ test-project:
 	DISPLAY= \
 	NO_COLOR=1 \
 	BROWSERSLIST_IGNORE_OLD_DATA=true \
+	LIBGL_ALWAYS_INDIRECT=1 \
 	CYPRESS_baseUrl=$(BASE_URL) \
 	CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT=$(CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT) \
 	npx cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
