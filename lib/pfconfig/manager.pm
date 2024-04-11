@@ -89,6 +89,7 @@ sub get_namespace {
     # load the module to instantiate
     if ( !( eval "$type->require()" ) ) {
         $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
+        return undef;
     }
 
     my $elem = $type->new($self, @args);
@@ -521,6 +522,10 @@ sub preload_all {
     print "\n------------------\n";
     foreach my $namespace (@namespaces) {
         $namespace = normalize_namespace_query($namespace);
+        if ($namespace eq '') {
+            print "Skipping empty namespace\n";
+        }
+
         print "Preloading $namespace\n";
         $self->get_cache($namespace);
         $self->config_builder($namespace);
