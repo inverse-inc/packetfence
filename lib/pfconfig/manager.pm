@@ -62,6 +62,9 @@ sub config_builder {
     my ( $self, $namespace ) = @_;
     my $logger = get_logger;
     my $elem = $self->get_namespace($namespace);
+    if (!$elem) {
+        return undef;
+    }
     my $tmp  = $elem->build();
     return $tmp;
 }
@@ -521,10 +524,10 @@ sub preload_all {
     my @namespaces = $self->list_namespaces;
     print "\n------------------\n";
     foreach my $namespace (@namespaces) {
-        $namespace = normalize_namespace_query($namespace);
-        if ($namespace eq '') {
+        if ( !defined $namespace || $namespace eq '' ) {
             print "Skipping empty namespace\n";
         }
+        $namespace = normalize_namespace_query($namespace);
 
         print "Preloading $namespace\n";
         $self->get_cache($namespace);
