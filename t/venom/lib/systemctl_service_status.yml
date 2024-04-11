@@ -13,6 +13,6 @@ steps:
   retry: "{{.input.i_retry}}"
   delay: "{{.input.i_delay}}"
   assertions:
-    - service_status ShouldContainSubstring '{{.input.substring}}'
+    - result.service_status ShouldContainSubstring '{{.input.substring}}'
 output:
   service_status_systemout: "{{.result.service_status}}"
