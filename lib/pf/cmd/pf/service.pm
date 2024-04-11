@@ -82,7 +82,7 @@ use pf::services;
 use List::MoreUtils qw(part any true all);
 use pf::constants::services qw(JUST_MANAGED);
 use pf::cluster;
-use pf:firewalld;
+use pf::firewalld;
 
 my $logger = get_logger();
 
