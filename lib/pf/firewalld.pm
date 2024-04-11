@@ -140,15 +140,12 @@ sub firewalld_clean_pfconf_configs {
 }
 
 sub firewalld_generate_configs {
-  #firewalld_generate_pfconf_configs();
   fd_create_all_zones();
   fd_firewalld_rules("add");
   fd_services_rules("add");
 }
 
 sub firewalld_generate_pfconf_configs {
-  pf_run("sudo systemctl stop packetfence-iptables");
-  pf_run("sudo systemctl disable packetfence-iptables");
   generate_firewalld_file_config();
   generate_lockdown_whitelist_config();
   generate_helpers_config();
