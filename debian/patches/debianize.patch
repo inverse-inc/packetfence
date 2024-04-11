@@ -56,15 +56,15 @@ index 874dd34736..050d5bae1f 100644
  ExecStop=/bin/bash -c "docker stop api-frontend ; echo Stopped"; /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("remove")'
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-firewalld.service b/conf/systemd/packetfence-firewalld.service
-index 78715fed00..33fbc37a9e 100644
+index b002de95b0..b5b6a7adfc 100644
 --- a/conf/systemd/packetfence-firewalld.service
 +++ b/conf/systemd/packetfence-firewalld.service
 @@ -13,9 +13,9 @@ After=packetfence-config.service
  EnvironmentFile=-/usr/local/pf/conf/firewalld
  # supress service that is using the same dbus
  ExecStartPre=/bin/bash -c "/bin/rm /usr/lib/systemd/system/firewalld.service || true"
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::keepalived' -e 'pf::services::manager::firewalld->new()->generateConfig()'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::keepalived' -e 'pf::services::manager::firewalld->new()->generateConfig()'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_pfconf_configs()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_pfconf_configs()'
  ExecStart=/usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/local/pf/var/conf/firewalld
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_configs()'
 +ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_configs()'
