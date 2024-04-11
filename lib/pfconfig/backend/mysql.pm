@@ -39,6 +39,16 @@ sub _get_db {
     my ($self) = @_;
     my $logger = get_logger;
 
+    my $last_failed_time = $self->{_last_failed_time};
+    if (defined $last_failed_time ) {
+        my $diff = time() - $last_failed_time;
+        if ($diff < 5) {
+            $diff = 5 - $diff;
+            $logger->error("Retry connections in $diff");
+            return undef;
+        }
+    }
+
     my $self_dbh_valid = 0;
     eval {
         $self_dbh_valid = (defined $self->{_db} && $self->{_db}->ping);
@@ -52,15 +62,6 @@ sub _get_db {
     }
 
     $self->{_db} = undef;
-    my $last_failed_time = $self->{_last_failed_time};
-    if (defined $last_failed_time ) {
-        my $diff = time() - $last_failed_time;
-        if ($diff < 5) {
-            $diff = 5 - $diff;
-            $logger->error("Retry connections in $diff");
-            return undef;
-        }
-    }
 
     $self->{_last_failed_time} = undef;
     $logger->info("Connecting to MySQL database");
@@ -71,6 +72,7 @@ sub _get_db {
             $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1 } );
     };
     if($@) {
+        $self->_set_last_failed_time();
         $self->{_last_failed_time} = time();
         $logger->error("Caught error $@ while connecting to database.");
         return undef;
@@ -105,6 +107,7 @@ sub db_readonly_mode {
     };
     if($@) {
         $logger->error("Cannot connect to database to see if its in read-only mode. Will consider it in read-only.");
+        $self->_set_last_failed_time();
         return 1;
     }
     # If readonly no need to check wsrep health
@@ -158,6 +161,14 @@ sub _db_error {
         $self->{_last_failed_time} = time();
     }
     $logger->error("Couldn't connect to MySQL database to access L2. This is a major problem ! Check the MySQL section in /usr/local/pf/conf/pfconfig.conf and make sure your database schema is up to date !");
+}
+
+sub _set_last_failed_time {
+    my ($self) = @_;
+    if (!$self->{_last_failed_time}) {
+        $self->{_db} = undef;
+        $self->{_last_failed_time} = time();
+    }
 }
 
 =head2 get
