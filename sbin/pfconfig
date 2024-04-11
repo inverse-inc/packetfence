@@ -125,9 +125,11 @@ $pfconfig::constants::CONFIG_FILE_PATH = $args{c} if($args{c});
 my $socket_path = $args{s};
 unlink($socket_path);
 
+Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 my $cache = pfconfig::manager->new;
 $cache->{pfconfig_server} = 1;
 $cache->preload_all();
+
 
 #Ensure that the file permissions of the socket is correct 0770
 umask(0007);
@@ -167,8 +169,6 @@ our %DISPATCH = (
     'sleep'              => \&server_sleep,
     'pull_expire'        => \&pull_expire,
 );
-
-Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 # Used to set the current prefered encoding
 my $encoding;
 
@@ -184,15 +184,15 @@ while($RUNNING) {
     my $socket;
     my $line;
     my $query;
+    local $SIG{ALRM} = sub { die "timeout of $REQUEST_TIMEOUT has been reached\n" };
     eval {
         my $paddr = accept($socket, $listener);
         #Check if a signal was caught
         unless (defined $paddr || $! == EINTR) {
             die("Can't accept connection: $!\n");
         }
-
-        local $SIG{ALRM} = sub { die "timeout of $REQUEST_TIMEOUT has been reached\n" };
         alarm $REQUEST_TIMEOUT;
+
         if($paddr) {
             $line = <$socket>;
             if (!defined $line) {
@@ -232,6 +232,10 @@ while($RUNNING) {
         alarm 0;
     };
     if($@){
+        if ($@ !~ /^timeout of/) {
+            alarm 0;
+        }
+
         print STDERR "$line : $@";
         send_output(undef, $socket, $query) if $socket;
     }
