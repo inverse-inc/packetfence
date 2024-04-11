@@ -33,8 +33,7 @@ start firewalld
 
 sub startService {
     my ($self) = @_;
-    firewalld_generate_pfconf_configs();
-    firewalld_generate_configs();
+    system('sudo systemctl start packetfence-firewalld');
     return 1;
 }
 
@@ -46,6 +45,7 @@ generateConfig
 
 sub generateConfig {
     firewalld_generate_pfconf_configs();
+    firewalld_generate_configs();
     return 1;
 }
 
