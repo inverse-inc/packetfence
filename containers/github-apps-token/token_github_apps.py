@@ -8,6 +8,10 @@ from cryptography.hazmat.backends import default_backend
 import time
 from base64 import b64encode
 import requests
+import smtplib
+from email.mime.text import MIMEText
+import re
+
 
 def b64encodestr(string):
     return b64encode(string.encode("utf-8")).decode()
@@ -103,8 +107,42 @@ def  generate_token(jwt_token, org_github_apps_id, github_client_repository_name
 
     # If 5 attempts fail, raise an error
     raise RuntimeError("Failed to generate token after 5 attempts.")
-        
 
+
+
+def send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name ):
+    subject = "PacketFence Cloud NAC: Error token update"
+    sender = "packetfenceaas@gmail.com"
+    recipients = [client_email, "i.stegarescu@yahoo.com"]
+    body = """
+    <html>
+    <body>
+        <p>Hi {client_name}!</p>
+        <p>The next error was encountered during update of token: </p>
+        <p><b>{error}</b> </p>
+        </br>
+        <p>Other informations:</p>
+            <p>Client namespace:  {k8s_namespace_name}</p>
+            <p>Client secret name: {k8s_secret_name}</p>
+    </body>
+    </html>
+    """
+    body = body.format(client_name=client_name, error=error, k8s_namespace_name=k8s_namespace_name, k8s_secret_name=k8s_secret_name )
+    msg = MIMEText(body, 'html')
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ', '.join(recipients)
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+        smtp_server.login(sender, gmail_smtp_password)
+        smtp_server.sendmail(sender, recipients, msg.as_string())
+    print("Message sent!")
+
+
+def email_type(value):
+    RE_EMAIL = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+    if not RE_EMAIL.match(value):
+        raise argparse.ArgumentTypeError(f"'{value}' is not a valid email")
+    return value
 
 def main():
     parser = argparse.ArgumentParser(description="Update token for each client")
@@ -114,6 +152,9 @@ def main():
     parser.add_argument("--github_client_repository_name", default=os.environ.get('GITHUB_CLIENT_REPOSITORY_NAME'), help="GitHub client repostory name")
     parser.add_argument("--k8s_namespace_name", default=os.environ.get('K8S_NAMESPACE_NAME'), help="Kubernetes namespace name")
     parser.add_argument("--k8s_secret_name", default=os.environ.get('K8S_SECRET_NAME'), help="Kubernetes secret name")
+    parser.add_argument("--gmail_smtp_password", default=os.environ.get('GMAIL_SMTP_PASSWORD'), help="Gmail SMTP secret")
+    parser.add_argument("--client_name", default=os.environ.get('CLIENT_NAME'), help="Client Name")
+    parser.add_argument("--client_email", default=os.environ.get('CLIENT_EMAIL'), type=email_type,  help="Client email")
     args =  parser.parse_args()
 
     private_key_file=args.private_key_file
@@ -122,6 +163,9 @@ def main():
     github_client_repository_name=args.github_client_repository_name
     k8s_namespace_name=args.k8s_namespace_name
     k8s_secret_name=args.k8s_secret_name
+    gmail_smtp_password=args.gmail_smtp_password
+    client_name=args.client_name
+    client_email=args.client_email
 
     if not private_key_file or not github_org_apps_id or not github_installed_apps_id or not k8s_namespace_name or not k8s_secret_name or not github_client_repository_name:
         exit(parser.print_usage())
@@ -129,21 +173,27 @@ def main():
     try:
         jwt_token = generate_jwt_token(private_key_file, github_org_apps_id)
     except Exception as e:
-        print("Error: ", e)
+        error=f"Error: {e}"
+        print(error)
+        send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 
 
     try:
         fine_graned_token = generate_token(jwt_token, github_installed_apps_id, github_client_repository_name)
     except RuntimeError as e:
-        print("Error: ", e)
+        error=f"Error: {e}"
+        print(error)
+        send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 # update the github_token
     try:
         k8s_secret_key="github_token_key"
         update_secrets(k8s_namespace_name, k8s_secret_name, k8s_secret_key, fine_graned_token)
     except Exception as e:
-        print(f"Error update k8s secret on { k8s_namespace_name }:", e)
+        error=f"Error update k8s secret on { k8s_namespace_name }: {e}"
+        print(error)
+        send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 
 # update the github_token
@@ -152,7 +202,9 @@ def main():
         netrc_value=f"machine github.com login inversebot password {fine_graned_token}"
         update_secrets(k8s_namespace_name, k8s_secret_name, k8s_secret_key, netrc_value)
     except Exception as e:
-        print(f"Error update k8s secret on { k8s_namespace_name }:", e)
+        error=f"Error update k8s secret on { k8s_namespace_name }: {e}"
+        print(error)
+        send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 
 if __name__ == '__main__':
