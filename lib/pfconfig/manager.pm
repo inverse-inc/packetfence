@@ -526,6 +526,7 @@ sub preload_all {
     foreach my $namespace (@namespaces) {
         if ( !defined $namespace || $namespace eq '' ) {
             print "Skipping empty namespace\n";
+            next;
         }
         $namespace = normalize_namespace_query($namespace);
 
