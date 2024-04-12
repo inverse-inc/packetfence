@@ -758,7 +758,7 @@ if [ -f /lib/systemd/system/firewalld.service ]; then
 else
   echo "Firewalld has already been removed."
 fi
-if /bin/systemctl -a | grep "packetfence-iptables.services" > /dev/null 2>&1; then
+if [ -f /usr/lib/systemd/system/packetfence-iptables.service ]; then
   echo "Disabling/Remove Packetfence Iptables service"
   /bin/systemctl stop packetfence-iptables.service > /dev/null 2>&1
   /bin/systemctl disable packetfence-iptables.service > /dev/null 2>&1
