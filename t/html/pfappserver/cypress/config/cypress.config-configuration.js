@@ -1,6 +1,8 @@
 const fs = require('fs-extra');
 const fetch = require('node-fetch');
+const path = require('path');
 const base = require('./cypress.config.js');
+const fixturesPath = path.join(__dirname, '../fixtures');
 
 module.exports = {
   ...base,
@@ -22,9 +24,9 @@ module.exports = {
           response = await fetch(`${base.e2e.baseUrl}/api/v1/config/maintenance_tasks?limit=1000`, { method: 'GET', headers });
           body = await response.text();
           let { items = [] } = JSON.parse(body);
-          await fs.writeFile('../fixtures/runtime/maintenanceTasks.json', JSON.stringify(items.map(item => item.id), null, 2), { flag: 'w+' });
+          await fs.writeFile(`${fixturesPath}/runtime/maintenanceTasks.json`, JSON.stringify(items.map(item => item.id), null, 2), { flag: 'w+' });
           await items.forEach(async item => {
-            await fs.writeFile(`../fixtures/runtime/maintenanceTask-${item.id}.json`, JSON.stringify(item, null, 2), { flag: 'w+' });
+            await fs.writeFile(`${fixturesPath}/runtime/maintenanceTask-${item.id}.json`, JSON.stringify(item, null, 2), { flag: 'w+' });
           })
 
           // get ACLs, write fixtures
@@ -37,7 +39,7 @@ module.exports = {
             })
             return acls
           }, {})
-          await fs.writeFile('../fixtures/runtime/acls.json', JSON.stringify(acls, null, 2), { flag: 'w+' });
+          await fs.writeFile(`${fixturesPath}/runtime/acls.json', JSON.stringify(acls, null, 2), { flag: 'w+' });
         })
       });
       return base.e2e.setupNodeEvents(on, config);
