@@ -105,8 +105,19 @@ case "$1" in
         mkdir -p /usr/local/pf/html/captive-portal/profile-templates/default
         cp /usr/local/pf/html/common/packetfence-cp.png /usr/local/pf/html/captive-portal/profile-templates/default/logo.png
 
-        # managing services
+        # Firewalld handeling
         set +e
+        # Related to firewalld.service
+        /bin/systemctl stop firewalld.service
+        /bin/systemctl disable firewalld.service
+        /bin/systemctl mask firewalld.service
+        /bin/rm -rf /usr/lib/systemd/system/firewalld.service
+        /bin/rm -rf /lib/systemd/system/firewalld.service
+        /bin/systemctl daemon-reload
+        set -e
+
+        # managing services
+	set +e
         for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba nmbd mysql snmpd netdata collectd proxysql; do
 
             if [ -e "/etc/init.d/"$service ] ; then
