@@ -56,13 +56,13 @@ index 874dd34736..050d5bae1f 100644
  ExecStop=/bin/bash -c "docker stop api-frontend ; echo Stopped"; /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("remove")'
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-firewalld.service b/conf/systemd/packetfence-firewalld.service
-index b002de95b0..b5b6a7adfc 100644
+index 6e7e2ad0f2..8dc0d5543c 100644
 --- a/conf/systemd/packetfence-firewalld.service
 +++ b/conf/systemd/packetfence-firewalld.service
 @@ -13,9 +13,9 @@ After=packetfence-config.service
  EnvironmentFile=-/usr/local/pf/conf/firewalld
  # supress service that is using the same dbus
- ExecStartPre=/bin/bash -c "/bin/rm /usr/lib/systemd/system/firewalld.service || true"
+ ExecStartPre=/bin/bash -c "/bin/rm -rf /usr/lib/systemd/system/firewalld.service || true"
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_pfconf_configs()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_pfconf_configs()'
  ExecStart=/usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/local/pf/var/conf/firewalld
@@ -405,12 +405,12 @@ index fc123777b2..8377843fbb 100644
  ExecStop=/bin/bash -c "docker stop pfcron ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfdhcp.service b/conf/systemd/packetfence-pfdhcp.service
-index d7dc5853e6..2c714c3859 100644
+index 41fc05357e..73bb8cc86f 100644
 --- a/conf/systemd/packetfence-pfdhcp.service
 +++ b/conf/systemd/packetfence-pfdhcp.service
-@@ -18,8 +18,8 @@ Restart=on-failure
+@@ -16,8 +16,8 @@ ExecStart=/usr/local/pf/sbin/pfdhcp
+ Restart=on-failure
  Slice=packetfence.slice
- ExecStop=/usr/local/pf/firewalld/scripts/firewalld-service.sh pf-pfdhcp remove
  # Firewalld
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("remove")'
