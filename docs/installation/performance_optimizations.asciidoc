@@ -24,83 +24,128 @@ NOTE: This section assumes that you already have an Active Directory domain conf
 
 CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work. To ensure a better performance and flexible NTLM authentication caching, Windows 2012 R2 or later version is recommended.
 
+CAUTION: NT Key cache relies on timestamps such as "last password reset" of an account to determine the expiration time and cache dirty status, Timezone settings for PacketFence and Windows Domain Controller must be identical.
+
 When using NTLM authentication against an Active Directory for 802.1X EAP-PEAP connections, this can become a bottleneck when handling dozens of authentications per seconds.
 
-To overcome this limitation, it is possible to use a cache inside PacketFence to reduce the amount of authentications requiring an external NTLM authentication call. If NT Key cache is enabled, PacketFence will try to find a valid NT key for device connected, if it's found, if the device being authenticated has granted network access before, NT Key will be returned immediately without doing a transitive login with domain controller.
+To overcome this limitation, it is possible to use a cache inside PacketFence to reduce the amount of authentications requiring an external NTLM authentication call.
 
-Otherwise, it will fallback to a traditional transitive login with the domain controller and cache the session key (NT Key) if successful authenticated.
+If NT Key cache is enabled, PacketFence will try to find a valid NT key for the device being connected. If the device has passed the NTLM authentication recently, the corresponding NT Key will be returned immediately. No transitive login with domain controller will be performed. Otherwise, a transitive login will be performed and NT key will be cached if successfully pass the authentication.
 
-NOTE: The NT Key cache doesn't cache any NT hashes or user passwords, it caches the NT session key for each connected device for a period of time if enabled.
+NOTE: The NT Key cache doesn't cache any NT hashes or user passwords, it caches the NT session key for each connected device for a period of time.
 
-NOTE: NT Key cache will also caches the wrong password count in order to block the device that keep trying using wrong password (or old password) to avoid an account lockout.
+NOTE: The NT Key cache also caches wrong password attempts to help block the devices that keep authenticating using wrong password (or old password) in order to protect the user account from being locked out in Domain Controller.
 
 
 ==== PacketFence Configuration
 
-To Enable NT key caching, you'll have need a valid domain config entry in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_
+To Enable NT key caching, you need a valid domain config entry in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_
 
-At the bottom of the domain configuration page
+At NT Key cache tab,
 
 * Enable NT Key cache.
-* Specify a cache expiration time. Default is 3600 (in seconds)
+* Specify a cache expiration time. Ranges from 60 to 86400. Default is 12000 (in seconds).
 * Fill in the Windows Group Policy Settings
  ** Account Lockout Threshold
  ** Reset Account Lockout Counter After
  ** Account Lockout Duration
  ** Old Password Allowed Period
 
+image::domain-nt-key-cache.jpg[scaledwidth="100%",alt="NT Key cache settings"]
+
+NOTE: Cache expiration time: a value longer than reauth period settings on the switch is recommended. E.g., If the reauth period on a Cisco switch is set to 10800s, a value less than 10800 may cause the cache entry to expire before reauth.
+
 Those settings can be found on the Windows Domain Controller by the following steps:
 
-Go to _Start menu -> Administrative Tools -> Group Policy Management_
+Go to _Start menu -> Administrative Tools -> Group Policy Management_.
+
 In the console tree, expand *Forest* -> *Domains* -> *Your Domain* -> *Group Policy Objects* -> *Default Domain Policy*
+
 In the right panel, navigate to *Settings* page, You will have these parameters in *Policies* -> *Windows Settings* -> *Security Settings* -> *Account Policies, Account lockout policies*
-image::domain-windows-account-policy.png[scaledwidth="100%",alt="Windows Account Policies"]
 
-NOTE: Steps may vary on different windows versions. The steps above are for Windows Server 2022.
-
-NOTE: If you didn't see some of the values listed above, means they are set to default value. You can leave the settings in blank or as-is in PacketFence's configuration.
-
-NOTE: If you'd like to change the values, follow the default Windows GPO best practise guide.
-
-For *Old Password Allowed Period*, There's currently no GPO settings. The default value is 60 min. It can be changed following this guide:
+For *Old Password Allowed Period*, There's no group policy settings. The default value is 60 (in minutes). It can be changed using the following guide:
 
 https://learn.microsoft.com/en-US/troubleshoot/windows-server/windows-security/new-setting-modifies-ntlm-network-authentication
 
-You'll still need to create a dedicated user that receives Windows Events from Domain Controller. You can create the user by the following steps:
-* log on to PacketFence Admin UI, in *Users* section, create a user with a strong, unique password.
-* change the user's *Access Level* to *Windows Event Receiver NTLM*
+image::domain-windows-account-policy.png[scaledwidth="100%",alt="Windows Account Policies"]
 
-This username and password will be required when you set up the Windows Event Notifier PowerShell script later.
+NOTE: Steps may vary on different windows versions. The steps and screenshots above are from Windows Server 2022.
+
+NOTE: In newer version of Windows Server, if you didn't see some of the values listed above, they might be in default value. You can check the values by clicking "Edit" on domain policies to check its default values.
+
+You also need to create a dedicated user that receives Windows Events from Domain Controller and reports the events to NT Key caching service. You can create the user following the steps below:
+
+* log on to PacketFence Admin UI, in *Users* section, create a user with a strong, unique password.
+
+* in the following *Access Level* field, change it to *Windows Event Receiver NTLM*
+
+This *username* and *password* will be needed in the next step - Config Windows Event Notifier PowerShell script.
 
 ==== Active Directory Configuration
 
-Once configuration is done on PacketFence side, you'll still need some changes made on Windows Domain Controller
+You still need to report the account *password change*, *account password reset* to PacketFence in order to help NT Key cache invalidate cache entries accurately.
+
+If you wish to invalidate the cache entry immediately after an account unlock in the Domain Controller, you'll also need to report user account unlock event, otherwise, an user lock state will be cached up to 60s after unlock from Domain Controller.
 
 ===== Config Windows Event Notifier
 
-Windows Event Notifier is a powershell script used to filter, analyze and report accout events to PacketFence.
-Includes:
- * Password reset
- * Password change
- * User account locked
- * User account unlocked
- * User account disabled
+Windows Event Notifier is a powershell script used to filter, analyze and report account management events to PacketFence. Which includes:
+
+ * Account password change - Windows Event ID: 4723
+ * Account password reset - Windows Event ID: 4724
+ * User account unlock - Windows Event ID: 4624
 
 
+CAUTION: *Account password reset* and *Account password change* events must be reported in order to keep NT Key cache work properly. Otherwise, staled cache entries will be kept and cause authentication failures.
 
-*Password reset* and *Password change* Events must be reported to ensure Windows NT Key cache works properly.
-Other events listed above will be optional but recommended.
+User account unlock events report is optional, but recommended.
 
-To attach the Windows Event Notifier, you'll need
+===== Preparation
 
- * copy the windows event notifier powershell script in /usr/local/pf/addons/AD/password_change_notifier.ps1 to *each* domain controller you want to have NT Key cache enabled.
- * Modify the script, Fill in the PacketFence server IP and username and password of Event Reporter.
- * Go to windows event viewer, try to find an event of specific category. e.g. 4724 for password reset and 4723 for password change.
- * Right click on the event you want to monitor and report, select *attache tasks to this event*, then choose *Launch a program* for action option, fill in the path of the script, and save.
- * After saving the task, it can be find and modified in *Task Scheduler*, Make sure this script will run under *Administrator Privilege*, otherwise it will fail to read windows events.
+* Copy `/usr/local/pf/addons/AD/password_change_notifier.ps1` to *each* Domain Controller has NT Key cache enabled.
+* Edit the script, Fill in the *PacketFence Server IP*, *username* and *password* we set for Windows Event Reporter in previous step.
+
+===== Config Scheduled Tasks
+
+=====
+ * Go to *Windows Event Viewer*, try to locate an event with EventID = *4723* or *4724*. These are event IDs for password change and password reset respectively.
 
 image::domain-windows-events-viewer.png[scaledwidth="100%",alt="Windows Events Viewer"]
+
+* Click on any event with event ID of *4723* or *4724*, select *Attach tasks to this event* in the right panel, then choose *Launch a program* for action option, fill in the `powershell REAL_ABSOLUTE_PATH_OF_THE_NOTIFIER_SCRIPT`, click save.
+
 image::domain-event-trigger-in-task-scheduler.png[scaledwidth="100%",alt="Windows Events Trigger in Task Scheduler"]
+
+ * Repeat the same step above for another event ID.
+ * After saving the task, it can be found and modified in *Task Scheduler*, Make sure this script will run under *Administrator Privilege*, otherwise it will fail to read windows events.
+=====
+
+
+or
+
+=====
+ * Go to *Task Scheduler*, in the left panel, expand *Event Viewer Tasks*, on the right panel, right click on the blank area and select *Create new task...*
+
+image::domain-nt-key-cache-task-scheduler.jpg[scalewidth="100%", alt="Windows Task Scheduler"]
+
+ * In the popup window, Name the task, and select *Run whether user is logged on or not* in *Security options*.
+ * Click on *Trigger* Tab, then *New...* button, on the popup window, select *On an event* for *Begin the task*, and *Security* for *Log* field, then type in *4723* for *Event ID* field, click "OK".
+
+image::domain-nt-key-cache-task-scheduler-triggers.jpg[scaledwidth="100%",alt="Windows Events Triggers in Task Scheduler"]
+
+ * Repeat the previous step to add event trigger for event *Password Reset* and *User Account Unlock*, User Account Unlock event Report is optional.
+ * Click on *Action* tab, select *Start a program* for *Action* field, in *Program/script* field, type in full path of powershell.exe, it's usually `C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe`.
+ * In *Add arguments* field, type in the full path of the powershell script, e.g., if you copied and saved it on `C:\Users\Administrator\Desktop\event-notifier.ps1`
+ * In *Start in* field, type in the working directory you'd like it to run. It's optional but will be easier for troubleshooting purpose, E.g., let's put it the same directory where the powershell script locates: `C:\Users\Administrator\Desktop`
+
+image::domain-nt-key-cache-task-scheduler-actions.jpg[scaledwidth="100%",alt="Windows Events Actions"]
+
+ * Click "OK" to save the changes, you will be asked for Administrator password.
+=====
+
+===== Finalize and Test
+
+Manually reset a user password and see if PacketFence got events.
 
 ==== Restart NTLM Auth API
 
