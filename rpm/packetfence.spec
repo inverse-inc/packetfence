@@ -321,7 +321,7 @@ Requires: tdb-tools
 # For ntlm_auth_wrapper
 Requires: cjson >= 1.7.14
 # For FirewallD in Rockylinux 8
-#Requires: firewalld >= 0.9.11-1.el8_8.noarch
+Requires: firewalld >= 0.9.11-1.el8_8
 
 %description
 
@@ -600,7 +600,6 @@ fi
 # clean up the old systemd files if it's an upgrade
 if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-redis-cache
-    /usr/bin/systemctl disable packetfence-iptables
     /usr/bin/systemctl disable packetfence-config
     /usr/bin/systemctl disable packetfence.service
     /usr/bin/systemctl disable packetfence-haproxy.service
@@ -747,6 +746,26 @@ echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
 sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
 /usr/local/pf/bin/pfcmd fixpermissions
+
+#Check if Firewalld exist and is enabled
+if [ -f /lib/systemd/system/firewalld.service ]; then
+  echo "Remove and disable firewalld"
+  /bin/systemctl stop firewalld.service > /dev/null 2>&1
+  /bin/systemctl disable firewalld.service > /dev/null 2>&1
+  /bin/systemctl mask firewalld.service > /dev/null 2>&1
+  /bin/rm -rf /usr/lib/systemd/system/firewalld.service > /dev/null 2>&1
+  /bin/systemctl daemon-reload > /dev/null 2>&1
+else
+  echo "Firewalld has already been removed."
+fi
+if /bin/systemctl -a | grep "packetfence-iptables.services" > /dev/null 2>&1; then
+  echo "Disabling/Remove Packetfence Iptables service"
+  /bin/systemctl stop packetfence-iptables.service > /dev/null 2>&1
+  /bin/systemctl disable packetfence-iptables.service > /dev/null 2>&1
+  /bin/systemctl mask packetfence-iptables.service > /dev/null 2>&1
+  /bin/rm -rf /usr/lib/systemd/system/packetfence-iptables.services > /dev/null 2>&1
+  /bin/systemctl daemon-reload > /dev/null 2>&1
+fi
 
 # reloading systemd unit files
 /bin/systemctl daemon-reload
