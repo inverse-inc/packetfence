@@ -39,7 +39,7 @@ module.exports = {
             })
             return acls
           }, {})
-          await fs.writeFile(`${fixturesPath}/runtime/acls.json', JSON.stringify(acls, null, 2), { flag: 'w+' });
+          await fs.writeFile(`${fixturesPath}/runtime/acls.json`, JSON.stringify(acls, null, 2), { flag: 'w+' });
         })
       });
       return base.e2e.setupNodeEvents(on, config);
