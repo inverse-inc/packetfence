@@ -113,11 +113,6 @@ our (
     $fingerbank_default_config_file,
     $fingerbank_doc_file,
     $api_i18n_dir,
-    $iptable_config_file,
-    $iptable_input_config_file,
-    $iptable_input_management_config_file,
-    $ip6table_config_file,
-    $ip6table_input_management_config_file,
     $ssl_config_file, $ssl_default_config_file,
     $tls_config_file, $tls_default_config_file,
     $ocsp_config_file, $ocsp_default_config_file,
@@ -233,11 +228,6 @@ BEGIN {
         $fingerbank_default_config_file
         $fingerbank_doc_file
         $api_i18n_dir
-        $iptable_config_file
-        $iptable_input_config_file
-        $iptable_input_management_config_file
-        $ip6table_config_file
-        $ip6table_input_management_config_file
         $ssl_config_file $ssl_default_config_file
         $tls_config_file $tls_default_config_file
         $ocsp_config_file $ocsp_default_config_file
