@@ -12,7 +12,7 @@ After=packetfence-config.service
 [Service]
 EnvironmentFile=-/usr/local/pf/conf/firewalld
 # supress service that is using the same dbus
-ExecStartPre=/bin/bash -c "/bin/rm /usr/lib/systemd/system/firewalld.service || true"
+ExecStartPre=/bin/bash -c "/bin/rm -rf /usr/lib/systemd/system/firewalld.service || true"
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_pfconf_configs()'
 ExecStart=/usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/local/pf/var/conf/firewalld
 ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_configs()'
