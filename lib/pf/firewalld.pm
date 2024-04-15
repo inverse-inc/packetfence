@@ -27,7 +27,6 @@ use pf::constants;
 use pf::config::cluster;
 use File::Slurp qw(read_file);
 use URI ();
-use pf::services;
 use pf::Firewalld::util;
 
 BEGIN {
