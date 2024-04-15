@@ -422,6 +422,6 @@ char **argv, **envp;
         send_statsd(arguments, status, elapsed);
 
     if (status != 0) {
-        exit(1)
+        exit(1);
     }
 }
