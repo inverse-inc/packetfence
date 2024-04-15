@@ -21,6 +21,8 @@ use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::file_paths qw($domains_chroot_dir);
 use pf::constants::domain qw($SAMBA_CONF_PATH);
+use Digest::MD4 qw(md4_hex);
+use Encode qw(encode);
 use File::Slurp;
 
 # This is to create the templates for the domain info
@@ -52,15 +54,16 @@ Executes the command in the OS to test the domain join
 
 sub add_computer {
     my $option = shift;
-    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $baseDN, $computer_group, $domain_auth) = @_;
+    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $baseDN, $computer_group, $workgroup, $bind_dn, $bind_pass) = @_;
 
     $computer_name = escape_bind_user_string($computer_name) . "\$";
     $computer_password = escape_bind_user_string($computer_password);
-    $domain_auth = escape_bind_user_string($domain_auth);
+    my $domain_auth = escape_bind_user_string("$workgroup/$bind_dn");
+    my $nt_hash = md4_hex(encode("utf-16le", $bind_pass));
 
     my $result;
     eval {
-        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group $computer_group '$domain_auth' $option";
+        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group $computer_group '$domain_auth' -hashes ':$nt_hash' $option";
         $result = pf_run($command, accepted_exit_status => [ 0 ]);
     };
     if ($@) {
