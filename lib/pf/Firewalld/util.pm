@@ -17,6 +17,8 @@ use warnings;
 use File::Basename;
 use File::Copy;
 use Template;
+use IPC::Open3 qw(open3);
+use Symbol qw(gensym);
 
 BEGIN {
   use Exporter ();
@@ -54,6 +56,7 @@ BEGIN {
     util_reload_firewalld
     util_get_name_files_from_dir
     util_create_config_file
+    util_getServiveState 
     is_service_available
     is_zone_available
     is_icmptypes_available
@@ -74,7 +77,6 @@ use pf::file_paths qw(
     $firewalld_config_path_applied
 );
 use pf::util::system_protocols qw ( is_protocol_available );
-
 use Data::Dumper;
 
 sub util_prepare_firewalld_config {
@@ -809,6 +811,38 @@ sub firewalld_ipset_types_hash {
                          "hash:mac" => 1
   );
   return \%default_ipsets;
+}
+
+sub util_getServiveState {
+    my ($services, $props) = @_;
+    return [] if @$services == 0;
+    my @args = ((map { ('-p' => $_) } @$props), @$services);
+    my $pid = open3(my $chld_in, my $chld_out, my $chld_err = gensym, 'sudo', 'systemctl', 'show', @args);
+    waitpid( $pid, 0 );
+    my $child_exit_status = $? >> 8;
+    my $out = do {
+        local $/ = undef;
+        <$chld_out>
+    };
+    close($chld_in);
+    close($chld_out);
+    close($chld_err);
+
+    my @states;
+    my $state = {};
+    for my $line (split '\n', $out) {
+        if ($line eq '') {
+            push @states, $state;
+            $state = {};
+            next;
+        }
+
+        my ($k, $v) = split('=', $line, 2);
+        $state->{$k} = $v;
+    }
+
+    push @states, $state;
+    return \@states;
 }
 
 sub is_ipset_type_available {

@@ -237,7 +237,7 @@ sub fd_services_rules {
       packetfence-snmptrapd.service
       packetfence-tracking-config.service
       )];
-  my $states = pf::services::getServiveState($services,[qw(Id ActiveState)]);
+  my $states = util_getServiveState($services,[qw(Id ActiveState)]);
   foreach my $state ( @{ $states } ) {
     if ( $state->{"ActiveState"} eq "active" ) {
       if ( $state->{"Id"} eq "packetfence-api-frontend.service" ){
