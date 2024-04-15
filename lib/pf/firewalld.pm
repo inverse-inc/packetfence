@@ -318,18 +318,28 @@ sub fd_radiusd_lb_rules {
 sub fd_proxysql_rules {
   # Proxysql
   my $action = shift;
-  my $tint =  $management_network->{Tint};
-  service_to_zone($tint, $action, "proxysql");
-  util_reload_firewalld();
+  if ( util_reload_firewalld() ) {
+    my $tint =  $management_network->{Tint};
+    service_to_zone($tint, $action, "proxysql");
+    util_reload_firewalld();
+  } else {
+    get_logger()->warn("Firewalld is not started yet");
+    print("FD Not started");
+  }
 }
 
 sub fd_haproxy_admin_rules {
   # Web Admin
   my $action = shift;
-  my $tint =  $management_network->{Tint};
-  my $web_admin_port = $Config{'ports'}{'admin'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
-  util_reload_firewalld();
+  if ( util_reload_firewalld() ) {
+    my $tint =  $management_network->{Tint};
+    my $web_admin_port = $Config{'ports'}{'admin'};
+    util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
+    util_reload_firewalld();
+  } else {
+    get_logger()->warn("Firewalld is not started yet");
+    print("FD Not started");
+  }
 }
 
 sub fd_httpd_webservices_rules {
@@ -353,11 +363,16 @@ sub fd_httpd_aaa_rules {
 sub fd_api_frontend_rules {
   # Unified API
   my $action = shift;
-  my $mgnt_zone =  $management_network->{Tint};
-  my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
-  service_to_zone( $mgnt_zone, $action, "api_frontend");
-  util_reload_firewalld();
+  if ( util_reload_firewalld() ) {
+    my $mgnt_zone =  $management_network->{Tint};
+    my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
+    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
+    service_to_zone( $mgnt_zone, $action, "api_frontend");
+    util_reload_firewalld();
+  } else {
+    get_logger()->warn("Firewalld is not started yet");
+    print("FD Not started");
+  }
 }
 
 sub fd_httpd_portal_rules {
@@ -746,21 +761,30 @@ sub fd_pfconnector_server_rules {
 
 sub fd_galera_autofix_rules {
   my $action = shift;
-  foreach my $network ( @ha_ints ) {
-    my $tint =  $network->{Tint};
-    service_to_zone($tint, $action, "galera-autofix");
+  if ( util_reload_firewalld() ) {
+    foreach my $network ( @ha_ints ) {
+      my $tint =  $network->{Tint};
+      service_to_zone($tint, $action, "galera-autofix");
+    }
+    foreach my $tint ( @dhcplistener_ints ) {
+      service_to_zone($tint, $action, "galera-autofix");
+    }
+  } else {
+    get_logger()->warn("Firewalld is not started yet");
+    print("FD Not started");
   }
-  foreach my $tint ( @dhcplistener_ints ) {
-    service_to_zone($tint, $action, "galera-autofix");
-  }
-  util_reload_firewalld();
 }
 
 sub fd_mariadb_rules {
   my $action = shift;
-  my $tint =  $management_network->{Tint};
-  service_to_zone($tint, $action, "mysql");
-  util_reload_firewalld();
+  if ( util_reload_firewalld() ) {
+    my $tint =  $management_network->{Tint};
+    service_to_zone($tint, $action, "mysql");
+    util_reload_firewalld();
+  } else {
+    get_logger()->warn("Firewalld is not started yet");
+    print("FD Not started");
+  }
 }
 
 sub fd_mysql_prob_rules {
