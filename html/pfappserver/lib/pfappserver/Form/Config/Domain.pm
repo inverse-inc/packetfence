@@ -170,7 +170,7 @@ has_field 'nt_key_cache_expire' =>
     (
         type => 'PosInteger',
         label => 'Expiration',
-        default => 3600,
+        default => 12000,
         tags => { after_element => \&help,
             help => 'The amount of seconds an entry should be cached.' },
     );

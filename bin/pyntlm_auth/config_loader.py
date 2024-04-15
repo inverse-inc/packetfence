@@ -88,7 +88,7 @@ def config_load():
         domain = workgroup.lower()
 
         nt_key_cache_enabled = get_boolean_value(config.get(identifier, 'nt_key_cache_enabled', fallback=False))
-        nt_key_cache_expire = config.get(identifier, 'nt_key_cache_expire', fallback=3600)
+        nt_key_cache_expire = config.get(identifier, 'nt_key_cache_expire', fallback=12000)
 
         ad_account_lockout_threshold = config.get(identifier, 'ad_account_lockout_threshold', fallback='0')
         max_allowed_password_attempts_per_device = config.get(identifier, 'max_allowed_password_attempts_per_device',
