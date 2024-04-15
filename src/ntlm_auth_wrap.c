@@ -421,7 +421,7 @@ char **argv, **envp;
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
 
-    if status != 0 {
+    if (status != 0) {
         exit(1)
     }
 }
