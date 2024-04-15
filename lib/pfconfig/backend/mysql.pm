@@ -73,7 +73,6 @@ sub _get_db {
     };
     if($@) {
         $self->_set_last_failed_time();
-        $self->{_last_failed_time} = time();
         $logger->error("Caught error $@ while connecting to database.");
         return undef;
     }
