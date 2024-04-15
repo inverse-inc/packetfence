@@ -62,9 +62,6 @@ sub config_builder {
     my ( $self, $namespace ) = @_;
     my $logger = get_logger;
     my $elem = $self->get_namespace($namespace);
-    if (!$elem) {
-        return undef;
-    }
     my $tmp  = $elem->build();
     return $tmp;
 }
