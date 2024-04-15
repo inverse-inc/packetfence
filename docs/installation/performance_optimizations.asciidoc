@@ -108,6 +108,28 @@ User account unlock events report is optional, but recommended.
 ===== Config Scheduled Tasks
 
 =====
+* Go to *Task Scheduler*, in the left panel, expand *Event Viewer Tasks*, on the right panel, right click on the blank area and select *Create new task...*
+
+image::domain-nt-key-cache-task-scheduler.jpg[scalewidth="100%", alt="Windows Task Scheduler"]
+
+* In the popup window, Name the task, and select *Run whether user is logged on or not* in *Security options*.
+* Click on *Trigger* Tab, then *New...* button, on the popup window, select *On an event* for *Begin the task*, and *Security* for *Log* field, then type in *4723* for *Event ID* field, click "OK".
+
+image::domain-nt-key-cache-task-scheduler-triggers.jpg[scaledwidth="100%",alt="Windows Events Triggers in Task Scheduler"]
+
+* Repeat the previous step to add event trigger for event *Password Reset* and *User Account Unlock*, User Account Unlock event Report is optional.
+* Click on *Action* tab, select *Start a program* for *Action* field, in *Program/script* field, type in full path of powershell.exe, it's usually `C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe`.
+* In *Add arguments* field, type in the full path of the powershell script, e.g., if you copied and saved it on `C:\Users\Administrator\Desktop\event-notifier.ps1`
+* In *Start in* field, type in the working directory you'd like it to run. It's optional but will be easier for troubleshooting purpose, E.g., let's put it the same directory where the powershell script locates: `C:\Users\Administrator\Desktop`
+
+image::domain-nt-key-cache-task-scheduler-actions.jpg[scaledwidth="100%",alt="Windows Events Actions"]
+
+* Click "OK" to save the changes, you will be asked for Administrator password.
+=====
+
+or
+
+=====
  * Go to *Windows Event Viewer*, try to locate an event with EventID = *4723* or *4724*. These are event IDs for password change and password reset respectively.
 
 image::domain-windows-events-viewer.png[scaledwidth="100%",alt="Windows Events Viewer"]
@@ -118,29 +140,6 @@ image::domain-event-trigger-in-task-scheduler.png[scaledwidth="100%",alt="Window
 
  * Repeat the same step above for another event ID.
  * After saving the task, it can be found and modified in *Task Scheduler*, Make sure this script will run under *Administrator Privilege*, otherwise it will fail to read windows events.
-=====
-
-
-or
-
-=====
- * Go to *Task Scheduler*, in the left panel, expand *Event Viewer Tasks*, on the right panel, right click on the blank area and select *Create new task...*
-
-image::domain-nt-key-cache-task-scheduler.jpg[scalewidth="100%", alt="Windows Task Scheduler"]
-
- * In the popup window, Name the task, and select *Run whether user is logged on or not* in *Security options*.
- * Click on *Trigger* Tab, then *New...* button, on the popup window, select *On an event* for *Begin the task*, and *Security* for *Log* field, then type in *4723* for *Event ID* field, click "OK".
-
-image::domain-nt-key-cache-task-scheduler-triggers.jpg[scaledwidth="100%",alt="Windows Events Triggers in Task Scheduler"]
-
- * Repeat the previous step to add event trigger for event *Password Reset* and *User Account Unlock*, User Account Unlock event Report is optional.
- * Click on *Action* tab, select *Start a program* for *Action* field, in *Program/script* field, type in full path of powershell.exe, it's usually `C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe`.
- * In *Add arguments* field, type in the full path of the powershell script, e.g., if you copied and saved it on `C:\Users\Administrator\Desktop\event-notifier.ps1`
- * In *Start in* field, type in the working directory you'd like it to run. It's optional but will be easier for troubleshooting purpose, E.g., let's put it the same directory where the powershell script locates: `C:\Users\Administrator\Desktop`
-
-image::domain-nt-key-cache-task-scheduler-actions.jpg[scaledwidth="100%",alt="Windows Events Actions"]
-
- * Click "OK" to save the changes, you will be asked for Administrator password.
 =====
 
 ===== Finalize and Test
