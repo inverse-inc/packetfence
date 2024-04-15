@@ -57,7 +57,7 @@ our @FILES_TO_SYNC = (
     $network_behavior_policy_config_file,
     $pfconfig::constants::CONFIG_FILE_PATH,
     $fingerbank::FilePath::CONF_FILE, 
-    $fingerbank::FilePath::LOCAL_DB_FILE
+    $fingerbank::FilePath::LOCAL_DB_FILE,
     $firewalld_config_path_default,
     $firewalld_config_path_default_template,
     $firewalld_config_path_generated,
