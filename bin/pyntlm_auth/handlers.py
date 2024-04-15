@@ -30,7 +30,7 @@ def format_response(nt_key_or_error_msg, error_code):
     if error_code == flags.STATUS_DEVICE_BLOCKED:
         return nt_key_or_error_msg, HTTPStatus.UNAUTHORIZED
 
-    return nt_key_or_error_msg, HTTPStatus.INTERNAL_SERVER_ERROR
+    return nt_key_or_error_msg, HTTPStatus.BAD_REQUEST
 
 
 def ping_handler():

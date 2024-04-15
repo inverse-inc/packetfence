@@ -56,10 +56,11 @@ sub add_computer {
 
     $computer_name = escape_bind_user_string($computer_name) . "\$";
     $computer_password = escape_bind_user_string($computer_password);
+    $domain_auth = escape_bind_user_string($domain_auth);
 
     my $result;
     eval {
-        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass $computer_password -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group $computer_group $domain_auth $option";
+        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group $computer_group '$domain_auth' $option";
         $result = pf_run($command, accepted_exit_status => [ 0 ]);
     };
     if ($@) {

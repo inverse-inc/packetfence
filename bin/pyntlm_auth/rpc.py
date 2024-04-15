@@ -143,7 +143,7 @@ def transitive_login(account_username, challenge, nt_response):
             return nt_key_str.encode('utf-8').strip().decode('utf-8'), 0, info
         except NTSTATUSError as e:
             nt_error_code = e.args[0]
-            nt_error_message = str(e)
+            nt_error_message = f"NT Error: code: {nt_error_code}, message: {str(e)}"
             print(f"  Failed while authenticating user: '{account_username}' with NT Error: {e}.")
             global_vars.s_reconnect_id = global_vars.s_connection_id
             return nt_error_message, nt_error_code, None
