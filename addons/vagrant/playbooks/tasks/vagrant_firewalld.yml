@@ -3,18 +3,18 @@
   ansible.builtin.command:
     cmd: "{{ item }}"
   loop:
-    - "sudo iptables -A OUTPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT"
-    - "sudo iptables -A INPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT"
+    - "sudo iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT"
+    - "sudo iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT"
 
 - name: allow external services on management interface
   ansible.builtin.command:
     cmd: "{{ item }}"
   loop:
       # allow MailHog (SMTP and web interface) on management interface
-    - 'sudo iptables -A OUTPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__smtp_port }} --jump ACCEPT'
-    - 'sudo iptables -A OUTPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__api_port }} --jump ACCEPT'
+    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__smtp_port }} --jump ACCEPT'
+    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__api_port }} --jump ACCEPT'
       # allow Smocker interface on management interface
-    - 'sudo iptables -A OUTPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ smocker__port_config }} --jump ACCEPT'
+    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ smocker__port_config }} --jump ACCEPT'
       # allow RADIUS mock ports on management interface
-    - 'sudo iptables -A OUTPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__api_port }} --jump ACCEPT'
-    - 'sudo iptables -A OUTPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__radius_port }} --jump ACCEPT'
+    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__api_port }} --jump ACCEPT'
+    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__radius_port }} --jump ACCEPT'
