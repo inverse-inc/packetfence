@@ -89,6 +89,7 @@
               $i18n.t('"Allow on registration" option requires passthroughs to be enabled as well as configured to allow both the domain DNS name and each domain controllers DNS name (or *.dns name)')
             }}.
             {{ $i18n.t('Example: inverse.local, *.inverse.local') }}
+            {{ $i18n.t('If PacketFence is running in cluster mode, an identical, clear-text "Machine account password" must be re-entered to replace the password hash shown in the field when joining 2nd and following nodes to Windows Domain.') }}
           </div>
         </b-form-group>
 

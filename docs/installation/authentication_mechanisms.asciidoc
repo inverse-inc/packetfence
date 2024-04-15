@@ -48,6 +48,8 @@ Where :
 
 NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
 
+NOTE: If you are using PacketFence in cluster mode, you must save the domain settings on *each* of the nodes by given the same *clear-text* machine account password. By default, PacketFence will only save the NT hash of the machine account password, and it will be shown in Admin UI. However, PacketFence won't be able to create a machine account using a password hash. In order to keep the domain settings identical on all the nodes, you'll have to type in the same clear-text machine account password on each of the node and save them.
+
 ==== Troubleshooting
 
 * In order to troubleshoot unsuccessful binds, please refer to the following file : `/usr/local/pf/log/packetfence.log`. Search for "ntlm-auth-api-domain" for all ntlm-auth-api entries.
