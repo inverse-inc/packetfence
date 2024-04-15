@@ -624,6 +624,7 @@ sub util_firewalld_cmd {
   my $firewalld_cmd = util_get_firewalld_cmd();
   if ( $firewalld_cmd ){
     my $cmd = $firewalld_cmd." ".$action;
+    $cmd = untaint_chain( $cmd ) ; 
     my $std_out = `$cmd`;
     my $exit_status = `echo "$?"`;
     $exit_status =~ s/\n//g;
