@@ -4178,18 +4178,34 @@ components:
         mapping:
           accept: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAccept'
           airwatch: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAirwatch'
+          android: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAndroid'
+          deny: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeDeny'
+          dpsk: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeDpsk'
           google_workspace_chromebook: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook'
           intune: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune'
+          jamf: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeJamf'
           kandji: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji'
           lookup: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeLookup'
+          mobileconfig: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeMobileconfig'
+          mobileiron: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeMobileiron'
+          sentinelone: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeSentinelone'
+          windows: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeWindows'
         propertyName: type
       oneOf:
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAccept'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAirwatch'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAndroid'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeDeny'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeDpsk'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeJamf'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji'
       - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeLookup'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeMobileconfig'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeMobileiron'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeSentinelone'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeWindows'
     ConfigFilterEnginesProvisioningFilterSubTypeAccept:
       properties:
         actions:
@@ -4355,6 +4371,264 @@ components:
           description: Discriminator `airwatch`
           type: string
           value: airwatch
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeAndroid:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: android
+          description: Discriminator `android`
+          type: string
+          value: android
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeDeny:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: deny
+          description: Discriminator `deny`
+          type: string
+          value: deny
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeDpsk:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: dpsk
+          description: Discriminator `dpsk`
+          type: string
+          value: dpsk
       required:
       - id
       - description
@@ -4534,6 +4808,92 @@ components:
       - scopes
       - type
       type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeJamf:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: jamf
+          description: Discriminator `jamf`
+          type: string
+          value: jamf
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
     ConfigFilterEnginesProvisioningFilterSubTypeKandji:
       properties:
         actions:
@@ -4706,6 +5066,350 @@ components:
       - scopes
       - type
       type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeMobileconfig:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: mobileconfig
+          description: Discriminator `mobileconfig`
+          type: string
+          value: mobileconfig
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeMobileiron:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: mobileiron
+          description: Discriminator `mobileiron`
+          type: string
+          value: mobileiron
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeSentinelone:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: sentinelone
+          description: Discriminator `sentinelone`
+          type: string
+          value: sentinelone
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeWindows:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: windows
+          description: Discriminator `windows`
+          type: string
+          value: windows
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
     ConfigFilterEnginesProvisioningFilterWrapped:
       properties:
         item:
@@ -4726,6 +5430,206 @@ components:
       discriminator:
         propertyName: type
       oneOf:
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
       - properties:
           meta:
             properties:
@@ -21825,7 +22729,7 @@ components:
           description: Id
           type: string
         lang:
-          default: fr_FR
+          default: en_US
           description: Language for sponsor email.
           type: string
         local_account_expiration:

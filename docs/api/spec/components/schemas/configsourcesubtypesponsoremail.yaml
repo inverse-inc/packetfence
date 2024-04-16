@@ -183,7 +183,7 @@ ConfigSourceSubTypeSponsoremail:
       description: Id
       type: string
     lang:
-      default: fr_FR
+      default: en_US
       description: Language for sponsor email.
       type: string
     local_account_expiration:
