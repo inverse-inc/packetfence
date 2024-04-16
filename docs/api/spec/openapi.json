@@ -18416,6 +18416,7 @@
                   "google_workspace_chromebook" : "#/components/schemas/ConfigProvisioningSubTypeGoogleWorkspaceChromebook",
                   "intune" : "#/components/schemas/ConfigProvisioningSubTypeIntune",
                   "jamf" : "#/components/schemas/ConfigProvisioningSubTypeJamf",
+                  "jamfCloud" : "#/components/schemas/ConfigProvisioningSubTypeJamfcloud",
                   "kandji" : "#/components/schemas/ConfigProvisioningSubTypeKandji",
                   "mobileconfig" : "#/components/schemas/ConfigProvisioningSubTypeMobileconfig",
                   "mobileiron" : "#/components/schemas/ConfigProvisioningSubTypeMobileiron",
@@ -18448,6 +18449,9 @@
                },
                {
                   "$ref" : "#/components/schemas/ConfigProvisioningSubTypeJamf"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigProvisioningSubTypeJamfcloud"
                },
                {
                   "$ref" : "#/components/schemas/ConfigProvisioningSubTypeKandji"
@@ -18528,9 +18532,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -18640,9 +18644,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -18801,9 +18805,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -18909,9 +18913,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -19006,9 +19010,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -19118,9 +19122,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -19390,9 +19394,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -19536,9 +19540,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -19553,6 +19557,136 @@
                   "description" : "Discriminator `jamf`",
                   "type" : "string",
                   "value" : "jamf"
+               }
+            },
+            "required" : [
+               "id",
+               "type",
+               "port",
+               "api_username",
+               "api_password"
+            ],
+            "type" : "object"
+         },
+         "ConfigProvisioningSubTypeJamfcloud" : {
+            "properties" : {
+               "api_password" : {
+                  "default" : null,
+                  "description" : "API password",
+                  "type" : "string"
+               },
+               "api_username" : {
+                  "default" : null,
+                  "description" : "API username",
+                  "type" : "string"
+               },
+               "apply_role" : {
+                  "default" : "disabled",
+                  "description" : "When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.",
+                  "type" : "string"
+               },
+               "autoregister" : {
+                  "default" : "disabled",
+                  "description" : "Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.",
+                  "type" : "string"
+               },
+               "category" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "description" : {
+                  "default" : null,
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "device_type_detection" : {
+                  "default" : "disabled",
+                  "description" : "Automatic device detection",
+                  "type" : "string"
+               },
+               "enforce" : {
+                  "default" : "enabled",
+                  "description" : "Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.",
+                  "type" : "string"
+               },
+               "host" : {
+                  "default" : null,
+                  "description" : "Host",
+                  "type" : "string"
+               },
+               "id" : {
+                  "default" : null,
+                  "description" : "Provisioning ID",
+                  "type" : "string"
+               },
+               "non_compliance_security_event" : {
+                  "default" : null,
+                  "description" : "Which security event should be raised when non compliance is detected",
+                  "type" : "string"
+               },
+               "oses" : {
+                  "default" : [],
+                  "description" : "Nodes with the selected OS will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected OS will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "pki_provider" : {
+                  "default" : null,
+                  "description" : "PKI Provider",
+                  "type" : "string"
+               },
+               "port" : {
+                  "default" : 443,
+                  "description" : "Port",
+                  "type" : "integer"
+               },
+               "protocol" : {
+                  "default" : "https",
+                  "description" : "Protocol",
+                  "type" : "string"
+               },
+               "query_computers" : {
+                  "default" : "enabled",
+                  "description" : "Query JAMF computers inventory",
+                  "type" : "string"
+               },
+               "query_mobiledevices" : {
+                  "default" : "enabled",
+                  "description" : "Query JAMF mobile devices inventory",
+                  "type" : "string"
+               },
+               "role_to_apply" : {
+                  "default" : null,
+                  "description" : "When \"Apply role\" is enabled, this defines the role to apply when the device is authorized with the provisioner.",
+                  "type" : "string"
+               },
+               "rules" : {
+                  "default" : [],
+                  "description" : "Rules to be applied",
+                  "items" : {
+                     "description" : "Rules to be applied",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "sync_pid" : {
+                  "default" : "disabled",
+                  "description" : "Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "jamfCloud",
+                  "description" : "Discriminator `jamfCloud`",
+                  "type" : "string",
+                  "value" : "jamfCloud"
                }
             },
             "required" : [
@@ -19651,9 +19785,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -19805,9 +19939,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -19943,9 +20077,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -20207,9 +20341,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -20731,9 +20865,9 @@
                },
                "rules" : {
                   "default" : [],
-                  "description" : "Nodes with the selected roles will be affected",
+                  "description" : "Rules to be applied",
                   "items" : {
-                     "description" : "Nodes with the selected roles will be affected",
+                     "description" : "Rules to be applied",
                      "type" : "string"
                   },
                   "type" : "array"
@@ -20964,6 +21098,79 @@
                               "$ref" : "#/components/schemas/Meta"
                            },
                            "windows_phone_download_uri" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           }
+                        },
+                        "type" : "object"
+                     }
+                  },
+                  "type" : "object"
+               },
+               {
+                  "properties" : {
+                     "meta" : {
+                        "properties" : {
+                           "api_password" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "api_username" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "apply_role" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "autoregister" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "category" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "description" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "device_type_detection" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "enforce" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "host" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "id" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "non_compliance_security_event" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "oses" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "pki_provider" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "port" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "protocol" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "query_computers" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "query_mobiledevices" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "role_to_apply" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "rules" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "sync_pid" : {
+                              "$ref" : "#/components/schemas/Meta"
+                           },
+                           "type" : {
                               "$ref" : "#/components/schemas/Meta"
                            }
                         },

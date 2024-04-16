@@ -85,9 +85,9 @@ ConfigProvisioningSubTypeJamf:
       type: string
     rules:
       default: []
-      description: Nodes with the selected roles will be affected
+      description: Rules to be applied
       items:
-        description: Nodes with the selected roles will be affected
+        description: Rules to be applied
         type: string
       type: array
     sync_pid:
