@@ -171,10 +171,12 @@ sub fd_create_all_zones {
     }
   }
   my $tint =  $management_network->{Tint};
-  util_set_default_zone( $tint );
-  service_to_zone($tint, "add", "ssh");
-  service_to_zone($tint, "add", "haproxy-admin");
-  util_reload_firewalld();
+  if ( $tint ne "" ) {
+    util_set_default_zone( $tint );
+    service_to_zone($tint, "add", "ssh");
+    service_to_zone($tint, "add", "haproxy-admin");
+    util_reload_firewalld();
+  }
 }
 
 # need to get services that are running and use the dedicated function to restart accordingly
@@ -311,8 +313,10 @@ sub fd_radiusd_lb_rules {
     service_to_zone($tint, $action, "radius_lb");
   }
   my $tint =  $management_network->{Tint};
-  service_to_zone($tint, $action, "radius_lb");
-  util_reload_firewalld();
+  if ( $tint ne "" ) {
+    service_to_zone($tint, $action, "radius_lb");
+    util_reload_firewalld();
+  }
 }
 
 sub fd_proxysql_rules {
@@ -346,18 +350,22 @@ sub fd_httpd_webservices_rules {
   # Webservices
   my $action = shift;
   my $tint =  $management_network->{Tint};
-  my $webservices_port = $Config{'ports'}{'soap'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
-  util_reload_firewalld();
+  if ( $tint ne "" ) {
+    my $webservices_port = $Config{'ports'}{'soap'};
+    util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
+    util_reload_firewalld();
+  }
 }
 
 sub fd_httpd_aaa_rules {
   # AAA
   my $action = shift;
   my $tint =  $management_network->{Tint};
-  my $aaa_port = $Config{'ports'}{'aaa'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
-  util_reload_firewalld();
+  if ( $tint ne "" ) {
+    my $aaa_port = $Config{'ports'}{'aaa'};
+    util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
+    util_reload_firewalld();
+  }
 }
 
 sub fd_api_frontend_rules {
@@ -790,22 +798,26 @@ sub fd_mariadb_rules {
 sub fd_mysql_prob_rules {
   my $action = shift;
   my $tint =  $management_network->{Tint};
-  service_to_zone($tint, $action, "mysql-prob");
-  util_reload_firewalld();
+  if ( $tint ne "" ) {
+    service_to_zone($tint, $action, "mysql-prob");
+    util_reload_firewalld();
+  }
 }
 
 sub fd_kafka_rules {
   my $action = shift;
   my $tint =  $management_network->{Tint};
-  for my $client (@{$ConfigKafka{iptables}{clients}}) {
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT" , $action );
+  if ( $tint ne "" ) {
+    for my $client (@{$ConfigKafka{iptables}{clients}}) {
+      util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT" , $action );
+    }
+    for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
+      util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT" , $action );
+      util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT" , $action );
+      util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT" , $action );
+    }
+    util_reload_firewalld();
   }
-  for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT" , $action );
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT" , $action );
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT" , $action );
-  }
-  util_reload_firewalld();
 }
 
 sub fd_docker_dnat_rules {
@@ -813,16 +825,18 @@ sub fd_docker_dnat_rules {
   #DNAT traffic from docker to mgmt ip
   my $logger = get_logger();
   my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
-  util_direct_rule("ipv4 nat PREROUTING 0 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
-  util_reload_firewalld();
+  if ( $mgmt_ip ne "" ) {
+    util_direct_rule("ipv4 nat PREROUTING 0 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
+    util_reload_firewalld();
+  }
 }
 
 sub fd_fingerbank_collector_rules {
   my $action = shift;
   if (netflow_enabled()) {
     util_direct_rule( "ipv4 filter FORWARD 0 -j NETFLOW" , $action );
+    util_reload_firewalld();
   }
-  util_reload_firewalld();
 }
 
 sub fd_radiusd_eduroam_rules {
