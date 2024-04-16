@@ -7,6 +7,29 @@ ConfigMaintenanceTasksMeta:
         properties:
           batch:
             $ref: '#/components/schemas/Meta'
+          delete_window:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          timeout:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+          unreg_window:
+            $ref: '#/components/schemas/Meta'
+          voip:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
+          batch:
+            $ref: '#/components/schemas/Meta'
           history_batch:
             $ref: '#/components/schemas/Meta'
           history_timeout:
@@ -302,25 +325,6 @@ ConfigMaintenanceTasksMeta:
           status:
             $ref: '#/components/schemas/Meta'
           type:
-            $ref: '#/components/schemas/Meta'
-        type: object
-    type: object
-  - properties:
-      meta:
-        properties:
-          delete_window:
-            $ref: '#/components/schemas/Meta'
-          id:
-            $ref: '#/components/schemas/Meta'
-          schedule:
-            $ref: '#/components/schemas/Meta'
-          status:
-            $ref: '#/components/schemas/Meta'
-          type:
-            $ref: '#/components/schemas/Meta'
-          unreg_window:
-            $ref: '#/components/schemas/Meta'
-          voip:
             $ref: '#/components/schemas/Meta'
         type: object
     type: object

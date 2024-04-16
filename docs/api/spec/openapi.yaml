@@ -3731,7 +3731,7 @@ components:
           description: Password of the machine account to be added to Active Directory.
           type: string
         ntlm_auth_host:
-          default: 127.0.0.1
+          default: 100.64.0.1
           description: The IP address of NTLM auth API
           type: string
         ntlm_auth_port:
@@ -6042,6 +6042,10 @@ components:
           default: ~
           description: Max Lease Time
           type: integer
+        dhcp_reply_ip:
+          default: giaddr
+          description: DHCP IP Reply
+          type: string
         dhcp_start:
           default: ~
           description: Starting IP Address
@@ -6112,6 +6116,8 @@ components:
             dhcp_end:
               $ref: '#/components/schemas/Meta'
             dhcp_max_lease_time:
+              $ref: '#/components/schemas/Meta'
+            dhcp_reply_ip:
               $ref: '#/components/schemas/Meta'
             dhcp_start:
               $ref: '#/components/schemas/Meta'
@@ -7100,6 +7106,12 @@ components:
       type: object
     ConfigMaintenanceTaskSubTypeNodeCleanup:
       properties:
+        batch:
+          default: '100'
+          description: Amount of items that will be processed in each batch of this
+            task. Batches are executed until there is no more items to process or
+            until the timeout is reached.
+          type: integer
         delete_window:
           default:
             interval: '0'
@@ -7129,6 +7141,21 @@ components:
           description: Whether or not this task is enabled.<br>Requires a restart
             of pfcron to be effective.
           type: string
+        timeout:
+          default:
+            interval: '10'
+            unit: s
+          description: Maximum amount of time this task can run.
+          properties:
+            interval:
+              default: '10'
+              description: Interval
+              type: integer
+            unit:
+              default: s
+              description: Unit
+              type: string
+          type: object
         type:
           default: node_cleanup
           description: Discriminator `node_cleanup`
@@ -7585,6 +7612,29 @@ components:
             properties:
               batch:
                 $ref: '#/components/schemas/Meta'
+              delete_window:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              timeout:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+              unreg_window:
+                $ref: '#/components/schemas/Meta'
+              voip:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              batch:
+                $ref: '#/components/schemas/Meta'
               history_batch:
                 $ref: '#/components/schemas/Meta'
               history_timeout:
@@ -7880,25 +7930,6 @@ components:
               status:
                 $ref: '#/components/schemas/Meta'
               type:
-                $ref: '#/components/schemas/Meta'
-            type: object
-        type: object
-      - properties:
-          meta:
-            properties:
-              delete_window:
-                $ref: '#/components/schemas/Meta'
-              id:
-                $ref: '#/components/schemas/Meta'
-              schedule:
-                $ref: '#/components/schemas/Meta'
-              status:
-                $ref: '#/components/schemas/Meta'
-              type:
-                $ref: '#/components/schemas/Meta'
-              unreg_window:
-                $ref: '#/components/schemas/Meta'
-              voip:
                 $ref: '#/components/schemas/Meta'
             type: object
         type: object
@@ -12366,6 +12397,109 @@ components:
       - api_username
       - api_password
       type: object
+    ConfigProvisioningSubTypeJamfcloud:
+      properties:
+        api_password:
+          default: ~
+          description: API password
+          type: string
+        api_username:
+          default: ~
+          description: API username
+          type: string
+        apply_role:
+          default: disabled
+          description: When enabled, this will apply the configured role to the endpoint
+            if it is authorized in the provisioner.
+          type: string
+        autoregister:
+          default: disabled
+          description: Whether or not devices should be automatically registered on
+            the network if they are authorized in the provisioner.
+          type: string
+        category:
+          default: []
+          description: Nodes with the selected roles will be affected
+          items:
+            description: Nodes with the selected roles will be affected
+            type: string
+          type: array
+        description:
+          default: ~
+          description: Description
+          type: string
+        device_type_detection:
+          default: disabled
+          description: Automatic device detection
+          type: string
+        enforce:
+          default: enabled
+          description: Whether or not the provisioner should be enforced. This will
+            trigger checks to validate the device is compliant with the provisioner
+            during RADIUS authentication and on the captive portal.
+          type: string
+        host:
+          default: ~
+          description: Host
+          type: string
+        id:
+          default: ~
+          description: Provisioning ID
+          type: string
+        non_compliance_security_event:
+          default: ~
+          description: Which security event should be raised when non compliance is
+            detected
+          type: string
+        oses:
+          default: []
+          description: Nodes with the selected OS will be affected
+          items:
+            description: Nodes with the selected OS will be affected
+            type: string
+          type: array
+        pki_provider:
+          default: ~
+          description: PKI Provider
+          type: string
+        port:
+          default: 443
+          description: Port
+          type: integer
+        protocol:
+          default: https
+          description: Protocol
+          type: string
+        query_computers:
+          default: enabled
+          description: Query JAMF computers inventory
+          type: string
+        query_mobiledevices:
+          default: enabled
+          description: Query JAMF mobile devices inventory
+          type: string
+        role_to_apply:
+          default: ~
+          description: When "Apply role" is enabled, this defines the role to apply
+            when the device is authorized with the provisioner.
+          type: string
+        sync_pid:
+          default: disabled
+          description: Whether or not the PID (username) should be synchronized from
+            the provisioner to PacketFence.
+          type: string
+        type:
+          default: jamfcloud
+          description: Discriminator `jamfcloud`
+          type: string
+          value: jamfcloud
+      required:
+      - id
+      - type
+      - port
+      - api_username
+      - api_password
+      type: object
     ConfigProvisioningSubTypeKandji:
       properties:
         api_token:
@@ -14587,6 +14721,10 @@ components:
           default: ~
           description: Max Lease Time
           type: integer
+        dhcp_reply_ip:
+          default: giaddr
+          description: DHCP IP Reply
+          type: string
         dhcp_start:
           default: ~
           description: Starting IP Address
@@ -14691,6 +14829,8 @@ components:
             dhcp_end:
               $ref: '#/components/schemas/Meta'
             dhcp_max_lease_time:
+              $ref: '#/components/schemas/Meta'
+            dhcp_reply_ip:
               $ref: '#/components/schemas/Meta'
             dhcp_start:
               $ref: '#/components/schemas/Meta'

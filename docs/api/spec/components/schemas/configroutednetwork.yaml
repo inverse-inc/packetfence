@@ -24,6 +24,10 @@ ConfigRoutedNetwork:
       default: ~
       description: Max Lease Time
       type: integer
+    dhcp_reply_ip:
+      default: giaddr
+      description: DHCP IP Reply
+      type: string
     dhcp_start:
       default: ~
       description: Starting IP Address

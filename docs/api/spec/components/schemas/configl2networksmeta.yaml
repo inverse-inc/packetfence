@@ -12,6 +12,8 @@ ConfigL2NetworksMeta:
           $ref: '#/components/schemas/Meta'
         dhcp_max_lease_time:
           $ref: '#/components/schemas/Meta'
+        dhcp_reply_ip:
+          $ref: '#/components/schemas/Meta'
         dhcp_start:
           $ref: '#/components/schemas/Meta'
         dns:
