@@ -7,6 +7,7 @@ export const provisioningTypes = {
   deny:         i18n.t('Deny'),
   dpsk:         i18n.t('DPSK'),
   jamf:         i18n.t('Jamf'),
+  jamfcloud:    i18n.t('Jamf Cloud'),
   kandji:       i18n.t('Kandji'),
   mobileconfig: i18n.t('Apple Devices'),
   mobileiron:   i18n.t('Mobileiron'),

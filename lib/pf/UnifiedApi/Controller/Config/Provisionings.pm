@@ -32,6 +32,7 @@ use pfappserver::Form::Config::Provisioning::dpsk;
 use pfappserver::Form::Config::Provisioning::google_workspace_chromebook;
 use pfappserver::Form::Config::Provisioning::intune;
 use pfappserver::Form::Config::Provisioning::jamf;
+use pfappserver::Form::Config::Provisioning::jamfcloud;
 use pfappserver::Form::Config::Provisioning::kandji;
 use pfappserver::Form::Config::Provisioning::mobileconfig;
 use pfappserver::Form::Config::Provisioning::mobileiron;
@@ -48,6 +49,7 @@ our %TYPES_TO_FORMS = (
       google_workspace_chromebook
       intune
       jamf
+      jamfcloud
       kandji
       mobileconfig
       mobileiron
