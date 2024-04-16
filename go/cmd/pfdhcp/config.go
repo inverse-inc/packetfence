@@ -32,6 +32,7 @@ type DHCPHandler struct {
 	role          string
 	ipReserved    string
 	ipAssigned    map[string]uint32
+	dstIp         string
 }
 
 // Interfaces struct
@@ -245,6 +246,13 @@ func (d *Interfaces) readConfig() {
 							} else {
 								backend = ConfNet.PoolBackend
 							}
+							var dstReplyIp string
+							if ConfNet.DhcpReplyIp == "" {
+								dstReplyIp = "giaddr"
+							} else {
+								dstReplyIp = ConfNet.DhcpReplyIp
+							}
+							DHCPScope.dstIp = dstReplyIp
 							// Initialize dhcp pool
 							available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(ip, ips)), DHCPNet.network.IP.String()+Role, algorithm, StatsdClient, MySQLdatabase)
 
@@ -317,6 +325,13 @@ func (d *Interfaces) readConfig() {
 						} else {
 							backend = ConfNet.PoolBackend
 						}
+						var dstReplyIp string
+						if ConfNet.DhcpReplyIp == "" {
+							dstReplyIp = "giaddr"
+						} else {
+							dstReplyIp = ConfNet.DhcpReplyIp
+						}
+						DHCPScope.dstIp = dstReplyIp
 						// Initialize dhcp pool
 						available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), DHCPNet.network.IP.String(), algorithm, StatsdClient, MySQLdatabase)
 
