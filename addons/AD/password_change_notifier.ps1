@@ -17,7 +17,7 @@ $credJson = $credential| ConvertTo-Json
 $token_response = Invoke-RestMethod -Uri $token_url -Method Post -Body $credJson -ContentType "application/json"
 $token = $token_response.token
 
-$eventTypeID = @(4723,4724, 4624)
+$eventTypeID = @(4723, 4724, 4767)
 
 $events = Get-WinEvent -MaxEvents 10  -FilterHashTable @{ Logname = "Security"; ID = $eventTypeID }
 
@@ -46,3 +46,6 @@ $payloadJson = $payload | ConvertTo-Json
 $response = Invoke-RestMethod -Uri $password_notifier_url -Method Post -Body $payloadJson -ContentType "application/json" -Headers @{ "Authorization" = $token }
 
 Write-Output($response)
+
+Write-Output $payloadJson | out-file payload.json.txt
+Write-Output $response | out-file response.txt
