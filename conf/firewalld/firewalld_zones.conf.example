@@ -1,11 +1,11 @@
-[eth0]
-masquerade=yes
-based_on=external
-services=pf-admin,ssh,http,https
-port=
+#[eth0]
+#masquerade=yes
+#based_on=external
+#services=pf-admin,ssh,http,https
+#port=
 
-[docker0]
-masquerade=yes
-based_on=trusted
-services=pfconfig
-port=
+#[docker0]
+#masquerade=yes
+#based_on=trusted
+#services=pfconfig
+#port=
