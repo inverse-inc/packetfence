@@ -8,6 +8,7 @@ args=`base_args $name`
 args="$args -v/usr/local/pf/conf/:/usr/local/pf/conf/"
 args="$args -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/"
 args="$args -v /usr/local/pf/var/proxysql/:/usr/local/pf/var/proxysql/"
+args="$args -v /usr/local/pf/logs/:/usr/local/pf/logs/"
 args+=" -p 127.0.0.1:6032:6032 -p 6033:6033 -p 6080:6080"
 
 run $name "$args"
