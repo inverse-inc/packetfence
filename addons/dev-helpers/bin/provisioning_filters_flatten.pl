@@ -33,12 +33,10 @@ flatten("", $json, \@fields);
 @fields = sort @fields;
 if (defined $entry) {
     my $ini = pf::IniFiles->new(-file => $provisioning_filters_meta_config_default_file) or die "";
-    use Data::Dumper;
     print Dumper($ini);
     $ini->AddSection($entry);
     $ini->delval($entry, 'fields');
     $ini->newval($entry, 'fields', @fields);
-    #$ini->push($entry, @fields);
     $ini->RewriteConfig();
 } else {
     for my $f (@fields) {
