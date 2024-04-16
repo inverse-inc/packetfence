@@ -79,7 +79,7 @@ export default (props) => {
       }),
     machine_account_password: yup.string().nullable().label(i18n.t('Machine Account Password'))
       .required(i18n.t('Password required.'))
-      .minAsInt(8),
+      .min(8, i18n.t('Password must be at least 8 characters.')),
     nt_key_cache_expire: yup.string().nullable()
       .when('id', {
         is: () => nt_key_cache_enabled,
