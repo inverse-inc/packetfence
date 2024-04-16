@@ -170,6 +170,19 @@ def trigger_security_event(mac, domain, account):
     else:
         update_cache_entry(security_event_blocker_key, '', utils.expires(1800))
 
+    entries = None
+    query = "SELECT `mac`, `pid` FROM `node` WHERE `mac` = %s LIMIT 1;"
+    if hasattr(g, 'db'):
+        entries = g.db.execute(query, mac)
+
+    if entries is None:
+        query = "INSERT INTO `node` " \
+                "(`mac`, `pid`, `detect_date`, `status`, `voip`) VALUES " \
+                "(%s, 'default', %s, 'unreg', 'no')"
+        if hasattr(g, 'db'):
+            now = utils.to_ymd_hms(utils.now())
+            g.db.execute(query, (mac, now))
+
     query = "INSERT INTO `security_event` " \
             "(`id`, `mac`, `security_event_id`, `start_date`, `release_date`, `status`, `ticket_ref`, `notes`)VALUES " \
             "(NULL, %s, 3000008, %s, %s, %s, %s, %s)"
