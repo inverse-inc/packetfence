@@ -93,7 +93,7 @@ Windows Event Notifier is a powershell script used to filter, analyze and report
 
  * Account password change - Windows Event ID: 4723
  * Account password reset - Windows Event ID: 4724
- * User account unlock - Windows Event ID: 4624
+ * User account unlock - Windows Event ID: 4767
 
 
 CAUTION: *Account password reset* and *Account password change* events must be reported in order to keep NT Key cache work properly. Otherwise, staled cache entries will be kept and cause authentication failures.
