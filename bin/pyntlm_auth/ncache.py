@@ -84,10 +84,6 @@ def reset_bad_password_count_for_device(c_root, c_device):
     return c_device
 
 
-def is_min_password_age_required():
-    return True
-
-
 def cache_v_template(domain, account, mac):
     return {
         "nt_key": '',

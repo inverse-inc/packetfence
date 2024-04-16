@@ -40,7 +40,7 @@ def process_event_password_reset(event):
     account = event['TargetUserName']
     event['EventTime'] = event_time
 
-    print(f"  ---- handling event password reset: for ID {record_id}: {account}@{domain} happens on {event_time}")
+    print(f"  ---- handling event password reset : happens on {utils.to_ymd_hms(event_time)} ({event_time}) for ID {record_id}: {account}@{domain} ")
 
     key_root = ncache.build_cache_key(domain, account)
     cache_entry_root = ncache.get_cache_entry(key_root)
@@ -50,7 +50,7 @@ def process_event_password_reset(event):
         cache_v = json.loads(cache_entry_root['value'])
 
         if event_time > cache_v['update_time']:
-            cache_v['dirty'] = True
+            cache_v['dirty'] = ncache.YES
             cache_v['update_time'] = utils.now()
             cache_v['dirty_time'] = utils.now()
             cache_v_json = json.dumps(cache_v)
@@ -60,7 +60,7 @@ def process_event_password_reset(event):
         for cache_entry_device in cache_entry_devices:
             cache_v = json.loads(cache_entry_device['value'])
             if event_time > cache_v['update_time']:
-                cache_v['dirty'] = True
+                cache_v['dirty'] = ncache.YES
                 cache_v['update_time'] = utils.now()
                 cache_v['dirty_time'] = utils.now()
                 cache_v_json = json.dumps(cache_v)
@@ -76,7 +76,7 @@ def process_event_password_change(event):
     account = event['TargetUserName']
     event['EventTime'] = event_time
 
-    print(f"  ---- handling event password change: for ID {record_id}: {account}@{domain} happens on {event_time}")
+    print(f"  ---- handling event password change: happens on {utils.to_ymd_hms(event_time)} ({event_time}) for ID {record_id}: {account}@{domain} ")
 
     key_root = ncache.build_cache_key(domain, account)
     cache_entry_root = ncache.get_cache_entry(key_root)
@@ -86,7 +86,7 @@ def process_event_password_change(event):
         cache_v = json.loads(cache_entry_root['value'])
 
         if event_time > cache_v['update_time']:
-            cache_v['dirty'] = True
+            cache_v['dirty'] = ncache.YES
             cache_v['update_time'] = utils.now()
             cache_v['dirty_time'] = utils.now()
             cache_v_json = json.dumps(cache_v)
@@ -96,7 +96,7 @@ def process_event_password_change(event):
         for cache_entry_device in cache_entry_devices:
             cache_v = json.loads(cache_entry_device['value'])
             if event_time > cache_v['update_time']:
-                cache_v['dirty'] = True
+                cache_v['dirty'] = ncache.YES
                 cache_v['update_time'] = utils.now()
                 cache_v['dirty_time'] = utils.now()
                 cache_v_json = json.dumps(cache_v)

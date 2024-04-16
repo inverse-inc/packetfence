@@ -2,7 +2,7 @@ import datetime
 import re
 import constants
 import dns.resolver
-
+import pytz
 
 # simplified IPv4 validator.
 def is_ipv4(address):
@@ -16,6 +16,7 @@ def nt_time_to_datetime(nt_time):
     if nt_time == constants.NT_TIME_INF:
         return constants.MAX_INT32
     d = datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=nt_time / 10)
+    d = pytz.timezone('GMT').localize(d)
     return int(d.timestamp())
 
 
@@ -67,6 +68,7 @@ def extract_event_timestamp(s):
 
     if match:
         number = float(match.group())
-        return number
+        number = number / 1000
+        return int(number)
     else:
         return 0
