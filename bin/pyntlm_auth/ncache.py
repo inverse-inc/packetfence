@@ -173,7 +173,8 @@ def trigger_security_event(mac, domain, account):
     entries = None
     query = "SELECT `mac`, `pid` FROM `node` WHERE `mac` = %s LIMIT 1;"
     if hasattr(g, 'db'):
-        entries = g.db.execute(query, mac)
+        g.db.execute(query, mac)
+        entries = g.db.fetchone()
 
     if entries is None:
         query = "INSERT INTO `node` " \
