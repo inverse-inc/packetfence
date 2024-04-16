@@ -134,7 +134,7 @@ has_field 'rules' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add a rule'},
    tags => { after_element => \&help,
-             help => 'Nodes with the selected roles will be affected' },
+             help => 'Rules to be applied' },
   );
 
 has_field 'non_compliance_security_event' =>
