@@ -50,6 +50,14 @@ image::domain-nt-key-cache.jpg[scaledwidth="100%",alt="NT Key cache settings"]
 
 NOTE: Cache expiration time: a value longer than reauth period settings on the switch is recommended. E.g., If the reauth period on a Cisco switch is set to 10800s, a value less than 10800 may cause the cache entry to expire before reauth.
 
+==== Restart NTLM Auth API
+
+Restart the PacketFence NTLM Auth API to commit the changes.
+
+```
+systemctl restart packetfence-ntlm-auth-api
+```
+
 ===== Windows Account Policies
 
 Those settings can be found on the Windows Domain Controller by the following steps:
@@ -137,16 +145,16 @@ image::domain-event-trigger-in-task-scheduler.png[scaledwidth="100%",alt="Window
  * After the task is saved it can be modified in *Windows Task Scheduler*.
 =====
 
-===== Finalize and Test
+===== Test Password Change
 
-Manually reset a user password and and check to see if PacketFence received the event.
+Manually reset a user password in *Active Directory Users and Computers* and check to see if PacketFence received the event. The JSON entry in the chi_cache value should contain `dirty: 1`. If PacketFence fails to receive the Event, check the logs in the working directory from _Config Scheduled Tasks_ above for more information.
 
-==== Restart NTLM Auth API
-
-Restart the PacketFence NTLM Auth API to commit the changes.
+On the PacketFence server, use the cache query below and replace the [domainID] with the Domain ID from _Create Domain_ above, and the [username] of the account user.
 
 ```
-systemctl restart packetfence-ntlm-auth-api
+mysql pf
+
+mysql> SELECT value from chi_cache WHERE key='nt_key_cache:[domainID]:[username]';
 ```
 
 === NTLM Authentication Caching
