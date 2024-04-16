@@ -5,8 +5,8 @@
 [Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
 
 $base_url = "https://#PACKETFENCE_IP:9999"
-$username = ""         # Username for the webservice, change to your own username.
-$password = ""         # Password for the webservice, change to your own password.
+$username = ""         # Username for the API Frontend, change to your own username.
+$password = ""         # Password for the API Frontend, change to your own password.
 $domainID = ""         # your domain identifier in domain.conf
 
 $token_url = $base_url + "/api/v1/login"
