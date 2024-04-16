@@ -129,6 +129,9 @@
 
       <base-form-tab :title="$i18n.t('NTLM cache')">
 
+        <b-alert show variant="danger"
+          v-html="$t('This feature will be deprecated.')"></b-alert>
+
         <form-group-ntlm-cache namespace="ntlm_cache"
                                :column-label="$i18n.t('NTLM cache')"
                                :text="$i18n.t('Enable the NTLM cache for this domain.')"
