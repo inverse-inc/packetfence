@@ -43,15 +43,17 @@ index 8bd29779de..0ab4c38e54 100644
  # services.netdata
  #
 diff --git a/conf/systemd/packetfence-api-frontend.service b/conf/systemd/packetfence-api-frontend.service
-index 874dd34736..050d5bae1f 100644
+index fcbc4fea5e..9af13e1a4f 100644
 --- a/conf/systemd/packetfence-api-frontend.service
 +++ b/conf/systemd/packetfence-api-frontend.service
-@@ -10,7 +10,7 @@ Type=notify
+@@ -10,8 +10,8 @@ Type=notify
  TimeoutStopSec=60
  NotifyAccess=all
  LimitNOFILE=infinity
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::api_frontend' -e 'pf::services::manager::api_frontend->new()->generateConfig()'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::api_frontend' -e 'pf::services::manager::api_frontend->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")'
  ExecStart=/usr/local/pf/sbin/api-frontend-docker-wrapper
  ExecStop=/bin/bash -c "docker stop api-frontend ; echo Stopped"; /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("remove")'
  Restart=on-failure
@@ -72,22 +74,22 @@ index 6e7e2ad0f2..8dc0d5543c 100644
  ExecReload=/bin/kill -HUP $MAINPID
  # supress to log debug and error output also to /var/log/messages
 diff --git a/conf/systemd/packetfence-galera-autofix.service b/conf/systemd/packetfence-galera-autofix.service
-index 2ad784eaa8..8860879176 100644
+index 5d34a03409..02cc46c25d 100644
 --- a/conf/systemd/packetfence-galera-autofix.service
 +++ b/conf/systemd/packetfence-galera-autofix.service
 @@ -12,8 +12,8 @@ User=root
  # Prevents systemd on giving up on the restart of this service
  StartLimitInterval=0
  #Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("add")'
--ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("add")'
-+ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("remove")'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("add")' || true
+-ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("remove")' || true
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("add")' || true
++ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("remove")' || true
  
  [Install]
  WantedBy=packetfence-base.target
 diff --git a/conf/systemd/packetfence-haproxy-admin.service b/conf/systemd/packetfence-haproxy-admin.service
-index 2a3615cbe0..86dcaf676a 100644
+index 472227f12a..8fa626eebd 100644
 --- a/conf/systemd/packetfence-haproxy-admin.service
 +++ b/conf/systemd/packetfence-haproxy-admin.service
 @@ -9,7 +9,7 @@ Type=notify
@@ -99,6 +101,17 @@ index 2a3615cbe0..86dcaf676a 100644
  ExecStart=/usr/local/pf/sbin/haproxy-admin-docker-wrapper
  ExecStop=/bin/bash -c "docker stop haproxy-admin ; echo Stopped"
  Restart=on-failure
+@@ -17,8 +17,8 @@ TimeoutStopSec=30
+ Slice=packetfence.slice
+ PIDFile=/usr/local/pf/var/run/haproxy-admin-systemd-notify.pid
+ # Firewalld
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_admin_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_admin_rules("remove")'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_admin_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_admin_rules("remove")'
+ 
+ [Install]
+ WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
 index d2dfd5781a..d4650a8011 100644
 --- a/conf/systemd/packetfence-haproxy-db.service
@@ -290,6 +303,21 @@ index 305f20c923..0992f4780c 100644
  
  
  [Install]
+diff --git a/conf/systemd/packetfence-mariadb.service b/conf/systemd/packetfence-mariadb.service
+index e9513beb06..3b0c09be4b 100644
+--- a/conf/systemd/packetfence-mariadb.service
++++ b/conf/systemd/packetfence-mariadb.service
+@@ -37,8 +37,8 @@ LimitNOFILE=4096
+ KillMode=control-group
+ 
+ # Firewalld
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("remove")'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("remove")'
+ 
+ [Install]
+ WantedBy=packetfence-base.target
 diff --git a/conf/systemd/packetfence-mysql-probe.service b/conf/systemd/packetfence-mysql-probe.service
 index 70f31c930e..1717e237ee 100644
 --- a/conf/systemd/packetfence-mysql-probe.service
@@ -306,7 +334,7 @@ index 70f31c930e..1717e237ee 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-netdata.service b/conf/systemd/packetfence-netdata.service
-index 87a707232e..52d0c4d7c1 100644
+index 018f7d1182..bfd2226b91 100644
 --- a/conf/systemd/packetfence-netdata.service
 +++ b/conf/systemd/packetfence-netdata.service
 @@ -13,7 +13,7 @@ RuntimeDirectoryMode=0775
@@ -327,8 +355,8 @@ index 87a707232e..52d0c4d7c1 100644
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
 +ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("remove")'
  
- 
  [Install]
+ WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-ntlm-auth-api.service b/conf/systemd/packetfence-ntlm-auth-api.service
 index d1dcc888ce..8f5b6c6ae0 100644
 --- a/conf/systemd/packetfence-ntlm-auth-api.service
@@ -553,10 +581,10 @@ index be9667d9b9..9fbf9daebd 100644
  ExecStop=/bin/bash -c "docker stop pfsso ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-proxysql.service b/conf/systemd/packetfence-proxysql.service
-index aa3e5b32ba..e71bbe974e 100644
+index 8d7a38db0b..5f613c6e39 100644
 --- a/conf/systemd/packetfence-proxysql.service
 +++ b/conf/systemd/packetfence-proxysql.service
-@@ -9,7 +9,7 @@ Type=notify
+@@ -9,13 +9,13 @@ Type=notify
  NotifyAccess=all
  ExecStartPre=/bin/rm -f /usr/local/pf/var/run/proxysql/proxysql.pid
  ExecStartPre=/usr/local/pf/containers/docker-minimal-rules.sh
@@ -565,6 +593,13 @@ index aa3e5b32ba..e71bbe974e 100644
  ExecStart=/usr/local/pf/sbin/proxysql-docker-wrapper
  ExecStop=/bin/bash -c "docker stop proxysql ; docker container rm proxysql -f ; echo Stopped" ; /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_proxysql_rules("remove")'
  TimeoutStopSec=60
+ Restart=on-failure
+ # Firewalld
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_proxysql_rules("add")'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_proxysql_rules("add")'
+ 
+ [Install]
+ WantedBy=packetfence-cluster.target
 diff --git a/conf/systemd/packetfence-radiusd-acct.service b/conf/systemd/packetfence-radiusd-acct.service
 index b5d7d9d359..6cc49ece89 100644
 --- a/conf/systemd/packetfence-radiusd-acct.service
