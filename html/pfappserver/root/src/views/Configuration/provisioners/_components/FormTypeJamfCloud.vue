@@ -130,7 +130,7 @@ import { useForm as setup, useFormProps as props } from '../_composables/useForm
 
 // @vue/component
 export default {
-  name: 'form-type-jamfcloud',
+  name: 'form-type-jamfCloud',
   inheritAttrs: false,
   components,
   props,

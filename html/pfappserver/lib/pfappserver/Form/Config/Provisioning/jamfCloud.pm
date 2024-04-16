@@ -1,8 +1,8 @@
-package pfappserver::Form::Config::Provisioning::jamfcloud;
+package pfappserver::Form::Config::Provisioning::jamfCloud;
 
 =head1 NAME
 
-pfappserver::Form::Config::Provisioning::jamfcloud
+pfappserver::Form::Config::Provisioning::jamfCloud
 
 =head1 DESCRIPTION
 

@@ -71,7 +71,7 @@ export const setup = (props) => {
       case 'google_workspace_chromebook': return FormTypeGoogleWorkspaceChromebook //break
       case 'intune':                      return FormTypeIntune //break
       case 'jamf':                        return FormTypeJamf //break
-      case 'jamfcloud':                   return FormTypeJamfCloud //break
+      case 'jamfCloud':                   return FormTypeJamfCloud //break
       case 'kandji':                      return FormTypeKandji //break
       case 'mobileconfig':                return FormTypeMobileconfig //break
       case 'mobileiron':                  return FormTypeMobileiron //break
