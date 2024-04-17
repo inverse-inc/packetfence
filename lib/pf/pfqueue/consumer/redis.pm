@@ -140,6 +140,7 @@ sub process_next_job {
             my $status_updater = $task->status_updater;
             my ($err, $result) = eval {
                 $status_updater->start();
+                $logger->info("Running task $type");
                 $task->doTask($args)
             };
 
