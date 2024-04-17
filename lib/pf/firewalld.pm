@@ -157,9 +157,10 @@ sub firewalld_generate_pfconf_configs {
 
 sub fd_create_all_zones {
   my $name_files = util_get_name_files_from_dir("zones");
+  my $logger = get_logger();
   foreach my $tint ( @listen_ints ) {
     if ( defined $name_files && exists $name_files->{$tint} ) {
-      get_logger->error( "Network Interface $tint  is handle by configuration files" );
+      $logger->error( "Network Interface $tint  is handle by configuration files" );
     } else {
       util_firewalld_job( " --permanent --delete-zone=$tint" );
       util_firewalld_job( " --permanent --new-zone=$tint" );
@@ -322,12 +323,13 @@ sub fd_radiusd_lb_rules {
 sub fd_proxysql_rules {
   # Proxysql
   my $action = shift;
+  my $logger = get_logger();
   if ( util_reload_firewalld() ) {
     my $tint =  $management_network->{Tint};
     service_to_zone($tint, $action, "proxysql");
     util_reload_firewalld();
   } else {
-    get_logger()->warn("Firewalld is not started yet");
+    $logger->warn("Firewalld is not started yet");
     print("FD Not started");
   }
 }
@@ -335,13 +337,14 @@ sub fd_proxysql_rules {
 sub fd_haproxy_admin_rules {
   # Web Admin
   my $action = shift;
+  my $logger = get_logger();
   if ( util_reload_firewalld() ) {
     my $tint =  $management_network->{Tint};
     my $web_admin_port = $Config{'ports'}{'admin'};
     util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
     util_reload_firewalld();
   } else {
-    get_logger()->warn("Firewalld is not started yet");
+    $logger->warn("Firewalld is not started yet");
     print("FD Not started");
   }
 }
@@ -371,6 +374,7 @@ sub fd_httpd_aaa_rules {
 sub fd_api_frontend_rules {
   # Unified API
   my $action = shift;
+  my $logger = get_logger();
   if ( util_reload_firewalld() ) {
     my $mgnt_zone =  $management_network->{Tint};
     my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
@@ -378,7 +382,7 @@ sub fd_api_frontend_rules {
     service_to_zone( $mgnt_zone, $action, "api_frontend");
     util_reload_firewalld();
   } else {
-    get_logger()->warn("Firewalld is not started yet");
+    $logger->warn("Firewalld is not started yet");
     print("FD Not started");
   }
 }
@@ -471,7 +475,6 @@ sub fd_pfdns_rules {
     service_to_zone($tint, $action, "dns");
   }
   # OAuth
-  oauth_passthrough_rules();
   my $internal_portal_ip = $Config{captive_portal}{ip_address};
   foreach my $interface (@internal_nets) {
     my @all_dev_rules;
@@ -488,18 +491,18 @@ sub fd_pfdns_rules {
       util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p udp -m udp --dport 53 -j ACCEPT", $action );
     }
   }
+  oauth_passthrough_rules();
   util_reload_firewalld();
 }
 
 sub oauth_passthrough_rules {
   my $action = shift;
+  my $logger = get_logger();
   # OAuth
   my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
+  my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
   if ($passthrough_enabled) {
-    my $logger = get_logger();
     $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
-    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
-    my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
     foreach my $interface (@internal_nets) {
       my $tint = $interface->tag("int");
       my $ip = $interface->tag("vip") || $interface->tag("ip");
@@ -651,7 +654,6 @@ sub fd_pfdhcp_rules {
 
 sub fd_pfipset_rules {
   my $action = shift;
-  pfipset_provisioning_passthroughs();
   my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
   my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
   foreach my $interface (@internal_nets) {
@@ -682,54 +684,55 @@ sub fd_pfipset_rules {
       }
     }
   }
+  pfipset_provisioning_passthroughs();
   util_reload_firewalld();
 }
 
 sub pfipset_provisioning_passthroughs {
   my $logger = get_logger();
-  $logger->debug("Installing passthroughs for provisioning");
-  foreach my $config (tied(%ConfigProvisioning)->search(type => 'kandji')) {
-    $logger->info("Adding passthrough for Kandji");
-    my $enroll_host = $config->{enroll_url} ? URI->new($config->{enroll_url})->host : $config->{host};
-    my $enroll_port = $config->{enroll_url} ? URI->new($config->{enroll_url})->port : $config->{port};
-    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough ".$enroll_host.",".$enroll_port." 2>&1");
-    pf_run($cmd);
-  }
-
-  foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
-    $logger->info("Adding passthrough for MobileIron");
-    # Allow the host for the onboarding of devices
-    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
-    my @lines  = pf_run($cmd);
-    # Allow http communication with the MobileIron server
-    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
-    pf_run($cmd);
-    # Allow https communication with the MobileIron server
-    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
-    pf_run($cmd);
-  }
-
-  foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
-    $logger->info("Adding passthrough for OPSWAT");
-    # Allow http communication with the OSPWAT server
-    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-    pf_run($cmd);
-    # Allow https communication with the OPSWAT server
-    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
-    pf_run($cmd);
-  }
-
-  foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
-    $logger->info("Adding passthrough for SentinelOne");
-    # Allow http communication with the SentinelOne server
-    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-    pf_run($cmd);
-    # Allow https communication with the SentinelOne server
-    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1" );
-    pf_run($cmd);
-  }
   my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
   if ($passthrough_enabled) {
+    $logger->debug("Installing passthroughs for provisioning");
+    foreach my $config (tied(%ConfigProvisioning)->search(type => 'kandji')) {
+      $logger->info("Adding passthrough for Kandji");
+      my $enroll_host = $config->{enroll_url} ? URI->new($config->{enroll_url})->host : $config->{host};
+      my $enroll_port = $config->{enroll_url} ? URI->new($config->{enroll_url})->port : $config->{port};
+      my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough ".$enroll_host.",".$enroll_port." 2>&1");
+      pf_run($cmd);
+    }
+
+    foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
+      $logger->info("Adding passthrough for MobileIron");
+      # Allow the host for the onboarding of devices
+      my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
+      my @lines  = pf_run($cmd);
+      # Allow http communication with the MobileIron server
+      $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
+      pf_run($cmd);
+      # Allow https communication with the MobileIron server
+      $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
+      pf_run($cmd);
+    }
+
+    foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
+      $logger->info("Adding passthrough for OPSWAT");
+      # Allow http communication with the OSPWAT server
+      my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
+      pf_run($cmd);
+      # Allow https communication with the OPSWAT server
+      $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
+      pf_run($cmd);
+    }
+
+    foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
+      $logger->info("Adding passthrough for SentinelOne");
+      # Allow http communication with the SentinelOne server
+      my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
+      pf_run($cmd);
+      # Allow https communication with the SentinelOne server
+      $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1" );
+      pf_run($cmd);
+    }
     $logger->info("Adding IP based passthrough for connectivitycheck.gstatic.com");
     # Allow the host for the onboarding of devices
     my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,80 2>&1");
@@ -769,6 +772,7 @@ sub fd_pfconnector_server_rules {
 
 sub fd_galera_autofix_rules {
   my $action = shift;
+  my $logger = get_logger();
   if ( util_reload_firewalld() ) {
     foreach my $network ( @ha_ints ) {
       my $tint =  $network->{Tint};
@@ -778,19 +782,20 @@ sub fd_galera_autofix_rules {
       service_to_zone($tint, $action, "galera-autofix");
     }
   } else {
-    get_logger()->warn("Firewalld is not started yet");
+    $logger->warn("Firewalld is not started yet");
     print("FD Not started");
   }
 }
 
 sub fd_mariadb_rules {
   my $action = shift;
+  my $logger = get_logger();
   if ( util_reload_firewalld() ) {
     my $tint =  $management_network->{Tint};
     service_to_zone($tint, $action, "mysql");
     util_reload_firewalld();
   } else {
-    get_logger()->warn("Firewalld is not started yet");
+    $logger->warn("Firewalld is not started yet");
     print("FD Not started");
   }
 }
@@ -862,7 +867,7 @@ sub fd_radiusd_eduroam_rules {
     util_reload_firewalld();
   }
   else {
-    get_logger->info( "# eduroam integration is not configured" );
+    $logger->info( "# eduroam integration is not configured" );
   }
 }
 
@@ -893,9 +898,14 @@ sub generate_chains {
     postrouting-inline-routed
     prerouting-int-vlan-if
   );
+  my $logger = get_logger();
+  $logger->info("Generate Chains started.");
+
   for my $chain (@chains) {
     generate_chain( "ipv4", "filter", $chain, $action );
   }
+
+  $logger->info("Generate Chains end.");
 }
 
 sub generate_chain {
@@ -903,19 +913,20 @@ sub generate_chain {
   my $table = shift;
   my $chain = shift;
   my $action = shift;
+  my $logger = get_logger();
   if ( ! defined $ipv || $ipv eq "" ){
-    get_logger->error( "The generate_chain ipv is not defined or empty. default will be 'ipv4'." );
+    $logger->error( "The generate_chain ipv is not defined or empty. default will be 'ipv4'." );
     $ipv = "ipv4";
   }
   if ( ! defined $table || $table eq "" ){
-    get_logger->error( "The generate_chain table is not defined or empty. default will be 'filter'." );
+    $logger->error( "The generate_chain table is not defined or empty. default will be 'filter'." );
     $table = "filter";
   }
   if ( ! defined $action || $action eq "" ){
-    get_logger->error( "The generate_chain action is not defined or empty. default will be 'add'." );
+    $logger->error( "The generate_chain action is not defined or empty. default will be 'add'." );
     $action = "add";
   }
-  util_chain( "ipv4", "filter", $chain, $action );
+  util_chain( $ipv, $table, $chain, $action );
 }
 
 sub nat_back_inline_rules {
@@ -1262,11 +1273,12 @@ sub service_to_zone {
   my $zone = shift;
   my $action = shift;
   my $service = shift;
+  my $logger = get_logger();
 
   if ( defined is_service_available($service) && defined is_zone_available( $zone ) ) {
     util_firewalld_job( " --zone=$zone --$action-service=$service --permanent" );
   } else {
-    get_logger->error( "Please run generate config to create services and zones" );
+    $logger->error( "Please run generate config to create services and zones" );
   }
 }
 
