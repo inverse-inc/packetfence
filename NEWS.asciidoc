@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+ * Add logic for processing pfflows in pfcron (#8049)
+
 === Enhancements
 
  * ProxySQL updated to 2.6.0 (#8058)
