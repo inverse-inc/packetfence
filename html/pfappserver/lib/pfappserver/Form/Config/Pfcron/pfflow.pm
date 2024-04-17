@@ -15,7 +15,7 @@ use warnings;
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfcron qw(default_field_method batch_help_text timeout_help_text window_help_text);
+use pfappserver::Form::Config::Pfcron qw(default_field_method batch_help_text);
 
 extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
@@ -23,36 +23,32 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field 'kafka_brokers' => (
     type => 'Text',
     default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&batch_help_text },
+    tags => { help => 'Kafka Brokers' },
 );
 
 has_field 'read_topic' => (
     type => 'Text',
     default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&timeout_help_text },
+    tags => { help => 'The Kafka topic to read pfflows from' },
 );
 
 has_field 'send_topic' => (
     type => 'Text',
     default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&timeout_help_text },
+    tags => { help => 'The Kafka topic to write network events to' },
 );
 
 has_field 'group_id' => (
     type => 'Text',
     default_method => \&default_field_method,
-    tags => { after_element => \&help,
-             help => \&timeout_help_text },
+    tags => { help => 'The Kafka Consumer Group ID ' },
 );
 
 has_field 'submit_batch' => (
     type => 'PosInteger',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => \&timeout_help_text },
+             help => \&batch_help_text },
 );
 
 =head1 AUTHOR
