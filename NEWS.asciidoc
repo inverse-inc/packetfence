@@ -28,6 +28,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === New Features
 
  * Add logic for processing pfflows in pfcron (#8049)
+ * Provide greater flexibility to provisioning workflow by adding filtering and actions (#8033)
 
 === Enhancements
 
