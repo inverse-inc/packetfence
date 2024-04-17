@@ -35,10 +35,10 @@ ConfigMaintenanceTaskSubTypeFlushRadiusAuditLog:
           type: string
       type: object
     type:
-      default: ::flush_radius_audit_log
-      description: Discriminator `::flush_radius_audit_log`
+      default: flush_radius_audit_log
+      description: Discriminator `flush_radius_audit_log`
       type: string
-      value: ::flush_radius_audit_log
+      value: flush_radius_audit_log
   required:
   - id
   - type

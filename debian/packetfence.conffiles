@@ -22,6 +22,7 @@
 /usr/local/pf/conf/iptables-input.conf.inc
 /usr/local/pf/conf/iptables-input-management.conf.inc
 /usr/local/pf/conf/ip6tables-input-management.conf.inc
+/usr/local/pf/conf/kafka.conf
 /usr/local/pf/conf/keepalived.conf
 /usr/local/pf/conf/log.conf
 /usr/local/pf/conf/mfa.conf

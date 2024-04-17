@@ -247,12 +247,15 @@ require (
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10
 	github.com/redis/go-redis/v9 v9.3.0
+	github.com/segmentio/kafka-go v0.4.29
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
 	layeh.com/radius v0.0.0-00010101000000-000000000000
 )
 
 require (
+	github.com/klauspost/compress v1.16.6 // indirect
+	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230807174057-1744710a1577 // indirect
 )
