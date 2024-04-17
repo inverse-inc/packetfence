@@ -454,6 +454,7 @@ Used for NAS-Port to ifIndex translation
 
 Readonly::Scalar our $NAS_PORT_OFFSET => 16781312;
 Readonly::Scalar our $NAS_PORTS_PER_PORT_RANGE => 4096;
+Readonly::Scalar our $IFINDEX_OFFSET_PER_SLOT => 65;
 
 =head1 BROCADE
 
