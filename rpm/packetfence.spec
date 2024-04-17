@@ -1117,6 +1117,12 @@ fi
                         /usr/local/pf/conf/pki_provider.conf.example
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
+%config(noreplace)      /usr/local/pf/conf/provisioning_filters.conf
+                        /usr/local/pf/conf/provisioning_filters.conf.example
+                        /usr/local/pf/conf/provisioning_filters.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/provisioning_filters_meta.conf
+                        /usr/local/pf/conf/provisioning_filters_meta.conf.example
+                        /usr/local/pf/conf/provisioning_filters_meta.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/radius_filters.conf
                         /usr/local/pf/conf/radius_filters.conf.example
 %config                 /usr/local/pf/conf/radius_filters.conf.defaults

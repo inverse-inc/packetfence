@@ -4,27 +4,31 @@
 
 provisioner
 
-=cut
-
 =head1 DESCRIPTION
 
-provisioner
+unit test for provisioner
 
 =cut
 
 use strict;
 use warnings;
-# pf core libs
+
 BEGIN {
+    #include test libs
     use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 15;
+use pfconfig::cached_hash;
+use_ok("pf::provisioner");
+use pf::factory::provisioner;
 
+#This test will running last
 use Test::NoWarnings;
-use Test::Exception;
 
+use Data::Dumper;
 our $TEST_CATEGORY = "test";
 
 our $ANDROID_OS = 'Android OS';
@@ -32,6 +36,16 @@ our $TEST_OS = 'iOS';
 our $TEST_OS_FINGERBANK_ID = '33450';
 
 our %TEST_NODE_ATTRIBUTE = ( category => $TEST_CATEGORY, device_type => $TEST_OS, device_name => $TEST_OS );
+
+=head2 test_node_attributes
+
+test_node_attributes
+
+=cut
+
+sub test_node_attributes {
+    return {%TEST_NODE_ATTRIBUTE};
+}
 
 use_ok("pf::provisioner");
 
@@ -44,16 +58,6 @@ my $provisioner = new_ok(
         oses     => [$TEST_OS_FINGERBANK_ID],
     }]
 );
-
-=head2 test_node_attributes
-
-test_node_attributes
-
-=cut
-
-sub test_node_attributes {
-    return {%TEST_NODE_ATTRIBUTE};
-}
 
 ok($provisioner->match($TEST_OS, test_node_attributes()),"Match both os and category");
 
@@ -77,6 +81,14 @@ $provisioner->category([$TEST_CATEGORY]);
 $provisioner->oses([]);
 
 ok($provisioner->match($TEST_OS, test_node_attributes()),"Match both os and category");
+
+my $p = pf::factory::provisioner->new('filtered_match');
+
+ok(!$p->matchRules({}), "Rules don't match");
+ok($p->matchRules({connection_type => "Ethernet-NoEAP"}), "Rules do match");
+
+$p = pf::factory::provisioner->new('simple_accept');
+ok($p->matchRules({}), "No Rules match");
 
 =head1 AUTHOR
 

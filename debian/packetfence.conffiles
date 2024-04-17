@@ -36,6 +36,8 @@
 /usr/local/pf/conf/portal_modules.conf
 /usr/local/pf/conf/profiles.conf
 /usr/local/pf/conf/provisioning.conf
+/usr/local/pf/conf/provisioning_filters.conf
+/usr/local/pf/conf/provisioning_filters_meta.conf
 /usr/local/pf/conf/proxysql.conf
 /usr/local/pf/conf/radius_filters.conf
 /usr/local/pf/conf/realm.conf

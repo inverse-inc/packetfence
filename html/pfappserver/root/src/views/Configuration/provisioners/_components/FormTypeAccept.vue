@@ -49,6 +49,11 @@
                      :text="$i18n.t('Nodes with the selected OS will be affected.')"
                      namespace="oses"
     />
+
+    <form-group-rules :column-label="$i18n.t('Rules')"
+                     :text="$i18n.t('Rules to apply.')"
+                     namespace="rules"
+    />
   </base-form>
 </template>
 <script>
@@ -61,7 +66,8 @@ import {
   FormGroupEnforce,
   FormGroupIdentifier,
   FormGroupOses,
-  FormGroupRoleToApply
+  FormGroupRoleToApply,
+  FormGroupRules,
 } from './'
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
@@ -75,7 +81,8 @@ const components = {
   FormGroupEnforce,
   FormGroupIdentifier,
   FormGroupOses,
-  FormGroupRoleToApply
+  FormGroupRoleToApply,
+  FormGroupRules,
 }
 
 // @vue/component

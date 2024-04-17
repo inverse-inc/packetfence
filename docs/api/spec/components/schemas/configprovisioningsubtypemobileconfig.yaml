@@ -104,6 +104,13 @@ ConfigProvisioningSubTypeMobileconfig:
       description: When "Apply role" is enabled, this defines the role to apply when
         the device is authorized with the provisioner.
       type: string
+    rules:
+      default: []
+      description: Rules to be applied
+      items:
+        description: Rules to be applied
+        type: string
+      type: array
     security_type:
       default: ~
       description: Select the type of security applied for your SSID

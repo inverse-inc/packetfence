@@ -4172,6 +4172,1614 @@ components:
               $ref: '#/components/schemas/Meta'
           type: object
       type: object
+    ConfigFilterEnginesProvisioningFilter:
+      description: 'Choose one of the request bodies by discriminator (`type`). '
+      discriminator:
+        mapping:
+          accept: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAccept'
+          airwatch: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAirwatch'
+          android: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAndroid'
+          deny: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeDeny'
+          dpsk: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeDpsk'
+          google_workspace_chromebook: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook'
+          intune: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune'
+          jamf: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeJamf'
+          kandji: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji'
+          lookup: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeLookup'
+          mobileconfig: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeMobileconfig'
+          mobileiron: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeMobileiron'
+          sentinelone: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeSentinelone'
+          windows: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeWindows'
+        propertyName: type
+      oneOf:
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAccept'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAirwatch'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeAndroid'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeDeny'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeDpsk'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeIntune'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeKandji'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeLookup'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeMobileconfig'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeMobileiron'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeSentinelone'
+      - $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterSubTypeWindows'
+    ConfigFilterEnginesProvisioningFilterSubTypeAccept:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: accept
+          description: Discriminator `accept`
+          type: string
+          value: accept
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeAirwatch:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: airwatch
+          description: Discriminator `airwatch`
+          type: string
+          value: airwatch
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeAndroid:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: android
+          description: Discriminator `android`
+          type: string
+          value: android
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeDeny:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: deny
+          description: Discriminator `deny`
+          type: string
+          value: deny
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeDpsk:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: dpsk
+          description: Discriminator `dpsk`
+          type: string
+          value: dpsk
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeGoogleWorkspaceChromebook:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: google_workspace_chromebook
+          description: Discriminator `google_workspace_chromebook`
+          type: string
+          value: google_workspace_chromebook
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeIntune:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: intune
+          description: Discriminator `intune`
+          type: string
+          value: intune
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeJamf:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: jamf
+          description: Discriminator `jamf`
+          type: string
+          value: jamf
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeKandji:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: kandji
+          description: Discriminator `kandji`
+          type: string
+          value: kandji
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeLookup:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: lookup
+          description: Discriminator `lookup`
+          type: string
+          value: lookup
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeMobileconfig:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: mobileconfig
+          description: Discriminator `mobileconfig`
+          type: string
+          value: mobileconfig
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeMobileiron:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: mobileiron
+          description: Discriminator `mobileiron`
+          type: string
+          value: mobileiron
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeSentinelone:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: sentinelone
+          description: Discriminator `sentinelone`
+          type: string
+          value: sentinelone
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterSubTypeWindows:
+      properties:
+        actions:
+          default: ~
+          description: Actions
+          items:
+            description: Action
+            properties:
+              api_method:
+                default: ~
+                description: Api method
+                type: string
+              api_parameters:
+                default: ~
+                description: Api parameters
+                type: string
+            type: object
+          type: array
+        actions_synchronous:
+          default: disabled
+          description: Actions synchronous
+          type: string
+        condition:
+          default:
+            op: and
+          description: Condition
+          properties:
+            field:
+              default: ~
+              description: Field
+              type: string
+            op:
+              default: and
+              description: Value
+              type: string
+            value:
+              default: ~
+              description: Value
+              type: string
+            values:
+              default: ~
+              description: Values
+              items:
+                description: Value
+                type: string
+              type: array
+          type: object
+        description:
+          default: ~
+          description: Description
+          type: string
+        id:
+          default: ~
+          description: Rule Name
+          type: string
+        role:
+          default: ~
+          description: Role
+          type: string
+        run_actions:
+          default: enabled
+          description: Run Actions
+          type: string
+        scopes:
+          default: []
+          description: Scopes
+          items:
+            description: Scopes
+            type: string
+          type: array
+        status:
+          default: enabled
+          description: Enable Rule
+          type: string
+        type:
+          default: windows
+          description: Discriminator `windows`
+          type: string
+          value: windows
+      required:
+      - id
+      - description
+      - condition
+      - scopes
+      - type
+      type: object
+    ConfigFilterEnginesProvisioningFilterWrapped:
+      properties:
+        item:
+          $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilter'
+        status:
+          type: integer
+      type: object
+    ConfigFilterEnginesProvisioningFiltersList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilter'
+            type: array
+        type: object
+    ConfigFilterEnginesProvisioningFiltersMeta:
+      discriminator:
+        propertyName: type
+      oneOf:
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              actions:
+                $ref: '#/components/schemas/Meta'
+              actions_synchronous:
+                $ref: '#/components/schemas/Meta'
+              condition:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              role:
+                $ref: '#/components/schemas/Meta'
+              run_actions:
+                $ref: '#/components/schemas/Meta'
+              scopes:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
     ConfigFilterEnginesRADIUSFilter:
       properties:
         answers:
@@ -11498,6 +13106,7 @@ components:
           google_workspace_chromebook: '#/components/schemas/ConfigProvisioningSubTypeGoogleWorkspaceChromebook'
           intune: '#/components/schemas/ConfigProvisioningSubTypeIntune'
           jamf: '#/components/schemas/ConfigProvisioningSubTypeJamf'
+          jamfCloud: '#/components/schemas/ConfigProvisioningSubTypeJamfcloud'
           kandji: '#/components/schemas/ConfigProvisioningSubTypeKandji'
           mobileconfig: '#/components/schemas/ConfigProvisioningSubTypeMobileconfig'
           mobileiron: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
@@ -11513,6 +13122,7 @@ components:
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeGoogleWorkspaceChromebook'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeIntune'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeJamf'
+      - $ref: '#/components/schemas/ConfigProvisioningSubTypeJamfcloud'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeKandji'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileconfig'
       - $ref: '#/components/schemas/ConfigProvisioningSubTypeMobileiron'
@@ -11572,6 +13182,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         sync_pid:
           default: disabled
           description: Whether or not the PID (username) should be synchronized from
@@ -11660,6 +13277,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         sync_pid:
           default: disabled
           description: Whether or not the PID (username) should be synchronized from
@@ -11789,6 +13413,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         security_type:
           default: ~
           description: Select the type of security applied for your SSID
@@ -11874,6 +13505,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         sync_pid:
           default: disabled
           description: Whether or not the PID (username) should be synchronized from
@@ -11951,6 +13589,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         ssid:
           default: ~
           description: SSID
@@ -12039,6 +13684,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         service_account:
           default: ~
           description: Service account
@@ -12263,6 +13915,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         sync_pid:
           default: disabled
           description: Whether or not the PID (username) should be synchronized from
@@ -12380,6 +14039,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         sync_pid:
           default: disabled
           description: Whether or not the PID (username) should be synchronized from
@@ -12390,6 +14056,116 @@ components:
           description: Discriminator `jamf`
           type: string
           value: jamf
+      required:
+      - id
+      - type
+      - port
+      - api_username
+      - api_password
+      type: object
+    ConfigProvisioningSubTypeJamfcloud:
+      properties:
+        api_password:
+          default: ~
+          description: API password
+          type: string
+        api_username:
+          default: ~
+          description: API username
+          type: string
+        apply_role:
+          default: disabled
+          description: When enabled, this will apply the configured role to the endpoint
+            if it is authorized in the provisioner.
+          type: string
+        autoregister:
+          default: disabled
+          description: Whether or not devices should be automatically registered on
+            the network if they are authorized in the provisioner.
+          type: string
+        category:
+          default: []
+          description: Nodes with the selected roles will be affected
+          items:
+            description: Nodes with the selected roles will be affected
+            type: string
+          type: array
+        description:
+          default: ~
+          description: Description
+          type: string
+        device_type_detection:
+          default: disabled
+          description: Automatic device detection
+          type: string
+        enforce:
+          default: enabled
+          description: Whether or not the provisioner should be enforced. This will
+            trigger checks to validate the device is compliant with the provisioner
+            during RADIUS authentication and on the captive portal.
+          type: string
+        host:
+          default: ~
+          description: Host
+          type: string
+        id:
+          default: ~
+          description: Provisioning ID
+          type: string
+        non_compliance_security_event:
+          default: ~
+          description: Which security event should be raised when non compliance is
+            detected
+          type: string
+        oses:
+          default: []
+          description: Nodes with the selected OS will be affected
+          items:
+            description: Nodes with the selected OS will be affected
+            type: string
+          type: array
+        pki_provider:
+          default: ~
+          description: PKI Provider
+          type: string
+        port:
+          default: 443
+          description: Port
+          type: integer
+        protocol:
+          default: https
+          description: Protocol
+          type: string
+        query_computers:
+          default: enabled
+          description: Query JAMF computers inventory
+          type: string
+        query_mobiledevices:
+          default: enabled
+          description: Query JAMF mobile devices inventory
+          type: string
+        role_to_apply:
+          default: ~
+          description: When "Apply role" is enabled, this defines the role to apply
+            when the device is authorized with the provisioner.
+          type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
+        sync_pid:
+          default: disabled
+          description: Whether or not the PID (username) should be synchronized from
+            the provisioner to PacketFence.
+          type: string
+        type:
+          default: jamfCloud
+          description: Discriminator `jamfCloud`
+          type: string
+          value: jamfCloud
       required:
       - id
       - type
@@ -12471,6 +14247,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         sync_pid:
           default: disabled
           description: Whether or not the PID (username) should be synchronized from
@@ -12594,6 +14377,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         security_type:
           default: ~
           description: Select the type of security applied for your SSID
@@ -12703,6 +14493,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         sync_pid:
           default: disabled
           description: Whether or not the PID (username) should be synchronized from
@@ -12922,6 +14719,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         sync_pid:
           default: disabled
           description: Whether or not the PID (username) should be synchronized from
@@ -13362,6 +15166,13 @@ components:
           description: When "Apply role" is enabled, this defines the role to apply
             when the device is authorized with the provisioner.
           type: string
+        rules:
+          default: []
+          description: Rules to be applied
+          items:
+            description: Rules to be applied
+            type: string
+          type: array
         security_type:
           default: ~
           description: Select the type of security applied for your SSID
@@ -13458,6 +15269,8 @@ components:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
                 $ref: '#/components/schemas/Meta'
+              rules:
+                $ref: '#/components/schemas/Meta'
               sync_pid:
                 $ref: '#/components/schemas/Meta'
               tenantID:
@@ -13502,6 +15315,8 @@ components:
               pki_provider:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              rules:
                 $ref: '#/components/schemas/Meta'
               sync_pid:
                 $ref: '#/components/schemas/Meta'
@@ -13552,6 +15367,55 @@ components:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
                 $ref: '#/components/schemas/Meta'
+              rules:
+                $ref: '#/components/schemas/Meta'
+              sync_pid:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              api_password:
+                $ref: '#/components/schemas/Meta'
+              api_username:
+                $ref: '#/components/schemas/Meta'
+              apply_role:
+                $ref: '#/components/schemas/Meta'
+              autoregister:
+                $ref: '#/components/schemas/Meta'
+              category:
+                $ref: '#/components/schemas/Meta'
+              description:
+                $ref: '#/components/schemas/Meta'
+              device_type_detection:
+                $ref: '#/components/schemas/Meta'
+              enforce:
+                $ref: '#/components/schemas/Meta'
+              host:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              non_compliance_security_event:
+                $ref: '#/components/schemas/Meta'
+              oses:
+                $ref: '#/components/schemas/Meta'
+              pki_provider:
+                $ref: '#/components/schemas/Meta'
+              port:
+                $ref: '#/components/schemas/Meta'
+              protocol:
+                $ref: '#/components/schemas/Meta'
+              query_computers:
+                $ref: '#/components/schemas/Meta'
+              query_mobiledevices:
+                $ref: '#/components/schemas/Meta'
+              role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              rules:
+                $ref: '#/components/schemas/Meta'
               sync_pid:
                 $ref: '#/components/schemas/Meta'
               type:
@@ -13592,6 +15456,8 @@ components:
               protocol:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              rules:
                 $ref: '#/components/schemas/Meta'
               sync_pid:
                 $ref: '#/components/schemas/Meta'
@@ -13634,6 +15500,8 @@ components:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
                 $ref: '#/components/schemas/Meta'
+              rules:
+                $ref: '#/components/schemas/Meta'
               sync_pid:
                 $ref: '#/components/schemas/Meta'
               tenant_code:
@@ -13675,6 +15543,8 @@ components:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
                 $ref: '#/components/schemas/Meta'
+              rules:
+                $ref: '#/components/schemas/Meta'
               sync_pid:
                 $ref: '#/components/schemas/Meta'
               type:
@@ -13729,6 +15599,8 @@ components:
               psk_size:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              rules:
                 $ref: '#/components/schemas/Meta'
               security_type:
                 $ref: '#/components/schemas/Meta'
@@ -13793,6 +15665,8 @@ components:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
                 $ref: '#/components/schemas/Meta'
+              rules:
+                $ref: '#/components/schemas/Meta'
               security_type:
                 $ref: '#/components/schemas/Meta'
               server_certificate_path:
@@ -13855,6 +15729,8 @@ components:
               psk_size:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              rules:
                 $ref: '#/components/schemas/Meta'
               security_type:
                 $ref: '#/components/schemas/Meta'
@@ -13901,6 +15777,8 @@ components:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
                 $ref: '#/components/schemas/Meta'
+              rules:
+                $ref: '#/components/schemas/Meta'
               service_account:
                 $ref: '#/components/schemas/Meta'
               sync_pid:
@@ -13938,6 +15816,8 @@ components:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
                 $ref: '#/components/schemas/Meta'
+              rules:
+                $ref: '#/components/schemas/Meta'
               ssid:
                 $ref: '#/components/schemas/Meta'
               sync_pid:
@@ -13969,6 +15849,8 @@ components:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
                 $ref: '#/components/schemas/Meta'
+              rules:
+                $ref: '#/components/schemas/Meta'
               sync_pid:
                 $ref: '#/components/schemas/Meta'
               type:
@@ -13997,6 +15879,8 @@ components:
               pki_provider:
                 $ref: '#/components/schemas/Meta'
               role_to_apply:
+                $ref: '#/components/schemas/Meta'
+              rules:
                 $ref: '#/components/schemas/Meta'
               sync_pid:
                 $ref: '#/components/schemas/Meta'
@@ -15435,7 +17319,7 @@ components:
               type: string
           type: object
         id:
-          default: ~
+          default: 3000008
           description: Use a number above 1500000 if you want to be able to delete
             this security event later.
           type: string
@@ -35546,6 +37430,345 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
       - Config/FilterEngines/DNSFilters
+  /api/v1/config/filter_engines/provisioning_filter/{provisioning_filter_id}:
+    delete:
+      description: Delete an item.
+      operationId: api.v1.Config.FilterEngines.Provisioning.resource.remove
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: provisioning_filter_id
+        required: true
+        schema:
+          enum: []
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Deleted'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+    description: Configure vlan filters
+    get:
+      description: Get an item.
+      operationId: api.v1.Config.FilterEngines.Provisioning.resource.get
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: provisioning_filter_id
+        required: true
+        schema:
+          enum: []
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+    options:
+      description: Get meta for an item.
+      operationId: api.v1.Config.FilterEngines.Provisioning.resource.resource_options
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: provisioning_filter_id
+        required: true
+        schema:
+          enum: []
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFiltersMeta'
+          description: Request successful. Response contains meta for a resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+    patch:
+      description: Update an item.
+      operationId: api.v1.Config.FilterEngines.Provisioning.resource.update
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: provisioning_filter_id
+        required: true
+        schema:
+          enum: []
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilter'
+      responses:
+        '201':
+          $ref: '#/components/responses/Updated'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+    put:
+      description: Replace an item.
+      operationId: api.v1.Config.FilterEngines.Provisioning.resource.replace
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: provisioning_filter_id
+        required: true
+        schema:
+          enum: []
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilter'
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+  /api/v1/config/filter_engines/provisioning_filters:
+    description: Configure vlan filters
+    get:
+      description: List all items.
+      operationId: api.v1.Config.FilterEngines.Provisioning.list
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFiltersList'
+          description: Request successful. Response contains a list of resources.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+    options:
+      description: Get meta for a new item.
+      operationId: api.v1.Config.FilterEngines.Provisioning.options
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFiltersMeta'
+          description: Request successful. Response contains meta for a resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+    post:
+      description: Create a new item.
+      operationId: api.v1.Config.FilterEngines.Provisioning.create
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilter'
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+  /api/v1/config/filter_engines/provisioning_filters/bulk_delete:
+    description: Configure vlan filters
+    post:
+      description: Delete one or more items.
+      operationId: api.v1.Config.FilterEngines.Provisioning.bulk_delete
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                items:
+                  items:
+                    description: '`PRIMARY_KEY`'
+                    type: string
+                  type: array
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+  /api/v1/config/filter_engines/provisioning_filters/bulk_import:
+    description: Configure vlan filters
+    post:
+      description: Create one or more items.
+      operationId: api.v1.Config.FilterEngines.Provisioning.bulk_import
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                items:
+                  items:
+                    $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilter'
+                  type: array
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+  /api/v1/config/filter_engines/provisioning_filters/bulk_update:
+    description: Configure vlan filters
+    patch:
+      description: Update one or more items.
+      operationId: api.v1.Config.FilterEngines.Provisioning.bulk_update
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                items:
+                  items:
+                    $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilter'
+                  type: array
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+  /api/v1/config/filter_engines/provisioning_filters/search:
+    description: Configure vlan filters
+    post:
+      description: Search all items.
+      operationId: api.v1.Config.FilterEngines.Provisioning.search
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            example:
+              cursor: 0
+              limit: 25
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Search'
+              - properties:
+                  cursor:
+                    required: false
+                    type: string
+                  fields:
+                    items:
+                      type: string
+                    required: true
+                    type: array
+                  limit:
+                    maximum: 1000
+                    minimum: 1
+                    required: false
+                    type: integer
+                  sort:
+                    items:
+                      type: string
+                    required: true
+                    type: array
+                required:
+                - fields
+        description: Search for items.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFiltersList'
+          description: Request successful. Response contains a list of resources.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
+  /api/v1/config/filter_engines/provisioning_filters/sort_items:
+    description: Configure vlan filters
+    patch:
+      description: Sort items.
+      operationId: api.v1.Config.FilterEngines.Provisioning.sort_items
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilterWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/FilterEngines/ProvisioningFilters
   /api/v1/config/filter_engines/radius_filter/{radius_filter_id}:
     delete:
       description: Delete an item.
