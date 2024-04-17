@@ -73,3 +73,30 @@ func CheckMachineAccountWithGivenPassword(ctx context.Context, backendPort strin
 	}
 	return true, nil
 }
+
+func ReportMSEvent(ctx context.Context, backendPort string, jsonData any) error {
+	url := "http://containers-gateway.internal:" + backendPort + "/event/report"
+
+	client := &http.Client{
+		Timeout: 2 * time.Second,
+	}
+
+	jsonBytes, _ := json.Marshal(jsonData)
+	buffer := bytes.NewBuffer(jsonBytes)
+
+	response, err := client.Post(url, "application/json", buffer)
+	if err != nil {
+		return err
+	}
+
+	defer response.Body.Close()
+	statusCode := response.StatusCode
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+	if statusCode == http.StatusOK || statusCode == http.StatusAccepted {
+		return nil
+	}
+	return errors.New(fmt.Sprintf("NTLM event report API replied with HTTP code: %d, %s", statusCode, string(body)))
+}

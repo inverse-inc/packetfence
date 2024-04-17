@@ -34,6 +34,14 @@ export {
   BaseFormGroupChosenOne              as FormGroupNtlmCacheSource,
   BaseFormGroupInput                  as FormGroupNtlmCacheExpiry,
 
+  BaseFormGroupSwitch                 as FormGroupNtKeyCacheEnabled,
+  BaseFormGroupInput                  as FormGroupNtKeyCacheExpire,
+  BaseFormGroupInput                  as FormGroupAdAccountLockoutThreshold,
+  BaseFormGroupInput                  as FormGroupAdAccountLockoutDuration,
+  BaseFormGroupInput                  as FormGroupAdResetAccountLockoutCounterAfter,
+  BaseFormGroupInput                  as FormGroupAdOldPasswordAllowedPeriod,
+  BaseFormGroupInput                  as FormGroupMaxAllowedPasswordAttemptsPerDevice,
+
   TheForm,
   TheView
 }

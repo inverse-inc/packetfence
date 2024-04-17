@@ -216,6 +216,8 @@ our @ADMIN_ACTIONS = qw(
     MFA_DELETE
     MFA_READ
     MFA_UPDATE
+
+    WINDOWS_EVENTS_READ
 );
 
 # Actions not allowed in readonly mode

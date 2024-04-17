@@ -124,13 +124,12 @@ sub create {
     }
 
     my $baseDN = $dns_name;
-    my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
     $baseDN = generate_baseDN($dns_name);
 
-    my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+    my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
     if ($add_status == $FALSE) {
         if ($add_result =~ /already exists(.+)use \-no\-add/) {
-            ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+            ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
             if ($add_status == $FALSE) {
                 $self->render_error(422, "Unable to add machine account with following error: $add_result");
                 return 0;
@@ -226,13 +225,12 @@ sub update {
 
     if (($new_data->{machine_account_password} ne $old_item->{machine_account_password}) || ($computer_name eq "%h")) {
         my $baseDN = $dns_name;
-        my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
         $baseDN = generate_baseDN($dns_name);
 
-        my ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+        my ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
         if ($add_status == $FALSE) {
             if ($add_result =~ /Account.+not found in/) {
-                ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+                ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
                 if ($add_status == $FALSE) {
                     $self->render_error(422, "Unable to add machine account with following error: $add_result");
                     return 0;

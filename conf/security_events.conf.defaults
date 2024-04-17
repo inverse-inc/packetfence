@@ -425,3 +425,11 @@ actions=email_admin,reevaluate_access
 window=dynamic
 access_duration=12h
 enabled=N
+
+[3000008]
+desc=Maximum NTLM login attempt detected
+priority=1
+actions=email_user,email_admin
+enabled=Y
+user_mail_message=Your device [% mac %] has reached maximum NTLM login attempts. Please contact your system administrator to be able to use this device again on the network.
+grace=0
