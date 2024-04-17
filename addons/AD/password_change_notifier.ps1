@@ -5,9 +5,10 @@
 [Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
 
 $base_url = "https://#PACKETFENCE_IP:9999"
-$username = ""         # Username for the API Frontend, change to your own username.
-$password = ""         # Password for the API Frontend, change to your own password.
-$domainID = ""         # your domain identifier in domain.conf
+$username = ""              # Username for the API Frontend, change to your own username.
+$password = ""              # Password for the API Frontend, change to your own password.
+$domainID = ""              # your domain identifier in domain.conf
+$max_events_per_batch = 10  # change this to a larger value if you have more than 10 password change / resets per 10 second. ideal value is: peak password change/reset events per 10 second + 10.
 
 $token_url = $base_url + "/api/v1/login"
 $password_notifier_url = $base_url + "/api/v1/ntlm/event-report"
@@ -19,7 +20,7 @@ $token = $token_response.token
 
 $eventTypeID = @(4723, 4724, 4767)
 
-$events = Get-WinEvent -MaxEvents 10  -FilterHashTable @{ Logname = "Security"; ID = $eventTypeID }
+$events = Get-WinEvent -MaxEvents $max_events_per_batch  -FilterHashTable @{ Logname = "Security"; ID = $eventTypeID }
 
 $eventArr = @()
 foreach ($event in $events)
