@@ -2,7 +2,6 @@ ConfigMaintenanceTask:
   description: 'Choose one of the request bodies by discriminator (`type`). '
   discriminator:
     mapping:
-      ::flush_radius_audit_log: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushRadiusAuditLog'
       acct_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctCleanup'
       acct_maintenance: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctMaintenance'
       admin_api_audit_log_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeAdminApiAuditLogCleanup'
@@ -14,6 +13,7 @@ ConfigMaintenanceTask:
       dns_audit_log_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeDnsAuditLogCleanup'
       fingerbank_data_update: '#/components/schemas/ConfigMaintenanceTaskSubTypeFingerbankDataUpdate'
       flush_dns_audit_log: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushDnsAuditLog'
+      flush_radius_audit_log: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushRadiusAuditLog'
       ip4log_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp4logCleanup'
       ip6log_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp6logCleanup'
       locationlog_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeLocationlogCleanup'
@@ -23,6 +23,7 @@ ConfigMaintenanceTask:
       option82_query: '#/components/schemas/ConfigMaintenanceTaskSubTypeOption82Query'
       password_of_the_day: '#/components/schemas/ConfigMaintenanceTaskSubTypePasswordOfTheDay'
       person_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypePersonCleanup'
+      pfflow: '#/components/schemas/ConfigMaintenanceTaskSubTypePfflow'
       pki_certificates_check: '#/components/schemas/ConfigMaintenanceTaskSubTypePkiCertificatesCheck'
       provisioning_compliance_poll: '#/components/schemas/ConfigMaintenanceTaskSubTypeProvisioningCompliancePoll'
       purge_binary_logs: '#/components/schemas/ConfigMaintenanceTaskSubTypePurgeBinaryLogs'
@@ -53,6 +54,7 @@ ConfigMaintenanceTask:
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeOption82Query'
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePasswordOfTheDay'
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePersonCleanup'
+  - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePfflow'
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePkiCertificatesCheck'
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeProvisioningCompliancePoll'
   - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePurgeBinaryLogs'

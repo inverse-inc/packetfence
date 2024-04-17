@@ -331,6 +331,29 @@ ConfigMaintenanceTasksMeta:
   - properties:
       meta:
         properties:
+          group_id:
+            $ref: '#/components/schemas/Meta'
+          id:
+            $ref: '#/components/schemas/Meta'
+          kafka_brokers:
+            $ref: '#/components/schemas/Meta'
+          read_topic:
+            $ref: '#/components/schemas/Meta'
+          schedule:
+            $ref: '#/components/schemas/Meta'
+          send_topic:
+            $ref: '#/components/schemas/Meta'
+          status:
+            $ref: '#/components/schemas/Meta'
+          submit_batch:
+            $ref: '#/components/schemas/Meta'
+          type:
+            $ref: '#/components/schemas/Meta'
+        type: object
+    type: object
+  - properties:
+      meta:
+        properties:
           id:
             $ref: '#/components/schemas/Meta'
           process_switchranges:
