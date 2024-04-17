@@ -206,6 +206,7 @@ sub process_data {
     my $task = "pf::task::$type"->new;
 
     my ( $err, $result ) = eval {
+        $logger->info("Running task $type");
         $task->doTask($args);
     };
 
