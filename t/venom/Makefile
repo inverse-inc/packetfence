@@ -68,10 +68,7 @@ halt_pf_force:
 clean: clean_pf clean_cache
 
 clean_pf:
-	PF_VM_NAMES="$(PF_VM_NAMES)" \
-        CLUSTER_NAME="$(CLUSTER_NAME)" \
-        RESULT_DIR=$(RESULT_DIR) \
-        INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	RESULT_DIR=$(RESULT_DIR) \
 	./test-wrapper.sh clean_pf
 
 clean_cache:

@@ -35,7 +35,7 @@ configure_and_check() {
             halt || halt_force
         else
             echo "Cleaning VM according to 'KEEP_VMS' value"
-            clean
+            halt || clean
         fi
 	# even if tests passed, we want to exit with return code of last command
 	# to detect a potential failure during cleanup
@@ -50,7 +50,7 @@ configure_and_check() {
         else
             echo "Teardown VM"
         fi
-        halt_force || clean
+        halt || halt_force || clean
         exit $JOB_STATUS
     fi
 }
