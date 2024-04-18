@@ -23,6 +23,7 @@ use pf::file_paths qw($install_dir);
 use pf::error;
 use pf::util;
 use File::Slurp qw(read_dir);
+use File::Temp qw(tempfile);
 
 extends 'Catalyst::Model';
 
@@ -85,6 +86,62 @@ sub assign {
 
     # return original status message
     return ( $STATUS::OK, $status_msg );
+}
+
+sub connect_to_database {
+    my ($args) = @_;
+    my $fh;
+    $args->{database} ||= "mysql";
+    $args->{hostname} ||= "localhost";
+    if ($args->{remote_ca_cert}) {
+        ($fh, my $filename) = tempfile();
+        print $fh $args->{remote_ca_cert};
+        $fh->flush();
+        $fh->close();
+        $args->{remote_ca_file} = $filename;
+    }
+
+    my ($connect_str, $user, $password) = make_connection_str($args);
+    my $dbh = DBI->connect($connect_str, $user, $password);
+    return $dbh, $args->{database}, $user;
+}
+
+sub test_connection {
+    my ($self, $args) = @_;
+    my $logger = get_logger();
+    use Data::Dumper;
+    local $Data::Dumper::Terse = 0;
+    local $Data::Dumper::Indent = 2;
+    print Dumper($args);
+    my ($dbh, $db, $user) = connect_to_database($args);
+    if ( !$dbh ) {
+        my $status_msg = ["Error in connection to the database [_1] with user [_2]",$db,$user];
+        $logger->warn("$DBI::errstr");
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    my $status_msg = ["Successfully connected to the database [_1] with user [_2]",$db,$user];
+    return ( $STATUS::OK, $status_msg );
+}
+
+sub make_connection_str {
+    my ($args) = @_;
+    use Data::Dumper;
+    print Dumper($args);
+    my $hostname = $args->{hostname};
+    if ($args->{remote_encryption} eq "tls") {
+        return  (
+        "DBI:mysql:dbname=$args->{database};host=$args->{remote_hostname};port=$args->{remote_port};mysql_ssl=1;mysql_ssl_ca_file=$args->{remote_ca_file}",
+        $args->{remote_username},
+        $args->{remote_password}
+        );
+    }
+
+    return (
+        "DBI:mysql:dbname=$args->{database};host=$hostname;mysql_socket=/var/lib/mysql/mysql.sock",
+        $args->{username},
+        $args->{password},
+    );
 }
 
 =head2 connect

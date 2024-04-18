@@ -133,7 +133,7 @@ sub database_test {
         return;
     }
     my $db = $json->{database} // "mysql";
-    my ($status, $status_msg) = $self->database_model->connect($db, $json->{username}, $json->{password});
+    my ($status, $status_msg) = $self->database_model->test_connection($json);
     $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
 }
 
