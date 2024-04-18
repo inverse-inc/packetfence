@@ -1,5 +1,22 @@
 ##########################################################################################
-# Powershell script to audit and notify a password change on an Active Directory.        #
+# Powershell script to audit and notify account changes from Active Directory.           #
+#                                                                                        #
+# See:                                                                                   #
+#  https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#_nt_key_caching   #
+#                                                                                        #
+# Minimum Requirements:                                                                  #
+#    Windows 2012 R2                                                                     #
+#                                                                                        #
+# Notifies PacketFence of AD Events:                                                     #
+#    4723: Account password change                                                       #
+#    4724: Account password reset                                                        #
+#    4767: User account unlock                                                           #
+#                                                                                        #
+# Requires the variables:                                                                #
+#    $base_url: the URL to the PacketFence API                                           #
+#    $username: the PacketFence API username                                             #
+#    $password: the PacketFence API password                                             #
+#    $domainID: the unique PacketFence Domain identifier (one script per-domain)         #
 ##########################################################################################
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 [Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
