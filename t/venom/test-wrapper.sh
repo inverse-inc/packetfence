@@ -188,6 +188,55 @@ run_tests() {
     done
 }
 
+virsh_destroy_vm(){
+    local VM_PAUSED=$1
+    sudo virsh destroy $VM_PAUSED
+}
+
+resume_paused_vm(){
+    local VM_PAUSED=$1
+    local turn=$2
+    sudo virsh resume $VM_PAUSED
+    sleep 5
+    local vm_state=$(sudo virsh domstate $VM_PAUSED  | tr '\n' ' ' | tr -d '[:blank:]')
+    if [[ "$vm_state" == "paused" ]] && [ $turn -le 5 ] ; then
+        turn=$((turn+1))
+        resume_paused_vm $VM_PAUSED $turn
+#    Not used yet, need to confirm that resume is enough
+#    elif [ $turn -gt 5 ] ; then
+#        virsh_destroy_vm $VM_PAUSED
+    fi
+}
+
+resume_other_vm(){
+    local VM_OTHER=$1
+    local turn=$2
+    sudo virsh resume $VM_OTHER
+    sleep 5
+    local vm_state=$(sudo virsh domstate $VM_OTHER  | tr '\n' ' ' | tr -d '[:blank:]')
+    if [[ "$vm_state" != "running" ]] && [ $turn -le 5 ] ; then
+        turn=$((turn+1))
+        resume_other_vm $VM_OTHER $turn
+    elif [ $turn -gt 5 ] ; then
+        virsh_destroy_vm $VM_OTHER
+    fi
+}
+
+resume_or_clean_pause_other_vm_states() {
+  VMS_PAUSED=$(sudo virsh list --name --state-paused)
+    for VM_PAUSED in "${VMS_PAUSED[@]}"; do
+        if [[ "$VM_PAUSED" != "" ]] ; then
+            resume_paused_vm $VM_PAUSED 1
+        fi
+    done
+    VMS_OTHER=$(sudo virsh list --name --state-other)
+    for VM_OTHER in "${VMS_OTHER[@]}"; do
+        if [[ "$VM_OTHER" != "" ]] ; then
+            resume_other_vm $VM_OTHER 1
+        fi
+    done
+}
+
 unconfigure() {
     log_subsection "Unconfigure virtual machines"
     # when we call "make halt" without options (localdev)
@@ -209,6 +258,7 @@ ansible_teardown() {
 }
 
 halt() {
+    resume_or_clean_pause_other_vm_states
     # work as try/catch to continue even if an error has been detected
     # We always want VM to be halted even if Ansible failed
     local force=${1:-}
@@ -232,22 +282,6 @@ halt_other_vm() {
       VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant halt -f )
 }
 
-teardown() {
-    log_section "Teardown"
-    #halt
-    ansible_teardown
-    destroy
-    delete_ansible_files
-}
-
-delete_ansible_files() {
-    log_subsection "Remove Ansible files"
-    delete_dir_if_exists ${VAGRANT_DIR}/roles
-    delete_dir_if_exists ${VAGRANT_DIR}/ansible_collections
-    delete_dir_if_exists ${VENOM_ROOT_DIR}/roles
-    delete_dir_if_exists ${VENOM_ROOT_DIR}/ansible_collections
-}
-
 destroy() {
     log_subsection "Destroy virtual machine(s)"
 
@@ -258,10 +292,10 @@ destroy() {
         delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
         delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}
     else
-        echo "Destroy all VM and clean only PF"
+        # this is the default
+        echo "Destroy all and clean only PF"
         destroy_pf_vm
         delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
-	destroy_other_vm
     fi
 }
 
@@ -279,6 +313,20 @@ destroy_other_vm() {
       VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant destroy -f || true )
 }
 
+delete_ansible_files() {
+    log_subsection "Remove Ansible files"
+    delete_dir_if_exists ${VAGRANT_DIR}/roles
+    delete_dir_if_exists ${VAGRANT_DIR}/ansible_collections
+    delete_dir_if_exists ${VENOM_ROOT_DIR}/roles
+    delete_dir_if_exists ${VENOM_ROOT_DIR}/ansible_collections
+}
+
+clean_pf() {
+    log_section "Clean PF, halt destroy and delete ansible files"
+    halt
+    destroy
+    delete_ansible_files
+}
 
 configure_and_check
 
@@ -288,7 +336,7 @@ case $1 in
     halt) halt ;;
     halt_force) halt force ;;
     delete) delete_ansible_files ;;
-    teardown) teardown ;;
+    clean_pf) clean_pf ;;
     *) die "Wrong argument"
-                                              
+
 esac

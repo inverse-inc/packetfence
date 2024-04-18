@@ -32,10 +32,10 @@ configure_and_check() {
         echo "Passed tests"
         if [ "$KEEP_VMS" = "yes" ]; then
             echo "Keeping VM according to 'KEEP_VMS' value"
-            halt_force
+            halt || halt_force
         else
             echo "Cleaning VM according to 'KEEP_VMS' value"
-            MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME} || halt_force
+            clean
         fi
 	# even if tests passed, we want to exit with return code of last command
 	# to detect a potential failure during cleanup
@@ -50,16 +50,22 @@ configure_and_check() {
         else
             echo "Teardown VM"
         fi
-        halt_force
+        halt_force || clean
         exit $JOB_STATUS
     fi
 }
 
-halt_force() {
-    MAKE_TARGET=teardown make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+halt(){
+    MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
 }
 
+clean() {
+    MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+}
 
+halt_force() {
+    MAKE_TARGET=halt_force make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+}
 
 log_section "Configure and check"
 configure_and_check
