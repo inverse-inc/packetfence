@@ -59,7 +59,7 @@
           <component namespace="machine_account_password"
                      :is="formGroupComputedMachineAccountPassword"
                      :column-label="$i18n.t('Machine account password')"
-                     :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. Type another value to change the password, or leave it as-is. If you added new node to a PacketFence cluster, you'll have to specify the original password / or set a new password here to force sync machine account.`)"
+                     :text="$i18n.t(`Password for machine account, Password will be hashed after you save your configuration. To change password, replace the password hash with a different one or leave it as-is. If you added new node to a PacketFence cluster, you'll have to specify the original password / or set a new password here to force sync machine account. A hash-like password will NOT be accepted.`)"
                      :buttonLabel="$i18n.t('Test')"
                      testLabel="Processing"
                      :test="testMachineAccount"
