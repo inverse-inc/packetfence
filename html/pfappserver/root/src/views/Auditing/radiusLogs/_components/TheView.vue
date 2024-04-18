@@ -7,6 +7,12 @@
       </b-card-header>
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
+        <b-tab title="RADIUS">
+          <base-form-group :column-label="$t('Request Time')">{{ item.request_time }}</base-form-group>
+          <base-form-group :column-label="$t('RADIUS Request')"><div class="text-pre">{{ item.radius_request }}</div></base-form-group>
+          <base-form-group :column-label="$t('RADIUS Reply')"><div class="text-pre">{{ item.radius_reply }}</div></base-form-group>
+        </b-tab>
+
         <b-tab title="Node Information">
           <template v-slot:title>
             {{ $t('Node Information') }}
@@ -59,12 +65,6 @@
           <base-form-group :column-label="$t('NAS Port Type')">{{ item.nas_port_type }}</base-form-group>
           <base-form-group :column-label="$t('RADIUS Source IP Address')">{{ item.radius_source_ip_address }}</base-form-group>
           <base-form-group :column-label="$t('Wi-Fi Network SSID')">{{ item.ssid }}</base-form-group>
-        </b-tab>
-
-        <b-tab title="RADIUS">
-          <base-form-group :column-label="$t('Request Time')">{{ item.request_time }}</base-form-group>
-          <base-form-group :column-label="$t('RADIUS Request')"><div class="text-pre">{{ item.radius_request }}</div></base-form-group>
-          <base-form-group :column-label="$t('RADIUS Reply')"><div class="text-pre">{{ item.radius_reply }}</div></base-form-group>
         </b-tab>
 
       </b-tabs>
