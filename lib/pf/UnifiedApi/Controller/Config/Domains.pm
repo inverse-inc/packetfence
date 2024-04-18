@@ -88,6 +88,9 @@ sub create {
     my $workgroup = $item->{workgroup};
     my $real_computer_name = $item->{server_name};
 
+    if (is_nt_hash_pattern($computer_password)) {
+        return $self->render_error(422, "Unable to create machine account with hash-like machine account password. Please use a generic pattern instead.")
+    }
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
@@ -223,7 +226,11 @@ sub update {
         return $self->render_error(422, "Unable to determine AD server's IP address\n")
     }
 
-    if (($new_data->{machine_account_password} ne $old_item->{machine_account_password}) || ($computer_name eq "%h")) {
+    if (($new_data->{machine_account_password} ne $old_item->{machine_account_password})) {
+        if (is_nt_hash_pattern($new_data->{machine_account_password})) {
+            return $self->render_error(422, "Unable to create/change machine account password to a new hash-like password. Please use a generic pattern instead.")
+        }
+
         my $baseDN = $dns_name;
         $baseDN = generate_baseDN($dns_name);
 
@@ -268,7 +275,14 @@ sub generate_baseDN {
     return $ret;
 }
 
-
+sub is_nt_hash_pattern {
+    my ($password) = @_;
+    $password =~ s/^\s+|\s+$//g;
+    if ($password =~ /[a-fA-F0-9]{32}/) {
+        return 1;
+    }
+    return 0;
+}
 
 =head2 validate_input
 
