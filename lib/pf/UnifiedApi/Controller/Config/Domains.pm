@@ -88,10 +88,6 @@ sub create {
     my $workgroup = $item->{workgroup};
     my $real_computer_name = $item->{server_name};
 
-    if (is_nt_hash_pattern($computer_password)) {
-        return $self->render_error(422, "Unable to create machine account with hash-like machine account password. Please use a generic pattern instead.")
-    }
-
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
         my @s = split(/\./, $real_computer_name);
@@ -129,24 +125,25 @@ sub create {
     my $baseDN = $dns_name;
     $baseDN = generate_baseDN($dns_name);
 
-    my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
-    if ($add_status == $FALSE) {
-        if ($add_result =~ /already exists(.+)use \-no\-add/) {
-            ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
-            if ($add_status == $FALSE) {
+    if (!is_nt_hash_pattern($computer_password)) {
+        my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
+        if ($add_status == $FALSE) {
+            if ($add_result =~ /already exists(.+)use \-no\-add/) {
+                ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
+                if ($add_status == $FALSE) {
+                    $self->render_error(422, "Unable to add machine account with following error: $add_result");
+                    return 0;
+                }
+            }
+            else {
                 $self->render_error(422, "Unable to add machine account with following error: $add_result");
                 return 0;
             }
         }
-        else {
-            $self->render_error(422, "Unable to add machine account with following error: $add_result");
-            return 0;
-        }
+        my $encoded_password = encode("utf-16le", $computer_password);
+        my $hash = md4_hex($encoded_password);
+        $computer_password = $hash;
     }
-
-    my $encoded_password = encode("utf-16le", $computer_password);
-    my $hash = md4_hex($encoded_password);
-    $computer_password = $hash;
 
     $item->{ntlm_auth_host} = '127.0.0.1';
     $item->{ntlm_auth_port} = $max_port;
@@ -226,11 +223,7 @@ sub update {
         return $self->render_error(422, "Unable to determine AD server's IP address\n")
     }
 
-    if (($new_data->{machine_account_password} ne $old_item->{machine_account_password})) {
-        if (is_nt_hash_pattern($new_data->{machine_account_password})) {
-            return $self->render_error(422, "Unable to create/change machine account password to a new hash-like password. Please use a generic pattern instead.")
-        }
-
+    if (!is_nt_hash_pattern($new_data->{machine_account_password}) && ($new_data->{machine_account_password} ne $old_item->{machine_account_password})) {
         my $baseDN = $dns_name;
         $baseDN = generate_baseDN($dns_name);
 
