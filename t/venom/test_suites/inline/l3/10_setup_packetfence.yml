@@ -84,7 +84,8 @@ testcases:
        "next_hop": "100.127.255.253",
        "pool_backend": "memory",
        "portal_fqdn": null,
-       "type": "inlinel3"
+       "type": "inlinel3",
+       "dhcp_reply_ip": "giaddr"
      }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
