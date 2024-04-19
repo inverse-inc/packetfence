@@ -156,15 +156,17 @@ has_field 'registration' =>
              help => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.' },
   );
 
-has_field 'nt_key_cache_enabled' =>
-    (
-        type => 'Toggle',
-        checkbox_value => "enabled",
-        unchecked_value => "disabled",
-        label => 'NT Key cache',
-        tags => { after_element => \&help,
-            help => 'Should the NT Key cache be enabled for this domain?' },
-    );
+has_field 'nt_key_cache_enabled' => (
+    type            => 'Toggle',
+    label           => 'NT Key cache',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+    tags => {
+        after_element => \&help,
+        help => 'Should the NT Key cache be enabled for this domain?'
+    },
+);
 
 has_field 'nt_key_cache_expire' =>
     (
