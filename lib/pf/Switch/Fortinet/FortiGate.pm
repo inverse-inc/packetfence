@@ -48,6 +48,7 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     WiredMacAuth
     WirelessDot1x
+    WirelessWebAuth
     RoleBasedEnforcement
     VPNRoleBasedEnforcement
     VPN
@@ -240,9 +241,11 @@ sub identifyConnectionType {
     } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(admin-login)$/i ) {
         $connection->isVPN($FALSE);
         $connection->isCLI($TRUE);
-    } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(web-auth)$/i ) {
+    } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(web-auth)$/i && exists $radius_request->{'Fortinet-SSID'}) {
         $connection->isVPN($FALSE);
         $connection->isCLI($FALSE);
+        $connection->isWebAuth($TRUE);
+        $connection->transport("Wireless");
     } else {
         # Default to CLI
         $connection->isVPN($FALSE);
