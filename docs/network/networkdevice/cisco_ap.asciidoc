@@ -383,6 +383,7 @@ Go to Configuration -> Security -> ACL, click add
 ----
 Use ACL Name: Pre-Auth-For-WebRedirect
 For ACL Type, select IPv4 Extended
+Note: We need to use the Packetfence Mgmt IP in the Pre-Auth-For-WebRedirect ACL for HTTP (www) and HTTPs (443)
 ----
 
 image::wlc-9800-acl-pre-auth-for-webredirect-v2.jpg[scaledwidth="100%",alt="Pre-Auth-For-WebRedirect Access List"]
