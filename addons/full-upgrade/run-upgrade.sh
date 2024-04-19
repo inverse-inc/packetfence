@@ -177,7 +177,8 @@ function handle_pkgnew_file() {
   cp -a $pkgnew_file $non_pkgnew_file
   echo "Attempting a dry-run of the patch on $non_pkgnew_file"
   if ! patch -p1 -f --dry-run < $patch_file; then
-    echo "Patching $non_pkgnew_file failed. You will keep the current configuration file ($non_pkgnew_file) BUT, please, check $pkgnew_file file if some modifications are needed in your config file $non_pkgnew_file.\nThis should be addressed manually after the upgrade is completed. Press enter to continue..."
+    echo "Patching $non_pkgnew_file failed. You will keep the current configuration file ($non_pkgnew_file) BUT, please, check $pkgnew_file file if some modifications are needed in your config file $non_pkgnew_file.\nThis should be addressed manually after the upgrade is completed. Previous configuration is restored. Press enter to continue..."
+    cp -a $backup_file $non_pkgnew_file
     read
   else
     echo "Dry-run completed successfully, applying the patch"
