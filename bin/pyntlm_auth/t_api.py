@@ -18,13 +18,19 @@ def api():
     app.config['MYSQL_DATABASE_PASSWORD'] = global_vars.c_db_pass
     app.config['MYSQL_DATABASE_DB'] = global_vars.c_db
     app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
+    app.config['MYSQL_DATABASE_SOCKET'] = global_vars.c_db_unix_socket
 
     mysql = MySQL(autocommit=True, cursorclass=pymysql.cursors.DictCursor)
     mysql.init_app(app)
 
     @app.before_request
     def before_request():
-        g.db = mysql.get_db().cursor()
+        try:
+            g.db = mysql.get_db().cursor()
+        except Exception as e:
+            e_code = e.args[0]
+            e_msg = str(e)
+            print(f"  error while init database: {e_code}, {e_msg}. Started without NT Key cache capability.")
 
     @app.teardown_request
     def teardown_request(exception=None):

@@ -49,6 +49,7 @@ sub generateConfig {
     my $db_user=$db_config->{'user'};
     my $db_pass=$db_config->{'pass'};
     my $db=$db_config->{'db'};
+    my $db_unix_socket = $db_config->{'unix_socket'};
 
 
     for my $identifier (keys(%ConfigDomain)) {
@@ -56,6 +57,8 @@ sub generateConfig {
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
             my $ntlm_auth_port = $conf{ntlm_auth_port};
+
+            pf_run("sudo echo '[$identifier]' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
 
             pf_run("sudo echo 'HOST=$ntlm_auth_host' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'LISTEN=$ntlm_auth_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
@@ -66,6 +69,7 @@ sub generateConfig {
             pf_run("sudo echo 'DB_USER=$db_user' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'DB_PASS=$db_pass' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'DB=$db' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            pf_run("sudo echo 'DB_UNIX_SOCKET=$db_unix_socket' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
         }
     }
 }
