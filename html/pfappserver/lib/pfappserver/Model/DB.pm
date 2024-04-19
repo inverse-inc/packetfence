@@ -109,10 +109,6 @@ sub connect_to_database {
 sub test_connection {
     my ($self, $args) = @_;
     my $logger = get_logger();
-    use Data::Dumper;
-    local $Data::Dumper::Terse = 0;
-    local $Data::Dumper::Indent = 2;
-    print Dumper($args);
     my ($dbh, $db, $user) = connect_to_database($args);
     if ( !$dbh ) {
         my $status_msg = ["Error in connection to the database [_1] with user [_2]",$db,$user];
@@ -126,8 +122,6 @@ sub test_connection {
 
 sub make_connection_str {
     my ($args) = @_;
-    use Data::Dumper;
-    print Dumper($args);
     my $hostname = $args->{hostname};
     if ($args->{remote_encryption} eq "tls") {
         return  (
