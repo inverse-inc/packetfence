@@ -45,10 +45,10 @@ configure_and_check() {
         echo "Failed tests"
         # We don't want other jobs to be canceled when running a manual pipeline
         if [ "$CI_PIPELINE_SOURCE" = "schedule" ]; then
-            echo "Cancelling jobs not started and then teardown VM"
+            echo "Cancelling jobs not started and then halt VMs"
             ${PF_SRC_DIR}/ci/lib/test/cancel-pending-jobs.sh
         else
-            echo "Teardown VM"
+            echo "Halt VMs"
         fi
         halt || halt_force || clean
         exit $JOB_STATUS
@@ -59,12 +59,12 @@ halt(){
     MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
 }
 
-clean() {
-    MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
-}
-
 halt_force() {
     MAKE_TARGET=halt_force make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+}
+
+clean() {
+    MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
 }
 
 log_section "Configure and check"

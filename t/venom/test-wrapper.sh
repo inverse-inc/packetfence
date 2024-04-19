@@ -223,7 +223,8 @@ resume_other_vm(){
 }
 
 resume_or_clean_pause_other_vm_states() {
-  VMS_PAUSED=$(sudo virsh list --name --state-paused)
+    log_subsection "Resume or clean paused or other virtual machine states"
+    VMS_PAUSED=$(sudo virsh list --name --state-paused)
     for VM_PAUSED in "${VMS_PAUSED[@]}"; do
         if [[ "$VM_PAUSED" != "" ]] ; then
             resume_paused_vm $VM_PAUSED 1
@@ -258,10 +259,12 @@ ansible_teardown() {
 }
 
 halt() {
-    resume_or_clean_pause_other_vm_states
     # work as try/catch to continue even if an error has been detected
     # We always want VM to be halted even if Ansible failed
     local force=${1:-}
+
+    resume_or_clean_pause_other_vm_states
+
     if [ -z "$force" ]; then
         ansible_teardown
     else
@@ -322,8 +325,7 @@ delete_ansible_files() {
 }
 
 clean_pf() {
-    log_section "Clean PF, halt destroy and delete ansible files"
-    halt
+    log_section "Clean PF, destroy VMs and delete ansible files"
     destroy
     delete_ansible_files
 }
