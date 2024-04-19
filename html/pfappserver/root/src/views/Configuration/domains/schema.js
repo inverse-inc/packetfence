@@ -45,13 +45,11 @@ export default (props) => {
     ad_account_lockout_duration,
     ad_account_lockout_threshold,
     ad_fqdn,
-    ad_server,
     dns_servers,
     nt_key_cache_enabled,
   } = form || {}
 
   const schemaAdServer = yup.string().nullable().label(i18n.t('IP address')).isIpv4('Invalid IP address.')
-  const schemaDnsServers = yup.string().nullable().label(i18n.t('Servers')).isIpv4Csv()
 
   return yup.object().shape({
     id: yup.string()
@@ -75,12 +73,9 @@ export default (props) => {
       .required(i18n.t('Server required.'))
       .isFQDN()
       .domainUniqueNamesNotExistsExcept({ id, ...form }),
-    dns_servers: yup.string()
-      .when('id', {
-        is: () => !ad_fqdn || !ad_server,
-        then: schemaDnsServers.required(i18n.t('DNS servers required.')),
-        otherwise: schemaDnsServers
-      }),
+    dns_servers: yup.string().nullable().label(i18n.t('Servers'))
+      .required(i18n.t('DNS servers required.'))
+      .isIpv4Csv(),
     machine_account_password: yup.string().nullable().label(i18n.t('Machine Account Password'))
       .required(i18n.t('Password required.'))
       .min(8, i18n.t('Password must be at least 8 characters.')),
