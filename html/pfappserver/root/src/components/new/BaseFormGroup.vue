@@ -13,6 +13,9 @@
     :label-cols-lg="labelColsLg"
     :label-cols-xl="labelColsXl"
   >
+    <template v-slot:description v-if="apiFeedback">
+      <div v-html="apiFeedback" class="text-warning"/>
+    </template>
     <template v-slot:invalid-feedback v-if="invalidFeedback">
       <span v-html="invalidFeedback" />
     </template>
@@ -75,6 +78,10 @@ export const props = {
     default: undefined
   },
   validFeedback: {
+    type: String,
+    default: undefined
+  },
+  apiFeedback: {
     type: String,
     default: undefined
   },

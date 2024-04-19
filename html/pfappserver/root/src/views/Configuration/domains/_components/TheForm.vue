@@ -59,10 +59,9 @@
           <component namespace="machine_account_password"
                      :is="formGroupComputedMachineAccountPassword"
                      :column-label="$i18n.t('Machine account password')"
-                     :text="$i18n.t(`Password for machine account, Password will be hashed after you save your configuration. To change password, replace the password hash with a different one or leave it as-is. If you added new node to a PacketFence cluster, you'll have to specify the original password / or set a new password here to force sync machine account. A hash-like password will NOT be accepted.`)"
-                     :buttonLabel="$i18n.t('Test')"
-                     testLabel="Processing"
-                     :test="testMachineAccount"
+                     :text="$i18n.t(`Machine account password hashed after save. Password hashes are ignored, re-enter the original password to resync the machine account.`)"
+                     :api-feedback="machineAccountFeedback"
+                     v-bind="machineAccountBind"
           />
         </template>
 
@@ -156,7 +155,8 @@
   </base-form>
 </template>
 <script>
-import {computed} from '@vue/composition-api'
+import {computed, toRefs} from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import {
   BaseForm,
   BaseFormTab
@@ -252,6 +252,10 @@ export const props = {
 
 export const setup = (props, context) => {
 
+  const {
+    form
+  } = toRefs(props)
+
   const { root: { $store } = {} } = context
 
   const schema = computed(() => schemaFn(props))
@@ -261,11 +265,36 @@ export const setup = (props, context) => {
     return (props.isNew) ? FormGroupMachineAccountPasswordOnly : FormGroupMachineAccountPassword
   })
 
-  const testMachineAccount = () => $store.dispatch('$_domains/testMachineAccount', { ...props.form, quiet: true })
+  const isMachineAccountHash = computed(() => {
+    const { machine_account_password } = form.value
+    return !!machine_account_password && /^[0-9a-f]{32}$/i.test(machine_account_password)
+  })
+
+  const machineAccountFeedback = computed(() => {
+    if (isMachineAccountHash.value)
+      return i18n.t(`Password is hashed. Type a new or existing password to resync the machine account.`)
+    return undefined
+  })
+
+  const machineAccountBind = computed(() => {
+    return ((!isMachineAccountHash.value)
+      ? {
+        buttonLabel: i18n.t('Test'),
+        testLabel: i18n.t('Processing'),
+        test: () => $store.dispatch('$_domains/testMachineAccount', { ...props.form, quiet: true })
+      }
+      : {
+        test: false
+      }
+    )
+  })
+
   return {
     schema,
-    testMachineAccount,
-    formGroupComputedMachineAccountPassword
+    formGroupComputedMachineAccountPassword,
+    isMachineAccountHash,
+    machineAccountFeedback,
+    machineAccountBind
   }
 }
 

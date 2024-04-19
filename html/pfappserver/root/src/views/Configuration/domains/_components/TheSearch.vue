@@ -54,6 +54,10 @@
             </template>
           </span>
         </template>
+        <template #cell(nt_key_cache_enabled)="{ item }">
+          <icon name="circle" :class="{ 'text-success': item.nt_key_cache_enabled === 'enabled', 'text-danger': item.nt_key_cache_enabled !== 'enabled' }"
+            v-b-tooltip.hover.left.d300 :title="$t(item.nt_key_cache_enabled)"></icon>
+        </template>
         <template #cell(ntlm_cache)="{ item }">
           <icon name="circle" :class="{ 'text-success': item.ntlm_cache === 'enabled', 'text-danger': item.ntlm_cache !== 'enabled' }"
             v-b-tooltip.hover.left.d300 :title="$t(item.ntlm_cache)"></icon>
