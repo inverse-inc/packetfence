@@ -438,6 +438,7 @@ export const setup = (props, context) => {
     databaseCreationError.value = null
     return $store.dispatch('$_bases/createDatabase', {
       ...remoteDatabaseForm.value,
+      username: 'root',
       password: form.value.root_pass,
       database: form.value.db
     }).then(() => {
