@@ -38,50 +38,91 @@ our $dbHandler;
 
 sub assign {
     my ( $self, $db, $user, $password ) = @_;
+    return $self->_assign($dbHandler, $db, $user, $password);
+}
+
+sub get_db_type {
+    my ($dbh) = @_;
+    my $data = $dbh->selectrow_arrayref("SELECT VERSION()");
+    if (!defined $data || !@$data) {
+        return
+    }
+
+    my $version = $data->[0];
+    ($version, my $type) = split('-', $version);
+    $type //= "MySQL";
+    return ($version, $type);
+}
+
+sub _assign {
+    my ($self, $dbh, $db, $user, $password ) = @_;
     my $logger = get_logger();
 
     my $status_msg;
-
-    $db = $dbHandler->quote_identifier($db);
+    my ($version, $type) = get_db_type($dbh);
+    $db = $dbh->quote_identifier($db);
 
     # Create global PF user
     foreach my $host ("'%'","localhost") {
-        my $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES,CREATE TEMPORARY TABLES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
+        my $sql_query = "DROP USER IF EXISTS ?\@${host}";
+        $dbh->do($sql_query, undef, $user);
         if ( $DBI::errstr ) {
             $status_msg = "Error creating the user $user on database $db";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
-        $sql_query = "GRANT DROP ON $db.radius_nas TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
+
+        $sql_query = "CREATE USER ?\@${host} IDENTIFIED BY ?";
+        $dbh->do($sql_query, undef, $user, $password);
         if ( $DBI::errstr ) {
             $status_msg = "Error creating the user $user on database $db";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
-        $sql_query = "GRANT SELECT ON mysql.proc TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
+
+        $sql_query = "GRANT DROP,SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES,CREATE TEMPORARY TABLES ON $db.* TO ?\@${host}";
+        $dbh->do($sql_query, undef, $user);
         if ( $DBI::errstr ) {
             $status_msg = "Error creating the user $user on database $db";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
-        $sql_query = "GRANT BINLOG ADMIN ON *.* TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
+
+        $sql_query = "GRANT CREATE,DROP ON $db.radius_nas TO ?\@${host}";
+        $dbh->do($sql_query, undef, $user);
         if ( $DBI::errstr ) {
-            $status_msg = "Error granting BINLOG ADMIN for user $user on database";
+            $status_msg = "Error creating the user $user on database $db";
+            $logger->warn("$DBI::errstr");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+
+        if ($type ne 'MySQL') {
+            $sql_query = "GRANT SELECT ON mysql.proc TO ?\@${host}";
+            $dbh->do($sql_query, undef, $user);
+            if ( $DBI::errstr ) {
+                $status_msg = "Error creating the user $user on database $db";
+                $logger->warn("$DBI::errstr");
+                return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+            }
+        }
+
+
+        $sql_query = $type eq 'MySQL' ? "GRANT BINLOG_ADMIN ON *.* TO ?\@${host}" : "GRANT BINLOG ADMIN ON *.* TO ?\@${host}";
+        $dbh->do($sql_query, undef, $user);
+        if ( $DBI::errstr ) {
+            $status_msg = "Error granting BINLOG ADMIN for user $user on database $db";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
     }
     # Apply the new privileges
-    $dbHandler->do("FLUSH PRIVILEGES");
+    $dbh->do("FLUSH PRIVILEGES");
     if ( $DBI::errstr ) {
         $status_msg = ["Error creating the user [_1] on database [_2]",$user,$db];
         $logger->warn("$DBI::errstr");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
+
     $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
 
     # return original status message
