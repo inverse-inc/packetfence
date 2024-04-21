@@ -418,7 +418,7 @@ export const setup = (props, context) => {
   const secureDatabase = () => {
     // secure install only localdb (remotedb disabled)
     if(!remoteDatabase.value) {
-      return $store.dispatch('$_bases/secureDatabase', { ...remoteDatabaseForm.value, password: form.value.root_pass }).then(() => {
+      return $store.dispatch('$_bases/secureDatabase', { ...remoteDatabaseForm.value, username: 'root', password: form.value.root_pass }).then(() => {
         rootPasswordIsValid.value = true
       })
     }
