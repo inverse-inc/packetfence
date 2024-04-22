@@ -48,6 +48,7 @@ c_db_port = None
 c_db_user = None
 c_db_pass = None
 c_db = None
+c_db_unix_socket = None
 
 # config for domain.conf - nt key cache
 c_nt_key_cache_enabled = None
