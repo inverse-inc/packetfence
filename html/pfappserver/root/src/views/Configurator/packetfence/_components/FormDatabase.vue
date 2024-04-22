@@ -399,7 +399,7 @@ export const setup = (props, context) => {
           if (form.value.pass) {
             reject()
           } else {
-            $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, username: form.value.user, password: form.value.pass, database: form.value.db }).then(() => {
+            $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, username: form.value.user, password: form.value.pass, database: form.value.db }).then(() => {
               databaseExists.value = true
               userIsValid.value = true
               resolve()
@@ -553,11 +553,11 @@ export const setup = (props, context) => {
   const isVerifyingRootPassword = ref(false)
   const onVerifyRootPassword = () => {
     isVerifyingRootPassword.value = true
-    return $store.dispatch('$_bases/testDatabase', { ...remoteDatabaseForm.value, password: form.value.root_pass })
+    return $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, password: form.value.root_pass })
       .then(() => {
         rootPasswordIsValid.value = true
         rootPasswordIsUnverified.value = false
-        $store.dispatch('$_bases/testDatabase', { ...remoteDatabaseForm.value, password: form.value.root_pass, database: form.value.db || DEFAULT_DATABASE })
+        $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, password: form.value.root_pass, database: form.value.db || DEFAULT_DATABASE })
           .then(() => {
             databaseExists.value = true // database exists
           })
@@ -620,7 +620,7 @@ export const setup = (props, context) => {
     remoteDatabaseLoading.value = true
     remoteDatabaseTestError.value = false
     remoteDatabaseTestMessage.value = undefined
-    $store.dispatch('$_bases/testDatabase', remoteDatabaseForm.value)
+    $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value })
       .then(() => {
         remoteDatabaseModal.value = false
       })
