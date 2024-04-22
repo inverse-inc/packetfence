@@ -31,7 +31,7 @@ use HTTP::Request::Common;
 use pf::log;
 use pf::constants;
 use pf::accounting qw(node_accounting_dynauth_attr);
-use pf::config qw ($WEBAUTH_WIRELESS);
+use pf::config qw ($WEBAUTH_WIRELESS $WEBAUTH_WIRED $WIRED_802_1X $WIRED_MAC_AUTH);
 use pf::constants::role qw($REJECT_ROLE);
 
 use base ('pf::Switch::Fortinet');
@@ -324,6 +324,48 @@ sub parseVPNRequest {
     return ($nas_port_type, $eap_type, undef, $port, $user_name, $nas_port_id, undef, $nas_port_id);
 }
 
+=item wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => 'dot1xPortReauthenticate',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WEBAUTH_WIRED) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacDefault',
+        );
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
 
 =head1 AUTHOR
 
