@@ -299,7 +299,7 @@ export const useSearch = makeSearch('radiusLogs', {
     },
     {
       value: 'computer_name',
-      text: 'Computer name', // i18n defer
+      text: 'Computer Name', // i18n defer
       types: [conditionType.SUBSTRING]
     },
     {
@@ -354,7 +354,7 @@ export const useSearch = makeSearch('radiusLogs', {
     },
     {
       value: 'nas_identifier',
-      text: 'NAS identifier', // i18n defer
+      text: 'NAS Identifier', // i18n defer
       types: [conditionType.SUBSTRING]
     },
     {
