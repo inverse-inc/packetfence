@@ -24,8 +24,8 @@
     <form-group-scheduler namespace="scheduler"
                        :column-label="$i18n.t('Use PXC Scheduler')"
                        :text="$i18n.t('Use the PXC Scheduler handler to monitor cluster availability. Disabled by default.')"
-                       enabled-value="default"
-                       disabled-value="pxc_scheduler"
+                       enabled-value="pxc_scheduler"
+                       disabled-value="default"
     />
 
   </base-form>
