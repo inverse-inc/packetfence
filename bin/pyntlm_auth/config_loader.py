@@ -233,6 +233,10 @@ def config_load():
             if max_allowed_attempts_per_device > ad_account_lockout_threshold:
                 print(f"  NT Key cache: '{s_device}' larger than '{s_threshold}', set to '{s_threshold}' by default.")
 
+    if None in (c_db_host, c_db_port, c_db_user, c_db_pass, c_db, c_db_unix_socket):
+        print(f"  DB config: Missing settings, NT Key cache will be disabled")
+        nt_key_cache_enabled = False
+
     print("NT Key caching:")
     print(f"  ad_account_lockout_threshold                         : {ad_account_lockout_threshold}")
     print(f"  ad_account_lockout_duration (in minutes)             : {ad_account_lockout_duration}")
@@ -250,7 +254,7 @@ def config_load():
     global_vars.c_server_string = server_string
     global_vars.c_domain = domain
 
-    global_vars.c_nt_key_cache_enabled = int(nt_key_cache_enabled)
+    global_vars.c_nt_key_cache_enabled = nt_key_cache_enabled
     global_vars.c_nt_key_cache_expire = int(nt_key_cache_expire)
 
     global_vars.c_ad_account_lockout_threshold = ad_account_lockout_threshold

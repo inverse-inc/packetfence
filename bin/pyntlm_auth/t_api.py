@@ -12,30 +12,39 @@ def api():
 
     app = Flask(__name__)
 
-    app.config['MYSQL_DATABASE_HOST'] = global_vars.c_db_host
-    app.config['MYSQL_DATABASE_PORT'] = int(global_vars.c_db_port)
-    app.config['MYSQL_DATABASE_USER'] = global_vars.c_db_user
-    app.config['MYSQL_DATABASE_PASSWORD'] = global_vars.c_db_pass
-    app.config['MYSQL_DATABASE_DB'] = global_vars.c_db
-    app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
-    app.config['MYSQL_DATABASE_SOCKET'] = global_vars.c_db_unix_socket
+    for i in range(1):
+        if not global_vars.c_nt_key_cache_enabled:
+            break
 
-    mysql = MySQL(autocommit=True, cursorclass=pymysql.cursors.DictCursor)
-    mysql.init_app(app)
+        c_db_port, err = config_loader.get_int_value(global_vars.c_db_port)
+        if err is not None:
+            global_vars.c_nt_key_cache_enabled = False
+            break
 
-    @app.before_request
-    def before_request():
-        try:
-            g.db = mysql.get_db().cursor()
-        except Exception as e:
-            e_code = e.args[0]
-            e_msg = str(e)
-            print(f"  error while init database: {e_code}, {e_msg}. Started without NT Key cache capability.")
+        app.config['MYSQL_DATABASE_HOST'] = global_vars.c_db_host
+        app.config['MYSQL_DATABASE_PORT'] = int(global_vars.c_db_port)
+        app.config['MYSQL_DATABASE_USER'] = global_vars.c_db_user
+        app.config['MYSQL_DATABASE_PASSWORD'] = global_vars.c_db_pass
+        app.config['MYSQL_DATABASE_DB'] = global_vars.c_db
+        app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
+        app.config['MYSQL_DATABASE_SOCKET'] = global_vars.c_db_unix_socket
 
-    @app.teardown_request
-    def teardown_request(exception=None):
-        if hasattr(g, 'db'):
-            g.db.close()
+        mysql = MySQL(autocommit=True, cursorclass=pymysql.cursors.DictCursor)
+        mysql.init_app(app)
+
+        @app.before_request
+        def before_request():
+            try:
+                g.db = mysql.get_db().cursor()
+            except Exception as e:
+                e_code = e.args[0]
+                e_msg = str(e)
+                print(f"  error while init database: {e_code}, {e_msg}. Started without NT Key cache capability.")
+
+        @app.teardown_request
+        def teardown_request(exception=None):
+            if hasattr(g, 'db'):
+                g.db.close()
 
     app.route('/ntlm/auth', methods=['POST'])(handlers.ntlm_auth_handler)
     app.route('/ntlm/expire', methods=['POST'])(handlers.ntlm_expire_handler)
