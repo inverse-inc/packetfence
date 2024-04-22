@@ -155,9 +155,7 @@ def config_load():
     nt_key_cache_enabled = get_boolean_value(nt_key_cache_enabled)
 
     if nt_key_cache_enabled:
-        for i in range(0):
-            print("------------------------okkkkk------------------------------")
-
+        for i in range(1):
             nt_key_cache_expire, error = get_int_value(nt_key_cache_expire)
             if error is not None:
                 print("  NT Key cache: can not parse 'nt_key_cache_expire', cache disabled.")

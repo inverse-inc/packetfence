@@ -60,7 +60,7 @@ sub generateConfig {
 
             pf_run("sudo echo '[$identifier]' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
 
-            pf_run("sudo echo 'HOST=$ntlm_auth_host' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            pf_run("sudo echo 'HOST=$ntlm_auth_host' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'LISTEN=$ntlm_auth_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'IDENTIFIER=$identifier' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
 
