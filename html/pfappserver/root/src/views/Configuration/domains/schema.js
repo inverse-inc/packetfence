@@ -82,7 +82,7 @@ export default (props) => {
     nt_key_cache_expire: yup.string().nullable()
       .when('id', {
         is: () => nt_key_cache_enabled,
-        then: yup.string().minAsInt(60).maxAsInt(86400).required(i18n.t('Cache entry expiration required.')),
+        then: yup.string().minAsInt(60).maxAsInt(864000).required(i18n.t('Cache entry expiration required.')),
         otherwise: yup.string()
       })
       .label(i18n.t('Cache entry expiration')),
