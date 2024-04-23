@@ -33,6 +33,7 @@ use pf::constants;
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::config qw ($WEBAUTH_WIRELESS $WEBAUTH_WIRED $WIRED_802_1X $WIRED_MAC_AUTH);
 use pf::constants::role qw($REJECT_ROLE);
+use pf::ip4log qw(mac2ip);
 
 use base ('pf::Switch::Fortinet');
 
@@ -204,6 +205,7 @@ sub deauthenticateMacDefault {
 
     #Fetching the acct-session-id
     my $dynauth = node_accounting_dynauth_attr($mac);
+    my $ipAddress = pf::ip4log::mac2ip($mac);
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect(
