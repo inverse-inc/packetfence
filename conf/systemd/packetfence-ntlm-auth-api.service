@@ -7,7 +7,7 @@ Before=packetfence-httpd.portal.service
 Before=packetfence-docker-iptables.service
 
 [Service]
-Type=simple
+Type=forking
 TimeoutStopSec=60
 NotifyAccess=all
 LimitNOFILE=8192
@@ -16,7 +16,7 @@ ExecStart=/usr/local/pf/sbin/ntlm-auth-api-docker-wrapper start
 ExecStop=/usr/local/pf/sbin/ntlm-auth-api-docker-wrapper stop
 Restart=on-failure
 Slice=packetfence.slice
-PIDFile=/usr/local/pf/var/run/ntlm-auth-api-systemd-notify.pid
+PIDFile=/usr/local/pf/var/run/ntlm-auth-api.pid
 
 [Install]
 WantedBy=packetfence.target

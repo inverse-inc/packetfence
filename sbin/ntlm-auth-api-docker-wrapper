@@ -26,13 +26,32 @@ if [ "$option" = "start" ]; then
         echo "starting ntlm auth api domain service for: $iden using env file: $env_file"
         systemctl start packetfence-ntlm-auth-api-domain@"$iden" &
     done
-    sleep infinity
+    /usr/local/pf/sbin/ntlm-auth-api-monitor &
 elif [ "$option" = "stop" ]; then
     for env_file in $env_files; do
         iden=$(echo $env_file | awk -F '.' '{print $1}')
         echo "stopping ntlm auth api domain service for: $iden"
         systemctl stop packetfence-ntlm-auth-api-domain@"$iden" &
     done
+
+    failures=0
+    while true; do
+        svcs=$(docker ps | grep "ntlm-auth-api-")
+        if [ -n "$svcs" ]; then
+            failures=$((failures+1))
+        else
+            echo "Stopped."
+            break
+        fi
+        
+        if [ $failures -gt 30 ]; then
+            echo "some of the containers failed to stop after 30s, please check for details"
+            exit 1
+        fi
+
+        sleep 1
+    done
+
     echo "stopped"
     sleep 1
 fi
