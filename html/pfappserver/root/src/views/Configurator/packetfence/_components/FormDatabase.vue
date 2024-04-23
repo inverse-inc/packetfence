@@ -476,8 +476,8 @@ export const setup = (props, context) => {
     return $store.dispatch('$_bases/assignDatabase', {
       is_remote: remoteDatabase.value,
       remote: remoteDatabaseForm.value,
-      root_username: 'root',
-      root_password: form.value.root_pass,
+      username: 'root',
+      password: form.value.root_pass,
       pf_username: form.value.user,
       pf_password: form.value.pass,
       database: form.value.db
