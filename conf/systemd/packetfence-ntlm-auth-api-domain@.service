@@ -11,7 +11,6 @@ Type=notify
 TimeoutStopSec=60
 NotifyAccess=all
 LimitNOFILE=8192
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ntlm_auth_api' -e 'pf::services::manager::ntlm_auth_api->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/ntlm-auth-api-domain %i
 ExecStop=/bin/bash -c "docker stop ntlm-auth-api-%i; echo Stopped"
 Restart=on-failure
