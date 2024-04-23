@@ -159,6 +159,25 @@ sub mapping_placeholder {
     return defined $m ? $m->{$f} : undef;
 }
 
+sub validate_item {
+    my ($self, $item) = @_;
+    return 422, { message => "Duplicate interface detected" }, undef if $self->_duplicate_item($item);
+    return $self->SUPER::validate_item($item);
+}
+
+sub _duplicate_item {
+    my ($self, $item) = @_;
+    my @interfaces;
+    foreach my $entry (@{$item->{'InterfaceMapping'}}) {
+        push(@interfaces, split(',',$entry->{'interface'})) if (defined $entry->{'interface'});
+    }
+    my %duplicated;
+    foreach my $interface (@interfaces) {
+       next unless $duplicated{$interface}++;
+       return 1;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
