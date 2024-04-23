@@ -180,11 +180,13 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
+        '_NetworkMap'                   => 'enabled',
         '_UsePushACLs'                  => 'disabled',
         '_UseDownloadableACLs'          => 'disabled',
         '_DownloadableACLsLimit'        => 0,
         '_ACLsLimit'                    => 0,
         '_ACLsType'                     => undef,
+        '_networks'                     => undef,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -856,6 +858,41 @@ sub _parentRoleForVpn {
     return undef;
 }
 
+=item getNetworkByName
+
+Get the switch-specific network names in role in switches.conf
+
+=cut
+
+sub getInterfaceByName {
+    my ($self, $RoleName) = @_;
+    my $logger = $self->logger;
+
+
+    if (!defined($self->{'_networks'}) || !defined($self->{'_networks'}{$roleName})) {
+        my $parent = _parentRoleForNetwork($roleName);
+        if (defined $parent && length($parent)) {
+            return $self->getNetworkByName($parent);
+        }
+        # VPN name doesn't exist
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        $logger->warn("No parameter ${roleName}Network found in conf/switches.conf for the switch " . $self->{_id});
+        return undef;
+    }
+
+    # return if found
+    return $self->{'_networks'}->{$roleName} if (defined($self->{'_networks'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}Network found in conf/switches.conf");
+    return;
+}
+
+sub _parentRoleForNetwork {
+    my ($name) = @_;
+    # not yet supported
+    return undef;
+}
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
 

@@ -152,6 +152,12 @@ has_field 'cliAccess' =>
    tags => { after_element => \&help,
              help => 'Allow this switch to use PacketFence as a radius server for CLI access'},
   );
+has_field 'NetworkMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by network',
+   default => undef,
+  );
 has_field 'ExternalPortalEnforcement' => (
     type    => 'Toggle',
     default => undef,
@@ -504,6 +510,7 @@ addRoleMapping("UrlMapping", "url");
 addRoleMapping("ControllerRoleMapping", "controller_role");
 addRoleMapping("AccessListMapping", "accesslist");
 addRoleMapping("VpnMapping", "vpn");
+addroleMapping("NetworkMapping", "network");
 
 sub _validate_acl_switch {
     my ($field) = @_;

@@ -200,6 +200,26 @@
             </b-card>
           </base-form-tab>
 
+          <base-form-tab
+            :title="$i18n.t('Network CIDR')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by network CIDR'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-network-map namespace="NetworkMap"
+                  :column-label="$i18n.t('Role by Network CIDR')"
+                />
+
+                <template v-if="isNetworkMap">
+                  <form-group-role-map-network v-for="role in roles" :key="`${role}Network`" :namespace="`${role}Network`"
+                    :column-label="role"
+                  />
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
+
         </b-tabs>
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Inline')">
@@ -526,6 +546,7 @@ import {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleNetworkMap,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -553,6 +574,7 @@ import {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
@@ -603,6 +625,7 @@ const components = {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleMapNetwork,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -630,6 +653,7 @@ const components = {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,

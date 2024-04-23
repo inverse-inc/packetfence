@@ -141,6 +141,17 @@ const useForm = (props, context) => {
     return placeholder === 'Y'
   })
 
+  const isNetworkMap = computed(() => {
+    // inspect form value for `NetworkMap`
+    const { NetworkMap } = form.value
+    if (NetworkMap !== null)
+      return NetworkMap === 'Y'
+
+    // inspect meta placeholder for `NetworkMap`
+    const { NetworkMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
   const roles = ref(baseRoles)
   $store.dispatch('$_roles/all').then(allRoles => {
     roles.value = [
@@ -192,6 +203,7 @@ const useForm = (props, context) => {
     isVpnMap,
     isUrlMap,
     isVlanMap,
+    isNetworkMap,
     roles,
 
     isUsePushACLs,

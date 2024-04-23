@@ -129,6 +129,7 @@ sub cleanup_options {
         $meta->{"${r}Url"} = mapping_meta($r, $urlMapping, 'url', $self->json_false);
         $meta->{"${r}Vpn"} = mapping_meta($r, $vpnMapping, 'vpn', $self->json_false);
         $meta->{"${r}Role"} = mapping_meta($r, $roleMapping, 'controller_role', $self->json_false);
+        $meta->{"${r}Network"} = mapping_meta($r, $networkMapping, 'network', $self->json_false);
     }
 }
 
