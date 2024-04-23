@@ -356,7 +356,7 @@ export const setup = (props, context) => {
       form.value.db = DEFAULT_DATABASE
     if (!user)
       form.value.user = DEFAULT_USERNAME
-    $store.dispatch('$_bases/testDatabase', remoteDatabaseForm.value).then(() => {
+    $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value }).then(() => {
       setRootPassword.value = true // root has no password -- installation is insecure
       automaticConfiguration.value = true // enable automatic configuration
       $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, database: form.value.db }).then(() => {
