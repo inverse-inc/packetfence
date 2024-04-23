@@ -54,6 +54,20 @@ sub get_db_type {
     return ($version, $type);
 }
 
+sub assign_database {
+    my ($self, $args) = @_;
+    my $logger = get_logger();
+    my $db = delete $args->{database};
+    $args->{database} = '';
+    my ($dbh, undef, $user) = connect_to_database($args);
+    if (!$dbh) {
+        $logger->warn("$DBI::errstr");
+        return ( $STATUS::INTERNAL_SERVER_ERROR, [ "Error creating the user $user on database $db}"] );
+    }
+
+    return $self->_assign($dbh, $db, $args->{pf_username}, $args->{pf_password});
+}
+
 sub _assign {
     my ($self, $dbh, $db, $user, $password ) = @_;
     my $logger = get_logger();
@@ -132,14 +146,14 @@ sub _assign {
 sub connect_to_database {
     my ($args) = @_;
     my $fh;
-    $args->{database} ||= "mysql";
+    $args->{database} //= "mysql";
     $args->{hostname} ||= "localhost";
-    if ($args->{remote_ca_cert}) {
+    if ($args->{remote}{ca_cert}) {
         ($fh, my $filename) = tempfile();
-        print $fh $args->{remote_ca_cert};
+        print $fh $args->{remote}{ca_cert};
         $fh->flush();
         $fh->close();
-        $args->{remote_ca_file} = $filename;
+        $args->{remote}{ca_file} = $filename;
     }
 
     my ($connect_str, $user, $password) = make_connection_str($args);
@@ -163,19 +177,27 @@ sub test_connection {
 
 sub make_connection_str {
     my ($args) = @_;
-    my $hostname = $args->{hostname};
-    if ($args->{remote_encryption} eq "tls") {
-        return  (
-        "DBI:mysql:dbname=$args->{database};host=$args->{remote_hostname};port=$args->{remote_port};mysql_ssl=1;mysql_ssl_ca_file=$args->{remote_ca_file}",
-        $args->{remote_username},
-        $args->{remote_password}
+    my $dsn = "DBI:mysql:dbname=$args->{database}";
+    if (!$args->{is_remote}) {
+        return (
+            "$dsn;mysql_socket=/var/lib/mysql/mysql.sock",
+            $args->{username},
+            $args->{password},
         );
     }
 
+    my $remote = $args->{remote};
+    $dsn .= ";host=$remote->{hostname}";
+    my $port = $remote->{port} // '3306';
+    $dsn .= ";port=$port";
+    if ($remote->{encryption} eq "tls") {
+        $dsn .= ";mysql_ssl=1;mysql_ssl_ca_file=$remote->{ca_file}";
+    }
+
     return (
-        "DBI:mysql:dbname=$args->{database};host=$hostname;mysql_socket=/var/lib/mysql/mysql.sock",
-        $args->{username},
-        $args->{password},
+        $dsn,
+        $remote->{username},
+        $remote->{password},
     );
 }
 
@@ -220,6 +242,119 @@ sub create {
 
     $status_msg = ["Successfully created the database [_1]",$db];
 
+    # return original status message
+    return ( $STATUS::OK, $status_msg );
+}
+
+sub make_mysql_command {
+    my ($args) = @_;
+    if ($args->{is_remote}) {
+        return make_remote_mysql_command($args);
+    }
+
+    my $user = quotemeta ($args->{username});
+    my $password = quotemeta ($args->{password});
+    my $db = quotemeta ($args->{database});
+    my $mysql_cmd = "/usr/bin/mysql --socket=/var/lib/mysql/mysql.sock -u $user -p$password $db";
+    return ($mysql_cmd, undef, "-p$password");
+}
+
+sub make_remote_mysql_command {
+    my ($args) = @_;
+    my $remote = $args->{remote};
+    my $mysql_cmd = "/usr/bin/mysql";
+    if ($remote->{encryption} eq 'tls') {
+        $mysql_cmd .= " --ssl";
+    }
+
+    if ($remote->{port}) {
+        $mysql_cmd .= " -P".  quotemeta($remote->{port});
+    }
+
+    my $fh = make_file_for_cert($remote);
+    if ($remote->{ca_file}) {
+        $mysql_cmd .= " --ssl-ca=".  $remote->{ca_file};
+    }
+
+    my $host = quotemeta ($remote->{hostname});
+    my $user = quotemeta ($remote->{username});
+    my $password = quotemeta ($remote->{password});
+    my $db = quotemeta ($args->{database});
+    $mysql_cmd .= " -h$host -u$user -p$password $db";
+    return ($mysql_cmd, $fh, "-p$password");
+}
+
+sub make_file_for_cert {
+    my ($remote_args) = @_;
+    if (!$remote_args->{ca_cert}) {
+        return undef;
+    }
+
+    my ($fh, $filename) = tempfile();
+    print $fh $remote_args->{ca_cert};
+    $fh->flush();
+    $fh->close();
+    $remote_args->{ca_file} = $filename;
+    return $fh;
+}
+
+sub apply_schema {
+    my ( $self, $args) = @_;
+    my $logger = get_logger();
+
+    my ( $status_msg, $result );
+    my ($mysql_cmd, $fh, $log_strip) = make_mysql_command($args);
+    my $cmd = "$mysql_cmd < $install_dir/db/pf-schema.sql";
+    my $db = $args->{database};
+    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => $log_strip) };
+    if ( $@ || !defined($result) ) {
+        $status_msg = ["Error applying the schema to the database [_1]", $db ];
+        $logger->warn("$@: $result");
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+    my @custom_schemas = read_dir( "$install_dir/db/custom", prefix => 1, err_mode => 'quiet' ) ;
+    @custom_schemas = sort @custom_schemas;
+    foreach my $custom_schema (@custom_schemas) {
+        my $cmd = "$mysql_cmd < $custom_schema";
+        eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => $log_strip) };
+        if ( $@ || !defined($result) ) {
+            $status_msg = ["Error applying the custom schema $custom_schema to the database [_1]", $db ];
+            $logger->warn("$@: $result");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+    }
+
+    $status_msg = ["Successfully applied the schema to the database [_1]", $db];
+    # return original status message
+    return ( $STATUS::OK, $status_msg );
+}
+
+=head2 create_database
+
+=cut
+
+sub create_database {
+    my ( $self, $args ) = @_;
+    my $db = delete $args->{database};
+    $args->{database} = '';
+    my $logger = get_logger();
+    my ( $status_msg, $result );
+    my ($dbh, undef, $user) = connect_to_database($args);
+    if (!$dbh) {
+        $status_msg = ["Error in creating the database [_1]",$db];
+        $logger->warn($DBI::errstr);
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    my $db_quoted = $dbh->quote_identifier($db);
+    $result = $dbh->do("CREATE DATABASE $db_quoted DEFAULT CHARACTER SET = 'utf8mb4'");
+    if ( !$result ) {
+        $status_msg = ["Error in creating the database [_1]", $db];
+        $logger->warn($DBI::errstr);
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    $status_msg = ["Successfully created the database [_1]", $db];
     # return original status message
     return ( $STATUS::OK, $status_msg );
 }
