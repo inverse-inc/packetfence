@@ -132,7 +132,8 @@ sub database_test {
         $self->render(json => {message => "Unable to parse JSON payload"}, status => 400);
         return;
     }
-    my $db = $json->{database} // "mysql";
+
+    $json->{database} //= "mysql";
     my ($status, $status_msg) = $self->database_model->test_connection($json);
     $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
 }
@@ -208,17 +209,12 @@ sub database_create {
 
 sub do_database_create {
     my ($self, $json) = @_;
-    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{username}, $json->{password});
+    my ($status, $status_msg) = $self->database_model->create_database($json);
     if(is_error($status)) {
         return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
     }
 
-    ($status, $status_msg) = $self->database_model->create($json->{database}, $json->{username}, $json->{password});
-    if(is_error($status)) {
-        return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
-    }
-
-    ($status, $status_msg) = $self->database_model->schema($json->{database}, $json->{username}, $json->{password});
+    ($status, $status_msg) = $self->database_model->apply_schema($json);
     if(is_error($status)) {
         return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
     }
@@ -237,13 +233,7 @@ sub database_assign {
         return;
     }
 
-    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{root_username}, $json->{root_password});
-    if(is_error($status)) {
-        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
-        return;
-    }
-
-    ($status, $status_msg) = $self->database_model->assign($json->{database}, $json->{pf_username}, $json->{pf_password});
+    my ($status, $status_msg) = $self->database_model->assign_database($json);
     if(is_error($status)) {
         $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
         return;
@@ -255,8 +245,8 @@ sub database_assign {
     my $pf_cs = pf::ConfigStore::Pf->new;
     $pf_cs->update("database", {user => $json->{pf_username}, pass => $json->{pf_password}});
     $pf_cs->commit();
-
     $self->render(json => {message => "Granted rights to user and adjusted the configuration"}, status => 200);
+    return;
 }
 
 sub test_smtp {
@@ -288,7 +278,8 @@ sub test_smtp {
         return $self->render_error(400, pf::util::strip_filename_from_exceptions($@));
     }
 
-    return $self->render(json => { message => 'Testing SMTP success' });
+    $self->render(json => { message => 'Testing SMTP success' });
+    return;
 }
 
 =head2 fields_to_mask
