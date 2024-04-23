@@ -155,6 +155,7 @@ def ntlm_expire_handler():
         ncache.delete_cache_entry(cache_key_root)
         ncache.delete_cache_entries(f"{cache_key_root}:%")
 
+        return "OK", HTTPStatus.OK
     except Exception as e:
         return f"Error processing JSON payload, {str(e)}", HTTPStatus.UNPROCESSABLE_ENTITY
 
