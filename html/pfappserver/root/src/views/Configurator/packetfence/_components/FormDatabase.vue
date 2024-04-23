@@ -385,7 +385,7 @@ export const setup = (props, context) => {
     form.value.root_pass = password.generate(passwordOptions)
     return secureDatabase().then(() => {
       const databaseReady = new Promise((resolve, reject) => {
-        $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, password: form.value.root_pass, database: form.value.db }).then(() => {
+        $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, username: "root", password: form.value.root_pass, database: form.value.db }).then(() => {
           databaseExists.value = true // database exists
           resolve()
         }).catch(() => {
