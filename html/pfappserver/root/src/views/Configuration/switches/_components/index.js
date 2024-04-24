@@ -10,11 +10,13 @@ import {
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupTextarea,
-  BaseFormGroupSwitch
+  BaseFormGroupSwitch,
+  BaseInput
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from './BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from './BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from './BaseFormGroupType'
+import BaseInputToggleNetworkFrom from './BaseInputToggleNetworkFrom'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -45,7 +47,6 @@ export {
   BaseFormGroupInput                      as FormGroupRoleMapVpn,
   BaseFormGroupInput                      as FormGroupRoleMapUrl,
   BaseFormGroupInput                      as FormGroupRoleMapVlan,
-  BaseFormGroupInput                      as FormGroupRoleMapNetwork,
   BaseFormGroupInput                      as FormGroupSnmpAuthProtocolTrap,
   BaseFormGroupInputPassword              as FormGroupSnmpAuthPasswordTrap,
   BaseFormGroupInput                      as FormGroupSnmpCommunityRead,
@@ -91,6 +92,9 @@ export {
   BaseFormGroupInputPassword              as FormGroupWebServicesPwd,
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
+
+  BaseInput                               as InputRoleMapNetwork,
+  BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,
 
   BaseViewCollectionItem                  as BaseView,
   TheForm,

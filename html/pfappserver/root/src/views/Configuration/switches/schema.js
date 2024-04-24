@@ -28,12 +28,16 @@ const schemaInlineTrigger = yup.object({
 
 export const schemaInlineTriggers = yup.array().ensure().unique(i18n.t('Duplicate condition.')).of(schemaInlineTrigger)
 
-export const schema = (props) => {
+export const schema = (props, roles) => {
   const {
     isNew,
     isClone,
     id,
   } = props
+
+  const rolesSchema = (roles.value || []).reduce((schema, role) => {
+    return { ...schema, [`${role}Network`]: yup.string().nullable().isCIDR() }
+  }, {});
 
   return yup.object({
     id: yup.string()
@@ -82,7 +86,9 @@ export const schema = (props) => {
     controllerIp: yup.string().nullable(),
     disconnectPort: yup.string().nullable().minAsInt(1, i18n.t('Invalid port.')),
     coaPort: yup.string().nullable().minAsInt(1, i18n.t('Invalid port.')),
-    radiusSecret: yup.string().nullable()
+    radiusSecret: yup.string().nullable(),
+
+    ...rolesSchema
   })
 }
 

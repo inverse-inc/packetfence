@@ -213,9 +213,22 @@
                 />
 
                 <template v-if="isNetworkMap">
-                  <form-group-role-map-network v-for="role in roles" :key="`${role}Network`" :namespace="`${role}Network`"
-                    :column-label="role"
-                  />
+                  <b-form-group v-for="role in roles" :key="`${role}Network`"
+                    :label="role" label-cols="3"
+                    class="base-form-group"
+                  >
+                    <b-input-group>
+                      <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                        <b-col sm="6" align-self="center">
+                          <input-role-map-network :namespace="`${role}Network`"
+                            :disabled="form[`${role}NetworkFrom`] !== 'static'" />
+                        </b-col>
+                        <b-col sm="6" align-self="center" class="pl-1">
+                          <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
+                        </b-col>
+                      </b-row>
+                    </b-input-group>
+                  </b-form-group>
                 </template>
               </div>
             </b-card>
@@ -474,7 +487,6 @@ import {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
-  FormGroupRoleMapNetwork,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -520,6 +532,9 @@ import {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 } from './'
 
 const components = {
@@ -552,7 +567,6 @@ const components = {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
-  FormGroupRoleMapNetwork,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -598,6 +612,9 @@ const components = {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 }
 
 import { useForm, useFormProps as props } from '../_composables/useForm'

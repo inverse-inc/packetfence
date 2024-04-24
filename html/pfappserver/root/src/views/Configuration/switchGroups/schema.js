@@ -19,12 +19,16 @@ yup.addMethod(yup.string, 'switchGroupIdNotExistsExcept', function (exceptId = '
 
 import { schemaInlineTriggers } from '../switches/schema'
 
-export const schema = (props) => {
+export const schema = (props, roles) => {
   const {
     isNew,
     isClone,
     id,
   } = props
+
+  const rolesSchema = roles.value.reduce((schema, role) => {
+    return { ...schema, [`${role}Network`]: yup.string().nullable().isCIDR() }
+  }, {});
 
   return yup.object({
     id: yup.string()
@@ -72,9 +76,11 @@ export const schema = (props) => {
     wsPwd: yup.string().nullable().label(i18n.t('Password')),
     uplink: yup.string().nullable(),
     controllerIp: yup.string().nullable(),
-    disconnectPort: yup.string().nullable(),
-    coaPort: yup.string().nullable(),
-    radiusSecret: yup.string().nullable()
+    disconnectPort: yup.string().nullable().minAsInt(1, i18n.t('Invalid port.')),
+    coaPort: yup.string().nullable().minAsInt(1, i18n.t('Invalid port.')),
+    radiusSecret: yup.string().nullable(),
+
+    ...rolesSchema
   })
 }
 

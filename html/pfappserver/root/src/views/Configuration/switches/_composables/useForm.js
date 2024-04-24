@@ -41,7 +41,15 @@ const useForm = (props, context) => {
     precreateItemAcls
   } = useStore($store)
 
-  const schema = computed(() => schemaFn(props))
+  const roles = ref(baseRoles)
+  $store.dispatch('$_roles/all').then(allRoles => {
+    roles.value = [
+      ...roles.value,
+      ...allRoles.map(role => role.id)
+    ]
+  })
+
+  const schema = computed(() => schemaFn(props, roles))
   const metaSchema = computed(() => useFormMetaSchema(meta, schema))
   const advancedMode = ref(false)
 
@@ -150,14 +158,6 @@ const useForm = (props, context) => {
     // inspect meta placeholder for `NetworkMap`
     const { NetworkMap: { placeholder } = {} } =  meta.value
     return placeholder === 'Y'
-  })
-
-  const roles = ref(baseRoles)
-  $store.dispatch('$_roles/all').then(allRoles => {
-    roles.value = [
-      ...roles.value,
-      ...allRoles.map(role => role.id)
-    ]
   })
 
   const isUsePushACLs = computed(() => {
