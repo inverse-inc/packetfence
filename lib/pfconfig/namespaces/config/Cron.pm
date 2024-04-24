@@ -59,6 +59,11 @@ sub build_child {
                 next;
             }
 
+            if ($key eq 'filter_events' || $key eq 'heuristics') {
+                $task_data->{$key} += 0;
+                next;
+            }
+
             if ($key =~ /batch$/) {
                 $task_data->{$key} += 0;
             }
