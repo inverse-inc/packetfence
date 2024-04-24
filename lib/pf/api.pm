@@ -1936,6 +1936,32 @@ sub push_acls : Public {
     return $pf::config::TRUE;
 }
 
+
+=head2 update_switch_role_network
+
+Update switch role network based on provided IP addresses and MAC addresses role and netmask
+
+=cut
+
+sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mask, $mask) {
+    my ($class, %postdata) = @_;
+    my @require = qw(mac ip mask);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+
+    my $locationlog = pf::locationlog::locationlog_view_open_mac($postdata{'mac'});
+    if ( !defined($locationlog) || $locationlog eq "0" ) {
+        return undef;
+    }
+    my $current_network = NetAddr::IP->new( $postdata{'ip'}, $postdata{'mask'} );
+    my $cs = pf::ConfigStore::Switch->new;
+
+    $cs->update($locationlog->{'switch'}, { $locationlog->{'role'}."Network" => $current_network->network()});
+    $cs->commit();
+
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

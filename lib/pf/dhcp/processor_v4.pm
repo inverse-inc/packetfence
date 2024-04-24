@@ -405,6 +405,7 @@ sub parse_dhcp_ack {
 
     my $s_ip = $dhcp->{'src_ip'};
     my $s_mac = $dhcp->{'src_mac'};
+    my $client_mask = join( '.', @{$dhcp->{'options'}->{'1'}});
     my $lease_length = $dhcp->{'options'}->{'51'};
 
     my $client_ip;
@@ -444,6 +445,7 @@ sub parse_dhcp_ack {
     if( $is_dhcp ||
         isenabled $Config{network}{force_listener_update_on_ack} ){
         $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length, is_dhcp => $is_dhcp) );
+        $self->apiClient->notify('update_switch_role_network', ( mac => $client_mac, ip => $client_ip, mask => $client_mask) );
         if ($self->{is_inline_vlan}) {
             $self->apiClient->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE, $self->{inline_sub_connection_type});
             $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
