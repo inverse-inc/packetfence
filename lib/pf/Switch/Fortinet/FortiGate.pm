@@ -254,7 +254,6 @@ sub identifyConnectionType {
             $connection->transport("Wired");
         }
     } else {
-        # Default to CLI
         $connection->isVPN($FALSE);
         $connection->isCLI($FALSE);
     }
