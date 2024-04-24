@@ -122,6 +122,7 @@ sub cleanup_options {
     my $urlMapping = $placeholder->{UrlMapping};
     my $vpnMapping = $placeholder->{VpnMapping};
     my $roleMapping = $placeholder->{ControllerRoleMapping};
+    my $networkMapping = $placeholder->{NetworkMapping};
     for my $a (@{$allowed_roles}) {
         my $r = $a->{value};
         $meta->{"${r}Vlan"} = mapping_meta($r, $vlanMapping, 'vlan', $self->json_false);
