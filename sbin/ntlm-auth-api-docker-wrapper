@@ -28,6 +28,13 @@ if [ "$option" = "start" ]; then
     done
     /usr/local/pf/sbin/ntlm-auth-api-monitor &
 elif [ "$option" = "stop" ]; then
+    pids=$(pgrep "ntlm-auth-api-monitor")
+
+    if [ -n "$pids" ]; then
+        echo "$pids" | xargs kill
+        echo '' >/usr/local/pf/var/run/ntlm-auth-api.pid
+    fi
+
     for env_file in $env_files; do
         iden=$(echo $env_file | awk -F '.' '{print $1}')
         echo "stopping ntlm auth api domain service for: $iden"

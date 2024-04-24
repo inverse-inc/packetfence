@@ -9,7 +9,7 @@ conf_dir="/usr/local/pf/var/conf/${name}.d/"
 cd $conf_dir || exit 1
 env_files=$(ls *.env 2>/dev/null)
 
-# maximum allowed attempts, will be reduced to 3 once passed health check.
+# maximum allowed attempts, will be reduced to 5 once passed health check.
 max_failures=30
 failures=0
 
@@ -41,7 +41,7 @@ while true; do
         fi
     else
         echo "$pid" >/usr/local/pf/var/run/ntlm-auth-api.pid
-        max_failures=3
+        max_failures=5
         failures=0
         sleep 5
     fi
