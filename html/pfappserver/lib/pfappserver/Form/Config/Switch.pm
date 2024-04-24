@@ -510,7 +510,7 @@ addRoleMapping("UrlMapping", "url");
 addRoleMapping("ControllerRoleMapping", "controller_role");
 addRoleMapping("AccessListMapping", "accesslist");
 addRoleMapping("VpnMapping", "vpn");
-addroleMapping("NetworkMapping", "network");
+addRoleMapping("NetworkMapping", "network");
 
 sub _validate_acl_switch {
     my ($field) = @_;
