@@ -865,7 +865,7 @@ Get the switch-specific network names in role in switches.conf
 =cut
 
 sub getInterfaceByName {
-    my ($self, $RoleName) = @_;
+    my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
 
