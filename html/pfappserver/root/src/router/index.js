@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 import Router from 'vue-router'
 import store from '@/store'
 import axios from 'axios'
@@ -14,6 +16,28 @@ import ConfigurationRoute from '@/views/Configuration/_router'
 import ConfiguratorRoute from '@/views/Configurator/_router'
 import PreferencesRoute from '@/views/Preferences/_router'
 import ResetRoute from '@/views/Reset/_router'
+
+Vue.use(Loading)
+
+let loader = null
+const hideLoader = () => {
+  if (loader) {
+    Vue.nextTick(() => {
+      loader.hide()
+      loader = null
+    })
+  }
+}
+const showLoader = () => {
+  hideLoader()
+  loader = Vue.$loading.show({
+    loader: 'dots',
+    color: 'var(--primary)',
+    width: 64,
+    height: 64,
+    opacity: 0.5
+  })
+}
 
 Vue.use(Router)
 
@@ -48,6 +72,9 @@ let router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  if (to.name) {
+    showLoader()
+  }
   /**
   * 1. Check if a matching route defines a transition delay
   * 2. Hide the document scrollbar during the transition (see bootstrap/scss/_modal.scss)
@@ -110,7 +137,11 @@ router.afterEach((to, from) => {
     setTimeout(() => {
       document.body.classList.remove('modal-open') // [2]
       window.scrollTo(0, 0) // [3]
+      hideLoader()
     }, transitionRoute.meta.transitionDelay)
+  }
+  else {
+    hideLoader()
   }
   /**
    * Fetch data required for ALL authenticated pages
