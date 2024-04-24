@@ -39,6 +39,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Moved Meraki switches to OS-based modules (#8018)
  * Removed outdated Cisco Catalyst switch modules (#8027)
  * Support for fqdn switch id (#8022)
+ * Cisco 9800 documentation (#8009)
 
 === Bug Fixes
 
