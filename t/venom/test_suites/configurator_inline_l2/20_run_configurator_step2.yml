@@ -74,8 +74,8 @@ testcases:
         "database": "{{.configurator.db.name}}",
         "pf_username": "{{.configurator.db.users.pf.id}}",
         "pf_password": "{{.configurator.db.users.pf.password}}",
-        "root_username": "{{.configurator.db.users.root.id}}",
-        "root_password": "{{.configurator.db.users.root.password}}"
+        "username": "{{.configurator.db.users.root.id}}",
+        "password": "{{.configurator.db.users.root.password}}"
       }
     headers:
       "Content-Type": "application/json"
