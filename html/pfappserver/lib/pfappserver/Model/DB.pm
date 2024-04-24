@@ -335,11 +335,10 @@ sub apply_schema {
 
 sub create_database {
     my ( $self, $args ) = @_;
-    my $db = delete $args->{database};
-    $args->{database} = '';
+    my $db = $args->{database};
     my $logger = get_logger();
     my ( $status_msg, $result );
-    my ($dbh, undef, $user) = connect_to_database($args);
+    my ($dbh, undef, $user) = connect_to_database({%$args, database => ''});
     if (!$dbh) {
         $status_msg = ["Error in creating the database [_1]",$db];
         $logger->warn($DBI::errstr);
