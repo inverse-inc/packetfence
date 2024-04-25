@@ -263,7 +263,7 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 	if !fw.CheckStatus(ctx, info) {
 		return false, nil
 	}
-	log.LoggerWContext(ctx).Info("Processing SSO Start")
+
 	if !fw.MatchesRole(ctx, info) {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
 		return false, nil
@@ -273,7 +273,7 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
-
+	log.LoggerWContext(ctx).Info("Processing SSO Start")
 	// We change the username with the way it is expected given the format of this firewall
 	info["username"] = fw.FormatUsername(ctx, info)
 
@@ -291,13 +291,12 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 // Makes sure to call FirewallSSO.Start and to validate the network if necessary
 func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string) (bool, error) {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
-	log.LoggerWContext(ctx).Info("Processing SSO Stop")
 
 	if !fw.MatchesNetwork(ctx, info) {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
-
+	log.LoggerWContext(ctx).Info("Processing SSO Stop")
 	// We change the username with the way it is expected given the format of this firewall
 	info["username"] = fw.FormatUsername(ctx, info)
 
