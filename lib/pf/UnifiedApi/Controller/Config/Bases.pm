@@ -214,6 +214,8 @@ sub do_database_create {
     my ($status, $status_msg) = $self->database_model->create_database($json);
     if(is_error($status)) {
         return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
+    }
+
     ($status, $status_msg) = $self->database_model->apply_schema($json);
     if(is_error($status)) {
         return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
