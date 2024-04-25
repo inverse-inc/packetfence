@@ -5,7 +5,7 @@
   "dependencies": {
     "@babel/core": "^7.24.3",
     "@babel/preset-env": "^7.24.3",
-    "@cypress/webpack-preprocessor": "^5.15.3",
+    "@cypress/webpack-preprocessor": "^5.17.1",
     "babel-loader": "^9.1.0",
     "webpack": "^5.91.0"
   }
