@@ -81,6 +81,7 @@ use DateTime::Format::MySQL;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use pf::Redis;
 use pf::acls_push;
+use Digest::MD5 qw(md5_base64);
 
 my $logger = pf::log::get_logger();
 
@@ -1943,9 +1944,9 @@ Update switch role network based on provided IP addresses and MAC addresses role
 
 =cut
 
-sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mask, $mask) {
+sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mask, $mask, lease_length, $lease_length) {
     my ($class, %postdata) = @_;
-    my @require = qw(mac ip mask);
+    my @require = qw(mac ip mask lease_length);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
@@ -1957,9 +1958,55 @@ sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mas
     my $current_network = NetAddr::IP->new( $postdata{'ip'}, $postdata{'mask'} );
     my $cs = pf::ConfigStore::Switch->new;
 
-    $cs->update($locationlog->{'switch'}, { $locationlog->{'role'}."Network" => $current_network->network()});
-    $cs->commit();
+    my $switch_config = $cs->read($locationlog->{'switch'});
 
+    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $locationlog->{'switch_mac'}, switch_ip => $locationlog->{'switch_ip'}, switch_id => $locationlog->{'switch'}});
+
+    my $networks = $switch->cache_distributed->get($locationlog->{'switch'}.".".$locationlog->{'role'});
+
+    my $processed_mac = $switch->cache_distributed->get($locationlog->{'switch'}.".".$locationlog->{'role'}.".". md5_base64($postdata{'mac'}.".".$current_network->network()));
+
+    $switch->cache_distributed->set($locationlog->{'switch'}.".".$locationlog->{'role'}.".". md5_base64($postdata{'mac'}.".".$current_network->network()),1,{ expires_in => $postdata{'lease_length'} } );
+
+    if (defined $processed_mac) {
+        # If the mac has already been processed in the same network then do nothing
+        return undef;
+    }
+
+    # Do we already got some requests for this network ?
+    if (exists $networks->{$current_network->network()}) {
+        $networks->{$current_network->network()} = $networks->{$current_network->network()} + 1;
+        # Try to see if other networks exist for this role in this switch
+        my $max = 0;
+        foreach my $network (keys %{$networks}) {
+            next if ($network eq $current_network->network());
+            if ($networks->{$network} >= $max) {
+                $max = $networks->{$network};
+            }
+        }
+        # If the current network count is greater than another one and if the number of devices in this network is greater than 10 (TODO Config variable)
+        if ( ( $networks->{$current_network->network()} >= $max ) && ( $networks->{$current_network->network()} >= "10" ) ) {
+            # If the current network doesn't match with the current one we update the configuration
+            if ($switch_config->{$locationlog->{'role'}."Network"} ne $current_network->network()) {
+                $cs->update($locationlog->{'switch'}, { $locationlog->{'role'}."Network" => $current_network->network()});
+                $cs->commit();
+            }
+        }
+    } else {
+        # First time we see a device in this network
+        $networks->{$current_network->network()} = 1;
+    }
+    # Cleanup loop (we can't increment the counter forever)
+    if (exists $networks->{$switch_config->{$locationlog->{'role'}."Network"}} && $networks->{$switch_config->{$locationlog->{'role'}."Network"}} >= 200) {
+        foreach my $network (keys %{$networks}) {
+            if ($network eq $switch_config->{$locationlog->{'role'}."Network"} ) {
+                # Default
+                $networks->{$network} = 10;
+            }
+            $networks->{$network} = 0;
+        }
+    }
+    $switch->cache_distributed->set($locationlog->{'switch'}.".".$locationlog->{'role'},$networks,{ expires_in => $postdata{'lease_length'} * 3/2 );
 }
 
 =head1 AUTHOR
