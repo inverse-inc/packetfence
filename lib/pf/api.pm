@@ -2006,7 +2006,7 @@ sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mas
             $networks->{$network} = 0;
         }
     }
-    $switch->cache_distributed->set($locationlog->{'switch'}.".".$locationlog->{'role'},$networks,{ expires_in => $postdata{'lease_length'} * 3/2 );
+    $switch->cache_distributed->set($locationlog->{'switch'}.".".$locationlog->{'role'},$networks,{ expires_in => $postdata{'lease_length'} * 3/2 } );
 }
 
 =head1 AUTHOR
