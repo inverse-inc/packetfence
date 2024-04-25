@@ -92,7 +92,7 @@ use warnings;
 use base ('pf::Switch::Cisco::Cisco_IOS');
 use Carp;
 use Net::SNMP;
-use Data::Dumper;
+use Readonly;
 
 use pf::constants;
 use pf::config qw(
@@ -112,6 +112,9 @@ use pf::util;
 use pf::config::util;
 use pf::role::custom $ROLE_API_LEVEL;
 use pf::Connection::ProfileFactory;
+
+Readonly::Scalar our $Virtual => '5';
+Readonly::Scalar our $Async => '0';
 
 =head1 SUBROUTINES
 
@@ -1296,6 +1299,8 @@ sub identifyConnectionType {
     my $logger = $self->logger;
 
     my @require = qw(Cisco-AVPair);
+    my @require_cli = qw(NAS-Port-Type);
+    my @found_cli = grep {exists $radius_request->{$_}} @require_cli;
     my @found = grep {exists $radius_request->{$_}} @require;
     my $foundvsa = 0;
     my @vsa = qw(aaa:service=ip_admission aaa:event=acl-download);
@@ -1319,6 +1324,11 @@ sub identifyConnectionType {
         $connection->isACLDownload($TRUE);
         $connection->isVPN($FALSE);
         $connection->isCLI($FALSE);
+    } elsif ( (@require_cli == @found_cli) && $radius_request->{'NAS-Port-Type'} =~ /^($Virtual|$Async)/i ) {
+        # Force the connection type to be CLI-Access is NAS-Port-Type is Virtual or Async
+        $connection->isVPN($FALSE);
+        $connection->isCLI($TRUE);
+        $connection->transport('Virtual');
     }
 }
 
