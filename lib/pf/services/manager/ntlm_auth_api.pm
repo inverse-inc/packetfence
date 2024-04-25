@@ -51,6 +51,13 @@ sub generateConfig {
     my $db=$db_config->{'db'};
     my $db_unix_socket = $db_config->{'unix_socket'};
 
+    pf_run("sudo echo '[DB]' > $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_HOST=$db_host' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_PORT=$db_port' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_USER=$db_user' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_PASS=$db_pass' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB=$db' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_UNIX_SOCKET=$db_unix_socket' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
 
     for my $identifier (keys(%ConfigDomain)) {
         my %conf = %{$ConfigDomain{$identifier}};
@@ -58,37 +65,13 @@ sub generateConfig {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
             my $ntlm_auth_port = $conf{ntlm_auth_port};
 
-            pf_run("sudo echo '[$identifier]' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-
-            pf_run("sudo echo 'HOST=$ntlm_auth_host' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            pf_run("sudo echo 'HOST=$ntlm_auth_host' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'LISTEN=$ntlm_auth_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'IDENTIFIER=$identifier' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-
-            pf_run("sudo echo 'DB_HOST=$db_host' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-            pf_run("sudo echo 'DB_PORT=$db_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-            pf_run("sudo echo 'DB_USER=$db_user' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-            pf_run("sudo echo 'DB_PASS=$db_pass' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-            pf_run("sudo echo 'DB=$db' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-            pf_run("sudo echo 'DB_UNIX_SOCKET=$db_unix_socket' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
         }
     }
 }
 
-sub isAlive {
-    my $alive = 1;
-
-    for my $identifier (keys(%ConfigDomain)) {
-        my %conf = %{$ConfigDomain{$identifier}};
-        if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
-            my $ntlm_auth_port = $conf{ntlm_auth_port};
-            my $result = pf_run("curl -X GET http://containers-gateway.internal:$ntlm_auth_port/ping 2>/dev/null", accepted_exit_status => [ 0 ]);
-            if (!defined($result) || $result ne "pong") {
-                $alive = 0;
-            }
-        }
-    }
-    return $alive;
-}
 
 sub isManaged {
     my ($self) = @_;

@@ -65,14 +65,14 @@ def config_load():
         print(f"  Error loading config from domain.conf: {e}. Terminated.")
         sys.exit(1)
 
-    conf_db = f"/usr/local/pf/var/conf/ntlm-auth-api.d/{identifier}.env"
+    conf_db = f"/usr/local/pf/var/conf/ntlm-auth-api.d/db.ini"
     cp_db = ConfigParser(interpolation=None)
     print(f"Load database config from {conf_db}")
     try:
         with open(conf_db, 'r') as file:
             cp_db.read_file(file)
-        if identifier not in cp_db:
-            print(f"  Section {identifier} not found, ntlm-auth-api starts without NT Key caching capability.")
+        if 'DB' not in cp_db:
+            print(f"  Section [DB] not found, ntlm-auth-api starts without NT Key caching capability.")
     except FileNotFoundError:
         print(f"  {conf_db} not found, ntlm-auth-api@{identifier} starts without NT Key caching capability.")
     except configparser.Error as e:
@@ -104,12 +104,12 @@ def config_load():
     ad_reset_account_lockout_count_after = cp_dm.get(identifier, 'ad_reset_account_lockout_counter_after', fallback=0)
     ad_old_password_allowed_period = cp_dm.get(identifier, 'ad_old_password_allowed_period', fallback=60)
 
-    c_db_host = cp_db.get(identifier, "DB_HOST", fallback=None)
-    c_db_port = cp_db.get(identifier, "DB_PORT", fallback=None)
-    c_db_user = cp_db.get(identifier, "DB_USER", fallback=None)
-    c_db_pass = cp_db.get(identifier, "DB_PASS", fallback=None)
-    c_db = cp_db.get(identifier, "DB", fallback=None)
-    c_db_unix_socket = cp_db.get(identifier, 'DB_UNIX_SOCKET', fallback=None)
+    c_db_host = cp_db.get('DB', "DB_HOST", fallback=None)
+    c_db_port = cp_db.get('DB', "DB_PORT", fallback=None)
+    c_db_user = cp_db.get('DB', "DB_USER", fallback=None)
+    c_db_pass = cp_db.get('DB', "DB_PASS", fallback=None)
+    c_db = cp_db.get('DB', "DB", fallback=None)
+    c_db_unix_socket = cp_db.get('DB', 'DB_UNIX_SOCKET', fallback=None)
     print(f"  {c_db_user}:{utils.mask_password(c_db_pass)}@{c_db_host}:{c_db_port}/{c_db}")
 
     # validate domain.conf
