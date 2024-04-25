@@ -1,0 +1,7 @@
+{
+    "base_url": "https://PACKETFENCE_IP:9999",
+    "username": "PACKETFENCE_API_USERNAME",
+    "password": "PACKETFENCE_API_PASSWORD",
+    "domain_id": "DOMAIN_ID",
+    "batch_size": 10
+}
