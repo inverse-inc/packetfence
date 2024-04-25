@@ -23,6 +23,7 @@ use pf::file_paths qw($install_dir);
 use pf::error;
 use pf::util;
 use File::Slurp qw(read_dir);
+use File::Temp qw(tempfile);
 
 extends 'Catalyst::Model';
 
@@ -37,54 +38,167 @@ our $dbHandler;
 
 sub assign {
     my ( $self, $db, $user, $password ) = @_;
+    return $self->_assign($dbHandler, $db, $user, $password);
+}
+
+sub get_db_type {
+    my ($dbh) = @_;
+    my $data = $dbh->selectrow_arrayref("SELECT VERSION()");
+    if (!defined $data || !@$data) {
+        return
+    }
+
+    my $version = $data->[0];
+    ($version, my $type) = split('-', $version);
+    $type //= "MySQL";
+    return ($version, $type);
+}
+
+sub assign_database {
+    my ($self, $args) = @_;
+    my $logger = get_logger();
+    my $db = delete $args->{database};
+    $args->{database} = '';
+    my ($dbh, undef, $user) = connect_to_database($args);
+    if (!$dbh) {
+        $logger->warn("$DBI::errstr");
+        return ( $STATUS::INTERNAL_SERVER_ERROR, [ "Error creating the user $user on database $db}"] );
+    }
+
+    return $self->_assign($dbh, $db, $args->{pf_username}, $args->{pf_password});
+}
+
+sub _assign {
+    my ($self, $dbh, $db, $user, $password ) = @_;
     my $logger = get_logger();
 
     my $status_msg;
-
-    $db = $dbHandler->quote_identifier($db);
+    my ($version, $type) = get_db_type($dbh);
+    $db = $dbh->quote_identifier($db);
 
     # Create global PF user
     foreach my $host ("'%'","localhost") {
-        my $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES,CREATE TEMPORARY TABLES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
+        my $sql_query = "DROP USER IF EXISTS ?\@${host}";
+        $dbh->do($sql_query, undef, $user);
         if ( $DBI::errstr ) {
             $status_msg = "Error creating the user $user on database $db";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
-        $sql_query = "GRANT DROP ON $db.radius_nas TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
+
+        $sql_query = "CREATE USER ?\@${host} IDENTIFIED BY ?";
+        $dbh->do($sql_query, undef, $user, $password);
         if ( $DBI::errstr ) {
             $status_msg = "Error creating the user $user on database $db";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
-        $sql_query = "GRANT SELECT ON mysql.proc TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
+
+        $sql_query = "GRANT DROP,SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES,CREATE TEMPORARY TABLES ON $db.* TO ?\@${host}";
+        $dbh->do($sql_query, undef, $user);
         if ( $DBI::errstr ) {
             $status_msg = "Error creating the user $user on database $db";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
-        $sql_query = "GRANT BINLOG ADMIN ON *.* TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
+
+        $sql_query = "GRANT CREATE,DROP ON $db.radius_nas TO ?\@${host}";
+        $dbh->do($sql_query, undef, $user);
         if ( $DBI::errstr ) {
-            $status_msg = "Error granting BINLOG ADMIN for user $user on database";
+            $status_msg = "Error creating the user $user on database $db";
+            $logger->warn("$DBI::errstr");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+
+        if ($type ne 'MySQL') {
+            $sql_query = "GRANT SELECT ON mysql.proc TO ?\@${host}";
+            $dbh->do($sql_query, undef, $user);
+            if ( $DBI::errstr ) {
+                $status_msg = "Error creating the user $user on database $db";
+                $logger->warn("$DBI::errstr");
+                return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+            }
+        }
+
+
+        $sql_query = $type eq 'MySQL' ? "GRANT BINLOG_ADMIN ON *.* TO ?\@${host}" : "GRANT BINLOG ADMIN ON *.* TO ?\@${host}";
+        $dbh->do($sql_query, undef, $user);
+        if ( $DBI::errstr ) {
+            $status_msg = "Error granting BINLOG ADMIN for user $user on database $db";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
     }
     # Apply the new privileges
-    $dbHandler->do("FLUSH PRIVILEGES");
+    $dbh->do("FLUSH PRIVILEGES");
     if ( $DBI::errstr ) {
         $status_msg = ["Error creating the user [_1] on database [_2]",$user,$db];
         $logger->warn("$DBI::errstr");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
+
     $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
 
     # return original status message
     return ( $STATUS::OK, $status_msg );
+}
+
+sub connect_to_database {
+    my ($args) = @_;
+    my $fh;
+    $args->{database} //= "mysql";
+    $args->{hostname} ||= "localhost";
+    if ($args->{remote}{ca_cert}) {
+        ($fh, my $filename) = tempfile();
+        print $fh $args->{remote}{ca_cert};
+        $fh->flush();
+        $fh->close();
+        $args->{remote}{ca_file} = $filename;
+    }
+
+    my ($connect_str, $user, $password) = make_connection_str($args);
+    my $dbh = DBI->connect($connect_str, $user, $password);
+    return $dbh, $args->{database}, $user;
+}
+
+sub test_connection {
+    my ($self, $args) = @_;
+    my $logger = get_logger();
+    my ($dbh, $db, $user) = connect_to_database($args);
+    if ( !$dbh ) {
+        my $status_msg = ["Error in connection to the database [_1] with user [_2]",$db,$user];
+        $logger->warn("$DBI::errstr");
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    my $status_msg = ["Successfully connected to the database [_1] with user [_2]",$db,$user];
+    return ( $STATUS::OK, $status_msg );
+}
+
+sub make_connection_str {
+    my ($args) = @_;
+    my $dsn = "DBI:mysql:dbname=$args->{database}";
+    if (!$args->{is_remote}) {
+        return (
+            "$dsn;mysql_socket=/var/lib/mysql/mysql.sock",
+            $args->{username},
+            $args->{password},
+        );
+    }
+
+    my $remote = $args->{remote};
+    $dsn .= ";host=$remote->{hostname}";
+    my $port = $remote->{port} // '3306';
+    $dsn .= ";port=$port";
+    if ($remote->{encryption} eq "tls") {
+        $dsn .= ";mysql_ssl=1;mysql_ssl_ca_file=$remote->{ca_file}";
+    }
+
+    return (
+        $dsn,
+        $remote->{username},
+        $remote->{password},
+    );
 }
 
 =head2 connect
@@ -128,6 +242,118 @@ sub create {
 
     $status_msg = ["Successfully created the database [_1]",$db];
 
+    # return original status message
+    return ( $STATUS::OK, $status_msg );
+}
+
+sub make_mysql_command {
+    my ($args) = @_;
+    if ($args->{is_remote}) {
+        return make_remote_mysql_command($args);
+    }
+
+    my $user = quotemeta ($args->{username});
+    my $password = quotemeta ($args->{password});
+    my $db = quotemeta ($args->{database});
+    my $mysql_cmd = "/usr/bin/mysql --socket=/var/lib/mysql/mysql.sock -u $user -p$password $db";
+    return ($mysql_cmd, undef, "-p$password");
+}
+
+sub make_remote_mysql_command {
+    my ($args) = @_;
+    my $remote = $args->{remote};
+    my $mysql_cmd = "/usr/bin/mysql";
+    if ($remote->{encryption} eq 'tls') {
+        $mysql_cmd .= " --ssl";
+    }
+
+    if ($remote->{port}) {
+        $mysql_cmd .= " -P".  quotemeta($remote->{port});
+    }
+
+    my $fh = make_file_for_cert($remote);
+    if ($remote->{ca_file}) {
+        $mysql_cmd .= " --ssl-ca=".  $remote->{ca_file};
+    }
+
+    my $host = quotemeta ($remote->{hostname});
+    my $user = quotemeta ($remote->{username});
+    my $password = quotemeta ($remote->{password});
+    my $db = quotemeta ($args->{database});
+    $mysql_cmd .= " -h$host -u$user -p$password $db";
+    return ($mysql_cmd, $fh, "-p$password");
+}
+
+sub make_file_for_cert {
+    my ($remote_args) = @_;
+    if (!$remote_args->{ca_cert}) {
+        return undef;
+    }
+
+    my ($fh, $filename) = tempfile();
+    print $fh $remote_args->{ca_cert};
+    $fh->flush();
+    $fh->close();
+    $remote_args->{ca_file} = $filename;
+    return $fh;
+}
+
+sub apply_schema {
+    my ( $self, $args) = @_;
+    my $logger = get_logger();
+
+    my ( $status_msg, $result );
+    my ($mysql_cmd, $fh, $log_strip) = make_mysql_command($args);
+    my $cmd = "$mysql_cmd < $install_dir/db/pf-schema.sql";
+    my $db = $args->{database};
+    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => $log_strip) };
+    if ( $@ || !defined($result) ) {
+        $status_msg = ["Error applying the schema to the database [_1]", $db ];
+        $logger->warn("$@: $result");
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+    my @custom_schemas = read_dir( "$install_dir/db/custom", prefix => 1, err_mode => 'quiet' ) ;
+    @custom_schemas = sort @custom_schemas;
+    foreach my $custom_schema (@custom_schemas) {
+        my $cmd = "$mysql_cmd < $custom_schema";
+        eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => $log_strip) };
+        if ( $@ || !defined($result) ) {
+            $status_msg = ["Error applying the custom schema $custom_schema to the database [_1]", $db ];
+            $logger->warn("$@: $result");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+    }
+
+    $status_msg = ["Successfully applied the schema to the database [_1]", $db];
+    # return original status message
+    return ( $STATUS::OK, $status_msg );
+}
+
+=head2 create_database
+
+=cut
+
+sub create_database {
+    my ( $self, $args ) = @_;
+    my $db = $args->{database};
+    my $logger = get_logger();
+    my ( $status_msg, $result );
+    my ($dbh, undef, $user) = connect_to_database({%$args, database => ''});
+    if (!$dbh) {
+        $status_msg = ["Error in creating the database [_1]",$db];
+        $logger->warn($DBI::errstr);
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    my $db_quoted = $dbh->quote_identifier($db);
+    $result = $dbh->do("CREATE DATABASE $db_quoted DEFAULT CHARACTER SET = 'utf8mb4'");
+    if ( !$result ) {
+        $status_msg = ["Error in creating the database [_1]", $db];
+        $logger->warn($DBI::errstr);
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    $status_msg = ["Successfully created the database [_1]", $db];
     # return original status message
     return ( $STATUS::OK, $status_msg );
 }

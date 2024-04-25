@@ -366,6 +366,14 @@ yup.addMethod(yup.string, 'isFQDN', function (message) {
   })
 })
 
+yup.addMethod(yup.string, 'isHostname', function (message) {
+  return this.test({
+    name: 'isFQDN',
+    message: message || i18n.t('Invalid hostname.'),
+    test: value => ['', null, undefined].includes(value) || reIpv4(value) || isFQDN(value)
+  })
+})
+
 yup.addMethod(yup.string, 'isIpv4', function (message) {
   return this.test({
     name: 'isIpv4',
@@ -412,7 +420,7 @@ yup.addMethod(yup.string, 'isPort', function (message) {
   return this.test({
     name: 'isPort',
     message: message || i18n.t('Invalid port.'),
-    test: value => ['', null, undefined].includes(value) || (+value === parseFloat(value) && +value >= 1 && +value <= 65535)
+    test: value => ['', null, undefined].includes(value) || (+value === parseInt(value) && +value >= 1 && +value <= 65535)
   })
 })
 
