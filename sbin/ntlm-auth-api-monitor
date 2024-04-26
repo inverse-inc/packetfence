@@ -15,6 +15,7 @@ failures=0
 
 while true; do
     check_passed=1
+
     for env_file in $env_files; do
         full_path="$conf_dir$env_file"
         iden=$(echo $env_file | awk -F '.' '{print $1}')
@@ -22,32 +23,39 @@ while true; do
         host=$(cat $full_path | grep 'HOST' | awk -F '=' '{print $2}')
         port=$(cat $full_path | grep 'LISTEN' | awk -F '=' '{print $2}')
 
-        res=$(curl -X GET http://$host:$port/ping 2>/dev/null)
+        res=$(curl -X GET http://"$host:$port"/ping 2>/dev/null)
 
-        echo -n "Checking sub service for domain [$iden]: http://$host:$port/ping, response = [$res]. "
-
-        if [ "$res" != "pong" ]; then
-            check_passed=0
-            echo "Not ready. Skipped checking for other domains."
-            break
+        if [ $max_failures -gt 5 ]; then
+            echo -n "Checking sub service for domain [$iden]: http://$host:$port/ping, response = [$res]. "
+            if [ "$res" != "pong" ]; then
+                check_passed=0
+                echo "Not ready. Skipped checking for other domains."
+                break
+            else
+                echo "Ready."
+            fi
         else
-            echo "Ready."
+            if [ "$res" != "pong" ]; then
+                check_passed=0
+                echo -n "Checking sub service for domain [$iden]: http://$host:$port/ping, response = [$res]. "
+                echo "Not ready. Skipped checking for other domains."
+                break
+            fi
         fi
     done
 
     if [ $check_passed -eq 0 ]; then
-        failures=$((failures+1))
+        failures=$((failures + 1))
         if [ $failures -gt $max_failures ]; then
             echo "Maximum service check time exceeded. Service not ready. Please check logs during start up for sub service failures."
             echo '' >/usr/local/pf/var/run/ntlm-auth-api.pid
             exit 1
         fi
+        sleep 1
     else
         echo "$pid" >/usr/local/pf/var/run/ntlm-auth-api.pid
         max_failures=5
         failures=0
-        sleep 5
+        sleep 10
     fi
-
-    sleep 1
 done

@@ -50,7 +50,7 @@ sub generateConfig {
     my $db = $db_config->{'db'};
     my $db_unix_socket = $db_config->{'unix_socket'};
 
-    if (!defined($db_host) || !defined($db_port) || !defined($db_user) || !defined($db_pass) || !defined($db) || !defined($db_unix_socket) || $db_host == "" || $db_port == "" || $db_user == "" || $db_pass == "" || $db == "" || $db_unix_socket == "") {
+    if (!defined($db_host) || !defined($db_port) || !defined($db_user) || !defined($db_pass) || !defined($db) || !defined($db_unix_socket) || $db_host eq "" || $db_port eq "" || $db_user eq "" || $db_pass eq "" || $db eq "" || $db_unix_socket eq "") {
         print("Warning: Some of the database settings are missing while generating db.ini, ntlm-auth-api might not able to start properly\n")
     }
 
