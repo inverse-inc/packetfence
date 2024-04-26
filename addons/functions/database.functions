@@ -10,7 +10,7 @@ function get_db_name() {
   if [ -z "$db_name" ]; then
     db_name=pf
   fi
-  
+
   echo $db_name
 }
 
@@ -53,10 +53,10 @@ function import_mysqldump() {
 
     sub_splitter
     echo "Replacing create statements from the dump and removing drop statements"
-    # This is done so that tables aren't dropped 
+    # This is done so that tables aren't dropped
     sed -i "s/^DROP TABLE IF EXISTS /---DROP TABLE IF EXISTS /g" $dump_file
     sed -i "s/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g" $dump_file
-  
+
     # Delete this statement if its there because this table isn't in our schema anymore but some old deployments have it
     sed -i 's/DELETE IGNORE FROM `dhcp_fingerprint`;//g' $dump_file
     sed -i 's/DELETE IGNORE FROM `action`;//g' $dump_file
@@ -70,7 +70,6 @@ function import_mysqldump() {
     mysql ${mariadb_args} $db_name -e 'delete ignore from pf_version;'
     mysql ${mariadb_args} $db_name -e 'delete ignore from radreply;'
     mysql ${mariadb_args} $db_name -e 'delete ignore from sms_carrier;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from tenant;'
   else
     echo "Dump file includes triggers and procedures"
   fi
@@ -79,7 +78,7 @@ function import_mysqldump() {
   echo "Importing $dump_file into $db_name"
   mysql ${mariadb_args} $db_name < $dump_file
   check_code $?
-  
+
   sub_splitter
   echo "Importing grants"
   mysql ${mariadb_args} < $grants_file
@@ -169,7 +168,7 @@ function upgrade_database() {
   fi
 
   db_name="$1"
-  db_version=`mysql ${mariadb_args} $db_name -e "select version from pf_version order by id desc limit 1;" | egrep -o '^[0-9]+\.[0-9]+'`  
+  db_version=`mysql ${mariadb_args} $db_name -e "select version from pf_version order by id desc limit 1;" | egrep -o '^[0-9]+\.[0-9]+'`
   echo "Database $db_name runs version $db_version"
   if [ -z "$db_version" ]; then
     echo "Unable to find DB version"
@@ -183,7 +182,7 @@ function upgrade_database() {
     mysql ${mariadb_args} -v $db_name < $script
     check_code $?
   done
-  
+
   sub_splitter
   echo "Deleting content of keyed table"
   mysql ${mariadb_args} $db_name -e 'truncate keyed'
