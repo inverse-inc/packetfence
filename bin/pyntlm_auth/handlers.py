@@ -13,6 +13,10 @@ import flags
 
 from samba import param, NTSTATUSError, ntstatus
 
+# For NTSTATUS, see:
+# https://github.com/samba-team/samba/blob/master/libcli/util/ntstatus_err_table.txt
+# or
+# https://github.com/samba-team/samba/blob/master/examples/pcap2nbench/main.cpp
 
 def format_response(nt_key_or_error_msg, error_code):
     if error_code == 0:
@@ -25,6 +29,9 @@ def format_response(nt_key_or_error_msg, error_code):
         return nt_key_or_error_msg, HTTPStatus.NOT_FOUND
 
     if error_code == ntstatus.NT_STATUS_ACCOUNT_LOCKED_OUT or error_code == ntstatus.NT_STATUS_ACCOUNT_DISABLED:
+        return nt_key_or_error_msg, HTTPStatus.LOCKED
+
+    if error_code == ntstatus.NT_STATUS_PASSWORD_EXPIRED:
         return nt_key_or_error_msg, HTTPStatus.LOCKED
 
     if error_code == flags.STATUS_DEVICE_BLOCKED:
