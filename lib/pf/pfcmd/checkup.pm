@@ -816,7 +816,7 @@ sub switches {
             }
         }
         # check for valid switch ID
-        unless ( $is_group || valid_mac_or_ip($section) || valid_ip_range($section) ) {
+        unless ( $is_group || valid_mac_or_ip($section) || valid_ip_range($section) ||  valid_ip_fqdn($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
         }
         next if $is_group;
