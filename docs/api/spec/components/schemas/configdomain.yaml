@@ -1,9 +1,27 @@
 ConfigDomain:
   properties:
+    ad_account_lockout_duration:
+      default: 30
+      description: How long will an account keep locked after hitting bad password
+        threshold. In minutes
+      type: integer
+    ad_account_lockout_threshold:
+      default: 0
+      description: Max bad login attempts before an account is locked out automatically,
+        default is 0, never locks.
+      type: integer
     ad_fqdn:
       default: ~
       description: The FQDN of the Active Directory server
       type: string
+    ad_old_password_allowed_period:
+      default: 60
+      description: Old Password Allowed Period in NTLM Authentication. In minutes
+      type: integer
+    ad_reset_account_lockout_counter_after:
+      default: 30
+      description: After how long will the lockout counter resets. In minutes.
+      type: integer
     ad_server:
       default: ~
       description: The IPv4 of the Active Directory server
@@ -37,6 +55,18 @@ ConfigDomain:
       default: ~
       description: Password of the machine account to be added to Active Directory.
       type: string
+    max_allowed_password_attempts_per_device:
+      default: 0
+      description: Maximum bad login attempt for a single device.
+      type: integer
+    nt_key_cache_enabled:
+      default: disabled
+      description: Should the NT Key cache be enabled for this domain?
+      type: string
+    nt_key_cache_expire:
+      default: 12000
+      description: The amount of seconds an entry should be cached.
+      type: integer
     ntlm_auth_host:
       default: 100.64.0.1
       description: The IP address of NTLM auth API

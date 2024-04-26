@@ -3693,10 +3693,28 @@ components:
       description: List
     ConfigDomain:
       properties:
+        ad_account_lockout_duration:
+          default: 30
+          description: How long will an account keep locked after hitting bad password
+            threshold. In minutes
+          type: integer
+        ad_account_lockout_threshold:
+          default: 0
+          description: Max bad login attempts before an account is locked out automatically,
+            default is 0, never locks.
+          type: integer
         ad_fqdn:
           default: ~
           description: The FQDN of the Active Directory server
           type: string
+        ad_old_password_allowed_period:
+          default: 60
+          description: Old Password Allowed Period in NTLM Authentication. In minutes
+          type: integer
+        ad_reset_account_lockout_counter_after:
+          default: 30
+          description: After how long will the lockout counter resets. In minutes.
+          type: integer
         ad_server:
           default: ~
           description: The IPv4 of the Active Directory server
@@ -3730,6 +3748,18 @@ components:
           default: ~
           description: Password of the machine account to be added to Active Directory.
           type: string
+        max_allowed_password_attempts_per_device:
+          default: 0
+          description: Maximum bad login attempt for a single device.
+          type: integer
+        nt_key_cache_enabled:
+          default: disabled
+          description: Should the NT Key cache be enabled for this domain?
+          type: string
+        nt_key_cache_expire:
+          default: 12000
+          description: The amount of seconds an entry should be cached.
+          type: integer
         ntlm_auth_host:
           default: 100.64.0.1
           description: The IP address of NTLM auth API
@@ -3830,7 +3860,15 @@ components:
       properties:
         meta:
           properties:
+            ad_account_lockout_duration:
+              $ref: '#/components/schemas/Meta'
+            ad_account_lockout_threshold:
+              $ref: '#/components/schemas/Meta'
             ad_fqdn:
+              $ref: '#/components/schemas/Meta'
+            ad_old_password_allowed_period:
+              $ref: '#/components/schemas/Meta'
+            ad_reset_account_lockout_counter_after:
               $ref: '#/components/schemas/Meta'
             ad_server:
               $ref: '#/components/schemas/Meta'
@@ -3845,6 +3883,12 @@ components:
             id:
               $ref: '#/components/schemas/Meta'
             machine_account_password:
+              $ref: '#/components/schemas/Meta'
+            max_allowed_password_attempts_per_device:
+              $ref: '#/components/schemas/Meta'
+            nt_key_cache_enabled:
+              $ref: '#/components/schemas/Meta'
+            nt_key_cache_expire:
               $ref: '#/components/schemas/Meta'
             ntlm_auth_host:
               $ref: '#/components/schemas/Meta'
@@ -7760,7 +7804,6 @@ components:
       description: 'Choose one of the request bodies by discriminator (`type`). '
       discriminator:
         mapping:
-          ::flush_radius_audit_log: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushRadiusAuditLog'
           acct_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctCleanup'
           acct_maintenance: '#/components/schemas/ConfigMaintenanceTaskSubTypeAcctMaintenance'
           admin_api_audit_log_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeAdminApiAuditLogCleanup'
@@ -7772,6 +7815,7 @@ components:
           dns_audit_log_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeDnsAuditLogCleanup'
           fingerbank_data_update: '#/components/schemas/ConfigMaintenanceTaskSubTypeFingerbankDataUpdate'
           flush_dns_audit_log: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushDnsAuditLog'
+          flush_radius_audit_log: '#/components/schemas/ConfigMaintenanceTaskSubTypeFlushRadiusAuditLog'
           ip4log_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp4logCleanup'
           ip6log_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeIp6logCleanup'
           locationlog_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypeLocationlogCleanup'
@@ -7781,6 +7825,7 @@ components:
           option82_query: '#/components/schemas/ConfigMaintenanceTaskSubTypeOption82Query'
           password_of_the_day: '#/components/schemas/ConfigMaintenanceTaskSubTypePasswordOfTheDay'
           person_cleanup: '#/components/schemas/ConfigMaintenanceTaskSubTypePersonCleanup'
+          pfflow: '#/components/schemas/ConfigMaintenanceTaskSubTypePfflow'
           pki_certificates_check: '#/components/schemas/ConfigMaintenanceTaskSubTypePkiCertificatesCheck'
           provisioning_compliance_poll: '#/components/schemas/ConfigMaintenanceTaskSubTypeProvisioningCompliancePoll'
           purge_binary_logs: '#/components/schemas/ConfigMaintenanceTaskSubTypePurgeBinaryLogs'
@@ -7811,6 +7856,7 @@ components:
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeOption82Query'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePasswordOfTheDay'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePersonCleanup'
+      - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePfflow'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePkiCertificatesCheck'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypeProvisioningCompliancePoll'
       - $ref: '#/components/schemas/ConfigMaintenanceTaskSubTypePurgeBinaryLogs'
@@ -8435,10 +8481,10 @@ components:
               type: string
           type: object
         type:
-          default: ::flush_radius_audit_log
-          description: Discriminator `::flush_radius_audit_log`
+          default: flush_radius_audit_log
+          description: Discriminator `flush_radius_audit_log`
           type: string
-          value: ::flush_radius_audit_log
+          value: flush_radius_audit_log
       required:
       - id
       - type
@@ -8945,6 +8991,52 @@ components:
           description: Discriminator `person_cleanup`
           type: string
           value: person_cleanup
+      required:
+      - id
+      - type
+      type: object
+    ConfigMaintenanceTaskSubTypePfflow:
+      properties:
+        group_id:
+          default: network_group
+          description: 'The Kafka Consumer Group ID '
+          type: string
+        id:
+          default: ~
+          description: Pfcron Name
+          type: string
+        kafka_brokers:
+          default: ''
+          description: Kafka Brokers
+          type: string
+        read_topic:
+          default: pfflows_events
+          description: The Kafka topic to read pfflows from
+          type: string
+        schedule:
+          default: '@every 1m'
+          description: The schedule for maintenance task (cron like spec).
+          type: string
+        send_topic:
+          default: ~
+          description: The Kafka topic to write network events to
+          type: string
+        status:
+          default: disabled
+          description: Whether or not this task is enabled.<br>Requires a restart
+            of pfcron to be effective.
+          type: string
+        submit_batch:
+          default: '100'
+          description: Amount of items that will be processed in each batch of this
+            task. Batches are executed until there is no more items to process or
+            until the timeout is reached.
+          type: integer
+        type:
+          default: pfflow
+          description: Discriminator `pfflow`
+          type: string
+          value: pfflow
       required:
       - id
       - type
@@ -9536,6 +9628,29 @@ components:
               schedule:
                 $ref: '#/components/schemas/Meta'
               status:
+                $ref: '#/components/schemas/Meta'
+              type:
+                $ref: '#/components/schemas/Meta'
+            type: object
+        type: object
+      - properties:
+          meta:
+            properties:
+              group_id:
+                $ref: '#/components/schemas/Meta'
+              id:
+                $ref: '#/components/schemas/Meta'
+              kafka_brokers:
+                $ref: '#/components/schemas/Meta'
+              read_topic:
+                $ref: '#/components/schemas/Meta'
+              schedule:
+                $ref: '#/components/schemas/Meta'
+              send_topic:
+                $ref: '#/components/schemas/Meta'
+              status:
+                $ref: '#/components/schemas/Meta'
+              submit_batch:
                 $ref: '#/components/schemas/Meta'
               type:
                 $ref: '#/components/schemas/Meta'
@@ -17319,7 +17434,7 @@ components:
               type: string
           type: object
         id:
-          default: 3000008
+          default: 3000009
           description: Use a number above 1500000 if you want to be able to delete
             this security event later.
           type: string
@@ -45404,6 +45519,7 @@ paths:
           - '3000005'
           - '3000006'
           - '3000007'
+          - '3000008'
           - defaults
           type: string
       responses:
@@ -45478,6 +45594,7 @@ paths:
           - '3000005'
           - '3000006'
           - '3000007'
+          - '3000008'
           - defaults
           type: string
       responses:
@@ -45548,6 +45665,7 @@ paths:
           - '3000005'
           - '3000006'
           - '3000007'
+          - '3000008'
           - defaults
           type: string
       responses:
@@ -45618,6 +45736,7 @@ paths:
           - '3000005'
           - '3000006'
           - '3000007'
+          - '3000008'
           - defaults
           type: string
       requestBody:
@@ -45693,6 +45812,7 @@ paths:
           - '3000005'
           - '3000006'
           - '3000007'
+          - '3000008'
           - defaults
           type: string
       requestBody:

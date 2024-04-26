@@ -54,6 +54,7 @@
         - '3000005'
         - '3000006'
         - '3000007'
+        - '3000008'
         - defaults
         type: string
     responses:
@@ -128,6 +129,7 @@
         - '3000005'
         - '3000006'
         - '3000007'
+        - '3000008'
         - defaults
         type: string
     responses:
@@ -198,6 +200,7 @@
         - '3000005'
         - '3000006'
         - '3000007'
+        - '3000008'
         - defaults
         type: string
     responses:
@@ -268,6 +271,7 @@
         - '3000005'
         - '3000006'
         - '3000007'
+        - '3000008'
         - defaults
         type: string
     requestBody:
@@ -343,6 +347,7 @@
         - '3000005'
         - '3000006'
         - '3000007'
+        - '3000008'
         - defaults
         type: string
     requestBody:

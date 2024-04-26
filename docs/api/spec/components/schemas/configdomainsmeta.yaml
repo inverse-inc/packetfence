@@ -2,7 +2,15 @@ ConfigDomainsMeta:
   properties:
     meta:
       properties:
+        ad_account_lockout_duration:
+          $ref: '#/components/schemas/Meta'
+        ad_account_lockout_threshold:
+          $ref: '#/components/schemas/Meta'
         ad_fqdn:
+          $ref: '#/components/schemas/Meta'
+        ad_old_password_allowed_period:
+          $ref: '#/components/schemas/Meta'
+        ad_reset_account_lockout_counter_after:
           $ref: '#/components/schemas/Meta'
         ad_server:
           $ref: '#/components/schemas/Meta'
@@ -17,6 +25,12 @@ ConfigDomainsMeta:
         id:
           $ref: '#/components/schemas/Meta'
         machine_account_password:
+          $ref: '#/components/schemas/Meta'
+        max_allowed_password_attempts_per_device:
+          $ref: '#/components/schemas/Meta'
+        nt_key_cache_enabled:
+          $ref: '#/components/schemas/Meta'
+        nt_key_cache_expire:
           $ref: '#/components/schemas/Meta'
         ntlm_auth_host:
           $ref: '#/components/schemas/Meta'
