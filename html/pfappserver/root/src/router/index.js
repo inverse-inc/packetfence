@@ -22,10 +22,7 @@ Vue.use(Loading)
 let loader = null
 const hideLoader = () => {
   if (loader) {
-    Vue.nextTick(() => {
-      loader.hide()
-      loader = null
-    })
+    loader.hide()
   }
 }
 const showLoader = () => {
@@ -72,17 +69,17 @@ let router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.name) {
+  if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)) {
     showLoader()
   }
   /**
   * 1. Check if a matching route defines a transition delay
   * 2. Hide the document scrollbar during the transition (see bootstrap/scss/_modal.scss)
   */
-  let transitionRoute = from.matched.find(route => {
+  let transitionDelay = from.matched.find(route => {
     return route.meta.transitionDelay // [1]
   })
-  if (transitionRoute) {
+  if (transitionDelay) {
     document.body.classList.add('modal-open') // [2]
   }
   /**
@@ -130,19 +127,14 @@ router.afterEach((to, from) => {
   * 2. Restore the document scrollbar after the transition delay
   * 3. Scroll to top of the page
   */
-  let transitionRoute = from.matched.find(route => {
+  let transitionDelay = from.matched.find(route => {
     return route.meta.transitionDelay // [1]
   })
-  if (transitionRoute) {
-    setTimeout(() => {
-      document.body.classList.remove('modal-open') // [2]
-      window.scrollTo(0, 0) // [3]
-      hideLoader()
-    }, transitionRoute.meta.transitionDelay)
-  }
-  else {
+  setTimeout(() => {
+    document.body.classList.remove('modal-open') // [2]
+    window.scrollTo(0, 0) // [3]
     hideLoader()
-  }
+  }, transitionDelay || 300)
   /**
    * Fetch data required for ALL authenticated pages
    */
