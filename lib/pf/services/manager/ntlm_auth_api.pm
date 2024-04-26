@@ -41,15 +41,18 @@ sub generateConfig {
     pf_run("sudo mkdir -p $generated_conf_dir/" . $self->name() . ".d/");
     pf_run("sudo rm -rf $generated_conf_dir/" . $self->name() . ".d/*.env");
 
-
     my $db_config = pf::db::db_config();
 
-    my $db_host=$db_config->{'host'};
-    my $db_port=$db_config->{'port'};
-    my $db_user=$db_config->{'user'};
-    my $db_pass=$db_config->{'pass'};
-    my $db=$db_config->{'db'};
+    my $db_host = $db_config->{'host'};
+    my $db_port = $db_config->{'port'};
+    my $db_user = $db_config->{'user'};
+    my $db_pass = $db_config->{'pass'};
+    my $db = $db_config->{'db'};
     my $db_unix_socket = $db_config->{'unix_socket'};
+
+    if (!defined($db_host) || !defined($db_port) || !defined($db_user) || !defined($db_pass) || !defined($db) || !defined($db_unix_socket) || $db_host eq "" || $db_port eq "" || $db_user eq "" || $db_pass eq "" || $db eq "" || $db_unix_socket eq "") {
+        print("Warning: Some of the database settings are missing while generating db.ini, ntlm-auth-api might not able to start properly\n")
+    }
 
     pf_run("sudo echo '[DB]' > $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
     pf_run("sudo echo 'DB_HOST=$db_host' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
@@ -71,7 +74,6 @@ sub generateConfig {
         }
     }
 }
-
 
 sub isManaged {
     my ($self) = @_;

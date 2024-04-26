@@ -13,6 +13,10 @@ import flags
 
 from samba import param, NTSTATUSError, ntstatus
 
+# For NTSTATUS, see:
+# https://github.com/samba-team/samba/blob/master/libcli/util/ntstatus_err_table.txt
+# or
+# https://github.com/samba-team/samba/blob/master/examples/pcap2nbench/main.cpp
 
 def format_response(nt_key_or_error_msg, error_code):
     if error_code == 0:
