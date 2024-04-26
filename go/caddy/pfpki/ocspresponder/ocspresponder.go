@@ -87,9 +87,8 @@ func (ocspr *OCSPResponder) getCertificateStatus(s *big.Int, ca models.CA) (*Ind
 	var cert models.Cert
 	var revokedcert models.RevokedCert
 	var ent IndexEntry
-
 	// Search for the certificate that match the serial and has been signed by the CA
-	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&cert); CertDB.Error == nil {
+	if CertDB := ocspr.Handler.DB.Where(&models.Cert{SerialNumber: s.String(), CaID: ca.ID}).Find(&cert); CertDB.RowsAffected >= 1 {
 		ent = IndexEntry{Status: StatusValid, Serial: s, IssueTime: cert.Date, RevocationTime: cert.ValidUntil, DistinguishedName: cert.Cn}
 		if time.Now().After(cert.ValidUntil) {
 			ent.Status = StatusExpired
@@ -98,7 +97,7 @@ func (ocspr *OCSPResponder) getCertificateStatus(s *big.Int, ca models.CA) (*Ind
 	}
 
 	// Check in revoked Certificates
-	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&revokedcert); CertDB.Error == nil {
+	if CertDB := ocspr.Handler.DB.Where(&models.RevokedCert{SerialNumber: s.String(), CaID: ca.ID}).Find(&revokedcert); CertDB.RowsAffected >= 1 {
 		ent = IndexEntry{Status: StatusRevoked, Serial: s, IssueTime: revokedcert.Date, RevocationTime: revokedcert.Revoked, Reason: revokedcert.CRLReason, DistinguishedName: revokedcert.Cn}
 		if time.Now().Unix() < revokedcert.Revoked.Unix() {
 			ent.Status = StatusValid
