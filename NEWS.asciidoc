@@ -49,6 +49,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Send username, ip and role to PaloAlto Firewall SSO payload (#8089)
  * Restore original config file if patch is failing (#8072)
  * Fix Cisco::Cisco_IOS_12_x NAS-Port-Type=Async (#7924)
+ * Fix Captive Portal on Fortigate Switches (#7436)
 
 == Version 13.1.0 released on 2024-01-19
 
