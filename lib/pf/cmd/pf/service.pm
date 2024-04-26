@@ -46,6 +46,7 @@ Services managed by PacketFence:
   pfpki                  | PKI daemon
   pfqueue-go             | PF queueing service
   pfqueue-backend        | PF queueing backend service
+  pfsetacls              | ACL service daemon
   pfsso                  | Firewall SSO daemon
   pfstats                | PF statistics daemon
   proxysql               | proxysql daemon
