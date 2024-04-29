@@ -44,7 +44,8 @@ prepare_import() {
     echo "Found files dump '$files_dump'"
 
     echo "Extracting files dump"
-    tar -xf $files_dump
+    mkdir -p $extract_dir/usr/local/pf
+    tar -xf $files_dump -C $extract_dir/usr/local/pf
 
     main_splitter
 
