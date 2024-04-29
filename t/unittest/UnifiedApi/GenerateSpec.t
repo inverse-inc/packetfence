@@ -67,7 +67,7 @@ is_deeply(
                         (
                             map {
                                 $_ => { '$ref' => '#/components/schemas/Meta' }
-                            } qw(password_is_nt_hash ntlm_auth_port machine_account_password ad_fqdn ntlm_auth_host dns_servers ad_server registration ad_server dns_name bind_dn workgroup bind_pass ntlm_cache_expiry ntlm_cache_expiry ou id server_name sticky_dc ntlm_cache_source status ntlm_cache )
+                            } qw(password_is_nt_hash ntlm_auth_port machine_account_password ad_fqdn ntlm_auth_host dns_servers ad_server registration ad_server dns_name bind_dn workgroup bind_pass ntlm_cache_expiry ntlm_cache_expiry ou id server_name sticky_dc ntlm_cache_source status ntlm_cache ad_old_password_allowed_period nt_key_cache_expire ad_account_lockout_duration ad_account_lockout_threshold max_allowed_password_attempts_per_device nt_key_cache_enabled ad_reset_account_lockout_counter_after)
                         ),
                     }
                 }
@@ -187,6 +187,41 @@ is_deeply(
                     description => 'The FQDN of the Active Directory server',
                     default     => undef,
                     type        => 'string',
+                },
+                nt_key_cache_enabled => {
+                    description => 'Should the NT Key cache be enabled for this domain?',
+                    default => 'disabled',
+                    type => 'string'
+                },
+                nt_key_cache_expire => {
+                    description => 'The amount of seconds an entry should be cached.',
+                    default => 12000,
+                    type => 'integer'
+                },
+                ad_account_lockout_threshold => {
+                    description => 'Max bad login attempts before an account is locked out automatically, default is 0, never locks.',
+                    default => 0,
+                    type => 'integer'
+                },
+                ad_account_lockout_duration => {
+                    description => 'How long will an account keep locked after hitting bad password threshold. In minutes' ,
+                    default => 30,
+                    type => 'integer'
+                },
+                ad_reset_account_lockout_counter_after => {
+                    description => 'After how long will the lockout counter resets. In minutes.' ,
+                    default => 30,
+                    type => 'integer'
+                },
+                ad_old_password_allowed_period => {
+                    description => 'Old Password Allowed Period in NTLM Authentication. In minutes' ,
+                    default => 60,
+                    type => 'integer'
+                },
+                max_allowed_password_attempts_per_device => {
+                    description => 'Maximum bad login attempt for a single device.' ,
+                    default => 0,
+                    type => 'integer'
                 },
             },
             'type'     => 'object',
