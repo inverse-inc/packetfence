@@ -30,6 +30,7 @@ use pf::config::trapping_range;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::ConfigStore::Roles();
+use pf::ConfigStore::Switch();
 use pf::ip4log();
 use pf::fingerbank;
 use pf::Connection::ProfileFactory();
