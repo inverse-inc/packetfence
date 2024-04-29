@@ -116,6 +116,7 @@ my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/bin/pfcmd
    /usr/local/pf/bin/ntlm_auth_wrapper
    /usr/local/pf/sbin/ntlm-auth-api-domain
+   /usr/local/pf/sbin/ntlm-auth-api-monitor
    /usr/local/pf/addons/sourcefire/pfdetect.pl
    /usr/local/pf/addons/packetfence-perl/find_dependencies.pl
 );
