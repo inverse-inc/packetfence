@@ -63,7 +63,7 @@ sub makeMappings {
     my %mapping;
 
     while (my ($k, $v) = each %$patch) {
-        next unless ($k =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Network)$/);
+        next unless ($k =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Network|NetworkFrom)$/);
         my $type = $2;
         my $role = $1;
         if ($type eq 'Role') {

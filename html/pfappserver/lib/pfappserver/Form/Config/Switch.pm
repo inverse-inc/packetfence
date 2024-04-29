@@ -511,6 +511,7 @@ addRoleMapping("ControllerRoleMapping", "controller_role");
 addRoleMapping("AccessListMapping", "accesslist");
 addRoleMapping("VpnMapping", "vpn");
 addRoleMapping("NetworkMapping", "network");
+addRoleMapping("NetworkFromMapping", "networkfrom");
 
 sub _validate_acl_switch {
     my ($field) = @_;

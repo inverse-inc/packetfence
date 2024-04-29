@@ -123,6 +123,7 @@ sub cleanup_options {
     my $vpnMapping = $placeholder->{VpnMapping};
     my $roleMapping = $placeholder->{ControllerRoleMapping};
     my $networkMapping = $placeholder->{NetworkMapping};
+    my $networkMappingFrom = $placeholder->{NetworkMappingFrom};
     for my $a (@{$allowed_roles}) {
         my $r = $a->{value};
         $meta->{"${r}Vlan"} = mapping_meta($r, $vlanMapping, 'vlan', $self->json_false);
@@ -131,6 +132,7 @@ sub cleanup_options {
         $meta->{"${r}Vpn"} = mapping_meta($r, $vpnMapping, 'vpn', $self->json_false);
         $meta->{"${r}Role"} = mapping_meta($r, $roleMapping, 'controller_role', $self->json_false);
         $meta->{"${r}Network"} = mapping_meta($r, $networkMapping, 'network', $self->json_false);
+        $meta->{"${r}NetworkFrom"} = mapping_meta($r, $networkMappingFrom, 'networkfrom', $self->json_false);
     }
 }
 
