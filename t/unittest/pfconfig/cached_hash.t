@@ -57,7 +57,7 @@ ok(!exists($SwitchConfig{zammit}), "zammit switch doesn't exists");
 # Test keys and KEYS
 
 
-my $SWITCH_COUNT = 41;
+my $SWITCH_COUNT = 42;
 
 my @extra_switches;
 
