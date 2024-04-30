@@ -1951,19 +1951,16 @@ sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mas
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    # Do nothing if learn_network_cidr_by_role is disabled
-    return undef unless (pf::util::isenabled($pf::config::Config{'network'}{'learn_network_cidr_by_role'}));
-
     my $locationlog = pf::locationlog::locationlog_view_open_mac($postdata{'mac'});
     if ( !defined($locationlog) || $locationlog eq "0" ) {
         return undef;
     }
-    my $current_network = NetAddr::IP->new( $postdata{'ip'}, $postdata{'mask'} );
-    my $cs = pf::ConfigStore::Switch->new;
 
-    my $switch_config = $cs->read($locationlog->{'switch'});
+    my $current_network = NetAddr::IP->new( $postdata{'ip'}, $postdata{'mask'} );
 
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $locationlog->{'switch_mac'}, switch_ip => $locationlog->{'switch_ip'}, switch_id => $locationlog->{'switch'}});
+
+    return undef unless (pf::util::isenabled($switch->{'_NetworkMap'}));
 
     my $networks = $switch->cache_distributed->get($locationlog->{'switch'}.".".$locationlog->{'role'});
 
@@ -1990,7 +1987,8 @@ sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mas
         # If the current network count is greater than another one and if the number of devices in this network is greater than 10 (TODO Config variable)
         if ( ( $networks->{$current_network->network()} >= $max ) && ( $networks->{$current_network->network()} >= "10" ) ) {
             # If the current network doesn't match with the current one we update the configuration
-            if ($switch_config->{$locationlog->{'role'}."Network"} ne $current_network->network()) {
+            if ($switch->{"_".$locationlog->{'role'}."Network"} ne $current_network->network()) {
+                my $cs = pf::ConfigStore::Switch->new;
                 $cs->update($locationlog->{'switch'}, { $locationlog->{'role'}."Network" => $current_network->network()});
                 $cs->commit();
             }
@@ -2000,9 +1998,9 @@ sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mas
         $networks->{$current_network->network()} = 1;
     }
     # Cleanup loop (we can't increment the counter forever)
-    if (exists $networks->{$switch_config->{$locationlog->{'role'}."Network"}} && $networks->{$switch_config->{$locationlog->{'role'}."Network"}} >= 200) {
+    if (exists $networks->{$switch->{"_".$locationlog->{'role'}."Network"}} && $networks->{$switch->{"_".$locationlog->{'role'}."Network"}} >= 200) {
         foreach my $network (keys %{$networks}) {
-            if ($network eq $switch_config->{$locationlog->{'role'}."Network"} ) {
+            if ($network eq $switch->{"_".$locationlog->{'role'}."Network"} ) {
                 # Default
                 $networks->{$network} = 10;
             }
