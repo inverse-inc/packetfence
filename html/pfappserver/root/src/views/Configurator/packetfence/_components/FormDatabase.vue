@@ -585,9 +585,9 @@ export const setup = (props, context) => {
   const remoteDatabaseSchema = computed(() => {
     return yup.object({
       username: yup.string().nullable()
-        .required(i18n.t('Priviledged user name required.')),
+        .required(i18n.t('Privileged user name required.')),
       password: yup.string().nullable()
-        .required(i18n.t('Priviledged user password required.')),
+        .required(i18n.t('Privileged user password required.')),
       encryption: yup.string().nullable()
         .required(i18n.t('Database client encryption type required.')),
       ca_cert: yup.string().nullable(),
