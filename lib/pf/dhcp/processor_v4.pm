@@ -362,6 +362,7 @@ sub parse_dhcp_request {
     if( !$is_dhcp &&
         !isenabled($Config{network}{force_listener_update_on_ack}) ){
         $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length, is_dhcp => $is_dhcp) );
+        $self->apiClient->notify('update_switch_role_network', ( mac => $client_mac, ip => $client_ip, mask => undef, lease_length => $lease_length) ) unless (isdisabled($Config{'network'}{'learn_network_cidr_by_role'}));
     }
     # We call the parking on all DHCPREQUEST since the actions have to be done on all servers and all servers receive the DHCPREQUEST
     else {

@@ -1496,9 +1496,12 @@ sub handle_accounting_metadata : Public {
         my $advanced = $pf::config::Config{advanced};
         # Tracking IP address.
         my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
-        if ($framed_ip && pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
-            $logger->info("Updating iplog from accounting request");
-            $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
+        if ($framed_ip) {
+            if (pf::util::isenabled($advanced->{update_iplog_with_accounting}) {
+                $logger->info("Updating iplog from accounting request");
+                $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
+            }
+            $client->notify('update_switch_role_network', ( mac => $mac, ip => $framed_ip, mask => undef, lease_length => undef) ) unless (pf::util::isdisabled($pf::config::Config{'network'}{'learn_network_cidr_by_role'}));
         }
         else {
             $logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
