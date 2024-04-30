@@ -1951,6 +1951,8 @@ sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mas
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
+    # Do nothing if learn_network_cidr_by_role is disabled
+    return undef unless (pf::util::isenabled($pf::config::Config{'network'}{'learn_network_cidr_by_role'}));
 
     my $locationlog = pf::locationlog::locationlog_view_open_mac($postdata{'mac'});
     if ( !defined($locationlog) || $locationlog eq "0" ) {
