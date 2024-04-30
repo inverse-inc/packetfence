@@ -92,6 +92,12 @@ dhcp_process_ipv6=enabled
 # This is implicitly activated on registration interfaces on which dhcpd runs.
 force_listener_update_on_ack=disabled
 #
+# network.learn_network_cidr_by_role
+#
+# This will enable the learning of the networks tied to each roles on each switches by using the dhcp traffic and radius accounting.
+# To act on DHCP ACK (that contain the netmask) you need to enable force_listener_on_ack otherwise PacketFence will try to detect the cidr network based on the minumum address and the maximum address.
+learn_network_cidr_by_role=disabled
+#
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=
