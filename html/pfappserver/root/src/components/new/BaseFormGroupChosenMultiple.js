@@ -1,3 +1,4 @@
+import i18n from '@/utils/locale'
 import { computed, toRefs } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
@@ -18,6 +19,10 @@ export const props = {
   internalSearch: {
     type: Boolean,
     default: true
+  },
+  placeholder: {
+    type: String,
+    default: i18n.t('Select option(s)')
   }
 }
 

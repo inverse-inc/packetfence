@@ -179,6 +179,7 @@ const components = {
   Multiselect
 }
 
+import i18n from '@/utils/locale'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
@@ -201,6 +202,10 @@ export const props = {
     default: 'md',
     validator: value => ['sm', 'md', 'lg'].includes(value)
   },
+  placeholder: {
+    type: String,
+    default: i18n.t('Select option')
+  }
 }
 
 export const setup = (props, context) => {
