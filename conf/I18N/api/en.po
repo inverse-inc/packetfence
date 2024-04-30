@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 13.2.0\n"
 "POT-Creation-Date: 2019-05-01 12:00-0400\n"
-"PO-Revision-Date: 2024-04-26 09:41-0400\n"
+"PO-Revision-Date: 2024-04-30 19:36-0400\n"
 "Last-Translator: Inverse inc. <support@packetfence.org>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -11871,20 +11871,20 @@ msgstr ""
 msgid "Private key required."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:588
-msgid "Priviledged user name required."
-msgstr ""
-
-#: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:590
-msgid "Priviledged user password required."
-msgstr ""
-
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:208
 msgid "Privileged user name"
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:588
+msgid "Privileged user name required."
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:213
 msgid "Privileged user password"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:590
+msgid "Privileged user password required."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:104
@@ -13825,6 +13825,14 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/portalModules/config.js:101
 msgid "Select Role"
+msgstr ""
+
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:207
+msgid "Select option"
+msgstr ""
+
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosenMultiple.js:25
+msgid "Select option(s)"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeAndroid.vue:71
