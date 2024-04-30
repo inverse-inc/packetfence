@@ -87,6 +87,7 @@ sub create {
     my $dns_name = $item->{dns_name};
     my $workgroup = $item->{workgroup};
     my $real_computer_name = $item->{server_name};
+    my $ou = $item->{ou};
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
@@ -122,16 +123,18 @@ sub create {
         return $self->render_error(422, "Unable to determine AD server's IP address.\n")
     }
 
-    my $baseDN = $dns_name;
-    $baseDN = generate_baseDN($dns_name);
-
     if (!is_nt_hash_pattern($computer_password)) {
-        my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
+        my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
         if ($add_status == $FALSE) {
             if ($add_result =~ /already exists(.+)use \-no\-add/) {
-                ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
+                ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
                 if ($add_status == $FALSE) {
-                    $self->render_error(422, "Unable to add machine account with following error: $add_result");
+                    $self->render_error(422, "Unable to add machine account: removing existing machine account failed with following error: $add_result");
+                    return 0;
+                }
+                ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+                if ($add_status == $FALSE) {
+                    $self->render_error(422, "Unable to add maching account: recreating machine account with following error: $add_result");
                     return 0;
                 }
             }
@@ -188,6 +191,7 @@ sub update {
     my $dns_name = $new_item->{dns_name};
     my $workgroup = $old_item->{workgroup};
     my $real_computer_name = $old_item->{server_name};
+    my $ou = $new_item->{ou};
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
@@ -224,24 +228,25 @@ sub update {
     }
 
     if (!is_nt_hash_pattern($new_data->{machine_account_password}) && ($new_data->{machine_account_password} ne $old_item->{machine_account_password})) {
-        my $baseDN = $dns_name;
-        $baseDN = generate_baseDN($dns_name);
-
-        my ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
+        my ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
         if ($add_status == $FALSE) {
-            if ($add_result =~ /Account.+not found in/) {
-                ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $workgroup, $bind_dn, $bind_pass);
-                if ($add_status == $FALSE) {
-                    $self->render_error(422, "Unable to add machine account with following error: $add_result");
-                    return 0;
-                }
-            }
-            else {
-                $self->render_error(422, "Unable to add machine account with following error: $add_result");
+            unless ($add_result =~ /Account (.+) not found in/) {
+                $self->render_error(422, "Unable to update - remove existing maching account with following error: $add_result");
                 return 0;
             }
         }
+
+        ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+        if ($add_status == $FALSE) {
+            $self->render_error(422, "Unable to add machine account with following error: $add_result");
+            return 0;
+        }
+
         $new_data->{machine_account_password} = md4_hex(encode("utf-16le", $new_data->{machine_account_password}));
+        $new_data->{ou} = $new_item->{ou}
+    }
+    else {
+        $new_data->{ou} = $old_item->{ou}
     }
 
     $new_data->{server_name} = $computer_name;
@@ -253,19 +258,6 @@ sub update {
     return unless ($self->commit($cs));
     $self->post_update($id);
     $self->render(status => 200, json => $self->update_response($form));
-}
-
-sub generate_baseDN {
-    my $ret = "";
-
-    my ($dns_name) = @_;
-    my @array = split(/\./, $dns_name);
-
-    foreach my $element (@array) {
-        $ret .= "DC=$element,";
-    }
-    $ret =~ s/,$//;
-    return $ret;
 }
 
 sub is_nt_hash_pattern {
