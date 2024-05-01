@@ -14,7 +14,7 @@
     "autoprefixer": "10.4.5",
     "axios": "1.6.8",
     "bootstrap": "4.6.1",
-    "bootstrap-vue": "2.22.0",
+    "bootstrap-vue": "2.23.1",
     "core-js": "3.36.1",
     "d3-force": "^3.0.0",
     "date-fns": "^1.30.1",
