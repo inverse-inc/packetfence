@@ -60,13 +60,13 @@ sub add_computer {
     $ou =~ s/^['"]|['"]$//g;
 
     my $method = "LDAPS";
-    if (!defined($ou) || uc($ou) eq "COMPUTERS" || $ou == "") {
+    if (!defined($ou) || uc($ou) eq "COMPUTERS" || $ou eq "") {
         $method = "SAMR"
     }
 
     $computer_name = escape_bind_user_string($computer_name) . "\$";
     $computer_password = escape_bind_user_string($computer_password);
-    my $domain_auth = escape_bind_user_string("$workgroup/$bind_dn");
+    my $domain_auth = escape_bind_user_string("$dns_name/$bind_dn:$bind_pass");
     my $nt_hash = md4_hex(encode("utf-16le", $bind_pass));
 
     my $baseDN = generate_base_dn($dns_name);
@@ -74,9 +74,7 @@ sub add_computer {
 
     my $result;
     eval {
-        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group '$computer_group' '$domain_auth' -hashes ':$nt_hash' $option -method=$method";
-        print($command, "\n");
-
+        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group '$computer_group' '$domain_auth' $option -method=$method";
         $result = pf_run($command, accepted_exit_status => [ 0 ]);
     };
     if ($@) {
@@ -105,7 +103,7 @@ sub add_computer {
 =head2 escape_bind_user_string
 
 Escapes the bind user string for any simple quote
-
+' -> '\''
 =cut
 
 sub escape_bind_user_string {
@@ -129,29 +127,34 @@ sub generate_base_dn {
 
 sub generate_computer_group {
     my $ret = "";
-
     my ($dns_name, $ou) = @_;
-    my @array = split(/\./, $dns_name);
+
+    my $base_dn = generate_base_dn($dns_name);
+
+    # for OU=Computer or OU="", we put the machine account to CN=Computers.
+    if (!defined($ou)) {
+        $ou = ""
+    }
+    $ou =~ s/^\s+|\s+$//g;
+    $ou =~ s/^['"]|['"]$//g;
+    if (uc($ou) eq "COMPUTERS") {
+        $ou = ""
+    }
+
+    if ($ou eq "") {
+        $ret = "CN=Computers," . $base_dn;
+        return $ret
+    }
+
+    # Handle real OU strings
+    my @array = split(/\//, $ou);
+    my $dn_ou = "";
 
     foreach my $element (@array) {
-        $ret .= "DC=$element,";
+        $dn_ou = "OU=$element," . $dn_ou;
     }
-    $ret =~ s/,$//;
-
-    $ret .= "CN=Computers," . $ret;
-
-    if (defined($ou)) {
-        $ou =~ s/^\s+|\s+$//g;
-        $ou =~ s/^['"]|['"]$//g;
-
-        if ($ou eq "COMPUTERS" || $ou eq "") {
-            $ret .= ",OU=Computers"
-        }
-        else {
-            $ret .= ",OU=" . $ou
-        }
-    }
-    return $ret;
+    $dn_ou =~ s/,$//;
+    return $dn_ou . ",$base_dn";
 }
 
 

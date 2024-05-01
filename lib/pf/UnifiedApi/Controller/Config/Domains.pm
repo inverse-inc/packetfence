@@ -35,9 +35,9 @@ use Encode qw(encode);
 use Net::DNS;
 
 use JSON;
-=head2 test_join
+=head2 create
 
-Test if a domain is properly joined
+create machine account and domain config file.
 
 =cut
 
