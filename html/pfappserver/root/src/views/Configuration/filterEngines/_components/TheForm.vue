@@ -9,7 +9,7 @@
     <form-group-type v-if="fields.includes('type')"
                      namespace="type"
                     :column-label="$i18n.t('Type')"
-                    :disabled="true"
+                    disabled
     />
 
     <form-group-filter-enabled v-if="fields.includes('status')"

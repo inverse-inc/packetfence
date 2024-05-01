@@ -9,6 +9,7 @@ export const provisioningTypes = {
   jamf:         i18n.t('Jamf'),
   jamfCloud:    i18n.t('Jamf Cloud'),
   kandji:       i18n.t('Kandji'),
+  lookup:       i18n.t('Lookup'),
   mobileconfig: i18n.t('Apple Devices'),
   mobileiron:   i18n.t('Mobileiron'),
   sentinelone:  i18n.t('SentinelOne'),

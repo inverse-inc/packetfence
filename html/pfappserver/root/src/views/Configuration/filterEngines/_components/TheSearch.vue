@@ -197,7 +197,9 @@ const setup = (props, context) => {
       const { meta: { type: { allowed: filterEngineTypes = [] } = {} } = {} } = filterEngineOptions
       types.value = filterEngineTypes
         // friendly names
-        .map(({ value }) => ({ text: provisioningTypes[value], value }))
+        .map(({ value }) => {
+          return { text: provisioningTypes[value] || value, value }
+        })
         // sorted by locale
         .sort((a,b) => a.text.localeCompare(b.text))
     })

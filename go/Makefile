@@ -21,15 +21,11 @@ CMDS = $(wildcard cmd/*)
 ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 .PHONY: $(ALL_BINARIES)
 $(ALL_BINARIES):
-	cd cmd/$@ && \
-	$(build_cmd) && \
-	mv $@ ../..
+	$(build_cmd) -C cmd/$@ -o ../../$@
 
 ALL_BINARIES_RACE = $(patsubst cmd/%, %-race, $(CMDS))
 $(ALL_BINARIES_RACE):
-	cd cmd/$(@:-race=) && \
-	$(build_cmd) -o $@ -race && \
-	mv $@ ../..
+	$(build_cmd) -C cmd/$(@:-race=) -o ../../$@ -race
 
 .PHONY: all
 all: $(PF_BINARIES)
