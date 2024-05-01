@@ -90,10 +90,14 @@ export const useInputValue = (props, { emit }) => {
     return length
   })
 
+  // used by CSS to show vue-multiselect placeholder
+  const isEmpty = computed(() => [null, undefined].includes(inputValue.value))
+
   return {
     // props
     value: inputValue,
     length: inputLength,
+    isEmpty,
 
     //events
     onInput,
