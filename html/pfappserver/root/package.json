@@ -10,7 +10,7 @@
     "build-report": "vue-cli-service build --report"
   },
   "dependencies": {
-    "@vue/composition-api": "^1.7.0",
+    "@vue/composition-api": "^1.7.2",
     "autoprefixer": "10.4.5",
     "axios": "1.6.8",
     "bootstrap": "4.6.1",
