@@ -35,7 +35,7 @@
     "vue-eslint-parser": "^9.4.2",
     "vue-flatpickr-component": "8.1.7",
     "vue-i18n": "^8.28.2",
-    "vue-loading-overlay": "3.4.2",
+    "vue-loading-overlay": "3.4.3",
     "vue-multiselect": "2.1.9",
     "vue-router": "3.6.5",
     "vue-scrollto": "2.20.0",
