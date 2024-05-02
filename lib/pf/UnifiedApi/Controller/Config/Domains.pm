@@ -134,7 +134,7 @@ sub create {
                 }
                 ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
                 if ($add_status == $FALSE) {
-                    $self->render_error(422, "Unable to add maching account: recreating machine account with following error: $add_result");
+                    $self->render_error(422, "Unable to add machine account: recreating machine account with following error: $add_result");
                     return 0;
                 }
             }
@@ -231,7 +231,7 @@ sub update {
         my ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
         if ($add_status == $FALSE) {
             unless ($add_result =~ /Account (.+) not found in/) {
-                $self->render_error(422, "Unable to update - remove existing maching account with following error: $add_result");
+                $self->render_error(422, "Unable to update - remove existing machine account with following error: $add_result");
                 return 0;
             }
         }

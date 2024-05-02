@@ -67,14 +67,15 @@ sub add_computer {
     $computer_name = escape_bind_user_string($computer_name) . "\$";
     $computer_password = escape_bind_user_string($computer_password);
     my $domain_auth = escape_bind_user_string("$dns_name/$bind_dn:$bind_pass");
-    my $nt_hash = md4_hex(encode("utf-16le", $bind_pass));
-
     my $baseDN = generate_base_dn($dns_name);
     my $computer_group = generate_computer_group($dns_name, $ou);
 
+    $baseDN = escape_bind_user_string($baseDN);
+    $computer_group = escape_bind_user_string($computer_group);
+
     my $result;
     eval {
-        my $command = "$ADD_COMPUTERS_BIN -computer-name $computer_name -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group '$computer_group' '$domain_auth' $option -method=$method";
+        my $command = "$ADD_COMPUTERS_BIN -computer-name '$computer_name' -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group '$computer_group' '$domain_auth' $option -method=$method";
         $result = pf_run($command, accepted_exit_status => [ 0 ]);
     };
     if ($@) {
