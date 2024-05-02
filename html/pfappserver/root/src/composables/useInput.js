@@ -84,7 +84,7 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
     }, 300)
   }
 
-  const isDefault = computed(() => placeholder.value && !/^(select|sélect)/i.test(placeholder.value))
+  const isDefault = computed(() => localPlaceholder.value && !/^(select|sélect)/i.test(localPlaceholder.value))
 
   return {
     // props
