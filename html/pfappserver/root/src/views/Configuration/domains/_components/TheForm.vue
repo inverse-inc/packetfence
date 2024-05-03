@@ -52,6 +52,7 @@
         <form-group-ou namespace="ou"
                        :column-label="$i18n.t('OU')"
                        :text="$i18n.t(`Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a '/'. (ex: Computers/Servers/Unix).`)"
+                       :api-feedback="ouFeedback"
         />
 
 
@@ -289,12 +290,27 @@ export const setup = (props, context) => {
     )
   })
 
+  const isDefaultOU = computed(() => {
+    const { ou } = form.value
+    return !!ou && /^computers$/i.test(ou) || !ou
+  })
+
+  const ouFeedback = computed(() => {
+    if (isDefaultOU.value) {
+      return undefined
+    }
+    return i18n.t(`Non-default OU is defined. LDAPS service on port 636 is required in Domain Controller.`)
+  })
+
+
   return {
     schema,
     formGroupComputedMachineAccountPassword,
     isMachineAccountHash,
     machineAccountFeedback,
-    machineAccountBind
+    machineAccountBind,
+    isDefaultOU,
+    ouFeedback
   }
 }
 
