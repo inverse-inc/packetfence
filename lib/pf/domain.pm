@@ -56,11 +56,15 @@ sub add_computer {
     my $option = shift;
     my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass) = @_;
 
+    if (!defined($ou)) {
+        $ou = ""
+    }
+
     $ou =~ s/^\s+|\s+$//g;
     $ou =~ s/^['"]|['"]$//g;
 
     my $method = "LDAPS";
-    if (!defined($ou) || uc($ou) eq "COMPUTERS" || $ou eq "") {
+    if (uc($ou) eq "COMPUTERS" || $ou eq "") {
         $method = "SAMR"
     }
 
@@ -133,18 +137,8 @@ sub generate_computer_group {
     my $base_dn = generate_base_dn($dns_name);
 
     # for OU=Computer or OU="", we put the machine account to CN=Computers.
-    if (!defined($ou)) {
-        $ou = ""
-    }
-    $ou =~ s/^\s+|\s+$//g;
-    $ou =~ s/^['"]|['"]$//g;
-    if (uc($ou) eq "COMPUTERS") {
-        $ou = ""
-    }
-
-    if ($ou eq "") {
-        $ret = "CN=Computers," . $base_dn;
-        return $ret
+    if (!defined($ou) || uc($ou) eq "COMPUTERS" || $ou eq "") {
+        return "CN=Computers," . $base_dn;
     }
 
     # Handle real OU strings
