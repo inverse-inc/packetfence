@@ -16,7 +16,7 @@ type wsConn struct {
 
 var buffPool = sync.Pool{
 	New: func() interface{} {
-		return &bytes.Buffer{}
+		return bytes.NewBuffer(make([]byte, 0, 1024))
 	},
 }
 
