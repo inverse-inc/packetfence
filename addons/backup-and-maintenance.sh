@@ -73,10 +73,10 @@ if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then
     else
         echo -e $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ", file already created. \n"
     fi
-else 
+else
     echo "ERROR: There is not enough space in $BACKUP_DIRECTORY to safely backup files. Skipping the backup." >&2
     echo "ERROR: There is not enough space in $BACKUP_DIRECTORY to safely backup files. Skipping the backup." > /usr/local/pf/var/backup_files.status
-fi 
+fi
 
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
@@ -141,7 +141,7 @@ backup_db(){
             fi
             tail -1 /usr/local/pf/logs/innobackup.log | grep 'completed OK!'
             BACKUPRC=$?
-            if (( $BACKUPRC > 0 )); then 
+            if (( $BACKUPRC > 0 )); then
                 echo "mariabackup was not successful." >&2
                 echo "mariabackup was not successful." > /usr/local/pf/var/backup_db.status
             else
@@ -151,9 +151,9 @@ backup_db(){
         else
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql.gz
-            mysqldump --opt --routines -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_history --ignore-table=$DB_NAME.iplog_archive | gzip > ${current_filename}
+            mysqldump --opt --routines --insert-ignore -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_history --ignore-table=$DB_NAME.iplog_archive  | gzip > ${current_filename}
             BACKUPRC=$?
-            if (( $BACKUPRC > 0 )); then 
+            if (( $BACKUPRC > 0 )); then
                 echo "mysqldump returned  error code: $?" >&2
                 echo "mysqldump returned  error code: $?" > /usr/local/pf/var/backup_db.status
             else
@@ -170,7 +170,7 @@ backup_db(){
             echo "Not a Galera cluster, nothing to reenable"
         fi
 
-    else 
+    else
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." >&2
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." > /usr/local/pf/var/backup_db.status
     fi
@@ -189,7 +189,7 @@ if [ $ACTIVATE_REPLICATION == 1 ]; then
   if [ $HOSTNAME == $NODE1_HOSTNAME ]; then
     replicate_to=$NODE2_IP
   elif [ $HOSTNAME == $NODE2_HOSTNAME ]; then
-    replicate_to=$NODE1_IP 
+    replicate_to=$NODE1_IP
   else
     echo "Cannot recognize hostname. This script is made for $NODE1_HOSTNAME and $NODE2_HOSTNAME. Exiting" >&2
     exit 1
