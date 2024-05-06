@@ -75,8 +75,10 @@ func (c *wsConn) SetDeadline(t time.Time) error {
 }
 
 func (c *wsConn) Close() error {
-	c.buff.Reset()
-	buffPool.Put(c.buff)
-	c.buff = nil
+	if c.buff != nil {
+		c.buff.Reset()
+		buffPool.Put(c.buff)
+		c.buff = nil
+	}
 	return c.Conn.Close()
 }
