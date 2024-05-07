@@ -9,7 +9,7 @@
       label-class="d-none"
       label-right
     />
-    
+
     <div
       class="alert alert-warning is-saas"
     >{{ $t(`Changes to connection profiles files require a restart of the httpd-portal deployment`) }}</div>
@@ -70,11 +70,16 @@
             reverse
             @click="onDelete(item)"
           >{{ $t('Revert') }}</base-button-confirm>
-
-          <b-button v-if="previewUrl"
-            size="sm" variant="outline-secondary" class="my-1"
-            :href="previewUrl(item)" target="_blank"
-          >{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
+          <b-dropdown v-if="previewUrl"
+            size="sm" split split-variant="outline-secondary" variant="secondary" class="my-1"
+            :split-href="previewUrl(item)"
+          >
+            <template v-slot:button-content>
+              {{ $t('Preview') }}
+            </template>
+            <b-dropdown-item v-for="(locale, l) in localesSorted" :key="l"
+              :href="previewUrl(item, locale.key)" target="_blank">{{ locale.value }}</b-dropdown-item>
+          </b-dropdown>
         </div>
         <div v-else-if="item.type === 'dir'"
           class="text-right text-nowrap">
@@ -197,7 +202,7 @@ const tableFields = [
 
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import mime from 'mime-types'
-import i18n from '@/utils/locale'
+import i18n, { localesSorted } from '@/utils/locale'
 import { reAscii } from '@/utils/regex'
 import { acceptMimes } from '../config'
 import { fileNotExists } from '../schema'
@@ -353,12 +358,12 @@ const setup = (props, context) => {
     $store.dispatch('$_connection_profiles/deleteFile', { id: id.value, filename: `${path}/${name}`.replace('//', '/') })
   }
 
-  const previewUrl = (item) => {
+  const previewUrl = (item, language='') => {
     let path = ['/config/profile', id.value, 'preview']
     if (item.path)
       path.push(...item.path.split('/').filter(u => u))
     path.push(item.name)
-    return path.join('/')
+    return `${path.join('/')}?lang=${language}`
   }
 
   const lastPath = ref(undefined)
@@ -492,6 +497,8 @@ const setup = (props, context) => {
 
     onUploadFiles,
     acceptMimes,
+
+    localesSorted
   }
 }
 

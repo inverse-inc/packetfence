@@ -45,10 +45,16 @@
               {{ variable }}
             </b-dropdown-item>
           </b-dropdown>
-          <b-button v-if="previewUrl"
-            size="sm" variant="outline-secondary" class="ml-1"
-            :href="previewUrl" target="_blank"
-          >{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
+          <b-dropdown v-if="!isNew"
+            size="sm" split split-variant="outline-secondary" variant="secondary" class="ml-2 my-1" right
+            :split-href="previewUrl()"
+          >
+            <template v-slot:button-content>
+              {{ $t('Preview') }}
+            </template>
+            <b-dropdown-item v-for="(locale, l) in localesSorted" :key="l"
+              :href="previewUrl(locale.key)" target="_blank">{{ locale.value }}</b-dropdown-item>
+          </b-dropdown>
         </b-col>
       </b-form-row>
       <div class="ace-container flex-grow-1 px-3" ref="editorRef">
@@ -119,7 +125,7 @@ import { computed, customRef, nextTick, onMounted, onBeforeUnmount, ref, toRefs,
 import { createDebouncer } from 'promised-debounce'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
-import i18n from '@/utils/locale'
+import i18n, { localesSorted } from '@/utils/locale'
 import { acceptTextMimes } from '../config'
 import { yup } from '../schema'
 
@@ -168,7 +174,7 @@ const setup = (props, context) => {
     return lastType === 'dir' || entries.length > 0
   }
   const isNew = computed(() => _isNew(entries.value, path.value))
-
+/*
   const previewUrl = computed(() => {
     if (isNew.value)
       return false
@@ -177,6 +183,14 @@ const setup = (props, context) => {
       url.push(...path.value.split('/').filter(u => u))
     return url.join('/')
   })
+*/
+
+  const previewUrl = (language='') => {
+    let url = ['/config/profile', id.value, 'preview']
+    if (path.value)
+      url.push(...path.value.split('/').filter(u => u))
+    return `${url.join('/')}?lang=${language}`
+  }
 
   const isDeletable = ref(false)
   const isRevertible = ref(false)
@@ -330,7 +344,9 @@ const setup = (props, context) => {
     editorVariables,
     isEditorLineNumbers,
     onEditorInit,
-    onEditorVariable
+    onEditorVariable,
+
+    localesSorted
   }
 }
 

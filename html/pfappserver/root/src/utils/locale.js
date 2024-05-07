@@ -43,3 +43,20 @@ export const languages = [
     label: 'French' // i18n defer
   },
 ]
+
+export const locales = { // translations /conf/locale/*
+  'de': i18n.t('German'),
+  'en': i18n.t('English'),
+  'es': i18n.t('Spanish'),
+  'fr': i18n.t('French'),
+  'he_IL': i18n.t('Hebrew'),
+  'it': i18n.t('Italian'),
+  'nb_NO': i18n.t('Norwegian'),
+  'nl': i18n.t('Dutch'),
+  'pl_PL': i18n.t('Polish'),
+  'pt_BR': i18n.t('Portuguese')
+}
+
+export const localesSorted = Object.entries(locales)
+  .map(([key, value]) => ({key, value}))
+  .sort((a, b) => a.value.localeCompare(b.value))
