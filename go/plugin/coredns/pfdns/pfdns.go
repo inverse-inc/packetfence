@@ -607,11 +607,21 @@ func (pf *pfdns) detectType(ctx context.Context) error {
 
 func (pf *pfdns) DbInit(ctx context.Context) error {
 
-	var err error
+	database, err := db.DbFromConfig(ctx)
 
-	db, err := db.DbFromConfig(ctx)
+	for err != nil {
+		log.LoggerWContext(ctx).Error("Error: " + err.Error())
+		time.Sleep(time.Duration(5) * time.Second)
+		database, err = db.DbFromConfig(ctx)
+	}
+
+	err = database.Ping()
+	for err != nil {
+		time.Sleep(time.Duration(5) * time.Second)
+		err = database.Ping()
+	}
 	sharedutils.CheckError(err)
-	pf.Db = db
+	pf.Db = database
 
 	pf.IP4log, err = pf.Db.Prepare("select mac from ip4log where ip = ?")
 	if err != nil {
@@ -647,14 +657,6 @@ func (pf *pfdns) DbInit(ctx context.Context) error {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to database: %s", err))
 		return err
 	}
-
-	go func() {
-		for {
-			pf.Db.Ping()
-			time.Sleep(5 * time.Second)
-		}
-	}()
-
 	return nil
 }
 
