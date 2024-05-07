@@ -34,9 +34,8 @@
         />
 
         <form-group-ad-fqdn namespace="ad_fqdn"
-                              :column-label="$i18n.t('Active Directory FQDN')"
-                              :text="$i18n.t('The FQDN of the Active Directory server.')"
-                              :disabled="!isNew && !isClone"
+                            :column-label="$i18n.t('Active Directory FQDN')"
+                            :text="$i18n.t('The FQDN of the Active Directory server.')"
         />
 
         <form-group-ad-server namespace="ad_server"
