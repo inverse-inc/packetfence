@@ -239,7 +239,6 @@ def cached_login(domain, account_username, mac, challenge, nt_response):
 
 
 def device_miss_root_miss(domain, account_username, mac, challenge, nt_response):
-    print("  cache status: device [ ], root [ ]")
     cache_key_root = build_cache_key(domain, account_username)
     cache_key_device = build_cache_key(domain, account_username, mac)
 
@@ -280,7 +279,6 @@ def device_miss_root_miss(domain, account_username, mac, challenge, nt_response)
 
 
 def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, c_root):
-    print("  cache status: device [ ], root [*]")
     cache_key_root = build_cache_key(domain, account_username)
     cache_key_device = build_cache_key(domain, account_username, mac)
 
@@ -352,7 +350,6 @@ def device_miss_root_hit(domain, account_username, mac, challenge, nt_response, 
 
 
 def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c_device=None, c_root=None):
-    print("  cache status: device [*], root [*]")
     cache_key_root = build_cache_key(domain, account_username)
     cache_key_device = build_cache_key(domain, account_username, mac)
 
@@ -442,5 +439,4 @@ def device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c
 
 
 def device_hit_root_miss(domain, account_username, mac, challenge, nt_response, c_device):
-    print("  cache status: device [*], root [ ]")
     return device_hit_root_hit(domain, account_username, mac, challenge, nt_response, c_device=c_device, c_root=c_device)

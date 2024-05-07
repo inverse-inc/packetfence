@@ -1,5 +1,6 @@
+import logging
 import pymysql
-from flask import Flask, g
+from flask import Flask, g, request
 from flaskext.mysql import MySQL
 
 import config_loader
@@ -11,6 +12,15 @@ def api():
     config_loader.config_load()
 
     app = Flask(__name__)
+
+    werkzeug_logger = logging.getLogger('werkzeug')
+
+    @app.before_request
+    def register_logger():
+        if request.path.startswith("/ping"):
+            werkzeug_logger.setLevel(logging.CRITICAL)
+        else:
+            werkzeug_logger.setLevel(logging.INFO)
 
     for i in range(1):
         if not global_vars.c_nt_key_cache_enabled:
