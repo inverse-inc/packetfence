@@ -25,6 +25,7 @@ use pf::log;
 use pf::ip4log;
 use MIME::Base64;
 use pf::constants qw($TRUE $FALSE);
+use pf::node;
 
 =head1 Atrributes
 

@@ -27,6 +27,7 @@ use pf::ip4log;
 use pf::ConfigStore::Provisioning;
 use DateTime::Format::RFC3339;
 use pf::security_event;
+use pf::node;
 
 =head1 Atrributes
 

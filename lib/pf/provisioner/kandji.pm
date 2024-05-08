@@ -22,6 +22,7 @@ use pf::constants;
 use LWP::UserAgent;
 use JSON::MaybeXS qw(decode_json);
 use pf::error;
+use pf::node;
 
 =head1 Atrributes
 
