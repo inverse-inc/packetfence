@@ -299,7 +299,7 @@ sub execute_request {
 
     my $ua = LWP::UserAgent->new();
     my $request = GET $self->build_request_uri($mac, $realm);
-    $request->header( 'Authorization' => 'Bearer '. $self->get_token);
+    $request->header( 'Authorization' => 'Bearer '. $self->access_token);
     $request->header( 'Accept'       => 'application/json' );
 
     my $response = $ua->request($request);
