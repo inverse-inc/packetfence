@@ -201,9 +201,6 @@ if ($updated) {
     $ini->RewriteConfig();
 }
 
-print("Stopping winbindd and umount /chroot\n");
-umount_winbindd();
-
 sub tdbdump_get_value {
     my ($tdb_file, $key) = @_;
     my $cmd = "/usr/bin/tdbdump $tdb_file -k $key";
@@ -243,13 +240,6 @@ sub extract_machine_password {
     my $hash = $md4->digest;
 
     return (unpack("H*", $hash));
-}
-
-sub umount_winbindd {
-    pf_run("sudo systemctl stop packetfence-winbindd 2>/dev/null");
-    sleep(3);
-    pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount 2>/dev/null");
-    print("/chroots/* has been umounted. Some sub directories are still in use. They will be removed at the next reboot\n")
 }
 
 sub parsePh {
