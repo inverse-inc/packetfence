@@ -195,6 +195,11 @@ print("Stopping winbindd\n");
 pf_run("sudo systemctl stop packetfence-winbindd 2>/dev/null");
 sleep(3);
 pf_run("sudo systemctl disable packetfence-winbindd 2>/dev/null");
+print("/chroots/* directories will be removed at the next reboot.\n")
+
+####
+# Sub functions
+####
 
 sub tdbdump_get_value {
     my ($tdb_file, $key) = @_;
