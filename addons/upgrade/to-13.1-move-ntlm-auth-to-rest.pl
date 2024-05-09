@@ -36,6 +36,9 @@ my $updated = 0;
 my $ntlm_auth_host = "100.64.0.1";
 my $ntlm_auth_port = 4999;
 
+pf_run("cp -R /usr/local/pf/conf/domain.conf /usr/local/pf/conf/domain.conf_bk");
+pf_run("cp -R /usr/local/pf/conf/realm.conf /usr/local/pf/conf/realm.conf_bk");
+
 for my $section (grep {/^\S+$/} $ini->Sections()) {
     print("Updating config for section: $section\n");
     $ntlm_auth_port += 1;
@@ -195,7 +198,9 @@ print("Stopping winbindd\n");
 pf_run("sudo systemctl stop packetfence-winbindd 2>/dev/null");
 sleep(3);
 pf_run("sudo systemctl disable packetfence-winbindd 2>/dev/null");
-print("/chroots/* directories will be removed at the next reboot.\n")
+print("/chroots/* directories will be removed at the next reboot.\n");
+print("Domain config backup is available here /usr/local/pf/conf/domain.conf_bk\n");
+print("Realm  config backup is available here /usr/local/pf/conf/realm.conf_bk\n");
 
 ####
 # Sub functions
