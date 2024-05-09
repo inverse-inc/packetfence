@@ -47,22 +47,6 @@ pf_run("cp -R /usr/local/pf/conf/domain.conf $target_dir");
 pf_run("cp -R /usr/local/pf/conf/realm.conf $target_dir");
 
 for my $section (grep {/^\S+$/} $ini->Sections()) {
-    if (-d "/chroots/$section/etc/samba" && -d "/chroots/$section/var/cache/samba") {
-        print "  processing /chroots/$section/\n";
-        pf_run("mkdir -p $target_dir/chroots/$section/etc");
-        pf_run("mkdir -p $target_dir/chroots/$section/var/cache/samba");
-        pf_run("cp -R /chroots/$section/etc/samba $target_dir/chroots/$section/etc");
-        pf_run("cp -R /chroots/$section/var/cache/samba/*.tdb $target_dir/chroots/$section/var/cache/samba");
-        pf_run("cp -R /chroots/$section/var/cache/samba/smb_krb5 $target_dir/chroots/$section/var/cache/samba");
-    }
-    else {
-        print "  /chroots/$section/etc/samba or /chroots/$section/var/cache/samba does not exist, maybe domain config ($section) is not in use any more. skipped.\n";
-    }
-}
-pf_run("cd /usr/local/pf/archive && tar --warning=no-file-ignored -cvzf $tmp_dirname.tgz $tmp_dirname && rm -rf $tmp_dirname");
-
-
-for my $section (grep {/^\S+$/} $ini->Sections()) {
     print("Updating config for section: $section\n");
     $ntlm_auth_port += 1;
 
