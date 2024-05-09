@@ -72,6 +72,11 @@ has_block definition => (
     render_list => [ qw(id type description category oses host port protocol api_username api_password device_type_detection query_computers query_mobiledevices apply_role role_to_apply autoregister) ],
 );
 
+sub type_alias {
+    my ($self, $value) = @_;
+    return "jamf";
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2024 Inverse inc.

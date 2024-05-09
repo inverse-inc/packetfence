@@ -192,7 +192,7 @@ sub options_rules {
     my $self = shift;
     my $type = ref($self) || $self;
     $type =~ s/^pfappserver::Form::Config::Provisioning:://;
-    return map { {value => $_, label => $_} } @{$Rules{$type} // []};
+    return map { {value => $_, label => $_} } @{$Rules{$self->type_alias($type)} // []};
 }
 
 =head2 options_roles
@@ -211,6 +211,11 @@ sub options_security_events {
     return [
         map { {value => $_->{id}, label => $_->{desc} } } @{$self->form->security_events // []}
     ];
+}
+
+sub type_alias {
+    my ($self, $value) = @_;
+    return $value;
 }
 
 =head1 COPYRIGHT
