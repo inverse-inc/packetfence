@@ -36,16 +36,6 @@ my $updated = 0;
 my $ntlm_auth_host = "100.64.0.1";
 my $ntlm_auth_port = 4999;
 
-# back up config files
-my $tmp_dirname = pf_run("date +%Y%m%d_%H%M%S");
-$tmp_dirname =~ s/^\s+|\s+$//g;
-my $target_dir = "/usr/local/pf/archive/$tmp_dirname";
-
-print("Backing up PacketFence domain configuration files, they can be found at $target_dir\n");
-pf_run("mkdir -p $target_dir", accepted_exit_status => [ 0 ], working_directory => "/usr/local/pf/archive");
-pf_run("cp -R /usr/local/pf/conf/domain.conf $target_dir");
-pf_run("cp -R /usr/local/pf/conf/realm.conf $target_dir");
-
 for my $section (grep {/^\S+$/} $ini->Sections()) {
     print("Updating config for section: $section\n");
     $ntlm_auth_port += 1;
@@ -200,6 +190,11 @@ for my $section (grep {/^\S+$/} $ini->Sections()) {
 if ($updated) {
     $ini->RewriteConfig();
 }
+
+print("Stopping winbindd\n");
+pf_run("sudo systemctl stop packetfence-winbindd 2>/dev/null");
+sleep(3);
+pf_run("sudo systemctl disable packetfence-winbindd 2>/dev/null");
 
 sub tdbdump_get_value {
     my ($tdb_file, $key) = @_;
