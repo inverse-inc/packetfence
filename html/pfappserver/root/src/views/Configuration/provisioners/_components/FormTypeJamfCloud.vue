@@ -49,6 +49,11 @@
       :text="$i18n.t('Nodes with the selected OS will be affected.')"
     />
 
+    <form-group-rules namespace="rules"
+      :column-label="$i18n.t('Rules')"
+      :text="$i18n.t('Rules to apply.')"
+    />
+
     <form-group-host namespace="host"
       :column-label="$i18n.t('Host')"
     />
@@ -96,6 +101,7 @@ import {
   FormGroupHost,
   FormGroupIdentifier,
   FormGroupOses,
+  FormGroupRules,
   FormGroupPort,
   FormGroupProtocol,
   FormGroupQueryComputers,
@@ -118,6 +124,7 @@ const components = {
   FormGroupHost,
   FormGroupIdentifier,
   FormGroupOses,
+  FormGroupRules,
   FormGroupPort,
   FormGroupProtocol,
   FormGroupQueryComputers,
