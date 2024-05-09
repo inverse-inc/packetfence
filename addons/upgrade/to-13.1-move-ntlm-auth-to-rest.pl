@@ -36,8 +36,11 @@ my $updated = 0;
 my $ntlm_auth_host = "100.64.0.1";
 my $ntlm_auth_port = 4999;
 
-pf_run("cp -R /usr/local/pf/conf/domain.conf /usr/local/pf/conf/domain.conf_bk");
-pf_run("cp -R /usr/local/pf/conf/realm.conf /usr/local/pf/conf/realm.conf_bk");
+my $tmp = pf_run("date +%Y%m%d_%H%M%S");
+my $domain_bk="/usr/local/pf/conf/domain.conf_".$tmp."_bk";
+my $realm_bk="/usr/local/pf/conf/realm.conf_".$tmp."_bk";
+pf_run("cp -R /usr/local/pf/conf/domain.conf $domain_bk");
+pf_run("cp -R /usr/local/pf/conf/realm.conf $realm_bk");
 
 for my $section (grep {/^\S+$/} $ini->Sections()) {
     print("Updating config for section: $section\n");
@@ -199,8 +202,8 @@ pf_run("sudo systemctl stop packetfence-winbindd 2>/dev/null");
 sleep(3);
 pf_run("sudo systemctl disable packetfence-winbindd 2>/dev/null");
 print("/chroots/* directories will be removed at the next reboot.\n");
-print("Domain config backup is available here /usr/local/pf/conf/domain.conf_bk\n");
-print("Realm  config backup is available here /usr/local/pf/conf/realm.conf_bk\n");
+print("Domain config backup is available here $domain_bk\n");
+print("Realm  config backup is available here $realm_bk\n");
 
 ####
 # Sub functions
