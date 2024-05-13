@@ -1498,7 +1498,7 @@ sub handle_accounting_metadata : Public {
         # Tracking IP address.
         my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
         if ($framed_ip) {
-            if (pf::util::isenabled($advanced->{update_iplog_with_accounting}) {
+            if (pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
                 $logger->info("Updating iplog from accounting request");
                 $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
             }
