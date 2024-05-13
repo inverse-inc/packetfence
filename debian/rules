@@ -61,6 +61,8 @@ install: build
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 
+	install -d -m2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/caddy-services/api.conf.d
+
 	# packetfence-test package
 	make DESTDIR=$(CURDIR)/debian/packetfence-test test_install
 
