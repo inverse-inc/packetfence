@@ -201,7 +201,8 @@ CREATE TABLE node_meta (
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `expired_at` DATETIME DEFAULT 0,
-    PRIMARY KEY(name, mac)
+    PRIMARY KEY(name, mac),
+    KEY `expired_at` (expired_at)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci' ROW_FORMAT=COMPRESSED;
 
 --
