@@ -27,34 +27,9 @@ Cluster
 
 Common 
 
-
 <<TableOfContents>>
 
-== Project's Goal ==
-
-Integrate Kafka into our service layer in Packetfence.
-
-=== What are we trying to do? ===
-
-Are integrating Kafka with fingerbank so we need to providing it as an option.
-Integrate Kafka into our service layer in Packetfence.
-
-=== What problems are we trying to solve? ===
-
-The current state of the art is to use Kubernetes to run a cluster of Kafka nodes.
-However since Packetfence does not run on a Kubernetes cluster and we cannot expect customers to have provide the infrastructure on premise.
-Building on top of our current architecture of configuration syncing, docker, iptables, and systemd to provide the tooling for running a kafka cluster in PacketFence.
-
-=== Docker ===
-
-Since we run PacketFence on Centos and Debian we run Kafka in docker to avoid issues with compatibility issue and to ensure have the same version.
-We choose base our docker image from confluentinc/cp-kafka:7.5.2
-
-Which could be found here.
-
-https://github.com/confluentinc/kafka-images/tree/master/kafka
-
-=== Configuration of the cluster ===
+=== Configuration of a Kafka cluster ===
 
 The Kafka docker is configured through environmental variable.
 
@@ -63,7 +38,7 @@ Some of the variable values are shared among the cluster members while others ar
 So we in the Kafka configuration we have a section for global variables and a section for member specific environmental variables.
 
 Example
-
+```
 
 ## Iptables rules
 
