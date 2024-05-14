@@ -30,6 +30,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Add filtering and actions to Provisioning (#8033)
  * Add Remote MySQL Database Support (#8038)
  * Add logic for processing pfflows in pfcron (#8049)
+ * Add JAMF Cloud support (#8060)
 
 === Enhancements
 
