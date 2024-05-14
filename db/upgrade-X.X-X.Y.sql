@@ -59,6 +59,14 @@ ALTER TABLE sms_carrier
 ALTER TABLE admin_api_audit_log
     CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
+\! echo "createing table node_meta"
+CREATE TABLE IF NOT EXISTS node_meta (
+    `name` varchar(255) NOT NULL,
+    `mac` varchar(17) NOT NULL,
+    `value` MEDIUMBLOB NULL,
+    PRIMARY KEY(name, mac)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci' ROW_FORMAT=COMPRESSED;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 

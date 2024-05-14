@@ -72,6 +72,8 @@
   proxy /api/v1/pki/ {$PF_SERVICES_URL_PFPKI} {
     transparent
   }
+
+  import api.conf.d/*
   
   # Everything else goes to the Perl API
   proxy /api/v1/ {$PF_SERVICES_URL_PFPERL_API} {

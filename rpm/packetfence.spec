@@ -1190,6 +1190,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/radiusd/tls.conf
 %config                 /usr/local/pf/conf/radiusd/tls.conf.defaults
                         /usr/local/pf/conf/radiusd/tls.conf.example
+%dir %attr(0770, pf pf) /usr/local/pf/conf/services.d
 %config(noreplace)      /usr/local/pf/conf/ssl.conf
 %config                 /usr/local/pf/conf/ssl.conf.defaults
                         /usr/local/pf/conf/ssl.conf.example
@@ -1258,6 +1259,7 @@ fi
 %config                 /usr/local/pf/conf/caddy-services/pfsso.conf
 %config                 /usr/local/pf/conf/caddy-services/httpdispatcher.conf
 %config                 /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf
+%dir                    /usr/local/pf/conf/caddy-services/api.conf.d/
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/netdata.conf
                         /usr/local/pf/conf/monitoring/netdata.conf.example

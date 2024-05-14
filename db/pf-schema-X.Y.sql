@@ -191,6 +191,17 @@ CREATE TABLE node_current_session (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
+-- Table structure for table `node_meta`
+--
+
+CREATE TABLE node_meta (
+    `name` varchar(255) NOT NULL,
+    `mac` varchar(17) NOT NULL,
+    `value` MEDIUMBLOB NULL,
+    PRIMARY KEY(name, mac)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci' ROW_FORMAT=COMPRESSED;
+
+--
 -- Table structure for table `action`
 --
 
