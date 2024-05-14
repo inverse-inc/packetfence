@@ -49,6 +49,7 @@ ConfigSyslogForwarderSubTypeServer:
       - pfconnector-client.log
       - pfconnector-server.log
       - keepalived.log
+      - ntlm-auth-api.log
       description: Logs
       items:
         description: Logs

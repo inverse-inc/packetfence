@@ -35428,7 +35428,8 @@
                      "firewall.log",
                      "pfconnector-client.log",
                      "pfconnector-server.log",
-                     "keepalived.log"
+                     "keepalived.log",
+                     "ntlm-auth-api.log"
                   ],
                   "description" : "Logs",
                   "items" : {
@@ -35503,7 +35504,8 @@
                      "firewall.log",
                      "pfconnector-client.log",
                      "pfconnector-server.log",
-                     "keepalived.log"
+                     "keepalived.log",
+                     "ntlm-auth-api.log"
                   ],
                   "description" : "Logs",
                   "items" : {
