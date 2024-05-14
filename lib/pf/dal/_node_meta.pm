@@ -36,23 +36,18 @@ BEGIN {
         name
         mac
         value
-        created_at
-        updated_at
-        expired_at
     );
 
     %DEFAULTS = (
         name => '',
         mac => '',
         value => undef,
-        expired_at => '0000-00-00 00:00:00',
     );
 
     @INSERTABLE_FIELDS = qw(
         name
         mac
         value
-        expired_at
     );
 
     %FIELDS_META = (
@@ -74,24 +69,6 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        created_at => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        updated_at => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        expired_at => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -103,9 +80,6 @@ BEGIN {
         node_meta.name
         node_meta.mac
         node_meta.value
-        node_meta.created_at
-        node_meta.updated_at
-        node_meta.expired_at
     );
 
 }
