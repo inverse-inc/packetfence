@@ -64,11 +64,7 @@ CREATE TABLE IF NOT EXISTS node_meta (
     `name` varchar(255) NOT NULL,
     `mac` varchar(17) NOT NULL,
     `value` MEDIUMBLOB NULL,
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `expired_at` DATETIME DEFAULT 0,
-    PRIMARY KEY(name, mac),
-    KEY `expired_at` (expired_at)
+    PRIMARY KEY(name, mac)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci' ROW_FORMAT=COMPRESSED;
 
 \! echo "Incrementing PacketFence schema version...";
