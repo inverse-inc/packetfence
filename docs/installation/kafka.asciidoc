@@ -1,0 +1,239 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+Setting up Kafka
+
+Structure of the config file.
+
+
+Standalone
+
+Cluster
+
+Common 
+
+
+<<TableOfContents>>
+
+== Project's Goal ==
+
+Integrate Kafka into our service layer in Packetfence.
+
+=== What are we trying to do? ===
+
+Are integrating Kafka with fingerbank so we need to providing it as an option.
+Integrate Kafka into our service layer in Packetfence.
+
+=== What problems are we trying to solve? ===
+
+The current state of the art is to use Kubernetes to run a cluster of Kafka nodes.
+However since Packetfence does not run on a Kubernetes cluster and we cannot expect customers to have provide the infrastructure on premise.
+Building on top of our current architecture of configuration syncing, docker, iptables, and systemd to provide the tooling for running a kafka cluster in PacketFence.
+
+=== Docker ===
+
+Since we run PacketFence on Centos and Debian we run Kafka in docker to avoid issues with compatibility issue and to ensure have the same version.
+We choose base our docker image from confluentinc/cp-kafka:7.5.2
+
+Which could be found here.
+
+https://github.com/confluentinc/kafka-images/tree/master/kafka
+
+=== Configuration of the cluster ===
+
+The Kafka docker is configured through environmental variable.
+
+Some of the variable values are shared among the cluster members while others are unique to the cluster members.
+
+So we in the Kafka configuration we have a section for global variables and a section for member specific environmental variables.
+
+Example
+
+
+## Iptables rules
+
+[iptables]
+# The list of client
+clients=
+# All the IP address of the cluster members
+cluster_ips=
+
+#Global ENV variables
+[cluster]
+VAR1=val1
+VAR2=val1
+
+#Member specific ENV variables
+[member1]
+VAR3=val1
+
+[member2]
+VAR3=val2
+
+[member3]
+VAR3=val3
+
+```
+
+=== Systemd ===
+
+We orchestrate the creation of environmental variables file and the lifecycle of the kafka member service using systemd.
+
+Before startin the service we take the relevent environmental variables for the cluster member and create the file /usr/local/pf/var/conf/kafka.env.
+
+We then start the Kafka cluster member with it's /usr/local/pf/var/conf/kafka.env passed into docker.
+
+We have a small wrapper script to pass the apropriate arguements to docker and the kafka service.
+
+=== Prep work ===
+
+All Kafka clusters must have a unique ID 
+
+The following command will create a cluster ID suitable for kafka.
+
+```
+uuidgen | tr -d '-' | base64 | cut -b 1-22
+```
+
+The output should be places into the cluster section
+
+```
+#Global ENV variables
+[cluster]
+CLUSTER_ID=ZTYxODBjOTdhYTQzNDU4Mm
+```
+
+=== Iptables ===
+
+We would need to open up the following ports
+ * 9092 - Client communication
+ * 9093 - Raft
+ * 29092 - Inter broker communication
+
+=== Working Example config for cluster ===
+
+If there is a cluster of machines with IP addresses 172.16.3.1, 172.16.3.2, 172.16.3.3
+
+Here is an example config for that cluster.
+
+```
+##Cluster wide ENV Variables
+[cluster]
+# ID from uuidgen | tr -d '-' | base64 | cut -b 1-22
+CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
+KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+KAFKA_CONTROLLER_QUORUM_VOTERS=1@172.16.3.1:9093,2@172.16.3.2:9093,3@172.16.3.3:9093
+KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+KAFKA_LISTENERS=INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092
+KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+KAFKA_LOG_DIRS=/usr/local/pf/var/kafka
+KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=2
+KAFKA_PROCESS_ROLES=broker,controller
+
+[iptables]
+# The list of client
+clients=172.16.3.1,172.16.3.2,172.16.3.3
+# All the IP address of the cluster members
+cluster_ips=172.16.3.1,172.16.3.2,172.16.3.3
+#
+### Cluster members ENV Variables with the hostname as the section name
+#
+[hostname1]
+KAFKA_NODE_ID=1
+KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.1:29092,EXTERNAL://172.16.3.1:9092
+
+[hostname2]
+KAFKA_NODE_ID=2
+KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.2:29092,EXTERNAL://172.16.3.2:9092
+
+[hostname3]
+KAFKA_NODE_ID=3
+KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.3:29092,EXTERNAL://172.16.3.3:9092
+```
+
+=== Starting Service ===
+
+```
+systemctl start packetfence-kafka
+```
+
+
+=== Working Example config for a single server ===
+
+Given IP addresses 172.16.3.1
+
+Here is an example config for that cluster.
+
+```
+##Cluster wide ENV Variables
+[cluster]
+# ID from uuidgen | tr -d '-' | base64 | cut -b 1-22
+CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
+KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+KAFKA_CONTROLLER_QUORUM_VOTERS=1@172.16.3.1:9093
+KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+KAFKA_LISTENERS=INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092
+KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+KAFKA_LOG_DIRS=/usr/local/pf/var/kafka
+KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+KAFKA_PROCESS_ROLES=broker,controller
+
+[iptables]
+# The list of client
+clients=172.16.3.1
+# the IP address of the cluster members
+cluster_ips=172.16.3.1
+#
+### Cluster members ENV Variables with the hostname as the section name
+#
+[hostname]
+KAFKA_NODE_ID=1
+KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.1:29092,EXTERNAL://172.16.3.1:9092
+
+```
+
+=== Starting Service ===
+
+```
+systemctl start packetfence-kafka
+```
+
+=== Current challenges ===
+
+==== Persistance ====
+In order for the Kafka logs to persist after each restart we would need to attach a volume to the docker image.
+File permission of the user log directory The user appuser(1000) is what is ran within the docker.
+
+In order to get this working quickly I changed the host directory to tht user.
+```
+chown 1000:1000 /usr/local/pf/var/kafka
+```
+
+This is not the cleanest way of doing things.
+This can cause problems if the docker user is ever changed.
+
+Would could also add the pf user to the docker image and run it has that user.
+Would need to look into that.
+
+==== TLS ====
+
+Need to create instructions to run with TLS
+
+==== User auth ====
+
+We would need to add a username and password authentication
