@@ -139,6 +139,11 @@ sub update_switch_role_with_ip {
     return undef unless (pf::util::isenabled($switch->{'_NetworkMap'}));
     return undef unless $switch->{"_".$locationlog->{'role'}."NetworkFrom"} eq "dynamic";
 
+    my $networks = $switch->cache_distributed->get($locationlog->{'switch'}.".".$locationlog->{'role'});
+    if (defined $networks) {
+        $logger->warn("It looks that information regarding the network already exist from the DHCP traffic");
+        return undef;
+    }
     my $network = $switch->cache_distributed->get($locationlog->{'switch'}.".nomask.".$locationlog->{'role'});
 
     #First attemp
