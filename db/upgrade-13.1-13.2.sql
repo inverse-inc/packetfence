@@ -1,7 +1,7 @@
 SET sql_mode = "NO_ENGINE_SUBSTITUTION";
 
 --
--- PacketFence SQL schema upgrade from 11.0 to 11.1
+-- PacketFence SQL schema upgrade from 13.1 to 13.2
 --
 
 
@@ -59,7 +59,7 @@ ALTER TABLE sms_carrier
 ALTER TABLE admin_api_audit_log
     CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
-\! echo "createing table node_meta"
+\! echo "creating table node_meta"
 CREATE TABLE IF NOT EXISTS node_meta (
     `name` varchar(255) NOT NULL,
     `mac` varchar(17) NOT NULL,
