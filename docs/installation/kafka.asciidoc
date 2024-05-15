@@ -27,9 +27,7 @@ Cluster
 
 Common 
 
-<<TableOfContents>>
-
-=== Configuration of a Kafka cluster ===
+===== Configuration of a Kafka cluster
 
 The Kafka docker is configured through environmental variable.
 
@@ -65,7 +63,7 @@ VAR3=val3
 
 ```
 
-=== Systemd ===
+===== Systemd
 
 We orchestrate the creation of environmental variables file and the lifecycle of the kafka member service using systemd.
 
@@ -75,7 +73,7 @@ We then start the Kafka cluster member with it's /usr/local/pf/var/conf/kafka.en
 
 We have a small wrapper script to pass the apropriate arguements to docker and the kafka service.
 
-=== Prep work ===
+===== Prep work
 
 All Kafka clusters must have a unique ID 
 
@@ -93,14 +91,14 @@ The output should be places into the cluster section
 CLUSTER_ID=ZTYxODBjOTdhYTQzNDU4Mm
 ```
 
-=== Iptables ===
+===== Iptables
 
 We would need to open up the following ports
  * 9092 - Client communication
  * 9093 - Raft
  * 29092 - Inter broker communication
 
-=== Working Example config for cluster ===
+===== Working Example config for cluster
 
 If there is a cluster of machines with IP addresses 172.16.3.1, 172.16.3.2, 172.16.3.3
 
@@ -141,14 +139,14 @@ KAFKA_NODE_ID=3
 KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.3:29092,EXTERNAL://172.16.3.3:9092
 ```
 
-=== Starting Service ===
+===== Starting Service
 
 ```
 systemctl start packetfence-kafka
 ```
 
 
-=== Working Example config for a single server ===
+===== Working Example config for a single server
 
 Given IP addresses 172.16.3.1
 
@@ -182,15 +180,15 @@ KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.1:29092,EXTERNAL://172.16.3.1:909
 
 ```
 
-=== Starting Service ===
+===== Starting Service
 
 ```
 systemctl start packetfence-kafka
 ```
 
-=== Current challenges ===
+===== Current challenges
 
-==== Persistance ====
+==== Persistance
 In order for the Kafka logs to persist after each restart we would need to attach a volume to the docker image.
 File permission of the user log directory The user appuser(1000) is what is ran within the docker.
 
@@ -205,10 +203,10 @@ This can cause problems if the docker user is ever changed.
 Would could also add the pf user to the docker image and run it has that user.
 Would need to look into that.
 
-==== TLS ====
+==== TLS
 
 Need to create instructions to run with TLS
 
-==== User auth ====
+==== User auth
 
 We would need to add a username and password authentication
