@@ -30,7 +30,7 @@ configure_and_check() {
                                -s "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}" \
                               | jq -r '.error_description')
 
-    if [ ! -z "$TOKEN_ERROR_DESC" ]; then
+    if [ "$TOKEN_ERROR_DESC" != null ]; then
         die "Error $TOKEN_ERROR_DESC"
     fi
 
