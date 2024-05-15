@@ -73,7 +73,7 @@ pass=admin-pass
 
 #Global ENV variables
 [cluster]
-#The unique cluster id goes
+#The unique Cluster ID
 CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
 KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
 # List out each member using the following format <id>@<ip>:9093 comma seperated
