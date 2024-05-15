@@ -21,6 +21,7 @@ use pf::util();
 use pf::locationlog();
 use pf::SwitchFactory();
 use NetAddr::IP;
+use Net::IP;
 use Digest::MD5 qw(md5_base64);
 use pf::ConfigStore::Switch();
 
@@ -66,8 +67,9 @@ sub update_switch_role_with_mask {
     my $current_network = NetAddr::IP->new( $postdata{'ip'}, $postdata{'mask'} );
 
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $locationlog->{'switch_mac'}, switch_ip => $locationlog->{'switch_ip'}, switch_id => $locationlog->{'switch'}});
-
+    return undef unless ($switch);
     return undef unless (pf::util::isenabled($switch->{'_NetworkMap'}));
+    return undef unless $switch->{"_".$locationlog->{'role'}."NetworkFrom"} ne "dynamic";
 
     my $networks = $switch->cache_distributed->get($locationlog->{'switch'}.".".$locationlog->{'role'});
 
@@ -119,13 +121,72 @@ sub update_switch_role_with_mask {
 
 sub update_switch_role_with_ip {
     my ($self, %postdata) = @_;
+    my $logger = get_logger();
     my @require = qw(mac ip mask lease_length);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
+
     my $locationlog = pf::locationlog::locationlog_view_open_mac($postdata{'mac'});
     if ( !defined($locationlog) || $locationlog eq "0" ) {
+        # No locationlog, exit
         return undef;
+    }
+
+    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $locationlog->{'switch_mac'}, switch_ip => $locationlog->{'switch_ip'}, switch_id => $locationlog->{'switch'}});
+    # switch doesn't exist , exit
+    return undef unless ($switch);
+    return undef unless (pf::util::isenabled($switch->{'_NetworkMap'}));
+    return undef unless $switch->{"_".$locationlog->{'role'}."NetworkFrom"} eq "dynamic";
+
+    my $network = $switch->cache_distributed->get($locationlog->{'switch'}.".nomask.".$locationlog->{'role'});
+
+    #First attemp
+    if (!defined $network) {
+        $switch->cache_distributed->set($locationlog->{'switch'}.".nomask.".$locationlog->{'role'} ,$postdata{'ip'},{expires_in => '24h'} );
+        return undef;
+    }
+
+    my @cached_network = split('/', $network);
+
+    my $cached_network = $cached_network[0];
+    my $cached_mask = $cached_network[1];
+
+    if ($cached_network eq $postdata{'ip'}) {
+        #same ip , do nothing
+        $logger->debug("Same Ip detected do nothing");
+        return undef;
+    }
+
+    my $netip_old = new Net::IP ($cached_network);
+    my $netip_new = new Net::IP ($postdata{'ip'});
+
+    my $network_diff = ($netip_old->intip() ^ $netip_new->intip());
+
+    # There is a too big difference between the old and new ip (more than a class B)
+    if ($network_diff > 65535) {
+        $logger->debug("Too big differnce between the old and new ip");
+        return undef;
+    }
+
+    # Calculate the maximum mask for the 2 ips
+    my $reverse_mask = join('', map substr(unpack("B32",pack("N",$_)),-8), split(/\./,join('.',unpack('C4', pack("N", $network_diff)))));
+    my $temp = $reverse_mask;
+    $temp =~ s/^0+//;
+    my $mask = length($reverse_mask) - length($temp);
+    my $detected_network = NetAddr::IP->new($cached_network."/".$mask);
+    my $old_detected_network = NetAddr::IP->new($network);
+
+    if ($detected_network == $old_detected_network) {
+        # network detected is the same as the old one
+        $logger->debug("Network detected is the same as the old one");
+        return undef;
+    }
+
+    if ($switch->{"_".$locationlog->{'role'}."Network"} ne $detected_network->network()) {
+        my $cs = pf::ConfigStore::Switch->new;
+        $cs->update($locationlog->{'switch'}, { $locationlog->{'role'}."Network" => $detected_network->network()});
+        $cs->commit();
     }
 }
 
