@@ -7,7 +7,7 @@
 # Christopher <chuguet@inverse.ca>, 2023
 # oeufdure <fdurand@inverse.ca>, 2014-2018,2021
 # inverse <support@inverse.ca>, 2014,2016,2018
-# jgoimard <jgoimard@inverse.ca>, 2022
+# jgoimard <jgoimard@inverse.ca>, 2022,2024
 # julsemaan <jsemaan@inverse.ca>, 2014,2019
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2013-04-01 18:48+0000\n"
-"Last-Translator: Christopher <chuguet@inverse.ca>, 2023\n"
+"Last-Translator: jgoimard <jgoimard@inverse.ca>, 2022,2024\n"
 "Language-Team: French (http://app.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -179,6 +179,7 @@ msgstr "Clé API pour interagir avec le projet Fingerbank. Vous devez redémarre
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/airwatch.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
 msgid "API password"
 msgstr "Mot de passe de l’API"
@@ -189,6 +190,7 @@ msgstr "Mot de passe de l’API (Basic auth)"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/airwatch.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
 msgid "API username"
 msgstr "Nom d’utilisateur de l’API"
@@ -229,6 +231,14 @@ msgstr "Paramètre du jeton d’accès"
 msgid "Access duration to assign"
 msgstr "Durée d'accès à attribuer"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Account Lockout Duration"
+msgstr "Durée de verrouillage du compte"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Account Lockout Threshold"
+msgstr "Seuil de verrouillage du compte"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Twilio.pm
 msgid "Account SID"
 msgstr "Identifiant de compte"
@@ -238,6 +248,7 @@ msgid "Accounting timebucket size"
 msgstr "Taille du timebucket accounting"
 
 # html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/DHCPFilter.pm
+# html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/ProvisioningFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/VlanFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
@@ -328,6 +339,10 @@ msgstr "Role Admin"
 # pf::Authentication::Source::AdminProxySource (name)
 msgid "AdminProxy"
 msgstr "AdminProxy"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "After how long will the lockout counter resets. In minutes."
+msgstr "Après combien de temps le compteur de verrouillage est réinitialisé (Minutes)."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "Alert ID"
@@ -564,6 +579,7 @@ msgid "Auto register"
 msgstr "Enregistrement automatique"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 msgid "Automatic device detection"
 msgstr "Détection automatique des appareils"
 
@@ -820,6 +836,10 @@ msgstr "Cliquer pour ajouter un champ requis"
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Click to add a role"
 msgstr "Cliquer pour ajouter un rôle"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Click to add a rule"
+msgstr "Cliquez pour ajouter une règle"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
@@ -1133,6 +1153,10 @@ msgstr "Algorithme DHCP"
 msgid "DHCP Fingerprint"
 msgstr "Empreinte DHCP"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "DHCP IP Reply"
+msgstr "Réponse IP DHCP"
+
 # pf::dhcp_option82 (DHCP Option 82)
 msgid "DHCP Option 82 Vlan"
 msgstr "Vlan dans l’Option DHCP 82"
@@ -1140,6 +1164,10 @@ msgstr "Vlan dans l’Option DHCP 82"
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "DHCP Pool Backend Type"
 msgstr "Type de backend du pool DHCP"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "DHCP Source IP address"
+msgstr "Adresse IP source DHCP"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Field/Trigger.pm
@@ -2093,6 +2121,12 @@ msgid ""
 "How long to keep ip6log history entry before rotating it to ip6log archive."
 msgstr "Combien de temps garder une entrée d’ip6log history avant de la déplacer dans l’ip6log archive."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid ""
+"How long will an account keep locked after hitting bad password threshold. "
+"In minutes"
+msgstr "Combien de temps un compte restera-t-il verrouillé après avoir atteint le seuil de mauvais mot de passe. En minutes"
+
 # conf/documentation.conf (fencing.wait_for_redirect)
 msgid ""
 "How many seconds the webservice should wait before deassociating or "
@@ -2345,6 +2379,10 @@ msgstr "Intervalle en secondes pour lequel le collecteur conserve ses base de do
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Isolation"
 msgstr "Isolation"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "Kafka Brokers"
+msgstr "Kafka Brokers"
 
 # pf::Authentication::Source::KerberosSource (name)
 msgid "Kerberos"
@@ -2607,7 +2645,7 @@ msgstr "Emplacement du binaire netdata,"
 msgid ""
 "Location of the ntlm_auth_api binary. Only necessary to change if you arenot"
 " running the RPMed version."
-msgstr ""
+msgstr "Location du binaire ntlm_auth_api. Seulement Modification nécessaire uniquement si vous n'exécutez pas la version des dépôts PF."
 
 # conf/documentation.conf (services.openssl_binary)
 msgid ""
@@ -2662,6 +2700,10 @@ msgstr "Emplacement du binaire snmptrapd."
 # conf/documentation.conf (services.tracking-config_binary)
 msgid "Location of the tracking-config binary."
 msgstr "Emplacement du binaire de tracking-config."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Lockout resets after"
+msgstr "Le verrouillage est réinitialisé après"
 
 # html/pfappserver/root/interface/list.tt
 msgid "Logical name"
@@ -2764,6 +2806,16 @@ msgstr "Activation maximum"
 msgid "Max Lease Time"
 msgstr "Durée maximum du bail"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid ""
+"Max bad login attempts before an account is locked out automatically, "
+"default is 0, never locks."
+msgstr "Nombre maximal de mauvaises tentatives de connexion avant qu'un compte ne soit automatiquement verrouillé. La valeur par défaut est 0 et ne se verrouille jamais."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Max bad logins per device"
+msgstr "Nombre maximal de mauvaises connexions par appareil"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
 msgid "Max nodes per user"
 msgstr "Appareils maximum par utilisateur"
@@ -2775,6 +2827,10 @@ msgstr "MAC adresse maximum"
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Maximum allowed unregistration date"
 msgstr "Date maximale de désenregistrement autorisé"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Maximum bad login attempt for a single device."
+msgstr "Nombre maximal de tentatives de mauvaise connexion pour un seul appareil."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Maximum number of MAC addresses retrived from a port"
@@ -2857,12 +2913,16 @@ msgid "NODES_UPDATE"
 msgstr "Appareils - Mise à jour"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "NT Key cache"
+msgstr "Cache de clé NT"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "NTLM auth host"
-msgstr ""
+msgstr "Hôte d'authentification NTLM"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "NTLM auth port"
-msgstr ""
+msgstr "Port d'authentification NTLM"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "NTLM cache"
@@ -3031,6 +3091,14 @@ msgstr "OU"
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 msgid "OUI"
 msgstr "OUI"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Old Password Allowed Period"
+msgstr "Période autorisée pour l'ancien mot de passe"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Old Password Allowed Period in NTLM Authentication. In minutes"
+msgstr "Période autorisée pour l’ancien mot de passe dans l’authentification NTLM. En minutes"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Oldest Released"
@@ -3246,6 +3314,26 @@ msgstr "Approvisionnement - Créer"
 msgid "PROVISIONING_DELETE"
 msgstr "Approvisionnement - Supprimer"
 
+# pf::admin_roles (Actions groups)
+msgid "PROVISIONING_FILTER"
+msgstr "PROVISIONING_FILTER"
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_FILTER_CREATE"
+msgstr "PROVISIONING_FILTER_CREATE"
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_FILTER_DELETE"
+msgstr "PROVISIONING_FILTER_DELETE"
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_FILTER_READ"
+msgstr "PROVISIONING_FILTER_READ"
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_FILTER_UPDATE"
+msgstr "PROVISIONING_FILTER_UPDATE"
+
 # pf::admin_roles (Actions)
 msgid "PROVISIONING_READ"
 msgstr "Approvisionnement - Lecture"
@@ -3288,7 +3376,7 @@ msgstr "Mot de passe"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Password / password hash of the machine account"
-msgstr ""
+msgstr "Mot de passe (hashé ou non) du compte machine"
 
 # conf/documentation.conf (mse_tab.pass)
 msgid "Password for MSE service"
@@ -3305,11 +3393,11 @@ msgstr "Le mot de passe pour l’utilisateur rempli ci-dessus"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Password is NT Hash"
-msgstr ""
+msgstr "Le mot de passe est NT Hash"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Password of the machine account to be added to Active Directory."
-msgstr ""
+msgstr "Mot de passe du compte machine à ajouter à Active Directory."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Potd.pm
 msgid "Password rotation"
@@ -3317,7 +3405,7 @@ msgstr "Mot de passe de rotation"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Password stored in the config file is NT hash."
-msgstr ""
+msgstr "Le mot de passe stocké dans le fichier de configuration est un hachage NT."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Path of the CA certificate that will generate your certificates"
@@ -3353,7 +3441,7 @@ msgstr "Emplacement de la clé privé qui sera utilisé pour générer le p12"
 
 # conf/documentation.conf (advanced.pfupdate_custom_script_path)
 msgid "Path to a custom script called by pfupdate"
-msgstr ""
+msgstr "Chemin d'accès à un script personnalisé appelé par pfupdate"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_path)
 msgid "Path used to fetch the database on the Fingerbank API"
@@ -3402,6 +3490,7 @@ msgstr "Veuillez définir le nombre du Système Virtuel. Cela a un effet uniquem
 msgid "Please define the device id."
 msgstr "Veuillez définir l'ID du périphérique."
 
+# html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/ProvisioningFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Please select Provisioning type"
 msgstr "Sélectionner un type d’approvisionnement"
@@ -3506,7 +3595,7 @@ msgstr "Veuillez spécifier la description du Provisionner"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Please specify the FQDN of the Active Directory server"
-msgstr ""
+msgstr "Veuillez spécifier le FQDN du serveur Active Directory"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the FQDN of the portal."
@@ -3522,7 +3611,7 @@ msgstr "Veuillez spécifier l’adresse IP/adresse MAC/masque (CIDR) du commutat
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Please specify the IPv4 of the Active Directory server"
-msgstr ""
+msgstr "Veuillez spécifier l'IPv4 du serveur Active Directory."
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 msgid "Please specify the MAC address of the floating device."
@@ -3590,7 +3679,7 @@ msgstr "Veuillez spécifier le nom d’hôte ou l’IP du moteur d’analyse"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Please specify the machine account password"
-msgstr ""
+msgstr "Veuillez spécifier le mot de passe du compte machine"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the maximum DHCP lease time."
@@ -3869,6 +3958,7 @@ msgstr "Le protocole utilisé pour contacter l’API du service de certificats d
 msgid "Provisioning ID"
 msgstr "ID provisioner"
 
+# html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/ProvisioningFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Provisioning type"
 msgstr "Type d’approvisionnement"
@@ -3898,10 +3988,12 @@ msgid "Quantity"
 msgstr "Quantité"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 msgid "Query JAMF computers inventory"
 msgstr "Interroger l'inventaire des ordinateurs JAMF"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 msgid "Query JAMF mobile devices inventory"
 msgstr "Interroger l'inventaire des appareils mobiles JAMF"
 
@@ -4069,6 +4161,10 @@ msgstr "Par rapport au début de la journée"
 msgid "Relative to the beginning of the period"
 msgstr "Par rapport au début de la période"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Relay agent IP address"
+msgstr "Adresse IP de l'agent relais"
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Remaining Access Time"
 msgstr "Temps accès restant"
@@ -4170,7 +4266,12 @@ msgstr "IP du routeur"
 msgid "Rule Name"
 msgstr "Nom règle"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Rules to be applied"
+msgstr "Règles à appliquer"
+
 # html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/DHCPFilter.pm
+# html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/ProvisioningFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/VlanFilter.pm
 msgid "Run Actions"
 msgstr "Exécuter des actions"
@@ -4632,7 +4733,7 @@ msgstr "Est-ce que Fingerbank interagit avec le web en utilisant un proxy?"
 # conf/documentation.conf (services.kafka)
 msgid ""
 "Should Kafka be started? Keep disabled unless you know what you're doing."
-msgstr ""
+msgstr "Faut-il démarrer Kafka ? Gardez-le désactivé à moins que vous ne sachiez ce que vous faites."
 
 # conf/documentation.conf (services.api-frontend)
 msgid "Should api-frontend be managed by PacketFence?"
@@ -4742,7 +4843,7 @@ msgstr "Est-ce netdata doit être géré par PacketFence ?"
 msgid ""
 "Should ntlm-auth-api be started? Keep enabled unless you know what you're "
 "doing."
-msgstr ""
+msgstr "Faut-il démarrer ntlm-auth-api ? Gardez-le activé à moins que vous ne sachiez ce que vous faites."
 
 # conf/documentation.conf (services.pfacct)
 msgid "Should pfacct be managed by PacketFence?"
@@ -4802,13 +4903,13 @@ msgstr "Est-ce que pfqueue doit être démarré ? Gardez le activé sauf si vous
 msgid ""
 "Should pfqueue-backend be started? Keep enabled unless you know what you're "
 "doing."
-msgstr ""
+msgstr "Faut-il démarrer pfqueue-backend ? Gardez-le activé à moins que vous ne sachiez ce que vous faites."
 
 # conf/documentation.conf (services.pfqueue-go)
 msgid ""
 "Should pfqueue-go be started? Keep enabled unless you know what you're "
 "doing."
-msgstr ""
+msgstr "Faut-il démarrer pfqueue-go ? Gardez-le activé à moins que vous ne sachiez ce que vous faites."
 
 # conf/documentation.conf (services.pfsso)
 msgid "Should pfsso be managed by PacketFence?"
@@ -4846,6 +4947,10 @@ msgstr "Est-ce que le cache redis doit être démarré ? Gardez le activé sauf 
 msgid ""
 "Should snmptrapd be started? Keep enabled unless you know what you're doing."
 msgstr "Est-ce que snmptrapd doit être démarré ? Gardez le activé sauf si vous savez ce que vous faites."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Should the NT Key cache be enabled for this domain?"
+msgstr "Le cache NT Key doit-il être activé pour ce domaine ?"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Should the NTLM cache be enabled for this domain?"
@@ -5155,7 +5260,7 @@ msgstr "La configuration EAP pour utiliser cette realm"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The FQDN of the Active Directory server"
-msgstr ""
+msgstr "Le FQDN du serveur Active Directory"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "The ID of the Switch"
@@ -5163,7 +5268,7 @@ msgstr "L’identifiant du commutateur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The IP address of NTLM auth API"
-msgstr ""
+msgstr "L'adresse IP de l'API d'authentification NTLM"
 
 # conf/documentation.conf (captive_portal.ip_address)
 msgid ""
@@ -5179,7 +5284,19 @@ msgstr "L’adresse(s) IP du(des) serveur(s) DNS pour ce domaine. Séparer par d
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The IPv4 of the Active Directory server"
-msgstr ""
+msgstr "L'IPv4 du serveur Active Directory"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "The Kafka Consumer Group ID "
+msgstr "L'identifiant du groupe de consommateurs Kafka"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "The Kafka topic to read pfflows from"
+msgstr "L'identifiant du groupe de consommateurs Kafka"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "The Kafka topic to write network events to"
+msgstr "Le sujet Kafka sur lequel écrire les événements réseau"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "The LDAP Server to query the custom attributes"
@@ -5379,7 +5496,7 @@ msgstr "La liste des rôles autorisés à désenregistrer des appareils à l'aid
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The listening port of NTLM auth API."
-msgstr ""
+msgstr "Le port d'écoute de l'API d'authentification NTLM."
 
 # conf/documentation.conf (database_advanced.masterslave)
 msgid ""
@@ -5608,7 +5725,7 @@ msgstr "L'URL de service pour pfipset"
 
 # conf/documentation.conf (services_url.pfldapexplorer)
 msgid "The service URL for pfldapexplorer"
-msgstr ""
+msgstr "L'URL du service pour pfldapexplorer"
 
 # conf/documentation.conf (services_url.pfperl-api)
 msgid "The service URL for pfperl-api"
@@ -6358,6 +6475,14 @@ msgstr "Voix sur IP (oui/non)"
 msgid "Vsys "
 msgstr "Vsys"
 
+# pf::admin_roles (Actions groups)
+msgid "WINDOWS_EVENTS"
+msgstr "WINDOWS_EVENTS"
+
+# pf::admin_roles (Actions)
+msgid "WINDOWS_EVENTS_READ"
+msgstr "WINDOWS_EVENTS_READ"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "WPA Enterprise"
 msgstr "WPA Entreprise"
@@ -6871,7 +6996,7 @@ msgstr "advanced.pfperl_api_timeout"
 
 # conf/documentation.conf
 msgid "advanced.pfupdate_custom_script_path"
-msgstr ""
+msgstr "advanced.pfupdate_custom_script_path"
 
 # conf/documentation.conf
 msgid "advanced.portal_csp_security_headers"
@@ -7355,6 +7480,10 @@ msgstr "jours"
 # conf/documentation.conf (advanced.language options)
 msgid "de_DE"
 msgstr "de_DE"
+
+# conf/documentation.conf (database_proxysql.scheduler options)
+msgid "default"
+msgstr "défaut"
 
 # html/pfappserver/root/interface/list.tt
 msgid "default network:"
@@ -7868,6 +7997,10 @@ msgstr "Déclencher lors d'un changement de classe d'appareil"
 msgid "fingerbank_device_change.triggers"
 msgstr "Déclenchements manuels du changement de classe d'appareil"
 
+# pf::api (Allowed actions)
+msgid "firewall_sso_call"
+msgstr "firewall_sso_call"
+
 # conf/documentation.conf (advanced.language options)
 msgid "fr_FR"
 msgstr "fr_FR"
@@ -8083,6 +8216,10 @@ msgid "jamf"
 msgstr "Jamf"
 
 # pf::provisioner (Provisioners)
+msgid "jamfCloud"
+msgstr "jamfCloud"
+
+# pf::provisioner (Provisioners)
 msgid "kandji"
 msgstr "kandji"
 
@@ -8176,13 +8313,6 @@ msgstr "correspond à l’expression régulière"
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "memberOf"
 msgstr "memberOf"
-
-# pf::Authentication::Source::ADSource (available_attributes)
-# pf::Authentication::Source::EDIRSource (available_attributes)
-# pf::Authentication::Source::GoogleWorkspaceLDAPSource (available_attributes)
-# pf::Authentication::Source::LDAPSource (available_attributes)
-msgid "memberOf:1.2.840.113556.1.4.1941"
-msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "memberOf:1.2.840.113556.1.4.1941:"
@@ -8673,6 +8803,10 @@ msgstr "Vérifier le SSL"
 # conf/documentation.conf (advanced.language options)
 msgid "pt_BR"
 msgstr "pt_BR"
+
+# conf/documentation.conf (database_proxysql.scheduler options)
+msgid "pxc_scheduler"
+msgstr "pxc_scheduler"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query"
@@ -9171,7 +9305,7 @@ msgstr "Emplacement d’iptables"
 
 # conf/documentation.conf
 msgid "services.kafka"
-msgstr ""
+msgstr "services.kafka"
 
 # conf/documentation.conf
 msgid "services.keepalived"
@@ -9199,11 +9333,11 @@ msgstr "services.netflow_address"
 
 # conf/documentation.conf
 msgid "services.ntlm-auth-api"
-msgstr ""
+msgstr "services.ntlm-auth-api"
 
 # conf/documentation.conf
 msgid "services.ntlm_auth_api_binary"
-msgstr ""
+msgstr "services.ntlm_auth_api_binary"
 
 # conf/documentation.conf
 msgid "services.openssl_binary"
@@ -9283,11 +9417,11 @@ msgstr "pfqueue"
 
 # conf/documentation.conf
 msgid "services.pfqueue-backend"
-msgstr ""
+msgstr "services.pfqueue-backend"
 
 # conf/documentation.conf
 msgid "services.pfqueue-go"
-msgstr ""
+msgstr "services.pfqueue-go"
 
 # conf/documentation.conf
 msgid "services.pfsso"
@@ -9411,7 +9545,7 @@ msgstr "services_url.pfipset"
 
 # conf/documentation.conf
 msgid "services_url.pfldapexplorer"
-msgstr ""
+msgstr "services_url.pfldapexplorer"
 
 # conf/documentation.conf
 msgid "services_url.pfperl-api"
