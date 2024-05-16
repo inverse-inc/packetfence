@@ -73,7 +73,7 @@
     transparent
   }
 
-  import api.conf.d/*
+  import api.conf.d/*.conf
   
   # Everything else goes to the Perl API
   proxy /api/v1/ {$PF_SERVICES_URL_PFPERL_API} {
