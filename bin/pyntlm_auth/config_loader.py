@@ -168,6 +168,16 @@ def config_load():
                 print(f"  NT key cache: expire value '{nt_key_cache_expire}' too large, set to maximum value: 864000")
                 nt_key_cache_expire = 864000
 
+            ad_old_password_allowed_period, error = get_int_value(ad_old_password_allowed_period)
+            if error is not None:
+                print(f"  NT Key cache: unable to parse 'ad_old_password_allowed_period', cache disabled.")
+                nt_key_cache_enabled = False
+                break
+            if ad_old_password_allowed_period < 0 or ad_old_password_allowed_period > 99999:
+                print(f"  NT Key cache: 'ad_old_password_allowed_period' ranges from 0..99999, cache disabled.")
+                nt_key_cache_enabled = False
+                break
+
             ad_account_lockout_threshold, error = get_int_value(ad_account_lockout_threshold)
             if error is not None:
                 print("  NT Key cache: can not parse 'ad_account_lockout_threshold', cache disabled.")
@@ -207,16 +217,6 @@ def config_load():
                 s_reset = 'ad_reset_account_lockout_counter_after'
                 s_duration = 'ad_account_lockout_duration'
                 print(f"  NT Key cache: '{s_reset}' larger than '{s_duration}', cache disabled.")
-                nt_key_cache_enabled = False
-                break
-
-            ad_old_password_allowed_period, error = get_int_value(ad_old_password_allowed_period)
-            if error is not None:
-                print(f"  NT Key cache: unable to parse 'ad_old_password_allowed_period', cache disabled.")
-                nt_key_cache_enabled = False
-                break
-            if ad_old_password_allowed_period < 0 or ad_old_password_allowed_period > 99999:
-                print(f"  NT Key cache: 'ad_old_password_allowed_period' ranges from 0..99999, cache disabled.")
                 nt_key_cache_enabled = False
                 break
 
