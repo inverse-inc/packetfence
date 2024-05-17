@@ -140,7 +140,13 @@ SELECT
     mac,
     (SELECT ip FROM ip4log AS ip WHERE ip.mac = node.mac) AS ip
 FROM node
-WHERE status = "reg" AND (`
+WHERE status = "reg"
+AND
+
+NOT EXISTS ( SELECT 1 FROM node_meta where name = 'gc_agent' && node.mac = node_meta.mac )
+
+AND (`
+
 	if len(macs) > 0 {
 		parts = append(parts, "mac IN (?"+strings.Repeat(", ?", len(macs)-1)+")")
 		for _, m := range macs {
