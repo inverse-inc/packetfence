@@ -49,10 +49,10 @@ clean:
 clean_cache:
 	rm -rf packer_cache
 
-.PHONY: zen-deb11
-zen-deb11:
+.PHONY: zen-deb12
+zen-deb12:
 	make \
-	BUILD_NAME=debian-11 \
+	BUILD_NAME=debian-12 \
 	zen
 
 .PHONY: zen-el8
