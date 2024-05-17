@@ -34,7 +34,8 @@ variables:
   KANIKOBUILD_IMG: ghcr.io/inverse-inc/packetfence/kaniko-build
   KNK_REGISTRY: ghcr.io
   KNK_REGISTRY_URL: ${KNK_REGISTRY}/inverse-inc/packetfence
-  PFBUILD_DEFAULT_DEV_TAG: latest
+    #  PFBUILD_DEFAULT_DEV_TAG: latest
+  PFBUILD_DEFAULT_DEV_TAG: feature-debian12
   CIDIR: ci
   CILIBDIR: ci/lib
   CHECKDIR: ${CILIBDIR}/check
