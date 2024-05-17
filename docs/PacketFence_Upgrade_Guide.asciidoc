@@ -1926,7 +1926,6 @@ Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch modules
 /usr/local/pf/addons/upgrade/to-13.2-convert-merakiswitch-types.pl
 ----
 
-
 == Upgrading from a version prior to X.Y.Z
 
 == Archived upgrade notes
