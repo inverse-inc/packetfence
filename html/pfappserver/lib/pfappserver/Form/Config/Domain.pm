@@ -19,23 +19,32 @@ use pf::config;
 use pf::util;
 use pf::authentication;
 use Sys::Hostname;
+use pf::cluster qw($cluster_enabled);
 
 ## Definition
 has_field 'id' => (
     type      => 'Text',
     label     => 'Identifier',
     required  => 1,
-    maxlength => 10,
+    maxlength => 30,
     messages  => { required => 'Please specify an identifier' },
     tags      => {
         after_element => \&help,
         help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain',
         option_pattern => sub {
-            return {
-                regex => "^[0-9a-zA-Z]+\$",
-                message =>
-"The id is invalid. The id can only contain alphanumeric characters.",
-            };
+            if ($cluster_enabled) {
+                return {
+                    regex => "^[0-9a-zA-Z]+ [0-9a-zA-Z]+\$",
+                    message =>
+                        "The id is invalid. The id can only contain alphanumeric characters.",
+                };
+            } else {
+                return {
+                    regex => "^[0-9a-zA-Z]+\$",
+                    message =>
+                        "The id is invalid. The id can only contain alphanumeric characters.",
+                };
+            }
         },
     },
 );
@@ -329,8 +338,14 @@ Validate NTLM cache fields if ntlm_cache is enabled
 sub validate {
     my ($self) = @_;
 
-    if(($self->field('id')->value() // '') !~ /^[0-9a-zA-Z]+$/) {
-        $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
+    if($cluster_enabled) {
+        if (($self->field('id')->value() // '') !~ /^[0-9a-zA-Z]+ [0-9a-zA-Z]+$/) {
+            $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
+        }
+    } else {
+        if (($self->field('id')->value() // '') !~ /^[0-9a-zA-Z]+$/) {
+            $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
+        }
     }
 
     if($self->field('server_name')->value() eq "%h") {

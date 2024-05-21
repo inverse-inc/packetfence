@@ -33,8 +33,70 @@ use Socket;
 use Digest::MD4 qw(md4_hex);
 use Encode qw(encode);
 use Net::DNS;
+use pf::cluster qw($cluster_enabled $host_id);;
 
 use JSON;
+
+=head2 create
+
+get machine account and domain config file. strips host_id when needed.
+
+=cut
+
+sub get {
+    my ($self) = @_;
+    my $item = $self->item;
+    if ($item) {
+        $item->{id} =~ s/$host_id //i;
+        $item = $self->cleanupItemForGet($item);
+        return $self->render(json => { item => $item }, status => 200);
+    }
+    return $self->render_error(500, "Unknown error getting item");;
+}
+
+sub id {
+    my ($self) = @_;
+    my $primary_key = $self->primary_key;
+    my $stash = $self->stash;
+    if (exists $stash->{$primary_key}) {
+        if ($cluster_enabled) {
+            return $host_id . " " . $stash->{$primary_key}
+        }
+        return $stash->{$primary_key};
+    }
+    return undef;
+}
+
+sub handle_search {
+    my ($self, $search_info) = @_;
+    my ($status, $response) = $self->search_builder->search($search_info);
+    if (is_error($status)) {
+        return $self->render_error(
+            $status,
+            $response->{message},
+            $response->{errors}
+        );
+    }
+
+    unless ($search_info->{raw}) {
+        $response->{items} = $self->cleanup_items($response->{items} // []);
+    }
+
+    foreach my $item (@{$response->{items}}) {
+        $item->{id} =~ s/$host_id //i;
+    }
+
+    my $fields = $search_info->{fields};
+    if (defined $fields && @$fields) {
+        $self->remove_fields($fields, $response->{items});
+    }
+
+    return $self->render(
+        json   => $response,
+        status => $status
+    );
+}
+
 =head2 create
 
 create machine account and domain config file.
@@ -48,11 +110,21 @@ sub create {
         return $self->render_error(400, "Bad Request : $error");
     }
 
+
     my $id = $item->{id};
+    if ($cluster_enabled) {
+        $id = $host_id . " " . $item->{id};
+        $item->{id} = $id
+    }
     my $cs = $self->config_store;
     my $sections = $cs->readAllIds;
     my $max_port = 4999;
     for my $section (@$sections) {
+        if ($cluster_enabled) {
+            unless ($section =~ /^$host_id /) {
+                next;
+            }
+        }
         my $ntlm_auth_port = $cs->cachedConfig->val($section, "ntlm_auth_port");
         if (defined($ntlm_auth_port)) {
             if (int($ntlm_auth_port) > $max_port) {
@@ -254,6 +326,9 @@ sub update {
     delete $new_data->{bind_dn};
     delete $new_data->{bind_pass};
     my $id = $self->id;
+    if ($cluster_enabled) {
+        $id = $host_id . " " . $id;
+    }
     $cs->update($id, $new_data);
     return unless ($self->commit($cs));
     $self->post_update($id);
