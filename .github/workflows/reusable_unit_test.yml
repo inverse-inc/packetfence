@@ -13,7 +13,7 @@ jobs:
   unit-test:
     runs-on: packetfence-perl-package-build 
     container:
-      image:  ${{ inputs._IMAGE_TYPE == 'rhel8' && 'redhat/ubi8:8.8' || 'debian:11.0'}}
+      image:  ${{ inputs._IMAGE_TYPE == 'rhel8' && 'redhat/ubi8:8.8' || inputs._IMAGE_TYPE == 'debian11' && 'debian:bullseye'  || inputs._IMAGE_TYPE == 'debian12' && 'debian:bookworm'}}
     steps:     
       - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
         uses: actions/download-artifact@v3
@@ -21,7 +21,7 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  /mnt
         env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'package-rpm' || 'package-deb' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
 
       - name: Install the package ${{ inputs._PACKAGE_NAME}} rhel8
         if: inputs._IMAGE_TYPE == 'rhel8'
@@ -36,7 +36,7 @@ jobs:
           rpm -qa | grep ${{ inputs._PACKAGE_NAME }}
 
       - name: Install the package ${{ inputs._PACKAGE_NAME}} debian
-        if: inputs._IMAGE_TYPE == 'debian'
+        if: inputs._IMAGE_TYPE == 'debian11' || inputs._IMAGE_TYPE == 'debian12'
         run: |
           ls -la /mnt
           apt update; apt  install -y gnupg sudo wget  curl
