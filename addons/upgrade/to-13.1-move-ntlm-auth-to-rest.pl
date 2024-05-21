@@ -18,7 +18,7 @@ use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw($authentication_config_file $domain_config_file);
 use pf::util;
-use pf::cluster qw($cluster_enabled $host_id);;
+use pf::cluster qw($cluster_enabled $host_id);
 use Digest::MD4;
 use Encode;
 use MIME::Base64;
