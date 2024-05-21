@@ -70,7 +70,7 @@ jobs:
     if: ${{ contains( github.event.head_commit.message, '[perl-client]') || needs.build_preparation.outputs.path_changes == 'true' && needs.build_preparation.outputs.regex_match_branch != '' }}
     strategy:
       matrix:
-        images: ['debian', 'rhel8']
+        images: ['debian11', 'debian12', 'rhel8']
     uses:  ./.github/workflows/perl-client_build_package.yml
     needs: ['build_preparation']
     with:
@@ -84,7 +84,7 @@ jobs:
   unit_tests_packages:
     strategy:
       matrix:
-        images: ['debian', 'rhel8']
+        images: ['debian11', 'debian12', 'rhel8']
     uses:  ./.github/workflows/reusable_unit_test.yml
     needs: ['build_preparation', 'build_packages']
     with:
@@ -94,7 +94,7 @@ jobs:
   sign_package:
     strategy:
       matrix:
-        images: ['debian', 'rhel8']
+        images: ['debian11', 'debian12', 'rhel8']
     uses:  ./.github/workflows/reusable_sign_packages.yml
     needs: ['build_preparation', 'build_packages', 'unit_tests_packages']
     with:
@@ -107,7 +107,7 @@ jobs:
   upload_packages:
     strategy:
       matrix:
-        images: ['debian', 'rhel8']
+        images: ['debian11', 'debian12', 'rhel8']
     uses:  ./.github/workflows/reusable_upload_packages.yml
     needs: ['build_preparation', 'build_packages', 'unit_tests_packages', 'sign_package']
     with:
