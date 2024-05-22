@@ -87,7 +87,7 @@ function find_latest_stable() {
   if is_rpm_based; then
     OS="RHEL-8"
   elif is_deb_based; then
-    OS="Debian-11"
+    OS="Debian-12"
   fi
   curl https://www.packetfence.org/downloads/PacketFence/latest-stable-$OS.txt
 }

@@ -2,7 +2,7 @@ build {
   name = "dev"
   sources = [
     "source.vagrant.el-8",
-    "source.vagrant.debian-11"
+    "source.vagrant.debian-12"
   ]
 
   provisioner "ansible" {
@@ -37,7 +37,7 @@ build {
   }
 
   provisioner "shell" {
-    only = ["vagrant.debian-11"]
+    only = ["vagrant.debian-12"]
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "${var.pfroot_dir}/addons/dev-helpers/debian/install-pf-dependencies.sh"
   }
@@ -58,7 +58,7 @@ build {
   name = "stable"
   sources = [
     "source.vagrant.el-8",
-    "source.vagrant.debian-11"
+    "source.vagrant.debian-12"
   ]
 
   provisioner "ansible" {

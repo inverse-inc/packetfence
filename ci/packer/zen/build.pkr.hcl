@@ -1,6 +1,6 @@
 build {
   sources = [
-    "source.virtualbox-iso.debian-11",
+    "source.virtualbox-iso.debian-12",
   ]
   provisioner "ansible" {
     playbook_file = "${var.provisioner_dir}/site.yml"

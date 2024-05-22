@@ -1,5 +1,5 @@
 # VirtualBox builds
-source "virtualbox-iso" "debian-11" {
+source "virtualbox-iso" "debian-12" {
   vm_name = "${var.vm_name}"
   disk_size = "200000"
   guest_os_type = "Debian_64"
