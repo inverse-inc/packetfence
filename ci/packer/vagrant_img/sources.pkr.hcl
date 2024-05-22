@@ -8,7 +8,7 @@ source "vagrant" "el-8" {
   template = "templates/vagrantfile_template"
 }
 
-# Vagrant Debian 11 builds
+# Vagrant Debian 12 builds
 source "vagrant" "debian-12" {
   communicator = "ssh"
   source_path = "debian/bookworm64"

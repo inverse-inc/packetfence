@@ -24,7 +24,7 @@ This section will guide you into the high-level steps required to deploy PacketF
 
 ==== Installation and Configuration Steps
 
-First, you need to create three 'Debian 11' or 'Rocky 8' Linodes in the same region. The 'Dedicated 16GB' plan or above is required and make sure Private IP is enabled for each instance. 
+First, you need to create three 'Debian 12' or 'Rocky 8' Linodes in the same region. The 'Dedicated 16GB' plan or above is required and make sure Private IP is enabled for each instance. 
 
 Once done, make sure to configure the firewall policy similar to the following screenshot:
 
@@ -92,7 +92,7 @@ Current limitations:
 
 ===== Installation
 
-To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 11 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 10GB of disk space). Then, perform the following commands as root:
+To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 12 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 10GB of disk space). Then, perform the following commands as root:
 
 [source,bash,subs="attributes"]
 ----
