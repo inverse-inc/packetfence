@@ -11,7 +11,9 @@ RUN apt update && apt install -y gcc g++ make git mariadb-client python3 pip pyt
     apt install -y python3-dev libffi-dev python3-paramiko &&\
     rm -rf /var/cache/apt/*
 
-RUN pip3 install --upgrade pip cffi &&\
+RUN VER=`python3 -c 'import sys; val=sys.version_info;print(str(val.major)+"."+str(val.minor))'` ; \
+    sudo rm -rf /usr/lib/python$VER/EXTERNALLY-MANAGED && \
+    pip3 install --upgrade pip cffi &&\
     pip3 install ansible && pip3 install ansible-pylibssh
 
 RUN adduser --disabled-password -u 1002 --gecos 0 semaphore && \
