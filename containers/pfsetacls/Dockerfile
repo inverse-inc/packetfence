@@ -12,7 +12,7 @@ RUN apt update && apt install -y gcc g++ make git mariadb-client python3 pip pyt
     rm -rf /var/cache/apt/*
 
 RUN VER=`python3 -c 'import sys; val=sys.version_info;print(str(val.major)+"."+str(val.minor))'` ; \
-    sudo rm -rf /usr/lib/python$VER/EXTERNALLY-MANAGED && \
+    rm -rf /usr/lib/python$VER/EXTERNALLY-MANAGED && \
     pip3 install --upgrade pip cffi &&\
     pip3 install ansible && pip3 install ansible-pylibssh
 
