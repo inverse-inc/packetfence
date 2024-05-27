@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # Redis configuration file example.
 #
 # Note that in order to read the configuration file, Redis must be
@@ -351,14 +352,14 @@ loglevel notice
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile /var/log/redis/redis-server.log
+#logfile %%install_dir%%/logs/%%name%%.log
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
 syslog-enabled yes
 
 # Specify the syslog identity.
-syslog-ident redis-cache
+syslog-ident redis-queue
 
 # Specify the syslog facility. Must be USER or between LOCAL0-LOCAL7.
 syslog-facility local5
@@ -1481,6 +1482,7 @@ no-appendfsync-on-rewrite no
 #
 # Specify a percentage of zero in order to disable the automatic AOF
 # rewrite feature.auto-aof-rewrite-percentage 100
+auto-aof-rewrite-percentage 100
 auto-aof-rewrite-min-size 64mb
 
 # An AOF file may be found to be truncated at the end during the Redis
