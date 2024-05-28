@@ -16,7 +16,8 @@ describe('Collections', () => {
       })
       let cache = {};
       collection.tests.forEach(test => {
-        const { description, fixture = 'empty.json', flatten: flattenFixture, scope, url, interceptors = [], selectors, timeout,
+        const { description, fixture = 'empty.json', flatten: flattenFixture, scope, url, interceptors = [], selectors,
+          timeout = 15E3,
           idFrom = ({ id }) => id,
           beforeFormFill,
           map = (v) => v,
