@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -299,25 +300,52 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	ctx := r.Context()
-	auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)
 
-	if !auth {
-		w.WriteHeader(http.StatusUnauthorized)
+	// Perform HTTP Basic Auth for FleetDM event reporting
+	if strings.HasPrefix(r.URL.Path, "/api/v1/fleetdm-events/") {
+		username, password, succ := h.authentication.ExtractUserIdentity(r)
 
-		if err == nil {
-			err = errors.New("Invalid token. Login again using /api/v1/login")
+		if !succ {
+			w.WriteHeader(http.StatusUnauthorized)
+			err := errors.New("invalid username or password for HTTP Basic auth")
+			res, _ := json.Marshal(map[string]string{
+				"message": err.Error(),
+			})
+			fmt.Fprintf(w, string(res))
+			return false
 		}
 
-		res, _ := json.Marshal(map[string]string{
-			"message": err.Error(),
-		})
-		fmt.Fprintf(w, string(res))
-		return false
+		auth, token, err := h.authentication.Login(ctx, username, password)
+		if !auth {
+			w.WriteHeader(http.StatusUnauthorized)
+			res, _ := json.Marshal(map[string]string{
+				"message": err.Error(),
+			})
+			fmt.Fprintf(w, string(res))
+			return false
+		}
+		r.Header.Set("Authorization", "Bearer "+token)
+	} else {
+		auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)
+
+		if !auth {
+			w.WriteHeader(http.StatusUnauthorized)
+
+			if err == nil {
+				err = errors.New("Invalid token. Login again using /api/v1/login")
+			}
+
+			res, _ := json.Marshal(map[string]string{
+				"message": err.Error(),
+			})
+			fmt.Fprintf(w, string(res))
+			return false
+		}
+
+		h.authentication.TouchTokenInfo(ctx, r)
 	}
 
-	h.authentication.TouchTokenInfo(ctx, r)
-
-	auth, err = h.authorization.BearerRequestIsAuthorized(ctx, r)
+	auth, err := h.authorization.BearerRequestIsAuthorized(ctx, r)
 
 	if auth {
 		return true
