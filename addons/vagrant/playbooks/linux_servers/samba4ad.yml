@@ -143,8 +143,8 @@
       ansible.builtin.expect:
         command: "{{ item }}"
         responses:
-          (?i)new\s(?i)password: "{{ samba4ad__password }}"
-          (?i)retype\s(?i)password: "{{ samba4ad__password }}"
+          (?i:new)\s(?i:password): "{{ samba4ad__password }}"
+          (?i:retype)\s(?i:password): "{{ samba4ad__password }}"
       loop:
       - "samba-tool user setpassword {{ samba4ad__username }}"
   
@@ -178,8 +178,8 @@
       ansible.builtin.expect:
         command: "{{ item }}"
         responses:
-          (?i)new\s(?i)password: "{{ packetfence_domain_password }}"
-          (?i)retype\s(?i)password: "{{ packetfence_domain_password }}"
+          (?i:new)\s(?i:password): "{{ packetfence_domain_password }}"
+          (?i:retype)\s(?i:password): "{{ packetfence_domain_password }}"
       loop:
       - "samba-tool user add {{ packetfence_domain_account }} --username={{ packetfence_domain_account }} --mail-address={{ packetfence_domain_account }}@{{ dns_domain }} --workgroup={{ dns_domain_upper }}"
 
@@ -198,7 +198,7 @@
       ansible.builtin.expect:
         command: "{{ item }}"
         responses:
-          (?i)password.*: "{{ samba4ad__password }}"
+          (?i:password.*): "{{ samba4ad__password }}"
       loop:
       - "kinit administrator"
 
