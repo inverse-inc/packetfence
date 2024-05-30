@@ -327,9 +327,13 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, error) {
 			dhcpOptions[option.Option] = []byte(Value.(string))
 		case "int":
 			Value = option.Value
-			dhcpOptions[option.Option] = []byte(Value.(string))
+			val, _ := strconv.Atoi(Value.(string))
+			bs := make([]byte, 4)
+			binary.BigEndian.PutUint32(bs, uint32(val))
+			dhcpOptions[option.Option] = bs
 		}
 	}
+
 	return dhcpOptions, nil
 }
 
