@@ -455,6 +455,68 @@ type RolesConf struct {
 	MaxNodesPerPid string `json:"max_nodes_per_pid"`
 }
 
+type PfSwitches struct {
+	StructConfig
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Switch"`
+	Keys           []string
+}
+
+type SwitchesConf struct {
+	StructConfig
+	PfconfigMethod            string              `val:"hash_element"`
+	PfconfigNS                string              `val:"config::Switch"`
+	PfconfigHashNS            string              `val:"-"`
+	AccessListMap             string              `json:"AccessListMap"`
+	AccessLists               map[string][]string `json:"access_lists"`
+	ACLsLimit                 string              `json:"ACLsLimit"`
+	CliAccess                 string              `json:"cliAccess"`
+	CliEnablePwd              string              `json:"cliEnablePwd"`
+	CliPwd                    string              `json:"cliPwd"`
+	CliTrandport              string              `json:"cliTransport"`
+	CliUser                   string              `json:"cliUser"`
+	DeauthOnPrevious          string              `json:"deauthOnPrevious"`
+	Description               string              `json:"description"`
+	DownloadableACLsLimit     string              `json:"DownloadableACLsLimit"`
+	ExternalPortalEnforcement string              `json:"ExternalPortalEnforcement"`
+	Group                     string              `json:"group"`
+	inlineTrigger             []string            `json:"inlineTrigger"`
+	Interfaces                string              `json:"interfaces"`
+	MacSearchesMaxNb          string              `json:"macSearchesMaxNb"`
+	MacSearchesSleepInterval  string              `json:"macSearchesSleepInterval"`
+	Mode                      string              `json:"mode"`
+	PostMfaValidation         string              `json:"PostMfaValidation"`
+	PushACLs                  string              `json:"pushACLs"`
+	RadiusDeauthUseConnector  string              `json:"radiusDeauthUseConnector"`
+	RadiusSecret              string              `json:"radiusSecret"`
+	RoleMap                   string              `json:"RoleMap"`
+	Roles                     map[string][]string `json:"roles"`
+	SNMPCommunityRead         string              `json:"SNMPCommunityRead"`
+	SNMPCommunityTrap         string              `json:"SNMPCommunityTrap"`
+	SNMPCommunityWrite        string              `json:"SNMPCommunityWrite"`
+	SNMPUseConnector          string              `json:"SNMPUseConnector"`
+	SNMPVersion               string              `json:"SNMPVersion"`
+	SNMPVersionTrap           string              `json:"SNMPVersionTrap"`
+	Type                      string              `json:"type"`
+	Uplink                    []string            `json:"uplink"`
+	UrlMap                    string              `json:"UrlMap"`
+	Urls                      map[string][]string `json:"urls"`
+	UseCoA                    string              `json:"useCoA"`
+	UseDownloadableACLs       string              `json:"UseDownloadableACLs"`
+	UsePushACLs               string              `json:"UsePushACLs"`
+	VlanMap                   string              `json:"VlanMap"`
+	Vlans                     map[string][]string `json:"vlans"`
+	VoIPCDPDetect             string              `json:"VoIPCDPDetect"`
+	VoIPDHCPDetect            string              `json:"VoIPDHCPDetect"`
+	VoIPEnabled               string              `json:"VoIPEnabled"`
+	VoIPLLDPDetect            string              `json:"VoIPLLDPDetect"`
+	Vpn                       map[string][]string `json:"vpn"`
+	VpnMap                    string              `json:"VpnMap"`
+	WsPwd                     string              `json:"wsPwd"`
+	WsTransport               string              `json:"wsTransport"`
+	WsUser                    string              `json:"wsUser"`
+}
+
 type RolesChildren struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
