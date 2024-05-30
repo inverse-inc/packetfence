@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-addons/upgrade/to-13.2-adds-new-admin-roles.pl
+addons/upgrade/to-14.0-adds-admin-roles-fleetdm.pm
 
 =cut
 
 =head1 DESCRIPTION
 
-adds default admin role for Windows Event Receiver API used by NTLM caching
+adds default admin role for FleetDM event webhook
 
 =cut
 
@@ -20,7 +20,7 @@ use pf::file_paths qw($admin_roles_config_file);
 
 
 my $ini = pf::IniFiles->new(-file => $admin_roles_config_file, -allowempty => 1);
-my $sectionName = "Windows Event Receiver NTLM";
+my $sectionName = "FleetDM Event Handler";
 
 unless (defined $ini) {
     print("Error loading admin roles config file. Please manually add $sectionName role in Admin UI.\n");
@@ -33,8 +33,8 @@ if ($ini->SectionExists($sectionName)) {
 }
 
 $ini->AddSection($sectionName);
-$ini->newval($sectionName, 'description' , 'Receives Windows AD event reports');
-$ini->newval($sectionName, 'actions' , 'WINDOWS_EVENTS_READ');
+$ini->newval($sectionName, 'description' , 'Receives FleetDM events');
+$ini->newval($sectionName, 'actions' , 'FLEETDM_EVENTS_READ');
 $ini->RewriteConfig();
 exit(0);
 
