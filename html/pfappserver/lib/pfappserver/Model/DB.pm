@@ -191,7 +191,10 @@ sub make_connection_str {
     my $port = $remote->{port} // '3306';
     $dsn .= ";port=$port";
     if ($remote->{encryption} eq "tls") {
-        $dsn .= ";mysql_ssl=1;mysql_ssl_ca_file=$remote->{ca_file}";
+        $dsn .= ";mysql_ssl=1;";
+        if ($remote->{ca_file}) {
+            $dsn .= "mysql_ssl_ca_file=$remote->{ca_file}";
+        }
     }
 
     return (
