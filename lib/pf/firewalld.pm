@@ -28,6 +28,7 @@ use pf::config::cluster;
 use File::Slurp qw(read_file);
 use URI ();
 use pf::Firewalld::util;
+use pf::ipset();
 
 BEGIN {
   use Exporter ();
@@ -140,6 +141,7 @@ sub firewalld_clean_pfconf_configs {
 
 sub firewalld_generate_configs {
   fd_create_all_zones();
+  iptables_generate();
   fd_firewalld_rules("add");
   fd_services_rules("add");
 }
