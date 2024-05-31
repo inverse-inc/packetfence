@@ -1,0 +1,34 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=netdata
+
+#chown -R 1000:1000 /usr/local/pf/var/conf/netdata
+#chown -R 1000:1000 /usr/local/pf/conf/netdata
+
+args=""
+args+=" --pid=host"
+args+=" --network=host"
+args+=" --restart unless-stopped"
+args+=" --privileged"
+args+=" --cap-add SYS_PTRACE"
+args+=" --cap-add SYS_ADMIN"
+args+=" --security-opt apparmor=unconfined"
+
+args+=" -v /usr/local/pf/var/conf/netdata:/etc/netdata"
+args+=" -v /var/lib/netdata:/var/lib/netdata"
+args+=" -v /var/cache/netdata:/var/cache/netdata"
+args+=" -v /etc/passwd:/host/etc/passwd:ro"
+args+=" -v /etc/group:/host/etc/group:ro"
+args+=" -v /etc/hostname:/host/etc/hostname:ro"
+args+=" -v /etc/localtime:/etc/localtime:ro"
+args+=" -v /proc:/host/proc:ro"
+args+=" -v /sys:/host/sys:ro"
+args+=" -v /etc/os-release:/host/etc/os-release:ro"
+args+=" -v /var/log:/host/var/log:ro"
+args+=" -v /var/run/docker.sock:/var/run/docker.sock:ro"
+
+args+=" -p 19999:19999"
+
+run $name "$args"
