@@ -149,7 +149,7 @@ case "$1" in
           echo "" >> /etc/hosts
           echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
         fi
-        /bin/bash/ /usr/local/pf/containers/docker_iptables.sh
+        /bin/bash /usr/local/pf/containers/docker_iptables.sh
         systemctl restart docker
         perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
  
