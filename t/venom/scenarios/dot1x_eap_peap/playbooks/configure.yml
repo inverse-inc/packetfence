@@ -9,7 +9,6 @@
       - python3-pip
       - virtualenv
       - jq
-      - python3-xmltodict
 
     el8Packages:
       - curl
@@ -34,4 +33,3 @@
     - name: Install xmltodict python package
       pip:
         name: xmltodict
-      when: ansible_facts['os_family'] == "RedHat"
