@@ -28,7 +28,7 @@ use pf::config::cluster;
 use File::Slurp qw(read_file);
 use URI ();
 use pf::Firewalld::util;
-use pf::ipset();
+use pf::ipset qw(iptables_generate);
 
 BEGIN {
   use Exporter ();
