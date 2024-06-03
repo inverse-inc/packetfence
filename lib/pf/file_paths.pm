@@ -81,6 +81,7 @@ our (
     $ssl_configuration_file,
     $mariadb_pf_udf_file,
     $domain_config_file,
+    $fleetdm_config_file,
     $scan_config_file,
     $pki_provider_config_file,
     $suricata_categories_file,
@@ -190,6 +191,7 @@ BEGIN {
         $ssl_configuration_file
         $mariadb_pf_udf_file
         $domain_config_file
+        $fleetdm_config_file
         $scan_config_file
         $pki_provider_config_file
         $suricata_categories_file
@@ -346,6 +348,7 @@ $radius_ca_cert = catfile($install_dir, "raddb/certs/ca.pem");
 $ssl_configuration_file = catfile($generated_conf_dir, "ssl-certificates.conf");
 $mariadb_pf_udf_file = catfile($generated_conf_dir, "mariadb_pf_udf");
 $domain_config_file = catfile($conf_dir,"domain.conf");
+$fleetdm_config_file = catfile($conf_dir,"fleetdm.conf");
 $scan_config_file = catfile($conf_dir,"scan.conf");
 $radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");
 $radius_filters_config_default_file = catfile($conf_dir,"radius_filters.conf.defaults");
@@ -433,6 +436,7 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $ssl_config_file,
     $cron_config_file,
     $domain_config_file,
+    $fleetdm_config_file,
     $mfa_config_file,
     $kafka_config_file,
     $connectors_config_file,

@@ -1204,6 +1204,8 @@ fi
                         /usr/local/pf/conf/billing_tiers.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
                         /usr/local/pf/conf/domain.conf.example
+%config(noreplace)      /usr/local/pf/conf/fleetdm.conf
+                        /usr/local/pf/conf/fleetdm.conf.example
 %config(noreplace)      /usr/local/pf/conf/pfdetect.conf
                         /usr/local/pf/conf/pfdetect.conf.example
 %config(noreplace)      /usr/local/pf/conf/pfqueue.conf
