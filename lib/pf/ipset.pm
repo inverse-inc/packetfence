@@ -21,7 +21,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        iptables_generate iptables_save iptables_restore
+        iptables_generate
         iptables_mark_node iptables_unmark_node get_mangle_mark_for_mac update_mark
     );
 }
@@ -90,6 +90,20 @@ TODO: This list is incomplete
 
 =cut
 
+=item new
+
+Constructor
+
+=cut
+
+sub new {
+   my $logger = get_logger();
+   $logger->debug("instantiating new pf::iptables object");
+   my ( $class, %argv ) = @_;
+   my $self = bless {}, $class;
+   return $self;
+}
+
 sub iptables_generate {
     my ($self) = @_;
     my $logger = get_logger();
@@ -148,99 +162,6 @@ sub iptables_generate {
     }
 }
 
-
-=item generate_mangle_rules
-
-Packet marking will traverse all the rules so the order in which packets are marked is rather important.
-The last mark will be the one having an effect.
-
-=cut
-
-sub generate_mangle_rules {
-    my ($self) =@_;
-    my $logger = get_logger();
-    my $mangle_rules = '';
-    my @ops = ();
-
-    # pfdhcplistener in most cases will be enforcing access
-    # however we insert these marks on startup in case PacketFence is restarted
-
-    # default catch all: mark unreg
-    $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
-    foreach my $network ( keys %ConfigNetworks ) {
-        next if ( !pf::config::is_network_type_inline($network) );
-        foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src ";
-            } else {
-                $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
-            }
-            $mangle_rules .= "--jump MARK --set-mark 0x$IPTABLES_MARK\n";
-        }
-    }
-
-    # Build lookup table for MAC/IP mapping
-    my @iplog_open = pf::ip4log::list_open();
-    my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
-
-    # mark registered nodes that should not be isolated
-    # TODO performance: mark all *inline* registered users only
-    my @registered = nodes_registered_not_violators();
-    foreach my $row (@registered) {
-        foreach my $network ( keys %ConfigNetworks ) {
-            next if ( !pf::config::is_network_type_inline($network) );
-            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            my $mac = $row->{'mac'};
-            my $iplog = $iplog_lookup{clean_mac($mac)};
-            if (defined $iplog) {
-                my $ip = new NetAddr::IP::Lite clean_ip($iplog);
-                if ($net_addr->contains($ip)) {
-                    if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                        push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog");
-                        push(@ops, "add PF-iL3_ID$row->{'category_id'}_$network $iplog");
-                    } else {
-                        push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
-                        push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog");
-                    }
-                }
-            }
-        }
-    }
-
-    # mark all open security_events
-    # TODO performance: only those whose's last connection_type is inline?
-    require pf::security_event;
-    my @macarray = pf::security_event::security_event_view_open_uniq();
-    if ( $macarray[0] ) {
-        foreach my $row (@macarray) {
-            foreach my $network ( keys %ConfigNetworks ) {
-                next if ( !pf::config::is_network_type_inline($network) );
-                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-                my $mac = $row->{'mac'};
-                my $iplog = $iplog_lookup{clean_mac($mac)};
-                if (defined $iplog) {
-                    my $ip = new NetAddr::IP::Lite clean_ip($iplog);
-                    if ($net_addr->contains($ip)) {
-                        if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog");
-                        } else {
-                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac");
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (@ops) {
-        my $cmd = "LANG=C sudo ipset restore 2>&1";
-        open(IPSET, "| $cmd") || die "$cmd failed: $!\n";
-        print IPSET join("\n", @ops);
-        close IPSET;
-    }
-
-    return $mangle_rules;
-}
 
 sub iptables_mark_node {
     my ( $self, $mac, $mark, $newip ) = @_;
@@ -437,6 +358,15 @@ sub iptables_update_set {
     }
 }
 
+# TODO wrap this into the commit transaction system of IPTables::Interface
+# TODO once updated, we should re-validate that the marks are ok and re-try otherwise (maybe in a loop)
+sub update_mark {
+    my ($self , $mac, $old_mark, $new_mark) = @_;
+
+    $self->iptables_unmark_node($mac, $old_mark);
+    $self->iptables_mark_node($mac, $new_mark);
+    return 1;
+}
 
 =back
 
