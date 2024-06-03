@@ -59,6 +59,7 @@ import MonitRoutes from '../monit/_router'
 import ServicesRoutes from '../services/_router'
 import DatabaseRoutes from '../database/_router'
 import ActiveActiveRoutes from '../activeActive/_router'
+import FleetDMRoutes from '../fleetDM/_router'
 import RadiusRoutes from '../radius/_router'
 import DnsRoutes from '../dns/_router'
 import AdminLoginRoutes from '../adminLogin/_router'
@@ -177,6 +178,7 @@ const route = {
     ...ServicesRoutes,
     ...DatabaseRoutes,
     ...ActiveActiveRoutes,
+    ...FleetDMRoutes,
     ...RadiusRoutes,
     ...DnsRoutes,
     ...AdminLoginRoutes,

@@ -136,9 +136,7 @@ conf/radiusd/packetfence-pre-proxy
 conf/radiusd/packetfence-tunnel
 conf/radiusd/proxy.conf.inc
 conf/radiusd/proxy.conf.loadbalancer
-conf/radiusd/proxy.conf.loadbalancer
 conf/radiusd/radiusd.conf
-conf/radiusd/radiusd_loadbalancer.conf
 conf/radiusd/radiusd_loadbalancer.conf
 conf/radiusd/rest.conf
 conf/radiusd/sql.conf
@@ -147,7 +145,6 @@ conf/redis_queue.conf
 conf/redis_ntlm_cache.conf
 conf/realm.conf
 conf/survey.conf
-conf/traffic_shaping.conf
 conf/domain.conf
 conf/radius_filters.conf
 conf/switch_filters.conf
@@ -192,14 +189,12 @@ conf/pfarp_remote.conf
 conf/pfconfig.conf
 conf/allowed-gaming-oui.txt
 conf/cluster.conf
-conf/domain.conf
 conf/network_behavior_policies.conf
 conf/haproxy-portal.conf
 conf/haproxy-db.conf
 conf/haproxy-admin.conf
 conf/keepalived.conf
 conf/report.conf
-conf/device_registration.conf
 conf/cloud.conf
 conf/httpd.conf.d/captive-portal-common.tt
 conf/httpd.conf.d/httpd.aaa.tt

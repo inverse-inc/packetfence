@@ -1525,3 +1525,9 @@ sso_login_path=/admin-sso
 sso_authorize_path=/portaltoken
 sso_login_text=Single Sign On
 allow_username_password=enabled
+
+[fleetdm]
+fleetdm.host=
+fleetdm.email=
+fleetdm.password=
+fleetdm.token=

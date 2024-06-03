@@ -23,6 +23,9 @@ const api = {
   getBaseActiveActive () {
     return apiCall({ url: 'config/base/active_active', method: 'get' })
   },
+  getBaseFleetDM () {
+    return apiCall({ url: 'config/base/fleetdm', method: 'get' })
+  },
   getBaseAdvanced () {
     return apiCall({ url: 'config/base/advanced', method: 'get' })
   },
@@ -240,6 +243,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     adminRolesStatus: '',
     baseActiveActive: false,
     baseActiveActiveStatus: '',
+    baseFleetDM: false,
+    baseFleetDMStatus: '',
     baseAdvanced: false,
     baseAdvancedStatus: '',
     baseAlerting: false,
@@ -402,6 +407,9 @@ const getters = {
   },
   isLoadingBaseActiveActive: state => {
     return state.baseActiveActiveStatus === types.LOADING
+  },
+  isLoadingBaseFleetDM: state => {
+    return state.baseFleetDMStatus === types.LOADING
   },
   isLoadingBaseAdvanced: state => {
     return state.baseAdvancedStatus === types.LOADING
@@ -727,6 +735,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.baseActiveActive)
+    }
+  },
+  getBaseFleetDM: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseFleetDM) {
+      return Promise.resolve(state.baseFleetDM)
+    }
+    if (!state.baseFleetDM) {
+      commit('BASE_FLEETDM_REQUEST')
+      return api.getBaseFleetDM().then(response => {
+        commit('BASE_FLEETDM_UPDATED', response.data.item)
+        return state.baseFleetDM
+      })
+    } else {
+      return Promise.resolve(state.baseFleetDM)
     }
   },
   getBaseAdvanced: ({ state, getters, commit }) => {
@@ -1716,6 +1738,13 @@ const mutations = {
   BASE_ACTIVE_ACTIVE_UPDATED: (state, baseActiveActive) => {
     state.baseActiveActive = baseActiveActive
     state.baseActiveActiveStatus = types.SUCCESS
+  },
+  BASE_FLEETDM_REQUEST: (state) => {
+    state.baseFleetDMStatus = types.LOADING
+  },
+  BASE_FLEETDM_UPDATED: (state, baseFleetDM) => {
+    state.baseFleetDM = baseFleetDM
+    state.baseFleetDMStatus = types.SUCCESS
   },
   BASE_ADVANCED_REQUEST: (state) => {
     state.baseAdvancedStatus = types.LOADING

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/detectparser"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
@@ -26,18 +25,26 @@ func (h APIHandler) Policy(w http.ResponseWriter, r *http.Request, p httprouter.
 	fmt.Println("---- Received body:", string(body))
 
 	pfqueueclient := pfqueueclient.NewPfQueueClient()
-
-	args := &detectparser.PfqueueApiCall{
-		Method: "policy-violation",
-		Params: body,
+	args := map[string]interface{}{
+		"type":    "policy-violation",
+		"payload": string(body),
 	}
-
-	s, err := pfqueueclient.Submit(context.Background(), "fleetdm", "policy", args)
-	fmt.Println("submit result is: ", s)
+	taskKey, err := pfqueueclient.Submit(context.Background(), "general", "fleetdm", args)
 	if err != nil {
-		fmt.Println("error is: ", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		res, _ := json.Marshal(map[string]string{
+			"message": "failed to write policy violation event to pfqueue: " + err.Error(),
+		})
+		fmt.Fprintf(w, string(res))
+		return
 	}
 
+	w.WriteHeader(http.StatusAccepted)
+	res, _ := json.Marshal(map[string]string{
+		"task_key": taskKey,
+	})
+	fmt.Fprintf(w, string(res))
+	return
 }
 
 func (h APIHandler) CVE(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -54,4 +61,25 @@ func (h APIHandler) CVE(w http.ResponseWriter, r *http.Request, p httprouter.Par
 
 	fmt.Println("---- Received body:", string(body))
 
+	pfqueueclient := pfqueueclient.NewPfQueueClient()
+	args := map[string]interface{}{
+		"type":    "cve",
+		"payload": string(body),
+	}
+	taskKey, err := pfqueueclient.Submit(context.Background(), "general", "fleetdm", args)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		res, _ := json.Marshal(map[string]string{
+			"message": "failed to write CVE event to pfqueue: " + err.Error(),
+		})
+		fmt.Fprintf(w, string(res))
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+	res, _ := json.Marshal(map[string]string{
+		"task_key": taskKey,
+	})
+	fmt.Fprintf(w, string(res))
+	return
 }

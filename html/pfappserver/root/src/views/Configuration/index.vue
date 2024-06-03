@@ -153,6 +153,7 @@ const setup = () => {
           ]
         },
         { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },
+        { name: i18n.t('FleetDM'), path: '/configuration/fleetdm', class: 'no-saas'},
         { name: i18n.t('RADIUS'),
           items: [
             { name: i18n.t('General'), path: '/configuration/radius/general' },
