@@ -28,7 +28,7 @@ use pf::config::cluster;
 use File::Slurp qw(read_file);
 use URI ();
 use pf::Firewalld::util;
-use pf::ipset qw(iptables_generate);
+use pf::ipset;
 
 BEGIN {
   use Exporter ();
@@ -141,7 +141,7 @@ sub firewalld_clean_pfconf_configs {
 
 sub firewalld_generate_configs {
   fd_create_all_zones();
-  iptables_generate();
+  pf::ipset->new()->iptables_generate();
   fd_firewalld_rules("add");
   fd_services_rules("add");
 }
@@ -174,7 +174,7 @@ sub fd_create_all_zones {
     }
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
-    my $tint =  $management_network->{Tint};
+    my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       util_set_default_zone( $tint );
       service_to_zone($tint, "add", "ssh");
@@ -317,8 +317,8 @@ sub fd_radiusd_lb_rules {
     my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "radius_lb");
   }
-  if (exists $management_network->{Tint} ) {
-    my $tint =  $management_network->{Tint};
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       service_to_zone($tint, $action, "radius_lb");
       util_reload_firewalld();
@@ -331,7 +331,7 @@ sub fd_proxysql_rules {
   my $action = shift;
   my $logger = get_logger();
   if ( util_reload_firewalld() ) {
-    my $tint =  $management_network->{Tint};
+    my $tint = $management_network->{Tint};
     service_to_zone($tint, $action, "proxysql");
     util_reload_firewalld();
   } else {
@@ -345,7 +345,7 @@ sub fd_haproxy_admin_rules {
   my $action = shift;
   my $logger = get_logger();
   if ( util_reload_firewalld() ) {
-    my $tint =  $management_network->{Tint};
+    my $tint = $management_network->{Tint};
     my $web_admin_port = $Config{'ports'}{'admin'};
     util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
     util_reload_firewalld();
@@ -358,8 +358,8 @@ sub fd_haproxy_admin_rules {
 sub fd_httpd_webservices_rules {
   # Webservices
   my $action = shift;
-  if (exists $management_network->{Tint} ) {
-    my $tint =  $management_network->{Tint};
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       my $webservices_port = $Config{'ports'}{'soap'};
       util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
@@ -371,8 +371,8 @@ sub fd_httpd_webservices_rules {
 sub fd_httpd_aaa_rules {
   # AAA
   my $action = shift;
-  if (exists $management_network->{Tint} ) {
-    my $tint =  $management_network->{Tint};
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       my $aaa_port = $Config{'ports'}{'aaa'};
       util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
@@ -386,7 +386,7 @@ sub fd_api_frontend_rules {
   my $action = shift;
   my $logger = get_logger();
   if ( util_reload_firewalld() ) {
-    my $mgnt_zone =  $management_network->{Tint};
+    my $mgnt_zone = $management_network->{Tint};
     my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
     service_to_zone( $mgnt_zone, $action, "api_frontend");
@@ -400,7 +400,7 @@ sub fd_api_frontend_rules {
 sub fd_httpd_portal_rules {
   # httpd.portal modstatus
   my $action = shift;
-  my $mgnt_zone =  $management_network->{Tint};
+  my $mgnt_zone = $management_network->{Tint};
   my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
   util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $httpd_portal_modstatus -j ACCEPT", $action );
   foreach my $tint ( @portal_ints ) {
@@ -413,8 +413,8 @@ sub fd_httpd_portal_rules {
 
 sub fd_haproxy_db_rules {
   my $action = shift;
-  if (exists $management_network->{Tint} ) {
-    my $tint =  $management_network->{Tint};
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       service_to_zone($tint, $action, "haproxy-db");
       util_reload_firewalld();
@@ -758,12 +758,14 @@ sub pfipset_provisioning_passthroughs {
 
 sub fd_netdata_rules {
   my $action = shift;
-  my $tint =  $management_network->{Tint};
-  util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
-  if ($cluster_enabled) {
-    push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
-    foreach my $mgmt_back (uniq(@mgmt_backend)) {
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
+    if ($cluster_enabled) {
+      push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+      foreach my $mgmt_back (uniq(@mgmt_backend)) {
+        util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
+      }
     }
   }
   util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
@@ -772,16 +774,18 @@ sub fd_netdata_rules {
 
 sub fd_pfconnector_server_rules {
   my $action = shift;
-  # The dynamic range used to access the fingerbank collector that are connected via a remote connector
-  my $tint =  $management_network->{Tint};
-  my @pfconnector_ips = ("127.0.0.1");
-  push @pfconnector_ips, (map { $_->{management_ip} } pf::cluster::config_enabled_servers()) if ($cluster_enabled);
-  push @pfconnector_ips, $management_network->{Tip};
-  @pfconnector_ips = uniq sort @pfconnector_ips;
-  for my $ip (@pfconnector_ips) {
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    # The dynamic range used to access the fingerbank collector that are connected via a remote connector
+    my $tint = $management_network->{Tint};
+    my @pfconnector_ips = ("127.0.0.1");
+    push @pfconnector_ips, (map { $_->{management_ip} } pf::cluster::config_enabled_servers()) if ($cluster_enabled);
+    push @pfconnector_ips, $management_network->{Tip};
+    @pfconnector_ips = uniq sort @pfconnector_ips;
+    for my $ip (@pfconnector_ips) {
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
+    }
+    util_reload_firewalld();
   }
-  util_reload_firewalld();
 }
 
 sub fd_galera_autofix_rules {
@@ -805,7 +809,7 @@ sub fd_mariadb_rules {
   my $action = shift;
   my $logger = get_logger();
   if ( util_reload_firewalld() ) {
-    my $tint =  $management_network->{Tint};
+    my $tint = $management_network->{Tint};
     service_to_zone($tint, $action, "mysql");
     util_reload_firewalld();
   } else {
@@ -816,8 +820,8 @@ sub fd_mariadb_rules {
 
 sub fd_mysql_prob_rules {
   my $action = shift;
-  if (exists $management_network->{Tint} ) {
-    my $tint =  $management_network->{Tint};
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       service_to_zone($tint, $action, "mysql-prob");
       util_reload_firewalld();
@@ -827,8 +831,8 @@ sub fd_mysql_prob_rules {
 
 sub fd_kafka_rules {
   my $action = shift;
-  if (exists $management_network->{Tint} ) {
-    my $tint =  $management_network->{Tint};
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       for my $client (@{$ConfigKafka{iptables}{clients}}) {
         util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT" , $action );
@@ -870,13 +874,13 @@ sub fd_radiusd_eduroam_rules {
     my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
     my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
     my $eduroam_listening_port_backend = $eduroam_listening_port + 10;
-    my $mgnt_zone =  $management_network->{Tint};
+    my $mgnt_zone = $management_network->{Tint};
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT", $action );
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
     foreach my $network ( @radius_ints ) {
-      my $tint =  $network->{Tint};
+      my $tint = $network->{Tint};
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT", $action );
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp --match udp --dport $eduroam_listening_port --jump ACCEPT", $action );
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
