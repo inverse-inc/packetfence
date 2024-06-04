@@ -98,7 +98,7 @@ Constructor
 
 sub new {
    my $logger = get_logger();
-   $logger->debug("instantiating new pf::iptables object");
+   $logger->debug("instantiating new pf::ipset object");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
    return $self;
