@@ -173,7 +173,7 @@ sub fd_create_all_zones {
       }
     }
   }
-  if (exists $management_network->{Tint} ) {
+  if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint =  $management_network->{Tint};
     if ( $tint ne "" ) {
       util_set_default_zone( $tint );
