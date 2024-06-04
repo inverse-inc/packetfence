@@ -89,7 +89,7 @@ index 5d34a03409..02cc46c25d 100644
  [Install]
  WantedBy=packetfence-base.target
 diff --git a/conf/systemd/packetfence-haproxy-admin.service b/conf/systemd/packetfence-haproxy-admin.service
-index 472227f12a..8fa626eebd 100644
+index 4559d03db6..4c23e742fb 100644
 --- a/conf/systemd/packetfence-haproxy-admin.service
 +++ b/conf/systemd/packetfence-haproxy-admin.service
 @@ -9,7 +9,7 @@ Type=notify
@@ -105,10 +105,10 @@ index 472227f12a..8fa626eebd 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/haproxy-admin-systemd-notify.pid
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_admin_rules("add")'
--ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_admin_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_admin_rules("add")'
-+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'print pf::firewalld::fd_haproxy_admin_rules("remove")'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("remove")'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
@@ -304,17 +304,17 @@ index 305f20c923..0992f4780c 100644
  
  [Install]
 diff --git a/conf/systemd/packetfence-mariadb.service b/conf/systemd/packetfence-mariadb.service
-index e9513beb06..3b0c09be4b 100644
+index 8f8bd64d2e..74f693f57f 100644
 --- a/conf/systemd/packetfence-mariadb.service
 +++ b/conf/systemd/packetfence-mariadb.service
 @@ -37,8 +37,8 @@ LimitNOFILE=4096
  KillMode=control-group
  
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("add")'
--ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("add")'
-+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_mariadb_rules("remove")'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("remove")'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("remove")'
  
  [Install]
  WantedBy=packetfence-base.target
@@ -516,7 +516,7 @@ index c6a9e44b87..0bc806e1d3 100644
  ExecStop=/bin/bash -c "docker stop pfpki ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfqueue-backend.service b/conf/systemd/packetfence-pfqueue-backend.service
-index 5c2fbefd21..eedde83066 100644
+index 3cf333e5b4..3a9cd78a7e 100644
 --- a/conf/systemd/packetfence-pfqueue-backend.service
 +++ b/conf/systemd/packetfence-pfqueue-backend.service
 @@ -12,7 +12,7 @@ TimeoutStopSec=60
@@ -581,7 +581,7 @@ index be9667d9b9..9fbf9daebd 100644
  ExecStop=/bin/bash -c "docker stop pfsso ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-proxysql.service b/conf/systemd/packetfence-proxysql.service
-index 8d7a38db0b..5f613c6e39 100644
+index 6f39473421..80c37e1b39 100644
 --- a/conf/systemd/packetfence-proxysql.service
 +++ b/conf/systemd/packetfence-proxysql.service
 @@ -9,13 +9,13 @@ Type=notify
@@ -595,8 +595,8 @@ index 8d7a38db0b..5f613c6e39 100644
  TimeoutStopSec=60
  Restart=on-failure
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_proxysql_rules("add")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'print pf::firewalld::fd_proxysql_rules("add")'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_proxysql_rules("add")'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_proxysql_rules("add")'
  
  [Install]
  WantedBy=packetfence-cluster.target
@@ -707,10 +707,10 @@ index 6306019a29..04c93075ee 100644
  ExecStop=/bin/kill $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-redis_queue.service b/conf/systemd/packetfence-redis_queue.service
-index f47510b021..88b26e2e93 100644
+index aa82f2d1c0..ff3d3ffa54 100644
 --- a/conf/systemd/packetfence-redis_queue.service
 +++ b/conf/systemd/packetfence-redis_queue.service
-@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service packetfence-firewalld.s
+@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service
  [Service]
  StartLimitBurst=3
  StartLimitInterval=10
