@@ -173,12 +173,14 @@ sub fd_create_all_zones {
       }
     }
   }
-  my $tint =  $management_network->{Tint};
-  if ( $tint ne "" ) {
-    util_set_default_zone( $tint );
-    service_to_zone($tint, "add", "ssh");
-    service_to_zone($tint, "add", "haproxy-admin");
-    util_reload_firewalld();
+  if (exists $management_network->{Tint} ) {
+    my $tint =  $management_network->{Tint};
+    if ( $tint ne "" ) {
+      util_set_default_zone( $tint );
+      service_to_zone($tint, "add", "ssh");
+      service_to_zone($tint, "add", "haproxy-admin");
+      util_reload_firewalld();
+    }
   }
 }
 
@@ -315,10 +317,12 @@ sub fd_radiusd_lb_rules {
     my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "radius_lb");
   }
-  my $tint =  $management_network->{Tint};
-  if ( $tint ne "" ) {
-    service_to_zone($tint, $action, "radius_lb");
-    util_reload_firewalld();
+  if (exists $management_network->{Tint} ) {
+    my $tint =  $management_network->{Tint};
+    if ( $tint ne "" ) {
+      service_to_zone($tint, $action, "radius_lb");
+      util_reload_firewalld();
+    }
   }
 }
 
@@ -354,22 +358,26 @@ sub fd_haproxy_admin_rules {
 sub fd_httpd_webservices_rules {
   # Webservices
   my $action = shift;
-  my $tint =  $management_network->{Tint};
-  if ( $tint ne "" ) {
-    my $webservices_port = $Config{'ports'}{'soap'};
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
-    util_reload_firewalld();
+  if (exists $management_network->{Tint} ) {
+    my $tint =  $management_network->{Tint};
+    if ( $tint ne "" ) {
+      my $webservices_port = $Config{'ports'}{'soap'};
+      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
+      util_reload_firewalld();
+    }
   }
 }
 
 sub fd_httpd_aaa_rules {
   # AAA
   my $action = shift;
-  my $tint =  $management_network->{Tint};
-  if ( $tint ne "" ) {
-    my $aaa_port = $Config{'ports'}{'aaa'};
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
-    util_reload_firewalld();
+  if (exists $management_network->{Tint} ) {
+    my $tint =  $management_network->{Tint};
+    if ( $tint ne "" ) {
+      my $aaa_port = $Config{'ports'}{'aaa'};
+      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
+      util_reload_firewalld();
+    }
   }
 }
 
@@ -405,9 +413,13 @@ sub fd_httpd_portal_rules {
 
 sub fd_haproxy_db_rules {
   my $action = shift;
-  my $mgnt_zone =  $management_network->{Tint};
-  service_to_zone($mgnt_zone, $action, "haproxy-db");
-  util_reload_firewalld();
+  if (exists $management_network->{Tint} ) {
+    my $tint =  $management_network->{Tint};
+    if ( $tint ne "" ) {
+      service_to_zone($tint, $action, "haproxy-db");
+      util_reload_firewalld();
+    }
+  }
 }
 
 sub fd_haproxy_portal_rules {
@@ -804,26 +816,30 @@ sub fd_mariadb_rules {
 
 sub fd_mysql_prob_rules {
   my $action = shift;
-  my $tint =  $management_network->{Tint};
-  if ( $tint ne "" ) {
-    service_to_zone($tint, $action, "mysql-prob");
-    util_reload_firewalld();
+  if (exists $management_network->{Tint} ) {
+    my $tint =  $management_network->{Tint};
+    if ( $tint ne "" ) {
+      service_to_zone($tint, $action, "mysql-prob");
+      util_reload_firewalld();
+    }
   }
 }
 
 sub fd_kafka_rules {
   my $action = shift;
-  my $tint =  $management_network->{Tint};
-  if ( $tint ne "" ) {
-    for my $client (@{$ConfigKafka{iptables}{clients}}) {
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT" , $action );
+  if (exists $management_network->{Tint} ) {
+    my $tint =  $management_network->{Tint};
+    if ( $tint ne "" ) {
+      for my $client (@{$ConfigKafka{iptables}{clients}}) {
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT" , $action );
+      }
+      for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT" , $action );
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT" , $action );
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT" , $action );
+      }
+      util_reload_firewalld();
     }
-    for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT" , $action );
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT" , $action );
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT" , $action );
-    }
-    util_reload_firewalld();
   }
 }
 
