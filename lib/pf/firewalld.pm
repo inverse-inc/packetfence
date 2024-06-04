@@ -767,9 +767,9 @@ sub fd_netdata_rules {
         util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
       }
     }
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
+    util_reload_firewalld();
   }
-  util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
-  util_reload_firewalld();
 }
 
 sub fd_pfconnector_server_rules {
