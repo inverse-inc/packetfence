@@ -217,6 +217,7 @@ func (h ApiAAAHandler) handleLogin(w http.ResponseWriter, r *http.Request, p htt
 	}
 
 	auth, token, err := h.authentication.Login(ctx, loginParams.Username, loginParams.Password)
+	w.Header().Set("Content-Type", "application/json")
 
 	if auth {
 		w.WriteHeader(http.StatusOK)
