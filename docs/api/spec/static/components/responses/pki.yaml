@@ -24,7 +24,7 @@ PkiCaCreate:
   content:
     application/json:
       schema:
-        $ref: "#/components/schemas/PkiCaList"
+        $ref: "#/components/schemas/PkiCasList"
 
 PkiCasSearch:
   description: Request successful. The response contains the search results.
@@ -178,7 +178,7 @@ PkiScepServerCreate:
   content:
     application/json:
       schema:
-        $ref: "#/components/schemas/PkiScepServerList"
+        $ref: "#/components/schemas/PkiScepServersList"
 
 PkiScepServersSearch:
   description: Request successful. The response contains the search results.

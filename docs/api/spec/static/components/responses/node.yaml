@@ -39,3 +39,10 @@ NodeApplySecurityEvent:
             type: string
           status:
             $ref: '#/components/schemas/Status'
+
+NodeRapid7:
+  description: Request successful. Response contains the node rapid7 info.
+  content:
+    application/json:
+      schema:
+        type: object

@@ -92,8 +92,8 @@
                   1000
                ],
                "example" : 1,
-               "max" : 1000,
-               "min" : 1,
+               "maximum" : 1000,
+               "minimum" : 1,
                "type" : "integer"
             }
          },
@@ -2178,6 +2178,16 @@
             },
             "description" : "Request successful. Response contains the node fingerbank info."
          },
+         "NodeRapid7" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "type" : "object"
+                  }
+               }
+            },
+            "description" : "Request successful. Response contains the node rapid7 info."
+         },
          "NodesBulk" : {
             "content" : {
                "application/json" : {
@@ -2398,7 +2408,7 @@
             "content" : {
                "application/json" : {
                   "schema" : {
-                     "$ref" : "#/components/schemas/PkiCaList"
+                     "$ref" : "#/components/schemas/PkiCasList"
                   }
                }
             },
@@ -2628,7 +2638,7 @@
             "content" : {
                "application/json" : {
                   "schema" : {
-                     "$ref" : "#/components/schemas/PkiScepServerList"
+                     "$ref" : "#/components/schemas/PkiScepServersList"
                   }
                }
             },
@@ -86197,54 +86207,18 @@
       "/reports/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of active nodes"
-               }
-            },
             "summary" : "Returns a list of active nodes"
          }
       },
       "/reports/connectiontype" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsConnectionTypeList"
-                        }
-                     }
-                  },
-                  "description" : "List of connection types"
-               }
-            },
             "summary" : "Returns a list of connection types"
          }
       },
       "/reports/connectiontype/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsConnectionTypeActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of active connection types"
-               }
-            },
             "summary" : "Returns a list of active connection types"
          }
       },
@@ -86271,126 +86245,42 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsConnectionTypeList"
-                        }
-                     }
-                  },
-                  "description" : "List of connection types within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of connection types within a specified date/time range"
          }
       },
       "/reports/connectiontypereg" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsConnectionTypeRegList"
-                        }
-                     }
-                  },
-                  "description" : "List of connection types for registered nodes"
-               }
-            },
             "summary" : "Returns a list of connection types for registered nodes"
          }
       },
       "/reports/connectiontypereg/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsConnectionTypeRegActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of connection types for active registered nodes"
-               }
-            },
             "summary" : "Returns a list of connection types for active registered nodes"
          }
       },
       "/reports/connectiontypeunreg" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsConnectionTypeUnregList"
-                        }
-                     }
-                  },
-                  "description" : "List of connection types for unregistered nodes"
-               }
-            },
             "summary" : "Returns a list of connection types for unregistered nodes"
          }
       },
       "/reports/connectiontypeunreg/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsConnectionTypeUnregActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of connection types for active unregistered nodes"
-               }
-            },
             "summary" : "Returns a list of connection types for active unregistered nodes"
          }
       },
       "/reports/inactive" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsInactiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of inactive nodes"
-               }
-            },
             "summary" : "Returns a list of inactive nodes"
          }
       },
       "/reports/nodebandwidth" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsNodeBandwidthList"
-                        }
-                     }
-                  },
-                  "description" : "List of nodes with the most bandwidth"
-               }
-            },
             "summary" : "Returns a list of nodes with the most bandwidth"
          }
       },
@@ -86417,90 +86307,30 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsNodeBandwidthList"
-                        }
-                     }
-                  },
-                  "description" : "List of nodes with the most bandwidth within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of nodes with the most bandwidth within a specified date/time range"
          }
       },
       "/reports/openviolations" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOpenViolationsList"
-                        }
-                     }
-                  },
-                  "description" : "List of nodes with an open violation"
-               }
-            },
             "summary" : "Returns a list of nodes with an open violation"
          }
       },
       "/reports/openviolations/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOpenViolationsActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of active nodes with an open violation"
-               }
-            },
             "summary" : "Returns a list of active nodes with an open violation"
          }
       },
       "/reports/os" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsList"
-                        }
-                     }
-                  },
-                  "description" : "List of node operating systems"
-               }
-            },
             "summary" : "Returns a list of node operating systems"
          }
       },
       "/reports/os/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsList"
-                        }
-                     }
-                  },
-                  "description" : "List of active node operating systems"
-               }
-            },
             "summary" : "Returns a list of active node operating systems"
          }
       },
@@ -86527,144 +86357,48 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsList"
-                        }
-                     }
-                  },
-                  "description" : "List of node operating systems first seen within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of node operating systems first seen within a specified date/time range"
          }
       },
       "/reports/osclass" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsClassList"
-                        }
-                     }
-                  },
-                  "description" : "List of node operating system classes"
-               }
-            },
             "summary" : "Returns a list of node operating system classes"
          }
       },
       "/reports/osclass/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsClassList"
-                        }
-                     }
-                  },
-                  "description" : "List of active node operating system classes"
-               }
-            },
             "summary" : "Returns a list of active node operating system classes"
          }
       },
       "/reports/osclassbandwidth" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
-                        }
-                     }
-                  },
-                  "description" : "List of operating system class bandwidths"
-               }
-            },
             "summary" : "Returns a list of operating system class bandwidths"
          }
       },
       "/reports/osclassbandwidth/day" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
-                        }
-                     }
-                  },
-                  "description" : "List of operating system class bandwidths for the past day"
-               }
-            },
             "summary" : "Returns a list of operating system class bandwidths for the past day"
          }
       },
       "/reports/osclassbandwidth/month" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
-                        }
-                     }
-                  },
-                  "description" : "List of operating system class bandwidths for the past month"
-               }
-            },
             "summary" : "Returns a list of operating system class bandwidths for the past month"
          }
       },
       "/reports/osclassbandwidth/week" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
-                        }
-                     }
-                  },
-                  "description" : "List of operating system class bandwidths for the past week"
-               }
-            },
             "summary" : "Returns a list of operating system class bandwidths for the past week"
          }
       },
       "/reports/osclassbandwidth/year" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
-                        }
-                     }
-                  },
-                  "description" : "List of operating system class bandwidths for the past year"
-               }
-            },
             "summary" : "Returns a list of operating system class bandwidths for the past year"
          }
       },
@@ -86691,90 +86425,30 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
-                        }
-                     }
-                  },
-                  "description" : "List of operating system class bandwidths within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of operating system class bandwidths within a specified date/time range"
          }
       },
       "/reports/registered" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsRegisteredList"
-                        }
-                     }
-                  },
-                  "description" : "List of registered nodes"
-               }
-            },
             "summary" : "Returns a list of registered nodes"
          }
       },
       "/reports/registered/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsRegisteredActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of active registered nodes"
-               }
-            },
             "summary" : "Returns a list of active registered nodes"
          }
       },
       "/reports/ssid" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsSsidList"
-                        }
-                     }
-                  },
-                  "description" : "List of wireless SSIDs"
-               }
-            },
             "summary" : "Returns a list of wireless SSIDs"
          }
       },
       "/reports/ssid/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsSsidActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of active wireless SSIDs"
-               }
-            },
             "summary" : "Returns a list of active wireless SSIDs"
          }
       },
@@ -86801,54 +86475,18 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsSsidList"
-                        }
-                     }
-                  },
-                  "description" : "List of wireless SSIDs within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of wireless SSIDs within a specified date/time range"
          }
       },
       "/reports/statics" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsStaticsList"
-                        }
-                     }
-                  },
-                  "description" : "List of nodes with a static IP address"
-               }
-            },
             "summary" : "Returns a list of nodes with a static IP address"
          }
       },
       "/reports/statics/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsStaticsActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of active nodes with a static IP address"
-               }
-            },
             "summary" : "Returns a list of active nodes with a static IP address"
          }
       },
@@ -86875,18 +86513,6 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsAuthenticationMacList"
-                        }
-                     }
-                  },
-                  "description" : "List of top authentication failures by MAC address within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of top authentication failures by MAC addresses within a specified date/time range"
          }
       },
@@ -86913,18 +86539,6 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsAuthenticationSsidList"
-                        }
-                     }
-                  },
-                  "description" : "List of top authentication failures by SSID within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of top authentication failures by SSID within a specified date/time range"
          }
       },
@@ -86951,18 +86565,6 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsAuthenticationUsernameList"
-                        }
-                     }
-                  },
-                  "description" : "List of top authentication failures by user name within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of top authentication failures by user name within a specified date/time range"
          }
       },
@@ -86989,18 +86591,6 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsAuthenticationComputernameList"
-                        }
-                     }
-                  },
-                  "description" : "List of top authentication successes by computer name within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of top authentication successes by computer name within a specified date/time range"
          }
       },
@@ -87027,18 +86617,6 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsAuthenticationMacList"
-                        }
-                     }
-                  },
-                  "description" : "List of top authentication successes by MAC address within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of top authentication successes by MAC addresses within a specified date/time range"
          }
       },
@@ -87065,18 +86643,6 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsAuthenticationSsidList"
-                        }
-                     }
-                  },
-                  "description" : "List of top authentication successes by SSID within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of top authentication successes by SSID within a specified date/time range"
          }
       },
@@ -87103,90 +86669,30 @@
                   }
                }
             ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsAuthenticationUsernameList"
-                        }
-                     }
-                  },
-                  "description" : "List of top authentication successes by user name within a specified date/time range"
-               }
-            },
             "summary" : "Returns a list of top authentication successes by user name within a specified date/time range"
          }
       },
       "/reports/unknownprints" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsUnknownprintsList"
-                        }
-                     }
-                  },
-                  "description" : "List of nodes with an unknown DHCP fingerprint"
-               }
-            },
             "summary" : "Returns a list of nodes with an unknown DHCP fingerprint"
          }
       },
       "/reports/unknownprints/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsUnknownprintsActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of active nodes with an unknown DHCP fingerprint"
-               }
-            },
             "summary" : "Returns a list of active nodes with an unknown DHCP fingerprint"
          }
       },
       "/reports/unregistered" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsUnregisteredList"
-                        }
-                     }
-                  },
-                  "description" : "List of unregistered nodes"
-               }
-            },
             "summary" : "Returns a list of unregistered nodes"
          }
       },
       "/reports/unregistered/active" : {
          "get" : {
             "deprecated" : true,
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/ReportsUnregisteredActiveList"
-                        }
-                     }
-                  },
-                  "description" : "List of active unregistered nodes"
-               }
-            },
             "summary" : "Returns a list of active unregistered nodes"
          }
       },
@@ -87230,11 +86736,6 @@
                      "application/json" : {
                         "schema" : {
                            "description" : "Item",
-                           "properties" : {
-                              "item" : {
-                                 "$ref" : "#/components/schemas/Tenant"
-                              }
-                           },
                            "type" : "object"
                         }
                      }
@@ -87262,15 +86763,6 @@
                   }
                }
             ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/Tenant"
-                     }
-                  }
-               }
-            },
             "responses" : {
                "200" : {
                   "$ref" : "#/components/responses/Message"
@@ -87296,15 +86788,6 @@
                   }
                }
             ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/Tenant"
-                     }
-                  }
-               }
-            },
             "responses" : {
                "200" : {
                   "$ref" : "#/components/responses/Message"
@@ -87339,16 +86822,6 @@
                }
             ],
             "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/TenantsList"
-                        }
-                     }
-                  },
-                  "description" : "List"
-               },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
                },
@@ -87362,16 +86835,6 @@
             "description" : "Create an item",
             "operationId" : "api.v1.Tenants.create",
             "parameters" : [],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/Tenant"
-                     }
-                  }
-               },
-               "description" : "Create item"
-            },
             "responses" : {
                "201" : {
                   "$ref" : "#/components/responses/Created"

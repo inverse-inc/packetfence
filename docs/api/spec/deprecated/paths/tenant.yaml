@@ -27,9 +27,6 @@
           application/json:
             schema:
               description: Item
-              properties:
-                item:
-                  $ref: '#/components/schemas/Tenant'
               type: object
         description: Get item
       '400':
@@ -45,11 +42,6 @@
       name: tenant_id
       schema:
         type: string
-    requestBody:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Tenant'
     responses:
       '200':
         $ref: '#/components/responses/Message'
@@ -66,11 +58,6 @@
       name: tenant_id
       schema:
         type: string
-    requestBody:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Tenant'
     responses:
       '200':
         $ref: '#/components/responses/Message'
