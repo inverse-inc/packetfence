@@ -92,7 +92,7 @@ Wrapper around systemctl. systemctl should in turn call the actual _stop.
 =cut
 
 sub stop {
-    my ($self) = @_;
+    #my ($self) = @_;
     system('sudo systemctl stop packetfence-firewalld');
     return 1;
 }
@@ -104,12 +104,12 @@ stop firewalld
 =cut
 
 sub _stop {
-    my ($self) = @_;
+    #my ($self) = @_;
     my $logger = get_logger();
+    pf_run("sudo systemctl stop packetfence-firewalld");
     pf_run("sudo iptables -F");
     pf_run("sudo iptables -X");
     pf_run("sudo iptables -t nat -F");
-    pf_run("sudo iptables -t nat -X");
     pf_run("sudo iptables -t mangle -F");
     pf_run("sudo iptables -t mangle -X");
     pf_run("sudo iptables -P INPUT ACCEPT");
@@ -120,7 +120,6 @@ sub _stop {
     pf_run("sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER");
     pf_run("sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE");
     pf_run("sudo iptables -t nat -A DOCKER -i docker0 -j RETURN");
-    pf_run("sudo systemctl stop packetfence-firewalld");
     return 1;
 }
 
