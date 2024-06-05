@@ -35,6 +35,7 @@
     parameters:
     - in: path
       name: interface_id
+      required: true
       schema:
         type: string
     responses:
@@ -73,6 +74,7 @@
     parameters:
     - in: path
       name: interface_id
+      required: true
       schema:
         type: string
     responses:
@@ -83,9 +85,8 @@
       '404':
         $ref: '#/components/responses/NotFound'
       '412':
-        allOf:
-          - $ref: '#/components/responses/Message'
-          - description: "Failed to respect precondition to delete interface"
+        $ref: '#/components/responses/Message'
+        description: "Failed to respect precondition to delete interface"
     tags:
       - Config/Interfaces
 
@@ -95,6 +96,7 @@
     parameters:
     - in: path
       name: interface_id
+      required: true
       schema:
         type: string
     responses:
@@ -105,9 +107,8 @@
       '404':
         $ref: '#/components/responses/NotFound'
       '412':
-        allOf:
-          - $ref: '#/components/responses/Message'
-          - description: "Failed to respect precondition to put interface up"
+        $ref: '#/components/responses/Message'
+        description: "Failed to respect precondition to put interface up"
     tags:
       - Config/Interfaces
 
@@ -117,6 +118,7 @@
     parameters:
     - in: path
       name: interface_id
+      required: true
       schema:
         type: string
     responses:
@@ -127,8 +129,7 @@
       '404':
         $ref: '#/components/responses/NotFound'
       '412':
-        allOf:
-          - $ref: '#/components/responses/Message'
-          - description: "Failed to respect precondition to put interface down"
+        $ref: '#/components/responses/Message'
+        description: "Failed to respect precondition to put interface down"
     tags:
       - Config/Interfaces

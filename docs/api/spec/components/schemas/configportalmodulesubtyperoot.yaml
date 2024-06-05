@@ -1,15 +1,12 @@
 ConfigPortalModuleSubTypeRoot:
   properties:
     description:
-      default: ~
       description: The description that will be displayed to users
       type: string
     id:
-      default: ~
       description: Identifier
       type: string
     modules:
-      default: ~
       description: Modules
       items:
         description: Module
@@ -19,7 +16,6 @@ ConfigPortalModuleSubTypeRoot:
       default: Root
       description: Discriminator `Root`
       type: string
-      value: Root
   required:
   - id
   - description

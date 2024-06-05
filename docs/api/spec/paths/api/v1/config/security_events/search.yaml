@@ -22,25 +22,22 @@
             - $ref: '#/components/schemas/Search'
             - properties:
                 cursor:
-                  required: false
                   type: string
                 fields:
                   items:
                     type: string
-                  required: true
                   type: array
                 limit:
                   maximum: 1000
                   minimum: 1
-                  required: false
                   type: integer
                 sort:
                   items:
                     type: string
-                  required: true
                   type: array
               required:
               - fields
+              - sort
       description: Search for items.
     responses:
       '200':

@@ -86,6 +86,7 @@
                 item:
                   $ref: '#/components/schemas/User'
               type: object
+        description: Request successful.
       '401':
         $ref: '#/components/responses/Forbidden'
       '404':

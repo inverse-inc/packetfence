@@ -1,6 +1,7 @@
 Async:
-  in: body
+  in: path
   name: async
+  required: true
   schema:
     $ref: "#/components/schemas/Async"
   description: Asyncronous request.

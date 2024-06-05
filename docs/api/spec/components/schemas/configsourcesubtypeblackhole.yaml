@@ -1,18 +1,15 @@
 ConfigSourceSubTypeBlackhole:
   properties:
     description:
-      default: ''
       description: Description
       type: string
     id:
-      default: ~
       description: Id
       type: string
     type:
       default: Blackhole
       description: Discriminator `Blackhole`
       type: string
-      value: Blackhole
   required:
   - id
   - description

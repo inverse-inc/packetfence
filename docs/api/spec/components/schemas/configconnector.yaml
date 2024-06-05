@@ -1,22 +1,18 @@
 ConfigConnector:
   properties:
     description:
-      default: ~
       description: Description
       type: string
     id:
-      default: ~
       description: Id
       type: string
     networks:
-      default: ~
       description: Networks
       items:
         description: Network
         type: string
       type: array
     secret:
-      default: ~
       description: Secret
       type: string
   required:

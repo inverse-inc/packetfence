@@ -4,61 +4,59 @@
     description: List all items.
     operationId: api.v1.Ip4logs.list
     parameters:
-    - allOf:
-      - description: Comma delimited list of fields to return with each item.
-        explode: false
-        name: fields
-        required: true
-        schema:
-          example:
+    - description: Comma delimited list of fields to return with each item.
+      explode: false
+      in: path
+      name: fields
+      required: true
+      schema:
+        example:
+        - end_time
+        - ip
+        - mac
+        - start_time
+        items:
+          enum:
           - end_time
           - ip
           - mac
           - start_time
-          items:
-            enum:
-            - end_time
-            - ip
-            - mac
-            - start_time
-            type: string
-          type: array
-        style: form
-      - in: query
-    - allOf:
-      - description: 'Comma delimited list of fields and respective order to sort
-          items (`default: [ ip ASC ]`).'
-        explode: false
-        name: sort
-        schema:
-          example:
+          type: string
+        type: array
+      style: simple
+    - description: 'Comma delimited list of fields and respective order to sort items
+        (`default: [ ip ASC ]`).'
+      explode: false
+      in: path
+      name: sort
+      required: true
+      schema:
+        example:
+        - ip ASC
+        items:
+          enum:
+          - end_time ASC
+          - end_time DESC
           - ip ASC
-          items:
-            enum:
-            - end_time ASC
-            - end_time DESC
-            - ip ASC
-            - ip DESC
-            - mac ASC
-            - mac DESC
-            - start_time ASC
-            - start_time DESC
-            type: string
-          type: array
-        style: form
-      - in: query
-    - allOf:
-      - $ref: '#/components/parameters/limit'
-      - in: query
-    - allOf:
-      - $ref: '#/components/parameters/cursor'
-      - in: query
+          - ip DESC
+          - mac ASC
+          - mac DESC
+          - start_time ASC
+          - start_time DESC
+          type: string
+        type: array
+      style: simple
+    - $ref: '#/components/parameters/limit'
+      in: path
+    - $ref: '#/components/parameters/cursor'
+      in: path
     responses:
       '200':
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Ip4logsList'
+        description: Request successful.
       '401':
         $ref: '#/components/responses/Forbidden'
       '404':

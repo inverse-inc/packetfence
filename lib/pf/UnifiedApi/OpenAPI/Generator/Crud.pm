@@ -207,6 +207,8 @@ sub dalToOpFields {
     return {
         name => 'fields',
         required => JSON::MaybeXS::true,
+        in => 'path',
+        required => JSON::MaybeXS::true,
         schema => {
             type => 'array',
             items => {
@@ -215,7 +217,7 @@ sub dalToOpFields {
             },
             example => [@$fields],
         },
-        style => 'form',
+        style => 'simple',
         explode => JSON::MaybeXS::false,
         description => 'Comma delimited list of fields to return with each item.'
     };
@@ -227,6 +229,8 @@ sub dalToOpSort {
     my $pk = $self->dalToPK($dal);
     return {
         name => 'sort',
+        in => 'path',
+        required => JSON::MaybeXS::true,
         schema => {
             type => 'array',
             items => {
@@ -235,7 +239,7 @@ sub dalToOpSort {
             },
             example => [ $pk.' ASC' ],
         },
-        style => 'form',
+        style => 'simple',
         explode => JSON::MaybeXS::false,
         description => 'Comma delimited list of fields and respective order to sort items (`default: [ '.$pk.' ASC ]`).',
     };
@@ -250,12 +254,19 @@ sub dalToExampleQuery {
 
 sub operationParametersLookup {
     my ($self, $scope, $c, $m, $a) = @_;
+
+    my $opFields = $self->dalToOpFields($c->dal);
+    $opFields->{in} = 'path';
+
+    my $opSort = $self->dalToOpSort($c->dal);
+    $opSort->{in} = 'path';
+
     return {
         list => [
-            { allOf => [ $self->dalToOpFields($c->dal), { in => 'query' } ] },
-            { allOf => [ $self->dalToOpSort($c->dal), { in => 'query' } ] },
-            { allOf => [ { "\$ref" => "#/components/parameters/limit" }, { in => 'query' } ] },
-            { allOf => [ { "\$ref" => "#/components/parameters/cursor" }, { in => 'query' } ] },
+            $opFields,
+            $opSort,
+            { "\$ref" => "#/components/parameters/limit", in => 'path' },
+            { "\$ref" => "#/components/parameters/cursor", in => 'path' },
         ]
     }
 }
@@ -271,6 +282,7 @@ sub getResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
         '200' => {
+            description => 'Request successful.',
             content => {
                 "application/json" => {
                     schema => {
@@ -387,14 +399,12 @@ sub searchRequestBody {
                             "\$ref" => "#/components/schemas/Search"
                         },
                         {
-                            required => [ 'fields' ],
+                            required => [ 'fields', 'sort' ],
                             properties => {
                                 cursor => {
-                                    required => JSON::MaybeXS::false,
                                     type => 'string',
                                 },
                                 fields => {
-                                    required => JSON::MaybeXS::true,
                                     type => 'array',
                                     items => {
                                         type => 'string',
@@ -402,13 +412,11 @@ sub searchRequestBody {
                                     },
                                 },
                                 limit => {
-                                    required => JSON::MaybeXS::false,
                                     type => 'integer',
                                     minimum => 1,
                                     maximum => 1000,
                                 },
                                 sort => {
-                                    required => JSON::MaybeXS::true,
                                     type => 'array',
                                     items => {
                                         type => 'string',
@@ -442,6 +450,7 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         '200' => {
+            description => 'Request successful.',
             content => {
                 "application/json" => {
                     schema => {

@@ -4,13 +4,24 @@
     description: List all items.
     operationId: api.v1.DhcpOption82s.list
     parameters:
-    - allOf:
-      - description: Comma delimited list of fields to return with each item.
-        explode: false
-        name: fields
-        required: true
-        schema:
-          example:
+    - description: Comma delimited list of fields to return with each item.
+      explode: false
+      in: path
+      name: fields
+      required: true
+      schema:
+        example:
+        - circuit_id_string
+        - created_at
+        - host
+        - mac
+        - module
+        - option82_switch
+        - port
+        - switch_id
+        - vlan
+        items:
+          enum:
           - circuit_id_string
           - created_at
           - host
@@ -20,65 +31,52 @@
           - port
           - switch_id
           - vlan
-          items:
-            enum:
-            - circuit_id_string
-            - created_at
-            - host
-            - mac
-            - module
-            - option82_switch
-            - port
-            - switch_id
-            - vlan
-            type: string
-          type: array
-        style: form
-      - in: query
-    - allOf:
-      - description: 'Comma delimited list of fields and respective order to sort
-          items (`default: [ mac ASC ]`).'
-        explode: false
-        name: sort
-        schema:
-          example:
+          type: string
+        type: array
+      style: simple
+    - description: 'Comma delimited list of fields and respective order to sort items
+        (`default: [ mac ASC ]`).'
+      explode: false
+      in: path
+      name: sort
+      required: true
+      schema:
+        example:
+        - mac ASC
+        items:
+          enum:
+          - circuit_id_string ASC
+          - circuit_id_string DESC
+          - created_at ASC
+          - created_at DESC
+          - host ASC
+          - host DESC
           - mac ASC
-          items:
-            enum:
-            - circuit_id_string ASC
-            - circuit_id_string DESC
-            - created_at ASC
-            - created_at DESC
-            - host ASC
-            - host DESC
-            - mac ASC
-            - mac DESC
-            - module ASC
-            - module DESC
-            - option82_switch ASC
-            - option82_switch DESC
-            - port ASC
-            - port DESC
-            - switch_id ASC
-            - switch_id DESC
-            - vlan ASC
-            - vlan DESC
-            type: string
-          type: array
-        style: form
-      - in: query
-    - allOf:
-      - $ref: '#/components/parameters/limit'
-      - in: query
-    - allOf:
-      - $ref: '#/components/parameters/cursor'
-      - in: query
+          - mac DESC
+          - module ASC
+          - module DESC
+          - option82_switch ASC
+          - option82_switch DESC
+          - port ASC
+          - port DESC
+          - switch_id ASC
+          - switch_id DESC
+          - vlan ASC
+          - vlan DESC
+          type: string
+        type: array
+      style: simple
+    - $ref: '#/components/parameters/limit'
+      in: path
+    - $ref: '#/components/parameters/cursor'
+      in: path
     responses:
       '200':
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/DhcpOption82sList'
+        description: Request successful.
       '401':
         $ref: '#/components/responses/Forbidden'
       '404':

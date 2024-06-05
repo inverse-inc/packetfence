@@ -1,16 +1,16 @@
 cursor:
   in: query
   name: cursor
-  required: false
+  required: true
   schema:
     type: string
     example: 0
   description: The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).
 
 limit:
-  in: query|body
+  in: path
   name: limit
-  required: false
+  required: true
   schema:
     type: integer
     minimum: 1
@@ -29,17 +29,17 @@ limit:
   description: The maximum amount of entries to get.
 
 sort:
-  in: query|body
+  in: path
   name: sort
-  required: false
+  required: true
   schema:
     type: string
   description: The sort and order of the paginated entries.
 
 fields:
-  in: body
+  in: path
   name: fields
-  required: false
+  required: true
   schema:
     type: array
     items:
@@ -51,7 +51,7 @@ fields:
   description: Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.
 
 search_query:
-  in: body
+  in: path
   name: query
   required: true
   schema:
@@ -61,7 +61,7 @@ search_query:
 local:
   in: query
   name: local
-  required: false
+  required: true
   schema:
     type: integer
     default: 0

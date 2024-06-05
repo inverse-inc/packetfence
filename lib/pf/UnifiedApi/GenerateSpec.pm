@@ -19,7 +19,7 @@ our %FIELDS_TYPES_TO_SCHEMA_TYPES = (
     Port       => 'integer',
     Integer    => 'integer',
     IntRange   => 'integer',
-    PathUpload => 'file',
+    PathUpload => 'string',
 );
 use Lingua::EN::Inflexion qw(noun);
 
@@ -131,13 +131,11 @@ sub formHandlerProperties {
     for my $field (grep { isAllowedField($_) } $form->fields) {
         my $name = $field->name;
         $properties{$name} = fieldProperties($field);
-        $properties{$name}->{default} = $field->value;
         if ($is_subtype && $field->name eq 'type' && $field->value) {
+            $properties{$name}->{default} = $field->value;
             $properties{$name}->{description} = 'Discriminator `' . $field->value . '`';
-            $properties{$name}->{value} = $field->value;
         }
     }
-
     return \%properties;
 }
 
@@ -204,7 +202,7 @@ sub fieldProperties {
     my ($field, $not_array) = @_;
     my %props = (
         type => fieldType($field, $not_array),
-        description => fieldDescription($field),
+        description => fieldDescription($field)
     );
     if ($props{type} eq 'array') {
         $props{items} = fieldArrayItems($field);

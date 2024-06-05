@@ -10,12 +10,6 @@ info:
   license:
     name: GNU General Public License v2.0
 
-consumes:
-  - application/json
-
-produces:
-  - application/json
-
 paths: {}
 
 components: {}
@@ -28,7 +22,7 @@ servers:
         default: localhost
         description: Hostname or IP address of the PacketFence API.
       port:
-        default: 9999
+        default: "9999"
         description: Port of the PacketFence API
   - url: http://{hostname}:{port}
     description: Insecure PacketFence API.
@@ -37,7 +31,7 @@ servers:
         default: localhost
         description: Hostname or IP address of the PacketFence API.
       port:
-        default: 9999
+        default: "9999"
         description: Port of the PacketFence API.
 
 security:

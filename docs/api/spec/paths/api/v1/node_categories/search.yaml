@@ -63,7 +63,6 @@
             - $ref: '#/components/schemas/Search'
             - properties:
                 cursor:
-                  required: false
                   type: string
                 fields:
                   items:
@@ -79,12 +78,10 @@
                     - name
                     - notes
                     type: string
-                  required: true
                   type: array
                 limit:
                   maximum: 1000
                   minimum: 1
-                  required: false
                   type: integer
                 sort:
                   items:
@@ -110,10 +107,10 @@
                     - notes ASC
                     - notes DESC
                     type: string
-                  required: true
                   type: array
               required:
               - fields
+              - sort
       required: true
     responses:
       '200':
@@ -121,6 +118,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/NodeCategoriesList'
+        description: Request successful.
       '401':
         $ref: '#/components/responses/Forbidden'
       '404':

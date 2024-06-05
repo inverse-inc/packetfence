@@ -17,18 +17,14 @@ CurrentUserAllowedRole:
       type: integer
     fingerbank_dynamic_access_list:
       type: string
-      oneOf:
-        - const: disabled
-          description: Disabled
-        - const: enabled
-          description: Enabled
+      enum:
+        - disabled
+        - enabled
     include_parent_acls:
       type: string
-      oneOf:
-        - const: disabled
-          description: Disabled
-        - const: enabled
-          description: Enabled
+      enum:
+        - disabled
+        - enabled
     inherit_role:
       type: string
       nullable: true

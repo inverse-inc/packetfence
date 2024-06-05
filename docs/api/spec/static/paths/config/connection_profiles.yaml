@@ -5,6 +5,7 @@
     - description: '`PRIMARY KEY`'
       in: path
       name: connection_profile_id
+      required: true
       schema:
         enum:
         - default

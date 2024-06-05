@@ -43,7 +43,6 @@
             - $ref: '#/components/schemas/Search'
             - properties:
                 cursor:
-                  required: false
                   type: string
                 fields:
                   items:
@@ -54,12 +53,10 @@
                     - start_time
                     - type
                     type: string
-                  required: true
                   type: array
                 limit:
                   maximum: 1000
                   minimum: 1
-                  required: false
                   type: integer
                 sort:
                   items:
@@ -75,10 +72,10 @@
                     - type ASC
                     - type DESC
                     type: string
-                  required: true
                   type: array
               required:
               - fields
+              - sort
       required: true
     responses:
       '200':
@@ -86,6 +83,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/Ip6logsList'
+        description: Request successful.
       '401':
         $ref: '#/components/responses/Forbidden'
       '404':

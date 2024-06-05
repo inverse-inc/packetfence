@@ -2,14 +2,14 @@
   post:
     summary: Perform an LDAP search with provided LDAP server information
     description: This will cause the Packetfence server to perform an LDAP search on the provided LDAP server with the provided information
-    produces:
-        - application/json
     requestBody:
       required: true
       content:
         application/json:
           schema:
             type: object
+            required:
+              - scope
             properties:
               server:
                 $ref: '#/components/schemas/ConfigSourceSubTypeLdap'
@@ -25,7 +25,6 @@
                   scope:
                     type: string
                     enum: [ base, one, sub ]
-                    required: true
                     example: base
                   attributes:
                     type: array

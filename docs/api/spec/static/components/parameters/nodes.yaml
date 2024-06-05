@@ -4,7 +4,6 @@ node_id:
   required: true
   description: The nodes `PRIMARY_KEY` (MAC Address)
   allowReserved: true
-  style: form
   explode: false
   schema:
     type: string

@@ -34,6 +34,7 @@
                 item:
                   $ref: '#/components/schemas/Ip6log'
               type: object
+        description: Request successful.
       '401':
         $ref: '#/components/responses/Forbidden'
       '404':

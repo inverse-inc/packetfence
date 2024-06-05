@@ -59,7 +59,6 @@
             - $ref: '#/components/schemas/Search'
             - properties:
                 cursor:
-                  required: false
                   type: string
                 fields:
                   items:
@@ -74,12 +73,10 @@
                     - switch_id
                     - vlan
                     type: string
-                  required: true
                   type: array
                 limit:
                   maximum: 1000
                   minimum: 1
-                  required: false
                   type: integer
                 sort:
                   items:
@@ -103,10 +100,10 @@
                     - vlan ASC
                     - vlan DESC
                     type: string
-                  required: true
                   type: array
               required:
               - fields
+              - sort
       required: true
     responses:
       '200':
@@ -114,6 +111,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/DhcpOption82sList'
+        description: Request successful.
       '401':
         $ref: '#/components/responses/Forbidden'
       '404':

@@ -1,36 +1,28 @@
 ConfigMaintenanceTaskSubTypePfflow:
   properties:
     group_id:
-      default: network_group
       description: 'The Kafka Consumer Group ID '
       type: string
     id:
-      default: ~
       description: Pfcron Name
       type: string
     kafka_brokers:
-      default: ''
       description: Kafka Brokers
       type: string
     read_topic:
-      default: pfflows_events
       description: The Kafka topic to read pfflows from
       type: string
     schedule:
-      default: '@every 1m'
       description: The schedule for maintenance task (cron like spec).
       type: string
     send_topic:
-      default: ~
       description: The Kafka topic to write network events to
       type: string
     status:
-      default: disabled
       description: Whether or not this task is enabled.<br>Requires a restart of pfcron
         to be effective.
       type: string
     submit_batch:
-      default: '100'
       description: Amount of items that will be processed in each batch of this task.
         Batches are executed until there is no more items to process or until the
         timeout is reached.
@@ -39,7 +31,6 @@ ConfigMaintenanceTaskSubTypePfflow:
       default: pfflow
       description: Discriminator `pfflow`
       type: string
-      value: pfflow
   required:
   - id
   - type

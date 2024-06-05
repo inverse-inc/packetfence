@@ -106,7 +106,9 @@ sub resourceParameters {
         for my $section ($ini->Sections) {
             push @$enum, $section;
         };
-        $parameter->{schema}->{enum} = [sort @$enum];
+        if (@$enum) {
+            $parameter->{schema}->{enum} = [sort @$enum];
+        }
     }
     push @$parameters, $parameter;
     return $parameters;
@@ -399,32 +401,26 @@ sub searchRequestBody {
                             "\$ref" => "#/components/schemas/Search"
                         },
                         {
-                            required => [ 'fields' ],
+                            required => [ 'fields', 'sort' ],
                             properties => {
                                 cursor => {
-                                    required => JSON::MaybeXS::false,
                                     type => 'string',
                                 },
                                 fields => {
-                                    required => JSON::MaybeXS::true,
                                     type => 'array',
                                     items => {
                                         type => 'string',
-#                                        enum => \@$fields,
                                     },
                                 },
                                 limit => {
-                                    required => JSON::MaybeXS::false,
                                     type => 'integer',
                                     minimum => 1,
                                     maximum => 1000,
                                 },
                                 sort => {
-                                    required => JSON::MaybeXS::true,
                                     type => 'array',
                                     items => {
                                         type => 'string',
-#                                        enum => \@$sorts,
                                     },
                                 }
                             }
@@ -434,10 +430,7 @@ sub searchRequestBody {
                 },
                 example => {
                     cursor => 0,
-#                    fields => \@$fields,
                     limit => 25,
-#                    sort => [ $pk.' ASC' ],
-#                    query => $query,
                 }
             }
         }

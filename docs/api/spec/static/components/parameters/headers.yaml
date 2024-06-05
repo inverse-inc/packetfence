@@ -2,6 +2,7 @@ X-PacketFence-Server:
   in: header
   name: X-PacketFence-Server
   description: Proxy CRUD to IPv4 address of a specific server in a cluster instead of LB.
+  required: true
   schema:
     type: string
     pattern: '\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'

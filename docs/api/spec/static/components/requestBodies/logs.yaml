@@ -4,6 +4,8 @@ LogsCreate:
     application/json:
       schema:
         type: object
+        required:
+          - files
         properties:
           files:
             description: Log files to tail.
@@ -11,7 +13,6 @@ LogsCreate:
             items:
               description: /usr/local/pf/logs/logfile.log
               type: string
-            required: true
           filter:
             description: Filter events by string.
             type: string
