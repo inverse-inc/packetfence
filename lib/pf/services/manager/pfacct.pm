@@ -18,6 +18,7 @@ use Template;
 use pf::cluster;
 use pf::config qw(
     $management_network
+    %Config
 );
 
 extends 'pf::services::manager';
@@ -61,12 +62,19 @@ sub generate_container_environments {
     my $management_ip = $management_network->tag('ip');
 
     my $port = '1813';
-    if ($cluster_enabled) {
+    my $listeningIp = $management_ip;
+    if ($cluster_enabled || isenabled($Config{services}{radiusd_acct})) {
         $port = '1823';
+    }
+    if ($cluster_enabled && isenabled($Config{services}{radiusd_acct})) {
+        $port = '1833';
+    }
+    if (isenabled($Config{services}{radiusd_acct})) {
+        $listeningIp = '127.0.0.1';
     }
     my $vars = {
        env_dict => {
-           PFACCT_ADDRESS=> "$port",
+           PFACCT_ADDRESS=> "$listeningIp:$port",
        },
     };
     $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/acct.env") or die $tt->error();
