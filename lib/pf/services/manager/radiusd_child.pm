@@ -1080,7 +1080,15 @@ EOT
 
     if(isenabled($Config{services}{pfacct})) {
         my $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-        $tags{'pfacct'} = <<"EOT";
+        my $port = '1813';
+        if ($cluster_enabled || isenabled($Config{services}{radiusd_acct})) {
+            $port = '1823';
+        }
+        if ($cluster_enabled && isenabled($Config{services}{radiusd_acct})) {
+            $port = '1833';
+        }
+
+	$tags{'pfacct'} = <<"EOT";
 # pfacct configuration
 
 realm pfacct {
@@ -1095,7 +1103,7 @@ home_server_pool pfacct_pool {
 home_server pfacct_local {
     type = acct
     ipaddr = 127.0.0.1
-    port = 1813
+    port = $port
     secret = '$local_secret'
     src_ipaddr = $management_ip
 }
