@@ -106,7 +106,6 @@ stop firewalld
 sub _stop {
     #my ($self) = @_;
     my $logger = get_logger();
-    pf_run("sudo systemctl stop packetfence-firewalld");
     pf_run("sudo iptables -F");
     pf_run("sudo iptables -X");
     pf_run("sudo iptables -t nat -F");
