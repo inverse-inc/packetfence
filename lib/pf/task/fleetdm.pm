@@ -20,85 +20,162 @@ use JSON;
 use HTTP::Tiny;
 use pf::CHI;
 use pf::security_event;
+use pf::log;
 
-
-
-=head2 doTask
-
-
-=cut
-
+our $cache = pf::CHI->new(namespace => 'fleetdm');
 our $fleetdm_host = "";
 our $fleetdm_email = "";
 our $fleetdm_password = "";
 our $fleetdm_token = "";
 
-# our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
-our $cache = pf::CHI->new(namespace => 'fleetdm_api', driver => 'File');
+my $logger = get_logger;
+my $msg = "";
+
+unless (exists($Config{fleetdm})) {
+    $msg = "Unable to locate fleetdm config in pfconfig, section 'fleetdm' does not exist.";
+    $logger->error($msg);
+    return 1;
+}
+
+unless (exists($Config{fleetdm}->{host}) &&
+    exists($Config{fleetdm}->{email}) &&
+    exists($Config{fleetdm}->{password}) &&
+    exists($Config{fleetdm}->{token})
+) {
+    $msg = "Invalid fleetdm config: 'host', 'email', 'password', 'token' should be defined in pf.conf. Did you manually changed the config file ?";
+    logger->error($msg);
+    return 1;
+}
+$fleetdm_host = $Config{fleetdm}->{host};
+$fleetdm_email = $Config{fleetdm}->{email};
+$fleetdm_password = $Config{fleetdm}->{password};
+$fleetdm_token = $Config{fleetdm}->{token};
+
+if ($fleetdm_host eq "") {
+    $msg = "Unable to find a valid 'host' value in FleetDM config.";
+    $logger->error($msg);
+    return 1;
+}
+
+if ($fleetdm_token eq "" &&
+    ($fleetdm_email eq "" || $fleetdm_password eq "")
+) {
+    $msg = "Unable to obtain credentials for FleetDM. Either 'token' or 'email+password' is required.";
+    $logger->error($msg);
+    return 1;
+}
 
 sub doTask {
     my ($self, $args) = @_;
-    print("---- in processing fleetdm \n");
 
-    unless (exists($Config{fleetdm})) {
-        print("unable to locate fleetdm config, task skipped")
-    }
-    $fleetdm_host = $Config{fleetdm}->{host};
-    $fleetdm_email = $Config{fleetdm}->{email};
-    $fleetdm_password = $Config{fleetdm}->{password};
-    $fleetdm_token = $Config{fleetdm}->{token};
-
-    if ($fleetdm_token eq "") {
-        $fleetdm_token = login($fleetdm_host, $fleetdm_email, $fleetdm_password);
+    unless (exists($args->{type}) && exists($args->{payload})) {
+        $msg = "Unable to extract event 'type' or 'payload' from task.";
+        $logger->error($msg);
+        return 1;
     }
 
-    my $type = $args->{type};
-    my $payload = $args->{payload};
+    if ($args->{type} eq "policy-violation") {
+        handlePolicy($args->{payload});
+    }
 
+    if ($args->{type} eq "CVE") {
+        handleCVE($args->{payload});
+    }
+
+    $msg = "Unknown event type: $args->{type}";
+    $logger->error($msg);
+    return 1;
+}
+
+sub handlePolicy {
+    my ($payload) = @_;
     my $data = decode_json($payload);
 
-    my $timestamp = $data->{timestamp};
-    my $policy = $data->{policy};
-    my $policy_id = $data->{policy}->{id};
-    my $policy_name = $data->{policy}->{name};
-    my $policy_query = $data->{policy}->{query};
+    unless (exists($data->{timestamp}) && exists($data->{policy}) && exists($data->{hosts})) {
+        $msg = "Invalid FleetDM event entry. Missing 'timestamp' or 'policy' or 'hosts'";
+        $logger->error($msg);
+        return 1;
+    }
 
-    # todo clean up
-    print("---- timestamp: ", $timestamp, "\n");
-    print("---- policy_id: ", $policy_id, "\n");
-    print("---- policy_name: ", $policy_name, "\n");
+    unless (exists($data->{policy}->{id}) && exists($data->{policy}->{name}) && exists($data->{policy}->{query})) {
+        $msg = "Invalid FleetDM policy violation event struct. Missing policy 'id' or 'name' or 'query'";
+        $logger->error($msg);
+        return 1;
+    }
+
+    my $policy_name = $data->{policy}->{name};
 
     my @hosts = @{$data->{hosts}};
     foreach my $host (@hosts) {
+        unless (exists($host->{id}) && exists($host->{hostname})) {
+            $msg = "Invalid host entry: missing either 'id' or 'hostname', please check fleetDM response. skipped.";
+            $logger->error($msg);
+            next;
+        }
+
         my $host_id = $host->{id};
-        my $hostname = $host->{hostname};
-
-        print("  ---- host_id: ", $host_id, "\n");
-        print("  ---- hostname: ", $hostname, "\n");
-
-        my $primary_mac = cachedGetHostInfo($host_id);
-        print("  ---- mac is: ", $primary_mac);
+        my $primary_mac = cachedGetHostMac($host_id);
 
         if (defined($primary_mac) && $primary_mac ne "") {
-            triggerPolicy($primary_mac, "Custom", $policy_name)
+            triggerPolicy($primary_mac, "FleetDM Policy Violation", $policy_name, $payload)
         }
     }
 }
 
+sub handleCVE {
+    my ($payload) = @_;
+    my $data = decode_json($payload);
+
+    unless (exists($data->{timestamp}) && exists($data->{vulnerability})) {
+        $msg = "Invalid FleetDM CVE event entry. Missing 'timestamp' or 'vulnerability'";
+        $logger->error($msg);
+        return 1;
+    }
+
+    unless (exists($data->{vulnerability}->{cve}) && exists($data->{vulnerability}->{hosts_affected})) {
+        $msg = "Invalid FleetDM vulnerability CVE event struct. Missing 'cve' or 'hosts_affected'";
+        $logger->error($msg);
+        return 1;
+    }
+
+    my $cve = $data->{vulnerability}->{cve};
+
+    my @hosts = @{$data->{vulnerability}->{hosts_affected}};
+    foreach my $host (@hosts) {
+        unless (exists($host->{id}) && exists($host->{display_name})) {
+            $msg = "Invalid host entry: missing either 'id' or 'display_name', please check fleetDM response. skipped.";
+            $logger->error($msg);
+            next;
+        }
+
+        my $host_id = $host->{id};
+        my $primary_mac = cachedGetHostMac($host_id);
+
+        if (defined($primary_mac) && $primary_mac ne "") {
+            triggerPolicy($primary_mac, "FleetDM CVE", $cve, $payload)
+        }
+    }
+
+}
+
 sub triggerPolicy() {
-    my ($mac, $type, $tid) = @_;
-    security_event_trigger({ mac => $mac, tid => $tid, type => $type });
+    my ($mac, $type, $tid, $json) = @_;
+    security_event_trigger({
+        mac     => $mac,
+        type    => $type,
+        tid     => $tid,
+        'notes' => $json
+    });
 }
 
 sub login {
-    my ($host, $email, $password) = @_;
     my $http = HTTP::Tiny->new;
 
-    my $url = $host . "/api/v1/fleet/login";
+    my $url = $fleetdm_host . "/api/v1/fleet/login";
 
     my $post_data = {
-        email    => $email,
-        password => $password,
+        email    => $fleetdm_email,
+        password => $fleetdm_password,
     };
     my $json_post_data = encode_json($post_data);
 
@@ -108,57 +185,114 @@ sub login {
     });
 
     my $ret = "";
-    if ($response->{success} && $response->{status} == 200) {
-        my $data = decode_json($response->{content});
-        $ret = $data->{token};
+    if (!$response->{success}) {
+        $msg = "unable to perform FleetDM API: " . $response->{reason};
+        $logger->error($msg);
+        return "";
     }
-    else {
-        print("error :", $response->{status}, " ", $response->{reason});
+
+    if ($response->{status} != 200) {
+        $msg = "error $response->{status} occured while login: $response->{reason}";
+        $logger->error($msg);
+        return "";
     }
+
+    my $data = decode_json($response->{content});
+    unless (defined($data->{token} && $data->{token} ne "")) {
+        $msg = "invalid login FleetDM login response. 'token' not found.";
+        $logger->error($msg);
+        return "";
+    }
+    $ret = $data->{token};
     return $ret;
 }
 
-sub getHostInfo {
+sub refreshToken {
+    if ($Config{fleetdm}->{token} ne "") {
+        $fleetdm_token = $Config{fleetdm}->{token};
+        print("        ---- token obtained from config \n");
+        return;
+    }
+
+    my $token = $cache->get("fleetdm_api_token");
+    if (defined($token) && $token ne "") {
+        $fleetdm_token = $token;
+        print("        ---- token obtained from cache \n");
+        return;
+    }
+
+    $token = login();
+    if (defined($token) && $token ne "") {
+        $fleetdm_token = $token;
+        $cache->set("fleetdm_api_token", $token, "10s");
+        print("        ---- token obtained from api and set to cache \n");
+        return;
+    }
+}
+
+sub cachedGetHostMac {
+    my ($host_id) = @_;
+    my $cache_key = "fleetdm_host_id:" . $host_id;
+    my $mac_address = $cache->get($cache_key);
+
+    if (defined($mac_address) && $mac_address ne "") {
+        print("    ---- cached fleetdm host mac\n");
+        return $mac_address;
+    }
+
+    $mac_address = getHostMac($host_id);
+    if (defined($mac_address) && $mac_address ne "") {
+        $cache->set($cache_key, $mac_address, "1m");
+        print("    ---- mac address got from API and set to cache\n");
+        return ($mac_address)
+    }
+    return ""
+}
+
+sub getHostMac {
     my ($host_id) = @_;
 
-    my $url = $fleetdm_host . "/api/v1/fleet/hosts/" . $host_id;
+    refreshToken();
+    unless (defined($fleetdm_token) && $fleetdm_token ne "") {
+        return ""
+    }
 
+    my $url = $fleetdm_host . "/api/v1/fleet/hosts/" . $host_id;
     my $http = HTTP::Tiny->new;
     my $response = $http->get($url, {
         headers => { 'Authorization' => "Bearer " . $fleetdm_token }
     });
 
     my $ret = "";
-    if ($response->{success} && $response->{status} == 200) {
-        my $data = decode_json($response->{content});
-        $ret = $data->{host}->{primary_mac}
+
+    if (!$response->{success}) {
+        $msg = "unable to perform API call '$url': $response->{reason}";
+        $logger->error($msg);
+        return "";
     }
-    else {
-        print("error :", $response->{status}, " ", $response->{reason});
+
+    if ($response->{status} != 200) {
+        $msg = "http error $response->{status} occured while performing API call '$url': $response->{reason}";
+        $logger->error($msg);
+        return "";
     }
-    return $ret;
+
+    unless (exists($response->{content}) && $response->{content} ne "") {
+        $msg = "invalid FleetDM host API call response, missing response body.";
+        $logger->error($msg);
+        return "";
+    }
+
+    my $data = decode_json($response->{content});
+
+    unless (exists($data->{host}) && exists($data->{host}->{primary_mac})) {
+        $msg = "unable to extract primary mac from host API response.";
+        $logger->error($msg);
+        return "";
+    }
+    return $data->{host}->{primary_mac};
 }
 
-sub cachedGetHostInfo {
-    # todo remove debug info after demo
-    my ($host_id) = @_;
-    my $cache_key = "fleetdm_host_id:" . $host_id;
-    my $mac_address = $cache->get($cache_key);
-
-    if (defined($mac_address) && $mac_address ne "") {
-        print("    ---- cache hit: ", "$mac_address\n");
-        return $mac_address;
-    }
-
-    print("    ---- cache miss: trying to invoke fleetDM API\n");
-    $mac_address = getHostInfo($host_id);
-    if (defined($mac_address) && $mac_address ne "") {
-        print("        ---- got host info from API, mac address is: $mac_address\n");
-        $cache->set($cache_key, $mac_address, '10m');
-        return ($mac_address)
-    }
-    return ""
-}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
