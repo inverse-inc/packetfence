@@ -10,6 +10,7 @@ Wants=packetfence-config.service
 After=packetfence-config.service
 
 [Service]
+TimeoutStartSec=600
 EnvironmentFile=-/usr/local/pf/conf/firewalld
 # supress service that is using the same dbus
 ExecStartPre=/bin/bash -c "/bin/rm -rf /usr/lib/systemd/system/firewalld.service || true"
