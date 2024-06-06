@@ -548,10 +548,10 @@ sub oauth_passthrough_rules {
         if ( pf::config::is_network_type_inline($network) ) {
           my $nat = $ConfigNetworks{$network}{'nat_enabled'};
           if (defined ($nat) && (isenabled($nat))) {
-            util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $action );
+            util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $action );
           }
         } else {
-          util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $action );
+          util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $action );
         }
       }
     }
@@ -565,10 +565,10 @@ sub oauth_passthrough_rules {
         if ( pf::config::is_network_type_inline($network) ) {
           my $nat = $ConfigNetworks{$network}{'nat_enabled'};
           if (defined ($nat) && (isenabled($nat))) {
-            util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
+            util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
           }
         } else {
-          util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
+          util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
         }
       }
     }
@@ -984,7 +984,7 @@ sub interception_rules {
     # vlan enforcement
     if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
       # send everything from vlan interfaces to the vlan chain
-      util_direct_rule("ipv4 filter PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_VLAN");
+      util_direct_rule("ipv4 nat PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_VLAN");
       foreach my $network ( keys %ConfigNetworks ) {
         next if (pf::config::is_network_type_inline($network));
         my %net = %{$ConfigNetworks{$network}};
@@ -1069,10 +1069,10 @@ sub inline_rules {
     }
 
     $logger->info("Adding NAT Masquarade statement (PAT)");
-    util_direct_rule("ipv4 filter $FW_POSTROUTING_INT_INLINE 0 --jump MASQUERADE", $action );
+    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE 0 --jump MASQUERADE", $action );
 
     $logger->info("Addind ROUTED statement");
-    util_direct_rule("ipv4 filter $FW_POSTROUTING_INT_INLINE_ROUTED 0 --jump ACCEPT", $action );
+    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE_ROUTED 0 --jump ACCEPT", $action );
 
     $logger->info("building firewall to accept registered users through inline interface");
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
@@ -1103,8 +1103,8 @@ sub inline_if_src_rules {
       # inline enforcement
       if (is_type_inline($enforcement_type)) {
         # send everything from inline interfaces to the inline chain
-        util_direct_rule("ipv4 filter PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_INLINE", $action );
-        util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $dev --jump $FW_POSTROUTING_INT_INLINE", $action );
+        util_direct_rule("ipv4 nat PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_INLINE", $action );
+        util_direct_rule("ipv4 nat POSTROUTING 0 --out-interface $dev --jump $FW_POSTROUTING_INT_INLINE", $action );
       }
     }
 
@@ -1130,10 +1130,10 @@ sub inline_if_src_rules {
             my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
             my $nat = $ConfigNetworks{$network}{'nat_enabled'};
             if (defined ($nat) && (isdisabled($nat))) {
-              util_direct_rule("ipv4 filter POSTROUTING 0 -s $network/$inline_obj->{BITS} --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE_ROUTED", $action );
+              util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$inline_obj->{BITS} --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE_ROUTED", $action );
             }
           }
-          util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
+          util_direct_rule("ipv4 nat POSTROUTING 0 --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
         }
       }
     }
@@ -1156,7 +1156,7 @@ sub mangle_rules {
     # however we insert these marks on startup in case PacketFence is restarted
 
     # default catch all: mark unreg
-    util_direct_rule("ipv4 filter $FW_PREROUTING_INT_INLINE 0 -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", $action );
+    util_direct_rule("ipv4 nat $FW_PREROUTING_INT_INLINE 0 -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", $action );
     foreach my $network ( keys %ConfigNetworks ) {
       next if ( !pf::config::is_network_type_inline($network) );
       foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
@@ -1167,7 +1167,7 @@ sub mangle_rules {
           $rule .= "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
         }
         $rule .= "-j MARK --set-mark 0x$IPTABLES_MARK";
-        util_direct_rule("ipv4 filter $rule", $action );
+        util_direct_rule("ipv4 nat $rule", $action );
       }
     }
 
@@ -1249,9 +1249,9 @@ sub nat_redirect_rules {
 
     if ($passthrough_enabled) {
       $rule = "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_passthrough dst,dst --match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT";
-      util_direct_rule("ipv4 filter $rule", $action );
+      util_direct_rule("ipv4 nat $rule", $action );
       $rule = "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_isol_passthrough dst,dst --match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump ACCEPT";
-      util_direct_rule("ipv4 filter $rule", $action );
+      util_direct_rule("ipv4 nat $rule", $action );
     }
 
     # Now, do your magic
