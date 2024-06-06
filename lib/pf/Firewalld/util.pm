@@ -153,6 +153,7 @@ sub util_chain {
   get_logger->info( "The util_chain action is $action on $ipv with table $table." );
   my $job = " --permanent --direct --".$action."-chain ".$ipv." ".$table." ".$chain;
   util_firewalld_job( $job );
+  util_reload_firewalld();
 }
 
 sub util_rich_rule {
@@ -166,6 +167,7 @@ sub util_rich_rule {
   get_logger->info( "The util_rich_rule action is \"$action\"." );
   my $job = " --permanent --zone=".$zone." --".$action."-rich-rule='".$rule."'";
   util_firewalld_job( $job );
+  util_reload_firewalld();
 }
 
 sub util_direct_rule {
@@ -178,6 +180,7 @@ sub util_direct_rule {
   get_logger->info( "The util_direct_rule type is \"$action\"." );
   my $job = " --permanent --direct --".$action."-rule $rule";
   util_firewalld_job( $job );
+  util_reload_firewalld();
 }
 
 sub util_listen_ints_hash {
@@ -658,6 +661,7 @@ sub util_set_default_zone {
   if ( $zone ne $default_zone ) {
     if ( util_firewalld_job( " --set-default-zone=$zone" ) ){
       util_firewalld_cmd( " --permanent --zone=$zone --add-masquerade" );
+      util_reload_firewalld();
       get_logger->info( "Set default zone is a success" );
     } else {
       get_logger->error( "Set default zone failed" );
@@ -665,7 +669,6 @@ sub util_set_default_zone {
   } else {
     get_logger->error( "The default zone is already set" );
   }
-  util_reload_firewalld();
 }
 
 # need a function that reload the service

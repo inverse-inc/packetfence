@@ -168,6 +168,7 @@ sub fd_create_all_zones {
       util_firewalld_job( " --permanent --new-zone=$tint" );
       util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
       util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
+      util_reload_firewalld();
       if ( scalar grep( { $_ eq $tint } @dhcplistener_ints ) ) { # Why DHCP interfaces need ssh?
         service_to_zone($tint, "add", "ssh");
       }
@@ -179,7 +180,6 @@ sub fd_create_all_zones {
       util_set_default_zone( $tint );
       service_to_zone($tint, "add", "ssh");
       service_to_zone($tint, "add", "haproxy-admin");
-      util_reload_firewalld();
     }
   }
 }
@@ -307,7 +307,6 @@ sub fd_keepalived_rules {
     # Never remove, used several time
     util_direct_rule("ipv4 filter INPUT 0 -i $tint -d 224.0.0.0/8 -j ACCEPT", "add" );
     util_direct_rule("ipv4 filter INPUT 0 -i $tint -p vrrp -j ACCEPT", "add" ) if ($cluster_enabled);
-    util_reload_firewalld();
   }
 }
 
@@ -321,7 +320,6 @@ sub fd_radiusd_lb_rules {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       service_to_zone($tint, $action, "radius_lb");
-      util_reload_firewalld();
     }
   }
 }
@@ -333,7 +331,6 @@ sub fd_proxysql_rules {
   if ( util_reload_firewalld() ) {
     my $tint = $management_network->{Tint};
     service_to_zone($tint, $action, "proxysql");
-    util_reload_firewalld();
   } else {
     $logger->warn("Firewalld is not started yet");
     print("FD Not started");
@@ -348,7 +345,6 @@ sub fd_haproxy_admin_rules {
     my $tint = $management_network->{Tint};
     my $web_admin_port = $Config{'ports'}{'admin'};
     util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
-    util_reload_firewalld();
   } else {
     $logger->warn("Firewalld is not started yet");
     print("FD Not started");
@@ -363,7 +359,6 @@ sub fd_httpd_webservices_rules {
     if ( $tint ne "" ) {
       my $webservices_port = $Config{'ports'}{'soap'};
       util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $webservices_port -j ACCEPT", $action );
-      util_reload_firewalld();
     }
   }
 }
@@ -376,7 +371,6 @@ sub fd_httpd_aaa_rules {
     if ( $tint ne "" ) {
       my $aaa_port = $Config{'ports'}{'aaa'};
       util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
-      util_reload_firewalld();
     }
   }
 }
@@ -390,7 +384,6 @@ sub fd_api_frontend_rules {
     my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
     util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $unifiedapi_port -j ACCEPT", $action );
     service_to_zone( $mgnt_zone, $action, "api_frontend");
-    util_reload_firewalld();
   } else {
     $logger->warn("Firewalld is not started yet");
     print("FD Not started");
@@ -408,7 +401,6 @@ sub fd_httpd_portal_rules {
     service_to_zone($tint, $action, "https");
     service_to_zone($tint, $action, "web-portal");
   }
-  util_reload_firewalld();
 }
 
 sub fd_haproxy_db_rules {
@@ -417,7 +409,6 @@ sub fd_haproxy_db_rules {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       service_to_zone($tint, $action, "haproxy-db");
-      util_reload_firewalld();
     }
   }
 }
@@ -427,7 +418,6 @@ sub fd_haproxy_portal_rules {
   foreach my $tint (@ha_ints){
     service_to_zone($tint, $action, "haproxy-portal");
   }
-  util_reload_firewalld();
 }
 
 sub fd_radiusd_acct_rules {
@@ -437,7 +427,6 @@ sub fd_radiusd_acct_rules {
     service_to_zone($tint, $action, "radius_acct");
     service_to_zone($tint, $action, "radius_acct_clu") if ($cluster_enabled);
   }
-  util_reload_firewalld();
 }
 
 sub fd_radiusd_auth_rules {
@@ -447,7 +436,6 @@ sub fd_radiusd_auth_rules {
     service_to_zone($tint, $action, "radius_auth");
     service_to_zone($tint, $action, "radius_auth_clu") if ($cluster_enabled);
   }
-  util_reload_firewalld();
 }
 
 sub fd_radiusd_cli_rules {
@@ -457,7 +445,6 @@ sub fd_radiusd_cli_rules {
     service_to_zone($tint, $action, "radius_cli");
     service_to_zone($tint, $action, "radius_cli_clu") if ($cluster_enabled);
   }
-  util_reload_firewalld();
 }
 
 sub get_network_type_and_chain {
@@ -663,7 +650,6 @@ sub fd_pfdhcp_rules {
       }
     }
   }
-  util_reload_firewalld();
 }
 
 sub fd_pfipset_rules {
@@ -699,7 +685,6 @@ sub fd_pfipset_rules {
     }
   }
   pfipset_provisioning_passthroughs();
-  util_reload_firewalld();
 }
 
 sub pfipset_provisioning_passthroughs {
@@ -713,6 +698,7 @@ sub pfipset_provisioning_passthroughs {
       my $enroll_port = $config->{enroll_url} ? URI->new($config->{enroll_url})->port : $config->{port};
       my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough ".$enroll_host.",".$enroll_port." 2>&1");
       pf_run($cmd);
+      util_reload_firewalld();
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
@@ -723,9 +709,11 @@ sub pfipset_provisioning_passthroughs {
       # Allow http communication with the MobileIron server
       $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
       pf_run($cmd);
+      util_reload_firewalld();
       # Allow https communication with the MobileIron server
       $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
       pf_run($cmd);
+      util_reload_firewalld();
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
@@ -733,9 +721,11 @@ sub pfipset_provisioning_passthroughs {
       # Allow http communication with the OSPWAT server
       my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
       pf_run($cmd);
+      util_reload_firewalld();
       # Allow https communication with the OPSWAT server
       $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
       pf_run($cmd);
+      util_reload_firewalld();
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
@@ -743,16 +733,20 @@ sub pfipset_provisioning_passthroughs {
       # Allow http communication with the SentinelOne server
       my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
       pf_run($cmd);
+      util_reload_firewalld();
       # Allow https communication with the SentinelOne server
       $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1" );
       pf_run($cmd);
+      util_reload_firewalld();
     }
     $logger->info("Adding IP based passthrough for connectivitycheck.gstatic.com");
     # Allow the host for the onboarding of devices
     my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,80 2>&1");
     pf_run($cmd);
+    util_reload_firewalld();
     $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,443 2>&1");
     pf_run($cmd);
+    util_reload_firewalld();
   }
 }
 
@@ -768,7 +762,6 @@ sub fd_netdata_rules {
       }
     }
     util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
-    util_reload_firewalld();
   }
 }
 
@@ -784,7 +777,6 @@ sub fd_pfconnector_server_rules {
     for my $ip (@pfconnector_ips) {
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
     }
-    util_reload_firewalld();
   }
 }
 
@@ -801,7 +793,6 @@ sub fd_galera_autofix_rules {
     }
   } else {
     $logger->warn("Firewalld is not started yet");
-    print("FD Not started");
   }
 }
 
@@ -811,10 +802,8 @@ sub fd_mariadb_rules {
   if ( util_reload_firewalld() ) {
     my $tint = $management_network->{Tint};
     service_to_zone($tint, $action, "mysql");
-    util_reload_firewalld();
   } else {
     $logger->warn("Firewalld is not started yet");
-    print("FD Not started");
   }
 }
 
@@ -824,7 +813,6 @@ sub fd_mysql_prob_rules {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       service_to_zone($tint, $action, "mysql-prob");
-      util_reload_firewalld();
     }
   }
 }
@@ -842,7 +830,6 @@ sub fd_kafka_rules {
         util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT" , $action );
         util_direct_rule( "ipv4 filter INPUT 0 -i $tint --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT" , $action );
       }
-      util_reload_firewalld();
     }
   }
 }
@@ -854,7 +841,6 @@ sub fd_docker_dnat_rules {
   my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
   if ( $mgmt_ip ne "" ) {
     util_direct_rule("ipv4 nat PREROUTING 0 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
-    util_reload_firewalld();
   }
 }
 
@@ -862,7 +848,6 @@ sub fd_fingerbank_collector_rules {
   my $action = shift;
   if (netflow_enabled()) {
     util_direct_rule( "ipv4 filter FORWARD 0 -j NETFLOW" , $action );
-    util_reload_firewalld();
   }
 }
 
@@ -886,7 +871,6 @@ sub fd_radiusd_eduroam_rules {
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
       util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT", $action ) if ($cluster_enabled);
     }
-    util_reload_firewalld();
   }
   else {
     $logger->info( "# eduroam integration is not configured" );
@@ -912,22 +896,29 @@ sub fd_firewalld_rules {
 
 sub generate_chains {
   my $action = shift;
-  my @chains = qw (
+  my $logger = get_logger();
+  my @filter_chains = qw (
     input-internal-inline-if
     forward-internal-inline-if
+  );
+  my @nat_chains = qw (
     prerouting-int-inline-if
     postrouting-int-inline-if
     postrouting-inline-routed
     prerouting-int-vlan-if
   );
-  my $logger = get_logger();
-  $logger->info("Generate Chains started.");
 
-  for my $chain (@chains) {
+  $logger->info("Generate Filter Chains started.");
+  for my $chain (@filter_chains) {
     generate_chain( "ipv4", "filter", $chain, $action );
   }
+  $logger->info("Generate Filter Chains end.");
 
-  $logger->info("Generate Chains end.");
+  $logger->info("Generate NAT Chains started.");
+  for my $chain (@nat_chains) {
+    generate_chain( "ipv4", "nat", $chain, $action );
+  }
+  $logger->info("Generate NAT Chains end.");
 }
 
 sub generate_chain {
@@ -1299,6 +1290,7 @@ sub service_to_zone {
 
   if ( defined is_service_available($service) && defined is_zone_available( $zone ) ) {
     util_firewalld_job( " --zone=$zone --$action-service=$service --permanent" );
+    util_reload_firewalld();
   } else {
     $logger->error( "Please run generate config to create services and zones" );
   }
