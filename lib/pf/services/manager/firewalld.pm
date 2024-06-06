@@ -104,8 +104,9 @@ stop firewalld
 =cut
 
 sub _stop {
-    #my ($self) = @_;
+    my ($self) = @_;
     my $logger = get_logger();
+
     pf_run("sudo iptables -F");
     pf_run("sudo iptables -X");
     pf_run("sudo iptables -t nat -F");
@@ -114,11 +115,35 @@ sub _stop {
     pf_run("sudo iptables -P INPUT ACCEPT");
     pf_run("sudo iptables -P FORWARD ACCEPT");
     pf_run("sudo iptables -P OUTPUT ACCEPT");
+
+    pf_run("iptables -A INPUT --in-interface lo --jump ACCEPT");
+    pf_run("iptables -A INPUT --in-interface docker0 --jump ACCEPT");
+    pf_run("iptables -A INPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT");
+    pf_run("iptables -A INPUT --protocol icmp --icmp-type echo-request --jump ACCEPT");
+
+
+    pf_run("sudo iptables -N DOCKER");
+    pf_run("sudo iptables -N DOCKER-ISOLATION-STAGE-1");
+    pf_run("sudo iptables -N DOCKER-ISOLATION-STAGE-2");
+    pf_run("sudo iptables -N DOCKER-USER");
+    pf_run("sudo iptables -A FORWARD -j DOCKER-USER");
+    pf_run("sudo iptables -A FORWARD -j DOCKER-ISOLATION-STAGE-1");
+    pf_run("sudo iptables -A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT");
+    pf_run("sudo iptables -A FORWARD -o docker0 -j DOCKER");
+    pf_run("sudo iptables -A FORWARD -i docker0 ! -o docker0 -j ACCEPT");
+    pf_run("sudo iptables -A FORWARD -i docker0 -o docker0 -j ACCEPT");
+    pf_run("sudo iptables -A DOCKER-ISOLATION-STAGE-1 -i docker0 ! -o docker0 -j DOCKER-ISOLATION-STAGE-2");
+    pf_run("sudo iptables -A DOCKER-ISOLATION-STAGE-1 -j RETURN");
+    pf_run("sudo iptables -A DOCKER-ISOLATION-STAGE-2 -o docker0 -j DROP");
+    pf_run("sudo iptables -A DOCKER-ISOLATION-STAGE-2 -j RETURN");
+    pf_run("sudo iptables -A DOCKER-USER -j RETURN");
+
     pf_run("sudo iptables -t nat -N DOCKER");
     pf_run("sudo iptables -t nat -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER");
     pf_run("sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER");
     pf_run("sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE");
     pf_run("sudo iptables -t nat -A DOCKER -i docker0 -j RETURN");
+
     return 1;
 }
 
