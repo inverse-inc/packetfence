@@ -3,7 +3,7 @@
       "parameters" : {
          "Async" : {
             "description" : "Asyncronous request.",
-            "in" : "path",
+            "in" : "query",
             "name" : "async",
             "required" : true,
             "schema" : {
@@ -32,7 +32,7 @@
          },
          "fields" : {
             "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
-            "in" : "path",
+            "in" : "query",
             "name" : "fields",
             "required" : true,
             "schema" : {
@@ -78,7 +78,7 @@
          },
          "limit" : {
             "description" : "The maximum amount of entries to get.",
-            "in" : "path",
+            "in" : "query",
             "name" : "limit",
             "required" : true,
             "schema" : {
@@ -218,7 +218,7 @@
          },
          "sort" : {
             "description" : "The sort and order of the paginated entries.",
-            "in" : "path",
+            "in" : "query",
             "name" : "sort",
             "required" : true,
             "schema" : {
@@ -39959,7 +39959,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -39990,12 +39990,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ id ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -40027,7 +40027,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -40409,7 +40409,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -40440,12 +40440,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ id ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -40477,7 +40477,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -40785,7 +40785,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -40832,12 +40832,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ security_event_id ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -40885,7 +40885,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -50963,6 +50963,16 @@
          },
          "put" : {
             "description" : "Update the configuration of an interface",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "interface_id",
+                  "required" : true,
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -65898,7 +65908,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -65973,12 +65983,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ mac ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -66054,7 +66064,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -66546,15 +66556,6 @@
                   "schema" : {
                      "type" : "string"
                   }
-               },
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
                }
             ],
             "responses" : {
@@ -66571,15 +66572,6 @@
             "description" : "Get an item.",
             "operationId" : "api.v1.Users.resource.Password.get",
             "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               },
                {
                   "description" : "`PRIMARY KEY`",
                   "in" : "path",
@@ -66624,15 +66616,6 @@
             "description" : "Update an item.",
             "operationId" : "api.v1.Users.resource.Password.update",
             "parameters" : [
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
-               },
                {
                   "description" : "`PRIMARY KEY`",
                   "in" : "path",
@@ -66723,15 +66706,6 @@
                   "schema" : {
                      "type" : "string"
                   }
-               },
-               {
-                  "description" : "`PRIMARY KEY`",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : true,
-                  "schema" : {
-                     "type" : "string"
-                  }
                }
             ],
             "requestBody" : {
@@ -66771,7 +66745,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -66854,12 +66828,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ pid ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -66943,7 +66917,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -67871,7 +67845,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -67902,12 +67876,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ mac ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -67939,7 +67913,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -68352,7 +68326,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -68381,12 +68355,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ id ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -68416,7 +68390,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -70659,7 +70633,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -70680,12 +70654,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ ip ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -70707,7 +70681,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -71123,7 +71097,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -71146,12 +71120,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ ip ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -71175,7 +71149,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -71958,7 +71932,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -72009,12 +71983,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ mac ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -72066,7 +72040,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -72963,7 +72937,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -72996,12 +72970,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ category_id ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -73035,7 +73009,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -73321,7 +73295,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -73396,12 +73370,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ mac ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -73477,7 +73451,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -74560,7 +74534,7 @@
                {
                   "description" : "Certificate password.",
                   "in" : "path",
-                  "name" : "pasword",
+                  "name" : "password",
                   "required" : true,
                   "schema" : {
                      "format" : "password",
@@ -75448,7 +75422,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -75539,12 +75513,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ id ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -75636,7 +75610,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -76319,7 +76293,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -76348,12 +76322,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ id ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -76383,7 +76357,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -76754,6 +76728,9 @@
                },
                {
                   "$ref" : "#/components/parameters/Async"
+               },
+               {
+                  "$ref" : "#/components/parameters/service"
                }
             ],
             "requestBody" : {
@@ -77139,7 +77116,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -77162,12 +77139,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ id ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -77191,7 +77168,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -78009,10 +77986,9 @@
                   "$ref" : "#/components/parameters/limit"
                },
                {
-                  "$ref" : "#/components/parameters/fields"
-               },
-               {
-                  "$ref" : "#/components/parameters/sort"
+                  "$ref" : "#/components/parameters/node_id"
+               },            {
+                  "$ref" : "#/components/parameters/user_id"
                }
             ],
             "responses" : {
@@ -78813,7 +78789,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -78896,12 +78872,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ pid ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -78985,7 +78961,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
@@ -79882,7 +79858,7 @@
                {
                   "description" : "Comma delimited list of fields to return with each item.",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "fields",
                   "required" : true,
                   "schema" : {
@@ -79969,12 +79945,12 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "description" : "Comma delimited list of fields and respective order to sort items (`default: [ id ASC ]`).",
                   "explode" : false,
-                  "in" : "path",
+                  "in" : "query",
                   "name" : "sort",
                   "required" : true,
                   "schema" : {
@@ -80062,7 +80038,7 @@
                      },
                      "type" : "array"
                   },
-                  "style" : "simple"
+                  "style" : "form"
                },
                {
                   "$ref" : "#/components/parameters/limit",
