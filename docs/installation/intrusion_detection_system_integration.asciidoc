@@ -47,7 +47,7 @@ Example Action
 
 Regex -
 
-    mac\s*:\s*(?P&lt;mac&gt;[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(P?&lt;notes&gt;.*)
+    mac\s*:\s*(?P<mac>[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(P?<notes>.*)
 
 Action -
 
