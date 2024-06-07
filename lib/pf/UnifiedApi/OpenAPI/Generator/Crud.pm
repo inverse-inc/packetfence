@@ -65,6 +65,12 @@ sub operation_generators {
     \%OPERATION_GENERATORS;
 }
 
+sub paramUnique {
+    my ($p) = @_;
+    return $p->{name} if exists $p->{name};
+    return "$p";
+}
+
 =head2 operationParameters
 
 operationParameters
@@ -75,14 +81,17 @@ sub operationParameters {
     my ($self, $scope, $c, $m, $a) = @_;
     my @parameters = @{$self->SUPER::operationParameters($scope, $c, $m, $a)};
     push @parameters, $self->parent_path_parameters($scope, $c, $m, $a);
-    return \@parameters;
+    my %seen;
+    use Data::Dumper;
+    return [ grep { my $u = paramUnique($_); my $e = exists $seen{$u}; $seen{$u} = 1 ;!$e} @parameters ];
 }
 
 sub resoureParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
     push @$parameters, $self->path_parameter($c->url_param_name);
-    return $parameters;
+    my %seen;
+    return [ grep { my $u = paramUnique($_); my $e = exists $seen{$u}; $seen{$u} = 1 ;!$e} @$parameters ];
 }
 
 sub parent_path_parameters {
