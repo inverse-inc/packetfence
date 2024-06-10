@@ -43,9 +43,10 @@ unless (exists($Config{fleetdm}->{host}) &&
     exists($Config{fleetdm}->{token})
 ) {
     $msg = "Invalid fleetdm config: 'host', 'email', 'password', 'token' should be defined in pf.conf. Did you manually changed the config file ?";
-    logger->error($msg);
+    $logger->error($msg);
     return 1;
 }
+
 $fleetdm_host = $Config{fleetdm}->{host};
 $fleetdm_email = $Config{fleetdm}->{email};
 $fleetdm_password = $Config{fleetdm}->{password};
@@ -155,7 +156,6 @@ sub handleCVE {
             triggerPolicy($primary_mac, "FleetDM CVE", $cve, $payload)
         }
     }
-
 }
 
 sub triggerPolicy() {
@@ -210,22 +210,19 @@ sub login {
 sub refreshToken {
     if ($Config{fleetdm}->{token} ne "") {
         $fleetdm_token = $Config{fleetdm}->{token};
-        print("        ---- token obtained from config \n");
         return;
     }
 
     my $token = $cache->get("fleetdm_api_token");
     if (defined($token) && $token ne "") {
         $fleetdm_token = $token;
-        print("        ---- token obtained from cache \n");
         return;
     }
 
     $token = login();
     if (defined($token) && $token ne "") {
         $fleetdm_token = $token;
-        $cache->set("fleetdm_api_token", $token, "10s");
-        print("        ---- token obtained from api and set to cache \n");
+        $cache->set("fleetdm_api_token", $token, "5m");
         return;
     }
 }
@@ -236,14 +233,12 @@ sub cachedGetHostMac {
     my $mac_address = $cache->get($cache_key);
 
     if (defined($mac_address) && $mac_address ne "") {
-        print("    ---- cached fleetdm host mac\n");
         return $mac_address;
     }
 
     $mac_address = getHostMac($host_id);
     if (defined($mac_address) && $mac_address ne "") {
-        $cache->set($cache_key, $mac_address, "1m");
-        print("    ---- mac address got from API and set to cache\n");
+        $cache->set($cache_key, $mac_address, "7d");
         return ($mac_address)
     }
     return ""
