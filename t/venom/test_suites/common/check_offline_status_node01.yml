@@ -39,4 +39,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.items.items0.online ShouldEqual off
-  
+    #Test 10 times each second before failing
+    #Lets hope it will not fall in between
+    retry: 10
+    delay: 1
