@@ -75,11 +75,11 @@ sub doTask {
         return 1;
     }
 
-    if ($args->{type} eq "policy-violation") {
+    if ($args->{type} eq "fleetdm_policy") {
         handlePolicy($args->{payload});
     }
 
-    if ($args->{type} eq "CVE") {
+    if ($args->{type} eq "fleetdm_cve") {
         handleCVE($args->{payload});
     }
 
@@ -118,7 +118,7 @@ sub handlePolicy {
         my $primary_mac = cachedGetHostMac($host_id);
 
         if (defined($primary_mac) && $primary_mac ne "") {
-            triggerPolicy($primary_mac, "FleetDM Policy Violation", $policy_name, $payload)
+            triggerPolicy($primary_mac, "fleetdm_policy", $policy_name, $payload)
         }
     }
 }
@@ -153,7 +153,7 @@ sub handleCVE {
         my $primary_mac = cachedGetHostMac($host_id);
 
         if (defined($primary_mac) && $primary_mac ne "") {
-            triggerPolicy($primary_mac, "FleetDM CVE", $cve, $payload)
+            triggerPolicy($primary_mac, "fleetdm_cve", $cve, $payload)
         }
     }
 }

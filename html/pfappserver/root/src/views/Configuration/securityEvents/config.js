@@ -131,6 +131,16 @@ export const triggerFields = {
     category: triggerCategories.EVENT,
     types: [fieldType.SUBSTRING]
   },
+  fleetdm_policy: {
+    text: 'FleetDM Policy Violation',
+    category: triggerCategories.EVENT,
+    types: [fieldType.SUBSTRING]
+  },
+  fleetdm_cve: {
+    text: 'FleetDM Vulnerability CVE',
+    category: triggerCategories.EVENT,
+    types: [fieldType.SUBSTRING]
+  },
   switch: {
     text: i18n.t('Switch'),
     category: triggerCategories.ENDPOINT,

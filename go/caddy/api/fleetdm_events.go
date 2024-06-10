@@ -26,7 +26,7 @@ func (h APIHandler) Policy(w http.ResponseWriter, r *http.Request, p httprouter.
 
 	pfqueueclient := pfqueueclient.NewPfQueueClient()
 	args := map[string]interface{}{
-		"type":    "policy-violation",
+		"type":    "fleetdm_policy",
 		"payload": string(body),
 	}
 	taskKey, err := pfqueueclient.Submit(context.Background(), "general", "fleetdm", args)
@@ -63,7 +63,7 @@ func (h APIHandler) CVE(w http.ResponseWriter, r *http.Request, p httprouter.Par
 
 	pfqueueclient := pfqueueclient.NewPfQueueClient()
 	args := map[string]interface{}{
-		"type":    "cve",
+		"type":    "fleetdm_cve",
 		"payload": string(body),
 	}
 	taskKey, err := pfqueueclient.Submit(context.Background(), "general", "fleetdm", args)
