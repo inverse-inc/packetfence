@@ -14,7 +14,7 @@ ExecStart=/usr/local/pf/sbin/mysql-probe
 Restart=on-failure
 Slice=packetfence.slice
 # Firewalld
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("add")'
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("add")'
 ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("remove")'
 
 [Install]
