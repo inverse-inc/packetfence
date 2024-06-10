@@ -43,20 +43,28 @@ index 8bd29779de..0ab4c38e54 100644
  # services.netdata
  #
 diff --git a/conf/systemd/packetfence-api-frontend.service b/conf/systemd/packetfence-api-frontend.service
-index fcbc4fea5e..9af13e1a4f 100644
+index 58eb801a86..669f58bae4 100644
 --- a/conf/systemd/packetfence-api-frontend.service
 +++ b/conf/systemd/packetfence-api-frontend.service
-@@ -10,8 +10,8 @@ Type=notify
+@@ -10,15 +10,15 @@ Type=notify
  TimeoutStopSec=60
  NotifyAccess=all
  LimitNOFILE=infinity
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::api_frontend' -e 'pf::services::manager::api_frontend->new()->generateConfig()'
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::api_frontend' -e 'pf::services::manager::api_frontend->new()->generateConfig()'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")'
  ExecStart=/usr/local/pf/sbin/api-frontend-docker-wrapper
- ExecStop=/bin/bash -c "docker stop api-frontend ; echo Stopped"; /bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("remove")'
+ ExecStop=/bin/bash -c "docker stop api-frontend ; echo Stopped"
  Restart=on-failure
+ Slice=packetfence.slice
+ PIDFile=/usr/local/pf/var/run/api-frontend-systemd-notify.pid
+ # Firewalld
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("remove")
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("remove")
+ 
+ [Install]
+ WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-firewalld.service b/conf/systemd/packetfence-firewalld.service
 index 95929a5d71..cf829e845c 100644
 --- a/conf/systemd/packetfence-firewalld.service
@@ -76,22 +84,22 @@ index 95929a5d71..cf829e845c 100644
  ExecReload=/bin/kill -HUP $MAINPID
  # supress to log debug and error output also to /var/log/messages
 diff --git a/conf/systemd/packetfence-galera-autofix.service b/conf/systemd/packetfence-galera-autofix.service
-index 5d34a03409..02cc46c25d 100644
+index 0d950b9b8f..eef0071a76 100644
 --- a/conf/systemd/packetfence-galera-autofix.service
 +++ b/conf/systemd/packetfence-galera-autofix.service
 @@ -12,8 +12,8 @@ User=root
  # Prevents systemd on giving up on the restart of this service
  StartLimitInterval=0
  #Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("add")' || true
--ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("remove")' || true
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("add")' || true
-+ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("remove")' || true
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("add")' || true
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("remove")' || true
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("add")' || true
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("remove")' || true
  
  [Install]
  WantedBy=packetfence-base.target
 diff --git a/conf/systemd/packetfence-haproxy-admin.service b/conf/systemd/packetfence-haproxy-admin.service
-index 4559d03db6..4c23e742fb 100644
+index 3e73be90b2..2df176d7b4 100644
 --- a/conf/systemd/packetfence-haproxy-admin.service
 +++ b/conf/systemd/packetfence-haproxy-admin.service
 @@ -9,7 +9,7 @@ Type=notify
@@ -107,15 +115,15 @@ index 4559d03db6..4c23e742fb 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/haproxy-admin-systemd-notify.pid
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
-index d2dfd5781a..d4650a8011 100644
+index bfe54f2b95..02fe9f16fe 100644
 --- a/conf/systemd/packetfence-haproxy-db.service
 +++ b/conf/systemd/packetfence-haproxy-db.service
 @@ -9,15 +9,15 @@ After=packetfence-firewalld.service
@@ -131,15 +139,15 @@ index d2dfd5781a..d4650a8011 100644
  Restart=on-failure
  SuccessExitStatus=143
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_db_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_db_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_db_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_db_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_db_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_db_rules("remove")'
  
  [Install]
  WantedBy=packetfence-cluster.target
 diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
-index d52504fe1e..4444d5165d 100644
+index 5ceb5deb17..33da7552ad 100644
 --- a/conf/systemd/packetfence-haproxy-portal.service
 +++ b/conf/systemd/packetfence-haproxy-portal.service
 @@ -9,7 +9,7 @@ Type=notify
@@ -155,15 +163,15 @@ index d52504fe1e..4444d5165d 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/haproxy-portal-systemd-notify.pid
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_portal_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_portal_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_portal_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_portal_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_portal_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_portal_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
-index d0df94fdde..eef5d1f3cb 100644
+index 95a8c1e541..e883afd189 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
 +++ b/conf/systemd/packetfence-httpd.aaa.service
 @@ -12,7 +12,7 @@ Type=notify
@@ -179,9 +187,9 @@ index d0df94fdde..eef5d1f3cb 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/httpd.aaa-systemd-notify.pid
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_aaa_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_aaa_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_aaa_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_aaa_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_aaa_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_aaa_rules("remove")'
  
  [Install]
@@ -213,7 +221,7 @@ index 04c54729ac..5a6e36b4ee 100644
  ExecStop=/bin/bash -c "docker stop httpd.dispatcher ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index 1992741bd4..aa271480e0 100644
+index 6610a18b6b..38b612fb8b 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
 @@ -9,7 +9,7 @@ Type=notify
@@ -229,15 +237,15 @@ index 1992741bd4..aa271480e0 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/httpd.portal-systemd-notify.pid
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
-index 016236e648..a93750f5e3 100644
+index 29d3bfdd86..c86f384048 100644
 --- a/conf/systemd/packetfence-httpd.webservices.service
 +++ b/conf/systemd/packetfence-httpd.webservices.service
 @@ -11,7 +11,7 @@ Type=notify
@@ -253,15 +261,15 @@ index 016236e648..a93750f5e3 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/httpd.webservices-systemd-notify.pid
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_httpd_webservices_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_httpd_webservices_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_httpd_webservices_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_httpd_webservices_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_httpd_webservices_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_httpd_webservices_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-kafka.service b/conf/systemd/packetfence-kafka.service
-index c6e3848ff5..98f87a3dcc 100644
+index 99a5a74a33..dba747b630 100644
 --- a/conf/systemd/packetfence-kafka.service
 +++ b/conf/systemd/packetfence-kafka.service
 @@ -8,15 +8,15 @@ StartLimitBurst=3
@@ -276,15 +284,15 @@ index c6e3848ff5..98f87a3dcc 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/kafka-systemd-notify.pid
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_kafka_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_kafka_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_kafka_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_kafka_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_kafka_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_kafka_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-keepalived.service b/conf/systemd/packetfence-keepalived.service
-index 305f20c923..0992f4780c 100644
+index e55a1c9bfb..f3841287cd 100644
 --- a/conf/systemd/packetfence-keepalived.service
 +++ b/conf/systemd/packetfence-keepalived.service
 @@ -11,14 +11,14 @@ StartLimitInterval=10
@@ -298,45 +306,45 @@ index 305f20c923..0992f4780c 100644
  Restart=on-failure
  Slice=packetfence.slice
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("remove")'
  
  
  [Install]
 diff --git a/conf/systemd/packetfence-mariadb.service b/conf/systemd/packetfence-mariadb.service
-index 8f8bd64d2e..74f693f57f 100644
+index c08a662e5a..5e8b3d680a 100644
 --- a/conf/systemd/packetfence-mariadb.service
 +++ b/conf/systemd/packetfence-mariadb.service
 @@ -37,8 +37,8 @@ LimitNOFILE=4096
  KillMode=control-group
  
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("remove")'
  
  [Install]
  WantedBy=packetfence-base.target
 diff --git a/conf/systemd/packetfence-mysql-probe.service b/conf/systemd/packetfence-mysql-probe.service
-index 70f31c930e..1717e237ee 100644
+index 1d0091384e..ce63c4b8e0 100644
 --- a/conf/systemd/packetfence-mysql-probe.service
 +++ b/conf/systemd/packetfence-mysql-probe.service
 @@ -14,8 +14,8 @@ ExecStart=/usr/local/pf/sbin/mysql-probe
  Restart=on-failure
  Slice=packetfence.slice
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-netdata.service b/conf/systemd/packetfence-netdata.service
-index 018f7d1182..bfd2226b91 100644
+index bd14033b14..ceb163447d 100644
 --- a/conf/systemd/packetfence-netdata.service
 +++ b/conf/systemd/packetfence-netdata.service
 @@ -13,7 +13,7 @@ RuntimeDirectoryMode=0775
@@ -352,10 +360,10 @@ index 018f7d1182..bfd2226b91 100644
  Slice=packetfence.slice
  
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
--ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
-+ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("remove")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("remove")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
@@ -399,7 +407,7 @@ index 030e909024..3babe3d186 100644
  ExecStop=/bin/bash -c "docker stop pfconnector-client ; echo Stopped"
  Restart=always
 diff --git a/conf/systemd/packetfence-pfconnector-server.service b/conf/systemd/packetfence-pfconnector-server.service
-index edd66eefc6..184c733a3b 100644
+index d91c30649d..11637007e5 100644
 --- a/conf/systemd/packetfence-pfconnector-server.service
 +++ b/conf/systemd/packetfence-pfconnector-server.service
 @@ -6,15 +6,15 @@ After=packetfence-base.target packetfence-config.service packetfence-firewalld.s
@@ -414,9 +422,9 @@ index edd66eefc6..184c733a3b 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/pfconnector-server-systemd-notify.pid
  # pFirewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfconnector_server_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfconnector_server_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfconnector_server_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfconnector_server_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfconnector_server_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfconnector_server_rules("remove")'
  
  [Install]
@@ -435,22 +443,22 @@ index fc123777b2..8377843fbb 100644
  ExecStop=/bin/bash -c "docker stop pfcron ; echo Stopped"
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfdhcp.service b/conf/systemd/packetfence-pfdhcp.service
-index 41fc05357e..73bb8cc86f 100644
+index 7861d65913..5971e189c0 100644
 --- a/conf/systemd/packetfence-pfdhcp.service
 +++ b/conf/systemd/packetfence-pfdhcp.service
 @@ -16,8 +16,8 @@ ExecStart=/usr/local/pf/sbin/pfdhcp
  Restart=on-failure
  Slice=packetfence.slice
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-pfdns.service b/conf/systemd/packetfence-pfdns.service
-index 2b2c1f7dfb..fb28e73fef 100644
+index f5b7621a78..3c71257414 100644
 --- a/conf/systemd/packetfence-pfdns.service
 +++ b/conf/systemd/packetfence-pfdns.service
 @@ -10,13 +10,13 @@ StartLimitBurst=3
@@ -463,15 +471,15 @@ index 2b2c1f7dfb..fb28e73fef 100644
  Restart=on-failure
  Slice=packetfence.slice
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdns_rules("add")'
--ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdns_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdns_rules("add")'
-+ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdns_rules("remove")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdns_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdns_rules("remove")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdns_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdns_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-pfipset.service b/conf/systemd/packetfence-pfipset.service
-index 0349626b3b..2764a9530e 100644
+index 9868661a65..b3a8498506 100644
 --- a/conf/systemd/packetfence-pfipset.service
 +++ b/conf/systemd/packetfence-pfipset.service
 @@ -10,13 +10,13 @@ StartLimitBurst=3
@@ -484,9 +492,9 @@ index 0349626b3b..2764a9530e 100644
  Restart=on-failure
  Slice=packetfence.slice
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfipset_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfipset_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfipset_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfipset_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfipset_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfipset_rules("remove")'
  
  
@@ -603,22 +611,22 @@ index 6f39473421..80c37e1b39 100644
  [Install]
  WantedBy=packetfence-cluster.target
 diff --git a/conf/systemd/packetfence-radiusd-acct.service b/conf/systemd/packetfence-radiusd-acct.service
-index b5d7d9d359..6cc49ece89 100644
+index d6539ce18c..58f49e7910 100644
 --- a/conf/systemd/packetfence-radiusd-acct.service
 +++ b/conf/systemd/packetfence-radiusd-acct.service
 @@ -20,8 +20,8 @@ Restart=on-failure
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/radiusd-acct-systemd-notify.pid
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_acct_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_acct_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_acct_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_acct_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_acct_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_acct_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-radiusd-auth.service b/conf/systemd/packetfence-radiusd-auth.service
-index b6a0d146b4..be281586b1 100644
+index d8ad74925c..82d39a804f 100644
 --- a/conf/systemd/packetfence-radiusd-auth.service
 +++ b/conf/systemd/packetfence-radiusd-auth.service
 @@ -12,14 +12,14 @@ Type=notify
@@ -634,30 +642,30 @@ index b6a0d146b4..be281586b1 100644
  Restart=on-failure
  Slice=packetfence.slice
  # firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_auth_rules("add")'
--ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_auth_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_auth_rules("add")'
-+ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_auth_rules("remove")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_auth_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_auth_rules("remove")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_auth_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_auth_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-radiusd-cli.service b/conf/systemd/packetfence-radiusd-cli.service
-index 1bac350471..f9608daa2f 100644
+index 9dd405488d..7d013080c9 100644
 --- a/conf/systemd/packetfence-radiusd-cli.service
 +++ b/conf/systemd/packetfence-radiusd-cli.service
 @@ -20,8 +20,8 @@ Restart=on-failure
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/radiusd-cli-systemd-notify.pid
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_cli_rules("add")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_cli_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_cli_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_cli_rules("add")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_cli_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_cli_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
-index e14313ea36..95a5674586 100644
+index 97f92e1c4e..87b3ffacce 100644
 --- a/conf/systemd/packetfence-radiusd-eduroam.service
 +++ b/conf/systemd/packetfence-radiusd-eduroam.service
 @@ -11,14 +11,14 @@ Type=notify
@@ -673,10 +681,10 @@ index e14313ea36..95a5674586 100644
  Restart=on-failure
  Slice=packetfence.slice
  # Firewalld
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_eduroam_rules("add")'
--ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_eduroam_rules("remove")'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_eduroam_rules("add")'
-+ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_eduroam_rules("remove")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_eduroam_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_eduroam_rules("remove")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_eduroam_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_radiusd_eduroam_rules("remove")'
  
  [Install]
  WantedBy=packetfence.target
