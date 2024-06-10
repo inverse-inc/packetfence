@@ -17,7 +17,7 @@ Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/httpd.portal-systemd-notify.pid
 # Firewalld
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("add")'
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("add")'
 ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("remove")'
 
 [Install]
