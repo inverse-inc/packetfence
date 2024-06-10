@@ -396,9 +396,8 @@ sub fd_httpd_portal_rules {
   my $mgnt_zone = $management_network->{Tint};
   my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
   util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp --match tcp --dport $httpd_portal_modstatus -j ACCEPT", $action );
-  foreach my $tint ( @portal_ints ) {
-    service_to_zone($tint, $action, "http");
-    service_to_zone($tint, $action, "https");
+  foreach my $network ( @portal_ints ) {
+    my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "web-portal");
   }
 }
@@ -417,6 +416,11 @@ sub fd_haproxy_portal_rules {
   my $action = shift;
   foreach my $tint (@ha_ints){
     service_to_zone($tint, $action, "haproxy-portal");
+  }
+  foreach my $network ( @portal_ints ) {
+    my $tint =  $network->{Tint};
+    service_to_zone($tint, $action, "http");
+    service_to_zone($tint, $action, "https");
   }
 }
 
