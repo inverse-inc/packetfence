@@ -53,6 +53,12 @@
       - Config/Interfaces
   put:
     description: Update the configuration of an interface
+    parameters:
+    - in: path
+      name: interface_id
+      required: true
+      schema:
+        type: string
     requestBody:
       content:
         application/json:

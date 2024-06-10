@@ -1,7 +1,0 @@
-ConfigFilterEnginesProvisioningFilterWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigFilterEnginesProvisioningFilter'
-    status:
-      type: integer
-  type: object

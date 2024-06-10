@@ -1,7 +1,0 @@
-ConfigSyslogForwarderWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigSyslogForwarder'
-    status:
-      type: integer
-  type: object

@@ -319,7 +319,6 @@ sub generateSchemas {
     my $list_path = $self->schemaListPath($controller);
     my $item_path = $self->schemaItemPath($controller);
     my $item_wrapped_path = $self->schemaItemWrappedPath($controller);
-    my $meta_path = $self->schemaMetaPath($controller);
     my @forms = buildForms($controller);
     return {
         $list_path => {
@@ -350,8 +349,7 @@ sub generateSchemas {
                 }
             }
         },
-        $meta_path => pf::UnifiedApi::GenerateSpec::formsToMetaSchema(\@forms),
-
+        %{pf::UnifiedApi::GenerateSpec::formsToMetaSchemas($item_path, \@forms)},
         %{pf::UnifiedApi::GenerateSpec::formsToSubTypeSchemas($item_path, \@forms)}
     };
 }
@@ -508,7 +506,7 @@ sub bulkDeleteRequestBody {
                             type => 'array',
                             items => {
                                 type => 'string',
-                                description => '`PRIMARY_KEY`'
+                                description => '`PRIMARY KEY`'
                             }
                         }
                     }

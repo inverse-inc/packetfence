@@ -1,7 +1,0 @@
-ConfigRadiusdEAPProfileWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigRadiusdEAPProfile'
-    status:
-      type: integer
-  type: object

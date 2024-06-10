@@ -93,6 +93,7 @@
     parameters:
       - $ref: '#/components/parameters/X-PacketFence-Server'
       - $ref: '#/components/parameters/Async'
+      - $ref: '#/components/parameters/service'
     requestBody:
       content:
         application/json:

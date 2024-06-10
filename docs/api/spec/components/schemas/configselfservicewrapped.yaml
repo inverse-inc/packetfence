@@ -1,7 +1,0 @@
-ConfigSelfServiceWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigSelfService'
-    status:
-      type: integer
-  type: object

@@ -1,9 +1,0 @@
-ConfigProvisioningsList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigProvisioning'
-        type: array
-    type: object

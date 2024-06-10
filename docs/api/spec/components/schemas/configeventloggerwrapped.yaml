@@ -1,7 +1,0 @@
-ConfigEventLoggerWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigEventLogger'
-    status:
-      type: integer
-  type: object

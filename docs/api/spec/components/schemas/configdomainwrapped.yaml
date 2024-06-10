@@ -1,7 +1,0 @@
-ConfigDomainWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigDomain'
-    status:
-      type: integer
-  type: object

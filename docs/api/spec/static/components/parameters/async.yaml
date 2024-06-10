@@ -1,5 +1,4 @@
 Async:
-  in: path
   name: async
   required: true
   schema:

@@ -1,7 +1,0 @@
-ConfigProvisioningWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigProvisioning'
-    status:
-      type: integer
-  type: object

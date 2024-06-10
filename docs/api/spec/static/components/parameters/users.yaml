@@ -2,8 +2,6 @@ user_id:
   name: user_id
   in: path
   required: true
-  description: The users `PRIMARY_KEY`
+  description: The users `PRIMARY_KEYs`
   schema:
     type: string
-
-
