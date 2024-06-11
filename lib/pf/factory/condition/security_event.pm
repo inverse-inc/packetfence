@@ -57,11 +57,8 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'nexpose_event_contains'      => {type => 'matches',                      key  => 'last_nexpose_event',      event => $TRUE},
     'nexpose_event_starts_with'   => {type => 'starts_with',                  key  => 'last_nexpose_event',      event => $TRUE},
     'fleetdm_policy'              => {type => 'regex',                        key  => 'policy_name',             event => $TRUE },
-    'fleetdm_policy_contains'     => {type => 'includes',                     key  => 'policy_name',             event => $TRUE },
-    'fleetdm_policy_severity_gte' => {type => 'regex',                        key  => 'policy_name',             event => $TRUE },
     'fleetdm_cve'                 => {type => 'regex',                        key  => 'cve',                     event => $TRUE },
-    'fleetdm_policy_contains'     => {type => 'includes',                     key  => 'cve',                     event => $TRUE },
-    'fleetdm_cve_severity_gte'    => {type => 'regex',                        key  => 'severity',                event => $TRUE },
+    'fleetdm_cve_severity_gte'    => {type => 'greater_equals',               key  => 'severity',                event => $TRUE },
 );
 
 sub modules {

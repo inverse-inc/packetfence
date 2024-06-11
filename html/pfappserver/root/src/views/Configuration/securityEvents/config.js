@@ -136,18 +136,13 @@ export const triggerFields = {
     category: triggerCategories.EVENT,
     types: [fieldType.SUBSTRING]
   },
-  fleetdm_policy_contains: {
-    text: 'FleetDM Policy Violation Contains ...',
-    category: triggerCategories.EVENT,
-    types: [fieldType.SUBSTRING]
-  },
   fleetdm_cve: {
     text: 'FleetDM Vulnerability CVE Regex ...',
     category: triggerCategories.EVENT,
     types: [fieldType.SUBSTRING]
   },
-  fleetdm_cve_contains: {
-    text: 'FleetDM Vulnerability CVE Contains ...',
+  fleetdm_cve_severity_gte: {
+    text: 'FleetDM Vulnerability CVE Severity Gte ...',
     category: triggerCategories.EVENT,
     types: [fieldType.SUBSTRING]
   },

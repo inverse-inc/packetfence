@@ -567,9 +567,6 @@ sub info_for_security_event_engine {
         last_vlan              => $node_info->{last_vlan},
         last_ip                => $last_ip,
         last_accounting_events => $accounting_history,
-        policy_name            => $tid,
-        cve                    => $tid,
-        severity               => $tid,
     };
 
     my $trigger_info = $pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};

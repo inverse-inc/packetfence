@@ -35,7 +35,6 @@ our @EXPORT_OK = qw(
         $TRIGGER_MAP
         $SURICATA_CATEGORIES
         $TRIGGER_TYPE_FLEETDM_POLICY $TRIGGER_TYPE_FLEETDM_CVE
-        $TRIGGER_TYPE_FLEETDM_POLICY_CONTAINS $TRIGGER_TYPE_FLEETDM_CVE_CONTAINS
         $TRIGGER_TYPE_FLEETDM_CVE_SEVERITY_GTE
 );
 
@@ -56,8 +55,6 @@ Readonly::Scalar our $TRIGGER_TYPE_SWITCH => 'switch';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 Readonly::Scalar our $TRIGGER_TYPE_FLEETDM_POLICY => 'fleetdm_policy';
 Readonly::Scalar our $TRIGGER_TYPE_FLEETDM_CVE => 'fleetdm_cve';
-Readonly::Scalar our $TRIGGER_TYPE_FLEETDM_POLICY_CONTAINS => 'fleetdm_policy_contains';
-Readonly::Scalar our $TRIGGER_TYPE_FLEETDM_CVE_CONTAINS => 'fleetdm_cve_contains';
 Readonly::Scalar our $TRIGGER_TYPE_FLEETDM_CVE_SEVERITY_GTE => 'fleetdm_cve_severity_gte';
 
 

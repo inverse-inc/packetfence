@@ -21,9 +21,9 @@ use HTTP::Tiny;
 use pf::CHI;
 use pf::security_event;
 use pf::log;
+use Scalar::Util qw(looks_like_number);
 
 our $cache = pf::CHI->new(namespace => 'fleetdm');
-our $fleetdm_host = "";
 our $fleetdm_email = "";
 our $fleetdm_password = "";
 our $fleetdm_token = "";
@@ -47,19 +47,14 @@ unless (exists($Config{fleetdm}->{host}) &&
     return 1;
 }
 
-$fleetdm_host = $Config{fleetdm}->{host};
-$fleetdm_email = $Config{fleetdm}->{email};
-$fleetdm_password = $Config{fleetdm}->{password};
-$fleetdm_token = $Config{fleetdm}->{token};
-
-if ($fleetdm_host eq "") {
+if ($Config{fleetdm}->{host} eq "") {
     $msg = "Unable to find a valid 'host' value in FleetDM config.";
     $logger->error($msg);
     return 1;
 }
 
-if ($fleetdm_token eq "" &&
-    ($fleetdm_email eq "" || $fleetdm_password eq "")
+if ($Config{fleetdm}->{token} eq "" &&
+    ($Config{fleetdm}->{email} eq "" || $Config{fleetdm}->{password} eq "")
 ) {
     $msg = "Unable to obtain credentials for FleetDM. Either 'token' or 'email+password' is required.";
     $logger->error($msg);
@@ -120,7 +115,7 @@ sub handlePolicy {
         my $primary_mac = cachedGetHostMac($host_id);
 
         if (defined($primary_mac) && $primary_mac ne "") {
-            triggerPolicy($primary_mac, "fleetdm_policy", $policy_name, $payload)
+            triggerPolicy($primary_mac, "fleetdm_policy", $policy_name, $payload);
         }
     }
 }
@@ -142,6 +137,13 @@ sub handleCVE {
     }
 
     my $cve = $data->{vulnerability}->{cve};
+    my $severity = 0;
+
+    if (exists($data->{vulnerability}) && exists($data->{vulnerability}->{cvss_score}) &&
+        looks_like_number($data->{vulnerability}->{cvss_score})
+    ) {
+        $severity = $data->{vulnerability}->{cvss_score};
+    }
 
     my @hosts = @{$data->{vulnerability}->{hosts_affected}};
     foreach my $host (@hosts) {
@@ -155,29 +157,37 @@ sub handleCVE {
         my $primary_mac = cachedGetHostMac($host_id);
 
         if (defined($primary_mac) && $primary_mac ne "") {
-            triggerPolicy($primary_mac, "fleetdm_cve", $cve, $payload)
+            triggerPolicy($primary_mac, "fleetdm_cve", $cve, $payload);
+            triggerPolicy($primary_mac, "fleetdm_cve_severity_gte", $severity, $payload)
         }
     }
 }
 
 sub triggerPolicy() {
-    my ($mac, $type, $tid, $json) = @_;
+    my ($mac, $type, $tid, $json_text) = @_;
+
+    my $json = JSON->new;
+    my $decoded = $json->decode($json_text);
+    my $pretty_json_text = $json->pretty->encode($decoded);
+
+    my $email_extra = "\n\nOriginal Webhook Payload: \n$pretty_json_text\n";
+
     security_event_trigger({
         mac     => $mac,
         type    => $type,
         tid     => $tid,
-        notes   => $json
+        notes   => $email_extra,
     });
 }
 
 sub login {
     my $http = HTTP::Tiny->new;
 
-    my $url = $fleetdm_host . "/api/v1/fleet/login";
+    my $url = $Config{fleetdm}->{host} . "/api/v1/fleet/login";
 
     my $post_data = {
-        email    => $fleetdm_email,
-        password => $fleetdm_password,
+        email    => $Config{fleetdm}->{email},
+        password => $Config{fleetdm}->{password},
     };
     my $json_post_data = encode_json($post_data);
 
@@ -194,7 +204,7 @@ sub login {
     }
 
     if ($response->{status} != 200) {
-        $msg = "error $response->{status} occured while login: $response->{reason}";
+        $msg = "error $response->{status} occurred while login: $response->{reason}";
         $logger->error($msg);
         return "";
     }
@@ -213,6 +223,14 @@ sub refreshToken {
     if ($Config{fleetdm}->{token} ne "") {
         $fleetdm_token = $Config{fleetdm}->{token};
         return;
+    }
+
+    if ($fleetdm_email ne $Config{fleetdm}->{email} ||
+        $fleetdm_password ne $Config{fleetdm}->{password}
+    ) {
+        $cache->remove("fleetdm_api_token");
+        $fleetdm_email = $Config{fleetdm}->{email};
+        $fleetdm_password = $Config{fleetdm}->{password};
     }
 
     my $token = $cache->get("fleetdm_api_token");
@@ -254,7 +272,7 @@ sub getHostMac {
         return ""
     }
 
-    my $url = $fleetdm_host . "/api/v1/fleet/hosts/" . $host_id;
+    my $url = $Config{fleetdm}->{host} . "/api/v1/fleet/hosts/" . $host_id;
     my $http = HTTP::Tiny->new;
     my $response = $http->get($url, {
         headers => { 'Authorization' => "Bearer " . $fleetdm_token }
