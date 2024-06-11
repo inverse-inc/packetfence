@@ -2,7 +2,7 @@
 
 function msg { out "$*" >&1 ;}
 function out { printf '%s\n' "$*" ;}
-local binary="iptables"
+binary="iptables"
 
 while iptables -L DOCKER ; [ $? -ne 0 ];do
   msg "Waiting for iptables to be ready"
