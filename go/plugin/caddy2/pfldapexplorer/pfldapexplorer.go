@@ -7,16 +7,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/common/ldapClient"
 	"github.com/inverse-inc/packetfence/go/common/ldapSearchClient"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 )
 
 var ApiPrefix = "/api/v1"
@@ -27,7 +29,6 @@ var LdapSearchEndpoint = "/ldap/search"
 var serverConnectionTimeout = time.Second
 
 type Handler struct {
-	Next       httpserver.Handler
 	Router     *chi.Mux
 	Ctx        *context.Context
 	connectors *connector.ConnectorsContainer
@@ -39,46 +40,49 @@ type SearchRequest struct {
 }
 
 func init() {
-	caddy.RegisterPlugin("pfldapexplorer", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(Handler{})
+	httpcaddyfile.RegisterHandlerDirective("pfldapexplorer", utils.ParseCaddyfile[Handler])
 }
 
-func setup(c *caddy.Controller) error {
+// CaddyModule returns the Caddy module information.
+func (Handler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.pfldapexplorer",
+		New: func() caddy.Module {
+			return &Handler{}
+		},
+	}
+}
+
+func (m *Handler) Provision(_ caddy.Context) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	pfldapexplorer, err := buildPfldapExplorer(ctx)
-	sharedutils.CheckError(err)
-
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		pfldapexplorer.Next = next
-		return pfldapexplorer
-	})
+	err := m.buildPfldapExplorer(ctx)
+	if err != nil {
+		return nil
+	}
 
 	return nil
 }
 
-func buildPfldapExplorer(ctx context.Context) (Handler, error) {
+func (h *Handler) buildPfldapExplorer(ctx context.Context) error {
 
-	pfldapexplorer := Handler{}
-
-	pfldapexplorer.Ctx = &ctx
-	pfldapexplorer.connectors = connector.NewConnectorsContainer(ctx)
+	h.Ctx = &ctx
+	h.connectors = connector.NewConnectorsContainer(ctx)
 
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	pfldapexplorer.Router = chi.NewRouter()
+	h.Router = chi.NewRouter()
 	ldapSearchUrl := ApiPrefix + LdapSearchEndpoint
 
-	pfldapexplorer.Router.Post(ldapSearchUrl, pfldapexplorer.HandleLDAPSearchRequest)
+	h.Router.Post(ldapSearchUrl, h.HandleLDAPSearchRequest)
 
-	return pfldapexplorer, nil
+	return nil
 
 }
 
-func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 	defer panichandler.Http(ctx, w)
 	chiCtx := chi.NewRouteContext()
@@ -89,9 +93,10 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 		h.Router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
-		return 0, nil
+		return nil
 	}
-	return h.Next.ServeHTTP(w, r)
+
+	return next.ServeHTTP(w, r)
 }
 
 func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Request) {
@@ -139,4 +144,9 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 	if err := json.NewEncoder(res).Encode(results); err != nil {
 		panic(err)
 	}
+}
+
+func (h *Handler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
+	c.Next()
+	return nil
 }
