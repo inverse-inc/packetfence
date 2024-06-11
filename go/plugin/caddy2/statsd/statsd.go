@@ -1,4 +1,4 @@
-package caddystatsd
+package pfstatsd
 
 import (
 	"context"
