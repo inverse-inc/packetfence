@@ -77,10 +77,12 @@ sub doTask {
 
     if ($args->{type} eq "fleetdm_policy") {
         handlePolicy($args->{payload});
+        return;
     }
 
     if ($args->{type} eq "fleetdm_cve") {
         handleCVE($args->{payload});
+        return;
     }
 
     $msg = "Unknown event type: $args->{type}";
@@ -164,7 +166,7 @@ sub triggerPolicy() {
         mac     => $mac,
         type    => $type,
         tid     => $tid,
-        'notes' => $json
+        notes   => $json
     });
 }
 

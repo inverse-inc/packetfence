@@ -555,18 +555,21 @@ sub info_for_security_event_engine {
     my $last_ip = pf::ip4log::mac2ip($mac) || 0;
 
     my $info = {
-      device_id => $device_id,
-      dhcp_fingerprint_id => $results->{dhcp_fingerprint},
-      dhcp_vendor_id => $results->{dhcp_vendor},
-      dhcp6_fingerprint_id => $results->{dhcp6_fingerprint},
-      dhcp6_enterprise_id => $results->{dhcp6_enterprise},
-      mac => $mac,
-      mac_vendor_id => $mac_vendor_id,
-      last_switch => $node_info->{'last_switch'},
-      role => $node_info->{category},
-      last_vlan => $node_info->{last_vlan},
-      last_ip => $last_ip,
-      last_accounting_events => $accounting_history,
+        device_id              => $device_id,
+        dhcp_fingerprint_id    => $results->{dhcp_fingerprint},
+        dhcp_vendor_id         => $results->{dhcp_vendor},
+        dhcp6_fingerprint_id   => $results->{dhcp6_fingerprint},
+        dhcp6_enterprise_id    => $results->{dhcp6_enterprise},
+        mac                    => $mac,
+        mac_vendor_id          => $mac_vendor_id,
+        last_switch            => $node_info->{'last_switch'},
+        role                   => $node_info->{category},
+        last_vlan              => $node_info->{last_vlan},
+        last_ip                => $last_ip,
+        last_accounting_events => $accounting_history,
+        policy_name            => $tid,
+        cve                    => $tid,
+        severity               => $tid,
     };
 
     my $trigger_info = $pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};

@@ -441,3 +441,44 @@ actions=email_user,email_admin
 enabled=Y
 user_mail_message=Your device [% mac %] has been detected with a FleetDM violation [% violation_name %]. Please contact your system administrator to be able to use this device again on the network. Details are attached: [% violation_json %]
 grace=0
+
+[3500001]
+desc=FleetDM Policy Violation Regex Template
+priority=2
+actions=
+enabled=N
+trigger=fleetdm_policy::test_policy_regex
+grace=0
+
+[3500002]
+desc=FleetDM Policy Violation Contains Template
+priority=1
+actions=
+enabled=N
+trigger=fleetdm_policy_contains::test_policy_contains
+grace=0
+
+[3500003]
+desc=FleetDM Vulnerability CVE Regex Template
+priority=2
+actions=
+enabled=N
+trigger=fleetdm_cve::test_cve_regex
+grace=0
+
+[3500004]
+desc=FleetDM Vulnerability CVE Contains Template
+priority=1
+actions=
+enabled=N
+trigger=fleetdm_cve_contains::test_cve_contains
+grace=0
+
+[3500005]
+desc=FleetDM Vulnerability CVE Severity gte Template
+priority=1
+actions=
+enabled=N
+trigger=fleetdm_cve_severity_gte::0
+grace=0
+
