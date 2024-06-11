@@ -39,6 +39,20 @@ NOTE: We assume that you already have a running FleetDM service on your local ne
 * Manually create the role if it doesn't exist. Click *New admin role* button, in the form pops up, fill in name with *FleetDM Event Handler*, Description with *Receives FleetDM events*, actions with *FLEETDM_EVENTS_READ* and save.
 * Create a new user that has the role from *Admin UI* -> *Users* -> *Create*. Give a proper name for *Username (PID)* and *strong password*, and set Access Level to *FleetDM Event Handler*
 
+==== Configure FleetDM API in PacketFence
+
+NOTE: In order to allow PacketFence to get associated Mac Address of an affected host, either there's a policy violation or CVE vulnerability, PacketFence will make API calls to FleetDM. An endpoint and credential is required.
+
+NOTE: If both *API Token* and *email & password* are specified, PacketFence will *ONLY* use API token to authenticate with FleetDM.
+
+* Configure FleetDM endpoint from *Admin UI* -> *Configuration* -> *System Configuration* -> *FleetDM*.
+* Fill in your *FleetDM login email* + *password* OR *FleetDM API Token*, then Save.
+* Your *temporary* API token can be found after you login into FleetDM -> Right top Logged in user icon -> *My Account* -> *Get API Token*
+* To create a permanent API Key in FleetDM, please refer to official documents: https://fleetdm.com/docs/using-fleet/fleetctl-cli?utm_medium=fleetui&utm_campaign=get-api-token#using-fleetctl-with-an-api-only-user
+
+image::fleetdm-fleetdm-api-token-in-packetfence.jpg[scaledwidth="100%",alt="FleetDM webhook for Policy Violations"]
+image::fleetdm-fleetdm-api-token.jpg[scaledwidth="100%",alt="FleetDM webhook for Policy Violations"]
+
 ==== Configure FleetDM
 
 NOTE: We *strongly* recommend you to config FleetDM and PacketFence using a *valid SSL Certificate* instead of a self-signed one to make sure devices can be successful enrolled to FleetDM and Policy Violations or CVEs can be reported to PacketFence as well. Policy violation webhook and CVE webhooks are configured individually in FleetDM admin UI.
