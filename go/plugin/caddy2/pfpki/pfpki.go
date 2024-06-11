@@ -6,56 +6,72 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/go-utils/sharedutils"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/handlers"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/handlers"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
+type Handler struct {
+	Handler   types.Handler
+	cancelCtx context.Context
+	cancel    func()
+}
+
 // Register the plugin in caddy
 func init() {
-	caddy.RegisterPlugin("pfpki", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(Handler{})
+	httpcaddyfile.RegisterHandlerDirective("pfpki", utils.ParseCaddyfile[Handler])
+
 	dict, err := models.ParseYAMLDict()
 	if err != nil {
 		panic(err)
 	}
+
 	cat, err := catalog.NewFromMap(dict)
 	if err != nil {
 		panic(err)
 	}
+
 	message.DefaultCatalog = cat
 }
 
+// CaddyModule returns the Caddy module information.
+func (Handler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.pfpki",
+		New: func() caddy.Module {
+			return &Handler{}
+		},
+	}
+}
+
 // Setup the pfpki middleware
-func setup(c *caddy.Controller) error {
+func (m *Handler) Provision(_ caddy.Context) error {
+	m.cancelCtx, m.cancel = context.WithCancel(context.Background())
 	ctx := log.LoggerNewContext(context.Background())
 
-	pfpki, err := buildPfpkiHandler(ctx)
-
-	sharedutils.CheckError(err)
-
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		pfpki.Next = next
-		return pfpki
-	})
+	err := m.buildPfpkiHandler(ctx)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
+func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 
 	pfpki := types.Handler{}
 	var Database *gorm.DB
@@ -187,13 +203,44 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	pfpki.Router = r
 
 	go func() {
+		ticker := time.NewTicker(5 * time.Second)
 		for {
-
-			sqlDB, _ := pfpki.DB.DB()
-			sqlDB.Ping()
-			time.Sleep(5 * time.Second)
+			select {
+			case <-ticker.C:
+				sqlDB, _ := pfpki.DB.DB()
+				sqlDB.Ping()
+			case <-h.cancelCtx.Done():
+				return
+			}
 		}
 	}()
 
-	return pfpki, nil
+	h.Handler = pfpki
+	return nil
 }
+
+func (s *Handler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
+	c.Next()
+	return nil
+}
+
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+	return h.Handler.ServeHTTP(w, r, next)
+}
+
+func (h *Handler) Validate() error {
+	return nil
+}
+
+func (h *Handler) Cleanup() error {
+	h.cancel()
+	return nil
+}
+
+var (
+	_ caddy.Provisioner           = (*Handler)(nil)
+	_ caddy.CleanerUpper          = (*Handler)(nil)
+	_ caddy.Validator             = (*Handler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*Handler)(nil)
+	_ caddyfile.Unmarshaler       = (*Handler)(nil)
+)

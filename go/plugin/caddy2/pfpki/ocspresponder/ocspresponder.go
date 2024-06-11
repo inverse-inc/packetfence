@@ -15,10 +15,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/ocsp"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/ocsp"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 )
 
 // OCSPResponder struct

@@ -15,8 +15,8 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/google/uuid"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 )
 
 // Info struct
