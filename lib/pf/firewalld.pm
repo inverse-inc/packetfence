@@ -333,7 +333,6 @@ sub fd_proxysql_rules {
     service_to_zone($tint, $action, "proxysql");
   } else {
     $logger->warn("Firewalld is not started yet");
-    print("FD Not started");
   }
 }
 
@@ -347,7 +346,6 @@ sub fd_haproxy_admin_rules {
     util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
   } else {
     $logger->warn("Firewalld is not started yet");
-    print("FD Not started");
   }
 }
 
@@ -386,7 +384,6 @@ sub fd_api_frontend_rules {
     service_to_zone( $mgnt_zone, $action, "api_frontend");
   } else {
     $logger->warn("Firewalld is not started yet");
-    print("FD Not started");
   }
 }
 
