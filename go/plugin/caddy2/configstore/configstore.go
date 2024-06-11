@@ -6,26 +6,44 @@ import (
 	"sync"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 )
 
 func init() {
-	caddy.RegisterPlugin("configstore", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(ConfigStore{})
+	httpcaddyfile.RegisterHandlerDirective("configstore", utils.ParseCaddyfile[ConfigStore])
+}
+
+// CaddyModule returns the Caddy module information.
+func (ConfigStore) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.configstore",
+		New: func() caddy.Module {
+			return &ConfigStore{}
+		},
+	}
 }
 
 var refreshOnceRunner sync.Once
 
-func setup(c *caddy.Controller) error {
+func (s *ConfigStore) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
+	c.Next()
+	return nil
+}
 
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		return ConfigStore{Next: next}
-	})
+type ConfigStore struct {
+}
 
+func (c *ConfigStore) Validate() error {
+	return nil
+}
+
+func (c *ConfigStore) Provision(ctx caddy.Context) error {
 	refreshOnceRunner.Do(func() {
 		go func() {
 			for {
@@ -38,13 +56,21 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-type ConfigStore struct {
-	Next httpserver.Handler
+func (c *ConfigStore) Cleanup() error {
+	return nil
 }
 
-func (h ConfigStore) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *ConfigStore) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := pfconfigdriver.NewContext(r.Context())
 	r = r.WithContext(ctx)
 
-	return h.Next.ServeHTTP(w, r)
+	return next.ServeHTTP(w, r)
 }
+
+var (
+	_ caddy.Provisioner           = (*ConfigStore)(nil)
+	_ caddy.CleanerUpper          = (*ConfigStore)(nil)
+	_ caddy.Validator             = (*ConfigStore)(nil)
+	_ caddyhttp.MiddlewareHandler = (*ConfigStore)(nil)
+	_ caddyfile.Unmarshaler       = (*ConfigStore)(nil)
+)
