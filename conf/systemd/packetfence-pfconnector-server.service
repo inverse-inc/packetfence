@@ -12,7 +12,7 @@ ExecStop=/bin/bash -c "docker stop pfconnector-server ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/pfconnector-server-systemd-notify.pid
-# pFirewalld
+# Firewalld
 ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfconnector_server_rules("add")'
 ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfconnector_server_rules("remove")'
 
