@@ -6,28 +6,35 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inconshreveable/log15"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/inverse-inc/packetfence/go/requesthistory"
 )
 
 func init() {
-	caddy.RegisterPlugin("logger", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(Logger{})
+	httpcaddyfile.RegisterHandlerDirective("configstore", utils.ParseCaddyfile[Logger])
 }
 
-func setup(c *caddy.Controller) error {
-	ctx := log.LoggerNewContext(context.Background())
+// CaddyModule returns the Caddy module information.
+func (Logger) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.configstore",
+		New: func() caddy.Module {
+			return &Logger{HistoryLength: 100}
+		},
+	}
+}
 
-	var requestHistory *RequestHistoryController
-
+func (s *Logger) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	for c.Next() {
-		for c.NextBlock() {
+		for c.NextBlock(0) {
 			switch c.Val() {
 			case "requesthistory":
 				args := c.RemainingArgs()
@@ -40,23 +47,15 @@ func setup(c *caddy.Controller) error {
 					length = int(length64)
 				}
 
+				s.HistoryLength = length
 				fmt.Printf("Setting up request history with size %d\n", length)
-
-				rh, err := requesthistory.NewRequestHistory(length)
-				sharedutils.CheckError(err)
-
-				requestHistory = NewRequestHistoryController(&rh)
-
-				ctx = log.LoggerAddHandler(ctx, func(r *log15.Record) error { return requestHistory.requestHistory.HandleLogRecord(r) })
 			case "level":
 				args := c.RemainingArgs()
 
 				if len(args) != 1 {
 					return c.ArgErr()
 				} else {
-					level := args[0]
-					fmt.Println("Using configuration set log level: " + level)
-					ctx = log.LoggerSetLevel(ctx, level)
+					s.Level = args[0]
 				}
 			default:
 				return c.ArgErr()
@@ -64,20 +63,35 @@ func setup(c *caddy.Controller) error {
 		}
 	}
 
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		return Logger{Next: next, ctx: ctx, requestHistory: requestHistory}
-	})
-
 	return nil
 }
 
 type Logger struct {
-	Next           httpserver.Handler
+	HistoryLength  int
+	Level          string
 	ctx            context.Context
 	requestHistory *RequestHistoryController
 }
 
-func (h Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (l *Logger) Provision(_ caddy.Context) error {
+	fmt.Println("Using configuration set log level: " + l.Level)
+	rh, err := requesthistory.NewRequestHistory(l.HistoryLength)
+	if err != nil {
+		return err
+	}
+
+	ctx := log.LoggerAddHandler(
+		log.LoggerNewContext(context.Background()),
+		func(r *log15.Record) error { return l.requestHistory.requestHistory.HandleLogRecord(r) },
+	)
+
+	l.requestHistory = NewRequestHistoryController(&rh)
+	ctx = log.LoggerSetLevel(ctx, l.Level)
+	l.ctx = ctx
+	return nil
+}
+
+func (h *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := log.TranferLogContext(h.ctx, r.Context())
 	ctx = log.LoggerNewRequest(ctx)
 	r = r.WithContext(ctx)
@@ -86,9 +100,9 @@ func (h Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 		if handle, params, _ := h.requestHistory.router.Lookup(r.Method, r.URL.Path); handle != nil {
 			handle(w, r, params)
 			// TODO change me and wrap actions into something that handles server errors
-			return 0, nil
+			return nil
 		}
 	}
 
-	return h.Next.ServeHTTP(w, r)
+	return next.ServeHTTP(w, r)
 }
