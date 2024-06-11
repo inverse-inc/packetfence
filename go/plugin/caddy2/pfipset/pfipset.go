@@ -7,15 +7,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 )
 
 // Queue value
@@ -24,54 +27,62 @@ const (
 	maxWorkers   = 1
 )
 
-// Register the plugin in caddy
 func init() {
-	caddy.RegisterPlugin("pfipset", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(PfipsetHandler{})
+	httpcaddyfile.RegisterHandlerDirective("statsd", utils.ParseCaddyfile[PfipsetHandler])
+}
+
+// CaddyModule returns the Caddy module information.
+func (PfipsetHandler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.pfipset",
+		New: func() caddy.Module {
+			return &PfipsetHandler{}
+		},
+	}
 }
 
 type PfipsetHandler struct {
-	Next     httpserver.Handler
 	IPSET    *pfIPSET
 	database *sql.DB
 	router   *mux.Router
 }
 
+func (p *PfipsetHandler) Validate() error {
+	return nil
+}
+
+func (p *PfipsetHandler) Cleanup() error {
+	return nil
+}
+
 // Setup the pfipset middleware
 // Also loads the pfconfig resources and registers them in the pool
-func setup(c *caddy.Controller) error {
+func (m *PfipsetHandler) Provision(_ caddy.Context) error {
 	ctx := log.LoggerNewContext(context.Background())
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Cluster.HostsIp)
 
-	pfipset, err := buildPfipsetHandler(ctx)
+	err := m.buildPfipsetHandler(ctx)
 
 	if err != nil {
 		return err
 	}
 
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		pfipset.Next = next
-		return pfipset
-	})
-
 	return nil
 }
 
-func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
+func (m *PfipsetHandler) buildPfipsetHandler(ctx context.Context) error {
 
-	pfipset := PfipsetHandler{}
-	pfipset.IPSET = &pfIPSET{}
+	m.IPSET = &pfIPSET{}
 
 	// create job channel
-	pfipset.IPSET.jobs = make(chan job, maxQueueSize)
+	m.IPSET.jobs = make(chan job, maxQueueSize)
 
 	// create workers
 	for i := 1; i <= maxWorkers; i++ {
 		go func(i int) {
-			for j := range pfipset.IPSET.jobs {
+			for j := range m.IPSET.jobs {
 				doWork(i, j)
 			}
 		}(i)
@@ -81,7 +92,7 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 		ctx := log.LoggerNewContext(context.Background())
 		for {
 			time.Sleep(1 * time.Second)
-			currentQueueSize := len(pfipset.IPSET.jobs)
+			currentQueueSize := len(m.IPSET.jobs)
 			// Log a warning when queue is halfway full, and an error when its full
 			if currentQueueSize >= maxQueueSize {
 				log.LoggerWContext(ctx).Error("Queue has reached its maximum. Ipset related calls will be delayed and may timeout. Investigate previous logs to determine the cause of this backlog.")
@@ -94,11 +105,11 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	pfipset.IPSET.detectType(ctx)
+	m.IPSET.detectType(ctx)
 
 	db, err := db.DbFromConfig(ctx)
 	sharedutils.CheckError(err)
-	pfipset.database = db
+	m.database = db
 
 	// Reload the set from the database each 5 minutes
 	// TODO: have this time configurable
@@ -125,7 +136,7 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 				}
 			}
 			if Inline {
-				pfipset.IPSET.initIPSet(ctx, pfipset.database)
+				m.IPSET.initIPSet(ctx, m.database)
 				log.LoggerWContext(ctx).Info("Reloading ipsets")
 			} else {
 				log.LoggerWContext(ctx).Info("No Inline Network bypass ipsets reload")
@@ -134,12 +145,12 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 		}
 	}()
 
-	pfipset.router = mux.NewRouter()
-	api := pfipset.router.PathPrefix("/api/v1").Subrouter()
+	m.router = mux.NewRouter()
+	api := m.router.PathPrefix("/api/v1").Subrouter()
 	api.HandleFunc("/ipset/mark_layer3", handleLayer3).Methods("POST")
 	api.HandleFunc("/ipset/mark_layer2", handleLayer2).Methods("POST")
-	api.HandleFunc("/ipset/unmark_mac", pfipset.IPSET.handleUnmarkMac).Methods("POST")
-	api.HandleFunc("/ipset/unmark_ip", pfipset.IPSET.handleUnmarkIp).Methods("POST")
+	api.HandleFunc("/ipset/unmark_mac", m.IPSET.handleUnmarkMac).Methods("POST")
+	api.HandleFunc("/ipset/unmark_ip", m.IPSET.handleUnmarkIp).Methods("POST")
 	api.HandleFunc("/ipset/mark_ip_layer2", handleMarkIpL2).Methods("POST")
 	api.HandleFunc("/ipset/mark_ip_layer3", handleMarkIpL3).Methods("POST")
 	api.HandleFunc("/ipset/passthrough", handlePassthrough).Methods("POST")
@@ -147,10 +158,10 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 	api.HandleFunc("/ipset/add_ip/{set_name}", handleAddIp).Methods("POST")
 	api.HandleFunc("/ipset/remove_ip/{set_name}", handleRemoveIp).Methods("POST")
 
-	return pfipset, nil
+	return nil
 }
 
-func (h PfipsetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *PfipsetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 	ctx = h.IPSET.AddToContext(ctx)
 	r = r.WithContext(ctx)
@@ -162,9 +173,21 @@ func (h PfipsetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, 
 		h.router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
-		return 0, nil
-	} else {
-		return h.Next.ServeHTTP(w, r)
+		return nil
 	}
 
+	return next.ServeHTTP(w, r)
 }
+
+func (s *PfipsetHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
+	c.Next()
+	return nil
+}
+
+var (
+	_ caddy.Provisioner           = (*PfipsetHandler)(nil)
+	_ caddy.CleanerUpper          = (*PfipsetHandler)(nil)
+	_ caddy.Validator             = (*PfipsetHandler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*PfipsetHandler)(nil)
+	_ caddyfile.Unmarshaler       = (*PfipsetHandler)(nil)
+)
