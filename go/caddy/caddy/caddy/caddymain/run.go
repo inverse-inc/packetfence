@@ -58,7 +58,6 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfldapexplorer"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfpki"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfsso"
-	_ "github.com/inverse-inc/packetfence/go/caddy/requestlimit"
 )
 
 func init() {
