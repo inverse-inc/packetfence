@@ -10,28 +10,38 @@ import (
 	"strings"
 	"time"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/statsd"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/julienschmidt/httprouter"
 	"github.com/patrickmn/go-cache"
 )
 
 // Register the plugin in caddy
 func init() {
-	caddy.RegisterPlugin("pfsso", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(PfssoHandler{})
+	httpcaddyfile.RegisterHandlerDirective("pfsso", utils.ParseCaddyfile[PfssoHandler])
+}
+
+// CaddyModule returns the Caddy module information.
+func (PfssoHandler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.pfsso",
+		New: func() caddy.Module {
+			return &PfssoHandler{}
+		},
+	}
 }
 
 type PfssoHandler struct {
-	Next   httpserver.Handler
 	router *httprouter.Router
 	// The cache for the cached updates feature
 	updateCache *cache.Cache
@@ -41,44 +51,37 @@ type PfssoHandler struct {
 
 // Setup the pfsso middleware
 // Also loads the pfconfig resources and registers them in the pool
-func setup(c *caddy.Controller) error {
+func (m *PfssoHandler) Provision(_ caddy.Context) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	pfsso, err := buildPfssoHandler(ctx)
+	err := m.buildPfssoHandler(ctx)
 
 	if err != nil {
 		return err
 	}
 
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		pfsso.Next = next
-		return pfsso
-	})
-
 	return nil
 }
 
 // Build the PfssoHandler which will initialize the cache and instantiate the router along with its routes
-func buildPfssoHandler(ctx context.Context) (*PfssoHandler, error) {
+func (h *PfssoHandler) buildPfssoHandler(ctx context.Context) error {
 
-	pfsso := &PfssoHandler{}
-
-	pfsso.updateCache = cache.New(1*time.Hour, 30*time.Second)
+	h.updateCache = cache.New(1*time.Hour, 30*time.Second)
 
 	// Declare all pfconfig resources that will be necessary
-	pfsso.firewalls = firewallsso.NewFirewallsContainer(ctx)
-	pfsso.connectors = connector.NewConnectorsContainer(ctx)
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pfsso.firewalls)
+	h.firewalls = firewallsso.NewFirewallsContainer(ctx)
+	h.connectors = connector.NewConnectorsContainer(ctx)
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, h.firewalls)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
 
 	router := httprouter.New()
-	router.POST("/api/v1/firewall_sso/update", pfsso.handleUpdate)
-	router.POST("/api/v1/firewall_sso/start", pfsso.handleStart)
-	router.POST("/api/v1/firewall_sso/stop", pfsso.handleStop)
+	router.POST("/api/v1/firewall_sso/update", h.handleUpdate)
+	router.POST("/api/v1/firewall_sso/start", h.handleStart)
+	router.POST("/api/v1/firewall_sso/stop", h.handleStop)
 
-	pfsso.router = router
+	h.router = router
 
-	return pfsso, nil
+	return nil
 }
 
 // Parse the body of a pfsso request to extract a map[string]string of all the attributes that were sent
@@ -277,7 +280,7 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (h PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
@@ -286,9 +289,28 @@ func (h PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, er
 		handle(w, r, params)
 
 		// TODO change me and wrap actions into something that handles server errors
-		return 0, nil
-	} else {
-		return h.Next.ServeHTTP(w, r)
+		return nil
 	}
 
+	return next.ServeHTTP(w, r)
 }
+
+func (p *PfssoHandler) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
+	return nil
+}
+
+func (p *PfssoHandler) Cleanup() error {
+	return nil
+}
+
+func (p *PfssoHandler) Validate() error {
+	return nil
+}
+
+var (
+	_ caddy.Provisioner           = (*PfssoHandler)(nil)
+	_ caddy.CleanerUpper          = (*PfssoHandler)(nil)
+	_ caddy.Validator             = (*PfssoHandler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*PfssoHandler)(nil)
+	_ caddyfile.Unmarshaler       = (*PfssoHandler)(nil)
+)
