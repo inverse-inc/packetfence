@@ -48,7 +48,7 @@
     apt_preferences__list:
       - filename: 'packetfence-ppa.pref'
         package: 'packetfence*'
-        pin: 'release a={{ ansible_distribution_release }}-gitlab,n={{ ansible_distribution_release }},c=main,b=amd64'
+        pin: 'release a=bullseye-gitlab,n=bullseye,c=main,b=amd64'
         priority: '900'
         reason: 'always install packetfence packages from packetfence-ppa repository'
 
