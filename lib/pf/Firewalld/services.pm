@@ -97,10 +97,10 @@ sub service_all_destinations {
             my $xml_dest = $key.'="'.$val.'"';
             push( @all_destinations, $xml_dest );
           } else {
-            get_logger->error( "Service destination needs to be a valid ipv4 or ipv6 address with or without mask." );
+            get_logger->error( "Service destination needs to be a valid ipv4 or ipv6 address with or without mask.\nCurrent value is $val" );
           }
         } else {
-          get_logger->error( "Service destination needs to be ipv4 or ipv6." );
+          get_logger->error( "Service destination needs to be ipv4 or ipv6.\nCurrent key is $key and current value is $val." );
         }
       }
       if ( scalar(@all_destinations) > 0 ) {
