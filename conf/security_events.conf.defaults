@@ -435,14 +435,6 @@ user_mail_message=Your device [% mac %] has reached maximum NTLM login attempts.
 grace=0
 
 [3500001]
-desc=FleetDM Policy Violation Detected
-priority=1
-actions=email_user,email_admin
-enabled=Y
-user_mail_message=Your device [% mac %] has been detected with a FleetDM violation [% violation_name %]. Please contact your system administrator to be able to use this device again on the network. Details are attached: [% violation_json %]
-grace=0
-
-[3500001]
 desc=FleetDM Policy Violation Regex Template
 priority=2
 actions=
