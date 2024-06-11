@@ -11,20 +11,14 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/statsd"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"go.uber.org/zap"
 	_statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
 func init() {
 	caddy.RegisterModule(Statsd{})
-	httpcaddyfile.RegisterHandlerDirective("statsd", parseCaddyfile)
-}
-
-// parseCaddyfile unmarshals tokens from h into a new Middleware.
-func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-	var m Statsd
-	err := m.UnmarshalCaddyfile(h.Dispenser)
-	return &m, err
+	httpcaddyfile.RegisterHandlerDirective("statsd", utils.ParseCaddyfile[Statsd])
 }
 
 // CaddyModule returns the Caddy module information.
