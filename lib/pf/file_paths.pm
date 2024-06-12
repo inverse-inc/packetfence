@@ -140,7 +140,10 @@ our (
     $firewalld_ipsets_config_file, $firewalld_ipsets_config_defaults_file,
     $firewalld_helpers_config_file, $firewalld_helpers_config_defaults_file,
     $firewalld_lockdown_whitelist_config_file, $firewalld_lockdown_whitelist_config_defaults_file,
-    $firewalld_zones_config_file, $firewalld_zones_config_defaults_file
+    $firewalld_zones_config_file, $firewalld_zones_config_defaults_file,
+    $firewalld_input_config_inc_file, $firewalld_input_management_config_inc_file,
+    $firewalld6_input_config_inc_file, $firewalld6_input_management_config_inc_file
+
 );
 
 BEGIN {
@@ -256,6 +259,8 @@ BEGIN {
 	$firewalld_icmptypes_config_file $firewalld_icmptypes_config_defaults_file
 	$firewalld_helpers_config_file $firewalld_helpers_config_defaults_file
 	$firewalld_lockdown_whitelist_config_file $firewalld_lockdown_whitelist_config_defaults_file
+	$firewalld_input_config_inc_file $firewalld_input_management_config_inc_file
+        $firewalld6_input_config_inc_file $firewalld6_input_management_config_inc_file
     );
 }
 
@@ -422,7 +427,10 @@ $firewalld_config_config_file            = catfile($firewalld_config_path_defaul
 $firewalld_config_config_defaults_file   = catfile($firewalld_config_path_default,"firewalld.conf.defaults");
 $firewalld_lockdown_whitelist_config_file =catfile($firewalld_config_path_default,"firewalld_lockdown_whitelist.conf");
 $firewalld_lockdown_whitelist_config_defaults_file = catfile($firewalld_config_path_default,"firewalld_lockdown_whitelist.conf.defaults");
-
+$firewalld_input_config_inc_file             = catfile($firewalld_config_path_default, "firewalld-input.conf.inc");
+$firewalld_input_management_config_inc_file  = catfile($firewalld_config_path_default, "firewalld-input-management.conf.inc");
+$firewalld6_input_config_inc_file            = catfile($firewalld_config_path_default, "firewalld6-input.conf.inc");
+$firewalld6_input_management_config_inc_file = catfile($firewalld_config_path_default, "firewalld6-input-management.conf.inc");
 
 @log_files = map {catfile($log_dir, $_)}
   qw(
