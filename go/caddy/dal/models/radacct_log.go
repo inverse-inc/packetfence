@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 
 	"gorm.io/gorm"
 )

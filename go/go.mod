@@ -240,12 +240,14 @@ require (
 
 require (
 	github.com/caddyserver/caddy/v2 v2.8.4
+	github.com/caddyserver/forwardproxy v0.0.0-20240314124830-ec0619230bc0
 	github.com/fatih/structtag v1.2.0
 	github.com/huandu/go-clone/generic v1.6.0
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.29.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/segmentio/kafka-go v0.4.47
+	go.uber.org/zap v1.27.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
 	layeh.com/radius v0.0.0-00010101000000-000000000000
@@ -264,7 +266,6 @@ require (
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
 	github.com/caddyserver/certmagic v0.21.3 // indirect
-	github.com/caddyserver/forwardproxy v0.0.0-20240314124830-ec0619230bc0 // indirect
 	github.com/caddyserver/zerossl v0.1.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
@@ -348,7 +349,6 @@ require (
 	go.uber.org/automaxprocs v1.5.3 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
 	go.uber.org/zap/exp v0.2.0 // indirect
 	golang.org/x/crypto/x509roots/fallback v0.0.0-20240507223354-67b13616a595 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240506185236-b8a5c65736ae // indirect

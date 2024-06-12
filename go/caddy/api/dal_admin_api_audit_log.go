@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/gorm"
 )
