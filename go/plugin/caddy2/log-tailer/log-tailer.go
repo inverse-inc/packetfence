@@ -7,12 +7,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/jcuga/golongpoll"
 )
 
@@ -23,10 +26,18 @@ var handledPath = regexp.MustCompile(`^/api/v1/logs/tail`)
 
 // Register the plugin in caddy
 func init() {
-	caddy.RegisterPlugin("log-tailer", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(LogTailerHandler{})
+	httpcaddyfile.RegisterHandlerDirective("log-tailer", utils.ParseCaddyfile[LogTailerHandler])
+}
+
+// CaddyModule returns the Caddy module information.
+func (LogTailerHandler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.log-tailer",
+		New: func() caddy.Module {
+			return &LogTailerHandler{}
+		},
+	}
 }
 
 type PrettyTokenInfo struct {
@@ -37,7 +48,6 @@ type PrettyTokenInfo struct {
 }
 
 type LogTailerHandler struct {
-	Next                httpserver.Handler
 	router              *gin.Engine
 	eventsManager       *golongpoll.LongpollManager
 	sessions            map[string]*TailingSession
@@ -47,29 +57,19 @@ type LogTailerHandler struct {
 
 // Setup the log-tailer middleware
 // Also loads the pfconfig resources and registers them in the pool
-func setup(c *caddy.Controller) error {
+func (m *LogTailerHandler) Provision(_ caddy.Context) error {
 	ctx := log.LoggerNewContext(context.Background())
-
-	logTailer, err := buildLogTailerHandler(ctx)
-
+	err := m.buildLogTailerHandler(ctx)
 	if err != nil {
 		return err
 	}
 
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		logTailer.Next = next
-		return logTailer
-	})
-
 	return nil
 }
 
-func buildLogTailerHandler(ctx context.Context) (*LogTailerHandler, error) {
-
-	logTailer := &LogTailerHandler{}
-
+func (m *LogTailerHandler) buildLogTailerHandler(ctx context.Context) error {
 	var err error
-	logTailer.eventsManager, err = golongpoll.StartLongpoll(golongpoll.Options{
+	m.eventsManager, err = golongpoll.StartLongpoll(golongpoll.Options{
 		LoggingEnabled:     (sharedutils.EnvOrDefault("LOG_LEVEL", "") == "debug"),
 		MaxEventBufferSize: 1000,
 		// Events stay for up to 5 minutes
@@ -78,26 +78,26 @@ func buildLogTailerHandler(ctx context.Context) (*LogTailerHandler, error) {
 	})
 	sharedutils.CheckError(err)
 
-	logTailer.sessions = map[string]*TailingSession{}
-	logTailer.sessionsLock = sync.RWMutex{}
+	m.sessions = map[string]*TailingSession{}
+	m.sessionsLock = sync.RWMutex{}
 
-	logTailer.maintenanceLauncher = sync.Once{}
+	m.maintenanceLauncher = sync.Once{}
 
 	router := gin.Default()
 	logTailerApi := router.Group("/api/v1/logs/tail")
 
-	logTailerApi.OPTIONS("", logTailer.optionsSessions)
-	logTailerApi.POST("", logTailer.createNewSession)
-	logTailerApi.GET("/:id", logTailer.getSession)
-	logTailerApi.POST("/:id/touch", logTailer.touchSession)
-	logTailerApi.DELETE("/:id", logTailer.deleteSession)
+	logTailerApi.OPTIONS("", m.optionsSessions)
+	logTailerApi.POST("", m.createNewSession)
+	logTailerApi.GET("/:id", m.getSession)
+	logTailerApi.POST("/:id/touch", m.touchSession)
+	logTailerApi.DELETE("/:id", m.deleteSession)
 
-	logTailer.router = router
+	m.router = router
 
-	return logTailer, nil
+	return nil
 }
 
-func (h *LogTailerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *LogTailerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
@@ -124,9 +124,21 @@ func (h *LogTailerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (in
 
 	if handledPath.MatchString(r.URL.Path) {
 		h.router.ServeHTTP(w, r)
-		return 0, nil
-	} else {
-		return h.Next.ServeHTTP(w, r)
+		return nil
 	}
 
+	return next.ServeHTTP(w, r)
+}
+
+func (s *LogTailerHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
+	c.Next()
+	return nil
+}
+
+func (l *LogTailerHandler) Cleanup() error {
+	return nil
+}
+
+func (l *LogTailerHandler) Validate() error {
+	return nil
 }
