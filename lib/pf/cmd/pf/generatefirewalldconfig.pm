@@ -20,8 +20,8 @@ use base qw(pf::cmd);
 
 sub _run {
     my ($self) = @_;
-    firewalld_generate_pfconf_configs();
-    firewalld_generate_configs();
+    #fd_generate_pfconf_configs();
+    fd_generate_dynamic_configs();
     return 0;
 }
 

@@ -44,8 +44,8 @@ generateConfig
 =cut
 
 sub generateConfig {
-    firewalld_generate_pfconf_configs();
-    firewalld_generate_configs();
+    #fd_generate_pfconf_configs();
+    fd_generate_dynamic_configs();
     return 1;
 }
 

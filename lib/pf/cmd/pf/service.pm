@@ -333,8 +333,8 @@ sub stopService {
     if(isFirewalldManaged($service)) {
         my $count = true { $_->status eq '0'  } @managers;
         if( $count ) {
-            firewalld_generate_pfconf_configs();
-            firewalld_generate_configs();
+            fd_generate_pfconf_configs();
+            fd_generate_dynamic_configs();
         } else {
             $logger->error(
                 "Even though 'service pf stop' was called, there are still $count services running."
