@@ -8,24 +8,35 @@ import (
 	"sync"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 )
 
 func init() {
-	caddy.RegisterPlugin("pfconfigpool", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(PoolHandler{})
+	httpcaddyfile.RegisterHandlerDirective("pfconfigpool", utils.ParseCaddyfile[PoolHandler])
+}
+
+// CaddyModule returns the Caddy module information.
+func (PoolHandler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.pfconfigpool",
+		New: func() caddy.Module {
+			return &PoolHandler{}
+		},
+	}
 }
 
 // Setup an async goroutine that refreshes the pfconfig pool every second
-func setup(c *caddy.Controller) error {
+func (s *PoolHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	noRlockPaths := []string{}
 	for c.Next() {
-		for c.NextBlock() {
+		for c.NextBlock(0) {
 			switch c.Val() {
 			case "dont_rlock":
 				args := c.RemainingArgs()
@@ -43,26 +54,34 @@ func setup(c *caddy.Controller) error {
 		}
 	}
 
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		return PoolHandler{Next: next, refreshLauncher: &sync.Once{}, noRlockPaths: noRlockPaths}
-	})
+	s.noRlockPaths = noRlockPaths
+	return nil
+}
 
+func (m *PoolHandler) Provision(_ caddy.Context) error {
 	return nil
 }
 
 type PoolHandler struct {
-	Next            httpserver.Handler
 	refreshLauncher *sync.Once
 	noRlockPaths    []string
 }
 
+func (p *PoolHandler) Validate() error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (p *PoolHandler) Cleanup() error {
+	return nil
+}
+
 // Middleware that ensures there is a read-lock on the pool during every request and released when the request is done
-func (h PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	defer panichandler.Http(r.Context(), w)
 
 	for _, noRlock := range h.noRlockPaths {
 		if strings.HasSuffix(r.URL.Path, noRlock) {
-			return h.Next.ServeHTTP(w, r)
+			return next.ServeHTTP(w, r)
 		}
 	}
 
@@ -83,8 +102,16 @@ func (h PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 			}(ctx)
 		})
 
-		return h.Next.ServeHTTP(w, r)
-	} else {
-		panic("Unable to obtain pfconfigpool lock in caddy middleware")
+		return next.ServeHTTP(w, r)
 	}
+
+	panic("Unable to obtain pfconfigpool lock in caddy middleware")
 }
+
+var (
+	_ caddy.Provisioner           = (*PoolHandler)(nil)
+	_ caddy.CleanerUpper          = (*PoolHandler)(nil)
+	_ caddy.Validator             = (*PoolHandler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*PoolHandler)(nil)
+	_ caddyfile.Unmarshaler       = (*PoolHandler)(nil)
+)
