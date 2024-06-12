@@ -66,19 +66,19 @@ index ea8d512807..f1e80f402c 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-firewalld.service b/conf/systemd/packetfence-firewalld.service
-index 747b0d59b4..f1fe94a8ac 100644
+index 192cd9533d..5f8cc72ad4 100644
 --- a/conf/systemd/packetfence-firewalld.service
 +++ b/conf/systemd/packetfence-firewalld.service
 @@ -14,10 +14,10 @@ TimeoutStartSec=600
  EnvironmentFile=-/usr/local/pf/conf/firewalld
  # supress service that is using the same dbus
  ExecStartPre=/bin/bash -c "/bin/rm -rf /usr/lib/systemd/system/firewalld.service || true"
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_pfconf_configs()'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_pfconf_configs()'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_pfconf_configs()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_pfconf_configs()'
  ExecStart=/usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/local/pf/var/conf/firewalld
--ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_configs()'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_dynamic_configs()'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' '-Mpf::services::manager::firewalld' -e 'pf::services::manager::firewalld->new()->_stop()'
-+ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::firewalld_generate_configs()'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_dynamic_configs()'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' '-Mpf::services::manager::firewalld' -e 'pf::services::manager::firewalld->new()->_stop()'
  
  ExecReload=/bin/kill -HUP $MAINPID
