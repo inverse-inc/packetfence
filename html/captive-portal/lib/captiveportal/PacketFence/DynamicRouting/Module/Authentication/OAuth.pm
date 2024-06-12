@@ -165,6 +165,7 @@ sub handle_callback {
 
     if ($response->is_success) {
         my $info = $self->_decode_response($response); 
+        get_logger->debug( sub { use Data::Dumper; "OAuth2 response: ".Dumper($info) });
         my $pid = $self->_extract_username_from_response($info); 
         
         $self->username($pid);
