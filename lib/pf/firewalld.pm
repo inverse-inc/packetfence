@@ -17,18 +17,12 @@ use warnings;
 use File::Copy;
 use Template;
 use File::Path qw(rmtree);
-
-use IO::Interface::Simple;
-use pf::log;
+use File::Slurp qw(read_file);
+use List::MoreUtils qw(uniq);
+use URI ();
 use Readonly;
 use NetAddr::IP;
-use List::MoreUtils qw(uniq);
-use pf::constants;
-use pf::config::cluster;
-use File::Slurp qw(read_file);
-use URI ();
-use pf::Firewalld::util;
-use pf::ipset;
+use IO::Interface::Simple;
 
 BEGIN {
   use Exporter ();
@@ -98,7 +92,15 @@ use pf::file_paths qw(
     $conf_dir
     $firewalld_config_path_generated
     $firewalld_config_path_applied
+    $firewalld_input_config_inc_file
+    $firewalld_input_management_config_inc_file
+    $firewalld6_input_config_inc_file
+    $firewalld6_input_management_config_inc_file
 );
+use pf::log;
+use pf::constants;
+use pf::config::cluster;
+use pf::ipset;
 use pf::util;
 use pf::security_event qw(security_event_view_open_uniq security_event_count);
 use pf::authentication;
@@ -148,6 +150,7 @@ sub fd_generate_dynamic_configs {
   fd_create_all_zones();
   pf::ipset->new()->iptables_generate();
   fd_services_rules("add");
+  fd_add_extra_direct_rules();
 }
 
 =item fd_generate_pfconf_configs
@@ -200,6 +203,34 @@ sub fd_create_all_zones {
       service_to_zone($tint, "add", "haproxy-admin");
     }
   }
+}
+
+=item fd_add_extra_direct_rules
+
+Firewalld apply rules according to extra rules defined in firewalld*.inc files
+
+=cut
+
+sub fd_add_extra_direct_rules {
+  my $logger = get_logger();
+  $logger->info("Firewalld extra rules starts");
+  my @fd_custom_files = [qw(
+    $firewalld_input_config_inc_file
+    $firewalld_input_management_config_inc_file
+    $firewalld6_input_config_inc_file
+    $firewalld6_input_management_config_inc_file
+  )];
+  foreach my $file ( @fd_custom_files ) {
+    my $lines = get_lines_from_file_in_array($file);
+    foreach my $line ( @{ $lines } ) {
+      if ( ! $line =~ m/^#/ ) {
+        util_direct_rule($line);
+      } else {
+        $logger->warn("Firewalld extra line $line will not be used");
+      }
+    }
+  }
+  $logger->info("Firewalld extra rules ends");
 }
 
 =item fd_services_rules
@@ -1496,6 +1527,23 @@ sub get_network_type_and_chain {
   }
   return ($type,$chain);
 }
+
+=item get_lines_from_file_in_array
+
+Firewalld return array of lines from file
+
+=cut
+
+sub get_lines_from_file_in_array {
+  my $file = shift;
+  my @lines;
+  if ( $file ) {
+    @lines = read_file($file, chomp => 1);
+  }
+  return \@lines;
+}
+
+
 
 =head1 AUTHOR
 
