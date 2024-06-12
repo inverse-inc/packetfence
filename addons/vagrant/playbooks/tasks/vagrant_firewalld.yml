@@ -1,10 +1,9 @@
 ---
-- name: allow ssh on default interface for vagrant management
+- name: allow all on default interface for vagrant management
   ansible.builtin.command:
     cmd: "{{ item }}"
   loop:
-    - "sudo iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT"
-    - "sudo iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT"
+    - "sudo iptables -A INPUT --in-interface {{ ansible_default_ipv4.interface }} --jump ACCEPT"
 
 - name: allow external services on management interface
   ansible.builtin.command:
