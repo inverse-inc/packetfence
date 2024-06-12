@@ -1,8 +1,0 @@
-name: Restart firewalld
-testcases:
-# temp, as a workaround
-- name: restart_firewalld
-  steps:
-  - type: systemctl_service_restart
-    service: packetfence-firewalld
-    time_to_sleep: 10

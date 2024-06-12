@@ -76,12 +76,6 @@ testcases:
     url: 'config/security_event/{{.security_event_random_mac.event.id}}'
     body: '{"id":"{{.security_event_random_mac.event.id}}","enabled":"N","quiet":true}'
 
-- name: restart_firewalld
-  steps:
-  - type: systemctl_service_restart
-    service: packetfence-firewalld
-    time_to_sleep: 10
-
 - name: restart_pfdns_service
   steps:
   - type: systemctl_service_restart
