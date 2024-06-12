@@ -235,7 +235,7 @@ require (
 	golang.org/x/term v0.20.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
-	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
+	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 )
 
 require (
@@ -264,6 +264,7 @@ require (
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
 	github.com/caddyserver/certmagic v0.21.3 // indirect
+	github.com/caddyserver/forwardproxy v0.0.0-20240314124830-ec0619230bc0 // indirect
 	github.com/caddyserver/zerossl v0.1.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
