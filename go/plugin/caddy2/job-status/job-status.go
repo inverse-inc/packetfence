@@ -8,13 +8,16 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/inverse-inc/packetfence/go/redisclient"
 	"github.com/julienschmidt/httprouter"
 )
@@ -31,41 +34,49 @@ const POLL_TIMEOUT = 30
 
 // Register the plugin in caddy
 func init() {
-	caddy.RegisterPlugin("job-status", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(JobStatusHandler{})
+	httpcaddyfile.RegisterHandlerDirective("job-status", utils.ParseCaddyfile[JobStatusHandler])
+}
+
+// CaddyModule returns the Caddy module information.
+func (JobStatusHandler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.job-status",
+		New: func() caddy.Module {
+			return &JobStatusHandler{}
+		},
+	}
 }
 
 type JobStatusHandler struct {
-	Next   httpserver.Handler
 	router *httprouter.Router
 	redis  *redis.Client
 }
 
+func (j *JobStatusHandler) Cleanup() error {
+	return nil
+}
+
+func (j *JobStatusHandler) Validate() error {
+	return nil
+}
+
 // Setup the api-aaa middleware
 // Also loads the pfconfig resources and registers them in the pool
-func setup(c *caddy.Controller) error {
+func (h *JobStatusHandler) Provision(_ caddy.Context) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	jobStatus, err := buildJobStatusHandler(ctx)
+	err := h.buildJobStatusHandler(ctx)
 
 	if err != nil {
 		return err
 	}
 
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		jobStatus.Next = next
-		return jobStatus
-	})
-
 	return nil
 }
 
 // Build the JobStatusHandler which will initialize the cache and instantiate the router along with its routes
-func buildJobStatusHandler(ctx context.Context) (JobStatusHandler, error) {
-
-	jobStatus := JobStatusHandler{}
+func (h *JobStatusHandler) buildJobStatusHandler(ctx context.Context) error {
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &redisclient.Config)
 	var network string
@@ -75,21 +86,21 @@ func buildJobStatusHandler(ctx context.Context) (JobStatusHandler, error) {
 		network = "tcp"
 	}
 
-	jobStatus.redis = redis.NewClient(&redis.Options{
+	h.redis = redis.NewClient(&redis.Options{
 		Addr:    redisclient.Config.RedisArgs.Server,
 		Network: network,
 	})
 
 	router := httprouter.New()
-	router.GET("/api/v1/pfqueue/task/:job_id/status", jobStatus.handleStatus)
-	router.GET("/api/v1/pfqueue/task/:job_id/status/poll", jobStatus.handleStatusPoll)
+	router.GET("/api/v1/pfqueue/task/:job_id/status", h.handleStatus)
+	router.GET("/api/v1/pfqueue/task/:job_id/status/poll", h.handleStatusPoll)
 
-	jobStatus.router = router
+	h.router = router
 
-	return jobStatus, nil
+	return nil
 }
 
-func (h JobStatusHandler) sendResults(w http.ResponseWriter, data map[string]string) {
+func (h *JobStatusHandler) sendResults(w http.ResponseWriter, data map[string]string) {
 	results := map[string]interface{}{}
 	for k, v := range data {
 		switch k {
@@ -111,7 +122,7 @@ func (h JobStatusHandler) sendResults(w http.ResponseWriter, data map[string]str
 	fmt.Fprintf(w, string(res))
 }
 
-func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (h *JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := r.Context()
 	jobId := p.ByName("job_id")
 
@@ -139,15 +150,15 @@ func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Reques
 	h.handleStatus(w, r, p)
 }
 
-func (h JobStatusHandler) jobStatusKey(jobId string) string {
+func (h *JobStatusHandler) jobStatusKey(jobId string) string {
 	return jobId + "-Status"
 }
 
-func (h JobStatusHandler) jobStatusUpdatesKey(jobId string) string {
+func (h *JobStatusHandler) jobStatusUpdatesKey(jobId string) string {
 	return h.jobStatusKey(jobId) + "-Updates"
 }
 
-func (h JobStatusHandler) writeMessage(ctx context.Context, statusCode int, message string, w http.ResponseWriter) {
+func (h *JobStatusHandler) writeMessage(ctx context.Context, statusCode int, message string, w http.ResponseWriter) {
 	w.WriteHeader(statusCode)
 	res, _ := json.Marshal(map[string]interface{}{
 		"message": message,
@@ -156,7 +167,7 @@ func (h JobStatusHandler) writeMessage(ctx context.Context, statusCode int, mess
 	fmt.Fprintf(w, string(res))
 }
 
-func (h JobStatusHandler) keyExists(ctx context.Context, key string) (bool, error) {
+func (h *JobStatusHandler) keyExists(ctx context.Context, key string) (bool, error) {
 	data, err := h.redis.Exists(ctx, key).Result()
 
 	if err != nil {
@@ -166,7 +177,7 @@ func (h JobStatusHandler) keyExists(ctx context.Context, key string) (bool, erro
 	return data == 1, err
 }
 
-func (h JobStatusHandler) writeJobStatus(ctx context.Context, jobId string, w http.ResponseWriter) error {
+func (h *JobStatusHandler) writeJobStatus(ctx context.Context, jobId string, w http.ResponseWriter) error {
 	data, err := h.redis.HGetAll(ctx, h.jobStatusKey(jobId)).Result()
 
 	if err != nil {
@@ -179,7 +190,7 @@ func (h JobStatusHandler) writeJobStatus(ctx context.Context, jobId string, w ht
 	return err
 }
 
-func (h JobStatusHandler) handleStatus(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (h *JobStatusHandler) handleStatus(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := r.Context()
 
 	jobId := p.ByName("job_id")
@@ -208,7 +219,7 @@ func (h JobStatusHandler) handleStatus(w http.ResponseWriter, r *http.Request, p
 
 }
 
-func (h JobStatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *JobStatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
@@ -218,9 +229,21 @@ func (h JobStatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int
 
 	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
 		handle(w, r, params)
-		return 0, nil
-	} else {
-		return h.Next.ServeHTTP(w, r)
+		return nil
 	}
 
+	return next.ServeHTTP(w, r)
 }
+
+func (s *JobStatusHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
+	c.Next()
+	return nil
+}
+
+var (
+	_ caddy.Provisioner           = (*JobStatusHandler)(nil)
+	_ caddy.CleanerUpper          = (*JobStatusHandler)(nil)
+	_ caddy.Validator             = (*JobStatusHandler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*JobStatusHandler)(nil)
+	_ caddyfile.Unmarshaler       = (*JobStatusHandler)(nil)
+)

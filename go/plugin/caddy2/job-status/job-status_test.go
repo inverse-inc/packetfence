@@ -13,10 +13,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-var ctx = log.LoggerNewContext(context.Background())
-var jobStatus, _ = buildJobStatusHandler(ctx)
-
 func TestJobStatusHandleStatus(t *testing.T) {
+	ctxLog := log.LoggerNewContext(context.Background())
+	jobStatus := &JobStatusHandler{}
+	jobStatus.buildJobStatusHandler(ctxLog)
 	req, _ := http.NewRequest(
 		"GET",
 		"/api/v1/pfqueue/task/not_important_check_the_params_below/status",
