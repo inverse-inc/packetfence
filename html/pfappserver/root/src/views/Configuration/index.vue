@@ -74,12 +74,12 @@ const setup = () => {
       collapsable: true,
       items: [
         { name: i18n.t('Cloud Services'), path: '/configuration/clouds' },
+        { name: i18n.t('Event Loggers'), path: '/configuration/event_loggers' },
         { name: i18n.t('Firewall SSO'), path: '/configuration/firewalls' },
         { name: i18n.t('Web Services'), path: '/configuration/webservices' },
         { name: i18n.t('Switch Templates'), path: '/configuration/switch_templates' },
-        { name: i18n.t('Syslog Parsers'), path: '/configuration/pfdetect' },
+        { name: i18n.t('Event Handlers'), path: '/configuration/pfdetect' },
         { name: i18n.t('Syslog Forwarding'), path: '/configuration/syslog' },
-        { name: i18n.t('Event Loggers'), path: '/configuration/event_loggers' },
         { name: i18n.t('WRIX'), path: '/configuration/wrix' },
         { name: i18n.t('PKI'),
           items: [

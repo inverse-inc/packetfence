@@ -17,12 +17,12 @@ export const props = {
           const { item } = toRefs(props)
           return store.dispatch('$_syslog_parsers/disableSyslogParser', item.value)
             .then(() => {
-              store.dispatch('notification/info', { message: i18n.t('Syslog Parser <code>{id}</code> disabled.', item.value) })
+              store.dispatch('notification/info', { message: i18n.t('Event Handler <code>{id}</code> disabled.', item.value) })
               context.emit('input', 'disabled')
             })
             .catch(err => {
               const { response: { data: { message: errMsg } = {} } = {} } = err
-              let message = i18n.t('Syslog Parser <code>{id}</code> was not disabled.', item.value)
+              let message = i18n.t('Event Handler <code>{id}</code> was not disabled.', item.value)
               if (errMsg) message += ` (${errMsg})`
               store.dispatch('notification/danger', { message })
             })
@@ -35,12 +35,12 @@ export const props = {
           const { item } = toRefs(props)
           return store.dispatch('$_syslog_parsers/enableSyslogParser', item.value)
             .then(() => {
-              store.dispatch('notification/info', { message: i18n.t('Syslog Parser <code>{id}</code> enabled.', item.value) })
+              store.dispatch('notification/info', { message: i18n.t('Event Handler <code>{id}</code> enabled.', item.value) })
               context.emit('input', 'enabled')
             })
             .catch(err => {
               const { response: { data: { message: errMsg } = {} } = {} } = err
-              let message = i18n.t('Syslog Parser <code>{id}</code> was not enabled.', item.value)
+              let message = i18n.t('Event Handler <code>{id}</code> was not enabled.', item.value)
               if (errMsg) message += ` (${errMsg})`
               store.dispatch('notification/danger', { message })
             })

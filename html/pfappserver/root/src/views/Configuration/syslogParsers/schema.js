@@ -2,9 +2,9 @@ import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
-yup.addMethod(yup.string, 'syslogParserIdExistsExcept', function (exceptId = '', message) {
+yup.addMethod(yup.string, 'eventHandlerIdExistsExcept', function (exceptId = '', message) {
   return this.test({
-    name: 'syslogParserIdExistsExcept',
+    name: 'eventHandlerIdExistsExcept',
     message: message || i18n.t('Detector exists.'),
     test: (value) => {
       if (!value || value.toLowerCase() === exceptId.toLowerCase()) return true
@@ -43,7 +43,7 @@ export const schema = (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Detector required.'))
-      .syslogParserIdExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Detector exists.')),
+      .eventHandlerIdExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Detector exists.')),
     path: yup.string()
       .nullable()
       .label(i18n.t('Alert pipe'))

@@ -28,11 +28,11 @@ export const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Syslog Parser <code>{id}</code>', { id: id.value })
+        return i18n.t('Event Handler <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone Syslog Parser <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Event Handler <code>{id}</code>', { id: id.value })
       default:
-        return i18n.t('New Syslog Parser')
+        return i18n.t('New Event Handler')
     }
   })
 }

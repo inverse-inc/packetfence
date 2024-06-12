@@ -1,11 +1,11 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="mb-0">{{ $t('Syslog Parsers') }}</h4>
+      <h4 class="mb-0">{{ $t('Event Handlers') }}</h4>
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
-        <b-dropdown :text="$t('New Syslog Parser')" variant="outline-primary">
+        <b-dropdown :text="$t('New Event Handler')" variant="outline-primary">
           <b-dropdown-item v-for="({ text, value }) in typeOptions" :key="value"
             :to="{ name: 'newSyslogParser', params: { syslogParserType: value } }"
           >{{ text }}</b-dropdown-item>
@@ -72,7 +72,7 @@
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
-              :confirm="$t('Delete Syslog Parser?')"
+              :confirm="$t('Delete Event Handler?')"
               @click="onRemove(item.id)"
             >{{ $t('Delete') }}</base-button-confirm>
             <b-button

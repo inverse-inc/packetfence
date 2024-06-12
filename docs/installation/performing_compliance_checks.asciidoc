@@ -318,11 +318,11 @@ At this point PacketFence must be able to get the Rapid7 audit results via syslo
 
 TIP: You can see if the Nexpose server is sending to the right server by monitoring the traffic using `tcpdump -i any dst host YOUR_PACKETFENCE_SERVER_IP` on your Rapid7 Nexpose server and `tcpdump -i any src host YOUR_RAPID7_IP` on the PacketFence server.
 
-===== Creating the syslog parser
+===== Creating the event handler
 
-In the Packetfence administration interface, go to _Configuration -> Integration -> Syslog parsers_ and add a new Nexpose syslog parser
+In the Packetfence administration interface, go to _Configuration -> Integration -> Event Handlers_ and add a new Nexpose event handler
 
-image::rapid7/rapid7-syslog-parser.png[scaledwidth="100%",alt="Rapid7 syslog parser"]
+image::rapid7/rapid7-syslog-parser.png[scaledwidth="100%",alt="Rapid7 event handler"]
 
 [options="compact"]
 * As Detector, put the name of your choice for this parser.

@@ -11,7 +11,7 @@
     />
 
     <base-container-loading v-else
-      :title="$i18n.t('Unhandled syslog parser type')"
+      :title="$i18n.t('Unhandled event handler type')"
       icon="question-circle"
     />
   </b-container>
