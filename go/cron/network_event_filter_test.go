@@ -25,7 +25,9 @@ SELECT
     mac,
     (SELECT ip FROM ip4log AS ip WHERE ip.mac = node.mac) AS ip
 FROM node
-WHERE status = "reg" AND (
+WHERE
+status = "reg" AND NOT EXISTS ( SELECT 1 FROM node_meta where name = 'gc_agent' AND node.mac = node_meta.mac )
+AND (
     mac IN (?) OR (SELECT mac FROM ip4log WHERE ip IN (?))
 )
 `
