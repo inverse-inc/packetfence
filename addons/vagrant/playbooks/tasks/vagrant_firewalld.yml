@@ -2,6 +2,9 @@
 - name: allow all on default interface for vagrant management
   blockinfile:
     path: "/usr/local/pf/conf/firewalld/firewalld-input.conf.inc"
+    create: true
+    owner: pf
+    group: pf
     block: |
       # allow all ports for vagrant management
       ipv4 filter INPUT -5 -i {{ ansible_default_ipv4.interface }} -j ACCEPT
