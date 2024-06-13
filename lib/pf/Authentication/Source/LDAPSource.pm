@@ -777,12 +777,18 @@ Create the filter to search for the dn
 sub _makefilter {
     my ($self,$username) = @_;
     my $append_search = defined($self->{'append_to_searchattributes'}) ? $self->{'append_to_searchattributes'} : '';
+    $append_search =~ s/{username}/$username/gi;
+
     if (@{$self->{'searchattributes'} // []}) {
         my $search = join ("", map { "($_=$username)" } uniq($self->{'usernameattribute'}, @{$self->{'searchattributes'}}));
         return "(&(|$search)".$append_search.")";
-    } else {
-        return '(' . "$self->{'usernameattribute'}=$username" . ')';
     }
+
+    if($append_search eq '') {
+        return "($self->{'usernameattribute'}=$username)";
+    }
+
+    return $append_search;
 }
 
 sub lookupRole {
