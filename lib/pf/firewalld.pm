@@ -213,24 +213,24 @@ Firewalld apply rules according to extra rules defined in firewalld*.inc files
 
 sub fd_add_extra_direct_rules {
   my $logger = get_logger();
-  $logger->info("Firewalld extra rules starts");
-  my @fd_custom_files = [qw(
-    $firewalld_input_config_inc_file
-    $firewalld_input_management_config_inc_file
-    $firewalld6_input_config_inc_file
+  $logger->info( "Firewalld extra rules starts" );
+  my @fd_custom_files = (
+    $firewalld_input_config_inc_file,
+    $firewalld_input_management_config_inc_file,
+    $firewalld6_input_config_inc_file,
     $firewalld6_input_management_config_inc_file
-  )];
+  );
   foreach my $file ( @fd_custom_files ) {
     my $lines = get_lines_from_file_in_array($file);
     foreach my $line ( @{ $lines } ) {
-      if ( ! $line =~ m/^#/ ) {
-        util_direct_rule($line);
+      if ( $line =~ m/^#/ ) {
+        $logger->warn( "Firewalld extra line $line will not be used" );
       } else {
-        $logger->warn("Firewalld extra line $line will not be used");
+        util_direct_rule( $line, "add" );
       }
     }
   }
-  $logger->info("Firewalld extra rules ends");
+  $logger->info( "Firewalld extra rules ends" );
 }
 
 =item fd_services_rules
