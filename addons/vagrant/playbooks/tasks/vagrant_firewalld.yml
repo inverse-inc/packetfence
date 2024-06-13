@@ -1,19 +1,16 @@
 ---
 - name: allow all on default interface for vagrant management
-  ansible.builtin.command:
-    cmd: "{{ item }}"
-  loop:
-    - "sudo iptables -A INPUT --in-interface {{ ansible_default_ipv4.interface }} --jump ACCEPT"
-
-- name: allow external services on management interface
-  ansible.builtin.command:
-    cmd: "{{ item }}"
-  loop:
+  blockinfile:
+    path: "/usr/local/pf/conf/firewalld/firewalld-input.conf.inc"
+    block: |
+      # allow all ports for vagrant management
+      ipv4 filter INPUT -5 -i {{ ansible_default_ipv4.interface }} -j ACCEPT
       # allow MailHog (SMTP and web interface) on management interface
-    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__smtp_port }} --jump ACCEPT'
-    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__api_port }} --jump ACCEPT'
+      ipv4 filter INPUT -3 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__smtp_port }} --jump ACCEPT
+      ipv4 filter INPUT -3 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ mailhog__api_port }}  --jump ACCEPT
       # allow Smocker interface on management interface
-    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ smocker__port_config }} --jump ACCEPT'
+      ipv4 filter INPUT -3 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ smocker__port_config }} --jump ACCEPT
       # allow RADIUS mock ports on management interface
-    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__api_port }} --jump ACCEPT'
-    - 'sudo iptables -A INPUT -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__radius_port }} --jump ACCEPT'
+      ipv4 filter INPUT -3 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__api_port }} --jump ACCEPT
+      ipv4 filter INPUT -3 -i {{ packetfence_install__mgmt_interface["id"] }} --protocol tcp --match tcp --dport {{ radius_mock__radius_port }} --jump ACCEPT
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - vagrant"
