@@ -116,6 +116,7 @@ sub _stop {
     pf_run("sudo iptables -P INPUT ACCEPT");
     pf_run("sudo iptables -P FORWARD ACCEPT");
     pf_run("sudo iptables -P OUTPUT ACCEPT");
+    pf_run("sudo iptables -t filter -N DOCKER");
     pf_run("sudo iptables -t nat -N DOCKER");
     pf_run("sudo iptables -t nat -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER");
     pf_run("sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER");

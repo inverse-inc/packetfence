@@ -1537,7 +1537,7 @@ Firewalld return array of lines from file
 sub get_lines_from_file_in_array {
   my $file = shift;
   my @lines;
-  if ( $file ) {
+  if ( -f $file && -s $file ) {
     @lines = read_file($file, chomp => 1);
   }
   return \@lines;
