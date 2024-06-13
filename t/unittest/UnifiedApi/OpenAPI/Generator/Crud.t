@@ -152,7 +152,9 @@ my @actions = (
                                     'type' => 'object'
                                 }
                             }
-                        }
+                        },
+                        description => 'Request successful.',
+
                     },
                     '422' => {
                         '$ref' => '#/components/responses/UnprocessableEntity'
@@ -422,7 +424,8 @@ my @actions = (
                                       '#/components/schemas/DhcpOption82sList'
                                 }
                             }
-                        }
+                        },
+                        description => 'Request successful.'
                     }
                 },
                 'requestBody' => {
@@ -434,16 +437,12 @@ my @actions = (
                                         '$ref' => '#/components/schemas/Search'
                                     },
                                     {
-                                        'required'   => ['fields'],
+                                        'required'   => ['fields', 'sort'],
                                         'properties' => {
                                             'limit' => {
                                                 'type'     => 'integer',
                                                 'maximum'  => 1000,
                                                 'minimum'  => 1,
-                                                'required' => bless(
-                                                    do { \( my $o = 0 ) },
-                                                    'JSON::PP::Boolean'
-                                                ),
                                             },
                                             'sort' => {
                                                 'type'  => 'array',
@@ -470,17 +469,9 @@ my @actions = (
                                                     ],
                                                     'type' => 'string'
                                                 },
-                                                'required' => bless(
-                                                    do { \( my $o = 1 ) },
-                                                    'JSON::PP::Boolean'
-                                                )
                                             },
                                             'cursor' => {
                                                 'type'     => 'string',
-                                                'required' => bless(
-                                                    do { \( my $o = 0 ) },
-                                                    'JSON::PP::Boolean'
-                                                )
                                             },
                                             'fields' => {
                                                 'items' => {
@@ -498,10 +489,6 @@ my @actions = (
                                                     ]
                                                 },
                                                 'type'     => 'array',
-                                                'required' => bless(
-                                                    do { \( my $o = 1 ) },
-                                                    'JSON::PP::Boolean'
-                                                )
                                             }
                                         }
                                     }
