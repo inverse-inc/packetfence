@@ -25,6 +25,9 @@ testcases:
 
 - name: drop_wan_traffic_in_firewalld
   steps:
+  - type: systemctl_service_stop
+    service: packetfence-firewalld
+
   - type: exec
     script: iptables -A OUTPUT -d 8.8.8.8/32 -j ACCEPT
 
@@ -46,6 +49,13 @@ testcases:
   - type: exec
     script: iptables -A OUTPUT -j DROP
 
+- name: ping_to_wan_should_fail
+  steps:
+  - type: exec
+    script: ping -c 1 -W 5 {{.fingerbank_proxy_test_wan_ip}}
+    assertions:
+    - result.code ShouldNotEqual 0
+
 - name: restart_collector_and_clear_cache
   steps:
   - type: systemctl_service_restart
@@ -54,12 +64,3 @@ testcases:
   - type: exec
     script: /usr/local/pf/bin/pfcmd cache fingerbank clear
 
-  - type: exec
-    script: /usr/local/pf/bin/pfcmd generatefirewalldconfig
-
-- name: ping_to_wan_should_fail
-  steps:
-  - type: exec
-    script: ping -c 1 -W 5 {{.fingerbank_proxy_test_wan_ip}}
-    assertions:
-    - result.code ShouldNotEqual 0

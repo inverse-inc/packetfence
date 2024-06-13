@@ -28,9 +28,9 @@ testcases:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Updated systemd for pf"
 
-- name: start_firewalld_service
+- name: restart_firewalld_service
   steps:
-  - type: systemctl_service_start
+  - type: systemctl_service_restart
     service: 'packetfence-firewalld.service'
 
 - name: restart_haproxy_admin_service
