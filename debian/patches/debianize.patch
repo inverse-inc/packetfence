@@ -66,10 +66,10 @@ index ea8d512807..f1e80f402c 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-firewalld.service b/conf/systemd/packetfence-firewalld.service
-index 361768c5e8..2c80e95607 100644
+index 320bc86eeb..18300fb27d 100644
 --- a/conf/systemd/packetfence-firewalld.service
 +++ b/conf/systemd/packetfence-firewalld.service
-@@ -15,10 +15,10 @@ TimeoutStopSec=600
+@@ -14,10 +14,10 @@ TimeoutStopSec=600
  EnvironmentFile=-/usr/local/pf/conf/firewalld
  # supress service that is using the same dbus
  ExecStartPre=/bin/bash -c "/bin/rm -rf /usr/lib/systemd/system/firewalld.service || true"
