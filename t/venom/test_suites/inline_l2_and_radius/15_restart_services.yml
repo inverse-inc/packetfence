@@ -1,5 +1,10 @@
 name: Restart services
 testcases:
+- name: restart_firewalld
+  steps:
+  - type: systemctl_service_restart
+    service: packetfence-firewalld
+
 - name: restart_pfdns
   steps:
   - type: pf_api_service_restart

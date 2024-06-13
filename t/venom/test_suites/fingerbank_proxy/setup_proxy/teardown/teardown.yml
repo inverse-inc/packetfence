@@ -23,6 +23,19 @@ testcases:
     assertions:
     - result.statuscode ShouldEqual 200
 
+- name: restart_firewalld                         
+  steps:                                          
+  - type: systemctl_service_restart               
+    service: packetfence-firewalld                
+    time_to_sleep: 10                             
+
+- name: ping_to_wan_should_work
+  steps:
+  - type: exec
+    script: ping -c 1 -W 5 {{.fingerbank_proxy_test_wan_ip}}
+    assertions:
+    - result.code ShouldEqual 0
+
 - name: restart_collector_and_clear_cache
   steps:                                          
   - type: systemctl_service_restart
@@ -31,15 +44,3 @@ testcases:
 
   - type: exec
     script: /usr/local/pf/bin/pfcmd cache fingerbank clear
-
-  # since fingerbank collector does not have the relation to firewalld now
-  # just reload firewalld config for services
-  - type: exec
-    script: /usr/local/pf/bin/pfcmd generatefirewalldconfig
-
-- name: ping_to_wan_should_work
-  steps:
-  - type: exec
-    script: ping -c 1 -W 5 {{.fingerbank_proxy_test_wan_ip}}
-    assertions:
-    - result.code ShouldEqual 0
