@@ -1,6 +1,5 @@
 [Unit]
 Description=packetfence firewalld - dynamic firewall daemon
-Before=network-pre.target
 Wants=network-pre.target
 After=dbus.service
 After=polkit.service
