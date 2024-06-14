@@ -381,10 +381,10 @@ index d1dcc888ce..8f5b6c6ae0 100644
  ExecStop=/usr/local/pf/sbin/ntlm-auth-api-docker-wrapper stop
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfacct.service b/conf/systemd/packetfence-pfacct.service
-index daef67ae9a..a55c8692f4 100644
+index 01e2e75a56..dfd831b9a6 100644
 --- a/conf/systemd/packetfence-pfacct.service
 +++ b/conf/systemd/packetfence-pfacct.service
-@@ -9,7 +9,7 @@ Before=packetfence-httpd.portal.service
+@@ -9,15 +9,15 @@ Before=packetfence-httpd.portal.service
  Type=notify
  TimeoutStopSec=60
  NotifyAccess=all
@@ -393,6 +393,16 @@ index daef67ae9a..a55c8692f4 100644
  ExecStart=/usr/local/pf/sbin/pfacct-docker-wrapper
  ExecStop=/bin/bash -c "docker stop pfacct ; echo Stopped"
  Restart=on-failure
+ Slice=packetfence.slice
+ PIDFile=/usr/local/pf/var/run/pfacct-systemd-notify.pid
+ # Firewalld
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_pfacct_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_pfacct_rules("remove")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_pfacct_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_pfacct_rules("remove")'
+ 
+ [Install]
+ WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-pfconnector-client.service b/conf/systemd/packetfence-pfconnector-client.service
 index 030e909024..3babe3d186 100644
 --- a/conf/systemd/packetfence-pfconnector-client.service
