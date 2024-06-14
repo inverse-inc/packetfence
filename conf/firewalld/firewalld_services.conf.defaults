@@ -42,7 +42,7 @@ ports=radius_acct_clu_port1
 
 [radius_acct_clu_port1]
 port=1823
-type=tcp
+type=udp
 
 [pfacct]
 short=pfacct port
@@ -60,7 +60,7 @@ ports=pfacct_clu_port1
 
 [pfacct_clu_port1]
 port=1823
-type=tcp
+type=udp
 
 [radius_auth]
 short=radius auth port
