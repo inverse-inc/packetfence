@@ -44,6 +44,24 @@ ports=radius_acct_clu_port1
 port=1823
 type=tcp
 
+[pfacct]
+short=pfacct port
+description=Firewalld ports for pfacct service
+ports=pfacct_port1
+
+[pfacct_port1]
+port=1813
+type=udp
+
+[pfacct_clu]
+short=pfacct cluster port
+description=Firewalld ports for pfacct service
+ports=pfacct_clu_port1
+
+[pfacct_clu_port1]
+port=1823
+type=tcp
+
 [radius_auth]
 short=radius auth port
 description=Firewalld ports for radius auth service

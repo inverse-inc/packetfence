@@ -348,6 +348,8 @@ sub fd_services_rules {
         fd_radiusd_auth_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-radiusd-acct.service" ){
         fd_radiusd_acct_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-pfacct.service" ){
+        fd_pfacct_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-proxysql.service" ){
         fd_proxysql_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-radiusd-load_balancer.service" ){
@@ -548,6 +550,21 @@ sub fd_radiusd_acct_rules {
     my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "radius_acct");
     service_to_zone($tint, $action, "radius_acct_clu") if ($cluster_enabled);
+  }
+}
+
+=item fd_pfacct_rules
+
+Firewalld rules for pfacct service
+
+=cut
+
+sub fd_pfacct_rules {
+  my $action = shift;
+  foreach my $network ( @radius_ints ) {
+    my $tint =  $network->{Tint};
+    service_to_zone($tint, $action, "pfacct");
+    service_to_zone($tint, $action, "pfacct_clu") if ($cluster_enabled);
   }
 }
 
