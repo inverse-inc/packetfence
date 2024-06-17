@@ -117,12 +117,15 @@ sub _stop {
     pf_run("sudo iptables -P FORWARD ACCEPT");
     pf_run("sudo iptables -P OUTPUT ACCEPT");
     pf_run("sudo iptables -t filter -N DOCKER");
+    pf_run("sudo iptables -A INPUT --in-interface lo --jump ACCEPT");
+    pf_run("sudo iptables -A INPUT --in-interface docker0 --jump ACCEPT");
+    pf_run("sudo iptables -A INPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT");
+    pf_run("sudo iptables -A INPUT --protocol icmp --icmp-type echo-request --jump ACCEPT");
     pf_run("sudo iptables -t nat -N DOCKER");
     pf_run("sudo iptables -t nat -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER");
     pf_run("sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER");
     pf_run("sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE");
     pf_run("sudo iptables -t nat -A DOCKER -i docker0 -j RETURN");
-
     return 1;
 }
 
