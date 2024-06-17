@@ -21,13 +21,10 @@ target=default
 services=haproxy-admin,ssh,http,https
 interface=eth0
 version=0.1
-sources=eth0_source1,eth0_source2
+sources=eth0_source1
 protocols=eth0_procotol1
 
 [eth0_source1]
-name=address
-address=127.0.0.1
-[eth0_source2]
 name=address
 address=224.0.0.0/8
 
@@ -39,4 +36,13 @@ short=Docker Interface
 masquerade=yes
 target=ACCEPT
 interface=docker0
-version = 0.1
+version=0.1
+forward=yes
+
+[lo]
+short=Localhost Interface
+masquerade=yes
+target=ACCEPT
+interface=lo
+version=0.1
+forward=yes
