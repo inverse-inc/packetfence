@@ -3,12 +3,12 @@ package aaa
 import (
 	"context"
 	"crypto/rand"
-	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/inverse-inc/go-utils/log"
 )
@@ -75,6 +75,10 @@ func (tam *TokenAuthenticationMiddleware) BearerRequestIsAuthorized(ctx context.
 }
 
 func (tam *TokenAuthenticationMiddleware) tokenFromRequest(ctx context.Context, r *http.Request) string {
+	authCookie, err := r.Cookie("token")
+	if err == nil {
+		return authCookie.Value
+	}
 	authHeader := r.Header.Get("Authorization")
 	return strings.TrimPrefix(authHeader, "Bearer ")
 }
@@ -83,30 +87,11 @@ func (tam *TokenAuthenticationMiddleware) IsAuthenticated(ctx context.Context, t
 	return tam.tokenBackend.TokenIsValid(token), nil
 }
 
-func (tam *TokenAuthenticationMiddleware) TouchTokenInfo(ctx context.Context, r *http.Request) {
-	tam.tokenBackend.TouchTokenInfo(tam.tokenFromRequest(ctx, r))
-}
+func (tam *TokenAuthenticationMiddleware) TouchTokenInfo(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	token := tam.tokenFromRequest(ctx, r)
+	tam.tokenBackend.TouchTokenInfo(token)
 
-func (tam *TokenAuthenticationMiddleware) ExtractUserIdentity(r *http.Request) (string, string, bool) {
-	auth := r.Header.Get("Authorization")
-	if auth == "" {
-		return "", "", false
-	}
-
-	parts := strings.SplitN(auth, " ", 2)
-	if len(parts) != 2 || strings.ToUpper(parts[0]) != strings.ToUpper("Basic") {
-		return "", "", false
-	}
-
-	payload, err := base64.StdEncoding.DecodeString(parts[1])
-	if err != nil {
-		return "", "", false
-	}
-
-	pair := strings.SplitN(string(payload), ":", 2)
-	if len(pair) != 2 {
-		return "", "", false
-	}
-
-	return pair[0], pair[1], true
+	expire := time.Now().Add(15 * time.Minute)
+	cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, Secure: true, HttpOnly: true, MaxAge: 90000}
+	http.SetCookie(w, &cookie)
 }
