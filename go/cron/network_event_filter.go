@@ -45,6 +45,17 @@ func (f *NetworkEventFilter) Filter(n *NetworkEvent) bool {
 	return false
 }
 
+func (f *NetworkEventFilter) FilterEvents(events []*NetworkEvent) []*NetworkEvent {
+	filtered := make([]*NetworkEvent, 0, len(events))
+	for _, e := range events {
+		if f.Filter(e) {
+			filtered = append(filtered, e)
+		}
+	}
+
+	return filtered
+}
+
 func networkEventFilterFromSql(dbh *sql.DB, sqlStr string, bindings []interface{}) (NetworkEventFilter, error) {
 	filter := NewNetworkEventFilter()
 	rows, err := dbh.Query(sqlStr, bindings...)

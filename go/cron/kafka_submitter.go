@@ -106,17 +106,10 @@ func (s *KafkaSubmiter) send(events []*NetworkEvent) {
 		db, err := getDb()
 		if err != nil {
 		} else {
-			tmpEvents := make([]*NetworkEvent, 0, len(events))
 			filter, err := GetFilterFromNetworkEvents(db, events)
 			if err != nil {
 			} else {
-				for _, e := range events {
-					if filter.Filter(e) {
-						tmpEvents = append(tmpEvents, e)
-					}
-				}
-
-				filteredEvents = tmpEvents
+				filteredEvents = filter.FilterEvents(events)
 			}
 		}
 
