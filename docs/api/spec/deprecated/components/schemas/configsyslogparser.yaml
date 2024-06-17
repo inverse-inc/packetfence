@@ -1,0 +1,21 @@
+ConfigSyslogParser:
+  discriminator:
+    mapping:
+      dhcp: '#/components/schemas/ConfigSyslogParserMetaSubTypeDhcp'
+      fortianalyser: '#/components/schemas/ConfigSyslogParserMetaSubTypeFortianalyser'
+      nexpose: '#/components/schemas/ConfigSyslogParserMetaSubTypeNexpose'
+      regex: '#/components/schemas/ConfigSyslogParserMetaSubTypeRegex'
+      security_onion: '#/components/schemas/ConfigSyslogParserMetaSubTypeSecurityOnion'
+      snort: '#/components/schemas/ConfigSyslogParserMetaSubTypeSnort'
+      suricata: '#/components/schemas/ConfigSyslogParserMetaSubTypeSuricata'
+      suricata_md5: '#/components/schemas/ConfigSyslogParserMetaSubTypeSuricataMd5'
+    propertyName: type
+  oneOf:
+  - $ref: '#/components/schemas/ConfigSyslogParserMetaSubTypeSnort'
+  - $ref: '#/components/schemas/ConfigSyslogParserMetaSubTypeSecurityOnion'
+  - $ref: '#/components/schemas/ConfigSyslogParserMetaSubTypeRegex'
+  - $ref: '#/components/schemas/ConfigSyslogParserMetaSubTypeNexpose'
+  - $ref: '#/components/schemas/ConfigSyslogParserMetaSubTypeSuricata'
+  - $ref: '#/components/schemas/ConfigSyslogParserMetaSubTypeFortianalyser'
+  - $ref: '#/components/schemas/ConfigSyslogParserMetaSubTypeDhcp'
+  - $ref: '#/components/schemas/ConfigSyslogParserMetaSubTypeSuricataMd5'
