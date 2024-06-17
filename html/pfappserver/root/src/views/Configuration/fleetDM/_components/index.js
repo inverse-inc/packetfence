@@ -10,6 +10,7 @@ import TheView from './TheView'
 export {
   BaseFormButtonBar as FormButtonBar,
 
+  BaseFormGroupInput as FormGroupFleetdmHost,
   BaseFormGroupInput as FormGroupFleetdmEmail,
   BaseFormGroupInputPassword as FormGroupFleetdmPassword,
   BaseFormGroupInputPassword as FormGroupFleetdmToken,

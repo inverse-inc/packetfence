@@ -12,7 +12,18 @@ export default (props) => {
     token,
   } = form || {}
 
+  yup.addMethod(yup.string, 'httpOrHttps', function (message) {
+    return this.test('httpOrHttps', message, function (value) {
+      const { path, createError } = this;
+      if (value && (value.startsWith('http://') || value.startsWith('https://'))) {
+        return true;
+      }
+      return createError({ path, message: message ?? 'FleetDM host must starts with http:// or https://' });
+    });
+  });
+
   return yup.object().shape({
+    host: yup.string().nullable().required(i18n.t('FleetDM host is required.')).httpOrHttps(),
     email: yup.string().nullable()
       .when('id', {
         is: () => token === "",

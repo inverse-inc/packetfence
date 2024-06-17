@@ -72,12 +72,12 @@ sub doTask {
 
     if ($args->{type} eq "fleetdm_policy") {
         handlePolicy($args->{payload});
-        return;
+        return 0;
     }
 
     if ($args->{type} eq "fleetdm_cve") {
         handleCVE($args->{payload});
-        return;
+        return 0;
     }
 
     $msg = "Unknown event type: $args->{type}";
@@ -222,7 +222,7 @@ sub login {
 sub refreshToken {
     if ($Config{fleetdm}->{token} ne "") {
         $fleetdm_token = $Config{fleetdm}->{token};
-        return;
+        return 0;
     }
 
     if ($fleetdm_email ne $Config{fleetdm}->{email} ||
@@ -236,15 +236,16 @@ sub refreshToken {
     my $token = $cache->get("fleetdm_api_token");
     if (defined($token) && $token ne "") {
         $fleetdm_token = $token;
-        return;
+        return 0;
     }
 
     $token = login();
     if (defined($token) && $token ne "") {
         $fleetdm_token = $token;
         $cache->set("fleetdm_api_token", $token, "5m");
-        return;
+        return 0;
     }
+    return 1;
 }
 
 sub cachedGetHostMac {

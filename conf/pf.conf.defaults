@@ -1527,7 +1527,7 @@ sso_login_text=Single Sign On
 allow_username_password=enabled
 
 [fleetdm]
-fleetdm.host=
-fleetdm.email=
-fleetdm.password=
-fleetdm.token=
+host=
+email=
+password=
+token=
