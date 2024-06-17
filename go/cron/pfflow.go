@@ -116,6 +116,10 @@ func (f *PfFlow) NetworkEventDirection() NetworkEventDirection {
 }
 
 func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
+	if f.DstMac == "00:00:00:00:00:00" && f.SrcMac == "00:00:00:00:00:00" {
+		return nil
+	}
+
 	ipProto, err := ProtoToIpProtocol(int(f.Proto))
 	if err != nil {
 		return nil
