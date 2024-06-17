@@ -34,6 +34,8 @@
     gitlab_buildpkg_tools__deb_deps_repos:
       - name: 'packetfence'
         baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} bookworm {{ ansible_distribution_release }}'
+      - name: 'other-tools'
+        baseurl: 'http://inverse.ca/downloads/PacketFence/debian/13.2 bullseye bullseye'
 
     # added for local dev environment
     gitlab_buildpkg_tools__deb_keys:
