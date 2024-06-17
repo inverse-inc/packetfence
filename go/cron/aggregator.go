@@ -70,6 +70,15 @@ loop:
 				endTime := int64(0)
 				networkEvent := events[0].ToNetworkEvent()
 				if networkEvent == nil {
+					for _, e := range events[1:] {
+						networkEvent = e.ToNetworkEvent()
+						if networkEvent != nil {
+							break
+						}
+					}
+				}
+
+				if networkEvent == nil {
 					continue
 				}
 
