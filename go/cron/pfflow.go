@@ -147,7 +147,7 @@ func (f *PfFlow) SourceInventoryitem() *InventoryItem {
 }
 
 func macToInventoryitem(mac string) *InventoryItem {
-	if mac == "" || mac != "00:00:00:00:00:00" {
+	if mac == "" || mac == "00:00:00:00:00:00" {
 		return nil
 	}
 
