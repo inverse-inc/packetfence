@@ -22,8 +22,6 @@ func (h APIHandler) Policy(w http.ResponseWriter, r *http.Request, p httprouter.
 	}
 	defer r.Body.Close()
 
-	fmt.Println("---- Received body:", string(body))
-
 	pfqueueclient := pfqueueclient.NewPfQueueClient()
 	args := map[string]interface{}{
 		"type":    "fleetdm_policy",
@@ -58,8 +56,6 @@ func (h APIHandler) CVE(w http.ResponseWriter, r *http.Request, p httprouter.Par
 		return
 	}
 	defer r.Body.Close()
-
-	fmt.Println("---- Received body:", string(body))
 
 	pfqueueclient := pfqueueclient.NewPfQueueClient()
 	args := map[string]interface{}{
