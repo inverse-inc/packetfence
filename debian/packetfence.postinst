@@ -233,13 +233,7 @@ case "$1" in
             echo "Skipping some steps which will be run at next boot"
         fi
 
-        if [ ${DIST} = "stretch" ]; then
-            set +e
-            /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
-            /usr/bin/mysql -uroot -e "flush privileges"
-            set -e
-        fi
-        if [ ${DIST} = "bullseye" ] && [ "$DEBIAN_ISO_INSTALLER" = "no" ]; then
+        if [ ${DIST} = "bookworm" ] && [ "$DEBIAN_ISO_INSTALLER" = "no" ]; then
             set +e
             /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
             set -e
