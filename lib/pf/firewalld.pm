@@ -350,6 +350,8 @@ sub fd_services_rules {
         fd_radiusd_acct_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-pfacct.service" ){
         fd_pfacct_rules($action);
+      } elsif ( $state->{"Id"} eq "packetfence-snmptrapd.service" ){
+        fd_snmptrapd_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-proxysql.service" ){
         fd_proxysql_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-radiusd-load_balancer.service" ){
@@ -448,6 +450,22 @@ sub fd_httpd_webservices_rules {
   }
 }
 
+=item fd_snmptrapd_rules
+
+Firewalld rules for snmptrapd service
+
+=cut
+
+sub fd_snmptrapd_rules {
+  my $action = shift;
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
+    if ( $tint ne "" ) {
+      service_to_zone( $mgnt_zone, $action, "snmptrap");
+    }
+  }
+}
+
 =item fd_httpd_aaa_rules
 
 Firewalld rules for httpd aaa service
@@ -458,7 +476,7 @@ sub fd_httpd_aaa_rules {
   # AAA
   my $action = shift;
   if (ref($management_network) && exists $management_network->{Tint} ) {
-     my $tint = $management_network->{Tint};
+    my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       my $aaa_port = $Config{'ports'}{'aaa'};
       util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
