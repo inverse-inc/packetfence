@@ -23,12 +23,12 @@ func TestNetworkEventSql(t *testing.T) {
 	want := `
 SELECT
     mac,
-    (SELECT ip FROM ip4log AS ip WHERE ip.mac = node.mac) AS ip
+    (SELECT ip FROM ip4log AS ip WHERE ip.mac = node.mac ORDER BY start_time LIMIT 1) AS ip
 FROM node
 WHERE
 status = "reg" AND NOT EXISTS ( SELECT 1 FROM node_meta where name = 'gc_agent' AND node.mac = node_meta.mac )
 AND (
-    mac IN (?) OR (SELECT mac FROM ip4log WHERE ip IN (?))
+    mac IN (?) OR mac IN (SELECT mac FROM ip4log WHERE ip IN (?))
 )
 `
 	if diff := cmp.Diff(want, sqlStr); diff != "" {
