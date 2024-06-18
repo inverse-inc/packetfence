@@ -138,7 +138,7 @@ func macAndIpsToSql(macs []string, ips []string) (string, []interface{}) {
 	sql := `
 SELECT
     mac,
-    (SELECT ip FROM ip4log AS ip WHERE ip.mac = node.mac) AS ip
+    (SELECT ip FROM ip4log AS ip WHERE ip.mac = node.mac ORDER BY start_time LIMIT 1) AS ip
 FROM node
 WHERE
 status = "reg" AND NOT EXISTS ( SELECT 1 FROM node_meta where name = 'gc_agent' AND node.mac = node_meta.mac )
@@ -152,7 +152,7 @@ AND (`
 	}
 
 	if len(ips) > 0 {
-		parts = append(parts, "(SELECT mac FROM ip4log WHERE ip IN (?"+strings.Repeat(", ?", len(ips)-1)+"))")
+		parts = append(parts, "mac IN (SELECT mac FROM ip4log WHERE ip IN (?"+strings.Repeat(", ?", len(ips)-1)+"))")
 		for _, m := range ips {
 			binds = append(binds, m)
 		}
