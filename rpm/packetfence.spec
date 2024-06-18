@@ -804,6 +804,7 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl enable packetfence-tracking-config.path
     /usr/local/pf/bin/pfcmd configreload
     echo "Starting PacketFence Administration GUI..."
+    /bin/systemctl restart packetfence-api-frontend
     /bin/systemctl start packetfence-httpd.admin_dispatcher
     /bin/systemctl start packetfence-haproxy-admin
 

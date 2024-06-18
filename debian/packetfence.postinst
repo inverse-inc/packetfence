@@ -224,6 +224,7 @@ case "$1" in
         fi
         /usr/local/pf/bin/pfcmd fixpermissions
         echo "Starting PacketFence Administration GUI..."
+        /bin/systemctl restart packetfence-api-frontend
         /bin/systemctl start packetfence-httpd.admin_dispatcher
         /bin/systemctl start packetfence-haproxy-admin
         if [ "$DEBIAN_ISO_INSTALLER" = "no" ];  then
