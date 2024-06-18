@@ -461,7 +461,7 @@ sub fd_snmptrapd_rules {
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      service_to_zone( $mgnt_zone, $action, "snmptrap");
+      service_to_zone( $tint, $action, "snmptrap");
     }
   }
 }
