@@ -435,7 +435,7 @@ user_mail_message=Your device [% mac %] has reached maximum NTLM login attempts.
 grace=0
 
 [3500001]
-desc=FleetDM Policy Violation Regex Template
+desc=FleetDM Policy Violation Regex
 priority=2
 actions=
 enabled=N
@@ -443,7 +443,7 @@ trigger=fleetdm_policy::test_policy_regex
 grace=0
 
 [3500002]
-desc=FleetDM Vulnerability CVE Regex Template
+desc=FleetDM Vulnerability CVE Regex
 priority=2
 actions=
 enabled=N
@@ -451,7 +451,7 @@ trigger=fleetdm_cve::test_cve_regex
 grace=0
 
 [3500003]
-desc=FleetDM Vulnerability CVE Severity gte Template
+desc=FleetDM Vulnerability CVE Severity GTE
 priority=1
 actions=
 enabled=N
