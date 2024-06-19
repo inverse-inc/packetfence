@@ -12,7 +12,7 @@ index 64f5e73f3d..90319cfc09 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 8bd29779de..0ab4c38e54 100644
+index 781e2ba9a3..bc4140c4af 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -479,7 +479,7 @@ radiusd=enabled
@@ -24,7 +24,7 @@ index 8bd29779de..0ab4c38e54 100644
  #
  # services.radiusd_acct
  #
-@@ -544,7 +544,7 @@ httpd_aaa=enabled
+@@ -524,7 +524,7 @@ httpd_aaa=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -33,7 +33,7 @@ index 8bd29779de..0ab4c38e54 100644
  #
  # services.snmptrapd
  #
-@@ -648,7 +648,7 @@ openssl_binary=/usr/bin/openssl
+@@ -628,7 +628,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -43,7 +43,7 @@ index 8bd29779de..0ab4c38e54 100644
  # services.netdata
  #
 diff --git a/conf/systemd/packetfence-api-frontend.service b/conf/systemd/packetfence-api-frontend.service
-index ea8d512807..f1e80f402c 100644
+index 1a6e806e30..f35ff01828 100644
 --- a/conf/systemd/packetfence-api-frontend.service
 +++ b/conf/systemd/packetfence-api-frontend.service
 @@ -10,15 +10,15 @@ Type=notify
@@ -58,9 +58,9 @@ index ea8d512807..f1e80f402c 100644
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/api-frontend-systemd-notify.pid
  # Firewalld
--ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("remove")'
-+ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_api_frontend_rules("remove")'
  
  [Install]
@@ -742,10 +742,10 @@ index aa82f2d1c0..ff3d3ffa54 100644
  ExecStop=/bin/kill $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-snmptrapd.service b/conf/systemd/packetfence-snmptrapd.service
-index e5437a5e09..656f695789 100644
+index a4bebd42a2..9283cb12c8 100644
 --- a/conf/systemd/packetfence-snmptrapd.service
 +++ b/conf/systemd/packetfence-snmptrapd.service
-@@ -8,7 +8,7 @@ Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.s
+@@ -8,14 +8,14 @@ Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.s
  StartLimitBurst=3
  StartLimitInterval=10
  Type=simple
@@ -754,6 +754,15 @@ index e5437a5e09..656f695789 100644
  ExecStart=/usr/sbin/snmptrapd -f -n -c /usr/local/pf/var/conf/snmptrapd.conf -C -A -Lf /usr/local/pf/logs/snmptrapd.log -p /usr/local/pf/var/run/snmptrapd.pid -On 
  ExecReload=/bin/kill -HUP $MAINPID
  Slice=packetfence.slice
+ Restart=on-failure
+ # Firewalld
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_snmptrapd_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_snmptrapd_rules("remove")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_snmptrapd_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_snmptrapd_rules("remove")'
+ 
+ [Install]
+ WantedBy=packetfence.target
 diff --git a/t/venom/scenarios/cli_login/playbooks/configure.yml b/t/venom/scenarios/cli_login/playbooks/configure.yml
 index 67fbfae99a..b65f191999 100644
 --- a/t/venom/scenarios/cli_login/playbooks/configure.yml
