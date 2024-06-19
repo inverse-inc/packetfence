@@ -179,7 +179,52 @@ sub triggerPolicy() {
     my $decoded = $json->decode($json_text);
     my $pretty_json_text = $json->pretty->encode($decoded);
 
-    my $email_extra = "\n\nOriginal Webhook Payload: \n$pretty_json_text\n";
+    my $email_extra = "";
+
+    if ($type eq "fleetdm_policy") {
+        my $policy_name = $decoded->{policy}->{name} // 'N/A';
+        my $platform = $decoded->{policy}->{platform} // 'N/A';
+        my $query  = $decoded->{policy}->{query} // 'N/A';
+        my $author_name = $decoded->{policy}->{author_name} // 'N/A';
+        my $created_at = $decoded->{policy}->{created_at} // 'N/A';
+        my $updated_at = $decoded->{policy}->{updated_at} // 'N/A';
+
+        $email_extra = "
+Policy Name: $policy_name
+Platform: $platform
+Query: $query
+Author Name: $author_name
+Created At: $created_at
+Updated At: $updated_at
+";
+
+    }
+
+    if ($type eq "fleetdm_cve") {
+        my $cve_name = $decoded->{vulnerability}->{cve} // 'N/A';
+        my $cve_published = $decoded->{vulnerability}->{cve_published} // 'N/A';
+        my $cve_detail_link = $decoded->{vulnerability}->{details_link} // 'N/A';
+        my $cve_score = $decoded->{vulnerability}->{cvss_score} // 'N/A';
+        $email_extra = "
+CVE: $cve_name
+CVE_Published: $cve_published
+Detail Link: $cve_detail_link
+CVSS Score: $cve_score
+";
+    }
+
+    if ($type eq "fleetdm_cve_severity_gte") {
+        my $cve_name = $decoded->{vulnerability}->{cve} // 'N/A';
+        my $cve_published = $decoded->{vulnerability}->{cve_published} // 'N/A';
+        my $cve_detail_link = $decoded->{vulnerability}->{details_link} // 'N/A';
+        my $cve_score = $decoded->{vulnerability}->{cvss_score} // 'N/A';
+        $email_extra = "
+CVE: $cve_name
+CVE_Published: $cve_published
+Detail Link: $cve_detail_link
+CVSS Score: $cve_score
+";
+    }
 
     return security_event_trigger({
         mac   => $mac,
