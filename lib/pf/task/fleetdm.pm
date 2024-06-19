@@ -22,6 +22,7 @@ use pf::CHI;
 use pf::security_event;
 use pf::log;
 use Scalar::Util qw(looks_like_number);
+use pf::constants qw($TRUE $FALSE);
 
 our $cache = pf::CHI->new(namespace => 'fleetdm');
 our $fleetdm_email = "";
@@ -31,34 +32,38 @@ our $fleetdm_token = "";
 my $logger = get_logger;
 my $msg = "";
 
-unless (exists($Config{fleetdm})) {
-    $msg = "Unable to locate fleetdm config in pfconfig, section 'fleetdm' does not exist.";
-    $logger->error($msg);
-    return 1;
-}
+sub checkConfig() {
+    unless (exists($Config{fleetdm})) {
+        $msg = "Unable to locate fleetdm config in pfconfig, section 'fleetdm' does not exist.";
+        $logger->error($msg);
+        return $FALSE;
+    }
 
-unless (exists($Config{fleetdm}->{host}) &&
-    exists($Config{fleetdm}->{email}) &&
-    exists($Config{fleetdm}->{password}) &&
-    exists($Config{fleetdm}->{token})
-) {
-    $msg = "Invalid fleetdm config: 'host', 'email', 'password', 'token' should be defined in pf.conf. Did you manually changed the config file ?";
-    $logger->error($msg);
-    return 1;
-}
+    unless (exists($Config{fleetdm}->{host}) &&
+        exists($Config{fleetdm}->{email}) &&
+        exists($Config{fleetdm}->{password}) &&
+        exists($Config{fleetdm}->{token})
+    ) {
+        $msg = "Invalid fleetdm config: 'host', 'email', 'password', 'token' should be defined in pf.conf. Did you manually changed the config file ?";
+        $logger->error($msg);
+        return $FALSE;
+    }
 
-if ($Config{fleetdm}->{host} eq "") {
-    $msg = "Unable to find a valid 'host' value in FleetDM config.";
-    $logger->error($msg);
-    return 1;
-}
+    if ($Config{fleetdm}->{host} eq "") {
+        $msg = "Unable to find a valid 'host' value in FleetDM config.";
+        $logger->error($msg);
+        return $FALSE;
+    }
 
-if ($Config{fleetdm}->{token} eq "" &&
-    ($Config{fleetdm}->{email} eq "" || $Config{fleetdm}->{password} eq "")
-) {
-    $msg = "Unable to obtain credentials for FleetDM. Either 'token' or 'email+password' is required.";
-    $logger->error($msg);
-    return 1;
+    if ($Config{fleetdm}->{token} eq "" &&
+        ($Config{fleetdm}->{email} eq "" || $Config{fleetdm}->{password} eq "")
+    ) {
+        $msg = "Unable to obtain credentials for FleetDM. Either 'token' or 'email+password' is required.";
+        $logger->error($msg);
+        return $FALSE;
+    }
+
+    return $TRUE;
 }
 
 sub doTask {
@@ -86,19 +91,20 @@ sub doTask {
 }
 
 sub handlePolicy {
+    my $events_triggered = 0;
     my ($payload) = @_;
     my $data = decode_json($payload);
 
     unless (exists($data->{timestamp}) && exists($data->{policy}) && exists($data->{hosts})) {
         $msg = "Invalid FleetDM event entry. Missing 'timestamp' or 'policy' or 'hosts'";
         $logger->error($msg);
-        return 1;
+        return 0;
     }
 
     unless (exists($data->{policy}->{id}) && exists($data->{policy}->{name}) && exists($data->{policy}->{query})) {
         $msg = "Invalid FleetDM policy violation event struct. Missing policy 'id' or 'name' or 'query'";
         $logger->error($msg);
-        return 1;
+        return 0;
     }
 
     my $policy_name = $data->{policy}->{name};
@@ -115,25 +121,27 @@ sub handlePolicy {
         my $primary_mac = cachedGetHostMac($host_id);
 
         if (defined($primary_mac) && $primary_mac ne "") {
-            triggerPolicy($primary_mac, "fleetdm_policy", $policy_name, $payload);
+            $events_triggered += triggerPolicy($primary_mac, "fleetdm_policy", $policy_name, $payload);
         }
     }
+    return $events_triggered;
 }
 
 sub handleCVE {
+    my $events_triggered = 0;
     my ($payload) = @_;
     my $data = decode_json($payload);
 
     unless (exists($data->{timestamp}) && exists($data->{vulnerability})) {
         $msg = "Invalid FleetDM CVE event entry. Missing 'timestamp' or 'vulnerability'";
         $logger->error($msg);
-        return 1;
+        return 0;
     }
 
     unless (exists($data->{vulnerability}->{cve}) && exists($data->{vulnerability}->{hosts_affected})) {
         $msg = "Invalid FleetDM vulnerability CVE event struct. Missing 'cve' or 'hosts_affected'";
         $logger->error($msg);
-        return 1;
+        return 0;
     }
 
     my $cve = $data->{vulnerability}->{cve};
@@ -157,10 +165,11 @@ sub handleCVE {
         my $primary_mac = cachedGetHostMac($host_id);
 
         if (defined($primary_mac) && $primary_mac ne "") {
-            triggerPolicy($primary_mac, "fleetdm_cve", $cve, $payload);
-            triggerPolicy($primary_mac, "fleetdm_cve_severity_gte", $severity, $payload)
+            $events_triggered += triggerPolicy($primary_mac, "fleetdm_cve", $cve, $payload);
+            $events_triggered += triggerPolicy($primary_mac, "fleetdm_cve_severity_gte", $severity, $payload)
         }
     }
+    return $events_triggered;
 }
 
 sub triggerPolicy() {
@@ -172,11 +181,11 @@ sub triggerPolicy() {
 
     my $email_extra = "\n\nOriginal Webhook Payload: \n$pretty_json_text\n";
 
-    security_event_trigger({
-        mac     => $mac,
-        type    => $type,
-        tid     => $tid,
-        notes   => $email_extra,
+    return security_event_trigger({
+        mac   => $mac,
+        type  => $type,
+        tid   => $tid,
+        notes => $email_extra,
     });
 }
 
