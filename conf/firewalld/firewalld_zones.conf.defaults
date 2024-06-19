@@ -46,3 +46,8 @@ target=ACCEPT
 interface=lo
 version=0.1
 forward=yes
+sources=lo_source1
+
+[lo_source1]
+name=address
+address=100.64.0.0/24
