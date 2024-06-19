@@ -999,7 +999,9 @@ sub fd_docker_dnat_rules {
     pf_run("iptables -t nat -N DOCKER");
     util_direct_rule("ipv4 nat PREROUTING -50 -m addrtype --dst-type LOCAL -j DOCKER", $action );
     util_direct_rule("ipv4 nat PREROUTING -50 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
+    util_direct_rule("ipv4 nat OUTPUT -50  ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j ACCEPT", $action );
     util_direct_rule("ipv4 nat POSTROUTING -50 -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE", $action );
+    util_direct_rule("ipv4 nat DOCKER -i docker0 -j RETURN", $action );
   }
 }
 
