@@ -6,7 +6,7 @@ export const useItemProps = {
   id: {
     type: String
   },
-  syslogParserType: {
+  eventHandlerType: {
     type: String
   }
 }
@@ -14,9 +14,9 @@ export const useItemProps = {
 import { useDefaultsFromMeta } from '@/composables/useMeta'
 export const useItemDefaults = (meta, props) => {
   const {
-    syslogParserType
+    eventHandlerType
   } = toRefs(props)
-  return { ...useDefaultsFromMeta(meta), type: syslogParserType.value }
+  return { ...useDefaultsFromMeta(meta), type: eventHandlerType.value }
 }
 
 export const useItemTitle = (props) => {
@@ -39,10 +39,10 @@ export const useItemTitle = (props) => {
 
 export const useItemTitleBadge = (props, context, form) => {
   const {
-    syslogParserType
+    eventHandlerType
   } = toRefs(props)
   return computed(() => {
-    const type = syslogParserType.value || form.value.type
+    const type = eventHandlerType.value || form.value.type
     return types[type]
   })
 }
@@ -54,7 +54,7 @@ export { useStore } from '../_store'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import api from '../_api'
-export const useSearch = makeSearch('syslogParsers', {
+export const useSearch = makeSearch('eventHandlers', {
   api,
   columns: [
     {

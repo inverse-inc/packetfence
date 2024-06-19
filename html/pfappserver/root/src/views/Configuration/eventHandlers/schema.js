@@ -8,8 +8,8 @@ yup.addMethod(yup.string, 'eventHandlerIdExistsExcept', function (exceptId = '',
     message: message || i18n.t('Detector exists.'),
     test: (value) => {
       if (!value || value.toLowerCase() === exceptId.toLowerCase()) return true
-      return store.dispatch('config/getSyslogParsers').then(response => {
-        return response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length === 0
+      return store.dispatch('config/getEventHandlers').then(response => {
+        return response.filter(eventHandler => eventHandler.id.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })

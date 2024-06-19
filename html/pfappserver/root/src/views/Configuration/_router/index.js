@@ -24,7 +24,7 @@ import CloudsRoutes from '../clouds/_router'
 import FirewallsRoutes from '../firewalls/_router'
 import WebServicesRoutes from '../webServices/_router'
 import SwitchTemplatesRoutes from '../switchTemplates/_router'
-import SyslogParsersRoutes from '../syslogParsers/_router'
+import EventHandlersRoutes from '../eventHandlers/_router'
 import SyslogForwardersRoutes from '../syslogForwarders/_router'
 import WrixRoutes from '../wrix/_router'
 import PkiRoutes from '../pki/_router'
@@ -126,7 +126,7 @@ const route = {
     ...FirewallsRoutes,
     ...WebServicesRoutes,
     ...SwitchTemplatesRoutes,
-    ...SyslogParsersRoutes,
+    ...EventHandlersRoutes,
     ...SyslogForwardersRoutes,
     ...WrixRoutes,
     ...PkiRoutes,

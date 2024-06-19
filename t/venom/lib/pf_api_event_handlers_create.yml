@@ -1,9 +1,9 @@
-executor: pf_api_syslog_parsers_create 
+executor: pf_api_event_handlers_create 
 input:
   id: ""
   isClone: false
   isNew: true
-  syslogParserType: "suricata"
+  eventHandlerType: "suricata"
   path: ""
   interval: 0
   unit: "s"
@@ -14,14 +14,14 @@ steps:
 - type: pf_api_action
   id: "{{.input.id}}"
   method: POST
-  url: "config/syslog_parsers"
+  url: "config/event_handlers"
   status_code: 201
   body: >-
     {
       "id": "{{.input.id}}",
       "isClone": "{{.input.isClone}}",
       "isNew": "{{.input.isNew}}",
-      "syslogParserType": "{{.input.syslogParserType}}",
+      "eventHandlerType": "{{.input.eventHandlerType}}",
       "path": "{{.input.path}}",
       "rate_limit": {
         "interval": "{{.input.interval}}",
@@ -31,6 +31,6 @@ steps:
       "type": "{{.input.syslog_type}}"
     }
 
-- type: pf_api_syslog_parser_action
+- type: pf_api_event_handler_action
   method: GET
   id: "{{.input.id}}"

@@ -215,8 +215,8 @@ const api = {
   getSyslogForwarders () {
     return apiCall({ url: 'config/syslog_forwarders', method: 'get' })
   },
-  getSyslogParsers () {
-    return apiCall({ url: 'config/syslog_parsers', method: 'get' })
+  getEventHandlers () {
+    return apiCall({ url: 'config/event_handlers', method: 'get' })
   },
   getWrixLocations () {
     return apiCall({ url: 'wrix_locations', method: 'get' })
@@ -367,8 +367,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     switchesStatus: '',
     syslogForwarders: false,
     syslogForwardersStatus: '',
-    syslogParsers: false,
-    syslogParsersStatus: '',
+    eventHandlers: false,
+    eventHandlersStatus: '',
     wrixLocations: false,
     wrixLocationsStatus: ''
   }
@@ -591,8 +591,8 @@ const getters = {
   isLoadingSyslogForwarders: state => {
     return state.syslogForwardersStatus === types.LOADING
   },
-  isLoadingSyslogParsers: state => {
-    return state.syslogParsersStatus === types.LOADING
+  isLoadingEventHandlers: state => {
+    return state.eventHandlersStatus === types.LOADING
   },
   isLoadingWrixLocations: state => {
     return state.wrixLocationsStatus === types.LOADING
@@ -1678,18 +1678,18 @@ const actions = {
       return Promise.resolve(state.syslogForwarders)
     }
   },
-  getSyslogParsers: ({ state, getters, commit }) => {
-    if (getters.isLoadingSyslogParsers) {
-      return Promise.resolve(state.syslogParsers)
+  getEventHandlers: ({ state, getters, commit }) => {
+    if (getters.isLoadingEventHandlers) {
+      return Promise.resolve(state.eventHandlers)
     }
-    if (!state.syslogParsers) {
-      commit('SYSLOG_PARSERS_REQUEST')
-      return api.getSyslogParsers().then(response => {
-        commit('SYSLOG_PARSERS_UPDATED', response.data.items)
-        return state.syslogParsers
+    if (!state.eventHandlers) {
+      commit('EVENT_HANDLERS_REQUEST')
+      return api.getEventHandlers().then(response => {
+        commit('EVENT_HANDLERS_UPDATED', response.data.items)
+        return state.eventHandlers
       })
     } else {
-      return Promise.resolve(state.syslogParsers)
+      return Promise.resolve(state.eventHandlers)
     }
   },
   getWrixLocations: ({ commit, getters, state }) => {
@@ -2210,12 +2210,12 @@ const mutations = {
     state.syslogForwarders = syslogForwarders
     state.syslogForwardersStatus = types.SUCCESS
   },
-  SYSLOG_PARSERS_REQUEST: (state) => {
-    state.syslogParsersStatus = types.LOADING
+  EVENT_HANDLERS_REQUEST: (state) => {
+    state.eventHandlersStatus = types.LOADING
   },
-  SYSLOG_PARSERS_UPDATED: (state, syslogParsers) => {
-    state.syslogParsers = syslogParsers
-    state.syslogParsersStatus = types.SUCCESS
+  EVENT_HANDLERS_UPDATED: (state, eventHandlers) => {
+    state.eventHandlers = eventHandlers
+    state.eventHandlersStatus = types.SUCCESS
   },
   WRIX_LOCATIONS_REQUEST: (state) => {
     state.wrixLocationsStatus = types.LOADING

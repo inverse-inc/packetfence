@@ -1,5 +1,5 @@
 /**
-* "$_syslog_parsers" store module
+* "$_event_handlers" store module
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
@@ -10,18 +10,18 @@ import { analytics } from './config'
 
 export const useStore = $store => {
   return {
-    isLoading: computed(() => $store.getters['$_syslog_parsers/isLoading']),
-    getList: () => $store.dispatch('$_syslog_parsers/all'),
-    getListOptions: params => $store.dispatch('$_syslog_parsers/optionsBySyslogParserType', params.syslogParserType),
-    createItem: params => $store.dispatch('$_syslog_parsers/createSyslogParser', params),
-    getItem: params => $store.dispatch('$_syslog_parsers/getSyslogParser', params.id).then(item => {
+    isLoading: computed(() => $store.getters['$_event_handlers/isLoading']),
+    getList: () => $store.dispatch('$_event_handlers/all'),
+    getListOptions: params => $store.dispatch('$_event_handlers/optionsByEventHandlerType', params.eventHandlerType),
+    createItem: params => $store.dispatch('$_event_handlers/createEventHandler', params),
+    getItem: params => $store.dispatch('$_event_handlers/getEventHandler', params.id).then(item => {
       return (params.isClone)
         ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
         : item
     }),
-    getItemOptions: params => $store.dispatch('$_syslog_parsers/optionsById', params.id),
-    updateItem: params => $store.dispatch('$_syslog_parsers/updateSyslogParser', params),
-    deleteItem: params => $store.dispatch('$_syslog_parsers/deleteSyslogParser', params.id),
+    getItemOptions: params => $store.dispatch('$_event_handlers/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_event_handlers/updateEventHandler', params),
+    deleteItem: params => $store.dispatch('$_event_handlers/deleteEventHandler', params.id),
   }
 }
 
@@ -60,9 +60,9 @@ const actions = {
       throw err
     })
   },
-  optionsBySyslogParserType: ({ commit }, syslogParserType) => {
+  optionsByEventHandlerType: ({ commit }, eventHandlerType) => {
     commit('ITEM_REQUEST')
-    return api.listOptions(syslogParserType).then(response => {
+    return api.listOptions(eventHandlerType).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -70,7 +70,7 @@ const actions = {
       throw err
     })
   },
-  getSyslogParser: ({ state, commit }, id) => {
+  getEventHandler: ({ state, commit }, id) => {
     if (state.cache[id])
       return state.cache[id]
     commit('ITEM_REQUEST')
@@ -82,7 +82,7 @@ const actions = {
       throw err
     })
   },
-  createSyslogParser: ({ commit }, data) => {
+  createEventHandler: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
@@ -92,7 +92,7 @@ const actions = {
       throw err
     })
   },
-  updateSyslogParser: ({ commit }, data) => {
+  updateEventHandler: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
@@ -102,7 +102,7 @@ const actions = {
       throw err
     })
   },
-  enableSyslogParser: ({ commit }, data) => {
+  enableEventHandler: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     const _data = { id: data.id, status: 'enabled', quiet: true }
     return api.update(_data).then(response => {
@@ -113,7 +113,7 @@ const actions = {
       throw err
     })
   },
-  disableSyslogParser: ({ commit }, data) => {
+  disableEventHandler: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     const _data = { id: data.id, status: 'disabled', quiet: true }
     return api.update(_data).then(response => {
@@ -124,7 +124,7 @@ const actions = {
       throw err
     })
   },
-  deleteSyslogParser: ({ commit }, id) => {
+  deleteEventHandler: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
     return api.delete(id).then(response => {
       commit('ITEM_DESTROYED', id)
@@ -134,7 +134,7 @@ const actions = {
       throw err
     })
   },
-  dryRunSyslogParser: ({ commit }, data) => {
+  dryRunEventHandler: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DRYRUN)
     return api.dryRunItem(data).then(response => {
       commit('ITEM_SUCCESS')

@@ -7,61 +7,61 @@ const TheView = () => import(/* webpackChunkName: "Configuration" */ './_compone
 
 export const useRouter = $router => {
  return {
-    goToCollection: () => $router.push({ name: 'syslogParsers' }),
+    goToCollection: () => $router.push({ name: 'eventHandlers' }),
     goToItem: params => $router
-      .push({ name: 'syslogParser', params })
+      .push({ name: 'eventHandler', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneSyslogParser', params: { ...params, syslogParserType: params.type } }),
-    goToNew: params => $router.push({ name: 'newSyslogParser', params })
+    goToClone: params => $router.push({ name: 'cloneEventHandler', params: { ...params, eventHandlerType: params.type } }),
+    goToNew: params => $router.push({ name: 'newEventHandler', params })
   }
 }
 
 export const beforeEnter = (to, from, next = () => {}) => {
-  if (!store.state.$_syslog_parsers)
-    store.registerModule('$_syslog_parsers', StoreModule)
+  if (!store.state.$_event_handlers)
+    store.registerModule('$_event_handlers', StoreModule)
   next()
 }
 
 export default [
   {
     path: 'pfdetect',
-    name: 'syslogParsers',
+    name: 'eventHandlers',
     component: TheSearch,
     beforeEnter
   },
   {
-    path: 'pfdetect/new/:syslogParserType',
-    name: 'newSyslogParser',
+    path: 'pfdetect/new/:eventHandlerType',
+    name: 'newEventHandler',
     component: TheView,
     meta: {
       ...analytics
     },
-    props: (route) => ({ isNew: true, syslogParserType: route.params.syslogParserType }),
+    props: (route) => ({ isNew: true, eventHandlerType: route.params.eventHandlerType }),
     beforeEnter
   },
   {
     path: 'pfdetect/:id',
-    name: 'syslogParser',
+    name: 'eventHandler',
     component: TheView,
     props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
-      store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
+      store.dispatch('$_event_handlers/getEventHandler', to.params.id).then(() => {
         next()
       })
     }
   },
   {
-    path: 'pfdetect/:id/clone/:syslogParserType',
-    name: 'cloneSyslogParser',
+    path: 'pfdetect/:id/clone/:eventHandlerType',
+    name: 'cloneEventHandler',
     component: TheView,
     meta: {
       ...analytics
     },
-    props: (route) => ({ id: route.params.id, syslogParserType: route.params.syslogParserType, isClone: true }),
+    props: (route) => ({ id: route.params.id, eventHandlerType: route.params.eventHandlerType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
-      store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
+      store.dispatch('$_event_handlers/getEventHandler', to.params.id).then(() => {
         next()
       })
     }

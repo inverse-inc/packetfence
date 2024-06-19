@@ -9,7 +9,7 @@ export const props = {
     type: Function,
     default: (value, form) => {
       const test = Object.assign({}, form, { lines: form.lines.split('\n') }) // split lines by '\n', dereference
-      return store.dispatch('$_syslog_parsers/dryRunSyslogParser', test).then(response => {
+      return store.dispatch('$_event_handlers/dryRunEventHandler', test).then(response => {
         let html = []
         html.push('<pre style="color: inherit;">')
         response.items.forEach((item, index) => {

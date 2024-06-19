@@ -7,7 +7,7 @@
       <base-search :use-search="useSearch">
         <b-dropdown :text="$t('New Event Handler')" variant="outline-primary">
           <b-dropdown-item v-for="({ text, value }) in typeOptions" :key="value"
-            :to="{ name: 'newSyslogParser', params: { syslogParserType: value } }"
+            :to="{ name: 'newEventHandler', params: { eventHandlerType: value } }"
           >{{ text }}</b-dropdown-item>
         </b-dropdown>
         <base-button-service

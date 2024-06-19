@@ -164,5 +164,5 @@ export const regexRuleActions = {
 }
 
 export const analytics = {
-  track: ['syslogParserType']
+  track: ['eventHandlerType']
 }

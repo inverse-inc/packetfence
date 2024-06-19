@@ -29,9 +29,9 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-my $collection_base_url = '/api/v1/config/syslog_parsers';
+my $collection_base_url = '/api/v1/config/event_handlers';
 
-my $base_url = '/api/v1/config/syslog_parser';
+my $base_url = '/api/v1/config/event_handler';
 
 $t->get_ok($collection_base_url)
   ->status_is(200);

@@ -1,4 +1,5 @@
 /api/v1/config/syslog_parser/{syslog_parser_id}:
+  deprecated: true
   delete:
     description: Delete an item.
     operationId: api.v1.Config.SyslogParsers.resource.remove

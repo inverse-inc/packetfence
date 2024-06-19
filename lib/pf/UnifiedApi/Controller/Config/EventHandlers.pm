@@ -1,14 +1,14 @@
-package pf::UnifiedApi::Controller::Config::SyslogParsers;
+package pf::UnifiedApi::Controller::Config::EventHandlers;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::SyslogParsers - 
+pf::UnifiedApi::Controller::Config::EventHandlers - 
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::SyslogParsers
+pf::UnifiedApi::Controller::Config::EventHandlers
 
 
 
@@ -23,7 +23,7 @@ use pf::error qw(is_error);
 
 has 'config_store_class' => 'pf::ConfigStore::Pfdetect';
 has 'form_class' => 'pfappserver::Form::Config::Pfdetect';
-has 'primary_key' => 'syslog_parser_id';
+has 'primary_key' => 'event_handler_id';
 
 use pf::ConfigStore::Pfdetect;
 use pfappserver::Form::Config::Pfdetect;

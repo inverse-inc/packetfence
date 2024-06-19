@@ -15,7 +15,7 @@ export const props = {
         color: 'var(--danger)', icon: 'times',
         promise: (value, props, context) => {
           const { item } = toRefs(props)
-          return store.dispatch('$_syslog_parsers/disableSyslogParser', item.value)
+          return store.dispatch('$_event_handlers/disableEventHandler', item.value)
             .then(() => {
               store.dispatch('notification/info', { message: i18n.t('Event Handler <code>{id}</code> disabled.', item.value) })
               context.emit('input', 'disabled')
@@ -33,7 +33,7 @@ export const props = {
         color: 'var(--success)', icon: 'check',
         promise: (value, props, context) => {
           const { item } = toRefs(props)
-          return store.dispatch('$_syslog_parsers/enableSyslogParser', item.value)
+          return store.dispatch('$_event_handlers/enableEventHandler', item.value)
             .then(() => {
               store.dispatch('notification/info', { message: i18n.t('Event Handler <code>{id}</code> enabled.', item.value) })
               context.emit('input', 'enabled')

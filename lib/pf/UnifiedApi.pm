@@ -341,7 +341,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_switches_routes($root);
     $self->setup_api_v1_config_switch_groups_routes($root);
     $self->setup_api_v1_config_syslog_forwarders_routes($root);
-    $self->setup_api_v1_config_syslog_parsers_routes($root);
+    $self->setup_api_v1_config_event_handlers_routes($root);
     $self->setup_api_v1_config_ssl_certificates_routes($root);
     $self->setup_api_v1_config_template_switches_routes($root);
     $self->setup_api_v1_config_system_routes($root);
@@ -1557,24 +1557,24 @@ sub setup_api_v1_config_sources_routes {
     return ($collection_route, $resource_route);
 }
 
-=head2 setup_api_v1_config_syslog_parsers_routes
+=head2 setup_api_v1_config_event_handlers_routes
 
-setup_api_v1_config_syslog_parsers_routes
+setup_api_v1_config_event_handlers_routes
 
 =cut
 
-sub setup_api_v1_config_syslog_parsers_routes {
+sub setup_api_v1_config_event_handlers_routes {
     my ($self, $root) = @_;
     my ($collection_route, $resource_route) =
       $self->setup_api_v1_std_config_routes(
         $root,
-        "Config::SyslogParsers",
-        "/syslog_parsers",
-        "/syslog_parser/#syslog_parser_id",
-        "api.v1.Config.SyslogParsers"
+        "Config::EventHandlers",
+        "/event_handlers",
+        "/event_handler/#event_handler_id",
+        "api.v1.Config.EventHandlers"
     );
 
-    $collection_route->any(['POST'] => "/dry_run")->to("Config::SyslogParsers#dry_run")->name("api.v1.Config.SyslogParsers.dry_run");
+    $collection_route->any(['POST'] => "/dry_run")->to("Config::EventHandlers#dry_run")->name("api.v1.Config.EventHandlers.dry_run");
 
     return ($collection_route, $resource_route);
 }

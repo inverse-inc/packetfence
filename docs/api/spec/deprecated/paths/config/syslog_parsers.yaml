@@ -27,6 +27,7 @@
 
 
 /api/v1/config/syslog_parsers:
+  deprecated: true
   description: |-
     pf::UnifiedApi::Controller::Config::SyslogParsers
 
@@ -89,6 +90,7 @@
 
 
 /api/v1/config/syslog_parsers/search:
+  deprecated: true
   description: |-
     pf::UnifiedApi::Controller::Config::SyslogParsers
 
@@ -139,6 +141,7 @@
       - Config/SyslogParsers
 
 /api/v1/config/syslog_parsers/sort_items:
+  deprecated: true
   description: |-
     pf::UnifiedApi::Controller::Config::SyslogParsers
 
@@ -163,6 +166,7 @@
       - Config/SyslogParsers
 
 /api/v1/config/syslog_parsers/bulk_update:
+  deprecated: true
   description: |-
     pf::UnifiedApi::Controller::Config::SyslogParsers
 
@@ -197,6 +201,7 @@
       - Config/SyslogParsers
 
 /api/v1/config/syslog_parsers/bulk_import:
+  deprecated: true
   description: |-
     pf::UnifiedApi::Controller::Config::SyslogParsers
 
@@ -231,6 +236,7 @@
       - Config/SyslogParsers
 
 /api/v1/config/syslog_parsers/bulk_delete:
+  deprecated: true
   description: |-
     pf::UnifiedApi::Controller::Config::SyslogParsers
 
