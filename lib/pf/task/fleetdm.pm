@@ -177,7 +177,6 @@ sub triggerPolicy() {
 
     my $json = JSON->new;
     my $decoded = $json->decode($json_text);
-    my $pretty_json_text = $json->pretty->encode($decoded);
 
     my $email_extra = "";
 

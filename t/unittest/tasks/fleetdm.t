@@ -76,7 +76,7 @@ my $mock_cve = '{
 use pf::CHI;
 our $cache = pf::CHI->new(namespace => 'fleetdm');
 
-# set host_id <-> mac association for fleetdm
+# set up FleetDM host_id <-> mac association in order to bypass a FleetDM API call.
 $cache->set('fleetdm_host_id:1', '00:0c:29:73:09:5f');
 $cache->set('fleetdm_host_id:2', '00:0C:29:E0:46:07');
 $cache->set('fleetdm_host_id:3', 'A0:99:9B:0F:EE:FB');
@@ -91,11 +91,14 @@ is(pf::task::fleetdm::cachedGetHostMac(1), '00:0c:29:73:09:5f', 'cached get host
 my $mock_policy_json = decode_json($mock_policy);
 my $mock_cve_json = decode_json($mock_cve);
 
-is(pf::task::fleetdm::triggerPolicy('A0:99:9B:0F:EE:FB', 'fleetdm_policy', $mock_policy_json->{policy}->{name}, $mock_policy), 1 ,'trigger policy violation');
-is(pf::task::fleetdm::triggerPolicy('A0:99:9B:0F:EE:FB', 'fleetdm_cve', $mock_cve_json->{vulnerability}->{cve}, $mock_cve), 1 ,'trigger CVE');
+my $TRIGGERED_EVENT_COUNT_ONE = 1;
+my $TRIGGERED_EVENT_COUNT_FOUR = 4;
 
-is(pf::task::fleetdm::handlePolicy($mock_policy), 1 ,'handle policy');
-is(pf::task::fleetdm::handleCVE($mock_cve), 4 ,'handle CVE');
+is(pf::task::fleetdm::triggerPolicy('A0:99:9B:0F:EE:FB', 'fleetdm_policy', $mock_policy_json->{policy}->{name}, $mock_policy), 1, 'trigger policy violation');
+is(pf::task::fleetdm::triggerPolicy('A0:99:9B:0F:EE:FB', 'fleetdm_cve', $mock_cve_json->{vulnerability}->{cve}, $mock_cve), 1, 'trigger CVE');
+
+is(pf::task::fleetdm::handlePolicy($mock_policy), $TRIGGERED_EVENT_COUNT_ONE, 'handle policy');
+is(pf::task::fleetdm::handleCVE($mock_cve), $TRIGGERED_EVENT_COUNT_FOUR, 'handle CVE');
 
 my $taskPolicy = {
     'type'    => 'fleetdm_policy',
@@ -107,8 +110,10 @@ my $taskCVE = {
     'payload' => $mock_cve
 };
 
-is(pf::task::fleetdm::doTask("fleetdm_policy", $taskPolicy), 0 ,'doTask - fleetdm policy');
-is(pf::task::fleetdm::doTask("fletdm_cve", $taskCVE), 0 ,'doTask - fleetdm cve');
+my $RETURN_CODE_SUCCESSFUL = 0;
+my $RETURN_CODE_UNSUCCESSFUL = 1;
+is(pf::task::fleetdm::doTask("fleetdm_policy", $taskPolicy), $RETURN_CODE_SUCCESSFUL, 'doTask - fleetdm policy');
+is(pf::task::fleetdm::doTask("fleetdm_cve", $taskCVE), $RETURN_CODE_SUCCESSFUL, 'doTask - fleetdm cve');
 
 
 =head1 AUTHOR

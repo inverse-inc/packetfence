@@ -302,7 +302,7 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	ctx := r.Context()
 
 	// Perform HTTP Basic Auth for FleetDM event reporting
-	username, password, succ := h.authentication.ExtractUserIdentity(r)
+	username, password, succ := r.BasicAuth()
 	if succ && username != "" && password != "" {
 		auth, token, err := h.authentication.Login(ctx, username, password)
 		if !auth {
