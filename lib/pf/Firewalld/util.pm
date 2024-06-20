@@ -137,6 +137,7 @@ sub util_get_firewalld_cmd {
 
 sub util_zone_set_forward {
   my $zone = shift;
+  my $action = shift;
   my $job = " --permanent --zone=".$zone." --".$action."-forward";
   util_firewalld_job( $job );
   util_reload_firewalld();
@@ -144,6 +145,7 @@ sub util_zone_set_forward {
 
 sub util_zone_set_masquerade {
   my $zone = shift;
+  my $action = shift;
   my $job = " --permanent --zone=".$zone." --".$action."-masquerade";
   util_firewalld_job( $job );
   util_reload_firewalld();
