@@ -34,6 +34,7 @@ BEGIN {
     util_rich_rule
     util_direct_rule
     util_zone_set_forward
+    util_zone_set_masquerade
     util_listen_ints_hash
     util_source_or_destination_validation
     util_prepare_version
@@ -137,6 +138,13 @@ sub util_get_firewalld_cmd {
 sub util_zone_set_forward {
   my $zone = shift;
   my $job = " --permanent --zone=".$zone." --".$action."-forward";
+  util_firewalld_job( $job );
+  util_reload_firewalld();
+}
+
+sub util_zone_set_masquerade {
+  my $zone = shift;
+  my $job = " --permanent --zone=".$zone." --".$action."-masquerade";
   util_firewalld_job( $job );
   util_reload_firewalld();
 }
