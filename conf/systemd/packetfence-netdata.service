@@ -7,20 +7,10 @@ Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
 
 [Service]
-#Type=simple
-#NotifyAccess=all
-#StartLimitBurst=3
-#StartLimitInterval=10
 TimeoutStartSec=0
 Restart=always
 ExecStartPre=/bin/mkdir -p /var/cache/netdata
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::netdata' -e 'pf::services::manager::netdata->new()->generateConfig()'
-
-#https://jugmac00.github.io/blog/how-to-run-a-dockerized-service-via-systemd/
-#ExecStartPre=-/usr/bin/docker exec netdata stop
-#ExecStartPre=-/usr/bin/docker rm netdata
-#ExecStartPre=/usr/bin/docker pull netdata/netdata:v1.45.5
-
 ExecStart=/usr/local/pf/sbin/netdata-docker-wrapper
 ExecStop=/bin/bash -c "docker stop netdata ; docker container rm netdata -f echo Stopped"
 Restart=on-failure
