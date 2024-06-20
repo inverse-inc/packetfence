@@ -245,6 +245,7 @@ need to get services that are running and use the dedicated function to restart 
 =cut
 
 sub fd_services_rules {
+  my $logger = get_logger();
   my $action = shift;
   my $services = [qw(
       docker.service
@@ -306,6 +307,7 @@ sub fd_services_rules {
   my $states = util_getServiveState($services,[qw(Id ActiveState)]);
   foreach my $state ( @{ $states } ) {
     if ( $state->{"ActiveState"} eq "active" ) {
+      $logger->info("$state->{'Id'} is active");
       if ( $state->{"Id"} eq "packetfence-api-frontend.service" ){
         fd_api_frontend_rules($action);
       } elsif ( $state->{"Id"} eq "packetfence-keepalived.service" ){
