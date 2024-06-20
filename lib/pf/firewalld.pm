@@ -190,8 +190,8 @@ sub fd_create_all_zones {
       util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
       util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
       util_reload_firewalld();
-      util_zone_set_forward( $tint );
-      util_zone_set_masquerade( $tint );
+      util_zone_set_forward( $tint , "add" );
+      util_zone_set_masquerade( $tint , "add" );
       if ( scalar grep( { $_ eq $tint } @dhcplistener_ints ) ) { # Why DHCP interfaces need ssh?
         service_to_zone($tint, "add", "ssh");
       }
@@ -203,8 +203,8 @@ sub fd_create_all_zones {
       util_set_default_zone( $tint );
       service_to_zone($tint, "add", "ssh");
       service_to_zone($tint, "add", "haproxy-admin");
-      util_zone_set_forward( $tint );
-      util_zone_set_masquerade( $tint );
+      util_zone_set_forward( $tint , "add" );
+      util_zone_set_masquerade( $tint, "add" );
     }
   }
 }
