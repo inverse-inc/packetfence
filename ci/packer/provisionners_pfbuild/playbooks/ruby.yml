@@ -4,7 +4,7 @@
   become: True
   gather_facts: True
   vars:
-    ruby_version: 2.7
+    ruby_version: 3.0
 
   tasks:
     - name: Install Ruby at a specific version
