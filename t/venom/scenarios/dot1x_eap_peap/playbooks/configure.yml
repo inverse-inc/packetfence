@@ -33,3 +33,4 @@
     - name: Install xmltodict python package
       pip:
         name: xmltodict
+        break_system_packages: True
