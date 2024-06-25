@@ -52,7 +52,7 @@ Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2, perl-libapreq2
-Requires: redis >= 5.0.3
+Requires: redis <= 5.0.3
 Requires: freeradius >= 3.2.1, freeradius-mysql >= 3.2.1, freeradius-perl >= 3.2.1, freeradius-ldap >= 3.2.1, freeradius-utils >= 3.2.1, freeradius-redis >= 3.2.1, freeradius-rest >= 3.2.1
 Requires: make
 Requires: net-tools
