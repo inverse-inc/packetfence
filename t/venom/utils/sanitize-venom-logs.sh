@@ -48,4 +48,6 @@ if check_psono_vars; then
 else
     echo "No secrets to remove"
 fi
-create_archive ${venom_result_dir}
+if [[ -d ${venom_result_dir} ]] || [[ -f ${venom_result_dir} ]]; then
+    create_archive ${venom_result_dir}
+fi
