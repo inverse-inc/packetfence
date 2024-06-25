@@ -49,7 +49,7 @@ prepare_import() {
 
     # fix path issue from old pf version
     if [ -f "$extract_dir/usr/local/pf/usr/local/pf/conf/pf-release" ]; then
-        echo "Your version is comming from packetfence < 13.1"
+        echo "Your version is comming from Packetfence < 13.1"
         mv "$extract_dir/usr/local/pf/usr/local/pf/*" "$extract_dir/usr/local/pf"
         rm -rf "$extract_dir/usr/local/pf/usr/"
     fi
