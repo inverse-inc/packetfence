@@ -107,6 +107,7 @@ use pf::authentication;
 use pf::cluster;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::Domain;
+use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
 
 use pf::Firewalld::util;
 use pf::Firewalld::config qw ( generate_firewalld_file_config );
@@ -679,6 +680,7 @@ sub dns_interception_rules {
     my $dev = $interface->tag("int");
     my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
     my $net_addr = NetAddr::IP->new($Config{"interface $dev"}{'ip'},$Config{"interface $dev"}{'mask'});
+    $logger->info($enforcement_type);
     # vlan enforcement
     if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
       # send everything from vlan interfaces to the vlan chain
@@ -1194,6 +1196,10 @@ sub inline_generate_chains {
     postrouting-int-inline-if
     postrouting-inline-routed
   );
+  my @mangle_chains = qw (
+    prerouting-int-inline-if
+    postrouting-int-inline-if
+  );
 
   $logger->info("Generate Filter Chains started.");
   for my $chain (@filter_chains) {
@@ -1206,6 +1212,12 @@ sub inline_generate_chains {
     generate_chain( "ipv4", "nat", $chain, $action );
   }
   $logger->info("Generate NAT Chains end.");
+
+  $logger->info("Generate Mangle Chains started.");
+  for my $chain (@mangle_chains) {
+    generate_chain( "ipv4", "mangle", $chain, $action );
+  }
+  $logger->info("Generate Mangle Chains end.");
 }
 
 sub get_inline_snat_interface {
@@ -1331,10 +1343,10 @@ sub inline_if_src_rules {
     }
 
     # POSTROUTING
-    if ( $table ne "nat" ) {
+    if ( $table eq "mangle" ) {
       my @values = split(',', get_inline_snat_interface());
       foreach my $val (@values) {
-        util_direct_rule("ipv4 filter POSTROUTING 0 --out-interface $val --jump $FW_POSTROUTING_INT_INLINE", $action );
+        util_direct_rule("ipv4 mangle POSTROUTING 0 --out-interface $val --jump $FW_POSTROUTING_INT_INLINE", $action );
       }
     }
 
@@ -1389,7 +1401,7 @@ sub inline_mangle_rules {
           $rule .= "$FW_PREROUTING_INT_INLINE 0 -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
         }
         $rule .= "-j MARK --set-mark 0x$IPTABLES_MARK";
-        util_direct_rule("ipv4 nat $rule", $action );
+        util_direct_rule("ipv4 mangle $rule", $action );
       }
     }
 
