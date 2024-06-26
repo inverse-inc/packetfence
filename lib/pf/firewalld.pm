@@ -793,10 +793,10 @@ sub dns_oauth_passthrough_rules {
         if ( pf::config::is_network_type_inline($network) ) {
           my $nat = $ConfigNetworks{$network}{'nat_enabled'};
           if (defined ($nat) && (isenabled($nat))) {
-            util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
+            util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address, $action );
           }
         } else {
-          util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to $if->address", $action );
+          util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address, $action );
         }
       }
     }
