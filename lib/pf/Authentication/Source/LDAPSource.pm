@@ -244,8 +244,14 @@ sub _connect {
   my $connection;
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
   my $LDAPServer;
-  # Lookup the server hostnames to IPs so they can be shuffled better and to improve the failure detection
-  my @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @{$self->{'host'} // []};
+  my @LDAPServers;
+  if ($self->{'encryption'} eq SSL && $self->{'verify'} eq 'require') {
+      # Not expanding hostnames in order to allow LDAPS to send SNI header and verify hostname header against certifcate (at the cost of IP based round robin)
+      @LDAPServers = @{$self->{'host'} // []};
+  } else {
+      # Lookup the server hostnames to IPs so they can be shuffled better and to improve the failure detection
+      @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @{$self->{'host'} // []};     
+  }
   if ($self->shuffle) {
       @LDAPServers = List::Util::shuffle @LDAPServers;
   }
