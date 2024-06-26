@@ -1931,7 +1931,7 @@ Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch modules
 
 === Admin Role
 
-Since 13.2 PacketFence is able to receive events from the FleetDM servers, which allows PacketFence to detect policy violations or CVEs of devices managed by FleetDM. To add a new admin role to receive these events through the PacketFence API perform the following steps:
+Since 14.0 PacketFence is able to receive events from the FleetDM servers, which allows PacketFence to detect policy violations or CVEs of devices managed by FleetDM. To add a new admin role to receive these events through the PacketFence API perform the following steps:
 
 [source,bash]
 ----

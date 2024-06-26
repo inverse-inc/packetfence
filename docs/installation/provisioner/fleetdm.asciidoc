@@ -20,7 +20,7 @@ endif::[]
 ==== Background
 
 In order to provide flexible osquery support, regular vulnerability check and policy compliance, we introduced basic support for FleetDM.
-From PacketFence v14.0, you can config your FleetDM server to report Policy violations and CVE vulnerabilities of managed nodes to PacketFence.
+From PacketFence v14.0, you can configure your FleetDM server to report Policy violations and CVE vulnerabilities of managed nodes to PacketFence.
 
 
 ==== Install and Configure FleetDM

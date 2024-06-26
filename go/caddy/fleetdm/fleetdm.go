@@ -33,8 +33,6 @@ var FDMToken = &CachedTokenS{
 }
 
 func init() {
-	//c := GetFleetDMConfig(context.Background())
-
 	cfg.host = ""
 	cfg.email = ""
 	cfg.password = ""

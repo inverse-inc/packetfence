@@ -454,11 +454,15 @@ sub security_event_add {
         ticket_ref   => $data{ticket_ref},
         notes        => $data{notes}
     });
+
+    my $extra = undef;
+    $extra->{fleetdm} = $data{fleetdm} if defined($data{fleetdm});
+    $extra->{fleetdm_json_text} = $data{fleetdm_json_text} if defined($data{fleetdm_json_text});
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
         $logger->info("security event $security_event_id added for $mac as $data{status}");
         if($data{status} eq 'open') {
-            pf::action::action_execute( $mac, $security_event_id, $data{notes} );
+            pf::action::action_execute( $mac, $security_event_id, $data{notes} , $extra);
             security_event_post_open_action($mac, $security_event_id);
         }
         return ($last_id);
@@ -691,6 +695,8 @@ sub security_event_trigger {
         $data{'release_date'} = $date;
 
         $data{'notes'} = $argv->{'notes'} if defined($argv->{'notes'});
+        $data{'fleetdm'} = $argv->{'fleetdm'} if defined($argv->{'fleetdm'});
+        $data{'fleetdm_json_text'} = $argv->{'fleetdm_json_text'} if defined($argv->{'fleetdm_json_text'});
 
         $logger->info("calling security_event_add with security_event_id=$security_event_id mac=$mac release_date=$date (trigger ${type}::${tid})");
         security_event_add($mac, $security_event_id, %data);
