@@ -826,6 +826,10 @@ sub fd_pfdhcp_rules {
   foreach my $tint ( @dhcplistener_ints ) {
     service_to_zone($tint, $action, "dhcp");
   }
+  foreach my $network ( @inline_enforcement_nets ) {
+    my $tint =  $network->{Tint};
+    service_to_zone($tint, $action, "dhcp");
+  }
   my $internal_portal_ip = $Config{captive_portal}{ip_address};
   foreach my $interface ( @internal_nets ) {
     my @all_dev_rules;
