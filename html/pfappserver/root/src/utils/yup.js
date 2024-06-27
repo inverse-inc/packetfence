@@ -171,7 +171,7 @@ export const isCommonName = value => (['', null, undefined].includes(value) || r
 yup.addMethod(yup.string, 'isCommonName', function (message) {
   return this.test({
     name: 'isCommonName',
-    message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or colons (:).'),
+    message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), hyphen (-), underscores (_), or colons (:).'),
     test: isCommonName
   })
 })
