@@ -1395,7 +1395,8 @@ sub inline_mangle_rules {
     # however we insert these marks on startup in case PacketFence is restarted
 
     # default catch all: mark unreg
-    util_direct_rule("ipv4 nat $FW_PREROUTING_INT_INLINE 0 -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", $action );
+    util_direct_rule("ipv4 mangle PREROUTING 0 -s prerouting-int-inline-if -j ACCEPT", $action );
+    util_direct_rule("ipv4 mangle $FW_PREROUTING_INT_INLINE 0 -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", $action );
     foreach my $network ( keys %ConfigNetworks ) {
       next if ( !pf::config::is_network_type_inline($network) );
       foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
