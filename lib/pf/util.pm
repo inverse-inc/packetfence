@@ -52,6 +52,8 @@ use Crypt::OpenSSL::X509;
 use Date::Parse;
 use pf::CHI;
 use pf::constants qw($DIR_MODE);
+use IPC::Open3;
+use Symbol qw(gensym);
 
 BEGIN {
     use Exporter ();
@@ -121,6 +123,7 @@ BEGIN {
         strip_path_for_git_storage
         chown_pf
         norm_net_mask
+        safe_pf_run
     );
 }
 
@@ -949,6 +952,95 @@ sub pf_run {
 
     chdir $switch_back_wd if(defined($switch_back_wd));
     return;
+}
+
+sub safe_pf_run {
+    my ($bin, @args) = @_;
+    my $logger = get_logger();
+    my $options = {};
+    my $switch_back_wd;
+    if (@args && ref($args[-1])) {
+        $options = pop @args;
+    }
+
+    if (defined($options->{working_directory})) {
+        $switch_back_wd = getcwd();
+        chdir $options->{working_directory};
+    }
+
+    local $?;
+    local $!;
+    local $ENV{LANG} = 'C';
+    my ($chld_out, $chld_in);
+    my $chld_err = gensym;
+    my $pid = eval {open3($chld_in, $chld_out, $chld_err, $bin, @args)};
+    if ($@) {
+        chdir $switch_back_wd if defined($switch_back_wd);
+        if(defined($options->{log_strip})){
+            $@ =~ s/$options->{log_strip}/*obfuscated-information*/g;
+        }
+
+        $logger->error($@);
+        my $want = wantarray;
+        return if (not defined $want); # void context
+        return if $want; # list context
+        return undef; # scalar context
+    }
+
+    waitpid($pid, 0);
+    my $out = do {
+        local $/ = undef;
+        my $o = <$chld_out>;
+        $o
+    };
+
+    chdir $switch_back_wd if defined($switch_back_wd);
+    if ($? == 0) {
+        my $want = wantarray;
+        return if (not defined $want); # void context
+        return split "\n", $out if $want; # list context
+        return $out; # scalar context
+    }
+
+    my $exception = $!;
+    my $caller = ( caller(1) )[3] || basename($0);
+    $caller =~ s/^(pf::\w+|main):://;
+    my $loggable_command = join(" ", $bin, @args);
+
+    if(defined($options->{log_strip})){
+        $loggable_command =~ s/$options->{log_strip}/*obfuscated-information*/g;
+    }
+
+    if ($? == -1) {
+        $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception");
+        return;
+    }
+
+    if ($? & 127) {
+        my $signal = ($? & 127);
+        my $with_core = ($? & 128) ? 'with' : 'without';
+        $logger->warn(
+            "Problem trying to run command: $loggable_command called from $caller. "
+            . "Child died with signal $signal $with_core coredump."
+        );
+        return 
+    }
+    my $exit_status = $? >> 8;
+    # user specified that this error code is ok
+    if (grep { $_ == $exit_status } @{$options->{'accepted_exit_status'} // []}) {
+        # we accept the result
+        my $want = wantarray;
+        return if (not defined $want); # void context
+        return split "\n", $out if $want; # list context
+        return $out; # scalar context
+    }
+
+    $logger->warn(
+        "Problem trying to run command: $loggable_command called from $caller. "
+        . "Child exited with non-zero value $exit_status"
+    );
+
+    return 
 }
 
 =item generate_id
