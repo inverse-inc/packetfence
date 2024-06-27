@@ -75,16 +75,6 @@ testcases:
                   "value": "{{.captive_portal.profiles.filters.connection_type}}"
                 }
               ]
-            },            
-            {
-              "op": "or",
-              "values": [            
-                {
-                  "field": "created_at",
-                  "op": "greater_than",
-                  "value": "{{.get_time.two_minutes_ago}}"
-                }
-              ]
             }
           ]
         }
