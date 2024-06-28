@@ -956,16 +956,26 @@ sub pf_run {
 
 sub safe_pf_run {
     my ($bin, @args) = @_;
+    no warnings qw(once);
     my $logger = get_logger();
     my $options = {};
-    my ($switch_back_wd, $in);
+    my ($switch_back_wd);
+    my ($chld_out, $chld_in);
+    my $chld_err = gensym;
     if (@args && ref($args[-1])) {
         $options = pop @args;
     }
 
     my $stdin = $options->{stdin};
     if ($stdin) {
-        open($in, '<', $stdin) or die "cannot open $stdin: $!";
+        open(IN_PF_RUN, '<', $stdin) or die "cannot open $stdin: $!";
+        $chld_in = '<&IN_PF_RUN';
+    }
+
+    my $stdout = $options->{stdout};
+    if ($stdout) {
+        open(OUT_PF_RUN, '>', $stdout) or die "cannot open $stdout $!";
+        $chld_out = '>&OUT_PF_RUN';
     }
 
     if (defined($options->{working_directory})) {
@@ -976,8 +986,6 @@ sub safe_pf_run {
     local $?;
     local $!;
     local $ENV{LANG} = 'C';
-    my ($chld_out, $chld_in);
-    my $chld_err = gensym;
     my $pid = eval {open3($chld_in, $chld_out, $chld_err, $bin, @args)};
     if ($@) {
         chdir $switch_back_wd if defined($switch_back_wd);
@@ -992,28 +1000,22 @@ sub safe_pf_run {
         return undef; # scalar context
     }
 
-    if ($in) {
-        while (<$in>) {
-            print $chld_in $_;
-        }
-
-        close ($in);
-    }
-
-    close($chld_in);
     waitpid($pid, 0);
     my $status = $?;
-    my $out = do {
-        local $/ = undef;
-        my $o = <$chld_out>;
-        $o
-    };
+    my $out;
+    if (!$stdout) {
+        $out = do {
+            local $/ = undef;
+            my $o = <$chld_out>;
+            $o
+        };
+    }
 
     chdir $switch_back_wd if defined($switch_back_wd);
     if ($status == 0) {
         my $want = wantarray;
         return if (not defined $want); # void context
-        return split "\n", $out if $want; # list context
+        return split /(?<=\n)/, $out if $want; # list context
         return $out; # scalar context
     }
 
@@ -1046,7 +1048,7 @@ sub safe_pf_run {
         # we accept the result
         my $want = wantarray;
         return if (not defined $want); # void context
-        return split "\n", $out if $want; # list context
+        return split /(?<=\n)/, $out if $want; # list context
         return $out; # scalar context
     }
 
