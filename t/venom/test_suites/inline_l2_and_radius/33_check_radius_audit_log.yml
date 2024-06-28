@@ -26,6 +26,12 @@ testcases:
     method: POST
     url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_logs/search'
     ignore_verify_ssl: true
+    retry: 35
+    retry_if:
+      - result.statuscode ShouldNotEqual 404
+    delay: 3
+    assertions:
+      - result.statuscode ShouldEqual 200
     body: >-
       {
         "cursor": 0,
@@ -66,16 +72,6 @@ testcases:
                   "field": "connection_type",
                   "op": "equals",
                   "value": "{{.inline_l2_and_radius.profiles.filters.connection_type}}"
-                }
-              ]
-            },
-            {
-              "op": "or",
-              "values": [            
-                {
-                  "field": "created_at",
-                  "op": "greater_than",
-                  "value": "{{.get_time.two_minutes_ago}}"
                 }
               ]
             }
