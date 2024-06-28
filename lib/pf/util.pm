@@ -570,7 +570,7 @@ fix the file permissions of the files
 
 sub fix_file_permissions {
     my ($file) = @_;
-    pf_run("sudo PF_GID='$pf::constants::user::PF_GID' PF_UID='$pf::constants::user::PF_UID' /usr/local/pf/bin/pfcmd fixpermissions file '$file'");
+    safe_pf_run('sudo', "PF_GID='$pf::constants::user::PF_GID'", "PF_UID='$pf::constants::user::PF_UID'", '/usr/local/pf/bin/pfcmd', 'fixpermissions', 'file', $file);
 }
 
 =item fix_files_permissions
@@ -580,7 +580,7 @@ Fix the files permissions
 =cut
 
 sub fix_files_permissions {
-    pf_run("sudo PF_GID='$pf::constants::user::PF_GID' PF_UID='$pf::constants::user::PF_UID' /usr/local/pf/bin/pfcmd fixpermissions");
+    safe_pf_run('sudo', "PF_GID='$pf::constants::user::PF_GID'", "PF_UID='$pf::constants::user::PF_UID'", '/usr/local/pf/bin/pfcmd', 'fixpermissions');
 }
 
 sub parse_template {
@@ -958,9 +958,14 @@ sub safe_pf_run {
     my ($bin, @args) = @_;
     my $logger = get_logger();
     my $options = {};
-    my $switch_back_wd;
+    my ($switch_back_wd, $in);
     if (@args && ref($args[-1])) {
         $options = pop @args;
+    }
+
+    my $stdin = $options->{stdin};
+    if ($stdin) {
+        open($in, '<', $stdin) or die "cannot open $stdin: $!";
     }
 
     if (defined($options->{working_directory})) {
@@ -976,7 +981,7 @@ sub safe_pf_run {
     my $pid = eval {open3($chld_in, $chld_out, $chld_err, $bin, @args)};
     if ($@) {
         chdir $switch_back_wd if defined($switch_back_wd);
-        if(defined($options->{log_strip})){
+        if (defined($options->{log_strip})) {
             $@ =~ s/$options->{log_strip}/*obfuscated-information*/g;
         }
 
@@ -987,7 +992,17 @@ sub safe_pf_run {
         return undef; # scalar context
     }
 
+    if ($in) {
+        while (<$in>) {
+            print $chld_in $_;
+        }
+
+        close ($in);
+    }
+
+    close($chld_in);
     waitpid($pid, 0);
+    my $status = $?;
     my $out = do {
         local $/ = undef;
         my $o = <$chld_out>;
@@ -995,7 +1010,7 @@ sub safe_pf_run {
     };
 
     chdir $switch_back_wd if defined($switch_back_wd);
-    if ($? == 0) {
+    if ($status == 0) {
         my $want = wantarray;
         return if (not defined $want); # void context
         return split "\n", $out if $want; # list context
@@ -1011,21 +1026,21 @@ sub safe_pf_run {
         $loggable_command =~ s/$options->{log_strip}/*obfuscated-information*/g;
     }
 
-    if ($? == -1) {
+    if ($status == -1) {
         $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception");
         return;
     }
 
-    if ($? & 127) {
-        my $signal = ($? & 127);
-        my $with_core = ($? & 128) ? 'with' : 'without';
+    if ($status & 127) {
+        my $signal = ($status & 127);
+        my $with_core = ($status & 128) ? 'with' : 'without';
         $logger->warn(
             "Problem trying to run command: $loggable_command called from $caller. "
             . "Child died with signal $signal $with_core coredump."
         );
         return 
     }
-    my $exit_status = $? >> 8;
+    my $exit_status = $status >> 8;
     # user specified that this error code is ok
     if (grep { $_ == $exit_status } @{$options->{'accepted_exit_status'} // []}) {
         # we accept the result
@@ -1589,9 +1604,9 @@ sub find_outgoing_interface {
     my @interface_src;
 
     if (defined $dev) {
-        @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway iif $dev"));
+        @interface_src = split(" ", safe_pf_run(qw(sudo ip route get 8.8.8.8 from), $gateway, 'iif', $dev));
     } else {
-        @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
+        @interface_src = split(" ", safe_pf_run(qw(sudo ip route get 8.8.8.8 from), $gateway));
     }
 
     if ($interface_src[3] eq 'via') {
@@ -1611,7 +1626,7 @@ sub find_outgoing_srcip {
     my ($target) = @_;
     my @src_ip;
 
-    @src_ip = split(" ", pf_run("sudo ip route get $target"));
+    @src_ip = split(" ", safe_pf_run(qw(sudo ip route get), $target));
 
     if ($src_ip[1] eq 'via') {
         return $src_ip[6];

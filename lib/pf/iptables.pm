@@ -504,9 +504,9 @@ sub generate_passthrough_rules {
     $logger->info("Adding IP based passthrough for connectivitycheck.gstatic.com");
     # Allow the host for the onboarding of devices
     my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,80 2>&1");
-    pf_run($cmd);
+    safe_pf_run(qw(sudo ipset --add pfsession_passthrough), "172.217.13.99,80");
     $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,443 2>&1");
-    pf_run($cmd);
+    safe_pf_run(qw(sudo ipset --add pfsession_passthrough), "172.217.13.99,443");
 
     $logger->info("Adding NAT Masquerade statement.");
     my ($SNAT_ip, $mgmt_int);
@@ -806,6 +806,11 @@ sub generate_interception_rules {
     }
 }
 
+sub add_to_pfsession_passthrough {
+    my ($host, $port) = @_;
+    safe_pf_run(qw(sudo ipset --add pfsession_passthrough), "$host,$port");
+}
+
 sub generate_provisioning_passthroughs {
     my $logger = get_logger();
     $logger->debug("Installing passthroughs for provisioning");
@@ -813,41 +818,30 @@ sub generate_provisioning_passthroughs {
         $logger->info("Adding passthrough for Kandji");
         my $enroll_host = $config->{enroll_url} ? URI->new($config->{enroll_url})->host : $config->{host};
         my $enroll_port = $config->{enroll_url} ? URI->new($config->{enroll_url})->port : $config->{port};
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough ".$enroll_host.",".$enroll_port." 2>&1");
-        my @lines  = pf_run($cmd);
+add_to_pfsession_passthrough
+        my @lines  = add_to_pfsession_passthrough($enroll_host, $enroll_port);
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
         $logger->info("Adding passthrough for MobileIron");
         # Allow the host for the onboarding of devices
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
-        my @lines  = pf_run($cmd);
-        # Allow http communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
-        @lines  = pf_run($cmd);
-        # Allow https communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
-        @lines  = pf_run($cmd);
+        for my $port ($config->{boarding_port}, $HTTP_PORT, $HTTPS_PORT) { 
+            my @lines  = add_to_pfsession_passthrough($config->{boarding_host}, $port);
+        }
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
         $logger->info("Adding passthrough for OPSWAT");
-        # Allow http communication with the OSPWAT server
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-        my @lines  = pf_run($cmd);
-        # Allow https communication with the OPSWAT server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
-        @lines  = pf_run($cmd);
+        for my $port ($HTTP_PORT, $HTTPS_PORT) { 
+            my @lines  = add_to_pfsession_passthrough($config->{host}, $port);
+        }
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
         $logger->info("Adding passthrough for SentinelOne");
-        # Allow http communication with the SentinelOne server
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-        my @lines  = pf_run($cmd);
-        # Allow https communication with the SentinelOne server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
-        @lines  = pf_run($cmd);
+        for my $port ($HTTP_PORT, $HTTPS_PORT) { 
+            my @lines  = add_to_pfsession_passthrough($config->{host}, $port);
+        }
     }
 
 

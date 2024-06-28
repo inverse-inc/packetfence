@@ -80,7 +80,7 @@ sub add_computer {
     my $result;
     eval {
         my $command = "$ADD_COMPUTERS_BIN -computer-name '$computer_name' -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group '$computer_group' '$domain_auth' $option -method=$method";
-        $result = pf_run($command, accepted_exit_status => [ 0 ]);
+        $result = safe_pf_run($ADD_COMPUTERS_BIN, '-computer-name', $computer_name, '-computer-pass', $computer_password, '-dc-ip', $domain_controller_ip, '-dc-host', $domain_controller_host, '-baseDN', $baseDN, '-computer-group', $computer_group, $domain_auth, $option, "-method=$method", {accepted_exit_status => [ 0 ]});
     };
     if ($@) {
         $result = "Executing add computers failed with unknown errors";
