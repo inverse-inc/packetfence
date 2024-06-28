@@ -17,8 +17,9 @@ description=All network connections are accepted.
 [eth0]
 short=Management interface
 masquerade=yes
+forward=yes
 target=default
-services=haproxy-admin,ssh,http,https
+services=haproxy-admin,ssh,http,https,dns,dhcp
 interface=eth0
 version=0.1
 sources=eth0_source1
