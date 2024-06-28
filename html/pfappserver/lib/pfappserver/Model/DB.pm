@@ -255,10 +255,10 @@ sub make_mysql_command {
         return make_remote_mysql_command($args);
     }
 
-    my $user = quotemeta ($args->{username});
-    my $password = quotemeta ($args->{password});
+    my $user = $args->{username};
+    my $password = $args->{password};
     my $db = quotemeta ($args->{database});
-    my $mysql_cmd = "/usr/bin/mysql --socket=/var/lib/mysql/mysql.sock -u $user -p$password $db";
+    my $mysql_cmd = ['/usr/bin/mysql', '--socket=/var/lib/mysql/mysql.sock', '-u', $user, "-p$password", $db];
     return ($mysql_cmd, undef, "-p$password");
 }
 
@@ -307,9 +307,8 @@ sub apply_schema {
 
     my ( $status_msg, $result );
     my ($mysql_cmd, $fh, $log_strip) = make_mysql_command($args);
-    my $cmd = "$mysql_cmd < $install_dir/db/pf-schema.sql";
     my $db = $args->{database};
-    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => $log_strip) };
+    eval { $result = safe_pf_run(@$mysql_cmd, {stdin => "$install_dir/db/pf-schema.sql", accepted_exit_status => [ 0 ], log_strip => $log_strip}) };
     if ( $@ || !defined($result) ) {
         $status_msg = ["Error applying the schema to the database [_1]", $db ];
         $logger->warn("$@: $result");
@@ -318,8 +317,7 @@ sub apply_schema {
     my @custom_schemas = read_dir( "$install_dir/db/custom", prefix => 1, err_mode => 'quiet' ) ;
     @custom_schemas = sort @custom_schemas;
     foreach my $custom_schema (@custom_schemas) {
-        my $cmd = "$mysql_cmd < $custom_schema";
-        eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => $log_strip) };
+        eval { $result = safe_pf_run(@$mysql_cmd, {stdin => $custom_schema, accepted_exit_status => [ 0 ], log_strip => $log_strip}) };
         if ( $@ || !defined($result) ) {
             $status_msg = ["Error applying the custom schema $custom_schema to the database [_1]", $db ];
             $logger->warn("$@: $result");
@@ -438,9 +436,9 @@ sub secureInstallation {
 
 =head2 schema
 
-TODO: Check error handling for pf_run... (undef or whatever)
+TODO: Check error handling for safe_pf_run... (undef or whatever)
 
-TODO: sanitize parameters going into pf_run with strict regex
+TODO: sanitize parameters going into safe_pf_run with strict regex
 
 =cut
 
@@ -449,12 +447,8 @@ sub schema {
     my $logger = get_logger();
 
     my ( $status_msg, $result );
-    $root_user = quotemeta ($root_user);
-    $root_password = quotemeta ($root_password);
-    $db = quotemeta ($db);
-    my $mysql_cmd = "/usr/bin/mysql --socket=/var/lib/mysql/mysql.sock -u $root_user -p$root_password $db";
-    my $cmd = "$mysql_cmd < $install_dir/db/pf-schema.sql";
-    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => quotemeta("-p$root_password")) };
+    my @mysql_cmd = ('/usr/bin/mysql', '--socket=/var/lib/mysql/mysql.sock', '-u', $root_user, "-p$root_password", $db);
+    eval { $result = safe_pf_run(@mysql_cmd, {stdin => "$install_dir/db/pf-schema.sql", accepted_exit_status => [ 0 ], log_strip => $root_password}) };
     if ( $@ || !defined($result) ) {
         $status_msg = ["Error applying the schema to the database [_1]",$db ];
         $logger->warn("$@: $result");
@@ -463,8 +457,7 @@ sub schema {
     my @custom_schemas = read_dir( "$install_dir/db/custom", prefix => 1, err_mode => 'quiet' ) ;
     @custom_schemas = sort @custom_schemas;
     foreach my $custom_schema (@custom_schemas) {
-        my $cmd = "$mysql_cmd < $custom_schema";
-        eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ], log_strip => quotemeta("-p$root_password"))) };
+        eval { $result = safe_pf_run(@mysql_cmd, {stdin => $custom_schema, accepted_exit_status => [ 0 ], log_strip => $root_password}) };
         if ( $@ || !defined($result) ) {
             $status_msg = ["Error applying the custom schema $custom_schema to the database [_1]",$db ];
             $logger->warn("$@: $result");

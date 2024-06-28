@@ -681,9 +681,9 @@ sub iptables_save {
     my ($self, $save_file) = @_;
     my $logger = get_logger();
     $logger->info( "saving existing iptables to " . $save_file );
-    pf_run("/sbin/iptables-save -t nat > $save_file");
-    pf_run("/sbin/iptables-save -t mangle >> $save_file");
-    pf_run("/sbin/iptables-save -t filter >> $save_file");
+    safe_pf_run("/usr/sbin/iptables-save", '-t', 'nat', { stdout => $save_file });
+    safe_pf_run("/usr/sbin/iptables-save", '-t', 'mangle', { stdout => $save_file, stdout_append => 1 });
+    safe_pf_run("/usr/sbin/iptables-save", '-t', 'filter', { stdout => $save_file, stdout_append => 1 });
 }
 
 sub iptables_restore {
@@ -691,7 +691,7 @@ sub iptables_restore {
     my $logger = get_logger();
     if ( -r $restore_file ) {
         $logger->info( "restoring iptables from " . $restore_file );
-        pf_run("/sbin/iptables-restore < $restore_file");
+        safe_pf_run("/sbin/iptables-restore", {stdin => $restore_file});
     }
 }
 
@@ -701,7 +701,7 @@ sub iptables_restore_noflush {
     if ( -r $restore_file ) {
         $logger->info(
             "restoring iptables (no flush) from " . $restore_file );
-        pf_run("/sbin/iptables-restore -n < $restore_file");
+        safe_pf_run("/sbin/iptables-restore", '-n', {stdin => $restore_file});
     }
 }
 
