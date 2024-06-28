@@ -974,7 +974,8 @@ sub safe_pf_run {
 
     my $stdout = $options->{stdout};
     if ($stdout) {
-        open(OUT_PF_RUN, '>', $stdout) or die "cannot open $stdout $!";
+        my $mode = $options->{stdout_append} ? '>>' : '>';
+        open(OUT_PF_RUN, $mode, $stdout) or die "cannot open $stdout $!";
         $chld_out = '>&OUT_PF_RUN';
     }
 
