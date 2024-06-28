@@ -1180,12 +1180,11 @@ sub pfipset_inline_rules {
   inline_nat_back_rules($action);
   # Note: I'm giving references to this guy here so he can directly mess with the tables
   inline_generate_rules($action);
-  # Mangle
-  inline_if_src_rules("mangle",$action);
-  inline_mangle_rules($action);
-  # NAT chain targets and redirections (other rules injected by inline_generate_rules)
-  inline_if_src_rules("nat",$action);
+  # NAT
+  inline_nat_if_src_rules($action);
   inline_nat_redirect_rules($action);
+  # Mangle
+  inline_mangle_rules($action);
   util_reload_firewalld();
 }
 
@@ -1327,13 +1326,12 @@ sub inline_generate_rules {
   $logger->info("Inline rules are done.");
 }
 
-sub inline_if_src_rules {
-  my $table = shift;
+sub inline_nat_if_src_rules {
   my $action = shift;
   my $logger = get_logger();
-  $logger->info("Inline if src rules are starting for $table.");
+  $logger->info("Inline if src rules are starting for NAT.");
   if ( is_inline_enforcement_enabled() ) {
-    $logger->info("The action $action has been set on inline clients for table $table.");
+    $logger->info("The action $action has been set on inline clients for table NAT.");
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
       my $dev = $interface->tag("int");
@@ -1347,39 +1345,29 @@ sub inline_if_src_rules {
       }
     }
 
-    # POSTROUTING
-    if ( $table eq "mangle" ) {
+    # NAT POSTROUTING
+    my $mgmt_int = $management_network->tag("int");
+
+    # Every marked packet should be NATed
+    # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
+    foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
       my @values = split(',', get_inline_snat_interface());
       foreach my $val (@values) {
-        util_direct_rule("ipv4 mangle POSTROUTING 0 --out-interface $val --jump $FW_POSTROUTING_INT_INLINE", $action );
-      }
-    }
-
-    # NAT POSTROUTING
-    if ($table eq "nat" ) {
-      my $mgmt_int = $management_network->tag("int");
-
-      # Every marked packet should be NATed
-      # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
-      foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-        my @values = split(',', get_inline_snat_interface());
-        foreach my $val (@values) {
-          foreach my $network ( keys %ConfigNetworks ) {
-            next if ( !pf::config::is_network_type_inline($network) );
-            my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-            my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-            if (defined ($nat) && (isdisabled($nat))) {
-              util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$inline_obj->{BITS} --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE_ROUTED", $action );
-            }
+        foreach my $network ( keys %ConfigNetworks ) {
+          next if ( !pf::config::is_network_type_inline($network) );
+          my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+          my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+          if (defined ($nat) && (isdisabled($nat))) {
+            util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$inline_obj->{BITS} --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE_ROUTED", $action );
           }
-          util_direct_rule("ipv4 nat POSTROUTING 0 --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
         }
+        util_direct_rule("ipv4 nat POSTROUTING 0 --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
       }
     }
   } else {
-    $logger->info("NO Action taken on inline clients for table $table.");
+    $logger->info("NO Action taken on inline clients for table NAT.");
   }
-  $logger->info("Inline if src rules are done for $table.");
+  $logger->info("Inline if src rules are done for NAT.");
 }
 
 sub inline_mangle_rules {
@@ -1388,6 +1376,15 @@ sub inline_mangle_rules {
   $logger->info("Mangle rules are starting.");
   if ( is_inline_enforcement_enabled() ) {
     $logger->info("The action $action has been set on mangle rules.");
+
+    if ( $table eq "mangle" ) {
+      my @values = split(',', get_inline_snat_interface());
+      foreach my $val (@values) {
+        util_direct_rule("ipv4 mangle PREROUTING  0 --in-interface  $val --jump $FW_PREROUTING_INT_INLINE ", $action );
+        util_direct_rule("ipv4 mangle POSTROUTING 0 --out-interface $val --jump $FW_POSTROUTING_INT_INLINE", $action );
+      }
+    }
+
     my $mangle_rules = '';
     my @ops = ();
 
