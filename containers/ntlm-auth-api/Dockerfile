@@ -13,4 +13,6 @@ RUN VER=`python3 -c 'import sys; val=sys.version_info;print(str(val.major)+"."+s
     sudo rm -rf /usr/lib/python$VER/EXTERNALLY-MANAGED && \
     pip3 install flask-mysql==1.5.2
 
+COPY addons/ntlm-auth-api/openssl.cnf /usr/lib/ssl/openssl.cnf
+
 ENTRYPOINT /usr/bin/python3 /usr/local/pf/bin/pyntlm_auth/app.py
