@@ -55,9 +55,9 @@ func (array NetFlowBandwidthAccountingRecs) ToSQL() string {
 	}
 
 	sql :=
-		`INSERT INTO bandwidth_accounting (node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
+		`INSERT INTO bandwidth_accounting (node_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
     SELECT * FROM (
-        SELECT ((tenant_id << 48) | CAST(CONV(REPLACE(mac,":",""), 16, 10) AS UNSIGNED)) as node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes_, out_bytes_, "net_flow" FROM (
+        SELECT (CAST(CONV(REPLACE(mac,":",""), 16, 10) AS UNSIGNED)) as node_id, mac, unique_session_id, time_bucket, in_bytes_, out_bytes_, "net_flow" FROM (
             `
 	first := array[0]
 	sql += first.ToSQLSelect()
