@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
+	"github.com/inverse-inc/packetfence/go/dal/models"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
