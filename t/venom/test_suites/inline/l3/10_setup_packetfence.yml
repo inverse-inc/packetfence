@@ -281,7 +281,7 @@ testcases:
     service: packetfence-keepalived
     time_to_sleep: 5
 
-- name: restart_keepalived_service
+- name: restart_pfdhcplistener_service
   steps:
   - type: systemctl_service_restart
     service: packetfence-pfdhcplistener
