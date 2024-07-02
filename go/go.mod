@@ -33,7 +33,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v0.0.0-20160927134711-22c016f3df3f
-	github.com/gorilla/schema v1.1.0
+	github.com/gorilla/schema v1.4.1
 	github.com/gorilla/websocket v1.4.2
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645 // indirect
 	github.com/hashicorp/go-syslog v1.0.0
