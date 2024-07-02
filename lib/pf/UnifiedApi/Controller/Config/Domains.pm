@@ -64,6 +64,14 @@ sub get {
     return $self->render_error(500, "Unknown error getting item");;
 }
 
+sub item_shown {
+    my ($self, $item) = @_;
+    if ($item->{id} =~ s/$host_id //i) {
+        return 1;
+    }
+    return 0;
+}
+
 sub handle_search {
     my ($self, $search_info) = @_;
     my ($status, $response) = $self->search_builder->search($search_info);

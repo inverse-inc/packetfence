@@ -41,6 +41,7 @@ c_username = None
 c_server_name = None
 c_listen_port = None
 c_domain_identifier = None
+c_dns_servers = None
 
 # config for domain.conf - db
 c_db_host = None

@@ -253,6 +253,7 @@ def config_load():
     global_vars.c_workstation = workstation
     global_vars.c_server_string = server_string
     global_vars.c_domain = domain
+    global_vars.c_dns_servers = dns_servers
 
     global_vars.c_nt_key_cache_enabled = nt_key_cache_enabled
     global_vars.c_nt_key_cache_expire = int(nt_key_cache_expire)

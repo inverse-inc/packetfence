@@ -8,6 +8,7 @@ import utils
 import datetime
 from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT, MSV1_0_ALLOW_MSVCHAPV2)
 import binascii
+import random
 
 
 def init_secure_connection():
@@ -19,7 +20,13 @@ def init_secure_connection():
     password = global_vars.c_password
     domain = global_vars.c_domain
     username = global_vars.c_username
-    server_name = global_vars.c_server_name
+    server_name = global_vars.c_server_name # FQDN of Domain Controller
+
+    domain_controller_records = utils.find_ldap_servers(global_vars.c_realm, global_vars.c_dns_servers)
+    if len(domain_controller_records) > 0:
+        idx = random.randint(0, len(domain_controller_records) -1)
+        record = domain_controller_records[idx]
+        server_name = record.get('target')
 
     lp = param.LoadParm()
     try:
