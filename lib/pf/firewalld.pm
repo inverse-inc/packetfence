@@ -191,12 +191,10 @@ sub fd_create_all_zones {
       util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
       util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
       util_reload_firewalld();
-      util_zone_set_forward( $tint , "add" );
-      util_zone_set_masquerade( $tint , "add" );
-      if ( scalar grep( { $_ eq $tint } @dhcplistener_ints ) ) { # Why DHCP interfaces need ssh?
-        service_to_zone($tint, "add", "ssh");
-      }
     }
+    util_zone_set_forward( $tint , "add" );
+    util_zone_set_masquerade( $tint , "add" );
+    service_to_zone($tint, "add", "ssh");
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
@@ -1013,12 +1011,11 @@ sub fd_docker_dnat_rules {
   my $logger = get_logger();
   my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
   if ( $mgmt_ip ne "" ) {
-    generate_chain("ipv4", "nat", "DOCKER", "add");
-    util_direct_rule("ipv4 nat PREROUTING -50 -m addrtype --dst-type LOCAL -j DOCKER", $action );
+    util_direct_rule("ipv4 nat PREROUTING 50 -m addrtype --dst-type LOCAL -j PRE_docker0", $action );
     util_direct_rule("ipv4 nat PREROUTING -50 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
     util_direct_rule("ipv4 nat OUTPUT -50  ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j ACCEPT", $action );
-    util_direct_rule("ipv4 nat POSTROUTING +30 -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE", $action );
-    util_direct_rule("ipv4 nat DOCKER -30 -i docker0 -j RETURN", $action );
+    util_direct_rule("ipv4 nat POSTROUTING 100 -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE", $action );
+    util_direct_rule("ipv4 nat PRE_docker0 50 -i docker0 -j RETURN", $action );
   }
 }
 
@@ -1250,7 +1247,7 @@ sub inline_nat_back_rules {
           util_direct_rule("ipv4 filter FORWARD 0 -d $network/$inline_obj->{BITS} -i $dev -j ACCEPT", $action );
         }
       }
-      util_direct_rule("ipv4 filter FORWARD 0 -i $dev -m state --state ESTABLISHED,RELATED -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter FORWARD 0 -m state --state ESTABLISHED,RELATED -j ACCEPT", $action );
     }
     if($management_network) {
       my $mgmt_int = $management_network->tag("int");
@@ -1307,10 +1304,10 @@ sub inline_generate_rules {
     }
 
     $logger->info("Adding NAT Masquarade statement (PAT)");
-    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE 50 --jump MASQUERADE", $action );
+    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE 100 --jump MASQUERADE", $action );
 
     $logger->info("Addind ROUTED statement");
-    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE_ROUTED 40 --jump ACCEPT", $action );
+    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE_ROUTED 50 --jump ACCEPT", $action );
 
     $logger->info("building firewall to accept registered users through inline interface");
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
@@ -1320,6 +1317,7 @@ sub inline_generate_rules {
       util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_INLINE 0 --match mark --mark 0x$IPTABLES_MARK_ISOLATION -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
     }
     util_direct_rule("ipv4 filter $FW_FILTER_FORWARD_INT_INLINE 0 --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT", $action );
+    util_direct_rule("ipv4 filter FORWARD 0 --jump $FW_FILTER_FORWARD_INT_INLINE", $action );
   } else {
     $logger->info("NO Action taken on DNS DNAT rules for unregistered and isolated inline clients.");
   }
@@ -1339,15 +1337,13 @@ sub inline_nat_if_src_rules {
 
       # inline enforcement
       if (is_type_inline($enforcement_type)) {
-        # send everything from inline interfaces to the inline chain
-        util_direct_rule("ipv4 nat PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_INLINE", $action );
-        util_direct_rule("ipv4 nat POSTROUTING 0 --out-interface $dev --jump $FW_POSTROUTING_INT_INLINE", $action );
+         # send everything from inline interfaces to the inline chain
+        util_direct_rule("ipv4 nat PREROUTING -50 --jump $FW_PREROUTING_INT_INLINE", $action );
+        util_direct_rule("ipv4 nat POSTROUTING -50 --jump $FW_POSTROUTING_INT_INLINE", $action );
       }
     }
 
     # NAT POSTROUTING
-    my $mgmt_int = $management_network->tag("int");
-
     # Every marked packet should be NATed
     # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
     foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
@@ -1361,9 +1357,11 @@ sub inline_nat_if_src_rules {
             util_direct_rule("ipv4 nat POSTROUTING 0 -s $network/$inline_obj->{BITS} --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE_ROUTED", $action );
           }
         }
-        util_direct_rule("ipv4 nat POSTROUTING 0 --out-interface $val --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
+        util_direct_rule("ipv4 nat POSTROUTING 0 --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
       }
     }
+    my $mgmt_int = $management_network->tag("int");
+    util_direct_rule("ipv4 nat POSTROUTING 0 --out-interface $mgmt_int --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
   } else {
     $logger->info("NO Action taken on inline clients for table NAT.");
   }
@@ -1377,12 +1375,10 @@ sub inline_mangle_rules {
   if ( is_inline_enforcement_enabled() ) {
     $logger->info("The action $action has been set on mangle rules.");
 
-    if ( $table eq "mangle" ) {
-      my @values = split(',', get_inline_snat_interface());
-      foreach my $val (@values) {
-        util_direct_rule("ipv4 mangle PREROUTING  0 --in-interface  $val --jump $FW_PREROUTING_INT_INLINE ", $action );
-        util_direct_rule("ipv4 mangle POSTROUTING 0 --out-interface $val --jump $FW_POSTROUTING_INT_INLINE", $action );
-      }
+    my @values = split(',', get_inline_snat_interface());
+    foreach my $val (@values) {
+        util_direct_rule("ipv4 mangle PREROUTING  0 --jump $FW_PREROUTING_INT_INLINE", $action );
+        util_direct_rule("ipv4 mangle POSTROUTING 0 --jump $FW_POSTROUTING_INT_INLINE", $action );
     }
 
     my $mangle_rules = '';
@@ -1392,7 +1388,6 @@ sub inline_mangle_rules {
     # however we insert these marks on startup in case PacketFence is restarted
 
     # default catch all: mark unreg
-    util_direct_rule("ipv4 mangle PREROUTING 0 -s prerouting-int-inline-if -j ACCEPT", $action );
     util_direct_rule("ipv4 mangle $FW_PREROUTING_INT_INLINE 0 -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", $action );
     foreach my $network ( keys %ConfigNetworks ) {
       next if ( !pf::config::is_network_type_inline($network) );
