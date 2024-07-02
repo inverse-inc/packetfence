@@ -47,9 +47,9 @@ func TestNetFlowBandwidthAccountingRecsToSQLSelect(t *testing.T) {
 		},
 	}
 
-	expectedSQL := `INSERT INTO bandwidth_accounting (node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
+	expectedSQL := `INSERT INTO bandwidth_accounting (node_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
     SELECT * FROM (
-        SELECT ((tenant_id << 48) | CAST(CONV(REPLACE(mac,":",""), 16, 10) AS UNSIGNED)) as node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes_, out_bytes_, "net_flow" FROM (
+        SELECT (CAST(CONV(REPLACE(mac,":",""), 16, 10) AS UNSIGNED)) as node_id, mac, unique_session_id, time_bucket, in_bytes_, out_bytes_, "net_flow" FROM (
             SELECT _latin1"1.2.3.4" as ip, 18446744069431493380 as unique_session_id, 1000 as in_bytes_, 1000 as out_bytes_, "2009-11-10 23:00:00" as time_bucket
             UNION ALL SELECT _latin1"1.2.3.5" as ip, 18446744069431493381 as unique_session_id, 1000 as in_bytes_, 1000 as out_bytes_, "2009-11-10 23:00:00" as time_bucket
             UNION ALL SELECT _latin1"1.2.3.6" as ip, 18446744069431493382 as unique_session_id, 1000 as in_bytes_, 1000 as out_bytes_, "2009-11-10 23:00:00" as time_bucket
