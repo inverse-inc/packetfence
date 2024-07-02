@@ -1359,9 +1359,9 @@ sub inline_nat_if_src_rules {
         }
         util_direct_rule("ipv4 nat POSTROUTING 0 --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
       }
+      my $mgmt_int = $management_network->tag("int");
+      util_direct_rule("ipv4 nat POSTROUTING 0 --out-interface $mgmt_int --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
     }
-    my $mgmt_int = $management_network->tag("int");
-    util_direct_rule("ipv4 nat POSTROUTING 0 --out-interface $mgmt_int --match mark --mark 0x$_ --jump $FW_POSTROUTING_INT_INLINE", $action );
   } else {
     $logger->info("NO Action taken on inline clients for table NAT.");
   }
