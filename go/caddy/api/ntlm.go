@@ -5,9 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/caddy/ntlm"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
+
+	"github.com/inverse-inc/packetfence/go/ntlm"
+	"github.com/julienschmidt/httprouter"
 )
 
 type PasswordChangeEvent struct {
