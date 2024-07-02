@@ -292,3 +292,9 @@ testcases:
   - type: systemctl_service_restart
     service: packetfence-pfqueue-go
     time_to_sleep: 5
+
+- name: restart_pfipset
+  steps:
+  - type: systemctl_service_restart
+    service: packetfence-pfipset
+    time_to_sleep: 5
