@@ -8,13 +8,16 @@ import (
 
 	"database/sql"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -22,32 +25,34 @@ import (
 
 // Register the plugin in caddy
 func init() {
-	caddy.RegisterPlugin("api", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(APIHandler{})
+	httpcaddyfile.RegisterHandlerDirective("api", utils.ParseCaddyfile[APIHandler])
+}
+
+// CaddyModule returns the Caddy module information.
+func (APIHandler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.api",
+		New: func() caddy.Module {
+			return &APIHandler{}
+		},
+	}
 }
 
 type APIHandler struct {
-	Next   httpserver.Handler
 	router *httprouter.Router
 }
 
 // Setup the api middleware
 // Also loads the pfconfig resources and registers them in the pool
-func setup(c *caddy.Controller) error {
+func (m *APIHandler) Provision(_ caddy.Context) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	handler, err := buildHandler(ctx)
+	err := m.buildHandler(ctx)
 
 	if err != nil {
 		return err
 	}
-
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		handler.Next = next
-		return handler
-	})
 
 	setupRadiusDictionary()
 
@@ -57,16 +62,16 @@ func setup(c *caddy.Controller) error {
 }
 
 // Build the Handler which will initialize the routes
-func buildHandler(ctx context.Context) (APIHandler, error) {
-	apiHandler := APIHandler{}
+func (m *APIHandler) buildHandler(ctx context.Context) error {
 	router := httprouter.New()
+	m.router = router
 
-	router.POST("/api/v1/radius_attributes", apiHandler.searchRadiusAttributes)
+	router.POST("/api/v1/radius_attributes", m.searchRadiusAttributes)
 
-	router.POST("/api/v1/nodes/fingerbank_communications", apiHandler.nodeFingerbankCommunications)
+	router.POST("/api/v1/nodes/fingerbank_communications", m.nodeFingerbankCommunications)
 
-	router.POST("/api/v1/ntlm/test", apiHandler.ntlmTest)
-	router.POST("/api/v1/ntlm/event-report", apiHandler.eventReport)
+	router.POST("/api/v1/ntlm/test", m.ntlmTest)
+	router.POST("/api/v1/ntlm/event-report", m.eventReport)
 
 	router.POST("/api/v1/fleetdm-events/policy", apiHandler.Policy)
 	router.POST("/api/v1/fleetdm-events/cve", apiHandler.CVE)
@@ -137,11 +142,11 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 	NewRadiusAuditLog(ctx, DBP).AddToRouter(router)
 	NewWrix(ctx, DBP).AddToRouter(router)
 
-	apiHandler.router = router
-	return apiHandler, nil
+	m.router = router
+	return nil
 }
 
-func (h APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
@@ -150,9 +155,30 @@ func (h APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 		// We always default to application/json
 		w.Header().Set("Content-Type", "application/json")
 		handle(w, r, params)
-		return 0, nil
+		return nil
 	} else {
-		return h.Next.ServeHTTP(w, r)
+		return next.ServeHTTP(w, r)
 	}
 
 }
+
+func (p *APIHandler) Validate() error {
+	return nil
+}
+
+func (p *APIHandler) Cleanup() error {
+	return nil
+}
+
+func (s *APIHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
+	c.Next()
+	return nil
+}
+
+var (
+	_ caddy.Provisioner           = (*APIHandler)(nil)
+	_ caddy.CleanerUpper          = (*APIHandler)(nil)
+	_ caddy.Validator             = (*APIHandler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*APIHandler)(nil)
+	_ caddyfile.Unmarshaler       = (*APIHandler)(nil)
+)
