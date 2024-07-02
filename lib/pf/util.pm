@@ -570,7 +570,7 @@ fix the file permissions of the files
 
 sub fix_file_permissions {
     my ($file) = @_;
-    safe_pf_run('sudo', "PF_GID='$pf::constants::user::PF_GID'", "PF_UID='$pf::constants::user::PF_UID'", '/usr/local/pf/bin/pfcmd', 'fixpermissions', 'file', $file);
+    safe_pf_run('sudo', "PF_GID=$pf::constants::user::PF_GID", "PF_UID=$pf::constants::user::PF_UID", '/usr/local/pf/bin/pfcmd', 'fixpermissions', 'file', $file);
 }
 
 =item fix_files_permissions
@@ -580,7 +580,7 @@ Fix the files permissions
 =cut
 
 sub fix_files_permissions {
-    safe_pf_run('sudo', "PF_GID='$pf::constants::user::PF_GID'", "PF_UID='$pf::constants::user::PF_UID'", '/usr/local/pf/bin/pfcmd', 'fixpermissions');
+    safe_pf_run('sudo', "PF_GID=$pf::constants::user::PF_GID", "PF_UID=$pf::constants::user::PF_UID", '/usr/local/pf/bin/pfcmd', 'fixpermissions');
 }
 
 sub parse_template {
