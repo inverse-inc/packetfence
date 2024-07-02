@@ -1017,8 +1017,8 @@ sub fd_docker_dnat_rules {
     util_direct_rule("ipv4 nat PREROUTING -50 -m addrtype --dst-type LOCAL -j DOCKER", $action );
     util_direct_rule("ipv4 nat PREROUTING -50 --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1", $action );
     util_direct_rule("ipv4 nat OUTPUT -50  ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j ACCEPT", $action );
-    util_direct_rule("ipv4 nat POSTROUTING -50 -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE", $action );
-    util_direct_rule("ipv4 nat DOCKER -50 -i docker0 -j RETURN", $action );
+    util_direct_rule("ipv4 nat POSTROUTING +30 -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE", $action );
+    util_direct_rule("ipv4 nat DOCKER -30 -i docker0 -j RETURN", $action );
   }
 }
 
@@ -1307,10 +1307,10 @@ sub inline_generate_rules {
     }
 
     $logger->info("Adding NAT Masquarade statement (PAT)");
-    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE 0 --jump MASQUERADE", $action );
+    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE 50 --jump MASQUERADE", $action );
 
     $logger->info("Addind ROUTED statement");
-    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE_ROUTED 0 --jump ACCEPT", $action );
+    util_direct_rule("ipv4 nat $FW_POSTROUTING_INT_INLINE_ROUTED 40 --jump ACCEPT", $action );
 
     $logger->info("building firewall to accept registered users through inline interface");
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
