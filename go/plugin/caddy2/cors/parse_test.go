@@ -1,9 +1,10 @@
-package caddy
+package cors
 
 import (
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"reflect"
 	"testing"
+
+	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 )
 
 func TestParse_OneLines(t *testing.T) {
