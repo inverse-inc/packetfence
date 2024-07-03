@@ -2,23 +2,34 @@ package caddyhttpdispatcher
 
 import (
 	"context"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"net/http"
+
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/packetfence/go/httpdispatcher"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"net/http"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 )
 
 func init() {
-	caddy.RegisterPlugin("httpdispatcher", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(HttpDispatcherHandler{})
+	httpcaddyfile.RegisterHandlerDirective("httpdispatcher", utils.ParseCaddyfile[HttpDispatcherHandler])
 }
 
-func setup(c *caddy.Controller) error {
-	h := HttpDispatcherHandler{}
+// CaddyModule returns the Caddy module information.
+func (HttpDispatcherHandler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.httpdispatcher",
+		New: func() caddy.Module {
+			return &HttpDispatcherHandler{}
+		},
+	}
+}
+
+func (h *HttpDispatcherHandler) Provision(_ caddy.Context) error {
 	ctx := context.Background()
 
 	proxy := httpdispatcher.NewProxy(ctx)
@@ -26,22 +37,16 @@ func setup(c *caddy.Controller) error {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
 	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, proxy)
-
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		h.Next = next
-		h.proxy = proxy
-		return h
-	})
+	h.proxy = proxy
 
 	return nil
 }
 
 type HttpDispatcherHandler struct {
-	Next  httpserver.Handler
 	proxy *httpdispatcher.Proxy
 }
 
-func (h HttpDispatcherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *HttpDispatcherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
@@ -50,5 +55,26 @@ func (h HttpDispatcherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	h.proxy.ServeHTTP(w, r)
 
 	// TODO change me and wrap actions into something that handles server errors
-	return 0, nil
+	return nil
 }
+
+func (p *HttpDispatcherHandler) Validate() error {
+	return nil
+}
+
+func (p *HttpDispatcherHandler) Cleanup() error {
+	return nil
+}
+
+func (s *HttpDispatcherHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
+	c.Next()
+	return nil
+}
+
+var (
+	_ caddy.Provisioner           = (*HttpDispatcherHandler)(nil)
+	_ caddy.CleanerUpper          = (*HttpDispatcherHandler)(nil)
+	_ caddy.Validator             = (*HttpDispatcherHandler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*HttpDispatcherHandler)(nil)
+	_ caddyfile.Unmarshaler       = (*HttpDispatcherHandler)(nil)
+)
