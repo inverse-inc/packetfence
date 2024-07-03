@@ -45,6 +45,7 @@
 [% END %]
 [% END %]
 
+[% IF delete == 0 %]
 [% FOREACH role IN interfaces.keys %]
 [% FOREACH interface IN interfaces.$role %]
     - name: Merge module attributes of given access-groups
@@ -59,5 +60,6 @@
         state: deleted[% ELSE %]
         state: merged[% END %]
       when: ansible_network_os == 'cisco.ios.ios'
+[% END %]
 [% END %]
 [% END %]

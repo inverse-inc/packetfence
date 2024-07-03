@@ -537,7 +537,7 @@ sub remove {
 
 sub post_remove { }
 
-sub pre_remove {}
+sub pre_remove { }
 
 sub addFormWarnings {
     my ($self, $form, $response) = @_;

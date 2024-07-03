@@ -4357,8 +4357,8 @@ Generate Ansible configuration to push ACLs
 
 =cut
 
-sub generateAnsibleConfiguration {
     my ($self,$oldSwitchConfig, $delete) = @_;
+    $delete //= $FALSE;
     my %vars;
     umask(0002);
     my $tt = Template->new(
@@ -4395,31 +4395,40 @@ sub generateAnsibleConfiguration {
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
     }
 
-    # Remove
-    my %diff;
-    foreach my $old_role_interface (@{$oldSwitchConfig->{InterfaceMapping}}) {
-        #Old interface list
-        my @oldinterfaces = uniq split(',',$old_role_interface->{interface});
-        my $newinterfaces = $self->getInterfaceByName($old_role_interface->{role});
-        if ($newinterfaces) {
-            # New interface list
-            my @newinterfaces = uniq split(',',$newinterfaces);
-            @diff{ @oldinterfaces } = @oldinterfaces;
-            delete @diff{ @newinterfaces };
-            @oldinterfaces = uniq %diff;
-        }
-        if (@oldinterfaces) {
-            $vars{'switches'}{$switch_id}{'interfaces_delete'}{$old_role_interface->{role}} = \@oldinterfaces;
-        }
-    }
-
     foreach my $role (keys %ConfigRoles) {
         my $acls = $self->getRoleAccessListByName($role);
         my $interfaces = $self->getInterfaceByName($role);
         if ($interfaces) {
             my @interfaces = split(',',$interfaces);
-            $vars{'switches'}{$switch_id}{'interfaces'}{$role} = \@interfaces;
+            if ($delete) {
+                $vars{'switches'}{$switch_id}{'interfaces_delete'}{$role} = \@interfaces;
+            } else {
+                $vars{'switches'}{$switch_id}{'interfaces'}{$role} = \@interfaces;
+            }
         }
+    }
+    if (!$delete) {
+        # Remove useless acl on old interfaces
+        my %diff;
+        foreach my $old_role_interface (@{$oldSwitchConfig->{InterfaceMapping}}) {
+            #Old interface list
+            my @oldinterfaces = uniq split(',',$old_role_interface->{interface});
+            my $newinterfaces = $self->getInterfaceByName($old_role_interface->{role});
+            if ($newinterfaces) {
+                # New interface list
+                my @newinterfaces = uniq split(',',$newinterfaces);
+                @diff{ @oldinterfaces } = @oldinterfaces;
+                delete @diff{ @newinterfaces };
+                @oldinterfaces = uniq %diff;
+            }
+            if (@oldinterfaces) {
+                $vars{'switches'}{$switch_id}{'interfaces_delete'}{$old_role_interface->{role}} = \@oldinterfaces;
+            }
+        }
+    }
+
+    foreach my $role (keys %ConfigRoles) {
+        my $acls = $self->getRoleAccessListByName($role);
         if (defined($acls)) {
             my $out_acls;
             my $in_acls;
