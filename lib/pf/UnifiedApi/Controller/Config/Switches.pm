@@ -90,10 +90,13 @@ sub post_create {
     $self->post_update($switch_id, $old);
 }
 
-sub post_remove {
-    my ($self, $id, $item) = @_;
+sub pre_remove {
+    my ($self, $switch_id, $old) = @_;
+    my $switch = pf::SwitchFactory->instantiate($switch_id);
+    if ($switch) {
+        $switch->generateAnsibleConfiguration($old,$TRUE);
+    }
 }
-
 
 =head2 standardPlaceholder
 

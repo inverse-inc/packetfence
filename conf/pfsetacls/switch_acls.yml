@@ -13,8 +13,9 @@
 
     - name: Load new acl into Cisco Switch
       cisco.ios.ios_acls:
-        config: "{{ acls.parsed }}"
-        state: replaced
+        config: "{{ acls.parsed }}"[% IF delete >= 1 %]
+        state: deleted[% ELSE %]
+        state: replaced[% END %]
       when: ansible_network_os == 'cisco.ios.ios'
 
     - name: Load new acl into Cisco WLC
@@ -54,8 +55,9 @@
               - afi: ipv4
                 acls:
                   - name: [% role %]
-                    direction: in
-        state: merged
+                    direction: in[% IF delete >= 1 %]
+        state: deleted[% ELSE %]
+        state: merged[% END %]
       when: ansible_network_os == 'cisco.ios.ios'
 [% END %]
 [% END %]

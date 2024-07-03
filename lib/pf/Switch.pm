@@ -4358,7 +4358,7 @@ Generate Ansible configuration to push ACLs
 =cut
 
 sub generateAnsibleConfiguration {
-    my ($self,$oldSwitchConfig) = @_;
+    my ($self,$oldSwitchConfig, $delete) = @_;
     my %vars;
     umask(0002);
     my $tt = Template->new(
@@ -4387,6 +4387,7 @@ sub generateAnsibleConfiguration {
     $vars{'switches'}{$switch_id}{'cliPwd'} = $self->{'_cliPwd'};
     $vars{'switches'}{$switch_id}{'type'} = $self->{'_type'};
     $vars{'switches'}{$switch_id}{'id'} = $switch_ip;
+    $vars{'switches'}{$switch_id}{'delete'} = $delete;
     switch($self->{'_type'}) {
             case /Cisco::ASA/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.asa" }
             case /Cisco::WLC/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }

@@ -524,6 +524,7 @@ sub remove {
     my $id = $self->id;
     my $cs = $self->config_store;
     my $old_item = $self->item_from_store($id);
+    $self->pre_remove($id, $old_item);
     ($msg, my $deleted) = $cs->remove($id, 'id');
     if (!$deleted) {
         return $self->render_error(422, "Unable to delete $id - $msg");
@@ -535,6 +536,8 @@ sub remove {
 }
 
 sub post_remove { }
+
+sub pre_remove {}
 
 sub addFormWarnings {
     my ($self, $form, $response) = @_;
