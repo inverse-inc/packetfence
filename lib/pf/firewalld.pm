@@ -1379,9 +1379,7 @@ sub inline_mangle_rules {
     foreach my $val (@values) {
         util_direct_rule("ipv4 mangle PREROUTING  0 --jump $FW_PREROUTING_INT_INLINE", $action );
         util_direct_rule("ipv4 mangle POSTROUTING 0 --jump $FW_POSTROUTING_INT_INLINE", $action );
-    }
 
-    my $mangle_rules = '';
     my @ops = ();
 
     # pfdhcplistener in most cases will be enforcing access
