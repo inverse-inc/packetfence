@@ -641,6 +641,10 @@ sub fd_pfdns_rules {
     my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "dns");
   }
+  foreach my $network ( @vlan_enforcement_nets ) {
+    my $tint =  $network->{Tint};
+    service_to_zone($tint, $action, "dns");
+  }
   # OAuth
   my $internal_portal_ip = $Config{captive_portal}{ip_address};
   foreach my $interface (@internal_nets) {
@@ -832,6 +836,10 @@ sub fd_pfdhcp_rules {
     service_to_zone($tint, $action, "dhcp");
   }
   foreach my $network ( @inline_enforcement_nets ) {
+    my $tint =  $network->{Tint};
+    service_to_zone($tint, $action, "dhcp");
+  }
+  foreach my $network ( @vlan_enforcement_nets ) {
     my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "dhcp");
   }
