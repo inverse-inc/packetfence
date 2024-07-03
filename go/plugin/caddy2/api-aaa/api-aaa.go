@@ -9,23 +9,34 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/go-utils/statsd"
 	"github.com/inverse-inc/packetfence/go/api-frontend/aaa"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/julienschmidt/httprouter"
 )
 
 // Register the plugin in caddy
 func init() {
-	caddy.RegisterPlugin("api-aaa", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(ApiAAAHandler{})
+	httpcaddyfile.RegisterHandlerDirective("api-aaa", utils.ParseCaddyfile[ApiAAAHandler])
+}
+
+// CaddyModule returns the Caddy module information.
+func (ApiAAAHandler) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID: "http.handlers.api-aaa",
+		New: func() caddy.Module {
+			return &ApiAAAHandler{}
+		},
+	}
 }
 
 type PrettyTokenInfo struct {
@@ -36,25 +47,24 @@ type PrettyTokenInfo struct {
 }
 
 type ApiAAAHandler struct {
-	Next               httpserver.Handler
 	router             *httprouter.Router
 	systemBackend      *aaa.MemAuthenticationBackend
 	webservicesBackend *aaa.MemAuthenticationBackend
 	authentication     *aaa.TokenAuthenticationMiddleware
 	authorization      *aaa.TokenAuthorizationMiddleware
 	noAuthPaths        map[string]bool
+	tokenBackend       []string
 }
 
 // Setup the api-aaa middleware
 // Also loads the pfconfig resources and registers them in the pool
-func setup(c *caddy.Controller) error {
-	ctx := log.LoggerNewContext(context.Background())
+func (s *ApiAAAHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 
 	noAuthPaths := map[string]bool{}
 	tokenBackendArgs := []string{}
 	var err error
 	for c.Next() {
-		for c.NextBlock() {
+		for c.NextBlock(0) {
 			switch c.Val() {
 			case "no_auth":
 				args := c.RemainingArgs()
@@ -84,17 +94,18 @@ func setup(c *caddy.Controller) error {
 		}
 	}
 
-	apiAAA, err := buildApiAAAHandler(ctx, tokenBackendArgs)
-	apiAAA.noAuthPaths = noAuthPaths
+	s.noAuthPaths = noAuthPaths
+	s.tokenBackend = tokenBackendArgs
+	return nil
+}
+
+func (m *ApiAAAHandler) Provision(_ caddy.Context) error {
+	ctx := log.LoggerNewContext(context.Background())
+	err := m.buildApiAAAHandler(ctx)
 
 	if err != nil {
 		return err
 	}
-
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		apiAAA.Next = next
-		return apiAAA
-	})
 
 	return nil
 }
@@ -128,9 +139,7 @@ func validateTokenArgs(args []string) ([]string, error) {
 }
 
 // Build the ApiAAAHandler which will initialize the cache and instantiate the router along with its routes
-func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAHandler, error) {
-
-	apiAAA := ApiAAAHandler{}
+func (h *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 	webservices := &pfconfigdriver.PfConfWebservices{}
 	unifiedApiSystemUser := &pfconfigdriver.UnifiedApiSystemUser{}
 	advanced := &pfconfigdriver.PfConfAdvanced{}
@@ -145,56 +154,56 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 		u.AddStruct(ctx, "PfConfServicesURL", servicesURL)
 	})
 
-	tokenBackend := aaa.MakeTokenBackend(ctx, tokenBackendArgs)
-	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
+	tokenBackend := aaa.MakeTokenBackend(ctx, h.tokenBackend)
+	h.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
 	if unifiedApiSystemUser.User != "" {
-		apiAAA.systemBackend = aaa.NewMemAuthenticationBackend(
+		h.systemBackend = aaa.NewMemAuthenticationBackend(
 			map[string]string{},
 			map[string]bool{"ALL": true},
 		)
-		apiAAA.systemBackend.SetUser(unifiedApiSystemUser.User, unifiedApiSystemUser.Pass)
-		apiAAA.authentication.AddAuthenticationBackend(apiAAA.systemBackend)
+		h.systemBackend.SetUser(unifiedApiSystemUser.User, unifiedApiSystemUser.Pass)
+		h.authentication.AddAuthenticationBackend(h.systemBackend)
 	} else {
 		panic("Unable to setup the system user authentication backend")
 	}
 
 	// Backend for the pf.conf webservices user
-	apiAAA.webservicesBackend = aaa.NewMemAuthenticationBackend(
+	h.webservicesBackend = aaa.NewMemAuthenticationBackend(
 		map[string]string{},
 		map[string]bool{"ALL": true},
 	)
-	apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
+	h.authentication.AddAuthenticationBackend(h.webservicesBackend)
 
 	if webservices.User != "" {
-		apiAAA.webservicesBackend.SetUser(webservices.User, webservices.Pass)
+		h.webservicesBackend.SetUser(webservices.User, webservices.Pass)
 	}
 
 	// Backend for SSO
 	if sharedutils.IsEnabled(adminLogin.SSOStatus) {
 		url, err := url.Parse(fmt.Sprintf("%s%s", adminLogin.SSOBaseUrl, adminLogin.SSOAuthorizePath))
 		sharedutils.CheckError(err)
-		apiAAA.authentication.AddAuthenticationBackend(aaa.NewPortalAuthenticationBackend(ctx, url, false))
+		h.authentication.AddAuthenticationBackend(aaa.NewPortalAuthenticationBackend(ctx, url, false))
 	}
 
 	// Backend for username/password auth via the internal auth sources
 	if sharedutils.IsEnabled(adminLogin.AllowUsernamePassword) {
 		url, err := url.Parse(fmt.Sprintf("%s/api/v1/authentication/admin_authentication", servicesURL.PfperlApi))
 		sharedutils.CheckError(err)
-		apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
+		h.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
 	}
 
-	apiAAA.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
+	h.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
 
 	router := httprouter.New()
-	router.POST("/api/v1/login", apiAAA.handleLogin)
-	router.GET("/api/v1/token_info", apiAAA.handleTokenInfo)
-	router.GET("/api/v1/sso_info", apiAAA.handleSSOInfo)
+	router.POST("/api/v1/login", h.handleLogin)
+	router.GET("/api/v1/token_info", h.handleTokenInfo)
+	router.GET("/api/v1/sso_info", h.handleSSOInfo)
 
-	apiAAA.router = router
+	h.router = router
 
-	return apiAAA, nil
+	return nil
 }
 
 // Handle an API login
@@ -352,7 +361,7 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	}
 }
 
-func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 	webservices := pfconfigdriver.GetStruct(ctx, "PfConfWebservices").(*pfconfigdriver.PfConfWebservices)
 	// Reload the webservices user info
@@ -373,18 +382,28 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 		handle(w, r, params)
 
 		// TODO change me and wrap actions into something that handles server errors
-		return 0, nil
+		return nil
 	} else {
 		_, noauth := h.noAuthPaths[r.URL.Path]
 		if noauth || h.HandleAAA(w, r) {
-			code, err := h.Next.ServeHTTP(w, r)
-
-			return code, err
-
-		} else {
-			// TODO change me and wrap actions into something that handles server errors
-			return 0, nil
+			return next.ServeHTTP(w, r)
 		}
 	}
-
+	return nil
 }
+
+func (p *ApiAAAHandler) Validate() error {
+	return nil
+}
+
+func (p *ApiAAAHandler) Cleanup() error {
+	return nil
+}
+
+var (
+	_ caddy.Provisioner           = (*ApiAAAHandler)(nil)
+	_ caddy.CleanerUpper          = (*ApiAAAHandler)(nil)
+	_ caddy.Validator             = (*ApiAAAHandler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*ApiAAAHandler)(nil)
+	_ caddyfile.Unmarshaler       = (*ApiAAAHandler)(nil)
+)

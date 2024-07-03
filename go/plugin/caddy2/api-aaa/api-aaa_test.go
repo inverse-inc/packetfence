@@ -17,7 +17,13 @@ import (
 )
 
 var ctx = log.LoggerNewContext(context.Background())
-var apiAAA, err = buildApiAAAHandler(ctx, []string{})
+var apiAAA = buildApiAAAHandler(ctx)
+
+func buildApiAAAHandler(ctx context.Context) *ApiAAAHandler {
+	a := ApiAAAHandler{}
+	a.buildApiAAAHandler(ctx)
+	return &a
+}
 
 func TestApiAAALogin(t *testing.T) {
 	ctx := context.Background()
@@ -131,7 +137,7 @@ func TestApiAAAContentType(t *testing.T) {
 	)
 
 	recorder := httptest.NewRecorder()
-	apiAAA.ServeHTTP(recorder, req)
+	apiAAA.ServeHTTP(recorder, req, nil)
 
 	if recorder.Header().Get("Content-Type") != "application/json" {
 		t.Error("Wrong Content-Type for the request")
