@@ -28,7 +28,7 @@ func TestNewNodes(t *testing.T) {
 
 func NewNodes(status string, amount int) ([]string, error) {
 	sql := `
-INSERT INTO node (
+INSERT IGNORE INTO node (
     mac, status
 )
 
