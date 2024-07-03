@@ -687,7 +687,7 @@ sub dns_interception_rules {
     # vlan enforcement
     if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
       # send everything from vlan interfaces to the vlan chain
-      util_direct_rule("ipv4 nat PREROUTING 0 --in-interface $dev --jump $FW_PREROUTING_INT_VLAN");
+      util_direct_rule("ipv4 nat PREROUTING -50 --jump $FW_PREROUTING_INT_VLAN");
       foreach my $network ( keys %ConfigNetworks ) {
         next if (pf::config::is_network_type_inline($network));
         my %net = %{$ConfigNetworks{$network}};
@@ -1379,12 +1379,10 @@ sub inline_mangle_rules {
     foreach my $val (@values) {
         util_direct_rule("ipv4 mangle PREROUTING  0 --jump $FW_PREROUTING_INT_INLINE", $action );
         util_direct_rule("ipv4 mangle POSTROUTING 0 --jump $FW_POSTROUTING_INT_INLINE", $action );
-
-    my @ops = ();
+    }
 
     # pfdhcplistener in most cases will be enforcing access
     # however we insert these marks on startup in case PacketFence is restarted
-
     # default catch all: mark unreg
     util_direct_rule("ipv4 mangle $FW_PREROUTING_INT_INLINE 0 -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", $action );
     foreach my $network ( keys %ConfigNetworks ) {
@@ -1405,6 +1403,7 @@ sub inline_mangle_rules {
     my @iplog_open = pf::ip4log::list_open();
     my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
 
+    my @ops = ();
     # mark registered nodes that should not be isolated
     # TODO performance: mark all *inline* registered users only
     my @registered = nodes_registered_not_violators();
