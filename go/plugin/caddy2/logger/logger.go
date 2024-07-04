@@ -1,6 +1,7 @@
 package caddylog
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"net/http"
@@ -27,7 +28,7 @@ func (Logger) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID: "http.handlers.logger",
 		New: func() caddy.Module {
-			return &Logger{HistoryLength: 100}
+			return &Logger{}
 		},
 	}
 }
@@ -67,27 +68,36 @@ func (s *Logger) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 }
 
 type Logger struct {
-	HistoryLength  int
-	Level          string
-	ctx            context.Context
-	requestHistory *RequestHistoryController
+	HistoryLength  int                       `json:"history_length"`
+	Level          string                    `json:"level"`
+	ctx            context.Context           `json:"-"`
+	requestHistory *RequestHistoryController `json:"-"`
 }
 
-func (l *Logger) Provision(_ caddy.Context) error {
+func (l *Logger) Provision(ctx caddy.Context) error {
+	l.HistoryLength = cmp.Or(l.HistoryLength, 100)
+	l.Level = cmp.Or(l.Level, "INFO")
 	fmt.Println("Using configuration set log level: " + l.Level)
 	rh, err := requesthistory.NewRequestHistory(l.HistoryLength)
 	if err != nil {
 		return err
 	}
 
-	ctx := log.LoggerAddHandler(
+	lctx := log.LoggerAddHandler(
 		log.LoggerNewContext(context.Background()),
 		func(r *log15.Record) error { return l.requestHistory.requestHistory.HandleLogRecord(r) },
 	)
 
 	l.requestHistory = NewRequestHistoryController(&rh)
-	ctx = log.LoggerSetLevel(ctx, l.Level)
-	l.ctx = ctx
+	l.ctx = log.LoggerSetLevel(lctx, l.Level)
+	return nil
+}
+
+func (l *Logger) Cleanup() error {
+	return nil
+}
+
+func (l *Logger) Validate() error {
 	return nil
 }
 
@@ -106,3 +116,11 @@ func (h *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhtt
 
 	return next.ServeHTTP(w, r)
 }
+
+var (
+	_ caddy.Provisioner           = (*Logger)(nil)
+	_ caddy.CleanerUpper          = (*Logger)(nil)
+	_ caddy.Validator             = (*Logger)(nil)
+	_ caddyhttp.MiddlewareHandler = (*Logger)(nil)
+	_ caddyfile.Unmarshaler       = (*Logger)(nil)
+)
