@@ -265,7 +265,9 @@ require (
 	github.com/alecthomas/chroma/v2 v2.13.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
+	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/caddyserver/certmagic v0.21.3 // indirect
+	github.com/caddyserver/transform-encoder v0.0.0-00010101000000-000000000000 // indirect
 	github.com/caddyserver/zerossl v0.1.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
@@ -362,4 +364,4 @@ replace github.com/inverse-inc/packetfence => ../
 
 replace github.com/inverse-inc/packetfence/go => ./
 
-replace github.com/inverse-inc/packetfence/go/caddy/caddy => ./go/caddy/caddy
+replace github.com/caddyserver/transform-encoder => github.com/jrouzierinverse/transform-encoder v0.0.0-20240704111047-7e79d5de9c7d
