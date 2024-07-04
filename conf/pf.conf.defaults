@@ -1247,7 +1247,7 @@ galera_replication_password=
 #
 # Centralize the virtual IP addresses on the same node instead of distributing them on the two first nodes of the cluster
 centralize_vips=disabled
-
+#
 # active_active.probe_mysql_from_haproxy_db
 #
 # Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers.
@@ -1258,6 +1258,12 @@ probe_mysql_from_haproxy_db=disabled
 # Proxy the RADIUS requests received on the RADIUS load balancer using the VIP
 # When deploying in an environment where the virtual IP is a software load balancer, disable this so that servers proxy the requests using their own IP address
 radius_proxy_with_vip=enabled
+#
+# active_active.firewall_sso_on_management
+#
+# Process Firewall SSO only on the managemenr server (the current load balancer).
+# Disabling it will allow each members of the cluster to send Firewall SSO request to firewalls
+firewall_sso_on_management=disabled
 
 [parking]
 #

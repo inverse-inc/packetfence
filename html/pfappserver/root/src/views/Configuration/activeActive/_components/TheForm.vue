@@ -78,6 +78,13 @@
                                      disabled-value="disabled"
     />
 
+    <form-group-firewall-sso-on-management namespace="firewall_sso_on_management"
+                                     :column-label="$i18n.t('Process Firewall SSO requests from the management server')"
+                                     :text="$i18n.t('Process Firewall SSO only on the managemenr server (the current load balancer).Disabling it will allow each members of the cluster to send Firewall SSO request to firewalls.')"
+                                     enabled-value="enabled"
+                                     disabled-value="disabled"
+    />
+
     <form-group-conflict-resolution-threshold namespace="conflict_resolution_threshold"
                                               :column-label="$i18n.t('Conflict resolution threshold')"
                                               :text="$i18n.t('Defines the amount of seconds after which pfcron attempts to resolve a configuration version conflict between cluster members. For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.')"
@@ -119,6 +126,7 @@ import {
   FormGroupCentralizeVips,
   FormGroupConflictResolutionThreshold,
   FormGroupDnsOnVipOnly,
+  FormGroupFirewallSsoOnManagement,
   FormGroupGaleraReplication,
   FormGroupGaleraReplicationPassword,
   FormGroupGaleraReplicationUsername,
@@ -140,6 +148,7 @@ const components = {
   FormGroupCentralizeVips,
   FormGroupConflictResolutionThreshold,
   FormGroupDnsOnVipOnly,
+  FormGroupFirewallSsoOnManagement,
   FormGroupGatewayOnVipOnly,
   FormGroupGaleraReplication,
   FormGroupGaleraReplicationUsername,
