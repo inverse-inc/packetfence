@@ -32,8 +32,8 @@
     <form-group-allow-localdomain namespace="allow_localdomain"
                                   :column-label="$i18n.t('Allow Local Domain')"
                                   :text="$i18n.t('Accept self-registration with email address from the local domain.')"
-                                  :enabled-value="yes"
-                                  :disabled-value="no"
+                                  enabled-value="yes"
+                                  disabled-value="no"
     />
 
     <form-group-activation-domain namespace="activation_domain"
