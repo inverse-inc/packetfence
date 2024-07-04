@@ -166,7 +166,7 @@ func (h *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 		h.systemBackend.SetUser(unifiedApiSystemUser.User, unifiedApiSystemUser.Pass)
 		h.authentication.AddAuthenticationBackend(h.systemBackend)
 	} else {
-		panic("Unable to setup the system user authentication backend")
+		return errors.New("Unable to setup the system user authentication backend")
 	}
 
 	// Backend for the pf.conf webservices user
