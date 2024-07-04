@@ -954,6 +954,23 @@ sub pf_run {
     return;
 }
 
+=item safe_pf_run ( BINARY, @ARGS ,\%OPTIONS )
+
+Execute a system command but check the return status and log anything not normal.
+
+Returns output in list or string based on context (like backticks does ``)
+but returns undef on a failure. Non-zero exit codes are considered failures.
+
+Does not enforce any security. Callers should take care of string sanitization.
+
+Takes an optional hash that offers additional options. For now,
+accepted_exit_status => arrayref allows the command to succeed and a proper
+value being returned if the exit status is mentionned in the arrayref. For
+example: accepted_exit_status => [ 1, 2, 3] will allow the process to exit
+with code 1, 2 or 3 without reporting it as an error.
+
+=cut
+
 sub safe_pf_run {
     my ($bin, @args) = @_;
     no warnings qw(once);
