@@ -29,7 +29,7 @@ const (
 
 func init() {
 	caddy.RegisterModule(PfipsetHandler{})
-	httpcaddyfile.RegisterHandlerDirective("statsd", utils.ParseCaddyfile[PfipsetHandler])
+	httpcaddyfile.RegisterHandlerDirective("pfipset", utils.ParseCaddyfile[PfipsetHandler])
 }
 
 // CaddyModule returns the Caddy module information.
