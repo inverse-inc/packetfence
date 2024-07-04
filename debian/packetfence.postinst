@@ -181,7 +181,6 @@ case "$1" in
         else
             DEBIAN_ISO_INSTALLER=no
             systemctl restart docker
-	    /bin/bash /usr/local/pf/containers/docker-minimal-rules.sh
         fi
 
         # get containers image and tag them locally
@@ -228,6 +227,7 @@ case "$1" in
         /bin/systemctl start packetfence-httpd.admin_dispatcher
         /bin/systemctl start packetfence-haproxy-admin
         if [ "$DEBIAN_ISO_INSTALLER" = "no" ];  then
+            /usr/local/pf/containers/docker-minimal-rules.sh
             /usr/local/pf/bin/pfcmd service pf updatesystemd
         else
             echo "Skipping some steps which will be run at next boot"
