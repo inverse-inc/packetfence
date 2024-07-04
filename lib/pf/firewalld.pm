@@ -76,6 +76,7 @@ use pf::config qw(
     netflow_enabled
     $management_network
     @inline_enforcement_nets
+    @vlan_enforcement_nets
     @internal_nets
     @listen_ints
     @ha_ints
