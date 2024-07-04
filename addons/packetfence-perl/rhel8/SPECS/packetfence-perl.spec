@@ -33,7 +33,8 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
         /usr/local/pf/lib_perl/*
 
 %changelog
-* Wed May 22 2024 Inverse <info@inverse.ca> 1.2.4-1
+* Tue Jul 4 2024 Inverse <info@inverse.ca> 1.2.4-1
+- Upgrade Template-Toolkit 3.009  -> 3.010
 - Upgrade Sereal::Decoder 4.018 -> 5.004
 - Upgrade Sereal::Encoder 4.018 -> 5.004
 - Upgrade Crypt::OpenSSL::RSA 0.31 -> 0.33
