@@ -19,13 +19,13 @@ import (
 
 func init() {
 	caddy.RegisterModule(Logger{})
-	httpcaddyfile.RegisterHandlerDirective("configstore", utils.ParseCaddyfile[Logger])
+	httpcaddyfile.RegisterHandlerDirective("logger", utils.ParseCaddyfile[Logger])
 }
 
 // CaddyModule returns the Caddy module information.
 func (Logger) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
-		ID: "http.handlers.configstore",
+		ID: "http.handlers.logger",
 		New: func() caddy.Module {
 			return &Logger{HistoryLength: 100}
 		},
