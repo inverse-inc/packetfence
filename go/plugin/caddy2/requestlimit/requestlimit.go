@@ -69,7 +69,7 @@ type RequestLimitHandler struct {
 }
 
 func (r *RequestLimitHandler) Cleanup() error {
-	panic("not implemented") // TODO: Implement
+	return nil
 }
 
 // Middleware that will rate limit the amount of concurrent requests the webserver can do at once

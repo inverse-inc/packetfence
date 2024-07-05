@@ -68,7 +68,7 @@ type PoolHandler struct {
 }
 
 func (p *PoolHandler) Validate() error {
-	panic("not implemented") // TODO: Implement
+	return nil
 }
 
 func (p *PoolHandler) Cleanup() error {
