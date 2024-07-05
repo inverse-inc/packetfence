@@ -132,6 +132,21 @@ Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
+=item fd_configreload
+
+Reload the config
+
+=cut
+
+sub fd_configreload {
+    my ($force) = @_;
+    if ($force eq 1) {
+      fd_clean_pfconf_configs();
+      fd_generate_pfconf_configs();
+    }
+    fd_generate_dynamic_configs();
+}
+
 =item fd_clean_pfconf_configs
 
 Remove firewalld configuration from /usr/local/pf/var/conf/firewalld/
@@ -149,6 +164,8 @@ Generate dynamically firewalld all configurations, ipset and add rules according
 =cut
 
 sub fd_generate_dynamic_configs {
+  fd_clean_all_previous_rules();
+  fd_add_default_direct_rules();
   fd_create_all_zones();
   pf::ipset->new()->iptables_generate();
   fd_services_rules("add");
@@ -173,6 +190,36 @@ sub fd_generate_pfconf_configs {
   generate_policies_config();
 }
 
+=item fd_clean_all_previous_rules
+
+Iptables clean all previous rules from service/manager/firewalld reload or docker minimal rules.
+
+=cut
+
+sub fd_clean_all_previous_rules {
+  pf_run("sudo iptables -F");
+  pf_run("sudo iptables -X");
+  pf_run("sudo iptables -t nat -F");
+  pf_run("sudo iptables -t nat -X");
+  pf_run("sudo iptables -t mangle -F");
+  pf_run("sudo iptables -t mangle -X");
+  pf_run("sudo iptables -D INPUT -m conntrack --ctstate RELATED,ESTABLISHED,DNAT -j ACCEPT");
+  pf_run("sudo iptables -D INPUT --in-interface lo --jump ACCEPT");
+}
+
+=item fd_add_default_rules
+
+Firewalld Add default rules set in service/manager/firewalld reload or docker minimal rules in direct rules to be able to order them
+
+=cut
+
+sub fd_add_default_direct_rules {
+  util_direct_rule("ipv4 filter INPUT -99 -i lo -j ACCEPT", "add" );
+  util_direct_rule("ipv4 filter INPUT -98 -i docker0 -j ACCEPT", "add" );
+  util_direct_rule("ipv4 filter INPUT -97 --match state --state ESTABLISHED,RELATED --jump ACCEPT", "add" );
+  util_direct_rule("ipv4 filter INPUT -96 --protocol icmp --icmp-type echo-request --jump ACCEPT", "add" );
+}
+
 =item fd_create_all_zones
 
 Firewalld set a zone for each interfaces listened by PF
@@ -193,7 +240,7 @@ sub fd_create_all_zones {
       util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
       util_reload_firewalld();
     }
-    util_zone_set_forward( $tint , "add" );
+    util_zone_set_forward( $tint , "remove" );
     util_zone_set_masquerade( $tint , "add" );
     service_to_zone($tint, "add", "ssh");
   }
@@ -378,6 +425,13 @@ sub fd_keepalived_rules {
     # Never remove, used several time
     util_direct_rule("ipv4 filter INPUT 0 -i $tint -d 224.0.0.0/8 -j ACCEPT", "add" );
     util_direct_rule("ipv4 filter INPUT 0 -i $tint -p vrrp -j ACCEPT", "add" ) if ($cluster_enabled);
+  }
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
+    if ( $tint ne "" ) {
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -d 224.0.0.0/8 -j ACCEPT", "add" );
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p vrrp -j ACCEPT", "add" ) if ($cluster_enabled);
+    }
   }
 }
 
@@ -692,7 +746,7 @@ sub dns_interception_rules {
     # vlan enforcement
     if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
       # send everything from vlan interfaces to the vlan chain
-      util_direct_rule("ipv4 nat PREROUTING -50 --jump $FW_PREROUTING_INT_VLAN");
+      util_direct_rule("ipv4 nat PREROUTING -50 --in-interface $dev --jump $FW_PREROUTING_INT_VLAN");
       foreach my $network ( keys %ConfigNetworks ) {
         next if (pf::config::is_network_type_inline($network));
         my %net = %{$ConfigNetworks{$network}};
@@ -755,16 +809,16 @@ sub dns_oauth_passthrough_rules {
         }
         my ($type,$chain) = get_network_type_and_chain($ip);
         if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
-          util_direct_rule("ipv4 filter FORWARD 0 --in-interface $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
-          util_direct_rule("ipv4 filter FORWARD 0 --in-interface $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
-          util_direct_rule("ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
-          util_direct_rule("ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD -10 --in-interface $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD -10 --in-interface $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD -9 --out-interface $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD -9 --out-interface $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
         }
         if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
-          util_direct_rule("ipv4 filter FORWARD 0 --in-interface $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
-          util_direct_rule("ipv4 filter FORWARD 0 --in-interface $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
-          util_direct_rule("ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
-          util_direct_rule("ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD -8 --in-interface $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD -8 --in-interface $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD -7 --out-interface $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD -7 --out-interface $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
         }            
       }
     }
@@ -858,30 +912,30 @@ sub fd_pfdhcp_rules {
       }
       my ($type,$chain) = get_network_type_and_chain($ip);
       if ( $type eq $pf::config::NET_TYPE_VLAN_REG && $chain eq "input-internal-isol_vlan-if" ) {
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p udp -m udp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p udp -m udp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $interface->tag('vip') -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $interface->tag('vip') -p udp -m udp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $interface->tag('ip') -p tcp -m tcp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $interface->tag('ip') -p udp -m udp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT -30 -i $tint -d $internal_portal_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT -29 -i $tint -d $internal_portal_ip -p udp -m udp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT -30 -i $tint -d $cluster_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
+        util_direct_rule( "ipv4 filter INPUT -29 -i $tint -d $cluster_ip -p udp -m udp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
+        util_direct_rule( "ipv4 filter INPUT -28 -i $tint -d $interface->tag('vip') -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
+        util_direct_rule( "ipv4 filter INPUT -27 -i $tint -d $interface->tag('vip') -p udp -m udp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
+        util_direct_rule( "ipv4 filter INPUT -26 -i $tint -d $interface->tag('ip') -p tcp -m tcp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT -25 -i $tint -d $interface->tag('ip') -p udp -m udp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT -24 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT -23 -i $tint -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT", $action );
       }
     } elsif (is_type_inline($enforcement_type)) {
       if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
         $logger->info("Adding Proxy interception rules");
         foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
+          util_direct_rule( "ipv4 filter INPUT -22 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT -21 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT -20 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
+          util_direct_rule( "ipv4 filter INPUT -19 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT -18 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT -17 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
+          util_direct_rule( "ipv4 filter INPUT -16 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT -15 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT -14 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
         }
       }
     }
@@ -898,14 +952,14 @@ sub fd_netdata_rules {
   my $action = shift;
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT -50 -i $tint -p tcp --match tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
     if ($cluster_enabled) {
       push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
       foreach my $mgmt_back (uniq(@mgmt_backend)) {
-        util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
+        util_direct_rule("ipv4 filter INPUT -50 -i $tint -p tcp --match tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
       }
     }
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
+    util_direct_rule("ipv4 filter INPUT -49 -i $tint -p tcp --match tcp --dport 19999 -j DROP", $action );
   }
 }
 
@@ -1026,6 +1080,9 @@ sub fd_docker_dnat_rules {
     util_direct_rule("ipv4 nat POSTROUTING 100 -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE", $action );
     util_direct_rule("ipv4 nat PRE_docker0 50 -i docker0 -j RETURN", $action );
   }
+  util_direct_rule( "ipv4 filter FORWARD -100 -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT", $action );
+  util_direct_rule( "ipv4 filter FORWARD -99 -i docker0 ! -o docker0 -j ACCEPT", $action );
+  util_direct_rule( "ipv4 filter FORWARD -98 -i docker0 -o docker0 -j ACCEPT", $action );
 }
 
 =item fd_fingerbank_collector_rules
@@ -1037,7 +1094,7 @@ Firewalld rules for fingerbank collector service
 sub fd_fingerbank_collector_rules {
   my $action = shift;
   if (netflow_enabled()) {
-    util_direct_rule( "ipv4 filter FORWARD 0 -j NETFLOW" , $action );
+    util_direct_rule( "ipv4 filter FORWARD -97 -j NETFLOW" , $action );
   }
 }
 
@@ -1099,16 +1156,16 @@ sub fd_pfipset_rules {
       my ($type,$chain) = get_network_type_and_chain($ip);
       if ( $type eq $pf::config::NET_TYPE_VLAN_REG) {
         if ( $passthrough_enabled && ( $type eq $pf::config::NET_TYPE_VLAN_REG ) ) {
-          util_direct_rule( "ipv4 filter FORWARD 0 --in-interface  $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
-          util_direct_rule( "ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
-          util_direct_rule( "ipv4 filter FORWARD 0 --in-interface  $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
-          util_direct_rule( "ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD -49 --in-interface  $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD -49 --out-interface $tint -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD -48 --in-interface  $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD -48 --out-interface $tint -m set --match-set pfsession_passthrough src,src --jump ACCEPT", $action );
         }
         if ( $isolation_passthrough_enabled && ( $type eq $pf::config::NET_TYPE_VLAN_ISOL ) ) {
-          util_direct_rule( "ipv4 filter FORWARD 0 --in-interface  $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
-          util_direct_rule( "ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
-          util_direct_rule( "ipv4 filter FORWARD 0 --in-interface  $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
-          util_direct_rule( "ipv4 filter FORWARD 0 --out-interface $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD -47 --in-interface  $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD -47 --out-interface $tint -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD -46 --in-interface  $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
+          util_direct_rule( "ipv4 filter FORWARD -46 --out-interface $tint -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT", $action );
         }
       }
     }
@@ -1608,8 +1665,6 @@ sub get_lines_from_file_in_array {
   }
   return \@lines;
 }
-
-
 
 =head1 AUTHOR
 

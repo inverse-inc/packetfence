@@ -6,7 +6,16 @@ pf::cmd::pf::generatefirewalldconfig
 
 =head1 SYNOPSIS
 
-  pfcmd generatefirewalldconfig
+ pfcmd generatefirewalldconfig  [soft|hard]
+
+  Commands:
+
+    soft   | reload services configuration rules
+    hard   | remove all configurations and restart all config
+
+  defaults to soft
+
+=head1 DESCRIPTION
 
 Generates and apply firewalld rules
 
@@ -15,14 +24,26 @@ Generates and apply firewalld rules
 use strict;
 use warnings;
 use pf::firewalld;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 
-use base qw(pf::cmd);
+use base qw(pf::base::cmd::action_cmd);
 
-sub _run {
-    my ($self) = @_;
-    #fd_generate_pfconf_configs();
-    fd_generate_dynamic_configs();
-    return 0;
+sub default_action { 'soft' }
+
+sub action_soft {
+  my ($self) = @_;
+  $self->configreload();
+}
+
+sub action_hard {
+  my ($self) = @_;
+  $self->configreload(1);
+}
+
+sub configreload {
+  my ($self,$force)  = @_;
+  pf::firewalld::configreload($force);
+  return $EXIT_SUCCESS;
 }
 
 =head1 AUTHOR
