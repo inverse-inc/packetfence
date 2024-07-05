@@ -29,6 +29,7 @@ BEGIN {
   our ( @ISA, @EXPORT );
   @ISA = qw(Exporter);
   @EXPORT = qw(
+    fd_configreload
     fd_clean_pfconf_configs
     fd_generate_dynamic_configs
     fd_generate_pfconf_configs
