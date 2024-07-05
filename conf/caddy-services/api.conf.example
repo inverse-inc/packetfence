@@ -1,6 +1,7 @@
 # Copyright (C) Inverse inc.
 {
 	admin off
+	#debug
 }
 
 :9999 {
@@ -8,10 +9,10 @@
 
 	log {
 		output stdout
-        format transform `api-frontend-access {request>remote_ip} - {user_id} [{ts}] "{request>method} {request>uri} {request>proto}" {status} {size} "{request>headers>Referer>[0]}" "{request>headers>User-Agent>[0]}"` {
-                time_format "02/Jan/2006:15:04:05 -0700"
-        }
-        level INFO
+		format transform `api-frontend-access {request>remote_ip} - {user_id} [{ts}] "{request>method} {request>uri} {request>proto}" {status} {size} "{request>headers>Referer>[0]}" "{request>headers>User-Agent>[0]}"` {
+			time_format "02/Jan/2006:15:04:05 -0700"
+		}
+		level INFO
 	}
 
 	handle_errors 502 503 {

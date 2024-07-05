@@ -1,4 +1,9 @@
 # Copyright (C) Inverse inc.
+{
+	admin off
+	#debug
+}
+
 :22223 {
 	route * {
 		pfconfigpool
