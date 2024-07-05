@@ -19,6 +19,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupCentralizeVips,
   BaseFormGroupIntervalUnit           as FormGroupConflictResolutionThreshold,
   BaseFormGroupToggleDisabledEnabled  as FormGroupDnsOnVipOnly,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupFirewallSsoOnManagement,
   BaseFormGroupToggleDisabledEnabled  as FormGroupGatewayOnVipOnly,
   BaseFormGroupToggleDisabledEnabled  as FormGroupGaleraReplication,
   BaseFormGroupInput                  as FormGroupGaleraReplicationUsername,

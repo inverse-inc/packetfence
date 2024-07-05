@@ -60,7 +60,12 @@ sub do_sso {
     }
     my ($stripped_username, $realm) = pf::util::strip_username($username);
 
-    pf::api::unifiedapiclient->management_client->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
+    my $apiClient = pf::api::unifiedapiclient->management_client;
+    if (!pf::util::isenabled($Config{'active_active'}{'firewall_sso_on_management'}) {
+        $apiClient = pf::api::unifiedapiclient->default_client;
+    }
+
+    $apiClient->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
         ip                => $postdata{ip},
         mac               => $mac,
         # All values must be string for pfsso
