@@ -778,8 +778,6 @@ echo "Restarting rsyslogd"
 /bin/systemctl enable docker
 /bin/systemctl restart docker
 
-/usr/local/pf/containers/docker-minimal-rules.sh
-
 if [ "$1" = "2" ]; then
     # When upgrading from pre-v12, redis-cache must be restarted to listen on the containers interfaces
     # Didn't find a way to detect the previous version during the upgrade so it's always going to be restarted on upgrade
@@ -807,6 +805,8 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl restart packetfence-api-frontend
     /bin/systemctl start packetfence-httpd.admin_dispatcher
     /bin/systemctl start packetfence-haproxy-admin
+
+    /usr/local/pf/containers/docker-minimal-rules.sh
 
     /usr/local/pf/bin/pfcmd service pf updatesystemd
 
