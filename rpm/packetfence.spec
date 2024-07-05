@@ -784,7 +784,7 @@ echo "Restarting rsyslogd"
 /bin/systemctl enable docker
 /bin/systemctl restart docker
 
-/bin/bash /usr/local/pf/containers/docker-minimal-rules.sh
+/usr/local/pf/containers/docker-minimal-rules.sh
 
 if [ "$1" = "2" ]; then
     # When upgrading from pre-v12, redis-cache must be restarted to listen on the containers interfaces
