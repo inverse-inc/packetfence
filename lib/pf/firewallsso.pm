@@ -60,7 +60,7 @@ sub do_sso {
     }
     my ($stripped_username, $realm) = pf::util::strip_username($username);
     my $apiClient = pf::api::unifiedapiclient->management_client;
-    if (!pf::util::isenabled($Config{'active_active'}{'firewall_sso_on_management'}) {
+    if (!pf::util::isenabled($Config{'active_active'}{'firewall_sso_on_management'})) {
         $apiClient = pf::api::unifiedapiclient->default_client;
     }
 
