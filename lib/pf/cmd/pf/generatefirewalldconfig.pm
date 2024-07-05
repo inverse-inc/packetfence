@@ -42,7 +42,7 @@ sub action_hard {
 
 sub configreload {
   my ($self,$force)  = @_;
-  pf::firewalld::configreload($force);
+  pf::firewalld::fd_configreload($force);
   return $EXIT_SUCCESS;
 }
 
