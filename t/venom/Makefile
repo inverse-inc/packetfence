@@ -232,16 +232,28 @@ inline_l2_and_radius_deb11:
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
 
-pfappserver_el8:
+pfappserver_configurator_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
-	SCENARIOS_TO_RUN=pfappserver \
+	SCENARIOS_TO_RUN=pfappserver_configurator \
 	$(MAKE_TARGET)
 
-pfappserver_deb11:
+pfappserver_configurator_deb11:
 	make \
 	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
-	SCENARIOS_TO_RUN=pfappserver \
+	SCENARIOS_TO_RUN=pfappserver_configurator \
+	$(MAKE_TARGET)
+
+pfappserver_configuration_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfappserver_configuration \
+	$(MAKE_TARGET)
+
+pfappserver_configuration_deb11:
+	make \
+	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfappserver_configuration \
 	$(MAKE_TARGET)
 
 example_el8: SCENARIOS_TO_RUN=example
@@ -302,5 +314,7 @@ mac_auth_deb11_branches: mac_auth_deb11
 mac_auth_el8_branches: mac_auth_el8
 security_events_deb11_branches: security_events_deb11
 unit_tests_el8_branches: unit_tests_el8
-pfappserver_el8_branches: pfappserver_el8
-pfappserver_deb11_branches: pfappserver_deb11
+pfappserver_configurator_el8_branches: pfappserver_configurator_el8
+pfappserver_configurator_deb11_branches: pfappserver_configurator_deb11
+pfappserver_configuration_el8_branches: pfappserver_configuration_el8
+pfappserver_configuration_deb11_branches: pfappserver_configuration_deb11

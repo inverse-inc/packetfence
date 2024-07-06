@@ -1,0 +1,12 @@
+{
+  "id": "test",
+  "description": "test",
+  "host": [
+    "foo",
+    "bar"
+  ],
+  "basedn": "baz",
+  "usernameattribute": "cn",
+  "client_cert_file": "/usr/local/pf/conf/ssl/server.crt",
+  "client_key_file": "/usr/local/pf/conf/ssl/server.key"
+}

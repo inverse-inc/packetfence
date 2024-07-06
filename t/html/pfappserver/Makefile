@@ -1,4 +1,5 @@
 #!make
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
 include .local_env
 export $(shell sed 's/=.*//' .local_env)
 
@@ -11,6 +12,7 @@ DEBUG ?=
 CI_PIPELINE_ID ?= $$(openssl rand -hex 16)
 PROJECT_ID ?=
 RECORD_KEY ?=
+CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT ?= 300000
 
 .PHONY: all install test
 
@@ -49,22 +51,27 @@ install:
 	npm install --legacy-peer-deps
 
 test:
-		DEBUG=$(DEBUG) \
-		DISPLAY= \
-		NO_COLOR=1 \
-		BROWSERSLIST_IGNORE_OLD_DATA=true \
-		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --env tags=[$(TAGS)] ; \
+	DEBUG=$(DEBUG) \
+	DISPLAY= \
+	NO_COLOR=1 \
+	BROWSERSLIST_IGNORE_OLD_DATA=true \
+	CYPRESS_baseUrl=$(BASE_URL) \
+	CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT=$(CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT) \
+	npx cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --env tags=[$(TAGS)] ; \
+
+test-concurrent:
+	bash concurrent.sh $(MAKE) -f $(THIS_FILE) test
 
 test-project:
-		DEBUG=$(DEBUG) \
-		DISPLAY= \
-		NO_COLOR=1 \
-		BROWSERSLIST_IGNORE_OLD_DATA=true \
-		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
+	DEBUG=$(DEBUG) \
+	DISPLAY= \
+	NO_COLOR=1 \
+	BROWSERSLIST_IGNORE_OLD_DATA=true \
+	CYPRESS_baseUrl=$(BASE_URL) \
+	CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT=$(CYPRESS_INTERNAL_BROWSER_CONNECT_TIMEOUT) \
+	npx cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
 
 test-x11:
 	DEBUG=$(DEBUG) \
 	CYPRESS_baseUrl=$(BASE_URL) \
-	cypress open --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG)
+	npx cypress open --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG)

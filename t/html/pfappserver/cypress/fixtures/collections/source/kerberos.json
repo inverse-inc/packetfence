@@ -1,0 +1,6 @@
+{
+  "id": "test",
+  "description": "test",
+  "host": "foo",
+  "authenticate_realm": "bar"
+}

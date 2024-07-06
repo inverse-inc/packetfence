@@ -1,0 +1,6 @@
+{
+  "id": "test",
+  "tenant_id": "foo",
+  "client_id": "bar",
+  "client_secret": "baz"
+}

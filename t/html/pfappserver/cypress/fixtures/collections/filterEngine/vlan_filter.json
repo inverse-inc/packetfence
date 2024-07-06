@@ -1,0 +1,7 @@
+{
+  "id": "test",
+  "description": "test",
+  "scopes": [
+    "RegistrationRole"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "test",
+  "workgroup": "test",
+  "dns_name": "test.local",
+  "ad_server": "1.2.3.4",
+  "ad_fqdn": "test.local",
+  "dns_servers": "8.8.8.8",
+  "machine_account_password": "foobarbaz"
+}

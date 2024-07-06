@@ -1,0 +1,6 @@
+{
+  "id": "test",
+  "applicationID": "foobar",
+  "applicationSecret": "foobaz",
+  "tenantID": "farboo"
+}

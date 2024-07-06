@@ -95,7 +95,7 @@ describe('Configurator', () => {
     // wait for form, then fill it out
     cy.get('.base-form').then(() => {
       cy.fixture('configurator').then(configurator => {
-        cy.formFillNamespace('.base-form', configurator.network)
+        cy.formFillNamespace(configurator.network, '.base-form')
       })
     })
 
@@ -137,7 +137,7 @@ describe('Configurator', () => {
 
     // fill administrator form
     cy.fixture('configurator').then(configurator => {
-      cy.formFillNamespace('*[data-form="administrator"]', configurator.administrator)
+      cy.formFillNamespace(configurator.administrator, '*[data-form="administrator"]')
     })
 
     // next button enabled
@@ -164,7 +164,7 @@ describe('Configurator', () => {
     // wait for form, then fill it out
     cy.get('.base-form').then(() => {
       cy.fixture('configurator').then(configurator => {
-        cy.formFillNamespace('.base-form', configurator.fingerbank)
+        cy.formFillNamespace(configurator.fingerbank, '.base-form')
         // verify fingerbank upstream api_key
         if (configurator.fingerbank['upstream.api_key']) {
           cy.get('button[type="button"]:contains(Verify)').click()

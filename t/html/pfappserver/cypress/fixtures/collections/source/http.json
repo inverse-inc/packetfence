@@ -1,0 +1,6 @@
+{
+  "id": "test",
+  "description": "test",
+  "authentication_url": "foo",
+  "authorization_url": "bar"
+}

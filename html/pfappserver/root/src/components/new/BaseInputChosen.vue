@@ -13,6 +13,7 @@
         'size-lg': size === 'lg'
       }"
       :data-namespace="namespace"
+      :data-chosen="true"
 
       :value="inputValue"
       :placeholder="inputPlaceholder"

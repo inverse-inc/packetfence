@@ -1,3 +1,4 @@
+import { oses } from '@/globals/fingerbank'
 import { BaseFormGroupChosenMultipleSearchable, BaseFormGroupChosenMultipleSearchableProps } from '@/components/new/'
 
 export const props = {
@@ -6,15 +7,7 @@ export const props = {
   // overload :options default
   options: {
     type: Array,
-    default: () => ([
-      { text: 'Windows Phone OS', value: '33507' },
-      { text: 'Mac OS X or macOS', value: '2' },
-      { text: 'Android OS', value: '33453' },
-      { text: 'Windows OS', value: '1' },
-      { text: 'BlackBerry OS', value: '33471' },
-      { text: 'iOS', value: '33450' },
-      { text: 'Linux OS', value: '5' }
-    ])
+    default: () => Object.entries(oses).map(([value, text]) => ({ text, value }))
   }
 }
 

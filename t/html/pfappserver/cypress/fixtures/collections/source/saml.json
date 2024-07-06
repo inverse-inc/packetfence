@@ -1,0 +1,12 @@
+{
+  "id": "test",
+  "description": "test",
+  "sp_entity_id": "foo",
+  "sp_key_path": "/dev/null",
+  "sp_cert_path": "/dev/null",
+  "idp_entity_id": "bar",
+  "idp_metadata_path": "/dev/null",
+  "idp_cert_path": "/dev/null",
+  "idp_ca_cert_path": "/dev/null",
+  "authorization_source_id": "local"
+}

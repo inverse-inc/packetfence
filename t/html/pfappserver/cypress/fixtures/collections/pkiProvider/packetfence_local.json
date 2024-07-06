@@ -1,0 +1,7 @@
+{
+  "id": "test",
+  "client_cert_path": "/dev/null",
+  "client_key_path": "/dev/null",
+  "ca_cert_path": "/dev/null",
+  "server_cert_path": "/dev/null"
+}

@@ -1,0 +1,28 @@
+---
+- hosts: pfservers
+  name: Run HTML pfappserver configuration tests
+  become: True
+
+  vars:
+    test_suites:
+    - pfappserver_configurator
+    - pfappserver_configuration
+
+  tasks:
+    - name: Run Venom testsuites
+      command: '{{ venom_dir }}/venom-wrapper.sh {{ venom_dir }}/test_suites/{{ item }}'
+      args:
+        chdir: '{{ venom_dir }}'
+      loop: '{{ test_suites }}'
+      vars:
+        venom_wrapper_args:
+          # temp, overcome Venom issue:
+          # - when running test suite one by one, previous logs and results are overriden
+          # Venom will create one directory per test suite to store results
+          VENOM_COMMON_FLAGS: '--output-dir={{ venom_dir }}/results/{{ item }}
+            --var test_suite_results_dir={{ venom_dir }}/results/{{ item }}'
+
+      # add inventory__group_environment to Ansible environment
+      # useful to make env vars available for Venom
+      environment: '{{ inventory__group_environment | d({})
+                      | combine(venom_wrapper_args | d({})) }}'

@@ -1,0 +1,7 @@
+{
+  "id": "test",
+  "description": "test",
+  "account_sid": "foo",
+  "auth_token": "bar",
+  "twilio_phone_number": "(555) 555-5555"
+}

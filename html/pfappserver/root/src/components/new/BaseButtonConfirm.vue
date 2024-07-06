@@ -21,6 +21,7 @@
     <b-button v-if="interrupt"
       type="button"
       variant="danger"
+      :data-confirm="confirm"
       @click="onClick($event)"
       @mousemove="startInterrupt($event)"
       @mouseover="startInterrupt($event)"
