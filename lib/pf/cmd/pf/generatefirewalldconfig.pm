@@ -32,7 +32,7 @@ sub default_action { 'soft' }
 
 sub action_soft {
   my ($self) = @_;
-  $self->configreload();
+  $self->configreload(0);
 }
 
 sub action_hard {
