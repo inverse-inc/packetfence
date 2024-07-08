@@ -72,21 +72,6 @@ Vagrant.configure("2") do |config|
           v.machine_virtual_size = details['disk_size']
         end
 
-        ###########################
-        # extend disk partition
-        ###########################
-        srv.vm.provision "shell", inline: <<-SHELL
-            if [ -f /etc/redhat-release ] ; then
-              lvextend -l +100%FREE /dev/rhel_rhel8/root
-              xfs_growfs /dev/rhel_rhel8/root
-            else
-              apt update
-              apt install -y cloud-guest-utils
-              growpart /dev/vda 1
-              resize2fs -p /dev/vda1
-            fi
-          SHELL
-
         # provisionners
         # Sync timezone with host
         srv.vm.provision "shell", inline: "sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/#{inventory['all']['vars']['tz']} /etc/localtime", run: "always"
