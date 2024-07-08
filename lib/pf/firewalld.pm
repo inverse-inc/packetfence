@@ -649,6 +649,7 @@ sub fd_radiusd_auth_rules {
   foreach my $network ( @radius_ints ) {
     my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "radius_auth");
+    service_to_zone($tint, $action, "radius_radsec");
     service_to_zone($tint, $action, "radius_auth_clu") if ($cluster_enabled);
   }
 }
