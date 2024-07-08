@@ -77,12 +77,18 @@ type=tcp
 [radius_auth_clu]
 short=radius auth cluster port
 description=Firewalld ports for radius auth service
-ports=radius_auth_clu_port1,radius_auth_clu_port2
+ports=radius_auth_clu_port1
 
 [radius_auth_clu_port1]
 port=1822
 type=udp
-[radius_auth_clu_port2]
+
+[radius_radsec]
+short=radius radsec port
+description=Firewalld ports for radius radsec
+ports=radius_radsec_port1
+
+[radius_radsec_port1]
 port=2093
 type=tcp
 
