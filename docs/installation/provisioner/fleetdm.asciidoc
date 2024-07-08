@@ -36,8 +36,8 @@ NOTE: We assume that you already have a running FleetDM service on your local ne
 ==== Configure PacketFence
 
 * Check *FleetDM Events Handler* role existence. Usually you should already have this role well configured in PacketFence. Go to *Admin UI* -> *Configuration* -> *System Configuration* -> *Admin Access*, in the right panel, check if the row exists.
-* Manually create the role if it doesn't exist. Click *New admin role* button, in the form pops up, fill in name with *FleetDM Event Handler*, Description with *Receives FleetDM events*, actions with *FLEETDM_EVENTS_READ* and save.
-* Create a new user that has the role from *Admin UI* -> *Users* -> *Create*. Give a proper name for *Username (PID)* and *strong password*, and set Access Level to *FleetDM Event Handler*
+* Manually create the role if it doesn't exist. Click on *New admin role* button, fill in the pop-up window with name = *FleetDM Event Handler*, Description = *Receives FleetDM events*, actions = *FLEETDM_EVENTS_READ*, then click Save.
+* Create a new user from *Admin UI* -> *Users* -> *Create*. Give a proper name for *Username (PID)* and *strong password*, and set Access Level to *FleetDM Event Handler*
 
 ==== Configure FleetDM API in PacketFence
 
