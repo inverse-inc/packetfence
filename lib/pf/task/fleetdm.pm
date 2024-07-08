@@ -188,7 +188,7 @@ sub triggerPolicy() {
 }
 
 sub login {
-    my $http = HTTP::Tiny->new;
+    my $http = HTTP::Tiny->new(verify_SSL => 0,);
 
     my $url = $Config{fleetdm}->{host} . "/api/v1/fleet/login";
 
@@ -281,7 +281,7 @@ sub getHostMac {
     }
 
     my $url = $Config{fleetdm}->{host} . "/api/v1/fleet/hosts/" . $host_id;
-    my $http = HTTP::Tiny->new;
+    my $http = HTTP::Tiny->new(verify_SSL => 0,);
     my $response = $http->get($url, {
         headers => { 'Authorization' => "Bearer " . $fleetdm_token }
     });
