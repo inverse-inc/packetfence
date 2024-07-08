@@ -312,32 +312,31 @@ sub fd_services_rules {
   my $services = [qw(
       docker.service
       packetfence-api-frontend.service
-      packetfence-api-frontend.service"
-      packetfence-keepalived.service"
-      packetfence-haproxy-portal.service"
-      packetfence-haproxy-admin.service"
-      packetfence-httpd.webservices.service"
-      packetfence-httpd.aaa.service"
-      packetfence-httpd.portal.service"
-      packetfence-haproxy-db.service"
-      packetfence-pfdns.service"
-      packetfence-pfdhcp.service"
-      packetfence-pfipset.service"
-      packetfence-netdata.service"
-      packetfence-pfconnector-server.service"
-      packetfence-galera-autofix.service"
-      packetfence-mariadb.service"
-      packetfence-mysql-probe.service"
-      packetfence-kafka.service"
-      packetfence-fingerbank-collector.service"
-      packetfence-radiusd-eduroam.service"
-      packetfence-radiusd-cli.service"
-      packetfence-radiusd-auth.service"
-      packetfence-radiusd-acct.service"
-      packetfence-pfacct.service"
-      packetfence-snmptrapd.service"
-      packetfence-proxysql.service"
-      packetfence-radiusd-load_balancer.service"
+      packetfence-keepalived.service
+      packetfence-haproxy-portal.service
+      packetfence-haproxy-admin.service
+      packetfence-httpd.webservices.service
+      packetfence-httpd.aaa.service
+      packetfence-httpd.portal.service
+      packetfence-haproxy-db.service
+      packetfence-pfdns.service
+      packetfence-pfdhcp.service
+      packetfence-pfipset.service
+      packetfence-netdata.service
+      packetfence-pfconnector-server.service
+      packetfence-galera-autofix.service
+      packetfence-mariadb.service
+      packetfence-mysql-probe.service
+      packetfence-kafka.service
+      packetfence-fingerbank-collector.service
+      packetfence-radiusd-eduroam.service
+      packetfence-radiusd-cli.service
+      packetfence-radiusd-auth.service
+      packetfence-radiusd-acct.service
+      packetfence-pfacct.service
+      packetfence-snmptrapd.service
+      packetfence-proxysql.service
+      packetfence-radiusd-load_balancer.service
     )];
   my $states = util_getServiveState($services,[qw(Id ActiveState)]);
   foreach my $state ( @{ $states } ) {
