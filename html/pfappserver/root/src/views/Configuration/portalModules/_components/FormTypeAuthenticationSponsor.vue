@@ -55,6 +55,11 @@
       :text="$i18n.t('Defines the sponsor email used. Leave empty so that the user has to specify a sponsor.')"
     />
 
+    <form-group-stone-roles namespace="stone_roles"
+      :column-label="$i18n.t('Roles')"
+      :text="$i18n.t('Nodes with the selected roles will be affected')"
+    />
+
     <form-group-actions namespace="actions"
       :column-label="$i18n.t('Actions')"
       :text="$i18n.t('If none are specified, the default ones of the module will be used.')"
@@ -71,6 +76,7 @@ import {
   FormGroupDescription,
   FormGroupFieldsToSave,
   FormGroupForcedSponsor,
+  FormGroupStoneRoles,
   FormGroupPidField,
   FormGroupSignupTemplate,
   FormGroupSourceIdentifier,
@@ -87,6 +93,7 @@ const components = {
   FormGroupDescription,
   FormGroupFieldsToSave,
   FormGroupForcedSponsor,
+  FormGroupStoneRoles,
   FormGroupPidField,
   FormGroupSignupTemplate,
   FormGroupSourceIdentifier,

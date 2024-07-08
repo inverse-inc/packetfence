@@ -14,8 +14,11 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule::Authentication';
 with 'pfappserver::Base::Form::Role::Help';
 
+use pf::nodecategory;
+
 use captiveportal::DynamicRouting::Module::Authentication::Sponsor;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::Sponsor'}
+
 
 ## Definition
 
@@ -37,6 +40,29 @@ sub auth_module_definition {
     my ($self) = @_;
     return (qw(forced_sponsor));
 }
+
+has_field 'stone_roles' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Roles',
+   options_method => \&options_stone_role,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a role'},
+   tags => { after_element => \&help,
+             help => 'Nodes with the selected roles will be affected' },
+  );
+
+sub child_definition {
+    return qw(stone_roles);
+}
+
+sub options_stone_role {
+    my $self = shift;
+    my @roles = map { $_->{name} => $_->{name} } nodecategory_view_all();
+    return @roles;
+}
+
 =over
 
 =back
