@@ -1,4 +1,4 @@
-#[config]
+[config]
 #DefaultZone=eth0
 #CleanupOnExit=yes
 ##CleanupModulesOnExit=yes
