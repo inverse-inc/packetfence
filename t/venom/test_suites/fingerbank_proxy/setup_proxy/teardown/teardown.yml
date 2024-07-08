@@ -23,11 +23,9 @@ testcases:
     assertions:
     - result.statuscode ShouldEqual 200
 
-- name: restart_firewalld                         
+- name: reload_firewalld_config_hard
   steps:                                          
-  - type: systemctl_service_restart               
-    service: packetfence-firewalld                
-    time_to_sleep: 10                             
+  - type: reload_firewalld_config_hard
 
 - name: ping_to_wan_should_work
   steps:
@@ -37,7 +35,7 @@ testcases:
     - result.code ShouldEqual 0
 
 - name: restart_collector_and_clear_cache
-  steps:                                          
+  steps:
   - type: systemctl_service_restart
     service: packetfence-fingerbank-collector
     time_to_sleep: 5
