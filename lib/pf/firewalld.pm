@@ -141,12 +141,14 @@ Reload the config
 =cut
 
 sub fd_configreload {
-    my ($force) = @_;
-    if ($force eq 1) {
-      fd_clean_pfconf_configs();
-      fd_generate_pfconf_configs();
-    }
-    fd_generate_dynamic_configs();
+  my ($force) = @_;
+  my $logger = get_logger();
+  $logger->info( "Start config reload" );
+  if ($force eq 1) {
+    fd_clean_pfconf_configs();
+    fd_generate_pfconf_configs();
+  }
+  fd_generate_dynamic_configs();
 }
 
 =item fd_clean_pfconf_configs
@@ -156,6 +158,8 @@ Remove firewalld configuration from /usr/local/pf/var/conf/firewalld/
 =cut
 
 sub fd_clean_pfconf_configs {
+  my $logger = get_logger();
+  $logger->info( "Remove config from /usr/local/pf/var/conf/firewalld/" );
   rmtree $firewalld_config_path_generated;
 }
 
@@ -166,6 +170,8 @@ Generate dynamically firewalld all configurations, ipset and add rules according
 =cut
 
 sub fd_generate_dynamic_configs {
+  my $logger = get_logger();
+  $logger->info( "Start generate dynamic config" );
   fd_clean_all_previous_rules();
   fd_add_default_direct_rules();
   fd_create_all_zones();
@@ -182,6 +188,8 @@ Then a complete firewalld config is set under /usr/local/pf/var/conf/firewalld/
 =cut
 
 sub fd_generate_pfconf_configs {
+  my $logger = get_logger();
+  $logger->info( "Start generate config" );
   generate_firewalld_file_config();
   generate_lockdown_whitelist_config();
   generate_helpers_config();
@@ -199,6 +207,8 @@ Iptables clean all previous rules from service/manager/firewalld reload or docke
 =cut
 
 sub fd_clean_all_previous_rules {
+  my $logger = get_logger();
+  $logger->info( "Remove all previous rules" );
   pf_run("sudo iptables -F");
   pf_run("sudo iptables -X");
   pf_run("sudo iptables -t nat -F");
@@ -216,6 +226,8 @@ Firewalld Add default rules set in service/manager/firewalld reload or docker mi
 =cut
 
 sub fd_add_default_direct_rules {
+  my $logger = get_logger();
+  $logger->info( "Add direct rules." );
   util_direct_rule("ipv4 filter INPUT -99 -i lo -j ACCEPT", "add" );
   util_direct_rule("ipv4 filter INPUT -98 -i docker0 -j ACCEPT", "add" );
   util_direct_rule("ipv4 filter INPUT -97 --match state --state ESTABLISHED,RELATED --jump ACCEPT", "add" );
@@ -232,6 +244,7 @@ Then an interface = a firewalld zone
 sub fd_create_all_zones {
   my $name_files = util_get_name_files_from_dir("zones");
   my $logger = get_logger();
+  $logger->info( "Create all zones." );
   foreach my $tint ( @listen_ints ) {
     if ( defined $name_files && exists $name_files->{$tint} ) {
       $logger->error( "Network Interface $tint  is handle by configuration files" );
@@ -266,7 +279,7 @@ Firewalld apply rules according to extra rules defined in firewalld*.inc files
 
 sub fd_add_extra_direct_rules {
   my $logger = get_logger();
-  $logger->info( "Firewalld extra rules starts" );
+  $logger->info( "Extra rules starts" );
   my @fd_custom_files = (
     $firewalld_input_config_inc_file,
     $firewalld_input_management_config_inc_file,
