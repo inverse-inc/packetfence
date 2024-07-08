@@ -44,9 +44,8 @@ generateConfig
 =cut
 
 sub generateConfig {
-    #fd_generate_pfconf_configs();
-    fd_generate_dynamic_configs();
-    return 1;
+  pf::firewalld::fd_configreload(0);
+  return 1;
 }
 
 =head2 start
