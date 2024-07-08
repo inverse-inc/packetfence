@@ -42,6 +42,7 @@ BEGIN {
     fd_haproxy_admin_rules
     fd_httpd_webservices_rules
     fd_httpd_aaa_rules
+    fd_httpd_dispatcher_rules
     fd_api_frontend_rules
     fd_httpd_portal_rules
     fd_haproxy_db_rules
@@ -318,6 +319,7 @@ sub fd_services_rules {
       packetfence-haproxy-db.service
       packetfence-haproxy-portal.service
       packetfence-httpd.aaa.service
+      packetfence-httpd.dispatcher.service
       packetfence-httpd.portal.service
       packetfence-httpd.webservices.service
       packetfence-kafka.service
@@ -351,6 +353,7 @@ sub fd_services_rules {
         case "packetfence-haproxy-db.service" {fd_haproxy_db_rules($action);}
         case "packetfence-haproxy-portal.service"   { fd_haproxy_portal_rules($action); }
         case "packetfence-httpd.aaa.service"        { fd_httpd_aaa_rules($action);}
+        case "packetfence-httpd.dispatcher.service"        { fd_httpd_dispatcher_rules($action);}
         case "packetfence-httpd.portal.service"     { fd_httpd_portal_rules($action);}
         case "packetfence-httpd.webservices.service" { fd_httpd_webservices_rules($action);}
         case "packetfence-kafka.service"       { fd_kafka_rules($action);}
@@ -503,6 +506,28 @@ sub fd_httpd_aaa_rules {
       my $aaa_port = $Config{'ports'}{'aaa'};
       util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $aaa_port -j ACCEPT", $action );
     }
+  }
+}
+
+=item fd_httpd_dispatcher_rules
+
+Firewalld rules for httpd dispatcher service
+HTTP (parking portal)
+
+=cut
+
+sub fd_httpd_dispatcher_rules {
+  #  HTTP (parking portal)
+  my $action = shift;
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
+    if ( $tint ne "" ) {
+      service_to_zone( $tint, $action, "parking-portal" );
+    }
+  }
+  foreach my $network ( @vlan_enforcement_nets ) {
+    my $tint =  $network->{Tint};
+    service_to_zone( $tint, $action, "parking-portal" );
   }
 }
 
