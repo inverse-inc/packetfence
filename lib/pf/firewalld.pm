@@ -606,6 +606,11 @@ sub fd_haproxy_portal_rules {
     service_to_zone($tint, $action, "http");
     service_to_zone($tint, $action, "https");
   }
+  foreach my $network ( @vlan_enforcement_nets ) {
+    my $tint =  $network->{Tint};
+    service_to_zone($tint, $action, "http");
+    service_to_zone($tint, $action, "https");
+  }
 }
 
 =item fd_radiusd_acct_rules
