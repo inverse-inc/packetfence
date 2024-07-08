@@ -69,11 +69,9 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: restart_firewalld
+- name: reload_firewalld_config_hard
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-firewalld
-    time_to_sleep: 10
+  - type: reload_firewalld_config_hard
 
 - name: restart_pfdns_service
   steps:

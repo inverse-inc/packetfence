@@ -1,9 +1,8 @@
 name: Restart services
 testcases:
-- name: restart_firewalld
+- name: reload_firewalld_config_hard
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-firewalld
+  - type: reload_firewalld_config_hard
 
 - name: restart_pfdns
   steps:

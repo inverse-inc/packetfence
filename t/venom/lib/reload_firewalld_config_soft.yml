@@ -1,0 +1,6 @@
+name: Reload firewalld config soft
+testcases:
+- name: reload_firewalld_config_soft
+  steps:
+  - type: pfcmd_run_command
+    command: generatefirewalldconfig
