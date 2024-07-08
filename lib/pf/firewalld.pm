@@ -312,31 +312,31 @@ sub fd_services_rules {
   my $services = [qw(
       docker.service
       packetfence-api-frontend.service
-      packetfence-keepalived.service
-      packetfence-haproxy-portal.service
+      packetfence-fingerbank-collector.service
+      packetfence-galera-autofix.service
       packetfence-haproxy-admin.service
-      packetfence-httpd.webservices.service
+      packetfence-haproxy-db.service
+      packetfence-haproxy-portal.service
       packetfence-httpd.aaa.service
       packetfence-httpd.portal.service
-      packetfence-haproxy-db.service
-      packetfence-pfdns.service
-      packetfence-pfdhcp.service
-      packetfence-pfipset.service
-      packetfence-netdata.service
-      packetfence-pfconnector-server.service
-      packetfence-galera-autofix.service
+      packetfence-httpd.webservices.service
+      packetfence-kafka.service
+      packetfence-keepalived.service
       packetfence-mariadb.service
       packetfence-mysql-probe.service
-      packetfence-kafka.service
-      packetfence-fingerbank-collector.service
-      packetfence-radiusd-eduroam.service
-      packetfence-radiusd-cli.service
-      packetfence-radiusd-auth.service
-      packetfence-radiusd-acct.service
+      packetfence-netdata.service
       packetfence-pfacct.service
-      packetfence-snmptrapd.service
+      packetfence-pfconnector-server.service
+      packetfence-pfdhcp.service
+      packetfence-pfdns.service
+      packetfence-pfipset.service
       packetfence-proxysql.service
+      packetfence-radiusd-acct.service
+      packetfence-radiusd-auth.service
+      packetfence-radiusd-cli.service
+      packetfence-radiusd-eduroam.service
       packetfence-radiusd-load_balancer.service
+      packetfence-snmptrapd.service
     )];
   my $states = util_getServiveState($services,[qw(Id ActiveState)]);
   foreach my $state ( @{ $states } ) {
@@ -345,31 +345,31 @@ sub fd_services_rules {
       switch( $state->{'Id'} ) {
         case "docker.service"    { fd_docker_dnat_rules($action);}
         case "packetfence-api-frontend.service"     { fd_api_frontend_rules($action); }
-        case "packetfence-keepalived.service"       { fd_keepalived_rules($action); }
-        case "packetfence-haproxy-portal.service"   { fd_haproxy_portal_rules($action); }
+        case "packetfence-fingerbank-collector.service" { fd_fingerbank_collector_rules($action);}
+        case "packetfence-galera-autofix.service" { fd_galera_autofix_rules($action);}
         case "packetfence-haproxy-admin.service"    { fd_haproxy_admin_rules($action); }
-        case "packetfence-httpd.webservices.service" { fd_httpd_webservices_rules($action);}
+        case "packetfence-haproxy-db.service" {fd_haproxy_db_rules($action);}
+        case "packetfence-haproxy-portal.service"   { fd_haproxy_portal_rules($action); }
         case "packetfence-httpd.aaa.service"        { fd_httpd_aaa_rules($action);}
         case "packetfence-httpd.portal.service"     { fd_httpd_portal_rules($action);}
-        case "packetfence-haproxy-db.service"       {fd_haproxy_db_rules($action);}
-        case "packetfence-pfdns.service"   { fd_pfdns_rules($action);}
-        case "packetfence-pfdhcp.service"  { fd_pfdhcp_rules($action);}
-        case "packetfence-pfipset.service" { fd_pfipset_rules($action);}
-        case "packetfence-netdata.service" { fd_netdata_rules($action);}
-        case "packetfence-pfconnector-server.service" { fd_pfconnector_server_rules($action);}
-        case "packetfence-galera-autofix.service" { fd_galera_autofix_rules($action);}
+        case "packetfence-httpd.webservices.service" { fd_httpd_webservices_rules($action);}
+        case "packetfence-kafka.service"       { fd_kafka_rules($action);}
+        case "packetfence-keepalived.service"       { fd_keepalived_rules($action); }
         case "packetfence-mariadb.service"     { fd_mariadb_rules($action);}
         case "packetfence-mysql-probe.service" { fd_mysql_prob_rules($action);}
-        case "packetfence-kafka.service"       { fd_kafka_rules($action);}
-        case "packetfence-fingerbank-collector.service" { fd_fingerbank_collector_rules($action);}
-        case "packetfence-radiusd-eduroam.service" { fd_radiusd_eduroam_rules($action);}
-        case "packetfence-radiusd-cli.service"  { fd_radiusd_cli_rules($action);}
-        case "packetfence-radiusd-auth.service" { fd_radiusd_auth_rules($action);}
-        case "packetfence-radiusd-acct.service" { fd_radiusd_acct_rules($action);}
+        case "packetfence-netdata.service" { fd_netdata_rules($action);}
         case "packetfence-pfacct.service"       { fd_pfacct_rules($action);}
-        case "packetfence-snmptrapd.service"    { fd_snmptrapd_rules($action);}
+        case "packetfence-pfconnector-server.service" { fd_pfconnector_server_rules($action);}
+        case "packetfence-pfdhcp.service"  { fd_pfdhcp_rules($action);}
+        case "packetfence-pfdns.service"   { fd_pfdns_rules($action);}
+        case "packetfence-pfipset.service" { fd_pfipset_rules($action);}
         case "packetfence-proxysql.service"     { fd_proxysql_rules($action); }
+        case "packetfence-radiusd-acct.service" { fd_radiusd_acct_rules($action);}
+        case "packetfence-radiusd-auth.service" { fd_radiusd_auth_rules($action);}
+        case "packetfence-radiusd-cli.service"  { fd_radiusd_cli_rules($action);}
+        case "packetfence-radiusd-eduroam.service" { fd_radiusd_eduroam_rules($action);}
         case "packetfence-radiusd-load_balancer.service" { fd_radiusd_lb_rules($action); }
+        case "packetfence-snmptrapd.service"    { fd_snmptrapd_rules($action);}
         else { $logger->info( "The service $state->{'Id'} is not using Firewalld for its configuration" ) }
       }
     }
