@@ -128,7 +128,7 @@ description=Firewalld ports for radius load balancer service
 
 [httpd_aaa]
 short=httpd port
-description=Firewalld ports for radius load balancer service
+description=Firewalld ports for httpd aaa service
 ports=httpd_aaa_port1
 
 [httpd_aaa_port1]
