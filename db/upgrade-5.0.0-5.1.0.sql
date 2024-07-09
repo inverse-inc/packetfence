@@ -54,10 +54,9 @@ INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR
 
 -- IMPORTANT: KEEP THIS AT THE BOTTOM OF THIS FILE.
 -- TO BE EXECUTED AFTER EVERYTHING ELSE.
-CREATE DATABASE pf_graphite;
-use pf_graphite;
-GRANT ALL PRIVILEGES ON `pf_graphite`.* TO 'pf'@'%';      
-GRANT ALL PRIVILEGES ON `pf_graphite`.* TO 'pf'@'localhost';
+CREATE DATABASE IF NOT EXISTS pf_smoke_test_graphite;
+use pf_smoke_test_graphite;
+GRANT ALL PRIVILEGES ON `pf_smoke_test_graphite`.* TO 'pf_smoke_tester'@'%';      
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;

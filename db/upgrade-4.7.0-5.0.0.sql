@@ -109,3 +109,8 @@ ALTER TABLE node ADD `bypass_role_id` INT DEFAULT NULL,
 
 ALTER TABLE locationlog ADD `session_id` VARCHAR(255) DEFAULT NULL;
 ALTER TABLE locationlog_archive ADD `session_id` VARCHAR(255) DEFAULT NULL;
+
+DROP TABLE IF EXISTS dhcp_fingerprint;
+DROP TABLE IF EXISTS os_mapping;
+DROP TABLE IF EXISTS os_class;
+DROP TABLE IF EXISTS os_type;
