@@ -611,6 +611,13 @@ sub fd_haproxy_portal_rules {
     service_to_zone($tint, $action, "http");
     service_to_zone($tint, $action, "https");
   }
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
+    if ( $tint ne "" ) {
+      service_to_zone($tint, $action, "http");
+      service_to_zone($tint, $action, "https");
+    }
+  }
 }
 
 =item fd_radiusd_acct_rules
@@ -692,6 +699,12 @@ sub fd_pfdns_rules {
   foreach my $network ( @vlan_enforcement_nets ) {
     my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "dns");
+  }
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
+    if ( $tint ne "" ) {
+      service_to_zone($tint, $action, "dns");
+    }
   }
   # OAuth
   my $internal_portal_ip = $Config{captive_portal}{ip_address};
@@ -890,6 +903,12 @@ sub fd_pfdhcp_rules {
   foreach my $network ( @vlan_enforcement_nets ) {
     my $tint =  $network->{Tint};
     service_to_zone($tint, $action, "dhcp");
+  }
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
+    if ( $tint ne "" ) {
+      service_to_zone($tint, $action, "dhcp");
+    }
   }
   my $internal_portal_ip = $Config{captive_portal}{ip_address};
   foreach my $interface ( @internal_nets ) {
@@ -1604,15 +1623,15 @@ sub generate_chain {
   my $action = shift;
   my $logger = get_logger();
   if ( ! defined $ipv || $ipv eq "" ){
-    $logger->error( "The generate_chain ipv is not defined or empty. default will be 'ipv4'." );
+    $logger->war( "The generate_chain ipv is not defined or empty. default will be 'ipv4'." );
     $ipv = "ipv4";
   }
   if ( ! defined $table || $table eq "" ){
-    $logger->error( "The generate_chain table is not defined or empty. default will be 'filter'." );
+    $logger->war( "The generate_chain table is not defined or empty. default will be 'filter'." );
     $table = "filter";
   }
   if ( ! defined $action || $action eq "" ){
-    $logger->error( "The generate_chain action is not defined or empty. default will be 'add'." );
+    $logger->war( "The generate_chain action is not defined or empty. default will be 'add'." );
     $action = "add";
   }
   util_chain( $ipv, $table, $chain, $action );
