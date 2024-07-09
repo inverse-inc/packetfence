@@ -818,7 +818,6 @@ sub generate_provisioning_passthroughs {
         $logger->info("Adding passthrough for Kandji");
         my $enroll_host = $config->{enroll_url} ? URI->new($config->{enroll_url})->host : $config->{host};
         my $enroll_port = $config->{enroll_url} ? URI->new($config->{enroll_url})->port : $config->{port};
-add_to_pfsession_passthrough
         my @lines  = add_to_pfsession_passthrough($enroll_host, $enroll_port);
     }
 
