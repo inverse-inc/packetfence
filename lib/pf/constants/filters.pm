@@ -225,6 +225,7 @@ our @OWNER_FIELDS = qw(
 our @SECURITY_EVENT_FIELDS = qw(
   security_event.id
   security_event.start_date
+  security_event.security_event_id
   security_event.release_date
   security_event.status
   security_event.ticket_ref

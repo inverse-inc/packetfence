@@ -367,7 +367,7 @@ sub authorize {
         # When the _setVlan of a switch who can't do RADIUS VLAN assignment uses the lock we will need to re-evaluate
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
-
+    $args->{'security_event'} = pf::security_event::security_event_view_top($args->{'mac'});
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
