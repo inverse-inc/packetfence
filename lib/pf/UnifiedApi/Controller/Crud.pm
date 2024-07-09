@@ -263,12 +263,21 @@ sub create_error_msg {
     "Unable to create resource"
 }
 
+=head2 pre_render_create
+
+pre_render_create
+
+=cut
+
+sub pre_render_create { }
+
 sub render_create {
     my ($self, $status, $obj) = @_;
     if (is_error($status)) {
         return $self->render_error($status, $obj->{message}, $obj->{errors});
     }
 
+    $self->pre_render_create($obj);
     my $id = $obj->{$self->primary_key};
     my $location_id = $id;
     $location_id =~ s#/#~#g;

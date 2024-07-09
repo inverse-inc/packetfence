@@ -114,6 +114,17 @@ sub per_device_class_pending {
     return $self->_per_device_class_status('pending');
 }
 
+=head2 pre_render_create
+
+pre_render_create
+
+=cut
+
+sub pre_render_create {
+    my ($self, $data) = @_;
+    $data->{$self->primary_key} .= "";
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
