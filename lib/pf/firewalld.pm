@@ -449,9 +449,14 @@ sub fd_haproxy_admin_rules {
   my $action = shift;
   my $logger = get_logger();
   if ( util_reload_firewalld() ) {
-    my $tint = $management_network->{Tint};
-    my $web_admin_port = $Config{'ports'}{'admin'};
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+      my $tint = $management_network->{Tint};
+      if ( $tint ne "" ) {
+        service_to_zone( $tint, $action, "haproxy-admin" );
+        my $web_admin_port = $Config{'ports'}{'admin'};
+        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp --match tcp --dport $web_admin_port -j ACCEPT", $action );
+      }
+    }
   } else {
     $logger->warn("Firewalld is not started yet");
   }
