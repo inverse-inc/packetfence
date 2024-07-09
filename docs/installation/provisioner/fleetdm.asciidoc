@@ -37,16 +37,16 @@ NOTE: We assume that you already have a running FleetDM service on your local ne
 
 * Check *FleetDM Events Handler* role existence. Usually you should already have this role well configured in PacketFence. Go to *Admin UI* -> *Configuration* -> *System Configuration* -> *Admin Access*, in the right panel, check if the row exists.
 * Manually create the role if it doesn't exist. Click on *New admin role* button, fill in the pop-up window with name = *FleetDM Event Handler*, Description = *Receives FleetDM events*, actions = *FLEETDM_EVENTS_READ*, then click Save.
-* Create a new user from *Admin UI* -> *Users* -> *Create*. Give a proper name for *Username (PID)* and *strong password*, and set Access Level to *FleetDM Event Handler*
+* Create a new user from *Admin UI* -> *Users* -> *Create*. Choose a *Username (PID)* and *strong password*, and set Access Level to *FleetDM Event Handler*
 
 ==== Configure FleetDM API in PacketFence
 
-NOTE: In order to allow PacketFence to get associated Mac Address of an affected host, either there's a policy violation or CVE vulnerability, PacketFence will make API calls to FleetDM. An endpoint and credential is required.
+NOTE: In order to allow PacketFence to get associated Mac Address of an affected (Policy violation or CVE vulnerabilities) host from FleetDM, PacketFence will make API calls to FleetDM. An endpoint and credential is required.
 
-NOTE: If both *API Token* and *email & password* are specified, PacketFence will *ONLY* use API token to authenticate with FleetDM.
+NOTE: If both *API Token* and *email & password* are specified, PacketFence will *ONLY* use API token to authenticate with FleetDM. So make sure you are using a *Permanent* API Token.
 
 * Configure FleetDM endpoint from *Admin UI* -> *Configuration* -> *System Configuration* -> *FleetDM*.
-* Fill in your *FleetDM login email* + *password* OR *FleetDM API Token*, then Save.
+* Fill in your *FleetDM login email*, *password* OR *FleetDM API Token*, then click Save.
 * Your *temporary* API token can be found after you login into FleetDM -> Right top Logged in user icon -> *My Account* -> *Get API Token*
 * To create a permanent API Key in FleetDM, please refer to official documents: https://fleetdm.com/docs/using-fleet/fleetctl-cli?utm_medium=fleetui&utm_campaign=get-api-token#using-fleetctl-with-an-api-only-user
 
@@ -68,7 +68,7 @@ image::fleetdm-webhook-policy.jpg[scaledwidth="100%",alt="FleetDM webhook for Po
 ===== CVEs
 * Login to your FleetDM admin Panel -> *Software* -> *Manage Automations*.
 * On the popup window, enable *Vulnerability automations enabled*, workflow: *Webhook*.
-* For destionation URL, fill in `https://USER:PASS@packetfence.fqdn:9999/api/v1/fleetdm-events/CVE`.
+* For destionation URL, fill in `https://USER:PASS@packetfence.fqdn:9999/api/v1/fleetdm-events/cve`.
 * Replace `USER` and `PASS` with what we used to create the user for FleetDM events Handler in PacketFence, and also `packetfence.fqdn` with the right domain name or IP of PacketFence.
 
 image::fleetdm-webhook-cve.jpg[scaledwidth="100%",alt="FleetDM webhook for CVEs"]
