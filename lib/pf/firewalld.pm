@@ -726,7 +726,7 @@ sub dns_interception_rules {
 
   $logger->info("Generate Interception NAT Chains started.");
   for my $chain (@nat_chains) {
-    generate_chain( "ipv4", "nat", $chain, $action );
+    generate_chain( "ipv4", "nat", $chain, "add" );
   }
 
   $logger->info("Interception rules are starting.");
