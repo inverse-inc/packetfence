@@ -73,6 +73,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/admin_api_audit_logs", role: "ADMIN_API_AUDIT_LOG"},
 	adminRoleMapping{prefix: apiPrefix + "/admin_api_audit_log/", role: "ADMIN_API_AUDIT_LOG"},
 	adminRoleMapping{prefix: apiPrefix + "/ntlm/event-report", role: "WINDOWS_EVENTS", roleSuffix: "_READ"},
+	adminRoleMapping{prefix: apiPrefix + "/fleetdm-events/policy", role: "FLEETDM_EVENTS", roleSuffix: "_READ"},
+	adminRoleMapping{prefix: apiPrefix + "/fleetdm-events/cve", role: "FLEETDM_EVENTS", roleSuffix: "_READ"},
 
 	adminRoleMapping{prefix: configApiPrefix + "/admin_role/", role: "ADMIN_ROLES"},
 	adminRoleMapping{prefix: configApiPrefix + "/admin_roles", role: "ADMIN_ROLES"},
@@ -129,8 +131,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/switches", role: "SWITCHES"},
 	adminRoleMapping{prefix: configApiPrefix + "/syslog_forwarder/", role: "SYSLOG"},
 	adminRoleMapping{prefix: configApiPrefix + "/syslog_forwarders", role: "SYSLOG"},
-	adminRoleMapping{prefix: configApiPrefix + "/syslog_parser/", role: "PFDETECT"},
-	adminRoleMapping{prefix: configApiPrefix + "/syslog_parsers", role: "PFDETECT"},
+	adminRoleMapping{prefix: configApiPrefix + "/event_handler/", role: "PFDETECT"},
+	adminRoleMapping{prefix: configApiPrefix + "/event_handlers", role: "PFDETECT"},
 }
 
 var methodSuffixMap = map[string]string{

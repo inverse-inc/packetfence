@@ -1,0 +1,16 @@
+executor: pf_api_event_handler_action 
+input:
+  body: {}
+  id: ""
+  method: ""
+  status_code: 200
+  time_to_sleep: 0
+steps:
+- type: pf_api_action
+  body: '{{.input.body}}'
+  method: "{{.input.method}}"
+  status_code: "{{.input.status_code}}"
+  url: 'config/event_handler/{{.input.id}}'
+  time_to_sleep: "{{.input.time_to_sleep}}"
+output:
+  pf_api_event_handler_action_: "{{.result.pf_api_action_}}"

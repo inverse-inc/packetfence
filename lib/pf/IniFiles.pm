@@ -45,6 +45,8 @@ sub new {
     my $class = ref($proto) || $proto;
     if(exists($args{-envsubst}) && $args{-envsubst}) {
         my $processed_file;
+        $ENV{BRL} = "[%";
+        $ENV{BRR} = "%]";
         $tt->process($args{-file}, {ENV => \%ENV}, \$processed_file) || die "Can't process TT for $args{-file}: ".$tt->error;
         $args{-file} = \$processed_file;
     }

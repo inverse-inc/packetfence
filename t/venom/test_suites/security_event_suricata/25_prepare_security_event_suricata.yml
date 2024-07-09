@@ -7,13 +7,13 @@ testcases:
     chmod: "0777"
     file: "{{.security_event_suricata.fifo_file}}"
 
-- name: create_the_syslog_parser
+- name: create_the_event_handler
   steps:
-  - type: pf_api_syslog_parsers_create
-    id: "{{.security_event_suricata.syslog_parser.id}}"
+  - type: pf_api_event_handlers_create
+    id: "{{.security_event_suricata.event_handler.id}}"
     isClone: false
     isNew: true
-    syslogParserType: "suricata"
+    eventHandlerType: "suricata"
     path: "{{.security_event_suricata.fifo_file}}"
     syslog_type: "suricata"
 

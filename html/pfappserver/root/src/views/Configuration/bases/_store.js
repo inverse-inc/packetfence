@@ -81,6 +81,40 @@ const actions = {
       throw err
     })
   },
+  getFleetDM: ({ state, commit }) => {
+    if (state.cache['fleetdm']) {
+      return Promise.resolve(state.cache['fleetdm']).then(cache => JSON.parse(JSON.stringify(cache)))
+    }
+    commit('ITEM_REQUEST')
+    return api.base('fleetdm').then(item => {
+      commit('ITEM_REPLACED', item)
+      return JSON.parse(JSON.stringify(item))
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  optionsFleetDM: ({ commit }) => {
+    commit('ITEM_REQUEST')
+    return api.baseOptions('fleetdm').then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateFleetDM: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'fleetdm'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getAdminLogin: ({ state, commit }) => {
     if (state.cache['advanced']) {
       return Promise.resolve(state.cache['admin_login']).then(cache => JSON.parse(JSON.stringify(cache)))

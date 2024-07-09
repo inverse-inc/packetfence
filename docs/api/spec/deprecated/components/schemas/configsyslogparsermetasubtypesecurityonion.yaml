@@ -1,0 +1,16 @@
+ConfigSyslogParserMetaSubTypeSecurityOnion:
+  properties:
+    meta:
+      properties:
+        id:
+          $ref: '#/components/schemas/Meta'
+        path:
+          $ref: '#/components/schemas/Meta'
+        rate_limit:
+          $ref: '#/components/schemas/Meta'
+        status:
+          $ref: '#/components/schemas/Meta'
+        type:
+          $ref: '#/components/schemas/Meta'
+      type: object
+  type: object

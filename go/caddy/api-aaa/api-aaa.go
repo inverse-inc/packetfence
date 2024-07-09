@@ -300,6 +300,22 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	ctx := r.Context()
+
+	// Perform HTTP Basic Auth for FleetDM event reporting
+	username, password, succ := r.BasicAuth()
+	if succ && username != "" && password != "" {
+		auth, token, err := h.authentication.Login(ctx, username, password)
+		if !auth {
+			w.WriteHeader(http.StatusUnauthorized)
+			res, _ := json.Marshal(map[string]string{
+				"message": err.Error(),
+			})
+			fmt.Fprintf(w, string(res))
+			return false
+		}
+		r.Header.Set("Authorization", "Bearer "+token)
+	}
+
 	auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)
 
 	if !auth {

@@ -24,7 +24,7 @@ import CloudsRoutes from '../clouds/_router'
 import FirewallsRoutes from '../firewalls/_router'
 import WebServicesRoutes from '../webServices/_router'
 import SwitchTemplatesRoutes from '../switchTemplates/_router'
-import SyslogParsersRoutes from '../syslogParsers/_router'
+import EventHandlersRoutes from '../eventHandlers/_router'
 import SyslogForwardersRoutes from '../syslogForwarders/_router'
 import WrixRoutes from '../wrix/_router'
 import PkiRoutes from '../pki/_router'
@@ -59,6 +59,7 @@ import MonitRoutes from '../monit/_router'
 import ServicesRoutes from '../services/_router'
 import DatabaseRoutes from '../database/_router'
 import ActiveActiveRoutes from '../activeActive/_router'
+import FleetDMRoutes from '../fleetDM/_router'
 import RadiusRoutes from '../radius/_router'
 import DnsRoutes from '../dns/_router'
 import AdminLoginRoutes from '../adminLogin/_router'
@@ -125,7 +126,7 @@ const route = {
     ...FirewallsRoutes,
     ...WebServicesRoutes,
     ...SwitchTemplatesRoutes,
-    ...SyslogParsersRoutes,
+    ...EventHandlersRoutes,
     ...SyslogForwardersRoutes,
     ...WrixRoutes,
     ...PkiRoutes,
@@ -177,6 +178,7 @@ const route = {
     ...ServicesRoutes,
     ...DatabaseRoutes,
     ...ActiveActiveRoutes,
+    ...FleetDMRoutes,
     ...RadiusRoutes,
     ...DnsRoutes,
     ...AdminLoginRoutes,

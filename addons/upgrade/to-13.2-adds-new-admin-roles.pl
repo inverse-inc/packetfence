@@ -33,7 +33,7 @@ if ($ini->SectionExists($sectionName)) {
 }
 
 $ini->AddSection($sectionName);
-$ini->newval($sectionName, 'Description' , 'Receives Windows AD event reports');
+$ini->newval($sectionName, 'description' , 'Receives Windows AD event reports');
 $ini->newval($sectionName, 'actions' , 'WINDOWS_EVENTS_READ');
 $ini->RewriteConfig();
 exit(0);

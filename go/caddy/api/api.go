@@ -68,6 +68,9 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 	router.POST("/api/v1/ntlm/test", apiHandler.ntlmTest)
 	router.POST("/api/v1/ntlm/event-report", apiHandler.eventReport)
 
+	router.POST("/api/v1/fleetdm-events/policy", apiHandler.Policy)
+	router.POST("/api/v1/fleetdm-events/cve", apiHandler.CVE)
+
 	var DBP **gorm.DB
 	var DB *gorm.DB
 	var sqlDB *sql.DB

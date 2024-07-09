@@ -879,6 +879,14 @@ type Domain struct {
 	Element                 map[string]interface{}
 }
 
+type FleetDM struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::FleetDM"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
+}
+
 type Cloud struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`

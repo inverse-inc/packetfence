@@ -1,0 +1,16 @@
+ConfigSyslogParserMetaSubTypeRegex:
+  properties:
+    meta:
+      properties:
+        id:
+          $ref: '#/components/schemas/Meta'
+        path:
+          $ref: '#/components/schemas/Meta'
+        rules:
+          $ref: '#/components/schemas/Meta'
+        status:
+          $ref: '#/components/schemas/Meta'
+        type:
+          $ref: '#/components/schemas/Meta'
+      type: object
+  type: object
