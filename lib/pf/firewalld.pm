@@ -190,15 +190,19 @@ Then a complete firewalld config is set under /usr/local/pf/var/conf/firewalld/
 
 sub fd_generate_pfconf_configs {
   my $logger = get_logger();
-  $logger->info( "Start generate config" );
-  generate_firewalld_file_config();
-  generate_lockdown_whitelist_config();
-  generate_helpers_config();
-  generate_icmptypes_config();
-  generate_ipsets_config();
-  generate_services_config();
-  generate_zones_config();
-  generate_policies_config();
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    $logger->info( "Start generate config" );
+    generate_firewalld_file_config();
+    generate_lockdown_whitelist_config();
+    generate_helpers_config();
+    generate_icmptypes_config();
+    generate_ipsets_config();
+    generate_services_config();
+    generate_zones_config();
+    generate_policies_config();
+  } else {
+    $logger->info( "No management defined" );
+  }
 }
 
 =item fd_clean_all_previous_rules
