@@ -75,7 +75,6 @@ sub iptables_generate {
     $logger->warn("We are using IPSET");
     #Flush mangle table to permit ipset destroy
     $self->iptables_flush_mangle;
-    my $cmd = "sudo ipset --destroy";
     my @lines = safe_pf_run(qw(sudo ipset --destroy));
     my @roles = pf::nodecategory::nodecategory_view_all;
 
@@ -94,10 +93,8 @@ sub iptables_generate {
         foreach my $role ( @roles ) {
             my @cmds;
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
-                #$cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $timeout 2>&1";
                 @cmds = (qw(sudo ipset --create), "PF-iL3_ID$role->{'category_id'}", $network, qw(bitmap:ip range), "$network/$inline_obj->{BITS}", "timeout", $timeout);
             } else {
-                #$cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $timeout 2>&1";
                 @cmds = (qw(sudo ipset --create), "PF-iL2_ID$role->{'category_id'}", $network, qw(bitmap:ip range), "$network/$inline_obj->{BITS}", "timeout", $timeout);
             }
             my @lines  = safe_pf_run(@cmds);
@@ -106,13 +103,11 @@ sub iptables_generate {
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             my @cmds;
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $timeout 2>&1";
+                @cmds = (qw(sudo ipset --create), "pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network", qw(bitmap:ip range) ,"$network/$inline_obj->{BITS}", timeout, $timeout);
             } else {
                 if (isenabled($ConfigNetworks{$network}{'split_network'}) && ($IPTABLES_MARK eq $IPTABLES_MARK_UNREG) ) {
-                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout 120 2>&1";
                     @cmds = (qw(sudo ipset --create), "pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network", 'bitmap:ip,mac', 'range', "$network/$inline_obj->{BITS}", "timeout", 120 );
                 } else {
-                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout $timeout 2>&1";
                     @cmds = (qw(sudo ipset --create), "pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network", 'bitmap:ip', 'range', "$network/$inline_obj->{BITS}", "timeout", $timeout );
                 }
             }
