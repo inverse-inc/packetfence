@@ -172,13 +172,17 @@ Generate dynamically firewalld all configurations, ipset and add rules according
 
 sub fd_generate_dynamic_configs {
   my $logger = get_logger();
-  $logger->info( "Start generate dynamic config" );
-  fd_clean_all_previous_rules();
-  fd_add_default_direct_rules();
-  fd_create_all_zones();
-  pf::ipset->new()->iptables_generate();
-  fd_services_rules("add");
-  fd_add_extra_direct_rules();
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    $logger->info( "Start generate dynamic config" );
+    fd_clean_all_previous_rules();
+    fd_add_default_direct_rules();
+    fd_create_all_zones();
+    pf::ipset->new()->iptables_generate();
+    fd_services_rules("add");
+    fd_add_extra_direct_rules();
+  } else {
+    $logger->info( "No management defined" );
+  }
 }
 
 =item fd_generate_pfconf_configs
