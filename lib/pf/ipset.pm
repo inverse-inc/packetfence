@@ -103,7 +103,7 @@ sub iptables_generate {
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             my @cmds;
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                @cmds = (qw(sudo ipset --create), "pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network", qw(bitmap:ip range) ,"$network/$inline_obj->{BITS}", timeout, $timeout);
+                @cmds = (qw(sudo ipset --create), "pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network", qw(bitmap:ip range) ,"$network/$inline_obj->{BITS}", "timeout", $timeout);
             } else {
                 if (isenabled($ConfigNetworks{$network}{'split_network'}) && ($IPTABLES_MARK eq $IPTABLES_MARK_UNREG) ) {
                     @cmds = (qw(sudo ipset --create), "pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network", 'bitmap:ip,mac', 'range', "$network/$inline_obj->{BITS}", "timeout", 120 );
@@ -121,9 +121,7 @@ sub iptables_generate {
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
 
     if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
-        $cmd = "sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
         my @lines  = safe_pf_run(qw(sudo ipset --create pfsession_passthrough),  'hash:ip,port');
-        $cmd = "sudo ipset --create pfsession_isol_passthrough hash:ip,port 2>&1";
         @lines  = safe_pf_run(qw(sudo ipset --create pfsession_isol_passthrough), 'hash:ip,port');
     }
     $self->SUPER::iptables_generate();
