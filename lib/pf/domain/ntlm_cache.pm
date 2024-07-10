@@ -100,8 +100,6 @@ sub secretsdump {
 
     foreach my $server (@{$source->{host} // []}) {
         eval {
-            #my $command = "$SECRETSDUMP_BIN '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".inet_ntoa(inet_aton($server))." -just-dc-ntlm -output $tmpfile $opts";
-            #$logger->debug("Executing sync command: $command");
             $result = safe_pf_run(
                 $SECRETSDUMP_BIN,
                 pf::domain::escape_bind_user_string($sAMAccountName) . ':' . pf::domain::escape_bind_user_string($source->{password}) . '@' . inet_ntoa(inet_aton($server)),
