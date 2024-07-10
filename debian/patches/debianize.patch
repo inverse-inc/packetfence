@@ -43,7 +43,7 @@ index 781e2ba9a3..bc4140c4af 100644
  # services.netdata
  #
 diff --git a/conf/systemd/packetfence-api-frontend.service b/conf/systemd/packetfence-api-frontend.service
-index 1a6e806e30..f35ff01828 100644
+index 24deb8ac93..a491112d49 100644
 --- a/conf/systemd/packetfence-api-frontend.service
 +++ b/conf/systemd/packetfence-api-frontend.service
 @@ -10,15 +10,15 @@ Type=notify
@@ -66,7 +66,7 @@ index 1a6e806e30..f35ff01828 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-firewalld.service b/conf/systemd/packetfence-firewalld.service
-index 320bc86eeb..18300fb27d 100644
+index b28e1fedb0..c087139583 100644
 --- a/conf/systemd/packetfence-firewalld.service
 +++ b/conf/systemd/packetfence-firewalld.service
 @@ -14,10 +14,10 @@ TimeoutStopSec=600
@@ -75,7 +75,7 @@ index 320bc86eeb..18300fb27d 100644
  ExecStartPre=/bin/bash -c "/bin/rm -rf /usr/lib/systemd/system/firewalld.service || true"
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_pfconf_configs()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_pfconf_configs()'
- ExecStart=/usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/local/pf/var/conf/firewalld
+ ExecStart=/bin/bash -c "[ -f /usr/local/pf/var/conf/firewalld/firewalld.conf ] && /usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/local/pf/var/conf/firewalld || exit 0"
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_dynamic_configs()'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' '-Mpf::services::manager::firewalld' -e 'pf::services::manager::firewalld->new()->_stop()'
 +ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_dynamic_configs()'
@@ -195,10 +195,10 @@ index 95a8c1e541..e883afd189 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-httpd.admin_dispatcher.service b/conf/systemd/packetfence-httpd.admin_dispatcher.service
-index 6b775bc2a8..e0ab593fdc 100644
+index 2f1752b5ff..b08011f3a6 100644
 --- a/conf/systemd/packetfence-httpd.admin_dispatcher.service
 +++ b/conf/systemd/packetfence-httpd.admin_dispatcher.service
-@@ -11,7 +11,7 @@ TimeoutStartSec=180
+@@ -19,7 +19,7 @@ TimeoutStartSec=180
  TimeoutStopSec=60
  NotifyAccess=all
  LimitNOFILE=8192
