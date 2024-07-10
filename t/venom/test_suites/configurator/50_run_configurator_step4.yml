@@ -16,6 +16,11 @@ testcases:
   - type: systemctl_service_restart
     service: "packetfence-pfqueue-go"
 
+- name: restart_haproxy_admin_service
+  steps:
+  - type: systemctl_service_restart
+    service: 'packetfence-haproxy-admin'
+
 - name: update_systemd
   steps:
   - type: http
@@ -27,11 +32,6 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Updated systemd for pf"
-
-- name: restart_haproxy_admin_service
-  steps:
-  - type: systemctl_service_restart
-    service: 'packetfence-haproxy-admin'
 
 # to apply changes made during custom step
 # no API call usable
