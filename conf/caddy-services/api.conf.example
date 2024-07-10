@@ -34,12 +34,12 @@
 			address {$STATSD_ADDRESS}
 		}
 
-		cors /api/v1 {
+		cors /api/v1/* {
 			allowed_headers Authorization,Content-Type
 			methods GET,OPTIONS,POST,DELETE,PUT,PATCH
 		}
 
-		cors /api/v1.1 {
+		cors /api/v1.1/* {
 			allowed_headers Authorization,Content-Type
 			methods GET,OPTIONS,POST,DELETE,PUT,PATCH
 		}

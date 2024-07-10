@@ -15,10 +15,6 @@
 }
 
 :8889 {
-	handle * {
-		root /usr/local/pf/html/common
-		file_server
-	}
 	handle_path /common/* {
 		root /usr/local/pf/html/common
 		file_server
@@ -36,6 +32,11 @@
 
 	handle_path /.well-known/acme-challenge/* {
 		root /usr/local/pf/conf/ssl/acme-challenge
+		file_server
+	}
+
+	handle * {
+		root /usr/local/pf/html/common
 		file_server
 	}
 }

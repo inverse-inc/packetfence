@@ -28,6 +28,8 @@
 		file_server
 	}
 
+	rewrite /oas /oas/*
+
 	handle_path /oas/* {
 		root * /usr/local/pf/html/swagger-ui
 		file_server
