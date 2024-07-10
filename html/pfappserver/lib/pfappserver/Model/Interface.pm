@@ -336,7 +336,6 @@ sub update {
         # Delete previous IP address
         my $cmd;
         if (defined($interface_before->{address}) && $interface_before->{address} ne '') {
-            #            $cmd = sprintf "sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
             eval { $status = safe_pf_run(qw(sudo ip addr del), $interface_before->{address},'dev',$interface_before->{name}) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$interface_before->{address}];
@@ -393,7 +392,6 @@ sub update {
 
             $logger->debug("IPv6 address has changed ($interface $ipv6_address/$ipv6_prefix)");
 
-            #            $cmd = sprintf "sudo ip -6 addr add %s/%i dev %s", $ipv6_address, $ipv6_prefix, $interface;
             eval { $status = safe_pf_run(qw(sudo ip -6 addr add), "${ipv6_address}/$ipv6_prefix", 'dev', $interface) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't add new IPv6 address on interface [_1] ([_2])", $interface, $ipv6_address];
@@ -646,12 +644,6 @@ sub _listInterfaces {
     my @interfaces_list = ();
 
     $ifname = '' if ($ifname eq 'all');
-    my $cmd =
-      {
-        link        => "sudo ip -4 -o link show $ifname",
-        addr        => "sudo ip -4 -o addr show %s",
-        ipv6_addr   => "sudo ip -6 -o addr show %s",
-      };
     my ($link, $addr, $ipv6_addr);
     eval { $link = safe_pf_run(qw(sudo ip -4 -o link show),  $ifname) };
     if ($link) {
