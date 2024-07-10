@@ -5,12 +5,6 @@ function out { printf '%s\n' "$*" ;}
 
 while iptables -L DOCKER ; [ $? -ne 0 ];do
   msg "Waiting for iptables to be ready"
-  eval "iptables -F"
-  eval "iptables -X"
-  eval "iptables -t nat -F"
-  eval "iptables -t nat -X"
-  eval "iptables -t mangle -F"
-  eval "iptables -t mangle -X"
   eval "iptables -P INPUT ACCEPT"
   eval "iptables -P FORWARD ACCEPT"
   eval "iptables -P OUTPUT ACCEPT"
