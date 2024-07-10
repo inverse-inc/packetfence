@@ -38,7 +38,7 @@
 		file_server
 	}
 
-    rewrite /admin /admin/
+	rewrite /admin /admin/
 
 	handle_path /admin/* {
 		root * /usr/local/pf/html/pfappserver/root/dist
