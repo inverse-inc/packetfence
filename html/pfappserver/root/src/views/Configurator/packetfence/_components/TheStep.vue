@@ -35,7 +35,7 @@ import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
-  const { refs, root: { $router } = {} } = context
+  const { refs, root: { $router, $store } = {} } = context
 
   const rootRef = ref(null)
   const isLoading = ref(false)
@@ -67,13 +67,16 @@ const setup = (props, context) => {
     const { databaseRef, generalRef, alertingRef, administratorRef } = refs
     isLoading.value = true
     databaseRef.onSave().then(() => {
-      progressFeedback.value = i18n.t('Updating general and alerting configuration')
-      return Promise.all([
-        generalRef.onSave(),
-        alertingRef.onSave()
-      ]).then(() => {
-        progressFeedback.value = i18n.t('Updating administrator account')
-        return administratorRef.onSave()
+      progressFeedback.value = i18n.t('Restarting API')
+      return $store.dispatch('cluster/restartService', { id: 'pfperl-api' }).then(() => {
+        progressFeedback.value = i18n.t('Updating general and alerting configuration')
+        return Promise.all([
+          generalRef.onSave(),
+          alertingRef.onSave()
+        ]).then(() => {
+          progressFeedback.value = i18n.t('Updating administrator account')
+          return administratorRef.onSave()
+        })
       })
     }).then(() => {
       progressFeedback.value = i18n.t('Loading next step')

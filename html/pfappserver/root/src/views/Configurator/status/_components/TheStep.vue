@@ -54,13 +54,10 @@ const setup = (props, context) => {
             return advancedPromise.then(data => {
               data.configurator = 'disabled'
               return $store.dispatch('$_bases/updateAdvanced', data).then(() => {
-                progressFeedback.value = i18n.t('Restarting pfperl-api')
-                return $store.dispatch('cluster/restartService', { id: 'pfperl-api' }).then(() => {
-                  progressFeedback.value = i18n.t('Redirecting to login page')
-                  setTimeout(() => {
-                    window.location.href = '/'
-                  }, 2000)
-                })
+                progressFeedback.value = i18n.t('Redirecting to login page')
+                setTimeout(() => {
+                  window.location.href = '/'
+                }, 2000)
               })
             })
           })
