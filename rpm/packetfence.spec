@@ -802,10 +802,11 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl enable packetfence-tracking-config.path
     /usr/local/pf/bin/pfcmd configreload
     echo "Starting PacketFence Administration GUI..."
-    /bin/systemctl restart packetfence-api-frontend
     /bin/systemctl start packetfence-httpd.admin_dispatcher
     /bin/systemctl start packetfence-haproxy-admin
 
+    /bin/systemctl enable packetfence-firewalld
+    /bin/systemctl stop packetfence-firewalld
     /usr/local/pf/containers/docker-minimal-rules.sh
 
     /usr/local/pf/bin/pfcmd service pf updatesystemd
