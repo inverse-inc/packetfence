@@ -63,7 +63,6 @@ sub create {
     }
 
     # Create requested virtual interface
-    my $cmd = "sudo ip link add link $physical_interface name $physical_interface.$vlan_id type vlan id $vlan_id";
     eval { $status = safe_pf_run("sudo", "ip", "link", "add", "link", $physical_interface, "name", "$physical_interface.$vlan_id", "type", "vlan", "id", $vlan_id) };
     if ( $@ ) {
         $status_msg = ["Error in creating interface VLAN [_1]",$interface];
@@ -333,7 +332,6 @@ sub update {
         my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
 
         # Delete previous IP address
-        my $cmd;
         if (defined($interface_before->{address}) && $interface_before->{address} ne '') {
             eval { $status = safe_pf_run(qw(sudo ip addr del), $interface_before->{address},'dev',$interface_before->{name}) };
             if ( $@ || $status ) {
@@ -352,7 +350,6 @@ sub update {
 
             $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
 
-            $cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
             eval { $status = safe_pf_run(qw(sudo ip addr add), "${ipaddress}/${netmask}", 'broadcast', $broadcast, 'dev', $interface) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't add new IP address on interface [_1] ([_2])",$interface,$ipaddress];
@@ -371,9 +368,7 @@ sub update {
         $network_configuration_changed = $TRUE;
 
         # Delete previous IP address
-        my $cmd;
         if ( defined($interface_before->{ipv6_network}) && $interface_before->{ipv6_network} ne '' ) {
-            $cmd = sprintf "sudo ip -6 addr del %s dev %s", $interface_before->{ipv6_network}, $interface_before->{name};
             eval { $status = safe_pf_run(qw(sudo ip -6 addr del), $interface_before->{ipv6_network}, 'dev', $interface_before->{name}) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't delete previous IPv6 address of interface [_1] ([_2])", $interface, $interface_before->{ipv6_network}];
@@ -395,7 +390,6 @@ sub update {
             if ( $@ || $status ) {
                 $status_msg = ["Can't add new IPv6 address on interface [_1] ([_2])", $interface, $ipv6_address];
                 $logger->error($status);
-                $logger->error("$cmd: $status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
             }
         }
@@ -789,7 +783,6 @@ sub up {
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
-    my $cmd = sprintf "sudo ip link set %s up", $interface;
     eval { $status = safe_pf_run(qw(sudo ip link set), $interface, 'up') };
     if ( $@ ) {
         $status_msg = ["Can't enable interface [_1]",$interface];
