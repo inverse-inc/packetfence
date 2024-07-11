@@ -178,7 +178,6 @@ sub down {
     }
 
     # Disable interface using "ip"
-    #    my $cmd = sprintf "sudo ip link set %s down", $interface;
     eval { $status = safe_pf_run(qw(sudo ip link set), $interface, 'down') };
     if ( $@ ) {
         $status_msg = ["Can't disable interface [_1] : [_2]",$interface , $status];
