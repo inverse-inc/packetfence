@@ -34,6 +34,7 @@ use Digest::MD4 qw(md4_hex);
 use Encode qw(encode);
 use Net::DNS;
 use JSON;
+use pf::constants qw($TRUE $FALSE);
 
 my $host_id = hostname();
 
@@ -61,15 +62,15 @@ sub get {
         $item = $self->cleanupItemForGet($item);
         return $self->render(json => { item => $item }, status => 200);
     }
-    return $self->render_error(500, "Unknown error getting item");;
+    return $self->render_error(500, "Unknown error getting item");
 }
 
 sub item_shown {
     my ($self, $item) = @_;
     if ($item->{id} =~ s/$host_id //i) {
-        return 1;
+        return $TRUE;
     }
-    return 0;
+    return $FALSE;
 }
 
 sub handle_search {

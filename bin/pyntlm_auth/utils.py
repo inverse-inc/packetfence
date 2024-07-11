@@ -54,7 +54,7 @@ def dns_lookup(hostname, dns_server):
 
 
 def find_ldap_servers(domain, dns_server):
-    query_name = f'_ldap._tcp.{domain}'
+    query_name = f'_ldap._tcp.dc._msdcs.{domain}'
 
     if dns_server != "":
         resolver = dns.resolver.Resolver(configure=False)

@@ -5,11 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
-
-	"github.com/inverse-inc/packetfence/go/ntlm"
+	"github.com/inverse-inc/packetfence/go/caddy/ntlm"
 	"github.com/julienschmidt/httprouter"
-	"os"
+	"net/http"
 )
 
 type PasswordChangeEvent struct {
@@ -62,8 +60,7 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 		return
 	}
 
-	hostname, _ := os.Hostname()
-	sectionConf, exists := domainConfig.Element[hostname+" "+req.Domain]
+	sectionConf, exists := domainConfig.Element[req.Domain]
 	if !exists {
 		w.WriteHeader(http.StatusNotFound)
 		res := &response{
@@ -148,8 +145,7 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 		return
 	}
 
-	hostname, _ := os.Hostname()
-	sectionConf, exists := domainConfig.Element[hostname+" "+req.Id]
+	sectionConf, exists := domainConfig.Element[req.Id]
 	if !exists {
 		w.WriteHeader(http.StatusNotFound)
 		res := &response{
