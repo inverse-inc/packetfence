@@ -898,44 +898,10 @@ sub _parentRoleForNetwork {
     return undef;
 }
 
-=item getNetworkFromByName
-
-Get the switch-specific network from names in role in switches.conf
-
-=cut
-
-sub getNetworkFromByName {
-    my ($self, $roleName) = @_;
-    my $logger = $self->logger;
-
-
-    if (!defined($self->{'_networks_from'}) || !defined($self->{'_networks_from'}{$roleName})) {
-        my $parent = _parentRoleForNetworkFrom($roleName);
-        if (defined $parent && length($parent)) {
-            return $self->getNetworkFromByName($parent);
-        }
-        # VPN name doesn't exist
-        $pf::StatsD::statsd->increment(called() . ".error" );
-        $logger->warn("No parameter ${roleName}NetworkFrom found in conf/switches.conf for the switch " . $self->{_id});
-        return undef;
-    }
-
-    # return if found
-    return $self->{'_networks_from'}->{$roleName} if (defined($self->{'_networks_from'}->{$roleName}));
-
-    # otherwise log and return undef
-    $logger->trace("(".$self->{_id}.") No parameter ${roleName}NetworkFrom found in conf/switches.conf");
-    return;
-}
-
-sub _parentRoleForNetworkFrom {
-    my ($name) = @_;
-    # not yet supported
-    return undef;
-}
-
 =item getInterfaceByName
+
 Get the switch-specific interface names in role in switches.conf
+
 =cut
 
 sub getInterfaceByName {
@@ -4357,6 +4323,7 @@ Generate Ansible configuration to push ACLs
 
 =cut
 
+sub generateAnsibleConfiguration {
     my ($self,$oldSwitchConfig, $delete) = @_;
     $delete //= $FALSE;
     my %vars;
