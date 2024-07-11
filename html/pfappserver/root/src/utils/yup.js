@@ -156,10 +156,10 @@ yup.addMethod(yup.string, 'isCIDR', function (message) {
     test: value => {
       if (['', null, undefined].includes(value))
         return true
-      const [ ipv4, network, ...extra ] = value.split('/')
+      const [ipv4, network, ...extra] = value.split('/')
       return (
         extra.length === 0 &&
-        +network >= 0 && +network <= 32 &&
+        !!network && +network >= 0 && +network <= 32 &&
         reIpv4(ipv4)
       )
     }

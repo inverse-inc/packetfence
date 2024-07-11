@@ -200,6 +200,39 @@
             </b-card>
           </base-form-tab>
 
+          <base-form-tab
+            :title="$i18n.t('Network CIDR')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by network CIDR'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-network-map namespace="NetworkMap"
+                  :column-label="$i18n.t('Role by Network CIDR')"
+                />
+
+                <template v-if="isNetworkMap">
+                  <b-form-group v-for="role in roles" :key="`${role}Network`"
+                    :label="role" label-cols="3"
+                    class="base-form-group"
+                  >
+                    <b-input-group>
+                      <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                        <b-col sm="6" align-self="center">
+                          <input-role-map-network :namespace="`${role}Network`"
+                            :disabled="form[`${role}NetworkFrom`] !== 'static'" />
+                        </b-col>
+                        <b-col sm="6" align-self="center" class="pl-1">
+                          <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
+                        </b-col>
+                      </b-row>
+                    </b-input-group>
+                  </b-form-group>
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
+
         </b-tabs>
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Inline')">
@@ -553,6 +586,7 @@ import {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
@@ -570,6 +604,9 @@ import {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 } from './'
 
 const components = {
@@ -630,6 +667,7 @@ const components = {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
@@ -647,6 +685,9 @@ const components = {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 }
 
 import {useForm as useSwitchForm, useFormProps as props} from '../../switches/_composables/useForm'

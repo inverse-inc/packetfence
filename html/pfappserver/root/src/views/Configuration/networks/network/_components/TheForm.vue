@@ -64,6 +64,13 @@
                                              disabled-value="disabled"
     />
 
+    <form-group-learn-network-cidr-per-role namespace="learn_network_cidr_by_role"
+                                             :column-label="$i18n.t('Learn network CIDR per role on switches')"
+                                             :text="$i18n.t('This will enable the learning of the networks tied to each roles on each switches by using the dhcp traffic and radius accounting. To act on DHCP ACK (that contain the netmask) you need to enable force_listener_on_ack otherwise PacketFence will try to detect the cidr network based on the minumum address and the maximum address.')"
+                                             enabled-value="enabled"
+                                             disabled-value="disabled"
+    />
+
     <form-group-interface-snat namespace="interfaceSNAT"
                                :column-label="$i18n.t('SNAT Interface for passthroughs')"
                                :text="$i18n.t(`Choose interface(s) where you want to enable SNAT for passthroughs (by default it's the management interface)`)"
@@ -86,6 +93,7 @@ import {
   FormGroupDhcpProcessIpv6,
   FormGroupDhcpRateLimiting,
   FormGroupForceListenerUpdateOnAck,
+  FormGroupLearnNetworkCidrPerRole,
   FormGroupHostnameChangeDetection,
   FormGroupInterfaceSnat,
   FormGroupRogueDhcpDetection,
@@ -105,6 +113,7 @@ const components = {
   FormGroupDhcpoption82logger,
   FormGroupDhcpProcessIpv6,
   FormGroupForceListenerUpdateOnAck,
+  FormGroupLearnNetworkCidrPerRole,
   FormGroupInterfaceSnat,
   FormGroupStaticroutes
 }
