@@ -77,8 +77,7 @@ sub vhosts { [] }
 
 sub apache_version {
     my ($self) = @_;
-    my $cmd = $self->executable . " -v";
-    my $result = pf_run($cmd);
+    my $result = safe_pf_run($self->executable, '-v');
     $result =~ m#Server version: Apache/(\d+\.\d+)#;
     return $1;
 }

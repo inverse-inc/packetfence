@@ -175,6 +175,7 @@ sub action_api {
     my $class_info = class_view($security_event_id);
     my @params = split(' ', $class_info->{'external_command'});
     my $return;
+    my @cmd;
     my $node_info = node_view($mac);
     my $ip = pf::ip4log::mac2ip($mac) || 0;
     $node_info = {%$node_info, 'last_ip' => $ip};
@@ -183,12 +184,13 @@ sub action_api {
         $param =~ s/\$security_event_id/$security_event_id/ge;
         $param =~ s/\$(.*)/$node_info->{$1}/ge;
         $return .= $param." ";
+        push @cmd, $param;
     }
     $logger->warn($return);
 
     my $cmd = "$return 2>&1";
 
-    my @lines  = pf_run($cmd);
+    my @lines  = safe_pf_run(@cmd);
     return;
 }
 
