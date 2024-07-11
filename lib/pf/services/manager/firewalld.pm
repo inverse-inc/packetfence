@@ -105,7 +105,6 @@ stop firewalld
 sub _stop {
     my ($self) = @_;
     my $logger = get_logger();
-
     pf_run("sudo iptables -F");
     pf_run("sudo iptables -X");
     pf_run("sudo iptables -t nat -F");
@@ -116,10 +115,6 @@ sub _stop {
     pf_run("sudo iptables -P FORWARD ACCEPT");
     pf_run("sudo iptables -P OUTPUT ACCEPT");
     pf_run("sudo iptables -t filter -N DOCKER");
-    pf_run("sudo iptables -A INPUT --in-interface lo --jump ACCEPT");
-    pf_run("sudo iptables -A INPUT --in-interface docker0 --jump ACCEPT");
-    pf_run("sudo iptables -A INPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT");
-    pf_run("sudo iptables -A INPUT --protocol icmp --icmp-type echo-request --jump ACCEPT");
     pf_run("sudo iptables -t nat -N DOCKER");
     pf_run("sudo iptables -t nat -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER");
     pf_run("sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER");
