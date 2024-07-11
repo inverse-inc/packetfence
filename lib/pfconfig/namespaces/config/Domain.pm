@@ -17,6 +17,7 @@ This module creates the configuration hash associated to domain.conf
 
 use strict;
 use warnings;
+use JSON;
 
 use pfconfig::namespaces::config;
 use Data::Dumper;
@@ -42,7 +43,7 @@ sub build_child {
     # Inflate %h to the host machine name
     # This is done since Samba 4+ doesn't inflate it itself anymore
     while(my ($id, $cfg) = each(%tmp_cfg)){
-        if(lc($cfg->{server_name}) =~ /%h/) {
+        if(exists($cfg->{server_name}) && lc($cfg->{server_name}) =~ /%h/) {
             my $name = [split(/\./,( $self->{host_id} // hostname() ) )]->[0];
             $cfg->{server_name} =~ s/%h/$name/;
         }
@@ -50,8 +51,20 @@ sub build_child {
 
     $self->{cfg} = \%tmp_cfg;
 
-    return \%tmp_cfg;
+    my $host_id;
+    my %filtered = ();
 
+    unless (defined($self->{host_id}) && $self->{host_id} ne "") {
+        $host_id = hostname();
+    } else {
+        $host_id = $self->{host_id};
+    }
+    foreach my $key (keys %tmp_cfg) {
+        if (index($key, $host_id) == 0 && $key =~/^\S+\s+(\S+)$/) {
+            $filtered{$1} = $tmp_cfg{$key};
+        }
+    }
+    return \%filtered;
 }
 
 =head1 AUTHOR
