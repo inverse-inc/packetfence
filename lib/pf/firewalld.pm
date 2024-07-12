@@ -153,6 +153,7 @@ sub fd_clean_pfconf_configs {
   my $logger = get_logger();
   $logger->info( "Remove config from /usr/local/pf/var/conf/firewalld/" );
   rmtree $firewalld_config_path_generated;
+  fd_clean_all_previous_rules();
 }
 
 =item fd_generate_dynamic_configs
@@ -165,7 +166,6 @@ sub fd_generate_dynamic_configs {
   my $logger = get_logger();
   if (ref($management_network) && exists $management_network->{Tint} ) {
     $logger->info( "Start generate dynamic config" );
-    fd_clean_all_previous_rules();
     fd_add_default_direct_rules();
     fd_create_all_zones();
     pf::ipset->new()->iptables_generate();
@@ -215,8 +215,6 @@ sub fd_clean_all_previous_rules {
   pf_run("sudo iptables -t nat -X");
   pf_run("sudo iptables -t mangle -F");
   pf_run("sudo iptables -t mangle -X");
-  pf_run("sudo iptables -D INPUT -m conntrack --ctstate RELATED,ESTABLISHED,DNAT -j ACCEPT");
-  pf_run("sudo iptables -D INPUT -i lo -j ACCEPT");
 }
 
 =item fd_add_default_rules
