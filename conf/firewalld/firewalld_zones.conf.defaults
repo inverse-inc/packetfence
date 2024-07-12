@@ -15,11 +15,11 @@ short=Trusted
 description=All network connections are accepted.
 
 [eth0]
-short=Management interface
+short=Default interface
 masquerade=yes
 forward=yes
 target=default
-services=haproxy-admin,ssh,http,https,dns,dhcp
+services=ssh
 interface=eth0
 version=0.1
 
@@ -38,8 +38,4 @@ target=ACCEPT
 interface=lo
 version=0.1
 forward=yes
-sources=lo_source1
-
-[lo_source1]
-name=address
-address=100.64.0.0/24
+sources=
