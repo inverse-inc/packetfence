@@ -5,9 +5,6 @@ testcases:
     method: GET
     url: http://{{.firewall_sso.radius.api_host}}:{{.firewall_sso.radius.api_port}}/history
     retry: 60
-    retry_if:
-      - result.statuscode ShouldEqual 200
-      - result.body ShouldNotBeBlank
     delay: 2
     assertions:
       - result.statuscode ShouldEqual 200
