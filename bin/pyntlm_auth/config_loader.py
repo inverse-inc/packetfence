@@ -39,7 +39,7 @@ def get_int_value(v):
 
 def config_load():
     global_vars.c_listen_port = os.getenv("LISTEN")
-    global_vars.c_domain_identifier = os.getenv("IDENTIFIER")
+    global_vars.c_domain_identifier = hostname = socket.gethostname() + " " + os.getenv("IDENTIFIER")
 
     if global_vars.c_domain_identifier == "" or global_vars.c_listen_port == "":
         print("Unable to start ntlm-auth-api: 'IDENTIFIER' or 'LISTEN' is missing.")

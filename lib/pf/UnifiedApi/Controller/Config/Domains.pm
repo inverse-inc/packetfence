@@ -33,13 +33,23 @@ use Socket;
 use Digest::MD4 qw(md4_hex);
 use Encode qw(encode);
 use Net::DNS;
-use pf::cluster qw($cluster_enabled $host_id);;
-
 use JSON;
 
-=head2 create
+my $host_id = hostname();
 
-get machine account and domain config file. strips host_id when needed.
+sub id {
+    my ($self) = @_;
+    my $primary_key = $self->primary_key;
+    my $stash = $self->stash;
+    if (exists $stash->{$primary_key}) {
+        return $host_id . " " . $stash->{$primary_key};
+    }
+    return undef;
+}
+
+=head2 get
+
+get a domain config, and strip host_id prefix.
 
 =cut
 
@@ -52,19 +62,6 @@ sub get {
         return $self->render(json => { item => $item }, status => 200);
     }
     return $self->render_error(500, "Unknown error getting item");;
-}
-
-sub id {
-    my ($self) = @_;
-    my $primary_key = $self->primary_key;
-    my $stash = $self->stash;
-    if (exists $stash->{$primary_key}) {
-        if ($cluster_enabled) {
-            return $host_id . " " . $stash->{$primary_key}
-        }
-        return $stash->{$primary_key};
-    }
-    return undef;
 }
 
 sub handle_search {
@@ -97,12 +94,6 @@ sub handle_search {
     );
 }
 
-=head2 create
-
-create machine account and domain config file.
-
-=cut
-
 sub create {
     my ($self) = @_;
     my ($error, $item) = $self->get_json;
@@ -110,20 +101,15 @@ sub create {
         return $self->render_error(400, "Bad Request : $error");
     }
 
-
     my $id = $item->{id};
-    if ($cluster_enabled) {
-        $id = $host_id . " " . $item->{id};
-        $item->{id} = $id
-    }
+    $id = $host_id . " " . $item->{id};
+    $item->{id} = $id;
     my $cs = $self->config_store;
     my $sections = $cs->readAllIds;
     my $max_port = 4999;
     for my $section (@$sections) {
-        if ($cluster_enabled) {
-            unless ($section =~ /^$host_id /) {
-                next;
-            }
+        unless ($section =~ /^$host_id /) {
+            next;
         }
         my $ntlm_auth_port = $cs->cachedConfig->val($section, "ntlm_auth_port");
         if (defined($ntlm_auth_port)) {
@@ -233,6 +219,8 @@ sub create {
     return unless ($self->commit($cs));
     $self->post_create($id);
     my $additional_out = $self->additional_create_out($form, $item);
+
+    $id =~ s/$host_id //i;
     $self->stash($self->primary_key => $id);
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, json => $self->create_response($id, $additional_out));
@@ -326,13 +314,45 @@ sub update {
     delete $new_data->{bind_dn};
     delete $new_data->{bind_pass};
     my $id = $self->id;
-    if ($cluster_enabled) {
-        $id = $host_id . " " . $id;
-    }
     $cs->update($id, $new_data);
     return unless ($self->commit($cs));
     $self->post_update($id);
     $self->render(status => 200, json => $self->update_response($form));
+}
+
+sub update_response {
+    my ($self, $form) = @_;
+    my $id = $self->id;
+    $id =~ s/$host_id //i;
+    my %response = (message => "Settings updated", id => $id);
+    for my $field ($form->fields) {
+        my $type = $field->type;
+        if (($type ne 'PathUpload' && $type ne 'Path') || $field->noupdate) {
+            next;
+        }
+
+        $response{$field->accessor} = $field->value;
+    }
+    return $self->addFormWarnings($form, \%response);
+}
+
+sub remove {
+    my ($self) = @_;
+    my ($status, $msg, $errors) = $self->can_delete();
+    if (is_error($status)) {
+        return $self->render_error($status, $msg, $errors);
+    }
+
+    my $id = $self->id;
+    my $cs = $self->config_store;
+    ($msg, my $deleted) = $cs->remove($id, 'id');
+    if (!$deleted) {
+        return $self->render_error(422, "Unable to delete $id - $msg");
+    }
+
+    return unless ($self->commit($cs));
+    $id =~ s/$host_id //i;
+    return $self->render(json => { message => "Deleted $id successfully" }, status => 200);
 }
 
 sub is_nt_hash_pattern {
