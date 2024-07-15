@@ -83,7 +83,7 @@ $t->options_ok("/api/v1/config/floating_devices")
 );
 
 
-$t->options_ok("/api/v1/config/syslog_parsers")
+$t->options_ok("/api/v1/config/event_handlers")
   ->status_is(200)
   ->json_is(
     {
@@ -143,7 +143,7 @@ $t->options_ok("/api/v1/config/provisionings?type=mobileconfig")
     }
   );
 
-$t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
+$t->options_ok("/api/v1/config/event_handlers?type=regex")->status_is(200)
   ->json_is(
     {
 meta => {

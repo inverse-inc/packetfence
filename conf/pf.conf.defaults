@@ -92,6 +92,12 @@ dhcp_process_ipv6=enabled
 # This is implicitly activated on registration interfaces on which dhcpd runs.
 force_listener_update_on_ack=disabled
 #
+# network.learn_network_cidr_by_role
+#
+# This will enable the learning of the networks tied to each roles on each switches by using the dhcp traffic and radius accounting.
+# To act on DHCP ACK (that contain the netmask) you need to enable force_listener_on_ack otherwise PacketFence will try to detect the cidr network based on the minumum address and the maximum address.
+learn_network_cidr_by_role=disabled
+#
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=
@@ -1247,7 +1253,7 @@ galera_replication_password=
 #
 # Centralize the virtual IP addresses on the same node instead of distributing them on the two first nodes of the cluster
 centralize_vips=disabled
-
+#
 # active_active.probe_mysql_from_haproxy_db
 #
 # Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers.
@@ -1258,6 +1264,12 @@ probe_mysql_from_haproxy_db=disabled
 # Proxy the RADIUS requests received on the RADIUS load balancer using the VIP
 # When deploying in an environment where the virtual IP is a software load balancer, disable this so that servers proxy the requests using their own IP address
 radius_proxy_with_vip=enabled
+#
+# active_active.firewall_sso_on_management
+#
+# Process Firewall SSO only on the managemenr server (the current load balancer).
+# Disabling it will allow each members of the cluster to send Firewall SSO request to firewalls
+firewall_sso_on_management=disabled
 
 [parking]
 #
@@ -1525,3 +1537,9 @@ sso_login_path=/admin-sso
 sso_authorize_path=/portaltoken
 sso_login_text=Single Sign On
 allow_username_password=enabled
+
+[fleetdm]
+host=
+email=
+password=
+token=

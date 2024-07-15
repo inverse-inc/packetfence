@@ -13,8 +13,9 @@
 
     - name: Load new acl into Cisco Switch
       cisco.ios.ios_acls:
-        config: "{{ acls.parsed }}"
-        state: replaced
+        config: "{{ acls.parsed }}"[% IF delete >= 1 %]
+        state: deleted[% ELSE %]
+        state: replaced[% END %]
       when: ansible_network_os == 'cisco.ios.ios'
 
     - name: Load new acl into Cisco WLC
@@ -31,3 +32,34 @@
       arubanetworks.aoscx.aoscx_config:
         src: "{{ acl_config }}"
       when: ansible_network_os == 'arubanetworks.aoscx.aoscx'
+
+[% FOREACH role IN interfaces_delete.keys %]
+[% FOREACH interface IN interfaces_delete.$role %]
+    - name: remove acl on interface
+      cisco.ios.ios_config:
+        lines:
+          - no ip access-group [% role %] in
+        parents: "{{ item }}"
+      with_items:
+       - interface [% interface %]
+[% END %]
+[% END %]
+
+[% IF delete == 0 %]
+[% FOREACH role IN interfaces.keys %]
+[% FOREACH interface IN interfaces.$role %]
+    - name: Merge module attributes of given access-groups
+      cisco.ios.ios_acl_interfaces:
+        config:
+          - name: [% interface %]
+            access_groups:
+              - afi: ipv4
+                acls:
+                  - name: [% role %]
+                    direction: in[% IF delete >= 1 %]
+        state: deleted[% ELSE %]
+        state: merged[% END %]
+      when: ansible_network_os == 'cisco.ios.ios'
+[% END %]
+[% END %]
+[% END %]

@@ -1,0 +1,7 @@
+ConfigSyslogParserWrapped:
+  properties:
+    item:
+      $ref: '#/components/schemas/ConfigSyslogParser'
+    status:
+      type: integer
+  type: object

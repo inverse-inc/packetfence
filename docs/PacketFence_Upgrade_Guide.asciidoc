@@ -1926,6 +1926,19 @@ Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch modules
 /usr/local/pf/addons/upgrade/to-13.2-convert-merakiswitch-types.pl
 ----
 
+== Upgrading from a version prior to 14.0.0
+
+
+=== Admin Role
+
+Since 14.0 PacketFence is able to receive events from the FleetDM servers, which allows PacketFence to detect policy violations or CVEs of devices managed by FleetDM. To add a new admin role to receive these events through the PacketFence API perform the following steps:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-14.0-adds-admin-roles-fleetdm.pl
+----
+
+
 == Upgrading from a version prior to X.Y.Z
 
 == Archived upgrade notes

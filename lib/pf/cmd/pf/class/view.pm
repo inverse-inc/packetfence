@@ -25,7 +25,7 @@ sub run {
     } else {
         $function = \&class_view_all;
     }
-    return $self->print_results( $function, $id ) ;
+    return $self->showHelp( $function, $id ) ;
 }
 
 sub field_order_ui { "class view" }

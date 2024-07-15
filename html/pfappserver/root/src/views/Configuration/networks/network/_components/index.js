@@ -6,21 +6,22 @@ import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseFormButtonBar                   as FormButtonBar,
+  BaseFormButtonBar                  as FormButtonBar,
 
   BaseFormGroupSwitch                as FormGroupDhcpdetector,
-  BaseFormGroupIntervalUnit           as FormGroupDhcpRateLimiting,
+  BaseFormGroupIntervalUnit          as FormGroupDhcpRateLimiting,
   BaseFormGroupSwitch                as FormGroupRogueDhcpDetection,
-  BaseFormGroupInput                  as FormGroupRogueinterval,
+  BaseFormGroupInput                 as FormGroupRogueinterval,
   BaseFormGroupSwitch                as FormGroupHostnameChangeDetection,
   BaseFormGroupSwitch                as FormGroupConnectionTypeChangeDetection,
   BaseFormGroupSwitch                as FormGroupDhcpoption82logger,
   BaseFormGroupSwitch                as FormGroupDhcpProcessIpv6,
   BaseFormGroupSwitch                as FormGroupForceListenerUpdateOnAck,
-  BaseFormGroupInput                  as FormGroupInterfaceSnat,
-  BaseFormGroupStaticRoutes           as FormGroupStaticroutes,
+  BaseFormGroupSwitch                as FormGroupLearnNetworkCidrPerRole,
+  BaseFormGroupInput                 as FormGroupInterfaceSnat,
+  BaseFormGroupStaticRoutes          as FormGroupStaticroutes,
 
-  BaseViewResource                    as BaseView,
+  BaseViewResource                   as BaseView,
   TheForm,
   TheView
 }

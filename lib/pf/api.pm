@@ -30,6 +30,7 @@ use pf::config::trapping_range;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::ConfigStore::Roles();
+use pf::ConfigStore::Switch();
 use pf::ip4log();
 use pf::fingerbank;
 use pf::Connection::ProfileFactory();
@@ -54,6 +55,7 @@ use pf::pfqueue::stats();
 use pf::pfqueue::producer::redis();
 use pf::util qw(mysql_date);
 use pf::bandwidth_accounting qw();
+use pf::cidr_role();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap any);
@@ -81,6 +83,7 @@ use DateTime::Format::MySQL;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use pf::Redis;
 use pf::acls_push;
+use Digest::MD5 qw(md5_base64);
 
 my $logger = pf::log::get_logger();
 
@@ -1494,9 +1497,12 @@ sub handle_accounting_metadata : Public {
         my $advanced = $pf::config::Config{advanced};
         # Tracking IP address.
         my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
-        if ($framed_ip && pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
-            $logger->info("Updating iplog from accounting request");
-            $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
+        if ($framed_ip) {
+            if (pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
+                $logger->info("Updating iplog from accounting request");
+                $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
+            }
+            $client->notify('update_switch_role_network', ( mac => $mac, ip => $framed_ip, mask => undef, lease_length => undef) ) unless (pf::util::isdisabled($pf::config::Config{'network'}{'learn_network_cidr_by_role'}));
         }
         else {
             $logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
@@ -1934,6 +1940,24 @@ sub push_acls : Public {
     $push_acls->push_acls( $postdata{'switch_id'} );
 
     return $pf::config::TRUE;
+}
+
+
+=head2 update_switch_role_network
+
+Update switch role network based on provided IP addresses and MAC addresses role and netmask
+
+=cut
+
+sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mask, $mask, lease_length, $lease_length) {
+    my ($class, %postdata) = @_;
+    my @require = qw(mac ip mask lease_length);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $cidr_role = pf::cidr_role->new();
+
+    $cidr_role->update(%postdata);
 }
 
 =head1 AUTHOR

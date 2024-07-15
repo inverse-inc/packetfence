@@ -217,3 +217,7 @@ storage=distributed
 #
 # Amount of time from the current time to expire an entry
 expires_in=5s
+
+[namespace fleetdm]
+storage=distributed
+expires_in=10d

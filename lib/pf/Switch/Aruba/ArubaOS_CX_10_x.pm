@@ -195,19 +195,23 @@ sub radiusDisconnect {
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
+        my $username = $locationlog->{dot1x_username};
         # transforming MAC to the expected format 00112233CAFE
         my $calling_station_id = uc($mac);
         $calling_station_id =~ s/:/-/g;
-        $mac = lc($mac);
-        $mac =~ s/://g;
+        if (pf::util::valid_mac($username)) {
+            $username = lc($username);
+            $username =~ s/://g;
+        }
 
         # Standard Attributes
         my $attributes_ref = {
-            'User-Name' => $mac,
+            'User-Name' => $username,
             'NAS-IP-Address' => $send_disconnect_to,
             'Calling-Station-Id' => $calling_station_id,
             'NAS-Port' => $locationlog->{port},
         };
+
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 

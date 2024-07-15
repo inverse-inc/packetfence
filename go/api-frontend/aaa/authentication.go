@@ -3,6 +3,7 @@ package aaa
 import (
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -84,4 +85,28 @@ func (tam *TokenAuthenticationMiddleware) IsAuthenticated(ctx context.Context, t
 
 func (tam *TokenAuthenticationMiddleware) TouchTokenInfo(ctx context.Context, r *http.Request) {
 	tam.tokenBackend.TouchTokenInfo(tam.tokenFromRequest(ctx, r))
+}
+
+func (tam *TokenAuthenticationMiddleware) ExtractUserIdentity(r *http.Request) (string, string, bool) {
+	auth := r.Header.Get("Authorization")
+	if auth == "" {
+		return "", "", false
+	}
+
+	parts := strings.SplitN(auth, " ", 2)
+	if len(parts) != 2 || strings.ToUpper(parts[0]) != strings.ToUpper("Basic") {
+		return "", "", false
+	}
+
+	payload, err := base64.StdEncoding.DecodeString(parts[1])
+	if err != nil {
+		return "", "", false
+	}
+
+	pair := strings.SplitN(string(payload), ":", 2)
+	if len(pair) != 2 {
+		return "", "", false
+	}
+
+	return pair[0], pair[1], true
 }
