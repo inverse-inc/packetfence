@@ -1,13 +1,13 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-ARG from=${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
+ARG from=${KNK_REGISTRY_URL}/pfbuild-debian-bookworm:${IMAGE_TAG}
 
 FROM ${from} as build
 
 ENV MAKE=make
 ENV MAKEOPT="-j 1"
 ENV CURVER=2.6.0
-ENV PKG_RELEASE=debian11
+ENV PKG_RELEASE=debian12
 ENV PROXYSQL_BUILD_TYPE=clickhouse
 ENV CC=cc
 ENV CXX=g++

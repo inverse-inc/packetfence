@@ -32,7 +32,7 @@ case "$1" in
                 fi
             fi
         fi
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ] || [ ${DIST} = "bookworm" ]; then
             systemctl stop packetfence-haproxy-admin
             systemctl set-default multi-user.target
             systemctl isolate multi-user.target

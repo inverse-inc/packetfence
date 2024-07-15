@@ -1,4 +1,4 @@
-ARG from=debian:bullseye
+ARG from=debian:bookworm
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
 

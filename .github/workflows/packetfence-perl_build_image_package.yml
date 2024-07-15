@@ -95,13 +95,17 @@ jobs:
         run: |
           cd /root
           set -e && python3 install_cpan.py -d dependencies.csv -vi true && ./build_package.sh
-          ls -la ${{ inputs._OUTPUT_DIRECTORY }}/${{inputs._IMAGE_TYPE}}/packages/
+          ls -la ${{ inputs._OUTPUT_DIRECTORY }}
+          ls -la ${{ inputs._OUTPUT_DIRECTORY }}/${{env.PATH_PACKAGE}}/packages/
+        env:
+          PATH_PACKAGE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'rhel8' || 'debian' }}
     
       - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACTORY_NAME }}
-          path:  ${{ inputs._OUTPUT_DIRECTORY }}/${{ inputs._IMAGE_TYPE}}/packages/${{ env.PACKAGE_NAME }}
+          path:  ${{ inputs._OUTPUT_DIRECTORY }}/${{ env.PATH_PACKAGE }}/packages/${{ env.PACKAGE_NAME }}
         env:
-          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || 'packetfence-perl*.deb' }}
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm' || 'package-deb' }}
+          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || inputs._IMAGE_TYPE == 'debian11' && 'packetfence-perl*.deb' || inputs._IMAGE_TYPE == 'debian12' && 'packetfence-perl*.deb' }}
+          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
+          PATH_PACKAGE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'rhel8' || 'debian' }}

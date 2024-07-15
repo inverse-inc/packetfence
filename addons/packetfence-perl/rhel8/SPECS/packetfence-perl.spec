@@ -1,5 +1,5 @@
 Name:           packetfence-perl
-Version:        1.2.3
+Version:        1.2.4
 Release:        1%{?dist}
 Summary:        All modules loaded with cpan
 BuildArch:      x86_64
@@ -33,6 +33,13 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
         /usr/local/pf/lib_perl/*
 
 %changelog
+* Tue Jul 4 2024 Inverse <info@inverse.ca> 1.2.4-1
+- Upgrade Template-Toolkit 3.009  -> 3.010
+- Upgrade Sereal::Decoder 4.018 -> 5.004
+- Upgrade Sereal::Encoder 4.018 -> 5.004
+- Upgrade Crypt::OpenSSL::RSA 0.31 -> 0.33
+- Upgrade Crypt::OpenSSL::X509 1.910 -> 1.914
+
 * Thu Nov 16 2023 Inverse <info@inverse.ca> 1.2.3-1
 - Add dependencies Digest-MD4 1.9
 

@@ -33,3 +33,12 @@
     - name: Install xmltodict python package
       pip:
         name: xmltodict
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install xmltodict python package
+      shell: | 
+        set -e -o pipefail
+        pip install xmltodict --break-system-packages
+      args:
+        executable: /usr/bin/bash
+      when: ansible_facts['os_family'] == "Debian"

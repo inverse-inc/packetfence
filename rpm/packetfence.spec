@@ -52,7 +52,7 @@ Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2, perl-libapreq2
-Requires: redis = 5.0.3-2.2 
+Requires: redis >= 7.2.5
 Requires: freeradius >= 3.2.1, freeradius-mysql >= 3.2.1, freeradius-perl >= 3.2.1, freeradius-ldap >= 3.2.1, freeradius-utils >= 3.2.1, freeradius-redis >= 3.2.1, freeradius-rest >= 3.2.1
 Requires: make
 Requires: net-tools
@@ -60,7 +60,7 @@ Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: packetfence-perl = 1.2.3
+Requires: packetfence-perl >= 1.2.4
 Requires: MariaDB-server >= 10.5.15, MariaDB-server < 10.6.0
 Requires: MariaDB-client >= 10.5.15, MariaDB-client < 10.6.0
 Requires: perl(DBD::mysql)
@@ -1399,6 +1399,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Thu May 23 2024 Inverse <info@inverse.ca> - 14.0.0-2
+- Upgrade packetfence-perl 1.2.4
+
 * Fri May 17 2024 Inverse <info@inverse.ca> - 14.0.0-1
 - New release 14.0.0
 

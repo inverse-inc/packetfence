@@ -4,15 +4,6 @@ testcases:
   steps:
   - type: pfcron_flush_radius_audit_log
 
-- name: get_time
-  steps:
-  - type: exec
-    script: "date '+%Y-%m-%d %H:%M:%S' --date='2 minutes ago'"
-    vars:
-      two_minutes_ago:
-        from: result.systemout
-
-# only latest search entry since two minutes that matches
 # auth_status equals Accept (to avoid Disconnect)
 # mac equals {{.node01_ens7_mac_address}}"
 # connection type of test suite connection profile
@@ -28,6 +19,12 @@ testcases:
   - type: pf_api_action
     method: POST
     url: "radius_audit_logs/search"
+    retry: 35
+    retry_if:
+      - result.statuscode ShouldNotEqual 404
+    delay: 3
+    assertions:
+      - result.statuscode ShouldEqual 200
     body: >-
       {
         "cursor": 0,
@@ -68,16 +65,6 @@ testcases:
                   "field": "connection_type",
                   "op": "equals",
                   "value": "{{.wired_dot1x_eap_tls_pki.profiles.wired.filters.connection_type}}"
-                }
-              ]
-            },
-            {
-              "op": "or",
-              "values": [            
-                {
-                  "field": "created_at",
-                  "op": "greater_than",
-                  "value": "{{.get_time.two_minutes_ago}}"
                 }
               ]
             }

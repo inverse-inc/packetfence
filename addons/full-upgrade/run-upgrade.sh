@@ -87,7 +87,7 @@ function find_latest_stable() {
   if is_rpm_based; then
     OS="RHEL-8"
   elif is_deb_based; then
-    OS="Debian-11"
+    OS="Debian-12"
   fi
   curl https://www.packetfence.org/downloads/PacketFence/latest-stable-$OS.txt
 }
@@ -107,7 +107,7 @@ function set_upgrade_to() {
 
 function apt_upgrade_packetfence_package() {
   set_upgrade_to
-  echo "deb http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bullseye bullseye" > /etc/apt/sources.list.d/packetfence.list
+  echo "deb http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
   apt update
   if is_enabled $1; then
     apt-mark hold packetfence-upgrade

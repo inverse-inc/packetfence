@@ -33,5 +33,3 @@
       # useful to make env vars available for Venom
       environment: '{{ inventory__group_environment | d({})
                        | combine(venom_wrapper_args | d({})) }}'
-
-

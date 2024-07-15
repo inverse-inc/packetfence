@@ -117,7 +117,7 @@ case "$1" in
                     update-rc.d $service remove > /dev/null 2>&1
                 fi
             fi
-            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
+            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]  || [ ${DIST} = "bookworm" ]; then
                 if [ -e "/lib/systemd/system/"$service".service" ] ; then
                     systemctl stop $service
                     systemctl disable $service
@@ -236,7 +236,11 @@ case "$1" in
             /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
             set -e
         fi
-
+        if [ ${DIST} = "bookworm" ] && [ "$DEBIAN_ISO_INSTALLER" = "no" ]; then
+            set +e
+            /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
+            set -e
+        fi
         # Install the monitoring scripts signing key
         echo "Install the monitoring scripts signing key"
         gpg --no-default-keyring --keyring /root/.gnupg/pubring.kbx --import /usr/share/keyrings/monitoring-scripts-keyring.gpg
