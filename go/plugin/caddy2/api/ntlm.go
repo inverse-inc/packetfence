@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/inverse-inc/packetfence/go/caddy/ntlm"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"os"
 )
 
 type PasswordChangeEvent struct {
@@ -60,7 +62,14 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 		return
 	}
 
-	sectionConf, exists := domainConfig.Element[req.Domain]
+	var sectionConf interface{}
+	var exists bool
+	if pfconfigdriver.GetClusterSummary(ctx).ClusterEnabled == 1 {
+		hostname, _ := os.Hostname()
+		sectionConf, exists = domainConfig.Element[hostname+" "+req.Domain]
+	} else {
+		sectionConf, exists = domainConfig.Element[req.Domain]
+	}
 	if !exists {
 		w.WriteHeader(http.StatusNotFound)
 		res := &response{
@@ -145,7 +154,14 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 		return
 	}
 
-	sectionConf, exists := domainConfig.Element[req.Id]
+	var sectionConf interface{}
+	var exists bool
+	if pfconfigdriver.GetClusterSummary(ctx).ClusterEnabled == 1 {
+		hostname, _ := os.Hostname()
+		sectionConf, exists = domainConfig.Element[hostname+" "+req.Id]
+	} else {
+		sectionConf, exists = domainConfig.Element[req.Id]
+	}
 	if !exists {
 		w.WriteHeader(http.StatusNotFound)
 		res := &response{

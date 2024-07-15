@@ -31,6 +31,7 @@ use pf::file_paths qw(
 );
 use pf::util;
 use pf::constants qw($TRUE $FALSE);
+use pf::cluster qw($cluster_enabled $host_id);;
 
 extends 'pf::services::manager';
 
@@ -65,8 +66,10 @@ sub generateConfig {
 
     my $host_id = hostname();
     for my $identifier (keys(%ConfigDomain)) {
-        unless ($identifier =~ /^$host_id /) {
-            next;
+        if ($cluster_enabled) {
+            unless ($identifier =~ /^$host_id /) {
+                next;
+            }
         }
         my %conf = %{$ConfigDomain{$identifier}};
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
