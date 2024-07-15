@@ -158,6 +158,24 @@ const useForm = (props, context) => {
     // inspect meta placeholder for `NetworkMap`
     const { NetworkMap: { placeholder } = {} } =  meta.value
     return placeholder === 'Y'
+
+  const isInterfaceMap = computed(() => {
+    // inspect form value for `InterfaceMap`
+    const { InterfaceMap } = form.value
+    if (InterfaceMap !== null)
+      return InterfaceMap === 'Y'
+
+    // inspect meta placeholder for `InterfaceMap`
+    const { InterfaceMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
+  const roles = ref(baseRoles)
+  $store.dispatch('$_roles/all').then(allRoles => {
+    roles.value = [
+      ...roles.value,
+      ...allRoles.map(role => role.id)
+    ]
   })
 
   const isUsePushACLs = computed(() => {
@@ -204,6 +222,7 @@ const useForm = (props, context) => {
     isUrlMap,
     isVlanMap,
     isNetworkMap,
+    isInterfaceMap,
     roles,
 
     isUsePushACLs,
