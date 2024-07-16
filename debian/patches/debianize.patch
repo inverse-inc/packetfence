@@ -12,10 +12,10 @@ index 64f5e73f3d..90319cfc09 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 113ce3ba59..5da56b26df 100644
+index f3173abcf2..b625c35bc6 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -473,7 +473,7 @@ radiusd=enabled
+@@ -479,7 +479,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -24,7 +24,7 @@ index 113ce3ba59..5da56b26df 100644
  #
  # services.radiusd_acct
  #
-@@ -538,7 +538,7 @@ httpd_aaa=enabled
+@@ -544,7 +544,7 @@ httpd_aaa=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -33,7 +33,7 @@ index 113ce3ba59..5da56b26df 100644
  #
  # services.snmptrapd
  #
-@@ -637,7 +637,7 @@ openssl_binary=/usr/bin/openssl
+@@ -643,7 +643,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -310,7 +310,7 @@ index 69b288b4c4..8e9543e5aa 100644
  Restart=on-failure
  Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-pfipset.service b/conf/systemd/packetfence-pfipset.service
-index b98c330943..56936ab818 100644
+index bd9e8060fb..3e76aabf68 100644
 --- a/conf/systemd/packetfence-pfipset.service
 +++ b/conf/systemd/packetfence-pfipset.service
 @@ -10,7 +10,7 @@ StartLimitBurst=3
@@ -319,7 +319,7 @@ index b98c330943..56936ab818 100644
  Environment=LOG_LEVEL=INFO
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfipset' -e 'pf::services::manager::pfipset->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfipset' -e 'pf::services::manager::pfipset->new()->generateConfig()'
- ExecStart=/bin/bash -c "export $(cat /usr/local/pf/var/conf/pfipset.env | xargs) && /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfipset.conf -log-name=pfipset"
+ ExecStart=/bin/bash -c "export $(cat /usr/local/pf/var/conf/pfipset.env | xargs) && /usr/local/pf/sbin/pfhttpd run --adapter caddyfile -c /usr/local/pf/conf/caddy-services/pfipset.conf"
  Restart=on-failure
  Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-pfldapexplorer.service b/conf/systemd/packetfence-pfldapexplorer.service
