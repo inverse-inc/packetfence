@@ -23,7 +23,7 @@ install() {
 
     if [ -z "$GOVERSION" ]; then
         echo "Trying to detect Go version based on installed binaries"
-        GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+(\.[0-9])*' | head -1`
+	GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]{1}\.[0-9]+(\.[0-9])*' | head -1`
     fi
     declare -p GOVERSION
     [ -z "$GOVERSION" ] && die "not set: GOVERSION"
