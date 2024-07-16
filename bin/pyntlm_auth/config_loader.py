@@ -39,7 +39,7 @@ def get_int_value(v):
 
 def config_load():
     global_vars.c_listen_port = os.getenv("LISTEN")
-    global_vars.c_domain_identifier = hostname = socket.gethostname() + " " + os.getenv("IDENTIFIER")
+    global_vars.c_domain_identifier = socket.gethostname() + " " + os.getenv("IDENTIFIER")
 
     if global_vars.c_domain_identifier == "" or global_vars.c_listen_port == "":
         print("Unable to start ntlm-auth-api: 'IDENTIFIER' or 'LISTEN' is missing.")
@@ -178,6 +178,8 @@ def config_load():
                 ad_account_lockout_duration = 0
                 ad_reset_account_lockout_count_after = 0
                 max_allowed_attempts_per_device = 999
+                ad_old_password_allowed_period, error = get_int_value(ad_old_password_allowed_period)
+                if error is not None: ad_old_password_allowed_period = 0
                 break
             if ad_account_lockout_threshold < 2 or ad_account_lockout_threshold > 999:
                 print(f"  NT Key cache: 'ad_account_lock_threshold' ranges from 2..999, cache disabled.")

@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/caddy/ntlm"
+	"github.com/inverse-inc/packetfence/go/ntlm"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
