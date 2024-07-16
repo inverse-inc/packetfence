@@ -53,6 +53,44 @@ def dns_lookup(hostname, dns_server):
         return "", str(e)
 
 
+def find_ldap_servers(domain, dns_server):
+    query_name = f'_ldap._tcp.dc._msdcs.{domain}'
+
+    if dns_server != "":
+        resolver = dns.resolver.Resolver(configure=False)
+        resolver.nameservers = dns_server.split(",")
+    else:
+        resolver = dns.resolver.Resolver()
+
+    try:
+        ldap_servers = []
+
+        answers = resolver.query(query_name, 'SRV')
+        for srv in answers:
+            priority = srv.priority
+            weight = srv.weight
+            port = srv.port
+            target = srv.target.to_text()
+            ldap_servers.append({
+                'priority': priority,
+                'weight': weight,
+                'port': port,
+                'target': target
+            })
+
+        return ldap_servers
+
+    except dns.resolver.NoAnswer:
+        print(f'No SRV records found for {query_name}')
+        return []
+    except dns.resolver.NXDOMAIN:
+        print(f'Domain {domain} does not exist')
+        return []
+    except Exception as e:
+        print(f'An error occurred: {e}')
+        return []
+
+
 def expires(in_second):
     ts = datetime.datetime.now().timestamp() + in_second
     return int(ts)

@@ -1,4 +1,9 @@
+import os
+
+
 def generate_empty_conf():
+    path = '/usr/local/pf/var/conf/'
+    os.makedirs(path, exist_ok=True)
     with open('/usr/local/pf/var/conf/default.conf', 'w') as file:
         file.write("\n")
 

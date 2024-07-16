@@ -33,13 +33,75 @@ use Socket;
 use Digest::MD4 qw(md4_hex);
 use Encode qw(encode);
 use Net::DNS;
-
 use JSON;
-=head2 create
+use pf::constants qw($TRUE $FALSE);
 
-create machine account and domain config file.
+my $host_id = hostname();
+
+sub id {
+    my ($self) = @_;
+    my $primary_key = $self->primary_key;
+    my $stash = $self->stash;
+    if (exists $stash->{$primary_key}) {
+        return $host_id . " " . $stash->{$primary_key};
+    }
+    return undef;
+}
+
+=head2 get
+
+get a domain config, and strip host_id prefix.
 
 =cut
+
+sub get {
+    my ($self) = @_;
+    my $item = $self->item;
+    if ($item) {
+        $item->{id} =~ s/$host_id //i;
+        $item = $self->cleanupItemForGet($item);
+        return $self->render(json => { item => $item }, status => 200);
+    }
+    return $self->render_error(500, "Unknown error getting item");
+}
+
+sub item_shown {
+    my ($self, $item) = @_;
+    if ($item->{id} =~ s/$host_id //i) {
+        return $TRUE;
+    }
+    return $FALSE;
+}
+
+sub handle_search {
+    my ($self, $search_info) = @_;
+    my ($status, $response) = $self->search_builder->search($search_info);
+    if (is_error($status)) {
+        return $self->render_error(
+            $status,
+            $response->{message},
+            $response->{errors}
+        );
+    }
+
+    unless ($search_info->{raw}) {
+        $response->{items} = $self->cleanup_items($response->{items} // []);
+    }
+
+    foreach my $item (@{$response->{items}}) {
+        $item->{id} =~ s/$host_id //i;
+    }
+
+    my $fields = $search_info->{fields};
+    if (defined $fields && @$fields) {
+        $self->remove_fields($fields, $response->{items});
+    }
+
+    return $self->render(
+        json   => $response,
+        status => $status
+    );
+}
 
 sub create {
     my ($self) = @_;
@@ -49,10 +111,15 @@ sub create {
     }
 
     my $id = $item->{id};
+    $id = $host_id . " " . $item->{id};
+    $item->{id} = $id;
     my $cs = $self->config_store;
     my $sections = $cs->readAllIds;
     my $max_port = 4999;
     for my $section (@$sections) {
+        unless ($section =~ /^$host_id /) {
+            next;
+        }
         my $ntlm_auth_port = $cs->cachedConfig->val($section, "ntlm_auth_port");
         if (defined($ntlm_auth_port)) {
             if (int($ntlm_auth_port) > $max_port) {
@@ -161,6 +228,8 @@ sub create {
     return unless ($self->commit($cs));
     $self->post_create($id);
     my $additional_out = $self->additional_create_out($form, $item);
+
+    $id =~ s/$host_id //i;
     $self->stash($self->primary_key => $id);
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, json => $self->create_response($id, $additional_out));
@@ -258,6 +327,41 @@ sub update {
     return unless ($self->commit($cs));
     $self->post_update($id);
     $self->render(status => 200, json => $self->update_response($form));
+}
+
+sub update_response {
+    my ($self, $form) = @_;
+    my $id = $self->id;
+    $id =~ s/$host_id //i;
+    my %response = (message => "Settings updated", id => $id);
+    for my $field ($form->fields) {
+        my $type = $field->type;
+        if (($type ne 'PathUpload' && $type ne 'Path') || $field->noupdate) {
+            next;
+        }
+
+        $response{$field->accessor} = $field->value;
+    }
+    return $self->addFormWarnings($form, \%response);
+}
+
+sub remove {
+    my ($self) = @_;
+    my ($status, $msg, $errors) = $self->can_delete();
+    if (is_error($status)) {
+        return $self->render_error($status, $msg, $errors);
+    }
+
+    my $id = $self->id;
+    my $cs = $self->config_store;
+    ($msg, my $deleted) = $cs->remove($id, 'id');
+    if (!$deleted) {
+        return $self->render_error(422, "Unable to delete $id - $msg");
+    }
+
+    return unless ($self->commit($cs));
+    $id =~ s/$host_id //i;
+    return $self->render(json => { message => "Deleted $id successfully" }, status => 200);
 }
 
 sub is_nt_hash_pattern {

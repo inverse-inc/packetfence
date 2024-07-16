@@ -14,6 +14,7 @@ pf::services::manager::ntlm_auth_api
 
 use strict;
 use warnings;
+use Sys::Hostname;
 use pf::db;
 
 use Moo;
@@ -30,6 +31,7 @@ use pf::file_paths qw(
 );
 use pf::util;
 use pf::constants qw($TRUE $FALSE);
+use pf::cluster qw($cluster_enabled $host_id);;
 
 extends 'pf::services::manager';
 
@@ -62,12 +64,19 @@ sub generateConfig {
     pf_run("sudo echo 'DB=$db' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
     pf_run("sudo echo 'DB_UNIX_SOCKET=$db_unix_socket' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
 
+    my $host_id = hostname();
     for my $identifier (keys(%ConfigDomain)) {
+        if ($cluster_enabled) {
+            unless ($identifier =~ /^$host_id /) {
+                next;
+            }
+        }
         my %conf = %{$ConfigDomain{$identifier}};
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
             my $ntlm_auth_port = $conf{ntlm_auth_port};
 
+            $identifier =~ s/$host_id //i;
             pf_run("sudo echo 'HOST=$ntlm_auth_host' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'LISTEN=$ntlm_auth_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'IDENTIFIER=$identifier' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");

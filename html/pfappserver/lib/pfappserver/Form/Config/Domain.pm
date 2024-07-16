@@ -25,7 +25,7 @@ has_field 'id' => (
     type      => 'Text',
     label     => 'Identifier',
     required  => 1,
-    maxlength => 10,
+    maxlength => 30,
     messages  => { required => 'Please specify an identifier' },
     tags      => {
         after_element => \&help,
@@ -34,7 +34,7 @@ has_field 'id' => (
             return {
                 regex => "^[0-9a-zA-Z]+\$",
                 message =>
-"The id is invalid. The id can only contain alphanumeric characters.",
+                    "The id is invalid. The id can only contain alphanumeric characters.",
             };
         },
     },
@@ -329,7 +329,7 @@ Validate NTLM cache fields if ntlm_cache is enabled
 sub validate {
     my ($self) = @_;
 
-    if(($self->field('id')->value() // '') !~ /^[0-9a-zA-Z]+$/) {
+    if (($self->field('id')->value() // '') !~ /^[0-9a-zA-Z\.\-_]+ [0-9a-zA-Z]+$/) {
         $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
     }
 
