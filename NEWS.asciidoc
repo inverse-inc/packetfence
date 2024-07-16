@@ -27,10 +27,24 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+ * Debian 12 support (#8215)
+ * OSQuery support with FleetDM (#8179)
+ *
+
 === Enhancements
+
+ * Firewall SSO clustering load-balancing (#8207)
+ * Domains clustering high-availability (#8205)
+ * Update Caddy (#8210)
 
 === Bug Fixes
 
+ * Fixed Aruba Deauth (#8174)
+
+=== Security Fixes
+
+ * Fixed RCE Vulnerability (#8201) - @ly1g3
+ * External library updates (#8148, #8149, #8160, #8161, #8173, #8176, #8181, #8183, #8199, #8208, #8214)
 
 == Version 13.2.0 released on 2024-05-15
 
