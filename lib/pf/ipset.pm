@@ -69,17 +69,6 @@ use IO::Interface::Simple;
 use List::MoreUtils qw(uniq);
 use URI ();
 
-Readonly my $FW_TABLE_FILTER => 'filter';
-Readonly my $FW_TABLE_MANGLE => 'mangle';
-Readonly my $FW_TABLE_NAT => 'nat';
-Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
-Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
-Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
-Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
-Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
-Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
-Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
-
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 =head1 SUBROUTINES
