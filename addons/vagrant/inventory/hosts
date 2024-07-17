@@ -289,8 +289,8 @@ all:
               memory: 16384
               disk_size: 130
             pfdeb12localdev:
-              box: inverse-inc/pfdeb12dev
-              box_version: 14.0.20240517144600
+              box: debian/bookworm64
+              box_version: 12.20240503.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb12localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb12localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
