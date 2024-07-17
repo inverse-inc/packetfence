@@ -6,7 +6,7 @@ WORKDIR /usr/local/pf/
 
 COPY bin bin
 
-RUN apt-get -qq update && \ 
+RUN apt-get -qq update && \
     apt-get -yqq install python3-pip python3-pymysql python3-sdnotify python3-tz python3-dev
 
 RUN VER=`python3 -c 'import sys; val=sys.version_info;print(str(val.major)+"."+str(val.minor))'` ; \

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/inverse-inc/packetfence/go/ntlm"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"os"
@@ -64,10 +63,10 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 
 	var sectionConf interface{}
 	var exists bool
-	if pfconfigdriver.GetClusterSummary(ctx).ClusterEnabled == 1 {
-		hostname, _ := os.Hostname()
-		sectionConf, exists = domainConfig.Element[hostname+" "+req.Domain]
-	} else {
+
+	hostname, _ := os.Hostname()
+	sectionConf, exists = domainConfig.Element[hostname+" "+req.Domain]
+	if !exists {
 		sectionConf, exists = domainConfig.Element[req.Domain]
 	}
 	if !exists {
@@ -156,10 +155,10 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 
 	var sectionConf interface{}
 	var exists bool
-	if pfconfigdriver.GetClusterSummary(ctx).ClusterEnabled == 1 {
-		hostname, _ := os.Hostname()
-		sectionConf, exists = domainConfig.Element[hostname+" "+req.Id]
-	} else {
+	hostname, _ := os.Hostname()
+
+	sectionConf, exists = domainConfig.Element[hostname+" "+req.Id]
+	if !exists {
 		sectionConf, exists = domainConfig.Element[req.Id]
 	}
 	if !exists {

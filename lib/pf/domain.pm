@@ -68,20 +68,46 @@ sub add_computer {
         $method = "SAMR"
     }
 
-    $computer_name = escape_bind_user_string($computer_name) . "\$";
-    $computer_password = escape_bind_user_string($computer_password);
-    my $domain_auth = escape_bind_user_string("$dns_name/$bind_dn:$bind_pass");
+    $computer_name = $computer_name . "\$";
+    my $domain_auth = "$dns_name/$bind_dn:$bind_pass";
     my $baseDN = generate_base_dn($dns_name);
     my $computer_group = generate_computer_group($dns_name, $ou);
 
-    $baseDN = escape_bind_user_string($baseDN);
-    $computer_group = escape_bind_user_string($computer_group);
-
     my $result;
-    eval {
-        my $command = "$ADD_COMPUTERS_BIN -computer-name '$computer_name' -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group '$computer_group' '$domain_auth' $option -method=$method";
-        $result = safe_pf_run($ADD_COMPUTERS_BIN, '-computer-name', $computer_name, '-computer-pass', $computer_password, '-dc-ip', $domain_controller_ip, '-dc-host', $domain_controller_host, '-baseDN', $baseDN, '-computer-group', $computer_group, $domain_auth, $option, "-method=$method", {accepted_exit_status => [ 0 ]});
-    };
+    if ($option =~ /^\s+$/) {
+        # no delete, simply adds the computer account.
+        eval {
+            $result = safe_pf_run($ADD_COMPUTERS_BIN,
+                "-computer-name", "$computer_name",
+                "-computer-pass", "$computer_password",
+                "-dc-ip", "$domain_controller_ip",
+                "-dc-host", "$domain_controller_host",
+                "-baseDN", "$baseDN",
+                "-computer-group", "$computer_group",
+                "-method=$method",
+                "$domain_auth",
+                { accepted_exit_status => [ 0 ] }
+            );
+        };
+    }
+    else {
+        # computer account already exists / or other cases.
+        eval {
+            $result = safe_pf_run($ADD_COMPUTERS_BIN,
+                "-computer-name", "$computer_name",
+                "-computer-pass", "$computer_password",
+                "-dc-ip", "$domain_controller_ip",
+                "-dc-host", "$domain_controller_host",
+                "-baseDN", "$baseDN",
+                "-computer-group", "$computer_group",
+                "-method=$method",
+                "$domain_auth",
+                "$option",
+                { accepted_exit_status => [ 0 ] }
+            );
+        };
+    }
+
     if ($@) {
         $result = "Executing add computers failed with unknown errors";
         return $FALSE, $result;
