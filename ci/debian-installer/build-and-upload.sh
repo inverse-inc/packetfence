@@ -24,7 +24,7 @@ upload_to_linode() {
 mkdir -p ${SF_RESULT_DIR}
 
 echo "===> Build ISO for release $PF_RELEASE"
-docker run --rm -e PF_RELEASE=$PF_RELEASE -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/debian-installer debian:11 /debian-installer/create-debian-installer-docker.sh
+docker run --rm -e PF_RELEASE=$PF_RELEASE -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/debian-installer debian:12 /debian-installer/create-debian-installer-docker.sh
 
 echo "===> Upload to Linode"
 upload_to_linode
