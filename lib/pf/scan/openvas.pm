@@ -48,19 +48,6 @@ sub _get_scan_id {
     return $self->{_scanId};
 }
 
-sub sendCommand {
-    my ($self, $command) = @_;
-    my @cmds = (
-        'omp',
-        '-h', $self->{_ip},
-        '-p', $self->{_port},
-        '-u', $self->{_username},
-        '-w', $self->{_password},
-        '-X', $command
-    );
-    my $output = safe_pf_run(@cmds);
-    return $output;
-}
 =head1 METHODS
 
 =over
@@ -83,7 +70,7 @@ sub createTarget {
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->debug("Scan target creation command: $cmd");
-    my $output = $self->sendCommand($command);
+    my $output = pf_run($cmd);
     chomp($output);
     $logger->debug("Scan target creation output: $output");
 
@@ -118,7 +105,7 @@ sub createTask {
     my $command = $self->_get_task_string($name, $self->{_openvas_configid}, $self->{_targetId});
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->debug("Scan task creation command: $cmd");
-    my $output = $self->sendCommand($command);
+    my $output = pf_run($cmd);
     chomp($output);
     $logger->debug("Scan task creation output: $output");
 
@@ -159,7 +146,7 @@ sub processReport {
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->debug("Report fetching command: $cmd");
-    my $output = $self->sendCommand($command);
+    my $output = pf_run($cmd);
     chomp($output);
     $logger->debug("Report fetching output: $output");
 
@@ -272,7 +259,7 @@ sub startTask {
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->debug("Scan task starting command: $cmd");
-    my $output = $self->sendCommand($command);
+    my $output = pf_run($cmd);
     chomp($output);
     $logger->debug("Scan task starting output: $output");
 

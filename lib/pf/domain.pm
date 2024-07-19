@@ -77,34 +77,15 @@ sub add_computer {
     if ($option =~ /^\s+$/) {
         # no delete, simply adds the computer account.
         eval {
-            $result = safe_pf_run($ADD_COMPUTERS_BIN,
-                "-computer-name", "$computer_name",
-                "-computer-pass", "$computer_password",
-                "-dc-ip", "$domain_controller_ip",
-                "-dc-host", "$domain_controller_host",
-                "-baseDN", "$baseDN",
-                "-computer-group", "$computer_group",
-                "-method=$method",
-                "$domain_auth",
-                { accepted_exit_status => [ 0 ] }
-            );
+            my $command = "$ADD_COMPUTERS_BIN -computer-name '$computer_name' -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group '$computer_group' -method=$method '$domain_auth'";
+            $result = pf_run($command, accepted_exit_status => [ 0 ]);
         };
     }
     else {
         # computer account already exists / or other cases.
         eval {
-            $result = safe_pf_run($ADD_COMPUTERS_BIN,
-                "-computer-name", "$computer_name",
-                "-computer-pass", "$computer_password",
-                "-dc-ip", "$domain_controller_ip",
-                "-dc-host", "$domain_controller_host",
-                "-baseDN", "$baseDN",
-                "-computer-group", "$computer_group",
-                "-method=$method",
-                "$domain_auth",
-                "$option",
-                { accepted_exit_status => [ 0 ] }
-            );
+            my $command = "$ADD_COMPUTERS_BIN -computer-name '$computer_name' -computer-pass '$computer_password' -dc-ip $domain_controller_ip -dc-host '$domain_controller_host' -baseDN '$baseDN' -computer-group '$computer_group' -method=$method '$domain_auth' $option";
+            $result = pf_run($command, accepted_exit_status => [ 0 ]);
         };
     }
 

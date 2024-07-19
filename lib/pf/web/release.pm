@@ -15,7 +15,6 @@ use Apache2::RequestRec ();
 use Apache2::RequestIO ();
 use Apache2::Const -compile => qw(OK REDIRECT);
 use Date::Parse;
-use String::ShellQuote qw(shell_quote);
 use pf::log;
 use URI::Escape::XS qw(uri_escape);
 
@@ -102,7 +101,7 @@ sub handler
     }
 
     # Start scan in cleanup phase to avoid browser to hang on connection
-    my $cmd = $bin_dir."/pfcmd schedule now " . shell_quote($ip)  ." 1>/dev/null 2>&1";
+    my $cmd = $bin_dir."/pfcmd schedule now $ip 1>/dev/null 2>&1";
     $logger->info("scanning $ip by calling $cmd");
     $r->pool->cleanup_register(\&scan, [$logger, $security_events, $cmd]);
 

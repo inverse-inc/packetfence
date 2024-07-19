@@ -75,7 +75,8 @@ sub iptables_generate {
     $logger->warn("We are using IPSET");
     #Flush mangle table to permit ipset destroy
     $self->iptables_flush_mangle;
-    my @lines = safe_pf_run(qw(sudo ipset --destroy));
+    my $cmd = "sudo ipset --destroy";
+    my @lines = pf_run($cmd);
     my @roles = pf::nodecategory::nodecategory_view_all;
 
     foreach my $network ( keys %ConfigNetworks ) {
@@ -91,27 +92,25 @@ sub iptables_generate {
             $timeout = $ConfigNetworks{$network}{'dhcp_default_lease_time'} + 60;
         }
         foreach my $role ( @roles ) {
-            my @cmds;
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
-                @cmds = (qw(sudo ipset --create), "PF-iL3_ID$role->{'category_id'}", $network, qw(bitmap:ip range), "$network/$inline_obj->{BITS}", "timeout", $timeout);
+                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $timeout 2>&1";
             } else {
-                @cmds = (qw(sudo ipset --create), "PF-iL2_ID$role->{'category_id'}", $network, qw(bitmap:ip range), "$network/$inline_obj->{BITS}", "timeout", $timeout);
+                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $timeout 2>&1";
             }
-            my @lines  = safe_pf_run(@cmds);
+            my @lines  = pf_run($cmd);
         }
 
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            my @cmds;
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                @cmds = (qw(sudo ipset --create), "pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network", qw(bitmap:ip range) ,"$network/$inline_obj->{BITS}", "timeout", $timeout);
+                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $timeout 2>&1";
             } else {
                 if (isenabled($ConfigNetworks{$network}{'split_network'}) && ($IPTABLES_MARK eq $IPTABLES_MARK_UNREG) ) {
-                    @cmds = (qw(sudo ipset --create), "pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network", 'bitmap:ip,mac', 'range', "$network/$inline_obj->{BITS}", "timeout", 120 );
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout 120 2>&1";
                 } else {
-                    @cmds = (qw(sudo ipset --create), "pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network", 'bitmap:ip', 'range', "$network/$inline_obj->{BITS}", "timeout", $timeout );
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout $timeout 2>&1";
                 }
             }
-            my @lines  = safe_pf_run(@cmds);
+            my @lines  = pf_run($cmd);
         }
     }
     # OAuth and passthrough
@@ -121,8 +120,10 @@ sub iptables_generate {
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
 
     if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
-        my @lines  = safe_pf_run(qw(sudo ipset --create pfsession_passthrough),  'hash:ip,port');
-        @lines  = safe_pf_run(qw(sudo ipset --create pfsession_isol_passthrough), 'hash:ip,port');
+        $cmd = "sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
+        my @lines  = pf_run($cmd);
+        $cmd = "sudo ipset --create pfsession_isol_passthrough hash:ip,port 2>&1";
+        @lines  = pf_run($cmd);
     }
     $self->SUPER::iptables_generate();
 }
@@ -386,7 +387,7 @@ sub iptables_flush_mangle {
     my ($self, $restore_file) = @_;
     my $logger = get_logger();
     $logger->info( "flushing iptables" );
-    safe_pf_run(qw(/sbin/iptables -t mangle -F));
+    pf_run("/sbin/iptables -t mangle -F");
 }
 
 =item ipdates_update_set
@@ -406,11 +407,11 @@ sub iptables_update_set {
         my $ip = new NetAddr::IP::Lite clean_ip($ip);
         if ($net_addr->contains($ip)) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                safe_pf_run(qw(sudo ipset del), "PF-iL3_ID$old\_$network", "$ip", '-exist') if defined($old);
-                safe_pf_run(qw(sudo ipset add), "PF-iL3_ID$new\_$network", "$ip", '-exist') if defined($old);
+                pf_run("sudo ipset del PF-iL3_ID$old\_$network $ip -exist 2>&1") if defined($old);
+                pf_run("sudo ipset add PF-iL3_ID$new\_$network $ip -exist 2>&1") if defined($new);
             } else {
-                safe_pf_run(qw(sudo ipset del), "PF-iL2_ID$old\_$network", "$ip", '-exist') if defined($old);
-                safe_pf_run(qw(sudo ipset add), "PF-iL2_ID$new\_$network", "$ip", '-exist') if defined($old);
+                pf_run("sudo ipset del PF-iL2_ID$old\_$network $ip -exist 2>&1") if defined($old);
+                pf_run("sudo ipset add PF-iL2_ID$new\_$network $ip -exist 2>&1") if defined($new);
             }
         }
     }

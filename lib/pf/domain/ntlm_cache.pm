@@ -85,7 +85,8 @@ Call the secretsdump binary and return the NTDS filename
 =cut
 
 sub secretsdump {
-    my ($domain, $source, @opts) = @_;
+    my ($domain, $source, $opts) = @_;
+    $opts //= "";
     my $logger = get_logger;
     my $config = $ConfigDomain{$domain};
 
@@ -100,15 +101,9 @@ sub secretsdump {
 
     foreach my $server (@{$source->{host} // []}) {
         eval {
-            $result = safe_pf_run(
-                $SECRETSDUMP_BIN,
-                pf::domain::escape_bind_user_string($sAMAccountName) . ':' . pf::domain::escape_bind_user_string($source->{password}) . '@' . inet_ntoa(inet_aton($server)),
-                '-just-dc-ntlm',
-                '-output',
-                $tmpfile,
-                @opts,
-                {accepted_exit_status => [ 0 ], working_directory => "/tmp"}
-            );
+            my $command = "$SECRETSDUMP_BIN '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".inet_ntoa(inet_aton($server))." -just-dc-ntlm -output $tmpfile $opts";
+            $logger->debug("Executing sync command: $command");
+            $result = pf_run($command, accepted_exit_status => [ 0 ], working_directory => "/tmp");
         };
         if (!defined($result) || $@) {
             $result = "Can't generate hash list via secretsdump.py. Check logs for details.";
@@ -154,7 +149,7 @@ sub cache_user {
     if (defined($user)) {
         $username = $user;
     }
-    my ($ntds_file, $msg) = secretsdump($domain, $source, '-just-dc-user', $username);
+    my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user '$username'");
     return ($FALSE, $msg) unless($ntds_file);
 
     my $info = extract_info_from_dump_line(read_ntds_file($ntds_file));
