@@ -23,7 +23,7 @@ const pollTaskStatus = ({ task_id, headers }) => {
     if (error.code == 'ERR_CERT_COMMON_NAME_INVALID') { // server certificate changed, hard reload
       location.reload(true)
     }
-    else if (error.response && !['ERR_BAD_RESPONSE', 'ERR_NETWORK'].includes(error.code)) { // The request was made and a response with a status code was received
+    else if (error.response && !['ERR_BAD_RESPONSE', 'ERR_NETWORK', 'ERR_CONNECTION_RESET'].includes(error.code)) { // The request was made and a response with a status code was received
       throw error
     }
     else {
