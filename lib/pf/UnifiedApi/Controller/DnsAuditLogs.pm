@@ -2,13 +2,13 @@ package pf::UnifiedApi::Controller::DnsAuditLogs;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::DnsAutitLogs -
+pf::UnifiedApi::Controller::DnsAuditLogs -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::DnsAutitLogs
+pf::UnifiedApi::Controller::DnsAuditLogs
 
 =cut
 
