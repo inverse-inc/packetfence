@@ -636,9 +636,12 @@ sub _listInterfaces {
 
     my @interfaces_list = ();
 
-    $ifname = '' if ($ifname eq 'all');
+    my @show_args;
+    if ($ifname ne 'all') {
+        push @show_args, $ifname;
+    }
     my ($link, $addr, $ipv6_addr);
-    eval { $link = safe_pf_run(qw(sudo ip -4 -o link show),  $ifname) };
+    eval { $link = safe_pf_run(qw(sudo ip -4 -o link show),  @show_args) };
     if ($link) {
         # Parse output of ip command
         while ($link =~ m/^
