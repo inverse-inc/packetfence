@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 20;
+use Test::More tests => 10;
 use Test::Mojo;
 use Mojo::JSON qw(decode_json);
 
