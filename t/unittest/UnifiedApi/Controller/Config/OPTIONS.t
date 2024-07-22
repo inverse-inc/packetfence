@@ -351,6 +351,15 @@ meta => {
                                         },
                                         text  => "Update role configuration",
                                         value => "update_role_configuration"
+                                    },
+                                    {
+                                        text => 'update_switch_role_network',
+                                        value => 'update_switch_role_network',
+                                        sibling => {
+                                            api_parameters => {
+                                                default => 'mac, $mac, ip, $ip, mask, $mask, lease_length, $lease_length',
+                                            }
+                                        },
                                     }
                                 ],
                                 implied  => undef,
