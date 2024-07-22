@@ -517,7 +517,7 @@ sub restartService {
         my $return_value = system($cmdLine);
         my $elapsed = Time::HiRes::time() - $t0;
         $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $self->name, $elapsed));
-        return $return_value == 0;
+        return $return_value == 0 ? 1 : 0;
     }
     return;
 }
