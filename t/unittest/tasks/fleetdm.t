@@ -9,7 +9,7 @@ BEGIN {
 
 use JSON;
 use pf::constants qw($TRUE $FALSE);
-use Test::More tests => 20;
+use Test::More tests => 11;
 use pf::config qw(%Config);
 use Test::NoWarnings;
 
