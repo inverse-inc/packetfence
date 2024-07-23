@@ -106,8 +106,21 @@ configure_and_check() {
 }
 
 pull_images() {
-    for img in ${CONTAINERS_IMAGES}; do
-	docker pull -q ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}
+    RETRY_LIMIT=2
+    for attempt in $(seq 1 $RETRY_LIMIT); do
+        for img in ${CONTAINERS_IMAGES}; do
+            docker pull -q ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}
+            if [ $? -eq 0 ]; then
+                break
+            else
+                if [ $attempt -le $RETRY_LIMIT ]; then
+                    echo "Retry downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+                    sleep 3
+                else
+                    echo "Failed downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+                fi
+            fi
+        done
     done
     echo "$(date) - Pull of images finished"
 }
