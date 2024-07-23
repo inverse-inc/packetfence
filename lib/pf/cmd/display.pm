@@ -54,7 +54,7 @@ sub print_results {
         print join( $delimiter, @fields ) . "\n";
         foreach my $row (@results) {
             next
-                if ( defined( $row->{'mydate'} )
+                if !$row || ( defined( $row->{'mydate'} )
                 && $row->{'mydate'} =~ /^00/ );
             my @values = ();
             foreach my $field (@fields) {
@@ -76,11 +76,6 @@ sub print_results {
         }
     }
     return ($total);
-}
-
-sub showHelp {
-    my ($self) = @_;
-    $self->SUPER::showHelp(ref($self->{parentCmd}) || $self->{parentCmd});
 }
 
 sub field_order {
