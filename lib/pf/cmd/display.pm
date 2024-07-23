@@ -54,8 +54,7 @@ sub print_results {
         print join( $delimiter, @fields ) . "\n";
         foreach my $row (@results) {
             next
-                if !$row || ( defined( $row->{'mydate'} )
-                && $row->{'mydate'} =~ /^00/ );
+                if !$row || (( defined( $row->{'mydate'} ) && $row->{'mydate'} =~ /^00/ ));
             my @values = ();
             foreach my $field (@fields) {
                 my $value = $row->{$field};
