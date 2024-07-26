@@ -107,8 +107,8 @@ TraceEnable Off
 
 ErrorLog /dev/stderr
 
-User pf
-Group pf
+User #[% pf_uid %]
+Group #[% pf_gid %]
 
 Mutex posixsem default
 Mutex posixsem ssl-cache

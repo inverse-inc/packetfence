@@ -97,8 +97,9 @@ PidFile [% install_dir %]/var/run/[% name %].pid
 Include [% install_dir %]/conf/httpd.conf.d/log.conf
 SetEnvIf User-Agent netdata is_netdata
 
-User pf
-Group pf
+User #[% pf_uid %]
+Group #[% pf_gid %]
+
 PerlOptions +GlobalRequest
 
 ServerAdmin [% server_admin %]
