@@ -59,6 +59,7 @@ func (s *PoolHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 }
 
 func (m *PoolHandler) Provision(_ caddy.Context) error {
+	m.refreshLauncher = &sync.Once{}
 	return nil
 }
 
