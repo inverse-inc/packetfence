@@ -35,6 +35,7 @@ use pf::util::apache qw(url_parser);
 use pf::web::constants;
 use pf::authentication;
 use pf::log;
+use pf::constants::user;
 use pf::cluster;
 use Template;
 
@@ -66,6 +67,8 @@ sub createVars {
         server_name  => $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'},
         name => $self->name,
         shortname => $shortname,
+        pf_uid => $pf::constants::user::PF_UID,
+        pf_gid => $pf::constants::user::PF_GID,
         $self->additionalVars,
     );
     return \%vars;
