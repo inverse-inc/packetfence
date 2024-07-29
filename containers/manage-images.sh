@@ -114,8 +114,8 @@ pull_images() {
                 break
             else
                 if [ $attempt -le $RETRY_LIMIT ]; then
-                    echo "Retry downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
                     sleep 3
+                    echo "Retry downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
                 else
                     echo "Failed downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
                 fi
