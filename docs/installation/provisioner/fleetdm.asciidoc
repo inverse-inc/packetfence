@@ -82,3 +82,53 @@ There are several ways to check if webhooks are working. To test it on PacketFen
 * Use any tool such as `grep` or built-in search highlights of your terminal application and search / watch for keyword `fleetdm`
 * Manually trigger a policy violation or CVE, check if the corresponding webhook API has been called with a 2xx response.
 * A successful report will be something like `api-frontend-access xx.xx.xx.xx - - [30/May/2024:12:42:00 -0400] "POST /api/v1/fleetdm-events/policy HTTP/2.0" 2xx xx "-" "Go-http-client/2.0"`
+
+==== Customize and Integrate with Security Events
+
+It is possible to integrate FleetDM with PacketFence's Security Events which allows the administrators to
+take proper actions including isolating the policy violating devices, sending notification emails or even trigger some scripts when a policy violation is found and reported by FleetDM or
+A specific CVE vulnerability is detected on the network.
+
+There are 3 built-in security event templates in PacketFence since V14 release. They are policy ID "3500001", "3500002" and "3500003". Each of them is for a specific rule
+supported in PacketFence. You can simply modify the existing security events, add your own policy trigger or use them as a template.
+Those 3 security events are disabled by default, You'll need to manually enable them or use them as a reference to build your own.
+
+===== Security Event 3500001
+
+This is a default security event for FleetDM policy violation check. Regular expression is used to match the policy name. For example,
+If you have a policy in FleetDM named "test policy", and enabled this security with FleetDM policy regex set to `^test`, this security event will be triggered
+when a device is reported violating the "test policy" in FleetDM
+
+===== Security Event 3500002
+
+This is a default security event for FleetDM CVE Vulnerability check. Regular expression is used to match the CVE name. For example,
+If you have a CVE Vulnerability named "CVE-2024-6387", and the security event trigger is set to "FleetDM Vulnerability CVE Regex" with a value of "CVE\-2024",
+when a device is reported having a risk of CVE-2024-6387. The corresponding security event will be triggered.
+
+===== Security Event 3500003
+
+This is a default security event for High risk FleetDM CVE Vulnerability check. The CVE's Severity value will be compared. If the severity is higher than the value
+we set in security event, A security event will be triggered.
+Please note, the "CVE Severity" value is a premium feature, you'll have to purchase a subscription (see FleetDM's official website for details) to have this value included
+in CVE Vulnerability webhooks.
+
+===== Customized email template
+
+The email templates can be found in `/usr/local/pf/html/captive-portal/templates/emails`
+`email-fleetdm-policy-violation.html` is for FleetDM policy violations.
+`email-fleetdm-cve.html` is for FleetDM CVE Vulnerabilities.
+
+===== Customized additional email message
+
+If you want to add some extra information to the emails send to device owner or additional recipient without touching the email template,
+you can also configure the additional message section when "email device owner" or "email recipient" is enabled using supported variables.
+To use a variable in extra message template, you'll need to quote the variable using `[% ` and ` %]`. It will be something like
+`[% mac %]` if you wish to have Mac address included in extra message.
+
+Check FleetDM payload example for all supported variables. The example payload can be found when you configure webhook for policy or
+webhook for CVEs in FleetDM admin UI.
+
+NOTE: Variables in extra message will be "double quoted" when saved in security event config file (`/usr/local/pf/conf/security_events.conf*`),
+If you edit the file directly without PacketFence's admin UI, make sure the variables are qoted like `[% ENV.BRL %] variable [% ENV.BRR %]`,
+in which `[% ENV.BRL %]` is the double quoted form of `[% ` and `[% ENV.BRR %]` is the double quoted form of ` %]`.
+And after changing the config file, do a config reload using `/usr/local/pf/bin/pfcmd configreload`. or `usr/local/pf/bin/pfcmd configreload hard`.
