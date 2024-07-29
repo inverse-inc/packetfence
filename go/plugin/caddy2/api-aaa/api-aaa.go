@@ -47,13 +47,13 @@ type PrettyTokenInfo struct {
 }
 
 type ApiAAAHandler struct {
-	router             *httprouter.Router
-	systemBackend      *aaa.MemAuthenticationBackend
-	webservicesBackend *aaa.MemAuthenticationBackend
-	authentication     *aaa.TokenAuthenticationMiddleware
-	authorization      *aaa.TokenAuthorizationMiddleware
-	noAuthPaths        map[string]bool
-	tokenBackend       []string
+	router             *httprouter.Router                 `json:"-"`
+	systemBackend      *aaa.MemAuthenticationBackend      `json:"-"`
+	webservicesBackend *aaa.MemAuthenticationBackend      `json:"-"`
+	authentication     *aaa.TokenAuthenticationMiddleware `json:"-"`
+	authorization      *aaa.TokenAuthorizationMiddleware  `json:"-"`
+	NoAuthPaths        map[string]bool                    `json:"no_auth_paths"`
+	TokenBackend       []string                           `json:"token_backend"`
 }
 
 // Setup the api-aaa middleware
@@ -94,8 +94,8 @@ func (s *ApiAAAHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 		}
 	}
 
-	s.noAuthPaths = noAuthPaths
-	s.tokenBackend = tokenBackendArgs
+	s.NoAuthPaths = noAuthPaths
+	s.TokenBackend = tokenBackendArgs
 	return nil
 }
 
@@ -154,7 +154,7 @@ func (h *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 		u.AddStruct(ctx, "PfConfServicesURL", servicesURL)
 	})
 
-	tokenBackend := aaa.MakeTokenBackend(ctx, h.tokenBackend)
+	tokenBackend := aaa.MakeTokenBackend(ctx, h.TokenBackend)
 	h.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
@@ -384,7 +384,7 @@ func (h *ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next c
 		// TODO change me and wrap actions into something that handles server errors
 		return nil
 	} else {
-		_, noauth := h.noAuthPaths[r.URL.Path]
+		_, noauth := h.NoAuthPaths[r.URL.Path]
 		if noauth || h.HandleAAA(w, r) {
 			return next.ServeHTTP(w, r)
 		}

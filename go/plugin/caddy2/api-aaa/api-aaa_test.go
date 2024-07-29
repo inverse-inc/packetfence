@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/caddyserver/caddy/v2/caddytest"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -142,5 +143,30 @@ func TestApiAAAContentType(t *testing.T) {
 	if recorder.Header().Get("Content-Type") != "application/json" {
 		t.Error("Wrong Content-Type for the request")
 	}
+
+}
+
+func TestRespond(t *testing.T) {
+	// arrange
+	tester := caddytest.NewTester(t)
+	tester.InitServer(` 
+  {
+    admin localhost:2999
+    http_port     9080
+    https_port    9443
+    grace_period  1ns
+  }
+  
+  localhost:9080 {
+	  route * {
+		  api-aaa {
+			  no_auth /api/v1/pfconnector/tunnel
+		  }
+	  }
+    }
+  `, "caddyfile")
+
+	// act and assert
+	tester.AssertGetResponse("http://localhost:9080/api/v1/pfconnector/tunnel", 200, "")
 
 }
