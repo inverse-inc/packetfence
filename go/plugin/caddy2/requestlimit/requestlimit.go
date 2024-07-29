@@ -64,8 +64,8 @@ func (s *RequestLimitHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 }
 
 type RequestLimitHandler struct {
-	Max int
-	sem chan int
+	Max int      `json:"max"`
+	sem chan int `json:"-"`
 }
 
 func (r *RequestLimitHandler) Cleanup() error {

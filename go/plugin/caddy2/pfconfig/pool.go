@@ -54,7 +54,7 @@ func (s *PoolHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 		}
 	}
 
-	s.noRlockPaths = noRlockPaths
+	s.NoRlockPaths = noRlockPaths
 	return nil
 }
 
@@ -64,8 +64,8 @@ func (m *PoolHandler) Provision(_ caddy.Context) error {
 }
 
 type PoolHandler struct {
-	refreshLauncher *sync.Once
-	noRlockPaths    []string
+	refreshLauncher *sync.Once `json:"-"`
+	NoRlockPaths    []string   `json:"no_rlock_paths"`
 }
 
 func (p *PoolHandler) Validate() error {
@@ -80,7 +80,7 @@ func (p *PoolHandler) Cleanup() error {
 func (h *PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	defer panichandler.Http(r.Context(), w)
 
-	for _, noRlock := range h.noRlockPaths {
+	for _, noRlock := range h.NoRlockPaths {
 		if strings.HasSuffix(r.URL.Path, noRlock) {
 			return next.ServeHTTP(w, r)
 		}
