@@ -977,8 +977,8 @@ sub safe_pf_run {
     my $logger = get_logger();
     my $options = {};
     my ($switch_back_wd);
-    my ($chld_out, $chld_in);
-    my $chld_err = gensym;
+    my ($chld_out, $chld_in, $chld_err);
+    $chld_err = gensym;
     if (@args && ref($args[-1])) {
         $options = pop @args;
     }
@@ -994,6 +994,15 @@ sub safe_pf_run {
         my $mode = $options->{stdout_append} ? '>>' : '>';
         open(OUT_PF_RUN, $mode, $stdout) or die "cannot open $stdout $!";
         $chld_out = '>&OUT_PF_RUN';
+    }
+
+    my $redirect_stderr_to_stdout = $options->{redirect_stderr_to_stdout};
+    if ($redirect_stderr_to_stdout) {
+        if ($chld_out) {
+            $chld_err = $chld_out;
+        } else {
+            $chld_out = $chld_err;
+        }
     }
 
     if (defined($options->{working_directory})) {
