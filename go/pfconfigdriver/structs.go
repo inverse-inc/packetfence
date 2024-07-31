@@ -65,17 +65,14 @@ type configStruct struct {
 		RADIUSInts        RADIUSInts
 	}
 	PfConf struct {
-		Advanced      PfConfAdvanced
-		General       PfConfGeneral
-		Fencing       PfConfFencing
-		CaptivePortal PfConfCaptivePortal
-		Webservices   PfConfWebservices
-		Database      PfConfDatabase
-		Parking       PfConfParking
-		Alerting      PfConfAlerting
-		ActiveActive  PfConfActiveActive
-		Services      PfConfServices
-		Pfconnector   PfConfPfconnector
+		Advanced     PfConfAdvanced
+		Webservices  PfConfWebservices
+		Database     PfConfDatabase
+		Parking      PfConfParking
+		Alerting     PfConfAlerting
+		ActiveActive PfConfActiveActive
+		Services     PfConfServices
+		Pfconnector  PfConfPfconnector
 	}
 	Cluster struct {
 		AllServers AllClusterServers

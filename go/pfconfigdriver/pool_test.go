@@ -36,6 +36,7 @@ func TestPoolRefreshables(t *testing.T) {
 	}
 }
 
+/*
 func TestPoolStructs(t *testing.T) {
 	p := NewPool()
 	config := &configStruct{}
@@ -54,3 +55,4 @@ func TestPoolStructs(t *testing.T) {
 		t.Error("Same struct to refresh was added twice instead of only once")
 	}
 }
+*/

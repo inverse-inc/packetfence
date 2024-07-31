@@ -84,6 +84,12 @@ func (cs *ConfigStoreUpdater) AddStruct(ctx context.Context, n string, i interfa
 	cs.structs[n] = i
 }
 
+func ConfigStoreUpdaterAddType[T any](ctx context.Context, cs *ConfigStoreUpdater) {
+	var z T
+	var valType = reflect.TypeOf(z)
+	cs.AddStruct(ctx, valType.String(), &z)
+}
+
 func (cs *ConfigStoreUpdater) Refresh(ctx context.Context) {
 	for _, s := range cs.structs {
 		refreshStruct(ctx, s)
