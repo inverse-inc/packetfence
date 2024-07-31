@@ -78,7 +78,6 @@ type configStruct struct {
 		Pfconnector   PfConfPfconnector
 	}
 	Cluster struct {
-		HostsIp
 		AllServers AllClusterServers
 	}
 	Dns struct {
