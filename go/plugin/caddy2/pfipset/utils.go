@@ -12,12 +12,12 @@ import (
 	"regexp"
 	"strconv"
 
+	ipset "github.com/inverse-inc/go-ipset/v2"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/mac"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
-	ipset "github.com/inverse-inc/go-ipset/v2"
 )
 
 var body io.Reader
@@ -38,9 +38,10 @@ func (IPSET *pfIPSET) AddToContext(ctx context.Context) context.Context {
 
 // Detect the vip on each interfaces
 func getClusterMembersIps(ctx context.Context) []net.IP {
+	hostsIp := pfconfigdriver.GetStruct(ctx, "HostsIp").(*pfconfigdriver.HostsIp)
 
 	var members []net.IP
-	for _, key := range pfconfigdriver.Config.Cluster.HostsIp.Keys {
+	for _, key := range hostsIp.Keys {
 		var ConfNet pfconfigdriver.PfClusterIp
 		ConfNet.PfconfigHashNS = key
 

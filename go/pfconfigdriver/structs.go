@@ -78,11 +78,7 @@ type configStruct struct {
 		Pfconnector   PfConfPfconnector
 	}
 	Cluster struct {
-		HostsIp struct {
-			PfconfigKeys
-			PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
-			PfconfigClusterNameOverlay string `val:"yes"`
-		}
+		HostsIp
 		AllServers AllClusterServers
 	}
 	Dns struct {
@@ -90,6 +86,12 @@ type configStruct struct {
 	}
 	EAPConfiguration EAPConfiguration
 	RolesChildren    RolesChildren
+}
+
+type HostsIp struct {
+	PfconfigKeys
+	PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
+	PfconfigClusterNameOverlay string `val:"yes"`
 }
 
 var Config configStruct
