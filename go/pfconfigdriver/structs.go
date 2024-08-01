@@ -58,9 +58,7 @@ type configStruct struct {
 		Isolation    PassthroughsIsolationConf
 	}
 	Interfaces struct {
-		ListenInts        ListenInts
 		ManagementNetwork ManagementNetwork
-		DHCPInts          DHCPInts
 		DNSInts           DNSInts
 		RADIUSInts        RADIUSInts
 	}

@@ -713,7 +713,7 @@ func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port strin
 }
 
 func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
-	general := pfconfigdriver.Config.PfConf.General
+	general := pfconfigdriver.GetType[pfconfigdriver.PfConfGeneral](ctx)
 
 	index := 0
 
