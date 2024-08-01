@@ -86,6 +86,10 @@ func ConfigStorePoolGetType[T any](ctx context.Context, s *ConfigStorePool) *T {
 	var z T
 	valType := reflect.TypeOf(z)
 	i := PfConfigStorePool.GetStore().GetStruct(valType.String())
+	if i == nil {
+		return nil
+	}
+
 	return i.(*T)
 }
 
@@ -94,7 +98,15 @@ func AddType[T any](ctx context.Context) {
 }
 
 func GetType[T any](ctx context.Context) *T {
-	return ConfigStorePoolGetType[T](ctx, PfConfigStorePool)
+	v := ConfigStorePoolGetType[T](ctx, PfConfigStorePool)
+	if v != nil {
+		return v
+	}
+
+	var z T
+	var valType = reflect.TypeOf(z)
+	PfConfigStorePool.AddStruct(ctx, valType.String(), &z)
+	return &z
 }
 
 func (p *ConfigStorePool) Update(ctx context.Context, f func(context.Context, *ConfigStoreUpdater)) {
