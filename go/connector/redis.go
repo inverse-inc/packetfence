@@ -18,17 +18,17 @@ func init() {
 		return
 	}
 
-	pfconfigdriver.PfconfigPool.AddStruct(context.Background(), &pfconfigdriver.Config.PfConf.Pfconnector)
+	pfConnector := pfconfigdriver.GetType[pfconfigdriver.PfConfPfconnector](context.Background())
 	var network string
-	if pfconfigdriver.Config.PfConf.Pfconnector.RedisServer[0] == '/' {
+	if pfConnector.RedisServer[0] == '/' {
 		network = "unix"
 	} else {
 		network = "tcp"
 	}
 
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:    pfconfigdriver.Config.PfConf.Pfconnector.RedisServer,
+		Addr:    pfConnector.RedisServer,
 		Network: network,
 	})
-	redisTunnelsNamespace = pfconfigdriver.Config.PfConf.Pfconnector.RedisTunnelsNamespace
+	redisTunnelsNamespace = pfConnector.RedisTunnelsNamespace
 }

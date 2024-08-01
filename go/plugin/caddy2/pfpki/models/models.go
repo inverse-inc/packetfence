@@ -1966,8 +1966,7 @@ type EmailType struct {
 }
 
 func emailcert(ctx context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
-	alerting := pfconfigdriver.Config.PfConf.Alerting
+	alerting := pfconfigdriver.GetType[pfconfigdriver.PfConfAlerting](ctx)
 
 	mail := EmailType{Header: profile.P12MailHeader, Footer: profile.P12MailFooter}
 	if len(profile.P12MailFrom) > 0 {
@@ -1988,8 +1987,7 @@ func emailcert(ctx context.Context, cert Cert, profile Profile, file []byte, pas
 }
 
 func emailRenewal(ctx context.Context, cert Cert, profile Profile) (types.Info, error) {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
-	alerting := pfconfigdriver.Config.PfConf.Alerting
+	alerting := pfconfigdriver.GetType[pfconfigdriver.PfConfAlerting](ctx)
 
 	mail := EmailType{}
 
@@ -2019,10 +2017,8 @@ func emailRenewal(ctx context.Context, cert Cert, profile Profile) (types.Info, 
 }
 
 func email(ctx context.Context, email EmailType) (types.Info, error) {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
-	alerting := pfconfigdriver.Config.PfConf.Alerting
-	advanced := pfconfigdriver.Config.PfConf.Advanced
+	alerting := pfconfigdriver.GetType[pfconfigdriver.PfConfAlerting](ctx)
+	advanced := pfconfigdriver.GetType[pfconfigdriver.PfConfAdvanced](ctx)
 
 	Information := types.Info{}
 

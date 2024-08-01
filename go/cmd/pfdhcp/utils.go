@@ -32,7 +32,7 @@ type NodeInfo struct {
 }
 
 // connectDB connect to the database
-func connectDB(configDatabase pfconfigdriver.PfConfDatabase) {
+func connectDB(configDatabase *pfconfigdriver.PfConfDatabase) {
 	db, err := db.DbFromConfig(ctx)
 	sharedutils.CheckError(err)
 	MySQLdatabase = db

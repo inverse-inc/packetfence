@@ -83,9 +83,7 @@ func (pf *pfdns) DNSRecord(ctx context.Context) error {
 func (pf *pfdns) detectVIP(ctx context.Context) error {
 
 	var NetIndex net.IPNet
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
+	listenInts := pfconfigdriver.GetType[pfconfigdriver.ListenInts](ctx)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -107,7 +105,7 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 			}
 		}
 	}
-	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(listenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		err = pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)

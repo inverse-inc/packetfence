@@ -546,8 +546,8 @@ func (pf *pfdns) detectType(ctx context.Context) error {
 	var NetIndex net.IPNet
 	pf.NetworkType = make(map[*net.IPNet]*pfconfigdriver.NetworkConf)
 
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
+	listenInts := pfconfigdriver.GetType[pfconfigdriver.ListenInts](ctx)
+	dnsInts := pfconfigdriver.GetType[pfconfigdriver.DNSInts](ctx)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -559,14 +559,14 @@ func (pf *pfdns) detectType(ctx context.Context) error {
 
 	var intDNS []string
 
-	for _, vi := range pfconfigdriver.Config.Interfaces.DNSInts.Element {
+	for _, vi := range dnsInts.Element {
 		for key, DNSint := range vi.(map[string]interface{}) {
 			if key == "int" {
 				intDNS = append(intDNS, DNSint.(string))
 			}
 		}
 	}
-	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(listenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)

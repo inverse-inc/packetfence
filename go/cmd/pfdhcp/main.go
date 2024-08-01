@@ -95,8 +95,7 @@ func main() {
 	GlobalFilterCache = cache.New(2*time.Minute, 4*time.Minute)
 
 	// Read DB config
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-	configDatabase := pfconfigdriver.Config.PfConf.Database
+	configDatabase := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](ctx)
 
 	connectDB(configDatabase)
 

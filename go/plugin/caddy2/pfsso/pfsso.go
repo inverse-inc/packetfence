@@ -72,7 +72,7 @@ func (h *PfssoHandler) buildPfssoHandler(ctx context.Context) error {
 	h.firewalls = firewallsso.NewFirewallsContainer(ctx)
 	h.connectors = connector.NewConnectorsContainer(ctx)
 	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, h.firewalls)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
+	pfconfigdriver.AddType[pfconfigdriver.ManagementNetwork](ctx)
 
 	router := httprouter.New()
 	router.POST("/api/v1/firewall_sso/update", h.handleUpdate)

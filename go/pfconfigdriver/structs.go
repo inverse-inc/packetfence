@@ -58,16 +58,14 @@ type configStruct struct {
 		Isolation    PassthroughsIsolationConf
 	}
 	Interfaces struct {
-		ManagementNetwork ManagementNetwork
-		DNSInts           DNSInts
-		RADIUSInts        RADIUSInts
+		DNSInts    DNSInts
+		RADIUSInts RADIUSInts
 	}
 	PfConf struct {
 		Advanced     PfConfAdvanced
 		Webservices  PfConfWebservices
 		Database     PfConfDatabase
 		Parking      PfConfParking
-		Alerting     PfConfAlerting
 		ActiveActive PfConfActiveActive
 		Services     PfConfServices
 		Pfconnector  PfConfPfconnector

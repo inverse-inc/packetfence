@@ -171,7 +171,7 @@ func (fw *FirewallSSO) RadiusContextWithTimeout() (context.Context, context.Canc
 // Get the source IP address for the SSO packets
 // Will return either the management VIP if there is one of the IP of the management network
 func (fw *FirewallSSO) getSourceIp(ctx context.Context) net.IP {
-	managementNetwork := pfconfigdriver.Config.Interfaces.ManagementNetwork
+	managementNetwork := pfconfigdriver.GetType[pfconfigdriver.ManagementNetwork](ctx)
 
 	if managementNetwork.Vip != "" {
 		return net.ParseIP(managementNetwork.Vip)
