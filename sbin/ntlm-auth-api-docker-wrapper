@@ -32,7 +32,7 @@ if [ "$option" = "start" ]; then
     done
     /usr/local/pf/sbin/ntlm-auth-api-monitor &
 elif [ "$option" = "stop" ]; then
-    pids=$(pgrep "ntlm-auth-api-monitor")
+    pids=$(pgrep -f "ntlm-auth-api-monitor")
 
     if [ -n "$pids" ]; then
         echo "$pids" | xargs kill

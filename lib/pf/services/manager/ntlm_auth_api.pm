@@ -40,8 +40,8 @@ has '+name' => (default => sub {'ntlm-auth-api'});
 sub generateConfig {
     my $self = shift;
 
+    safe_pf_run(qw(sudo rm -rf), "$generated_conf_dir/" . $self->name() . ".d/");
     safe_pf_run(qw(sudo mkdir -p),  "$generated_conf_dir/" . $self->name() . ".d/");
-    safe_pf_run(qw(sudo rm -rf), "$generated_conf_dir/" . $self->name() . ".d/*.env");
 
     my $db_config = pf::db::db_config();
 
