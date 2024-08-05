@@ -32,17 +32,16 @@ func (pf *pfdns) Refresh(ctx context.Context) {
 }
 
 func (pf *pfdns) PassthroughsInit(ctx context.Context) error {
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Registration)
+	registration := pfconfigdriver.GetType[pfconfigdriver.PassthroughsConf](ctx)
 
 	pf.FqdnPort = make(map[*regexp.Regexp][]string)
 
-	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Wildcard {
+	for k, v := range registration.Wildcard {
 		rgx, _ := regexp.Compile(".*" + k)
 		pf.FqdnPort[rgx] = v
 	}
 
-	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Normal {
+	for k, v := range registration.Normal {
 		rgx, _ := regexp.Compile("^" + k + ".$")
 		pf.FqdnPort[rgx] = v
 	}
@@ -51,17 +50,16 @@ func (pf *pfdns) PassthroughsInit(ctx context.Context) error {
 }
 
 func (pf *pfdns) PassthroughsIsolationInit(ctx context.Context) error {
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Isolation)
+	isolation := pfconfigdriver.GetType[pfconfigdriver.PassthroughsIsolationConf](ctx)
 
 	pf.FqdnIsolationPort = make(map[*regexp.Regexp][]string)
 
-	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Wildcard {
+	for k, v := range isolation.Wildcard {
 		rgx, _ := regexp.Compile(".*" + k)
 		pf.FqdnIsolationPort[rgx] = v
 	}
 
-	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Normal {
+	for k, v := range isolation.Normal {
 		rgx, _ := regexp.Compile("^" + k + ".$")
 		pf.FqdnIsolationPort[rgx] = v
 	}
