@@ -29,6 +29,7 @@ type FirewallSSOInt interface {
 	init(ctx context.Context) error
 	initChild(ctx context.Context) error
 	logger(ctx context.Context) log15.Logger
+	setPfconfigHashNS(id string)
 	getSourceIp(ctx context.Context) net.IP
 	Start(ctx context.Context, info map[string]string, timeout int) (bool, error)
 	Stop(ctx context.Context, info map[string]string) (bool, error)
@@ -58,6 +59,10 @@ type FirewallSSO struct {
 	UsernameFormat string                `json:"username_format"`
 	DefaultRealm   string                `json:"default_realm"`
 	UseConnector   string                `json:"use_connector"`
+}
+
+func (fw *FirewallSSO) setPfconfigHashNS(id string) {
+	fw.PfconfigHashNS = id
 }
 
 // Builds all networks, meant to be called after the data is loaded into the struct attributes
