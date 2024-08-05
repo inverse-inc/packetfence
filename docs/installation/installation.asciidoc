@@ -187,7 +187,7 @@ In order to use the repository, create a file named [filename]`/etc/apt/sources.
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm' > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/14.0 bookworm bookworm" > \
 /etc/apt/sources.list.d/packetfence.list
 ----
 
@@ -197,8 +197,8 @@ server, DHCP server, RADIUS server) using:
 
 [source,bash]
 ----
-apt install gnupg sudo
-wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
+apt install gnupg sudo curl
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 apt-get update
 apt-get install packetfence
 ----
