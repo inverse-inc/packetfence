@@ -97,7 +97,7 @@ case "$1" in
         if [ ! -f /usr/local/pf/conf/pf.conf ]; then
             echo "pf.conf doesnt exits"
             touch /usr/local/pf/conf/pf.conf
-            chown pf.pf /usr/local/pf/conf/pf.conf
+            chown pf:pf /usr/local/pf/conf/pf.conf
         else
             echo "pf.conf already exists, won't touch it!"
         fi
