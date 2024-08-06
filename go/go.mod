@@ -43,7 +43,7 @@ require (
 	github.com/inverse-inc/go-radius v0.0.0-20220811032638-9fee2fa31606
 	github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4
 	github.com/inverse-inc/scep v0.0.0-20231110153716-8deeb4991691
-	github.com/jcuga/golongpoll v1.1.0
+	github.com/jcuga/golongpoll v1.3.1
 	github.com/jpillora/backoff v1.0.0
 	github.com/jpillora/requestlog v1.0.0
 	github.com/jpillora/sizestr v1.0.0
@@ -72,7 +72,7 @@ require (
 	golang.org/x/crypto v0.23.0
 	golang.org/x/net v0.25.0
 	golang.org/x/sync v0.7.0
-	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/sys v0.20.0
 	golang.org/x/text v0.15.0
 	google.golang.org/api v0.180.0 // indirect
 	google.golang.org/grpc v1.63.2 // indirect
@@ -266,6 +266,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.6.0 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/glog v1.2.0 // indirect
 	github.com/google/cel-go v0.20.1 // indirect
