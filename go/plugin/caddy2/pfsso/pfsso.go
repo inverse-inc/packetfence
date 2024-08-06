@@ -45,7 +45,6 @@ type PfssoHandler struct {
 	router *httprouter.Router
 	// The cache for the cached updates feature
 	updateCache *cache.Cache
-	firewalls   *firewallsso.FirewallsContainer
 	connectors  *connector.ConnectorsContainer
 }
 
@@ -69,10 +68,10 @@ func (h *PfssoHandler) buildPfssoHandler(ctx context.Context) error {
 	h.updateCache = cache.New(1*time.Hour, 30*time.Second)
 
 	// Declare all pfconfig resources that will be necessary
-	h.firewalls = firewallsso.NewFirewallsContainer(ctx)
+	firewalls := firewallsso.NewFirewallsContainer(ctx)
 	h.connectors = connector.NewConnectorsContainer(ctx)
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, h.firewalls)
 	pfconfigdriver.AddType[pfconfigdriver.ManagementNetwork](ctx)
+	pfconfigdriver.AddRefreshable(ctx, "firewallsso.FirewallsContainer", firewalls)
 
 	router := httprouter.New()
 	router.POST("/api/v1/firewall_sso/update", h.handleUpdate)
@@ -168,9 +167,10 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	}
 
 	ctx = h.addInfoToContext(ctx, info)
+	firewalls := pfconfigdriver.GetRefresh(ctx, "firewallsso.FirewallsContainer").(*firewallsso.FirewallsContainer)
 
 	var shouldStart bool
-	for _, firewall := range h.firewalls.All(ctx) {
+	for _, firewall := range firewalls.All(ctx) {
 		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + "|mac|" + info["mac"] + "|ip|" + info["ip"] + "|username|" + info["username"] + "|role|" + info["role"]
 		// Check whether or not this firewall has cache updates
 		// Then check if an entry in the cache exists
@@ -236,8 +236,9 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 	}
 
 	ctx = h.addInfoToContext(ctx, info)
+	firewalls := pfconfigdriver.GetRefresh(ctx, "firewallsso.FirewallsContainer").(*firewallsso.FirewallsContainer)
 
-	for _, firewall := range h.firewalls.All(ctx) {
+	for _, firewall := range firewalls.All(ctx) {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
 		h.spawnSso(ctx, firewall, info, func(ctx context.Context, info map[string]string) (bool, error) {
@@ -268,8 +269,9 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 			h.updateCache.Delete(k)
 		}
 	}
+	firewalls := pfconfigdriver.GetRefresh(ctx, "firewallsso.FirewallsContainer").(*firewallsso.FirewallsContainer)
 
-	for _, firewall := range h.firewalls.All(ctx) {
+	for _, firewall := range firewalls.All(ctx) {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
 		h.spawnSso(ctx, firewall, info, func(ctx context.Context, info map[string]string) (bool, error) {

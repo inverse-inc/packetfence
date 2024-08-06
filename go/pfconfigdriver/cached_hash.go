@@ -62,6 +62,25 @@ func (cc *CachedHash) Refresh(ctx context.Context) {
 	}
 }
 
+func (cc *CachedHash) IsValid(ctx context.Context) bool {
+	if !IsValid(ctx, &cc.ids) {
+		return false
+	}
+
+	for _, id := range cc.ids.Response.Keys {
+		o, ok := cc.Structs[id]
+		if !ok {
+			return false
+		}
+
+		if !IsValid(ctx, o) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (cc *CachedHash) Keys(ctx context.Context) []string {
 	return cc.ids.Keys
 }

@@ -3,8 +3,6 @@ package pfdns
 import (
 	"context"
 	"net"
-	"sync"
-	"time"
 
 	"github.com/coredns/caddy"
 	"github.com/coredns/coredns/core/dnsserver"
@@ -12,7 +10,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/timedlock"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
-	cache "github.com/patrickmn/go-cache"
 )
 
 func init() {
@@ -51,15 +48,11 @@ func setuppfdns(c *caddy.Controller) error {
 			}
 		}
 	}
+	pfdnsRefreshableConfig := newPfconfigRefreshableConfig(ctx)
+	pfconfigdriver.AddRefreshable(ctx, "pfdnsRefreshableConfig", pfdnsRefreshableConfig)
 
 	if err := pf.DbInit(ctx); err != nil {
 		return c.Errf("pfdns: unable to initialize database connection")
-	}
-	if err := pf.PassthroughsInit(ctx); err != nil {
-		return c.Errf("pfdns: unable to initialize passthrough")
-	}
-	if err := pf.PassthroughsIsolationInit(ctx); err != nil {
-		return c.Errf("pfdns: unable to initialize isolation passthrough")
 	}
 
 	if err := pf.WebservicesInit(ctx); err != nil {
@@ -90,15 +83,7 @@ func setuppfdns(c *caddy.Controller) error {
 		return c.Errf("pfdns: unable to setup redis client")
 	}
 
-	// Initialize dns filter cache
-	pf.DNSFilter = cache.New(300*time.Second, 10*time.Second)
-
-	pf.IpsetCache = cache.New(1*time.Hour, 10*time.Second)
-
 	pf.apiClient = unifiedapiclient.NewFromConfig(context.Background())
-
-	pf.refreshLauncher = &sync.Once{}
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pf)
 
 	dnsserver.GetConfig(c).AddPlugin(
 		func(next plugin.Handler) plugin.Handler {

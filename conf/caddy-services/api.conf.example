@@ -98,7 +98,6 @@
 ####
 ## The configuration below allows to use this server as a proxy
 #0.0.0.0:9990 {
-#  pfconfigpool
 #  logger {
 #    level INFO
 #  }

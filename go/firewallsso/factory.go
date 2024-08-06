@@ -3,33 +3,43 @@ package firewallsso
 import (
 	"context"
 	"errors"
-	"reflect"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
+type plugin[T any] interface {
+	*T
+	FirewallSSOInt
+	pfconfigdriver.PfconfigObject
+}
+
 // A factory for FirewallSSO
 type Factory struct {
-	typeRegistry map[string]reflect.Type
+	typeRegistry map[string]func() FirewallSSOInt
+}
+
+func newFirewallSSO[T any, P plugin[T]]() FirewallSSOInt {
+	return P(new(T))
 }
 
 // Create a new FirewallSSO factory containing all the valid types
 func NewFactory(ctx context.Context) Factory {
 	f := Factory{}
-	f.typeRegistry = make(map[string]reflect.Type)
-	f.typeRegistry["BarracudaNG"] = reflect.TypeOf(&BarracudaNG{}).Elem()
-	f.typeRegistry["Iboss"] = reflect.TypeOf(&Iboss{}).Elem()
-	f.typeRegistry["PaloAlto"] = reflect.TypeOf(&PaloAlto{}).Elem()
-	f.typeRegistry["LightSpeedRocket"] = reflect.TypeOf(&FortiGate{}).Elem()
-	f.typeRegistry["SmoothWall"] = reflect.TypeOf(&FortiGate{}).Elem()
-	f.typeRegistry["FortiGate"] = reflect.TypeOf(&FortiGate{}).Elem()
-	f.typeRegistry["Checkpoint"] = reflect.TypeOf(&Checkpoint{}).Elem()
-	f.typeRegistry["WatchGuard"] = reflect.TypeOf(&WatchGuard{}).Elem()
-	f.typeRegistry["JSONRPC"] = reflect.TypeOf(&JSONRPC{}).Elem()
-	f.typeRegistry["JuniperSRX"] = reflect.TypeOf(&JuniperSRX{}).Elem()
-	f.typeRegistry["FamilyZone"] = reflect.TypeOf(&FamilyZone{}).Elem()
-	f.typeRegistry["CiscoIsePic"] = reflect.TypeOf(&CiscoIsePic{}).Elem()
-	f.typeRegistry["ContentKeeper"] = reflect.TypeOf(&ContentKeeper{}).Elem()
+	f.typeRegistry = map[string]func() FirewallSSOInt{
+		"BarracudaNG":      newFirewallSSO[BarracudaNG],
+		"Iboss":            newFirewallSSO[Iboss],
+		"PaloAlto":         newFirewallSSO[PaloAlto],
+		"LightSpeedRocket": newFirewallSSO[FortiGate],
+		"SmoothWall":       newFirewallSSO[FortiGate],
+		"FortiGate":        newFirewallSSO[FortiGate],
+		"Checkpoint":       newFirewallSSO[Checkpoint],
+		"WatchGuard":       newFirewallSSO[WatchGuard],
+		"JSONRPC":          newFirewallSSO[JSONRPC],
+		"JuniperSRX":       newFirewallSSO[JuniperSRX],
+		"FamilyZone":       newFirewallSSO[FamilyZone],
+		"CiscoIsePic":      newFirewallSSO[CiscoIsePic],
+		"ContentKeeper":    newFirewallSSO[ContentKeeper],
+	}
 	return f
 }
 
@@ -41,16 +51,14 @@ func (f *Factory) Instantiate(ctx context.Context, id string) (FirewallSSOInt, e
 	if err != nil {
 		return nil, err
 	}
+
 	if oType, ok := f.typeRegistry[firewall.Type]; ok {
-		or := reflect.New(oType)
-		or.Elem().FieldByName("PfconfigHashNS").SetString(id)
-		firewall2 := or.Interface().(pfconfigdriver.PfconfigObject)
-		_, err = pfconfigdriver.FetchDecodeSocketCache(ctx, firewall2)
+		fwint := oType()
+		fwint.setPfconfigHashNS(id)
+		_, err = pfconfigdriver.FetchDecodeSocketCache(ctx, fwint)
 		if err != nil {
 			return nil, err
 		}
-
-		fwint := firewall2.(FirewallSSOInt)
 
 		err = fwint.init(ctx)
 		if err != nil {

@@ -52,41 +52,11 @@ type TypedConfig struct {
 	Type string `json:"type"`
 }
 
-type configStruct struct {
-	Passthroughs struct {
-		Registration PassthroughsConf
-		Isolation    PassthroughsIsolationConf
-	}
-	Interfaces struct {
-		DNSInts    DNSInts
-		RADIUSInts RADIUSInts
-	}
-	PfConf struct {
-		Advanced     PfConfAdvanced
-		Webservices  PfConfWebservices
-		Database     PfConfDatabase
-		Parking      PfConfParking
-		ActiveActive PfConfActiveActive
-		Services     PfConfServices
-		Pfconnector  PfConfPfconnector
-	}
-	Cluster struct {
-		AllServers AllClusterServers
-	}
-	Dns struct {
-		Configuration PfConfDns
-	}
-	EAPConfiguration EAPConfiguration
-	RolesChildren    RolesChildren
-}
-
 type HostsIp struct {
 	PfconfigKeys
 	PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
 	PfconfigClusterNameOverlay string `val:"yes"`
 }
-
-var Config configStruct
 
 // Represents the pf.conf general section
 type PfConfGeneral struct {

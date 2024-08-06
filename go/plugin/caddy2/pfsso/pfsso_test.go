@@ -10,8 +10,15 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 )
+
+func TestMain(m *testing.M) {
+	ctx := context.Background()
+	firewalls := firewallsso.NewFirewallsContainer(ctx)
+	pfconfigdriver.AddRefreshable(ctx, "firewallsso.FirewallsContainer", firewalls)
+}
 
 func TestValidateInfo(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())

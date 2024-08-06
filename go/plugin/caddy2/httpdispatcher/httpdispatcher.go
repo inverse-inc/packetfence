@@ -37,8 +37,6 @@ func (h *HttpDispatcherHandler) Provision(_ caddy.Context) error {
 	pfconfigdriver.AddType[pfconfigdriver.PfConfCaptivePortal](ctx)
 	pfconfigdriver.AddType[pfconfigdriver.PfConfParking](ctx)
 	proxy := httpdispatcher.NewProxy(ctx)
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, proxy)
-	//	pfconfigdriver.AddRefreshable(ctx, "httpdispatcher.Proxy", proxy)
 	h.proxy = proxy
 
 	return nil

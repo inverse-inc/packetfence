@@ -13,6 +13,12 @@ type FirewallsContainer struct {
 	factory Factory
 }
 
+func (f *FirewallsContainer) Clone() pfconfigdriver.Refresh {
+	cloned := &FirewallsContainer{factory: f.factory}
+	cloned.PfconfigNS = f.PfconfigNS
+	return cloned
+}
+
 func NewFirewallsContainer(ctx context.Context) *FirewallsContainer {
 	fc := &FirewallsContainer{}
 	fc.PfconfigNS = "config::Firewall_SSO"
