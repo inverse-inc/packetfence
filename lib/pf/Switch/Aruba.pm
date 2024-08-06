@@ -669,11 +669,13 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger();
 
-    my $radius_reply_ref = {};
-
-    # should this node be kicked out?
-    my $kick = $self->handleRadiusDeny($args);
-    return $kick if (defined($kick));
+    $args->{'unfiltered'} = $TRUE;
+    $self->compute_action(\$args);
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
 
     # Inline Vs. VLAN enforcement
     my $role = "";
