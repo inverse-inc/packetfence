@@ -129,29 +129,7 @@ func (h *LogTailerHandler) getSession(c *gin.Context) {
 		h.sessions[sessionId].Touch()
 	}()
 
-	h.eventsManager.SubscriptionHandler(newCloseNotifier(c.Writer, c.Request), c.Request)
-}
-
-type closeNotifier struct {
-	http.ResponseWriter
-	closeNotify chan bool
-}
-
-func newCloseNotifier(w http.ResponseWriter, r *http.Request) *closeNotifier {
-	c := closeNotifier{
-		ResponseWriter: w,
-		closeNotify:    make(chan bool, 0),
-	}
-	done := r.Context().Done()
-	go func(d <-chan struct{}, c chan bool) {
-		<-done
-		c <- true
-	}(done, c.closeNotify)
-	return &c
-}
-
-func (cn *closeNotifier) CloseNotify() <-chan bool {
-	return cn.closeNotify
+	h.eventsManager.SubscriptionHandler(c.Writer, c.Request)
 }
 
 func (h *LogTailerHandler) touchSession(c *gin.Context) {
