@@ -248,20 +248,20 @@ func (s *Server) ResetUsers(users []*settings.User) {
 }
 
 func (s *Server) setupRedisClient(ctx context.Context) {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Pfconnector)
+	pfConnector := pfconfigdriver.GetType[pfconfigdriver.PfConfPfconnector](ctx)
 	var network string
-	if pfconfigdriver.Config.PfConf.Pfconnector.RedisServer[0] == '/' {
+	if pfConnector.RedisServer[0] == '/' {
 		network = "unix"
 	} else {
 		network = "tcp"
 	}
 
 	s.redis = redis.NewClient(&redis.Options{
-		Addr:    pfconfigdriver.Config.PfConf.Pfconnector.RedisServer,
+		Addr:    pfConnector.RedisServer,
 		Network: network,
 	})
 
-	s.redisTunnelsNamespace = pfconfigdriver.Config.PfConf.Pfconnector.RedisTunnelsNamespace
+	s.redisTunnelsNamespace = pfConnector.RedisTunnelsNamespace
 
 }
 
