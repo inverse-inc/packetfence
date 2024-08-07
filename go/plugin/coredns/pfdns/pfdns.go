@@ -111,10 +111,6 @@ func (pf *pfdns) HasSecurityEvents(ctx context.Context, mac string) bool {
 	return securityEvent
 }
 
-func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
-	// pf.pfdnsRefreshableConfig = pfconfigdriver.GetRefresh(ctx, "pfdnsRefreshableConfig").(*pfdnsRefreshableConfig)
-}
-
 // ServeDNS implements the middleware.Handler interface.
 func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
