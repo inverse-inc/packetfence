@@ -128,6 +128,7 @@ __PACKAGE__->config(
 before handle_request => sub {
     pf::CHI::Request::clear_all();
     pf::log::reset_log_context();
+    umask(0002);
 };
 
 sub loadCustomStatic {
