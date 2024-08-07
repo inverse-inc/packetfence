@@ -6,7 +6,6 @@
 
 :8777 {
 	route * {
-		pfconfigpool
 		logger {
 			level INFO
 		}
