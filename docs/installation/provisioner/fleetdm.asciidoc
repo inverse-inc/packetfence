@@ -86,12 +86,29 @@ There are several ways to check if webhooks are working. To test it on PacketFen
 ==== Customize and Integrate with Security Events
 
 It is possible to integrate FleetDM with PacketFence's Security Events which allows the administrators to
-take proper actions including isolating the policy violating devices, sending notification emails or even trigger some scripts when a policy violation is found and reported by FleetDM or
+take proper actions including isolating the devices, sending notification emails or even trigger some scripts when a policy violation is found and reported by FleetDM or
 A specific CVE vulnerability is detected on the network.
 
 There are 3 built-in security event templates in PacketFence since V14 release. They are policy ID "3500001", "3500002" and "3500003". Each of them is for a specific rule
 supported in PacketFence. You can simply modify the existing security events, add your own policy trigger or use them as a template.
 Those 3 security events are disabled by default, You'll need to manually enable them or use them as a reference to build your own.
+
+==== How Security Event works with FleetDM
+PacketFence can only identify and manage the devices it knows. Those devices can be found in a node list from *Admin UI* -> *Nodes*.
+However, FleetDM uses a unique host ID to identify different enrolled devices. We'll need to build a mapping.
+
+Here is how:
+
+1. When webhook is configured, FleetDM reports a policy violation or CVE vulnerability, a *host id* is included in the payload.
+2. PacketFence receives the payload, extract the host id, looks up the host id in its internal cache. If found, use the cached MAC address.
+3. If host ID is not found in internal cache, PacketFence will make a FleetDM API call to obtain the primary MAC of the host, and save it to cache. But a MAC is not always guaranteed in FleetDM's API response.
+4. PacketFence compares the trigger rules of filtered security events, if there's a match, trigger it for each reported device.
+
+NOTE: If a mac address can not be retrieved from FleetDM API call (step 3), it may be due to either an unsuccessful API call or a response does not contain a `primary_mac`,
+      PacketFence will fail to trigger security event. You will see an error in PacketFence logs like:
+      "unable to extract primary mac from host API response for host id", or "unable to perform API call", etc.
+      Please check the logs if you believe a security event should be triggered.
+
 
 ===== Security Event 3500001
 

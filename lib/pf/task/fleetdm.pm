@@ -295,13 +295,13 @@ sub getHostMac {
     }
 
     if ($response->{status} != 200) {
-        $msg = "http error $response->{status} occured while performing API call '$url': $response->{reason}";
+        $msg = "http error $response->{status} occurred while performing API call '$url': $response->{reason}";
         $logger->error($msg);
         return "";
     }
 
     unless (exists($response->{content}) && $response->{content} ne "") {
-        $msg = "invalid FleetDM host API call response, missing response body.";
+        $msg = "invalid FleetDM host API call response for host id: {$host_id}, missing response body.";
         $logger->error($msg);
         return "";
     }
@@ -309,9 +309,14 @@ sub getHostMac {
     my $data = decode_json($response->{content});
 
     unless (exists($data->{host}) && exists($data->{host}->{primary_mac})) {
-        $msg = "unable to extract primary mac from host API response.";
+        $msg = "unable to extract primary mac from host API response for host id: {$host_id}.";
         $logger->error($msg);
         return "";
+    }
+
+    if ($data->{host}->{primary_mac} eq "") {
+        $msg = "error fetching primary mac for host: id = {$host_id}. Fleet API returned 200, but primary_mac is empty";
+        $logger->error($msg);
     }
     return $data->{host}->{primary_mac};
 }
