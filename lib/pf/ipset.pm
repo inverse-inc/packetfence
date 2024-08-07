@@ -93,9 +93,9 @@ sub iptables_generate {
         foreach my $role ( @roles ) {
             my @cmds;
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
-                @cmds = (qw(sudo ipset --create), "PF-iL3_ID$role->{'category_id'}", $network, qw(bitmap:ip range), "$network/$inline_obj->{BITS}", "timeout", $timeout);
+                @cmds = (qw(sudo ipset --create), "PF-iL3_ID$role->{'category_id'}_$network", qw(bitmap:ip range), "$network/$inline_obj->{BITS}", "timeout", $timeout);
             } else {
-                @cmds = (qw(sudo ipset --create), "PF-iL2_ID$role->{'category_id'}", $network, qw(bitmap:ip range), "$network/$inline_obj->{BITS}", "timeout", $timeout);
+                @cmds = (qw(sudo ipset --create), "PF-iL2_ID$role->{'category_id'}_$network", qw(bitmap:ip range), "$network/$inline_obj->{BITS}", "timeout", $timeout);
             }
             my @lines  = safe_pf_run(@cmds);
         }
