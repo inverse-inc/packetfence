@@ -119,11 +119,11 @@ authorize {
 	if (&control:Response-Packet-Type != Access-Challenge) {
 		rest-cli
 	}
-	if ((updated || ok || noop) && &control:Auth-Type != MS-CHAP) {
-		update {
-			&control:Auth-Type := Accept
-		}
-	}
+        if ((updated || ok || noop) && %{%{control:Auth-Type}:-None} != MS-CHAP) {
+                update {
+                        &control:Auth-Type := Accept
+                }
+        }
 }
 
 
