@@ -59,10 +59,9 @@ Generate the environment variables for running the container
 
 sub generate_container_environments {
     my ($self, $tt) = @_;
-    my $management_ip = $management_network->tag('ip');
 
     my $port = '1813';
-    my $listeningIp = $management_ip;
+    my $listeningIp = "";
     if ($cluster_enabled || isenabled($Config{services}{radiusd_acct})) {
         $port = '1823';
     }
