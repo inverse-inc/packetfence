@@ -3,6 +3,7 @@ package pfdns
 import (
 	"context"
 	"net"
+	"time"
 
 	"github.com/coredns/caddy"
 	"github.com/coredns/coredns/core/dnsserver"
@@ -84,6 +85,13 @@ func setuppfdns(c *caddy.Controller) error {
 	}
 
 	pf.apiClient = unifiedapiclient.NewFromConfig(context.Background())
+
+	go func() {
+		for {
+			pfconfigdriver.PfConfigStorePool.Refresh(context.Background())
+			time.Sleep(time.Second * 1)
+		}
+	}()
 
 	dnsserver.GetConfig(c).AddPlugin(
 		func(next plugin.Handler) plugin.Handler {

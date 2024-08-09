@@ -255,6 +255,12 @@ func main() {
 			time.Sleep(interval / 3)
 		}
 	}()
+	go func() {
+		for {
+			pfconfigdriver.PfConfigStorePool.Refresh(context.Background())
+			time.Sleep(time.Second * 1)
+		}
+	}()
 	srv.ListenAndServe()
 }
 
