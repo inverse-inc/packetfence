@@ -576,6 +576,11 @@ pfqueue-go=enabled
 # Should pfcron be managed by PacketFence?
 pfcron=enabled
 #
+# services.pfdetect
+#
+# Should pfdetect be started?
+pfdetect=enabled
+#
 # services.redis_cache
 #
 # Should redis be managed by PacketFence?
