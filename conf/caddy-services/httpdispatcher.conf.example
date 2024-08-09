@@ -9,7 +9,6 @@
 		logger {
 			level INFO
 		}
-		pfconfigpool
 		httpdispatcher
 	}
 }

@@ -61,7 +61,7 @@ func (p *PfipsetHandler) Cleanup() error {
 func (m *PfipsetHandler) Provision(_ caddy.Context) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Cluster.HostsIp)
+	pfconfigdriver.AddStruct(ctx, "HostsIp", &pfconfigdriver.HostsIp{})
 
 	err := m.buildPfipsetHandler(ctx)
 

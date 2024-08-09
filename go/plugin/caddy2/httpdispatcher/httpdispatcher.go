@@ -32,11 +32,11 @@ func (HttpDispatcherHandler) CaddyModule() caddy.ModuleInfo {
 func (h *HttpDispatcherHandler) Provision(_ caddy.Context) error {
 	ctx := context.Background()
 
+	pfconfigdriver.AddType[pfconfigdriver.PfConfFencing](ctx)
+	pfconfigdriver.AddType[pfconfigdriver.PfConfGeneral](ctx)
+	pfconfigdriver.AddType[pfconfigdriver.PfConfCaptivePortal](ctx)
+	pfconfigdriver.AddType[pfconfigdriver.PfConfParking](ctx)
 	proxy := httpdispatcher.NewProxy(ctx)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Fencing)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, proxy)
 	h.proxy = proxy
 
 	return nil

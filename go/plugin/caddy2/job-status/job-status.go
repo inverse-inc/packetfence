@@ -78,16 +78,17 @@ func (h *JobStatusHandler) Provision(_ caddy.Context) error {
 // Build the JobStatusHandler which will initialize the cache and instantiate the router along with its routes
 func (h *JobStatusHandler) buildJobStatusHandler(ctx context.Context) error {
 
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &redisclient.Config)
+	pfconfigdriver.AddStruct(ctx, "redisConfig", &redisclient.PfqueueConsumerConfig{})
+	redisConfig := pfconfigdriver.GetStruct(ctx, "redisConfig").(*redisclient.PfqueueConsumerConfig)
 	var network string
-	if redisclient.Config.RedisArgs.Server[0] == '/' {
+	if redisConfig.RedisArgs.Server[0] == '/' {
 		network = "unix"
 	} else {
 		network = "tcp"
 	}
 
 	h.redis = redis.NewClient(&redis.Options{
-		Addr:    redisclient.Config.RedisArgs.Server,
+		Addr:    redisConfig.RedisArgs.Server,
 		Network: network,
 	})
 

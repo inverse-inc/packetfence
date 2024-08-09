@@ -328,9 +328,7 @@ func (p *Proxy) Configure(ctx context.Context) {
 
 	p.apiClient = unifiedapiclient.NewFromConfig(ctx)
 
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Parking)
-
-	parking := pfconfigdriver.Config.PfConf.Parking
+	parking := pfconfigdriver.GetType[pfconfigdriver.PfConfParking](ctx)
 
 	if parking.ShowParkingPortal == "enabled" {
 		p.ShowParkingPortal = true
@@ -351,13 +349,10 @@ func (p *Proxy) Configure(ctx context.Context) {
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Fencing)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
 
-	fencing := pfconfigdriver.Config.PfConf.Fencing
-	general := pfconfigdriver.Config.PfConf.General
-	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+	fencing := pfconfigdriver.GetType[pfconfigdriver.PfConfFencing](ctx)
+	portal := pfconfigdriver.GetType[pfconfigdriver.PfConfCaptivePortal](ctx)
+	general := pfconfigdriver.GetType[pfconfigdriver.PfConfGeneral](ctx)
 
 	var scheme string
 

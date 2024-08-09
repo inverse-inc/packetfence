@@ -95,8 +95,7 @@ func main() {
 	GlobalFilterCache = cache.New(2*time.Minute, 4*time.Minute)
 
 	// Read DB config
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-	configDatabase := pfconfigdriver.Config.PfConf.Database
+	configDatabase := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](ctx)
 
 	connectDB(configDatabase)
 
@@ -163,8 +162,7 @@ func main() {
 	// Read pfconfig
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig()
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
-	webservices = pfconfigdriver.Config.PfConf.Webservices
+	webservices := pfconfigdriver.GetType[pfconfigdriver.PfConfWebservices](ctx)
 
 	// Queue value
 	var (
@@ -255,6 +253,12 @@ func main() {
 				daemon.SdNotify(false, "WATCHDOG=1")
 			}
 			time.Sleep(interval / 3)
+		}
+	}()
+	go func() {
+		for {
+			pfconfigdriver.PfConfigStorePool.Refresh(context.Background())
+			time.Sleep(time.Second * 1)
 		}
 	}()
 	srv.ListenAndServe()

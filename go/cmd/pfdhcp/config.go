@@ -69,24 +69,16 @@ func newDHCPConfig() *Interfaces {
 }
 
 func (d *Interfaces) readConfig() {
-
-	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
-
-	var DHCPinterfaces pfconfigdriver.DHCPInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &DHCPinterfaces)
+	interfaces := pfconfigdriver.GetType[pfconfigdriver.ListenInts](ctx)
+	DHCPinterfaces := pfconfigdriver.GetType[pfconfigdriver.DHCPInts](ctx)
+	portal := pfconfigdriver.GetType[pfconfigdriver.PfConfCaptivePortal](ctx)
+	general := pfconfigdriver.GetType[pfconfigdriver.PfConfGeneral](ctx)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
 	keyConfNet.PfconfigHostnameOverlay = "yes"
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
-
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
-	portal := pfconfigdriver.Config.PfConf.CaptivePortal
-
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
-	general := pfconfigdriver.Config.PfConf.General
 
 	var intDhcp []string
 
@@ -386,7 +378,7 @@ func (d *Interfaces) readConfig() {
 	}
 }
 
-func detectPortalURL(ConfNet pfconfigdriver.RessourseNetworkConf, general pfconfigdriver.PfConfGeneral) string {
+func detectPortalURL(ConfNet pfconfigdriver.RessourseNetworkConf, general *pfconfigdriver.PfConfGeneral) string {
 	var portalURL string
 	if ConfNet.PortalFQDN != "" {
 		portalURL = "https://" + ConfNet.PortalFQDN + "/rfc7710"

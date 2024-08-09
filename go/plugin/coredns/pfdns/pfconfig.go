@@ -5,10 +5,12 @@ import (
 	"errors"
 	"net"
 	"regexp"
+	"time"
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/timedlock"
+	cache "github.com/patrickmn/go-cache"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
@@ -16,33 +18,42 @@ import (
 // GlobalTransactionLock global var
 var GlobalTransactionLock *timedlock.RWLock
 
-func (pf *pfdns) Refresh(ctx context.Context) {
-	// If some of the passthroughs were changed, we should reload
-	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Registration) || !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Isolation) {
-		log.LoggerWContext(ctx).Info("Reloading passthroughs and flushing cache")
-		pf.PassthroughsInit(ctx)
-		pf.PassthroughsIsolationInit(ctx)
-
-		pf.DNSFilter.Flush()
-		pf.IpsetCache.Flush()
-	}
-	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Dns.Configuration) {
-		pf.DNSRecord(ctx)
-	}
+type pfdnsRefreshableConfig struct {
+	registration      pfconfigdriver.PassthroughsConf
+	isolation         pfconfigdriver.PassthroughsIsolationConf
+	PfConfDns         pfconfigdriver.PfConfDns
+	DNSFilter         *cache.Cache
+	IpsetCache        *cache.Cache
+	FqdnPort          map[*regexp.Regexp][]string
+	FqdnIsolationPort map[*regexp.Regexp][]string
+	recordDNS         bool
 }
 
-func (pf *pfdns) PassthroughsInit(ctx context.Context) error {
+func newPfconfigRefreshableConfig(ctx context.Context) *pfdnsRefreshableConfig {
+	p := &pfdnsRefreshableConfig{
+		DNSFilter:  cache.New(300*time.Second, 10*time.Second),
+		IpsetCache: cache.New(1*time.Hour, 10*time.Second),
+	}
+	pfconfigdriver.FetchDecodeSocket(ctx, &p.registration)
+	pfconfigdriver.FetchDecodeSocket(ctx, &p.isolation)
+	pfconfigdriver.FetchDecodeSocket(ctx, &p.PfConfDns)
+	p.PassthroughsInit(ctx)
+	p.PassthroughsIsolationInit(ctx)
+	p.recordDNS = p.PfConfDns.RecordDNS == "enabled"
+	return p
+}
 
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Registration)
+func (pf *pfdnsRefreshableConfig) PassthroughsInit(ctx context.Context) error {
+	pfconfigdriver.FetchDecodeSocket(ctx, &pf.registration)
 
 	pf.FqdnPort = make(map[*regexp.Regexp][]string)
 
-	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Wildcard {
+	for k, v := range pf.registration.Wildcard {
 		rgx, _ := regexp.Compile(".*" + k)
 		pf.FqdnPort[rgx] = v
 	}
 
-	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Normal {
+	for k, v := range pf.registration.Normal {
 		rgx, _ := regexp.Compile("^" + k + ".$")
 		pf.FqdnPort[rgx] = v
 	}
@@ -50,42 +61,56 @@ func (pf *pfdns) PassthroughsInit(ctx context.Context) error {
 	return nil
 }
 
-func (pf *pfdns) PassthroughsIsolationInit(ctx context.Context) error {
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Isolation)
+func (pf *pfdnsRefreshableConfig) PassthroughsIsolationInit(ctx context.Context) error {
+	pfconfigdriver.FetchDecodeSocket(ctx, &pf.isolation)
 
 	pf.FqdnIsolationPort = make(map[*regexp.Regexp][]string)
 
-	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Wildcard {
+	for k, v := range pf.isolation.Wildcard {
 		rgx, _ := regexp.Compile(".*" + k)
 		pf.FqdnIsolationPort[rgx] = v
 	}
 
-	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Normal {
+	for k, v := range pf.isolation.Normal {
 		rgx, _ := regexp.Compile("^" + k + ".$")
 		pf.FqdnIsolationPort[rgx] = v
 	}
+
 	return nil
 }
 
-func (pf *pfdns) DNSRecord(ctx context.Context) error {
+func (p *pfdnsRefreshableConfig) IsValid(ctx context.Context) bool {
+	return pfconfigdriver.IsValid(ctx, &p.registration) && pfconfigdriver.IsValid(ctx, &p.isolation) && pfconfigdriver.IsValid(ctx, &p.PfConfDns)
+}
 
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Dns.Configuration)
-	if pfconfigdriver.Config.Dns.Configuration.RecordDNS == "enabled" {
-		pf.recordDNS = true
-	} else {
-		pf.recordDNS = false
+func (p *pfdnsRefreshableConfig) Refresh(ctx context.Context) {
+	if !pfconfigdriver.IsValid(ctx, &p.registration) || !pfconfigdriver.IsValid(ctx, &p.isolation) {
+		p.PassthroughsInit(ctx)
+		p.PassthroughsIsolationInit(ctx)
+		p.DNSFilter = cache.New(300*time.Second, 10*time.Second)
+		p.IpsetCache = cache.New(1*time.Hour, 10*time.Second)
 	}
-	return nil
+
+	pfconfigdriver.FetchDecodeSocket(ctx, &p.PfConfDns)
+	p.recordDNS = p.PfConfDns.RecordDNS == "enabled"
+}
+
+func (p *pfdnsRefreshableConfig) Clone() pfconfigdriver.Refresh {
+	return &pfdnsRefreshableConfig{
+		registration: p.registration,
+		isolation:    p.isolation,
+		PfConfDns:    p.PfConfDns,
+		DNSFilter:    p.DNSFilter,
+		IpsetCache:   p.IpsetCache,
+	}
 }
 
 // DetectVIP
 func (pf *pfdns) detectVIP(ctx context.Context) error {
 
 	var NetIndex net.IPNet
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
+	listenInts := pfconfigdriver.GetType[pfconfigdriver.ListenInts](ctx)
+	dnsInts := pfconfigdriver.GetType[pfconfigdriver.DNSInts](ctx)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -100,14 +125,14 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 
 	var intDNS []string
 
-	for _, vi := range pfconfigdriver.Config.Interfaces.DNSInts.Element {
+	for _, vi := range dnsInts.Element {
 		for key, DNSint := range vi.(map[string]interface{}) {
 			if key == "int" {
 				intDNS = append(intDNS, DNSint.(string))
 			}
 		}
 	}
-	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(listenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		err = pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
