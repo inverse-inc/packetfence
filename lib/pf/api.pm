@@ -1181,6 +1181,18 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     }
 }
 
+=head2 fingerbank_lookup
+
+=cut
+
+sub fingerbank_lookup : Public :AllowedAsAction(mac, $mac) {
+    my ($class, %params) = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $params{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+    pf::fingerbank::process($params{'mac'},$pf::config::TRUE);
+}
+
 =head2 fingerbank_process
 
 =cut
