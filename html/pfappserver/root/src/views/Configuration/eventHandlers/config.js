@@ -160,6 +160,14 @@ export const regexRuleActions = {
     siblings: {
       api_parameters: { default: 'role, $role' }
     }
+  },
+  fingerbank_lookup: {
+    value: 'fingerbank_lookup',
+    text: i18n.t('Fingerbank Lookup'),
+    types: [pfFieldType.SUBSTRING],
+    siblings: {
+      api_parameters: { default: 'mac, $mac' }
+    }
   }
 }
 
