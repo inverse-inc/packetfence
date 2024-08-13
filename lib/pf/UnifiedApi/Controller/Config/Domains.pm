@@ -111,6 +111,11 @@ sub create {
     }
 
     my $id = $item->{id};
+    if (!defined $id || length($id) == 0) {
+        $self->render_error(422, "Unable to validate", [ { message => "id field is required", field => 'id' } ]);
+        return 0;
+    }
+
     $id = $host_id . " " . $item->{id};
     $item->{id} = $id;
     my $cs = $self->config_store;
@@ -128,11 +133,6 @@ sub create {
         }
     }
     $max_port = $max_port + 1;
-
-    if (!defined $id || length($id) == 0) {
-        $self->render_error(422, "Unable to validate", [ { message => "id field is required", field => 'id' } ]);
-        return 0;
-    }
 
     $item = $self->cleanupItemForCreate($item);
     (my $status, $item, my $form) = $self->validate_item($item);

@@ -111,7 +111,7 @@ has_field 'server_name' =>
    maxlength => 14,
    messages => { required => 'Please specify the server\'s name' },
    tags => { after_element => \&help,
-             help => 'This server\'s name (account name) in your Active Directory. \'%h\' is a placeholder for this server hostname. In a cluster, you must use %h and ensure your hostnames are less than 14 characters. You can mix \'%h\' with a prefix or suffix (ex: \'pf-%h\') ' },
+             help => q(This server's name (account name) in your Active Directory. '%h' is a placeholder for this server hostname. In a cluster, you must use %h and ensure your hostnames are less than 14 characters. You can mix '%h' with a prefix or suffix (ex: 'pf-%h') ) },
   );
 
 has_field 'sticky_dc' => (
@@ -333,7 +333,7 @@ sub validate {
         $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
     }
 
-    if($self->field('server_name')->value() eq "%h") {
+    if(($self->field('server_name')->value() // '') eq "%h") {
         my $hostname = [split(/\./,hostname())]->[0];
         if(length($hostname) > $self->field('server_name')->maxlength) {
             $self->field("server_name")->add_error("You have selected %h as the server name but this server hostname ($hostname) is longer than 14 characters. Please change the value or modify the hostname of your server to a name of 14 characters or less.");
