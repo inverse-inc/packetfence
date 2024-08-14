@@ -1,10 +1,14 @@
 package pfipset
 
 import (
-	ipset "github.com/inverse-inc/go-ipset/v2"
-	"github.com/ti-mo/netfilter"
+	"context"
+	"fmt"
 	"runtime"
 	"sync"
+
+	ipset "github.com/inverse-inc/go-ipset/v2"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/ti-mo/netfilter"
 )
 
 type job struct {
@@ -13,14 +17,21 @@ type job struct {
 	Entry  *ipset.Entry
 }
 
-func doWork(id int, jobe job) {
+func doWork(id int, job job) {
+	logger := log.LoggerWContext(context.Background())
 	conn := getConn()
 	defer putConn(conn)
-	if jobe.Method == "Add" {
-		conn.Add(jobe.Set, jobe.Entry)
+	if job.Method == "Add" {
+		err := conn.Add(job.Set, job.Entry)
+		if err != nil {
+			logger.Error(fmt.Sprintf("Error with %s to set %s: %s", job.Method, job.Set, err.Error()))
+		}
 	}
-	if jobe.Method == "Del" {
-		conn.Delete(jobe.Set, jobe.Entry)
+	if job.Method == "Del" {
+		err := conn.Delete(job.Set, job.Entry)
+		if err != nil {
+			logger.Error(fmt.Sprintf("Error with %s to set %s: %s", job.Method, job.Set, err.Error()))
+		}
 	}
 }
 
