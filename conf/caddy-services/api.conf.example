@@ -72,7 +72,7 @@
 		}
 
 		# ldapexplorer API access
-		reverse_proxy /api/v1/ldap/search/* {$PF_SERVICES_URL_PFLDAPEXPLORER} {
+		reverse_proxy /api/v1/ldap/search {$PF_SERVICES_URL_PFLDAPEXPLORER} {
 		}
 
 		# pfpki API access
