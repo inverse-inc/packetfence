@@ -11,10 +11,10 @@ import (
 	"os/exec"
 
 	"github.com/gorilla/mux"
+	ipset "github.com/inverse-inc/go-ipset/v2"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/mac"
 	"github.com/inverse-inc/go-utils/sharedutils"
-	ipset "github.com/inverse-inc/go-ipset/v2"
 )
 
 type Info struct {
@@ -272,12 +272,16 @@ func ipsetTest(name string, options ...ipset.EntryOption) error {
 
 func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip net.IP, Mac mac.Mac, Network string, Type string, RoleId string) {
 	logger := log.LoggerWContext(ctx)
+	typeMap := make(map[string]string, len(IPSET.ListALL))
 	for _, v := range IPSET.ListALL {
 		name := v.Name.Get()
+		typeName := v.TypeName.Get()
+		typeMap[name] = typeName
 		// Delete all entries with the new ip address
-		if v.TypeName.Get() == "hash:ip,port" {
+		if typeName == "hash:ip,port" {
 			continue
 		}
+
 		r := ipsetTest(name, ipset.EntryIP(Ip))
 		if r == nil {
 			IPSET.jobs <- job{"Del", name, ipset.NewEntry(ipset.EntryIP(Ip))}
@@ -290,15 +294,20 @@ func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip net.IP, Mac mac.
 			logger.Info("Removed old ip " + e.IP.Get().String() + " from " + name + " Mac: " + Mac.String())
 		}
 	}
-	// Add to the new ipset session
-	IPSET.jobs <- job{
-		"Add",
-		"pfsession_" + Type + "_" + Network,
-		ipset.NewEntry(
+	var entry *ipset.Entry
+	name := "pfsession_" + Type + "_" + Network
+	if typeMap[name] == "bitmap:ip,mac" {
+		entry = ipset.NewEntry(
 			ipset.EntryIP(Ip),
 			ipset.EntryEther(net.HardwareAddr(Mac[:])),
-		),
+		)
+	} else {
+		entry = ipset.NewEntry(
+			ipset.EntryIP(Ip),
+		)
 	}
+	// Add to the new ipset session
+	IPSET.jobs <- job{"Add", name, entry}
 	logger.Info("Added " + Ip.String() + " " + Mac.String() + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
