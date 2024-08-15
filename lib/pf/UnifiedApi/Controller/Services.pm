@@ -132,9 +132,9 @@ sub do_action {
         return $self->render(json => $data, status => $status);
     }
 
+    my $subprocess = Mojo::IOLoop->subprocess;
     if ($data->{async}) {
         my $task_id = $self->task_id;
-        my $subprocess = Mojo::IOLoop->subprocess;
         $subprocess->run(
             sub {
                 my ($subprocess) = @_;
@@ -149,8 +149,17 @@ sub do_action {
         return $self->render( json => {status => 202, task_id => $task_id }, status => 202);
     }
 
-    my $results = $self->$action();
-    return $self->render(json => $results);
+    $subprocess->run(
+        sub {
+            my ($subprocess) = @_;
+            my $results = $self->$action();
+            return $results;
+        },
+        sub {
+            my ($subprocess, $err, $results) = @_;
+            return $self->render(json => $results);
+         },
+    );
 }
 
 sub do_start {
