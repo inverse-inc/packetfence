@@ -30,7 +30,7 @@ var serverConnectionTimeout = time.Second
 
 type Handler struct {
 	Router     *chi.Mux
-	Ctx        *context.Context
+	Ctx        context.Context
 	connectors *connector.ConnectorsContainer
 }
 
@@ -67,7 +67,7 @@ func (m *Handler) Provision(_ caddy.Context) error {
 
 func (h *Handler) buildPfldapExplorer(ctx context.Context) error {
 
-	h.Ctx = &ctx
+	h.Ctx = ctx
 	h.connectors = connector.NewConnectorsContainer(ctx)
 
 	// Default http timeout
@@ -110,13 +110,13 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 	var searchRequest = SearchRequest{}
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.LoggerWContext(*h.Ctx).Info(err.Error())
+		log.LoggerWContext(h.Ctx).Info(err.Error())
 		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if err = json.Unmarshal(body, &searchRequest); err != nil {
-		log.LoggerWContext(*h.Ctx).Info(err.Error())
+		log.LoggerWContext(h.Ctx).Info(err.Error())
 		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -134,7 +134,7 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 	}
 	results, err := ldapSearchClient.SearchLdap(&searchRequest.SearchQuery)
 	if err != nil {
-		log.LoggerWContext(*h.Ctx).Info(err.Error())
+		log.LoggerWContext(h.Ctx).Info(err.Error())
 		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
