@@ -99,8 +99,8 @@ type Statsd struct {
 	Proto   string          `json:"proto"`
 	Prefix  string          `json:"prefix"`
 	Address string          `json:"address"`
-	ctx     context.Context `json:"_"`
-	client  *_statsd.Client `json:"_"`
+	ctx     context.Context `json:"-"`
+	client  *_statsd.Client `json:"-"`
 }
 
 func (h *Statsd) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
