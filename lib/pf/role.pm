@@ -584,7 +584,7 @@ sub getNodeInfoForAutoReg {
             $eap = $TRUE;
             $logger->debug("EAP connection with a username \"$args->{'user_name'}\". Trying to match rules from authentication sources.");
             if ( isdisabled($profile->dot1xRecomputeRoleFromPortal) ) {
-                $logger->info("Role has already been computed and we don't want to recompute it." );
+                $logger->info("Dot1x recompute from portal is disabled so the role won't be recomputed from the portal." );
                 @sources = ();
             }
         } else {
