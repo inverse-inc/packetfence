@@ -35,9 +35,9 @@ use Encode qw(encode);
 use Net::DNS;
 
 use JSON;
-=head2 test_join
+=head2 create
 
-Test if a domain is properly joined
+create machine account and domain config file.
 
 =cut
 
@@ -87,7 +87,7 @@ sub create {
     my $dns_name = $item->{dns_name};
     my $workgroup = $item->{workgroup};
     my $real_computer_name = $item->{server_name};
-
+    my $ou = $item->{ou};
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
@@ -123,28 +123,30 @@ sub create {
         return $self->render_error(422, "Unable to determine AD server's IP address.\n")
     }
 
-    my $baseDN = $dns_name;
-    my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
-    $baseDN = generate_baseDN($dns_name);
-
-    my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
-    if ($add_status == $FALSE) {
-        if ($add_result =~ /already exists(.+)use \-no\-add/) {
-            ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
-            if ($add_status == $FALSE) {
+    if (!is_nt_hash_pattern($computer_password)) {
+        my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+        if ($add_status == $FALSE) {
+            if ($add_result =~ /already exists(.+)use \-no\-add/) {
+                ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+                if ($add_status == $FALSE) {
+                    $self->render_error(422, "Unable to add machine account: removing existing machine account failed with following error: $add_result");
+                    return 0;
+                }
+                ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+                if ($add_status == $FALSE) {
+                    $self->render_error(422, "Unable to add machine account: recreating machine account with following error: $add_result");
+                    return 0;
+                }
+            }
+            else {
                 $self->render_error(422, "Unable to add machine account with following error: $add_result");
                 return 0;
             }
         }
-        else {
-            $self->render_error(422, "Unable to add machine account with following error: $add_result");
-            return 0;
-        }
+        my $encoded_password = encode("utf-16le", $computer_password);
+        my $hash = md4_hex($encoded_password);
+        $computer_password = $hash;
     }
-
-    my $encoded_password = encode("utf-16le", $computer_password);
-    my $hash = md4_hex($encoded_password);
-    $computer_password = $hash;
 
     $item->{ntlm_auth_host} = '127.0.0.1';
     $item->{ntlm_auth_port} = $max_port;
@@ -189,6 +191,7 @@ sub update {
     my $dns_name = $new_item->{dns_name};
     my $workgroup = $old_item->{workgroup};
     my $real_computer_name = $old_item->{server_name};
+    my $ou = $new_item->{ou};
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
@@ -224,26 +227,26 @@ sub update {
         return $self->render_error(422, "Unable to determine AD server's IP address\n")
     }
 
-    if (($new_data->{machine_account_password} ne $old_item->{machine_account_password}) || ($computer_name eq "%h")) {
-        my $baseDN = $dns_name;
-        my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
-        $baseDN = generate_baseDN($dns_name);
-
-        my ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+    if (!is_nt_hash_pattern($new_data->{machine_account_password}) && ($new_data->{machine_account_password} ne $old_item->{machine_account_password})) {
+        my ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
         if ($add_status == $FALSE) {
-            if ($add_result =~ /Account.+not found in/) {
-                ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
-                if ($add_status == $FALSE) {
-                    $self->render_error(422, "Unable to add machine account with following error: $add_result");
-                    return 0;
-                }
-            }
-            else {
-                $self->render_error(422, "Unable to add machine account with following error: $add_result");
+            unless ($add_result =~ /Account (.+) not found in/) {
+                $self->render_error(422, "Unable to update - remove existing machine account with following error: $add_result");
                 return 0;
             }
         }
+
+        ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+        if ($add_status == $FALSE) {
+            $self->render_error(422, "Unable to add machine account with following error: $add_result");
+            return 0;
+        }
+
         $new_data->{machine_account_password} = md4_hex(encode("utf-16le", $new_data->{machine_account_password}));
+        $new_data->{ou} = $new_item->{ou}
+    }
+    else {
+        $new_data->{ou} = $old_item->{ou}
     }
 
     $new_data->{server_name} = $computer_name;
@@ -257,20 +260,14 @@ sub update {
     $self->render(status => 200, json => $self->update_response($form));
 }
 
-sub generate_baseDN {
-    my $ret = "";
-
-    my ($dns_name) = @_;
-    my @array = split(/\./, $dns_name);
-
-    foreach my $element (@array) {
-        $ret .= "DC=$element,";
+sub is_nt_hash_pattern {
+    my ($password) = @_;
+    $password =~ s/^\s+|\s+$//g;
+    if ($password =~ /[a-fA-F0-9]{32}/) {
+        return 1;
     }
-    $ret =~ s/,$//;
-    return $ret;
+    return 0;
 }
-
-
 
 =head2 validate_input
 
@@ -314,7 +311,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
