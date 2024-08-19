@@ -132,7 +132,7 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 		DestPort:            int(f.DstPort),
 		IpProtocol:          ipProto,
 		IpVersion:           IpVersionIpv4,
-		EnforcementState:    EnforcementStateRevealOnly,
+		EnforcementState:    EnforcementStateEnforcing,
 		Count:               1,
 		StartTime:           uint64(time.Now().Unix()),
 		Direction:           f.NetworkEventDirection(),
