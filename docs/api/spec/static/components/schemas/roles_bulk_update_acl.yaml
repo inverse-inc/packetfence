@@ -1,0 +1,18 @@
+RolesBulkUpdateAcl:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: string
+    acls:
+      type: array
+      items:
+        type: string
+RolesBulkUpdateAclReturnValue:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: string

@@ -1,0 +1,31 @@
+/api/v1/config/roles/bulk_update_acl:
+  post:
+    description: Invalidate cache for a specific switch
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RolesBulkUpdateAcl'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/RolesBulkUpdateAclReturnValue'
+      '202':
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/responses/Async'
+        description: Request successful. Bulk Update ACLs
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+    - Config/Roles
