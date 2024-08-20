@@ -384,6 +384,65 @@ sub bulk_reevaluate_access {
     return $self->render(json => $results);
 }
 
+sub bulk_update_acl {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    if ($data->{async}) {
+        my $task_id = $self->task_id;
+        my $subprocess = Mojo::IOLoop->subprocess;
+        $subprocess->run(
+            sub {
+                my ($subprocess) = @_;
+                my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
+                $updater->start;
+                my ($status, $results) = $self->do_bulk_update_acl($data, $updater);
+                if (is_error($status)) {
+                    $updater->failed({ message => $results });
+                    return;
+                }
+
+                $updater->completed($results);
+                return;
+            },
+            sub { } # Do nothing
+        );
+
+        return $self->render( json => {status => 202, task_id => $task_id }, status => 202);
+    }
+
+    ($status, my $results) = $self->do_bulk_update_acl($data);
+    if (is_error($status)) {
+        return $self->render_error(
+            $status,
+            $results,
+        );
+    }
+
+    return $self->render(json => $results);
+}
+
+sub do_bulk_update_acl {
+    my ($self, $data, $updater) = @_;
+    my $cs = $self->config_store;
+    my $roles = $data->{items} // [];
+    my $acls = $data->{acls};
+    if (ref($acls) eq 'ARRAY') {
+        $acls = join("\n", @{$acls}, "");
+    }
+
+    $roles = $cs->readAllIds() unless @$roles;
+    for my $role (@$roles) {
+        $cs->update($role, {acls => $acls});
+    }
+
+    $cs->commit();
+    return { items => $roles };
+}
+
 sub do_bulk_reevaluate_access {
     my ($self, $data, $updater) = @_;
     my @items;
