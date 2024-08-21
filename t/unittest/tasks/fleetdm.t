@@ -75,6 +75,7 @@ my $mock_cve = '{
 
 use pf::CHI;
 our $cache = pf::CHI->new(namespace => 'fleetdm');
+$cache->clear();
 
 # set up FleetDM host_id <-> mac association in order to bypass a FleetDM API call.
 $cache->set('fleetdm_host_id:1', '00:0c:29:73:09:5f');
