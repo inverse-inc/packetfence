@@ -34,7 +34,7 @@ defaults
 	option	dontlognull
 	timeout connect 5000
 	timeout client 50000
-	timeout server 60000
+	timeout server 90000
 
 backend static
     option httpclose
