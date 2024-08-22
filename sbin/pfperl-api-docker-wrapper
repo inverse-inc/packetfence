@@ -16,6 +16,8 @@ args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
 args="$args -v /etc/sysconfig/:/etc/sysconfig"
 args="$args -v /etc/network:/etc/network"
 args="$args -v /etc/resolv.conf:/etc/resolv.conf"
+# fix mysql issue on first install
+args="$args -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock"
 args="$args --network=host"
 args="$args -e HOST_OS"
 args="$args -e DOCKER_NETWORK_IS_HOST"
