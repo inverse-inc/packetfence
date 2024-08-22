@@ -62,7 +62,7 @@ sub match {
         $result->{'SOURCE'} = "Upstream";
         return ( $fingerbank::Status::OK, $result );
     } else {
-        $logger->warn("An error occured while interrogating upstream Fingerbank project: " . $res->status_line);
+        $logger->warn("An error occured while interrogating upstream Fingerbank project: " . $res->status_line . " result:" . $res->decoded_content);
         return ( $fingerbank::Status::INTERNAL_SERVER_ERROR );
     }
 }
