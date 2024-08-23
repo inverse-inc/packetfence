@@ -2,7 +2,7 @@ FROM debian:12 as builder
 RUN apt update && apt -y install git-crypt gpg gpg-agent
 
 
-FROM registry.k8s.io/git-sync/git-sync:v4.2.1
+FROM registry.k8s.io/git-sync/git-sync:v4.2.4
 
 USER 0:0
 
