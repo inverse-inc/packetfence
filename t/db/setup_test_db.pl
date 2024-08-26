@@ -20,6 +20,7 @@ BEGIN {
 }
 
 use pf::db;
+use pf::config qw($management_network);
 use DBI;
 
 my $config = check_config(pf::db::db_config());
@@ -46,9 +47,9 @@ sub apply_schema {
     if (!-e $schema) {
         die "schema '$schema' does not exists or symlink is broken\n";
     }
-    system("mysql -h$config->{host} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < $schema");
+    system("mysql -h$management_network->{Tvip} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < $schema");
     if ($?) {
-        print STDERR "mysql -h$config->{host} -P$config->{port} -u$config->{user} -p\"$config->{pass}\" $config->{db} < $schema\n";
+        print STDERR "mysql -h$management_network->{Tvip} -P$config->{port} -u$config->{user} -p\"$config->{pass}\" $config->{db} < $schema\n";
         die "Unable to apply schema\n";
     }
 }
@@ -74,7 +75,7 @@ EOS
 
 sub dsn_from_config {
     my ($config) = @_;
-    return "dbi:mysql:;host=$config->{host};port=$config->{port};mysql_client_found_rows=0;mysql_socket=/var/lib/mysql/mysql.sock";
+    return "dbi:mysql:;host=$management_network->{Tvip};port=$config->{port};mysql_client_found_rows=0;mysql_socket=/var/lib/mysql/mysql.sock";
 }
 
 sub create_db {
