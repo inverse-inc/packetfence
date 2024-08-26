@@ -290,7 +290,6 @@ sub returnAccessListAttribute {
 =head2 getVoipVsa
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
-For now it returns the voiceVlan untagged since Juniper supports multiple untagged VLAN in the same interface
 
 =cut
 
