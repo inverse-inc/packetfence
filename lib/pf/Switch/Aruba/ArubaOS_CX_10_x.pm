@@ -71,9 +71,6 @@ use pf::SwitchSupports qw(
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
-#Insert your voice vlan name, not the ID.
-our $VOICEVLANAME = "voip";
-
 =over
 
 Return radius attributes to allow write access
@@ -289,19 +286,29 @@ sub returnAccessListAttribute {
     }
 }
 
-=item getVoipVSA
+
+=head2 getVoipVsa
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
-
-TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28multiple+tagged%2Funtagged+VLAN%29+Assignment
+For now it returns the voiceVlan untagged since Juniper supports multiple untagged VLAN in the same interface
 
 =cut
 
-sub getVoipVsa {
+sub getVoipVsa{
     my ($self) = @_;
     my $logger = $self->logger;
+    my $voiceVlan = $self->{'_voiceVlan'};
+    $logger->info("Accepting phone with untagged Access-Accept on voiceVlan $voiceVlan");
 
-    return ('Egress-VLAN-Name' => "1".$VOICEVLANAME);
+    # Return the normal response except we force the voiceVlan to be sent
+    return (
+        'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+        'Tunnel-Type' => $RADIUS::VLAN,
+        'Tunnel-Private-Group-ID' => $voiceVlan . "",
+        'Aruba-Port-Auth-Mode' => 3,
+        'Aruba-Device-Traffic-Class' => 1
+    );
+
 }
 
 =item isVoIPEnabled
