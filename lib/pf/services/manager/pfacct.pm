@@ -63,7 +63,8 @@ sub generate_container_environments {
     my $port = '1813';
     my $listeningIp = "";
     if ($cluster_enabled || isenabled($Config{services}{radiusd_acct})) {
-        $port = '1823';
+        my $management_ip = $management_network->tag('ip');
+        $port = "$management_ip:1823";
     }
     if ($cluster_enabled && isenabled($Config{services}{radiusd_acct})) {
         $port = '1833';
