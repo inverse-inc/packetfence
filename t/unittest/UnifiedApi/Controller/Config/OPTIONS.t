@@ -221,6 +221,15 @@ meta => {
                                     {
                                         sibling => {
                                             api_parameters => {
+                                                default => 'mac, $mac'
+                                            },
+                                        },
+                                        text => "fingerbank_lookup",
+                                        value => "fingerbank_lookup",
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
                                                 default => 'mac, $mac, ip, $ip, timeout, $timeout'
                                             },
                                         },
