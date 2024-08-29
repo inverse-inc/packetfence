@@ -63,6 +63,7 @@ sbin/pfdns
 sbin/pfstats
 sbin/pfacct
 sbin/pfcron
+sbin/pfqueue-go
 sbin/galera-autofix
 sbin/mysql-probe
 sbin/pfconnector
