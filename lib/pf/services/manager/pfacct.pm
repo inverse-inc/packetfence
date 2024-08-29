@@ -68,12 +68,14 @@ sub generate_container_environments {
     if ($cluster_enabled && isenabled($Config{services}{radiusd_acct})) {
         $port = '1833';
     }
+    my $listen = $port;
     if (isenabled($Config{services}{radiusd_acct})) {
         $listeningIp = '127.0.0.1';
+        $listen = "$listeningIp:$port";
     }
     my $vars = {
        env_dict => {
-           PFACCT_ADDRESS=> "$listeningIp:$port",
+           PFACCT_ADDRESS=> "$listen",
        },
     };
     $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/acct.env") or die $tt->error();
