@@ -47,7 +47,7 @@ const setup = (props, context) => {
       progressFeedback.value = i18n.t('Enabling PacketFence')
       return $store.dispatch('cluster/updateSystemd', { id: 'pf' }).then(() => {
         progressFeedback.value = i18n.t('Starting PacketFence')
-        return $store.dispatch('cluster/restartService', { id: 'pfperl-api' }).then(() => {
+        return $store.dispatch('cluster/restartSystemService', { id: 'pfperl-api' }).then(() => {
           return $store.dispatch('cluster/restartService', { id: 'haproxy-admin' }).then(() => {
             return $store.dispatch('cluster/startService', { id: 'pf' }).then(() => {
               progressFeedback.value = i18n.t('Disabling Configurator')
