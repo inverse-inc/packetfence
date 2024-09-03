@@ -27,7 +27,7 @@ jobs:
         - ${{ github.workspace }}/addons/packetfence-perl/:/root/packetfence-perl
     steps:
       - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  /mnt
