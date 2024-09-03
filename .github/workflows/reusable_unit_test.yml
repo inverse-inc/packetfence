@@ -16,7 +16,7 @@ jobs:
       image:  ${{ inputs._IMAGE_TYPE == 'rhel8' && 'redhat/ubi8:8.8' || inputs._IMAGE_TYPE == 'debian11' && 'debian:bullseye'  || inputs._IMAGE_TYPE == 'debian12' && 'debian:bookworm'}}
     steps:     
       - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  /mnt
