@@ -4223,6 +4223,16 @@ sub format_acl {
     while($acl =~ /([^\n]+)\n?/g) {
         my $acl_line = $1;
         next if($acl_line =~ /^remark/i);
+        # Lookup for the current ip address of a node
+        if ($acl_line =~ /^#.*\shost\s(([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})).*/i) {
+            my $mac = $1;
+            if (my $ip = pf::ip4log::mac2ip($mac)) {
+                $acl_line =~ s/^#//g;
+                $acl_line =~ s/$mac/$ip/g;
+            } else {
+                get_logger->warn("Bypass ACL because no ip lookup available: ".$acl_line);
+            }
+        }
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
             my $raw_acl = $2;
@@ -4245,7 +4255,6 @@ sub format_acl {
     my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
     return ($acl_ref, @direction);
 }
-
 
 =head2 acl_chewer
 
