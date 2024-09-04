@@ -29,13 +29,13 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
  * Debian 12 support (#8215)
  * OSQuery support with FleetDM (#8179)
- *
 
 === Enhancements
 
  * Firewall SSO clustering load-balancing (#8207)
  * Domains clustering high-availability (#8205)
  * Update Caddy (#8210)
+ * VoIP support in Aruba CX (#8260)
 
 === Bug Fixes
 
