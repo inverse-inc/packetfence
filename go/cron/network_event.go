@@ -1,11 +1,16 @@
 package maint
 
 import (
+	"context"
+	"database/sql"
 	"errors"
+	"net/netip"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/inverse-inc/go-utils/log"
 )
 
 var UUID = ""
@@ -29,8 +34,8 @@ func PutNetworkEvent(i *NetworkEvent) {
 type NetworkEvent struct {
 	Direction           NetworkEventDirection   `json:"direction"`
 	EventType           NetworkEventType        `json:"event-type"`
-	SourceIp            string                  `json:"source-ip"`
-	DestIp              string                  `json:"dest-ip"`
+	SourceIp            netip.Addr              `json:"source-ip"`
+	DestIp              netip.Addr              `json:"dest-ip"`
 	DestPort            int                     `json:"dest-port"`
 	IpProtocol          IpProtocol              `json:"ip-protocol"`
 	IpVersion           IpVersion               `json:"ip-version"`
@@ -48,6 +53,10 @@ type NetworkEvent struct {
 	EndTime             uint64                  `json:"end-time"`
 	Count               int                     `json:"count"`
 	ReportingEntity     *ReportingEntity        `json:"reporting-entity"` //   integration-specific e.g. broker-id, cloud-app
+}
+
+func (n *NetworkEvent) UpdateEnforcementInfo(ctx context.Context, db *sql.DB) {
+	UpdateNetworkEvent(ctx, db, n)
 }
 
 var GlobalReportingEntity = ReportingEntity{
@@ -91,8 +100,8 @@ func join(sep string, parts ...string) string {
 func (e *NetworkEvent) ID() string {
 	return join(
 		":",
-		e.SourceIp,
-		e.DestIp,
+		e.SourceIp.String(),
+		e.DestIp.String(),
 		strconv.FormatUint(uint64(e.DestPort), 10),
 		string(e.IpProtocol),
 		string(e.IpVersion),
@@ -183,6 +192,36 @@ type NetworkTranslationInfo struct {
 	DestIp   string                 `json:"dest-ip"`
 	Destport int                    `json:"dest-port"`
 	Type     NetworkTranslationType `json:"type"`
+}
+
+func (ne *NetworkEvent) GetSrcRole(ctx context.Context, db *sql.DB) string {
+	src := ne.SourceInventoryItem
+	if src == nil {
+		return ""
+	}
+
+	if len(src.ExternalIDS) == 0 {
+		return ""
+	}
+
+	mac := src.ExternalIDS[0]
+	if mac == "" || mac == "00:00:00:00:00:00" {
+		return ""
+	}
+
+	query := `SELECT name FROM node_category WHERE category_id IN (SELECT category_id FROM node WHERE mac = ?);`
+	role := ""
+	err := db.QueryRowContext(ctx, query, mac).Scan(&role)
+	if err == sql.ErrNoRows {
+		return ""
+	}
+
+	if err != nil {
+		log.LogError(ctx, err.Error())
+		return ""
+	}
+
+	return role
 }
 
 type NetworkTranslationType string

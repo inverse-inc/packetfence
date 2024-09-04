@@ -158,6 +158,12 @@ func SetupKafka(config map[string]interface{}) {
 			FilterEvents: int(config["filter_events"].(float64)),
 		}
 
+		db, err := getDb()
+		if err != nil {
+			panic(err.Error())
+		}
+
+		go UpdatePolicyMap(context.Background(), db)
 		submitter, err := NewKafkaSubmiter(&options)
 		if err != nil {
 			panic(err.Error())
@@ -170,6 +176,7 @@ func SetupKafka(config map[string]interface{}) {
 				NetworkEventChan: aggregatorChan,
 				Timeout:          time.Minute,
 				Heuristics:       int(config["heuristics"].(float64)),
+				Db:               db,
 			},
 		)
 		go aggregator.handleEvents()
