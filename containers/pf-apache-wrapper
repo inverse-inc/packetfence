@@ -35,7 +35,7 @@ echo "Changing GID of user fingerbank"
 groupmod -o -g $FINGERBANK_GID fingerbank
 
 echo "Changing UID of user fingerbank"
-usermod -o -u $FINGERBANK_UID -g $FINGERBANK_GID $ -d /dev/null fingerbank
+usermod -o -u $FINGERBANK_UID -g $FINGERBANK_GID -d /dev/null fingerbank
 usermod -d /usr/local/fingerbank fingerbank
 
 function adjust_ids() {
