@@ -19,6 +19,7 @@ use pf::services;
 use pf::error qw(is_error);
 use pf::pfqueue::status_updater::redis;
 use pf::util::pfqueue qw(consumer_redis_client);
+use POSIX qw(setsid);
 
 sub resource {
     my ($self) = @_;
@@ -122,11 +123,11 @@ sub stop {
 
 sub restart {
     my ($self) = @_;
-    return $self->do_action('do_restart');
+    return $self->do_action('do_restart', 1);
 }
 
 sub do_action {
-    my ($self, $action) = @_;
+    my ($self, $action, $detach) = @_;
     my ($status, $data) = $self->get_data();
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
@@ -138,6 +139,16 @@ sub do_action {
         $subprocess->run(
             sub {
                 my ($subprocess) = @_;
+                if ($detach) {
+                    my $pid = fork();
+                    if ($pid) {
+                        exit(0);
+                    }
+
+                    if (defined $pid) {
+                        setsid();
+                    }
+                }
                 my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
                 $updater->start;
                 my $data = $self->$action();
