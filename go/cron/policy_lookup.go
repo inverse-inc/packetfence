@@ -130,7 +130,7 @@ func UpdatePolicyMap(ctx context.Context, db *sql.DB) {
 	var err error
 	stmt, err = db.PrepareContext(ctx, RolesPoliciesMapSql)
 	for err != nil {
-		log.LogError("Cannot Prepare Statement: " + err.Error())
+		log.LogError(ctx, "Cannot Prepare Statement: "+err.Error())
 		time.Sleep(time.Second * 5)
 		stmt, err = db.PrepareContext(ctx, RolesPoliciesMapSql)
 	}
@@ -154,7 +154,7 @@ loop:
 			lookup := make(PolicyLookup)
 			err := json.Unmarshal(data, &lookup)
 			if err != nil {
-				log.LogError("Cannot UnMarshal PolicyLookup:" + err.Error())
+				log.LogError(ctx, "Cannot UnMarshal PolicyLookup:"+err.Error())
 				continue
 			}
 
