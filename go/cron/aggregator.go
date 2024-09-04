@@ -1,6 +1,8 @@
 package maint
 
 import (
+	"context"
+	"database/sql"
 	"math"
 	"net/netip"
 	"time"
@@ -23,6 +25,7 @@ func NewAggregator(o *AggregatorOptions) *Aggregator {
 		stop:             make(chan struct{}),
 		PfFlowsChan:      ChanPfFlow,
 		Heuristics:       o.Heuristics,
+		db:               o.Db,
 	}
 }
 
@@ -30,6 +33,7 @@ type AggregatorOptions struct {
 	NetworkEventChan chan []*NetworkEvent
 	Timeout          time.Duration
 	Heuristics       int
+	Db               *sql.DB
 }
 
 type AggregatorSession struct {
@@ -45,9 +49,11 @@ type Aggregator struct {
 	backlog          int
 	timeout          time.Duration
 	Heuristics       int
+	db               *sql.DB
 }
 
 func (a *Aggregator) handleEvents() {
+	ctx := context.Background()
 	ticker := time.NewTicker(a.timeout)
 loop:
 	for {
@@ -103,6 +109,10 @@ loop:
 				}
 
 				networkEvents = append(networkEvents, networkEvent)
+			}
+
+			for _, e := range networkEvents {
+				e.UpdateEnforcementInfo(ctx, a.db)
 			}
 
 			if len(networkEvents) > 0 && a.networkEventChan != nil {

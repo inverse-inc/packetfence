@@ -2,18 +2,21 @@ package maint
 
 import (
 	"database/sql"
+	"net/netip"
 	"strings"
+
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type NetworkEventFilter struct {
 	MacSet Set[string]
-	IpSet  Set[string]
+	IpSet  Set[netip.Addr]
 }
 
 func NewNetworkEventFilter() NetworkEventFilter {
 	return NetworkEventFilter{
 		MacSet: make(Set[string]),
-		IpSet:  make(Set[string]),
+		IpSet:  make(Set[netip.Addr]),
 	}
 }
 
@@ -73,7 +76,12 @@ func networkEventFilterFromSql(dbh *sql.DB, sqlStr string, bindings []interface{
 
 		filter.AddMac(mac)
 		if ip.Valid {
-			filter.AddIp(ip.String)
+			ip2, err := netip.ParseAddr(ip.String)
+			if err != nil {
+				log.LogError("Error Parsing Addr: " + err.Error())
+			} else {
+				filter.AddIp(ip2)
+			}
 		}
 	}
 	return filter, nil
@@ -89,21 +97,21 @@ func (f *NetworkEventFilter) AddMacs(macs []string) {
 	}
 }
 
-func (f *NetworkEventFilter) AddIps(ips []string) {
+func (f *NetworkEventFilter) AddIps(ips []netip.Addr) {
 	for _, ip := range ips {
 		f.AddIp(ip)
 	}
 }
 
-func (f *NetworkEventFilter) AddIp(ip string) {
-	f.IpSet.AddIf(ip, func(e string) bool { return e != "" && ip != "0.0.0.0" })
+func (f *NetworkEventFilter) AddIp(ip netip.Addr) {
+	f.IpSet.AddIf(ip, func(e netip.Addr) bool { return e.IsValid() })
 }
 
 func (f *NetworkEventFilter) Macs() []string {
 	return f.MacSet.Members()
 }
 
-func (f *NetworkEventFilter) Ips() []string {
+func (f *NetworkEventFilter) Ips() []netip.Addr {
 	return f.IpSet.Members()
 }
 
@@ -143,7 +151,7 @@ func networkEventsToSQL(events []*NetworkEvent) (string, []interface{}) {
 	return macAndIpsToSql(filter.Macs(), filter.Ips())
 }
 
-func macAndIpsToSql(macs []string, ips []string) (string, []interface{}) {
+func macAndIpsToSql(macs []string, ips []netip.Addr) (string, []interface{}) {
 	binds := make([]interface{}, 0, len(macs)+len(ips))
 	parts := []string{}
 	sql := `
@@ -165,7 +173,7 @@ AND (`
 	if len(ips) > 0 {
 		parts = append(parts, "mac IN (SELECT mac FROM ip4log WHERE ip IN (?"+strings.Repeat(", ?", len(ips)-1)+"))")
 		for _, m := range ips {
-			binds = append(binds, m)
+			binds = append(binds, m.String())
 		}
 	}
 

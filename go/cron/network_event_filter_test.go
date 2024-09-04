@@ -2,6 +2,7 @@ package maint
 
 import (
 	"context"
+	"net/netip"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -14,10 +15,10 @@ func TestNetworkEventSql(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Cannot create new node: %s", err.Error())
 	}
-	ip := "1.2.3.2"
+	ip := netip.AddrFrom4([4]byte{1, 2, 3, 2})
 	sqlStr, bindings := macAndIpsToSql(
 		[]string{mac},
-		[]string{ip},
+		[]netip.Addr{ip},
 	)
 
 	want := `
@@ -35,7 +36,7 @@ AND (
 		t.Fatalf("macAndIpsToSql() sql mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff([]interface{}{mac, ip}, bindings); diff != "" {
+	if diff := cmp.Diff([]interface{}{mac, ip.String()}, bindings); diff != "" {
 		t.Fatalf("macAndIpsToSql() mismatch (-want +got):\n%s", diff)
 	}
 

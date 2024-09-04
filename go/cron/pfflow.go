@@ -127,8 +127,8 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 
 	return &NetworkEvent{
 		EventType:           NetworkEventTypeSuccessful,
-		SourceIp:            f.SrcIp.String(),
-		DestIp:              f.DstIp.String(),
+		SourceIp:            f.SrcIp,
+		DestIp:              f.DstIp,
 		DestPort:            int(f.DstPort),
 		IpProtocol:          ipProto,
 		IpVersion:           IpVersionIpv4,
