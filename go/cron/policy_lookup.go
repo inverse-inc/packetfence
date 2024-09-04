@@ -119,6 +119,22 @@ type Policy struct {
 	Matchers        []Matcher         `json:"-"`
 }
 
+func (p *Policy) UpdateMatchers() {
+
+	matchers := make([]Matcher, 0, len(p.Acls))
+	for _, acl := range p.Acls {
+		matcher, err := ParseAcl(acl)
+		if err != nil {
+			log.LogError(context.Background(), "UpdateMatcher ParseAcl error: "+err.Error())
+			continue
+		}
+
+		matchers = append(matchers, matcher)
+	}
+
+	p.Matchers = matchers
+}
+
 const RolesPoliciesMapKey = "RolesPoliciesMap"
 
 const RolesPoliciesMapSql = "SELECT value, expires_at FROM chi_cache WHERE `key` = ? AND expires_at != ?"
@@ -151,14 +167,14 @@ loop:
 				continue
 			}
 
-			lookup := make(PolicyLookup)
-			err := json.Unmarshal(data, &lookup)
+			lookup := &PolicyLookup{}
+			err := json.Unmarshal(data, lookup)
 			if err != nil {
 				log.LogError(ctx, "Cannot UnMarshal PolicyLookup:"+err.Error())
 				continue
 			}
 
-			lookup.UpdateMatcher()
+			lookup.UpdateMatchers()
 			StorePolicyLookup(lookup)
 
 		case <-ctx.Done():
@@ -167,15 +183,18 @@ loop:
 	}
 }
 
-type PolicyLookup map[string][]Policy
+type PolicyLookup struct {
+	ByRoles        map[string][]Policy
+	ImplictPolices []Policy
+}
 
 func (l PolicyLookup) Lookup(ctx context.Context, db *sql.DB, ne *NetworkEvent) *EnforcementInfo {
 	role := ne.GetSrcRole(ctx, db)
 	if role == "" {
-		return nil
+		return l.LookupImplict(ne)
 	}
 
-	if polices, ok := l[role]; ok {
+	if polices, ok := l.ByRoles[role]; ok {
 		for _, policy := range polices {
 			for _, match := range policy.Matchers {
 				if match.Matches(ne) {
@@ -187,36 +206,44 @@ func (l PolicyLookup) Lookup(ctx context.Context, db *sql.DB, ne *NetworkEvent) 
 		}
 	}
 
+	return l.LookupImplict(ne)
+}
+
+func (l *PolicyLookup) LookupImplict(ne *NetworkEvent) *EnforcementInfo {
+	for _, policy := range l.ImplictPolices {
+		for _, match := range policy.Matchers {
+			if match.Matches(ne) {
+				if len(policy.EnforcementInfo) > 0 {
+					return &policy.EnforcementInfo[0]
+				}
+			}
+		}
+	}
+
 	return nil
 }
 
-func (l *PolicyLookup) UpdateMatcher() {
-	for _, v := range *l {
+func (l *PolicyLookup) UpdateMatchers() {
+	for _, v := range l.ByRoles {
 		for i := range v {
 			p := &v[i]
-			matchers := make([]Matcher, 0, len(p.Acls))
-			for _, acl := range p.Acls {
-				matcher, err := ParseAcl(acl)
-				if err != nil {
-					log.LogError(context.Background(), "UpdateMatcher ParseAcl error: "+err.Error())
-					continue
-				}
-
-				matchers = append(matchers, matcher)
-			}
-
-			p.Matchers = matchers
+			p.UpdateMatchers()
 		}
+	}
+
+	for i := range l.ImplictPolices {
+		p := &l.ImplictPolices[i]
+		p.UpdateMatchers()
 	}
 }
 
 var storePolicyLookup atomic.Value
 
-func GetPolicyLookup() PolicyLookup {
-	return storePolicyLookup.Load().(PolicyLookup)
+func GetPolicyLookup() *PolicyLookup {
+	return storePolicyLookup.Load().(*PolicyLookup)
 }
 
-func StorePolicyLookup(p PolicyLookup) {
+func StorePolicyLookup(p *PolicyLookup) {
 	storePolicyLookup.Store(p)
 }
 
@@ -229,6 +256,5 @@ func UpdateNetworkEvent(ctx context.Context, db *sql.DB, ne *NetworkEvent) {
 }
 
 func init() {
-	PoliciesRoles := make(map[string][]Policy)
-	StorePolicyLookup(PoliciesRoles)
+	StorePolicyLookup(&PolicyLookup{})
 }
