@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"context"
 	"database/sql"
 	"net/netip"
 	"strings"
@@ -78,7 +79,7 @@ func networkEventFilterFromSql(dbh *sql.DB, sqlStr string, bindings []interface{
 		if ip.Valid {
 			ip2, err := netip.ParseAddr(ip.String)
 			if err != nil {
-				log.LogError("Error Parsing Addr: " + err.Error())
+				log.LogError(context.Background(), "Error Parsing Addr: "+err.Error())
 			} else {
 				filter.AddIp(ip2)
 			}
