@@ -469,169 +469,71 @@ func TestMatchNetworkEvent(t *testing.T) {
 
 const RolesPoliciesMapJSON = `
 {
-  "IoT-Camera": [
+  "ByRoles": {
+    "IoT-Lighting": [
+      {
+        "enforcement_info": [
+          {
+            "policy-revision": 3,
+            "verdict": "allow",
+            "dc-inventory-revision": 1725462233,
+            "rule-id": "0455792c-257b-46dd-95fd-12d5fcec26f0/"
+          }
+        ],
+        "acls": [
+          "permit tcp any any eq 22",
+          "permit udp any any eq 22",
+          "permit tcp any any eq 80",
+          "permit udp any any eq 80",
+          "permit tcp any any eq 443",
+          "permit udp any any eq 443"
+        ]
+      },
+      {
+        "enforcement_info": [
+          {
+            "policy-revision": 3,
+            "verdict": "allow",
+            "dc-inventory-revision": 1725462233,
+            "rule-id": "28477cf7-234e-4751-8ced-542464017b1c/"
+          }
+        ],
+        "acls": [
+          "permit tcp any 10.15.1.0 0.0.0.255 eq 3389",
+          "permit udp any 10.15.1.0 0.0.0.255 eq 3389"
+        ]
+      }
+    ]
+  },
+  "ImplictPolices": [
     {
       "enforcement_info": [
         {
-          "policy-revision": 109,
+          "policy-revision": 3,
           "verdict": "allow",
-          "dc-inventory-revision": 1724760075,
-          "id": "2b484809-e2d0-452a-843b-b9f86ed757bf/"
+          "dc-inventory-revision": 1725462233,
+          "rule-id": "IOT IMPLICIT DNS/IOT IMPLICIT RULES"
         }
       ],
       "acls": [
-        "permit tcp any any eq 156",
-        "permit udp any any eq 156"
+        "permit udp any host 8.8.8.8 eq 53",
+        "permit tcp any host 8.8.8.8 eq 53",
+        "permit udp any host 8.8.4.4 eq 53",
+        "permit tcp any host 8.8.4.4 eq 53"
       ]
     },
     {
       "enforcement_info": [
         {
-          "policy-revision": 109,
-          "verdict": "block",
-          "dc-inventory-revision": 1724760075,
-          "id": "44d57077-088f-4242-88bf-7f39f2a7c266/"
-        }
-      ],
-      "acls": [
-        "deny tcp any any eq 55",
-        "deny udp any any eq 55"
-      ]
-    },
-    {
-      "enforcement_info": [
-        {
-          "policy-revision": 109,
-          "verdict": "block",
-          "dc-inventory-revision": 1724760075,
-          "id": "ac59c4ba-dfaa-4250-9f6f-6e95e2fcdcee/"
-        }
-      ],
-      "acls": [
-        "deny tcp any any eq 83",
-        "deny udp any any eq 83"
-      ]
-    },
-    {
-      "enforcement_info": [
-        {
-          "policy-revision": 109,
-          "verdict": "block",
-          "dc-inventory-revision": 1724760075,
-          "id": "886f12bc-20dd-4b05-9cbc-3de4f9f07d85/"
-        }
-      ],
-      "acls": [
-        "deny tcp any host 172.17.0.71 eq 789",
-        "deny udp any host 172.17.0.71 eq 789",
-        "deny tcp any host 100.100.100.71 eq 789",
-        "deny udp any host 100.100.100.71 eq 789",
-        "deny tcp any host 200.200.200.71 eq 789",
-        "deny udp any host 200.200.200.71 eq 789"
-      ]
-    }
-  ],
-  "IoT-Lighting": [
-    {
-      "enforcement_info": [
-        {
-          "policy-revision": 109,
+          "policy-revision": 3,
           "verdict": "allow",
-          "dc-inventory-revision": 1724760075,
-          "id": "8ffeadeb-b4d2-4f60-a4f7-9d865a70c45e/"
+          "dc-inventory-revision": 1725462233,
+          "rule-id": "IOT IMPLICIT DHCP/IOT IMPLICIT RULES"
         }
       ],
       "acls": [
-        "permit tcp any any eq 18",
-        "permit udp any any eq 18"
-      ]
-    },
-    {
-      "enforcement_info": [
-        {
-          "policy-revision": 109,
-          "verdict": "allow",
-          "dc-inventory-revision": 1724760075,
-          "id": "63f8a3e0-e837-4662-a747-8d6b28b6b268/"
-        }
-      ],
-      "acls": [
-        "permit tcp any any eq 113",
-        "permit udp any any eq 113"
-      ]
-    },
-    {
-      "enforcement_info": [
-        {
-          "policy-revision": 109,
-          "verdict": "block",
-          "dc-inventory-revision": 1724760075,
-          "id": "f96848da-a7ce-48d9-8f81-14c34250bb25/"
-        }
-      ],
-      "acls": [
-        "deny tcp any any eq 28",
-        "deny udp any any eq 28"
-      ]
-    },
-    {
-      "enforcement_info": [
-        {
-          "policy-revision": 109,
-          "verdict": "block",
-          "dc-inventory-revision": 1724760075,
-          "id": "28d54f85-f3ae-4538-8ac6-5a1338762c32/"
-        }
-      ],
-      "acls": [
-        "deny tcp any host 8.8.8.8 eq 10",
-        "deny udp any host 8.8.8.8 eq 10",
-        "deny tcp any host 8.8.8.8 eq 11",
-        "deny udp any host 8.8.8.8 eq 11",
-        "deny tcp any host 8.8.8.8 eq 12",
-        "deny udp any host 8.8.8.8 eq 12"
-      ]
-    },
-    {
-      "enforcement_info": [
-        {
-          "policy-revision": 109,
-          "verdict": "block",
-          "dc-inventory-revision": 1724760075,
-          "id": "afb391d0-a9fd-472c-ba6c-69fbaae8d67b/"
-        }
-      ],
-      "acls": [
-        "deny tcp any any eq 91",
-        "deny udp any any eq 91"
-      ]
-    },
-    {
-      "enforcement_info": [
-        {
-          "policy-revision": 109,
-          "verdict": "block",
-          "dc-inventory-revision": 1724760075,
-          "id": "e77ca958-9a8e-4e9e-b909-11505ff4decf/"
-        }
-      ],
-      "acls": [
-        "deny tcp any any eq 99",
-        "deny udp any any eq 99"
-      ]
-    },
-    {
-      "enforcement_info": [
-        {
-          "policy-revision": 109,
-          "verdict": "block",
-          "dc-inventory-revision": 1724760075,
-          "id": "6524b9b0-eae5-4d37-a1f5-48400a4f437a/"
-        }
-      ],
-      "acls": [
-        "deny tcp any any eq 85",
-        "deny udp any any eq 85"
+        "permit udp any any eq 67",
+        "permit udp any any eq 68"
       ]
     }
   ]
@@ -639,11 +541,11 @@ const RolesPoliciesMapJSON = `
 `
 
 func TestPolicyLoad(t *testing.T) {
-	lookup := make(PolicyLookup)
+	lookup := PolicyLookup{}
 	err := json.Unmarshal([]byte(RolesPoliciesMapJSON), &lookup)
 	if err != nil {
 		t.Fatalf("json.Unmarshal: %v", err)
 	}
 
-	lookup.UpdateMatcher()
+	lookup.UpdateMatchers()
 }
