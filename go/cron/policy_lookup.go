@@ -237,6 +237,13 @@ func (l *PolicyLookup) UpdateMatchers() {
 		}
 	}
 
+	for _, v := range l.NodesPolicies {
+		for i := range v {
+			p := &v[i]
+			p.UpdateMatchers()
+		}
+	}
+
 	for i := range l.ImplictPolices {
 		p := &l.ImplictPolices[i]
 		p.UpdateMatchers()
