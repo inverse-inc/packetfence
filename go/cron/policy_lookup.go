@@ -185,32 +185,35 @@ loop:
 
 type PolicyLookup struct {
 	ByRoles        map[string][]Policy
+	NodesPolicies  map[string][]Policy
 	ImplictPolices []Policy
 }
 
 func (l PolicyLookup) Lookup(ctx context.Context, db *sql.DB, ne *NetworkEvent) *EnforcementInfo {
-	role := ne.GetSrcRole(ctx, db)
-	if role == "" {
-		return l.LookupImplict(ne)
+	mac, role := ne.GetSrcRole(ctx, db)
+	if mac == "" || role == "" {
+		return nil
 	}
 
-	if polices, ok := l.ByRoles[role]; ok {
-		for _, policy := range polices {
-			for _, match := range policy.Matchers {
-				if match.Matches(ne) {
-					if len(policy.EnforcementInfo) > 0 {
-						return &policy.EnforcementInfo[0]
-					}
-				}
-			}
+	if policies, ok := l.NodesPolicies[mac]; ok {
+		ei := matchEnforcementInfo(policies, ne)
+		if ei != nil {
+			return ei
+		}
+	}
+
+	if policies, ok := l.ByRoles[role]; ok {
+		ei := matchEnforcementInfo(policies, ne)
+		if ei != nil {
+			return ei
 		}
 	}
 
 	return l.LookupImplict(ne)
 }
 
-func (l *PolicyLookup) LookupImplict(ne *NetworkEvent) *EnforcementInfo {
-	for _, policy := range l.ImplictPolices {
+func matchEnforcementInfo(policies []Policy, ne *NetworkEvent) *EnforcementInfo {
+	for _, policy := range policies {
 		for _, match := range policy.Matchers {
 			if match.Matches(ne) {
 				if len(policy.EnforcementInfo) > 0 {
@@ -219,8 +222,11 @@ func (l *PolicyLookup) LookupImplict(ne *NetworkEvent) *EnforcementInfo {
 			}
 		}
 	}
-
 	return nil
+}
+
+func (l *PolicyLookup) LookupImplict(ne *NetworkEvent) *EnforcementInfo {
+	return matchEnforcementInfo(l.ImplictPolices, ne)
 }
 
 func (l *PolicyLookup) UpdateMatchers() {

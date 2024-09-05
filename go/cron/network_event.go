@@ -194,34 +194,34 @@ type NetworkTranslationInfo struct {
 	Type     NetworkTranslationType `json:"type"`
 }
 
-func (ne *NetworkEvent) GetSrcRole(ctx context.Context, db *sql.DB) string {
+func (ne *NetworkEvent) GetSrcRole(ctx context.Context, db *sql.DB) (string, string) {
 	src := ne.SourceInventoryItem
 	if src == nil {
-		return ""
+		return "", ""
 	}
 
 	if len(src.ExternalIDS) == 0 {
-		return ""
+		return "", ""
 	}
 
 	mac := src.ExternalIDS[0]
 	if mac == "" || mac == "00:00:00:00:00:00" {
-		return ""
+		return "", ""
 	}
 
 	query := `SELECT name FROM node_category WHERE category_id IN (SELECT category_id FROM node WHERE mac = ?);`
 	role := ""
 	err := db.QueryRowContext(ctx, query, mac).Scan(&role)
 	if err == sql.ErrNoRows {
-		return ""
+		return mac, ""
 	}
 
 	if err != nil {
 		log.LogError(ctx, err.Error())
-		return ""
+		return mac, ""
 	}
 
-	return role
+	return mac, role
 }
 
 type NetworkTranslationType string
