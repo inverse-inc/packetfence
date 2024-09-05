@@ -14,7 +14,10 @@ const POLL_RETRY_NUM = 20
 // delay between retries (seconds)
 const POLL_RETRY_INTERVAL = 3
 
-const pollTaskStatus = ({ task_id, headers }) => {
+// grace period after initial command (seconds), avoid race-condition during pfperl-api restart
+const POLL_GRACE_PERIOD = 10
+
+const pollTaskStatus = ({ task_id, headers, grace_period = 0 }) => {
   return apiCall.getQuiet(`pfqueue/task/${task_id}/status/poll`, { headers }).then(response => {
     if (task_id in retries)
       delete retries[task_id]
@@ -46,7 +49,7 @@ const pollTaskStatus = ({ task_id, headers }) => {
                 reject(error)
               }
             })
-        }, POLL_RETRY_INTERVAL * 1E3)
+        }, (POLL_RETRY_INTERVAL + grace_period) * 1E3)
       })
     }
   })
@@ -92,7 +95,7 @@ const actions = {
   pollTaskStatus: ({ dispatch }, { task_id, headers }) => {
     return api.pollTaskStatus({ task_id, headers }).then(data => { // 'poll' returns immediately, or timeout after 15s
       if ('status' in data && data.status.toString() === '202') { // 202: in progress
-        return dispatch('pollTaskStatus', { task_id, headers }) // recurse
+        return dispatch('pollTaskStatus', { task_id, headers, grace_period: POLL_GRACE_PERIOD }) // recurse
       }
       if ('error' in data) {
         throw new Error(data.error.message)
