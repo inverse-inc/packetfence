@@ -123,11 +123,11 @@ sub stop {
 
 sub restart {
     my ($self) = @_;
-    return $self->do_action('do_restart', 1);
+    return $self->do_action('do_restart');
 }
 
 sub do_action {
-    my ($self, $action, $detach) = @_;
+    my ($self, $action) = @_;
     my ($status, $data) = $self->get_data();
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
@@ -139,20 +139,17 @@ sub do_action {
         $subprocess->run(
             sub {
                 my ($subprocess) = @_;
-                if ($detach) {
-                    my $pid = fork();
-                    if ($pid) {
-                        exit(0);
-                    }
-
-                    if (defined $pid) {
-                        setsid();
-                    }
-                }
                 my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
                 $updater->start;
-                my $data = $self->$action();
-                $updater->completed($data);
+                my $service_id = $self->param('service_id');
+                # Marking the restart of pfperl-api as complete since it will be complete when running in a container
+                if ($action eq 'do_restart' && $service_id eq 'pfperl-api') {
+                    $updater->completed({restart => 0, pid => 0});
+                    my $data = $self->$action();
+                } else {
+                    my $data = $self->$action();
+                    $updater->completed($data);
+                }
             },
             sub {},
         );
