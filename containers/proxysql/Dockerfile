@@ -1,4 +1,4 @@
-FROM proxysql/proxysql:2.7.0-debian
+FROM proxysql/proxysql:2.6.0-debian
 
 RUN apt-get update && apt-get install -y jq
 
