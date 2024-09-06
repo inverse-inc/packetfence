@@ -4,7 +4,7 @@ FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bookworm:${IMAGE_TAG}
 
 RUN apt-get -qq update \
     && apt-get clean \
-    && apt-get -qq install -y proxysql \
+    && apt-get -qq install -y proxysql mysql-client \
     && apt-get clean
 
 COPY bin/proxysql-read-only-handler.sh /proxysql-read-only-handler.sh
