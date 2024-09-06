@@ -1939,8 +1939,6 @@ Since 14.0 PacketFence is able to receive events from the FleetDM servers, which
 ----
 
 
-== Upgrading from a version prior to X.Y.Z
-
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
