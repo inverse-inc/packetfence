@@ -77,7 +77,7 @@ sub generateConfig {
     $tags{'router_id'} = "PacketFence-$host_id";
 
     $tags{'vrrp'} = '';
-    $tags{'mysql_backend'} = '';
+    $tags{'lvs'} = '';
 
     my ($routes,$ips) = $self->generateRoutes();
     $tags{'vrrp'} .= <<"EOT";
@@ -113,13 +113,47 @@ EOT
                 $priority = 100 - pf::cluster::reg_cluster_index();
             }
             my $process_tracking = "haproxy_portal";
+            my $cluster_ip = pf::cluster::cluster_ip($interface);
+            if ($Config{"interface $interface"}{'type'} =~ /management/i) {
+                # Defined list of ports we have to listen
+                foreach my $port ( 2055,6343 ) {
+                    $tags{'lvs'} .= <<"EOT";
+virtual_server $cluster_ip $port {
+  delay_loop 2
+  lvs_sched fo
+  lvs_method NAT
+  protocol UDP
+  retry 10
+  delay_before_retry 5
+EOT
+                    my @active_members;
+                    foreach my $member (values %{pf::cluster::members_ips($interface)}) {
+                        $tags{'lvs'} .= <<"EOT";
+  real_server $member $port {
+    SSL_GET {
+      connect_ip $member
+      connect_port 4723
+      url {
+        path "/"
+        status_code 404
+      }
+      connect_timeout 10
+    }
+  }
+EOT
+                    }
+$tags{'lvs'} .= <<"EOT";
+}
+
+EOT
+                }
+            }
             if ($Config{"interface $interface"}{'type'} =~ /management/i || $Config{"interface $interface"}{'type'} =~ /radius/i) {
                 $process_tracking = "radius_load_balancer";
                 if(isdisabled($Config{active_active}{centralize_vips})) {
                     $priority = 100 - pf::cluster::cluster_index();
                 }
             }
-            my $cluster_ip = pf::cluster::cluster_ip($interface);
             $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
   virtual_router_id $Config{'active_active'}{'virtual_router_id'}
@@ -231,7 +265,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

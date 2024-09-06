@@ -178,6 +178,21 @@
                   />
                 </template>
               </div>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Interface mapping by Access List'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-interface-map namespace="InterfaceMap"
+                  :column-label="$i18n.t('Interface by Access List')"
+                  :text="$i18n.t('Define the interface name where the acl associated to the role will be applied.')"
+                />
+
+                <template v-if="isInterfaceMap">
+                  <form-group-role-map-interface v-for="role in roles" :key="`${role}Interface`" :namespace="`${role}Interface`"
+                    :column-label="role"
+                  />
+                </template>
+              </div>
             </b-card>
           </base-form-tab>
 
@@ -196,6 +211,39 @@
                   <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" :namespace="`${role}Url`"
                     :column-label="role"
                   />
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
+
+          <base-form-tab
+            :title="$i18n.t('Network CIDR')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by Network CIDR'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-network-map namespace="NetworkMap"
+                  :column-label="$i18n.t('Role by Network CIDR')"
+                />
+
+                <template v-if="isNetworkMap">
+                  <b-form-group v-for="role in roles" :key="`${role}Network`"
+                    :label="role" label-cols="3"
+                    class="base-form-group"
+                  >
+                    <b-input-group>
+                      <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                        <b-col sm="6" align-self="center">
+                          <input-role-map-network :namespace="`${role}Network`"
+                            :disabled="form[`${role}NetworkFrom`] !== 'static'" />
+                        </b-col>
+                        <b-col sm="6" align-self="center" class="pl-1">
+                          <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
+                        </b-col>
+                      </b-row>
+                    </b-input-group>
+                  </b-form-group>
                 </template>
               </div>
             </b-card>
@@ -454,6 +502,7 @@ import {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleMapInterface,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -481,6 +530,8 @@ import {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
+  FormGroupToggleInterfaceMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
@@ -498,6 +549,9 @@ import {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 } from './'
 
 const components = {
@@ -530,6 +584,7 @@ const components = {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleMapInterface,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -557,6 +612,8 @@ const components = {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
+  FormGroupToggleInterfaceMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
@@ -574,6 +631,9 @@ const components = {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 }
 
 import { useForm, useFormProps as props } from '../_composables/useForm'

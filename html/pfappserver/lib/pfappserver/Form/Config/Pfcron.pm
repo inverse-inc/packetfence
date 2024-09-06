@@ -152,13 +152,13 @@ Returns the default type of the Provisioning
 sub default_type {
     my ($field) = @_;
     my $type = ref($field->form);
-    $type =~ s/^pfappserver::Form::Config::Pfcron//;
+    $type =~ s/^pfappserver::Form::Config::Pfcron:://;
     return $type;
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

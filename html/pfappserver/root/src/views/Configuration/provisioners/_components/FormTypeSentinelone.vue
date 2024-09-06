@@ -50,6 +50,11 @@
                      namespace="oses"
     />
 
+    <form-group-rules :column-label="$i18n.t('Rules')"
+                     :text="$i18n.t('Rules to apply.')"
+                     namespace="rules"
+    />
+
     <form-group-host :column-label="$i18n.t('Host')"
                      namespace="host"
     />
@@ -96,6 +101,7 @@ import {
   FormGroupPort,
   FormGroupProtocol,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupWindowsAgentDownloadUri
 } from './'
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'
@@ -117,6 +123,7 @@ const components = {
   FormGroupPort,
   FormGroupProtocol,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupWindowsAgentDownloadUri
 }
 

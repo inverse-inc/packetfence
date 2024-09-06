@@ -17,10 +17,12 @@ use Moo;
 extends 'pf::provisioner';
 
 use pf::log;
+use pf::provisioner;
 use pf::constants;
 use LWP::UserAgent;
 use JSON::MaybeXS qw(decode_json);
 use pf::error;
+use pf::node;
 
 =head1 Atrributes
 
@@ -84,7 +86,7 @@ sub get_lwp_client {
 }
 
 sub authorize {
-    my ($self,$mac) = @_;
+    my ($self, $mac, $node_info) = @_;
     my $ua = $self->get_lwp_client();
     my $res = $ua->get($self->api_url("/api/v1/devices/?mac_address=$mac"));
     if($res->code != $STATUS::OK) {
@@ -93,19 +95,40 @@ sub authorize {
     }
     
     my $data = decode_json($res->decoded_content);
-    if(scalar(@$data) == 0) {
+    if (scalar(@$data) == 0) {
         $self->logger->info("$mac wasn't found in the Kandji inventory");
         return $FALSE;
     }
-    elsif(scalar(@$data) > 1) {
+
+    if (scalar(@$data) > 1) {
         $self->logger->error("$mac was found multiple times in the Kandji inventory");
         return $FALSE;
     }
-    else {
-        $self->logger->info("$mac was found in the Kandji inventory, checking if agent is still installed and active");
-        my $entry = $data->[0];
-        return ($entry->{agent_installed} && !$entry->{is_missing} && !$entry->{is_removed});
+
+    $self->logger->info("$mac was found in the Kandji inventory, checking if agent is still installed and active");
+    my $entry = $data->[0];
+    $node_info = node_view($mac) if !defined $node_info;
+    if ( !$entry->{agent_installed} || $entry->{is_missing} || $entry->{is_removed} ) {
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info       => $node_info,
+                kandji          => $entry,
+                compliant_check => 0
+            },
+            $FALSE
+        );
     }
+
+    return $self->handleAuthorizeEnforce(
+        $mac,
+        {
+            node_info => $node_info,
+            kandji => $entry,
+            compliant_check => 1
+        },
+        $TRUE
+    );
 }
 
 =head2 logger
@@ -125,7 +148,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

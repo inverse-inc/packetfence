@@ -813,7 +813,7 @@ $edir_options
     }
     user {
         base_dn = "\${..base_dn}"
-        filter = "(&(|$searchattributes($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{%{Stripped-User-Name}:-%{User-Name}}))$append)"
+        filter = "(&(|$searchattributes($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{Stripped-User-Name})($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{User-Name}))$append)"
     }
     options {
         chase_referrals = yes
@@ -917,6 +917,12 @@ EOT
             $tags{'config'} .= <<"EOT";
 }
 EOT
+        }
+        #Add radius sources defined in eduroam source
+        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+        if (@eduroam_authentication_source) {
+            my $eduroam_source = $eduroam_authentication_source[0];
+            push(@radius_sources, @{$eduroam_source->{'eduroam_radius_auth'}});
         }
         if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
             $tags{'config'} .= <<"EOT";
@@ -1044,49 +1050,27 @@ $source->{'options'}
 EOT
     }
     # Eduroam configuration
-    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
-        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-        my $server_pool;
+    my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+    if (@eduroam_authentication_source) {
+        my $eduroam_source = $eduroam_authentication_source[0];
         my $home_server;
-        my $eduroam_options = $eduroam_authentication_source[0]->{'eduroam_options'};
-        my $eduroam_radius_auth_proxy_type = $eduroam_authentication_source[0]->{'eduroam_radius_auth_proxy_type'};
+        my $eduroam_options = $eduroam_source->{'eduroam_options'};
+        my $eduroam_radius_auth_proxy_type = $eduroam_source->{'eduroam_radius_auth_proxy_type'};
         my $i = 0;
-        foreach my $radius_server (@{$eduroam_authentication_source[0]->{'eduroam_radius_auth'}}) {
-            $i++;
-
-            my $radius_source = pf::authentication::getAuthenticationSource($radius_server);
-            my $radius_secret = $radius_source->{secret};
-            my $radius_ip = $radius_source->{host};
-            my $radius_port = $radius_source->{port};
-            my $radius_options = $radius_source->{options};
-            $server_pool .= <<"EOT";
-    home_server = eduroam_server$i
-EOT
-
-            $home_server .= <<"EOT";
-home_server eduroam_server$i {
-    $radius_options
-    ipaddr = $radius_ip
-    port = $radius_port
-    secret = '$radius_secret'
-}
-
-EOT
-
-        }
-        if ($i) {
+        my $server_pool = join("\n", map { "    home_server = $_" } @{$eduroam_source->{'eduroam_radius_auth'}});
+        if ($server_pool) {
         $tags{'eduroam'} = <<"EOT";
-# Eduroam integration
 
+# Eduroam integration
 realm eduroam {
     auth_pool = eduroam_auth_pool
     $eduroam_options
 }
+
 home_server_pool eduroam_auth_pool {
 $server_pool
-type = $eduroam_radius_auth_proxy_type
+    type = $eduroam_radius_auth_proxy_type
 }
-$home_server
 EOT
         }
     } else {
@@ -1116,10 +1100,10 @@ home_server pfacct_local {
 }
 
 EOT
-    }
-    else {
+    } else {
         $tags{'pfacct'} = "# pfacct is not enabled";
     }
+
     $tt->process("$conf_dir/radiusd/proxy.conf.inc", \%tags, "$install_dir/raddb/proxy.conf.inc") or die $tt->error();
 
     undef %tags;
@@ -1738,7 +1722,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

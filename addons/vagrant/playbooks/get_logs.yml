@@ -30,3 +30,4 @@
         src: '{{ venom_dir }}/results-{{ ansible_fqdn }}.tar.gz'
         dest: '{{ result_dir }}/'
         flat: True
+      failed_when: false

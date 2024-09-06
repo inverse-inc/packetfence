@@ -39,14 +39,26 @@ Where :
 * *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
 * *This server's name* is the name that the server's account will have in your Active Directory.
 * *Sticky DC* is the preferred domain controller to connect to.
-* *Active Directory server* is the IP or DNS name of one of the DC of the domain.
+* *Active Directory FQDN* FQDN of the Domain Controller.
+* *Active Directory IP* IP Address of the Domain Controller.
 * *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
 * *OU* is the OU in the Active Directory where you want to create your computer account.
-* *ntlmv2 only* forces the NTLNM authentication (802.1X on AD) to use the NTLM version 2.
-* *Allow on registration* would allow devices in the registration network to communicate with the DC.
 * *Machine account password* password of server's account in your Active Directory
+* *Allow on registration* would allow devices in the registration network to communicate with the DC.
+
+You can always check your domain settings by running `net config workstation` on your domain controller.
+form the output,
+
+* _Full Computer Name_ is for *Active Directory FQDN*,
+* _Workstation Domain DNS Name_ is for *DNS name of the domain*
+* _Workstation domain_ is for *Workgroup*
+
 
 NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
+
+NOTE: If you are using PacketFence in cluster mode, you must save the domain settings on *each* of the nodes by given the same *clear-text* machine account password. By default, PacketFence will only save the NT hash of the machine account password, and it will be shown in Admin UI. However, PacketFence won't be able to create a machine account using a password hash. In order to keep the domain settings identical on all the nodes, you'll have to type in the same clear-text machine account password on each of the node and save them.
+
+NOTE: after version 14.0, the PacketFence domain.conf will be updated, domain identifier is changed from previously single identifier to "hostname + identifier". If you are running PacketFence in a cluster, please check the corresponding sections for each node.
 
 ==== Troubleshooting
 

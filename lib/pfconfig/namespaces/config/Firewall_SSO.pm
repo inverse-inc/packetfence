@@ -18,7 +18,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pfconfig::objects::NetAddr::IP;
 use pf::file_paths qw($firewall_sso_config_file);
 
 use base 'pfconfig::namespaces::config';
@@ -34,7 +33,7 @@ sub build_child {
     my %tmp_cfg = %{ $self->{cfg} };
     while ( my ($key, $item) = each %tmp_cfg ) {
         $self->cleanup_after_read( $key, $item);
-        $item->{networks} = [map { pfconfig::objects::NetAddr::IP->new($_) // () } @{$item->{networks}}];
+        $item->{networks} = [map { { cidr => $_ } } @{$item->{networks}}];
     }
 
     $self->roleReverseLookup(\%tmp_cfg, 'firewall_sso', qw(categories));
@@ -54,7 +53,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

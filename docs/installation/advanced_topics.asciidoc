@@ -391,3 +391,5 @@ for all networks instead of the ones defined in [filename]`/usr/local/pf/conf/ne
 
 Then restart `packetfence-iptables` and `packetfence-pfacct` services for it
 to take effect.
+
+include::kafka.asciidoc[]

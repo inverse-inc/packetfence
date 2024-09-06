@@ -9,13 +9,15 @@ import api from './_api'
 import { analytics } from './config'
 
 export const useStore = $store => {
-  const getItem = params => $store.dispatch('$_certificates/getCertificate', params.id).then(_certificate => {
-    const { status, ...certificate } = _certificate // strip out `status` from response
-    return $store.dispatch('$_certificates/getCertificateInfo', params.id).then(_info => {
-      const { status, ...info } = { ..._info, common_name: '' } // strip out `status` from response
+  const getItem = params => {
+    const c = $store.dispatch('$_certificates/getCertificate', params.id)
+    const i = $store.dispatch('$_certificates/getCertificateInfo', params.id)
+    return Promise.all([c, i]).then(([_certificate, _info]) => {
+      const { status: ignore1, ...certificate } = _certificate
+      const { status: ignore2, ...info } = _info
       return { certificate: { ...certificate, check_chain: 'enabled' }, info }
     })
-  })
+  }
   return {
     isLoading: computed(() => $store.getters['$_certificates/isLoading']),
     getItem,

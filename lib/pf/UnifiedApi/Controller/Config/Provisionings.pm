@@ -32,6 +32,7 @@ use pfappserver::Form::Config::Provisioning::dpsk;
 use pfappserver::Form::Config::Provisioning::google_workspace_chromebook;
 use pfappserver::Form::Config::Provisioning::intune;
 use pfappserver::Form::Config::Provisioning::jamf;
+use pfappserver::Form::Config::Provisioning::jamfCloud;
 use pfappserver::Form::Config::Provisioning::kandji;
 use pfappserver::Form::Config::Provisioning::mobileconfig;
 use pfappserver::Form::Config::Provisioning::mobileiron;
@@ -48,6 +49,7 @@ our %TYPES_TO_FORMS = (
       google_workspace_chromebook
       intune
       jamf
+      jamfCloud
       kandji
       mobileconfig
       mobileiron
@@ -74,7 +76,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

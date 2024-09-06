@@ -22,8 +22,8 @@ func GetConfigFromContext(ctx context.Context, n string) interface{} {
 }
 
 func GetRefreshFromContext(ctx context.Context, n string) interface{} {
-	store := ctx.Value(pfconfigCtxKey).(*ConfigStore)
-	if store != nil {
+	store, ok := ctx.Value(pfconfigCtxKey).(*ConfigStore)
+	if !ok || store == nil {
 		return nil
 	}
 

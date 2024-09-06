@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Inverse inc. <support@inverse.ca>
 Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, lsb-release, libfile-fcntllock-perl, git, pkg-config, nodejs (>= 20.0), jq,
- ruby, rubygems,
+ ruby, rubygems, ruby-dev,
  quilt, libmariadbd-dev (>= 10.1),
  libcurl4-openssl-dev, libcjson-dev
 Standards-Version: 3.8.4
@@ -21,8 +21,8 @@ Pre-Depends:  ca-certificates,
  fingerbank (>= 4.3.2), fingerbank (<< 5.0.0),
  fingerbank-collector (>= 1.4.1), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
- packetfence-perl (>= 1.2.3),
- netdata (= 1:1.10.0-1)
+ packetfence-perl (>= 1.2.4),
+ netdata
 # Removed for now
 # libmariadbd-dev (>= 10.1), libmariadbd-dev (<< 10.5.18)
 Breaks: libdata-alias-perl
@@ -34,8 +34,8 @@ Depends: ${misc:Depends}, vlan,
  packetfence-archive-keyring (>= ${source:Version}),
  gpg,
  jq,
- mariadb-server (>= 10.5.15),
- mariadb-client (>= 10.5.15),
+ mariadb-server,
+ mariadb-client,
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
 # for import/export scripts
  ipcalc, ipcalc-ng,
@@ -70,8 +70,9 @@ Depends: ${misc:Depends}, vlan,
 # perl uncategorized modules
  libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl, libtext-csv-xs-perl,
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
- libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl,
- libiptables-parse-perl, libiptables-chainmgr-perl, iptables (>= 1.4.0), iptables-netflow-dkms,
+ libdbd-mysql-perl (>= 4.052), libfile-tail-perl, libnetwork-ipv4addr-perl,
+ libiptables-parse-perl, libiptables-chainmgr-perl, iptables (>= 1.4.0),
+ iptables-netflow-dkms,
  liblwp-useragent-determined-perl,
  liblwp-protocol-connect-perl,
  libnet-netmask-perl, libnet-pcap-perl, libnet-snmp-perl, libsnmp-perl, libfile-fcntllock-perl,
@@ -163,7 +164,7 @@ Depends: ${misc:Depends}, vlan,
 # for packaging
  lsb-release,
 # nthash cache
- libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python3-twisted-bin,python3-twisted,libconfig-inifiles-perl,
+ libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python3-twisted,libconfig-inifiles-perl,
 # Monit and monitoring scripts
  monit, uuid-runtime,
 # Docker runtime

@@ -1,16 +1,28 @@
 import { computed, ref, toRefs } from '@vue/composition-api'
+import { useFormMetaSchema } from '@/composables/useMeta'
 import i18n from '@/utils/locale'
+import { baseRoles } from '../../switches/config'
 import schemaFn from '../schema'
 
 export const useForm = (props, context) => {
   const {
     id,
-    form
+    form,
+    meta
   } = toRefs(props)
 
   const { root: { $store } = {} } = context
 
-  const schema = computed(() => schemaFn(props, form))
+  const roles = ref(baseRoles)
+  $store.dispatch('$_roles/all').then(allRoles => {
+    roles.value = [
+      ...roles.value,
+      ...allRoles.map(role => role.id)
+    ]
+  })
+
+  const schema = computed(() => schemaFn(props, roles))
+  const metaSchema = computed(() => useFormMetaSchema(meta, schema))
 
   const members = computed(() => form.value.members || [])
 
@@ -78,8 +90,63 @@ export const useForm = (props, context) => {
     }))
   )
 
+  const isAccessListMap = computed(() => {
+    // inspect form value for `AccessListMap`
+    const { AccessListMap } = form.value
+    if (AccessListMap !== null)
+      return AccessListMap === 'Y'
+
+    // inspect meta placeholder for `AccessListMap`
+    const { AccessListMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
+  const isRoleMap = computed(() => {
+    // inspect form value for `RoleMap`
+    const { RoleMap } = form.value
+    if (RoleMap !== null)
+      return RoleMap === 'Y'
+
+    // inspect meta placeholder for `RoleMap`
+    const { RoleMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
+  const isVpnMap = computed(() => {
+    // inspect form value for `VpnMap`
+    const { VpnMap } = form.value
+    if (VpnMap !== null)
+      return VpnMap === 'Y'
+
+    // inspect meta placeholder for `VpnMap`
+    const { VpnMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
+  const isUrlMap = computed(() => {
+    // inspect form value for `UrlMap`
+    const { UrlMap } = form.value
+    if (UrlMap !== null)
+      return UrlMap === 'Y'
+
+    // inspect meta placeholder for `UrlMap`
+    const { UrlMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
+  const isVlanMap = computed(() => {
+    // inspect form value for `VlanMap`
+    const { VlanMap } = form.value
+    if (VlanMap !== null)
+      return VlanMap === 'Y'
+
+    // inspect meta placeholder for `VlanMap`
+    const { VlanMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
   return {
-    schema,
+    schema: metaSchema,
     members,
     memberFields,
     memberSortBy,
@@ -90,6 +157,13 @@ export const useForm = (props, context) => {
     removeMember,
 
     switches,
-    filteredSwitches
+    filteredSwitches,
+
+    isAccessListMap,
+    isRoleMap,
+    isVpnMap,
+    isUrlMap,
+    isVlanMap,
+    roles
   }
 }

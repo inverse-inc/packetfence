@@ -9,12 +9,18 @@ import (
 	"os"
 	"regexp"
 	"testing"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 var testproxy Proxy
 var ctx = context.Background()
 
 func TestMain(m *testing.M) {
+	pfconfigdriver.AddType[pfconfigdriver.PfConfFencing](ctx)
+	pfconfigdriver.AddType[pfconfigdriver.PfConfGeneral](ctx)
+	pfconfigdriver.AddType[pfconfigdriver.PfConfCaptivePortal](ctx)
+	pfconfigdriver.AddType[pfconfigdriver.PfConfParking](ctx)
 	passThrough = newProxyPassthrough(ctx)
 	rgx, _ := regexp.Compile("captive.apple.com")
 	passThrough.proxypassthrough = append(passThrough.proxypassthrough, rgx)

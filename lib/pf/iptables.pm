@@ -29,6 +29,7 @@ use pf::constants;
 use pf::config::cluster;
 use File::Slurp qw(read_file);
 use URI ();
+use Sys::Hostname;
 
 BEGIN {
     use Exporter ();
@@ -237,15 +238,21 @@ generate_kafka_rules
 
 sub generate_kafka_rules {
     my ($self, $rule) = @_;
-    for my $client (@{$ConfigKafka{iptables}{clients}}) {
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT\n";
-    }
+    return if !exists $ConfigKafka{hostname()};
 
-    for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT\n";
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT\n";
-        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT\n";
-    }
+    $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 9092 --jump ACCEPT\n";
+    $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 9093 --jump ACCEPT\n";
+    $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 29092 --jump ACCEPT\n";
+
+#    for my $client (@{$ConfigKafka{iptables}{clients}}) {
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT\n";
+#    }
+#
+#    for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT\n";
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT\n";
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT\n";
+#    }
 }
 
 =item generate_filter_if_src_to_chain
@@ -497,9 +504,9 @@ sub generate_passthrough_rules {
     $logger->info("Adding IP based passthrough for connectivitycheck.gstatic.com");
     # Allow the host for the onboarding of devices
     my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,80 2>&1");
-    pf_run($cmd);
+    safe_pf_run(qw(sudo ipset --add pfsession_passthrough), "172.217.13.99,80");
     $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,443 2>&1");
-    pf_run($cmd);
+    safe_pf_run(qw(sudo ipset --add pfsession_passthrough), "172.217.13.99,443");
 
     $logger->info("Adding NAT Masquerade statement.");
     my ($SNAT_ip, $mgmt_int);
@@ -674,9 +681,9 @@ sub iptables_save {
     my ($self, $save_file) = @_;
     my $logger = get_logger();
     $logger->info( "saving existing iptables to " . $save_file );
-    pf_run("/sbin/iptables-save -t nat > $save_file");
-    pf_run("/sbin/iptables-save -t mangle >> $save_file");
-    pf_run("/sbin/iptables-save -t filter >> $save_file");
+    safe_pf_run("/usr/sbin/iptables-save", '-t', 'nat', { stdout => $save_file });
+    safe_pf_run("/usr/sbin/iptables-save", '-t', 'mangle', { stdout => $save_file, stdout_append => 1 });
+    safe_pf_run("/usr/sbin/iptables-save", '-t', 'filter', { stdout => $save_file, stdout_append => 1 });
 }
 
 sub iptables_restore {
@@ -684,7 +691,7 @@ sub iptables_restore {
     my $logger = get_logger();
     if ( -r $restore_file ) {
         $logger->info( "restoring iptables from " . $restore_file );
-        pf_run("/sbin/iptables-restore < $restore_file");
+        safe_pf_run("/sbin/iptables-restore", {stdin => $restore_file});
     }
 }
 
@@ -694,7 +701,7 @@ sub iptables_restore_noflush {
     if ( -r $restore_file ) {
         $logger->info(
             "restoring iptables (no flush) from " . $restore_file );
-        pf_run("/sbin/iptables-restore -n < $restore_file");
+        safe_pf_run("/sbin/iptables-restore", '-n', {stdin => $restore_file});
     }
 }
 
@@ -799,6 +806,11 @@ sub generate_interception_rules {
     }
 }
 
+sub add_to_pfsession_passthrough {
+    my ($host, $port) = @_;
+    safe_pf_run(qw(sudo ipset --add pfsession_passthrough), "$host,$port");
+}
+
 sub generate_provisioning_passthroughs {
     my $logger = get_logger();
     $logger->debug("Installing passthroughs for provisioning");
@@ -806,41 +818,29 @@ sub generate_provisioning_passthroughs {
         $logger->info("Adding passthrough for Kandji");
         my $enroll_host = $config->{enroll_url} ? URI->new($config->{enroll_url})->host : $config->{host};
         my $enroll_port = $config->{enroll_url} ? URI->new($config->{enroll_url})->port : $config->{port};
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough ".$enroll_host.",".$enroll_port." 2>&1");
-        my @lines  = pf_run($cmd);
+        my @lines  = add_to_pfsession_passthrough($enroll_host, $enroll_port);
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
         $logger->info("Adding passthrough for MobileIron");
         # Allow the host for the onboarding of devices
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
-        my @lines  = pf_run($cmd);
-        # Allow http communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
-        @lines  = pf_run($cmd);
-        # Allow https communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
-        @lines  = pf_run($cmd);
+        for my $port ($config->{boarding_port}, $HTTP_PORT, $HTTPS_PORT) { 
+            my @lines  = add_to_pfsession_passthrough($config->{boarding_host}, $port);
+        }
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
         $logger->info("Adding passthrough for OPSWAT");
-        # Allow http communication with the OSPWAT server
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-        my @lines  = pf_run($cmd);
-        # Allow https communication with the OPSWAT server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
-        @lines  = pf_run($cmd);
+        for my $port ($HTTP_PORT, $HTTPS_PORT) { 
+            my @lines  = add_to_pfsession_passthrough($config->{host}, $port);
+        }
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
         $logger->info("Adding passthrough for SentinelOne");
-        # Allow http communication with the SentinelOne server
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-        my @lines  = pf_run($cmd);
-        # Allow https communication with the SentinelOne server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
-        @lines  = pf_run($cmd);
+        for my $port ($HTTP_PORT, $HTTPS_PORT) { 
+            my @lines  = add_to_pfsession_passthrough($config->{host}, $port);
+        }
     }
 
 
@@ -877,7 +877,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

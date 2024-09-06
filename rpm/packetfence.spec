@@ -13,7 +13,7 @@
 # Main package
 #==============================================================================
 Name:       packetfence
-Version:    13.2.0
+Version:    14.0.0
 Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
@@ -25,7 +25,7 @@ BuildRoot:  %{_tmppath}/%{name}-root
 Vendor:     PacketFence, http://www.packetfence.org
 
 BuildRequires: gettext, httpd, pkgconfig, jq
-BuildRequires: ruby, rubygems
+BuildRequires: ruby, rubygems, ruby-devel
 BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
 BuildRequires: systemd
@@ -52,7 +52,7 @@ Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2, perl-libapreq2
-Requires: redis
+Requires: redis >= 7.2.5
 Requires: freeradius >= 3.2.1, freeradius-mysql >= 3.2.1, freeradius-perl >= 3.2.1, freeradius-ldap >= 3.2.1, freeradius-utils >= 3.2.1, freeradius-redis >= 3.2.1, freeradius-rest >= 3.2.1
 Requires: make
 Requires: net-tools
@@ -60,7 +60,7 @@ Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: packetfence-perl >= 1.2.3
+Requires: packetfence-perl >= 1.2.4
 Requires: MariaDB-server >= 10.5.15, MariaDB-server < 10.6.0
 Requires: MariaDB-client >= 10.5.15, MariaDB-client < 10.6.0
 Requires: perl(DBD::mysql)
@@ -934,6 +934,18 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
 %dir                    /usr/local/pf/bin/pyntlm_auth
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/app.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/config_generator.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/config_loader.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/constants.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/flags.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/global_vars.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/handlers.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/ms_event.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/ncache.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/rpc.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/t_api.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/t_sdnotify.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/utils.py
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector
@@ -955,6 +967,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/kafka-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-domain
+%attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-monitor
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetacls-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
@@ -989,6 +1002,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/caddy-services/locales/*.yml
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/chi.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/config.toml
 %config(noreplace)      /usr/local/pf/conf/nexpose-responses.txt
 %config(noreplace)      /usr/local/pf/conf/pfdns.conf
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
@@ -1038,6 +1052,8 @@ fi
 %dir                    /usr/local/pf/conf/I18N
 %dir                    /usr/local/pf/conf/I18N/api
                         /usr/local/pf/conf/I18N/api/*
+%dir                    /usr/local/pf/conf/kafka
+%config                 /usr/local/pf/conf/kafka/kafka_server_jaas.conf.tt
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
@@ -1102,6 +1118,12 @@ fi
                         /usr/local/pf/conf/pki_provider.conf.example
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
+%config(noreplace)      /usr/local/pf/conf/provisioning_filters.conf
+                        /usr/local/pf/conf/provisioning_filters.conf.example
+                        /usr/local/pf/conf/provisioning_filters.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/provisioning_filters_meta.conf
+                        /usr/local/pf/conf/provisioning_filters_meta.conf.example
+                        /usr/local/pf/conf/provisioning_filters_meta.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/radius_filters.conf
                         /usr/local/pf/conf/radius_filters.conf.example
 %config                 /usr/local/pf/conf/radius_filters.conf.defaults
@@ -1168,6 +1190,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/radiusd/tls.conf
 %config                 /usr/local/pf/conf/radiusd/tls.conf.defaults
                         /usr/local/pf/conf/radiusd/tls.conf.example
+%dir %attr(0770, pf pf) /usr/local/pf/conf/services.d
 %config(noreplace)      /usr/local/pf/conf/ssl.conf
 %config                 /usr/local/pf/conf/ssl.conf.defaults
                         /usr/local/pf/conf/ssl.conf.example
@@ -1236,6 +1259,7 @@ fi
 %config                 /usr/local/pf/conf/caddy-services/pfsso.conf
 %config                 /usr/local/pf/conf/caddy-services/httpdispatcher.conf
 %config                 /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf
+%dir                    /usr/local/pf/conf/caddy-services/api.conf.d/
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/netdata.conf
                         /usr/local/pf/conf/monitoring/netdata.conf.example
@@ -1375,6 +1399,12 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Thu May 23 2024 Inverse <info@inverse.ca> - 14.0.0-2
+- Upgrade packetfence-perl 1.2.4
+
+* Fri May 17 2024 Inverse <info@inverse.ca> - 14.0.0-1
+- New release 14.0.0
+
 * Mon Jan 22 2024 Inverse <info@inverse.ca> - 13.2.0-1
 - New release 13.2.0
 

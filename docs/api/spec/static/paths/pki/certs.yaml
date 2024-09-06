@@ -110,7 +110,7 @@
         description: '`PRIMARY KEY`'
         schema:
           type: string
-      - name: pasword
+      - name: password
         in: path
         required: true
         description: Certificate password.

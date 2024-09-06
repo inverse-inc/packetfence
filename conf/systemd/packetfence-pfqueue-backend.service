@@ -5,7 +5,7 @@ Wants=packetfence-redis_queue.service
 After=packetfence-redis_queue.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
-Before=packetfence-docker-iptables.service
+Before=packetfence-docker-iptables.service packetfence-pfqueue-go.service
 Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
 

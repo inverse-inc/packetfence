@@ -1,4 +1,4 @@
-FROM debian:11
+FROM debian:12
 
 RUN apt-get update && apt-get install -y aptitude wget gnupg
 
@@ -13,7 +13,7 @@ ARG PKGS_TO_EXCLUDE
 COPY debian/control /tmp/
 COPY rpm/packetfence.spec /tmp/
 
-RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bullseye bullseye' > /etc/apt/sources.list.d/packetfence_deps.list"  && \
+RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm' > /etc/apt/sources.list.d/packetfence_deps.list"  && \
     wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
 
 RUN /bin/bash -c "echo 'deb https://deb.nodesource.com/node_20.x nodistro main' > /etc/apt/sources.list.d/nodejs.list" && \

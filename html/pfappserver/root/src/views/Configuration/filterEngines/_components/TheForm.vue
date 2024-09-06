@@ -6,6 +6,12 @@
     :isLoading="isLoading"
   >
 
+    <form-group-type v-if="fields.includes('type')"
+                     namespace="type"
+                    :column-label="$i18n.t('Type')"
+                    disabled
+    />
+
     <form-group-filter-enabled v-if="fields.includes('status')"
                                namespace="status"
                                :column-label="$i18n.t('Enabled')"
@@ -123,13 +129,14 @@ import {
   FormGroupIdentifier,
   FormGroupLog,
   FormGroupMergeAnswer,
+  FormGroupNetworkSwitch,
   FormGroupParams,
   FormGroupRadiusStatus,
   FormGroupResponseCode,
   FormGroupRole,
   FormGroupRunActions,
   FormGroupScopes,
-  FormGroupNetworkSwitch,
+  FormGroupType,
 } from './'
 import {useForm, useFormProps as props} from '../_composables/useForm'
 
@@ -141,17 +148,18 @@ const components = {
   FormGroupAnswers,
   FormGroupCondition,
   FormGroupDescription,
+  FormGroupFilterEnabled,
   FormGroupIdentifier,
   FormGroupLog,
   FormGroupMergeAnswer,
+  FormGroupNetworkSwitch,
   FormGroupParams,
   FormGroupRadiusStatus,
   FormGroupResponseCode,
   FormGroupRole,
   FormGroupRunActions,
   FormGroupScopes,
-  FormGroupFilterEnabled,
-  FormGroupNetworkSwitch,
+  FormGroupType,
 }
 
 export const setup = (props, context) => useForm(props, context)

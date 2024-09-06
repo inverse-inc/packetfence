@@ -1,105 +1,103 @@
 # Copyright (C) Inverse inc.
-0.0.0.0:9999 {
-  tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
+{
+	admin off
+	#debug
+}
 
-  log / stdout "api-frontend-access {remote} - {user} [{when}] \"{method} {uri} {proto}\" {status} {size} \"{>Referer}\" \"{>User-Agent}\""
+:9999 {
+	tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
 
-  errors {
-    502 /usr/local/pf/html/pfappserver/root/errors/502.json
-    503 /usr/local/pf/html/pfappserver/root/errors/503.json
-  }
+	log {
+		output stdout
+		format transform `api-frontend-access {request>remote_ip} - {user_id} [{ts}] "{request>method} {request>uri} {request>proto}" {status} {size} "{request>headers>Referer>[0]}" "{request>headers>User-Agent>[0]}"` {
+			time_format "02/Jan/2006:15:04:05 -0700"
+		}
+		level INFO
+	}
 
-  configstore
+	handle_errors 502 503 {
+		rewrite * /{err.status_code}.json
+		root /usr/local/pf/html/pfappserver/root/errors/
+		file_server
+	}
 
-  logger {
-    level INFO
-  }
+	route * {
+		configstore
 
-  statsd {
-    proto udp
-    prefix api
-    address {$STATSD_ADDRESS}
-  }
+		logger {
+			level INFO
+		}
 
-  cors /api/v1 {
-    allowed_headers Authorization,Content-Type
-    methods GET,OPTIONS,POST,DELETE,PUT,PATCH
-  }
+		statsd {
+			proto udp
+			prefix api
+			address {$STATSD_ADDRESS}
+		}
 
-  cors /api/v1.1 {
-    allowed_headers Authorization,Content-Type
-    methods GET,OPTIONS,POST,DELETE,PUT,PATCH
-  }
+		cors /api/v1/* {
+			allowed_headers Authorization,Content-Type
+			methods GET,OPTIONS,POST,DELETE,PUT,PATCH
+		}
 
-  api-aaa {
-    no_auth /api/v1/pfconnector/tunnel
-    session_backend db mem
-  }
-  
-  api
+		cors /api/v1.1/* {
+			allowed_headers Authorization,Content-Type
+			methods GET,OPTIONS,POST,DELETE,PUT,PATCH
+		}
 
-  log-tailer
+		api-aaa {
+			no_auth /api/v1/pfconnector/tunnel
+			session_backend db mem
+		}
 
-  # Job status access
-  job-status
+		api
 
-  proxy /api/v1/pfconnector {$PF_SERVICES_URL_PFCONNECTOR_SERVER} {
-    websocket
-    transparent
-  }
+		log-tailer
 
-  # pfipset API access
-  proxy /api/v1/ipset/ {$PF_SERVICES_URL_PFIPSET} {
-    transparent
-  }
-  
-  # pfdhcp API access
-  proxy /api/v1/dhcp/ {$PF_SERVICES_URL_PFDHCP} {
-    transparent
-  }
-  
-  # pfsso API access
-  proxy /api/v1/firewall_sso/ {$PF_SERVICES_URL_PFSSO} {
-    transparent
-  }
+		# Job status access
+		job-status
 
-  # ldapexplorer API access
-  proxy /api/v1/ldap/search {$PF_SERVICES_URL_PFLDAPEXPLORER} {
-    transparent
-  }
+		reverse_proxy /api/v1/pfconnector/* {$PF_SERVICES_URL_PFCONNECTOR_SERVER} {
+		}
 
-  # pfpki API access
-  proxy /api/v1/pki/ {$PF_SERVICES_URL_PFPKI} {
-    transparent
-  }
-  
-  # Everything else goes to the Perl API
-  proxy /api/v1/ {$PF_SERVICES_URL_PFPERL_API} {
-    transparent
-    timeout 10m
-  }
+		# pfipset API access
+		reverse_proxy /api/v1/ipset/* {$PF_SERVICES_URL_PFIPSET} {
+		}
 
-  # Everything else goes to the Perl API
-  proxy /api/v1.1/ {$PF_SERVICES_URL_PFPERL_API} {
-    transparent
-    timeout 10m
-  }
+		# pfdhcp API access
+		reverse_proxy /api/v1/dhcp/* {$PF_SERVICES_URL_PFDHCP} {
+		}
 
-  # doh forward
-  proxy /dns-query {$PF_SERVICES_URL_PFDNS_DOH} {
-      transparent
-  }
+		# pfsso API access
+		reverse_proxy /api/v1/firewall_sso/* {$PF_SERVICES_URL_PFSSO} {
+		}
 
-  timeouts {
-    write 10m
-    idle 10m
-  }
+		# ldapexplorer API access
+		reverse_proxy /api/v1/ldap/search {$PF_SERVICES_URL_PFLDAPEXPLORER} {
+		}
+
+		# pfpki API access
+		reverse_proxy /api/v1/pki/* {$PF_SERVICES_URL_PFPKI} {
+		}
+
+		import api.conf.d/*.conf
+
+		# Everything else goes to the Perl API
+		reverse_proxy /api/v1/* {$PF_SERVICES_URL_PFPERL_API} {
+		}
+
+		# Everything else goes to the Perl API
+		reverse_proxy /api/v1.1/* {$PF_SERVICES_URL_PFPERL_API} {
+		}
+
+		# doh forward
+		reverse_proxy /dns-query/* {$PF_SERVICES_URL_PFDNS_DOH} {
+		}
+	}
 }
 
 ####
 ## The configuration below allows to use this server as a proxy
 #0.0.0.0:9990 {
-#  pfconfigpool
 #  logger {
 #    level INFO
 #  }
@@ -111,4 +109,3 @@
 #  api-aaa
 #  forwardproxy
 #}
-

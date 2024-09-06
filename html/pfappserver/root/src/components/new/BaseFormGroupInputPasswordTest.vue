@@ -87,7 +87,7 @@ export const props = {
     type: String
   },
   test: {
-    type: Function,
+    type: [Function, Boolean],
     default: () => new Promise((resolve, reject) => reject(new Error('Missing test function.')))
   },
   testLabel: {
@@ -128,7 +128,7 @@ export const setup = (props, context) => {
 
 
   const isTesting = ref(false)
-  const canTest = computed(() => !unref(isLocked) && !unref(isTesting) && unref(value))
+  const canTest = computed(() => !unref(isLocked) && !unref(isTesting) && unref(value) && test.value.constructor == Function)
   let testState = ref(null)
   let testInvalidFeedback = ref(undefined)
   let testValidFeedback = ref(undefined)

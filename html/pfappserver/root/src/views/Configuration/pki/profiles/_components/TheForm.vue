@@ -77,8 +77,8 @@
         <form-group-p12-mail-password namespace="p12_mail_password"
                                       :column-label="$i18n.t('P12 mail password')"
                                       :text="$i18n.t('Email the password of the pkcs12 file.')"
-                                      :enabled-value="1"
-                                      :disabled-value="0"
+                                      enabled-value="1"
+                                      disabled-value="0"
         />
         <form-group-p12-mail-subject namespace="p12_mail_subject"
                                      :column-label="$i18n.t('P12 mail subject')"

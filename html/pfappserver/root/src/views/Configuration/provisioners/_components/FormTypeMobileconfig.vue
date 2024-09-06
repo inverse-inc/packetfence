@@ -47,6 +47,11 @@
                              namespace="category"
         />
 
+    <form-group-rules :column-label="$i18n.t('Rules')"
+                     :text="$i18n.t('Rules to apply.')"
+                     namespace="rules"
+    />
+
         <form-group-ssid :column-label="$i18n.t('SSID')"
                          namespace="ssid"
         />
@@ -155,6 +160,7 @@ import {
   FormGroupPkiProvider,
   FormGroupPrivateKey,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupSecurityType,
   FormGroupServerCertificatePath,
   FormGroupSsid
@@ -183,6 +189,7 @@ const components = {
   FormGroupPkiProvider,
   FormGroupPrivateKey,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupSecurityType,
   FormGroupServerCertificatePath,
   FormGroupSsid

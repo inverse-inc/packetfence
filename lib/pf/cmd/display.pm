@@ -54,8 +54,7 @@ sub print_results {
         print join( $delimiter, @fields ) . "\n";
         foreach my $row (@results) {
             next
-                if ( defined( $row->{'mydate'} )
-                && $row->{'mydate'} =~ /^00/ );
+                if !$row || (( defined( $row->{'mydate'} ) && $row->{'mydate'} =~ /^00/ ));
             my @values = ();
             foreach my $field (@fields) {
                 my $value = $row->{$field};
@@ -78,11 +77,6 @@ sub print_results {
     return ($total);
 }
 
-sub showHelp {
-    my ($self) = @_;
-    $self->SUPER::showHelp(ref($self->{parentCmd}) || $self->{parentCmd});
-}
-
 sub field_order {
     my ($self) = @_;
     require pf::config::ui;
@@ -100,7 +94,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

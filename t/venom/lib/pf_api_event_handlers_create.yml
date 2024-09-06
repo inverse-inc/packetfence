@@ -1,0 +1,36 @@
+executor: pf_api_event_handlers_create 
+input:
+  id: ""
+  isClone: false
+  isNew: true
+  eventHandlerType: "suricata"
+  path: ""
+  interval: 0
+  unit: "s"
+  status: "enabled"
+  syslog_type: "suricata"
+
+steps:
+- type: pf_api_action
+  id: "{{.input.id}}"
+  method: POST
+  url: "config/event_handlers"
+  status_code: 201
+  body: >-
+    {
+      "id": "{{.input.id}}",
+      "isClone": "{{.input.isClone}}",
+      "isNew": "{{.input.isNew}}",
+      "eventHandlerType": "{{.input.eventHandlerType}}",
+      "path": "{{.input.path}}",
+      "rate_limit": {
+        "interval": "{{.input.interval}}",
+        "unit":"{{.input.unit}}"
+      },
+      "status": "{{.input.status}}",
+      "type": "{{.input.syslog_type}}"
+    }
+
+- type: pf_api_event_handler_action
+  method: GET
+  id: "{{.input.id}}"

@@ -136,14 +136,14 @@
       </multiselect>
       <template v-slot:prepend v-if="$slots.prepend || (inputPlaceholder && isEmpty)">
         <slot  v-if="$slots.prepend" name="prepend"></slot>
-        <b-button v-if="inputPlaceholder && isEmpty"
+        <b-button v-if="isDefault && isEmpty"
           class="input-group-text"
           :disabled="true"
           tabIndex="-1"
           v-b-tooltip.hover.left.d300 :title="$t('A default value is provided if this field is not defined.')"
         >
           <icon ref="icon-default"
-            name="sort-size-down" scale="0.75"
+            name="stamp" scale="0.75"
           />
         </b-button>
       </template>
@@ -179,6 +179,7 @@ const components = {
   Multiselect
 }
 
+import i18n from '@/utils/locale'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
@@ -201,6 +202,10 @@ export const props = {
     default: 'md',
     validator: value => ['sm', 'md', 'lg'].includes(value)
   },
+  placeholder: {
+    type: String,
+    default: i18n.t('Select option')
+  }
 }
 
 export const setup = (props, context) => {
@@ -245,6 +250,7 @@ export const setup = (props, context) => {
     tabIndex,
     text,
     type,
+    isDefault,
     isFocus,
     isLocked,
     onFocus,
@@ -253,7 +259,8 @@ export const setup = (props, context) => {
 
   const {
     value,
-    onInput
+    onInput,
+    isEmpty
   } = useInputValue(metaProps, context)
 
   const {
@@ -306,9 +313,6 @@ export const setup = (props, context) => {
       : {}
   })
 
-  // used by CSS to show vue-multiselect placeholder
-  const isEmpty = computed(() => [null, undefined].includes(value.value))
-
   // clear single value
   const onRemove = () => onInput(null)
 
@@ -348,6 +352,7 @@ export const setup = (props, context) => {
     inputTabIndex: tabIndex,
     inputText: text,
     inputType: type,
+    isDefault,
     isFocus,
     isLocked,
     isReadonly: readonly,
@@ -360,6 +365,7 @@ export const setup = (props, context) => {
 
     // useInputValue
     inputValue: value,
+    isEmpty,
     onInput,
 
     // useInputValidator
@@ -373,7 +379,6 @@ export const setup = (props, context) => {
     inputGroupValues,
     singleLabel,
     multipleLabels,
-    isEmpty,
     showEmpty: true, // always show
 
     onRemove,

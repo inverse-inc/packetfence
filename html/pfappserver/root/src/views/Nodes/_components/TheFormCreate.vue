@@ -21,6 +21,9 @@
       <form-group-unregdate namespace="unregdate"
         :column-label="$i18n.t('Unregistration')"
       />
+      <form-group-computername namespace="computername"
+        :column-label="$t('ComputerName')"
+      />
       <form-group-notes namespace="notes"
         :column-label="$i18n.t('Notes')"
       />
@@ -49,6 +52,7 @@ import {
 } from '@/components/new/'
 import {
   FormGroupMac,
+  FormGroupComputername,
   FormGroupPid,
   FormGroupStatus,
   FormGroupRole,
@@ -61,6 +65,7 @@ const components = {
   BaseFormButtonBar,
 
   FormGroupMac,
+  FormGroupComputername,
   FormGroupPid,
   FormGroupStatus,
   FormGroupRole,

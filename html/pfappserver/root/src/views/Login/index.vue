@@ -24,6 +24,9 @@ const setup = (props, context) => {
   // workaround: vue-router3 history not accessible w/ vue-composition-api
   const previousRoute = ref(null)
   const setPreviousRoute = route => {
+    if (['/login', '/logout', '/expire'].includes(route.path)) {
+      route.path = '/'
+    }
     previousRoute.value = route
   }
 

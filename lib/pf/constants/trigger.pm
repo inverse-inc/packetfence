@@ -34,6 +34,8 @@ our @EXPORT_OK = qw(
         $TRIGGER_ID_PROVISIONER
         $TRIGGER_MAP
         $SURICATA_CATEGORIES
+        $TRIGGER_TYPE_FLEETDM_POLICY $TRIGGER_TYPE_FLEETDM_CVE
+        $TRIGGER_TYPE_FLEETDM_CVE_SEVERITY_GTE
 );
 
 # SecurityEvent trigger types
@@ -51,6 +53,10 @@ Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
 Readonly::Scalar our $TRIGGER_TYPE_SWITCH_GROUP => 'switch_group';
 Readonly::Scalar our $TRIGGER_TYPE_SWITCH => 'switch';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
+Readonly::Scalar our $TRIGGER_TYPE_FLEETDM_POLICY => 'fleetdm_policy';
+Readonly::Scalar our $TRIGGER_TYPE_FLEETDM_CVE => 'fleetdm_cve';
+Readonly::Scalar our $TRIGGER_TYPE_FLEETDM_CVE_SEVERITY_GTE => 'fleetdm_cve_severity_gte';
+
 
 Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
 
@@ -74,18 +80,18 @@ Readonly::Scalar our $NEXPOSE_CATEGORIES => sub {
 
 our $TRIGGER_MAP = {
   $TRIGGER_TYPE_INTERNAL => {
-    "1100010" => "Rogue DHCP detection",
-    "new_dhcp_info" => "DHCP packet received",
-    "hostname_change" => "Hostname changed",
-    "connection_type_change" => "Connection transport changed",
-    "parking_detected" => "Parking detected",
-    "node_discovered" => "Node discovered",
-    "new_dhcp_info_from_managed_network" => "DHCP packet received from managed network",
-    "new_dhcp_info_from_production_network" => "DHCP packet received from production network",
-    "node_maintenance" => "Node maintenance",
-    "fingerbank_diff_score_too_low" => "Fingerbank Collector detected a network behavior that doesn't match the known profile",
-    "fingerbank_blacklisted_ips_threshold_too_high" => "Fingerbank Collector detected traffic to blacklisted IPs",
-    "fingerbank_blacklisted_ports" => "Fingerbank Collector detected traffic to blacklisted ports",
+      "1100010"                                       => "Rogue DHCP detection",
+      "new_dhcp_info"                                 => "DHCP packet received",
+      "hostname_change"                               => "Hostname changed",
+      "connection_type_change"                        => "Connection transport changed",
+      "parking_detected"                              => "Parking detected",
+      "node_discovered"                               => "Node discovered",
+      "new_dhcp_info_from_managed_network"            => "DHCP packet received from managed network",
+      "new_dhcp_info_from_production_network"         => "DHCP packet received from production network",
+      "node_maintenance"                              => "Node maintenance",
+      "fingerbank_diff_score_too_low"                 => "Fingerbank Collector detected a network behavior that doesn't match the known profile",
+      "fingerbank_blacklisted_ips_threshold_too_high" => "Fingerbank Collector detected traffic to blacklisted IPs",
+      "fingerbank_blacklisted_ports"                  => "Fingerbank Collector detected traffic to blacklisted ports",
   },
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",
@@ -102,7 +108,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

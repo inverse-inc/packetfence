@@ -8,11 +8,11 @@ source "vagrant" "el-8" {
   template = "templates/vagrantfile_template"
 }
 
-# Vagrant Debian 11 builds
-source "vagrant" "debian-11" {
+# Vagrant Debian 12 builds
+source "vagrant" "debian-12" {
   communicator = "ssh"
-  source_path = "debian/bullseye64"
-  box_version = "11.20221219.1"
+  source_path = "debian/bookworm64"
+  box_version = "12.20240503.1"
   provider = "libvirt"
   output_dir = "${var.output_dir}"
   template = "templates/vagrantfile_template"

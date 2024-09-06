@@ -1,4 +1,0 @@
-ConfigMeta:
-  discriminator:
-    propertyName: type
-  oneOf: []

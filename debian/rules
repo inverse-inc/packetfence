@@ -61,6 +61,8 @@ install: build
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 
+	install -d -m2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/caddy-services/api.conf.d
+
 	# packetfence-test package
 	make DESTDIR=$(CURDIR)/debian/packetfence-test test_install
 
@@ -274,6 +276,7 @@ binary-arch: build install
 	dh_compress
 	# PERMISSIONS
 	chmod 0750 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf
+	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/services.d
 	### Executables
 	# packetfence-export pkg
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/export.sh
@@ -402,6 +405,9 @@ ifeq ($(DIST),stretch)
 	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
 ifeq ($(DIST),bullseye)
+	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
+endif
+ifeq ($(DIST),bookworm)
 	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
 	dh_md5sums

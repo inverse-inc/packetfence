@@ -2,13 +2,13 @@ package pf::UnifiedApi::Controller::DnsAuditLogs;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::DnsAutitLogs -
+pf::UnifiedApi::Controller::DnsAuditLogs -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::DnsAutitLogs
+pf::UnifiedApi::Controller::DnsAuditLogs
 
 =cut
 
@@ -27,7 +27,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

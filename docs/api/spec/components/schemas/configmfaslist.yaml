@@ -1,9 +1,0 @@
-ConfigMfasList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigMfa'
-        type: array
-    type: object

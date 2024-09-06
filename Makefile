@@ -377,3 +377,4 @@ html/captive-portal/profile-templates/default/logo.png:
 	mkdir -p html/captive-portal/profile-templates/default
 	cp html/common/packetfence-cp.png /usr/local/pf/html/captive-portal/profile-templates/default/logo.png
 
+

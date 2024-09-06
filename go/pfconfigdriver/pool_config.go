@@ -2,6 +2,7 @@ package pfconfigdriver
 
 import (
 	"context"
+	"reflect"
 	"sync"
 	"sync/atomic"
 
@@ -45,8 +46,8 @@ func GetRefresh(ctx context.Context, n string) interface{} {
 // If a struct isn't a PfconfigObject, all its fields will be analyzed to find the PfconfigObjects it contains
 // All the refreshables will have their Refresh() function called on every tick
 type ConfigStorePool struct {
+	lock  sync.Mutex
 	store *atomic.Value
-	lock  *sync.Mutex
 }
 
 // Init the default global pool when importing this package
@@ -64,7 +65,6 @@ type Refresh interface {
 // Create a new Pool with a 1 second refresh timeout and initialize the lock
 func NewConfigPool() *ConfigStorePool {
 	p := &ConfigStorePool{
-		lock:  &sync.Mutex{},
 		store: &atomic.Value{},
 	}
 
@@ -74,6 +74,39 @@ func NewConfigPool() *ConfigStorePool {
 
 func (p *ConfigStorePool) GetStore() *ConfigStore {
 	return p.store.Load().(*ConfigStore)
+}
+
+func ConfigStorePoolAddType[T any](ctx context.Context, s *ConfigStorePool) {
+	var z T
+	var valType = reflect.TypeOf(z)
+	s.AddStruct(ctx, valType.String(), &z)
+}
+
+func ConfigStorePoolGetType[T any](ctx context.Context, s *ConfigStorePool) *T {
+	var z T
+	valType := reflect.TypeOf(z)
+	i := PfConfigStorePool.GetStore().GetStruct(valType.String())
+	if i == nil {
+		return nil
+	}
+
+	return i.(*T)
+}
+
+func AddType[T any](ctx context.Context) {
+	ConfigStorePoolAddType[T](ctx, PfConfigStorePool)
+}
+
+func GetType[T any](ctx context.Context) *T {
+	v := ConfigStorePoolGetType[T](ctx, PfConfigStorePool)
+	if v != nil {
+		return v
+	}
+
+	var z T
+	var valType = reflect.TypeOf(z)
+	PfConfigStorePool.AddStruct(ctx, valType.String(), &z)
+	return &z
 }
 
 func (p *ConfigStorePool) Update(ctx context.Context, f func(context.Context, *ConfigStoreUpdater)) {

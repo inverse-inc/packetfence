@@ -1,0 +1,265 @@
+/api/v1/config/syslog_parsers/dry_run:
+  description: pf::UnifiedApi::Controller::Config::SyslogParsers
+  post:
+    deprecated: true
+    description: List items
+    operationId: api.v1.Config::SyslogParsers.list
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParserDryRunList'
+        description: Dry run list
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigSyslogParser'
+    tags:
+
+/api/v1/config/syslog_parsers:
+  description: |-
+    pf::UnifiedApi::Controller::Config::SyslogParsers
+
+      dry_run
+        Dry run a regex parser configuration
+  get:
+    deprecated: true
+    description: List all items.
+    operationId: api.v1.Config.SyslogParsers.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParsersList'
+        description: Request successful. Response contains a list of resources.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+
+  options:
+    deprecated: true
+    description: Get meta for a new item.
+    operationId: api.v1.Config.SyslogParsers.options
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParsersMeta'
+        description: Request successful. Response contains meta for a resource.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+
+  post:
+    deprecated: true
+    description: Create a new item.
+    operationId: api.v1.Config.SyslogParsers.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigSyslogParser'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+
+/api/v1/config/syslog_parsers/search:
+  description: |-
+    pf::UnifiedApi::Controller::Config::SyslogParsers
+
+      dry_run
+        Dry run a regex parser configuration
+  post:
+    deprecated: true
+    description: Search all items.
+    operationId: api.v1.Config.SyslogParsers.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          example:
+            cursor: 0
+            limit: 25
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Search'
+              - properties:
+                  cursor:
+                    type: string
+                  fields:
+                    items:
+                      type: string
+                    type: array
+                  limit:
+                    maximum: 1000
+                    minimum: 1
+                    type: integer
+                  sort:
+                    items:
+                      type: string
+                    type: array
+                required:
+                  - fields
+                  - sort
+      description: Search for items.
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParsersList'
+        description: Request successful. Response contains a list of resources.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+
+/api/v1/config/syslog_parsers/sort_items:
+  description: |-
+    pf::UnifiedApi::Controller::Config::SyslogParsers
+
+      dry_run
+        Dry run a regex parser configuration
+  patch:
+    deprecated: true
+    description: Sort items.
+    operationId: api.v1.Config.SyslogParsers.sort_items
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParserWrapped'
+        description: Request successful. Response contains a specific resource.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+
+/api/v1/config/syslog_parsers/bulk_update:
+  description: |-
+    pf::UnifiedApi::Controller::Config::SyslogParsers
+
+      dry_run
+        Dry run a regex parser configuration
+  patch:
+    deprecated: true
+    description: Update one or more items.
+    operationId: api.v1.Config.SyslogParsers.bulk_update
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              items:
+                items:
+                  $ref: '#/components/schemas/ConfigSyslogParser'
+                type: array
+            type: object
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParserWrapped'
+        description: Request successful. Response contains a specific resource.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+
+/api/v1/config/syslog_parsers/bulk_import:
+  description: |-
+    pf::UnifiedApi::Controller::Config::SyslogParsers
+
+      dry_run
+        Dry run a regex parser configuration
+  post:
+    deprecated: true
+    description: Create one or more items.
+    operationId: api.v1.Config.SyslogParsers.bulk_import
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              items:
+                items:
+                  $ref: '#/components/schemas/ConfigSyslogParser'
+                type: array
+            type: object
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParserWrapped'
+        description: Request successful. Response contains a specific resource.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+
+/api/v1/config/syslog_parsers/bulk_delete:
+  description: |-
+    pf::UnifiedApi::Controller::Config::SyslogParsers
+
+      dry_run
+        Dry run a regex parser configuration
+  post:
+    deprecated: true
+    description: Delete one or more items.
+    operationId: api.v1.Config.SyslogParsers.bulk_delete
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              items:
+                items:
+                  description: '`PRIMARY KEY`'
+                  type: string
+                type: array
+            type: object
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParserWrapped'
+        description: Request successful. Response contains a specific resource.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:

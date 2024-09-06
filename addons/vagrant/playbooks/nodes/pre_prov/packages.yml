@@ -26,14 +26,16 @@
     # redefine this variables to avoid confusion with official "packetfence" repositories
     gitlab_buildpkg_tools__deb_ppa:
       - name: 'packetfence-ppa'
-        baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_distribution_release }} main"
+        baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} bookworm main"
         gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
 
     # added for local dev environment where we only want devel packages
     # **and** for dependencies in CI environment
     gitlab_buildpkg_tools__deb_deps_repos:
       - name: 'packetfence'
-        baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
+        baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} bookworm {{ ansible_distribution_release }}'
+      - name: 'other-tools'
+        baseurl: 'http://inverse.ca/downloads/PacketFence/debian/13.2 bullseye bullseye'
 
     # added for local dev environment
     gitlab_buildpkg_tools__deb_keys:

@@ -21,8 +21,8 @@ export const apiFactory = _collection => {
         throw err
       })
     },
-    listOptions: () => {
-      return apiCall.options(['config', 'filter_engines', collection]).then(response => {
+    listOptions: params => {
+      return apiCall.options(['config', 'filter_engines', collection], { params }).then(response => {
         return response.data
       })
     },

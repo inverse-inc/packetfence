@@ -1,7 +1,0 @@
-ConfigTemplateSwitchWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigTemplateSwitch'
-    status:
-      type: integer
-  type: object

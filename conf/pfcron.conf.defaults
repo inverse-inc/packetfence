@@ -361,6 +361,16 @@ unreg_window=0D
 # Enable voip device cleanup
 voip=enabled
 #
+# batch
+#
+# How many node entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a node_cleanup job can run
+timeout=10s
+#
 # local
 #
 # Local task
@@ -1048,3 +1058,80 @@ timeout=10s
 #
 # Local task
 local=1
+
+[pfflow]
+#
+# type
+#
+# Task type
+type=pfflow
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Pfflow processing job
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1m
+#
+# kafka_brokers
+#
+# Kafka Brokers to read from
+kafka_brokers=
+#
+# read_topic
+#
+# Read topic for Pfflows Events
+read_topic=pfflows_events
+#
+# write_topic
+#
+# Write topic for Network Events
+write_topic=network_events
+#
+# group_id
+#
+# Write topic for Network Events
+group_id=network_group
+#
+# submit_batch
+#
+# How many batch entries to clean up in one run
+submit_batch=100
+#
+# uuid
+#
+# The UUID of the packetfence aggregator
+uuid=
+#
+# kafka_user
+#
+# The Kafka username
+kafka_user=
+#
+# kafka_pass
+#
+# The Kafka password
+kafka_pass=
+#
+# filter events
+#
+# Filter events
+filter_events=1
+#
+# heuristics
+#
+# flow aggregator heuristics
+heuristics=0
+#
+# local
+#
+# Local task
+local=0

@@ -1,6 +1,14 @@
-0.0.0.0:22225 {
-  logger {
-    level INFO
-  }
-  pfpki
+# Copyright (C) Inverse inc.
+{
+	admin off
+	#debug
+}
+
+:22225 {
+	route * {
+		logger {
+			level INFO
+		}
+		pfpki
+	}
 }

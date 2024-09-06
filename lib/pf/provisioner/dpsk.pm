@@ -1,8 +1,8 @@
 package pf::provisioner::dpsk;
+
 =head1 NAME
 
 pf::provisioner::dpsk allow to have a html page that present the psk and the ssid to use
-
 
 =cut
 
@@ -14,9 +14,7 @@ pf::provisioner::dpsk
 
 use strict;
 use warnings;
-use List::MoreUtils qw(any);
-use Crypt::GeneratePassword qw(word);
-use pf::person;
+use pf::node qw(node_view);
 
 use Moo;
 extends 'pf::provisioner::mobileconfig';
@@ -30,7 +28,12 @@ never authorize user
 
 =cut
 
-sub authorize { 0 };
+sub authorize {
+    my ($self, $mac) = @_;
+    my $node_info = node_view($mac);
+    $self->handleAuthorizeEnforce($mac, {node_info => $node_info});
+    return 0;
+}
 
 =head2 oses
 
@@ -54,7 +57,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
@@ -76,4 +79,3 @@ USA.
 =cut
 
 1;
-

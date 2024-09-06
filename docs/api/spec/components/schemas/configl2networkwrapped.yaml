@@ -1,7 +1,0 @@
-ConfigL2NetworkWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigL2Network'
-    status:
-      type: integer
-  type: object

@@ -1,6 +1,6 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
+FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bookworm:${IMAGE_TAG}
 
 SHELL ["/bin/bash", "-c"]
 
@@ -54,4 +54,4 @@ COPY --from=0 /usr/local/pf/go/httpdispatcher /usr/local/pf/sbin/httpdispatcher
 COPY --from=0 /usr/local/pf/html /usr/local/pf/html
 COPY --from=0 /usr/local/pf/docs /usr/local/pf/docs
 
-ENTRYPOINT /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf -log-name httpd.admin_dispatcher
+ENTRYPOINT /usr/local/pf/sbin/pfhttpd run --adapter caddyfile -c /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf

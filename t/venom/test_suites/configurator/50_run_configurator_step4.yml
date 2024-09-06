@@ -4,6 +4,7 @@ testcases:
   steps:
   - type: pf_api_system_service_restart_async
     service: 'packetfence-config'
+    time_to_sleep: 5
 
 - name: restart_pfqueue_service
   steps:

@@ -1,13 +1,13 @@
 include ../vars.mk
 
-fbdeb11dev: clean-fbdeb11dev
+fbdeb12dev: clean-fbdeb12dev
 	PF_MINOR_RELEASE=$(PF_DEV_MINOR_RELEASE) vagrant up $@ --provider=libvirt --no-destroy-on-error
 
-halt-fbdeb11dev:
-	vagrant halt -f fbdeb11dev
+halt-fbdeb12dev:
+	vagrant halt -f fbdeb12dev
 
-clean-fbdeb11dev:
-	vagrant destroy -f fbdeb11dev
+clean-fbdeb12dev:
+	vagrant destroy -f fbdeb12dev
 	rm -rf roles/
 
 fbel8dev: clean-fbel8dev

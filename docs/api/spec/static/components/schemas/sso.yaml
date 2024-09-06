@@ -9,8 +9,6 @@ SsoStatus:
       description: SSO login callback URL.
     is_enabled:
       type: boolean
-      oneOf:
-        - const: false
-          description: SSO is not enabled.
-        - const: true
-          description: SSO is enabled.
+      enum:
+        - false
+        - true

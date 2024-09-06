@@ -1,20 +1,16 @@
 cursor:
-  in: query
   name: cursor
-  required: false
   schema:
     type: string
     example: 0
   description: The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).
 
 limit:
-  in: query|body
   name: limit
-  required: false
   schema:
     type: integer
-    min: 1
-    max: 1000
+    minimum: 1
+    maximum: 1000
     enum:
       - 1
       - 5
@@ -29,17 +25,15 @@ limit:
   description: The maximum amount of entries to get.
 
 sort:
-  in: query|body
   name: sort
-  required: false
+  required: true
   schema:
     type: string
   description: The sort and order of the paginated entries.
 
 fields:
-  in: body
   name: fields
-  required: false
+  required: true
   schema:
     type: array
     items:
@@ -51,7 +45,7 @@ fields:
   description: Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.
 
 search_query:
-  in: body
+  in: path
   name: query
   required: true
   schema:
@@ -59,18 +53,25 @@ search_query:
   description: The JSON encoded search query following the Search schema defined in this spec.
 
 local:
-  in: query
   name: local
-  required: false
+  required: true
   schema:
     type: integer
     default: 0
   description: The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.
 
 ipset_name:
-  name: set_name
   in: path
+  name: ipset_name
   required: true
   description: The name of the ipset to manipulate
+  schema:
+    type: string
+
+service:
+  in: path
+  name: service
+  required: true
+  description: The name of the service to manage
   schema:
     type: string

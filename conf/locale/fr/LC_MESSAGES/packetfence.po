@@ -1,5 +1,5 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2023 Inverse inc.
+# Copyright (C) 2005-2024 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 # 
 # Translators:
@@ -385,6 +385,7 @@ msgstr "Confirmez votre mot de passe"
 # html/captive-portal/templates/provisioner/dpsk.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
@@ -1061,6 +1062,7 @@ msgstr "Sur site, sélectionnez le portail invité et utilisez les identifiants 
 # html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid ""
@@ -1688,6 +1690,7 @@ msgid ""
 msgstr "Pour terminer votre activation réseau, vous devez installer le client Intune."
 
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 msgid ""
 "To complete your network activation you need to install the JAMF client."
 msgstr "Pour finaliser votre accès au réseau, vous devez installer le client JAMF."

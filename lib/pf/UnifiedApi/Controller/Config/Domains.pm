@@ -33,13 +33,75 @@ use Socket;
 use Digest::MD4 qw(md4_hex);
 use Encode qw(encode);
 use Net::DNS;
-
 use JSON;
-=head2 test_join
+use pf::constants qw($TRUE $FALSE);
 
-Test if a domain is properly joined
+my $host_id = hostname();
+
+sub id {
+    my ($self) = @_;
+    my $primary_key = $self->primary_key;
+    my $stash = $self->stash;
+    if (exists $stash->{$primary_key}) {
+        return $host_id . " " . $stash->{$primary_key};
+    }
+    return undef;
+}
+
+=head2 get
+
+get a domain config, and strip host_id prefix.
 
 =cut
+
+sub get {
+    my ($self) = @_;
+    my $item = $self->item;
+    if ($item) {
+        $item->{id} =~ s/$host_id //i;
+        $item = $self->cleanupItemForGet($item);
+        return $self->render(json => { item => $item }, status => 200);
+    }
+    return $self->render_error(500, "Unknown error getting item");
+}
+
+sub item_shown {
+    my ($self, $item) = @_;
+    if ($item->{id} =~ s/$host_id //i) {
+        return $TRUE;
+    }
+    return $FALSE;
+}
+
+sub handle_search {
+    my ($self, $search_info) = @_;
+    my ($status, $response) = $self->search_builder->search($search_info);
+    if (is_error($status)) {
+        return $self->render_error(
+            $status,
+            $response->{message},
+            $response->{errors}
+        );
+    }
+
+    unless ($search_info->{raw}) {
+        $response->{items} = $self->cleanup_items($response->{items} // []);
+    }
+
+    foreach my $item (@{$response->{items}}) {
+        $item->{id} =~ s/$host_id //i;
+    }
+
+    my $fields = $search_info->{fields};
+    if (defined $fields && @$fields) {
+        $self->remove_fields($fields, $response->{items});
+    }
+
+    return $self->render(
+        json   => $response,
+        status => $status
+    );
+}
 
 sub create {
     my ($self) = @_;
@@ -49,10 +111,20 @@ sub create {
     }
 
     my $id = $item->{id};
+    if (!defined $id || length($id) == 0) {
+        $self->render_error(422, "Unable to validate", [ { message => "id field is required", field => 'id' } ]);
+        return 0;
+    }
+
+    $id = $host_id . " " . $item->{id};
+    $item->{id} = $id;
     my $cs = $self->config_store;
     my $sections = $cs->readAllIds;
     my $max_port = 4999;
     for my $section (@$sections) {
+        unless ($section =~ /^$host_id /) {
+            next;
+        }
         my $ntlm_auth_port = $cs->cachedConfig->val($section, "ntlm_auth_port");
         if (defined($ntlm_auth_port)) {
             if (int($ntlm_auth_port) > $max_port) {
@@ -61,11 +133,6 @@ sub create {
         }
     }
     $max_port = $max_port + 1;
-
-    if (!defined $id || length($id) == 0) {
-        $self->render_error(422, "Unable to validate", [ { message => "id field is required", field => 'id' } ]);
-        return 0;
-    }
 
     $item = $self->cleanupItemForCreate($item);
     (my $status, $item, my $form) = $self->validate_item($item);
@@ -87,7 +154,7 @@ sub create {
     my $dns_name = $item->{dns_name};
     my $workgroup = $item->{workgroup};
     my $real_computer_name = $item->{server_name};
-
+    my $ou = $item->{ou};
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
@@ -123,28 +190,30 @@ sub create {
         return $self->render_error(422, "Unable to determine AD server's IP address.\n")
     }
 
-    my $baseDN = $dns_name;
-    my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
-    $baseDN = generate_baseDN($dns_name);
-
-    my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
-    if ($add_status == $FALSE) {
-        if ($add_result =~ /already exists(.+)use \-no\-add/) {
-            ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
-            if ($add_status == $FALSE) {
+    if (!is_nt_hash_pattern($computer_password)) {
+        my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+        if ($add_status == $FALSE) {
+            if ($add_result =~ /already exists(.+)use \-no\-add/) {
+                ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+                if ($add_status == $FALSE) {
+                    $self->render_error(422, "Unable to add machine account: removing existing machine account failed with following error: $add_result");
+                    return 0;
+                }
+                ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+                if ($add_status == $FALSE) {
+                    $self->render_error(422, "Unable to add machine account: recreating machine account with following error: $add_result");
+                    return 0;
+                }
+            }
+            else {
                 $self->render_error(422, "Unable to add machine account with following error: $add_result");
                 return 0;
             }
         }
-        else {
-            $self->render_error(422, "Unable to add machine account with following error: $add_result");
-            return 0;
-        }
+        my $encoded_password = encode("utf-16le", $computer_password);
+        my $hash = md4_hex($encoded_password);
+        $computer_password = $hash;
     }
-
-    my $encoded_password = encode("utf-16le", $computer_password);
-    my $hash = md4_hex($encoded_password);
-    $computer_password = $hash;
 
     $item->{ntlm_auth_host} = '127.0.0.1';
     $item->{ntlm_auth_port} = $max_port;
@@ -159,6 +228,8 @@ sub create {
     return unless ($self->commit($cs));
     $self->post_create($id);
     my $additional_out = $self->additional_create_out($form, $item);
+
+    $id =~ s/$host_id //i;
     $self->stash($self->primary_key => $id);
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, json => $self->create_response($id, $additional_out));
@@ -189,6 +260,7 @@ sub update {
     my $dns_name = $new_item->{dns_name};
     my $workgroup = $old_item->{workgroup};
     my $real_computer_name = $old_item->{server_name};
+    my $ou = $new_item->{ou};
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
@@ -224,26 +296,26 @@ sub update {
         return $self->render_error(422, "Unable to determine AD server's IP address\n")
     }
 
-    if (($new_data->{machine_account_password} ne $old_item->{machine_account_password}) || ($computer_name eq "%h")) {
-        my $baseDN = $dns_name;
-        my $domain_auth = "$workgroup/$bind_dn:$bind_pass";
-        $baseDN = generate_baseDN($dns_name);
-
-        my ($add_status, $add_result) = pf::domain::add_computer("-no-add", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
+    if (!is_nt_hash_pattern($new_data->{machine_account_password}) && ($new_data->{machine_account_password} ne $old_item->{machine_account_password})) {
+        my ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
         if ($add_status == $FALSE) {
-            if ($add_result =~ /Account.+not found in/) {
-                ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $baseDN, $workgroup, $domain_auth);
-                if ($add_status == $FALSE) {
-                    $self->render_error(422, "Unable to add machine account with following error: $add_result");
-                    return 0;
-                }
-            }
-            else {
-                $self->render_error(422, "Unable to add machine account with following error: $add_result");
+            unless ($add_result =~ /Account (.+) not found in/) {
+                $self->render_error(422, "Unable to update - remove existing machine account with following error: $add_result");
                 return 0;
             }
         }
+
+        ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+        if ($add_status == $FALSE) {
+            $self->render_error(422, "Unable to add machine account with following error: $add_result");
+            return 0;
+        }
+
         $new_data->{machine_account_password} = md4_hex(encode("utf-16le", $new_data->{machine_account_password}));
+        $new_data->{ou} = $new_item->{ou}
+    }
+    else {
+        $new_data->{ou} = $old_item->{ou}
     }
 
     $new_data->{server_name} = $computer_name;
@@ -257,20 +329,49 @@ sub update {
     $self->render(status => 200, json => $self->update_response($form));
 }
 
-sub generate_baseDN {
-    my $ret = "";
+sub update_response {
+    my ($self, $form) = @_;
+    my $id = $self->id;
+    $id =~ s/$host_id //i;
+    my %response = (message => "Settings updated", id => $id);
+    for my $field ($form->fields) {
+        my $type = $field->type;
+        if (($type ne 'PathUpload' && $type ne 'Path') || $field->noupdate) {
+            next;
+        }
 
-    my ($dns_name) = @_;
-    my @array = split(/\./, $dns_name);
-
-    foreach my $element (@array) {
-        $ret .= "DC=$element,";
+        $response{$field->accessor} = $field->value;
     }
-    $ret =~ s/,$//;
-    return $ret;
+    return $self->addFormWarnings($form, \%response);
 }
 
+sub remove {
+    my ($self) = @_;
+    my ($status, $msg, $errors) = $self->can_delete();
+    if (is_error($status)) {
+        return $self->render_error($status, $msg, $errors);
+    }
 
+    my $id = $self->id;
+    my $cs = $self->config_store;
+    ($msg, my $deleted) = $cs->remove($id, 'id');
+    if (!$deleted) {
+        return $self->render_error(422, "Unable to delete $id - $msg");
+    }
+
+    return unless ($self->commit($cs));
+    $id =~ s/$host_id //i;
+    return $self->render(json => { message => "Deleted $id successfully" }, status => 200);
+}
+
+sub is_nt_hash_pattern {
+    my ($password) = @_;
+    $password =~ s/^\s+|\s+$//g;
+    if ($password =~ /[a-fA-F0-9]{32}/) {
+        return 1;
+    }
+    return 0;
+}
 
 =head2 validate_input
 
@@ -314,7 +415,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

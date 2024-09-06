@@ -7,6 +7,7 @@ name=api-frontend
 args=`base_args $name`
 args="$args -v /usr/local/pf/var/conf:/usr/local/pf/var/conf -v /usr/local/pf/conf:/usr/local/pf/conf"
 args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
+args="$args -v /usr/share/freeradius:/usr/share/freeradius"
 args="$args -v /var/log:/var/log:ro"
 args="$args -p 9999:9999"
 

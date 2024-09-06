@@ -152,7 +152,9 @@ my @actions = (
                                     'type' => 'object'
                                 }
                             }
-                        }
+                        },
+                        description => 'Request successful.',
+
                     },
                     '422' => {
                         '$ref' => '#/components/responses/UnprocessableEntity'
@@ -422,7 +424,8 @@ my @actions = (
                                       '#/components/schemas/DhcpOption82sList'
                                 }
                             }
-                        }
+                        },
+                        description => 'Request successful.'
                     }
                 },
                 'requestBody' => {
@@ -434,16 +437,12 @@ my @actions = (
                                         '$ref' => '#/components/schemas/Search'
                                     },
                                     {
-                                        'required'   => ['fields'],
+                                        'required'   => ['fields', 'sort'],
                                         'properties' => {
                                             'limit' => {
                                                 'type'     => 'integer',
                                                 'maximum'  => 1000,
                                                 'minimum'  => 1,
-                                                'required' => bless(
-                                                    do { \( my $o = 0 ) },
-                                                    'JSON::PP::Boolean'
-                                                ),
                                             },
                                             'sort' => {
                                                 'type'  => 'array',
@@ -470,17 +469,9 @@ my @actions = (
                                                     ],
                                                     'type' => 'string'
                                                 },
-                                                'required' => bless(
-                                                    do { \( my $o = 1 ) },
-                                                    'JSON::PP::Boolean'
-                                                )
                                             },
                                             'cursor' => {
                                                 'type'     => 'string',
-                                                'required' => bless(
-                                                    do { \( my $o = 0 ) },
-                                                    'JSON::PP::Boolean'
-                                                )
                                             },
                                             'fields' => {
                                                 'items' => {
@@ -498,10 +489,6 @@ my @actions = (
                                                     ]
                                                 },
                                                 'type'     => 'array',
-                                                'required' => bless(
-                                                    do { \( my $o = 1 ) },
-                                                    'JSON::PP::Boolean'
-                                                )
                                             }
                                         }
                                     }
@@ -629,17 +616,103 @@ my @actions = (
             },
         ]
     );
-    #        use Data::Dumper;print Dumper(\%operators);
+    #            use Data::Dumper;print STDERR Dumper(\%operators);
     is_deeply(
         \%operators,
         {
             'get' => {
-                'operationId' => 'api.v1.DhcpOption82s.list',
+                'parameters' => [
+                    {
+                        'description' =>
+'Comma delimited list of fields to return with each item.',
+                        'in'     => 'query',
+                        'style'  => 'simple',
+                        'schema' => {
+                            'items' => {
+                                'enum' => [
+                                    'circuit_id_string', 'created_at',
+                                    'host',              'mac',
+                                    'module',            'option82_switch',
+                                    'port',              'switch_id',
+                                    'vlan'
+                                ],
+                                'type' => 'string'
+                            },
+                            'type'    => 'array',
+                            'example' => [
+                                'circuit_id_string', 'created_at',
+                                'host',              'mac',
+                                'module',            'option82_switch',
+                                'port',              'switch_id',
+                                'vlan'
+                            ]
+                        },
+                        'explode' =>
+                          bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' ),
+                        'required' =>
+                          bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'name' => 'fields'
+                    },
+                    {
+                        'style'   => 'simple',
+                        'explode' =>
+                          bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' ),
+                        'required' =>
+                          bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' ),
+                        'name'   => 'sort',
+                        'schema' => {
+                            'example' => ['mac ASC'],
+                            'type'    => 'array',
+                            'items'   => {
+                                'type' => 'string',
+                                'enum' => [
+                                    'circuit_id_string ASC',
+                                    'circuit_id_string DESC',
+                                    'created_at ASC',
+                                    'created_at DESC',
+                                    'host ASC',
+                                    'host DESC',
+                                    'mac ASC',
+                                    'mac DESC',
+                                    'module ASC',
+                                    'module DESC',
+                                    'option82_switch ASC',
+                                    'option82_switch DESC',
+                                    'port ASC',
+                                    'port DESC',
+                                    'switch_id ASC',
+                                    'switch_id DESC',
+                                    'vlan ASC',
+                                    'vlan DESC'
+                                ]
+                            }
+                        },
+                        'in'          => 'query',
+                        'description' =>
+'Comma delimited list of fields and respective order to sort items (`default: [ mac ASC ]`).'
+                    },
+                    {
+                        'in'   => 'query',
+                        '$ref' => '#/components/parameters/limit'
+                    },
+                    {
+                        '$ref' => '#/components/parameters/cursor',
+                        'in'   => 'query'
+                    }
+                ],
                 'tags'        => ['DhcpOption82s'],
+                'operationId' => 'api.v1.DhcpOption82s.list',
                 'description' => 'List all items.',
                 'responses'   => {
+                    '422' => {
+                        '$ref' => '#/components/responses/UnprocessableEntity'
+                    },
+                    '409' => {
+                        '$ref' => '#/components/responses/Duplicate'
+                    },
                     '200' => {
-                        'content' => {
+                        'description' => 'Request successful.',
+                        'content'     => {
                             'application/json' => {
                                 'schema' => {
                                     '$ref' =>
@@ -648,137 +721,31 @@ my @actions = (
                             }
                         }
                     },
-                    '409' => {
-                        '$ref' => '#/components/responses/Duplicate'
+                    '404' => {
+                        '$ref' => '#/components/responses/BadRequest'
                     },
                     '401' => {
                         '$ref' => '#/components/responses/Forbidden'
+                    }
+                }
+            },
+            'post' => {
+                'operationId' => 'api.v1.DhcpOption82s.create',
+                'responses'   => {
+                    '201' => {
+                        '$ref' => '#/components/responses/Created'
+                    },
+                    '400' => {
+                        '$ref' => '#/components/responses/BadRequest'
                     },
                     '422' => {
                         '$ref' => '#/components/responses/UnprocessableEntity'
                     },
-                    '404' => {
-                        '$ref' => '#/components/responses/BadRequest'
+                    '409' => {
+                        '$ref' => '#/components/responses/Duplicate'
                     }
                 },
-                'parameters' => [
-                    {
-                        'allOf' => [
-                            {
-                                'explode' => bless(
-                                    do { \( my $o = 0 ) },
-                                    'JSON::PP::Boolean'
-                                ),
-                                'name'   => 'fields',
-                                'schema' => {
-                                    'example' => [
-                                        'circuit_id_string',
-                                        'created_at',
-                                        'host',
-                                        'mac',
-                                        'module',
-                                        'option82_switch',
-                                        'port',
-                                        'switch_id',
-                                        'vlan'
-                                    ],
-                                    'items' => {
-                                        'enum' => [
-                                            'circuit_id_string',
-                                            'created_at',
-                                            'host',
-                                            'mac',
-                                            'module',
-                                            'option82_switch',
-                                            'port',
-                                            'switch_id',
-                                            'vlan'
-                                        ],
-                                        'type' => 'string'
-                                    },
-                                    'type' => 'array'
-                                },
-                                'required' => bless(
-                                    do { \( my $o = 1 ) },
-                                    'JSON::PP::Boolean'
-                                ),
-                                'style'       => 'form',
-                                'description' =>
-'Comma delimited list of fields to return with each item.'
-                            },
-                            {
-                                'in' => 'query'
-                            }
-                        ]
-                    },
-                    {
-                        'allOf' => [
-                            {
-                                'schema' => {
-                                    'type'  => 'array',
-                                    'items' => {
-                                        'enum' => [
-                                            'circuit_id_string ASC',
-                                            'circuit_id_string DESC',
-                                            'created_at ASC',
-                                            'created_at DESC',
-                                            'host ASC',
-                                            'host DESC',
-                                            'mac ASC',
-                                            'mac DESC',
-                                            'module ASC',
-                                            'module DESC',
-                                            'option82_switch ASC',
-                                            'option82_switch DESC',
-                                            'port ASC',
-                                            'port DESC',
-                                            'switch_id ASC',
-                                            'switch_id DESC',
-                                            'vlan ASC',
-                                            'vlan DESC'
-                                        ],
-                                        'type' => 'string'
-                                    },
-                                    'example' => ['mac ASC']
-                                },
-                                'explode' => bless(
-                                    do { \( my $o = 0 ) },
-                                    'JSON::PP::Boolean'
-                                ),
-                                'name'        => 'sort',
-                                'style'       => 'form',
-                                'description' =>
-'Comma delimited list of fields and respective order to sort items (`default: [ mac ASC ]`).'
-                            },
-                            {
-                                'in' => 'query'
-                            }
-                        ]
-                    },
-                    {
-                        'allOf' => [
-                            {
-                                '$ref' => '#/components/parameters/limit'
-                            },
-                            {
-                                'in' => 'query'
-                            }
-                        ]
-                    },
-                    {
-                        'allOf' => [
-                            {
-                                '$ref' => '#/components/parameters/cursor'
-                            },
-                            {
-                                'in' => 'query'
-                            }
-                        ]
-                    }
-                ]
-            },
-            'post' => {
-                'parameters'  => [],
+                'description' => 'Create a new item.',
                 'requestBody' => {
                     'content' => {
                         'application/json' => {
@@ -788,23 +755,8 @@ my @actions = (
                         }
                     }
                 },
-                'responses' => {
-                    '400' => {
-                        '$ref' => '#/components/responses/BadRequest'
-                    },
-                    '422' => {
-                        '$ref' => '#/components/responses/UnprocessableEntity'
-                    },
-                    '409' => {
-                        '$ref' => '#/components/responses/Duplicate'
-                    },
-                    '201' => {
-                        '$ref' => '#/components/responses/Created'
-                    }
-                },
-                'description' => 'Create a new item.',
-                'tags'        => ['DhcpOption82s'],
-                'operationId' => 'api.v1.DhcpOption82s.create'
+                'parameters' => [],
+                'tags'       => ['DhcpOption82s']
             }
         },
         "Crud collection POST/GET"
@@ -990,7 +942,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

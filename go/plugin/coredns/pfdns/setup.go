@@ -3,7 +3,6 @@ package pfdns
 import (
 	"context"
 	"net"
-	"sync"
 	"time"
 
 	"github.com/coredns/caddy"
@@ -12,7 +11,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/timedlock"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
-	cache "github.com/patrickmn/go-cache"
 )
 
 func init() {
@@ -30,12 +28,10 @@ func setuppfdns(c *caddy.Controller) error {
 	var ip net.IP
 	pf.Network = make(map[string]net.IP)
 	ctx := context.Background()
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
-
-	pfconfigdriver.PfconfigPool.Refresh(ctx)
+	pfconfigdriver.AddType[pfconfigdriver.PfConfGeneral](ctx)
+	pfconfigdriver.AddType[pfconfigdriver.PfConfCaptivePortal](ctx)
+	pfconfigdriver.AddType[pfconfigdriver.ListenInts](ctx)
+	pfconfigdriver.AddType[pfconfigdriver.DNSInts](ctx)
 
 	for c.Next() {
 		// block with extra parameters
@@ -53,15 +49,11 @@ func setuppfdns(c *caddy.Controller) error {
 			}
 		}
 	}
+	pfdnsRefreshableConfig := newPfconfigRefreshableConfig(ctx)
+	pfconfigdriver.AddRefreshable(ctx, "pfdnsRefreshableConfig", pfdnsRefreshableConfig)
 
 	if err := pf.DbInit(ctx); err != nil {
 		return c.Errf("pfdns: unable to initialize database connection")
-	}
-	if err := pf.PassthroughsInit(ctx); err != nil {
-		return c.Errf("pfdns: unable to initialize passthrough")
-	}
-	if err := pf.PassthroughsIsolationInit(ctx); err != nil {
-		return c.Errf("pfdns: unable to initialize isolation passthrough")
 	}
 
 	if err := pf.WebservicesInit(ctx); err != nil {
@@ -92,19 +84,19 @@ func setuppfdns(c *caddy.Controller) error {
 		return c.Errf("pfdns: unable to setup redis client")
 	}
 
-	// Initialize dns filter cache
-	pf.DNSFilter = cache.New(300*time.Second, 10*time.Second)
-
-	pf.IpsetCache = cache.New(1*time.Hour, 10*time.Second)
-
 	pf.apiClient = unifiedapiclient.NewFromConfig(context.Background())
 
-	pf.refreshLauncher = &sync.Once{}
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pf)
+	go func() {
+		for {
+			pfconfigdriver.PfConfigStorePool.Refresh(context.Background())
+			time.Sleep(time.Second * 1)
+		}
+	}()
 
 	dnsserver.GetConfig(c).AddPlugin(
 		func(next plugin.Handler) plugin.Handler {
-			pf.InternalPortalIP = net.ParseIP(pfconfigdriver.Config.PfConf.CaptivePortal.IpAddress).To4()
+			captivePortal := pfconfigdriver.GetType[pfconfigdriver.PfConfCaptivePortal](context.Background())
+			pf.InternalPortalIP = net.ParseIP(captivePortal.IpAddress).To4()
 			pf.RedirectIP = ip
 			pf.Next = next
 			return pf

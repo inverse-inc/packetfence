@@ -1,3 +1,13 @@
+packetfence-perl (1.2.4) unstable; urgency=medium
+
+  * Upgrade Template-Toolkit 3.009  -> 3.010
+  * Upgrade Sereal::Decoder 4.018 -> 5.004
+  * Upgrade Sereal::Encoder 4.018 -> 5.004
+  * Upgrade Crypt::OpenSSL::RSA 0.31 -> 0.33
+  * Upgrade Crypt::OpenSSL::X509 1.910 -> 1.914
+
+ -- Inverse <info@inverse.ca>  Wed, 04 Jul 2024 17:28:00 +0100
+
 packetfence-perl (1.2.3) unstable; urgency=medium
 
   * Add dependencies Digest-MD4 1.9

@@ -28,6 +28,7 @@ import FormTypeDeny from './FormTypeDeny'
 import FormTypeDpsk from './FormTypeDpsk'
 import FormTypeIntune from './FormTypeIntune'
 import FormTypeJamf from './FormTypeJamf'
+import FormTypeJamfCloud from './FormTypeJamfCloud'
 import FormTypeKandji from './FormTypeKandji'
 import FormTypeMobileconfig from './FormTypeMobileconfig'
 import FormTypeMobileiron from './FormTypeMobileiron'
@@ -45,6 +46,7 @@ const components = {
   FormTypeDpsk,
   FormTypeIntune,
   FormTypeJamf,
+  FormTypeJamfCloud,
   FormTypeKandji,
   FormTypeMobileconfig,
   FormTypeMobileiron,
@@ -69,6 +71,7 @@ export const setup = (props) => {
       case 'google_workspace_chromebook': return FormTypeGoogleWorkspaceChromebook //break
       case 'intune':                      return FormTypeIntune //break
       case 'jamf':                        return FormTypeJamf //break
+      case 'jamfCloud':                   return FormTypeJamfCloud //break
       case 'kandji':                      return FormTypeKandji //break
       case 'mobileconfig':                return FormTypeMobileconfig //break
       case 'mobileiron':                  return FormTypeMobileiron //break

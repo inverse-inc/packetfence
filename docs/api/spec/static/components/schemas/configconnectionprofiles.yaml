@@ -14,7 +14,7 @@ ConfigConnectionProfileFilesDir:
           - $ref: '#/components/schemas/ConfigConnectionProfileFilesFile'
     type:
       type: string
-      value: dir
+      default: dir
 
 ConfigConnectionProfileFilesFile:
   type: object
@@ -37,4 +37,4 @@ ConfigConnectionProfileFilesFile:
     type:
       description: Entry type
       type: string
-      value: file
+      default: file

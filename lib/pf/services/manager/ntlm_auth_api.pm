@@ -14,6 +14,9 @@ pf::services::manager::ntlm_auth_api
 
 use strict;
 use warnings;
+use Sys::Hostname;
+use pf::db;
+
 use Moo;
 use pf::config qw(
     %ConfigDomain
@@ -36,36 +39,43 @@ has '+name' => (default => sub {'ntlm-auth-api'});
 sub generateConfig {
     my $self = shift;
 
-    pf_run("sudo mkdir -p $generated_conf_dir/" . $self->name() . ".d/");
-    pf_run("sudo rm -rf $generated_conf_dir/" . $self->name() . ".d/*.env");
+    safe_pf_run(qw(sudo rm -rf), "$generated_conf_dir/" . $self->name() . ".d/");
+    safe_pf_run(qw(sudo mkdir -p),  "$generated_conf_dir/" . $self->name() . ".d/");
 
+    my $db_config = pf::db::db_config();
+
+    my $db_host = $db_config->{'host'};
+    my $db_port = $db_config->{'port'};
+    my $db_user = $db_config->{'user'};
+    my $db_pass = $db_config->{'pass'};
+    my $db = $db_config->{'db'};
+    my $db_unix_socket = $db_config->{'unix_socket'};
+
+    if (!defined($db_host) || !defined($db_port) || !defined($db_user) || !defined($db_pass) || !defined($db) || !defined($db_unix_socket) || $db_host eq "" || $db_port eq "" || $db_user eq "" || $db_pass eq "" || $db eq "" || $db_unix_socket eq "") {
+        print("Warning: Some of the database settings are missing while generating db.ini, ntlm-auth-api might not able to start properly\n")
+    }
+
+    pf_run("sudo echo '[DB]' > $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_HOST=$db_host' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_PORT=$db_port' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_USER=$db_user' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_PASS=$db_pass' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB=$db' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'DB_UNIX_SOCKET=$db_unix_socket' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+
+    my $host_id = hostname();
     for my $identifier (keys(%ConfigDomain)) {
         my %conf = %{$ConfigDomain{$identifier}};
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
             my $ntlm_auth_port = $conf{ntlm_auth_port};
 
+            $identifier =~ s/$host_id //i;
             pf_run("sudo echo 'HOST=$ntlm_auth_host' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'LISTEN=$ntlm_auth_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'IDENTIFIER=$identifier' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
         }
     }
-}
-
-sub isAlive {
-    my $alive = 1;
-
-    for my $identifier (keys(%ConfigDomain)) {
-        my %conf = %{$ConfigDomain{$identifier}};
-        if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
-            my $ntlm_auth_port = $conf{ntlm_auth_port};
-            my $result = pf_run("curl -X GET http://containers-gateway.internal:$ntlm_auth_port/ping 2>/dev/null", accepted_exit_status => [ 0 ]);
-            if (!defined($result) || $result ne "pong") {
-                $alive = 0;
-            }
-        }
-    }
-    return $alive;
 }
 
 sub isManaged {
@@ -84,7 +94,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

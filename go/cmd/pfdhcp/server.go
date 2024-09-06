@@ -14,6 +14,7 @@ type Answer struct {
 	IP    net.IP
 	MAC   net.HardwareAddr
 	SrcIP net.IP //Only for inline splitted network
+	DstIP string
 }
 
 // Handler interface

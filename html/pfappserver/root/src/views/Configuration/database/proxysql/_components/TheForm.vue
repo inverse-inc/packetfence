@@ -21,6 +21,12 @@
                         :column-label="$i18n.t('Backend')"
                         :text="$i18n.t('Backend Host')"
     />
+    <form-group-scheduler namespace="scheduler"
+                       :column-label="$i18n.t('Use PXC Scheduler')"
+                       :text="$i18n.t('Use the PXC Scheduler handler to monitor cluster availability. Disabled by default.')"
+                       enabled-value="pxc_scheduler"
+                       disabled-value="default"
+    />
 
   </base-form>
 </template>
@@ -28,7 +34,7 @@
 import {computed} from '@vue/composition-api'
 import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
-import {FormGroupBackend, FormGroupCacert, FormGroupStatus} from './'
+import {FormGroupBackend, FormGroupCacert, FormGroupStatus, FormGroupScheduler} from './'
 
 const components = {
   BaseForm,
@@ -36,6 +42,7 @@ const components = {
   FormGroupCacert,
   FormGroupBackend,
   FormGroupStatus,
+  FormGroupScheduler,
 }
 
 export const props = {

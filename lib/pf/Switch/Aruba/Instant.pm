@@ -26,6 +26,7 @@ use pf::constants qw($TRUE);
 use pf::constants::config qw($WEBAUTH_WIRELESS);
 use pf::util::radius qw(perform_disconnect perform_coa);
 use Try::Tiny;
+use pf::util;
 
 sub description { 'Aruba Instant' };
 
@@ -125,7 +126,7 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id               => valid_ip($req->param('switchip')) ? $req->param('switchip') : $req->param('apmac'),
+        switch_id               => valid_ip_fqdn($req->param('switchip')) ? $req->param('switchip') : $req->param('apmac'),
         client_mac              => clean_mac($req->param('mac')),
         client_ip               => $req->param('ip'),
         ssid                    => $req->param('essid'),
@@ -149,7 +150,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -385,7 +385,7 @@ Use ACL Name: Pre-Auth-For-WebRedirect
 For ACL Type, select IPv4 Extended
 ----
 
-image::wlc-9800-acl-pre-auth-for-webredirect.jpg[scaledwidth="100%",alt="Pre-Auth-For-WebRedirect Access List"]
+image::wlc-9800-acl-pre-auth-for-webredirect-v2.jpg[scaledwidth="100%",alt="Pre-Auth-For-WebRedirect Access List"]
 
 Go to Configuration -> Security -> ACL, click add
 
@@ -395,6 +395,18 @@ For ACL Type, select IPv4 Extended
 ----
 
 image::wlc-9800-acl-authorize_any.jpg[scaledwidth="100%",alt="Authorize_any Access List"]
+
+
+For FlexConnect you will need to enable Central Web Auth
+
+image::wlc-9800-acl-pre-auth-flex.jpg[scaledwidth="100%",alt="Authorize_any Access List"]
+
+Go to Configuration -> Security -> Web Auth
+
+Select Type Webauth and enable Web Auth Intercept HTTPs
+
+image::wlc-9800-acl-pre-webauth.jpg[scaledwidth="100%",alt="Authorize_any Access List"]
+
 
 PF-WebAuth SSID creation
 

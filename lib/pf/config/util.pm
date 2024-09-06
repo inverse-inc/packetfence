@@ -181,10 +181,11 @@ sub build_email {
     );
     my $locale = delete $TmplOptions{__locale};
     my $old_locale;
-    if (defined $locale && length($locale)) {
-        $old_locale = POSIX::setlocale(POSIX::LC_MESSAGES);
-        POSIX::setlocale(POSIX::LC_MESSAGES, $locale);
+    if (!(defined $locale && length($locale))) {
+        $locale = $Config{advanced}{language};
     }
+    $old_locale = POSIX::setlocale(POSIX::LC_MESSAGES);
+    POSIX::setlocale(POSIX::LC_MESSAGES, $locale);
 
     while (my ($k, $v) = each %$data) {
         if (!ref $v && !looks_like_number($v)) {
@@ -741,7 +742,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

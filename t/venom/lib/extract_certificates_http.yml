@@ -21,19 +21,19 @@ steps:
 - type: exec
   script: |
     openssl pkcs12 -in {{.temp_dir}}/{{.input.cn}}.p12 -cacerts -nokeys \
-    -out {{.temp_dir}}/{{.input.cn_ca}}.crt -passin pass:secret
+    -out {{.temp_dir}}/{{.input.cn_ca}}.crt -passin pass:secret $(. /etc/os-release; if [ "${ID}_${VERSION_ID%.*}" != "rhel_8" ]; then echo "-legacy"; fi) 
 
 # extract_certificate
 - type: exec
   script: |
     openssl pkcs12 -in {{.temp_dir}}/{{.input.cn}}.p12 -clcerts -nokeys \
-    -out {{.temp_dir}}/{{.input.cn}}.crt -passin pass:secret
+    -out {{.temp_dir}}/{{.input.cn}}.crt -passin pass:secret $(. /etc/os-release; if [ "${ID}_${VERSION_ID%.*}" != "rhel_8" ]; then echo "-legacy"; fi)
 
 # extract_key
 - type: exec
   script: |
     openssl pkcs12 -in {{.temp_dir}}/{{.input.cn}}.p12 -nocerts -nodes \
-    -out {{.temp_dir}}/{{.input.cn}}.key -passin pass:secret
+    -out {{.temp_dir}}/{{.input.cn}}.key -passin pass:secret $(. /etc/os-release; if [ "${ID}_${VERSION_ID%.*}" != "rhel_8" ]; then echo "-legacy"; fi)
 
 # install_ca_cert
 - type: exec

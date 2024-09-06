@@ -42,6 +42,8 @@ has '+shouldCheckup' => ( default => sub { 0 }  );
 
 has 'proxysql_config_template' => (is => "rw" ,default => sub { "$conf_dir/proxysql.conf" });
 
+has 'pxc_scheduler_handler_template' => (is => "rw" ,default => sub { "$conf_dir/config.toml" });
+
 our $host_id = $pf::config::cluster::host_id;
 
 tie our %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
@@ -62,6 +64,7 @@ sub generateConfig {
     $tags{'template'} = $self->proxysql_config_template;
     $tags{'geoDB'} = $FALSE;
     $tags{'mysql_servers'} = "";
+    $tags{'database'} = $DB_Config->{db};
 
     $tags{'monitor'} = << "EOT";
     monitor_username="$DB_Config->{user}"
@@ -109,6 +112,17 @@ EOT
 EOT
         $i--;
         }
+    } elsif ($database_proxysql->{scheduler} eq 'default') {
+        my @mysql_backend;
+
+        @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
+
+        foreach my $mysql_back (@mysql_backend) {
+        $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=1000, weight=$i },
+EOT
+        $i--;
+        }
     } else {
         my @mysql_backend;
 
@@ -120,9 +134,31 @@ EOT
 EOT
         $i--;
         }
+        my $j = 101 - @mysql_backend;
+        foreach my $mysql_back (@mysql_backend) {
+        $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=3306 , hostgroup=30, max_connections=1000, weight=$j },
+EOT
+        next if ($j = (102 - @mysql_backend));
+        $j++;
+        }
+        $i = 100;
+        foreach my $mysql_back (@mysql_backend) {
+        $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=3306 , hostgroup=810, max_connections=1000, weight=$i },
+EOT
+        $i--;
+        }
+        $j = 101 - @mysql_backend;
+        foreach my $mysql_back (@mysql_backend) {
+        $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=3306 , hostgroup=830, max_connections=1000, weight=$j },
+EOT
+        $j++;
+        }
     }
-
-
+    $tags{'scheduler'} = $TRUE;
+    $tags{'scheduler'} = $FALSE if ($database_proxysql->{scheduler} ne 'default');
 
     my @mysql_servers = pf::cluster::mysql_servers();
 
@@ -133,6 +169,7 @@ EOT
     $tags{'mysql_pf_pass'} = $DB_Config->{pass};
     $tags{'mysql_pf_pass'} =~ s/"/\\"/g;
     $tt->process($self->proxysql_config_template, \%tags, "$generated_conf_dir/".$self->name.".conf") or die $tt->error();
+    $tt->process($self->pxc_scheduler_handler_template, \%tags, "$generated_conf_dir/config.toml") or die $tt->error();
 
     return 1;
 }
@@ -154,7 +191,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

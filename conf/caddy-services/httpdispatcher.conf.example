@@ -1,51 +1,51 @@
 # Copyright (C) Inverse inc.
+{
+	admin off
+	#debug
+}
+
 :8888 {
-  logger {
-    level INFO
-  }
-  pfconfigpool
-  httpdispatcher
+	route * {
+		logger {
+			level INFO
+		}
+		httpdispatcher
+	}
 }
 
 :8889 {
-  root /usr/local/pf/html/common
+	handle_path /common/* {
+		root /usr/local/pf/html/common
+		file_server
+	}
+
+	handle_path /content/* {
+		root /usr/local/pf/html/captive-portal/content
+		file_server
+	}
+
+	handle_path /profile-templates/* {
+		root /usr/local/pf/html/captive-portal/profile-templates
+		file_server
+	}
+
+	handle_path /.well-known/acme-challenge/* {
+		root /usr/local/pf/conf/ssl/acme-challenge
+		file_server
+	}
+
+	handle * {
+		root /usr/local/pf/html/common
+		file_server
+	}
 }
-
-:8889/common {
-  root /usr/local/pf/html/common
-  mime {
-    .crt application/x-pem-file
-    .pem application/x-pem-file
-  }
-}
-
-
-:8889/content {
-  root /usr/local/pf/html/captive-portal/content
-  mime {
-    .crt application/x-pem-file
-    .pem application/x-pem-file
-  }
-}
-
-:8889/profile-templates {
-  root /usr/local/pf/html/captive-portal/profile-templates
-  mime {
-    .crt application/x-pem-file
-    .pem application/x-pem-file
-  }
-}
-
-:8889/.well-known/acme-challenge {
-  root /usr/local/pf/conf/ssl/acme-challenge
-}
-
 
 :5252 {
-  header / {
-    Cache-Control "no-cache, no-store, must-revalidate"
-    Pragma "no-cache"
-    Expires "0"
-  }
-  root /usr/local/pf/html/parking
+	header {
+		Cache-Control "no-cache, no-store, must-revalidate"
+		Pragma "no-cache"
+		Expires "0"
+	}
+	root /usr/local/pf/html/parking
+	file_server
 }

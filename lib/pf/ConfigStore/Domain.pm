@@ -18,13 +18,17 @@ use warnings;
 use Moo;
 use pf::file_paths qw($domain_config_file);
 use pf::constants qw($FALSE);
+use Sys::Hostname;
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $domain_config_file };
 
+# seems not used anywhere
 sub canDelete {
     my ($self, $id) = @_;
+    my $host_id = hostname();
+    $id =~ s/$host_id //i;
     if ($self->isInRealm('domain', $id)) {
         return "Used in a realm", $FALSE;
     }
@@ -42,7 +46,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

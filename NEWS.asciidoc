@@ -23,13 +23,57 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>.
 
-== Version X.Y.Z released on xxxx-xx-xx
+== Version 14.0.0 released on 2024-09-06
 
 === New Features
 
+ * Debian 12 support (#8215)
+ * OSQuery support with FleetDM (#8179)
+
 === Enhancements
 
+ * Firewall SSO clustering load-balancing (#8207)
+ * Domains clustering high-availability (#8205)
+ * Update Caddy (#8210)
+ * VoIP support in Aruba CX (#8260)
+
 === Bug Fixes
+
+ * Fixed Aruba Deauth (#8174)
+
+=== Security Fixes
+
+ * Fixed RCE Vulnerability (#8201) - @ly1g3
+ * External library updates (#8148, #8149, #8160, #8161, #8173, #8176, #8181, #8183, #8199, #8208, #8214)
+
+== Version 13.2.0 released on 2024-05-15
+
+=== New Features
+
+ * Add filtering and actions to Provisioning (#8033)
+ * Add Remote MySQL Database Support (#8038)
+ * Add logic for processing pfflows in pfcron (#8049)
+ * Add JAMF Cloud support (#8060)
+
+=== Enhancements
+
+ * ProxySQL updated to 2.6.0 (#8058)
+ * Adapted the LDAP search filter in FreeRADIUS to do the sAMAccountName lookup (#8000)
+ * Moved Extreme switches to OS-based modules (#8010)
+ * Moved Juniper switches to OS-based modules (#8011)
+ * Moved Meraki switches to OS-based modules (#8018)
+ * Removed outdated Cisco Catalyst switch modules (#8027)
+ * Support for FQDN switch id (#8022)
+ * Cisco 9800 documentation (#8009)
+ * Added NT Key Cache for NTLM-Auth-API (#8044)
+
+=== Bug Fixes
+
+ * Fixes error message in portal on non HASH variable for DPSK (#8068)
+ * Send username, ip and role to PaloAlto Firewall SSO payload (#8089)
+ * Restore original config file if patch is failing (#8072)
+ * Fix Cisco::Cisco_IOS_12_x NAS-Port-Type=Async (#7924)
+ * Fix Captive Portal on Fortigate Switches (#7436)
 
 == Version 13.1.0 released on 2024-01-19
 

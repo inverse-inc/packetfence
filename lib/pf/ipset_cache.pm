@@ -19,7 +19,7 @@ use warnings;
 use Moo;
 use CHI;
 use pf::log;
-use pf::util qw(pf_run);
+use pf::util qw(safe_pf_run);
 
 our $logger = get_logger();
 
@@ -143,7 +143,7 @@ Populate cache from the ipset setname
 sub populate_cache {
     my ($self) = @_;
     my $setname = $self->setname;
-    my @lines = pf_run("sudo ipset list $setname 2>/dev/null", accepted_exit_status => [1]);
+    my @lines = safe_pf_run(qw(sudo ipset list), $setname, { accepted_exit_status => [1]});
 
     while (my $line = shift @lines) {
         last if $line =~ /Members:/;
@@ -165,7 +165,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

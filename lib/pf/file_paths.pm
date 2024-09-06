@@ -128,7 +128,12 @@ our (
     $connectors_config_file,
     $kafka_config_file,
     $git_commit_id_file,
-    $pfqueue_backend_socket
+    $pfqueue_backend_socket,
+    $kafka_config_dir,
+    $provisioning_filters_config_file,
+    $provisioning_filters_config_default_file,
+    $provisioning_filters_meta_config_file,
+    $provisioning_filters_meta_config_default_file,
 );
 
 BEGIN {
@@ -232,6 +237,11 @@ BEGIN {
         $kafka_config_file
         $git_commit_id_file
         $pfqueue_backend_socket
+        $kafka_config_dir
+        $provisioning_filters_config_file
+        $provisioning_filters_config_default_file
+        $provisioning_filters_meta_config_file
+        $provisioning_filters_meta_config_default_file
     );
 }
 
@@ -250,6 +260,7 @@ $lib_dir  = catdir($install_dir, "lib");
 $html_dir = catdir($install_dir, "html");
 $log_dir  = catdir($install_dir, "logs");
 $log_conf_dir  = catdir($conf_dir,"log.conf.d");
+$kafka_config_dir = catdir($conf_dir, "kafka");
 
 $generated_conf_dir   = catdir($var_dir, "conf");
 $tt_compile_cache_dir = catdir($var_dir, "tt_compile_cache");
@@ -311,6 +322,10 @@ $allowed_device_oui_file   = catfile($conf_dir,"allowed_device_oui.txt");
 $allowed_device_types_file = catfile($conf_dir,"allowed_device_types.txt");
 $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $vlan_filters_config_default_file = catfile($conf_dir, "vlan_filters.conf.defaults");
+$provisioning_filters_config_file = catfile($conf_dir, "provisioning_filters.conf");
+$provisioning_filters_config_default_file = catfile($conf_dir, "provisioning_filters.conf.defaults");
+$provisioning_filters_meta_config_file = catfile($conf_dir, "provisioning_filters_meta.conf");
+$provisioning_filters_meta_config_default_file = catfile($conf_dir, "provisioning_filters_meta.conf.defaults");
 $cloud_config_file = catfile($conf_dir,"cloud.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
@@ -444,7 +459,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

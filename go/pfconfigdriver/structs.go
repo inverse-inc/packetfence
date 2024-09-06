@@ -52,47 +52,11 @@ type TypedConfig struct {
 	Type string `json:"type"`
 }
 
-type configStruct struct {
-	Passthroughs struct {
-		Registration PassthroughsConf
-		Isolation    PassthroughsIsolationConf
-	}
-	Interfaces struct {
-		ListenInts        ListenInts
-		ManagementNetwork ManagementNetwork
-		DHCPInts          DHCPInts
-		DNSInts           DNSInts
-		RADIUSInts        RADIUSInts
-	}
-	PfConf struct {
-		Advanced      PfConfAdvanced
-		General       PfConfGeneral
-		Fencing       PfConfFencing
-		CaptivePortal PfConfCaptivePortal
-		Webservices   PfConfWebservices
-		Database      PfConfDatabase
-		Parking       PfConfParking
-		Alerting      PfConfAlerting
-		ActiveActive  PfConfActiveActive
-		Services      PfConfServices
-		Pfconnector   PfConfPfconnector
-	}
-	Cluster struct {
-		HostsIp struct {
-			PfconfigKeys
-			PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
-			PfconfigClusterNameOverlay string `val:"yes"`
-		}
-		AllServers AllClusterServers
-	}
-	Dns struct {
-		Configuration PfConfDns
-	}
-	EAPConfiguration EAPConfiguration
-	RolesChildren    RolesChildren
+type HostsIp struct {
+	PfconfigKeys
+	PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
+	PfconfigClusterNameOverlay string `val:"yes"`
 }
-
-var Config configStruct
 
 // Represents the pf.conf general section
 type PfConfGeneral struct {
@@ -393,6 +357,7 @@ type NetworkConf struct {
 	Algorithm                string `json:"algorithm"`
 	PoolBackend              string `json:"pool_backend"`
 	NetflowAccountingEnabled string `json:"netflow_accounting_enabled"`
+	DhcpReplyIp              string `json:"dhcp_reply_ip"`
 }
 
 type Interface struct {
@@ -435,6 +400,7 @@ type RessourseNetworkConf struct {
 	NetflowAccountingEnabled string    `json:"netflow_accounting_enabled"`
 	NatDNS                   string    `json:"nat_dns"`
 	ForceGatewayVIP          string    `json:"force_gateway_vip"`
+	DhcpReplyIp              string    `json:"dhcp_reply_ip"`
 }
 
 type PfRoles struct {
@@ -873,6 +839,14 @@ type Domain struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
 	PfconfigNS              string `val:"config::Domain"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
+}
+
+type FleetDM struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::FleetDM"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]interface{}
 }

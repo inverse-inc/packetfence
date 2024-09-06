@@ -1,9 +1,0 @@
-ConfigSelfServicesList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigSelfService'
-        type: array
-    type: object

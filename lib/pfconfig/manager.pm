@@ -89,6 +89,7 @@ sub get_namespace {
     # load the module to instantiate
     if ( !( eval "$type->require()" ) ) {
         $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
+        return undef;
     }
 
     my $elem = $type->new($self, @args);
@@ -520,7 +521,12 @@ sub preload_all {
     my @namespaces = $self->list_namespaces;
     print "\n------------------\n";
     foreach my $namespace (@namespaces) {
+        if ( !defined $namespace || $namespace eq '' ) {
+            print "Skipping empty namespace\n";
+            next;
+        }
         $namespace = normalize_namespace_query($namespace);
+
         print "Preloading $namespace\n";
         $self->get_cache($namespace);
         $self->config_builder($namespace);
@@ -549,7 +555,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

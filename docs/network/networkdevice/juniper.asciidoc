@@ -22,6 +22,18 @@ endif::[]
 PacketFence supports Juniper switches in MAC Authentication (Juniper's MAC RADIUS) mode and 802.1X.
 PacketFence supports VoIP on the EX2200 (JUNOS 12.6) and EX4200 (JUNOS 13.2)
 
+==== Junos Modules
+
+This is a standard switch module designed to support all the legacy Juniper Switch series using Junos version earlier than v12.x.
+
+===== Junos v12.x and Junos v13.x
+
+Junos v12.x and Junox v13.x modules are designed for the switch series operating on JuniperOS v12.x and v13.x. Furthermore, it inherits all functionalities from the old "EX2200 and EX4200" modules respectively, making all the configurations below applicable to Junos v12.x and Junos v13.x.
+
+===== Junos v15.x and Junos v18.x
+
+Junos v15.x and Junos v18.x modules are designed for the switch series using JuniperOS v15.x and v18.x. Furthermore, it inherits all functionalities from the old "EX2200_v15 and EX2300" modules respectively.
+
 ----
 # load replace terminal
 [Type ^D at a new line to end input]

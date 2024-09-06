@@ -1,9 +1,0 @@
-ConfigFingerbankSettingsList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigFingerbankSetting'
-        type: array
-    type: object

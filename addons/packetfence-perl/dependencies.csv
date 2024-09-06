@@ -90,11 +90,11 @@ MooX::Types::MooseLike::Numeric,1.03,MATEU/MooX-Types-MooseLike-Numeric-1.03.tar
 MooseX::Types,0.50,ETHER/MooseX-Types-0.50.tar.gz,True,E/ET/ETHER/MooseX-Types-0.50.tar.gz,6
 common::sense,3.75,MLEHMANN/common-sense-3.75.tar.gz,True,M/ML/MLEHMANN/common-sense-3.75.tar.gz,6
 Log::Dispatch::Configurator::Any,1.122640,OLIVER/Log-Dispatch-Configurator-Any-1.122640.tar.gz,True,O/OL/OLIVER/Log-Dispatch-Configurator-Any-1.122640.tar.gz,6
-Template,3.009,ATOOMIC/Template-Toolkit-3.009.tar.gz,True,A/AT/ATOOMIC/Template-Toolkit-3.009.tar.gz,6
+Template,3.010,ATOOMIC/Template-Toolkit-3.010.tar.gz,True,A/AT/ATOOMIC/Template-Toolkit-3.010.tar.gz,6
 CHI,0.60,JSWARTZ/CHI-0.60.tar.gz,True,J/JS/JSWARTZ/CHI-0.60.tar.gz,4
 CGI::Session::Driver::chi,1.0.3,ROUZIER/CGI-Session-Driver-chi-1.0.3.tar.gz,True,R/RO/ROUZIER/CGI-Session-Driver-chi-1.0.3.tar.gz,5
 Crypt::SmbHash,0.12,BJKUIT/Crypt-SmbHash-0.12.tar.gz,True,B/BJ/BJKUIT/Crypt-SmbHash-0.12.tar.gz,5
-Sereal::Decoder,4.018,YVES/Sereal-Decoder-4.018.tar.gz,True,Y/YV/YVES/Sereal-Decoder-4.018.tar.gz,4
+Sereal::Decoder,5.004,YVES/Sereal-Decoder-5.004.tar.gz,True,Y/YV/YVES/Sereal-Decoder-5.004.tar.gz,4
 File::Slurp,9999.32,CAPOEIRAB/File-Slurp-9999.32.tar.gz,True,C/CA/CAPOEIRAB/File-Slurp-9999.32.tar.gz,4
 Net::IP,1.26,MANU/Net-IP-1.26.tar.gz,True,M/MA/MANU/Net-IP-1.26.tar.gz,4
 Data::Phrasebook,0.35,BARBIE/Data-Phrasebook-0.35.tar.gz,True,B/BA/BARBIE/Data-Phrasebook-0.35.tar.gz,4
@@ -108,9 +108,9 @@ Catalyst::Action::REST,1.21,JJNAPIORK/Catalyst-Action-REST-1.21.tar.gz,True,J/JJ
 LWP::Protocol::https,6.10,OALDERS/LWP-Protocol-https-6.10.tar.gz,True,O/OA/OALDERS/LWP-Protocol-https-6.10.tar.gz,4
 Rose::DB,0.783,JSIRACUSA/Rose-DB-0.783.tar.gz,True,J/JS/JSIRACUSA/Rose-DB-0.783.tar.gz,4
 IPTables::Parse,1.6,MRASH/IPTables-Parse-1.6.tar.gz,True,M/MR/MRASH/IPTables-Parse-1.6.tar.gz,4
-Sereal::Encoder,4.018,YVES/Sereal-Encoder-4.018.tar.gz,True,Y/YV/YVES/Sereal-Encoder-4.018.tar.gz,4
+Sereal::Encoder,5.004,YVES/Sereal-Encoder-5.004.tar.gz,True,Y/YV/YVES/Sereal-Encoder-5.004.tar.gz,4
 ExtUtils::CppGuess,0.23,ETJ/ExtUtils-CppGuess-0.23.tar.gz,True,E/ET/ETJ/ExtUtils-CppGuess-0.23.tar.gz,4
-Crypt::OpenSSL::RSA,0.31,TODDR/Crypt-OpenSSL-RSA-0.31.tar.gz,True,T/TO/TODDR/Crypt-OpenSSL-RSA-0.31.tar.gz,4
+Crypt::OpenSSL::RSA,0.33,TODDR/Crypt-OpenSSL-RSA-0.33.tar.gz,True,T/TO/TODDR/Crypt-OpenSSL-RSA-0.33.tar.gz,4
 Text::CSV,2.01,ISHIGAKI/Text-CSV-2.01.tar.gz,True,I/IS/ISHIGAKI/Text-CSV-2.01.tar.gz,4
 HTML::FormFu::MultiForm,1.03,NIGELM/HTML-FormFu-MultiForm-1.03.tar.gz,True,N/NI/NIGELM/HTML-FormFu-MultiForm-1.03.tar.gz,4
 Catalyst::View::TT,0.45,HAARG/Catalyst-View-TT-0.45.tar.gz,True,H/HA/HAARG/Catalyst-View-TT-0.45.tar.gz,4
@@ -197,7 +197,7 @@ Readonly::XS,1.05,ROODE/Readonly-XS-1.05.tar.gz,True,R/RO/ROODE/Readonly-XS-1.05
 Switch,2.17,CHORNY/Switch-2.17.tar.gz,True,C/CH/CHORNY/Switch-2.17.tar.gz,2
 Rose::DB::Object,0.820,JSIRACUSA/Rose-DB-Object-0.820.tar.gz,True,J/JS/JSIRACUSA/Rose-DB-Object-0.820.tar.gz,2
 Data::Phrasebook::Loader::YAML,0.13,BARBIE/Data-Phrasebook-Loader-YAML-0.13.tar.gz,True,B/BA/BARBIE/Data-Phrasebook-Loader-YAML-0.13.tar.gz,2
-Crypt::OpenSSL::X509,1.910,JONASBN/Crypt-OpenSSL-X509-1.910.tar.gz,True,J/JO/JONASBN/Crypt-OpenSSL-X509-1.910.tar.gz,2
+Crypt::OpenSSL::X509,1.914,JONASBN/Crypt-OpenSSL-X509-1.914.tar.gz,True,J/JO/JONASBN/Crypt-OpenSSL-X509-1.914.tar.gz,2
 Template::AutoFilter,0.143050,MITHALDU/Template-AutoFilter-0.143050.tar.gz,True,M/MI/MITHALDU/Template-AutoFilter-0.143050.tar.gz,2
 Config::IniFiles,3.000003,SHLOMIF/Config-IniFiles-3.000003.tar.gz,True,S/SH/SHLOMIF/Config-IniFiles-3.000003.tar.gz,2
 MIME::Lite::TT,0.02,HORIUCHI/MIME-Lite-TT-0.02.tar.gz,True,H/HO/HORIUCHI/MIME-Lite-TT-0.02.tar.gz,2

@@ -101,7 +101,7 @@ sub setDefaultRoute {
 
     my $cmd = "sudo ip route replace to default via $gateway 2>&1";
     $logger->debug("Replace default gateway: $cmd");
-    $status = pf_run($cmd, accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
+    $status = safe_pf_run(qw(sudo ip route replace to default via), $gateway , {accepted_exit_status => [ $_EXIT_CODE_EXISTS ]});
 
     # Everything goes as expected
     if (defined($status)) {
@@ -137,7 +137,7 @@ sub start_mysqld_service {
     # please keep LANG=C in case we need to fetch the output of the command
     my $cmd = "setsid sudo service $DB_SERVICE_NAME start 2>&1";
     $logger->debug("Starting $DB_SERVICE_NAME service: $cmd");
-    $status = pf_run($cmd);
+    $status = safe_pf_run(qw(setsid sudo service), $DB_SERVICE_NAME, 'start');
 
     # Everything goes as expected
     if ( defined($status) ) {
@@ -165,7 +165,7 @@ sub restart_pfconfig {
 
     my $cmd = "setsid sudo service packetfence-config restart 2>&1";
     $logger->debug("Restarting packetfence-config service: $cmd");
-    $status = pf_run($cmd);
+    $status = safe_pf_run(qw(setsid sudo service packetfence-config restart));
 
     # Everything goes as expected
     if ( defined($status) ) {
@@ -494,7 +494,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

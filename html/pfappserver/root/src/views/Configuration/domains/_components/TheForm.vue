@@ -34,9 +34,8 @@
         />
 
         <form-group-ad-fqdn namespace="ad_fqdn"
-                              :column-label="$i18n.t('Active Directory FQDN')"
-                              :text="$i18n.t('The FQDN of the Active Directory server.')"
-                              :disabled="!isNew && !isClone"
+                            :column-label="$i18n.t('Active Directory FQDN')"
+                            :text="$i18n.t('The FQDN of the Active Directory server.')"
         />
 
         <form-group-ad-server namespace="ad_server"
@@ -52,6 +51,7 @@
         <form-group-ou namespace="ou"
                        :column-label="$i18n.t('OU')"
                        :text="$i18n.t(`Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a '/'. (ex: Computers/Servers/Unix).`)"
+                       :api-feedback="ouFeedback"
         />
 
 
@@ -59,10 +59,9 @@
           <component namespace="machine_account_password"
                      :is="formGroupComputedMachineAccountPassword"
                      :column-label="$i18n.t('Machine account password')"
-                     :text="$i18n.t(`Password / password hash of the machine account, password will be hashed and stored in config files, you won't be able to retrieve your plain text password once click create or save. Type another value to change the password, or leave it as-is. If you added new node to a PacketFence cluster, you'll have to specify the original password / or set a new password here to force sync machine account.`)"
-                     :buttonLabel="$i18n.t('Test')"
-                     testLabel="Processing"
-                     :test="testMachineAccount"
+                     :text="$i18n.t(`Machine account password hashed after save. Password hashes are ignored, re-enter the original password to resync the machine account.`)"
+                     :api-feedback="machineAccountFeedback"
+                     v-bind="machineAccountBind"
           />
         </template>
 
@@ -89,15 +88,56 @@
               $i18n.t('"Allow on registration" option requires passthroughs to be enabled as well as configured to allow both the domain DNS name and each domain controllers DNS name (or *.dns name)')
             }}.
             {{ $i18n.t('Example: inverse.local, *.inverse.local') }}
+            {{ $i18n.t('If PacketFence is running in cluster mode, an identical, clear-text "Machine account password" must be re-entered to replace the password hash shown in the field when joining 2nd and following nodes to Windows Domain.') }}
           </div>
         </b-form-group>
 
       </base-form-tab>
+
+      <base-form-tab :title="$i18n.t('NT Key cache')">
+        <form-group-nt-key-cache-enabled namespace="nt_key_cache_enabled"
+                               :column-label="$i18n.t('Enable NT Key cache')"
+                               :text="$i18n.t('Enable NT Key cache for this domain.')"
+                               enabled-value="enabled"
+                               disabled-value="disabled"
+        />
+        <form-group-nt-key-cache-expire namespace="nt_key_cache_expire"
+                                        :column-label="$i18n.t('Cache key expiration')"
+                                        :text="$i18n.t('The amount of seconds an entry should be cached.')"
+        />
+
+        <form-group-ad-account-lockout-threshold namespace="ad_account_lockout_threshold"
+                                        :column-label="$i18n.t('Account Lockout Threshold')"
+                                        :text="$i18n.t('Max attempts before an account get auto lockout. This should be identical with the value set in domain policy')"
+        />
+        <form-group-ad-account-lockout-duration namespace="ad_account_lockout_duration"
+                                        :column-label="$i18n.t('Account Lockout Duration')"
+                                        :text="$i18n.t('The amount of minutes that Windows Domain Controller keeps an account being locked after maximum bad login attempts reached. This should be identical with the value set in domain policy.')"
+        />
+        <form-group-max-allowed-password-attempts-per-device namespace="max_allowed_password_attempts_per_device"
+                                                             :column-label="$i18n.t('Max bad logins per device')"
+                                                             :text="$i18n.t('Maximum login attempts a device that shares the same account(e.g., an iPhone and Android phone belongs to the same person) can perform before getting auto-banned. This must be less than or equal to Account Lockout Duration')"
+        />
+        <form-group-ad-reset-account-lockout-counter-after namespace="ad_reset_account_lockout_counter_after"
+                                        :column-label="$i18n.t('Lockout count resets after')"
+                                        :text="$i18n.t('The amount of minutes before Windows DC resets the bad password count if no bad login attempt was performed.')"
+        />
+        <form-group-ad-old-password-allowed-period namespace="ad_old_password_allowed_period"
+                                        :column-label="$i18n.t('Old Password Allowed Period')"
+                                        :text="$i18n.t('The amount of minutes an old password will be accepted in NTLM Authentication after a password change or password reset. The default value is 60. This should be identical with the value set in domain controller.')"
+        />
+      </base-form-tab>
+
       <base-form-tab :title="$i18n.t('NTLM cache')">
+
+        <b-alert show variant="danger"
+          v-html="$t('This feature will be deprecated.')"></b-alert>
 
         <form-group-ntlm-cache namespace="ntlm_cache"
                                :column-label="$i18n.t('NTLM cache')"
                                :text="$i18n.t('Enable the NTLM cache for this domain.')"
+                               enabled-value="enabled"
+                               disabled-value="disabled"
         />
 
         <form-group-ntlm-cache-source namespace="ntlm_cache_source"
@@ -115,7 +155,8 @@
   </base-form>
 </template>
 <script>
-import {computed} from '@vue/composition-api'
+import {computed, toRefs} from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import {
   BaseForm,
   BaseFormTab
@@ -140,7 +181,16 @@ import {
 
   FormGroupNtlmCache,
   FormGroupNtlmCacheSource,
-  FormGroupNtlmCacheExpiry
+  FormGroupNtlmCacheExpiry,
+
+  FormGroupNtKeyCacheEnabled,
+  FormGroupNtKeyCacheExpire,
+  FormGroupAdAccountLockoutThreshold,
+  FormGroupAdAccountLockoutDuration,
+  FormGroupAdResetAccountLockoutCounterAfter,
+  FormGroupAdOldPasswordAllowedPeriod,
+  FormGroupMaxAllowedPasswordAttemptsPerDevice,
+
 } from './'
 
 const components = {
@@ -165,7 +215,15 @@ const components = {
 
   FormGroupNtlmCache,
   FormGroupNtlmCacheSource,
-  FormGroupNtlmCacheExpiry
+  FormGroupNtlmCacheExpiry,
+
+  FormGroupNtKeyCacheEnabled,
+  FormGroupNtKeyCacheExpire,
+  FormGroupAdAccountLockoutThreshold,
+  FormGroupAdAccountLockoutDuration,
+  FormGroupAdResetAccountLockoutCounterAfter,
+  FormGroupAdOldPasswordAllowedPeriod,
+  FormGroupMaxAllowedPasswordAttemptsPerDevice,
 }
 
 export const props = {
@@ -194,6 +252,10 @@ export const props = {
 
 export const setup = (props, context) => {
 
+  const {
+    form
+  } = toRefs(props)
+
   const { root: { $store } = {} } = context
 
   const schema = computed(() => schemaFn(props))
@@ -203,11 +265,51 @@ export const setup = (props, context) => {
     return (props.isNew) ? FormGroupMachineAccountPasswordOnly : FormGroupMachineAccountPassword
   })
 
-  const testMachineAccount = () => $store.dispatch('$_domains/testMachineAccount', { ...props.form, quiet: true })
+  const isMachineAccountHash = computed(() => {
+    const { machine_account_password } = form.value
+    return !!machine_account_password && /^[0-9a-f]{32}$/i.test(machine_account_password)
+  })
+
+  const machineAccountFeedback = computed(() => {
+    if (isMachineAccountHash.value)
+      return i18n.t(`Password is hashed. Type a new or existing password to resync the machine account.`)
+    return undefined
+  })
+
+  const machineAccountBind = computed(() => {
+    return ((!isMachineAccountHash.value)
+      ? {
+        buttonLabel: i18n.t('Test'),
+        testLabel: i18n.t('Processing'),
+        test: () => $store.dispatch('$_domains/testMachineAccount', { ...props.form, quiet: true })
+      }
+      : {
+        test: false
+      }
+    )
+  })
+
+  const isDefaultOU = computed(() => {
+    const { ou } = form.value
+    return !!ou && /^computers$/i.test(ou) || !ou
+  })
+
+  const ouFeedback = computed(() => {
+    if (isDefaultOU.value) {
+      return undefined
+    }
+    return i18n.t(`Non-default OU is defined. LDAPS service on port 636 is required in Domain Controller.`)
+  })
+
+
   return {
     schema,
-    testMachineAccount,
-    formGroupComputedMachineAccountPassword
+    formGroupComputedMachineAccountPassword,
+    isMachineAccountHash,
+    machineAccountFeedback,
+    machineAccountBind,
+    isDefaultOU,
+    ouFeedback
   }
 }
 

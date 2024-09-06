@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/syslog"
 	"net/url"
+	"strconv"
 	"text/template"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -106,18 +107,26 @@ func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeo
 
 // Get the SSO start payload for the firewall
 func (fw *PaloAlto) startHttpPayload(ctx context.Context, info map[string]string, timeout int) string {
+	info["timeoutsec"] = strconv.Itoa(timeout)
 	// PaloAlto XML API expects the timeout in minutes
 	timeout = timeout / 60
 	t := template.New("PaloAlto.startHttp")
 	t.Parse(`
 <uid-message>
-		<version>1.0</version>
-		<type>update</type>
-		<payload>
-				<login>
-						<entry name="{{.Username}}" ip="{{.Ip}}" timeout="{{.Timeout}}"/>
-				</login>
-		</payload>
+	<version>1.0</version>
+	<type>update</type>
+	<payload>
+		<login>
+			<entry name="{{.Username}}" ip="{{.Ip}}" timeout="{{.Timeout}}"/>
+		</login>
+		<register-user>
+			<entry user="{{.Username}}">
+				<tag>
+					<member timeout="{{.Timeoutsec}}">{{.Role}}</member>
+				</tag>
+			</entry>
+		</register-user>
+	</payload>
 </uid-message>
 `)
 	b := new(bytes.Buffer)
@@ -142,13 +151,20 @@ func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string)
 	t := template.New("PaloAlto.stopHttp")
 	t.Parse(`
 <uid-message>
-		<version>1.0</version>
-		<type>update</type>
-		<payload>
-				<logout>
-						<entry name="{{.Username}}" ip="{{.Ip}}"/>
-				</logout>
-		</payload>
+	<version>1.0</version>
+	<type>update</type>
+	<payload>
+		<logout>
+			<entry name="{{.Username}}" ip="{{.Ip}}"/>
+		</logout>
+		<unregister-user>
+			<entry user="{{.Username}}">
+				<tag>
+					<member>{{.Role}}</member>
+				</tag>
+			</entry>
+		</unregister-user>
+	</payload>
 </uid-message>
 `)
 	b := new(bytes.Buffer)

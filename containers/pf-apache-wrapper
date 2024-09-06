@@ -25,19 +25,18 @@ if [ -z "$FINGERBANK_GID" ]; then
   exit 1
 fi
 
-echo "Changing UID of user pf"
-usermod -u $PF_UID -d /dev/null pf
-usermod -d /usr/local/pf pf
-
 echo "Changing GID of user pf"
-groupmod -g $PF_GID pf
+groupmod -o -g $PF_GID pf
 
-echo "Changing UID of user fingerbank"
-usermod -u $FINGERBANK_UID -d /dev/null fingerbank
-usermod -d /usr/local/fingerbank fingerbank
+echo "Changing UID of user pf"
+usermod -o -u $PF_UID -g $PF_GID -d /usr/local/pf pf
 
 echo "Changing GID of user fingerbank"
-groupmod -g $FINGERBANK_GID fingerbank
+groupmod -o -g $FINGERBANK_GID fingerbank
+
+echo "Changing UID of user fingerbank"
+usermod -o -u $FINGERBANK_UID -g $FINGERBANK_GID -d /dev/null fingerbank
+usermod -d /usr/local/fingerbank fingerbank
 
 function adjust_ids() {
   dir="$1"
@@ -55,4 +54,3 @@ adjust_ids /usr/local/fingerbank
 usermod -a -G fingerbank pf
 
 eval $@
-

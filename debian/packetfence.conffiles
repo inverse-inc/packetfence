@@ -6,6 +6,7 @@
 /usr/local/pf/conf/chi.conf
 /usr/local/pf/conf/cluster.conf
 /usr/local/pf/conf/cloud.conf
+/usr/local/pf/conf/config.toml
 /usr/local/pf/conf/connectors.conf
 /usr/local/pf/conf/pfcron.conf
 /usr/local/pf/conf/dhcp_filters.conf
@@ -21,6 +22,7 @@
 /usr/local/pf/conf/iptables-input.conf.inc
 /usr/local/pf/conf/iptables-input-management.conf.inc
 /usr/local/pf/conf/ip6tables-input-management.conf.inc
+/usr/local/pf/conf/kafka.conf
 /usr/local/pf/conf/keepalived.conf
 /usr/local/pf/conf/log.conf
 /usr/local/pf/conf/mfa.conf
@@ -34,6 +36,8 @@
 /usr/local/pf/conf/portal_modules.conf
 /usr/local/pf/conf/profiles.conf
 /usr/local/pf/conf/provisioning.conf
+/usr/local/pf/conf/provisioning_filters.conf
+/usr/local/pf/conf/provisioning_filters_meta.conf
 /usr/local/pf/conf/proxysql.conf
 /usr/local/pf/conf/radius_filters.conf
 /usr/local/pf/conf/realm.conf

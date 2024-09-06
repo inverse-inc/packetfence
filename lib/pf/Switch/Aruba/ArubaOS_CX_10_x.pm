@@ -71,9 +71,6 @@ use pf::SwitchSupports qw(
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
-#Insert your voice vlan name, not the ID.
-our $VOICEVLANAME = "voip";
-
 =over
 
 Return radius attributes to allow write access
@@ -195,19 +192,23 @@ sub radiusDisconnect {
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
+        my $username = $locationlog->{dot1x_username};
         # transforming MAC to the expected format 00112233CAFE
         my $calling_station_id = uc($mac);
         $calling_station_id =~ s/:/-/g;
-        $mac = lc($mac);
-        $mac =~ s/://g;
+        if (pf::util::valid_mac($username)) {
+            $username = lc($username);
+            $username =~ s/://g;
+        }
 
         # Standard Attributes
         my $attributes_ref = {
-            'User-Name' => $mac,
+            'User-Name' => $username,
             'NAS-IP-Address' => $send_disconnect_to,
             'Calling-Station-Id' => $calling_station_id,
             'NAS-Port' => $locationlog->{port},
         };
+
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
@@ -285,19 +286,28 @@ sub returnAccessListAttribute {
     }
 }
 
-=item getVoipVSA
+
+=head2 getVoipVsa
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
-TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28multiple+tagged%2Funtagged+VLAN%29+Assignment
-
 =cut
 
-sub getVoipVsa {
+sub getVoipVsa{
     my ($self) = @_;
     my $logger = $self->logger;
+    my $voiceVlan = $self->{'_voiceVlan'};
+    $logger->info("Accepting phone with untagged Access-Accept on voiceVlan $voiceVlan");
 
-    return ('Egress-VLAN-Name' => "1".$VOICEVLANAME);
+    # Return the normal response except we force the voiceVlan to be sent
+    return (
+        'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+        'Tunnel-Type' => $RADIUS::VLAN,
+        'Tunnel-Private-Group-ID' => $voiceVlan . "",
+        'Aruba-Port-Auth-Mode' => 3,
+        'Aruba-Device-Traffic-Class' => 1
+    );
+
 }
 
 =item isVoIPEnabled
@@ -417,7 +427,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -24,6 +24,8 @@ use XML::Simple;
 use pf::log;
 use pf::ip4log;
 use MIME::Base64;
+use pf::constants qw($TRUE $FALSE);
+use pf::node;
 
 =head1 Atrributes
 
@@ -93,7 +95,7 @@ The port that is used for onboarding of devices
 
 has boarding_port => (is => 'rw');
 
-sub get_device_info{
+sub get_device_info {
     my ($self, $mac) = @_;
     my $logger = $self->logger;
 
@@ -118,25 +120,22 @@ sub get_device_info{
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
 
 
-    if ($curl_info == 200){
+    if ($curl_info == 200) {
         my $info = decode_json($response_body);
         return $info;
-    }
-    elsif ($curl_info == 404){
+    } elsif ($curl_info == 404) {
         my $info;
         eval {
             $info = decode_json($response_body);
         };
-        if (defined($info) && $info->{totalCount} == 0){
+        if (defined($info) && $info->{totalCount} == 0) {
             $logger->info("The device $mac wasn't found in mobileiron");
             return 0;
-        }
-        else{
+        } else {
             $logger->error("The URL used for the mobileiron API seems invalid. Validate the configuration.");
             return $pf::provisioner::COMMUNICATION_FAILED;
         }
-    }
-    else{
+    } else {
         $logger->error("There was an error validating $mac with MobileIron. Got HTTP code $curl_info");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
@@ -146,19 +145,33 @@ sub validate_mac_is_compliant{
     my ($self, $mac) = @_;
     my $logger = $self->logger;
     my $info = $self->get_device_info($mac);
-    if (defined($info) && ($info != $pf::provisioner::COMMUNICATION_FAILED && $info != 0)){
+    if (defined($info) && ($info != $pf::provisioner::COMMUNICATION_FAILED && $info != 0)) {
+        my $node_info = node_view($mac);
         if ($info->{device}->{compliance} == 0){
             $logger->info("Device $mac was found as compliant");
-            return 1;
+            return $self->handleAuthorizeEnforce(
+                $mac,
+                {
+                    node_info => $node_info,
+                    mobileiron => $info->{device},
+                    compliant_check => 1
+                },
+                $TRUE
+            );
         }
-        else{
-            $logger->info("Device $mac was found, but is not compliant");
-            return 0;
-        }
+        $logger->info("Device $mac was found, but is not compliant");
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info => $node_info,
+                mobileiron => $info->{device},
+                compliant_check => 0
+            },
+            $FALSE
+        );
     }
-    else{
-        return $info;
-    }
+
+    return $info;
 }
 
 sub authorize {
@@ -187,7 +200,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

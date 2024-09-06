@@ -88,6 +88,12 @@ export const useSearch = makeSearch('domains', {
       visible: true
     },
     {
+      key: 'nt_key_cache_enabled',
+      label: 'NT Key Cache', // i18n defer
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'ntlm_cache',
       label: 'NTLM Cache', // i18n defer
       sortable: true,

@@ -38,9 +38,9 @@
             ]
         },
         {
-            "name": "{{user `builder_prefix`}}-bullseye",
+            "name": "{{user `builder_prefix`}}-bookworm",
             "type": "docker",
-            "image": "{{user `buildpkg_user`}}/debian:bullseye",
+            "image": "{{user `buildpkg_user`}}/debian:bookworm",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
@@ -80,7 +80,7 @@
             "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}", "ANSIBLE_ROLES_PATH={{user `prov_dir`}}/roles", "ANSIBLE_COLLECTIONS_PATH={{user `prov_dir`}}/"],
             "groups": ["{{user `ansible_debian_group`}}"],
             "user": "{{user `ansible_user`}}",
-            "only": ["{{user `builder_prefix`}}-bullseye"]
+            "only": ["{{user `builder_prefix`}}-bookworm"]
         },
         {
             "type": "shell",
@@ -98,7 +98,7 @@
             "type": "file",
             "source": "{{user `pf_root`}}/debian",
             "destination": "{{user `tmp_dir`}}",
-            "only": ["{{user `builder_prefix`}}-bullseye"]
+            "only": ["{{user `builder_prefix`}}-bookworm"]
         },
         {
             "type": "shell",
@@ -135,7 +135,7 @@
             "inline": ["rm -rf {{user `tmp_dir`}}/debian",
                        "apt-get clean"
                       ],
-            "only": ["{{user `builder_prefix`}}-bullseye"]
+            "only": ["{{user `builder_prefix`}}-bookworm"]
         }
 
     ],
@@ -162,14 +162,14 @@
             {
                 "type": "docker-tag",
                 "name": "set-tag",
-                "only": ["{{user `builder_prefix`}}-bullseye"],
-                "repository": "{{user `docker_registry_url`}}/{{user `builder_prefix`}}-debian-bullseye",
+                "only": ["{{user `builder_prefix`}}-bookworm"],
+                "repository": "{{user `docker_registry_url`}}/{{user `builder_prefix`}}-debian-bookworm",
                 "tags": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
                 "name": "push-tag",
-                "only": ["{{user `builder_prefix`}}-bullseye"],
+                "only": ["{{user `builder_prefix`}}-bookworm"],
                 "login": true,
                 "login_username": "{{user `docker_user`}}",
                 "login_password": "{{user `docker_password`}}",

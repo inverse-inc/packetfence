@@ -16,7 +16,7 @@ type wsConn struct {
 
 var buffPool = sync.Pool{
 	New: func() interface{} {
-		return &bytes.Buffer{}
+		return bytes.NewBuffer(make([]byte, 0, 1024))
 	},
 }
 
@@ -75,8 +75,10 @@ func (c *wsConn) SetDeadline(t time.Time) error {
 }
 
 func (c *wsConn) Close() error {
-	c.buff.Reset()
-	buffPool.Put(c.buff)
-	c.buff = nil
+	if c.buff != nil {
+		c.buff.Reset()
+		buffPool.Put(c.buff)
+		c.buff = nil
+	}
 	return c.Conn.Close()
 }

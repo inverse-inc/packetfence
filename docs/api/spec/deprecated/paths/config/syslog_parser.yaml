@@ -1,0 +1,132 @@
+/api/v1/config/syslog_parser/{syslog_parser_id}:
+  description: |-
+    pf::UnifiedApi::Controller::Config::SyslogParsers
+
+      dry_run
+        Dry run a regex parser configuration
+
+  delete:
+    deprecated: true
+    description: Delete an item.
+    operationId: api.v1.Config.SyslogParsers.resource.remove
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: syslog_parser_id
+      required: true
+      schema:
+        type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+
+  get:
+    deprecated: true
+    description: Get an item.
+    operationId: api.v1.Config.SyslogParsers.resource.get
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: syslog_parser_id
+      required: true
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParserWrapped'
+        description: Request successful. Response contains a specific resource.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+
+  options:
+    deprecated: true
+    description: Get meta for an item.
+    operationId: api.v1.Config.SyslogParsers.resource.resource_options
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: syslog_parser_id
+      required: true
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogParsersMeta'
+        description: Request successful. Response contains meta for a resource.
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+
+  patch:
+    deprecated: true
+    description: Update an item.
+    operationId: api.v1.Config.SyslogParsers.resource.update
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: syslog_parser_id
+      required: true
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigSyslogParser'
+    responses:
+      '201':
+        $ref: '#/components/responses/Updated'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+
+  put:
+    deprecated: true
+    description: Replace an item.
+    operationId: api.v1.Config.SyslogParsers.resource.replace
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: syslog_parser_id
+      required: true
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigSyslogParser'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:

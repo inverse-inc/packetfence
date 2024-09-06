@@ -63,8 +63,7 @@ sub create {
     }
 
     # Create requested virtual interface
-    my $cmd = "sudo ip link add link $physical_interface name $physical_interface.$vlan_id type vlan id $vlan_id";
-    eval { $status = pf_run($cmd) };
+    eval { $status = safe_pf_run("sudo", "ip", "link", "add", "link", $physical_interface, "name", "$physical_interface.$vlan_id", "type", "vlan", "id", $vlan_id) };
     if ( $@ ) {
         $status_msg = ["Error in creating interface VLAN [_1]",$interface];
         $logger->error($status_msg);
@@ -117,8 +116,7 @@ sub delete {
     }
 
     # Delete requested virtual interface
-    my $cmd = "sudo ip link delete $interface";
-    eval { $status = pf_run($cmd) };
+    eval { $status = safe_pf_run(qw(sudo ip link delete), "$interface") };
     if ( $@ ) {
         $status_msg = ["Error in deletion of interface VLAN [_1]",$interface];
         $logger->error("Error in deletion of interface VLAN $interface");
@@ -179,8 +177,7 @@ sub down {
     }
 
     # Disable interface using "ip"
-    my $cmd = sprintf "sudo ip link set %s down", $interface;
-    eval { $status = pf_run($cmd) };
+    eval { $status = safe_pf_run(qw(sudo ip link set), $interface, 'down') };
     if ( $@ ) {
         $status_msg = ["Can't disable interface [_1] : [_2]",$interface , $status];
         $logger->error("Can't disable interface $interface : $status");
@@ -335,14 +332,12 @@ sub update {
         my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
 
         # Delete previous IP address
-        my $cmd;
         if (defined($interface_before->{address}) && $interface_before->{address} ne '') {
-            $cmd = sprintf "sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
-            eval { $status = pf_run($cmd) };
+            eval { $status = safe_pf_run(qw(sudo ip addr del), $interface_before->{address},'dev',$interface_before->{name}) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$interface_before->{address}];
                 $logger->error("Can't delete previous IP address of interface $interface");
-                $logger->error("$cmd: $status");
+                $logger->error("$status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
             }
         }
@@ -355,12 +350,10 @@ sub update {
 
             $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
 
-            $cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
-            eval { $status = pf_run($cmd) };
+            eval { $status = safe_pf_run(qw(sudo ip addr add), "${ipaddress}/${netmask}", 'broadcast', $broadcast, 'dev', $interface) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't add new IP address on interface [_1] ([_2])",$interface,$ipaddress];
                 $logger->error($status);
-                $logger->error("$cmd: $status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
             }
             elsif ($isDefaultRoute) {
@@ -375,14 +368,12 @@ sub update {
         $network_configuration_changed = $TRUE;
 
         # Delete previous IP address
-        my $cmd;
         if ( defined($interface_before->{ipv6_network}) && $interface_before->{ipv6_network} ne '' ) {
-            $cmd = sprintf "sudo ip -6 addr del %s dev %s", $interface_before->{ipv6_network}, $interface_before->{name};
-            eval { $status = pf_run($cmd) };
+            eval { $status = safe_pf_run(qw(sudo ip -6 addr del), $interface_before->{ipv6_network}, 'dev', $interface_before->{name}) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't delete previous IPv6 address of interface [_1] ([_2])", $interface, $interface_before->{ipv6_network}];
                 $logger->error("Can't delete previous IPv6 address of interface $interface");
-                $logger->error("$cmd: $status");
+                $logger->error("$status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
             }
         }
@@ -395,12 +386,10 @@ sub update {
 
             $logger->debug("IPv6 address has changed ($interface $ipv6_address/$ipv6_prefix)");
 
-            $cmd = sprintf "sudo ip -6 addr add %s/%i dev %s", $ipv6_address, $ipv6_prefix, $interface;
-            eval { $status = pf_run($cmd) };
+            eval { $status = safe_pf_run(qw(sudo ip -6 addr add), "${ipv6_address}/$ipv6_prefix", 'dev', $interface) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't add new IPv6 address on interface [_1] ([_2])", $interface, $ipv6_address];
                 $logger->error($status);
-                $logger->error("$cmd: $status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
             }
         }
@@ -647,15 +636,12 @@ sub _listInterfaces {
 
     my @interfaces_list = ();
 
-    $ifname = '' if ($ifname eq 'all');
-    my $cmd =
-      {
-        link        => "sudo ip -4 -o link show $ifname",
-        addr        => "sudo ip -4 -o addr show %s",
-        ipv6_addr   => "sudo ip -6 -o addr show %s",
-      };
+    my @show_args;
+    if ($ifname ne 'all') {
+        push @show_args, $ifname;
+    }
     my ($link, $addr, $ipv6_addr);
-    eval { $link = pf_run($cmd->{link}) };
+    eval { $link = safe_pf_run(qw(sudo ip -4 -o link show),  @show_args) };
     if ($link) {
         # Parse output of ip command
         while ($link =~ m/^
@@ -675,7 +661,7 @@ sub _listInterfaces {
                is_running => ($state ne 'DOWN'),
                hwaddr => $hwaddr
               };
-            eval { $addr = pf_run(sprintf $cmd->{addr}, $name) };
+            eval { $addr = safe_pf_run(qw(sudo ip -4 -o addr show) , $name) };
             if ($addr) {
                 if ($addr =~ m/\binet (([^\/]+)\/\d+)/) {
                     $interface->{address} = $1,
@@ -684,7 +670,7 @@ sub _listInterfaces {
                     $interface->{netmask} = $netmask;
                 }
             }
-            eval { $ipv6_addr = pf_run(sprintf $cmd->{ipv6_addr}, $name) };
+            eval { $ipv6_addr = safe_pf_run(qw(sudo ip -6 -o addr show), $name) };
             if ( $ipv6_addr ) {
                 if ($ipv6_addr =~ m/\binet6 (([^\/]+)\/(\d+)) scope global/) {
                     $interface->{ipv6_network}  = $1,
@@ -800,8 +786,7 @@ sub up {
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
-    my $cmd = sprintf "sudo ip link set %s up", $interface;
-    eval { $status = pf_run($cmd) };
+    eval { $status = safe_pf_run(qw(sudo ip link set), $interface, 'up') };
     if ( $@ ) {
         $status_msg = ["Can't enable interface [_1]",$interface];
         $logger->error("Can't enable interface $interface");
@@ -888,7 +873,7 @@ sub _build_models {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

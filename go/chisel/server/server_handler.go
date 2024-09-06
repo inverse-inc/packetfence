@@ -355,9 +355,7 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 		}
 
 		fingerbankLocalPort := baseFingerbankPort + index
-
-		managementNetwork := pfconfigdriver.Config.Interfaces.ManagementNetwork
-		pfconfigdriver.FetchDecodeSocket(req.Context(), &managementNetwork)
+		managementNetwork := pfconfigdriver.GetType[pfconfigdriver.ManagementNetwork](req.Context())
 
 		var managementIP string
 		if managementNetwork.Vip != "" {

@@ -37,7 +37,6 @@ our @SyslogInfo = (
             '$programname == "pfipset"',
             '$programname == "pfpki-docker-wrapper"',
             '$programname == "pfldapexplorer-docker-wrapper"',
-            '$programname == "ntlm-auth-api-domain"',
             '($programname == "httpd.aaa-docker-wrapper" and $msg contains "httpd.aaa")',
             '($programname == "httpd.portal-docker-wrapper" and $msg contains "httpd.portal")',
             '($programname == "httpd.webservices-docker-wrapper" and $msg contains "httpd.webservices")',
@@ -227,6 +226,11 @@ our @SyslogInfo = (
         'name'       => 'keepalived.log',
         'conditions' => [ '$programname contains "Keepalived"' ]
     },
+    {
+        'description' => 'ntlm auth api log',
+        'name'       => 'ntlm-auth-api.log',
+        'conditions' => [ '$programname contains "ntlm-auth-api"' ]
+    },
 );
 
 our @LOGS = (
@@ -245,7 +249,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

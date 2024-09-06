@@ -1,7 +1,0 @@
-ConfigWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/Config'
-    status:
-      type: integer
-  type: object

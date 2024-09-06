@@ -84,6 +84,8 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
     }, 300)
   }
 
+  const isDefault = computed(() => localPlaceholder.value && !/^(select|sélect)/i.test(localPlaceholder.value))
+
   return {
     // props
     placeholder: localPlaceholder,
@@ -93,6 +95,7 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
     type,
 
     // state
+    isDefault,
     isFocus,
     isLocked,
 

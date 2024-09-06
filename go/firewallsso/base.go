@@ -29,6 +29,7 @@ type FirewallSSOInt interface {
 	init(ctx context.Context) error
 	initChild(ctx context.Context) error
 	logger(ctx context.Context) log15.Logger
+	setPfconfigHashNS(id string)
 	getSourceIp(ctx context.Context) net.IP
 	Start(ctx context.Context, info map[string]string, timeout int) (bool, error)
 	Stop(ctx context.Context, info map[string]string) (bool, error)
@@ -58,6 +59,10 @@ type FirewallSSO struct {
 	UsernameFormat string                `json:"username_format"`
 	DefaultRealm   string                `json:"default_realm"`
 	UseConnector   string                `json:"use_connector"`
+}
+
+func (fw *FirewallSSO) setPfconfigHashNS(id string) {
+	fw.PfconfigHashNS = id
 }
 
 // Builds all networks, meant to be called after the data is loaded into the struct attributes
@@ -171,7 +176,7 @@ func (fw *FirewallSSO) RadiusContextWithTimeout() (context.Context, context.Canc
 // Get the source IP address for the SSO packets
 // Will return either the management VIP if there is one of the IP of the management network
 func (fw *FirewallSSO) getSourceIp(ctx context.Context) net.IP {
-	managementNetwork := pfconfigdriver.Config.Interfaces.ManagementNetwork
+	managementNetwork := pfconfigdriver.GetType[pfconfigdriver.ManagementNetwork](ctx)
 
 	if managementNetwork.Vip != "" {
 		return net.ParseIP(managementNetwork.Vip)
@@ -263,7 +268,7 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 	if !fw.CheckStatus(ctx, info) {
 		return false, nil
 	}
-	log.LoggerWContext(ctx).Info("Processing SSO Start")
+
 	if !fw.MatchesRole(ctx, info) {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
 		return false, nil
@@ -273,7 +278,7 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
-
+	log.LoggerWContext(ctx).Info("Processing SSO Start")
 	// We change the username with the way it is expected given the format of this firewall
 	info["username"] = fw.FormatUsername(ctx, info)
 
@@ -291,13 +296,12 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 // Makes sure to call FirewallSSO.Start and to validate the network if necessary
 func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string) (bool, error) {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
-	log.LoggerWContext(ctx).Info("Processing SSO Stop")
 
 	if !fw.MatchesNetwork(ctx, info) {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
-
+	log.LoggerWContext(ctx).Info("Processing SSO Stop")
 	// We change the username with the way it is expected given the format of this firewall
 	info["username"] = fw.FormatUsername(ctx, info)
 

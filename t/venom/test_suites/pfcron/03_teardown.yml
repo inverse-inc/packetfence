@@ -45,5 +45,5 @@ testcases:
 
 - name: restart_httpd.webservices_service
   steps:
-  - type: pf_api_service_restart
+  - type: pf_api_service_restart_async
     service: httpd.webservices

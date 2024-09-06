@@ -57,7 +57,7 @@ use pf::roles::custom $ROLES_API_LEVEL;
 use pf::error::switch;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
-use List::MoreUtils qw(any all);
+use List::MoreUtils qw(any all uniq);
 use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
 use pf::StatsD;
@@ -180,11 +180,17 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
+        '_NetworkMap'                   => 'enabled',
+        '_NetworkFromMap'               => 'disabled',
+        '_InterfaceMap'                 => 'enabled',
         '_UsePushACLs'                  => 'disabled',
         '_UseDownloadableACLs'          => 'disabled',
         '_DownloadableACLsLimit'        => 0,
         '_ACLsLimit'                    => 0,
         '_ACLsType'                     => undef,
+        '_networks'                     => undef,
+        '_networks_from'                => undef,
+        '_interfaces'                   => undef,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -856,6 +862,113 @@ sub _parentRoleForVpn {
     return undef;
 }
 
+=item getNetworkByName
+
+Get the switch-specific network names in role in switches.conf
+
+=cut
+
+sub getNetworkByName {
+    my ($self, $roleName) = @_;
+    my $logger = $self->logger;
+
+
+    if (!defined($self->{'_networks'}) || !defined($self->{'_networks'}{$roleName})) {
+        my $parent = _parentRoleForNetwork($roleName);
+        if (defined $parent && length($parent)) {
+            return $self->getNetworkByName($parent);
+        }
+        # VPN name doesn't exist
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        $logger->warn("No parameter ${roleName}Network found in conf/switches.conf for the switch " . $self->{_id});
+        return undef;
+    }
+
+    # return if found
+    return $self->{'_networks'}->{$roleName} if (defined($self->{'_networks'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}Network found in conf/switches.conf");
+    return;
+}
+
+sub _parentRoleForNetwork {
+    my ($name) = @_;
+    # not yet supported
+    return undef;
+}
+
+=item getInterfaceByName
+
+Get the switch-specific interface names in role in switches.conf
+
+=cut
+
+sub getInterfaceByName {
+    my ($self, $roleName) = @_;
+    my $logger = $self->logger;
+
+
+    if (!defined($self->{'_interfaces'}) || !defined($self->{'_interfaces'}{$roleName})) {
+        my $parent = _parentRoleForInterface($roleName);
+        if (defined $parent && length($parent)) {
+            return $self->getInterfaceByName($parent);
+        }
+        # VPN name doesn't exist
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        $logger->warn("No parameter ${roleName}Interface found in conf/switches.conf for the switch " . $self->{_id});
+        return undef;
+    }
+
+    # return if found
+    return $self->{'_interfaces'}->{$roleName} if (defined($self->{'_interfaces'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}Interface found in conf/switches.conf");
+    return;
+}
+
+sub _parentRoleForInterface {
+    my ($name) = @_;
+    # not yet supported
+    return undef;
+}
+
+=item getNetworkFromByName
+
+Get the switch-specific network from names in role in switches.conf
+
+=cut
+
+sub getNetworkFromByName {
+    my ($self, $roleName) = @_;
+    my $logger = $self->logger;
+
+
+    if (!defined($self->{'_networks_from'}) || !defined($self->{'_networks_from'}{$roleName})) {
+        my $parent = _parentRoleForNetworkFrom($roleName);
+        if (defined $parent && length($parent)) {
+            return $self->getNetworkFromByName($parent);
+        }
+        # VPN name doesn't exist
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        $logger->warn("No parameter ${roleName}NetworkFrom found in conf/switches.conf for the switch " . $self->{_id});
+        return undef;
+    }
+
+    # return if found
+    return $self->{'_networks_from'}->{$roleName} if (defined($self->{'_networks_from'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}NetworkFrom found in conf/switches.conf");
+    return;
+}
+
+sub _parentRoleForNetworkFrom {
+    my ($name) = @_;
+    # not yet supported
+    return undef;
+}
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
 
@@ -3257,7 +3370,7 @@ sub deauth_source_ip {
     my $logger = $self->logger();
     my $chi = pf::CHI->new(namespace => 'route_int');
     my $int = $chi->compute($dst_ip, sub {
-                                         my @interface_src = split(" ", pf_run("sudo ip route get $dst_ip"));
+                                         my @interface_src = split(" ", safe_pf_run(qw(sudo ip route get), $dst_ip));
                                          if ($interface_src[1] eq 'via') {
                                              return $interface_src[4];
                                          } else {
@@ -4110,6 +4223,16 @@ sub format_acl {
     while($acl =~ /([^\n]+)\n?/g) {
         my $acl_line = $1;
         next if($acl_line =~ /^remark/i);
+        # Lookup for the current ip address of a node
+        if ($acl_line =~ /^#.*\shost\s(([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})).*/i) {
+            my $mac = $1;
+            if (my $ip = pf::ip4log::mac2ip($mac)) {
+                $acl_line =~ s/^#//g;
+                $acl_line =~ s/$mac/$ip/g;
+            } else {
+                get_logger->warn("Bypass ACL because no ip lookup available: ".$acl_line);
+            }
+        }
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
             my $raw_acl = $2;
@@ -4132,7 +4255,6 @@ sub format_acl {
     my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
     return ($acl_ref, @direction);
 }
-
 
 =head2 acl_chewer
 
@@ -4211,7 +4333,8 @@ Generate Ansible configuration to push ACLs
 =cut
 
 sub generateAnsibleConfiguration {
-    my ($self) = @_;
+    my ($self,$oldSwitchConfig, $delete) = @_;
+    $delete //= $FALSE;
     my %vars;
     umask(0002);
     my $tt = Template->new(
@@ -4240,6 +4363,7 @@ sub generateAnsibleConfiguration {
     $vars{'switches'}{$switch_id}{'cliPwd'} = $self->{'_cliPwd'};
     $vars{'switches'}{$switch_id}{'type'} = $self->{'_type'};
     $vars{'switches'}{$switch_id}{'id'} = $switch_ip;
+    $vars{'switches'}{$switch_id}{'delete'} = $delete;
     switch($self->{'_type'}) {
             case /Cisco::ASA/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.asa" }
             case /Cisco::WLC/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
@@ -4249,29 +4373,62 @@ sub generateAnsibleConfiguration {
 
     foreach my $role (keys %ConfigRoles) {
         my $acls = $self->getRoleAccessListByName($role);
-        next if !defined($acls);
-        my $out_acls;
-        my $in_acls;
-        while($acls =~ /([^\n]+)\n?/g) {
-            my $acl_line = $1;
-            if ($acl_line =~ /^(out\|)(.*)/) {
-                $out_acls .= $2."\n";
-            } elsif ($acl_line =~ /^(in\|)(.*)/) {
-                $in_acls .= $2."\n";
+        my $interfaces = $self->getInterfaceByName($role);
+        if ($interfaces) {
+            my @interfaces = split(',',$interfaces);
+            if ($delete) {
+                $vars{'switches'}{$switch_id}{'interfaces_delete'}{$role} = \@interfaces;
             } else {
-                $in_acls .= $acl_line."\n";
+                $vars{'switches'}{$switch_id}{'interfaces'}{$role} = \@interfaces;
             }
         }
-        my $implicit_acl = $self->implicit_acl();
-        if ((!defined($in_acls) || $in_acls eq "") && $implicit_acl) {
-            $vars{'switches'}{$switch_id}{'acls'}{$role} = $implicit_acl;
-        } elsif (defined($in_acls)) {
-            $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
+    }
+    if (!$delete) {
+        # Remove useless acl on old interfaces
+        my %diff;
+        foreach my $old_role_interface (@{$oldSwitchConfig->{InterfaceMapping}}) {
+            #Old interface list
+            my @oldinterfaces = uniq split(',',$old_role_interface->{interface});
+            my $newinterfaces = $self->getInterfaceByName($old_role_interface->{role});
+            if ($newinterfaces) {
+                # New interface list
+                my @newinterfaces = uniq split(',',$newinterfaces);
+                @diff{ @oldinterfaces } = @oldinterfaces;
+                delete @diff{ @newinterfaces };
+                @oldinterfaces = uniq %diff;
+            }
+            if (@oldinterfaces) {
+                $vars{'switches'}{$switch_id}{'interfaces_delete'}{$old_role_interface->{role}} = \@oldinterfaces;
+            }
         }
-        if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
-            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
-        } elsif (defined($out_acls)) {
-            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+    }
+
+    foreach my $role (keys %ConfigRoles) {
+        my $acls = $self->getRoleAccessListByName($role);
+        if (defined($acls)) {
+            my $out_acls;
+            my $in_acls;
+            while($acls =~ /([^\n]+)\n?/g) {
+                my $acl_line = $1;
+                if ($acl_line =~ /^(out\|)(.*)/) {
+                    $out_acls .= $2."\n";
+                } elsif ($acl_line =~ /^(in\|)(.*)/) {
+                    $in_acls .= $2."\n";
+                } else {
+                    $in_acls .= $acl_line."\n";
+                }
+            }
+            my $implicit_acl = $self->implicit_acl();
+            if ((!defined($in_acls) || $in_acls eq "") && $implicit_acl) {
+                $vars{'switches'}{$switch_id}{'acls'}{$role} = $implicit_acl;
+            } elsif (defined($in_acls)) {
+                $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
+            }
+            if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
+                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
+            } elsif (defined($out_acls)) {
+                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+            }
         }
     }
 
@@ -4279,7 +4436,7 @@ sub generateAnsibleConfiguration {
 
     $tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/inventory.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/ansible.cfg") or die $tt->error();
-    $tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/switch_acls.yml", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
     find(\&pf::util::chown_pf, "$var_dir/conf/pfsetacls/$switch_id/");
     if (-e "$var_dir/conf/pfsetacls/$switch_id/ansible.log") { unlink "$var_dir/conf/pfsetacls/$switch_id/ansible.log" };
@@ -4314,7 +4471,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,12 +1,12 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2023 Inverse inc.
+# Copyright (C) 2005-2024 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 13.1.0\n"
+"Project-Id-Version: 13.2.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2024-01-18 15:26-0400\n"
+"PO-Revision-Date: 2024-04-26 09:36-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -153,6 +153,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/airwatch.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
 msgid "API password"
 msgstr ""
@@ -163,6 +164,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/airwatch.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
 msgid "API username"
 msgstr ""
@@ -203,6 +205,14 @@ msgstr ""
 msgid "Access duration to assign"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Account Lockout Duration"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Account Lockout Threshold"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Twilio.pm
 msgid "Account SID"
 msgstr ""
@@ -212,6 +222,7 @@ msgid "Accounting timebucket size"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/DHCPFilter.pm
+# html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/ProvisioningFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/VlanFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
@@ -288,6 +299,10 @@ msgstr ""
 
 # pf::Authentication::Source::AdminProxySource (name)
 msgid "AdminProxy"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "After how long will the lockout counter resets. In minutes."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
@@ -501,6 +516,7 @@ msgid "Auto register"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 msgid "Automatic device detection"
 msgstr ""
 
@@ -746,6 +762,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/SelfService.pm
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Click to add a role"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Click to add a rule"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
@@ -1016,12 +1036,20 @@ msgstr ""
 msgid "DHCP Fingerprint"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "DHCP IP Reply"
+msgstr ""
+
 # pf::dhcp_option82 (DHCP Option 82)
 msgid "DHCP Option 82 Vlan"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "DHCP Pool Backend Type"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "DHCP Source IP address"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
@@ -1873,6 +1901,10 @@ msgstr ""
 msgid "How long to keep ip6log history entry before rotating it to ip6log archive."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "How long will an account keep locked after hitting bad password threshold. In minutes"
+msgstr ""
+
 # conf/documentation.conf (fencing.wait_for_redirect)
 msgid "How many seconds the webservice should wait before deassociating or reassigning VLAN. If we don't wait, the device may switch VLAN before it has a chance to load the redirection page."
 msgstr ""
@@ -2073,6 +2105,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Isolation"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "Kafka Brokers"
 msgstr ""
 
 # pf::Authentication::Source::KerberosSource (name)
@@ -2347,6 +2383,10 @@ msgstr ""
 msgid "Location of the tracking-config binary."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Lockout resets after"
+msgstr ""
+
 # html/pfappserver/root/interface/list.tt
 msgid "Logical name"
 msgstr ""
@@ -2448,6 +2488,14 @@ msgstr ""
 msgid "Max Lease Time"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Max bad login attempts before an account is locked out automatically, default is 0, never locks."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Max bad logins per device"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
 msgid "Max nodes per user"
 msgstr ""
@@ -2458,6 +2506,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Maximum allowed unregistration date"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Maximum bad login attempt for a single device."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -2531,6 +2583,10 @@ msgstr "Nodes - Read"
 # pf::admin_roles (Actions)
 msgid "NODES_UPDATE"
 msgstr "Nodes - Update"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "NT Key cache"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "NTLM auth host"
@@ -2701,6 +2757,14 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 msgid "OUI"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Old Password Allowed Period"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Old Password Allowed Period in NTLM Authentication. In minutes"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
@@ -2908,6 +2972,26 @@ msgstr "Provisioning - Create"
 msgid "PROVISIONING_DELETE"
 msgstr "Provisioning - Delete"
 
+# pf::admin_roles (Actions groups)
+msgid "PROVISIONING_FILTER"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_FILTER_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_FILTER_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_FILTER_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_FILTER_UPDATE"
+msgstr ""
+
 # pf::admin_roles (Actions)
 msgid "PROVISIONING_READ"
 msgstr "Provisioning - Read"
@@ -3057,6 +3141,7 @@ msgstr ""
 msgid "Please define the device id."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/ProvisioningFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Please select Provisioning type"
 msgstr ""
@@ -3508,6 +3593,7 @@ msgstr ""
 msgid "Provisioning ID"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/ProvisioningFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Provisioning type"
 msgstr ""
@@ -3533,10 +3619,12 @@ msgid "Quantity"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 msgid "Query JAMF computers inventory"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamfCloud.pm
 msgid "Query JAMF mobile devices inventory"
 msgstr ""
 
@@ -3698,6 +3786,10 @@ msgstr ""
 msgid "Relative to the beginning of the period"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Relay agent IP address"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Remaining Access Time"
 msgstr ""
@@ -3797,7 +3889,12 @@ msgstr ""
 msgid "Rule Name"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Rules to be applied"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/DHCPFilter.pm
+# html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/ProvisioningFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/FilterEngines/VlanFilter.pm
 msgid "Run Actions"
 msgstr ""
@@ -4392,6 +4489,10 @@ msgid "Should snmptrapd be started? Keep enabled unless you know what you're doi
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Should the NT Key cache be enabled for this domain?"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Should the NTLM cache be enabled for this domain?"
 msgstr ""
 
@@ -4689,6 +4790,18 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The IPv4 of the Active Directory server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "The Kafka Consumer Group ID "
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "The Kafka topic to read pfflows from"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfcron/pfflow.pm
+msgid "The Kafka topic to write network events to"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
@@ -5689,6 +5802,14 @@ msgstr ""
 msgid "Vsys "
 msgstr ""
 
+# pf::admin_roles (Actions groups)
+msgid "WINDOWS_EVENTS"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "WINDOWS_EVENTS_READ"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "WPA Enterprise"
 msgstr ""
@@ -6601,6 +6722,10 @@ msgstr ""
 msgid "de_DE"
 msgstr ""
 
+# conf/documentation.conf (database_proxysql.scheduler options)
+msgid "default"
+msgstr ""
+
 # html/pfappserver/root/interface/list.tt
 msgid "default network:"
 msgstr ""
@@ -7071,6 +7196,10 @@ msgstr "Trigger on device class change"
 msgid "fingerbank_device_change.triggers"
 msgstr "Manual device class change triggers"
 
+# pf::api (Allowed actions)
+msgid "firewall_sso_call"
+msgstr ""
+
 # conf/documentation.conf (advanced.language options)
 msgid "fr_FR"
 msgstr ""
@@ -7286,6 +7415,10 @@ msgid "jamf"
 msgstr "Jamf"
 
 # pf::provisioner (Provisioners)
+msgid "jamfCloud"
+msgstr ""
+
+# pf::provisioner (Provisioners)
 msgid "kandji"
 msgstr ""
 
@@ -7378,13 +7511,6 @@ msgstr ""
 # pf::Authentication::Source::GoogleWorkspaceLDAPSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "memberOf"
-msgstr ""
-
-# pf::Authentication::Source::ADSource (available_attributes)
-# pf::Authentication::Source::EDIRSource (available_attributes)
-# pf::Authentication::Source::GoogleWorkspaceLDAPSource (available_attributes)
-# pf::Authentication::Source::LDAPSource (available_attributes)
-msgid "memberOf:1.2.840.113556.1.4.1941"
 msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
@@ -7875,6 +8001,10 @@ msgstr "Verify SSL"
 
 # conf/documentation.conf (advanced.language options)
 msgid "pt_BR"
+msgstr ""
+
+# conf/documentation.conf (database_proxysql.scheduler options)
+msgid "pxc_scheduler"
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc

@@ -132,7 +132,7 @@ sub authorize {
         return $FALSE;
     }
 
-    my ($result, $pid) = $self->parse_device_information($device_type, $device_information);
+    my ($result, $pid, $device) = $self->parse_device_information($device_type, $device_information);
 
     if($pid) {
         get_logger->info("Found username $pid through JAMF");
@@ -140,13 +140,30 @@ sub authorize {
         node_modify($mac, pid => $pid);
     }
     
+    my $node_info = node_view($mac);
     if ( $result eq $TRUE ) {
         $logger->info("MAC address '$mac' seems to be managed by JAMF");
-        return $TRUE;
-    } else {
-        $logger->info("MAC address '$mac' does not seems to be managed by JAMF");
-        return $FALSE;
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info => $node_info,
+                jamf => $device,
+                compliant_check => 1
+            },
+            $TRUE
+        );
     }
+
+    $logger->info("MAC address '$mac' does not seems to be managed by JAMF");
+    return $self->handleAuthorizeEnforce(
+        $mac,
+        {
+            node_info => $node_info,
+            jamf => $device,
+            compliant_check => 0
+        },
+        $FALSE
+    );
 }
 
 
@@ -270,10 +287,12 @@ sub parse_device_information {
     my $json = decode_json($device_information);
  
     if ( $device_type eq $JAMF_COMPUTERS_INVENTORY ) {
-        return $json->{'computer'}{'general'}{'remote_management'}{'managed'}, $json->{computer}->{location}->{username};
+        my $device = $json->{computer};
+        return $device->{'general'}{'remote_management'}{'managed'}, $device->{location}->{username}, $device;
     }
     elsif ( $device_type eq $JAMF_MOBILEDEVICES_INVENTORY ) {
-        return $json->{'mobile_device'}{'general'}{'managed'}, $json->{mobile_device}->{location}->{username};
+        my $device = $json->{mobile_device};
+        return $device->{'general'}{'managed'}, $device->{location}->{username}, $device;
     }
 }
 
@@ -284,7 +303,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

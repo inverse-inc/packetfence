@@ -1,6 +1,0 @@
-ConfigFingerbankSettingsMeta:
-  properties:
-    meta:
-      properties: {}
-      type: object
-  type: object

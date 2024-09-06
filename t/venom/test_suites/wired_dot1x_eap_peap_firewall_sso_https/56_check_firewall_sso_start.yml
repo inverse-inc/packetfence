@@ -3,17 +3,18 @@ testcases:
 
 - name: check_mock_history_request
   steps:
-  - type: exec
-    script: |
-      curl -s http://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_config}}/history | jq '.[-1].request'
+  - type: http
+    method: GET
+    url: http://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_config}}/history
+    retry: 60
+    delay: 2
     assertions:
-      - result.code ShouldEqual 0
-      - result.systemout ShouldNotBeBlank
-      - result.systemoutjson.path ShouldEqual "/api/"
-      - result.systemoutjson.method ShouldEqual "POST"
-      - result.systemoutjson.query_params.key ShouldEqual [{{.firewall_sso.https.password}}]
-    retry: 10
-    delay: 1
+      - result.statuscode ShouldEqual 200
+      - result.body ShouldNotBeBlank
+      - result.bodyjson.bodyjson2.request.path ShouldEqual /api/
+      - result.bodyjson.bodyjson2.request.method ShouldEqual POST
+      - result.bodyjson.bodyjson2.request.query_params.key ShouldEqual [{{.firewall_sso.https.password}}]
+
 
 - name: check_mock_history_request_body_string
   steps:

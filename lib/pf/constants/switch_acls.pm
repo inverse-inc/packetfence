@@ -30,13 +30,10 @@ our %ACLsSupports;
                                                     'Aruba::CX' => 1,
                                                     'Brocade' => 1,
                                                     'Cisco::ASA' => 1,
-                                                    'Cisco::Catalyst_2960G' => 1,
                                                     'Cisco::Catalyst_2970' => 1,
                                                     'Cisco::Catalyst_3550' => 1,
                                                     'Cisco::Catalyst_3560' => 1,
-                                                    'Cisco::Catalyst_3560G' => 1,
                                                     'Cisco::Catalyst_3750' => 1,
-                                                    'Cisco::Catalyst_3750G' => 1,
                                                     'Cisco::Catalyst_4500' => 1,
                                                     'Cisco::Catalyst_6500' => 1,
                                                     'Cisco::Cisco_IOS_12_x' => 1,
@@ -68,7 +65,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

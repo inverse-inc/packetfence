@@ -25,7 +25,7 @@ has_field 'id' => (
     type      => 'Text',
     label     => 'Identifier',
     required  => 1,
-    maxlength => 10,
+    maxlength => 30,
     messages  => { required => 'Please specify an identifier' },
     tags      => {
         after_element => \&help,
@@ -34,7 +34,7 @@ has_field 'id' => (
             return {
                 regex => "^[0-9a-zA-Z]+\$",
                 message =>
-"The id is invalid. The id can only contain alphanumeric characters.",
+                    "The id is invalid. The id can only contain alphanumeric characters.",
             };
         },
     },
@@ -111,7 +111,7 @@ has_field 'server_name' =>
    maxlength => 14,
    messages => { required => 'Please specify the server\'s name' },
    tags => { after_element => \&help,
-             help => 'This server\'s name (account name) in your Active Directory. \'%h\' is a placeholder for this server hostname. In a cluster, you must use %h and ensure your hostnames are less than 14 characters. You can mix \'%h\' with a prefix or suffix (ex: \'pf-%h\') ' },
+             help => q(This server's name (account name) in your Active Directory. '%h' is a placeholder for this server hostname. In a cluster, you must use %h and ensure your hostnames are less than 14 characters. You can mix '%h' with a prefix or suffix (ex: 'pf-%h') ) },
   );
 
 has_field 'sticky_dc' => (
@@ -155,6 +155,69 @@ has_field 'registration' =>
    tags => { after_element => \&help,
              help => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.' },
   );
+
+has_field 'nt_key_cache_enabled' => (
+    type            => 'Toggle',
+    label           => 'NT Key cache',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+    tags => {
+        after_element => \&help,
+        help => 'Should the NT Key cache be enabled for this domain?'
+    },
+);
+
+has_field 'nt_key_cache_expire' =>
+    (
+        type => 'PosInteger',
+        label => 'Expiration',
+        default => 12000,
+        tags => { after_element => \&help,
+            help => 'The amount of seconds an entry should be cached.' },
+    );
+
+has_field 'ad_account_lockout_threshold' =>
+    (
+        type => 'PosInteger',
+        label => 'Account Lockout Threshold',
+        default => 0,
+        tags => { after_element => \&help,
+            help => 'Max bad login attempts before an account is locked out automatically, default is 0, never locks.' },
+    );
+
+has_field 'ad_account_lockout_duration' =>
+    (
+        type => 'PosInteger',
+        label => 'Account Lockout Duration',
+        default => 30,
+        tags => { after_element => \&help,
+            help => 'How long will an account keep locked after hitting bad password threshold. In minutes' },
+    );
+has_field 'ad_reset_account_lockout_counter_after' =>
+    (
+        type => 'PosInteger',
+        label => 'Lockout resets after',
+        default => 30,
+        tags => { after_element => \&help,
+            help => 'After how long will the lockout counter resets. In minutes.' },
+    );
+has_field 'ad_old_password_allowed_period' =>
+    (
+        type => 'PosInteger',
+        label => 'Old Password Allowed Period',
+        default => 60,
+        tags => { after_element => \&help,
+            help => 'Old Password Allowed Period in NTLM Authentication. In minutes' },
+    );
+has_field 'max_allowed_password_attempts_per_device' =>
+    (
+        type => 'PosInteger',
+        label => 'Max bad logins per device',
+        default => 0,
+        tags => { after_element => \&help,
+            help => 'Maximum bad login attempt for a single device.' },
+    );
 
 has_field 'ntlm_cache' =>
   (
@@ -230,6 +293,19 @@ has_block ntlm_cache =>
    render_list => [ qw(ntlm_cache ntlm_cache_source ntlm_cache_expiry) ],
   );
 
+has_block ntlm_key_cache =>
+    (
+        render_list => [ qw(
+            nt_key_cache_enabled
+            nt_key_cache_expire
+            ad_account_lockout_threshold
+            ad_account_lockout_duration
+            ad_reset_account_lockout_counter_after
+            ad_old_password_allowed_period
+            max_allowed_password_attempts_per_device
+        ) ],
+    );
+
 =head2 options_ntlm_cache_sources
 
 The AD sources that can be selected for NTLM auth cache
@@ -253,11 +329,11 @@ Validate NTLM cache fields if ntlm_cache is enabled
 sub validate {
     my ($self) = @_;
 
-    if(($self->field('id')->value() // '') !~ /^[0-9a-zA-Z]+$/) {
+    if (($self->field('id')->value() // '') !~ /^[0-9a-zA-Z\.\-_]+ [0-9a-zA-Z]+$/) {
         $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
     }
 
-    if($self->field('server_name')->value() eq "%h") {
+    if(($self->field('server_name')->value() // '') eq "%h") {
         my $hostname = [split(/\./,hostname())]->[0];
         if(length($hostname) > $self->field('server_name')->maxlength) {
             $self->field("server_name")->add_error("You have selected %h as the server name but this server hostname ($hostname) is longer than 14 characters. Please change the value or modify the hostname of your server to a name of 14 characters or less.");
@@ -281,7 +357,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

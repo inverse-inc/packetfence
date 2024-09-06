@@ -104,6 +104,7 @@ sub standardSchema {
             }
         ]
     );
+
     is_deeply(
         \%schemas,
         {
@@ -261,36 +262,13 @@ sub standardSchema {
     is_deeply(
         $schemas,
         {
-            '/components/schemas/ConfigFloatingDevice' => {
-                'required'   => [ 'id', 'pvid' ],
+            '/components/schemas/ConfigFloatingDeviceWrapped' => {
                 'properties' => {
-                    'pvid' => {
-                        'default'     => undef,
-                        'type'        => 'integer',
-                        'description' =>
-                          'VLAN in which PacketFence should put the port'
+                    'status' => {
+                        'type' => 'integer'
                     },
-                    'taggedVlan' => {
-                        'type'        => 'string',
-                        'default'     => undef,
-                        'description' =>
-'Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.'
-                    },
-                    'id' => {
-                        'description' => 'MAC Address',
-                        'default'     => undef,
-                        'type'        => 'string'
-                    },
-                    'ip' => {
-                        'description' => 'IP Address',
-                        'default'     => undef,
-                        'type'        => 'string'
-                    },
-                    'trunkPort' => {
-                        'description' =>
-                          'The port must be configured as a muti-vlan port',
-                        'default' => undef,
-                        'type'    => 'string'
+                    'item' => {
+                        '$ref' => '#/components/schemas/ConfigFloatingDevice'
                     }
                 },
                 'type' => 'object'
@@ -314,8 +292,7 @@ sub standardSchema {
                     }
                 ]
             },
-            '/components/schemas/ConfigFloatingDevicesMeta' => {
-                'type'       => 'object',
+            '/components/schemas/ConfigFloatingDeviceMeta' => {
                 'properties' => {
                     'meta' => {
                         'type'       => 'object',
@@ -323,32 +300,51 @@ sub standardSchema {
                             'ip' => {
                                 '$ref' => '#/components/schemas/Meta'
                             },
-                            'taggedVlan' => {
+                            'pvid' => {
                                 '$ref' => '#/components/schemas/Meta'
                             },
                             'id' => {
                                 '$ref' => '#/components/schemas/Meta'
                             },
-                            'pvid' => {
+                            'trunkPort' => {
                                 '$ref' => '#/components/schemas/Meta'
                             },
-                            'trunkPort' => {
+                            'taggedVlan' => {
                                 '$ref' => '#/components/schemas/Meta'
                             }
                         }
                     }
-                }
+                },
+                'type' => 'object'
             },
-            '/components/schemas/ConfigFloatingDeviceWrapped' => {
+            '/components/schemas/ConfigFloatingDevice' => {
                 'type'       => 'object',
                 'properties' => {
-                    'item' => {
-                        '$ref' => '#/components/schemas/ConfigFloatingDevice'
+                    'pvid' => {
+                        'type'        => 'integer',
+                        'description' =>
+                          'VLAN in which PacketFence should put the port'
                     },
-                    'status' => {
-                        'type' => 'integer'
+                    'id' => {
+                        'description' => 'MAC Address',
+                        'type'        => 'string'
+                    },
+                    'trunkPort' => {
+                        'type'        => 'string',
+                        'description' =>
+                          'The port must be configured as a muti-vlan port'
+                    },
+                    'ip' => {
+                        'type'        => 'string',
+                        'description' => 'IP Address'
+                    },
+                    'taggedVlan' => {
+                        'description' =>
+'Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.',
+                        'type' => 'string'
                     }
-                }
+                },
+                'required' => [ 'id', 'pvid' ]
             }
         },
         "Schemas For Config::FloatingDevices"
@@ -495,7 +491,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -25,7 +25,7 @@
         :to="{ name: 'switchTemplate', params: { id: switchTemplateId } }"
       >{{ $i18n.t('View Switch Template') }}</b-button>
 
-      <template v-slot:prepend v-if="inputPlaceholder && isEmpty">
+      <template v-slot:prepend v-if="isDefault && isEmpty">
         <b-button
           class="input-group-text"
           :disabled="true"
@@ -33,7 +33,7 @@
           v-b-tooltip.hover.left.d300 :title="$t('A default value is provided if this field is not defined.')"
         >
           <icon ref="icon-default"
-            name="sort-size-down" scale="0.75"
+            name="stamp" scale="0.75"
           />
         </b-button>
       </template>
@@ -81,13 +81,15 @@ const setup = (props, context) => {
   const metaProps = useInputMeta(props, context)
 
   const {
+    isDefault,
     isLocked,
     placeholder
   } = useInput(metaProps, context)
 
   const {
     value,
-    text
+    text,
+    isEmpty
   } = useInputValue(metaProps, context)
 
   const meta = inject('meta', ref({}))
@@ -111,12 +113,11 @@ const setup = (props, context) => {
     return undefined
   })
 
-  const isEmpty = computed(() => [null, undefined].includes(value.value))
-
   return {
     inputPlaceholder: placeholder,
     inputText: text,
     switchTemplateId,
+    isDefault,
     isEmpty,
     isLocked
   }

@@ -1,7 +1,0 @@
-ConfigSwitchGroupWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigSwitchGroup'
-    status:
-      type: integer
-  type: object

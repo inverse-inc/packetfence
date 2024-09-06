@@ -9,6 +9,8 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 =cut
 
 use HTML::FormHandler::Moose;
+use pfconfig::cached_hash;
+tie our %Rules, 'pfconfig::cached_hash', 'resource::provisioning_rules';
 extends 'pfappserver::Base::Form';
 with qw (
     pfappserver::Base::Form::Role::Help
@@ -123,6 +125,18 @@ has_field 'oses' =>
    fingerbank_model => "fingerbank::Model::Device",
   );
 
+has_field 'rules' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Roles',
+   options_method => \&options_rules,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a rule'},
+   tags => { after_element => \&help,
+             help => 'Rules to be applied' },
+  );
+
 has_field 'non_compliance_security_event' =>
   (
    type => 'Select',
@@ -170,13 +184,25 @@ sub options_pki_provider {
     return { value => '', label => '' }, map { { value => $_, label => $_ } } sort keys %ConfigPKI_Provider;
 }
 
+=head2 options_rules
+
+=cut
+
+sub options_rules {
+    my $self = shift;
+    my $type = ref($self) || $self;
+    $type =~ s/^pfappserver::Form::Config::Provisioning:://;
+    return map { {value => $_, label => $_} } @{$Rules{$self->type_alias($type)} // []};
+}
+
 =head2 options_roles
 
 =cut
 
 sub options_roles {
     my $self = shift;
-    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
+    my @roles;
+    @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
     return @roles;
 }
 
@@ -187,9 +213,14 @@ sub options_security_events {
     ];
 }
 
+sub type_alias {
+    my ($self, $value) = @_;
+    return $value;
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

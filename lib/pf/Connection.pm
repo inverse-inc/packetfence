@@ -11,6 +11,8 @@ use pf::config qw(
     $WIRED_802_1X
     $VIRTUAL_CLI
     $VIRTUAL_VPN
+    $WEBAUTH_WIRELESS
+    $WEBAUTH_WIRED
 );
 use pf::log;
 
@@ -20,6 +22,7 @@ has 'transport'         => (is => 'rw', isa => 'Str');                  # Wired 
 has 'isEAP'             => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoEAP / 1: EAP
 has 'isSNMP'            => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoSNMP | 1: SNMP
 has 'isMacAuth'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoMacAuth | 1: MacAuth
+has 'isWebAuth'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoWebAuth | 1: WebAuth
 has 'is8021X'           => (is => 'rw', isa => 'Bool', default => 0);   # 0: No8021X | 1: 8021X
 has 'isVPN'             => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoVPN | 1: VPN
 has 'isCLI'             => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoCLI | 1: CLI
@@ -70,6 +73,9 @@ sub _attributesToString {
     # Handling ACLDownload
     $type .= ( $self->isACLDownload ) ? "-ACLDownload" : "";
 
+    # Handling Web-Auth
+    $type .= ( $self->isWebAuth ) ? "-Web-Auth" : "";
+
     $self->type($type);
 }
 
@@ -113,6 +119,9 @@ sub _stringToAttributes {
 
     # We check if ACLDownload
     ( lc($type) =~ /^acldownload/ ) ? $self->isACLDownload($TRUE) : $self->isServiceTemplate($FALSE);
+
+    # We check if WebAuth
+    ( lc($type) =~ /^web-auth/ ) ? $self->isWebAuth($TRUE) : $self->isWebAuth($FALSE);
 
 }
 
@@ -169,6 +178,9 @@ sub backwardCompatibleToAttributes {
     if ( lc($type) =~ /acldownload$/ ) {
         $self->isACLDownload($TRUE);
     }
+    if ( lc($type) =~ /webauth$/ ) {
+        $self->isWebAuth($TRUE);
+    }
 }
 
 =head2 attributesToBackwardCompatible
@@ -197,6 +209,12 @@ sub attributesToBackwardCompatible {
 
     # Virtual CLI
     return $VIRTUAL_CLI if ( (lc($self->transport) eq "virtual") && ($self->isCLI) );
+
+    # Wireless WebAuth
+    return $WEBAUTH_WIRELESS if ( (lc($self->transport) eq "wireless") && ($self->isWebAuth) );
+
+    # Wired WebAuth
+    return $WEBAUTH_WIRED if ( (lc($self->transport) eq "wired") && ($self->isWebAuth) );
 
     # Default
     return;
@@ -273,7 +291,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

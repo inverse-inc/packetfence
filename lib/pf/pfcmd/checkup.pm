@@ -470,7 +470,7 @@ If some interfaces are configured to run in inline enforcement then these tests 
 
 sub inline {
 
-    my $result = pf_run("cat /proc/sys/net/ipv4/ip_forward");
+    my $result = safe_pf_run(qw(cat /proc/sys/net/ipv4/ip_forward));
     if ($result ne "1\n") {
         add_problem( $WARN,
             "inline mode needs ip_forward enabled to work properly. " .
@@ -707,13 +707,13 @@ sub apache {
     }
 
     # Apache PerlPostConfigRequire scripts *must* compile otherwise apache startup silently fails
-    my $captive_portal = pf_run("perl -c $lib_dir/pf/web/captiveportal_modperl_require.pl 2>&1");
+    my $captive_portal = safe_pf_run('perl', '-c', "$lib_dir/pf/web/captiveportal_modperl_require.pl", {redirect_stderr_to_stdout => 1});
     if (!defined($captive_portal) || $captive_portal !~ /syntax OK$/) {
         add_problem(
             $FATAL, "Apache will fail to start! $lib_dir/pf/web/captiveportal_modperl_require.pl doesn't compile"
         );
     }
-    my $back_end = pf_run("perl -c $lib_dir/pf/web/backend_modperl_require.pl 2>&1");
+    my $back_end = safe_pf_run('perl', '-c', "$lib_dir/pf/web/backend_modperl_require.pl", {redirect_stderr_to_stdout => 1});
     if (!defined($back_end) || $back_end !~ /syntax OK$/) {
         add_problem(
             $FATAL, "Apache will fail to start! $lib_dir/pf/web/backend_modperl_require.pl doesn't compile"
@@ -816,7 +816,7 @@ sub switches {
             }
         }
         # check for valid switch ID
-        unless ( $is_group || valid_mac_or_ip($section) || valid_ip_range($section) ) {
+        unless ( $is_group || valid_mac_or_ip($section) || valid_ip_range($section) ||  valid_ip_fqdn($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
         }
         next if $is_group;
@@ -1305,7 +1305,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

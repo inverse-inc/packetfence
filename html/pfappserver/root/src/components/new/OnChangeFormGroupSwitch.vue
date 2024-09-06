@@ -60,6 +60,10 @@ export const props = {
     default: false,
     type: Boolean
   },
+  text: {
+    type: String
+  },
+
   ...useFormGroupProps,
 }
 

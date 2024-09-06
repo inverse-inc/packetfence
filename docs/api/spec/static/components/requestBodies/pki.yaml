@@ -20,7 +20,6 @@ PkiCasSearch:
         type: object
         properties:
           cursor:
-            required: false
             type: integer
           sort:
             $ref: '#/components/schemas/PkiCasSort'
@@ -47,7 +46,6 @@ PkiProfilesSearch:
         type: object
         properties:
           cursor:
-            required: false
             type: integer
           sort:
             $ref: '#/components/schemas/PkiProfilesSort'
@@ -65,9 +63,10 @@ PkiProfileSignCsr:
     application/json:
       schema:
         type: object
+        required:
+          - csr
         properties:
           csr:
-           required: true
            type: string
 
 PkiCert:
@@ -85,7 +84,6 @@ PkiCertsSearch:
         type: object
         properties:
           cursor:
-            required: false
             type: integer
           sort:
             $ref: '#/components/schemas/PkiCertsSort'
@@ -105,7 +103,6 @@ PkiRevokedCertsSearch:
         type: object
         properties:
           cursor:
-            required: false
             type: integer
           sort:
             $ref: '#/components/schemas/PkiRevokedCertsSort'
@@ -132,7 +129,6 @@ PkiScepServersSearch:
         type: object
         properties:
           cursor:
-            required: false
             type: integer
           sort:
             $ref: '#/components/schemas/PkiScepServersSort'

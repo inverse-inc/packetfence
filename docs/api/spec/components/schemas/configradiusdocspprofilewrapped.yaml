@@ -1,7 +1,0 @@
-ConfigRadiusdOCSPProfileWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigRadiusdOCSPProfile'
-    status:
-      type: integer
-  type: object

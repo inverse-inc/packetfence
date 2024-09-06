@@ -4,7 +4,7 @@ WARNING: We cheat and do no bother to free memory allocated to strings here.
 The process is meant to be very short lived and never reused. */
 
 /*  
-  Copyright (C) 2005-2023 Inverse inc.
+  Copyright (C) 2005-2024 Inverse inc.
   
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License
@@ -358,6 +358,8 @@ char **argv, **envp;
             cJSON_AddStringToObject(json, "challenge", argv[i] + strlen("--challenge="));
         } else if (strncmp(argv[i], "--nt-response=", strlen("--nt-response=")) == 0) {
             cJSON_AddStringToObject(json, "nt-response", argv[i] + strlen("--nt-response="));
+        } else if (strncmp(argv[i], "--mac=", strlen("--mac=")) == 0) {
+            cJSON_AddStringToObject(json, "mac", argv[i] + strlen("--mac="));
         }
     }
 
@@ -418,4 +420,8 @@ char **argv, **envp;
     // open socket to StatsD server and send message
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
+
+    if (status != 0) {
+        exit(1);
+    }
 }

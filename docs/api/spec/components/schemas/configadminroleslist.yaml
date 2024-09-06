@@ -1,9 +1,0 @@
-ConfigAdminRolesList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigAdminRole'
-        type: array
-    type: object

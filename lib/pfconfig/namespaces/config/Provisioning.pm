@@ -63,7 +63,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(category oses) );
+    $self->expand_list( $data, qw(category oses rules) );
     if ($data->{type} eq 'google_workspace_chromebook') {
         for my $k (qw(service_account)) {
             if (exists $data->{$k}) {
@@ -79,7 +79,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -42,6 +42,8 @@ conf/radiusd/tls.conf
 conf/radiusd/radiusd_cli.conf
 conf/radiusd/cert
 conf/pfcron.conf
+conf/provisioning_filters.conf
+conf/provisioning_filters_meta.conf
 conf/certmanager
 conf/mfa.conf
 conf/proxysql.conf
@@ -61,6 +63,7 @@ sbin/pfdns
 sbin/pfstats
 sbin/pfacct
 sbin/pfcron
+sbin/pfqueue-go
 sbin/galera-autofix
 sbin/mysql-probe
 sbin/pfconnector
@@ -134,9 +137,7 @@ conf/radiusd/packetfence-pre-proxy
 conf/radiusd/packetfence-tunnel
 conf/radiusd/proxy.conf.inc
 conf/radiusd/proxy.conf.loadbalancer
-conf/radiusd/proxy.conf.loadbalancer
 conf/radiusd/radiusd.conf
-conf/radiusd/radiusd_loadbalancer.conf
 conf/radiusd/radiusd_loadbalancer.conf
 conf/radiusd/rest.conf
 conf/radiusd/sql.conf
@@ -145,7 +146,6 @@ conf/redis_queue.conf
 conf/redis_ntlm_cache.conf
 conf/realm.conf
 conf/survey.conf
-conf/traffic_shaping.conf
 conf/domain.conf
 conf/radius_filters.conf
 conf/switch_filters.conf
@@ -190,14 +190,12 @@ conf/pfarp_remote.conf
 conf/pfconfig.conf
 conf/allowed-gaming-oui.txt
 conf/cluster.conf
-conf/domain.conf
 conf/network_behavior_policies.conf
 conf/haproxy-portal.conf
 conf/haproxy-db.conf
 conf/haproxy-admin.conf
 conf/keepalived.conf
 conf/report.conf
-conf/device_registration.conf
 conf/cloud.conf
 conf/httpd.conf.d/captive-portal-common.tt
 conf/httpd.conf.d/httpd.aaa.tt
@@ -257,6 +255,8 @@ docs/docbook/xsl/titlepage-fo.xsl
 docs/docbook/*.docbook
 docs/*.html
 docs/index.js
+docs/api/spec/components/
+docs/api/spec/paths/
 
 # trap stats graphs
 # TODO we should move them under var/

@@ -144,16 +144,16 @@ sub execute_child {
     }
     elsif ($self->is_dpsk) {
         $self->show_provisioning({psk => $provisioner->generate_dpsk($self->username), ssid => $provisioner->ssid});
-    }
-    elsif ($provisioner->authorize_enforce($mac) == 0) {
-        $self->app->flash->{notice} = [ "According to the provisioner %s, your device is not allowed to access the network. Please follow the instruction below.", $provisioner->description ];
-        $self->show_provisioning();
-    }
-    elsif ($provisioner->authorize_enforce($mac) == $TRUE || $provisioner->authorize_enforce($mac) == $pf::provisioner::COMMUNICATION_FAILED) {
-        $self->done();
-    }
-    else {
-        $self->show_provisioning();
+    } else {
+        my $result = $provisioner->authorize_enforce($mac);
+        if ($result == 0) {
+            $self->app->flash->{notice} = [ "According to the provisioner %s, your device is not allowed to access the network. Please follow the instruction below.", $provisioner->description ];
+            $self->show_provisioning();
+        } elsif ($result == $TRUE || $result == $pf::provisioner::COMMUNICATION_FAILED) {
+            $self->done();
+        } else {
+            $self->show_provisioning();
+        }
     }
 }
 
@@ -163,7 +163,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

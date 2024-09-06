@@ -44,14 +44,14 @@
       />
       <template v-slot:prepend v-if="$slots.prepend || inputPlaceholder">
         <slot name="prepend"></slot>
-        <b-button v-if="inputPlaceholder && !inputValue"
+        <b-button v-if="isDefault && isEmpty"
           class="input-group-text"
           :disabled="true"
           tabIndex="-1"
           v-b-tooltip.hover.left.d300 :title="$t('A default value is provided if this field is not defined.')"
         >
           <icon ref="icon-default"
-            name="sort-size-down" scale="0.75"
+            name="stamp" scale="0.75"
           />
         </b-button>
       </template>
@@ -105,6 +105,7 @@ export const setup = (props, context) => {
     tabIndex,
     text,
     type,
+    isDefault,
     isFocus,
     isLocked,
     onFocus,
@@ -115,7 +116,8 @@ export const setup = (props, context) => {
   const {
     value,
     onInput,
-    onChange
+    onChange,
+    isEmpty
   } = useInputValue(metaProps, context)
 
   const {
@@ -132,6 +134,7 @@ export const setup = (props, context) => {
     inputTabIndex: tabIndex,
     inputText: text,
     inputType: type,
+    isDefault,
     isFocus,
     isLocked,
     onFocus,
@@ -140,6 +143,7 @@ export const setup = (props, context) => {
 
     // useInputValue
     inputValue: value,
+    isEmpty,
     onInput,
     onChange,
 

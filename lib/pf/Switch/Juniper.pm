@@ -235,9 +235,9 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     $logger->info("Bouncing $switch_ip:$ifIndex. A new VLAN will be assigned upon reconnection.");
     # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
     # http://www.cpanforum.com/threads/6909
-    pf_run("/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $switch_ip -ifIndex $ifIndex -ifAdminStatus 0");
+    safe_pf_run(qw(/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch), $switch_ip, '-ifIndex', $ifIndex, '-ifAdminStatus', 0);
     sleep(2);
-    pf_run("/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $switch_ip -ifIndex $ifIndex -ifAdminStatus 1");
+    safe_pf_run(qw(/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch), $switch_ip, '-ifIndex', $ifIndex, '-ifAdminStatus', 1);
 
 }
 
@@ -261,7 +261,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

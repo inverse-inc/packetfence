@@ -1,4 +1,5 @@
-FROM golang:bullseye
+
+FROM golang:1.22.5-bookworm
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     SEMAPHORE_CONFIG_PATH="${SEMAPHORE_CONFIG_PATH:-/etc/semaphore}" \
@@ -7,11 +8,13 @@ ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
 # hadolint ignore=DL3013
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 
-RUN apt update && apt install -y gcc g++ make git mariadb-client-10.5 python3 pip python3-openssl openssl ca-certificates curl libcurl4-openssl-dev openssh-client tini nodejs bash rsync && \
+RUN apt update && apt install -y gcc g++ make git mariadb-client python3 pip python3-openssl openssl ca-certificates curl libcurl4-openssl-dev openssh-client tini nodejs bash rsync && \
     apt install -y python3-dev libffi-dev python3-paramiko &&\
     rm -rf /var/cache/apt/*
 
-RUN pip3 install --upgrade pip cffi &&\
+RUN VER=`python3 -c 'import sys; val=sys.version_info;print(str(val.major)+"."+str(val.minor))'` ; \
+    rm -rf /usr/lib/python$VER/EXTERNALLY-MANAGED && \
+    pip3 install --upgrade pip cffi &&\
     pip3 install ansible && pip3 install ansible-pylibssh
 
 RUN adduser --disabled-password -u 1002 --gecos 0 semaphore && \
@@ -27,6 +30,7 @@ RUN adduser --disabled-password -u 1002 --gecos 0 semaphore && \
     ssh-keyscan -H github.com > /root/.ssh/known_hosts
 
 RUN cd $(go env GOPATH) && curl -sL https://taskfile.dev/install.sh | sh -s -- "v3.33.0"
+
 
 RUN npm install -g npm@9.6.7
 

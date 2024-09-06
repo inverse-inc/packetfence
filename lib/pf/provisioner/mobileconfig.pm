@@ -294,6 +294,7 @@ sub authorize {
     unless($info->{pid} eq $default_pid) {
         $self->for_username($info->{pid});
     }
+    $self->handleAuthorizeEnforce($mac, {node_info => $info});
     return $FALSE;
 }
 
@@ -346,7 +347,7 @@ sub generate_dpsk {
         person_modify($username,psk => $password->{password});
         return $password->{password};
     }
-    elsif (defined $person->{psk} && $person->{psk} ne '') {
+    elsif (ref($person) eq 'HASH' && defined $person->{psk} && $person->{psk} ne '') {
         get_logger->debug("Returning psk key $person->{psk} for user $username");
         return $person->{psk};
     }
@@ -372,7 +373,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

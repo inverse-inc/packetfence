@@ -12,10 +12,10 @@ index 64f5e73f3d..90319cfc09 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 5492ed51f1..d2237bc88e 100644
+index f3173abcf2..b625c35bc6 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -443,7 +443,7 @@ radiusd=enabled
+@@ -479,7 +479,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -24,7 +24,7 @@ index 5492ed51f1..d2237bc88e 100644
  #
  # services.radiusd_acct
  #
-@@ -518,7 +518,7 @@ httpd_proxy=enabled
+@@ -544,7 +544,7 @@ httpd_aaa=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -33,7 +33,7 @@ index 5492ed51f1..d2237bc88e 100644
  #
  # services.snmptrapd
  #
-@@ -616,7 +616,7 @@ openssl_binary=/usr/bin/openssl
+@@ -643,7 +643,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -42,19 +42,141 @@ index 5492ed51f1..d2237bc88e 100644
  #
  # services.netdata
  #
+diff --git a/conf/systemd/packetfence-api-frontend.service b/conf/systemd/packetfence-api-frontend.service
+index 11ab53139c..c42bb668fd 100644
+--- a/conf/systemd/packetfence-api-frontend.service
++++ b/conf/systemd/packetfence-api-frontend.service
+@@ -13,7 +13,7 @@ Type=notify
+ TimeoutStopSec=60
+ NotifyAccess=all
+ LimitNOFILE=infinity
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::api_frontend' -e 'pf::services::manager::api_frontend->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::api_frontend' -e 'pf::services::manager::api_frontend->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/api-frontend-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop api-frontend ; echo Stopped"
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-haproxy-admin.service b/conf/systemd/packetfence-haproxy-admin.service
+index 373ddf89be..b7fb8e702e 100644
+--- a/conf/systemd/packetfence-haproxy-admin.service
++++ b/conf/systemd/packetfence-haproxy-admin.service
+@@ -12,7 +12,7 @@ Type=notify
+ NotifyAccess=all
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_admin' -e 'pf::services::manager::haproxy_admin->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_admin' -e 'pf::services::manager::haproxy_admin->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/haproxy-admin-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop haproxy-admin ; echo Stopped"
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
-index 8045a372d3..7437d09bae 100644
+index 8045a372d3..f23aef34ac 100644
 --- a/conf/systemd/packetfence-haproxy-db.service
 +++ b/conf/systemd/packetfence-haproxy-db.service
-@@ -8,7 +8,7 @@ Wants=packetfence-config.service
+@@ -8,9 +8,9 @@ Wants=packetfence-config.service
  Type=notify
  StartLimitBurst=3
  StartLimitInterval=10
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
  ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-db.conf -p /usr/local/pf/var/run/haproxy-db.pid
- ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
+-ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
++ExecReload=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
  ExecReload=/bin/kill -USR2 $MAINPID
+ Restart=on-failure
+ SuccessExitStatus=143
+diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
+index b6f1a195e5..61041666ad 100644
+--- a/conf/systemd/packetfence-haproxy-portal.service
++++ b/conf/systemd/packetfence-haproxy-portal.service
+@@ -11,7 +11,7 @@ Type=notify
+ NotifyAccess=all
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/haproxy-portal-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop haproxy-portal ; echo Stopped"
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
+index a4fda39ccc..fa3148a982 100644
+--- a/conf/systemd/packetfence-httpd.aaa.service
++++ b/conf/systemd/packetfence-httpd.aaa.service
+@@ -15,7 +15,7 @@ Type=notify
+ NotifyAccess=all
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/httpd.aaa-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop httpd.aaa ; echo Stopped"
+ TimeoutStopSec=30
+diff --git a/conf/systemd/packetfence-httpd.admin_dispatcher.service b/conf/systemd/packetfence-httpd.admin_dispatcher.service
+index c2d7ae7cc2..a108cdeffc 100644
+--- a/conf/systemd/packetfence-httpd.admin_dispatcher.service
++++ b/conf/systemd/packetfence-httpd.admin_dispatcher.service
+@@ -14,7 +14,7 @@ TimeoutStartSec=180
+ TimeoutStopSec=60
+ NotifyAccess=all
+ LimitNOFILE=8192
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_admin_dispatcher' -e 'pf::services::manager::httpd_admin_dispatcher->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_admin_dispatcher' -e 'pf::services::manager::httpd_admin_dispatcher->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/httpd.admin_dispatcher-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop httpd.admin_dispatcher ; echo Stopped"
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-httpd.dispatcher.service b/conf/systemd/packetfence-httpd.dispatcher.service
+index f5995d7a7a..85c10c95d8 100644
+--- a/conf/systemd/packetfence-httpd.dispatcher.service
++++ b/conf/systemd/packetfence-httpd.dispatcher.service
+@@ -13,7 +13,7 @@ Type=notify
+ TimeoutStopSec=60
+ NotifyAccess=all
+ LimitNOFILE=8192
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_dispatcher' -e 'pf::services::manager::httpd_dispatcher->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_dispatcher' -e 'pf::services::manager::httpd_dispatcher->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/httpd.dispatcher-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop httpd.dispatcher ; echo Stopped"
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
+index 732e7c82c9..2d031021cc 100644
+--- a/conf/systemd/packetfence-httpd.portal.service
++++ b/conf/systemd/packetfence-httpd.portal.service
+@@ -12,7 +12,7 @@ Type=notify
+ NotifyAccess=all
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/httpd.portal-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop httpd.portal ; echo Stopped"
+ TimeoutStopSec=60
+diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
+index 0692f87f8f..dddbf66b54 100644
+--- a/conf/systemd/packetfence-httpd.webservices.service
++++ b/conf/systemd/packetfence-httpd.webservices.service
+@@ -14,7 +14,7 @@ Type=notify
+ NotifyAccess=all
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/httpd.webservices-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop httpd.webservices ; echo Stopped"
+ TimeoutStartSec=300
+diff --git a/conf/systemd/packetfence-ip6tables.service b/conf/systemd/packetfence-ip6tables.service
+index 22c4a14db3..7dc96ff370 100644
+--- a/conf/systemd/packetfence-ip6tables.service
++++ b/conf/systemd/packetfence-ip6tables.service
+@@ -7,8 +7,8 @@ After=packetfence-base.target packetfence-config.service
+ [Service]
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStart=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::ip6tables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::ip6tables->new()->startAndCheck()'
+-ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ip6tables' -e 'pf::services::manager::ip6tables->new()->_stop()'
++ExecStart=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::ip6tables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::ip6tables->new()->startAndCheck()'
++ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ip6tables' -e 'pf::services::manager::ip6tables->new()->_stop()'
+ Slice=packetfence.slice
+ 
+ [Install]
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
 index a3ac735600..be76136201 100644
 --- a/conf/systemd/packetfence-iptables.service
@@ -70,6 +192,19 @@ index a3ac735600..be76136201 100644
  Slice=packetfence.slice
  
  [Install]
+diff --git a/conf/systemd/packetfence-kafka.service b/conf/systemd/packetfence-kafka.service
+index 07741f392b..0457137d92 100644
+--- a/conf/systemd/packetfence-kafka.service
++++ b/conf/systemd/packetfence-kafka.service
+@@ -11,7 +11,7 @@ StartLimitBurst=3
+ StartLimitInterval=10
+ Type=simple
+ TimeoutStopSec=60
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::kafka' -e 'pf::services::manager::kafka->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::kafka' -e 'pf::services::manager::kafka->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/kafka-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop kafka ; echo Stopped"
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-keepalived.service b/conf/systemd/packetfence-keepalived.service
 index 98a2a340d3..9605ef030a 100644
 --- a/conf/systemd/packetfence-keepalived.service
@@ -96,6 +231,71 @@ index eea70993c2..3876e340cb 100644
  PermissionsStartOnly=true
  
  TimeoutSec=60
+diff --git a/conf/systemd/packetfence-ntlm-auth-api.service b/conf/systemd/packetfence-ntlm-auth-api.service
+index bf33a84a51..8a97755d92 100644
+--- a/conf/systemd/packetfence-ntlm-auth-api.service
++++ b/conf/systemd/packetfence-ntlm-auth-api.service
+@@ -11,7 +11,7 @@ Type=forking
+ TimeoutStopSec=60
+ NotifyAccess=all
+ LimitNOFILE=8192
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ntlm_auth_api' -e 'pf::services::manager::ntlm_auth_api->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ntlm_auth_api' -e 'pf::services::manager::ntlm_auth_api->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/ntlm-auth-api-docker-wrapper start
+ ExecStop=/usr/local/pf/sbin/ntlm-auth-api-docker-wrapper stop
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-pfacct.service b/conf/systemd/packetfence-pfacct.service
+index 82e7780190..82ef1f66d4 100644
+--- a/conf/systemd/packetfence-pfacct.service
++++ b/conf/systemd/packetfence-pfacct.service
+@@ -9,7 +9,7 @@ Before=packetfence-httpd.portal.service
+ Type=notify
+ TimeoutStopSec=60
+ NotifyAccess=all
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfacct' -e 'pf::services::manager::pfacct->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfacct' -e 'pf::services::manager::pfacct->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfacct-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop pfacct ; echo Stopped"
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-pfconnector-client.service b/conf/systemd/packetfence-pfconnector-client.service
+index 1e39f879a6..44c1e77f21 100644
+--- a/conf/systemd/packetfence-pfconnector-client.service
++++ b/conf/systemd/packetfence-pfconnector-client.service
+@@ -9,7 +9,7 @@ PartOf=packetfence-docker-iptables.service
+ 
+ [Service]
+ LimitNOFILE=infinity
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_client' -e 'pf::services::manager::pfconnector_client->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_client' -e 'pf::services::manager::pfconnector_client->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfconnector-client-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop pfconnector-client ; echo Stopped"
+ Restart=always
+diff --git a/conf/systemd/packetfence-pfconnector-server.service b/conf/systemd/packetfence-pfconnector-server.service
+index 4485768dce..b93c15dcf2 100644
+--- a/conf/systemd/packetfence-pfconnector-server.service
++++ b/conf/systemd/packetfence-pfconnector-server.service
+@@ -9,7 +9,7 @@ PartOf=packetfence-docker-iptables.service
+ 
+ [Service]
+ LimitNOFILE=infinity
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_server' -e 'pf::services::manager::pfconnector_server->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_server' -e 'pf::services::manager::pfconnector_server->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfconnector-server-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop pfconnector-server ; echo Stopped"
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-pfcron.service b/conf/systemd/packetfence-pfcron.service
+index fc123777b2..8377843fbb 100644
+--- a/conf/systemd/packetfence-pfcron.service
++++ b/conf/systemd/packetfence-pfcron.service
+@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service
+ [Service]
+ Type=notify
+ NotifyAccess=all
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfcron' -e 'pf::services::manager::pfcron->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfcron' -e 'pf::services::manager::pfcron->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfcron-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop pfcron ; echo Stopped"
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfdns.service b/conf/systemd/packetfence-pfdns.service
 index 69b288b4c4..8e9543e5aa 100644
 --- a/conf/systemd/packetfence-pfdns.service
@@ -109,8 +309,125 @@ index 69b288b4c4..8e9543e5aa 100644
  ExecStart=/usr/local/pf/sbin/pfdns -conf=/usr/local/pf/var/conf/pfdns.conf
  Restart=on-failure
  Slice=packetfence.slice
+diff --git a/conf/systemd/packetfence-pfipset.service b/conf/systemd/packetfence-pfipset.service
+index bd9e8060fb..3e76aabf68 100644
+--- a/conf/systemd/packetfence-pfipset.service
++++ b/conf/systemd/packetfence-pfipset.service
+@@ -10,7 +10,7 @@ StartLimitBurst=3
+ StartLimitInterval=60
+ Type=notify
+ Environment=LOG_LEVEL=INFO
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfipset' -e 'pf::services::manager::pfipset->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfipset' -e 'pf::services::manager::pfipset->new()->generateConfig()'
+ ExecStart=/bin/bash -c "export $(cat /usr/local/pf/var/conf/pfipset.env | xargs) && /usr/local/pf/sbin/pfhttpd run --adapter caddyfile -c /usr/local/pf/conf/caddy-services/pfipset.conf"
+ Restart=on-failure
+ Slice=packetfence.slice
+diff --git a/conf/systemd/packetfence-pfldapexplorer.service b/conf/systemd/packetfence-pfldapexplorer.service
+index 6d8ba20106..b665aa773e 100644
+--- a/conf/systemd/packetfence-pfldapexplorer.service
++++ b/conf/systemd/packetfence-pfldapexplorer.service
+@@ -13,7 +13,7 @@ Type=notify
+ TimeoutStopSec=60
+ NotifyAccess=all
+ LimitNOFILE=8192
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfldapexplorer' -e 'pf::services::manager::pfldapexplorer->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfldapexplorer' -e 'pf::services::manager::pfldapexplorer->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfldapexplorer-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop pfldapexplorer; echo Stopped"
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-pfpki.service b/conf/systemd/packetfence-pfpki.service
+index 48d4cad49b..d75c071755 100644
+--- a/conf/systemd/packetfence-pfpki.service
++++ b/conf/systemd/packetfence-pfpki.service
+@@ -11,7 +11,7 @@ PartOf=packetfence-docker-iptables.service
+ Type=notify
+ TimeoutStopSec=60
+ NotifyAccess=all
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfpki' -e 'pf::services::manager::pfpki->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfpki' -e 'pf::services::manager::pfpki->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfpki-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop pfpki ; echo Stopped"
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-pfqueue-backend.service b/conf/systemd/packetfence-pfqueue-backend.service
+index 189b33112c..66d677b57b 100644
+--- a/conf/systemd/packetfence-pfqueue-backend.service
++++ b/conf/systemd/packetfence-pfqueue-backend.service
+@@ -15,7 +15,7 @@ TimeoutStopSec=60
+ NotifyAccess=all
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue_backend' -e 'pf::services::manager::pfqueue_backend->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue_backend' -e 'pf::services::manager::pfqueue_backend->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfqueue-backend
+ TimeoutStopSec=30
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-pfqueue-go.service b/conf/systemd/packetfence-pfqueue-go.service
+index 302161716d..92f6e99361 100644
+--- a/conf/systemd/packetfence-pfqueue-go.service
++++ b/conf/systemd/packetfence-pfqueue-go.service
+@@ -17,7 +17,7 @@ TimeoutStopSec=60
+ NotifyAccess=all
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue_go' -e 'pf::services::manager::pfqueue_go->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue_go' -e 'pf::services::manager::pfqueue_go->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfqueue-go
+ TimeoutStopSec=30
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-pfqueue-perl.service b/conf/systemd/packetfence-pfqueue-perl.service
+index 0aa46eabc2..2146b68b0f 100644
+--- a/conf/systemd/packetfence-pfqueue-perl.service
++++ b/conf/systemd/packetfence-pfqueue-perl.service
+@@ -15,7 +15,7 @@ TimeoutStopSec=60
+ NotifyAccess=all
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue_perl' -e 'pf::services::manager::pfqueue_perl->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue_perl' -e 'pf::services::manager::pfqueue_perl->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfqueue
+ TimeoutStopSec=30
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-pfsetacls.service b/conf/systemd/packetfence-pfsetacls.service
+index 0a8082d128..3d623403a8 100644
+--- a/conf/systemd/packetfence-pfsetacls.service
++++ b/conf/systemd/packetfence-pfsetacls.service
+@@ -12,7 +12,7 @@ StartLimitBurst=3
+ StartLimitInterval=10
+ Type=simple
+ TimeoutStopSec=60
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfsetacls' -e 'pf::services::manager::pfsetacls->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfsetacls' -e 'pf::services::manager::pfsetacls->new()->generateConfig()'
+ ExecStartPre=mkdir -p /usr/local/pf/var/conf/pfsetacls
+ ExecStartPre=chown -R :1002 /usr/local/pf/var/conf/pfsetacls
+ ExecStartPre=chmod 775 /usr/local/pf/var/conf/pfsetacls
+diff --git a/conf/systemd/packetfence-pfsso.service b/conf/systemd/packetfence-pfsso.service
+index 043897fe54..0ec81f4380 100644
+--- a/conf/systemd/packetfence-pfsso.service
++++ b/conf/systemd/packetfence-pfsso.service
+@@ -13,7 +13,7 @@ Type=notify
+ TimeoutStopSec=60
+ NotifyAccess=all
+ LimitNOFILE=8192
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfsso' -e 'pf::services::manager::pfsso->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfsso' -e 'pf::services::manager::pfsso->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfsso-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop pfsso ; echo Stopped"
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-proxysql.service b/conf/systemd/packetfence-proxysql.service
+index 672fbee0ef..c863beed54 100644
+--- a/conf/systemd/packetfence-proxysql.service
++++ b/conf/systemd/packetfence-proxysql.service
+@@ -12,7 +12,7 @@ Type=notify
+ NotifyAccess=all
+ ExecStartPre=/usr/local/pf/containers/docker-minimal-rules.sh
+ ExecStartPre=/bin/rm -f /usr/local/pf/var/run/proxysql/proxysql.pid
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::proxysql' -e 'pf::services::manager::proxysql->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::proxysql' -e 'pf::services::manager::proxysql->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/proxysql-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop proxysql ; docker container rm proxysql -f ; echo Stopped"
+ TimeoutStopSec=60
 diff --git a/conf/systemd/packetfence-radiusd-auth.service b/conf/systemd/packetfence-radiusd-auth.service
-index ff346c2b69..b5a3c931bb 100644
+index ff346c2b69..e1d9cc1ad3 100644
 --- a/conf/systemd/packetfence-radiusd-auth.service
 +++ b/conf/systemd/packetfence-radiusd-auth.service
 @@ -12,9 +12,9 @@ Type=notify
@@ -121,13 +438,13 @@ index ff346c2b69..b5a3c931bb 100644
 -ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -Cxm -lstdout 
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
-+ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -Cxm -lstdout
-+ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -fm
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -Cxm -lstdout 
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
-index 5c302445ed..a67fe6ce88 100644
+index 5c302445ed..8ca8f2a905 100644
 --- a/conf/systemd/packetfence-radiusd-eduroam.service
 +++ b/conf/systemd/packetfence-radiusd-eduroam.service
 @@ -14,9 +14,9 @@ Type=notify
@@ -139,7 +456,7 @@ index 5c302445ed..a67fe6ce88 100644
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -fm 
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 +ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -Cxm -lstdout
-+ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -fm
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
@@ -182,3 +499,16 @@ index 8e2e760d54..306af96f9d 100644
  ExecStart=/usr/sbin/snmptrapd -f -n -c /usr/local/pf/var/conf/snmptrapd.conf -C -A -Lf /usr/local/pf/logs/snmptrapd.log -p /usr/local/pf/var/run/snmptrapd.pid -On 
  ExecReload=/bin/kill -HUP $MAINPID
  Slice=packetfence.slice
+diff --git a/t/venom/scenarios/cli_login/playbooks/configure.yml b/t/venom/scenarios/cli_login/playbooks/configure.yml
+index 67fbfae99a..b65f191999 100644
+--- a/t/venom/scenarios/cli_login/playbooks/configure.yml
++++ b/t/venom/scenarios/cli_login/playbooks/configure.yml
+@@ -221,7 +221,7 @@
+         WatchdogSec=20
+         StartLimitBurst=3
+         StartLimitInterval=10
+-        ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n test -fm
++        ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n test -fm
+         Restart=on-failure
+     when: ansible_facts['os_family'] == "RedHat"
+ 

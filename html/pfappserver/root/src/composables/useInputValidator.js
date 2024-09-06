@@ -40,7 +40,10 @@ export const useInputValidator = (props, value, recursive = false) => {
   let localState = ref(unref(state))
   let localInvalidFeedback = ref(unref(invalidFeedback))
   let localValidFeedback = ref(unref(validFeedback))
-  let localApiFeedback = ref(unref(apiFeedback))
+  let localApiFeedback = ref(undefined)
+  watch(apiFeedback, () => {
+    localApiFeedback.value = apiFeedback.value
+  }, { immediate: true })
 
   // yup | https://github.com/jquense/yup
   let localValidator = validator

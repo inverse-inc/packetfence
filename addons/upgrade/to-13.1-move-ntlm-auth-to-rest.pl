@@ -8,7 +8,7 @@ addons/upgrade/to-13.1-move-ntlm-auth-to-rest.pl
 
 =head1 DESCRIPTION
 
-Move radius configuration parameters to associated new files
+Modify domain.conf to work with new NTLM auth API.
 
 =cut
 
@@ -18,7 +18,7 @@ use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw($authentication_config_file $domain_config_file);
 use pf::util;
-use pf::cluster qw($cluster_enabled $host_id);;
+use pf::cluster qw($cluster_enabled $host_id);
 use Digest::MD4;
 use Encode;
 use MIME::Base64;
@@ -36,31 +36,13 @@ my $updated = 0;
 my $ntlm_auth_host = "100.64.0.1";
 my $ntlm_auth_port = 4999;
 
-# back up config files
-my $tmp_dirname = pf_run("date +%Y%m%d_%H%M%S");
-$tmp_dirname =~ s/^\s+|\s+$//g;
-my $target_dir = "/usr/local/pf/archive/$tmp_dirname";
+my $tmp = pf_run("date +%Y%m%d_%H%M%S");
+$tmp =~ s/^\s+|\s+$//g;
 
-print("Backing up PacketFence domain configuration files, they can be found at $target_dir\n");
-pf_run("mkdir -p $target_dir", accepted_exit_status => [ 0 ], working_directory => "/usr/local/pf/archive");
-pf_run("cp -R /usr/local/pf/conf/domain.conf $target_dir");
-pf_run("cp -R /usr/local/pf/conf/realm.conf $target_dir");
-
-for my $section (grep {/^\S+$/} $ini->Sections()) {
-    if (-d "/chroots/$section/etc/samba" && -d "/chroots/$section/var/cache/samba") {
-        print "  processing /chroots/$section/\n";
-        pf_run("mkdir -p $target_dir/chroots/$section/etc");
-        pf_run("mkdir -p $target_dir/chroots/$section/var/cache/samba");
-        pf_run("cp -R /chroots/$section/etc/samba $target_dir/chroots/$section/etc");
-        pf_run("cp -R /chroots/$section/var/cache/samba/*.tdb $target_dir/chroots/$section/var/cache/samba");
-        pf_run("cp -R /chroots/$section/var/cache/samba/smb_krb5 $target_dir/chroots/$section/var/cache/samba");
-    }
-    else {
-        print "  /chroots/$section/etc/samba or /chroots/$section/var/cache/samba does not exist, maybe domain config ($section) is not in use any more. skipped.\n";
-    }
-}
-pf_run("cd /usr/local/pf/archive && tar --warning=no-file-ignored -cvzf $tmp_dirname.tgz $tmp_dirname && rm -rf $tmp_dirname");
-
+my $domain_bk="/usr/local/pf/conf/domain.conf_".$tmp."_bk";
+my $realm_bk="/usr/local/pf/conf/realm.conf_".$tmp."_bk";
+pf_run("cp -R /usr/local/pf/conf/domain.conf $domain_bk");
+pf_run("cp -R /usr/local/pf/conf/realm.conf $realm_bk");
 
 for my $section (grep {/^\S+$/} $ini->Sections()) {
     print("Updating config for section: $section\n");
@@ -217,8 +199,17 @@ if ($updated) {
     $ini->RewriteConfig();
 }
 
-print("Stopping winbindd and umount /chroot\n");
-umount_winbindd();
+print("Stopping winbindd\n");
+pf_run("sudo systemctl stop packetfence-winbindd 2>/dev/null");
+sleep(3);
+pf_run("sudo systemctl disable packetfence-winbindd 2>/dev/null");
+print("/chroots/* directories will be removed at the next reboot.\n");
+print("Domain config backup is available here $domain_bk\n");
+print("Realm  config backup is available here $realm_bk\n");
+
+####
+# Sub functions
+####
 
 sub tdbdump_get_value {
     my ($tdb_file, $key) = @_;
@@ -261,13 +252,6 @@ sub extract_machine_password {
     return (unpack("H*", $hash));
 }
 
-sub umount_winbindd {
-    pf_run("sudo systemctl stop packetfence-winbindd 2>/dev/null");
-    sleep(3);
-    pf_run("mount | awk '{print \$3}' | grep chroots --color | xargs umount 2>/dev/null");
-    print("/chroots/* has been umounted. Some sub directories are still in use. They will be removed at the next reboot\n")
-}
-
 sub parsePh {
     my $real_computer_name = hostname();
     my @s = split(/\./, $real_computer_name);
@@ -281,7 +265,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -52,20 +52,14 @@ type pfdns struct {
 	BhCname             string
 	Next                plugin.Handler
 	Webservices         pfconfigdriver.PfConfWebservices
-	FqdnPort            map[*regexp.Regexp][]string
-	FqdnIsolationPort   map[*regexp.Regexp][]string
 	FqdnDomainPort      map[*regexp.Regexp][]string
 	Network             map[string]net.IP
 	NetworkType         map[*net.IPNet]*pfconfigdriver.NetworkConf
-	DNSFilter           *cache.Cache
-	IpsetCache          *cache.Cache
 	apiClient           *unifiedapiclient.Client
-	refreshLauncher     *sync.Once
 	PortalFQDN          map[int]map[*net.IPNet]*regexp.Regexp
 	mutex               sync.Mutex
 	detectionBypass     bool
 	detectionMechanisms []*regexp.Regexp
-	recordDNS           bool
 }
 
 // Ports array
@@ -117,35 +111,10 @@ func (pf *pfdns) HasSecurityEvents(ctx context.Context, mac string) bool {
 	return securityEvent
 }
 
-func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
-	id, err := pfconfigdriver.PfconfigPool.ReadLock(ctx)
-	if err == nil {
-		defer pfconfigdriver.PfconfigPool.ReadUnlock(ctx, id)
-
-		// We launch the refresh job once, the first time a request comes in
-		// This ensures that the pool will run with a context that represents a request (log level for instance)
-		pf.refreshLauncher.Do(func() {
-			ctx := ctx
-			go func(ctx context.Context) {
-				for {
-					pfconfigdriver.PfconfigPool.Refresh(ctx)
-					err = pf.detectVIP(ctx)
-					if err != nil {
-						log.LoggerWContext(ctx).Error(err.Error())
-					}
-					time.Sleep(1 * time.Second)
-				}
-			}(ctx)
-		})
-	} else {
-		panic("Unable to obtain pfconfigpool lock in pfdns middleware")
-	}
-}
-
 // ServeDNS implements the middleware.Handler interface.
 func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
-	pf.RefreshPfconfig(ctx)
+	pfdnsRefreshableConfig := pfconfigdriver.GetRefresh(ctx, "pfdnsRefreshableConfig").(*pfdnsRefreshableConfig)
 
 	state := request.Request{W: w, Req: r}
 
@@ -199,7 +168,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					switch ansb := ans.(type) {
 					case *dns.A:
 						for _, valeur := range v {
-							if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, false); err != nil {
+							if err := pf.SetPassthrough(ctx, pfdnsRefreshableConfig, "passthrough", ansb.A.String(), valeur, false); err != nil {
 								log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact localhost for setPassthrough %s", err))
 							}
 						}
@@ -207,7 +176,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				}
 				log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " Domain bypass for fqdn " + state.QName())
 				state.SizeAndDo(answer)
-				pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), answer, "Portal")
+				pf.logreply(ctx, pfdnsRefreshableConfig, srcIP, mac, state.QName(), state.Type(), answer, "Portal")
 				w.WriteMsg(answer)
 
 			}
@@ -220,7 +189,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		// Passthrough bypass
 		if !(PortalDetection) {
 
-			for k, v := range pf.FqdnIsolationPort {
+			for k, v := range pfdnsRefreshableConfig.FqdnIsolationPort {
 				if k.MatchString(state.QName()) {
 					answer, err = pf.LocalResolver(state)
 					if err != nil {
@@ -230,7 +199,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 							switch ansb := ans.(type) {
 							case *dns.A:
 								for _, valeur := range v {
-									if err := pf.SetPassthrough(ctx, "passthrough_isolation", ansb.A.String(), valeur, false); err != nil {
+									if err := pf.SetPassthrough(ctx, pfdnsRefreshableConfig, "passthrough_isolation", ansb.A.String(), valeur, false); err != nil {
 										log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact Unified API to adjust passthroughs: %s", err))
 									}
 								}
@@ -238,7 +207,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 						}
 						log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " isolation passthrough  for fqdn " + state.QName())
 						state.SizeAndDo(answer)
-						pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), answer, "Isolation passthrough")
+						pf.logreply(ctx, pfdnsRefreshableConfig, srcIP, mac, state.QName(), state.Type(), answer, "Isolation passthrough")
 						w.WriteMsg(answer)
 					}
 					return 0, nil
@@ -248,7 +217,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	}
 	// Passthrough bypass
 	if !(PortalDetection) {
-		for k, v := range pf.FqdnPort {
+		for k, v := range pfdnsRefreshableConfig.FqdnPort {
 			if k.MatchString(state.QName()) {
 				answer, err = pf.LocalResolver(state)
 				if err != nil {
@@ -258,7 +227,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 						switch ansb := ans.(type) {
 						case *dns.A:
 							for _, valeur := range v {
-								if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, false); err != nil {
+								if err := pf.SetPassthrough(ctx, pfdnsRefreshableConfig, "passthrough", ansb.A.String(), valeur, false); err != nil {
 									log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact Unified API to adjust passthroughs %s", err))
 								}
 							}
@@ -266,7 +235,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 					}
 					state.SizeAndDo(answer)
-					pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), answer, "Passthrough")
+					pf.logreply(ctx, pfdnsRefreshableConfig, srcIP, mac, state.QName(), state.Type(), answer, "Passthrough")
 					w.WriteMsg(answer)
 					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " passthrough for fqdn " + state.QName())
 				}
@@ -329,14 +298,14 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					a.Answer = []dns.RR{rr}
 					log.LoggerWContext(ctx).Debug("REJECT " + mac + " IP " + srcIP + " Query " + state.QName())
 					state.SizeAndDo(a)
-					pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), a, Type)
+					pf.logreply(ctx, pfdnsRefreshableConfig, srcIP, mac, state.QName(), state.Type(), a, Type)
 					w.WriteMsg(a)
 					return 0, nil
 				}
 			}
 
 			cacheKey := pf.MakeKeyCache(mac, category, securityEvent, state.QName())
-			reply, found := pf.DNSFilter.Get(cacheKey)
+			reply, found := pfdnsRefreshableConfig.DNSFilter.Get(cacheKey)
 			if found && reply != "null" {
 				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
 				rr, _ = dns.NewRR(reply.(string))
@@ -348,7 +317,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					"mac":      mac,
 				})
 				if err != nil {
-					pf.DNSFilter.Set(cacheKey, "null", cache.DefaultExpiration)
+					pfdnsRefreshableConfig.DNSFilter.Set(cacheKey, "null", cache.DefaultExpiration)
 					break
 				}
 				var response string
@@ -359,14 +328,14 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					}
 				}
 				log.LoggerWContext(ctx).Debug("Get answer from pffilter for " + state.QName())
-				pf.DNSFilter.Set(cacheKey, response, cache.DefaultExpiration)
+				pfdnsRefreshableConfig.DNSFilter.Set(cacheKey, response, cache.DefaultExpiration)
 				rr, _ = dns.NewRR(response)
 			}
 
 			a.Answer = []dns.RR{rr}
 			log.LoggerWContext(ctx).Debug("DNS Filter matched for MAC " + mac + " IP " + srcIP + " Query " + state.QName())
 			state.SizeAndDo(a)
-			pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), a, "DNS Filter")
+			pf.logreply(ctx, pfdnsRefreshableConfig, srcIP, mac, state.QName(), state.Type(), a, "DNS Filter")
 			w.WriteMsg(a)
 			return 0, nil
 		}
@@ -473,7 +442,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	a.Answer = []dns.RR{rr}
 	log.LoggerWContext(ctx).Debug("Returned portal for MAC " + mac + " with IP " + srcIP + "for fqdn " + state.QName())
 	state.SizeAndDo(a)
-	pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), a, "Portal")
+	pf.logreply(ctx, pfdnsRefreshableConfig, srcIP, mac, state.QName(), state.Type(), a, "Portal")
 	w.WriteMsg(a)
 
 	return 0, nil
@@ -546,8 +515,8 @@ func (pf *pfdns) detectType(ctx context.Context) error {
 	var NetIndex net.IPNet
 	pf.NetworkType = make(map[*net.IPNet]*pfconfigdriver.NetworkConf)
 
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
+	listenInts := pfconfigdriver.GetType[pfconfigdriver.ListenInts](ctx)
+	dnsInts := pfconfigdriver.GetType[pfconfigdriver.DNSInts](ctx)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -559,14 +528,14 @@ func (pf *pfdns) detectType(ctx context.Context) error {
 
 	var intDNS []string
 
-	for _, vi := range pfconfigdriver.Config.Interfaces.DNSInts.Element {
+	for _, vi := range dnsInts.Element {
 		for key, DNSint := range vi.(map[string]interface{}) {
 			if key == "int" {
 				intDNS = append(intDNS, DNSint.(string))
 			}
 		}
 	}
-	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(listenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
@@ -607,11 +576,21 @@ func (pf *pfdns) detectType(ctx context.Context) error {
 
 func (pf *pfdns) DbInit(ctx context.Context) error {
 
-	var err error
+	database, err := db.DbFromConfig(ctx)
 
-	db, err := db.DbFromConfig(ctx)
+	for err != nil {
+		log.LoggerWContext(ctx).Error("Error: " + err.Error())
+		time.Sleep(time.Duration(5) * time.Second)
+		database, err = db.DbFromConfig(ctx)
+	}
+
+	err = database.Ping()
+	for err != nil {
+		time.Sleep(time.Duration(5) * time.Second)
+		err = database.Ping()
+	}
 	sharedutils.CheckError(err)
-	pf.Db = db
+	pf.Db = database
 
 	pf.IP4log, err = pf.Db.Prepare("select mac from ip4log where ip = ?")
 	if err != nil {
@@ -647,14 +626,6 @@ func (pf *pfdns) DbInit(ctx context.Context) error {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to database: %s", err))
 		return err
 	}
-
-	go func() {
-		for {
-			pf.Db.Ping()
-			time.Sleep(5 * time.Second)
-		}
-	}()
-
 	return nil
 }
 
@@ -684,14 +655,14 @@ func (pf *pfdns) LocalResolver(request request.Request) (*dns.Msg, error) {
 	return nil, errors.New("No name server to answer the question")
 }
 
-func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port string, local bool) error {
+func (pf *pfdns) SetPassthrough(ctx context.Context, config *pfdnsRefreshableConfig, passthrough, ip, port string, local bool) error {
 	queryLocal := "0"
 	if local {
 		queryLocal = "1"
 	}
 
 	cacheKey := passthrough + ":" + ip + ":" + port + ":" + queryLocal
-	_, found := pf.IpsetCache.Get(cacheKey)
+	_, found := config.IpsetCache.Get(cacheKey)
 	if found {
 		return nil
 	}
@@ -704,14 +675,14 @@ func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port strin
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact Unified API to adjust passthroughs %s", err))
 	} else {
-		pf.IpsetCache.Set(cacheKey, 1, cache.DefaultExpiration)
+		config.IpsetCache.Set(cacheKey, 1, cache.DefaultExpiration)
 	}
 
 	return err
 }
 
 func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
-	general := pfconfigdriver.Config.PfConf.General
+	general := pfconfigdriver.GetType[pfconfigdriver.PfConfGeneral](ctx)
 
 	index := 0
 
@@ -810,7 +781,7 @@ func (pf *pfdns) checkDetectionMechanisms(ctx context.Context, e string) bool {
 }
 
 // logreply will log in the db the dns answer
-func (pf *pfdns) logreply(ctx context.Context, ip string, mac string, qname string, qtype string, reply *dns.Msg, scope string) {
+func (pf *pfdns) logreply(ctx context.Context, config *pfdnsRefreshableConfig, ip string, mac string, qname string, qtype string, reply *dns.Msg, scope string) {
 	var b bytes.Buffer
 	var re = regexp.MustCompile(`\s+`)
 
@@ -820,7 +791,7 @@ func (pf *pfdns) logreply(ctx context.Context, ip string, mac string, qname stri
 		b.WriteString(" \n ")
 	}
 
-	if pf.recordDNS {
+	if config.recordDNS {
 		data, _ := json.Marshal(&common.DNSAuditLog{
 			Ip:     ip,
 			Mac:    mac,

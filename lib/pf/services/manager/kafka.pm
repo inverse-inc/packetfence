@@ -17,6 +17,7 @@ use pf::file_paths qw(
     $generated_conf_dir
     $conf_dir
     $kafka_config_file
+    $kafka_config_dir
 );
 
 use pf::IniFiles;
@@ -36,6 +37,22 @@ sub generateConfig {
     my $tt = Template->new(
         ABSOLUTE => 1,
     );
+    $self->generateEnvFile($tt);
+    $self->generateAuthFile($tt);
+    return 1;
+}
+
+sub generateAuthFile {
+    my ($self, $tt) = @_;
+    $tt->process(
+        "${kafka_config_dir}/kafka_server_jaas.conf.tt",
+        \%ConfigKafka,
+        "${kafka_config_dir}/kafka_server_jaas.conf",
+    ) or die $tt->error();
+}
+
+sub generateEnvFile {
+    my ($self, $tt) = @_;
     my $vars = {
        env_dict => $self->env_vars,
     };
@@ -44,7 +61,6 @@ sub generateConfig {
         $vars,
         $generated_conf_dir . "/" . $self->name . ".env"
     ) or die $tt->error();
-    return 1;
 }
 
 sub env_vars {
@@ -72,7 +88,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

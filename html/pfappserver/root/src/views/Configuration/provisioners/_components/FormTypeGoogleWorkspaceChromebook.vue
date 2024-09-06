@@ -50,6 +50,11 @@
                      namespace="oses"
     />
 
+    <form-group-rules :column-label="$i18n.t('Rules')"
+                     :text="$i18n.t('Rules to apply.')"
+                     namespace="rules"
+    />
+
     <form-group-non-compliance-security-event :column-label="$i18n.t('Non compliance security event')"
                                               :text="$i18n.t('Which security event should be raised when non compliance is detected.')"
                                               namespace="non_compliance_security_event"
@@ -86,6 +91,7 @@ import {
   FormGroupNonComplianceSecurityEvent,
   FormGroupOses,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupServiceAccount,
   FormGroupUser,
 } from './'
@@ -105,6 +111,7 @@ const components = {
   FormGroupNonComplianceSecurityEvent,
   FormGroupOses,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupServiceAccount,
   FormGroupUser,
 }

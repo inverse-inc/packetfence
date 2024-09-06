@@ -1,7 +1,0 @@
-ConfigTrafficShapingPolicyWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigTrafficShapingPolicy'
-    status:
-      type: integer
-  type: object

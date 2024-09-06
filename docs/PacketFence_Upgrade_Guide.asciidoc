@@ -1894,7 +1894,50 @@ For each remaining server in the cluster:
 
 4. Click Save
 
-== Upgrading from a version prior to X.Y.Z
+
+== Upgrading from a version prior to 13.2.0
+
+=== Domain Config
+
+Since 13.2 PacketFence implements a local NT Key cache to track failed login attempts to prevent the account from being locked on the AD. To implement the NT Key cache perform the following steps:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-13.2-update-domain-config.pl
+----
+
+=== Admin Role
+
+Since 13.2 PacketFence is able to receive events from the AD to report password changes, which allows PacketFence to reset failed login attempts in the NT Key cache. To add a new admin role to receive these events through the PacketFence API perform the following steps:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-13.2-adds-new-admin-roles.pl
+----
+
+=== Switches
+
+Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch modules to use OS versions rather than hardware versions. To update your current switch configurations to the new OS versions perform the following tasks:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-13.2-convert-switch-types.pl
+/usr/local/pf/addons/upgrade/to-13.2-convert-juniper-switch-types.pl
+/usr/local/pf/addons/upgrade/to-13.2-convert-merakiswitch-types.pl
+----
+
+== Upgrading from a version prior to 14.0.0
+
+
+=== Admin Role
+
+Since 14.0 PacketFence is able to receive events from the FleetDM servers, which allows PacketFence to detect policy violations or CVEs of devices managed by FleetDM. To add a new admin role to receive these events through the PacketFence API perform the following steps:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-14.0-adds-admin-roles-fleetdm.pl
+----
+
 
 == Archived upgrade notes
 

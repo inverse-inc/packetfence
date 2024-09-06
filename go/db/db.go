@@ -15,15 +15,13 @@ import (
 
 const (
 	charset   = "utf8mb4"
-	collation = "utf8mb4_bin"
+	collation = "utf8mb4_general_ci"
 	sqlMode   = "NO_ENGINE_SUBSTITUTION"
 )
 
 func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-
-	dbConfig := pfconfigdriver.Config.PfConf.Database
+	dbConfig := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](ctx)
 
 	if len(dbName) > 0 {
 		return ConnectDb(ctx, dbName[0])
@@ -38,11 +36,7 @@ func ManualConnectDb(ctx context.Context, user, pass, host, port, dbName string)
 }
 
 func DbLocalFromConfig(ctx context.Context) (*sql.DB, error) {
-
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-
-	dbConfig := pfconfigdriver.Config.PfConf.Database
-
+	dbConfig := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](ctx)
 	return ManualConnectDb(ctx, dbConfig.User, dbConfig.Pass, "localhost", dbConfig.Port, dbConfig.Db)
 }
 
@@ -65,8 +59,7 @@ func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 }
 
 func ReturnURIFromConfig(ctx context.Context, dbName ...string) string {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-	dbConfig := pfconfigdriver.Config.PfConf.Database
+	dbConfig := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](ctx)
 
 	var DBName string
 	if len(dbName) > 0 {

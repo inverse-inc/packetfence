@@ -50,6 +50,11 @@ sub engines {
                     resource   => "switch_filter",
                     name       => "Switch Filters"
                 },
+                {
+                    collection => "provisioning_filters",
+                    resource   => "provisioning_filter",
+                    name       => "Provisioning Filters"
+                },
             ]
         }
     );
@@ -61,7 +66,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

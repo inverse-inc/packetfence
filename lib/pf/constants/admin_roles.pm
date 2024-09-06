@@ -216,6 +216,16 @@ our @ADMIN_ACTIONS = qw(
     MFA_DELETE
     MFA_READ
     MFA_UPDATE
+
+
+    WINDOWS_EVENTS_READ
+    FLEETDM_EVENTS_READ
+
+    PROVISIONING_FILTER_CREATE
+    PROVISIONING_FILTER_DELETE
+    PROVISIONING_FILTER_READ
+    PROVISIONING_FILTER_UPDATE
+
 );
 
 # Actions not allowed in readonly mode
@@ -228,7 +238,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

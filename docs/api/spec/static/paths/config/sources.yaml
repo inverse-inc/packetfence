@@ -6,6 +6,7 @@
     parameters: []
     responses:
       '200':
+        description: Request successful.
         content:
           application/json:
             schema:

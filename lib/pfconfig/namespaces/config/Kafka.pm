@@ -38,7 +38,15 @@ sub build_child {
         next if !exists $iptables->{$f};
         $iptables->{$f} = [split /\s*,\s*/, ($iptables->{$f} // "")];
     }
+    my @auths = ($ConfigKafka{admin});
+    while (my ($key, $val) = each %ConfigKafka) {
+        if ($key =~ /^auth (.*)$/) {
+            my $e = delete $ConfigKafka{$key};
+            push @auths, {user => $1, pass => $e->{pass}};
+        }
+    }
 
+    $ConfigKafka{auths} = \@auths;
     return \%ConfigKafka;
 }
 
@@ -49,7 +57,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

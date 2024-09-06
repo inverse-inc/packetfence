@@ -47,7 +47,7 @@ Example Action
 
 Regex -
 
-    mac\s*:\s*(?P&lt;mac&gt;[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(P?&lt;notes&gt;.*)
+    mac\s*:\s*(?P<mac>[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(P?<notes>.*)
 
 Action -
 
@@ -55,13 +55,13 @@ Action -
 
 === Suricata IDS
 
-PacketFence already contains a syslog parser for Suricata. This is an example to raise a security event from a syslog alert on the Suricata SID.
+PacketFence already contains a event handler for Suricata. This is an example to raise a security event from a syslog alert on the Suricata SID.
 
 The first step is to create the syslog regex parser and then create the security event.
 
 ==== Syslog regex parser configuration
 
-To create the syslog regex parser you will need to go to _Configuration -> Integration -> Syslog Parsers -> Add a Syslog Parser -> regex_
+To create the syslog regex parser you will need to go to _Configuration -> Integration -> Event Handlers -> Add a Event Handler -> regex_
 
 Here is the configuration of the syslog regex parser:
 

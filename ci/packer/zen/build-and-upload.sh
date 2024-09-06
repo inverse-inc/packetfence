@@ -39,12 +39,12 @@ compress_vmware_ova() {
 
 upload_to_linode() {
     echo "Create directory packetfence-zen/${PF_VERSION}/"
-    rclone mkdir --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private :s3:packetfence-zen/${PF_VERSION}/
+    rclone mkdir --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=public-read :s3:packetfence-zen/${PF_VERSION}/
     echo "rclone ${VMX_ZIP_NAME} to packetfence-zen/${PF_VERSION}/"
-    rclone copyto  --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private  ${SF_RESULT_DIR}/${VMX_ZIP_NAME} :s3:packetfence-zen/${PF_VERSION}/${VMX_ZIP_NAME}
+    rclone copyto  --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=public-read  ${SF_RESULT_DIR}/${VMX_ZIP_NAME} :s3:packetfence-zen/${PF_VERSION}/${VMX_ZIP_NAME}
     echo "Add md5sum of ${VMX_ZIP_NAME} in ${VMX_ZIP_NAME}.md5sums.txt"
     echo "`md5sum ${SF_RESULT_DIR}/${VMX_ZIP_NAME} | cut -d ' ' -f 1` ${VMX_ZIP_NAME}" | tee -a ${SF_RESULT_DIR}/${VMX_ZIP_NAME}.md5sums.txt
-    rclone copyto  --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=private  ${SF_RESULT_DIR}/${VMX_ZIP_NAME}.md5sums.txt :s3:packetfence-zen/${PF_VERSION}/${VMX_ZIP_NAME}.md5sums.txt
+    rclone copyto  --s3-provider="Ceph"  --s3-access-key-id=${RCLONE_ACCESS_KEY_ID}  --s3-secret-access-key=${RCLONE_SECRET_ACCESS_KEY}  --s3-endpoint="${RCLONE_LINODE_URL}"  --s3-acl=public-read  ${SF_RESULT_DIR}/${VMX_ZIP_NAME}.md5sums.txt :s3:packetfence-zen/${PF_VERSION}/${VMX_ZIP_NAME}.md5sums.txt
 }
 
 mkdir -p ${VMWARE_RESULT_DIR} ${SF_RESULT_DIR}

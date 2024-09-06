@@ -34,6 +34,11 @@ Don't forget to save the configuration!
 
 In addition to the SNMP and VLANs settings, this switch needs the Web Services to be enabled and an administrative username and password provided in its PacketFence configuration for Web Services.
 
+==== Extreme EXOS v30.x
+
+This switch version module is designed for Extreme switch series utilizing Extreme versions v30.x
+Note: "EXOS v30.x" module is tailored for the switch series operating on Extreme versions v30.x. Furthermore, it inherits all functionalities from the existing "EXOS" module, making all the configurations below applicable to EXOS v30.x.
+
 ===== MAC Address Lockdown (Port-Security)
 
 linkUp/linkDown traps are enabled by default so we disable them and enable MAC Address Lockdown only.

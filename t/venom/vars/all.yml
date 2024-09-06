@@ -607,7 +607,7 @@ security_event_autoreg.node.dhcp_fingerprint_id: 276
 ## Security event suricata test suite specific variables
 #################################################################################
 security_event_suricata.event.id: '88888889'
-security_event_suricata.syslog_parser.id: 'Suricata'
+security_event_suricata.event_handler.id: 'Suricata'
 security_event_suricata.event.access_duration: '12h'
 security_event_suricata.event.desc: 'ET P2P Kaaza Media'
 security_event_suricata.fifo_file: '/usr/local/pf/var/suricata'

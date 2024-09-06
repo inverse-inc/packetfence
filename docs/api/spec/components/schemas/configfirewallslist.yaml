@@ -1,9 +1,0 @@
-ConfigFirewallsList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigFirewall'
-        type: array
-    type: object

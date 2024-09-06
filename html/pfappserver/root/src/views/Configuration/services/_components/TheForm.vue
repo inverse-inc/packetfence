@@ -28,77 +28,77 @@
 
     <form-group-haproxy-admin namespace="haproxy-admin"
                               column-label="haproxy-admin"
-                              :text="$i18n.t(`Should haproxy-admin be started? Keep enabled unless you know what you're doing.`)"
+                              :text="$i18n.t(`Should haproxy-admin be started?`)"
                               enabled-value="enabled"
                               disabled-value="disabled"
     />
 
     <form-group-haproxy-db namespace="haproxy-db"
                            column-label="haproxy-db"
-                           :text="$i18n.t(`Should haproxy-db be started? Keep enabled unless you know what you're doing.`)"
+                           :text="$i18n.t(`Should haproxy-db be started?`)"
                            enabled-value="enabled"
                            disabled-value="disabled"
     />
 
     <form-group-haproxy-portal namespace="haproxy-portal"
                                column-label="haproxy-portal"
-                               :text="$i18n.t(`Should haproxy-portal be started? Keep enabled unless you know what you're doing.`)"
+                               :text="$i18n.t(`Should haproxy-portal be started?`)"
                                enabled-value="enabled"
                                disabled-value="disabled"
     />
 
     <form-group-httpd-aaa namespace="httpd_aaa"
                           column-label="httpd.aaa"
-                          :text="$i18n.t(`Should httpd.aaa be started? Keep enabled unless you know what you're doing.`)"
+                          :text="$i18n.t(`Should httpd.aaa be started?`)"
                           enabled-value="enabled"
                           disabled-value="disabled"
     />
 
     <form-group-httpd-admin-dispatcher namespace="httpd_admin_dispatcher"
                                        column-label="httpd.admin_dispatcher"
-                                       :text="$i18n.t(`Should httpd.admin_dispatcher be started? Keep enabled unless you know what you're doing.`)"
+                                       :text="$i18n.t(`Should httpd.admin_dispatcher be started?`)"
                                        enabled-value="enabled"
                                        disabled-value="disabled"
     />
 
     <form-group-httpd-dispatcher namespace="httpd_dispatcher"
                                  column-label="httpd.dispatcher"
-                                 :text="$i18n.t(`Should httpd.dispatcher be started? Keep enabled unless you know what you're doing.`)"
+                                 :text="$i18n.t(`Should httpd.dispatcher be started?`)"
                                  enabled-value="enabled"
                                  disabled-value="disabled"
     />
 
     <form-group-httpd-portal namespace="httpd_portal"
                              column-label="httpd.portal"
-                             :text="$i18n.t(`Should httpd.portal be started? Keep enabled unless you know what you're doing.`)"
+                             :text="$i18n.t(`Should httpd.portal be started?`)"
                              enabled-value="enabled"
                              disabled-value="disabled"
     />
 
     <form-group-httpd-webservices namespace="httpd_webservices"
                                   column-label="httpd.webservices"
-                                  :text="$i18n.t(`Should httpd.webservices be started? Keep enabled unless you know what you're doing.`)"
+                                  :text="$i18n.t(`Should httpd.webservices be started?`)"
                                   enabled-value="enabled"
                                   disabled-value="disabled"
     />
 
     <form-group-iptables namespace="iptables"
                          column-label="iptables"
-                         :text="$i18n.t(`Should iptables be managed by PacketFence? Keep enabled unless you know what you're doing.`)"
+                         :text="$i18n.t(`Should iptables be managed by PacketFence?`)"
                          enabled-value="enabled"
                          disabled-value="disabled"
     />
 
     <form-group-ip6tables namespace="ip6tables"
                           column-label="ip6tables"
-                          :text="$i18n.t(`Should ip6tables be managed by PacketFence? Keep enabled unless you know what you're doing.`)"
+                          :text="$i18n.t(`Should ip6tables be managed by PacketFence?`)"
                           enabled-value="enabled"
                           disabled-value="disabled"
     />
 
     <form-group-keepalived namespace="keepalived"
                            column-label="keepalived"
-                           :text="$i18n.t(`Should keepalived be started? Keep enabled unless you know what you're doing.`)"
+                           :text="$i18n.t(`Should keepalived be started?`)"
                            enabled-value="enabled"
                            disabled-value="disabled"
     />
@@ -112,7 +112,7 @@
 
     <form-group-pfacct namespace="pfacct"
                        column-label="pfacct"
-                       :text="$i18n.t(`Should pfacct be started? Keep enabled unless you know what you're doing.`)"
+                       :text="$i18n.t(`Should pfacct be started?`)"
                        enabled-value="enabled"
                        disabled-value="disabled"
     />
@@ -164,30 +164,37 @@
 
     <form-group-pfcron namespace="pfcron"
                        column-label="pfcron"
-                       :text="$i18n.t(`Should pfcron be started? Keep enabled unless you know what you're doing.`)"
+                       :text="$i18n.t(`Should pfcron be started?`)"
                        enabled-value="enabled"
                        disabled-value="disabled"
     />
 
     <form-group-pfperl-api namespace="pfperl-api"
                            column-label="pfperl-api"
-                           :text="$i18n.t(`Should pfperl-api be started? Keep enabled unless you know what you're doing.`)"
+                           :text="$i18n.t(`Should pfperl-api be started?`)"
                            enabled-value="enabled"
                            disabled-value="disabled"
     />
 
     <form-group-pfpki namespace="pfpki"
                       column-label="pfpki"
-                      :text="$i18n.t(`Should pfpki be started? Keep enabled unless you know what you're doing.`)"
+                      :text="$i18n.t(`Should pfpki be started?`)"
                       enabled-value="enabled"
                       disabled-value="disabled"
     />
 
-    <form-group-pfqueue namespace="pfqueue"
-                        column-label="pfqueue"
-                        :text="$i18n.t(`Should pfqueue be started? Keep enabled unless you know what you're doing.`)"
-                        enabled-value="enabled"
-                        disabled-value="disabled"
+    <form-group-pfqueue-backend namespace="pfqueue-backend"
+                               column-label="pfqueue-backend"
+                               :text="$i18n.t(`Should pfqueue-backend be started?`)"
+                               enabled-value="enabled"
+                               disabled-value="disabled"
+    />
+
+    <form-group-pfqueue-go namespace="pfqueue-go"
+                           column-label="pfqueue-go"
+                           :text="$i18n.t(`Should pfqueue-go be started?`)"
+                           enabled-value="enabled"
+                           disabled-value="disabled"
     />
 
     <form-group-pfsso namespace="pfsso"
@@ -220,14 +227,14 @@
 
     <form-group-radiusd-acct namespace="radiusd_acct"
                              column-label="radiusd-acct"
-                             :text="$i18n.t(`Should radiusd-acct be started? Keep enabled unless you know what you're doing.`)"
+                             :text="$i18n.t(`Should radiusd-acct be started?`)"
                              enabled-value="enabled"
                              disabled-value="disabled"
     />
 
     <form-group-radiusd-auth namespace="radiusd_auth"
                              column-label="radiusd_auth"
-                             :text="$i18n.t(`Should radiusd-auth be started? Keep enabled unless you know what you're doing.`)"
+                             :text="$i18n.t(`Should radiusd-auth be started?`)"
                              enabled-value="enabled"
                              disabled-value="disabled"
     />
@@ -241,7 +248,7 @@
 
     <form-group-redis-cache namespace="redis_cache"
                             column-label="redis_cache"
-                            :text="$i18n.t(`Should Redis for caching be started? Keep enabled unless you know what you're doing.`)"
+                            :text="$i18n.t(`Should Redis for caching be started?`)"
                             enabled-value="enabled"
                             disabled-value="disabled"
     />
@@ -255,14 +262,14 @@
 
     <form-group-redis-queue namespace="redis_queue"
                             column-label="redis_queue"
-                            :text="$i18n.t(`Should Redis be started? Keep enabled unless you know what you're doing.`)"
+                            :text="$i18n.t(`Should Redis be started?`)"
                             enabled-value="enabled"
                             disabled-value="disabled"
     />
 
     <form-group-snmp-trapd namespace="snmptrapd"
                            column-label="snmptrapd"
-                           :text="$i18n.t(`Should snmptrapd be started? Keep enabled unless you know what you're doing.`)"
+                           :text="$i18n.t(`Should snmptrapd be started?`)"
                            enabled-value="enabled"
                            disabled-value="disabled"
     />
@@ -276,7 +283,7 @@
 
     <form-group-mysql-probe namespace="mysql-probe"
                             column-label="mysql-probe"
-                            :text="$i18n.t(`Should mysql-probe be started? Keep enabled unless you know what you're doing.`)"
+                            :text="$i18n.t(`Should mysql-probe be started?`)"
                             enabled-value="enabled"
                             disabled-value="disabled"
     />
@@ -290,7 +297,7 @@
 
     <form-group-ntlm-auth-api namespace="ntlm-auth-api"
                             column-label="ntlm-auth-api"
-                            :text="$i18n.t(`Should ntlm-auth-api be started? Keep enabled unless you know what you're doing.`)"
+                            :text="$i18n.t(`Should ntlm-auth-api be started?`)"
                             enabled-value="enabled"
                             disabled-value="disabled"
     />
@@ -329,7 +336,8 @@ import {
   FormGroupPfipset,
   FormGroupPfperlApi,
   FormGroupPfpki,
-  FormGroupPfqueue,
+  FormGroupPfqueueBackend,
+  FormGroupPfqueueGo,
   FormGroupPfsso,
   FormGroupPfstats,
   FormGroupProxysql,
@@ -376,7 +384,8 @@ const components = {
   FormGroupPfipset,
   FormGroupPfperlApi,
   FormGroupPfpki,
-  FormGroupPfqueue,
+  FormGroupPfqueueBackend,
+  FormGroupPfqueueGo,
   FormGroupPfsso,
   FormGroupPfstats,
   FormGroupProxysql,

@@ -101,9 +101,9 @@ sub handler
     }
 
     # Start scan in cleanup phase to avoid browser to hang on connection
-    my $cmd = $bin_dir."/pfcmd schedule now $ip 1>/dev/null 2>&1";
-    $logger->info("scanning $ip by calling $cmd");
-    $r->pool->cleanup_register(\&scan, [$logger, $security_events, $cmd]);
+    my @cmd = ("$bin_dir/pfcmd", "schedule", "now", $ip);
+    $logger->info("scanning $ip by calling " , join(" ", @cmd));
+    $r->pool->cleanup_register(\&scan, [$logger, $security_events, \@cmd]);
 
     $logger->trace("parent part, redirecting to scan started page");
     pf::web::generate_scan_start_page($portalSession, $r);
@@ -163,8 +163,8 @@ sub scan {
   security_event_modify($currentScanSecurityEventId, (ticket_ref => "Scan in progress, started at: ".mysql_date()));
 
   # requesting the scan
-  $logger->trace("cleanup phase, forking $cmd");
-  my $scan = qx/$cmd/;
+  $logger->trace("cleanup phase, forking ". join(" ", @$cmd));
+  safe_pf_run(@$cmd);
 
   return Apache2::Const::OK;
 } # sub scan
@@ -177,7 +177,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -121,14 +121,10 @@
   post:
     summary: Import bulk nodes.
     requestBody:
-      allOf:
-        - $ref: "#/components/requestBodies/BulkImport"
-        - $ref: "#/components/requestBodies/NodesBulkImport"
+      $ref: "#/components/requestBodies/NodesBulkImport"
     responses:
       '200':
-        allOf:
-          - $ref: "#/components/responses/BulkImport"
-          - $ref: "#/components/responses/NodesBulkImport"
+        $ref: "#/components/responses/NodesBulkImport"
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':

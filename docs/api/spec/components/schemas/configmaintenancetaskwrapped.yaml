@@ -1,7 +1,0 @@
-ConfigMaintenanceTaskWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigMaintenanceTask'
-    status:
-      type: integer
-  type: object
