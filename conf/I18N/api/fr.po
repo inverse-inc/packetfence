@@ -13116,7 +13116,7 @@ msgstr "Nom d'utilisateur privilégié"
 
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:588
 msgid "Privileged user name required."
-msgstr ""
+msgstr "Nom d'utilisateur privilégié requis."
 
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:213
 msgid "Privileged user password"
@@ -13124,7 +13124,7 @@ msgstr "Mot de passe utilisateur privilégié"
 
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:590
 msgid "Privileged user password required."
-msgstr ""
+msgstr "Mot de passe utilisateur privilégié requis."
 
 #: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:104
 msgid "Probe Mysql from haproxy-db"
