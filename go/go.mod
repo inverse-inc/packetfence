@@ -1,6 +1,6 @@
 module github.com/inverse-inc/packetfence/go
 
-go 1.22
+go 1.23
 
 require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible // indirect
@@ -231,6 +231,7 @@ require (
 	github.com/onsi/gomega v1.29.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/segmentio/kafka-go v0.4.47
+	github.com/smallstep/nosql v0.6.1
 	go.uber.org/zap v1.27.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
@@ -304,7 +305,6 @@ require (
 	github.com/slackhq/nebula v1.6.1 // indirect
 	github.com/smallstep/certificates v0.26.1 // indirect
 	github.com/smallstep/go-attestation v0.4.4-0.20240109183208-413678f90935 // indirect
-	github.com/smallstep/nosql v0.6.1 // indirect
 	github.com/smallstep/pkcs7 v0.0.0-20231024181729-3b98ecc1ca81 // indirect
 	github.com/smallstep/scep v0.0.0-20231024192529-aee96d7ad34d // indirect
 	github.com/smallstep/truststore v0.13.0 // indirect
