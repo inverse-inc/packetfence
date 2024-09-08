@@ -10,7 +10,7 @@ RUN go build \
     -ldflags "-X github.com/inverse-inc/packetfence/go/chisel/share.BuildVersion=$(git describe --abbrev=0 --tags)" \
     -o chisel
 # container stage
-FROM alpine:3.19.1
+FROM alpine:3.19.4
 RUN apk update && apk add --no-cache ca-certificates
 WORKDIR /app
 COPY --from=build-env /src/chisel /app/chisel
