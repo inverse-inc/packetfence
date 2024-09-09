@@ -29,7 +29,7 @@ has_field 'password' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type port categories networks cache_updates cache_timeout username_format default_realm) ],
+   render_list => [ qw(id type port categories networks cache_updates cache_timeout username_format default_realm act_on_accounting_stop) ],
   );
 
 =head1 COPYRIGHT
