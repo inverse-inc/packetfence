@@ -43,6 +43,7 @@ type FirewallSSOInt interface {
 	SetLoadedAt(time.Time)
 	GetLastTouchCache() float64
 	CheckStatus(ctx context.Context, info map[string]string) bool
+	SendOnAcctStop(ctx context.Context) bool
 }
 
 // Basic struct for all firewalls
@@ -105,6 +106,11 @@ func (fw *FirewallSSO) GetFirewallSSO(ctx context.Context) *FirewallSSO {
 // Check whether or not the cached updates are enabled for this firewall
 func (fw *FirewallSSO) ShouldCacheUpdates(ctx context.Context) bool {
 	return fw.CacheUpdates == "enabled"
+}
+
+// Check whether or not the cached updates are enabled for this firewall
+func (fw *FirewallSSO) SendOnAcctStop(ctx context.Context) bool {
+	return fw.ActOnAccountingStop == "1"
 }
 
 // Get the cache_timeout configured in the firewall as an int
@@ -297,6 +303,10 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 // Makes sure to call FirewallSSO.Start and to validate the network if necessary
 func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string) (bool, error) {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
+	if !fw.SendOnAcctStop(ctx) && info["source"] == "accounting" {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it's coming from an accounting stop and it has been disabled", info["ip"]))
+		return false, nil
+	}
 
 	if !fw.MatchesNetwork(ctx, info) {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
