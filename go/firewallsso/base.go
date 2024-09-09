@@ -53,12 +53,13 @@ type FirewallSSO struct {
 	PfconfigHashNS string `val:"-"`
 	RoleBasedFirewallSSO
 	pfconfigdriver.TypedConfig
-	Networks       []*FirewallSSONetwork `json:"networks"`
-	CacheUpdates   string                `json:"cache_updates"`
-	CacheTimeout   string                `json:"cache_timeout"`
-	UsernameFormat string                `json:"username_format"`
-	DefaultRealm   string                `json:"default_realm"`
-	UseConnector   string                `json:"use_connector"`
+	Networks            []*FirewallSSONetwork `json:"networks"`
+	CacheUpdates        string                `json:"cache_updates"`
+	CacheTimeout        string                `json:"cache_timeout"`
+	UsernameFormat      string                `json:"username_format"`
+	DefaultRealm        string                `json:"default_realm"`
+	UseConnector        string                `json:"use_connector"`
+	ActOnAccountingStop string                `json:"act_on_accounting_stop"`
 }
 
 func (fw *FirewallSSO) setPfconfigHashNS(id string) {
