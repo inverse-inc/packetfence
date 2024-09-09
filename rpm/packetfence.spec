@@ -13,7 +13,7 @@
 # Main package
 #==============================================================================
 Name:       packetfence
-Version:    14.0.0
+Version:    14.1.0
 Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
@@ -1399,6 +1399,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Mon Sep 09 2024 Inverse <info@inverse.ca> - 14.1.0-1
+- New release 14.1.0
+
 * Thu May 23 2024 Inverse <info@inverse.ca> - 14.0.0-2
 - Upgrade packetfence-perl 1.2.4
 

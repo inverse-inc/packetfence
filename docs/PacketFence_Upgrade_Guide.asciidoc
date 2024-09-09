@@ -1938,6 +1938,7 @@ Since 14.0 PacketFence is able to receive events from the FleetDM servers, which
 /usr/local/pf/addons/upgrade/to-14.0-adds-admin-roles-fleetdm.pl
 ----
 
+== Upgrading from a version prior to X.Y.Z
 
 == Archived upgrade notes
 
