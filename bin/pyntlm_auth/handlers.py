@@ -1,17 +1,17 @@
-from http import HTTPStatus
-from flask import Flask, request, g
-import ncache
-import re
-import hashlib
 import binascii
-import json
-import utils
-import ms_event
-import global_vars
-import rpc
-import flags
+import hashlib
+import re
+from http import HTTPStatus
 
-from samba import param, NTSTATUSError, ntstatus
+from flask import request, g
+from samba import ntstatus
+
+import flags
+import global_vars
+import ms_event
+import ncache
+import rpc
+
 
 # For NTSTATUS, see:
 # https://github.com/samba-team/samba/blob/master/libcli/util/ntstatus_err_table.txt
@@ -89,6 +89,7 @@ def test_password_handler():
 def ntlm_auth_handler():
     try:
         required_keys = {'username', 'mac', 'request-nt-key', 'challenge', 'nt-response'}
+        optional_keys = {'domain'}
 
         data = request.get_json()
         if data is None:
@@ -102,6 +103,11 @@ def ntlm_auth_handler():
         challenge = data['challenge']
         nt_response = data['nt-response']
 
+        if 'domain' in data:
+            domain = data['domain']
+        else:
+            domain = global_vars.c_domain
+
     except Exception as e:
         return f"Error processing JSON payload, {str(e)}", HTTPStatus.UNPROCESSABLE_ENTITY
 
@@ -114,7 +120,7 @@ def ntlm_auth_handler():
         domain = global_vars.c_domain_identifier
         nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response, )
     else:
-        nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response)
+        nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response, domain=domain)
     return format_response(nt_key, error_code)
 
 
@@ -162,4 +168,3 @@ def ntlm_expire_handler():
         return "OK", HTTPStatus.OK
     except Exception as e:
         return f"Error processing JSON payload, {str(e)}", HTTPStatus.UNPROCESSABLE_ENTITY
-
