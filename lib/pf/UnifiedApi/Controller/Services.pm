@@ -20,6 +20,7 @@ use pf::error qw(is_error);
 use pf::pfqueue::status_updater::redis;
 use pf::util::pfqueue qw(consumer_redis_client);
 use POSIX qw(setsid);
+use pf::file_paths qw($pfperl_api_restart_task);
 
 sub resource {
     my ($self) = @_;
@@ -144,12 +145,13 @@ sub do_action {
                 my $service_id = $self->param('service_id');
                 # Marking the restart of pfperl-api as complete since it will be complete when running in a container
                 if ($action eq 'do_restart' && $service_id eq 'pfperl-api') {
-                    $updater->completed({restart => 0, pid => 0});
-                    my $data = $self->$action();
-                } else {
-                    my $data = $self->$action();
-                    $updater->completed($data);
+                    if (open(my $fh, ">", $pfperl_api_restart_task)) {
+                        print $fh $task_id;
+                        close($fh);
+                    }
                 }
+                my $data = $self->$action();
+                $updater->completed($data);
             },
             sub {},
         );
