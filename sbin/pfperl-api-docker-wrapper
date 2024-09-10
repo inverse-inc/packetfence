@@ -20,6 +20,7 @@ args="$args --network=host"
 args="$args -e HOST_OS"
 args="$args -e DOCKER_NETWORK_IS_HOST"
 args="$args -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/"
+args="$args -v /usr/local/pf/var/pfperl-api:/usr/local/pf/var/pfperl-api"
 
 if ! [ -z "$HTML_MOUNT" ]; then
   args="$args -v$HTML_MOUNT:/usr/local/pf/html"
