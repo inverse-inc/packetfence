@@ -23,9 +23,13 @@ use JSON::MaybeXS qw();
    }
 }
 
+use pf::services;
+use pf::pfqueue::status_updater::redis;
+use pf::util::pfqueue qw(consumer_redis_client);
+
 use Mojo::Base 'Mojolicious';
 use pf::util qw(add_jitter);
-use pf::file_paths qw($log_conf_dir);
+use pf::file_paths qw($log_conf_dir $pfperl_api_restart_task);
 use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
 use MojoX::Log::Log4perl;
@@ -33,6 +37,7 @@ use pf::UnifiedApi::Controller;
 use pf::UnifiedApi::Controller::Config::Switches;
 use pf::I18N::pfappserver;
 use pfconfig::refresh_last_touch_cache;
+use File::Slurp;
 our $MAX_REQUEST_HANDLED = 2000;
 our $REQUEST_HANDLED_JITTER = 500;
 
@@ -108,8 +113,15 @@ sub before_server_start {
         );
     }
 
-    if (-e '') {
-
+    if (-e $pfperl_api_restart_task) {
+        my $task_id = read_file($pfperl_api_restart_task, {err_mode => 'quiet'});
+        unlink($pfperl_api_restart_task);
+        if (defined $task_id) {
+            chomp($task_id);
+            if ($task_id ne '') {
+                set_service_status($task_id, 'pfperl-api');
+            }
+        }
     }
 }
 

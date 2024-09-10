@@ -134,6 +134,7 @@ our (
     $provisioning_filters_config_default_file,
     $provisioning_filters_meta_config_file,
     $provisioning_filters_meta_config_default_file,
+    $pfperl_api_restart_task,
 );
 
 BEGIN {
@@ -242,6 +243,7 @@ BEGIN {
         $provisioning_filters_config_default_file
         $provisioning_filters_meta_config_file
         $provisioning_filters_meta_config_default_file
+        $pfperl_api_restart_task
     );
 }
 
@@ -274,6 +276,7 @@ $systemd_unit_dir   = "/usr/lib/systemd/system";
 $acme_challenge_dir = catdir($conf_dir,"ssl/acme-challenge");
 $conf_uploads = catdir($conf_dir, "uploads");
 $api_i18n_dir       = catdir($conf_dir, "I18N/api");
+$pfperl_api_restart_task   = catdir($var_dir, "pfperl-api/restart-task");
 
 $pfcmd_binary = catfile( $bin_dir, "pfcmd" );
 
