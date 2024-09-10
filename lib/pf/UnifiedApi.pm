@@ -107,6 +107,32 @@ sub before_server_start {
             }
         );
     }
+
+    if (-e '') {
+
+    }
+}
+
+sub set_service_status {
+    my ($task_id, $service_id) = @_;
+    my $service = get_service($service_id);
+    if (!$service) {
+        return;
+    }
+
+    my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
+    my $pid = $service->pid();
+    $updater->completed({restart => $pid ? 1 : 0, pid => $pid});
+}
+
+sub get_service {
+    my ($service_id) = @_;
+    my $class = $pf::services::ALL_MANAGERS{$service_id};
+    if(defined($class) && $class->can('new')){
+        return $class;
+    }
+
+    return undef;
 }
 
 =head2 before_render_cb
