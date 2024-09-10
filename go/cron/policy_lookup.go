@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/mac"
 	"github.com/smallstep/nosql/database"
 )
 
@@ -20,16 +21,28 @@ var AnyPrefix = netip.MustParsePrefix("0.0.0.0/0")
 
 func ParseAcl(acl string) (Matcher, error) {
 	parts := strings.Fields(acl)
+	if len(parts) == 0 {
+		return Matcher{}, fmt.Errorf("Invalid Syntax")
+	}
+
 	i := 0
 	matcher := Matcher{}
+	hasDstMac := false
 	switch parts[i] {
 	default:
 		return Matcher{}, fmt.Errorf("Invalid Action")
 	case "permit", "deny":
 		matcher.Action = parts[i]
+	case "#permit", "#deny":
+		matcher.Action = parts[i][1:]
+		hasDstMac = true
 	}
 
 	i++
+	if i >= len(parts) {
+		return Matcher{}, fmt.Errorf("Invalid Syntax")
+	}
+
 	switch parts[i] {
 	default:
 		return Matcher{}, fmt.Errorf("Invalid Proto")
@@ -38,44 +51,68 @@ func ParseAcl(acl string) (Matcher, error) {
 	}
 
 	i++
+	if i >= len(parts) {
+		return Matcher{}, fmt.Errorf("Invalid Syntax")
+	}
 	if parts[i] != "any" {
 		return Matcher{}, fmt.Errorf("Invalid Src Address")
 	}
 
 	matcher.SrcNet = AnyPrefix
 	i++
+	if i >= len(parts) {
+		return Matcher{}, fmt.Errorf("Invalid Syntax")
+	}
 
 	switch parts[i] {
 	default:
+
 		ip, err := netip.ParseAddr(parts[i])
 		if err != nil {
-			return Matcher{}, fmt.Errorf("Invalid Dst address: %w", err)
+			return Matcher{}, fmt.Errorf("Invalid Dst Address: %w", err)
 		}
 
 		i++
-		ip2, err := netip.ParseAddr(parts[i])
+		if i >= len(parts) {
+			return Matcher{}, fmt.Errorf("Invalid Syntax")
+		}
+		mask, err := netip.ParseAddr(parts[i])
 		if err != nil {
-			return Matcher{}, fmt.Errorf("Invalid Dst address: %w", err)
+			return Matcher{}, fmt.Errorf("Invalid Dst Address: %w", err)
 		}
 
-		if !ip2.Is4() {
-			return Matcher{}, fmt.Errorf("Invalid Dst wildcard invalid syntax")
+		if !mask.Is4() {
+			return Matcher{}, fmt.Errorf("Invalid Dst Wildcard Invalid Syntax")
 		}
 
-		a4 := ip2.As4()
-		for i, b := range a4 {
-			a4[i] = ^b
+		mask4 := mask.As4()
+		for i, b := range mask4 {
+			mask4[i] = ^b
 		}
 
-		one, _ := net.IPv4Mask(a4[0], a4[1], a4[2], a4[3]).Size()
+		one, _ := net.IPv4Mask(mask4[0], mask4[1], mask4[2], mask4[3]).Size()
 		matcher.DstNet = netip.PrefixFrom(ip, one)
 	case "any":
 		matcher.DstNet = AnyPrefix
 	case "host":
 		i++
+		if i >= len(parts) {
+			return Matcher{}, fmt.Errorf("Invalid Syntax")
+		}
+		if hasDstMac {
+			destMac, err := mac.NewFromString(parts[i])
+			if err != nil {
+				return Matcher{}, fmt.Errorf("Invalid Dst Mac: %w", err)
+			}
+
+			matcher.DstNet = AnyPrefix
+			matcher.DstMac = destMac
+			break
+		}
+
 		p, err := netip.ParsePrefix(parts[i] + "/32")
 		if err != nil {
-			return Matcher{}, fmt.Errorf("Invalid Dst: %w", err)
+			return Matcher{}, fmt.Errorf("Invalid Dst Address: %w", err)
 		}
 
 		matcher.DstNet = p
@@ -89,6 +126,9 @@ func ParseAcl(acl string) (Matcher, error) {
 		case "eq":
 			matcher.Op = parts[i]
 			i++
+			if i >= len(parts) {
+				return Matcher{}, fmt.Errorf("Invalid Syntax")
+			}
 			port, err := strconv.ParseUint(parts[i], 10, 16)
 			if err != nil {
 				return Matcher{}, fmt.Errorf("Invalid port:%w", err)
@@ -102,6 +142,7 @@ func ParseAcl(acl string) (Matcher, error) {
 
 type Matcher struct {
 	Action string
+	DstMac mac.Mac
 	Op     string
 	Proto  IpProtocol
 	Port   int
@@ -110,7 +151,23 @@ type Matcher struct {
 }
 
 func (m *Matcher) Matches(ne *NetworkEvent) bool {
-	return m.Port == ne.DestPort && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.DstNet.Contains(ne.DestIp)
+	return m.Port == ne.DestPort && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne)
+}
+
+func (m *Matcher) matchDest(ne *NetworkEvent) bool {
+	if m.DstMac.IsZero() {
+		return m.DstNet.Contains(ne.DestIp)
+	}
+
+	if ne.DestInventoryitem == nil {
+		return false
+	}
+
+	if len(ne.DestInventoryitem.ExternalIDS) == 0 {
+		return false
+	}
+
+	return ne.DestInventoryitem.ExternalIDS[0] == m.DstMac.String()
 }
 
 type Policy struct {

@@ -2,16 +2,20 @@ package maint
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/netip"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/inverse-inc/go-utils/mac"
 )
 
 func TestMatcher(t *testing.T) {
 	tests := []struct {
 		in  string
 		out Matcher
+		err error
 	}{
 		{
 
@@ -357,12 +361,40 @@ func TestMatcher(t *testing.T) {
 				Op:     "eq",
 			},
 		},
+		{
+			in: "#deny udp any host 11:11:11:11:11:11 eq 789",
+			out: Matcher{
+				Action: "deny",
+				DstMac: mac.Mac{0x11, 0x11, 0x11, 0x11, 0x11, 0x11},
+				Proto:  IpProtocol("udp"),
+				Port:   789,
+				SrcNet: AnyPrefix,
+				DstNet: AnyPrefix,
+				Op:     "eq",
+			},
+		},
+		{
+			in:  "#deny udp any host 11:11:11:11:11:11 eq ",
+			err: fmt.Errorf("Invalid Syntax"),
+		},
+		{
+			in:  "#deny",
+			err: fmt.Errorf("Invalid Syntax"),
+		},
+		{
+			in:  "",
+			err: fmt.Errorf("Invalid Syntax"),
+		},
 	}
 
 	for _, test := range tests {
 		matcher, err := ParseAcl(test.in)
 		if err != nil {
-			t.Errorf("Parse error acl '%s': %s", test.in, err.Error())
+			if test.err == nil {
+				t.Errorf("Parse error acl '%s': %s", test.in, err.Error())
+			}
+
+			errors.Is(err, test.err)
 			continue
 		}
 
@@ -437,6 +469,32 @@ func TestMatchNetworkEvent(t *testing.T) {
 			},
 			true,
 		},
+		{
+			"#permit udp any host 11:11:11:11:11:11 eq 19",
+			NetworkEvent{
+				DestPort:   19,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolUdp,
+				DestInventoryitem: &InventoryItem{
+					ExternalIDS: []string{"11:11:11:11:11:11"},
+				},
+			},
+			true,
+		},
+		{
+			"#permit udp any host 11:11:11:11:11:11 eq 19",
+			NetworkEvent{
+				DestPort:   19,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolUdp,
+				DestInventoryitem: &InventoryItem{
+					ExternalIDS: []string{"11:11:11:11:11:12"},
+				},
+			},
+			false,
+		},
 	}
 
 	for _, test := range tests {
@@ -449,22 +507,24 @@ func TestMatchNetworkEvent(t *testing.T) {
 			t.Fatalf("Acl did not match network event: Matcher %v", matcher)
 		}
 	}
-	ne :=
-		NetworkEvent{
-			DestPort:   18,
-			SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
-			DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
-			IpProtocol: IpProtocolTcp,
-		}
+
+	ne := NetworkEvent{
+		DestPort:   18,
+		SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+		DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+		IpProtocol: IpProtocolTcp,
+	}
 
 	matcher, _ := ParseAcl("permit tcp any host 10.0.0.3 eq 18")
 	if !matcher.Matches(&ne) {
 		t.Fatalf("Acl did not match network event")
 	}
+
 	matcher, _ = ParseAcl("permit tcp any 10.0.0.0 0.0.0.255 eq 18")
 	if !matcher.Matches(&ne) {
 		t.Fatalf("Acl did not match network event")
 	}
+
 }
 
 const RolesPoliciesMapJSON = `
