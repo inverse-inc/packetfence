@@ -16,7 +16,9 @@ args+=" --cap-add SYS_PTRACE"
 args+=" --cap-add SYS_ADMIN"
 args+=" --security-opt apparmor=unconfined"
 
-args+=" -v /usr/local/pf/var/conf/netdata:/etc/netdata"
+args+=" -v /usr/local/pf/var/conf/monitoring:/etc/netdata"
+args+=" -v /usr/local/pf/logs:/usr/local/pf/logs"
+
 args+=" -v /var/lib/netdata:/var/lib/netdata"
 args+=" -v /var/cache/netdata:/var/cache/netdata"
 args+=" -v /etc/passwd:/host/etc/passwd:ro"
@@ -28,7 +30,11 @@ args+=" -v /sys:/host/sys:ro"
 args+=" -v /etc/os-release:/host/etc/os-release:ro"
 args+=" -v /var/log:/host/var/log:ro"
 args+=" -v /var/run/docker.sock:/var/run/docker.sock:ro"
+args+=" -v /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock:ro"
+args+=" -v /run/dbus:/run/dbus:ro"
 
 args+=" -p 19999:19999"
+
+args+=" --env DOCKER_USR=root"
 
 run $name "$args"

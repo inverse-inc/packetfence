@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"time"
@@ -220,7 +221,7 @@ func (h ApiAAAHandler) handleLogin(w http.ResponseWriter, r *http.Request, p htt
 
 	if auth {
 		expire := time.Now().Add(15 * time.Minute)
-		cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, Secure: true, HttpOnly: true, MaxAge: 90000}
+		cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, MaxAge: 90000}
 		http.SetCookie(w, &cookie)
 
 		w.WriteHeader(http.StatusOK)
@@ -303,17 +304,28 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	ctx := r.Context()
-	username, password, ok := r.BasicAuth()
-	if ok {
-		auth, token, err := h.authentication.Login(ctx, username, password)
-		if err == nil && auth {
-			r.Header.Set("Authorization", "Bearer "+token)
+	auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)
+	if !auth {
+		username, password, ok := r.BasicAuth()
+		if ok {
+			login, token, _ := h.authentication.Login(ctx, username, password)
+			if login {
+				r.Header.Set("Authorization", "Bearer "+token)
+				h.authentication.TouchTokenInfo(ctx, w, r)
+//				w.Header().Add("Clear-Site-Data", "cookies")
+//				r.URL.Query().Del("token")
+//				http.Redirect(w, r, "https://"+r.Host+r.URL.Path+"?"+r.URL.RawQuery+"&token="+token, http.StatusFound)
+				return true
+			}
+		}
+		host, _, err := net.SplitHostPort(r.Host)
+		if err == nil {
+			w.Header().Add("WWW-Authenticate", "Basic realm=\""+host+"\" charset=\"UTF-8\"")
 		}
 	}
 
-	auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)
+	auth, err = h.authentication.BearerRequestIsAuthorized(ctx, r)
 	if !auth {
-		w.Header().Add("WWW-Authenticate", "Basic charset=\"UTF-8\"")
 		w.WriteHeader(http.StatusUnauthorized)
 
 		if err == nil {

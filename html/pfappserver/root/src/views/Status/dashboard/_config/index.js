@@ -3,6 +3,7 @@ import authentication from './authentication'
 import dhcp from './dhcp'
 import endpoints from './endpoints'
 import logs from './logs'
+import proxy from './proxy'
 import queue from './queue'
 import radius from './radius'
 import system from './system'
@@ -16,4 +17,5 @@ export default [
   ...endpoints,
   ...queue,
   ...logs,
+  ...proxy,
 ]

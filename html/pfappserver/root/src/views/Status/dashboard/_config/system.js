@@ -129,7 +129,7 @@ export default [
           },
           {
             title: 'System Swap Used', // i18n defer
-            metric: 'system.swap',
+            metric: 'mem.swap',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             params: {
@@ -139,7 +139,7 @@ export default [
           },
           {
             title: 'Swap IO', // i18n defer
-            metric: 'system.swapio',
+            metric: 'mem.swapio',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             cols: 6
@@ -151,14 +151,28 @@ export default [
         items: [
           {
             title: 'IPv4 Bandwidth', // i18n defer
-            metric: 'system.ipv4',
+            metric: 'system.ip',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             cols: 6
           },
           {
-            title: 'IPv4 Sockets', // i18n defer
-            metric: 'ipv4.sockstat_sockets',
+            title: 'IPv4 Raw Sockets', // i18n defer
+            metric: 'ipv4.sockstat_raw_sockets',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'IPv4 TCP Sockets', // i18n defer
+            metric: 'ipv4.sockstat_tcp_sockets',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'IPv4 UDP Sockets', // i18n defer
+            metric: 'ipv4.sockstat_udp_sockets',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             cols: 6
@@ -169,6 +183,20 @@ export default [
         name: 'Database', // i18n defer
         items: [
           {
+            title: 'Database Networking', // i18n defer
+            metric: 'mysql_PacketFence_Database.net',
+            mode: modes.SINGLE,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Database handlers', // i18n defer
+            metric: 'mysql_PacketFence_Database.handlers',
+            mode: modes.LOCAL,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
             title: 'Database queries', // i18n defer
             metric: 'mysql_PacketFence_Database.queries',
             mode: modes.LOCAL,
@@ -176,8 +204,8 @@ export default [
             cols: 6
           },
           {
-            title: 'Database handlers', // i18n defer
-            metric: 'mysql_PacketFence_Database.handlers',
+            title: 'Database queries type', // i18n defer
+            metric: 'mysql_PacketFence_Database.queries_type',
             mode: modes.LOCAL,
             library: libraries.DYGRAPH,
             cols: 6

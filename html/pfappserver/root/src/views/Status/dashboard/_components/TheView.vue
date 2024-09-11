@@ -7,6 +7,15 @@
           service="netdata" restart start stop class="mr-1" />
       </b-alert>
       <b-tabs nav-class="nav-fill" v-model="tabIndex" lazy :key="$i18n.locale">
+<b-tab title="uniqueChartIds">
+  <pre>{{ { uniqueChartIds } }}</pre>
+</b-tab>
+<b-tab title="allSections">
+  <pre>{{ { allSections } }}</pre>
+</b-tab>
+<b-tab title="filteredSections">
+  <pre>{{ { filteredSections } }}</pre>
+</b-tab>
         <b-tab v-for="(section, sectionIndex) in filteredSections" :title="$i18n.t(section.name)" :key="`${section.name}-${sectionIndex}`">
           <b-row align-h="center" v-if="sectionIndex === 0"><!-- Show uptime on first tab only -->
             <b-col class="mt-3 text-center" :md="Math.max(parseInt(12/cluster.length), 3)" v-for="({ management_ip, host}, i) in cluster" :key="management_ip">
@@ -63,6 +72,8 @@ const setup = (props, context) => {
   const filteredSections = computed(() => { // filter out empty sections
     const isValid = chart => {
       const uniqueCharts = $store.getters[`$_status/uniqueCharts`]
+//eslint-disable-next-line
+console.log('isValid', chart.metric, !!uniqueCharts.find(c => c.id === chart.metric))
       return uniqueCharts && !!uniqueCharts.find(c => c.id === chart.metric)
     }
     const sections = JSON.parse(JSON.stringify(allSections))
@@ -212,6 +223,8 @@ const setup = (props, context) => {
   })
 
   return {
+    uniqueChartIds: $store.getters[`$_status/uniqueChartIds`],
+    allSections,
     filteredSections,
     tabIndex,
     chartsError,

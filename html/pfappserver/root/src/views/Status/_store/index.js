@@ -31,6 +31,17 @@ const getters = {
     }
     return charts
   },
+  uniqueChartIds: state => {
+    let charts = [].concat(...Object.values(state.allCharts))
+    // Remove duplicates
+    for (let i = 0; i < charts.length; ++i) {
+      for (let j = i + 1; j < charts.length; ++j) {
+          if (charts[i].id === charts[j].id)
+          charts.splice(j--, 1);
+      }
+    }
+    return charts.map(chart => chart.id)
+  },
   hostsForChart: state => id => {
     return Object.keys(state.allCharts).filter(ip => {
       return state.allCharts[ip].find(chart => chart.id === id)
