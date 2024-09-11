@@ -74,6 +74,7 @@ loop:
 			for _, events := range a.events {
 				startTime := int64(math.MaxInt64)
 				endTime := int64(0)
+				packetCount := uint64(0)
 				networkEvent := events[0].ToNetworkEvent()
 				if networkEvent == nil {
 					for _, e := range events[1:] {
@@ -88,14 +89,13 @@ loop:
 					continue
 				}
 
-				ports := map[AggregatorSession]struct{}{}
 				for _, e := range events {
 					startTime = min(startTime, e.StartTime)
 					endTime = max(endTime, e.EndTime)
-					ports[e.SessionKey()] = struct{}{}
+					packetCount += e.PacketCount
 				}
 
-				networkEvent.Count = len(ports)
+				networkEvent.Count = int(packetCount)
 				if startTime != 0 {
 					networkEvent.StartTime = uint64(startTime)
 				}
