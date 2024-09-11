@@ -142,7 +142,7 @@ If that's not the case, check the output above to understand why the process fai
 
 If you experience any issues during import, you can run it again.
 
-If all goes well, you can restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,following instructions>>.
+If all goes well, you can restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
 
 ===== Additional steps to build or rebuild a cluster
 
