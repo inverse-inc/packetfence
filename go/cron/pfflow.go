@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"cmp"
 	"net/netip"
 	"time"
 )
@@ -41,7 +42,7 @@ type PfFlow struct {
 	DstPort         uint16     `json:"dst_port"`
 	SnmpIndexInput  uint16     `json:"snmp_index_input"`
 	SnmpIndexOutput uint16     `json:"snmp_index_output"`
-	PacketCount     uint16     `json:"packet_count"`
+	PacketCount     uint64     `json:"packet_count"`
 	SrcAS           uint16     `json:"src_as"`
 	DstAS           uint16     `json:"dst_as"`
 	TCPFlags        uint8      `json:"tcp_flags"`
@@ -133,7 +134,7 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 		IpProtocol:          ipProto,
 		IpVersion:           IpVersionIpv4,
 		EnforcementState:    EnforcementStateEnforcing,
-		Count:               1,
+		Count:               cmp.Or(int(f.PacketCount), 1),
 		StartTime:           uint64(time.Now().Unix()),
 		Direction:           f.NetworkEventDirection(),
 		DestInventoryitem:   f.DestInventoryitem(),
