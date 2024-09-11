@@ -24,8 +24,7 @@ my $HASH_TYPE = 'SHA256';
 my $LEN = 32;
 
 sub derived_key {
-    my ($salt) = @_;
-    return pbkdf2($unified_api_system_user->{pass}, $salt, $ITERATION_COUNT, $HASH_TYPE, $LEN);
+    return pbkdf2($unified_api_system_user->{pass}, 'packetfence', $ITERATION_COUNT, $HASH_TYPE, $LEN);
 }
 
 sub encode_tags {
@@ -54,19 +53,18 @@ sub decode_tags {
 }
 
 sub pf_encrypt {
-    my ($text, $salt) = @_;
-    my $iv = random_bytes(16);
-    my $derived_key = derived_key($salt);
+    my ($text) = @_;
+    my $iv = random_bytes(12);
+    my $derived_key = derived_key();
     my $ad = '';
     my ($ciphertext, $tag) = gcm_encrypt_authenticate('AES', $derived_key, $iv, $ad, $text);
-    return 'PF_ENC[' . encode_tags(data => $ciphertext, tag => $tag, iv => $iv, salt => $salt, ad => $ad) . ']';
+    return 'PF_ENC[' . encode_tags(data => $ciphertext, tag => $tag, iv => $iv, ad => $ad) . ']';
 }
 
 sub pf_decrypt {
     my ($data) = @_;
     my $tags = decode_tags($data);
-    my $salt = $tags->{salt};
-    my $derived_key = derived_key($salt);
+    my $derived_key = derived_key();
     return gcm_decrypt_verify('AES', $derived_key, $tags->{iv}, $tags->{ad}, $tags->{data}, $tags->{tag});
 }
 =head1 AUTHOR

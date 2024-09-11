@@ -34,8 +34,8 @@ func encodeParts(inputs ...part) string {
 	return strings.Join(parts, ",")
 }
 
-func PfEncrypt(data []byte, salt []byte) (string, error) {
-	key := derivedKey(salt)
+func PfEncrypt(data []byte) (string, error) {
+	key := derivedKey()
 	aesCypher, err := aes.NewCipher(key)
 	ad := []byte{}
 	if err != nil {
@@ -61,7 +61,6 @@ func PfEncrypt(data []byte, salt []byte) (string, error) {
 		encodeParts(
 			part{name: "data", data: out},
 			part{name: "iv", data: iv},
-			part{name: "salt", data: salt},
 			part{name: "tag", data: tag},
 			part{name: "ad", data: ad},
 		) +
@@ -115,11 +114,6 @@ func PfDecrypt(data string) ([]byte, error) {
 		return nil, err
 	}
 
-	saltPart, found := getPart(parts, "salt")
-	if !found {
-		return nil, fmt.Errorf("Salt Not Found")
-	}
-
 	tagPart, found := getPart(parts, "tag")
 	if !found {
 		return nil, fmt.Errorf("Tag Not Found")
@@ -140,7 +134,7 @@ func PfDecrypt(data string) ([]byte, error) {
 		return nil, fmt.Errorf("Associated Data Not Found")
 	}
 
-	key := derivedKey(saltPart.data)
+	key := derivedKey()
 	aesCypher, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, fmt.Errorf("PfDerypt NewCipher: %w", err)
@@ -164,8 +158,8 @@ func PfDecrypt(data string) ([]byte, error) {
 
 var systemUser pfconfigdriver.UnifiedApiSystemUser
 
-func derivedKey(salt []byte) []byte {
-	return pbkdf2.Key([]byte(systemUser.Pass), salt, ITERATION_COUNT, LEN, sha256.New)
+func derivedKey() []byte {
+	return pbkdf2.Key([]byte(systemUser.Pass), []byte("packetfence"), ITERATION_COUNT, LEN, sha256.New)
 }
 
 func init() {
