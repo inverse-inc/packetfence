@@ -6,7 +6,7 @@ module.exports = {
   indexPath: 'index.html',
   devServer: {
     port: 8081,
-    https: true,
+    server: 'https',
     proxy: `https://${process.env.VUE_APP_API_SOCKET_ADDRESS}`
   },
   css: {
