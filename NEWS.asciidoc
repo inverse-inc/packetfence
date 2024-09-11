@@ -27,9 +27,15 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+ * Upgrade to FreeRADIUS 3.2.6 (#8290)
+
 === Enhancements
 
+ * Use proxysql packages in the docker image instead of compilling from the sources (#8267)
+
 === Bug Fixes
+
+ * Don't generate all the time a mac address when using the GenericVPN switch module (#8270)
 
 === Security Fixes
 
