@@ -318,6 +318,7 @@ func (d *Interfaces) readConfig() {
 							backend = ConfNet.PoolBackend
 						}
 						var dstReplyIp string
+
 						if ConfNet.DhcpReplyIp == "" {
 							dstReplyIp = "giaddr"
 						} else {
