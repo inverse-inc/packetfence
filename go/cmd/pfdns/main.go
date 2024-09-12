@@ -12,6 +12,7 @@ import (
 func init() {
 	dnsserver.Directives = insertBefore(dnsserver.Directives, searchIndex(dnsserver.Directives, "forward"), "pfdns")
 	dnsserver.Directives = insertBefore(dnsserver.Directives, searchIndex(dnsserver.Directives, "log")+1, "logger")
+	dnsserver.Directives = moveValueAfter(dnsserver.Directives, "hosts", "pfdns")
 }
 
 func main() {
@@ -47,4 +48,23 @@ func searchIndex(a []string, value string) int {
 		}
 	}
 	return -1
+}
+
+func removeValue(s []string, value string) []string {
+	for i, v := range s {
+		if v == value {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
+}
+
+func moveValueBefore(a []string, value string, after string) []string {
+	b := removeValue(a, value)
+	return insertBefore(b, searchIndex(b, after), value)
+}
+
+func moveValueAfter(a []string, value string, after string) []string {
+	b := removeValue(a, value)
+	return insertBefore(b, searchIndex(b, after)+1, value)
 }
