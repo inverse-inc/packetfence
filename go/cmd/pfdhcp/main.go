@@ -355,7 +355,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	if VIP[I.Name] || handler.available.Listen() {
 
 		defer recoverName(options)
-
+		answer.DstIP = handler.dstIp
 		var Options map[string]string
 		Options = make(map[string]string)
 		for option, value := range options {
@@ -556,7 +556,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			}
 			GlobalOptions = options
 			leaseDuration := handler.leaseDuration
-			answer.DstIP = handler.dstIp
+
 			// Add network options on the fly
 			x, err := decodeOptions(NetScope.IP.String())
 			if err == nil {
