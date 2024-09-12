@@ -480,7 +480,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/html/captive-portal
 touch %{buildroot}/usr/local/pf/var/cache_control
 cp Makefile %{buildroot}/usr/local/pf/
-cp .dockerignore %{buildroot}/usr/local/pf/
+cp .dockerignore %{buildroot}/usr/local/pf/ 2>/dev/null
 cp config.mk %{buildroot}/usr/local/pf/
 cp -r bin %{buildroot}/usr/local/pf/
 cp -r addons/pfconfig/ %{buildroot}/usr/local/pf/addons/
