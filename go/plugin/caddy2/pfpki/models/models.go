@@ -145,7 +145,7 @@ type (
 		DeletedAt          gorm.DeletedAt  `json:"-" gorm:"index"`
 		DB                 gorm.DB         `json:"-" gorm:"-"`
 		Ctx                context.Context `json:"-" gorm:"-"`
-		Cn                 string          `json:"cn,omitempty"`
+		Cn                 string          `json:"cn,omitempty" gorm:"unique_index:cn_serial"`
 		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca                 CA              `json:"-"`
 		CaID               uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
@@ -165,7 +165,7 @@ type (
 		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until" gorm:"type:time"`
 		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"INDEX:not_before" gorm:"type:time"`
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-		SerialNumber       string          `json:"serial_number,omitempty"`
+		SerialNumber       string          `json:"serial_number,omitempty" gorm:"unique_index:cn_serial"`
 		DNSNames           string          `json:"dns_names,omitempty"`
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`

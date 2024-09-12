@@ -93,7 +93,7 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 	} else {
 		pfpki.DB = Database
 	}
-
+	pfpki.DB.AutoMigrate(&models.Cert{})
 	pfpki.Ctx = &ctx
 
 	// Default http timeout
