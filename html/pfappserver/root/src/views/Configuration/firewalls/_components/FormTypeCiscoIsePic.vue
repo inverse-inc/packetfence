@@ -53,6 +53,27 @@
                               enabled-value="1"
                               namespace="use_connector"
     />
+
+    <form-group-sso-on-access-reevaluation namespace="sso_on_access_reevaluation"
+                                           :column-label="$i18n.t('SSO on access reevaluation')"
+                                           :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on access reevaluation.')"
+                                           enabled-value="enabled"
+                                           disabled-value="disabled"
+    />
+
+    <form-group-sso-on-accounting namespace="sso_on_accounting"
+                                  :column-label="$i18n.t('SSO on accounting')"
+                                  :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on accounting.')"
+                                  enabled-value="enabled"
+                                  disabled-value="disabled"
+    />
+
+    <form-group-sso-on-dhcp namespace="sso_on_dhcp"
+                            :column-label="$i18n.t('SSO on DHCP')"
+                            :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on dhcp.')"
+                            enabled-value="enabled"
+                            disabled-value="disabled"
+    />
   </base-form>
 </template>
 <script>
@@ -66,7 +87,10 @@ import {
   FormGroupNetworks,
   FormGroupPort,
   FormGroupUseConnector,
-  FormGroupUsernameFormat
+  FormGroupUsernameFormat,
+  FormGroupSsoOnAccessReevaluation,
+  FormGroupSsoOnAccounting,
+  FormGroupSsoOnDhcp,
 } from './'
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
@@ -81,7 +105,10 @@ const components = {
   FormGroupNetworks,
   FormGroupPort,
   FormGroupUseConnector,
-  FormGroupUsernameFormat
+  FormGroupUsernameFormat,
+  FormGroupSsoOnAccessReevaluation,
+  FormGroupSsoOnAccounting,
+  FormGroupSsoOnDhcp,
 }
 
 // @vue/component
