@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"cmp"
 	"context"
 	"database/sql"
 	"math"
@@ -92,7 +93,7 @@ loop:
 				for _, e := range events {
 					startTime = min(startTime, e.StartTime)
 					endTime = max(endTime, e.EndTime)
-					packetCount += e.PacketCount
+					packetCount += cmp.Or(e.PacketCount, 1)
 				}
 
 				networkEvent.Count = int(packetCount)
