@@ -42,4 +42,19 @@ func TestPerl(t *testing.T) {
 		t.Fatalf("expected does not match Output")
 	}
 
+	text, err := PfEncrypt([]byte(expected))
+	if err != nil {
+		t.Fatalf("PfEncrypt: %s", err.Error())
+	}
+
+	cmd = exec.Command("perl", "-I/usr/local/pf/lib", "-I/usr/local/pf/lib_perl/lib/perl5", "-Mpf::config::crypt", "-eprint pf::config::crypt::pf_decrypt($ARGV[0])", text)
+	output, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("perl crypt: %s", err.Error())
+	}
+
+	if bytes.Compare(expected, output) != 0 {
+		t.Fatalf("expected does not match Output")
+	}
+
 }
