@@ -159,7 +159,7 @@ func PfDecrypt(data string) ([]byte, error) {
 var systemUser pfconfigdriver.UnifiedApiSystemUser
 
 func derivedKey() []byte {
-	return pbkdf2.Key([]byte(systemUser.Pass), []byte("packetfence"), ITERATION_COUNT, LEN, sha256.New)
+	return pbkdf2.Key(systemInitKey, []byte("packetfence"), ITERATION_COUNT, LEN, sha256.New)
 }
 
 func init() {

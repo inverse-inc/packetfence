@@ -17,14 +17,22 @@ use Crypt::Mode::CBC;
 use Crypt::PRNG qw(random_bytes);
 use Crypt::AuthEnc::GCM qw(gcm_encrypt_authenticate gcm_decrypt_verify);
 use MIME::Base64;
-use pf::config qw($unified_api_system_user);
+use pf::file_paths qw($system_init_key_file);
 
 my $ITERATION_COUNT = 5000;
 my $HASH_TYPE = 'SHA256';
 my $LEN = 32;
+my $SYSTEM_INIT_KEY;
+
+BEGIN {
+    open(my $fh, "<",$system_init_key_file) or die "$!";
+    local $/ = undef;
+    $SYSTEM_INIT_KEY = <$fh>;
+    close($fh);
+}
 
 sub derived_key {
-    return pbkdf2($unified_api_system_user->{pass}, 'packetfence', $ITERATION_COUNT, $HASH_TYPE, $LEN);
+    return pbkdf2($SYSTEM_INIT_KEY, 'packetfence', $ITERATION_COUNT, $HASH_TYPE, $LEN);
 }
 
 sub encode_tags {
