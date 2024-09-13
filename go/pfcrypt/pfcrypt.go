@@ -1,7 +1,6 @@
 package pfcrypt
 
 import (
-	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -11,7 +10,6 @@ import (
 	"io"
 	"strings"
 
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -156,12 +154,6 @@ func PfDecrypt(data string) ([]byte, error) {
 	return output, nil
 }
 
-var systemUser pfconfigdriver.UnifiedApiSystemUser
-
 func derivedKey() []byte {
 	return pbkdf2.Key(systemInitKey, []byte("packetfence"), ITERATION_COUNT, LEN, sha256.New)
-}
-
-func init() {
-	pfconfigdriver.FetchDecodeSocket(context.Background(), &systemUser)
 }
