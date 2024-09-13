@@ -10,8 +10,13 @@ var systemInitKey []byte
 
 func init() {
 	var err error
-	systemInitKey, err = os.ReadFile(file_paths.SYSTEM_INIT_KEY_FILE)
-	if err != nil {
-		panic(err.Error())
+	val := os.Getenv("PF_SYSTEM_INIT_KEY_FILE")
+	if val == "" {
+		systemInitKey, err = os.ReadFile(file_paths.SYSTEM_INIT_KEY_FILE)
+		if err != nil {
+			panic("The PF_SYSTEM_INIT_KEY_FILE environment is not" + err.Error())
+		}
+	} else {
+		systemInitKey = []byte(val)
 	}
 }

@@ -25,10 +25,15 @@ my $LEN = 32;
 my $SYSTEM_INIT_KEY;
 
 BEGIN {
-    open(my $fh, "<",$system_init_key_file) or die "$!";
-    local $/ = undef;
-    $SYSTEM_INIT_KEY = <$fh>;
-    close($fh);
+    my $val = $ENV{PF_SYSTEM_INIT_KEY_FILE};
+    if ($val) {
+        $SYSTEM_INIT_KEY = $val;
+    } else {
+        open(my $fh, "<", $system_init_key_file) or die "open($system_init_key_file): $!";
+        local $/ = undef;
+        $SYSTEM_INIT_KEY = <$fh>;
+        close($fh);
+    }
 }
 
 sub derived_key {
