@@ -145,7 +145,7 @@ type (
 		DeletedAt          gorm.DeletedAt  `json:"-" gorm:"index"`
 		DB                 gorm.DB         `json:"-" gorm:"-"`
 		Ctx                context.Context `json:"-" gorm:"-"`
-		Cn                 string          `json:"cn,omitempty" gorm:"unique_index:cn_serial"`
+		Cn                 string          `json:"cn,omitempty" gorm:"uniqueIndex:cn_serial"`
 		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca                 CA              `json:"-"`
 		CaID               uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
@@ -165,13 +165,13 @@ type (
 		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until" gorm:"type:time"`
 		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"INDEX:not_before" gorm:"type:time"`
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-		SerialNumber       string          `json:"serial_number,omitempty" gorm:"unique_index:cn_serial"`
+		SerialNumber       string          `json:"serial_number,omitempty" gorm:"uniqueIndex:cn_serial"`
 		DNSNames           string          `json:"dns_names,omitempty"`
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`
 		Csr                *bool           `json:"csr,omitempty" gorm:"default:false"`
 		Alert              *bool           `json:"alert,omitempty" gorm:"default:false"`
-		Subject            string          `json:"-" gorm:"UNIQUE"`
+		Subject            string          `json:"-"`
 	}
 
 	// CSR struct
@@ -1163,11 +1163,11 @@ func (c Cert) New() (types.Info, error) {
 	}
 
 	// Check if the certificate is allowed to be revoked
-	_, err := revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, &c.DB)
-	if err != nil {
-		Information.Error = err.Error()
-		return Information, err
-	}
+	// _, err := revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, &c.DB)
+	// if err != nil {
+	// 	Information.Error = err.Error()
+	// 	return Information, err
+	// }
 	// Load the certificates from the database
 	catls, err := tls.X509KeyPair([]byte(prof.Ca.Cert), []byte(prof.Ca.Key))
 	if err != nil {
