@@ -25,6 +25,7 @@ export {
   BaseFormButtonBar                       as FormButtonBar,
 
   BaseFormGroupInput                      as FormGroupIdentifier,
+  BaseFormGroupSwitch                     as FormGroupAllowDuplicatedCn,
   BaseFormGroupChosenOneCa                as FormGroupCaId,
   BaseFormGroupInput                      as FormGroupName,
   BaseFormGroupInputNumber                as FormGroupValidity,

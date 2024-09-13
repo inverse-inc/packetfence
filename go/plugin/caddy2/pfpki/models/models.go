@@ -135,6 +135,7 @@ type (
 		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty" gorm:"default:0"`
 		ScepServer            SCEPServer              `json:"-"`
 		ScepServerID          uint                    `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
+		AllowDuplicatedCN     uint                    `json:"allow_duplicated_cn,omitempty" gorm:"default:0"`
 	}
 
 	// Cert struct
@@ -696,6 +697,15 @@ func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, e
 	var certif Cert
 	var CertDB *gorm.DB
 
+	var profiledb []Profile
+	c.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, cloud_enabled, cloud_service").Where("name = ?", profile).First(&profiledb)
+
+	if profiledb[0].AllowDuplicatedCN == 1 {
+		// Allow duplicated CN in the DB for this profile
+		return true, nil
+
+	}
+
 	if CertDB = c.Where("Cn = ? AND profile_name = ?", cn, profile).Find(&certif); CertDB.Error != nil {
 		// There is no certificate with this CN in the DB
 		return true, nil
@@ -1163,11 +1173,11 @@ func (c Cert) New() (types.Info, error) {
 	}
 
 	// Check if the certificate is allowed to be revoked
-	// _, err := revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, &c.DB)
-	// if err != nil {
-	// 	Information.Error = err.Error()
-	// 	return Information, err
-	// }
+	_, err := revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, &c.DB)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
 	// Load the certificates from the database
 	catls, err := tls.X509KeyPair([]byte(prof.Ca.Cert), []byte(prof.Ca.Key))
 	if err != nil {

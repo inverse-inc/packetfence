@@ -72,6 +72,10 @@
                              :column-label="$i18n.t('OCSP URL')"
                              :text="$i18n.t('Optional. This is the URL of the OCSP server that will be added in the certificate. If empty then the ca one will be used')"
         />
+        <form-group-allow-duplicated-cn namespace="allow_duplicated_cn"
+                             :column-label="$i18n.t('Allow to create multiples certificates with the same Common Name')"
+                             :text="$i18n.t('Optional. This will allow for this profile to create multiples certificates with the same Common Name. This will disable the Days before renewall option')"
+        />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('PKCS 12')">
         <form-group-p12-mail-password namespace="p12_mail_password"
@@ -193,6 +197,7 @@
 import {BaseForm, BaseFormTab} from '@/components/new/'
 import schemaFn from '../schema'
 import {
+  FormGroupAllowDuplicatedCn,
   FormGroupCaId,
   FormGroupCloudEnabled,
   FormGroupCloudService,
@@ -239,6 +244,7 @@ const components = {
   BaseFormTab,
 
   FormGroupIdentifier,
+  FormGroupAllowDuplicatedCn,
   FormGroupCaId,
   FormGroupName,
   FormGroupMail,
