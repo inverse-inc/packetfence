@@ -106,6 +106,9 @@ conf/local_secret:
 conf/unified_api_system_pass:
 	date +%s | sha256sum | base64 | head -c 32 > conf/unified_api_system_pass
 
+conf/system_init_key:
+	hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 

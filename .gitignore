@@ -220,6 +220,7 @@ conf/templates/emails-guest_sponsor_preregistration.txt.tt
 conf/dns_filters.conf
 conf/mariadb/*.tt
 conf/unified_api_system_pass
+conf/system_init_key
 html/pfappserver/pfappserver.conf
 html/captive-portal/captiveportal.conf
 nytprof/

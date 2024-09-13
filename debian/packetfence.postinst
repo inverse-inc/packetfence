@@ -86,6 +86,10 @@ case "$1" in
             date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
         fi
 
+        if [ ! -f /usr/local/pf/conf/system_init_key ]; then
+            hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+        fi
+
         if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
             echo "Building default RADIUS certificates..."
             cd /usr/local/pf/raddb/certs

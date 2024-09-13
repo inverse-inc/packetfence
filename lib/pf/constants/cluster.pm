@@ -33,6 +33,7 @@ use pf::file_paths qw(
     $ip6table_input_management_config_file
     $local_secret_file
     $unified_api_system_pass_file
+    $system_init_key_file
     $network_behavior_policy_config_file
 );
 
@@ -47,6 +48,7 @@ our @FILES_TO_SYNC = (
     $radius_ca_cert,
     $local_secret_file, 
     $unified_api_system_pass_file,
+    $system_init_key_file,
     $network_behavior_policy_config_file,
     $pfconfig::constants::CONFIG_FILE_PATH,
     $iptable_config_file,
