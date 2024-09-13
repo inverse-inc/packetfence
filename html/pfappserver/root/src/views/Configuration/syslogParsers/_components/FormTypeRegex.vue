@@ -20,6 +20,10 @@
                      :column-label="$i18n.t('Alert pipe')"
     />
 
+    <form-group-rate-limit namespace="rate_limit"
+                           :column-label="$i18n.t('Rate limit')"
+    />
+
     <form-group-rules namespace="rules"
                       :column-label="$i18n.t('Rules')"
     />
@@ -34,6 +38,7 @@ import {BaseForm} from '@/components/new/'
 import {
   FormGroupIdentifier,
   FormGroupPath,
+  FormGroupRateLimit,
   FormGroupRules,
   FormGroupStatus,
   FormGroupTest
@@ -45,6 +50,7 @@ const components = {
 
   FormGroupIdentifier,
   FormGroupPath,
+  FormGroupRateLimit,
   FormGroupRules,
   FormGroupStatus,
   FormGroupTest
