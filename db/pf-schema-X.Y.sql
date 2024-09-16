@@ -1408,7 +1408,7 @@ CREATE TABLE `pki_cas` (
   KEY `idx_pki_cas_deleted_at` (`deleted_at`),
   KEY `mail` (`mail`),
   KEY `organisation` (`organisation`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_profiles`
@@ -1468,7 +1468,7 @@ CREATE TABLE `pki_profiles` (
   KEY `ca_id` (`ca_id`),
   CONSTRAINT `fk_pki_profiles_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
   CONSTRAINT `fk_pki_profiles_scep_server` FOREIGN KEY (`scep_server_id`) REFERENCES `pki_scep_servers` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_certs`
