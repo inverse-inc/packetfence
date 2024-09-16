@@ -135,7 +135,7 @@ type (
 		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty" gorm:"default:0"`
 		ScepServer            SCEPServer              `json:"-"`
 		ScepServerID          uint                    `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
-		AllowDuplicatedCN     uint                    `json:"allow_duplicated_cn,omitempty" gorm:"default:0"`
+		AllowDuplicatedCN     int                     `json:"allow_duplicated_cn,omitempty" gorm:"default:0"`
 	}
 
 	// Cert struct
@@ -1031,7 +1031,6 @@ func (p Profile) New() (types.Info, error) {
 }
 
 func (p Profile) Update(params map[string]string) (types.Info, error) {
-
 	var profiledb []Profile
 	Information := types.Info{}
 	scepserver := &SCEPServer{}

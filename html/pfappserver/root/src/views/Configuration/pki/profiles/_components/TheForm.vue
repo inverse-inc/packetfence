@@ -75,6 +75,8 @@
         <form-group-allow-duplicated-cn namespace="allow_duplicated_cn"
                              :column-label="$i18n.t('Allow to create multiples certificates with the same Common Name')"
                              :text="$i18n.t('Optional. This will allow for this profile to create multiples certificates with the same Common Name. This will disable the Days before renewall option')"
+                             :enabled-value="1"
+                             :disabled-value="0"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('PKCS 12')">
