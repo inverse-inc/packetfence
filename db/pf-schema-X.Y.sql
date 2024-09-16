@@ -1457,18 +1457,18 @@ CREATE TABLE `pki_profiles` (
   `cloud_service` longtext DEFAULT NULL,
   `scep_server_enabled` bigint(20) DEFAULT 0,
   `scep_server_id` bigint(20) unsigned DEFAULT NULL,
-  `allow_duplicated_cn` bigint(20) unsigned DEFAULT 0,
+  `allow_duplicated_cn` bigint(20) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
+  KEY `ca_name` (`ca_name`),
+  KEY `scep_server_id` (`scep_server_id`),
   KEY `idx_pki_profiles_deleted_at` (`deleted_at`),
   KEY `mail` (`mail`),
   KEY `organisation` (`organisation`),
   KEY `ca_id` (`ca_id`),
-  KEY `ca_name` (`ca_name`),
-  KEY `scep_server_id` (`scep_server_id`),
   CONSTRAINT `fk_pki_profiles_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
   CONSTRAINT `fk_pki_profiles_scep_server` FOREIGN KEY (`scep_server_id`) REFERENCES `pki_scep_servers` (`id`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_certs`
