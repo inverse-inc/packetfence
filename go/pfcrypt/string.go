@@ -15,6 +15,10 @@ func (c CryptString) AsEncrypted() (string, error) {
 	return PfEncrypt([]byte(c))
 }
 
+func (c CryptString) String() string {
+	return string(c)
+}
+
 func (c CryptString) MarshalJSON() ([]byte, error) {
 	out, err := c.AsEncrypted()
 	if err != nil {

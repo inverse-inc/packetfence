@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/pfcrypt"
 )
 
 // Interface for a pfconfig object. Not doing much now but it is there for future-proofing
@@ -500,24 +501,24 @@ type AuthenticationSourceRadius struct {
 
 type AuthenticationSourceLdap struct {
 	StructConfig
-	PfconfigMethod    string   `val:"hash_element"`
-	PfconfigNS        string   `val:"resource::authentication_sources_ldap"`
-	PfconfigHashNS    string   `val:"-"`
-	Description       string   `json:"description"`
-	Password          string   `json:"password"`
-	Port              string   `json:"port"`
-	Host              []string `json:"host"`
-	ReadTimeout       string   `json:"read_timeout"`
-	WriteTimeout      string   `json:"write_timeout"`
-	BaseDN            string   `json:"basedn"`
-	Scope             string   `json:"scope"`
-	EmailAttribute    string   `json:"email_attribute"`
-	UserNameAttribute string   `json:"usernameattribute"`
-	UseConnector      bool     `json:"use_connector"`
-	BindDN            string   `json:"binddn"`
-	Encryption        string   `json:"encryption"`
-	Monitor           string   `json:"monitor"`
-	Type              string   `json:"type"`
+	PfconfigMethod    string              `val:"hash_element"`
+	PfconfigNS        string              `val:"resource::authentication_sources_ldap"`
+	PfconfigHashNS    string              `val:"-"`
+	Description       string              `json:"description"`
+	Password          pfcrypt.CryptString `json:"password"`
+	Port              string              `json:"port"`
+	Host              []string            `json:"host"`
+	ReadTimeout       string              `json:"read_timeout"`
+	WriteTimeout      string              `json:"write_timeout"`
+	BaseDN            string              `json:"basedn"`
+	Scope             string              `json:"scope"`
+	EmailAttribute    string              `json:"email_attribute"`
+	UserNameAttribute string              `json:"usernameattribute"`
+	UseConnector      bool                `json:"use_connector"`
+	BindDN            string              `json:"binddn"`
+	Encryption        string              `json:"encryption"`
+	Monitor           string              `json:"monitor"`
+	Type              string              `json:"type"`
 }
 
 func (t *AuthenticationSourceLdap) UnmarshalJSON(data []byte) error {

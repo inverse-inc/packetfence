@@ -126,7 +126,7 @@ func (sc LdapSearchClient) connect() ldapClient.ILdapConnection {
 			continue
 		}
 
-		if err = conn.Bind(sc.LdapServer.BindDN, sc.LdapServer.Password); err != nil {
+		if err = conn.Bind(sc.LdapServer.BindDN, sc.LdapServer.Password.String()); err != nil {
 			log.LogInfo(ctx, "Failed to authenticate to an LDAP server: "+err.Error())
 			conn.Close()
 			continue

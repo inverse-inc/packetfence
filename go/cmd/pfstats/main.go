@@ -166,7 +166,7 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 			}
 
 			l.SetTimeout(time.Duration(timeout) * time.Second)
-			err = l.Bind(source.(pfconfigdriver.AuthenticationSourceLdap).BindDN, source.(pfconfigdriver.AuthenticationSourceLdap).Password)
+			err = l.Bind(source.(pfconfigdriver.AuthenticationSourceLdap).BindDN, source.(pfconfigdriver.AuthenticationSourceLdap).Password.String())
 			if err != nil {
 				StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 0)
 			} else {
