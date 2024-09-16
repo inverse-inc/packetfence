@@ -23,6 +23,8 @@ type part struct {
 	data []byte
 }
 
+const PREFIX = "PF_ENC["
+
 func encodeParts(inputs ...part) string {
 	parts := make([]string, len(inputs))
 	for i, t := range inputs {
@@ -55,7 +57,7 @@ func PfEncrypt(data []byte) (string, error) {
 	tagOffset := len(ciphertext) - 16
 	tag := ciphertext[tagOffset:]
 	out := ciphertext[:tagOffset]
-	return "PF_ENC[" +
+	return PREFIX +
 		encodeParts(
 			part{name: "data", data: out},
 			part{name: "iv", data: iv},
@@ -66,7 +68,7 @@ func PfEncrypt(data []byte) (string, error) {
 }
 
 func decodeParts(input string) ([]part, error) {
-	after, found := strings.CutPrefix(input, "PF_ENC[")
+	after, found := strings.CutPrefix(input, PREFIX)
 	if !found {
 		return nil, fmt.Errorf("Invalid format Prefix not found")
 	}
