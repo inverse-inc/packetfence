@@ -15,6 +15,7 @@ export {
   BaseViewCollectionItem as BaseView,
   BaseFormButtonBar as FormButtonBar,
 
+  BaseFormGroupSwitch as FormGroupActOnAccountingStop,
   BaseFormGroupInputNumber as FormGroupCacheTimeout,
   BaseFormGroupSwitch as FormGroupCacheUpdates,
   BaseFormGroupChosenMultiple as FormGroupCategories,

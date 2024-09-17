@@ -271,7 +271,7 @@ npm_clean:
 dist: distclean
 	mkdir -p packetfence-$(PF_PATCH_RELEASE)
 	# preserve, recursive and symlinks
-	cp -pRH $(files_to_include) packetfence-$(PF_PATCH_RELEASE)
+	cp -pRH $(files_to_include) $(SRC_ROOT_DIR)/.dockerignore packetfence-$(PF_PATCH_RELEASE)
 	tar c --exclude-from=$(SRC_ROOT_DIR)/dist_ignore \
 	-f packetfence-$(PF_PATCH_RELEASE).tar packetfence-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-$(PF_PATCH_RELEASE)

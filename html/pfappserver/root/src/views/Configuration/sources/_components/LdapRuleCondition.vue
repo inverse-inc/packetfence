@@ -46,7 +46,7 @@ const props = {
 
 const setup = (props, context) => {
 
-  const ldapSearchOperators = [operatorMap.is, operatorMap.equals, operatorMap.not_equals]
+  const ldapSearchOperators = [operatorMap.is, operatorMap.equals, operatorMap.not_equals, operatorMap.is_member_of]
 
   const metaProps = useInputMeta(props, context)
 

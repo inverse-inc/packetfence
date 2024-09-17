@@ -78,6 +78,7 @@ sub do_sso {
         device_class      => $node->{device_class} || $UNKNOWN,
         device_type       => $node->{device_type} || $UNKNOWN,
         computername      => $node->{computername} || $UNKNOWN,
+        source            => ($postdata{source} // "" ) ."",
     });
 
     return $TRUE;
