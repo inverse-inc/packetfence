@@ -1958,7 +1958,7 @@ To know if you are using mariadb-backup, check if the package is installed or if
 /usr/bin/mariabackup based on MariaDB server 10.5.24-MariaDB debian-linux-gnu (x86_64)
 ----
 
-If you are not using it, please just follow the default export process explained there <<PacketFence_Installation_Guide.html#_export_on_current_installation>>. 
+If you are not using it, please just follow the default export process explained there <<PacketFence_Installation_Guide.html#_export_on_current_installation,export on current installation>>.
 
 To export from Debian 11 or from RedHat EL8 with a Mariadb backup installed to Debian 12 (only), you will need to change mariadb-backup on the current installation.
 
@@ -1970,9 +1970,9 @@ Before doing anything else, be sure to read <<PacketFence_Installation_Guide.asc
 
 The main idea will be to install mariadb-backup used in Debian 12 in the current VM then do the db backup then restore the current mariadb-backup version.
 
-* To do the database backup in order to export it later, please use the following steps and command lines:
-** On debian11 with mariadb-backup installed
-*** Install the next version of mariabd-backup 
+To do the database backup in order to export it later, please use the following steps and command lines:
+* On debian11 with mariadb-backup installed
+** Install the next version of mariabd-backup
 
 ----
 wget https://archive.mariadb.org/mariadb-10.11.6/repo/debian/pool/main/m/mariadb/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb -O /root/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb
@@ -1981,7 +1981,7 @@ mv /root/mariadb-backup/usr/bin/mariabackup /usr/bin/mariabackup
 mv /root/mariadb-backup/usr/bin/mbstream /usr/bin/mbstream
 ----
 
-*** Do the database backup
+** Do the database backup
 
 ----
 /usr/local/pf/addons/backup-and-maintenance.sh
@@ -1993,17 +1993,25 @@ mv /root/mariadb-backup/usr/bin/mbstream /usr/bin/mbstream
 apt reinstall mariadb-backup -y
 ----
 
-** on el8 with MariaDB-backup installed
+* on el8 with MariaDB-backup installed
 ----
 yum remove MariaDB-backup
 yum localinstall https://archive.mariadb.org/mariadb-10.11.6/yum/rhel8-amd64/rpms/MariaDB-backup-10.11.6-1.el8.x86_64.rpm
-## do the database backup
+----
+
+** do the database backup
+
+----
 /usr/local/pf/addons/backup-and-maintenance.sh
-## reinstall the correct version of mariadb-backup
+----
+
+** reinstall the correct version of mariadb-backup
+
+----
 yum reinstall MariaDB-backup
 ----
 
-* Then, run the export script:
+** Then, run the export script:
 
 ----
 /usr/local/pf/addons/full-import/export.sh /tmp/export.tgz
