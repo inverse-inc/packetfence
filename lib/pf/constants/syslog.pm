@@ -33,6 +33,8 @@ our @SyslogInfo = (
         'conditions' => [
             '$programname contains "packetfence"',
             '$programname == "pfqueue"',
+            '$programname == "pfqueue-go"',
+            '$programname == "pfqueue-backend"',
             '($syslogtag == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
             '$programname == "pfipset"',
             '$programname == "pfpki-docker-wrapper"',
