@@ -50,11 +50,19 @@
                               :text="$i18n.t('The default realm to be used while formatting the username when no realm can be extracted from the username.')"
                               namespace="default_realm"
     />
+
+    <form-group-act-on-accounting-stop :column-label="$i18n.t('Act on accounting stop')"
+                              :text="$i18n.t('Send SSO stop on accounting stop.')"
+                              disabled-value="0"
+                              enabled-value="1"
+                              namespace="act_on_accounting_stop"
+    />
   </base-form>
 </template>
 <script>
 import {BaseForm} from '@/components/new/'
 import {
+  FormGroupActOnAccountingStop,
   FormGroupCacheTimeout,
   FormGroupCacheUpdates,
   FormGroupCategories,
@@ -70,6 +78,7 @@ import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 const components = {
   BaseForm,
 
+  FormGroupActOnAccountingStop,
   FormGroupCacheTimeout,
   FormGroupCacheUpdates,
   FormGroupCategories,
