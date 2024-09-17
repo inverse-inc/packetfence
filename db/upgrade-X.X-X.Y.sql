@@ -53,7 +53,8 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 \! echo "altering pki_profiles"
 ALTER TABLE `pki_profiles`
-    ADD IF NOT EXISTS `allow_duplicated_cn` bigint(20) unsigned DEFAULT 0  AFTER `scep_server_id`;
+    ADD IF NOT EXISTS `allow_duplicated_cn` bigint(20) unsigned DEFAULT 0  AFTER `scep_server_id`,
+    ADD IF NOT EXISTS `maximum_duplicated_cn` bigint(20) DEFAULT 0;
 
 \! echo "altering pki_certs"
 ALTER TABLE `pki_certs`

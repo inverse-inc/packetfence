@@ -41,6 +41,7 @@ export {
   BaseFormGroupDigest                     as FormGroupDigest,
   BaseFormGroupKeyUsage                   as FormGroupKeyUsage,
   BaseFormGroupExtendedKeyUsage           as FormGroupExtendedKeyUsage,
+  BaseFormGroupInputNumber                as FormGroupMaximumDuplicatedCn,
   BaseFormGroupInput                      as FormGroupOcspUrl,
   BaseFormGroupSwitch                     as FormGroupP12MailPassword,
   BaseFormGroupInput                      as FormGroupP12MailSubject,

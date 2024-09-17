@@ -1458,6 +1458,7 @@ CREATE TABLE `pki_profiles` (
   `scep_server_enabled` bigint(20) DEFAULT 0,
   `scep_server_id` bigint(20) unsigned DEFAULT NULL,
   `allow_duplicated_cn` bigint(20) DEFAULT 0,
+  `maximum_duplicated_cn` bigint(20) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `ca_name` (`ca_name`),

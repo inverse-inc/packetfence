@@ -78,6 +78,10 @@
                              :enabled-value="1"
                              :disabled-value="0"
         />
+        <form-group-maximum-duplicated-cn namespace="maximum_duplicated_cn"
+                             :column-label="$i18n.t('Maximum number of certificates with the same CN.')"
+                             :text="$i18n.t('This will determine the maximum number of certificates the pki can generate with the same Common Name. The code will revoke the expired certificates. 0 mean unlimitesd')"
+        />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('PKCS 12')">
         <form-group-p12-mail-password namespace="p12_mail_password"
@@ -214,6 +218,7 @@ import {
   FormGroupKeyUsage,
   FormGroupLocality,
   FormGroupMail,
+  FormGroupMaximumDuplicatedCn,
   FormGroupName,
   FormGroupOcspUrl,
   FormGroupOrganisation,
@@ -263,6 +268,7 @@ const components = {
   FormGroupDigest,
   FormGroupKeyUsage,
   FormGroupExtendedKeyUsage,
+  FormGroupMaximumDuplicatedCn,
   FormGroupOcspUrl,
   FormGroupP12MailPassword,
   FormGroupP12MailSubject,
