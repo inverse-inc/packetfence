@@ -1928,15 +1928,88 @@ Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch modules
 
 == Upgrading from a version prior to 14.0.0
 
-
 === Admin Role
 
 Since 14.0 PacketFence is able to receive events from the FleetDM servers, which allows PacketFence to detect policy violations or CVEs of devices managed by FleetDM. To add a new admin role to receive these events through the PacketFence API perform the following steps:
 
 [source,bash]
+
 ----
 /usr/local/pf/addons/upgrade/to-14.0-adds-admin-roles-fleetdm.pl
 ----
+
+=== EL8
+
+In place upgrades are supported for Redhat EL8. You can follow up the current <<PacketFence_Upgrade_Guide.html#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>.
+
+=== Debian 12
+
+Starting from PacketFence 14.0.0, Debian 11 support is dropped in benefit of Debian 12.
+In place upgrades are not supported for Debian. You will have to provision new operating system(s) in order to migrate from Debian 11 to Debian 12 or From EL8 to Debian 12.
+
+To simplify upgrade process to PacketFence 14.0.0 and future versions, we continue to rely on an export/import mechanism.
+
+By default, mariadb-backup is installed on any cluster. It could be used on a standalone too.
+
+To know if you are using mariadb-backup, check if the package is installed or if the binary is there:
+
+----
+# /usr/bin/mariabackup --version
+/usr/bin/mariabackup based on MariaDB server 10.5.24-MariaDB debian-linux-gnu (x86_64)
+----
+
+If you are not using it, please just follow the default export process explained there <<PacketFence_Installation_Guide.html#_export_on_current_installation>>. 
+
+To export from Debian 11 or from RedHat EL8 with a Mariadb backup installed to Debian 12 (only), you will need to change mariadb-backup on the current installation.
+
+Before doing anything else, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> of this mechanism.
+
+==== Export DB with mariadb-backup installed to PacketFence 14.0.0 on Debian 12
+
+===== From PacketFence version 11.1.0 to 13.2.0
+
+The main idea will be to install mariadb-backup used in Debian 12 in the current VM then do the db backup then restore the current mariadb-backup version.
+
+* To do the database backup in order to export it later, please use the following steps and command lines:
+** On debian11 with mariadb-backup installed
+*** Install the next version of mariabd-backup 
+
+----
+wget https://archive.mariadb.org/mariadb-10.11.6/repo/debian/pool/main/m/mariadb/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb -O /root/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb
+dpkg-deb -xv /root/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb /root/mariadb-backup
+mv /root/mariadb-backup/usr/bin/mariabackup /usr/bin/mariabackup
+mv /root/mariadb-backup/usr/bin/mbstream /usr/bin/mbstream
+----
+
+*** Do the database backup
+
+----
+/usr/local/pf/addons/backup-and-maintenance.sh
+----
+
+** reinstall the correct version of mariadb-backup
+
+----
+apt reinstall mariadb-backup -y
+----
+
+** on el8 with MariaDB-backup installed
+----
+yum remove MariaDB-backup
+yum localinstall https://archive.mariadb.org/mariadb-10.11.6/yum/rhel8-amd64/rpms/MariaDB-backup-10.11.6-1.el8.x86_64.rpm
+## do the database backup
+/usr/local/pf/addons/backup-and-maintenance.sh
+## reinstall the correct version of mariadb-backup
+yum reinstall MariaDB-backup
+----
+
+* Then, run the export script:
+
+----
+/usr/local/pf/addons/full-import/export.sh /tmp/export.tgz
+----
+
+The command above will create your export archive in /tmp/export.tgz. You will now need to copy this file to your new server using SCP or your prefered mechanism.
 
 == Upgrading from a version prior to X.Y.Z
 
