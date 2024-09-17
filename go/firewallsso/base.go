@@ -44,6 +44,9 @@ type FirewallSSOInt interface {
 	GetLastTouchCache() float64
 	CheckStatus(ctx context.Context, info map[string]string) bool
 	SendOnAcctStop(ctx context.Context) bool
+	SendOnAcct(ctx context.Context) bool
+	SendOnAccessReevaluation(ctx context.Context) bool
+	SendOnDhcp(ctx context.Context) bool
 }
 
 // Basic struct for all firewalls
@@ -54,13 +57,16 @@ type FirewallSSO struct {
 	PfconfigHashNS string `val:"-"`
 	RoleBasedFirewallSSO
 	pfconfigdriver.TypedConfig
-	Networks            []*FirewallSSONetwork `json:"networks"`
-	CacheUpdates        string                `json:"cache_updates"`
-	CacheTimeout        string                `json:"cache_timeout"`
-	UsernameFormat      string                `json:"username_format"`
-	DefaultRealm        string                `json:"default_realm"`
-	UseConnector        string                `json:"use_connector"`
-	ActOnAccountingStop string                `json:"act_on_accounting_stop"`
+	Networks                []*FirewallSSONetwork `json:"networks"`
+	CacheUpdates            string                `json:"cache_updates"`
+	CacheTimeout            string                `json:"cache_timeout"`
+	UsernameFormat          string                `json:"username_format"`
+	DefaultRealm            string                `json:"default_realm"`
+	UseConnector            string                `json:"use_connector"`
+	ActOnAccountingStop     string                `json:"act_on_accounting_stop"`
+	SsoOnAccessReevaluation string                `json:"sso_on_access_reevaluation"`
+	SsoOnAccounting         string                `json:"sso_on_accounting"`
+	SsoOnDhcp               string                `json:"sso_on_dhcp"`
 }
 
 func (fw *FirewallSSO) setPfconfigHashNS(id string) {
@@ -108,9 +114,22 @@ func (fw *FirewallSSO) ShouldCacheUpdates(ctx context.Context) bool {
 	return fw.CacheUpdates == "enabled"
 }
 
-// Check whether or not the cached updates are enabled for this firewall
+// Check if sso needs to be triggered on accounting stop
 func (fw *FirewallSSO) SendOnAcctStop(ctx context.Context) bool {
 	return fw.ActOnAccountingStop == "1"
+}
+
+// Check if sso needs to be triggered on accounting
+func (fw *FirewallSSO) SendOnAcct(ctx context.Context) bool {
+	return fw.SsoOnAccounting == "1"
+}
+
+// Check if sso needs to be triggered on Access Reevaluation
+func (fw *FirewallSSO) SendOnAccessReevaluation(ctx context.Context) bool {
+	return fw.SsoOnAccessReevaluation == "1"
+}
+func (fw *FirewallSSO) SendOnDhcp(ctx context.Context) bool {
+	return fw.SsoOnDhcp == "1"
 }
 
 // Get the cache_timeout configured in the firewall as an int
@@ -271,6 +290,17 @@ func (fw *FirewallSSO) getDst(ctx context.Context, proto string, toIP string, to
 // Makes sure to call FirewallSSO.Start and to validate the network and role if necessary
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) (bool, error) {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
+	if !fw.SendOnAccessReevaluation(ctx) && info["source"] == "reevaluate" {
+		return false, nil
+	}
+
+	if !fw.SendOnAcct(ctx) && info["source"] == "accounting" {
+		return false, nil
+	}
+
+	if !fw.SendOnDhcp(ctx) && info["source"] == "DHCP" {
+		return false, nil
+	}
 
 	if !fw.CheckStatus(ctx, info) {
 		return false, nil
@@ -303,6 +333,23 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 // Makes sure to call FirewallSSO.Start and to validate the network if necessary
 func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string) (bool, error) {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
+
+	if !fw.SendOnAccessReevaluation(ctx) && info["source"] == "reevaluate" {
+		return false, nil
+	}
+
+	if !fw.SendOnAcct(ctx) && info["source"] == "accounting" {
+		return false, nil
+	}
+
+	if !fw.SendOnDhcp(ctx) && info["source"] == "DHCP" {
+		return false, nil
+	}
+
+	if !fw.CheckStatus(ctx, info) {
+		return false, nil
+	}
+
 	if !fw.SendOnAcctStop(ctx) && info["source"] == "accounting" {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it's coming from an accounting stop and it has been disabled", info["ip"]))
 		return false, nil
