@@ -1408,7 +1408,7 @@ CREATE TABLE `pki_cas` (
   KEY `idx_pki_cas_deleted_at` (`deleted_at`),
   KEY `mail` (`mail`),
   KEY `organisation` (`organisation`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_profiles`
@@ -1455,16 +1455,18 @@ CREATE TABLE `pki_profiles` (
   `revoked_valid_until` bigint(20) DEFAULT 14,
   `cloud_enabled` bigint(20) DEFAULT NULL,
   `cloud_service` longtext DEFAULT NULL,
+  `scep_server_enabled` bigint(20) DEFAULT 0,
   `scep_server_id` bigint(20) unsigned DEFAULT NULL,
-  `scep_server_enabled` bigint(20) unsigned DEFAULT NULL,
+  `allow_duplicated_cn` bigint(20) DEFAULT 0,
+  `maximum_duplicated_cn` bigint(20) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
+  KEY `ca_name` (`ca_name`),
+  KEY `scep_server_id` (`scep_server_id`),
   KEY `idx_pki_profiles_deleted_at` (`deleted_at`),
   KEY `mail` (`mail`),
   KEY `organisation` (`organisation`),
   KEY `ca_id` (`ca_id`),
-  KEY `ca_name` (`ca_name`),
-  KEY `scep_server__id` (`scep_server_id`),
   CONSTRAINT `fk_pki_profiles_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
   CONSTRAINT `fk_pki_profiles_scep_server` FOREIGN KEY (`scep_server_id`) REFERENCES `pki_scep_servers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
@@ -1502,21 +1504,21 @@ CREATE TABLE `pki_certs` (
   `scep` tinyint(1) DEFAULT 0,
   `csr` tinyint(1) DEFAULT 0,
   `alert` tinyint(1) DEFAULT 0,
-  `subject` varchar(191) DEFAULT NULL,
+  `subject` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `subject` (`subject`),
-  KEY `idx_pki_certs_deleted_at` (`deleted_at`),
-  KEY `mail` (`mail`),
-  KEY `profile_id` (`profile_id`),
-  KEY `valid_until` (`valid_until`),
-  KEY `not_before` (`not_before`),
+  UNIQUE KEY `cn_serial` (`cn`,`serial_number`) USING HASH,
   KEY `ca_id` (`ca_id`),
   KEY `ca_name` (`ca_name`),
-  KEY `organisation` (`organisation`),
   KEY `profile_name` (`profile_name`),
+  KEY `valid_until` (`valid_until`),
+  KEY `idx_pki_certs_deleted_at` (`deleted_at`),
+  KEY `mail` (`mail`),
+  KEY `organisation` (`organisation`),
+  KEY `profile_id` (`profile_id`),
+  KEY `not_before` (`not_before`),
   CONSTRAINT `fk_pki_certs_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
   CONSTRAINT `fk_pki_certs_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_revoked_certs`

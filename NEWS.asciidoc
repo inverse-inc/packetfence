@@ -33,12 +33,16 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
  * Use proxysql packages in the docker image instead of compilling from the sources (#8267)
  * Move SSO options to Firewall SSO from Advanced (#8303)
+ * PKI - Multiple certificate with same Common Name (#8310)
 
 === Bug Fixes
 
  * Don't generate all the time a mac address when using the GenericVPN switch module (#8270)
+ * Add missing parameters for authentication rule match (#8306)
 
 === Security Fixes
+
+ * Library updates (#8307)
 
 == Version 14.0.0 released on 2024-09-06
 

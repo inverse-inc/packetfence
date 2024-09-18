@@ -17,16 +17,7 @@ yup.addMethod(yup.string, 'pkiCertCnNotExistsExcept', function (exceptCn = '', m
   })
 })
 
-export default (props) => {
-  const {
-    isNew,
-    isClone,
-    form
-  } = props
-
-  // reactive variables for `yup.when`
-  const { cn } = form || {}
-
+export default () => {
   return yup.object().shape({
     profile_id: yup.string()
       .nullable()
@@ -36,7 +27,6 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Common name required.'))
       .max(64, i18n.t('Maximum 64 characters.'))
-      .pkiCertCnNotExistsExcept((!isNew && !isClone) ? cn : undefined, i18n.t('Common name exists.'))
       .isCommonNameOrFQDNOrMAC(i18n.t('Invalid Common name.')),
 
     mail: yup.string()

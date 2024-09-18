@@ -135,6 +135,8 @@ type (
 		ScepServerEnabled     int                     `json:"scep_server_enabled,omitempty" gorm:"default:0"`
 		ScepServer            SCEPServer              `json:"-"`
 		ScepServerID          uint                    `json:"scep_server_id,omitempty,string" gorm:"INDEX:scep_server_id"`
+		AllowDuplicatedCN     int                     `json:"allow_duplicated_cn,omitempty" gorm:"default:0"`
+		MaximumDuplicatedCN   int                     `json:"maximum_duplicated_cn,omitempty" gorm:"default:0"`
 	}
 
 	// Cert struct
@@ -145,7 +147,7 @@ type (
 		DeletedAt          gorm.DeletedAt  `json:"-" gorm:"index"`
 		DB                 gorm.DB         `json:"-" gorm:"-"`
 		Ctx                context.Context `json:"-" gorm:"-"`
-		Cn                 string          `json:"cn,omitempty"`
+		Cn                 string          `json:"cn,omitempty" gorm:"uniqueIndex:cn_serial"`
 		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca                 CA              `json:"-"`
 		CaID               uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
@@ -165,13 +167,13 @@ type (
 		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until" gorm:"type:time"`
 		NotBefore          time.Time       `json:"not_before,omitempty" gorm:"INDEX:not_before" gorm:"type:time"`
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-		SerialNumber       string          `json:"serial_number,omitempty"`
+		SerialNumber       string          `json:"serial_number,omitempty" gorm:"uniqueIndex:cn_serial"`
 		DNSNames           string          `json:"dns_names,omitempty"`
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`
 		Csr                *bool           `json:"csr,omitempty" gorm:"default:false"`
 		Alert              *bool           `json:"alert,omitempty" gorm:"default:false"`
-		Subject            string          `json:"-" gorm:"UNIQUE"`
+		Subject            string          `json:"-"`
 	}
 
 	// CSR struct
@@ -564,7 +566,7 @@ func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 			return profiledb, errors.New("Unknow profile.")
 		}
 	} else {
-		c.DB.Preload("ScepServer").Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("`scep_enabled` = ?", "1").First(&profiledb)
+		c.DB.Preload("ScepServer").Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id, allow_duplicated_cn, maximum_duplicated_cn").Where("`scep_enabled` = ?", "1").First(&profiledb)
 	}
 	c.SCEPAssociateProfile = profiledb[0].Name
 
@@ -694,7 +696,46 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, error) {
 
 	var certif Cert
+	var certifs []Cert
 	var CertDB *gorm.DB
+
+	var profiledb []Profile
+	c.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id, allow_duplicated_cn, maximum_duplicated_cn").Where("name = ?", profile).First(&profiledb)
+
+	if profiledb[0].AllowDuplicatedCN == 1 {
+		// Allow duplicated CN in the DB for this profile
+		if profiledb[0].MaximumDuplicatedCN == 0 {
+			return true, nil
+		}
+		if CertDB = c.Where("Cn = ? AND profile_name = ?", cn, profile).Find(&certifs); CertDB.Error != nil {
+			// Do we have to revoke some of them ?
+			i := 0
+			for _, certificat := range certifs {
+				certificat.DB = *c
+
+				store := make(map[pemutil.BlockType]interface{})
+
+				pemutil.Decode(store, []byte(certificat.Cert))
+				for _, pemUtil := range store {
+					cert := pemUtil.(*x509.Certificate)
+					if cert.NotAfter.Unix()-int64((time.Duration(allowTime)*24*time.Hour).Seconds()) < time.Now().Unix() || allowTime == 0 {
+
+						params := make(map[string]string)
+
+						params["id"] = strconv.Itoa(int(certificat.ID))
+						params["reason"] = strconv.Itoa(ocsp.Superseded)
+						certificat.Revoke(params)
+						i++
+					}
+				}
+			}
+			if int(CertDB.RowsAffected)-i >= profiledb[0].MaximumDuplicatedCN {
+				return false, errors.New("Certificate with this Subject already exist: " + cn)
+			}
+			// There is no certificate with this CN in the DB
+			return true, nil
+		}
+	}
 
 	if CertDB = c.Where("Cn = ? AND profile_name = ?", cn, profile).Find(&certif); CertDB.Error != nil {
 		// There is no certificate with this CN in the DB
@@ -760,7 +801,7 @@ func (c CA) SuccessNotify(cert *x509.Certificate, m *scep.CSRReqMessage, message
 
 func (c CA) GetProfileByName(name string) (*Profile, error) {
 	var profiledb []Profile
-	c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, cloud_enabled, cloud_service").Where("name = ?", name).First(&profiledb)
+	c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id, allow_duplicated_cn, maximum_duplicated_cn").Where("name = ?", name).First(&profiledb)
 
 	return &profiledb[0], nil
 }
@@ -1008,20 +1049,19 @@ func (p Profile) New() (types.Info, error) {
 		return Information, ScepServerDB.Error
 	}
 
-	profile := Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal, DaysBeforeRenewal: p.DaysBeforeRenewal, RenewalMail: p.RenewalMail, DaysBeforeRenewalMail: p.DaysBeforeRenewalMail, RenewalMailSubject: p.RenewalMailSubject, RenewalMailFrom: p.RenewalMailFrom, RenewalMailHeader: p.RenewalMailHeader, RenewalMailFooter: p.RenewalMailFooter, RevokedValidUntil: p.RevokedValidUntil, CloudEnabled: p.CloudEnabled, CloudService: p.CloudService, ScepServerEnabled: p.ScepServerEnabled, ScepServerID: p.ScepServerID, ScepServer: p.ScepServer}
+	profile := Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal, DaysBeforeRenewal: p.DaysBeforeRenewal, RenewalMail: p.RenewalMail, DaysBeforeRenewalMail: p.DaysBeforeRenewalMail, RenewalMailSubject: p.RenewalMailSubject, RenewalMailFrom: p.RenewalMailFrom, RenewalMailHeader: p.RenewalMailHeader, RenewalMailFooter: p.RenewalMailFooter, RevokedValidUntil: p.RevokedValidUntil, CloudEnabled: p.CloudEnabled, CloudService: p.CloudService, ScepServerEnabled: p.ScepServerEnabled, ScepServerID: p.ScepServerID, ScepServer: p.ScepServer, AllowDuplicatedCN: p.AllowDuplicatedCN, MaximumDuplicatedCN: p.MaximumDuplicatedCN}
 
 	if err := p.DB.Create(&profile).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id").Where("name = ?", p.Name).First(&profiledb)
+	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service, scep_server_enabled, scep_server_id, allow_duplicated_cn, maximum_duplicated_cn").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
 
 	return Information, nil
 }
 
 func (p Profile) Update(params map[string]string) (types.Info, error) {
-
 	var profiledb []Profile
 	Information := types.Info{}
 	scepserver := &SCEPServer{}
@@ -1050,7 +1090,7 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 		}
 	}
 
-	fieldsToExtract := []string{"Mail", "Organisation", "OrganisationalUnit", "Country", "State", "Locality", "StreetAddress", "PostalCode", "Validity", "KeyUsage", "ExtendedKeyUsage", "OCSPUrl", "P12MailPassword", "P12MailSubject", "P12MailFrom", "P12MailHeader", "P12MailFooter", "SCEPEnabled", "SCEPChallengePassword", "SCEPDaysBeforeRenewal", "DaysBeforeRenewal", "RenewalMail", "DaysBeforeRenewalMail", "RenewalMailSubject", "RenewalMailFrom", "RenewalMailHeader", "RenewalMailFooter", "RevokedValidUntil", "CloudEnabled", "CloudService", "ScepServerEnabled"}
+	fieldsToExtract := []string{"Mail", "Organisation", "OrganisationalUnit", "Country", "State", "Locality", "StreetAddress", "PostalCode", "Validity", "KeyUsage", "ExtendedKeyUsage", "OCSPUrl", "P12MailPassword", "P12MailSubject", "P12MailFrom", "P12MailHeader", "P12MailFooter", "SCEPEnabled", "SCEPChallengePassword", "SCEPDaysBeforeRenewal", "DaysBeforeRenewal", "RenewalMail", "DaysBeforeRenewalMail", "RenewalMailSubject", "RenewalMailFrom", "RenewalMailHeader", "RenewalMailFooter", "RevokedValidUntil", "CloudEnabled", "CloudService", "ScepServerEnabled", "AllowDuplicatedCN", "MaximumDuplicatedCN"}
 
 	v := reflect.ValueOf(p)
 	typeOfS := v.Type()

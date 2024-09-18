@@ -51,9 +51,16 @@ call ValidateVersion;
 
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
---
--- UPGRADE STATEMENTS GO HERE
---
+\! echo "altering pki_profiles"
+ALTER TABLE `pki_profiles`
+    ADD IF NOT EXISTS `allow_duplicated_cn` bigint(20) unsigned DEFAULT 0  AFTER `scep_server_id`,
+    ADD IF NOT EXISTS `maximum_duplicated_cn` bigint(20) DEFAULT 0;
+
+\! echo "altering pki_certs"
+ALTER TABLE `pki_certs`
+    MODIFY `subject` longtext DEFAULT NULL,
+    DROP INDEX IF EXISTS `subject`,
+    ADD UNIQUE KEY IF NOT EXISTS `cn_serial` (`cn`,`serial_number`) USING HASH;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

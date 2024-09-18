@@ -522,6 +522,64 @@ meta => {
         implied  => undef,
         type        => "string"
     },
+    'rate_limit' => {
+        'default' => {
+            'unit'     => 's',
+            'interval' => 0
+        },
+        'properties' => {
+            'interval' => {
+                'placeholder' => undef,
+                'implied'     => undef,
+                'min_value'   => 0,
+                'required'    => $false,
+                'default'     => 0,
+                'type'        => 'integer'
+            },
+            'unit' => {
+                'type'    => 'string',
+                'default' => 's',
+                'implied' => undef,
+                'allowed' => [
+                    {
+                        'text'  => 'seconds',
+                        'value' => 's'
+                    },
+                    {
+                        'value' => 'm',
+                        'text'  => 'minutes'
+                    },
+                    {
+                        'value' => 'h',
+                        'text'  => 'hours'
+                    },
+                    {
+                        'value' => 'D',
+                        'text'  => 'days'
+                    },
+                    {
+                        'value' => 'W',
+                        'text'  => 'weeks'
+                    },
+                    {
+                        'text'  => 'months',
+                        'value' => 'M'
+                    },
+                    {
+                        'text'  => 'years',
+                        'value' => 'Y'
+                    }
+                ],
+                'required'     => $false,
+                'placeholder'  => undef,
+                'allow_custom' => $false,
+            }
+        },
+        'type'        => 'object',
+        'placeholder' => undef,
+        'required'    => $false,
+        'implied'     => undef
+      },
   },
         status => 200
     }
