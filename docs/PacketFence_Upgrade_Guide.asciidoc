@@ -1995,8 +1995,8 @@ apt reinstall mariadb-backup -y
 
 * on el8 with MariaDB-backup installed
 ----
-yum remove MariaDB-backup
-yum localinstall https://archive.mariadb.org/mariadb-10.11.6/yum/rhel8-amd64/rpms/MariaDB-backup-10.11.6-1.el8.x86_64.rpm
+yum -y remove MariaDB-backup
+yum -y localinstall https://archive.mariadb.org/mariadb-10.11.6/yum/rhel8-amd64/rpms/MariaDB-backup-10.11.6-1.el8.x86_64.rpm
 ----
 
 ** do the database backup
@@ -2008,7 +2008,8 @@ yum localinstall https://archive.mariadb.org/mariadb-10.11.6/yum/rhel8-amd64/rpm
 ** reinstall the correct version of mariadb-backup
 
 ----
-yum reinstall MariaDB-backup
+yum -y remove MariaDB-backup
+yum -y install MariaDB-backup --enablerepo=packetfence
 ----
 
 ** Then, run the export script:
