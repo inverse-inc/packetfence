@@ -161,7 +161,7 @@ func (j *FlushRadiusAuditLogJob) buildQuery(entries [][]interface{}) (string, []
 	sql := `
 INSERT INTO radius_audit_log
 	(
-		mac, ip, computer_name,
+		created_at, mac, ip, computer_name,
 		user_name, stripped_user_name, realm, event_type,
 		switch_id, switch_mac, switch_ip_address,
 		radius_source_ip_address, called_station_id, calling_station_id,
@@ -175,7 +175,7 @@ INSERT INTO radius_audit_log
 		radius_reply, request_time, radius_ip
    )
 VALUES `
-	bind := "(?" + strings.Repeat(",?", RADIUS_AUDIT_LOG_COLUMN_COUNT-1) + ")"
+	bind := "(NOW(), ?" + strings.Repeat(",?", RADIUS_AUDIT_LOG_COLUMN_COUNT-1) + ")"
 	sql += bind + strings.Repeat(","+bind, len(entries)-1)
 	args := make([]interface{}, 0, len(entries)*RADIUS_AUDIT_LOG_COLUMN_COUNT)
 	for _, e := range entries {
