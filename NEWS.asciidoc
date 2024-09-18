@@ -32,6 +32,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Enhancements
 
  * Use proxysql packages in the docker image instead of compilling from the sources (#8267)
+ * Move SSO options to Firewall SSO from Advanced (#8303)
  * PKI - Multiple certificate with same Common Name (#8310)
 
 === Bug Fixes

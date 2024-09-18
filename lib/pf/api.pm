@@ -79,6 +79,7 @@ use Hash::Merge qw (merge);
 
 use pf::constants::api;
 use pf::constants::realm;
+use pf::constants::firewallsso qw($ACCOUNTING $API);
 use DateTime::Format::MySQL;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use pf::Redis;
@@ -1553,7 +1554,7 @@ Update the firewall sso based on radius accounting
 
 sub firewallsso_accounting : Public {
     my ($class, %RAD_REQUEST) = @_;
-    if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && pf::util::isenabled($pf::config::Config{advanced}{sso_on_accounting})) {
+    if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && scalar keys %pf::config::ConfigFirewallSSO != 0 && (grep { $_ eq $pf::config::TRUE } map { $_->{'sso_on_accounting'} } values %pf::config::ConfigFirewallSSO) ) {
         my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
         my $node = pf::node::node_attributes($mac);
         my $ip = $RAD_REQUEST{'Framed-IP-Address'};
@@ -1572,14 +1573,14 @@ sub firewallsso_accounting : Public {
             }
             my $oldip  = pf::ip4log::mac2ip($mac);
             if ( $oldip && $oldip ne $ip ) {
-                $client->notify( 'firewallsso', (method => 'Stop', mac => $mac, ip => $oldip, timeout => undef, source => 'accounting') );
+                $client->notify( 'firewallsso', (method => 'Stop', mac => $mac, ip => $oldip, timeout => undef, source => $ACCOUNTING) );
             }
         }
 
         $firewallsso_method = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP) ? "Stop" : "Update";
 
         $logger->warn("Firewall SSO Notify");
-        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout, username => $username, source => 'accounting') );
+        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout, username => $username, source => $ACCOUNTING) );
     }
 }
 
@@ -1598,7 +1599,7 @@ sub firewall_sso_call : Public :AllowedAsAction(mac, $mac, ip, $ip, timeout, $ti
     my $timeout = $postdata{'timeout'} || '3600';
     my $node = pf::node::node_view($postdata{'mac'});
     my $client = pf::client::getClient();
-    $client->notify( 'firewallsso', (method => "Update", mac => $postdata{'mac'}, ip => $postdata{'ip'}, timeout => $timeout, username => $node->{'pid'}, source => 'api') );
+    $client->notify( 'firewallsso', (method => "Update", mac => $postdata{'mac'}, ip => $postdata{'ip'}, timeout => $timeout, username => $node->{'pid'}, source => $API) );
 }
 
 =head2 services_status

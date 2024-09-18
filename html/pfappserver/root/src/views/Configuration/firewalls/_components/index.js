@@ -31,6 +31,9 @@ export {
   BaseFormGroupInput as FormGroupUsername,
   BaseFormGroupInput as FormGroupUsernameFormat,
   BaseFormGroupInput as FormGroupVsys,
+  BaseFormGroupSwitch as FormGroupSsoOnAccessReevaluation,
+  BaseFormGroupSwitch as FormGroupSsoOnAccounting,
+  BaseFormGroupSwitch as FormGroupSsoOnDhcp,
 
   TheForm,
   TheView
