@@ -7,6 +7,7 @@ use List::Util qw(minstr maxstr);
 use pf::log;
 use Crypt::PBKDF2;
 use Digest::SHA qw(hmac_sha1);
+use Crypt::KeyDerivation qw(pbkdf2);
 use bytes;
 
 my $PKE = "Pairwise key expansion";
@@ -39,7 +40,7 @@ sub bytes_range {
     return substr($str, $start, $size);
 }
 
-sub calculate_pmk {
+sub calculate_pmk_slow {
     my ($ssid, $psk) = @_;
     my $pbkdf2 = Crypt::PBKDF2->new(
         iterations => 4096,
@@ -48,6 +49,13 @@ sub calculate_pmk {
      
     my $pmk = bytes_range($pbkdf2->PBKDF2($ssid, $psk), 0, 32);
 
+    get_logger->debug("PTK is ".unpack("H*", $pmk));
+    return $pmk;
+}
+
+sub calculate_pmk {
+    my ($ssid, $psk) = @_;
+    my $pmk = pbkdf2($psk, $ssid, 4096, 'SHA1', 32);
     get_logger->debug("PTK is ".unpack("H*", $pmk));
     return $pmk;
 }
