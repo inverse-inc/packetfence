@@ -70,7 +70,17 @@
         />
         <form-group-ocsp-url namespace="ocsp_url"
                              :column-label="$i18n.t('OCSP URL')"
-                             :text="$i18n.t('Optional. This is the URL of the OCSP server that will be added in the certificate. If empty then the ca one will be used')"
+                             :text="$i18n.t('Optional.URL of the OCSP server that will be added in the certificate. If empty then the CA is used')"
+        />
+        <form-group-allow-duplicated-cn namespace="allow_duplicated_cn"
+                                        :column-label="$i18n.t('Allow multiple certificates with same Common Name')"
+                                        :text="$i18n.t(`Optional. Allow this profile to create multiple certificates with the same Common Name. Enabling will disable the 'Days before renewal'.`)"
+                                        :enabled-value="1"
+                                        :disabled-value="0"
+        />
+        <form-group-maximum-duplicated-cn namespace="maximum_duplicated_cn"
+                                         :column-label="$i18n.t('Maximum number of certificates with same Common Name.')"
+                                         :text="$i18n.t('Determine the maximum number of certificates the PKI can generate with the same Common Name. Use 0 for unlimited. Expired certs are automatically revoked.')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('PKCS 12')">
@@ -193,6 +203,7 @@
 import {BaseForm, BaseFormTab} from '@/components/new/'
 import schemaFn from '../schema'
 import {
+  FormGroupAllowDuplicatedCn,
   FormGroupCaId,
   FormGroupCloudEnabled,
   FormGroupCloudService,
@@ -207,6 +218,7 @@ import {
   FormGroupKeyUsage,
   FormGroupLocality,
   FormGroupMail,
+  FormGroupMaximumDuplicatedCn,
   FormGroupName,
   FormGroupOcspUrl,
   FormGroupOrganisation,
@@ -239,6 +251,7 @@ const components = {
   BaseFormTab,
 
   FormGroupIdentifier,
+  FormGroupAllowDuplicatedCn,
   FormGroupCaId,
   FormGroupName,
   FormGroupMail,
@@ -255,6 +268,7 @@ const components = {
   FormGroupDigest,
   FormGroupKeyUsage,
   FormGroupExtendedKeyUsage,
+  FormGroupMaximumDuplicatedCn,
   FormGroupOcspUrl,
   FormGroupP12MailPassword,
   FormGroupP12MailSubject,
