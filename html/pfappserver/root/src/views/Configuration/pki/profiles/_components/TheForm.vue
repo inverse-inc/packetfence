@@ -74,7 +74,7 @@
         />
         <form-group-allow-duplicated-cn namespace="allow_duplicated_cn"
                                         :column-label="$i18n.t('Allow multiple certificates with same Common Name')"
-                                        :text="$i18n.t('Optional. Allow this profile to create multiple certificates with the same Common Name. Enabling will disable the "Days before renewal".')"
+                                        :text="$i18n.t(`Optional. Allow this profile to create multiple certificates with the same Common Name. Enabling will disable the 'Days before renewal'.`)"
                                         :enabled-value="1"
                                         :disabled-value="0"
         />

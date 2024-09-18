@@ -17,16 +17,7 @@ yup.addMethod(yup.string, 'pkiCertCnNotExistsExcept', function (exceptCn = '', m
   })
 })
 
-export default (props) => {
-  const {
-    isNew,
-    isClone,
-    form
-  } = props
-
-  // reactive variables for `yup.when`
-  const { cn } = form || {}
-
+export default () => {
   return yup.object().shape({
     profile_id: yup.string()
       .nullable()
