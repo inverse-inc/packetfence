@@ -109,43 +109,4 @@ func TestAggregator(t *testing.T) {
 		t.Fatalf("Not aggreated properly")
 	}
 
-	events = []*PfFlows{
-		{
-			Flows: &[]PfFlow{
-				{
-					SrcIp:       netip.AddrFrom4([4]byte{10, 15, 1, 2}),
-					DstIp:       netip.AddrFrom4([4]byte{10, 15, 1, 6}),
-					SrcPort:     223,
-					DstPort:     52180,
-					Proto:       6,
-					BiFlow:      2,
-					PacketCount: 12,
-				},
-				{
-					SrcIp:       netip.AddrFrom4([4]byte{10, 15, 1, 6}),
-					DstIp:       netip.AddrFrom4([4]byte{10, 15, 1, 2}),
-					SrcPort:     52180,
-					DstPort:     223,
-					Proto:       6,
-					BiFlow:      1,
-					Direction:   1,
-					PacketCount: 18,
-				},
-			},
-		},
-	}
-	a.PfFlowsChan <- events
-	ne = <-networkEventChan
-	if len(ne) != 1 {
-		t.Fatalf("Not aggreated to a single network event")
-	}
-
-	if ne[0].Count != 30 {
-		t.Fatalf("Not aggreated properly")
-	}
-
-	if ne[0].DestPort != 223 {
-		t.Fatalf("Not aggreated properly wrong port")
-	}
-
 }
