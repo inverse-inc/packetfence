@@ -73,6 +73,14 @@ func TestAggregator(t *testing.T) {
 		t.Fatalf("Not aggreated DestPort")
 	}
 
+	if ne[0].DestIp != netip.AddrFrom4([4]byte{1, 1, 1, 2}) {
+		t.Fatalf("Not aggreated DestIp")
+	}
+
+	if ne[0].SourceIp != netip.AddrFrom4([4]byte{1, 1, 1, 1}) {
+		t.Fatalf("Not aggreated SrcIp")
+	}
+
 	events = []*PfFlows{
 		{
 			Flows: &[]PfFlow{

@@ -124,6 +124,22 @@ func (f *PfFlow) CalculatedDstPort() int {
 	return int(f.DstPort)
 }
 
+func (f *PfFlow) CalculatedSrcIp() netip.Addr {
+	if f.BiFlow == 2 {
+		return f.DstIp
+	}
+
+	return f.SrcIp
+}
+
+func (f *PfFlow) CalculatedDstIp() netip.Addr {
+	if f.BiFlow == 2 {
+		return f.SrcIp
+	}
+
+	return f.DstIp
+}
+
 func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 	if f.DstMac == "00:00:00:00:00:00" && f.SrcMac == "00:00:00:00:00:00" {
 		return nil
@@ -136,8 +152,8 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 
 	return &NetworkEvent{
 		EventType:           NetworkEventTypeSuccessful,
-		SourceIp:            f.SrcIp,
-		DestIp:              f.DstIp,
+		SourceIp:            f.CalculatedSrcIp(),
+		DestIp:              f.CalculatedDstIp(),
 		DestPort:            f.CalculatedDstPort(),
 		IpProtocol:          ipProto,
 		IpVersion:           IpVersionIpv4,
