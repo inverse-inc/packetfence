@@ -1,7 +1,6 @@
 package maint
 
 import (
-	"cmp"
 	"net/netip"
 	"time"
 )
@@ -102,6 +101,7 @@ func (f *PfFlow) SessionKey() AggregatorSession {
 	if f.BiFlow == 2 {
 		return AggregatorSession{Port: f.DstPort}
 	}
+
 	return AggregatorSession{Port: f.SrcPort}
 }
 
@@ -114,6 +114,14 @@ func (f *PfFlow) NetworkEventDirection() NetworkEventDirection {
 	case 2:
 		return NetworkEventDirectionOutBound
 	}
+}
+
+func (f *PfFlow) CalculatedDstPort() int {
+	if f.BiFlow == 2 {
+		return int(f.SrcPort)
+	}
+
+	return int(f.DstPort)
 }
 
 func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
@@ -130,11 +138,11 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 		EventType:           NetworkEventTypeSuccessful,
 		SourceIp:            f.SrcIp,
 		DestIp:              f.DstIp,
-		DestPort:            int(f.DstPort),
+		DestPort:            f.CalculatedDstPort(),
 		IpProtocol:          ipProto,
 		IpVersion:           IpVersionIpv4,
 		EnforcementState:    EnforcementStateEnforcing,
-		Count:               cmp.Or(int(f.PacketCount), 1),
+		Count:               1,
 		StartTime:           uint64(time.Now().Unix()),
 		Direction:           f.NetworkEventDirection(),
 		DestInventoryitem:   f.DestInventoryitem(),
