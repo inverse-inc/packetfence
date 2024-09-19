@@ -90,13 +90,15 @@ loop:
 					continue
 				}
 
+				ports := map[AggregatorSession]struct{}{}
 				for _, e := range events {
 					startTime = min(startTime, e.StartTime)
 					endTime = max(endTime, e.EndTime)
+					ports[e.SessionKey()] = struct{}{}
 					packetCount += cmp.Or(e.PacketCount, 1)
 				}
 
-				networkEvent.Count = int(packetCount)
+				networkEvent.Count = len(ports)
 				if startTime != 0 {
 					networkEvent.StartTime = uint64(startTime)
 				}
