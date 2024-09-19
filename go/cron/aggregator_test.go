@@ -12,24 +12,6 @@ func TestAggregator(t *testing.T) {
 		{
 			Flows: &[]PfFlow{
 				{
-					SrcIp:       netip.AddrFrom4([4]byte{1, 1, 1, 1}),
-					DstIp:       netip.AddrFrom4([4]byte{1, 1, 1, 2}),
-					SrcPort:     1024,
-					DstPort:     80,
-					Proto:       6,
-					BiFlow:      1,
-					PacketCount: 1,
-				},
-				{
-					SrcIp:       netip.AddrFrom4([4]byte{1, 1, 1, 1}),
-					DstIp:       netip.AddrFrom4([4]byte{1, 1, 1, 2}),
-					SrcPort:     1025,
-					DstPort:     80,
-					Proto:       6,
-					BiFlow:      1,
-					PacketCount: 1,
-				},
-				{
 					SrcIp:       netip.AddrFrom4([4]byte{1, 1, 1, 2}),
 					DstIp:       netip.AddrFrom4([4]byte{1, 1, 1, 1}),
 					SrcPort:     80,
@@ -42,6 +24,24 @@ func TestAggregator(t *testing.T) {
 					SrcIp:       netip.AddrFrom4([4]byte{1, 1, 1, 1}),
 					DstIp:       netip.AddrFrom4([4]byte{1, 1, 1, 2}),
 					SrcPort:     1024,
+					DstPort:     80,
+					Proto:       6,
+					BiFlow:      1,
+					PacketCount: 1,
+				},
+				{
+					SrcIp:       netip.AddrFrom4([4]byte{1, 1, 1, 1}),
+					DstIp:       netip.AddrFrom4([4]byte{1, 1, 1, 2}),
+					SrcPort:     1024,
+					DstPort:     80,
+					Proto:       6,
+					BiFlow:      1,
+					PacketCount: 1,
+				},
+				{
+					SrcIp:       netip.AddrFrom4([4]byte{1, 1, 1, 1}),
+					DstIp:       netip.AddrFrom4([4]byte{1, 1, 1, 2}),
+					SrcPort:     1025,
 					DstPort:     80,
 					Proto:       6,
 					BiFlow:      1,
@@ -65,8 +65,12 @@ func TestAggregator(t *testing.T) {
 		t.Fatalf("Not aggreated to a single network event")
 	}
 
-	if ne[0].Count != 4 {
+	if ne[0].Count != 2 {
 		t.Fatalf("Not aggreated properly")
+	}
+
+	if ne[0].DestPort != 80 {
+		t.Fatalf("Not aggreated DestPort")
 	}
 
 	events = []*PfFlows{
@@ -105,8 +109,12 @@ func TestAggregator(t *testing.T) {
 		t.Fatalf("Not aggreated to a single network event")
 	}
 
-	if ne[0].Count != 3 {
+	if ne[0].Count != 2 {
 		t.Fatalf("Not aggreated properly")
+	}
+
+	if ne[0].DestPort != 80 {
+		t.Fatalf("Not aggreated DestPort")
 	}
 
 }
