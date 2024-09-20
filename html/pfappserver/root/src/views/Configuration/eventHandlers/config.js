@@ -168,6 +168,14 @@ export const regexRuleActions = {
     siblings: {
       api_parameters: { default: 'mac, $mac' }
     }
+  },
+  update_switch_role_network: {
+    value: 'update_switch_role_network',
+    text: i18n.t('Update Switch Role CIDR'),
+    types: [pfFieldType.SUBSTRING],
+    siblings: {
+      api_parameters: { default: 'mac, $mac, ip, $ip' }
+    }
   }
 }
 
