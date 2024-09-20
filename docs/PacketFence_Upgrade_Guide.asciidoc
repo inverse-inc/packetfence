@@ -1964,14 +1964,16 @@ To export from Debian 11 or from RedHat EL8 with a Mariadb backup installed to D
 
 Before doing anything else, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> of this mechanism.
 
-==== Export DB with mariadb-backup installed to PacketFence 14.0.0 on Debian 12
+==== Export DB with mariadb-backup installed to PacketFence 14.0 on Debian 12
 
-===== From PacketFence version 11.1.0 to 13.2.0
+===== From PacketFence version 11.1 to 13.2
+
+* On Debian 11
 
 The main idea will be to install mariadb-backup used in Debian 12 in the current VM then do the db backup then restore the current mariadb-backup version.
 
 To do the database backup in order to export it later, please use the following steps and command lines:
-* On debian11 with mariadb-backup installed
+
 ** Install the next version of mariabd-backup
 
 ----
@@ -1993,11 +1995,9 @@ mv /root/mariadb-backup/usr/bin/mbstream /usr/bin/mbstream
 apt reinstall mariadb-backup -y
 ----
 
-* on el8 with MariaDB-backup installed
-----
-yum -y remove MariaDB-backup
-yum -y localinstall https://archive.mariadb.org/mariadb-10.11.6/yum/rhel8-amd64/rpms/MariaDB-backup-10.11.6-1.el8.x86_64.rpm
-----
+* on Red Hat EL8
+
+This one is require more steps on the EL8 first and then on the Debian 12.
 
 ** do the database backup
 
@@ -2005,11 +2005,44 @@ yum -y localinstall https://archive.mariadb.org/mariadb-10.11.6/yum/rhel8-amd64/
 /usr/local/pf/addons/backup-and-maintenance.sh
 ----
 
-** reinstall the correct version of mariadb-backup
+The name should be something like that packetfence-db-dump-innobackup-2024-09-20_08h31.xbstream.gz
+You should find it in `/root/backup` directory.
+
+** Prepare backuped database on Debian 11
 
 ----
-yum -y remove MariaDB-backup
-yum -y install MariaDB-backup --enablerepo=packetfence
+gunzip packetfence-db-dump-innobackup-2024-09-20_08h31.xbstream.gz
+mkdir -p /root/backup/restore/
+pushd /root/backup/restore/
+mv packetfence-db-dump-innobackup-2024-09-20_08h42.xbstream /root/backup/restore/
+cd /root/backup/restore/
+mbstream -x < packetfence-db-dump-innobackup-2024-09-20_08h42.xbstream
+rm packetfence-db-dump-innobackup-2024-09-20_08h42.xbstream
+mariabackup --prepare --target-dir=./
+----
+
+ => then send files with scp to the new Debian 12 server with Packetfence 14.0 already installed.
+
+----
+ssh root@DEBIAN_12_IP mkdir -p /root/backup/restore/
+scp /root/backup/restore/* root@DEBIAN_12_IP:/root/backup/restore/
+----
+
+** Prepare files to be used on Debian 12
+
+----
+echo "Stopping packetfence-mariadb and backing up the current data"
+systemctl stop packetfence-mariadb
+pkill -9 -f mariadbd || echo 1 > /dev/null
+mv /var/lib/mysql/ "/var/lib/mysql-`date +%s`"
+mkdir /var/lib/mysql
+cd /root/backup/restore/
+mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf      --move-back --force-non-empty-directories ./
+chown -R mysql: /var/lib/mysql
+echo "Starting MariaDB"
+systemctl start packetfence-mariadb
+mysql_upgrade -p
+systemctl restart packetfence-mariadb
 ----
 
 ** Then, run the export script:
