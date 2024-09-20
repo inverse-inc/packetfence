@@ -168,10 +168,18 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 }
 
 func (f *PfFlow) DestInventoryitem() *InventoryItem {
+	if f.BiFlow == 2 {
+		return macToInventoryitem(f.SrcMac)
+	}
+
 	return macToInventoryitem(f.DstMac)
 }
 
 func (f *PfFlow) SourceInventoryitem() *InventoryItem {
+	if f.BiFlow == 2 {
+		return macToInventoryitem(f.DstMac)
+	}
+
 	return macToInventoryitem(f.SrcMac)
 }
 
