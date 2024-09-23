@@ -28,6 +28,11 @@
                                 :disabled="!isNew && !isClone"
         />
 
+        <form-group-additional-machine-accounts namespace="additional_machine_accounts"
+                                :column-label="$i18n.t(`How many additional machine accounts should be created and used`)"
+                                :text="$i18n.t(`Additional machine accounts should be created and used to parallel NTLM authentication. PacketFence will use the original machine account name and a short suffix to build the additional machine accounts. E.g. 'primary-1' 'primary-2' if your primiary machine account is set to 'primary'`)"
+        />
+
         <form-group-sticky-dc namespace="sticky_dc"
                               :column-label="$i18n.t('Sticky DC')"
                               :text="$i18n.t(`This is used to specify a sticky domain controller to connect to. If not specified, default '*' will be used to connect to any available domain controller.`)"
@@ -167,6 +172,7 @@ import {
   FormGroupWorkgroup,
   FormGroupDnsName,
   FormGroupServerName,
+  FormGroupAdditionalMachineAccounts,
   FormGroupStickyDc,
   FormGroupAdFqdn,
   FormGroupAdServer,
@@ -201,6 +207,7 @@ const components = {
   FormGroupWorkgroup,
   FormGroupDnsName,
   FormGroupServerName,
+  FormGroupAdditionalMachineAccounts,
   FormGroupStickyDc,
   FormGroupAdFqdn,
   FormGroupAdServer,
