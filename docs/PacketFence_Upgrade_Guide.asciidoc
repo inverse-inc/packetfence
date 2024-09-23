@@ -1940,7 +1940,7 @@ Since 14.0 PacketFence is able to receive events from the FleetDM servers, which
 
 === RedHat EL8
 
-In place upgrades are supported for Redhat EL8. You can follow up the current <<PacketFence_Upgrade_Guide.html#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>.
+In place upgrades are supported for Redhat EL8. You can follow up the current <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>.
 
 === Debian 12
 
@@ -1962,7 +1962,7 @@ To know which package version of mariadb-backup is installed:
 /usr/bin/mariabackup based on MariaDB server 10.11.6-MariaDB debian-linux-gnu (x86_64)
 ----
 
-If it is not installed follow the default export process at <<PacketFence_Installation_Guide.html#_export_on_current_installation,export on current installation>>.
+If it is not installed follow the default export process at <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export on current installation>>.
 
 Before continuing, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>>.
 
@@ -2013,7 +2013,7 @@ apt reinstall mariadb-backup -y
 
 ** Import the backup
 
-Import the backup on the new host using the <<https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#_import_on_new_installation,Import on new installation>> procedure.
+Import the backup on the new host using the <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,Import on new installation>> procedure.
 
 
 * RedHat EL8
