@@ -69,11 +69,13 @@ sub generateConfig {
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
             my $ntlm_auth_port = $conf{ntlm_auth_port};
+            my $workers = 1 + $conf{additional_machine_accounts};
 
             $identifier =~ s/$host_id //i;
             pf_run("sudo echo 'HOST=$ntlm_auth_host' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'LISTEN=$ntlm_auth_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
             pf_run("sudo echo 'IDENTIFIER=$identifier' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            pf_run("sudo echo 'WORKERS=$workers' >> $generated_conf_dir/" . $self->name . '.d/' . "$workers.env");
         }
     }
 }
