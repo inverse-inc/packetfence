@@ -1968,7 +1968,7 @@ sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    $postdata{"mac"} = $postdata{"mask"} // undef;
+    $postdata{"mask"} = $postdata{"mask"} // undef;
     $postdata{"lease_length"} = $postdata{"lease_length"} // undef;
 
     my $cidr_role = pf::cidr_role->new();
