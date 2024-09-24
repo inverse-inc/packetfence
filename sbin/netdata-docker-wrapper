@@ -1,0 +1,39 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=netdata
+
+chown -R 1000:1000 /usr/local/pf/var/conf/netdata
+chown -R 1000:1000 /usr/local/pf/conf/netdata
+
+args=`base_args $name`
+args+=" --pid=host"
+args+=" --network=host"
+args+=" --privileged"
+args+=" --cap-add SYS_PTRACE"
+args+=" --cap-add SYS_ADMIN"
+args+=" --security-opt apparmor=unconfined"
+
+args+=" -v /usr/local/pf/var/conf/monitoring:/etc/netdata"
+args+=" -v /usr/local/pf/logs:/usr/local/pf/logs"
+
+args+=" -v /var/lib/netdata:/var/lib/netdata"
+args+=" -v /var/cache/netdata:/var/cache/netdata"
+args+=" -v /etc/passwd:/host/etc/passwd:ro"
+args+=" -v /etc/group:/host/etc/group:ro"
+args+=" -v /etc/hostname:/host/etc/hostname:ro"
+args+=" -v /etc/localtime:/etc/localtime:ro"
+args+=" -v /proc:/host/proc:ro"
+args+=" -v /sys:/host/sys:ro"
+args+=" -v /etc/os-release:/host/etc/os-release:ro"
+args+=" -v /var/log:/host/var/log:ro"
+args+=" -v /var/run/docker.sock:/var/run/docker.sock:ro"
+args+=" -v /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock:ro"
+args+=" -v /run/dbus:/run/dbus:ro"
+
+args+=" -p 19999:19999"
+
+args+=" --env DOCKER_USR=root"
+
+run $name "$args"
