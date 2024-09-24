@@ -16,4 +16,4 @@ RUN xcaddy build --with github.com/mholt/caddy-l4
 
 RUN old_bin_file=$(which caddy) && rm -rf $old_bin_file
 
-ENV PATH="$PATH:/srv
+ENV PATH="$PATH:/srv"
