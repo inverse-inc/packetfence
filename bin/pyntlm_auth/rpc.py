@@ -88,9 +88,10 @@ def get_secure_channel_connection():
             return global_vars.s_secure_channel_connection, global_vars.s_machine_cred, global_vars.s_connection_id, 0, ""
 
 
-def transitive_login(account_username, challenge, nt_response):
+def transitive_login(account_username, challenge, nt_response, domain = None):
     server_name = global_vars.c_server_name
-    domain = global_vars.c_domain
+    if domain is None:
+        domain = global_vars.c_domain
     workstation = global_vars.c_workstation
     global_vars.s_secure_channel_connection, global_vars.s_machine_cred, global_vars.s_connection_id, error_code, error_message = get_secure_channel_connection()
     if error_code != 0:
