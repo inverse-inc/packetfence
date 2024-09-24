@@ -1,17 +1,14 @@
-import binascii
-import datetime
-import random
-
-from samba import param, NTSTATUSError
-from samba.credentials import Credentials, DONT_USE_KERBEROS
-from samba.dcerpc import netlogon
-from samba.dcerpc.misc import SEC_CHAN_WKSTA
-from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT, MSV1_0_ALLOW_MSVCHAPV2)
-
-import config_generator
 import global_vars
+import config_generator
+from samba import param, NTSTATUSError, ntstatus
+from samba.credentials import Credentials, DONT_USE_KERBEROS
+from samba.dcerpc.misc import SEC_CHAN_WKSTA
+from samba.dcerpc import netlogon
 import utils
-
+import datetime
+from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT, MSV1_0_ALLOW_MSVCHAPV2)
+import binascii
+import random
 
 def init_secure_connection():
     netbios_name = global_vars.c_netbios_name
