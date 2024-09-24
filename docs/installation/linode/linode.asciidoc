@@ -94,12 +94,26 @@ Current limitations:
 
 To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 12 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 10GB of disk space). Then, perform the following commands as root:
 
+[source,bash]
+----
+apt-get update
+apt install gnupg sudo curl
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+----
+
+Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-remote.list`:
+
+// subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-apt update && apt install gnupg sudo
-echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm' > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
-wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
+----
+
+Install and configure the connector
+
+[source,bash,subs="attributes"]
+----
 apt update
 apt install packetfence-pfconnector-remote
 /usr/local/pfconnector-remote/bin/pfconnector-configure
@@ -135,10 +149,25 @@ PacketFence Connector released with PacketFence 12.0.0 was not packaged.
 In order to upgrade your PacketFence Connector to a packaged version, you need
 to run following commands:
 
+[source,bash]
+----
+apt-get update
+apt install gnupg sudo curl
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+----
+
+Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-remote.list`:
+
+// subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm' > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
+----
+
+
+[source,bash,subs="attributes"]
+----
 apt update
 apt install -y -o Dpkg::Options::="--force-confnew" packetfence-pfconnector-remote
 ----
@@ -157,10 +186,26 @@ systemctl restart packetfence-pfconnector-remote
 
 In order to upgrade PacketFence Connector, you need to run following commands:
 
+[source,bash]
+----
+apt-get update
+apt install gnupg sudo curl
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+----
+
+Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-remote.list`:
+
+// subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm' > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
+----
+
+Upgrade
+
+[source,bash,subs="attributes"]
+----
 apt update
 apt upgrade
 ----
