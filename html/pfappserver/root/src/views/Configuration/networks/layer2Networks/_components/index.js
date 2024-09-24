@@ -21,6 +21,7 @@ export {
   BaseFormGroupInputNumber            as FormGroupDhcpMaxLeaseTime,
   BaseFormGroupInput                  as FormGroupDhcpEnd,
   BaseFormGroupInput                  as FormGroupDhcpStart,
+  BaseFormGroupInput                  as FormGroupDns,
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupTextarea               as FormGroupIpAssigned,
   BaseFormGroupTextarea               as FormGroupIpReserved,
