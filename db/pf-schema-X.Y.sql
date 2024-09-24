@@ -1105,7 +1105,7 @@ CREATE TABLE pf_version (`id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NO
 
 CREATE TABLE radius_audit_log (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` TIMESTAMP NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `mac` char(17) NOT NULL,
   `ip` varchar(255) NULL,
   `computer_name` varchar(255) NULL,
