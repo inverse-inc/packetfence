@@ -227,7 +227,7 @@ Requires: perl(Catalyst::Devel)
 Requires: perl(Sort::Naturally)
 Requires: perl(PHP::Serialization)
 Requires: perl(File::Slurp)
-# these are probably missing dependencies for the above. 
+# these are probably missing dependencies for the above.
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
@@ -276,7 +276,7 @@ Requires: perl(DateTime::TimeZone)
 
 Requires: libdrm >= 2.4.74
 Requires: python3-impacket >= 0.9.23
-Requires: netdata < 1.11.0., fping, MySQL-python
+Requires: fping, MySQL-python
 # OpenVAS
 Requires: openvas-cli
 Requires: openvas-libraries
@@ -466,7 +466,7 @@ done
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/proxysql
 %{__install} -d %{buildroot}/usr/local/pf/var/conf
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/run
-%{__install} -d %{buildroot}/usr/local/pf/var/rrd 
+%{__install} -d %{buildroot}/usr/local/pf/var/rrd
 %{__install} -d %{buildroot}/usr/local/pf/var/session
 %{__install} -d %{buildroot}/usr/local/pf/var/webadmin_cache
 %{__install} -d %{buildroot}/usr/local/pf/var/control
@@ -619,8 +619,7 @@ fi
 
 echo "Adding pf user to app groups"
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
-/usr/sbin/usermod -aG pf mysql 
-/usr/sbin/usermod -aG pf netdata
+/usr/sbin/usermod -aG pf mysql
 
 if [ ! `id -u` = "0" ];
 then
@@ -662,9 +661,9 @@ fi
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
 
-if [ `systemctl get-default` = "packetfence-cluster.target" ]; then 
+if [ `systemctl get-default` = "packetfence-cluster.target" ]; then
     echo "This is an upgrade on a clustered system. We don't change the default systemd target."
-else 
+else
     echo "Setting packetfence.target as the default systemd target."
     /bin/systemctl set-default packetfence.target
 fi
@@ -695,7 +694,7 @@ if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
     date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
 fi
 
-for service in httpd snmptrapd portreserve redis netdata
+for service in httpd snmptrapd portreserve redis
 do
   if /bin/systemctl -a | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
@@ -847,10 +846,10 @@ fi
 #==============================================================================
 # Packaged files
 #==============================================================================
-# TODO we should simplify this file manifest to the maximum keeping treating 
-# only special attributes explicitly 
+# TODO we should simplify this file manifest to the maximum keeping treating
+# only special attributes explicitly
 # "To make this situation a bit easier, if the %%files list contains a path
-# to a directory, RPM will automatically package every file in that 
+# to a directory, RPM will automatically package every file in that
 # directory, as well as every file in each subdirectory."
 # -- http://www.rpm.org/max-rpm/s1-rpm-inside-files-list.html
 %files
@@ -967,6 +966,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/kafka-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/netdata-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-domain
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-monitor
@@ -1697,9 +1697,9 @@ in /usr/local/pf
 - Dependencies in recommended perl(A::B) notation instead of perl-A-B
 
 * Thu Mar 08 2012 Olivier Bilodeau <obilodeau@inverse.ca>
-- extracted version out of package (we are getting rid of versions in files 
+- extracted version out of package (we are getting rid of versions in files
   to simplify devel/stable branch management)
-- source tarball changed: prefixed packetfence-<version>/ instead of pf/ 
+- source tarball changed: prefixed packetfence-<version>/ instead of pf/
 
 * Wed Feb 22 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.2.0-1
 - New release 3.2.0
@@ -1832,7 +1832,7 @@ in /usr/local/pf
 
 * Thu Nov 25 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Got rid of the test directory. Binaries are now in addons/.
-- Renamed rlm_perl_packetfence to packetfence.pm in 802.1X 
+- Renamed rlm_perl_packetfence to packetfence.pm in 802.1X
 
 * Mon Nov 22 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Minor changes to the addons/ directory layout that needed to be reflected
@@ -1870,7 +1870,7 @@ in /usr/local/pf
 - New upstream release 1.9.1
 
 * Tue Sep 21 2010 Olivier Bilodeau <obilodeau@inverse.ca>
-- Added mod_perl as a dependency. Big captive portal performance gain. 
+- Added mod_perl as a dependency. Big captive portal performance gain.
   Fixes #879;
 
 * Wed Aug 25 2010 Olivier Bilodeau <obilodeau@inverse.ca>
@@ -1887,7 +1887,7 @@ in /usr/local/pf
 - New upstream release 1.9.0
 
 * Tue May 18 2010 Olivier Bilodeau <obilodeau@inverse.ca>
-- Added missing file for Floating Network Device support: 
+- Added missing file for Floating Network Device support:
   floating_network_device.conf
 
 * Fri May 07 2010 Olivier Bilodeau <obilodeau@inverse.ca>
@@ -1898,7 +1898,7 @@ in /usr/local/pf
 - Fixed packaging of 802.1x rlm_perl_packetfence_* files and new radius files
 - Removing the pinned perl(Parse::RecDescent) version. Fixes #833;
 - Snapshot vs releases is now defined by an rpmbuild argument
-- source_release should now be passed as an argument to simplify our nightly 
+- source_release should now be passed as an argument to simplify our nightly
   build system. Fixes #946;
 - Fixed a problem with addons/integration-testing files
 - Perl required version is now 5.8.8 since a lot of our source files explictly
@@ -1911,14 +1911,14 @@ in /usr/local/pf
 - Added mod_perl as a dependency
 
 * Wed Apr 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
-- Added perl(Try::Tiny) and perl(Test::Exception) as a dependency used for 
+- Added perl(Try::Tiny) and perl(Test::Exception) as a dependency used for
   exception-handling and its testing
 - Linking to new database schema
 
 * Fri Apr 23 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - New addons/integration-testing folder with integration-testing scripts. More
   to come!
-- Added perl(Readonly::XS) as a dependency. Readonly becomes faster with it. 
+- Added perl(Readonly::XS) as a dependency. Readonly becomes faster with it.
 
 * Mon Apr 19 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - packetfence-remote-snort-sensor back to life. Fixes #888;
@@ -1958,7 +1958,7 @@ in /usr/local/pf
 - Changed some default behavior for overwriting config files (for the better)
 
 * Fri Oct 30 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-2
-- Modifications made to the dependencies to avoid installing Parse::RecDescent 
+- Modifications made to the dependencies to avoid installing Parse::RecDescent
   that doesn't work with PacketFence
 
 * Wed Oct 28 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-1

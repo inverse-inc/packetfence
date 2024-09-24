@@ -66,12 +66,11 @@ case "$1" in
         fi
         usermod pf -a -G fingerbank
         usermod -aG pf mysql
-        usermod -aG pf netdata
 
-        # prevent conflicting mariadb service from starting 
+        # prevent conflicting mariadb service from starting
         /bin/systemctl mask mariadb
         /bin/systemctl stop mariadb
-        # journald 
+        # journald
         /usr/bin/install -d -g systemd-journal /var/log/journal
         /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
         echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
@@ -84,7 +83,7 @@ case "$1" in
 
         exit 0
     ;;
-    
+
     upgrade)
         # mv the old raddb dir if upgrading from FreeRADIUS 2
         echo "Upgrading from $2"
@@ -94,7 +93,7 @@ case "$1" in
         fi
 
         if dpkg --compare-versions "$2" lt "7"; then
-            # journald 
+            # journald
             /usr/bin/install -d -g systemd-journal /var/log/journal
             /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
             echo "RateLimitInterval=0" >> /etc/systemd/journald.conf

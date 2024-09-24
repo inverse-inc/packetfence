@@ -107,7 +107,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba nmbd mysql snmpd netdata collectd proxysql; do
+        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba nmbd mysql snmpd collectd proxysql; do
 
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
@@ -140,7 +140,7 @@ case "$1" in
         fi
 
         perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
- 
+
         #Starting PacketFence.
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
@@ -251,7 +251,7 @@ case "$1" in
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
         echo "* Please stop your iptables service if you don't have access to configurator."
-        
+
         rm -f $PACKETFENCE/var/run/pkg_install_in_progress
     ;;
 
