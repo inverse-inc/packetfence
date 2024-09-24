@@ -18,7 +18,12 @@ endif::[]
 
 //== Automation of upgrades
 
-This section covers automation of upgrades available since PacketFence 11.0.0.
+This section covers automation of upgrades available since PacketFence 11.0.0 on the same OS.
+
+Note that on Packetfence 14.0.0, we change the OS from Debian 11 to Debian 12.
+So if you want to use PacketFence 14.0 on Debian 12, you will have to create a new Debian 12 VM
+and then <<PacketFence_Installation_Guide.html#_exportimport_mechanism,import/export>>
+from your previous setup to the new one.
 
 === Assumptions and limitations
 
@@ -26,7 +31,10 @@ This section covers automation of upgrades available since PacketFence 11.0.0.
   upgrades must use the procedure described in the
   <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Clustering
   Guide>>
-* You can perform automated upgrades starting from PacketFence 11.0.0
+* You can perform automated upgrades starting:
+** from PacketFence 11.0.0 to PacketFence 13.2.0 on Debian 11
+** after PacketFence 14.0.0 on Debian 12
+** after PacketFence 11.0.0 on RedHat 8
 * A backup and an export of your configuration are performed before doing upgrade
 
 === Full upgrade (for PacketFence version 11.0.0 only - see next section for 11.1.0 and above)
