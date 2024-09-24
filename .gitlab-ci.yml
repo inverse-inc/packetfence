@@ -645,6 +645,7 @@ pfdeb_based_dev:
           - "ntlm-auth-api"
           - "git-sync"
           - "github-apps-token"
+          - "caddy-l4"
 
 img_dev:
   extends:
@@ -730,6 +731,7 @@ pfdeb_based_br_maint:
           - "ntlm-auth-api"
           - "git-sync"
           - "github-apps-token"
+          - "caddy-l4"
 
 img_br_maint:
   extends:
