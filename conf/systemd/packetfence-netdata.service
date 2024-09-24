@@ -1,51 +1,25 @@
 # Copyright (C) Inverse inc.
 [Unit]
-Description=Real time performance monitoring 
+Description=PacketFence Netdata Monitoring
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-docker-iptables.service
+Requires=packetfence-docker-iptables.service
+PartOf=packetfence-docker-iptables.service
 
 [Service]
-Type=idle
-User=netdata
-Group=netdata
-RuntimeDirectory=netdata
-RuntimeDirectoryMode=0775
-ExecStart=/usr/sbin/netdata -P /run/netdata/netdata.pid -D -c /usr/local/pf/var/conf/monitoring/netdata.conf 
+StartLimitBurst=3
+StartLimitInterval=10
+Type=simple
+TimeoutStopSec=0
+TimeoutStartSec=0
 ExecStartPre=/bin/mkdir -p /var/cache/netdata
-ExecStartPre=/bin/chown -R netdata:netdata /var/cache/netdata
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::netdata' -e 'pf::services::manager::netdata->new()->generateConfig()'
-PermissionsStartOnly=true
-
-TimeoutSec=60
-
-# saving a big db on slow disks may need some time
-TimeoutStopSec=60
-
-# restart netdata if it crashes
+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::netdata' -e 'pf::services::manager::netdata->new()->generateConfig()'
+ExecStart=/usr/local/pf/sbin/netdata-docker-wrapper
+ExecStop=/bin/bash -c "docker stop netdata ; docker container rm netdata -f ; echo Stopped"
 Restart=on-failure
-RestartSec=30
-
-# The minimum netdata Out-Of-Memory (OOM) score.
-# netdata (via [global].OOM score in netdata.conf) can only increase the value set here.
-# To decrease it, set the minimum here and set the same or a higher value in netdata.conf.
-# Valid values: -1000 (never kill netdata) to 1000 (always kill netdata).
-#OOMScoreAdjust=0
-
-# By default netdata switches to scheduling policy idle, which makes it use CPU, only
-# when there is spare available.
-# Valid policies: other (the system default) | batch | idle | fifo | rr
-#CPUSchedulingPolicy=other
-
-# This sets the maximum scheduling priority netdata can set (for policies: rr and fifo).
-# netdata (via [global].process scheduling priority in netdata.conf) can only lower this value.
-# Priority gets values 1 (lowest) to 99 (highest).
-#CPUSchedulingPriority=1
-
-# For scheduling policy 'other' and 'batch', this sets the lowest niceness of netdata.
-# netdata (via [global].process nice level in netdata.conf) can only increase the value set here.
-#Nice=0
-
 Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/netdata-systemd-notify.pid
 
 [Install]
 WantedBy=packetfence.target
