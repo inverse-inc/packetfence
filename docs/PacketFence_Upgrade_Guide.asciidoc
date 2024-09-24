@@ -1507,17 +1507,14 @@ Before continuing, be sure to read <<PacketFence_Installation_Guide.asciidoc#_as
 
 ==== Export database with mariadb-backup and Import to PacketFence 14.0 on Debian 12
 
-===== From PacketFence version 11.1 to 13.2
-
 PacketFence versions < 11.1 must upgrade to 11.1 before continuing.
 
-
-* Debian 11
+===== On Debian 11 from PacketFence version 11.1 to 13.2
 
 Exporting from Debian 11 the mariadb-backup package (10.5) must be first updated to the current major version used in Debian 12 (10.11) in order to be Imported.
 
 
-** Install mariabd-backup version 10.11.6
+====== Install mariabd-backup version 10.11.6
 
 ----
 wget https://archive.mariadb.org/mariadb-10.11.6/repo/debian/pool/main/m/mariadb/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb -O /root/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb
@@ -1526,7 +1523,7 @@ mv /root/mariadb-backup/usr/bin/mariabackup /usr/bin/mariabackup
 mv /root/mariadb-backup/usr/bin/mbstream /usr/bin/mbstream
 ----
 
-** Backup database
+====== Backup database
 
 Backup using the following script where the database export is created using mariadb-backup (10.11)
 
@@ -1535,7 +1532,7 @@ Backup using the following script where the database export is created using mar
 ----
 
 
-** Reinstall previous version of mariadb-backup (10.5)
+====== Reinstall previous version of mariadb-backup (10.5)
 
 The new version of maria-backup can now be removed
 
@@ -1544,21 +1541,20 @@ apt reinstall mariadb-backup -y
 ----
 
 
-** Export the backup
+====== Export the backup
 
 ----
 /usr/local/pf/addons/full-import/export.sh /tmp/export.tgz
 ----
 
-** Import the backup
+====== Import the backup
 
 Import the backup on the new host using the <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,Import on new installation>> procedure.
 
 
-* RedHat EL8
+===== On RedHat EL8 from PacketFence version 11.1 to 13.2
 
-
-** Backup database
+====== Backup database
 
 Backup using the following script where the database export is created using mariadb-backup (10.5). This backup is used to Import the database in the new host.
 
@@ -1569,7 +1565,7 @@ Backup using the following script where the database export is created using mar
 Ensure the backup exists in /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream.gz
 
 
-** Export the configuration
+====== Export the configuration
 
 This export is only used to Import the configuration files in the new host.
 
@@ -1578,7 +1574,7 @@ This export is only used to Import the configuration files in the new host.
 ----
 
 
-** Prepare backup on Debian 11
+====== Prepare backup on Debian 11
 
 Restore the database backup into a new copy for mariabackup.
 
@@ -1602,7 +1598,7 @@ scp /root/backup/restore/* root@DEBIAN_12_IP:/root/backup/restore/
 ----
 
 
-** Import the backup on Debian 12
+====== Import the backup on Debian 12
 
 ----
 systemctl stop packetfence-mariadb
@@ -1618,7 +1614,7 @@ systemctl restart packetfence-mariadb
 ----
 
 
-** Import the configuration files
+====== Import the configuration files
 
 Import only the configuration files, do not import the database.
 
@@ -1631,7 +1627,7 @@ The configuration and database is now migrated to the new host.
 If all goes well, you can restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
 
 
-** Additional steps to build or rebuild a cluster
+====== Additional steps to build or rebuild a cluster
 
 If you want to build or rebuild a cluster, you need to follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
 
