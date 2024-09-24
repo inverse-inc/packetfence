@@ -90,7 +90,7 @@ sub reevaluate_access {
     $opts{'force'} = '1' if ($function eq 'admin_modify');
     my $ip = pf::ip4log::mac2ip($mac);
     my $sync = $opts{sync};
-    if (scalar keys %ConfigFirewallSSO != 0 && (grep { $_ eq $TRUE } map { $_->{'sso_on_access_reevaluation'} } values %ConfigFirewallSSO) ) {
+    if ( (grep { defined $_ && $_ eq $TRUE } map { $_->{'sso_on_access_reevaluation'} } values %ConfigFirewallSSO) ) {
         my $node = node_attributes($mac);
         if ($ip) {
             my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";
