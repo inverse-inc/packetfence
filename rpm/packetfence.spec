@@ -1271,6 +1271,8 @@ fi
                         /usr/local/pf/conf/monitoring/charts.d/*.conf.example
 %config                 /usr/local/pf/conf/monitoring/health.d/*.conf
                         /usr/local/pf/conf/monitoring/health.d/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/go.d/*.conf
+                        /usr/local/pf/conf/monitoring/go.d/*.conf.example
 %config                 /usr/local/pf/conf/monitoring/node.d/*.md
 %config                 /usr/local/pf/conf/monitoring/python.d/*.conf
                         /usr/local/pf/conf/monitoring/python.d/*.conf.example
