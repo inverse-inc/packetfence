@@ -7,6 +7,8 @@ import (
 	"math"
 	"net/netip"
 	"time"
+
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type EventKey struct {
@@ -53,9 +55,46 @@ type Aggregator struct {
 	db               *sql.DB
 }
 
+func updateMacs(ctx context.Context, f *PfFlow, stmt *sql.Stmt) {
+	if f.SrcMac != "00:00:00:00:00:00" && f.DstMac != "00:00:00:00:00:00" {
+		return
+	}
+
+	var srcMac, dstMac string
+	err := stmt.QueryRowContext(ctx, f.SrcIp.String(), f.DstIp.String()).Scan(&srcMac, &dstMac)
+	if err != nil {
+		log.LogErrorf(ctx, "updateMacs Database Error: %s", err.Error())
+	}
+
+	if f.SrcMac == "00:00:00:00:00:00" {
+		f.SrcMac = srcMac
+	}
+
+	if f.DstMac == "00:00:00:00:00:00" {
+		f.DstMac = dstMac
+	}
+}
+
+const updateMacsSql = `
+SELECT
+	COALESCE((SELECT mac FROM ip4log WHERE ip = ?), "00:00:00:00:00:00") as src_mac,
+	COALESCE((SELECT mac FROM ip4log WHERE ip = ?), "00:00:00:00:00:00") as dst_mac;
+`
+
 func (a *Aggregator) handleEvents() {
 	ctx := context.Background()
 	ticker := time.NewTicker(a.timeout)
+	stmt, err := new(sql.Stmt), error(nil)
+	//	if a.db != nil {
+	stmt, err = a.db.PrepareContext(ctx, updateMacsSql)
+	if err != nil {
+		log.LogErrorf(ctx, "handleEvents Database Error: %s %s", updateMacsSql, err.Error())
+		stmt = nil
+	} else {
+		defer stmt.Close()
+	}
+	//	}
+
 loop:
 	for {
 		select {
@@ -67,6 +106,11 @@ loop:
 					if a.Heuristics > 0 {
 						f.Heuristics()
 					}
+
+					if stmt != nil {
+						updateMacs(ctx, &f, stmt)
+					}
+
 					a.events[key] = append(val, f)
 				}
 			}
@@ -76,13 +120,11 @@ loop:
 				startTime := int64(math.MaxInt64)
 				endTime := int64(0)
 				packetCount := uint64(0)
-				networkEvent := events[0].ToNetworkEvent()
-				if networkEvent == nil {
-					for _, e := range events[1:] {
-						networkEvent = e.ToNetworkEvent()
-						if networkEvent != nil {
-							break
-						}
+				var networkEvent *NetworkEvent
+				for _, e := range events {
+					networkEvent = e.ToNetworkEvent()
+					if networkEvent != nil {
+						break
 					}
 				}
 

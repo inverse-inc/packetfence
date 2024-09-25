@@ -8,6 +8,7 @@ import (
 
 func TestAggregator(t *testing.T) {
 	networkEventChan := make(chan []*NetworkEvent, 100)
+	db, _ := getDb()
 	events := []*PfFlows{
 		{
 			Flows: &[]PfFlow{
@@ -55,6 +56,7 @@ func TestAggregator(t *testing.T) {
 		&AggregatorOptions{
 			Timeout:          10 * time.Millisecond,
 			NetworkEventChan: networkEventChan,
+			Db:               db,
 		},
 	)
 
