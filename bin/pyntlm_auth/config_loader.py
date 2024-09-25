@@ -80,8 +80,9 @@ def config_load():
 
     server_name_raw = cp_dm.get(identifier, 'server_name')
     server_name_or_hostname = server_name_raw
-    if server_name_raw.strip() == "%h":
-        server_name_or_hostname = socket.gethostname().split(".")[0]
+    if "%h" in server_name_or_hostname.strip():
+        ph = socket.gethostname().split(".")[0]
+        server_name_or_hostname = server_name_or_hostname.replace("%h", ph)
 
     ad_fqdn = cp_dm.get(identifier, 'ad_fqdn')
     ad_server = cp_dm.get(identifier, 'ad_server')
