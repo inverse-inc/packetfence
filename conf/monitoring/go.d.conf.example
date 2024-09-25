@@ -70,7 +70,7 @@ mysql: yes
 #  proxysql: yes
 #  pulsar: yes
 #  rabbitmq: yes
-#  redis: yes
+redis: yes
 #  scaleio: yes
 #  snmp: yes
 #  squidlog: yes

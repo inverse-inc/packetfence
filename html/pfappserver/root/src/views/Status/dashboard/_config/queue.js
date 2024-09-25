@@ -15,49 +15,82 @@ export default [
     name: 'Queue', // i18n defer
     groups: [
       {
-        name: 'Queue counts', // i18n defer
-        items: chartDimensions('packetfence.redis.queue_stats_count').map(queue => {
-          return {
-            title: queue + ' queue count', // i18n defer
+        name: 'Redis Queue', // i18n defer
+        items: [
+          {
+            title: 'Queue Count', // i18n defer
             metric: 'packetfence.redis.queue_stats_count',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            params: {
-              filter_graph: queue
-            },
-            cols: 6
+            cols: 12
           }
-        })
+        ]
       },
       {
-        name: 'Queue tasks outstanding counts', // i18n defer
-        items: chartDimensions('packetfence.redis.queue_stats_outstanding').map(task => {
-          return {
-            title: task + ' outstanding', // i18n defer
-            metric: 'packetfence.redis.queue_stats_outstanding',
+        name: 'Redis Queue', // i18n defer
+        items: [
+          {
+            title: `redis_redis-queue.memory`,
+            metric: `redis_redis-queue.memory`,
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            params: {
-              filter_graph: task.replace(/:/g, '_')
-            },
+            cols: 6
+          },
+          {
+            title: `redis_redis-queue.net`,
+            metric: `redis_redis-queue.net`,
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: `redis_redis-queue.commands_calls`,
+            metric: `redis_redis-queue.commands_calls`,
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: `redis_redis-queue.keys`,
+            metric: `redis_redis-queue.keys`,
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
             cols: 6
           }
-        })
+        ]
       },
       {
-        name: 'Queue tasks expired counts', // i18n defer
-        items: chartDimensions('packetfence.redis.queue_stats_expired').map(task => {
-          return {
-            title: task + ' expired', // i18n defer
-            metric: 'packetfence.redis.queue_stats_expired',
+        name: 'Redis Cache', // i18n defer
+        items: [
+          {
+            title: `redis_redis-cache.memory`,
+            metric: `redis_redis-cache.memory`,
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            params: {
-              filter_graph: task.replace(/:/g, '_')
-            },
+            cols: 6
+          },
+          {
+            title: `redis_redis-cache.net`,
+            metric: `redis_redis-cache.net`,
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: `redis_redis-cache.commands_calls`,
+            metric: `redis_redis-cache.commands_calls`,
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: `redis_redis-cache.keys`,
+            metric: `redis_redis-cache.keys`,
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
             cols: 6
           }
-        })
+        ]
       }
     ]
   }

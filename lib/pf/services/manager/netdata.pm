@@ -66,11 +66,14 @@ sub generateConfig {
     my %tags;
 
     $tags{'members'} = '';
+    $tags{'members_csv'} = '';
     if ($cluster_enabled) {
         my $int = $management_network->tag('int');
         $tags{'members'} = join(" ", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
+        $tags{'members_csv'} = join(",", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
     }
-
+    $tags{'dns_servers'} = %{pf::UnifiedApi::Controller::Config::System::_get_dns_servers};
+    $tags{'dns_servers_csv'} = join(",", %{pf::UnifiedApi::Controller::Config::System::_get_dns_servers});
 
     foreach my $source  (@authentication_sources_monitored) {
         my $host = $source->{'host'};
@@ -164,94 +167,102 @@ EOT
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
-    if ($Config{'database'}{'host'} ne '127.0.0.1') {
-        if ($Config{'database'}{'host'} eq 'localhost') {
-            $tags{'db_host'}       = "socket: '/var/lib/mysql/mysql.sock'";
-        } else {
-            $tags{'db_host'}       = "host: '$Config{'database'}{'host'}'";
-        }
-    } else {
-        $tags{'db_host'}       = "host: '$tags{'management_ip'}'";
-    }
     $tags{'db_username'}   = "$Config{'database'}{'user'}";
     $tags{'db_password'}   = "$Config{'database'}{'pass'}";
     $tags{'db_database'}   = "$Config{'database'}{'db'}";
-
+    if ($Config{'database'}{'host'} ne '127.0.0.1' and $Config{'database'}{'host'} ne 'localhost') {
+        $tags{'db_dsn'} = "$Config{'database'}{'user'}:$Config{'database'}{'pass'}\@tcp($Config{'database'}{'host'}:$Config{'database'}{'port'})/$Config{'database'}{'db'}";
+    } else {
+        $tags{'db_dsn'} = "$Config{'database'}{'user'}:$Config{'database'}{'pass'}\@tcp($tags{'management_ip'}:$Config{'database'}{'port'})/$Config{'database'}{'db'}";
+    }
     $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $management_network->tag('vip') || $management_network->tag('ip');
     $tags{'statsd_listen_port'} = $Config{'advanced'}{'statsd_listen_port'};
 
     parse_template( \%tags, "$conf_dir/monitoring/netdata.conf", "$generated_conf_dir/monitoring/netdata.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/apps_groups.conf", "$generated_conf_dir/monitoring/apps_groups.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/charts.d.conf", "$generated_conf_dir/monitoring/charts.d.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/charts.d/example.conf", "$generated_conf_dir/monitoring/charts.d/example.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/fping.conf", "$generated_conf_dir/monitoring/fping.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/apache.conf", "$generated_conf_dir/monitoring/health.d/apache.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/backend.conf", "$generated_conf_dir/monitoring/health.d/backend.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/beanstalkd.conf", "$generated_conf_dir/monitoring/health.d/beanstalkd.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/bind_rndc.conf", "$generated_conf_dir/monitoring/health.d/bind_rndc.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/couchdb.conf", "$generated_conf_dir/monitoring/health.d/couchdb.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/cpu.conf", "$generated_conf_dir/monitoring/health.d/cpu.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/disks.conf", "$generated_conf_dir/monitoring/health.d/disks.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/elasticsearch.conf", "$generated_conf_dir/monitoring/health.d/elasticsearch.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/entropy.conf", "$generated_conf_dir/monitoring/health.d/entropy.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/fping.conf", "$generated_conf_dir/monitoring/health.d/fping.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/haproxy.conf", "$generated_conf_dir/monitoring/health.d/haproxy.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/ipc.conf", "$generated_conf_dir/monitoring/health.d/ipc.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/ipfs.conf", "$generated_conf_dir/monitoring/health.d/ipfs.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/ipmi.conf", "$generated_conf_dir/monitoring/health.d/ipmi.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/isc_dhcpd.conf", "$generated_conf_dir/monitoring/health.d/isc_dhcpd.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/lighttpd.conf", "$generated_conf_dir/monitoring/health.d/lighttpd.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/mdstat.conf", "$generated_conf_dir/monitoring/health.d/mdstat.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/memcached.conf", "$generated_conf_dir/monitoring/health.d/memcached.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/memory.conf", "$generated_conf_dir/monitoring/health.d/memory.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/mongodb.conf", "$generated_conf_dir/monitoring/health.d/mongodb.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/mysql.conf", "$generated_conf_dir/monitoring/health.d/mysql.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/named.conf", "$generated_conf_dir/monitoring/health.d/named.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/net.conf", "$generated_conf_dir/monitoring/health.d/net.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/netfilter.conf", "$generated_conf_dir/monitoring/health.d/netfilter.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/nginx.conf", "$generated_conf_dir/monitoring/health.d/nginx.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/postgres.conf", "$generated_conf_dir/monitoring/health.d/postgres.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/qos.conf", "$generated_conf_dir/monitoring/health.d/qos.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/ram.conf", "$generated_conf_dir/monitoring/health.d/ram.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/redis.conf", "$generated_conf_dir/monitoring/health.d/redis.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/retroshare.conf", "$generated_conf_dir/monitoring/health.d/retroshare.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/softnet.conf", "$generated_conf_dir/monitoring/health.d/softnet.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/squid.conf", "$generated_conf_dir/monitoring/health.d/squid.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/swap.conf", "$generated_conf_dir/monitoring/health.d/swap.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_conn.conf", "$generated_conf_dir/monitoring/health.d/tcp_conn.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_listen.conf", "$generated_conf_dir/monitoring/health.d/tcp_listen.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_mem.conf", "$generated_conf_dir/monitoring/health.d/tcp_mem.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_orphans.conf", "$generated_conf_dir/monitoring/health.d/tcp_orphans.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_resets.conf", "$generated_conf_dir/monitoring/health.d/tcp_resets.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/udp_errors.conf", "$generated_conf_dir/monitoring/health.d/udp_errors.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/varnish.conf", "$generated_conf_dir/monitoring/health.d/varnish.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/web_log.conf", "$generated_conf_dir/monitoring/health.d/web_log.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/zfs.conf", "$generated_conf_dir/monitoring/health.d/zfs.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health.d/statsd.conf", "$generated_conf_dir/monitoring/health.d/statsd.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health_alarm_notify.conf", "$generated_conf_dir/monitoring/health_alarm_notify.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/health_email_recipients.conf", "$generated_conf_dir/monitoring/health_email_recipients.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/node.d.conf", "$generated_conf_dir/monitoring/node.d.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/node.d/README.md", "$generated_conf_dir/monitoring/node.d/README.md" );
-    parse_template( \%tags, "$conf_dir/monitoring/node.d/fronius.conf.md", "$generated_conf_dir/monitoring/node.d/fronius.conf.md" );
-    parse_template( \%tags, "$conf_dir/monitoring/node.d/named.conf.md", "$generated_conf_dir/monitoring/node.d/named.conf.md" );
-    parse_template( \%tags, "$conf_dir/monitoring/node.d/sma_webbox.conf.md", "$generated_conf_dir/monitoring/node.d/sma_webbox.conf.md" );
-    parse_template( \%tags, "$conf_dir/monitoring/node.d/snmp.conf.md", "$generated_conf_dir/monitoring/node.d/snmp.conf.md" );
-    parse_template( \%tags, "$conf_dir/monitoring/node.d/stiebeleltron.conf.md", "$generated_conf_dir/monitoring/node.d/stiebeleltron.conf.md" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d.conf", "$generated_conf_dir/monitoring/python.d.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/apache.conf", "$generated_conf_dir/monitoring/python.d/apache.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/chrony.conf", "$generated_conf_dir/monitoring/python.d/chrony.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/cpufreq.conf", "$generated_conf_dir/monitoring/python.d/cpufreq.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/dns_query_time.conf", "$generated_conf_dir/monitoring/python.d/dns_query_time.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/example.conf", "$generated_conf_dir/monitoring/python.d/example.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/freeradius.conf", "$generated_conf_dir/monitoring/python.d/freeradius.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/go_expvar.conf", "$generated_conf_dir/monitoring/python.d/go_expvar.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/haproxy.conf", "$generated_conf_dir/monitoring/python.d/haproxy.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/mysql.conf", "$generated_conf_dir/monitoring/python.d/mysql.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/postfix.conf", "$generated_conf_dir/monitoring/python.d/postfix.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/redis.conf", "$generated_conf_dir/monitoring/python.d/redis.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/web_log.conf", "$generated_conf_dir/monitoring/python.d/web_log.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/apps_groups.conf", "$generated_conf_dir/monitoring/apps_groups.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/charts.d.conf", "$generated_conf_dir/monitoring/charts.d.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/charts.d/example.conf", "$generated_conf_dir/monitoring/charts.d/example.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/fping.conf", "$generated_conf_dir/monitoring/fping.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/apache.conf", "$generated_conf_dir/monitoring/health.d/apache.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/backend.conf", "$generated_conf_dir/monitoring/health.d/backend.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/beanstalkd.conf", "$generated_conf_dir/monitoring/health.d/beanstalkd.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/bind_rndc.conf", "$generated_conf_dir/monitoring/health.d/bind_rndc.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/couchdb.conf", "$generated_conf_dir/monitoring/health.d/couchdb.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/cpu.conf", "$generated_conf_dir/monitoring/health.d/cpu.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/disks.conf", "$generated_conf_dir/monitoring/health.d/disks.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/elasticsearch.conf", "$generated_conf_dir/monitoring/health.d/elasticsearch.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/entropy.conf", "$generated_conf_dir/monitoring/health.d/entropy.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/fping.conf", "$generated_conf_dir/monitoring/health.d/fping.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/haproxy.conf", "$generated_conf_dir/monitoring/health.d/haproxy.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/ipc.conf", "$generated_conf_dir/monitoring/health.d/ipc.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/ipfs.conf", "$generated_conf_dir/monitoring/health.d/ipfs.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/ipmi.conf", "$generated_conf_dir/monitoring/health.d/ipmi.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/isc_dhcpd.conf", "$generated_conf_dir/monitoring/health.d/isc_dhcpd.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/lighttpd.conf", "$generated_conf_dir/monitoring/health.d/lighttpd.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/mdstat.conf", "$generated_conf_dir/monitoring/health.d/mdstat.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/memcached.conf", "$generated_conf_dir/monitoring/health.d/memcached.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/memory.conf", "$generated_conf_dir/monitoring/health.d/memory.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/mongodb.conf", "$generated_conf_dir/monitoring/health.d/mongodb.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/mysql.conf", "$generated_conf_dir/monitoring/health.d/mysql.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/named.conf", "$generated_conf_dir/monitoring/health.d/named.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/net.conf", "$generated_conf_dir/monitoring/health.d/net.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/netfilter.conf", "$generated_conf_dir/monitoring/health.d/netfilter.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/nginx.conf", "$generated_conf_dir/monitoring/health.d/nginx.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/postgres.conf", "$generated_conf_dir/monitoring/health.d/postgres.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/qos.conf", "$generated_conf_dir/monitoring/health.d/qos.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/ram.conf", "$generated_conf_dir/monitoring/health.d/ram.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/redis.conf", "$generated_conf_dir/monitoring/health.d/redis.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/retroshare.conf", "$generated_conf_dir/monitoring/health.d/retroshare.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/softnet.conf", "$generated_conf_dir/monitoring/health.d/softnet.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/squid.conf", "$generated_conf_dir/monitoring/health.d/squid.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/swap.conf", "$generated_conf_dir/monitoring/health.d/swap.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_conn.conf", "$generated_conf_dir/monitoring/health.d/tcp_conn.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_listen.conf", "$generated_conf_dir/monitoring/health.d/tcp_listen.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_mem.conf", "$generated_conf_dir/monitoring/health.d/tcp_mem.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_orphans.conf", "$generated_conf_dir/monitoring/health.d/tcp_orphans.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/tcp_resets.conf", "$generated_conf_dir/monitoring/health.d/tcp_resets.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/udp_errors.conf", "$generated_conf_dir/monitoring/health.d/udp_errors.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/varnish.conf", "$generated_conf_dir/monitoring/health.d/varnish.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/web_log.conf", "$generated_conf_dir/monitoring/health.d/web_log.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/zfs.conf", "$generated_conf_dir/monitoring/health.d/zfs.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health.d/statsd.conf", "$generated_conf_dir/monitoring/health.d/statsd.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health_alarm_notify.conf", "$generated_conf_dir/monitoring/health_alarm_notify.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/health_email_recipients.conf", "$generated_conf_dir/monitoring/health_email_recipients.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/node.d.conf", "$generated_conf_dir/monitoring/node.d.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/node.d/README.md", "$generated_conf_dir/monitoring/node.d/README.md" );
+    # parse_template( \%tags, "$conf_dir/monitoring/node.d/fronius.conf.md", "$generated_conf_dir/monitoring/node.d/fronius.conf.md" );
+    # parse_template( \%tags, "$conf_dir/monitoring/node.d/named.conf.md", "$generated_conf_dir/monitoring/node.d/named.conf.md" );
+    # parse_template( \%tags, "$conf_dir/monitoring/node.d/sma_webbox.conf.md", "$generated_conf_dir/monitoring/node.d/sma_webbox.conf.md" );
+    # parse_template( \%tags, "$conf_dir/monitoring/node.d/snmp.conf.md", "$generated_conf_dir/monitoring/node.d/snmp.conf.md" );
+    # parse_template( \%tags, "$conf_dir/monitoring/node.d/stiebeleltron.conf.md", "$generated_conf_dir/monitoring/node.d/stiebeleltron.conf.md" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d.conf", "$generated_conf_dir/monitoring/python.d.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/apache.conf", "$generated_conf_dir/monitoring/python.d/apache.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/chrony.conf", "$generated_conf_dir/monitoring/python.d/chrony.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/cpufreq.conf", "$generated_conf_dir/monitoring/python.d/cpufreq.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/dns_query_time.conf", "$generated_conf_dir/monitoring/python.d/dns_query_time.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/example.conf", "$generated_conf_dir/monitoring/python.d/example.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/freeradius.conf", "$generated_conf_dir/monitoring/python.d/freeradius.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/go_expvar.conf", "$generated_conf_dir/monitoring/python.d/go_expvar.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/haproxy.conf", "$generated_conf_dir/monitoring/python.d/haproxy.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/mysql.conf", "$generated_conf_dir/monitoring/python.d/mysql.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/postfix.conf", "$generated_conf_dir/monitoring/python.d/postfix.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/redis.conf", "$generated_conf_dir/monitoring/python.d/redis.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/python.d/web_log.conf", "$generated_conf_dir/monitoring/python.d/web_log.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/statsd.d/packetfence.conf", "$generated_conf_dir/monitoring/statsd.d/packetfence.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/stream.conf", "$generated_conf_dir/monitoring/stream.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/stream.conf", "$generated_conf_dir/monitoring/stream.conf" );
+
+    parse_template( \%tags, "$conf_dir/monitoring/go.d.conf", "$generated_conf_dir/monitoring/go.d.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/go.d/apache.conf", "$generated_conf_dir/monitoring/go.d/apache.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/go.d/chrony.conf", "$generated_conf_dir/monitoring/go.d/chrony.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/go.d/dns_query.conf", "$generated_conf_dir/monitoring/go.d/dns_query.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/go.d/freeradius.conf", "$generated_conf_dir/monitoring/go.d/freeradius.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/go.d/haproxy.conf", "$generated_conf_dir/monitoring/go.d/haproxy.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/go.d/mysql.conf", "$generated_conf_dir/monitoring/go.d/mysql.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/go.d/ping.conf", "$generated_conf_dir/monitoring/go.d/ping.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/go.d/proxysql.conf", "$generated_conf_dir/monitoring/go.d/proxysql.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/go.d/redis.conf", "$generated_conf_dir/monitoring/go.d/redis.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/go.d/systemdunits.conf", "$generated_conf_dir/monitoring/go.d/systemdunits.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/go.d/web_log.conf", "$generated_conf_dir/monitoring/go.d/web_log.conf" );
     return 1;
 }
 
