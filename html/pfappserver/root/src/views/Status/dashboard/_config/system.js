@@ -150,15 +150,62 @@ export default [
         name: 'IPv4 Networking', // i18n defer
         items: [
           {
-            title: 'IPv4 Bandwidth', // i18n defer
-            metric: 'system.ipv4',
+            title: 'Packets', // i18n defer
+            metric: 'ipv4.packets',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             cols: 6
           },
           {
-            title: 'IPv4 Sockets', // i18n defer
-            metric: 'ipv4.sockstat_sockets',
+            title: 'Errors', // i18n defer
+            metric: 'ipv4.errors',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'TCP Sockets', // i18n defer
+            metric: 'ipv4.sockstat_tcp_sockets',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'UDP Sockets', // i18n defer
+            metric: 'ipv4.sockstat_udp_sockets',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          }
+        ]
+      },
+      {
+        name: 'IPv6 Networking', // i18n defer
+        items: [
+          {
+            title: 'Packets', // i18n defer
+            metric: 'ipv6.packets',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Errors', // i18n defer
+            metric: 'ipv6.errors',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'TCP Sockets', // i18n defer
+            metric: 'ipv6.sockstat6_tcp_sockets',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'UDP Sockets', // i18n defer
+            metric: 'ipv6.sockstat6_udp_sockets',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             cols: 6
