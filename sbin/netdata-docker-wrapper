@@ -32,7 +32,9 @@ args+=" -v /var/run/docker.sock:/var/run/docker.sock:ro"
 args+=" -v /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock:ro"
 args+=" -v /run/dbus:/run/dbus:ro"
 
-args+=" -p 19999:19999"
+# --network=host
+# args+=" -p 19999:19999"
+# args+=" -p 8125:8125"
 
 args+=" --env DOCKER_USR=root"
 
