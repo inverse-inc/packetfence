@@ -27,30 +27,33 @@ type PfFlows struct {
 
 //easyjson:json
 type PfFlow struct {
-	SrcIp           netip.Addr `json:"src_ip"`
-	DstIp           netip.Addr `json:"dst_ip"`
-	NextAddr        netip.Addr `json:"next_addr"`
-	SrcMac          string     `json:"src_mac"`
-	DstMac          string     `json:"dst_mac"`
+	SrcIp           netip.Addr `json:"src_ip,omitempty"`
+	DstIp           netip.Addr `json:"dst_ip,omitempty"`
+	NextAddr        netip.Addr `json:"next_addr,omitempty"`
+	SrcMac          string     `json:"src_mac,omitempty"`
+	DstMac          string     `json:"dst_mac,omitempty"`
+	PostSrcMac      string     `json:"post_src_mac,omitempty"`
+	PostDstMac      string     `json:"post_dst_mac,omitempty"`
 	StartTime       int64      `json:"start_time"`
 	EndTime         int64      `json:"end_time"`
-	ByteCount       uint32     `json:"byte_count"`
-	First           uint32     `json:"first"`
-	Last            uint32     `json:"last"`
-	SrcPort         uint16     `json:"src_port"`
-	DstPort         uint16     `json:"dst_port"`
-	SnmpIndexInput  uint16     `json:"snmp_index_input"`
-	SnmpIndexOutput uint16     `json:"snmp_index_output"`
-	PacketCount     uint64     `json:"packet_count"`
-	SrcAS           uint16     `json:"src_as"`
-	DstAS           uint16     `json:"dst_as"`
-	TCPFlags        uint8      `json:"tcp_flags"`
-	BiFlow          uint8      `json:"biflow"`
-	Direction       uint8      `json:"direction"`
-	Proto           uint8      `json:"proto"`
-	SrcMask         uint8      `json:"src_mask"`
-	DstMask         uint8      `json:"dst_mask"`
-	ToS             uint8      `json:"tos"`
+	PacketCount     uint64     `json:"packet_count,omitempty"`
+	ConnectionCount uint64     `json:"connection_count,omitempty"`
+	ByteCount       uint32     `json:"byte_count,omitempty"`
+	First           uint32     `json:"first,omitempty"`
+	Last            uint32     `json:"last,omitempty"`
+	SrcPort         uint16     `json:"src_port,omitempty"`
+	DstPort         uint16     `json:"dst_port,omitempty"`
+	SnmpIndexInput  uint16     `json:"snmp_index_input,omitempty"`
+	SnmpIndexOutput uint16     `json:"snmp_index_output,omitempty"`
+	SrcAS           uint16     `json:"src_as,omitempty"`
+	DstAS           uint16     `json:"dst_as,omitempty"`
+	TCPFlags        uint8      `json:"tcp_flags,omitempty"`
+	BiFlow          uint8      `json:"biflow,omitempty"`
+	Direction       uint8      `json:"direction,omitempty"`
+	Proto           uint8      `json:"proto,omitempty"`
+	SrcMask         uint8      `json:"src_mask,omitempty"`
+	DstMask         uint8      `json:"dst_mask,omitempty"`
+	ToS             uint8      `json:"tos,omitempty"`
 }
 
 func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
@@ -158,7 +161,7 @@ func (f *PfFlow) ToNetworkEvent() *NetworkEvent {
 		IpProtocol:          ipProto,
 		IpVersion:           IpVersionIpv4,
 		EnforcementState:    EnforcementStateEnforcing,
-		Count:               1,
+		Count:               int(f.ConnectionCount),
 		StartTime:           uint64(time.Now().Unix()),
 		Direction:           f.NetworkEventDirection(),
 		DestInventoryitem:   f.DestInventoryitem(),
