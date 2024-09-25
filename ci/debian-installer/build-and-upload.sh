@@ -3,6 +3,15 @@ set -o nounset -o pipefail -o errexit
 
 PF_VERSION=${PF_VERSION:-localtest}
 
+# Fix PF version if maintenance to match tag
+if [[ "$PF_VERSION" =~ ^maintenance\/([0-9]+\.[0-9]+)$ ]];
+then
+  PF_VERSION=v;
+  PF_VERSION+=${BASH_REMATCH[1]};
+  PF_VERSION+=.0;
+  echo "Maintenance Branch detected, try to match tag version with PF version = $PF_VERSION"
+fi
+
 PF_RELEASE="`echo $PF_RELEASE | sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`"
 
 ISO_NAME=PacketFence-ISO-${PF_VERSION}.iso
