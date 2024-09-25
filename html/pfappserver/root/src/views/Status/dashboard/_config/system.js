@@ -129,7 +129,7 @@ export default [
           },
           {
             title: 'System Swap Used', // i18n defer
-            metric: 'system.swap',
+            metric: 'mem.swap',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             params: {
@@ -139,7 +139,7 @@ export default [
           },
           {
             title: 'Swap IO', // i18n defer
-            metric: 'system.swapio',
+            metric: 'mem.swapio',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             cols: 6
