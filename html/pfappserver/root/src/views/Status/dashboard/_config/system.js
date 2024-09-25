@@ -147,8 +147,27 @@ export default [
         ]
       },
       {
+        name: 'Physical Network Interfaces', // i18n defer
+        items: [
+          {
+            title: 'Aggregated Bandwidth', // i18n defer
+            metric: 'system.net',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 12
+          }
+        ]
+      },
+      {
         name: 'IPv4 Networking', // i18n defer
         items: [
+          {
+            title: 'Bandwidth', // i18n defer
+            metric: 'system.ip',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
           {
             title: 'Packets', // i18n defer
             metric: 'ipv4.packets',
@@ -161,27 +180,34 @@ export default [
             metric: 'ipv4.errors',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            cols: 6
+            cols: 4
           },
           {
             title: 'TCP Sockets', // i18n defer
             metric: 'ipv4.sockstat_tcp_sockets',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            cols: 6
+            cols: 4
           },
           {
             title: 'UDP Sockets', // i18n defer
             metric: 'ipv4.sockstat_udp_sockets',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            cols: 6
+            cols: 4
           }
         ]
       },
       {
         name: 'IPv6 Networking', // i18n defer
         items: [
+          {
+            title: 'Bandwidth', // i18n defer
+            metric: 'system.ipv6',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
           {
             title: 'Packets', // i18n defer
             metric: 'ipv6.packets',
@@ -194,21 +220,21 @@ export default [
             metric: 'ipv6.errors',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            cols: 6
+            cols: 4
           },
           {
             title: 'TCP Sockets', // i18n defer
             metric: 'ipv6.sockstat6_tcp_sockets',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            cols: 6
+            cols: 4
           },
           {
             title: 'UDP Sockets', // i18n defer
             metric: 'ipv6.sockstat6_udp_sockets',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            cols: 6
+            cols: 4
           }
         ]
       },
