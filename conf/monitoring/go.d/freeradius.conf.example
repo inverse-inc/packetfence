@@ -1,0 +1,23 @@
+## All available configuration options, their descriptions and default values:
+## https://github.com/netdata/netdata/tree/master/src/go/collectors/go.d.plugin/modules/freeradius#readme
+
+jobs:
+  - name: Freeradius Auth
+    address: 127.0.0.1
+    port: 18121
+    secret: adminsecret
+
+  - name: Freeradius Acct
+    address: 127.0.0.1
+    port: 18122
+    secret: adminsecret
+
+  - name: Freeradius LoadBalancer
+    address: 127.0.0.1
+    port: 18123
+    secret: adminsecret
+
+  - name: Freeradius Eduroam
+    address: 127.0.0.1
+    port: 18124
+    secret: adminsecret

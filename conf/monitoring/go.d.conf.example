@@ -36,7 +36,7 @@ modules:
 #  example: no
 #  filecheck: yes
 #  fluentd: yes
-#  freeradius: yes
+freeradius: yes
 #  haproxy: yes
 #  hdfs: yes
 #  httpcheck: yes
