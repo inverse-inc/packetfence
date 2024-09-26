@@ -60,6 +60,8 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 	switch f.BiFlow {
 	default:
 		return EventKey{
+			DomainID:  h.DomainID,
+			FlowSeq:   h.FlowSeq,
 			SrcIp:     f.SrcIp,
 			DstIp:     f.DstIp,
 			DstPort:   f.DstPort,
@@ -68,6 +70,8 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 		}
 	case 1:
 		return EventKey{
+			DomainID:  h.DomainID,
+			FlowSeq:   h.FlowSeq,
 			SrcIp:     f.SrcIp,
 			DstIp:     f.DstIp,
 			DstPort:   f.DstPort,
@@ -76,6 +80,8 @@ func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
 		}
 	case 2:
 		return EventKey{
+			DomainID:  h.DomainID,
+			FlowSeq:   h.FlowSeq,
 			DstIp:     f.SrcIp,
 			SrcIp:     f.DstIp,
 			DstPort:   f.SrcPort,
