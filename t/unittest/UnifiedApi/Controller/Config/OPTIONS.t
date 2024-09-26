@@ -366,7 +366,7 @@ meta => {
                                         value => 'update_switch_role_network',
                                         sibling => {
                                             api_parameters => {
-                                                default => 'mac, $mac, ip, $ip, mask, $mask, lease_length, $lease_length',
+                                                default => 'mac, $mac, ip, $ip',
                                             }
                                         },
                                     }
