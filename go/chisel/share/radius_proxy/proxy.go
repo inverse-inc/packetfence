@@ -95,10 +95,10 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 	}
 
 	packet.Attributes.Add(26, vsa)
-	err = addMessageAuthenticator(packet, []byte(rp.secret))
-	if err != nil {
-		return nil, "", err
-	}
+	// err = addMessageAuthenticator(packet, []byte(rp.secret))
+	// if err != nil {
+	// 	return nil, "", err
+	// }
 
 	b2, err := packet.Encode()
 	if err != nil {
