@@ -20,52 +20,23 @@ testcases:
       assertions:
         - result.statuscode ShouldEqual 201
 
-- name: backup
+- name: create exportable backup
   steps:
   - type: exec
-    script: /usr/local/pf/addons/backup-and-maintenance.sh
+    script: /usr/local/pf/addons/exportable-backup.sh
 
 - name: get_backup_name
   steps:
   - type: exec
-    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-db-dump-*.sql.gz" -newermt "-1 minute"'
+    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-exportable-backup-*.tgz" -newermt "-1 minute"'
     vars: 
       backup_name:
         from: result.systemout
 
-- name: unzip_db_backup
+- name: import
   steps:
   - type: exec
-    script: 'gunzip {{.get_backup_name.backup_name}}'
-
-# we only get filename without path
-- name: get_backup_name_uncompressed
-  steps:
-  - type: exec
-    script: 'basename {{.get_backup_name.backup_name}} .gz'
-    vars:
-      backup_name_uncompressed:
-        from: result.systemout
-
-- name: drop_pf_db
-  steps:
-  - type: exec
-    script: mysql -e "DROP DATABASE pf;"
-
-- name: create_pf_db
-  steps:
-  - type: exec
-    script: mysql -e "CREATE DATABASE pf;"
-
-- name: restore_schema
-  steps:
-  - type: exec
-    script: 'mysql pf < /usr/local/pf/db/pf-schema.sql'
-
-- name: restore_db
-  steps:
-  - type: exec
-    script: 'mysql pf < {{.backup_db_and_restore.backup_dir}}/{{.get_backup_name_uncompressed.backup_name_uncompressed}}'
+    script: '/usr/local/pf/addons/full-import/import.sh --db -f {{ .backup_name }}'
 
 - name: search_user_in_db
   steps:
