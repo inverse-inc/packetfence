@@ -1,7 +1,6 @@
 package maint
 
 import (
-	"cmp"
 	"context"
 	"database/sql"
 	"math"
@@ -12,6 +11,8 @@ import (
 )
 
 type EventKey struct {
+	DomainID  uint32
+	FlowSeq   uint32
 	SrcIp     netip.Addr
 	DstIp     netip.Addr
 	DstPort   uint16
@@ -119,7 +120,7 @@ loop:
 			for _, events := range a.events {
 				startTime := int64(math.MaxInt64)
 				endTime := int64(0)
-				packetCount := uint64(0)
+				connectionCount := uint64(0)
 				var networkEvent *NetworkEvent
 				for _, e := range events {
 					networkEvent = e.ToNetworkEvent()
@@ -136,11 +137,14 @@ loop:
 				for _, e := range events {
 					startTime = min(startTime, e.StartTime)
 					endTime = max(endTime, e.EndTime)
-					ports[e.SessionKey()] = struct{}{}
-					packetCount += cmp.Or(e.PacketCount, 1)
+					sessionKey := e.SessionKey()
+					if _, ok := ports[sessionKey]; !ok {
+						ports[sessionKey] = struct{}{}
+						connectionCount += e.ConnectionCount
+					}
 				}
 
-				networkEvent.Count = len(ports)
+				networkEvent.Count = int(connectionCount)
 				if startTime != 0 {
 					networkEvent.StartTime = uint64(startTime)
 				}
