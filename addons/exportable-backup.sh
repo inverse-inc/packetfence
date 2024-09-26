@@ -169,5 +169,4 @@ clean_backup
 if [ $do_replication == 1 ]; then
   replicate_backup
 fi
-
-exit $BACKUPRC
+echo "Exportable backup is done"
