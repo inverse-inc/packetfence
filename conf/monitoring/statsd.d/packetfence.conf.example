@@ -222,3 +222,14 @@
     priority = 91000
     type = line
     dimension = pattern 'source.packetfence.fingerbank_log.*' '' last 1 1
+
+[logs.httpd_apache]
+    name = packetfence.httpd_apache
+    title = httpd.apache file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.httpd_apache.*' '' last 1 1
+
