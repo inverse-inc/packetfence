@@ -15,14 +15,28 @@ export default [
     name: 'Queue', // i18n defer
     groups: [
       {
-        name: 'Redis Queue', // i18n defer
+        name: 'Redis Counts', // i18n defer
         items: [
           {
-            title: 'Queue Count', // i18n defer
+            title: 'Queue', // i18n defer
             metric: 'packetfence.redis.queue_stats_count',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            cols: 12
+            cols: 4
+          },
+          {
+            title: 'Expired', // i18n defer
+            metric: 'packetfence.redis.queue_stats_expired',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 4
+          },
+          {
+            title: 'Outstanding', // i18n defer
+            metric: 'packetfence.redis.queue_stats_outstanding',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 4
           }
         ]
       },
