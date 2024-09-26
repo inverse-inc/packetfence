@@ -1958,15 +1958,18 @@ sub push_acls : Public {
 
 =head2 update_switch_role_network
 
-Update switch role network based on provided IP addresses and MAC addresses role and netmask
+Update switch role network based on provided IP addresses and MAC addresses
 
 =cut
 
-sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip, mask, $mask, lease_length, $lease_length) {
+sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my ($class, %postdata) = @_;
-    my @require = qw(mac ip mask lease_length);
+    my @require = qw(mac ip);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
+
+    $postdata{"mask"} = $postdata{"mask"} // undef;
+    $postdata{"lease_length"} = $postdata{"lease_length"} // undef;
 
     my $cidr_role = pf::cidr_role->new();
 
