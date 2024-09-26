@@ -1,5 +1,5 @@
 
-FROM golang:1.22.5-bookworm
+FROM golang:1.23.0-bookworm
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     SEMAPHORE_CONFIG_PATH="${SEMAPHORE_CONFIG_PATH:-/etc/semaphore}" \
