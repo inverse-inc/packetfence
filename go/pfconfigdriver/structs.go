@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
-	"github.com/inverse-inc/packetfence/go/pfcrypt"
+	"github.com/inverse-inc/packetfence/go/config/pfcrypt"
 )
 
 // Interface for a pfconfig object. Not doing much now but it is there for future-proofing

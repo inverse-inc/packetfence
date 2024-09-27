@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/inverse-inc/packetfence/go/pfcrypt"
+	"github.com/inverse-inc/packetfence/go/config/pfcrypt"
 )
 
 func main() {

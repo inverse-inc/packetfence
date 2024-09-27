@@ -27,10 +27,11 @@ $(ALL_BINARIES_RACE):
 .PHONY: copy
 copy:
 	cp -f $(PF_BINARIES) $(DESTDIR)$(SBINDIR)
+	cp -f $(PF_GO_CMDS) $(DESTDIR)$(BINDIR)
 
 .PHONY: clean
 clean:
-	rm -f $(PF_BINARIES)
+	rm -f $(PF_BINARIES) $(PF_GO_CMDS)
 
 .PHONY: clean-coredns-src
 clean-coredns-src:
