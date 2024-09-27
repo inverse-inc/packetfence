@@ -2,13 +2,28 @@ import time
 
 import sdnotify
 
+done = False
+
 
 def sd_notify():
     n = sdnotify.SystemdNotifier()
     n.notify("READY=1")
-    count = 1
+
+    count = 0
     while True:
-        # print("Running... {}".format(count))
-        n.notify("STATUS=Count is {}".format(count))
+        if done is True:
+            break
+
+        if count % 30 == 0:
+            message = "WATCHDOG=1"
+            n.notify(message)
+            print(f"==== sdnotify message is: {message}")
+
+            message = "STATUS=Count is {}".format(count)
+            n.notify(message)
+            print(f"==== sdnotify message is: {message}")
+
+            count = 0
+
         count += 1
-        time.sleep(30)
+        time.sleep(1)

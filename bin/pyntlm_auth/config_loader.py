@@ -5,13 +5,36 @@ import sys
 import time
 from configparser import ConfigParser
 
+import redis
+
 import config_generator
 import global_vars
+import redis_client
 import utils
 
 
+def expand_machine_account_list():
+    return (
+        "pf1",
+        "pf2",
+        "pf3",
+    )
+
+
 def bind_machine_account(worker_pid):
-    return 'test-machine-account'
+    machine_accounts = expand_machine_account_list()
+    for m in machine_accounts:
+        try:
+            key = f"{redis_client.namespace}:machine-account-bind:{m}"
+            res = redis_client.r.set(name=key, value=worker_pid, nx=True, ex=10)
+            if res is True:
+                return m
+        except redis.ConnectionError:
+            print("redis connection error when trying to bind machine account.")
+        except Exception as e:
+            print(f"unexpected error when trying to bind machine account: {str(e)}")
+
+    return None
 
 
 def get_boolean_value(v):

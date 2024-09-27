@@ -28,7 +28,7 @@ wsgi_app = 'entrypoint:app'
 bind = f"127.0.0.1:{bind_port}"
 backlog = 2048
 workers = worker_num
-worker_class = 'gevent'  # sync, gevent, eventlet, see docs.
+worker_class = 'sync'  # use sync, do not use 'gevent', or 'eventlet' due to block operations.
 timeout = 30
 graceful_timeout = 30
 
@@ -58,6 +58,5 @@ def post_fork(server, worker):
     master_pid = os.getppid()
     worker_pid = os.getpid()
     worker.log.info(f"---- worker spawned with PID of {worker_pid} by master process {master_pid}")
-
 
 # SETNX
