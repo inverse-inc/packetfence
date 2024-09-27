@@ -5,7 +5,7 @@ import sdnotify
 done = False
 
 
-def sd_notify():
+def sd_notify(worker):
     n = sdnotify.SystemdNotifier()
     n.notify("READY=1")
 

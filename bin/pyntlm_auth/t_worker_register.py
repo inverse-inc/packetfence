@@ -9,7 +9,7 @@ import redis
 done = False
 
 
-def primary_worker_register():
+def primary_worker_register(worker):
     while True:
         if done is True:
             break

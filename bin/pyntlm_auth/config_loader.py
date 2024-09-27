@@ -5,6 +5,7 @@ import sys
 import time
 from configparser import ConfigParser
 
+import psutil
 import redis
 
 import config_generator
@@ -21,12 +22,72 @@ def expand_machine_account_list():
     )
 
 
+def cleanup_machine_account_binding():
+    machine_accounts = expand_machine_account_list()
+
+    for m in machine_accounts:
+        key = f"{redis_client.namespace}:machine-account-bind:{m}"
+
+        try:
+            res = redis_client.r.get(key)
+        except UnicodeDecodeError:
+            print(f"can not decode retrieved value of key: {key}. Check the value and remove the key manually.")
+            continue
+        except redis.ConnectionError:
+            print("redis connection error when trying to bind machine account.")
+            continue
+        except Exception as e:
+            print(f"unexpected error when trying to bind machine account: {type(e)}: {str(e)}")
+            continue
+
+        if res is None:
+            continue
+
+        if not (isinstance(res, str) and res.isdigit()):
+            print(f"value of key {key} is not a valid PID. Check the value and remove the key manually.")
+            continue
+
+        bind_pid = int(res)
+
+        if not psutil.pid_exists(bind_pid):
+            print(f"PID {bind_pid} is already died. Cleaning up.")
+            try:
+                redis_client.r.delete(key)
+            except Exception as e:
+                print(f"error occurred when trying to clean up machine account binding: key: {key}, err: {str(e)}")
+
+            continue
+
+        cleanup_flag = False
+        try:
+            process = psutil.Process(bind_pid)
+            process_name = process.name()
+            if process_name != "gunicorn":
+                cleanup_flag = True
+                print(f"process {bind_pid} is not a gunicorn managed process. A clean up will be performed.")
+        except psutil.NoSuchProcess:
+            print(f"no such process with PID: {bind_pid}, maybe it died right before we check it. Removing binding.")
+            cleanup_flag = True
+        except psutil.AccessDenied:
+            print(f"unable to access process with PID: {bind_pid}, this shouldn't happen. Cleaning up anyway.")
+            cleanup_flag = True
+        except Exception as e:
+            print(f"error occurred when trying to read process info: pid: {bind_pid}, {str(e)}")
+            continue
+
+        if cleanup_flag:
+            try:
+                redis_client.r.delete(key)
+            except Exception as e:
+                print(f"error occurred when trying to clean up machine account binding: key: {key}, err: {str(e)}")
+
+
 def bind_machine_account(worker_pid):
     machine_accounts = expand_machine_account_list()
     for m in machine_accounts:
         try:
             key = f"{redis_client.namespace}:machine-account-bind:{m}"
-            res = redis_client.r.set(name=key, value=worker_pid, nx=True, ex=10)
+            res = redis_client.r.set(name=key, value=worker_pid, nx=True)
             if res is True:
                 return m
         except redis.ConnectionError:
@@ -58,10 +119,10 @@ def get_int_value(v):
     try:
         ret = int(v)
         return ret, None
-    except ValueError as e:
+    except ValueError:
         return None, 'Value error, can not convert specified value to int'
     except Exception as e:
-        return None, 'General error, can not convert specified value to int'
+        return None, f'General error, can not convert specified value to int: {str(e)}'
 
 
 def config_load():
@@ -106,6 +167,14 @@ def config_load():
         print(f"  Error loading {conf_db}: {e}, ntlm-auth-api@{identifier} starts without NT Key caching capability.")
 
     server_name_raw = cp_dm.get(identifier, 'server_name')
+
+    additional_machine_accounts = 0
+    try:
+        additional_machine_accounts = cp_dm.get(identifier, 'additional_machine_accounts')
+        additional_machine_accounts = int(additional_machine_accounts)
+    except Exception as e:
+        print(f"  Error loading 'additional_machine_accounts', not a number or not defined. using 0 as default")
+
     server_name_or_hostname = server_name_raw
     if "%h" in server_name_or_hostname.strip():
         ph = socket.gethostname().split(".")[0]
@@ -279,6 +348,7 @@ def config_load():
     global_vars.c_workgroup = workgroup
     global_vars.c_username = username
     global_vars.c_password = password
+    global_vars.c_additional_machine_accounts = additional_machine_accounts
     global_vars.c_netbios_name = netbios_name
     global_vars.c_workstation = workstation
     global_vars.c_server_string = server_string

@@ -1,5 +1,9 @@
 import os
 import sys
+from threading import Thread
+
+import t_sdnotify
+import t_worker_register
 
 NAME = "NTLM Auth API"
 
@@ -59,4 +63,10 @@ def post_fork(server, worker):
     worker_pid = os.getpid()
     worker.log.info(f"---- worker spawned with PID of {worker_pid} by master process {master_pid}")
 
-# SETNX
+    background_jobs = (
+        Thread(target=t_worker_register.primary_worker_register, daemon=True, args=(worker,)),
+        Thread(target=t_sdnotify.sd_notify, daemon=True, args=(worker,))
+    )
+
+    for job in background_jobs:
+        job.start()
