@@ -18,6 +18,51 @@ use base ('pf::Switch::H3C::Comware_v5');
 
 sub description { 'Comware v7' }
 
+=head1 SUBROUTINES
+
+=over
+
+=item NasPortToIfIndex
+
+Translate RADIUS NAS-Port into switch's ifIndex.
+
+=cut
+
+sub NasPortToIfIndex {
+    my ($self, $nas_port) = @_;
+    my $logger = $self->logger;
+
+    # 4096 NAS-Port slots are reserved per physical ports,
+    # I'm assuming that each client will get a +1 so I translate all of them into the same ifIndex
+    # Also there's a large offset (16781312), 4096 * (4096 + 1)
+    # VLAN ID are last 3 nibbles ────────────────┐
+    # Port is next 2 nibbles    ────────────┐    │
+    # Subslot is next 1 nibble ──────────┐  │    │
+    # Slot is next 2 nibbles  ───────┐   │  │    │
+    # Example: 33575422 --to hex--> (02)(0)(05)(1FE)
+    my $nas_port_no_vlan = floor($nas_port / $THREECOM::NAS_PORTS_PER_PORT_RANGE);
+    my $slot = floor($nas_port_no_vlan / $THREECOM::NAS_PORTS_PER_PORT_RANGE);
+    my $port = $nas_port_no_vlan - $THREECOM::NAS_PORTS_PER_PORT_RANGE * $slot;
+    my $ifIndex = $port + $THREECOM::IFINDEX_OFFSET_PER_SLOT * ($slot - 1);
+    if ($ifIndex > 0) {
+
+        # TODO we should think about caching or pre-computation here
+        $ifIndex = $self->getIfIndexForThisDot1dBasePort($ifIndex);
+
+        # return if defined and an int
+        return $ifIndex if (defined($ifIndex) && $ifIndex =~ /^\d+$/);
+    }
+
+    # error reporting
+    $logger->warn(
+        "Unknown NAS-Port format. ifIndex translation could have failed. "
+        . "VLAN re-assignment and switch/port accounting will be affected."
+    );
+    return $nas_port;
+}
+
+=back
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
