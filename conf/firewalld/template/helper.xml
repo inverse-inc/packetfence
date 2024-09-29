@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helper module="[% module_xml %]" [% family_xml %] [% version_xml %]>
+  <!-- source: https://firewalld.org/documentation/man-pages/firewalld.ipset.html -->
+  [% IF short != "" %]
+  <short>[% short %]</short>
+  [% END %]
+  [% IF description != "" %]
+  <description>[% description %]</description>
+  [% END %]
+  [% FOREACH port IN all_ports %]
+  <port port="[% port.port %]" protocol="[% port.type %]" />
+  [% END %]
+</helper>

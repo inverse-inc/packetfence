@@ -1,8 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=Real time performance monitoring 
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 
 [Service]
 Type=idle
@@ -15,6 +15,7 @@ ExecStartPre=/bin/mkdir -p /var/cache/netdata
 ExecStartPre=/bin/chown -R netdata:netdata /var/cache/netdata
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::netdata' -e 'pf::services::manager::netdata->new()->generateConfig()'
 PermissionsStartOnly=true
+
 
 TimeoutSec=60
 
@@ -46,6 +47,10 @@ RestartSec=30
 #Nice=0
 
 Slice=packetfence.slice
+
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target

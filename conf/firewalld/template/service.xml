@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service [% version_xml %]>
+  <!-- source: https://firewalld.org/documentation/man-pages/firewalld.service.html -->
+  [% IF short != "" %]
+  <short>[% short %]</short>
+  [% END %]
+  [% IF description != "" %]
+  <description>[% description %]</description>
+  [% END %]
+  [% FOREACH port IN all_ports %] 
+  <port port="[% port.port %]" protocol="[% port.type %]"/>
+  [% END %]
+  [% FOREACH protocol IN all_protocols %]
+  <protocol value="[% protocol %]"/>
+  [% END %]
+  [% IF module != "" %]
+  <module name="[% module %]"/>
+  [% END %]
+  [% IF (all_destinations_joined != "") %]
+  <destination [% $all_destinations_joined %]/>
+  [% END %]
+  [% FOREACH service IN all_includes %]
+  <include service="[% service %]"/>
+  [% END %]
+  [% FOREACH helper IN all_helpers %]
+  <helper name="[% helper.name %]"/>
+  [% END %]
+</service>

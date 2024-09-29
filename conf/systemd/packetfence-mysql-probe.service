@@ -1,8 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence MySQL Probe Daemon
-After=network.target packetfence-config.service packetfence-mariadb.service
-Wants=packetfence-config.service
+After=network.target packetfence-config.service packetfence-mariadb.service packetfence-firewalld.service
+Wants=packetfence-config.service packetfence-firewalld.service
 
 [Service]
 StartLimitBurst=3
@@ -13,6 +13,9 @@ Environment=LOG_LEVEL=INFO
 ExecStart=/usr/local/pf/sbin/mysql-probe
 Restart=on-failure
 Slice=packetfence.slice
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_mysql_prob_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target

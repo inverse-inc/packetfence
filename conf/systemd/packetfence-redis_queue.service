@@ -1,8 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Redis Queue Service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service
+After=packetfence-base.target packetfence-config.service
 
 [Service]
 StartLimitBurst=3

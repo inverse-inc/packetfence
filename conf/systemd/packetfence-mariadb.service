@@ -36,6 +36,9 @@ LimitNOFILE=4096
 
 KillMode=control-group
 
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::db -Mpf::config -e 'pf::firewalld::fd_mariadb_rules("remove")'
+
 [Install]
 WantedBy=packetfence-base.target
-

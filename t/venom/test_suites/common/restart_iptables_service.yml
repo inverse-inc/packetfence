@@ -1,7 +1,0 @@
-name: Restart iptables service
-testcases:
-- name: restart_iptables_service
-  steps:
-#  - type: pf_api_service_restart_async
-#    service: 'iptables'
-  - type: perl_iptables_restart

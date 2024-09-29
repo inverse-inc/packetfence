@@ -1,15 +1,10 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence pfqueue go Service
-Wants=packetfence-redis_queue.service
-After=packetfence-redis_queue.service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
-Wants=packetfence-pfqueue-backend.service
-After=packetfence-pfqueue-backend.service
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service packetfence-pfqueue-backend.service
-PartOf=packetfence-docker-iptables.service packetfence-pfqueue-backend.service
+Wants=packetfence-redis_queue.service packetfence-pfqueue-backend.service packetfence-base.target packetfence-config.service
+After=packetfence-redis_queue.service packetfence-pfqueue-backend.service packetfence-base.target packetfence-config.service
+Requires=packetfence-pfqueue-backend.service
+PartOf=packetfence-pfqueue-backend.service
 
 [Service]
 Type=notify

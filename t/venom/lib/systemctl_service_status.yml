@@ -2,17 +2,17 @@ executor: systemctl_service_status
 input:
   service: "" 
   sudo: ""
-  substring: "active (running)"
+  substring: "ActiveState=active"
   i_retry: 40
   i_delay: 3
 steps:
 - type: systemctl_service
-  unit_command: status
+  unit_command: show -p ActiveState
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
   retry: "{{.input.i_retry}}"
   delay: "{{.input.i_delay}}"
   assertions:
-    - result.service_first_lines ShouldContainSubstring '{{.input.substring}}'
+    - result.service_status ShouldContainSubstring '{{.input.substring}}'
 output:
-  service_status_systemout: "{{.result.service_systemout}}"
+  service_status_systemout: "{{.result.service_status}}"

@@ -1,7 +1,7 @@
 name: Delete iptable rule
 testcases:
 # temp, as a workaround
-- name: delete_iptable_rule
+- name: delete_fd_focker_dnat_rules
   steps:
   - type: exec
-    script: 'iptables -t nat -D PREROUTING --protocol udp -s 100.64.0.0/10 -d {{.pfserver_mgmt_ip}} --jump DNAT --to 100.64.0.1'
+    script: perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::config' '-Mpf::firewalld' -e 'pf::firewalld::fd_docker_dnat_rules("remove")'

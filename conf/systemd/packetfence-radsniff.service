@@ -3,8 +3,8 @@
 Description=PacketFence radsniff Service
 After=packetfence-pfstats.service
 Requires=packetfence-pfstats.service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 
 [Service]
 StartLimitBurst=3

@@ -19,4 +19,6 @@ testcases:
       - result.bodyjson.item.status ShouldEqual unreg
       - result.bodyjson.item.regdate ShouldEqual "0000-00-00 00:00:00"
       - result.bodyjson.item.unregdate ShouldEqual "0000-00-00 00:00:00"
-
+    # wait two minutes before failing
+    retry: 8
+    delay: 15

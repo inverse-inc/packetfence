@@ -1,8 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Ipset Daemon
-Wants=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-firewalld.service
 Before=packetfence-httpd.portal.service
 
 [Service]
@@ -14,6 +14,10 @@ ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-
 ExecStart=/bin/bash -c "export $(cat /usr/local/pf/var/conf/pfipset.env | xargs) && /usr/local/pf/sbin/pfhttpd run --adapter caddyfile -c /usr/local/pf/conf/caddy-services/pfipset.conf"
 Restart=on-failure
 Slice=packetfence.slice
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfipset_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfipset_rules("remove")'
+
 
 [Install]
 WantedBy=packetfence.target

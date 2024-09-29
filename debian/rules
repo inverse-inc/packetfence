@@ -216,10 +216,8 @@ binary-arch: build install
 	dh_installinit --name=packetfence-httpd.admin_dispatcher
 	dh_installinit --name=packetfence-httpd.portal
 	dh_installinit --name=packetfence-httpd.webservices
-	dh_installinit --name=packetfence-docker-iptables
-	dh_installinit --name=packetfence-iptables
-	dh_installinit --name=packetfence-ip6tables
 	dh_installinit --name=packetfence-keepalived
+	dh_installinit --name=packetfence-firewalld
 	dh_installinit --name=packetfence-mariadb
 	dh_installinit --name=packetfence-mysql-probe
 	dh_installinit --name=packetfence-netdata

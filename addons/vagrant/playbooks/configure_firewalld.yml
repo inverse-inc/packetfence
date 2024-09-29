@@ -1,0 +1,13 @@
+- hosts: pfservers
+  name: Configure firewalld
+  become: True
+  gather_facts: False
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
+
+  tasks:
+  - import_tasks: tasks/vagrant_firewalld.yml

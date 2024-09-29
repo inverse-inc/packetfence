@@ -2,7 +2,7 @@
 [Unit]
 Description=PacketFence Simple Network Management Protocol (SNMP) Trap Daemon.
 After=packetfence-base.target
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 
 [Service]
 StartLimitBurst=3
@@ -13,6 +13,9 @@ ExecStart=/usr/sbin/snmptrapd -f -n -c /usr/local/pf/var/conf/snmptrapd.conf -C 
 ExecReload=/bin/kill -HUP $MAINPID
 Slice=packetfence.slice
 Restart=on-failure
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_snmptrapd_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_snmptrapd_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target

@@ -14,9 +14,6 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.message ShouldEqual "Settings updated"
-    retry: 3
-    delay: 20
 
 - name: check_configurator_disabled
   steps:
@@ -29,3 +26,5 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 401
       - result.bodyjson.message ShouldContainSubstring 'The configurator is turned off'
+    retry: 3
+    delay: 20

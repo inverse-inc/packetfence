@@ -1,11 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Connector Client
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 
 [Service]
 LimitNOFILE=infinity

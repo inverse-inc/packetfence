@@ -8,5 +8,5 @@
 - import_playbook: playbooks/set_venom_vars.yml
   tags: venom_vars
 
-- import_playbook: playbooks/configure_iptables.yml
-  tags: iptables
+- import_playbook: playbooks/configure_firewalld.yml
+  tags: firewalld

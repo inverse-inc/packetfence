@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<whitelist>
+<!-- https://firewalld.org/documentation/man-pages/firewalld.lockdown-whitelist.html -->
+  [% FOREACH selinux IN all_selinuxs %]
+  <selinux context="[% selinux.context %]"/>
+  [% END %]
+  [% FOREACH command IN all_commands %]
+  <command name="[% command.name %]"/>
+  [% END %]
+  [% FOREACH user IN all_users %]
+    [% IF user.name != '' %]
+  <user name="[% user.name %]"/>
+    [% END %]
+    [% IF user.id != '' %]
+  <user id="[% user.id %]"/>
+    [% END %]
+  [% END %]
+</whitelist>

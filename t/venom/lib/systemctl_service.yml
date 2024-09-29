@@ -10,12 +10,5 @@ steps:
     status_lines:
       from: result.systemout
 
-- type: exec
-  script: echo -n '{{.status_lines}}' | sed -nr 's/.*(Loaded.*Memory).*/\1/p'
-  vars:
-   first_lines:
-     from: result.systemout
-
 output:
-  service_systemout: "{{.result.systemout}}"
-  service_first_lines: "{{.first_lines}}"
+  service_status: "{{.status_lines}}"

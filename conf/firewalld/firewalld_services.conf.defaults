@@ -1,0 +1,483 @@
+[haproxy-admin]
+short=packetfence-haproxy-admin
+description=Firewalld ports for pf-admin service
+helper_name=haproxy-admin
+ports=haproxy-admin_port1
+
+[haproxy-admin_port1]
+port=1443
+type=tcp
+
+[web-portal]
+short=packetfence-httpd.portal
+description=Firewalld ports for httpd.portal service
+ports=web-portal_port1
+
+[web-portal_port1]
+port=8080
+type=tcp
+
+[proxysql]
+short=proxysql
+description=Firewalld ports for proxysql service
+ports=proxysql_port1
+
+[proxysql_port1]
+port=6033
+type=tcp
+
+[radius_acct]
+short=radius acct port
+description=Firewalld ports for radius acct service
+ports=radius_acct_port1
+
+[radius_acct_port1]
+port=1813
+type=udp
+
+[radius_acct_clu]
+short=radius acct cluster port
+description=Firewalld ports for radius acct service
+ports=radius_acct_clu_port1
+
+[radius_acct_clu_port1]
+port=1823
+type=udp
+
+[pfacct]
+short=pfacct port
+description=Firewalld ports for pfacct service
+ports=pfacct_port1
+
+[pfacct_port1]
+port=1813
+type=udp
+
+[pfacct_clu]
+short=pfacct cluster port
+description=Firewalld ports for pfacct service
+ports=pfacct_clu_port1
+
+[pfacct_clu_port1]
+port=1823
+type=udp
+
+[radius_auth]
+short=radius auth port
+description=Firewalld ports for radius auth service
+ports=radius_auth_port1,radius_auth_port2
+
+[radius_auth_port1]
+port=1812
+type=udp
+[radius_auth_port2]
+port=2083
+type=tcp
+
+[radius_auth_clu]
+short=radius auth cluster port
+description=Firewalld ports for radius auth service
+ports=radius_auth_clu_port1
+
+[radius_auth_clu_port1]
+port=1822
+type=udp
+
+[radius_radsec]
+short=radius radsec port
+description=Firewalld ports for radius radsec
+ports=radius_radsec_port1
+
+[radius_radsec_port1]
+port=2093
+type=tcp
+
+[radius_cli]
+short=radius cli port
+description=Firewalld ports for radius cli service
+ports=radius_cli_port1
+
+[radius_cli_port1]
+port=1815
+type=udp
+
+[radius_cli_clu]
+short=radius cli cluster port
+description=Firewalld ports for radius cli service
+ports=radius_cli_clu_port1
+
+[radius_cli_clu_port1]
+port=1825
+type=udp
+
+[radius_eduroam]
+short=radius eduroam port
+description=Firewalld ports for radius eduroam service
+ports=radius_eduroam_port1
+
+[radius_eduroam_port1]
+port=11812
+type=udp
+
+[radius_eduroam_cl]
+short=radius eduroam cluster port
+description=Firewalld ports for radius eduroam service
+ports=radius_eduroam_cl_port1
+
+[radius_eduroam_cl_port1]
+port=11822
+type=udp
+
+[radius_lb]
+short=radius load balancer port
+description=Firewalld ports for radius load balancer service
+
+[httpd_aaa]
+short=httpd port
+description=Firewalld ports for httpd aaa service
+ports=httpd_aaa_port1
+
+[httpd_aaa_port1]
+port=7070
+type=tcp
+
+[radius]
+short=all radius port
+description=Firewalld ports for radius service
+services=radius_cli,radius_auth,radius_acct,radius_eduroam
+
+[radius_clu]
+short=all radius cluster port
+description=Firewalld ports for radius service
+services=radius_cli_clu,radius_auth_clu,radius_acct_clu,radius_eduroam_cl
+
+[snmptrap]
+short=SNMPTRAP
+description=SNMP traps enable an agent to notify the management station of significant events by way of an unsolicited SNMP message.
+ports=snmptrap_port1
+
+[snmptrap_port1]
+port=162
+type=udp
+
+[openvas]
+short=openvas
+description=OpenVAS Administration Interface
+ports=openvas_port1
+
+[openvas_port1]
+type=tcp
+port=9392
+
+[nessus]
+short=nessus
+description=Nessus Administration Interface
+ports=nessus_port1
+
+[nessus_port1]
+type=tcp
+port=8834
+
+[api_frontend]
+short=api_fontend
+description=API Frontend Interface
+ports=api_frontend_port1
+
+[api_frontend_port1]
+type=tcp
+port=9999
+
+[fingerbank]
+short=Fingerbank
+description=Fingerbank collector (replication, NetFlow, API, sFlow)
+ports=fingerbank_port1,fingerbank_port2,fingerbank_port3,fingerbank_port4
+
+[fingerbank_port1]
+type=udp
+port=1192
+[fingerbank_port2]
+type=udp
+port=2055
+[fingerbank_port3]
+type=tcp
+port=4723
+[fingerbank_port4]
+type=udp
+port=6343
+
+[netflow]
+short=Netflow
+description=NetFlow from network devices on non-standard port
+ports=netflow_port1
+
+[netflow_port1]
+type=udp
+port=2055
+
+[vrrp]
+short=vrrp
+description=vrrp
+protocols=vrrp_protocol1
+
+[vrrp_protocol1]
+value=vrrp
+
+[dhcp]
+short=dhcp
+description=Firewalld rules for dhcp services
+ports=dhcp_port1
+
+[dhcp_port1]
+port=67
+type=udp
+
+[ssh]
+short=SSH
+description=Secure Shell (SSH) is a protocol for logging into and executing commands on remote machines. It provides secure encrypted communications. If you plan on accessing your machine remotely via SSH over a firewalled interface, enable this option. You need the openssh-server package installed for this option to be useful.
+ports=ssh_port1
+
+[ssh_port1]
+type=tcp
+port=22
+
+[http]
+short=WWW (HTTP)
+description=HTTP is the protocol used to serve Web pages. If you plan to make your Web server publicly available, enable this option. This option is not required for viewing pages locally or developing Web pages.
+ports=http_port1
+
+[http_port1]
+type=tcp
+port=80
+
+[https]
+short=Secure WWW (HTTPS)
+description=HTTPS is a modified HTTP used to serve Web pages when security is important. Examples are sites that require logins like stores or web mail. This option is not required for viewing pages locally or developing Web pages. You need the httpd package installed for this option to be useful.
+ports=https_port1
+
+[https_port1]
+type=tcp
+port=443
+
+[docker_swarm]
+short=Docker integrated swarm mode
+description=Natively managed cluster of Docker Engines (>=1.12.0), where you deploy services.
+ports=docker_swarm_port1,docker_swarm_port2,docker_swarm_port3,docker_swarm_port4
+protocols=docker_swarm_protocol1
+
+[docker_swarm_port1]
+port=2377
+type=tcp
+[docker_swarm_port2]
+port=7946
+type=tcp
+[docker_swarm_port3]
+port=7946
+type=udp
+[docker_swarm_port4]
+port=4789
+type=udp
+
+[docker_swarm_protocol1]
+value=esp
+
+[elasticsearch]
+short=Elasticsearch
+description=Elasticsearch is a distributed, open source search and analytics engine, designed for horizontal scalability, reliability, and easy management.
+ports=elasticsearch_port1,elasticsearch_port2
+
+[elasticsearch_port1]
+type=tcp
+port=9300
+[elasticsearch_port2]
+type=tcp
+port=9200
+
+[ldap]
+short=LDAP
+description=Lightweight Directory Access Protocol (LDAP) server
+ports=ldap_port1
+
+[ldap_port1]
+type=tcp
+port=389
+
+[dhcpv6_client]
+short=DHCPv6 Client
+description=This option allows a DHCP for IPv6 (DHCPv6) client to obtain addresses and other IPv6 settings from DHCPv6 server.
+ports=dhcpv6_client_port1
+destinations=ipv6:"fe80::/64"
+
+[dhcpv6_client_port1]
+type=udp
+port=546
+
+[dhcpv6]
+short=DHCPv6
+description=This allows a DHCPv6 server to accept messages from DHCPv6 clients and relay agents.
+ports=dhcpv6_port1
+
+[dhcpv6_port1]
+type=udp
+port=547
+
+[dns]
+short=DNS
+description=The Domain Name System (DNS) is used to provide and request host and domain names. Enable this option, if you plan to provide a domain name service (e.g. with bind).
+ports=dns_port1,dns_port2
+
+[dns_port1]
+type=tcp
+port=53
+[dns_port2]
+type=udp
+port=53
+
+[proxy_dhcp]
+short=Proxy DHCP
+description=PXE redirection service (Proxy DHCP) responds to PXE clients and provides redirection to PXE boot servers.
+ports=proxy_dhcp_port1
+
+[proxy_dhcp_port1]
+type=udp
+port=4011
+
+[syslog]
+short=syslog
+description=Syslog is a client/server protocol: a logging application transmits a text message to the syslog receiver. The receiver is commonly called syslogd, syslog daemon or syslog server.
+ports=syslog_port1
+
+[syslog_port1]
+type=udp
+port=514
+
+[syslog_tls]
+short=syslog-tls
+description=Syslog is a client/server protocol: a logging application transmits a text message to the syslog receiver. The receiver is commonly called syslogd, syslog daemon or syslog server. Syslog-tls uses TLS encryption to protect the messages during transport.
+ports=syslog_tls_port1,syslog_tls_port2
+
+[syslog_tls_port1]
+type=tcp
+port=6514
+[syslog_tls_port2]
+type=udp
+port=6514
+
+[mysql]
+short=MySQL
+description=MySQL Database Server.
+ports=mysql_port1
+
+[mysql_port1]
+type=tcp
+port=3306
+
+[mysql_prob]
+short=MySQL_prob
+description=MySQL Database Server prob.
+ports=mysql_prob_port1
+
+[mysql_prob_port1]
+type=tcp
+port=3307
+
+[samba]
+short=Samba
+description=This option allows you to access and participate in Windows file and printer sharing networks. You need the samba package installed for this option to be useful.
+helpers=samba_helper1
+ports=samba_port1,samba_port2,samba_port3,samba_part4
+
+[samba_port1]
+type=udp
+port=137
+[samba_port2]
+type=udp
+port=138
+[samba_port3]
+type=tcp
+port=139
+[samba_port4]
+type=tcp
+port=445
+[samba_helper1]
+name=netbios-ns
+
+[haproxy-portal]
+short=Haproxy portal
+description=Haproxy Portal
+services=http,https
+ports=haproxy-portal_port1
+
+[haproxy-portal_port1]
+port=1025
+type=tcp
+
+[haproxy-db]
+short=Haproxy DB
+description=Haproxy DB
+ports=haproxy-db_port1
+services=mysql
+
+[haproxy-db_port1]
+port=1025
+type=tcp
+
+[captive-portal]
+short=captive-portal
+description=Firewalld rules for captive-portal
+services=https,http,web-portal
+
+[parking-portal]
+short=parking-portal
+description=Firewalld rules for parking-portal
+ports=parking-portal_port1
+
+[parking-portal_port1]
+port=5252
+type=tcp
+
+[galera-autofix]
+short=galera-autofix
+description=Firewalld rules for galera-autofix
+services=galera-cluster,mariadb-quorum
+ports=galera-autofix_port1
+
+[galera-autofix_port1]
+port=4253
+type=udp
+
+[galera-cluster]
+short=galera-cluster
+description=Firewalld rules for galera-cluster
+ports=galera-cluster_port1,galera-cluster_port2,galera-cluster_port3
+
+[galera-cluster_port1]
+port=4444
+type=tcp
+[galera-cluster_port2]
+port=4567
+type=tcp
+[galera-cluster_port3]
+port=4568
+type=tcp
+
+[mariadb-quorum]
+short=mariadb-quorum
+description=Firewalld rules for mariadb-quorum
+ports=mariadb-quorum_port1,mariadb-quorum_port2
+
+[mariadb-quorum_port1]
+port=7890
+type=tcp
+[mariadb-quorum_port2]
+port=7891
+type=tcp
+
+[httpd-dispatcher]
+short=httpd dispatcher
+description=Firewalld rules for httpd-dispatcher
+ports=httpd-dispatcher_port1
+
+[httpd-dispatcher_port1]
+port=5252
+type=tcp
+

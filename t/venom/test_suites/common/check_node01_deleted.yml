@@ -16,3 +16,6 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 404
       - result.bodyjson.message ShouldEqual "Unable to get resource with this identifier"
+    # wait two minutes before failing
+    retry: 8
+    delay: 15

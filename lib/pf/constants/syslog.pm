@@ -210,7 +210,8 @@ our @SyslogInfo = (
         'description' => 'Firewall log',
         'name'       => 'firewall.log',
         'conditions' => [
-            '$programname == "docker_iptables.sh"',
+             '$programname contains "firewalld"',
+             '$programname == "firewalld"',
         ]
     },
     {

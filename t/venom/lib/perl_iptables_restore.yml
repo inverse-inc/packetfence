@@ -1,6 +1,0 @@
-executor: perl_iptables_restore
-input:
-  backup_file: "/root/iptables.bak"
-steps:
-- type: exec
-  script: iptables-restore < "{{ input.backup_file }}"

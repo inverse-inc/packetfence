@@ -1,11 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Captive Portal Apache HTTP Server 
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 
 [Service]
 Type=notify
@@ -19,6 +16,9 @@ TimeoutStopSec=60
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/httpd.portal-systemd-notify.pid
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_httpd_portal_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target

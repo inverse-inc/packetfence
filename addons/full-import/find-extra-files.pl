@@ -29,9 +29,10 @@ my %ignored_params = (
 
 my @extra_files_to_export = (
     $pf::file_paths::fingerbank_config_file,
-    $pf::file_paths::iptable_input_config_file,
-    $pf::file_paths::iptable_input_management_config_file,
-    $pf::file_paths::ip6table_input_management_config_file,
+    $pf::file_paths::firewalld_input_config_inc_file,
+    $pf::file_paths::firewalld_input_management_config_inc_file,
+    $pf::file_paths::firewalld6_input_config_inc_file,
+    $pf::file_paths::firewalld6_input_management_config_inc_file,
     $pf::file_paths::report_config_file,
 );
 

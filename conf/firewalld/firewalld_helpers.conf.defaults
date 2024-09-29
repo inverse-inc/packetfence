@@ -1,0 +1,10 @@
+# Copyright (C) Inverse inc.
+[netbios-ns]
+short=netbios_ns
+module=netbios_ns
+family=ipv4
+ports=netbios-ns_port1
+
+[netbios-ns_port1]
+port=137
+type=udp

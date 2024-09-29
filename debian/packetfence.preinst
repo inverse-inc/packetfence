@@ -68,6 +68,16 @@ case "$1" in
         usermod -aG pf mysql
         usermod -aG pf netdata
 
+        # Firewalld handeling
+        set +e
+        # Related to firewalld.service
+        /bin/systemctl stop firewalld.service
+        /bin/systemctl disable firewalld.service
+        /bin/systemctl mask firewalld.service
+        /bin/rm -rf /usr/lib/systemd/system/firewalld.service
+        /bin/systemctl daemon-reload
+        set -e
+
         # prevent conflicting mariadb service from starting 
         /bin/systemctl mask mariadb
         /bin/systemctl stop mariadb
@@ -110,6 +120,26 @@ case "$1" in
         # prevent conflicting mariadb service from starting
         /bin/systemctl mask mariadb
         /bin/systemctl stop mariadb
+
+        # Firewalld handeling
+        set +e
+        # Related to firewalld.service
+        /bin/systemctl stop firewalld.service
+        /bin/systemctl disable firewalld.service
+        /bin/systemctl mask firewalld.service
+        /bin/rm -rf /usr/lib/systemd/system/firewalld.service
+
+        # Related to packetfence-iptables.service
+        /bin/systemctl stop packetfence-iptables.service
+        disable_service_if_exists packetfence-iptables.service
+        /bin/systemctl mask packetfence-iptables.service
+        /bin/rm -rf /usr/lib/systemd/system/packetfence-iptables.service
+
+        # Related to packetfence-firewalld
+        # for upgrade service needs to be stopped
+        /bin/systemctl stop packetfence-firewalld.service
+        /bin/systemctl daemon-reload
+        set -e
 
         #Change the uid/gid
         set +e

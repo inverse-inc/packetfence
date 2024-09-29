@@ -2,7 +2,8 @@
 [Unit]
 Description=PacketFence LVS and VRRP High Availability Monitor
 Before=packetfence-haproxy-portal.service
-Wants=packetfence-config.service
+Wants=packetfence-config.service packetfence-firewalld.service
+After=packetfence-firewalld.service
 
 [Service]
 StartLimitBurst=3
@@ -15,6 +16,10 @@ ExecStart=/usr/sbin/keepalived -f /usr/local/pf/var/conf/keepalived.conf --pid=/
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 Slice=packetfence.slice
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_keepalived_rules("remove")'
+
 
 [Install]
 WantedBy=packetfence.target

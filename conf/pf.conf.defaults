@@ -491,26 +491,6 @@ radiusd_acct=disabled
 # Should freeradius handling authentication
 radiusd_auth=enabled
 #
-# services.iptables
-#
-# Should iptables be managed by PacketFence?
-iptables=enabled
-# 
-# services.iptables_binary
-# 
-# location of the iptables binary. only necessary to change if you are not running the rpmed version.
-iptables_binary=/sbin/iptables
-#
-# services.ip6tables
-#
-# Should ip6tables be managed by PacketFence?
-ip6tables=enabled
-# 
-# services.ip6tables_binary
-# 
-# location of the ip6tables binary. only necessary to change if you are not running the official packaged version.
-ip6tables_binary=/usr/sbin/ip6tables
-#
 # services.httpd_portal
 #
 # Should httpd.portal be started?
@@ -758,6 +738,11 @@ kafka=disabled
 #
 # Should ntlm-auth-api be started?
 ntlm-auth-api=enabled
+#
+# services.firewalld
+#
+# Should firewalld be started?
+firewalld=enabled
 
 [snmp_traps]
 #
