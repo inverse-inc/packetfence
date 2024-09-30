@@ -1,40 +1,55 @@
-package pf::Sereal;
+package pf::config::crypt::object;
 
 =head1 NAME
 
-pf::Sereal - Global package for Sereal Encoder/Decoder
-
-=cut
+pf::config::crypt::object -
 
 =head1 DESCRIPTION
 
-pf::Sereal
+pf::config::crypt::object
 
 =cut
 
 use strict;
 use warnings;
-use Sereal::Encoder;
-use Sereal::Decoder;
-use base qw(Exporter);
+use pf::config::crypt;
 
-our @EXPORT_OK = qw($ENCODER $DECODER $ENCODER_FREEZER);
 
-our $ENCODER = Sereal::Encoder->new();
-our $ENCODER_FREEZER = Sereal::Encoder->new({ freeze_callbacks => 1});
-our $DECODER = Sereal::Decoder->new;
-
-=head2 CLONE
-
-Reinitialize ENCODER/DECODER when a new thread is created
-
-=cut
-
-sub CLONE {
-    $ENCODER = Sereal::Encoder->new;
-    $DECODER = Sereal::Decoder->new;
-    $ENCODER_FREEZER = Sereal::Encoder->new({ freeze_callbacks => 1});
+sub new {
+    my ($proto, $data) = @_;
+    my $class = ref($proto) || $proto;
+    return bless(\$data, $class)
 }
+
+sub FREEZE {
+    my ($self, $serializer) = @_;
+    my $data = $$self;
+    if (rindex($data, $pf::config::crypt::PREFIX, 0) == 0) {
+        return $data;
+    }
+
+    return pf::config::crypt::pf_encrypt($data)
+}
+
+sub THAW {
+    my ($class, $serializer, $data) = @_;
+    if (rindex($data, $pf::config::crypt::PREFIX, 0) == 0) {
+        my $result = pf::config::crypt::pf_decrypt($data);
+        #return $result;
+        return __PACKAGE__->new($result);
+    }
+    return __PACKAGE__->new($data);
+}
+
+use overload 
+    '""' => \&stringify,
+    fallback => 1;
+
+
+sub stringify {
+    ${$_[0]}
+}
+
 
 =head1 AUTHOR
 

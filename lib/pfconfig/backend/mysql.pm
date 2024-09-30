@@ -20,7 +20,8 @@ use DBI;
 use pfconfig::config;
 use Try::Tiny;
 use pf::log;
-use pf::Sereal qw($DECODER $ENCODER);
+use pf::Sereal qw($DECODER $ENCODER_FREEZER);
+use pf::config::crypt::object;
 
 use base 'pfconfig::backend';
 
@@ -230,7 +231,7 @@ sub set {
         $self->_db_error();
         return 0;
     }
-    $value = sereal_encode_with_object($ENCODER, $value);
+    $value = sereal_encode_with_object($ENCODER_FREEZER, $value);
     my $result;
     eval {
         $result = $db->do( "REPLACE INTO $self->{_table} (id, value) VALUES(?,?)", undef, $key, $value );

@@ -23,6 +23,7 @@ use pfconfig::namespaces::config;
 use pf::file_paths qw($authentication_config_file);
 use pf::util qw(isdisabled);
 use pf::constants::authentication;
+use pf::config::crypt;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::Authentication::Condition;
@@ -31,6 +32,7 @@ use pf::Authentication::utils;
 use Sort::Naturally qw(nsort);
 use List::MoreUtils qw(uniq);
 use pf::constants::authentication;
+use pf::config::crypt::object;
 
 use base 'pfconfig::namespaces::config';
 
@@ -164,6 +166,15 @@ sub build_child {
         push( @authentication_sources, $current_source );
         $authentication_lookup{$source_id} = $current_source;
         $authentication_config_hash{$source_id} = $current_source_config;
+    }
+
+    for my $source (@authentication_sources) {
+        while (my ($k, $v) = each %$source) {
+            next if ref $v;
+            if (rindex($v, $pf::config::crypt::PREFIX, 0) == 0) {
+                $source->{$k} = pf::config::crypt::object->new($v);
+            }
+        }
     }
 
     my %resources;

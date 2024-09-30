@@ -47,7 +47,7 @@ use pf::services::util;
 use pf::file_paths qw($var_dir);
 use pfconfig::constants;
 use Sereal::Encoder qw(sereal_encode_with_object);
-use pf::Sereal qw($ENCODER);
+use pf::Sereal qw($ENCODER_FREEZER);
 use Errno qw(EINTR EAGAIN);
 use bytes;
 use pf::util::networking qw(send_data_with_length);
@@ -430,7 +430,7 @@ sub encode_output {
     my ($data) = @_;
     $encoding //= "sereal";
     if($encoding eq "sereal") {
-        return sereal_encode_with_object($ENCODER, $data);
+        return sereal_encode_with_object($ENCODER_FREEZER, $data);
     }
     elsif($encoding eq "json") {
         my $json = JSON->new;

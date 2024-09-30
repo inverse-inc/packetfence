@@ -19,6 +19,7 @@ use Crypt::AuthEnc::GCM qw(gcm_encrypt_authenticate gcm_decrypt_verify);
 use MIME::Base64;
 use pf::file_paths qw($system_init_key_file);
 
+our $PREFIX = 'PF_ENC[';
 my $ITERATION_COUNT = 5000;
 my $HASH_TYPE = 'SHA256';
 my $LEN = 32;
