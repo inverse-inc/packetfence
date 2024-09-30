@@ -27,14 +27,14 @@ export default [
         items: [
           {
             title: 'Successful RADIUS authentications in the last day', // i18n defer
-            metric: 'statsd_gauge_source.packetfence.authentication.success_last_day',
+            metric: 'statsd_source.packetfence.authentication.success_last_day_gauge',
             mode: modes.LOCAL,
             library: libraries.DYGRAPH,
             cols: 6
           },
           {
             title: 'Failed RADIUS authentications in the last day', // i18n defer
-            metric: 'statsd_gauge_source.packetfence.authentication.failed_last_day',
+            metric: 'statsd_source.packetfence.authentication.failed_last_day_gauge',
             mode: modes.LOCAL,
             library: libraries.DYGRAPH,
             cols: 6

@@ -48,7 +48,7 @@ export default [
         items: [
           {
             title: 'Registered Devices', // i18n defer
-            metric: 'statsd_gauge_source.packetfence.devices.registered',
+            metric: 'statsd_source.packetfence.devices.registered_gauge',
             mode: modes.LOCAL,
             library: libraries.DYGRAPH_COUNTER,
             params: {
@@ -61,7 +61,7 @@ export default [
           },
           {
             title: 'Open security events', // i18n defer
-            metric: 'statsd_gauge_source.packetfence.security_events',
+            metric: 'statsd_source.packetfence.security_events_gauge',
             mode: modes.LOCAL,
             library: libraries.DYGRAPH_COUNTER,
             params: {
