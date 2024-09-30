@@ -2,10 +2,14 @@ import os
 import sys
 from threading import Thread
 
+import config_loader
+import global_vars
 import t_sdnotify
 import t_worker_register
 
 NAME = "NTLM Auth API"
+
+config_loader.config_load()
 
 try:
     LISTEN = os.getenv("LISTEN")
@@ -17,15 +21,7 @@ except Exception as e:
     print(f"failed to extract parameter 'LISTEN' from environment variable: {str(e)}. {NAME} terminated.")
     sys.exit(1)
 
-try:
-    WORKERS = os.getenv("WORKERS")
-    worker_num = int(WORKERS)
-except ValueError:
-    print(f"invalid value for 'WORKERS'. WORKERS is set to 1.")
-    worker_num = 1
-except Exception as e:
-    print(f"failed to extract parameter 'WORKERS' from environment variables: {str(e)}. WORKERS is set to 1.")
-    worker_num = 1
+worker_num = global_vars.c_additional_machine_accounts + 1
 
 wsgi_app = 'entrypoint:app'
 
@@ -61,7 +57,7 @@ reload = True  # reload apps when the source code changes, For debugging purpose
 def post_fork(server, worker):
     master_pid = os.getppid()
     worker_pid = os.getpid()
-    worker.log.info(f"---- worker spawned with PID of {worker_pid} by master process {master_pid}")
+    worker.log.info(f"  worker spawned with PID of {worker_pid} by master process {master_pid}")
 
     background_jobs = (
         Thread(target=t_worker_register.primary_worker_register, daemon=True, args=(worker,)),

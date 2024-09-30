@@ -128,14 +128,19 @@ def get_int_value(v):
 
 
 def config_load():
-    global_vars.c_listen_port = os.getenv("LISTEN")
-    global_vars.c_domain_identifier = socket.gethostname() + " " + os.getenv("IDENTIFIER")
+    _LISTEN = os.getenv("LISTEN")
+    if _LISTEN is None or _LISTEN == "":
+        print("parameter LISTEN not found in system environment. unable to start ntlm-auth-api.")
+        sys.exit(1)
+    global_vars.c_listen_port = _LISTEN
 
-    if global_vars.c_domain_identifier == "" or global_vars.c_listen_port == "":
-        print("Unable to start ntlm-auth-api: 'IDENTIFIER' or 'LISTEN' is missing.")
-        exit(1)
+    _IDENTIFIER = os.getenv("IDENTIFIER")
+    if _IDENTIFIER is None or _IDENTIFIER == "":
+        print("parameter IDENTIFIER not found in system environment. unable to start ntlm-auth-api.")
+        sys.exit(1)
+    global_vars.c_domain_identifier = socket.gethostname() + " " + _IDENTIFIER
 
-    print(f"ntlm-auth-api@{global_vars.c_domain_identifier} on port {global_vars.c_listen_port}...")
+    print(f"ntlm-auth-api@{_IDENTIFIER} is starting on port {global_vars.c_listen_port}.")
 
     identifier = global_vars.c_domain_identifier
 
@@ -179,7 +184,7 @@ def config_load():
 
     if additional_machine_accounts < 0 or additional_machine_accounts > 10:
         additional_machine_accounts = 0
-        print(f"invalid additional machine account range, using 0 as default.")
+        print(f"  invalid additional machine account range, using 0 as default.")
 
     server_name_or_hostname = server_name_raw
     if "%h" in server_name_or_hostname.strip():
