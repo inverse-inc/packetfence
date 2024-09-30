@@ -35,8 +35,7 @@ func encodeParts(inputs ...part) string {
 }
 
 func PfEncrypt(data []byte) (string, error) {
-	key := derivedKey()
-	aesCypher, err := aes.NewCipher(key)
+	aesCypher, err := aes.NewCipher(dervivedKey)
 	ad := []byte{}
 	if err != nil {
 		return "", fmt.Errorf("PfEncrypt NewCipher: %w", err)
@@ -134,8 +133,7 @@ func PfDecrypt(data string) ([]byte, error) {
 		return nil, fmt.Errorf("Associated Data Not Found")
 	}
 
-	key := derivedKey()
-	aesCypher, err := aes.NewCipher(key)
+	aesCypher, err := aes.NewCipher(dervivedKey)
 	if err != nil {
 		return nil, fmt.Errorf("PfDerypt NewCipher: %w", err)
 	}
@@ -156,6 +154,6 @@ func PfDecrypt(data string) ([]byte, error) {
 	return output, nil
 }
 
-func derivedKey() []byte {
+func makeDerivedKey() []byte {
 	return pbkdf2.Key(systemInitKey, []byte("packetfence"), ITERATION_COUNT, LEN, sha256.New)
 }

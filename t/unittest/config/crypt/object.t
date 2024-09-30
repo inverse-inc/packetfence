@@ -22,7 +22,7 @@ BEGIN {
 
 use Test::More tests => 4;
 use pf::config::crypt::object;
-use pf::Sereal qw($DECODER $ENCODER);
+use pf::Sereal qw($DECODER $ENCODER_FREEZER);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use Sereal::Decoder qw(sereal_decode_with_object);
 
@@ -37,7 +37,7 @@ my $frozen =  $object->FREEZE(undef);
 my $thawed = $object->THAW(undef, $frozen);
 is($secret, $thawed, "Data frozen and thawed");
 
-my $data = sereal_encode_with_object($ENCODER, $object);
+my $data = sereal_encode_with_object($ENCODER_FREEZER, $object);
 $thawed = sereal_decode_with_object($DECODER, $data);
 is($secret, $thawed, "Data frozen and thawed");
 

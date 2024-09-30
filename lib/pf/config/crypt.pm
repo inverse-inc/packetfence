@@ -20,13 +20,17 @@ use MIME::Base64;
 use pf::file_paths qw($system_init_key_file);
 
 our $PREFIX = 'PF_ENC[';
-my $ITERATION_COUNT = 5000;
-my $HASH_TYPE = 'SHA256';
-my $LEN = 32;
-my $SYSTEM_INIT_KEY;
+our $ITERATION_COUNT = 5000;
+our $HASH_TYPE = 'SHA256';
+our $LEN = 32;
+our $SYSTEM_INIT_KEY = '';
+our $DERIVED_KEY;
 
 BEGIN {
-    my $val = $ENV{PF_SYSTEM_INIT_KEY_FILE};
+    $ITERATION_COUNT = 5000;
+    $HASH_TYPE = 'SHA256';
+    $LEN = 32;
+    my $val = $ENV{PF_SYSTEM_INIT_KEY};
     if ($val) {
         $SYSTEM_INIT_KEY = $val;
     } else {
@@ -39,6 +43,14 @@ BEGIN {
 
 sub derived_key {
     return pbkdf2($SYSTEM_INIT_KEY, 'packetfence', $ITERATION_COUNT, $HASH_TYPE, $LEN);
+}
+
+BEGIN {
+    if ($SYSTEM_INIT_KEY eq '') {
+        die "system init key";
+    }
+
+    $DERIVED_KEY = derived_key();
 }
 
 sub encode_tags {
@@ -69,17 +81,15 @@ sub decode_tags {
 sub pf_encrypt {
     my ($text) = @_;
     my $iv = random_bytes(12);
-    my $derived_key = derived_key();
     my $ad = '';
-    my ($ciphertext, $tag) = gcm_encrypt_authenticate('AES', $derived_key, $iv, $ad, $text);
+    my ($ciphertext, $tag) = gcm_encrypt_authenticate('AES', $DERIVED_KEY, $iv, $ad, $text);
     return 'PF_ENC[' . encode_tags(data => $ciphertext, tag => $tag, iv => $iv, ad => $ad) . ']';
 }
 
 sub pf_decrypt {
     my ($data) = @_;
     my $tags = decode_tags($data);
-    my $derived_key = derived_key();
-    return gcm_decrypt_verify('AES', $derived_key, $tags->{iv}, $tags->{ad}, $tags->{data}, $tags->{tag});
+    return gcm_decrypt_verify('AES', $DERIVED_KEY, $tags->{iv}, $tags->{ad}, $tags->{data}, $tags->{tag});
 }
 =head1 AUTHOR
 

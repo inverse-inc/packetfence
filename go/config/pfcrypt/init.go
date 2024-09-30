@@ -8,9 +8,10 @@ import (
 )
 
 var systemInitKey []byte
+var dervivedKey []byte
 
 func setupSystemInitKey(envName, fileName string) error {
-	val := os.Getenv("PF_SYSTEM_INIT_KEY_FILE")
+	val := os.Getenv(envName)
 	if val != "" {
 		systemInitKey = []byte(val)
 		return nil
@@ -26,7 +27,9 @@ func setupSystemInitKey(envName, fileName string) error {
 }
 
 func init() {
-	if err := setupSystemInitKey("PF_SYSTEM_INIT_KEY_FILE", file_paths.SYSTEM_INIT_KEY_FILE); err != nil {
-		panic("The PF_SYSTEM_INIT_KEY_FILE environment is not" + err.Error())
+	if err := setupSystemInitKey("PF_SYSTEM_INIT_KEY", file_paths.SYSTEM_INIT_KEY_FILE); err != nil {
+		panic("Unable to setup the PF_SYSTEM_INIT secret" + err.Error())
 	}
+
+	dervivedKey = makeDerivedKey()
 }
