@@ -1638,7 +1638,7 @@ to do.  Your export archive will contain your previous
 
 == Upgrading from a version prior to X.Y.Z
 
-=== Upgrade RedHat EL8
+=== Upgrade Standalone RedHat EL8
 
 Please follow these command lines in order to upgrade database.
 
@@ -1660,6 +1660,11 @@ mysql_upgrade -p
 addons/upgrade/do-upgrade.sh
 ----
 
+=== Upgrade Cluster RedHat EL8
+
+It is the same as <<PacketFence_Upgrade_Guide.asciidoc#_performing_an_upgrade_on_a_cluster>>
+but when you are at that this step <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_node_c>> for node C,
+please follow these upgrade instructions <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_standalone_redhat_el8>>.
 
 == Archived upgrade notes
 
