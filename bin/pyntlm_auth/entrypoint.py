@@ -11,6 +11,7 @@ time.sleep(1)
 worker_pid = os.getpid()
 master_pid = os.getppid()
 
+config_loader.config_load()
 config_loader.cleanup_machine_account_binding()
 
 while True:

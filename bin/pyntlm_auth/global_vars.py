@@ -36,6 +36,7 @@ c_server_string = None
 c_workgroup = None
 c_workstation = None
 c_password = None
+c_additional_machine_accounts = None
 c_domain = None
 c_username = None
 c_server_name = None

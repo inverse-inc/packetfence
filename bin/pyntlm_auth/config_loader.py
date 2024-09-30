@@ -15,11 +15,13 @@ import utils
 
 
 def expand_machine_account_list():
-    return (
-        "pf1",
-        "pf2",
-        "pf3",
-    )
+    r = [global_vars.c_username]
+
+    m = global_vars.c_username.replace("$", "")
+    for i in range(global_vars.c_additional_machine_accounts):
+        r.append(f"{m}-{i}$")
+
+    return r
 
 
 def cleanup_machine_account_binding():
@@ -173,7 +175,11 @@ def config_load():
         additional_machine_accounts = cp_dm.get(identifier, 'additional_machine_accounts')
         additional_machine_accounts = int(additional_machine_accounts)
     except Exception as e:
-        print(f"  Error loading 'additional_machine_accounts', not a number or not defined. using 0 as default")
+        print(f"  failed loading additional_machine_accounts: {str(e)}. using 0 as default.")
+
+    if additional_machine_accounts < 0 or additional_machine_accounts > 10:
+        additional_machine_accounts = 0
+        print(f"invalid additional machine account range, using 0 as default.")
 
     server_name_or_hostname = server_name_raw
     if "%h" in server_name_or_hostname.strip():
