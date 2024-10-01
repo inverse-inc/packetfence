@@ -1,6 +1,6 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bookworm:${IMAGE_TAG}
+FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
 RUN apt-get -qq update \
     && apt-get clean \
