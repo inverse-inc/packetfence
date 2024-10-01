@@ -53,7 +53,7 @@ management=true
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.devices.connected_per_ssid
-mysql_query= select ssid, count(distinct mac) from locationlog where ssid != '' and end_time is null group by ssid
+mysql_query=select ssid, count(distinct mac) from locationlog where ssid != '' and end_time is null group by ssid
 interval=720s
 management=true
 
@@ -204,18 +204,39 @@ interval=60s
 randomize=true
 management=true
 
+[metric 'Errors in packetfence.log']
+type=tail_file
+file=/usr/local/pf/logs/packetfence.log
+match=WARN,ERROR,httpd.portal.*Unable to match MAC address to IP.*ip2mac.*
+statsd_ns=source.packetfence.packetfence_error_log.warn,source.packetfence.packetfence_error_log.error,source.packetfence.packetfence_error_log.portal.ip2mac
+management=false
+
 [metric 'Events in packetfence.log']
 type=tail_file
 file=/usr/local/pf/logs/packetfence.log
-match=ERROR,httpd.portal.*Unable to match MAC address to IP.*ip2mac.*
-statsd_ns=source.packetfence.packetfence_log.error,source.packetfence.packetfence_log.portal.ip2mac
+match=pfcmd,httpd.aaa,httpd.portal,httpd.webservices
+statsd_ns=source.packetfence.packetfence_log.pfcmd,source.packetfence.packetfence_log.httpd-aaa,source.packetfence.packetfence_log.httpd-portal,source.packetfence.packetfence_log.httpd-webservices
+management=false
+
+[metric 'Events in pfconnector-server.log']
+type=tail_file
+file=/usr/local/pf/logs/pfconnector-server.log
+match=lvl=dbug,lvl=info,lvl=warn,lvl=err
+statsd_ns=source.packetfence.pfconnector_server_log.debug,source.packetfence.pfconnector_server_log.info,source.packetfence.pfconnector_server_log.warning,source.packetfence.pfconnector_server_log.error,
+management=false
+
+[metric 'Events in pfconnector-client.log']
+type=tail_file
+file=/usr/local/pf/logs/pfconnector-client.log
+match=lvl=dbug,lvl=info,lvl=warn,lvl=err
+statsd_ns=source.packetfence.pfconnector_client_log.debug,source.packetfence.pfconnector_client_log.info,source.packetfence.pfconnector_client_log.warning,source.packetfence.pfconnector_client_log.error,
 management=false
 
 [metric 'Events in pfdhcp.log']
 type=tail_file
 file=/usr/local/pf/logs/pfdhcp.log
-match=DHCPDISCOVER,DHCPOFFER,DHCPREQUEST,DHCPACK,DHCPNAK,DHCPDECLINE,DHCPRELEASE,DHCPINFORM
-statsd_ns=source.packetfence.pfdhcp_log.dhcpdiscover,source.packetfence.pfdhcp_log.dhcpoffer,source.packetfence.pfdhcp_log.dhcprequest,source.packetfence.pfdhcp_log.dhcpack,source.packetfence.pfdhcp_log.dhcpnak,source.packetfence.pfdhcp_log.dhcpdecline,source.packetfence.pfdhcp_log.dhcprelease,source.packetfence.pfdhcp_log.dhcpinform
+match=lvl=info,DHCPDISCOVER,DHCPOFFER,DHCPREQUEST,DHCPACK,DHCPNAK,DHCPDECLINE,DHCPRELEASE,DHCPINFORM
+statsd_ns=source.packetfence.pfdhcp_log.info,source.packetfence.pfdhcp_log.dhcpdiscover,source.packetfence.pfdhcp_log.dhcpoffer,source.packetfence.pfdhcp_log.dhcprequest,source.packetfence.pfdhcp_log.dhcpack,source.packetfence.pfdhcp_log.dhcpnak,source.packetfence.pfdhcp_log.dhcpdecline,source.packetfence.pfdhcp_log.dhcprelease,source.packetfence.pfdhcp_log.dhcpinform
 management=false
 
 [metric 'Events in load_balancer.log']
@@ -259,3 +280,11 @@ file=/usr/local/pf/logs/fingerbank.log
 match=An error occured while interrogating upstream Fingerbank project
 statsd_ns=source.packetfence.fingerbank_log.api_error
 management=true
+
+[metric 'Events in httpd.apache']
+type=tail_file
+file=/usr/local/pf/logs/httpd.apache
+match=api-frontend-docker-wrapper,httpd.dispatcher-docker-wrapper,httpd.admin_dispatcher-docker-wrapper,httpd.portal-docker-wrapper,httpd.webservices-docker-wrapper
+statsd_ns=source.packetfence.httpd_apache.admin-dispatcher,source.packetfence.httpd_apache.httpd.dispatcher,source.packetfence.httpd_apache.httpd.portal,source.packetfence.httpd_apache.httpd.portal,source.packetfence.httpd_apache.httpd.webservices
+management=false
+

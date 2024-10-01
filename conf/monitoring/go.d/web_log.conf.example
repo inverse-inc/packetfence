@@ -1,0 +1,47 @@
+# https://github.com/netdata/go.d.plugin/blob/master/modules/weblog/integrations/web_server_log_files.md#options
+
+jobs:
+  - name: httpd.aaa
+    path: /usr/local/pf/logs/httpd.apache
+    filter:
+      include: httpd.aaa-docker-wrapper
+    log_type: csv
+    csv_config:
+      format: '- - - - $remote_addr - - - "$request" $status $bytes_sent $request_length $request_time - - "$host"'
+
+  - name: api-frontend
+    path: /usr/local/pf/logs/httpd.apache
+    filter:
+      include: api-frontend-docker-wrapper
+    log_type: csv
+    csv_config:
+      format: '- - - - $remote_addr - - - "$request" $status $bytes_sent - -'
+
+  - name: httpd.portal
+    path: /usr/local/pf/logs/httpd.apache
+    filter:
+      include: httpd.portal-docker-wrapper
+    log_type: csv
+    csv_config:
+      format: '- - - - - - - [- -] "$request" $status $bytes_sent - -'
+
+  - name: httpd.webservices
+    path: /usr/local/pf/logs/httpd.apache
+    filter:
+      include: httpd.webservices-docker-wrapper
+    log_type: csv
+    csv_config:
+      format: '- - - $remote_addr - - [- -] "$request" $status $bytes_sent $request_length $request_time - - "$host"'
+
+  # - name: httpd.dispatcher
+  #   path: /usr/local/pf/logs/httpd.apache
+  #   filter:
+  #     include: httpd.dispatcher-docker-wrapper
+  #   log_type: json
+
+  # - name: httpd.admin_dispatcher
+  #   path: /usr/local/pf/logs/httpd.apache
+  #   filter:
+  #     include: httpd.admin_dispatcher-docker-wrapper
+  #   log_type: json
+

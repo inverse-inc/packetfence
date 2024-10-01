@@ -8,117 +8,115 @@ export default [
         name: 'Bandwidth', // i18n defer
         items: [
           {
-            title: 'AAA Bandwidth', // i18n defer
-            metric: 'web_log_apache_aaa_log.bandwidth',
+            title: 'API Bandwidth', // i18n defer
+            metric: 'web_log_api-frontend.bandwidth',
             mode: modes.LOCAL,
             library: libraries.DYGRAPH,
-            cols: 4
+            cols: 6
+          },
+          {
+            title: 'AAA Bandwidth', // i18n defer
+            metric: 'web_log_httpd_aaa.bandwidth',
+            mode: modes.LOCAL,
+            library: libraries.DYGRAPH,
+            cols: 6
           },
           {
             title: 'Captive Portal Bandwidth', // i18n defer
-            metric: 'web_log_apache_portal_log.bandwidth',
+            metric: 'web_log_httpd_portal.bandwidth',
             mode: modes.LOCAL,
             library: libraries.DYGRAPH,
-            cols: 4
+            cols: 6
           },
           {
             title: 'Web Services Bandwidth', // i18n defer
-            metric: 'web_log_apache_webservices_log.bandwidth',
+            metric: 'web_log_httpd_webservices.bandwidth',
             mode: modes.LOCAL,
             library: libraries.DYGRAPH,
-            cols: 4
+            cols: 6
           }
         ]
+      },
+      {
+        name: 'Requests', // i18n defer
+        items: [
+          {
+            title: 'API Requests', // i18n defer
+            metric: 'web_log_api-frontend.requests_by_http_method',
+            mode: modes.LOCAL,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'AAA Requests', // i18n defer
+            metric: 'web_log_httpd_aaa.requests_by_http_method',
+            mode: modes.LOCAL,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Captive Portal Requests', // i18n defer
+            metric: 'web_log_httpd_portal.requests_by_http_method',
+            mode: modes.LOCAL,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Web Services Requests', // i18n defer
+            metric: 'web_log_httpd_webservices.requests_by_http_method',
+            mode: modes.LOCAL,
+            library: libraries.DYGRAPH,
+            cols: 6
+          }
+        ]
+      },
+      {
+        name: 'API Responses', // i18n defer
+        items: ['responses_by_status_code_class', 'status_code_class_1xx_responses', 'status_code_class_2xx_responses', 'status_code_class_3xx_responses', 'status_code_class_4xx_responses', 'status_code_class_5xx_responses'].map(type => {
+          return {
+            title: type,
+            metric: 'web_log_api-frontend.' + type,
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: (type.match(/^responses_by_status_code_class/)) ? 12 : 4
+          }
+        })
       },
       {
         name: 'AAA Responses', // i18n defer
-        items: ['1xx', '2xx', '3xx', '4xx', '5xx', 'other'].map(http_code => {
+        items: ['responses_by_status_code_class', 'status_code_class_1xx_responses', 'status_code_class_2xx_responses', 'status_code_class_3xx_responses', 'status_code_class_4xx_responses', 'status_code_class_5xx_responses'].map(type => {
           return {
-            title: http_code + ' responses', // i18n defer
-            metric: 'web_log_apache_aaa_log.response_codes',
+            title: type,
+            metric: 'web_log_httpd_aaa.' + type,
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            params: {
-              filter_graph: http_code
-            },
-            cols: 4
+            cols: (type.match(/^responses_by_status_code_class/)) ? 12 : 4
           }
         })
-      },
-      {
-        name: 'AAA Response Time', // i18n defer
-        items: [
-          {
-            title: 'Response time', // i18n defer
-            metric: 'web_log_apache_aaa_log.response_time',
-            mode: modes.COMBINED,
-            library: libraries.DYGRAPH,
-            params: {
-              filter_graph: 'avg'
-            },
-            cols: 12
-          }
-        ]
       },
       {
         name: 'Captive Portal Responses', // i18n defer
-        items: ['1xx', '2xx', '3xx', '4xx', '5xx', 'other'].map(http_code => {
+        items: ['responses_by_status_code_class', 'status_code_class_1xx_responses', 'status_code_class_2xx_responses', 'status_code_class_3xx_responses', 'status_code_class_4xx_responses', 'status_code_class_5xx_responses'].map(type => {
           return {
-            title: http_code + ' responses', // i18n defer
-            metric: 'web_log_apache_portal_log.response_codes',
+            title: type,
+            metric: 'web_log_httpd_portal.' + type,
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            params: {
-              filter_graph: http_code
-            },
-            cols: 4
+            cols: (type.match(/^responses_by_status_code_class/)) ? 12 : 4
           }
         })
-      },
-      {
-        name: 'Captive Portal Response Time', // i18n defer
-        items: [
-          {
-            title: 'Response time', // i18n defer
-            metric: 'web_log_apache_portal_log.response_time',
-            mode: modes.COMBINED,
-            library: libraries.DYGRAPH,
-            params: {
-              filter_graph: 'avg'
-            },
-            cols: 12
-          }
-        ]
       },
       {
         name: 'Web Services Responses', // i18n defer
-        items: ['1xx', '2xx', '3xx', '4xx', '5xx', 'other'].map(http_code => {
+        items: ['responses_by_status_code_class', 'status_code_class_1xx_responses', 'status_code_class_2xx_responses', 'status_code_class_3xx_responses', 'status_code_class_4xx_responses', 'status_code_class_5xx_responses'].map(type => {
           return {
-            title: http_code + ' responses', // i18n defer
-            metric: 'web_log_apache_webservices_log.response_codes',
+            title: type,
+            metric: 'web_log_httpd_webservices.' + type,
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            params: {
-              filter_graph: http_code
-            },
-            cols: 4
+            cols: (type.match(/^responses_by_status_code_class/)) ? 12 : 4
           }
         })
-      },
-      {
-        name: 'Web Services Response Time', // i18n defer
-        items: [
-          {
-            title: 'Response time', // i18n defer
-            metric: 'web_log_apache_webservices_log.response_time',
-            mode: modes.COMBINED,
-            library: libraries.DYGRAPH,
-            params: {
-              filter_graph: 'avg'
-            },
-            cols: 12
-          }
-        ]
       },
     ]
   }

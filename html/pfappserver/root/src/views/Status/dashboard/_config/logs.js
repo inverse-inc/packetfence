@@ -5,35 +5,54 @@ export default [
     name: 'Logs', // i18n defer
     groups: [
       {
+        name: 'packetfence.log events',
+        items: [
+          {
+            title: 'Number of events', // i18n defer
+            metric: 'packetfence.logs.packetfence_log',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Number of errors', // i18n defer
+            metric: 'packetfence.logs.packetfence_error_log',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 6
+          }
+        ]
+      },
+      {
+        name: 'pfconnector-server events',
+        items: [
+          {
+            title: 'Number of events', // i18n defer
+            metric: 'packetfence.logs.pfconnector_server_log',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 12
+          }
+        ]
+      },
+      {
+        name: 'pfconnector-client events',
+        items: [
+          {
+            title: 'Number of events', // i18n defer
+            metric: 'packetfence.logs.pfconnector_client_log',
+            mode: modes.COMBINED,
+            library: libraries.DYGRAPH,
+            cols: 12
+          }
+        ]
+      },
+      {
         name: 'httpd.apache',
         items: [
           {
             title: 'Number of events', // i18n defer
             metric: 'packetfence.logs.httpd_apache',
-            mode: modes.COMBINED,
-            library: libraries.DYGRAPH,
-            cols: 12
-          }
-        ]
-      },
-      {
-        name: 'httpd.apache portal_log',
-        items: [
-          {
-            title: 'Number of events', // i18n defer
-            metric: 'packetfence.logs.portal_log',
-            mode: modes.COMBINED,
-            library: libraries.DYGRAPH,
-            cols: 12
-          }
-        ]
-      },
-      {
-        name: 'packetfence.log',
-        items: [
-          {
-            title: 'Number of events', // i18n defer
-            metric: 'packetfence.logs.packetfence_log',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             cols: 12
@@ -111,7 +130,7 @@ export default [
             cols: 12
           }
         ]
-      }
+      },
     ]
   }
 ]
