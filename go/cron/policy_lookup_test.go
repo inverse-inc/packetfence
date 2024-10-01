@@ -562,6 +562,36 @@ const RolesPoliciesMapJSON = `
           "permit tcp any 10.15.1.0 0.0.0.255 eq 3389",
           "permit udp any 10.15.1.0 0.0.0.255 eq 3389"
         ]
+      },
+      {
+        "enforcement_info": [
+          {
+            "policy-revision": 3,
+            "verdict": "allow",
+            "dc-inventory-revision": 1725462233,
+            "rule-id": "28477cf7-234e-4751-8ced-542464017b1c/"
+          }
+        ],
+        "acls": [
+          "permit tcp any 10.15.1.0 0.0.0.255 eq 3389",
+          "permit udp any 10.15.1.0 0.0.0.255 eq 3389"
+        ]
+      },
+      {
+        "enforcement_info": [
+          {
+            "policy-revision": 66,
+            "verdict": "allow",
+            "dc-inventory-revision": 1727715416,
+            "rule-id": "d2cdcbd9-5acd-4021-ba96-fdecbbf77473/"
+          }
+        ],
+        "acls": [
+          "#permit tcp any host 00:50:56:9d:44:ca eq 222",
+          "#permit udp any host 00:50:56:9d:44:ca eq 222",
+          "#permit tcp any host 00:50:56:9d:44:ca eq 333",
+          "#permit udp any host 00:50:56:9d:44:ca eq 333"
+        ]
       }
     ]
   },
@@ -608,4 +638,26 @@ func TestPolicyLoad(t *testing.T) {
 	}
 
 	lookup.UpdateMatchers()
+	ne := NetworkEvent{
+		DestPort:   222,
+		SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+		DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+		IpProtocol: IpProtocolUdp,
+		DestInventoryitem: &InventoryItem{
+			ExternalIDS: []string{"00:50:56:9d:44:ca"},
+		},
+	}
+
+	if diff := cmp.Diff(
+		lookup.LookupByRoles("IoT-Lighting", &ne),
+		&EnforcementInfo{
+			RuleID:              "d2cdcbd9-5acd-4021-ba96-fdecbbf77473/",
+			Verdict:             "allow",
+			PolicyRevision:      66,
+			DcInventoryRevision: 1727715416,
+		},
+	); diff != "" {
+		t.Fatalf("LookupByRoles does not match %s", diff)
+	}
+
 }

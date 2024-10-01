@@ -247,26 +247,55 @@ type PolicyLookup struct {
 }
 
 func (l PolicyLookup) Lookup(ctx context.Context, db *sql.DB, ne *NetworkEvent) *EnforcementInfo {
-	mac, role := ne.GetSrcRole(ctx, db)
-	if mac == "" || role == "" {
+	srcMac, srcRole := ne.GetSrcRole(ctx, db)
+	dstMac, dstRole := ne.GetDstRole(ctx, db)
+	if ei := l.LookupByMac(srcMac, ne); ei != nil {
+		return ei
+	}
+
+	if ei := l.LookupByMac(dstMac, ne); ei != nil {
+		return ei
+	}
+
+	if ei := l.LookupByRoles(srcRole, ne); ei != nil {
+		return ei
+	}
+
+	if ei := l.LookupByRoles(dstRole, ne); ei != nil {
+		return ei
+	}
+
+	if srcMac != "" {
+		return l.LookupImplict(ne)
+	}
+
+	return nil
+}
+
+func (l *PolicyLookup) LookupByRoles(role string, ne *NetworkEvent) *EnforcementInfo {
+	policies, ok := l.ByRoles[role]
+	if !ok {
 		return nil
 	}
 
-	if policies, ok := l.NodesPolicies[mac]; ok {
-		ei := matchEnforcementInfo(policies, ne)
-		if ei != nil {
-			return ei
-		}
+	if ei := matchEnforcementInfo(policies, ne); ei != nil {
+		return ei
 	}
 
-	if policies, ok := l.ByRoles[role]; ok {
-		ei := matchEnforcementInfo(policies, ne)
-		if ei != nil {
-			return ei
-		}
+	return nil
+}
+
+func (l *PolicyLookup) LookupByMac(mac string, ne *NetworkEvent) *EnforcementInfo {
+	policies, ok := l.NodesPolicies[mac]
+	if !ok {
+		return nil
 	}
 
-	return l.LookupImplict(ne)
+	if ei := matchEnforcementInfo(policies, ne); ei != nil {
+		return ei
+	}
+
+	return nil
 }
 
 func matchEnforcementInfo(policies []Policy, ne *NetworkEvent) *EnforcementInfo {
