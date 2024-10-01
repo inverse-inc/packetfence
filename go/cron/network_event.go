@@ -195,16 +195,23 @@ type NetworkTranslationInfo struct {
 }
 
 func (ne *NetworkEvent) GetSrcRole(ctx context.Context, db *sql.DB) (string, string) {
-	src := ne.SourceInventoryItem
-	if src == nil {
+	return ne.getRoleFromInventory(ctx, db, ne.SourceInventoryItem)
+}
+
+func (ne *NetworkEvent) GetDstRole(ctx context.Context, db *sql.DB) (string, string) {
+	return ne.getRoleFromInventory(ctx, db, ne.DestInventoryitem)
+}
+
+func (ne *NetworkEvent) getRoleFromInventory(ctx context.Context, db *sql.DB, item *InventoryItem) (string, string) {
+	if item == nil {
 		return "", ""
 	}
 
-	if len(src.ExternalIDS) == 0 {
+	if len(item.ExternalIDS) == 0 {
 		return "", ""
 	}
 
-	mac := src.ExternalIDS[0]
+	mac := item.ExternalIDS[0]
 	if mac == "" || mac == "00:00:00:00:00:00" {
 		return "", ""
 	}
