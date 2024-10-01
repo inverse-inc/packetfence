@@ -2,8 +2,7 @@ import logging
 import os
 import time
 
-import request
-from flask import Flask
+from flask import Flask, g, request
 from flaskext.mysql import MySQL
 
 import config_loader
