@@ -163,6 +163,36 @@
     type = line
     dimension = pattern 'source.packetfence.packetfence_log.*' '' last 1 1
 
+[logs.packetfence_error_log]
+    name = packetfence.packetfence_error_log
+    title = packetfence.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.packetfence_error_log.*' '' last 1 1
+
+[logs.pfconnector_server_log]
+    name = packetfence.pfconnector_server_log
+    title = packetfence.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.pfconnector_server_log.*' '' last 1 1
+
+[logs.pfconnector_client_log]
+    name = packetfence.pfconnector_client_log
+    title = packetfence.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.pfconnector_client_log.*' '' last 1 1
+
 [logs.pfdhcp_log]
     name = packetfence.pfdhcp_log
     title = pfdhcp.log file events
