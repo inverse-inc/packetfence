@@ -5,7 +5,7 @@ RUN printf 'path-exclude /usr/share/doc/*\npath-include /usr/share/doc/*/copyrig
 
 # Prepare container with deps
 RUN apt-get -qq update && \
-    apt-get -qq install -y aptitude wget gnupg sudo curl
+    apt-get -qq --no-install-recommends install -y aptitude wget gnupg sudo curl
 
 RUN /bin/bash -c "echo 'exit 0' > /usr/bin/systemctl"
 RUN /bin/bash -c "echo 'exit 0' > /bin/systemctl"
@@ -29,7 +29,7 @@ RUN curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /e
 # Install Deps
 RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
     rm -f /usr/local/fingerbank/db/fingerbank_*.db && \
-    apt-get -qq install -y freeradius-common
+    apt-get -qq --no-install-recommends install -y freeradius-common
 
 # Clean
 RUN apt-get -qq remove --purge -y locales-all && \
