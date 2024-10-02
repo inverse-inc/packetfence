@@ -30,7 +30,8 @@ RUN curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /e
 
 RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
     rm -f /usr/local/fingerbank/db/fingerbank_*.db && \
-    apt-get -qq install -y freeradius-common
+    apt-get -qq install -y freeradius-common && \
+    apt-get clean
 
 RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
 
