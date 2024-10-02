@@ -1,11 +1,9 @@
 FROM debian:12
 
-RUN printf 'path-exclude /usr/share/doc/*\npath-include /usr/share/doc/*/copyright\npath-exclude /usr/share/man/*\npath-exclude /usr/share/groff/*\npath-exclude /usr/share/info/*\npath-exclude /usr/share/lintian/*\npath-exclude /usr/share/linda/*' > /etc/dpkg/dpkg.cfg.d/01_nodoc && \
-    find /usr/share/doc -depth -type f ! -name copyright -exec rm {} \; && \
-    find /usr/share/doc -empty -exec rm {} \; && \
-    rm -rf /usr/share/groff/* /usr/share/info/* && \
-    rm -rf /usr/share/lintian/* /usr/share/linda/* /var/cache/man/*
+# do not want docs
+RUN printf 'path-exclude /usr/share/doc/*\npath-include /usr/share/doc/*/copyright\npath-exclude /usr/share/man/*\npath-exclude /usr/share/groff/*\npath-exclude /usr/share/info/*\npath-exclude /usr/share/lintian/*\npath-exclude /usr/share/linda/*' > /etc/dpkg/dpkg.cfg.d/01_nodoc
 
+# Prepare container with deps
 RUN apt-get -qq update && \
     apt-get -qq install -y aptitude wget gnupg sudo curl && \
     apt-get -qq remove --purge -y locales-all
@@ -22,16 +20,24 @@ COPY debian/control /tmp/
 COPY rpm/packetfence.spec /tmp/
 COPY addons/dev-helpers/debian/install-pf-dependencies.sh /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh
 
+# Prepare Repos
 RUN curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg && \
     /bin/bash -c "echo 'deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm' > /etc/apt/sources.list.d/packetfence_deps.list"  && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource-repo.gpg && \
     /bin/bash -c "echo 'deb [signed-by=/etc/apt/keyrings/nodesource-repo.gpg] https://deb.nodesource.com/node_20.x nodistro main' > /etc/apt/sources.list.d/nodejs.list" && \
     apt-get -qq update
 
+# Install Deps
 RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
     rm -f /usr/local/fingerbank/db/fingerbank_*.db && \
-    apt-get -qq install -y freeradius-common && \
-    apt-get clean
+    apt-get -qq install -y freeradius-common
+
+# Clean
+RUN apt-get clean && \
+    find /usr/share/doc -depth -type f ! -name copyright -exec rm {} \; && \
+    find /usr/share/doc -empty -exec rm {} \; && \
+    rm -rf /usr/share/groff/* /usr/share/info/* && \
+    rm -rf /usr/share/lintian/* /usr/share/linda/* /var/cache/man/*
 
 RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
 
