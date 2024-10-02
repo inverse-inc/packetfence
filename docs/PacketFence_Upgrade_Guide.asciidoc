@@ -2040,22 +2040,22 @@ This export is only used to Import the configuration files in the new host.
 Restore the database backup into a new copy for mariabackup.
 
 ----
-gunzip packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream.gz
+gunzip /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream.gz
 mkdir -p /root/backup/restore/
 pushd /root/backup/restore/
-mv packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream /root/backup/restore/
-cd /root/backup/restore/
+mv /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream /root/backup/restore/
 mbstream -x < packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream
 rm packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream
 mariabackup --prepare --target-dir=./
 ----
 
- => SCP (copy) the restored files to the Debian 12 server
+ => SCP (copy) the restored files and the export.tgz to the Debian 12 server
 
 ----
 # create the restore directory
-ssh root@PACKTFENCE mkdir -p /root/backup/restore/
-scp /root/backup/restore/* root@DEBIAN_12_IP:/root/backup/restore/
+ssh root@PacketFence_Debian_12 mkdir -p /root/backup/restore/
+scp -r /root/backup/restore/* root@PacketFence_Debian_12:/root/backup/restore/
+scp /tmp/export.tgz root@PacketFence_Debian_12:/tmp/export.tgz 
 ----
 
 
