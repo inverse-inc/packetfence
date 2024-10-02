@@ -114,6 +114,13 @@ Option to sync PID from provisioner
 
 has sync_pid => (is => 'rw', required => 1);
 
+=head2
+
+expires_jiiter
+
+=cut
+
+has expires_jitter => (is => 'rw', default => sub { 10 } );
 
 =head1 Methods
 
