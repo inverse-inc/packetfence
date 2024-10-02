@@ -35,7 +35,7 @@ RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
 RUN apt-get -qq remove --purge -y locales-all && \
     apt-get clean && \
     find /usr/share/doc -depth -type f ! -name copyright -exec rm {} \; && \
-    find /usr/share/doc -empty -exec rm {} \; && \
+    find /usr/share/doc -type d -empty -delete && \
     rm -rf /usr/share/groff/* /usr/share/info/* && \
     rm -rf /usr/share/lintian/* /usr/share/linda/* /var/cache/man/*
 
