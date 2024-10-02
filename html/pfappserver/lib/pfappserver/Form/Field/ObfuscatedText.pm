@@ -15,8 +15,11 @@ extends 'HTML::FormHandler::Field::Text';
 
 use pf::util;
 use namespace::autoclean;
+use pf::config::crypt;
 
 has '+type_attr'        => ( default => 'password' );
+has '+inflate_default_method'=> ( default => sub { \&inflate } );
+has '+deflate_value_method'=> ( default => sub { \&deflate } );
 
 sub BUILD {
     my ($self, @args) = @_;
@@ -40,6 +43,19 @@ sub element_attributes {
 
     $attr->{autocomplete} = 'off';
     return $attr;
+}
+
+
+sub deflate {
+    my ($self, $value ) = @_;
+    $value = pf::config::crypt::pf_encrypt($value);
+    return $value;
+}
+
+sub inflate {
+    my ($self, $value ) = @_;
+    $value = pf::config::crypt::pf_decrypt($value);
+    return $value;
 }
 
 =head1 COPYRIGHT

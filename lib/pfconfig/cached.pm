@@ -39,6 +39,7 @@ use Sereal::Decoder qw(sereal_decode_with_object);
 use Time::HiRes qw(stat time);
 use pf::Sereal qw($DECODER);
 use pfconfig::config;
+use pf::config::crypt::object;
 use bytes;
 
 our $LAST_TOUCH_CACHE = 0;

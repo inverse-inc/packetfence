@@ -80,6 +80,10 @@ sub decode_tags {
 
 sub pf_encrypt {
     my ($text) = @_;
+    if (rindex($text, $PREFIX, 0) == 0) {
+        return $text;
+    }
+
     my $iv = random_bytes(12);
     my $ad = '';
     my ($ciphertext, $tag) = gcm_encrypt_authenticate('AES', $DERIVED_KEY, $iv, $ad, $text);
@@ -88,6 +92,9 @@ sub pf_encrypt {
 
 sub pf_decrypt {
     my ($data) = @_;
+    if (rindex($data, $PREFIX, 0) != 0) {
+        return $data;
+    }
     my $tags = decode_tags($data);
     return gcm_decrypt_verify('AES', $DERIVED_KEY, $tags->{iv}, $tags->{ad}, $tags->{data}, $tags->{tag});
 }
