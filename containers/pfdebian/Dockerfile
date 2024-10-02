@@ -29,11 +29,15 @@ RUN curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /e
 # Install Deps
 RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
     rm -f /usr/local/fingerbank/db/fingerbank_*.db && \
-    apt-get -qq --no-install-recommends install -y freeradius-common
+    apt-get -qq --no-install-recommends install -y freeradius-common && \
+    apt-get -qq --no-install-recommends -y install localepurge && \
+    printf '#USE_DPKG\nMANDELETE\nDONTBOTHERNEWLOCALE\n#SHOWFREEDSPACE\n#QUICKNDIRTYCALC\n#VERBOSE\nen' > /etc/locale.nopurge && \
+    /usr/sbin/localepurge
 
 # Clean
-RUN apt-get -qq remove --purge -y locales-all && \
+RUN apt-get -qq remove --purge -y locales-all localepurge && \
     apt-get clean && \
+    rm -rf /etc/locale.nopurge && \
     find /usr/share/doc -depth -type f ! -name copyright -exec rm {} \; && \
     find /usr/share/doc -type d -empty -delete && \
     rm -rf /usr/share/groff/* /usr/share/info/* && \
