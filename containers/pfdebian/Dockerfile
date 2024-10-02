@@ -7,8 +7,8 @@ RUN printf 'path-exclude /usr/share/doc/*\npath-include /usr/share/doc/*/copyrig
     rm -rf /usr/share/lintian/* /usr/share/linda/* /var/cache/man/*
 
 RUN apt-get -qq update && \
-    apt-get install -y aptitude wget gnupg sudo curl && \
-    apt remove --purge -y locales-all
+    apt-get -qq install -y aptitude wget gnupg sudo curl && \
+    apt-get -qq remove --purge -y locales-all
 
 RUN /bin/bash -c "echo 'exit 0' > /usr/bin/systemctl"
 RUN /bin/bash -c "echo 'exit 0' > /bin/systemctl"
@@ -30,7 +30,7 @@ RUN curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /e
 
 RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
     rm -f /usr/local/fingerbank/db/fingerbank_*.db && \
-    apt-get install -y freeradius-common
+    apt-get -qq install -y freeradius-common
 
 RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
 
