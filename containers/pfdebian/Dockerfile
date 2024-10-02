@@ -5,8 +5,7 @@ RUN printf 'path-exclude /usr/share/doc/*\npath-include /usr/share/doc/*/copyrig
 
 # Prepare container with deps
 RUN apt-get -qq update && \
-    apt-get -qq install -y aptitude wget gnupg sudo curl && \
-    apt-get -qq remove --purge -y locales-all
+    apt-get -qq install -y aptitude wget gnupg sudo curl
 
 RUN /bin/bash -c "echo 'exit 0' > /usr/bin/systemctl"
 RUN /bin/bash -c "echo 'exit 0' > /bin/systemctl"
@@ -33,7 +32,8 @@ RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
     apt-get -qq install -y freeradius-common
 
 # Clean
-RUN apt-get clean && \
+RUN apt-get -qq remove --purge -y locales-all && \
+    apt-get clean && \
     find /usr/share/doc -depth -type f ! -name copyright -exec rm {} \; && \
     find /usr/share/doc -empty -exec rm {} \; && \
     rm -rf /usr/share/groff/* /usr/share/info/* && \
