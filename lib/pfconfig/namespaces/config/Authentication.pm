@@ -168,15 +168,6 @@ sub build_child {
         $authentication_config_hash{$source_id} = $current_source_config;
     }
 
-    for my $source (@authentication_sources) {
-        while (my ($k, $v) = each %$source) {
-            next if ref $v;
-            if (rindex($v, $pf::config::crypt::PREFIX, 0) == 0) {
-                $source->{$k} = pf::config::crypt::object->new($v);
-            }
-        }
-    }
-
     my %resources;
     $resources{authentication_sources} = \@authentication_sources;
     $resources{authentication_lookup}  = \%authentication_lookup;
