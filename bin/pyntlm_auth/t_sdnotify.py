@@ -17,11 +17,9 @@ def sd_notify(worker):
         if count % 30 == 0:
             message = "WATCHDOG=1"
             n.notify(message)
-            print(f"==== sdnotify message is: {message}")
 
             message = "STATUS=Count is {}".format(count)
             n.notify(message)
-            print(f"==== sdnotify message is: {message}")
 
             count = 0
 
