@@ -1,13 +1,18 @@
 import logging
 import os
 import time
+from threading import Thread
 
+import pymysql
 from flask import Flask, g, request
 from flaskext.mysql import MySQL
 
 import config_loader
 import global_vars
 import handlers
+
+import t_health_checker
+import t_async_job
 
 app = Flask(__name__)
 
@@ -20,12 +25,23 @@ config_loader.cleanup_machine_account_binding()
 while True:
     m = config_loader.bind_machine_account(worker_pid)
     if m is not None:
+        global_vars.s_bind_account = m
         break
 
-    print(f"---- worker {worker_pid} failed to bind machine account: no available accounts, retrying.")
+    global_vars.s_worker.log.warning(f"failed to bind machine account: no available accounts, retrying.")
     time.sleep(1)
 
-print(f"---- worker {worker_pid} successfully registered with machine account '{m}', ready to handle requests.")
+config_loader.reload_worker_config()
+global_vars.s_worker.log.info(f"successfully registered with machine account '{m}', ready to handle requests.")
+
+flask_jobs = (
+    Thread(target=t_async_job.async_auth, daemon=False, args=(global_vars.s_worker,)),
+    Thread(target=t_async_job.async_test, daemon=False, args=(global_vars.s_worker,)),
+    Thread(target=t_health_checker.health_check, daemon=True, args=(global_vars.s_worker,))
+)
+
+for job in flask_jobs:
+    job.start()
 
 werkzeug_logger = logging.getLogger('werkzeug')
 
@@ -78,7 +94,7 @@ app.route('/ntlm/auth', methods=['POST'])(handlers.ntlm_auth_handler)
 app.route('/ntlm/expire', methods=['POST'])(handlers.ntlm_expire_handler)
 app.route('/event/report', methods=['POST'])(handlers.event_report_handler)
 app.route('/ntlm/connect', methods=['GET'])(handlers.ntlm_connect_handler)
-app.route('/ntlm/connect', methods=['POST'])(handlers.test_password_handler)
+app.route('/ntlm/connect', methods=['POST'])(handlers.ntlm_connect_handler_with_password)
 app.route('/ping', methods=['GET'])(handlers.ping_handler)
 
 if __name__ == '__main__':

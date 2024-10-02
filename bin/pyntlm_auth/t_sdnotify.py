@@ -1,8 +1,9 @@
 import time
+from threading import Event
 
 import sdnotify
 
-done = False
+stop_event = Event()
 
 
 def sd_notify(worker):
@@ -10,9 +11,7 @@ def sd_notify(worker):
     n.notify("READY=1")
 
     count = 0
-    while True:
-        if done is True:
-            break
+    while not stop_event.is_set():
 
         if count % 30 == 0:
             message = "WATCHDOG=1"

@@ -15,9 +15,9 @@ import utils
 
 
 def expand_machine_account_list():
-    r = [global_vars.c_username]
+    r = [global_vars.s_computer_account_base]
 
-    m = global_vars.c_username.replace("$", "")
+    m = global_vars.s_computer_account_base.replace("$", "")
     for i in range(global_vars.c_additional_machine_accounts):
         r.append(f"{m}-{i}$")
 
@@ -381,3 +381,16 @@ def config_load():
     global_vars.c_db_pass = c_db_pass
     global_vars.c_db = c_db
     global_vars.c_db_unix_socket = c_db_unix_socket
+
+    global_vars.s_computer_account_base = username
+
+
+def reload_worker_config():
+    computer_account = global_vars.s_bind_account.replace("$", "")
+
+    global_vars.c_username = computer_account.upper() + "$"
+    global_vars.c_netbios_name = computer_account.upper()
+    global_vars.c_workstation = computer_account.upper()
+    global_vars.c_server_string = computer_account
+
+    global_vars.s_password_ro = global_vars.c_password
