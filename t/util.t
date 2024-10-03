@@ -316,7 +316,7 @@ use Test::More;
 use Test::NoWarnings;
 
 BEGIN {
-    plan tests => 47 +
+    plan tests => 55 +
       ((scalar @NODE_ID_TESTS) * 3) +
       scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
       scalar @INVALID_DATES +
@@ -505,7 +505,15 @@ for my $test (@MAC2DEC) {
 
 {
     ok(starts_with("dog", "do"), "starts_with");
+    ok(starts_with("dog", "dog"), "starts_with");
+    ok(starts_with("dog", ""), "starts_with");
     ok(!starts_with("cat", "do"), "starts_with");
+    ok(!starts_with("cat", "catt"), "starts_with");
+    ok(ends_with("dog", "og"), "ends_with");
+    ok(ends_with("dog", "dog"), "ends_with");
+    ok(ends_with("dog", ""), "ends_with");
+    ok(!ends_with("cat", "og"), "ends_with");
+    ok(!ends_with("cat", "catt"), "ends_with");
 }
 
 =head1 AUTHOR

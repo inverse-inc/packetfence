@@ -1887,10 +1887,6 @@ sub extract {
     return $default;
 }
 
-sub ends_with {
-    return $_[1] eq substr($_[0], -length($_[1]));
-}
-
 sub split_pem {
     my ($s) = @_;
     my @parts;
@@ -1979,6 +1975,10 @@ sub norm_net_mask {
 
 sub starts_with {
     return rindex($_[0], $_[1], 0) == 0;
+}
+
+sub ends_with {
+    return index($_[0], $_[1], -length($_[1])) != -1;
 }
 
 =back
