@@ -124,6 +124,7 @@ BEGIN {
         chown_pf
         norm_net_mask
         safe_pf_run
+        starts_with
     );
 }
 
@@ -1974,6 +1975,10 @@ sub norm_net_mask {
     my $mask_norm_packed = ~$mask_wild_packed;
     my $mask_norm_dotted = join '.', unpack 'C4', $mask_norm_packed;
     return $mask_norm_dotted;
+}
+
+sub starts_with {
+    return rindex($_[0], $_[1], 0) == 0;
 }
 
 =back
