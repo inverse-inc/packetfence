@@ -87,7 +87,7 @@ sub pf_encrypt {
     my $iv = random_bytes(12);
     my $ad = '';
     my ($ciphertext, $tag) = gcm_encrypt_authenticate('AES', $DERIVED_KEY, $iv, $ad, $text);
-    return 'PF_ENC[' . encode_tags(data => $ciphertext, tag => $tag, iv => $iv, ad => $ad) . ']';
+    return  $PREFIX . encode_tags(data => $ciphertext, tag => $tag, iv => $iv, ad => $ad) . ']';
 }
 
 sub pf_decrypt {

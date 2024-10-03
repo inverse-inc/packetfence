@@ -1,12 +1,12 @@
-package pf::config::crypt::object;
+package pf::config::crypt::object::freeze;
 
 =head1 NAME
 
-pf::config::crypt::object -
+pf::config::crypt::object::freeze -
 
 =head1 DESCRIPTION
 
-pf::config::crypt::object
+pf::config::crypt::object::freeze
 
 =cut
 
@@ -14,38 +14,14 @@ use strict;
 use warnings;
 use pf::config::crypt;
 
-
-sub new {
-    my ($proto, $data) = @_;
-    my $class = ref($proto) || $proto;
-    return bless(\$data, $class)
-}
-
-sub THAW {
-    my ($class, $serializer, $data) = @_;
+sub pf::config::crypt::object::FREEZE {
+    my ($self, $serializer) = @_;
+    my $data = $$self;
     if (rindex($data, $pf::config::crypt::PREFIX, 0) == 0) {
-        my $result = pf::config::crypt::pf_decrypt($data);
-        #return $result;
-        return $class->new($result);
-    }
-    return $class->new($data);
-}
-
-sub TO_JSON {
-    ${$_[0]}
-}
-
-use overload 
-    '""' => \&stringify,
-    fallback => 1;
-
-
-sub stringify {
-    if (rindex(${$_[0]}, $pf::config::crypt::PREFIX, 0) == 0) {
-        ${$_[0]} = pf::config::crypt::pf_decrypt(${$_[0]});
+        return $data;
     }
 
-    ${$_[0]}
+    return pf::config::crypt::pf_encrypt($data)
 }
 
 =head1 AUTHOR
@@ -76,3 +52,4 @@ USA.
 =cut
 
 1;
+

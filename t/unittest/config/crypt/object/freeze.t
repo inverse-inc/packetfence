@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-object
+freeze
 
 =head1 DESCRIPTION
 
@@ -22,6 +22,7 @@ BEGIN {
 
 use Test::More tests => 4;
 use pf::config::crypt::object;
+use pf::config::crypt::object::freeze;
 use pf::Sereal qw($DECODER $ENCODER_FREEZER);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use Sereal::Decoder qw(sereal_decode_with_object);
@@ -41,8 +42,8 @@ my $data = sereal_encode_with_object($ENCODER_FREEZER, $object);
 $thawed = sereal_decode_with_object($DECODER, $data);
 is($secret, $thawed, "Data frozen and thawed");
 
+use Data::Dumper; print Dumper($authentication_lookup{LDAPWITHENCRYPTEDPASSWORD});
 is($secret, $authentication_lookup{LDAPWITHENCRYPTEDPASSWORD}{password}, "Data frozen and thawed from pfconfig");
-#use Data::Dumper; print Dumper($authentication_lookup{LDAPWITHENCRYPTEDPASSWORD});
 
 =head1 AUTHOR
 

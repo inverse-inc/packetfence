@@ -55,6 +55,8 @@ use Linux::Systemd::Daemon 'sd_ready';
 use POSIX 'WNOHANG';
 use pfconfig::git_storage;
 use Tie::IxHash;
+use pf::config::crypt::object;
+use pf::config::crypt::object::freeze;
 
 our $RUNNING = 1;
 

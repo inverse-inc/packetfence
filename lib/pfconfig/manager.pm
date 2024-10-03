@@ -48,6 +48,9 @@ use Tie::IxHash;
 use pfconfig::config;
 use pf::constants::user;
 use pfconfig::git_storage;
+use pf::config::crypt;
+use pf::config::crypt::object;
+use Scalar::Util qw(reftype);
 
 my $ordered_prefix = "ORDERED::";
 
@@ -63,7 +66,37 @@ sub config_builder {
     my $logger = get_logger;
     my $elem = $self->get_namespace($namespace);
     my $tmp  = $elem->build();
-    return $tmp;
+    return filter_data($tmp);
+}
+
+sub filter_data {
+    my ($value) = @_;
+    return $value if !defined $value;
+    my $ref_type = reftype($value);
+    if (!defined ($ref_type)) {
+        if (rindex($value, $pf::config::crypt::PREFIX, 0) == 0) {
+            return pf::config::crypt::object->new($value);
+        }
+        return $value;
+    }
+
+    if ($ref_type eq 'ARRAY') {
+        for (my $i =0;$i<@$value;$i++) {
+            $value->[$i] = filter_data($value->[$i]);
+        }
+
+        return $value;
+    }
+
+    if ($ref_type eq 'HASH') {
+        while (my ($k, $v) = each %$value) {
+            $value->{$k} = filter_data($v);
+        }
+
+        return $value;
+    }
+
+    return $value;
 }
 
 =head2 get_namespace
@@ -231,9 +264,7 @@ sub touch_cache {
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
     touch_file($filename);
-    $self->{last_touch_cache} = time;
-    $pfconfig::cached::LAST_TOUCH_CACHE = time;
-    $pfconfig::cached::RELOADED_TOUCH_CACHE = time;
+    $self->{last_touch_cache} = $pfconfig::cached::LAST_TOUCH_CACHE = $pfconfig::cached::RELOADED_TOUCH_CACHE = time;
 }
 
 =head2 get_cache
@@ -339,11 +370,12 @@ sub cache_resource {
     # inflates the element if necessary
     $result = $self->post_process_element($what, $result);
     my $cache_w = $self->{cache}->set( $what, $result, 864000 );
-    $logger->trace("Cache write gave : $cache_w");
     unless ($cache_w) {
         my $message = "Could not write namespace $what to L2 cache !";
         print STDERR $message . "\n";
         $logger->error($message);
+    } else {
+        $logger->trace("Cache write gave : $cache_w");
     }
     if($self->{pfconfig_server}) {
         $self->touch_cache($what);
