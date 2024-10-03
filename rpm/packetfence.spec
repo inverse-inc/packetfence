@@ -57,6 +57,7 @@ Requires: freeradius >= 3.2.6, freeradius-mysql >= 3.2.6, freeradius-perl >= 3.2
 Requires: make
 Requires: net-tools
 Requires: sscep
+Requires: util-linux
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
