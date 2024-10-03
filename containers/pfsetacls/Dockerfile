@@ -1,14 +1,25 @@
+ARG NODE_VERSION=16
+ARG ALPINE_VERSION=3.17.2
+
+FROM node:${NODE_VERSION}-alpine AS node
+
 FROM golang:1.23.2-alpine3.20
+
+COPY --from=node /usr/lib /usr/lib
+COPY --from=node /usr/local/lib /usr/local/lib
+COPY --from=node /usr/local/include /usr/local/include
+COPY --from=node /usr/local/bin /usr/local/bin
+
+RUN node -v && \
+    npm install -g yarn --force && \
+    yarn -v
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     SEMAPHORE_CONFIG_PATH="${SEMAPHORE_CONFIG_PATH:-/etc/semaphore}" \
     APP_ROOT="/go/src/github.com/ansible-semaphore/semaphore/"
 
-RUN apt -qq update && apt -qq --no-install-recommends install -y gcc g++ make git mariadb-client python3 pip python3-openssl openssl ca-certificates libcurl4-openssl-dev openssh-client tini nodejs bash rsync python3-dev libffi-dev python3-paramiko &&\
-    apt-get -qq install -y curl
-
-# hadolint ignore=DL3013
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+RUN apk -q update && \
+    apk -q add gcc g++ make git mariadb-client python3 py3-pip py-pip py3-openssl openssl ca-certificates curl-dev openssh-client tini nodejs bash rsync python3-dev libffi-dev py3-paramiko curl libssh-dev
 
 RUN VER=`python3 -c 'import sys; val=sys.version_info;print(str(val.major)+"."+str(val.minor))'` ; \
     rm -rf /usr/lib/python$VER/EXTERNALLY-MANAGED && \
@@ -40,8 +51,7 @@ ARG SOURCE=https://github.com/ansible-semaphore/semaphore.git
 ARG RELEASE=v2.8.90
 
 RUN git clone -qq --depth 1 --single-branch --branch ${RELEASE} ${SOURCE} ./ && \
-    deployment/docker/ci/bin/install && \
-    apt-get clean
+    deployment/docker/ci/bin/install
 
 USER semaphore
 EXPOSE 3000
