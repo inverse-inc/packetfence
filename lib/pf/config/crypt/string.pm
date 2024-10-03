@@ -1,37 +1,22 @@
-package pf::config::crypt::object;
+package pf::config::crypt::string;
 
 =head1 NAME
 
-pf::config::crypt::object -
+pf::config::crypt::string -
 
 =head1 DESCRIPTION
 
-pf::config::crypt::object
+pf::config::crypt::string
 
 =cut
 
 use strict;
 use warnings;
-use pf::config::crypt;
-use pf::config::crypt::string;
 
 sub new {
     my ($proto, $data) = @_;
     my $class = ref($proto) || $proto;
     return bless(\$data, $class)
-}
-
-sub THAW {
-    my ($class, $serializer, $data) = @_;
-    if (rindex($data, $pf::config::crypt::PREFIX, 0) == 0) {
-        $data = pf::config::crypt::pf_decrypt($data);
-    }
-
-    return pf::config::crypt::string->new($data);
-}
-
-sub TO_JSON {
-    ${$_[0]}
 }
 
 use overload
@@ -40,10 +25,6 @@ use overload
 
 
 sub stringify {
-    if (rindex(${$_[0]}, $pf::config::crypt::PREFIX, 0) == 0) {
-        ${$_[0]} = pf::config::crypt::pf_decrypt(${$_[0]});
-    }
-
     ${$_[0]}
 }
 
@@ -75,3 +56,4 @@ USA.
 =cut
 
 1;
+
