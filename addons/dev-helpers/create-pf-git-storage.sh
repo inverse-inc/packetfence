@@ -46,6 +46,7 @@ make conf/local_secret
 make raddb/certs/server.crt
 make raddb/sites-enabled
 make conf/unified_api_system_pass
+make conf/system_init_key
 make configurations
 make translation
 
