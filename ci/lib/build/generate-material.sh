@@ -37,6 +37,7 @@ generate_material() {
     echo "Make config files available to start pfconfig container"
     make -C ${PF_SRC_DIR} configurations
     make -C ${PF_SRC_DIR} conf/unified_api_system_pass
+    make -C ${PF_SRC_DIR} conf/system_init_key
     make -C ${PF_SRC_DIR} conf/local_secret
 
     echo "Starting ${CONTAINER_NAME} container"
