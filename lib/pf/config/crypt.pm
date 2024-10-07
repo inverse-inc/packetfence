@@ -42,7 +42,8 @@ BEGIN {
 }
 
 sub derived_key {
-    return pbkdf2($SYSTEM_INIT_KEY, 'packetfence', $ITERATION_COUNT, $HASH_TYPE, $LEN);
+    my ($init) = @_;
+    return pbkdf2($init, 'packetfence', $ITERATION_COUNT, $HASH_TYPE, $LEN);
 }
 
 BEGIN {
@@ -50,7 +51,7 @@ BEGIN {
         die "system init key";
     }
 
-    $DERIVED_KEY = derived_key();
+    $DERIVED_KEY = derived_key($SYSTEM_INIT_KEY);
 }
 
 sub encode_tags {
@@ -80,24 +81,36 @@ sub decode_tags {
 
 sub pf_encrypt {
     my ($text) = @_;
+    return pf_encrypt_with_key($DERIVED_KEY, $text);
+}
+
+sub pf_decrypt {
+    my ($data) = @_;
+    return pf_decrypt_with_key($DERIVED_KEY, $data);
+}
+
+sub pf_encrypt_with_key {
+    my ($key, $text) = @_;
     if (rindex($text, $PREFIX, 0) == 0) {
         return $text;
     }
 
     my $iv = random_bytes(12);
     my $ad = '';
-    my ($ciphertext, $tag) = gcm_encrypt_authenticate('AES', $DERIVED_KEY, $iv, $ad, $text);
+    my ($ciphertext, $tag) = gcm_encrypt_authenticate('AES', $key, $iv, $ad, $text);
     return  $PREFIX . encode_tags(data => $ciphertext, tag => $tag, iv => $iv, ad => $ad) . ']';
 }
 
-sub pf_decrypt {
-    my ($data) = @_;
+sub pf_decrypt_with_key {
+    my ($key, $data) = @_;
     if (rindex($data, $PREFIX, 0) != 0) {
         return $data;
     }
+
     my $tags = decode_tags($data);
-    return gcm_decrypt_verify('AES', $DERIVED_KEY, $tags->{iv}, $tags->{ad}, $tags->{data}, $tags->{tag});
+    return gcm_decrypt_verify('AES', $key, $tags->{iv}, $tags->{ad}, $tags->{data}, $tags->{tag});
 }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
