@@ -38,14 +38,7 @@ use POSIX qw(ceil);
 use Crypt::CBC;
 use pf::config::cluster;
 use Role::Tiny qw();
-
-
-use Module::Pluggable
-  'search_path' => [qw(pf::ConfigStore)],
-  'sub_name'    => '_all_stores',
-  'require'     => 1,
-  'inner'       => 0,
-  ;
+use pf::ConfigStore::All;
 
 
 use Exporter;
@@ -399,13 +392,12 @@ sub sync_storages {
     my ($stores, %options) = @_;
     require pf::api::jsonrpcclient;
     my $apiclient = pf::api::jsonrpcclient->new();
-    foreach my $store (@$stores){
+    foreach my $store (@$stores) {
         eval {
             get_logger->info("Synching storage : $store");
             my $cs = $store->new;
             my $pfconfig_namespace = $cs->pfconfigNamespace;
-            
-            if($pfconfig_namespace) {
+            if ($pfconfig_namespace) {
                 my $config_file = $cs->configFile;
                 my %data = (
                     namespace => $pfconfig_namespace,
@@ -649,7 +641,7 @@ Returns the list of ConfigStore to synchronize between cluster members
 =cut
 
 sub stores_to_sync {
-    my @tmp_stores = __PACKAGE__->_all_stores();
+    my @tmp_stores = pf::ConfigStore::All->all_stores();
 
     my @stores = grep { !Role::Tiny->is_role($_) && !$_->does('pf::ConfigStore::Group') && !$_->does('pf::ConfigStore::Filtered') } @tmp_stores;
     return \@stores;
