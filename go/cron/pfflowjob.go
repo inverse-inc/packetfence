@@ -82,6 +82,10 @@ func (j *PfFlowJob) Run() {
 			continue
 		}
 
+		if pfFlows.Header.FlowType == 65535 {
+			continue
+		}
+
 		ChanPfFlow <- []*PfFlows{pfFlows}
 	}
 }
