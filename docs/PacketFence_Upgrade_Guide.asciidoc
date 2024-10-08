@@ -1638,6 +1638,34 @@ to do.  Your export archive will contain your previous
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Upgrade Standalone RedHat EL8
+
+Please follow these command lines in order to upgrade database.
+
+----
+yum clean all --enablerepo=packetfence
+yum update --enablerepo=packetfence
+systemctl stop monit
+systemctl disable monit
+/usr/local/pf/bin/pfcmd service pf stop
+systemctl stop packetfence-mariadb
+rpm -e --nodeps MariaDB-server
+rpm -e --nodeps MariaDB-client
+yum localinstall -y https://www.packetfence.org/downloads/PacketFence/RHEL8/14.1/x86_64/RPMS/MariaDB-client-10.11.6-1.el8.x86_64.rpm
+yum localinstall -y https://www.packetfence.org/downloads/PacketFence/RHEL8/14.1/x86_64/RPMS/galera-4-26.4.16-1.el8.x86_64.rpm
+yum localinstall -y https://www.packetfence.org/downloads/PacketFence/RHEL8/14.1/x86_64/RPMS/MariaDB-server-10.11.6-1.el8.x86_64.rpm
+yum localinstall -y https://www.packetfence.org/downloads/PacketFence/RHEL8/14.1/x86_64/RPMS/freeradius-mysql-3.2.6-1.el8.x86_64.rpm
+systemctl start packetfence-mariadb
+mysql_upgrade -p
+addons/upgrade/do-upgrade.sh
+----
+
+=== Upgrade Cluster RedHat EL8
+
+It is the same as <<PacketFence_Upgrade_Guide.asciidoc#_performing_an_upgrade_on_a_cluster>>
+but when you are at that this step <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_node_c>> for node C,
+please follow these upgrade instructions <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_standalone_redhat_el8>>.
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
