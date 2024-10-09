@@ -18,6 +18,7 @@ use Template::AutoFilter;
 use File::Slurp qw(read_file write_file);
 use File::Temp qw(tempfile);
 use pf::util;
+use pf::log;
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -182,6 +183,12 @@ sub handle_response {
         my @attribute_list = $assertion->AttributeStatement->Attribute;
         
         my $username;
+        # For debug
+        foreach my $attribute (@attribute_list){
+            get_logger->debug($attribute->Name);
+            get_logger->debug($attribute->AttributeValue->any->content);
+        }
+
         foreach my $attribute (@attribute_list){
             if($attribute->Name eq $self->username_attribute){
                 $username = $attribute->AttributeValue->any->content;
