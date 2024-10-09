@@ -1970,52 +1970,8 @@ Before continuing, be sure to read <<PacketFence_Installation_Guide.asciidoc#_as
 
 PacketFence versions < 11.1 must upgrade to 11.1 before continuing.
 
-===== On Debian 11 from PacketFence version 11.1 to 13.2
 
-Exporting from Debian 11 the mariadb-backup package (10.5) must be first updated to the current major version used in Debian 12 (10.11) in order to be Imported.
-
-
-====== Install mariabd-backup version 10.11.6
-
-----
-wget https://archive.mariadb.org/mariadb-10.11.6/repo/debian/pool/main/m/mariadb/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb -O /root/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb
-dpkg-deb -xv /root/mariadb-backup_10.11.6%2Bmaria~deb11_amd64.deb /root/mariadb-backup
-mv /root/mariadb-backup/usr/bin/mariabackup /usr/bin/mariabackup
-mv /root/mariadb-backup/usr/bin/mbstream /usr/bin/mbstream
-----
-
-====== Backup database
-
-Backup using the following script where the database export is created using mariadb-backup (10.11)
-
-----
-/usr/local/pf/addons/backup-and-maintenance.sh
-----
-
-
-====== Reinstall previous version of mariadb-backup (10.5)
-
-The new version of maria-backup can now be removed
-
-----
-apt reinstall mariadb-backup -y
-----
-
-
-====== Export the backup
-
-----
-/usr/local/pf/addons/full-import/export.sh /tmp/export.tgz
-----
-
-====== Import the backup
-
-Import the backup on the new host using the <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,Import on new installation>> procedure.
-
-
-===== On RedHat EL8 from PacketFence version 11.1 to 13.2
-
-====== Backup database
+===== Backup database locally
 
 Backup using the following script where the database export is created using mariadb-backup (10.5). This backup is used to Import the database in the new host.
 
@@ -2026,7 +1982,7 @@ Backup using the following script where the database export is created using mar
 Ensure the backup exists in /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream.gz
 
 
-====== Export the configuration
+===== Prepare the configuration for exportation
 
 This export is only used to Import the configuration files in the new host.
 
@@ -2035,31 +1991,31 @@ This export is only used to Import the configuration files in the new host.
 ----
 
 
-====== Prepare backup on Debian 11
+===== Prepare the database on Debian 11 or EL8
 
-Restore the database backup into a new copy for mariabackup.
+Restore locally the database backup into a new copy for mariabackup.
 
 ----
 gunzip /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream.gz
 mkdir -p /root/backup/restore/
 pushd /root/backup/restore/
 mv /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream /root/backup/restore/
-mbstream -x < packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream
-rm packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream
+mbstream -x < packetfence-db-dump-innobackup-*.xbstream
+rm packetfence-db-dump-innobackup-*.xbstream
 mariabackup --prepare --target-dir=./
 ----
 
- => SCP (copy) the restored files and the export.tgz to the Debian 12 server
+=> SCP (copy) the restored files and the export.tgz to the Debian 12 server
 
 ----
 # create the restore directory
 ssh root@PacketFence_Debian_12 mkdir -p /root/backup/restore/
 scp -r /root/backup/restore/* root@PacketFence_Debian_12:/root/backup/restore/
-scp /tmp/export.tgz root@PacketFence_Debian_12:/tmp/export.tgz 
+scp /tmp/export.tgz root@PacketFence_Debian_12:/tmp/export.tgz
 ----
 
 
-====== Import the backup on Debian 12
+===== Import the database on Debian 12
 
 ----
 systemctl stop packetfence-mariadb
@@ -2075,7 +2031,7 @@ systemctl restart packetfence-mariadb
 ----
 
 
-====== Import the configuration files
+===== Import the configuration files on Debian 12
 
 Import only the configuration files, do not import the database.
 
@@ -2088,7 +2044,7 @@ The configuration and database is now migrated to the new host.
 If all goes well, you can restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
 
 
-====== Additional steps to build or rebuild a cluster
+===== Additional steps to build or rebuild a cluster
 
 If you want to build or rebuild a cluster, you need to follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
 
