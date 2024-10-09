@@ -54,6 +54,7 @@ use pf::util;
 use pf::util::radius qw(perform_disconnect perform_coa);
 use Try::Tiny;
 use pf::locationlog;
+use NetAddr::IP;
 
 sub description { 'Aruba CX Switch 10.x' }
 
@@ -392,7 +393,9 @@ sub acl_chewer {
             $dest = "any";
         } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
             if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
-                $dest = $acl->{'destination'}->{'ipv4_addr'}."/".norm_net_mask($acl->{'destination'}->{'wildcard'});
+                my $net_addr = NetAddr::IP->new($acl->{'destination'}->{'ipv4_addr'}, norm_net_mask($acl->{'destination'}->{'wildcard'}));
+                my $cidr = $net_addr->cidr();
+                $dest = $cidr;
             } else {
                 $dest = $acl->{'destination'}->{'ipv4_addr'};
             }
@@ -402,7 +405,9 @@ sub acl_chewer {
             $src = "any";
         } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
             if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
-                $src = $acl->{'source'}->{'ipv4_addr'}."/".norm_net_mask($acl->{'source'}->{'wildcard'});
+                my $net_addr = NetAddr::IP->new($acl->{'source'}->{'ipv4_addr'}, norm_net_mask($acl->{'source'}->{'wildcard'}));
+                my $cidr = $net_addr->cidr();
+                $src = $cidr;
             } else {
                 $src = $acl->{'source'}->{'ipv4_addr'};
             }
