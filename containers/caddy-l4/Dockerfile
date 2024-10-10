@@ -18,7 +18,7 @@ RUN old_bin_file=$(which caddy) && rm -rf $old_bin_file
 
 RUN apk add python3 py3-pip  && pip install -U Flask 
 
-COPY containers/dns_register_alert.py /srv/  
+COPY containers/caddy-l4/dns_register_alert.py /srv/  
 
 ENV PATH="$PATH:/srv"
 
