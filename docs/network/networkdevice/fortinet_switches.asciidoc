@@ -1,0 +1,199 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Fortinet FortiSwitch
+
+This section shows how to configure a Radius, Mac Auth and 802.1x on a FortiSwitch running FortiSwitchOS 7.x.
+
+You will need to have the CLI access on the FortiSwitch to do the configuration.
+
+==== RADIUS
+
+Define an IPv4 RADIUS server
+
+Using the CLI:
+
+ config user radius
+   edit <name>
+     set addr-mode ipv4
+     set server <IPv4_address>
+     set source-ip <ipv4_address>
+     set radius-port <radius_port_num>
+     set secret <server_password>
+     set auth-type {auto | chap | ms_chap | ms_chap_v2 | pap}
+     set nas-ip <IPv4_address>
+     set all-usergroup {enable | disable}
+     set link-monitor {enable | disable}
+     set link-monitor-interval <5-120 seconds>
+   end
+ end
+
+==== Port Security Global setting
+
+Using the CLI:
+
+ config switch global
+   config port-security
+     set link-down-auth {no-action | set-unauth}
+     set mab-reauth {enable | disable}
+     set max-reauth-attempt <0-15>
+     set reauth-period <0-1440>
+   end
+
+NOTE: Changes to global settings only take effect when new 802.1X/MAB sessions are created.
+
+==== MAB
+
+Starting in FortiSwitchOS 7.2.3, MAB-only authentication is supported. In this mode, the FortiSwitch unit performs MAB authentication without performing EAP authentication. EAP packets are not sent. To enable MAB-only authentication:
+
+===== Switch Interfance config
+
+ config switch interface
+   edit interface_name
+     config port-security
+       set port-security-mode {802.1X | 802.1X-mac-based}
+       set mac-auth-bypass enable
+       set auth-order MAB
+     end
+   next
+ end
+
+==== 802.1X
+
+Starting in FortiSwitchOS 7.0.0, you can use the CLI to allow an 802.1X client to move between ports that are not directly connected to the FortiSwitch unit without having to delete the 802.1X session. For example, you can move an 802.1X client PC that connects through an IP phone to port1 of the FortiSwitch unit to a port of a third-party switch that connects to port2 of the FortiSwitch unit.
+
+This feature is available for 802.1X port-based authentication, 802.1X MAC-based authentication, MAB enabled or disabled, and EAP pass-through mode enabled or disabled.
+
+===== Switch Interfance config
+
+Configuring the 802.1X settings on an interface
+
+Using the CLI (for FSR-124D, 200 Series, FS-4xxE, 500 Series, FS-1024D, FS-1024E, FS-T1024E, FS-1048E, and FS-3032E):
+
+ config switch interface
+   edit <port>
+     config port-security
+       set allow-mac-move-to {disable | enable}
+       set eap-egress-tagged {disable | enable}
+       set port-security-mode {none | 802.1X | 802.1X-mac-based}
+         set framevid-apply {disable | enable}
+         set auth-fail-vlan {enable | disable}
+         set auth-fail-vlanid <vlanid>
+         set auth-priority {MAB-dot1x | dot1x-MAB | legacy}
+         set authserver-timeout-period <3-15>
+         set authserver-timeout-vlan {enable | disable}
+         set authserver-timeout-vlanid <1-4094>
+         set eap-passthru {enable | disable}
+         set guest-auth-delay <integer>
+         set guest-vlan {enable | disable}
+         set guest-vlanid <vlanid>
+         set mac-auth-bypass {enable | disable}
+         set open-auth {enable | disable}
+         set radius-timeout-overwrite {enable | disable}
+       end
+       set security-groups <security-group-name>
+     end
+
+Using the CLI (for FS-124F, FS-124F-POE, FS-124F-FPOE, FS-148F, FS-148F-POE, and FS-148F-FPOE):
+
+ config switch global
+   config port-security
+    set allow-mac-move {disable | enable}
+   end
+ end
+
+ config switch interface
+   edit <port>
+     config port-security
+       set eap-egress-tagged {disable | enable}
+       set port-security-mode {none | 802.1X | 802.1X-mac-based}
+         set framevid-apply {disable | enable}
+         set auth-fail-vlan {enable | disable}
+         set auth-fail-vlanid <vlanid>
+         set auth-priority {MAB-dot1x | dot1x-MAB | legacy}
+         set authserver-timeout-period <3-15>
+         set authserver-timeout-vlan {enable | disable}
+         set authserver-timeout-vlanid <1-4094>
+         set eap-passthru {enable | disable}
+         set guest-auth-delay <integer>
+         set guest-vlan {enable | disable}
+         set guest-vlanid <vlanid>
+         set mac-auth-bypass {enable | disable}
+         set open-auth {enable | disable}
+         set radius-timeout-overwrite {enable | disable}
+       end
+       set security-groups <security-group-name>
+     end
+
+===== Viewing the 802.1x Details
+
+Using the CLI:
+Use the following command to show diagnostics on one or all ports:
+
+ diagnose switch 802-1x status [<port>]
+
+For example:
+
+ diagnose switch 802-1x status port3
+
+ port3: Mode: mac-based (mac-by-pass enable)
+	Link: Link up
+	Port State: authorized: ( )
+	Dynamic Allowed Vlan list: 101
+	Dynamic Untagged Vlan list: 101
+	EAP pass-through : Enable
+	Auth Order : MAB-dot1x
+	Auth Priority : Legacy
+	EAP egress-frame-tagged : Enable
+	EAP auto-untagged-vlans : Enable
+	Allow MAC Move : Disable
+	Dynamic Access Control List : Disable
+	Quarantine VLAN (4093) detection : Enable
+	Native Vlan : 101
+	Allowed Vlan list: 1-200
+	Untagged Vlan list: 101
+	Guest VLAN :
+	Auth-Fail Vlan :
+	AuthServer-Timeout Vlan :
+
+        Switch sessions 1/240, Local port sessions:1/20
+	Client MAC Type Traffic-Vlan Dynamic-Vlan
+	f0:4d:a2:be:a3:31 802.1x 101 101
+
+	Sessions info:
+	f0:4d:a2:be:a3:31 Type=802.1x,TTLS,state=AUTHENTICATED,etime=0,eap_cnt=9 params:reAuth=60
+	user="local-RADIUS",security_grp="radiusgrp",fortinet_grp="Radius_Admins"
+
+===== Clearing Authorized Sessions
+
+To use the CLI to clear the authorized sessions associated with an interface:
+
+ execute 802-1x clear interface {internal | <port_name>}
+
+For example:
+
+ execute 802-1x clear interface port3
+
+To use the CLI to clear the authorized session associated with a MAC address:
+
+ execute 802-1x clear mac <MAC_address>
+
+For example:
+
+ execute 802-1x clear mac 00:21:cc:d2:76:72

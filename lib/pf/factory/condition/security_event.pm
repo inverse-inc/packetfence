@@ -30,32 +30,35 @@ sub factory_for {'pf::condition'};
 my $DEFAULT_CONDITION = 'key';
 
 our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
-    'accounting'                => {type => 'equals',                       key  => 'last_accounting_id'},
-    'recorded_accounting'       => {type => 'includes',                     key  => 'last_accounting_events'},
-    'detect'                    => {type => 'equals',                       key  => 'last_detect_id',          event => $TRUE},
-    'device'                    => {type => 'fingerbank::device_is_a',      key  => 'device_id'},
-    'device_is_not'             => {type => 'fingerbank::device_is_not_a',  key  => 'device_id'},
-    'dhcp_fingerprint'          => {type => 'equals',                       key  => 'dhcp_fingerprint_id'},
-    'dhcp_vendor'               => {type => 'equals',                       key  => 'dhcp_vendor_id'},
-    'dhcp6_fingerprint'         => {type => 'equals',                       key  => 'dhcp6_fingerprint_id'},
-    'dhcp6_enterprise'          => {type => 'equals',                       key  => 'dhcp6_enterprise_id'},
-    'internal'                  => {type => 'equals',                       key  => 'last_internal_id',        event => $TRUE},
-    'custom'                    => {type => 'equals',                       key  => 'last_custom_id',        event => $TRUE},
-    'mac'                       => {type => 'regex',                        key  => 'mac'},
-    'mac_vendor'                => {type => 'equals',                       key  => 'mac_vendor_id'},
-    'nessus'                    => {type => 'equals',                       key  => 'last_nessus_id',          event => $TRUE},
-    'nessus6'                   => {type => 'equals',                       key  => 'last_nessus6_id',         event => $TRUE},
-    'openvas'                   => {type => 'equals',                       key  => 'last_openvas_id',         event => $TRUE},
-    'provisioner'               => {type => 'equals',                       key  => 'last_provisioner_id',     event => $TRUE},
-    'suricata_event'            => {type => 'starts_with',                  key  => 'last_suricata_event',     event => $TRUE},
-    'suricata_md5'              => {type => 'equals',                       key  => 'last_suricata_md5',       event => $TRUE},
-    'role'                      => {type => 'equals',                       key  => 'role'},
-    'vlan'                      => {type => 'equals',                       key  => 'last_vlan'},
-    'network'                   => {type => 'network',                      key  => 'last_ip'},
-    'switch'                    => {type => 'equals',                       key  => 'last_switch'},
-    'switch_group'              => {type => 'switch_group',                 key  => 'last_switch'},
-    'nexpose_event_contains'    => {type => 'matches',                      key  => 'last_nexpose_event',      event => $TRUE},
-    'nexpose_event_starts_with' => {type => 'starts_with',                  key  => 'last_nexpose_event',      event => $TRUE},
+    'accounting'                  => {type => 'equals',                       key  => 'last_accounting_id'},
+    'recorded_accounting'         => {type => 'includes',                     key  => 'last_accounting_events'},
+    'detect'                      => {type => 'equals',                       key  => 'last_detect_id',          event => $TRUE},
+    'device'                      => {type => 'fingerbank::device_is_a',      key  => 'device_id'},
+    'device_is_not'               => {type => 'fingerbank::device_is_not_a',  key  => 'device_id'},
+    'dhcp_fingerprint'            => {type => 'equals',                       key  => 'dhcp_fingerprint_id'},
+    'dhcp_vendor'                 => {type => 'equals',                       key  => 'dhcp_vendor_id'},
+    'dhcp6_fingerprint'           => {type => 'equals',                       key  => 'dhcp6_fingerprint_id'},
+    'dhcp6_enterprise'            => {type => 'equals',                       key  => 'dhcp6_enterprise_id'},
+    'internal'                    => {type => 'equals',                       key  => 'last_internal_id',        event => $TRUE},
+    'custom'                      => {type => 'equals',                       key  => 'last_custom_id',          event => $TRUE},
+    'mac'                         => {type => 'regex',                        key  => 'mac'},
+    'mac_vendor'                  => {type => 'equals',                       key  => 'mac_vendor_id'},
+    'nessus'                      => {type => 'equals',                       key  => 'last_nessus_id',          event => $TRUE},
+    'nessus6'                     => {type => 'equals',                       key  => 'last_nessus6_id',         event => $TRUE},
+    'openvas'                     => {type => 'equals',                       key  => 'last_openvas_id',         event => $TRUE},
+    'provisioner'                 => {type => 'equals',                       key  => 'last_provisioner_id',     event => $TRUE},
+    'suricata_event'              => {type => 'starts_with',                  key  => 'last_suricata_event',     event => $TRUE},
+    'suricata_md5'                => {type => 'equals',                       key  => 'last_suricata_md5',       event => $TRUE},
+    'role'                        => {type => 'equals',                       key  => 'role'},
+    'vlan'                        => {type => 'equals',                       key  => 'last_vlan'},
+    'network'                     => {type => 'network',                      key  => 'last_ip'},
+    'switch'                      => {type => 'equals',                       key  => 'last_switch'},
+    'switch_group'                => {type => 'switch_group',                 key  => 'last_switch'},
+    'nexpose_event_contains'      => {type => 'matches',                      key  => 'last_nexpose_event',      event => $TRUE},
+    'nexpose_event_starts_with'   => {type => 'starts_with',                  key  => 'last_nexpose_event',      event => $TRUE},
+    'fleetdm_policy'              => {type => 'regex',                        key  => 'policy_name',             event => $TRUE },
+    'fleetdm_cve'                 => {type => 'regex',                        key  => 'cve',                     event => $TRUE },
+    'fleetdm_cve_severity_gte'    => {type => 'greater_equals',               key  => 'severity',                event => $TRUE },
 );
 
 sub modules {
@@ -136,7 +139,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

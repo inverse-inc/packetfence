@@ -26,6 +26,11 @@ use pf::CHI;
 use fingerbank::Model::Device;
 use pf::util qw(isenabled);
 use Time::HiRes qw(time);
+use pfconfig::cached_hash;
+use pf::access_filter::provisioner;
+
+our %ProvisioningScopes;
+tie %ProvisioningScopes, 'pfconfig::cached_hash', 'FilterEngine::ProvisionerScopes';
 
 =head1 Constants
 
@@ -93,6 +98,14 @@ The oses to match against
 
 has oses => (is => 'rw', default => sub { [] } );
 
+=head2 rules
+
+The rules to match against
+
+=cut
+
+has rules => (is => 'rw', default => sub { [] } );
+
 =head2 enforce
 
 If the provisioner has to be enforced on each connection
@@ -140,6 +153,8 @@ The id of the pki provider
 =cut
 
 has pki_provider => (is => 'rw');
+
+has access_filter => (is => 'rw', default => sub { pf::access_filter::provisioner->new() });
 
 =head1 METHODS
 
@@ -213,6 +228,47 @@ sub matchOS {
     return $FALSE;
 }
 
+sub _getRulesForScope {
+    my ($self, $scope) = @_;
+    return if !exists $ProvisioningScopes{$scope};
+    my @rulesIds = @{$self->rules};
+    return if @rulesIds == 0;
+    my $scopeLookup = $ProvisioningScopes{$scope};
+    my @rules;
+    for my $id (@rulesIds) {
+        next if !exists $scopeLookup->{$id};
+        my $rule = $scopeLookup->{$id};
+        push @rules, $rule if defined $rule;
+    }
+
+    return @rules;
+}
+
+sub handleAnswer {
+    my ($self, $answer, $data) = @_;
+    $self->access_filter->dispatchActions($answer, $data);
+    return;
+}
+
+sub matchRules {
+    my ($self, $node_attributes) = @_;
+    #if no rules are defined then it is true
+    my %data = (node_info => $node_attributes);
+    my ($answer, $empty) = $self->getAnswerForScope('lookup', \%data);
+    return defined $answer || $empty  ? $TRUE : $FALSE;
+}
+
+sub handleAuthorizeEnforce {
+    my ($self, $mac, $data, $return_empty) = @_;
+    $return_empty //= $TRUE;
+    my ($answer, $empty) = $self->getAnswerForScope('authorize_enforce', $data);
+    return $return_empty if $empty;
+    return $FALSE if !defined $answer;
+
+    $self->handleAnswer($answer, $data);
+    return $TRUE;
+}
+
 =head2 match
 
 =cut
@@ -220,7 +276,7 @@ sub matchOS {
 sub match {
     my ($self, $os, $node_attributes) = @_;
     $node_attributes->{device_type} = defined($os) ? $os : $node_attributes->{device_name};
-    return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes);
+    return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes) && $self->matchRules($node_attributes);
 }
 
 =head2 getPkiProvider
@@ -300,6 +356,10 @@ sub authorize_apply_role {
     return $result;
 }
 
+sub getAnswerForScope {
+    my ($self, $scope, $data) = @_;
+    return $self->access_filter->filterRules($scope, $data, $self->rules);
+}
 
 =head1 AUTHOR
 
@@ -307,7 +367,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
@@ -329,4 +389,3 @@ USA.
 =cut
 
 1;
-

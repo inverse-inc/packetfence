@@ -1,0 +1,76 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Require YAML module
+require 'yaml'
+require 'securerandom'
+
+BRANCH_OR_TAG_NAME = ENV['CI_COMMIT_REF_SLUG'] || 'local-tests'
+DOMAIN_PREFIX = "vagrant-" + BRANCH_OR_TAG_NAME + "-#{SecureRandom.hex(3)}-"
+ 
+# Read YAML file with box details
+inventory = YAML.load_file('inventory/hosts')
+
+Vagrant.configure("2") do |fbservers|
+
+  ### Global settings for fbservers
+  # use same private key on all machines
+  fbservers.ssh.insert_key = false
+
+  # don't use shared folders
+  fbservers.vm.synced_folder ".", "/vagrant", disabled: true
+
+  fbservers.vm.provider "libvirt" do |vm|
+    vm.default_prefix = DOMAIN_PREFIX
+  end
+
+  ### Provisionners
+  # Provision with ansible
+  fbservers.vm.provision "ansible", type: 'ansible' do |ansible|
+    ansible.playbook = "site.yml"
+    ansible.config_file = "ansible.cfg"
+    ansible.inventory_path = "inventory"
+    ansible.galaxy_role_file = "requirements.yml"
+    # only for debug
+    ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+  end
+
+  # Sync timezone with host
+  fbservers.vm.provision "shell", inline: "sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/#{inventory['all']['vars']['tz']} /etc/localtime", run: "always"
+
+  # Allow SSH as root with insecure_private_key
+  fbservers.vm.provision"shell", type: "shell" do |s|
+    s.inline = <<-SHELL
+          mkdir -p /root/.ssh
+          cp /home/vagrant/.ssh/authorized_keys /root/.ssh/
+          chown -R root:root /root/.ssh/
+      SHELL
+  end
+
+  # loop on host(s) in 'dev' group in inventory to create VM(s)  
+  inventory['all']['children']['fbservers']['children']['dev']['hosts'].each do |server,details|
+    # don't start automatically virtual machines
+    fbservers.vm.define server, autostart: false do |srv|
+      srv.vm.box = details['box']
+      srv.vm.box_version = details['box_version']
+      srv.vm.hostname = server
+
+      # mgmt
+      # libvirt__forward_mode: "route" mean:
+      # Allow inbound, but only to our expected subnet. Allow outbound, but
+      # only from our expected subnet. Allow traffic between guests. Deny
+      # all other inbound. Deny all other outbound.
+      srv.vm.network "private_network",
+                     :libvirt__network_name => 'fb_mgmt',
+                     :ip => details['mgmt_ip'],
+                     :netmask => details['mgmt_netmask'],
+                     :libvirt__dhcp_enabled => false,
+                     :libvirt__forward_mode => 'route'
+
+      # we mount local repo in VM
+      # override to avoid issue with symlink without referent
+      # see https://github.com/hashicorp/vagrant/issues/5471
+      srv.vm.synced_folder "../public", "/src/public", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
+    end
+  end
+end

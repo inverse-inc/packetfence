@@ -68,22 +68,22 @@ pfel8stable:
 	pfbox
 
 # Debian builds
-.PHONY: pfdeb11dev
-pfdeb11dev:
+.PHONY: pfdeb12dev
+pfdeb12dev:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
-	BUILD_NAME="$(DEV_GROUP).vagrant.debian-11" \
+	BUILD_NAME="$(DEV_GROUP).vagrant.debian-12" \
 	pfbox
 
-.PHONY: pfdeb11stable
-pfdeb11stable:
+.PHONY: pfdeb12stable
+pfdeb12stable:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
-	BUILD_NAME="$(STABLE_GROUP).vagrant.debian-11" \
+	BUILD_NAME="$(STABLE_GROUP).vagrant.debian-12" \
 	pfbox
 
 # Cleanup

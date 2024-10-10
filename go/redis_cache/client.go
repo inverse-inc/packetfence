@@ -1,6 +1,6 @@
 package redis_cache
 
-import "github.com/go-redis/redis/v8"
+import "github.com/redis/go-redis/v9"
 
 func GetClient() *redis.Client {
 	return redis.NewClient(&redis.Options{

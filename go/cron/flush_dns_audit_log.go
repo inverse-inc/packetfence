@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/common"
+	"github.com/redis/go-redis/v9"
 )
 
 type FlushDNSAuditLog struct {
@@ -24,7 +24,7 @@ func NewFlushDNSAuditLog(config map[string]interface{}) JobSetupConfig {
 		Task:    SetupTask(config),
 		Batch:   int64(config["batch"].(float64)),
 		Timeout: time.Duration((config["timeout"].(float64))) * time.Second,
-		redis:   redisClient(),
+		redis:   getRedisClient(),
 	}
 }
 

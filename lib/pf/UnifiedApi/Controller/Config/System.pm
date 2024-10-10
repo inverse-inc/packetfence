@@ -98,7 +98,7 @@ sub put_dns_servers {
 
 sub _get_hostname {
     my ($self) = @_;
-    my $hostname = pf_run("hostnamectl --static");
+    my $hostname = safe_pf_run(qw(hostnamectl --static));
     chomp($hostname);
     return $hostname if defined($hostname);
 }
@@ -112,7 +112,7 @@ sub put_hostname {
     my ($self) = @_;
     my $hostname = $self->get_json ? $self->get_json->{hostname} : undef;
     if($hostname) {
-        pf_run("sudo hostnamectl set-hostname $hostname");
+        safe_pf_run(qw(sudo hostnamectl set-hostname), $hostname);
         my $new_hostname = $self->_get_hostname();
         chomp($new_hostname);
         if($new_hostname eq $hostname) {
@@ -133,7 +133,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

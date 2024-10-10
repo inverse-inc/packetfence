@@ -18,6 +18,7 @@ use List::MoreUtils qw(uniq);
 use pf::constants qw($FALSE $TRUE);
 use pf::config qw(%Config);
 use pf::person;
+use pf::node;
 use pf::util;
 use pf::log;
 use captiveportal::Form::Authentication;
@@ -258,12 +259,18 @@ The params for the authentication source
 sub auth_source_params {
     my ($self) = @_;
     my $locationlog_entry = locationlog_view_open_mac($self->current_mac);
+    my $node_info = node_view($self->current_mac);
+    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'}});
     return {
         username => $self->username(),
         mac => $self->current_mac,
         connection_type => $locationlog_entry->{'connection_type'},
         SSID => $locationlog_entry->{'ssid'},
         realm => $locationlog_entry->{'realm'},
+        stripped_user_name => strip_username($self->username()),
+        switch_group => ( $switch eq "0" ? '' : $switch->{_group}),
+        computer_name => $node_info->{'computername'},
+        switch_id => $locationlog_entry->{'switch'},
         context => $pf::constants::realm::PORTAL_CONTEXT,
         %{$self->auth_source_params_child()},
     }
@@ -410,7 +417,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

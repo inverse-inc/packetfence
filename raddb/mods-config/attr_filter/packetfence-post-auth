@@ -38,4 +38,6 @@ DEFAULT
     PacketFence-ShortName                 !* ANY,
     PacketFence-Proxied-From              !* ANY,
     PacketFence-UserName                  !* ANY,
-    PacketFence-NTLMv2-Only               !* ANY
+    PacketFence-NTLMv2-Only               !* ANY,
+    PacketFence-NTLM-Auth-Host            !* ANY,
+    PacketFence-NTLM-Auth-Port            !* ANY

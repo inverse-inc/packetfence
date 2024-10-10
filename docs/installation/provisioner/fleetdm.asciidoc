@@ -1,0 +1,151 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+==== Background
+
+In order to provide flexible osquery support, regular vulnerability check and policy compliance, we introduced basic support for FleetDM.
+From PacketFence v14.0, you can configure your FleetDM server to report Policy violations and CVE vulnerabilities of managed nodes to PacketFence.
+
+
+==== Install and Configure FleetDM
+
+Please follow FleetDM's official best practice to organize your FleetDM service:
+
+* FleetDM official website: https://fleetdm.com/
+* Documentation: https://fleetdm.com/docs/get-started/why-fleet
+
+NOTE: We assume that you already have a running FleetDM service on your local network or hosted on the cloud.
+      And FleetDM service has Internet access to your PacketFence server.
+
+==== Configure PacketFence
+
+* Check *FleetDM Events Handler* role existence. Usually you should already have this role well configured in PacketFence. Go to *Admin UI* -> *Configuration* -> *System Configuration* -> *Admin Access*, in the right panel, check if the row exists.
+* Manually create the role if it doesn't exist. Click on *New admin role* button, fill in the pop-up window with name = *FleetDM Event Handler*, Description = *Receives FleetDM events*, actions = *FLEETDM_EVENTS_READ*, then click Save.
+* Create a new user from *Admin UI* -> *Users* -> *Create*. Choose a *Username (PID)* and *strong password*, and set Access Level to *FleetDM Event Handler*
+
+==== Configure FleetDM API in PacketFence
+
+NOTE: In order to allow PacketFence to get associated Mac Address of an affected (Policy violation or CVE vulnerabilities) host from FleetDM, PacketFence will make API calls to FleetDM. An endpoint and credential is required.
+
+NOTE: If both *API Token* and *email & password* are specified, PacketFence will *ONLY* use API token to authenticate with FleetDM. So make sure you are using a *Permanent* API Token.
+
+* Configure FleetDM endpoint from *Admin UI* -> *Configuration* -> *System Configuration* -> *FleetDM*.
+* Fill in your *FleetDM login email*, *password* OR *FleetDM API Token*, then click Save.
+* Your *temporary* API token can be found after you login into FleetDM -> Right top Logged in user icon -> *My Account* -> *Get API Token*
+* To create a permanent API Key in FleetDM, please refer to official documents: https://fleetdm.com/docs/using-fleet/fleetctl-cli?utm_medium=fleetui&utm_campaign=get-api-token#using-fleetctl-with-an-api-only-user
+
+image::fleetdm-fleetdm-api-token-in-packetfence.jpg[scaledwidth="100%",alt="FleetDM webhook for Policy Violations"]
+image::fleetdm-fleetdm-api-token.jpg[scaledwidth="100%",alt="FleetDM webhook for Policy Violations"]
+
+==== Configure FleetDM
+
+NOTE: We *strongly* recommend you to config FleetDM and PacketFence using a *valid SSL Certificate* instead of a self-signed one to make sure devices can be successful enrolled to FleetDM and Policy Violations or CVEs can be reported to PacketFence as well. Policy violation webhook and CVE webhooks are configured individually in FleetDM admin UI.
+
+===== Policy Violations
+* Login to your FleetDM admin Panel -> *Policies* -> *Manage Automations*.
+* On the popup window, enable *Policy automations enabled*, workflow: *Webhook*.
+* For destionation URL, fill in `https://USER:PASS@packetfence.fqdn:9999/api/v1/fleetdm-events/policy`.
+* Replace `USER` and `PASS` with what we used to create the user for FleetDM events Handler in PacketFence, and also `packetfence.fqdn` with the right domain name or IP of PacketFence.
+
+image::fleetdm-webhook-policy.jpg[scaledwidth="100%",alt="FleetDM webhook for Policy Violations"]
+
+===== CVEs
+* Login to your FleetDM admin Panel -> *Software* -> *Manage Automations*.
+* On the popup window, enable *Vulnerability automations enabled*, workflow: *Webhook*.
+* For destionation URL, fill in `https://USER:PASS@packetfence.fqdn:9999/api/v1/fleetdm-events/cve`.
+* Replace `USER` and `PASS` with what we used to create the user for FleetDM events Handler in PacketFence, and also `packetfence.fqdn` with the right domain name or IP of PacketFence.
+
+image::fleetdm-webhook-cve.jpg[scaledwidth="100%",alt="FleetDM webhook for CVEs"]
+
+==== Test and validate webhooks
+
+There are several ways to check if webhooks are working. To test it on PacketFence side, you can do the following steps:
+
+* Finish PacketFence and FleetDM configurations.
+* Login to your PacketFence node, using `journalctl -f` to watch PacketFence logs. Or you can choose not to use "-f" and search occurrences of webhook calls instead as well.
+* Use any tool such as `grep` or built-in search highlights of your terminal application and search / watch for keyword `fleetdm`
+* Manually trigger a policy violation or CVE, check if the corresponding webhook API has been called with a 2xx response.
+* A successful report will be something like `api-frontend-access xx.xx.xx.xx - - [30/May/2024:12:42:00 -0400] "POST /api/v1/fleetdm-events/policy HTTP/2.0" 2xx xx "-" "Go-http-client/2.0"`
+
+==== Customize and Integrate with Security Events
+
+It is possible to integrate FleetDM with PacketFence's Security Events which allows the administrators to
+take proper actions including isolating the devices, sending notification emails or even trigger some scripts when a policy violation is found and reported by FleetDM or
+A specific CVE vulnerability is detected on the network.
+
+There are 3 built-in security event templates in PacketFence since V14 release. They are policy ID "3500001", "3500002" and "3500003". Each of them is for a specific rule
+supported in PacketFence. You can simply modify the existing security events, add your own policy trigger or use them as a template.
+Those 3 security events are disabled by default, You'll need to manually enable them or use them as a reference to build your own.
+
+==== How Security Event works with FleetDM
+PacketFence can only identify and manage the devices it knows. Those devices can be found in a node list from *Admin UI* -> *Nodes*.
+However, FleetDM uses a unique host ID to identify different enrolled devices. We'll need to build a mapping.
+
+Here is how:
+
+1. When webhook is configured, FleetDM reports a policy violation or CVE vulnerability, a *host id* is included in the payload.
+2. PacketFence receives the payload, extract the host id, looks up the host id in its internal cache. If found, use the cached MAC address.
+3. If host ID is not found in internal cache, PacketFence will make a FleetDM API call to obtain the primary MAC of the host, and save it to cache. But a MAC is not always guaranteed in FleetDM's API response.
+4. PacketFence compares the trigger rules of filtered security events, if there's a match, trigger it for each reported device.
+
+NOTE: If a mac address can not be retrieved from FleetDM API call (step 3), it may be due to either an unsuccessful API call or a response does not contain a `primary_mac`,
+      PacketFence will fail to trigger security event. You will see an error in PacketFence logs like:
+      "unable to extract primary mac from host API response for host id", or "unable to perform API call", etc.
+      Please check the logs if you believe a security event should be triggered.
+
+
+===== Security Event 3500001
+
+This is a default security event for FleetDM policy violation check. Regular expression is used to match the policy name. For example,
+If you have a policy in FleetDM named "test policy", and enabled this security with FleetDM policy regex set to `^test`, this security event will be triggered
+when a device is reported violating the "test policy" in FleetDM
+
+===== Security Event 3500002
+
+This is a default security event for FleetDM CVE Vulnerability check. Regular expression is used to match the CVE name. For example,
+If you have a CVE Vulnerability named "CVE-2024-6387", and the security event trigger is set to "FleetDM Vulnerability CVE Regex" with a value of "CVE\-2024",
+when a device is reported having a risk of CVE-2024-6387. The corresponding security event will be triggered.
+
+===== Security Event 3500003
+
+This is a default security event for High risk FleetDM CVE Vulnerability check. The CVE's Severity value will be compared. If the severity is higher than the value
+we set in security event, A security event will be triggered.
+Please note, the "CVE Severity" value is a premium feature, you'll have to purchase a subscription (see FleetDM's official website for details) to have this value included
+in CVE Vulnerability webhooks.
+
+===== Customized email template
+
+The email templates can be found in `/usr/local/pf/html/captive-portal/templates/emails`
+`email-fleetdm-policy-violation.html` is for FleetDM policy violations.
+`email-fleetdm-cve.html` is for FleetDM CVE Vulnerabilities.
+
+===== Customized additional email message
+
+If you want to add some extra information to the emails send to device owner or additional recipient without touching the email template,
+you can also configure the additional message section when "email device owner" or "email recipient" is enabled using supported variables.
+To use a variable in extra message template, you'll need to quote the variable using `[% ` and ` %]`. It will be something like
+`[% mac %]` if you wish to have Mac address included in extra message.
+
+Check FleetDM payload example for all supported variables. The example payload can be found when you configure webhook for policy or
+webhook for CVEs in FleetDM admin UI.
+
+NOTE: Variables in extra message will be "double quoted" when saved in security event config file (`/usr/local/pf/conf/security_events.conf*`),
+If you edit the file directly without PacketFence's admin UI, make sure the variables are qoted like `[% ENV.BRL %] variable [% ENV.BRR %]`,
+in which `[% ENV.BRL %]` is the double quoted form of `[% ` and `[% ENV.BRR %]` is the double quoted form of ` %]`.
+And after changing the config file, do a config reload using `/usr/local/pf/bin/pfcmd configreload`. or `usr/local/pf/bin/pfcmd configreload hard`.

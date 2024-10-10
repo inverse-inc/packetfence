@@ -1,0 +1,28 @@
+[upstream]
+api_key =
+host=api.fingerbank.org
+port=443
+use_https=enabled
+db_path = /api/v2/download/db
+sqlite_db_retention = 2
+
+[collector]
+host=100.64.0.1
+port=4723
+use_https=enabled
+inactive_endpoints_expiration=168
+arp_lookup=disabled
+query_cache_time=1440
+db_persistence_interval=60
+cluster_resync_interval=120
+network_behavior_analysis=disabled
+additional_env=
+
+[query]
+record_unmatched = disabled
+
+[proxy]
+use_proxy = disabled
+host =
+port =
+verify_ssl = enabled

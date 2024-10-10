@@ -70,14 +70,10 @@
   post:
     summary: Import bulk users.
     requestBody:
-      allOf:
-        - $ref: "#/components/requestBodies/BulkImport"
-        - $ref: "#/components/requestBodies/UsersBulkImport"
+      $ref: "#/components/requestBodies/UsersBulkImport"
     responses:
       '200':
-        allOf:
-          - $ref: "#/components/responses/BulkImport"
-          - $ref: "#/components/responses/UsersBulkImport"
+        $ref: "#/components/responses/UsersBulkImport"
       '400':
         $ref: "#/components/responses/BadRequest"
       '401':

@@ -1,14 +1,19 @@
 # Copyright (C) Inverse inc.
-*:22223 {
-  pfconfigpool
-  logger {
-    level INFO
-  }
-  statsd {
-    proto udp
-    prefix pfipset
-    address {$STATSD_ADDRESS}
-  }
-  pfipset
+{
+	admin off
+	#debug
 }
 
+:22223 {
+	route * {
+		logger {
+			level INFO
+		}
+		statsd {
+			proto udp
+			prefix pfipset
+			address {$STATSD_ADDRESS}
+		}
+		pfipset
+	}
+}

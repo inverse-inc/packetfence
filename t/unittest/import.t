@@ -33,6 +33,8 @@ my $fh = File::Temp->new;
 
 my $name = $fh->filename;
 
+delete $ENV{BASH_ENV};
+
 system("perl -T -I/usr/local/pf/t -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Msetup_test_config /usr/local/pf/bin/pfcmd.pl import nodes $name");
 
 is($?, 0, "Succeeded running with an empty file");
@@ -53,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

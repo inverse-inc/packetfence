@@ -15,6 +15,7 @@ export {
   BaseViewCollectionItem as BaseView,
   BaseFormButtonBar as FormButtonBar,
 
+  BaseFormGroupSwitch as FormGroupActOnAccountingStop,
   BaseFormGroupInputNumber as FormGroupCacheTimeout,
   BaseFormGroupSwitch as FormGroupCacheUpdates,
   BaseFormGroupChosenMultiple as FormGroupCategories,
@@ -30,6 +31,9 @@ export {
   BaseFormGroupInput as FormGroupUsername,
   BaseFormGroupInput as FormGroupUsernameFormat,
   BaseFormGroupInput as FormGroupVsys,
+  BaseFormGroupSwitch as FormGroupSsoOnAccessReevaluation,
+  BaseFormGroupSwitch as FormGroupSsoOnAccounting,
+  BaseFormGroupSwitch as FormGroupSsoOnDhcp,
 
   TheForm,
   TheView

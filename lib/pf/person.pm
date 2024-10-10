@@ -270,7 +270,7 @@ sub person_nodes {
         -where => {
             pid => $pid,
         },
-        -columns => [qw(mac pid notes regdate unregdate lastskip status user_agent computername device_class time_balance bandwidth_balance)],
+        -columns => [qw(mac pid notes regdate unregdate status user_agent computername device_class time_balance bandwidth_balance)],
         #To avoid join
         -from => pf::dal::node->table,
         -with_class => undef,
@@ -385,7 +385,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

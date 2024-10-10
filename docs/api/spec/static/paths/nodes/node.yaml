@@ -5,6 +5,7 @@
       - description: '`PRIMARY KEY`'
         in: path
         name: node_id
+        required: true
         schema:
           type: string
     requestBody:
@@ -28,6 +29,7 @@
       - description: '`PRIMARY KEY`'
         in: path
         name: node_id
+        required: true
         schema:
           type: string
     requestBody:
@@ -51,6 +53,7 @@
       - description: '`PRIMARY KEY`'
         in: path
         name: node_id
+        required: true
         schema:
           type: string
     responses:
@@ -72,6 +75,7 @@
       - description: '`PRIMARY KEY`'
         in: path
         name: node_id
+        required: true
         schema:
           type: string
     responses:
@@ -93,6 +97,7 @@
       - description: '`PRIMARY KEY`'
         in: path
         name: node_id
+        required: true
         schema:
           type: string
     responses:
@@ -114,6 +119,7 @@
       - description: '`PRIMARY KEY`'
         in: path
         name: node_id
+        required: true
         schema:
           type: string
     responses:
@@ -135,6 +141,7 @@
       - description: '`PRIMARY KEY`'
         in: path
         name: node_id
+        required: true
         schema:
           type: string
     responses:

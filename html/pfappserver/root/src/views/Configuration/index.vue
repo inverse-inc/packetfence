@@ -74,19 +74,20 @@ const setup = () => {
       collapsable: true,
       items: [
         { name: i18n.t('Cloud Services'), path: '/configuration/clouds' },
+        { name: i18n.t('Event Loggers'), path: '/configuration/event_loggers' },
         { name: i18n.t('Firewall SSO'), path: '/configuration/firewalls' },
         { name: i18n.t('Web Services'), path: '/configuration/webservices' },
         { name: i18n.t('Switch Templates'), path: '/configuration/switch_templates' },
-        { name: i18n.t('Syslog Parsers'), path: '/configuration/pfdetect' },
+        { name: i18n.t('Event Handlers'), path: '/configuration/pfdetect' },
         { name: i18n.t('Syslog Forwarding'), path: '/configuration/syslog' },
-        { name: i18n.t('Event Loggers'), path: '/configuration/event_loggers' },
         { name: i18n.t('WRIX'), path: '/configuration/wrix' },
         { name: i18n.t('PKI'),
           items: [
             { name: i18n.t('Certificate Authorities'), path: '/configuration/pki/cas' },
             { name: i18n.t('Templates'), path: '/configuration/pki/profiles' },
             { name: i18n.t('Certificates'), path: '/configuration/pki/certs' },
-            { name: i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' }
+            { name: i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' },
+            { name: i18n.t('SCEP Servers'), path: '/configuration/pki/scepservers' }
           ]
         },
         { name: i18n.t('Multi-Factor Authentication'), path: '/configuration/mfas' }
@@ -152,6 +153,7 @@ const setup = () => {
           ]
         },
         { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },
+        { name: i18n.t('FleetDM'), path: '/configuration/fleetdm', class: 'no-saas'},
         { name: i18n.t('RADIUS'),
           items: [
             { name: i18n.t('General'), path: '/configuration/radius/general' },

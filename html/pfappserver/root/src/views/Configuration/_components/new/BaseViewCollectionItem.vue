@@ -11,6 +11,7 @@
     <b-form @submit.prevent="onSave" ref="rootRef">
       <the-form
         :form="form"
+        @form="form = $event"
         :meta="meta"
         :id="id"
         :isNew="isNew"

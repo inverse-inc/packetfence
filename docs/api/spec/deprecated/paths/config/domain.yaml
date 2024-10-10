@@ -1,0 +1,93 @@
+/api/v1/config/domain/{domain_id}/test_join:
+  get:
+    deprecated: true
+    summary: Test Domain Join.
+    description: Uses [Async](#/Async).
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: domain_id
+      required: true
+      schema:
+        type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Config/Domains
+
+/api/v1/config/domain/{domain_id}/join:
+  post:
+    deprecated: true
+    summary: Join Domain.
+    description: Uses [Async](#/Async).
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: domain_id
+      required: true
+      schema:
+        type: string
+    requestBody:
+      $ref: '#/components/requestBodies/ConfigDomainJoin'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Config/Domains
+
+/api/v1/config/domain/{domain_id}/rejoin:
+  post:
+    deprecated: true
+    summary: Rejoin Domain.
+    description: Uses [Async](#/Async).
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: domain_id
+      required: true
+      schema:
+        type: string
+    requestBody:
+      $ref: '#/components/requestBodies/ConfigDomainJoin'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Config/Domains
+
+/api/v1/config/domain/{domain_id}/unjoin:
+  post:
+    deprecated: true
+    summary: Unjoin Domain.
+    description: Uses [Async](#/Async).
+    parameters:
+    - description: '`PRIMARY KEY`'
+      in: path
+      name: domain_id
+      required: true
+      schema:
+        type: string
+    requestBody:
+      $ref: '#/components/requestBodies/ConfigDomainJoin'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Config/Domains

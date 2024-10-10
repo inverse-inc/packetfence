@@ -84,7 +84,8 @@ testcases:
        "next_hop": "100.127.255.253",
        "pool_backend": "memory",
        "portal_fqdn": null,
-       "type": "inlinel3"
+       "type": "inlinel3",
+       "dhcp_reply_ip": "giaddr"
      }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
@@ -311,5 +312,10 @@ testcases:
 - name: restart_pfqueue_service
   steps:
   - type: systemctl_service_restart
-    service: packetfence-pfqueue
+    service: packetfence-pfqueue-backend
     time_to_sleep: 5
+
+  - type: systemctl_service_restart
+    service: packetfence-pfqueue-go
+    time_to_sleep: 5
+

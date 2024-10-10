@@ -1,7 +1,0 @@
-ConfigRadiusdFastProfileWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigRadiusdFastProfile'
-    status:
-      type: integer
-  type: object

@@ -16,7 +16,7 @@ new $builder = new pf::SearchBuilder;
 $builder
  ->select(qw(
     mac pid voip bypass_vlan status category_id
-    detect_date regdate unregdate lastskip
+    detect_date regdate unregdate
     user_agent computername dhcp_fingerprint
     last_arp last_dhcp notes)
 )->from(
@@ -626,7 +626,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

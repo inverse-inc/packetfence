@@ -276,9 +276,10 @@ func transferMetadata(ctx context.Context, o1 interface{}, o2 interface{}) {
 // Create a pfconfig query given a PfconfigObject
 // Will extract the query information from the struct and will create the payload accordingly
 // The struct should declare the following fields to be compatible
-//		PfconfigNS - the pfconfig namespace to use (ex: resource::fqdn)
-//		PfconfigMethod - the method to use while calling pfconfig (hash_element is a special case, see below)
-//		PfconfigHashNS - the hash element key when using the hash_element method, this attribute has no effect when using any other method
+//
+//	PfconfigNS - the pfconfig namespace to use (ex: resource::fqdn)
+//	PfconfigMethod - the method to use while calling pfconfig (hash_element is a special case, see below)
+//	PfconfigHashNS - the hash element key when using the hash_element method, this attribute has no effect when using any other method
 func createQuery(ctx context.Context, o PfconfigObject) Query {
 	query := Query{}
 

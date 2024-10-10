@@ -15,6 +15,10 @@ set -e
 
 disable_service_if_exists() {
     SERVICE=$1
+    NOTFOUND=`set +e;systemctl list-units --full -all --state=not-found| grep -Fq "$SERVICE";echo $?`
+    if [ $NOTFOUND -eq 0 ]; then
+        return 0
+    fi
     NUM=`set +e;systemctl list-units --full -all | grep -Fq "$SERVICE";echo $?`
     if [ $NUM -eq 0 ]; then
         systemctl disable $SERVICE
@@ -60,7 +64,7 @@ case "$1" in
         else
                 echo "pf user already exist"
         fi
-        usermod pf -a -G fingerbank,winbindd_priv
+        usermod pf -a -G fingerbank
         usermod -aG pf mysql
         usermod -aG pf netdata
 
@@ -115,7 +119,7 @@ case "$1" in
         find /usr/local/pf/ -user $id -exec chown -h pf {} \;
         set -e
 
-        usermod pf -a -G fingerbank,winbindd_priv
+        usermod pf -a -G fingerbank
         usermod -aG pf mysql
         usermod -aG pf netdata
 

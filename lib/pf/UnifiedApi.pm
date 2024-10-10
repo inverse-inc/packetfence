@@ -341,7 +341,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_switches_routes($root);
     $self->setup_api_v1_config_switch_groups_routes($root);
     $self->setup_api_v1_config_syslog_forwarders_routes($root);
-    $self->setup_api_v1_config_syslog_parsers_routes($root);
+    $self->setup_api_v1_config_event_handlers_routes($root);
     $self->setup_api_v1_config_ssl_certificates_routes($root);
     $self->setup_api_v1_config_template_switches_routes($root);
     $self->setup_api_v1_config_system_routes($root);
@@ -1072,8 +1072,6 @@ sub setup_api_v1_config_domains_routes {
         "/domain/#domain_id",
         "api.v1.Config.Domains"
     );
-    $resource_route->register_sub_action({path => '/test_join', action => 'test_join', method => 'GET'});
-    $resource_route->register_sub_actions({method=> 'POST', actions => [qw(join unjoin rejoin)], auditable => 1});
     return ($collection_route, $resource_route);
 }
 
@@ -1510,6 +1508,7 @@ sub setup_api_v1_config_switches_routes {
     );
 
     $resource_route->any(['POST'] => "/invalidate_cache")->to("Config::Switches#invalidate_cache", auditable => 1)->name("api.v1.Config.Switches.invalidate_cache");
+    $resource_route->any(['POST'] => "/precreate_acls")->to("Config::Switches#precreate_acls", auditable => 1)->name("api.v1.Config.Switches.precreate_acls");
 
     return ($collection_route, $resource_route);
 }
@@ -1558,24 +1557,24 @@ sub setup_api_v1_config_sources_routes {
     return ($collection_route, $resource_route);
 }
 
-=head2 setup_api_v1_config_syslog_parsers_routes
+=head2 setup_api_v1_config_event_handlers_routes
 
-setup_api_v1_config_syslog_parsers_routes
+setup_api_v1_config_event_handlers_routes
 
 =cut
 
-sub setup_api_v1_config_syslog_parsers_routes {
+sub setup_api_v1_config_event_handlers_routes {
     my ($self, $root) = @_;
     my ($collection_route, $resource_route) =
       $self->setup_api_v1_std_config_routes(
         $root,
-        "Config::SyslogParsers",
-        "/syslog_parsers",
-        "/syslog_parser/#syslog_parser_id",
-        "api.v1.Config.SyslogParsers"
+        "Config::EventHandlers",
+        "/event_handlers",
+        "/event_handler/#event_handler_id",
+        "api.v1.Config.EventHandlers"
     );
 
-    $collection_route->any(['POST'] => "/dry_run")->to("Config::SyslogParsers#dry_run")->name("api.v1.Config.SyslogParsers.dry_run");
+    $collection_route->any(['POST'] => "/dry_run")->to("Config::EventHandlers#dry_run")->name("api.v1.Config.EventHandlers.dry_run");
 
     return ($collection_route, $resource_route);
 }
@@ -2235,6 +2234,15 @@ sub setup_api_v1_config_filter_engines_routes {
         "api.v1.Config.FilterEngines.Switch"
       );
 
+    ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $filter_engines_root,
+        "Config::FilterEngines::ProvisioningFilters",
+        "/provisioning_filters",
+        "/provisioning_filter/#provisioning_filter_id",
+        "api.v1.Config.FilterEngines.Provisioning"
+      );
+
     return ($collection_route, $resource_route);
 }
 
@@ -2327,7 +2335,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

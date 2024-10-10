@@ -23,7 +23,18 @@ use pf::ConfigStore::DhcpFilters;
 use pf::ConfigStore::DNS_Filters;
 use pf::ConfigStore::SwitchFilters;
 
-our @EXPORT_OK = qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP %FILTER_NAMES @NODE_INFO_FIELDS @FINGERBANK_FIELDS @SWITCH_FIELDS @BASE_FIELDS @OWNER_FIELDS @SECURITY_EVENT_FIELDS);
+our @EXPORT_OK = qw(
+  @BASE_FIELDS
+  %CONFIGSTORE_MAP
+  %ENGINE_MAP
+  %FILTER_NAMES
+  %FILTERS_IDENTIFIERS
+  @FINGERBANK_FIELDS
+  @NODE_INFO_FIELDS
+  @OWNER_FIELDS
+  @SECURITY_EVENT_FIELDS
+  @SWITCH_FIELDS
+);
 
 
 our %FILTERS_IDENTIFIERS = (
@@ -98,7 +109,6 @@ our @NODE_INFO_FIELDS = qw(
   node_info.category_id
   node_info.mac
   node_info.last_arp
-  node_info.lastskip
   node_info.last_dhcp
   node_info.user_agent
   node_info.computername
@@ -227,7 +237,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

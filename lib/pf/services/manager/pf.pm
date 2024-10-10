@@ -68,7 +68,7 @@ sub _build_launcher {
 sub print_status {
     my ($self) = @_;
     my $logger = get_logger();
-    my @output = `systemctl list-unit-files|grep packetfence`;
+    my @output = `systemctl list-unit-files|grep packetfence|grep -v ntlm-auth-api-domain`;
     my $colors = pf::util::console::colors();
     my $pid = 0;
     my @manager;
@@ -230,7 +230,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

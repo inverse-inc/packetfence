@@ -1,6 +1,7 @@
 package aaa
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -66,10 +67,10 @@ func (tb *MultiTokenBackend) TouchTokenInfo(token string) {
 	}
 }
 
-func (tb *MultiTokenBackend) AdminActionsForToken(token string) map[string]bool {
+func (tb *MultiTokenBackend) AdminActionsForToken(ctx context.Context, token string) map[string]bool {
 	for _, b := range tb.backends {
 		if ti, _ := b.TokenInfoForToken(token); ti != nil {
-			return ti.AdminActions()
+			return ti.AdminActions(ctx)
 		}
 	}
 

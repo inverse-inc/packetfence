@@ -9,13 +9,14 @@ import {
 } from '@/components/new/'
 import {
   BaseFormGroupChosenOneCa,
+  BaseFormGroupChosenOneScepServer,
   BaseFormGroupDigest,
   BaseFormGroupExtendedKeyUsage,
   BaseFormGroupKeySize,
   BaseFormGroupKeyType,
   BaseFormGroupKeyUsage,
 } from '../../_components/'
-import {BaseFormGroupChosenOneCloud,} from '@/views/Configuration/clouds/_components/'
+import { BaseFormGroupChosenOneCloud } from '@/views/Configuration/clouds/_components/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -24,6 +25,7 @@ export {
   BaseFormButtonBar                       as FormButtonBar,
 
   BaseFormGroupInput                      as FormGroupIdentifier,
+  BaseFormGroupSwitch                     as FormGroupAllowDuplicatedCn,
   BaseFormGroupChosenOneCa                as FormGroupCaId,
   BaseFormGroupInput                      as FormGroupName,
   BaseFormGroupInputNumber                as FormGroupValidity,
@@ -39,6 +41,7 @@ export {
   BaseFormGroupDigest                     as FormGroupDigest,
   BaseFormGroupKeyUsage                   as FormGroupKeyUsage,
   BaseFormGroupExtendedKeyUsage           as FormGroupExtendedKeyUsage,
+  BaseFormGroupInputNumber                as FormGroupMaximumDuplicatedCn,
   BaseFormGroupInput                      as FormGroupOcspUrl,
   BaseFormGroupSwitch                     as FormGroupP12MailPassword,
   BaseFormGroupInput                      as FormGroupP12MailSubject,
@@ -58,6 +61,8 @@ export {
   BaseFormGroupTextarea                   as FormGroupRenewalMailHeader,
   BaseFormGroupTextarea                   as FormGroupRenewalMailFooter,
   BaseFormGroupInputNumber                as FormGroupRevokedValidUntil,
+  BaseFormGroupSwitch                     as FormGroupScepServerEnabled,
+  BaseFormGroupChosenOneScepServer        as FormGroupScepServerId,
   TheForm,
   TheView,
 

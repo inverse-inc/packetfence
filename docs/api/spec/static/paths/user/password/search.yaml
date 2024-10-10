@@ -5,6 +5,7 @@
     parameters:
     - in: path
       name: user_id
+      required: true
       schema:
         type: string
     requestBody:

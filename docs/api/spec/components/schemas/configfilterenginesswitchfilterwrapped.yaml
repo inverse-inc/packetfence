@@ -1,7 +1,0 @@
-ConfigFilterEnginesSwitchFilterWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigFilterEnginesSwitchFilter'
-    status:
-      type: integer
-  type: object

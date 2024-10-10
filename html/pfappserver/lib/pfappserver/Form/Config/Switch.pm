@@ -46,6 +46,14 @@ has_field 'id' =>
    accept => ['default'],
    required => 1,
    messages => { required => 'Please specify the IP address/MAC address/Range (CIDR) of the switch.' },
+   tags => {
+       option_pattern => sub {
+           return {
+               regex => qq{(([0-9a-fA-f]{2}([:\\.-][0-9a-fA-f]{2}){5})|([0-9a-fA-F]{4}([\\.-][0-9a-fA-F]{4}){2})|([0-9a-fA-F]{12})|((\\d{1,3}(\\.\\d{1,3}){3})(/\\d{1,2})?)|((?=^.{4,253}\$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\\.)+[a-zA-Z]{2,63}\$))|default)},
+               message => "The id must be a MAC, or IP address, or a fqdn.",
+           };
+       },
+   }
   );
 has_field 'description' =>
   (
@@ -82,7 +90,7 @@ has_field 'deauthMethod' =>
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
   );
-  
+
 has_field 'useCoA' =>
   (
    type => 'Toggle',
@@ -137,12 +145,24 @@ has_field 'UrlMap' =>
    label => 'Role by Web Auth URL',
    default => undef,
   );
+has_field 'InterfaceMap' =>
+  (
+   type => 'Toggle',
+   label => 'Interface to apply Role ACL',
+   default => undef,
+  );
 has_field 'cliAccess' =>
   (
    type => 'Toggle',
    label => 'CLI Access Enabled',
    tags => { after_element => \&help,
              help => 'Allow this switch to use PacketFence as a radius server for CLI access'},
+  );
+has_field 'NetworkMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by network',
+   default => undef,
   );
 has_field 'ExternalPortalEnforcement' => (
     type    => 'Toggle',
@@ -456,7 +476,7 @@ has_field coaPort =>
     },
   );
 
-has_field PushACLs => (
+has_field UsePushACLs => (
     type => 'Toggle',
 );
 
@@ -496,6 +516,9 @@ addRoleMapping("UrlMapping", "url");
 addRoleMapping("ControllerRoleMapping", "controller_role");
 addRoleMapping("AccessListMapping", "accesslist");
 addRoleMapping("VpnMapping", "vpn");
+addRoleMapping("NetworkMapping", "network");
+addRoleMapping("NetworkFromMapping", "networkfrom");
+addRoleMapping("InterfaceMapping", "interface");
 
 sub _validate_acl_switch {
     my ($field) = @_;
@@ -689,6 +712,18 @@ sub options_wsTransport {
     return ({label => '' ,value => '' }, @transports);
 }
 
+=head2 options_ACLs
+
+=cut
+
+sub options_ACLs {
+    my $self = shift;
+
+    my @options = map { {label => $_, value =>  $_ } } qw/pushACLs downloadableACLs/;
+
+    return ({label => '' ,value => '' }, @options);
+}
+
 =head2 validate
 
 If one of the inline triggers is $ALWAYS, ignore any other trigger.
@@ -710,7 +745,8 @@ sub validate {
 
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$value->{inlineTrigger}};
-    if ($value->{type}) {
+    my $type = $value->{type};
+    if ($type) {
         my $switch = $self->getSwitch();
         if ($switch) {
             @triggers = map { $_->{type} } @{$value->{inlineTrigger}};
@@ -737,7 +773,12 @@ sub validate {
             $self->validateAccessListMapping($switch);
 
         } else {
-            $self->field('type')->add_error("The chosen type (" . $value->{type} . ") is not supported.");
+            $self->field('type')->add_error("The chosen type (" . $type . ") is not supported.");
+        }
+
+        my $id = $value->{id};
+        if ($id) {
+            $self->validateFqdnId($id, $type);
         }
     } else {
         my $group_name = $value->{group} || '';
@@ -746,6 +787,8 @@ sub validate {
         unless(defined $default->{type} || defined $group->{type}) {
             $self->field('type')->add_error("A type is required");
         }
+        my $type = $group->{type} // $default->{type};
+        $self->validateFqdnId($value->{id}, $type);
     }
 
     unless ($self->has_errors) {
@@ -768,6 +811,13 @@ sub validate {
     #}
 }
 
+sub validateFqdnId {
+    my ($self, $id, $type) = @_;
+    if (defined $id && defined $type && valid_fqdn($id) && $type ne 'Aruba::Instant') {
+        $self->field('id')->add_error("The chosen type does not supported a fqdn as an id.");
+    }
+}
+
 sub validateAccessListMapping {
     my ($self, $switch) = @_;
     my $accessListMapping = $self->field('AccessListMapping');
@@ -786,7 +836,7 @@ sub validateAccessListMapping {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

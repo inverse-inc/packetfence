@@ -1,7 +1,0 @@
-ConfigBillingTierWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigBillingTier'
-    status:
-      type: integer
-  type: object

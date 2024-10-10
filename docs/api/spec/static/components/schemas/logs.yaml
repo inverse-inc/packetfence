@@ -45,7 +45,6 @@ LogsTail:
                   log_level:
                     type: string
                   log_without_prefix:
-                    description:
                     type: string
                   process:
                     type: string

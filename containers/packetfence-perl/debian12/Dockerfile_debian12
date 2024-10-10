@@ -1,0 +1,59 @@
+FROM debian:12.0
+
+ARG workdir \
+    output_directory
+
+ENV WORKDIR=${workdir} \
+    OUTPUT_DIRECTORY=${output_directory} \
+    BASE_DIR=/usr/local/pf/lib/perl_modules
+
+
+ENV PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/ \
+    PKG_CONFIG_PATH=/usr/lib/pkgconfig/ \
+    CPAN_BIN_PATH="/usr/bin/cpan" \
+    CPAN_VERSION=2.36
+
+WORKDIR ${WORKDIR}
+
+RUN  apt update -y && apt -y upgrade && \
+    apt install libmodule-signature-perl zip make build-essential \ 
+libssl-dev zlib1g-dev libmariadb-dev-compat libmariadb-dev libssh2-1-dev libexpat1-dev \
+pkg-config libkrb5-dev libsystemd-dev libgd-dev libcpan-distnameinfo-perl libyaml-perl \
+curl wget graphviz libio-socket-ssl-perl debhelper \ 
+libnet-ssleay-perl libcpan-perl-releases-perl python3 vim -y && \
+    apt-get clean && \ 
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/* /var/tmp/*
+
+RUN mkdir -p ${WORKDIR}/debian && \
+    mkdir -p ${BASE_DIR}/lib/perl5/ \
+    mkdir -p ${OUTPUT_DIRECTORY}
+
+# 1. configure CPAN with defaults (answer yes)
+# 2. override default conf to UNINST cpan after upgrade (seems mandatory for EL8)
+RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DEFAULT=1 ${CPAN_BIN_PATH} &> /dev/null && \
+# upgrade CPAN and show version
+    ${CPAN_BIN_PATH} -i ANDK/CPAN-${CPAN_VERSION}.tar.gz &> /dev/null && ${CPAN_BIN_PATH} -D CPAN && \
+# install modules in a specific directory
+    set -o nounset -o errexit && (echo o conf makepl_arg "INSTALL_BASE=${BASE_DIR}"; echo o conf commit)|${CPAN_BIN_PATH} && \
+# hard-coded due to quotes
+    set -o nounset -o errexit && (echo o conf mbuildpl_arg '"--install_base /usr/local/pf/lib/perl_modules"' ; echo o conf commit)|${CPAN_BIN_PATH} && \
+# allow to installed outdated dists
+    set -o nounset -o errexit &&  (echo o conf allow_installing_outdated_dists 'yes'; echo o conf commit)|${CPAN_BIN_PATH} && \
+# allow to downgrade installed modules automatically
+# assertion at end of script will check everything is expected
+    set -o nounset -o errexit && (echo o conf allow_installing_module_downgrades 'yes'; echo o conf commit)|${CPAN_BIN_PATH} && \
+# use cpan.metacpan.org to get outdated modules
+# disable pushy_https
+    set -o nounset -o errexit &&  (echo o conf urllist 'https://cpan.metacpan.org'; echo o conf commit)|${CPAN_BIN_PATH} && \
+    set -o nounset -o errexit &&  (echo o conf pushy_https '0'; echo o conf commit)|${CPAN_BIN_PATH} && \
+#limit the cache to 100mb
+    set -o nounset -o errexit &&  (echo o conf build_cache 100; echo o conf commit)|${CPAN_BIN_PATH} 
+
+
+COPY ./addons/packetfence-perl/dependencies.csv ./addons/packetfence-perl/build_package.sh ./addons/packetfence-perl/install_cpan.py ./addons/packetfence-perl/psono.py  ${WORKDIR}
+
+RUN python3 -u  install_cpan.py  -d dependencies.csv
+
+#remove logs
+RUN rm -rf ${WORKDIR}/.cpan/build/*

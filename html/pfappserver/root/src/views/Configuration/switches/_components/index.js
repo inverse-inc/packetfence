@@ -4,22 +4,25 @@ import {
 } from '@/views/Configuration/_components/new/'
 import {
   BaseFormButtonBar,
+  BaseFormGroup,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupTextarea,
-  BaseFormGroupSwitch
+  BaseFormGroupSwitch,
+  BaseInput
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from './BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from './BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from './BaseFormGroupType'
+import BaseInputToggleNetworkFrom from './BaseInputToggleNetworkFrom'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
   BaseFormButtonBar                       as FormButtonBar,
-
+  BaseFormGroup                           as FormGroupContainer,
   BaseFormGroupToggleNYDefault            as FormGroupCliAccess,
   BaseFormGroupInputPassword              as FormGroupCliEnablePwd,
   BaseFormGroupInputPassword              as FormGroupCliPwd,
@@ -44,6 +47,7 @@ export {
   BaseFormGroupInput                      as FormGroupRoleMapVpn,
   BaseFormGroupInput                      as FormGroupRoleMapUrl,
   BaseFormGroupInput                      as FormGroupRoleMapVlan,
+  BaseFormGroupInput                      as FormGroupRoleMapInterface,
   BaseFormGroupInput                      as FormGroupSnmpAuthProtocolTrap,
   BaseFormGroupInputPassword              as FormGroupSnmpAuthPasswordTrap,
   BaseFormGroupInput                      as FormGroupSnmpCommunityRead,
@@ -70,16 +74,18 @@ export {
   BaseFormGroupInput                      as FormGroupUplink,
   BaseFormGroupToggleStaticDynamicDefault as FormGroupUplinkDynamic,
   BaseFormGroupToggleNYDefault            as FormGroupUseCoa,
-  BaseFormGroupToggleNYDefault            as FormGroupPushAcls,
+  BaseFormGroupToggleNYDefault            as FormGroupUsePushAcls,
   BaseFormGroupToggleNYDefault            as FormGroupUseDownloadableAcls,
   BaseFormGroupInput                      as FormGroupDownloadableAclsLimit,
   BaseFormGroupInput                      as FormGroupAclsLimit,
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
+  BaseFormGroupToggleNYDefault            as FormGroupToggleInterfaceMap,
   BaseFormGroupSwitch                     as FormGroupDeauthOnPrevious,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVpnMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleUrlMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVlanMap,
+  BaseFormGroupToggleNYDefault            as FormGroupToggleNetworkMap,
   BaseFormGroupToggleNYDefault            as FormGroupVoipEnabled,
   BaseFormGroupToggleNYDefault            as FormGroupVoipLldpDetect,
   BaseFormGroupToggleNYDefault            as FormGroupVoipCdpDetect,
@@ -88,6 +94,9 @@ export {
   BaseFormGroupInputPassword              as FormGroupWebServicesPwd,
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
+
+  BaseInput                               as InputRoleMapNetwork,
+  BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,
 
   BaseViewCollectionItem                  as BaseView,
   TheForm,

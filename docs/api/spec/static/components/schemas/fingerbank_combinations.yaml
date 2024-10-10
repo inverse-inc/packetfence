@@ -29,7 +29,6 @@ FingerbankCombination:
     # write-able
     device_id:
       type: string
-      required: true
     dhcp6_enterprise_id:
       type: string
       nullable: true
@@ -74,7 +73,6 @@ FingerbankCombinationDecorated:
     # write-able
     device_id:
       type: string
-      required: true
     dhcp6_enterprise_id:
       type: string
       nullable: true

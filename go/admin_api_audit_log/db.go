@@ -1,9 +1,10 @@
 package admin_api_audit_log
 
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"time"
+
+	_ "gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type AdminApiAuditLog struct {

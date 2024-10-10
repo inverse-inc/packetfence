@@ -38,7 +38,6 @@
 #     node_info.category
 #     node_info.mac
 #     node_info.last_arp
-#     node_info.lastskip
 #     node_info.last_dhcp
 #     node_info.user_agent
 #     node_info.computername
@@ -61,7 +60,7 @@
 #
 # For the options filter, you can use all the attributes you can have
 # in the DHCP request (run tcpdump to see what are the attributes)
-# 
+#
 # Operator can be:
 #     is
 #     is_not
@@ -109,7 +108,6 @@
 #                           'dhcp6_fingerprint' => '',
 #                           'category' => undef,
 #                           'mac' => '78:f8:82:9f:11:9d',
-#                           'lastskip' => '0000-00-00 00:00:00',
 #                           'last_dhcp' => '2018-10-22 12:23:20',
 #                           'user_agent' => 'Mozilla/5.0 (Linux; Android 8.1.0; Nexus 5X Build/OPM7.181005.003) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36',
 #                           'dhcp_fingerprint' => '1,3,6,15,26,28,51,58,59,43',

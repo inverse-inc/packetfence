@@ -72,8 +72,8 @@ func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
 			calls = append(
 				calls,
 				&PfqueueApiCall{
-					Method:   action.MethodName,
-					Params:   s.SplitPattern.Split(paramsString, -1),
+					Method: action.MethodName,
+					Params: s.SplitPattern.Split(paramsString, -1),
 				},
 			)
 		}
@@ -240,7 +240,7 @@ func NewGenericParser(config *PfdetectConfig) (Parser, error) {
 	}
 
 	return &GenericParser{
-		SplitPattern: genericSplitPatternRegex.Copy(),
+		SplitPattern: genericSplitPatternRegex,
 		Rules:        rules,
 		parser:       setupParser(config),
 	}, nil

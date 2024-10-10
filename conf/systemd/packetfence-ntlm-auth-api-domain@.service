@@ -1,0 +1,22 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence NTLM auth Backend API For Domain %i
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-httpd.portal.service
+Before=packetfence-docker-iptables.service
+
+[Service]
+Type=notify
+TimeoutStopSec=60
+NotifyAccess=all
+LimitNOFILE=8192
+ExecStart=/usr/local/pf/sbin/ntlm-auth-api-domain %i
+ExecStop=/bin/bash -c "docker stop ntlm-auth-api-%i; echo Stopped"
+Restart=on-failure
+Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/ntlm-auth-api-%i-systemd-notify.pid
+
+[Install]
+WantedBy=packetfence.target
+

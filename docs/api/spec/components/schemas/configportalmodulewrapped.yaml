@@ -1,7 +1,0 @@
-ConfigPortalModuleWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigPortalModule'
-    status:
-      type: integer
-  type: object

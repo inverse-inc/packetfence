@@ -63,7 +63,6 @@ my @ser_tests = TestUtils::get_all_serialized_unittests();
 # These tests just need to read pfconfig data so they can run in parallel
 #
 my @par_tests = (
-    'provisioner.t',
     @TestUtils::unit_tests,
     TestUtils::get_all_unittests(),
     @TestUtils::cli_tests,
@@ -137,7 +136,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

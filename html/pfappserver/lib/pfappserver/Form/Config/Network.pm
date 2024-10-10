@@ -83,6 +83,17 @@ has_field 'pool_backend' =>
    ],
    default => $pf::constants::dhcp::MEMORY_POOL,
   );
+has_field 'dhcp_reply_ip' =>
+  (
+   type => 'Select',
+   label => 'DHCP IP Reply',
+   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
+   options => [
+        { value => $pf::constants::dhcp::GIADDR, label => 'Relay agent IP address'},
+        { value => $pf::constants::dhcp::SRCIPDHCP, label => 'DHCP Source IP address'},
+   ],
+   default => $pf::constants::dhcp::GIADDR,
+  );
 has_field 'ip_reserved' =>
   (
    type => 'TextArea',
@@ -160,7 +171,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -321,7 +321,19 @@ has_field 'edir_source' =>
 
 sub options_domains {
     my $self = shift;
-    my @domains = map { $_->{id} => $_->{id} } @{$self->form->domains} if ($self->form->domains);
+    my %e;
+    map {
+        my $id;
+        if ($_->{id} =~ /^\S+\s+(\S+)$/) {
+            $id = $1
+        }
+        else {
+            $id = $_->{$id}
+        }
+        $e{$id} = 1
+    } @{$self->form->domains} if ($self->form->domains);
+
+    my @domains = map {$_ => $_} keys(%e);
     unshift @domains, ("" => "");
     return @domains;
 }
@@ -391,7 +403,7 @@ sub options_edir {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

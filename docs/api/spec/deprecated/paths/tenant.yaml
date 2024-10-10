@@ -6,6 +6,7 @@
     parameters:
     - in: path
       name: tenant_id
+      required: true
       schema:
         type: string
     responses:
@@ -19,6 +20,7 @@
     parameters:
     - in: path
       name: tenant_id
+      required: true
       schema:
         type: string
     responses:
@@ -27,9 +29,6 @@
           application/json:
             schema:
               description: Item
-              properties:
-                item:
-                  $ref: '#/components/schemas/Tenant'
               type: object
         description: Get item
       '400':
@@ -43,13 +42,9 @@
     parameters:
     - in: path
       name: tenant_id
+      required: true
       schema:
         type: string
-    requestBody:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Tenant'
     responses:
       '200':
         $ref: '#/components/responses/Message'
@@ -64,13 +59,9 @@
     parameters:
     - in: path
       name: tenant_id
+      required: true
       schema:
         type: string
-    requestBody:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Tenant'
     responses:
       '200':
         $ref: '#/components/responses/Message'

@@ -5,11 +5,5 @@ input:
 steps:
 - type: exec
   script: |
-    /usr/bin/rsync -avz -e "ssh -o StrictHostKeyChecking=no" {{.input.directory}} \
-    {{.ssh_user}}@{{.node01_mgmt_ip}}:/home/vagrant/
-
-- type: ssh
-  host: '{{.node01_mgmt_ip}}'
-  user: '{{.ssh_user}}'
-  command:  |
-    sudo cp -v /home/vagrant/{{.input.cn}}/* /etc/wpa_supplicant/eap_tls/
+    /usr/bin/rsync -avz --rsync-path="sudo rsync" -e "ssh -o StrictHostKeyChecking=no" {{.input.directory}}/* \
+    {{.ssh_user}}@{{.node01_mgmt_ip}}:/etc/wpa_supplicant/eap_tls/

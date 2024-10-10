@@ -4,6 +4,8 @@
 - import_playbook: playbooks/env_vars.yml
   tags: env
 
+- import_playbook: playbooks/increase_disk_size_pf.yml
+
 - import_playbook: playbooks/utils/psonoci.yml
 
 - import_playbook: playbooks/register_rhel_subscription.yml

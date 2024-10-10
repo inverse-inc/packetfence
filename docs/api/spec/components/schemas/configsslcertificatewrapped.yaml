@@ -1,7 +1,0 @@
-ConfigSSLCertificateWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigSSLCertificate'
-    status:
-      type: integer
-  type: object

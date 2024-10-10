@@ -1,7 +1,0 @@
-ConfigCloudWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigCloud'
-    status:
-      type: integer
-  type: object

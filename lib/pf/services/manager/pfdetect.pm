@@ -16,13 +16,17 @@ use strict;
 use warnings;
 use Moo;
 use pf::config qw(%ConfigDetect);;
+use pf::constants qw($TRUE $FALSE);
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfdetect' });
 
 sub _cmdLine { my $self = shift; $self->executable; }
 
-sub isManaged { keys(%ConfigDetect) > 0 }
+sub isManaged {
+    my ($self) = @_;
+    ($self->SUPER::isManaged && keys(%ConfigDetect) > 0) ? $TRUE : $FALSE
+}
 
 
 =head1 AUTHOR
@@ -32,7 +36,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

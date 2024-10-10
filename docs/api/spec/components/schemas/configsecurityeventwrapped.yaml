@@ -1,7 +1,0 @@
-ConfigSecurityEventWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigSecurityEvent'
-    status:
-      type: integer
-  type: object

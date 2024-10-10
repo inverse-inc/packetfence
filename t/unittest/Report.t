@@ -628,7 +628,7 @@ BEGIN {
                                 is_role   => $false,
                                 is_cursor   => ($_ eq 'mac' ? $true : $false),
                             }
-                        } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
+                        } qw(mac ip start_time pid detect_date regdate status user_agent computername notes last_arp last_dhcp os)
                     )
                 ],
                 default_start_date => undef,
@@ -660,7 +660,7 @@ BEGIN {
                                 is_role   => $false,
                                 is_cursor  => $false,
                             }
-                        } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
+                        } qw(mac ip start_time pid detect_date regdate status user_agent computername notes last_arp last_dhcp os)
                     )
                 ],
                 has_date_range => $false,
@@ -689,7 +689,7 @@ BEGIN {
                     end();
                 };
                 field columns => array {
-                    for my $c ( qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)) {
+                    for my $c ( qw(mac ip start_time pid detect_date regdate status user_agent computername notes last_arp last_dhcp os)) {
                         item hash {
                             field text      => $c;
                             field name      => $c;
@@ -724,7 +724,7 @@ BEGIN {
                     end();
                 };
                 field columns => array {
-                    for my $c ( qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)) {
+                    for my $c ( qw(mac ip start_time pid detect_date regdate status user_agent computername notes last_arp last_dhcp os)) {
                         item hash {
                             field text      => $c;
                             field name      => $c;
@@ -951,7 +951,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

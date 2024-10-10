@@ -132,8 +132,8 @@ sub isAlive {
     my $result;
     my $pid = $self->pid;
     my $_EXIT_CODE_EXISTS = "$EXIT_SUCCESS";
-    my $rules_applied = defined( pf_run( "sudo " . $Config{'services'}{"ip6tables_binary"} . " -S | grep " . $pf::ip6tables::FW_FILTER_INPUT_MGMT ,accepted_exit_status => [$_EXIT_CODE_EXISTS]) );
-    return ($pid && $rules_applied) ? $TRUE : $FALSE;
+    my $rules = safe_pf_run('sudo', $Config{'services'}{"ip6tables_binary"}, '-S') // '';
+    return ($pid && $rules =~ /\Q$pf::ip6tables::FW_FILTER_INPUT_MGMT\E/m) ? $TRUE : $FALSE;
 }
 
 =head1 AUTHOR
@@ -143,7 +143,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

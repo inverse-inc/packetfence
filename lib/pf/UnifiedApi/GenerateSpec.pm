@@ -23,17 +23,6 @@ our %FIELDS_TYPES_TO_SCHEMA_TYPES = (
 );
 use Lingua::EN::Inflexion qw(noun);
 
-sub formHandlerToSchema {
-    my ($form) = @_;
-    my $name = ref $form;
-    $name =~ s/^.*:://;
-    return {
-        $name => objectSchema($form),
-        "${name}List" => listSchema($name),
-        "${name}Meta" => metaSchema($form),
-    };
-}
-
 sub formsToSchema {
     my ($item_path, $forms) = @_;
     if (@$forms == 1) {
@@ -41,6 +30,66 @@ sub formsToSchema {
     }
 
     return subTypesSchema($item_path, @$forms);
+}
+
+sub formsToMetaSchemas {
+    my ($item_path, $forms) = @_;
+    my $meta_path = $item_path . 'Meta';
+
+    if (@$forms == 1) {
+        return {
+            $meta_path => {
+                type => 'object',
+                properties => {
+                    meta => {
+                        type => 'object',
+                        properties => formHandlerMetaProperties(@$forms)
+                    }
+                }
+            }
+        };
+    }
+
+    my %paths;
+    my $oneOf = [];
+    my %mapping;
+    while (my ($k, $form) = each @$forms) {
+        my $found = 0;
+        for my $field (grep { isSubTypeField($_) } $form->fields) {
+            $found = 1;
+            my $subTypeMetaPath = subTypePath($meta_path, $field->value);
+            $mapping{$field->value} = '#'  . $subTypeMetaPath;
+            push @$oneOf, { '$ref' => '#'  . $subTypeMetaPath };
+            $paths{$subTypeMetaPath} = {
+                type => 'object',
+                properties => {
+                    meta => {
+                        type => 'object',
+                        properties => formHandlerMetaProperties($form)
+                    }
+                },
+            };
+        }
+        if (!$found) {
+            $paths{$meta_path} = {
+                type => 'object',
+                properties => {
+                    meta => {
+                        type => 'object',
+                        properties => formHandlerMetaProperties($form)
+                    }
+                }
+            };
+        }
+    }
+    $paths{$item_path} = {
+        discriminator => {
+            mapping => \%mapping,
+            propertyName => 'type'
+        },
+        oneOf => [@$oneOf]
+    };
+    return \%paths;
 }
 
 sub formsToSubTypeSchemas {
@@ -87,7 +136,7 @@ sub subTypesSchema {
     return {
         description => 'Choose one of the request bodies by discriminator (`type`). ',
         oneOf => [
-            map { subTypeSchemaRef($item_path, $_, 1) } @forms
+            sort { $a->{'$ref'} cmp $b->{'$ref'} } map { subTypeSchemaRef($item_path, $_, 1) } @forms
         ],
         discriminator => {
             propertyName => 'type',
@@ -131,49 +180,23 @@ sub formHandlerProperties {
     for my $field (grep { isAllowedField($_) } $form->fields) {
         my $name = $field->name;
         $properties{$name} = fieldProperties($field);
-        $properties{$name}->{default} = $field->value;
         if ($is_subtype && $field->name eq 'type' && $field->value) {
+            $properties{$name}->{default} = $field->value;
             $properties{$name}->{description} = 'Discriminator `' . $field->value . '`';
-            $properties{$name}->{value} = $field->value;
         }
     }
-
     return \%properties;
 }
 
-sub subTypesMetaSchema {
-    my (@forms) = @_;
-    return {
-        oneOf => [
-            map { metaSchema($_) } @forms
-        ],
-        discriminator => {
-            propertyName => 'type',
-        }
-    };
-}
-
-sub formsToMetaSchema {
-    my ($forms) = @_;
-    if (@$forms == 1) {
-        return metaSchema(@$forms);
-    }
-
-    return subTypesMetaSchema(@$forms);
-}
-
-
-sub metaSchema {
+sub FormFieldsToUuid {
     my ($form) = @_;
-    return {
-        type => 'object',
-        properties => {
-            meta => {
-                type => 'object',
-                properties => formHandlerMetaProperties($form)
-            }
-        },
+    my @fields;
+    for my $field (grep { isAllowedField($_) } $form->fields) {
+        my $name = $field->name;
+        push @fields, $name;
     }
+    my @sorted = sort @fields;
+    return join(',', @sorted);
 }
 
 sub formHandlerMetaProperties {
@@ -193,7 +216,7 @@ sub fieldProperties {
     my ($field, $not_array) = @_;
     my %props = (
         type => fieldType($field, $not_array),
-        description => fieldDescription($field),
+        description => fieldDescription($field)
     );
     if ($props{type} eq 'array') {
         $props{items} = fieldArrayItems($field);
@@ -288,7 +311,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

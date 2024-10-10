@@ -12,6 +12,7 @@ Form definition to create or update a pfdetect detector.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfdetect';
+with qw(pfappserver::Base::Form::Role::PfdetectRateLimit);
 with 'pfappserver::Base::Form::Role::Help';
 use pfappserver::Form::Field::DynamicList;
 use pf::log;
@@ -80,7 +81,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

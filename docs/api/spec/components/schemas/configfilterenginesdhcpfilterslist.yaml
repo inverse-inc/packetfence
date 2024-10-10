@@ -1,9 +1,0 @@
-ConfigFilterEnginesDHCPFiltersList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigFilterEnginesDHCPFilter'
-        type: array
-    type: object

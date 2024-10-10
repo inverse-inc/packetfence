@@ -1,0 +1,43 @@
+[pxccluster]
+activeFailover = 1
+failBack = true
+checkTimeOut = 2000
+# debug = 1 //Deprecated: this is redundant and not in use
+mainSegment = 0
+#sslClient = "client-cert.pem"
+#sslKey = "client-key.pem"
+#sslCa = "ca.pem"
+#sslCertificatePath = "/opt/cert/ssl_test"
+hgW = 10
+hgR = 30
+ConfigHgRange=800
+maintenanceHgRange=900
+singlePrimary = true
+maxNumWriters = 1
+writerIsAlsoReader = 1
+retryUp = 0
+retryDown = 2
+clusterId = 10
+
+[proxysql]
+port = 6032
+host = "127.0.0.1"
+user = "admin"
+password = "admin"
+clustered = false
+lockfilepath ="/var/run/"
+
+
+[global]
+logLevel = "info"
+logTarget = "file" #stdout | file
+logFile = "/usr/local/pf/logs/pscheduler.log"
+daemonize = false
+daemonInterval = 2000
+performance = false
+OS = "na"
+lockfiletimeout = 60 #seconds
+lockclustertimeout = 600 #120 # seconds
+LockRefreshTime = 449
+mariaDB = true
+TrackDataBase = "[% database %]"

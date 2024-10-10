@@ -1,12 +1,12 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2023 Inverse inc.
+# Copyright (C) 2005-2024 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 13.0.0\n"
+"Project-Id-Version: 13.2.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2023-08-08 06:49-0400\n"
+"PO-Revision-Date: 2024-04-26 09:40-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -311,6 +311,7 @@ msgstr ""
 # html/captive-portal/templates/provisioner/dpsk.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
@@ -903,6 +904,7 @@ msgstr ""
 # html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid "Once the application is installed, click 'Continue' to activate your network connection"
@@ -1410,6 +1412,7 @@ msgid "To complete your network activation you need to install the Intune client
 msgstr ""
 
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 msgid "To complete your network activation you need to install the JAMF client."
 msgstr ""
 

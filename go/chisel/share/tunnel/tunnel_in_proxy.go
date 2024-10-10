@@ -16,12 +16,12 @@ import (
 const INACTIVITY_CHECK_INTERVAL = 60 * time.Second
 const LAST_TOUCHED_TIMEOUT = 10 * time.Second
 
-//sshTunnel exposes a subset of Tunnel to subtypes
+// sshTunnel exposes a subset of Tunnel to subtypes
 type sshTunnel interface {
 	getSSH(ctx context.Context) ssh.Conn
 }
 
-//Proxy is the inbound portion of a Tunnel
+// Proxy is the inbound portion of a Tunnel
 type Proxy struct {
 	*cio.Logger
 	sshTun     sshTunnel
@@ -34,7 +34,7 @@ type Proxy struct {
 	aliveConns int64
 }
 
-//NewProxy creates a Proxy
+// NewProxy creates a Proxy
 func NewProxy(logger *cio.Logger, sshTun sshTunnel, index int, remote *settings.Remote) (*Proxy, error) {
 	id := index + 1
 	p := &Proxy{
@@ -73,8 +73,8 @@ func (p *Proxy) listen() error {
 	return nil
 }
 
-//Run enables the proxy and blocks while its active,
-//close the proxy by cancelling the context.
+// Run enables the proxy and blocks while its active,
+// close the proxy by cancelling the context.
 func (p *Proxy) Run(ctx context.Context) error {
 	if p.remote.Stdio {
 		return p.runStdio(ctx)
@@ -101,6 +101,7 @@ func (p *Proxy) runStdio(ctx context.Context) error {
 
 func (p *Proxy) runTCP(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	done := make(chan struct{})
 	//implements missing net.ListenContext
 	go func() {
@@ -121,6 +122,7 @@ func (p *Proxy) runTCP(ctx context.Context) error {
 				select {
 				case <-ctx.Done():
 					//listener closed
+					p.Infof("listener closed", err)
 					err = nil
 				default:
 					p.Infof("Accept error: %s", err)
@@ -160,7 +162,6 @@ func (p *Proxy) runTCP(ctx context.Context) error {
 				}
 
 				p.Infof("Closing due to inactivity timeout")
-				cancel()
 				p.tcp.Close()
 				return nil
 			}
@@ -179,7 +180,7 @@ func (p *Proxy) pipeRemote(ctx context.Context, src io.ReadWriteCloser) {
 	l.Debugf("Open")
 	sshConn := p.sshTun.getSSH(ctx)
 	if sshConn == nil {
-		l.Debugf("No remote connection")
+		l.Errorf("No remote connection")
 		return
 	}
 	//ssh request for tcp connection for this proxy's remote

@@ -208,29 +208,6 @@ CHECK PROCESS packetfence-pfpki MATCHING "pfpki"
     stop program  = "/usr/local/pf/bin/pfcmd service pfpki stop"
     if 3 restarts within 10 cycles then alert
 
-[% IF DOMAINS.size > 0 %]
-CHECK PROCESS packetfence-winbind MATCHING "winbindd-wrapper"
-    group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service winbindd restart" with timeout 60 seconds
-    stop program = "/usr/local/pf/bin/pfcmd service winbindd stop"
-    if 3 restarts within 10 cycles then alert
-
-[% FOREACH domain IN DOMAINS.keys %]
-CHECK PROCESS packetfence-winbind-[% domain %] MATCHING "/usr/sbin/winbindd -s /etc/samba/[% domain %].conf -l /var/log/samba[% domain %] --foreground"
-    group PacketFence
-    if changed ppid then alert
-    depends on packetfence-winbind
-
-CHECK PROGRAM packetfence-ntlm-[% domain %] with path "/usr/bin/timeout 5 /usr/sbin/ip netns exec [% domain %] /usr/sbin/chroot /chroots/[% domain %]/ /usr/bin/wbinfo -P"
-    group PacketFence
-    # There is no need to start the program, the winbindd-wrapper takes care of it if this gets stopped
-    start program = "/bin/true" with timeout 60 seconds
-    stop program  = "/bin/bash -c 'export pid=`cat /usr/local/pf/var/run/[% domain %]/winbindd.pid` ; pkill -9 -P $pid ; kill -9 $pid'"
-    if status == 124 for 3 cycles then restart # (30 seconds being down)
-    every 5 cycles # every 10 seconds (if 1 cycle is 2 seconds)
-[% END %]
-
-[% END %]
 
 check program monitoring-mysql-connections with path /usr/local/pf/addons/monit/monitoring-scripts/monitor_mysql_connections.pl
     group OS

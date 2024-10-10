@@ -1,0 +1,16 @@
+fingerbank for Debian
+----------------------
+
+Once inside a fingerbank git repository[1] checkout, get the source tarball with:
+
+  $ git archive <branch or tag> --prefix fingerbank_<version>/ -o "fingerbank_<version>.tar.gz"
+
+Into debian/:
+
+  $ dpkg-buildpackage -rfakeroot
+
+[1]: https://github.com/inverse-inc/fingerbank/
+
+ -- Fabrice Durand <fdurand@inverse.ca>  Wed, 09 Apr 2015 16:36:28 -0400
+
+

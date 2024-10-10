@@ -1,0 +1,31 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=ntlm-auth-api
+
+conf_dir="/usr/local/pf/var/conf/${name}.d/"
+
+env_file="$1.env"
+IDENTIFIER=$1
+
+if [ -z "$env_file" ]; then
+    echo "Env file for domain $1 not found."
+    exit 1
+fi
+
+source "$conf_dir$env_file"
+
+echo "Starting ntlm auth api for domain: $1"
+
+args=$(base_args "${name}-${IDENTIFIER}")
+args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
+args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
+args="$args -v /usr/local/pf/var/conf:/usr/local/pf/var/conf"
+args="$args -v /var/log:/var/log:ro"
+args="$args -p $LISTEN:$LISTEN"
+args="$args -e LISTEN=$LISTEN"
+args="$args -e IDENTIFIER=$IDENTIFIER"
+
+run_multi "$name" "$IDENTIFIER" "$args"
+echo "Done with ntlm auth api for domain $1"

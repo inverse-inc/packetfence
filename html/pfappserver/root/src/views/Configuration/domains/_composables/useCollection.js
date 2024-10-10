@@ -23,7 +23,7 @@ export const useItemTitle = (props) => {
 export const useServices = () => computed(() => {
   return {
     message: i18n.t('Joining or unjoining a Domain requires a restart of services to be fully effective.'),
-    services: ['radiusd-auth'],
+    services: ['radiusd-auth', 'ntlm-auth-api'],
     system_services: [],
     k8s_services: [],
     systemd: false
@@ -60,14 +60,49 @@ export const useSearch = makeSearch('domains', {
       visible: true
     },
     {
+      key: 'dns_name',
+      label: 'DNS name', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'server_name',
+      label: 'Server name', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'ad_fqdn',
+      label: 'AD FQDN', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'ad_server',
+      label: 'AD IPv4', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'nt_key_cache_enabled',
+      label: 'NT Key Cache', // i18n defer
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'ntlm_cache',
       label: 'NTLM Cache', // i18n defer
       sortable: true,
       visible: true
     },
     {
-      key: 'joined',
-      label: 'Domain Join', // i18n defer
+      key: 'domain_joined',
+      label: 'Domain Joined', // i18n defer
+      sortable: true,
       visible: true
     },
     {

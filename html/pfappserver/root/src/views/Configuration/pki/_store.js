@@ -31,13 +31,21 @@ import {
   mutations as mutationsRevokedCerts
 } from './revokedCerts/_store'
 
+import {
+  state as stateScepServers,
+  getters as gettersScepServers,
+  actions as actionsScepServers,
+  mutations as mutationsScepServers
+} from './scepServers/_store'
+
 // Default values
 const state = () => {
   return {
     ...stateCas(),
     ...stateProfiles(),
     ...stateCerts(),
-    ...stateRevokedCerts()
+    ...stateRevokedCerts(),
+    ...stateScepServers()
   }
 }
 
@@ -46,23 +54,26 @@ const getters = {
   ...gettersProfiles,
   ...gettersCerts,
   ...gettersRevokedCerts,
+  ...gettersScepServers,
 
-  isWaiting: state => [types.LOADING, types.DELETING].includes(state.caStatus) || [types.LOADING, types.DELETING].includes(state.profileStatus) || [types.LOADING, types.DELETING].includes(state.certStatus) || [types.LOADING, types.DELETING].includes(state.revokedCertStatus),
-  isLoading: state => state.caStatus === types.LOADING || state.profileStatus === types.LOADING || state.certStatus === types.LOADING || state.revokedCertStatus === types.LOADING
+  isWaiting: state => [types.LOADING, types.DELETING].includes(state.caStatus) || [types.LOADING, types.DELETING].includes(state.profileStatus) || [types.LOADING, types.DELETING].includes(state.certStatus) || [types.LOADING, types.DELETING].includes(state.revokedCertStatus) || [types.LOADING, types.DELETING].includes(state.scepServerStatus),
+  isLoading: state => state.caStatus === types.LOADING || state.profileStatus === types.LOADING || state.certStatus === types.LOADING || state.revokedCertStatus === types.LOADING || state.scepServerStatus === types.LOADING
 }
 
 const actions = {
   ...actionsCas,
   ...actionsProfiles,
   ...actionsCerts,
-  ...actionsRevokedCerts
+  ...actionsRevokedCerts,
+  ...actionsScepServers
 }
 
 const mutations = {
   ...mutationsCas,
   ...mutationsProfiles,
   ...mutationsCerts,
-  ...mutationsRevokedCerts
+  ...mutationsRevokedCerts,
+  ...mutationsScepServers
 }
 
 export default {

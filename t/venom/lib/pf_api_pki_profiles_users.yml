@@ -40,7 +40,7 @@ steps:
       "state": "{{.input.state}}",
       "locality": "{{.input.locality}}",
       "ocsp_url": "{{.input.ocsp_url}}",
-      "scep_enabled": "{{.input.scep_enabled}}",
+      "scep_enabled": {{.input.scep_enabled}},
       "scep_challenge_password": "{{.input.scep_challenge_password}}",
       "scep_days_before_renewal": "{{.input.scep_days_before_renewal}}"
     }

@@ -1,0 +1,29 @@
+Source: fingerbank
+Section: net
+Priority: optional
+Maintainer: Inverse inc. <info@inverse.ca>
+Build-Depends: debhelper (>= 7.0.50~), curl
+Standards-Version: 3.8.4
+Vcs-Git: git://github.com/inverse-inc/fingerbank.git
+Vcs-Browser: https://github.com/inverse-inc/fingerbank/
+Homepage: http://www.fingerbank.org/
+
+Package: fingerbank
+Architecture: all
+Depends: ${misc:Depends},
+ perl, curl, make,
+ libcatalyst-perl (>= 5.90011), libcatalyst-modules-perl,
+ libaliased-perl, libmoosex-types-loadableclass-perl,
+ libconfig-general-perl,libreadonly-xs-perl, 
+ liblog-log4perl-perl (>=1.43),libcatalyst-action-rest-perl,
+ libdbd-sqlite3-perl, liblwp-protocol-https-perl, sqlite3,
+ libdata-powerset-perl,
+ liblwp-protocol-connect-perl,
+ libjson-perl,
+ libsql-translator-perl, libfile-touch-perl, libconfig-inifiles-perl (>= 2.88),
+ fingerbank-collector (>= 1.2.0),
+Description: fingerbank
+ No! Fingerbank is not an organ bank for nice fingers ;)
+ It is a database for device fingerprinting based on different properties
+ (DHCP fingerprints, DHCP vendors, OUI, user-agents, ...) allowing your
+ applications to fully detect then handle a custom workflow based on the device type.

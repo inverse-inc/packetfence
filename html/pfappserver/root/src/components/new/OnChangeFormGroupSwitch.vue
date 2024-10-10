@@ -31,7 +31,7 @@
 <script>
 import {useFormGroupProps} from '@/composables/useFormGroup'
 import BaseFormGroup from './BaseFormGroup'
-import BaseInputSwitch from './BaseInputSwitch.vue'
+import BaseInputSwitch from './BaseInputSwitch'
 
 const components = {
   BaseFormGroup,
@@ -60,6 +60,10 @@ export const props = {
     default: false,
     type: Boolean
   },
+  text: {
+    type: String
+  },
+
   ...useFormGroupProps,
 }
 

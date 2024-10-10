@@ -17,6 +17,7 @@ export {
   BaseFormGroupSwitch as FormGroupCentralizeVips,
   BaseFormGroupIntervalUnit as FormGroupConflictResolutionThreshold,
   BaseFormGroupSwitch as FormGroupDnsOnVipOnly,
+  BaseFormGroupSwitch as FormGroupFirewallSsoOnManagement,
   BaseFormGroupSwitch as FormGroupGatewayOnVipOnly,
   BaseFormGroupSwitch as FormGroupGaleraReplication,
   BaseFormGroupInput as FormGroupGaleraReplicationUsername,

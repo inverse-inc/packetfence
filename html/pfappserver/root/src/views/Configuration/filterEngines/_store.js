@@ -119,7 +119,7 @@ const actions = {
       })
     })
   },
-  options: ({ state, commit, dispatch }, { collection, id }) => {
+  options: ({ state, commit, dispatch }, { collection, id, type }) => {
     return dispatch('getCollection', collection).then(() => {
       if (id) {
         commit('ITEM_REQUEST')
@@ -133,7 +133,7 @@ const actions = {
         })
       } else {
         commit('ITEM_REQUEST')
-        return apiFactory({ collection }).listOptions().then(response => {
+        return apiFactory({ collection }).listOptions({ type }).then(response => {
           commit('ITEM_SUCCESS')
           return response
         }).catch(err => {

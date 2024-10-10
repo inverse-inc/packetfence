@@ -2,7 +2,7 @@ package pf::UnifiedApi::Controller::Config::Switches;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::Switches - 
+pf::UnifiedApi::Controller::Config::Switches -
 
 =cut
 
@@ -28,6 +28,7 @@ use pf::ConfigStore::SwitchGroup;
 use pfappserver::Form::Config::Switch;
 use pf::db;
 use List::Util qw(first);
+use pf::constants qw($TRUE $FALSE);
 
 BEGIN {
     local $pf::db::NO_DIE_ON_DBH_ERROR = 1;
@@ -52,6 +53,24 @@ sub invalidate_cache {
     return $self->render(status => 200, json => { });
 }
 
+=head2 precreate_acls
+
+precreate switch ACLs
+
+=cut
+
+sub precreate_acls {
+    my ($self) = @_;
+    my $switch_id = $self->id;
+    my $switch = pf::SwitchFactory->instantiate($switch_id);
+    unless ( ref($switch) ) {
+        return $self->render_error(422, "Cannot instantiate switch $switch");
+    }
+
+    $switch->generateACL();
+    return $self->render(status => 200, json => { });
+}
+
 sub id {
     my ($self) = @_;
     my $id = $self->SUPER::id();
@@ -60,16 +79,24 @@ sub id {
 }
 
 sub post_update {
-    my ($self, $switch_id) = @_;
+    my ($self, $switch_id, $old) = @_;
     my $switch = pf::SwitchFactory->instantiate($switch_id);
     if ($switch) {
-        $switch->generateAnsibleConfiguration();
+        $switch->generateAnsibleConfiguration($old,$FALSE);
     }
 }
 
 sub post_create {
-    my ($self, $switch_id) = @_;
-    $self->post_update($switch_id);
+    my ($self, $switch_id, $old) = @_;
+    $self->post_update($switch_id, $old);
+}
+
+sub pre_remove {
+    my ($self, $switch_id, $old) = @_;
+    my $switch = pf::SwitchFactory->instantiate($switch_id);
+    if ($switch) {
+        $switch->generateAnsibleConfiguration($old,$TRUE);
+    }
 }
 
 =head2 standardPlaceholder
@@ -103,14 +130,20 @@ sub cleanup_options {
     my $accessListMapping = $placeholder->{AccessListMapping};
     my $urlMapping = $placeholder->{UrlMapping};
     my $vpnMapping = $placeholder->{VpnMapping};
+    my $interfaceMapping = $placeholder->{InterfaceMapping};
     my $roleMapping = $placeholder->{ControllerRoleMapping};
+    my $networkMapping = $placeholder->{NetworkMapping};
+    my $networkMappingFrom = $placeholder->{NetworkMappingFrom};
     for my $a (@{$allowed_roles}) {
         my $r = $a->{value};
         $meta->{"${r}Vlan"} = mapping_meta($r, $vlanMapping, 'vlan', $self->json_false);
         $meta->{"${r}AccessList"} = mapping_meta($r, $accessListMapping, 'accesslist', $self->json_false);
         $meta->{"${r}Url"} = mapping_meta($r, $urlMapping, 'url', $self->json_false);
         $meta->{"${r}Vpn"} = mapping_meta($r, $vpnMapping, 'vpn', $self->json_false);
+        $meta->{"${r}Interface"} = mapping_meta($r, $interfaceMapping, 'interface', $self->json_false);
         $meta->{"${r}Role"} = mapping_meta($r, $roleMapping, 'controller_role', $self->json_false);
+        $meta->{"${r}Network"} = mapping_meta($r, $networkMapping, 'network', $self->json_false);
+        $meta->{"${r}NetworkFrom"} = mapping_meta($r, $networkMappingFrom, 'networkfrom', $self->json_false);
     }
 }
 
@@ -130,13 +163,32 @@ sub mapping_placeholder {
     return defined $m ? $m->{$f} : undef;
 }
 
+sub validate_item {
+    my ($self, $item) = @_;
+    return 422, { message => "Duplicate interface detected" }, undef if $self->_duplicate_item($item);
+    return $self->SUPER::validate_item($item);
+}
+
+sub _duplicate_item {
+    my ($self, $item) = @_;
+    my @interfaces;
+    foreach my $entry (@{$item->{'InterfaceMapping'}}) {
+        push(@interfaces, split(',',$entry->{'interface'})) if (defined $entry->{'interface'});
+    }
+    my %duplicated;
+    foreach my $interface (@interfaces) {
+       next unless $duplicated{$interface}++;
+       return 1;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -81,12 +81,14 @@ sub authorize {
 
     #use Data::Dumper;
     #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
-    $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = '';
+    $RAD_REQUEST{"PacketFence-NTLM-Auth-Host"} = '';
+    $RAD_REQUEST{"PacketFence-NTLM-Auth-Port"} = '';
 
     if( defined($realm_config) && defined($realm_config->{domain}) ) {
         # We have found this realm in PacketFence. We use the domain associated with it for the authentication
         $RAD_REQUEST{"PacketFence-Domain"} = $realm_config->{domain};
-        $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlmv2_only} ? '--allow-mschapv2' : '';
+        $RAD_REQUEST{"PacketFence-NTLM-Auth-Host"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlm_auth_host};
+        $RAD_REQUEST{"PacketFence-NTLM-Auth-Port"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlm_auth_port};
     }
 
 
@@ -214,7 +216,7 @@ L<http://wiki.freeradius.org/Rlm_perl>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -112,21 +112,21 @@ testcases:
   - type: exec
     script: |
       openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.radius.cn}}.p12 -cacerts -nokeys \
-      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.ca.cn}}.crt -passin pass:secret
+      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.ca.cn}}.crt -passin pass:secret $(. /etc/os-release; if [ "${ID}_${VERSION_ID%.*}" != "rhel_8" ]; then echo "-legacy"; fi)
 
 - name: extract_radius_certificate
   steps:
   - type: exec
     script: |
       openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.radius.cn}}.p12 -clcerts -nokeys \
-      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.radius.cn}}.crt -passin pass:secret
+      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.radius.cn}}.crt -passin pass:secret $(. /etc/os-release; if [ "${ID}_${VERSION_ID%.*}" != "rhel_8" ]; then echo "-legacy"; fi)
 
 - name: extract_radius_key
   steps:
   - type: exec
     script: |
       openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.radius.cn}}.p12 -nocerts -nodes \
-      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.radius.cn}}.key -passin pass:secret
+      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.radius.cn}}.key -passin pass:secret $(. /etc/os-release; if [ "${ID}_${VERSION_ID%.*}" != "rhel_8" ]; then echo "-legacy"; fi)
 
 - name: install_ca_cert
   steps:
@@ -219,21 +219,21 @@ testcases:
   - type: exec
     script: |
       openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.http.cn}}.p12 -cacerts -nokeys \
-      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.ca.cn}}.crt -passin pass:secret
+      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.ca.cn}}.crt -passin pass:secret $(. /etc/os-release; if [ "${ID}_${VERSION_ID%.*}" != "rhel_8" ]; then echo "-legacy"; fi)
 
 - name: extract_http_certificate
   steps:
   - type: exec
     script: |
       openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.http.cn}}.p12 -clcerts -nokeys \
-      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.http.cn}}.crt -passin pass:secret
+      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.http.cn}}.crt -passin pass:secret $(. /etc/os-release; if [ "${ID}_${VERSION_ID%.*}" != "rhel_8" ]; then echo "-legacy"; fi)
 
 - name: extract_http_key
   steps:
   - type: exec
     script: |
       openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.http.cn}}.p12 -nocerts -nodes \
-      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.http.cn}}.key -passin pass:secret
+      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.http.cn}}.key -passin pass:secret $(. /etc/os-release; if [ "${ID}_${VERSION_ID%.*}" != "rhel_8" ]; then echo "-legacy"; fi)
 
 - name: install_http_cert_portal
   steps:
@@ -276,7 +276,7 @@ testcases:
         "state": "{{.wired_dot1x_eap_tls_scep.certs.state}}",
         "locality": "{{.wired_dot1x_eap_tls_scep.certs.locality}}",
         "ocsp_url": "{{.wired_dot1x_eap_tls_scep.certs.ocsp_url}}",
-        "scep_enabled": "{{.wired_dot1x_eap_tls_scep.certs.user.scep_enabled}}",
+        "scep_enabled": {{.wired_dot1x_eap_tls_scep.certs.user.scep_enabled}},
         "scep_challenge_password": "{{.wired_dot1x_eap_tls_scep.certs.user.scep_challenge_password}}",
         "scep_days_before_renewal": "{{.wired_dot1x_eap_tls_scep.certs.user.scep_days_before_renewal}}"
       }

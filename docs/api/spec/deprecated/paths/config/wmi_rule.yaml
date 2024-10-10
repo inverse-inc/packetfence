@@ -6,6 +6,7 @@
     parameters:
     - in: path
       name: wmi_rule_id
+      required: true
       schema:
         type: string
     responses:
@@ -19,6 +20,7 @@
     parameters:
     - in: path
       name: wmi_rule_id
+      required: true
       schema:
         type: string
     responses:
@@ -39,6 +41,7 @@
     parameters:
     - in: path
       name: wmi_rule_id
+      required: true
       schema:
         type: string
     requestBody:
@@ -58,6 +61,7 @@
     parameters:
     - in: path
       name: wmi_rule_id
+      required: true
       schema:
         type: string
     requestBody:

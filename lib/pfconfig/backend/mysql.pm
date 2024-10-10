@@ -39,6 +39,16 @@ sub _get_db {
     my ($self) = @_;
     my $logger = get_logger;
 
+    my $last_failed_time = $self->{_last_failed_time};
+    if (defined $last_failed_time ) {
+        my $diff = time() - $last_failed_time;
+        if ($diff < 5) {
+            $diff = 5 - $diff;
+            $logger->error("Retry connections in $diff");
+            return undef;
+        }
+    }
+
     my $self_dbh_valid = 0;
     eval {
         $self_dbh_valid = (defined $self->{_db} && $self->{_db}->ping);
@@ -46,12 +56,15 @@ sub _get_db {
     if($@) {
         $logger->error("DB handler is unable to ping the DB, reconnecting...");
     }
+
     if($self_dbh_valid) {
         return $self->{_db};
     }
 
+    $self->{_db} = undef;
+
+    $self->{_last_failed_time} = undef;
     $logger->info("Connecting to MySQL database");
-    
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
     eval {
@@ -59,9 +72,11 @@ sub _get_db {
             $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1 } );
     };
     if($@) {
+        $self->_set_last_failed_time();
         $logger->error("Caught error $@ while connecting to database.");
         return undef;
     }
+
     $self->{_db} = $db;
     $self->{_table} = $cfg->{table} // 'keyed';
     return $db;
@@ -91,6 +106,7 @@ sub db_readonly_mode {
     };
     if($@) {
         $logger->error("Cannot connect to database to see if its in read-only mode. Will consider it in read-only.");
+        $self->_set_last_failed_time();
         return 1;
     }
     # If readonly no need to check wsrep health
@@ -139,7 +155,19 @@ Handle a database error
 sub _db_error {
     my ($self) = @_;
     my $logger = get_logger;
+    if (!$self->{_last_failed_time}) {
+        $self->{_db} = undef;
+        $self->{_last_failed_time} = time();
+    }
     $logger->error("Couldn't connect to MySQL database to access L2. This is a major problem ! Check the MySQL section in /usr/local/pf/conf/pfconfig.conf and make sure your database schema is up to date !");
+}
+
+sub _set_last_failed_time {
+    my ($self) = @_;
+    if (!$self->{_last_failed_time}) {
+        $self->{_db} = undef;
+        $self->{_last_failed_time} = time();
+    }
 }
 
 =head2 get
@@ -318,7 +346,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

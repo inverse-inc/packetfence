@@ -261,7 +261,7 @@ sub field_list {
                     type => 'PathUpload',
                     accessor => $old_name,
                     config_prefix => $doc_section->{ext},
-                    upload_namespace => $name,
+                    upload_namespace => 'pf',
                 };
             };
         }
@@ -441,7 +441,7 @@ sub get_sms_source_ids {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

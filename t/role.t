@@ -70,7 +70,7 @@ my $mock_security_event = new Test::MockModule('pf::security_event');
 # mocked node_attributes returns security_event node
 $mock->mock('node_attributes', sub {
     return { mac => 'bb:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
-        lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
+        status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, }
 });
 $mock_security_event->mock('security_event_count_reevaluate_access', sub { return (1); });
@@ -86,7 +86,7 @@ $mock_security_event->mock('security_event_count_reevaluate_access', sub { retur
 # mocking used node method calls
 $mock->mock('node_exist', sub { return (1); });
 my $node_attributes = { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
-        lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
+        status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1 };
 
 # TODO: complete the test suite with more tests above the other cases
@@ -96,14 +96,14 @@ $role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $swit
 is($role->{vlan}, '1', "determine vlan for registered user on custom switch");
 
 $node_attributes = { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
-        lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
+        status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => '', };
 
 $role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001', node_info => $node_attributes, profile => $profile});
 is($role->{role}, 'default', "determine role for registered user on custom switch");
 
 $node_attributes = { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
-        lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
+        status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => '', bypass_role => 'normal'};
 
 $role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001', node_info => $node_attributes, profile => $profile });
@@ -111,14 +111,14 @@ is($role->{role}, 'normal', "determine bypass_role for registered user on custom
 
 # mocked node_attributes returns unreg node
 $node_attributes = { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
-        lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
+        status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1,};
 
 $role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001', node_info => $node_attributes, profile => $profile});
 is($role->{role}, 'registration', "obtain registrationVlan for an unreg node");
 
 $node_attributes =  { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
-        lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
+        status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, };
 
 $role = $role_obj->filterVlan('RegistrationRole',{ switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'OPEN'});
@@ -180,7 +180,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

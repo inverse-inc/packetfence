@@ -22,7 +22,6 @@ pfcmd <command> [options]
   fixpermissions              | fix permissions on pf tree
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
   generatedockeriptables      | generate and apply the rules for docker images
-  generatedomainconfig        | generate the domain configuration
   generatemariadbconfig       | generate the MariaDB configuration
   generatemonitconfig         | generate the monit configuration
   generatesyslogconfig        | generate the syslog configuration
@@ -67,7 +66,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

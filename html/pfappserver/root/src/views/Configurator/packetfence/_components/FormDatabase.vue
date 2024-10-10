@@ -23,6 +23,13 @@
         :isLoading="isLoading"
         :readonly="disabled"
       >
+        <form-group-automatic-configuration
+          v-model="remoteDatabase"
+          :column-label="$i18n.t('Remote Database')"
+          :text="$i18n.t('Use a remote MySQL compatible database.')"
+        />
+
+
         <form-group-automatic-configuration v-if="rootPasswordIsRequired && setRootPassword && !rootPasswordIsValid && (!databaseExists || !userIsValid)"
           v-model="automaticConfiguration"
           :column-label="$i18n.t('Automatic Configuration')"
@@ -179,6 +186,61 @@
 
       </base-form>
     </b-form>
+
+    <!--
+      remote database
+      -->
+    <b-modal v-model="remoteDatabaseModal" size="lg" centered id="remoteDatabaseModal" hide-header-close
+      :title="$t('Remote MySQL Database')"
+      @cancel="remoteDatabaseCancel"
+    >
+      <b-alert variant="danger" v-model="remoteDatabaseTestError" fade>
+        <p>{{ remoteDatabaseTestMessage }}</p>
+      </b-alert>
+
+      <base-form ref="remoteDatabaseRef"
+        :form="remoteDatabaseForm"
+        :schema="remoteDatabaseSchema"
+        :isLoading="remoteDatabaseLoading"
+        :readonly="remoteDatabaseDisabled"
+      >
+        <base-form-group-input namespace="username"
+          :column-label="$i18n.t('Privileged user name')"
+          :text="$i18n.t('This user requires SUPER priviliges.')"
+          :disabled="remoteDatabaseDisabled"
+        />
+        <base-form-group-input-password namespace="password"
+          :column-label="$i18n.t('Privileged user password')"
+          :disabled="remoteDatabaseDisabled"
+        />
+        <base-form-group-chosen-one namespace="encryption"
+          :column-label="$i18n.t('Encryption type')"
+          :text="$i18n.t('Only secure connections are supported.')"
+          :disabled="remoteDatabaseDisabled"
+          :options="[
+            { text: 'TLS', value: 'tls' }
+          ]"
+        />
+        <base-form-group-textarea-upload namespace="ca_cert"
+          :column-label="$i18n.t('CA certificate')"
+          :text="$i18n.t('Click the upload icon on the right-side to choose the CA certificate from disk.')"
+          :disabled="remoteDatabaseDisabled"
+        />
+        <base-form-group-input namespace="hostname"
+          :column-label="$i18n.t('Server hostname')"
+          :text="$i18n.t('FQDN or IPv4.')"
+          :disabled="remoteDatabaseDisabled"
+        />
+        <base-form-group-input-number namespace="port"
+          :column-label="$i18n.t('Server port')"
+          :disabled="remoteDatabaseDisabled"
+        />
+      </base-form>
+      <template v-slot:modal-footer>
+        <b-button variant="secondary" class="mr-1" @click="remoteDatabaseCancel">{{ $t('Cancel') }}</b-button>
+        <b-button variant="primary" :disabled="!remoteDatabaseValid" @click="remoteDatabaseTest">{{ $t('Test') }}</b-button>
+      </template>
+    </b-modal>
   </b-card>
 </template>
 <script>
@@ -190,10 +252,13 @@ import {
 
   BaseForm,
   BaseFormGroup,
+  BaseFormGroupChosenOne,
   BaseFormGroupInput,
+  BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupInputPasswordGenerator,
   BaseFormGroupInputPasswordTest,
+  BaseFormGroupTextareaUpload,
   BaseFormGroupToggleFalseTrue,
   BaseInput,
   BaseInputGroupPassword,
@@ -205,10 +270,14 @@ const components = {
   BaseForm,
   BaseFormGroup,
   FormGroupAutomaticConfiguration:  BaseFormGroupToggleFalseTrue,
+  FormGroupRemoteDatabase:          BaseFormGroupToggleFalseTrue,
+  BaseFormGroupChosenOne,
   BaseFormGroupInput,
+  BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupInputPasswordGenerator,
   BaseFormGroupInputPasswordTest,
+  BaseFormGroupTextareaUpload,
   BaseInput,
   BaseInputGroupPassword,
   BaseInputGroupPasswordGenerator
@@ -220,11 +289,12 @@ const props = {
   }
 }
 
-import { computed, inject, ref } from '@vue/composition-api'
+import { computed, inject, ref, watch } from '@vue/composition-api'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import password from '@/utils/password'
 import yup from '@/utils/yup'
+import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 
 const passwordOptions = {
   pwlength: 16,
@@ -286,17 +356,17 @@ export const setup = (props, context) => {
       form.value.db = DEFAULT_DATABASE
     if (!user)
       form.value.user = DEFAULT_USERNAME
-    $store.dispatch('$_bases/testDatabase', { username: 'root' }).then(() => {
+    $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value }).then(() => {
       setRootPassword.value = true // root has no password -- installation is insecure
       automaticConfiguration.value = true // enable automatic configuration
-      $store.dispatch('$_bases/testDatabase', { username: 'root', database: form.value.db }).then(() => {
+      $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, database: form.value.db }).then(() => {
         databaseExists.value = true // database exists
       })
     }).catch(() => {
       // noop
     }).finally(() => {
       // Check if user credentials are valid
-      $store.dispatch('$_bases/testDatabase', { username: form.value.user, password: form.value.pass, database: form.value.db }).then(() => {
+      $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, username: form.value.user, password: form.value.pass, database: form.value.db }).then(() => {
         databaseExists.value = true
         userIsValid.value = true
         rootPasswordIsRequired.value = false // we no longer need the root password
@@ -315,7 +385,7 @@ export const setup = (props, context) => {
     form.value.root_pass = password.generate(passwordOptions)
     return secureDatabase().then(() => {
       const databaseReady = new Promise((resolve, reject) => {
-        $store.dispatch('$_bases/testDatabase', { username: 'root', password: form.value.root_pass, database: form.value.db }).then(() => {
+        $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, username: "root", password: form.value.root_pass, database: form.value.db }).then(() => {
           databaseExists.value = true // database exists
           resolve()
         }).catch(() => {
@@ -329,7 +399,7 @@ export const setup = (props, context) => {
           if (form.value.pass) {
             reject()
           } else {
-            $store.dispatch('$_bases/testDatabase', { username: form.value.user, password: form.value.pass, database: form.value.db }).then(() => {
+            $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, username: form.value.user, password: form.value.pass, database: form.value.db }).then(() => {
               databaseExists.value = true
               userIsValid.value = true
               resolve()
@@ -346,9 +416,14 @@ export const setup = (props, context) => {
   }
 
   const secureDatabase = () => {
-    return $store.dispatch('$_bases/secureDatabase', { username: 'root', password: form.value.root_pass }).then(() => {
-      rootPasswordIsValid.value = true
-    })
+    // secure install only localdb (remotedb disabled)
+    if(!remoteDatabase.value) {
+      return $store.dispatch('$_bases/secureDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, username: 'root', password: form.value.root_pass }).then(() => {
+        rootPasswordIsValid.value = true
+      })
+    }
+    // remotedb enabled
+    return new Promise(r => r)
   }
 
   const canCreateDatabase = computed(() => {
@@ -362,6 +437,8 @@ export const setup = (props, context) => {
     isCreatingDatabase.value = true
     databaseCreationError.value = null
     return $store.dispatch('$_bases/createDatabase', {
+      is_remote: remoteDatabase.value,
+      remote: remoteDatabaseForm.value,
       username: 'root',
       password: form.value.root_pass,
       database: form.value.db
@@ -397,8 +474,10 @@ export const setup = (props, context) => {
     isCreatingUser.value = true
     userCreationError.value = null
     return $store.dispatch('$_bases/assignDatabase', {
-      root_username: 'root',
-      root_password: form.value.root_pass,
+      is_remote: remoteDatabase.value,
+      remote: remoteDatabaseForm.value,
+      username: 'root',
+      password: form.value.root_pass,
       pf_username: form.value.user,
       pf_password: form.value.pass,
       database: form.value.db
@@ -474,11 +553,11 @@ export const setup = (props, context) => {
   const isVerifyingRootPassword = ref(false)
   const onVerifyRootPassword = () => {
     isVerifyingRootPassword.value = true
-    return $store.dispatch('$_bases/testDatabase', { username: 'root', password: form.value.root_pass })
+    return $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, password: form.value.root_pass })
       .then(() => {
         rootPasswordIsValid.value = true
         rootPasswordIsUnverified.value = false
-        $store.dispatch('$_bases/testDatabase', { username: 'root', password: form.value.root_pass, database: form.value.db || DEFAULT_DATABASE })
+        $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value, password: form.value.root_pass, database: form.value.db || DEFAULT_DATABASE })
           .then(() => {
             databaseExists.value = true // database exists
           })
@@ -495,6 +574,67 @@ export const setup = (props, context) => {
     databaseVersion.value = db_version
   })
   _getSystemSummary()
+
+  const remoteDatabase = ref(false)
+  const remoteDatabaseModal = ref(false)
+  const _remoteDatabaseForm = {
+    username: 'root',
+    port: 3306
+  }
+  const remoteDatabaseForm = ref({ ..._remoteDatabaseForm })
+  const remoteDatabaseSchema = computed(() => {
+    return yup.object({
+      username: yup.string().nullable()
+        .required(i18n.t('Privileged user name required.')),
+      password: yup.string().nullable()
+        .required(i18n.t('Privileged user password required.')),
+      encryption: yup.string().nullable()
+        .required(i18n.t('Database client encryption type required.')),
+      ca_cert: yup.string().nullable(),
+      hostname: yup.string().nullable()
+        .required(i18n.t('Server hostname required.'))
+        .isHostname(),
+      port: yup.string().nullable()
+        .required(i18n.t('Server port required.'))
+        .isPort(),
+    })
+  })
+  const remoteDatabaseLoading = ref(false)
+  const remoteDatabaseDisabled = ref(false)
+  watch(remoteDatabase, toggle => {
+    remoteDatabaseForm.value.is_remote = toggle
+    if (toggle) {
+      remoteDatabaseModal.value = true
+    }
+    else {
+      remoteDatabaseModal.value = false
+      remoteDatabaseForm.value = { ..._remoteDatabaseForm } // reset (dereferenced)
+    }
+  }, { immediate: true })
+  const remoteDatabaseCancel = () => {
+    remoteDatabase.value = false
+  }
+  const remoteDatabaseTestError = ref(false)
+  const remoteDatabaseTestMessage = ref('')
+  const remoteDatabaseTest = () => {
+    remoteDatabaseLoading.value = true
+    remoteDatabaseTestError.value = false
+    remoteDatabaseTestMessage.value = undefined
+    $store.dispatch('$_bases/testDatabase', { is_remote: remoteDatabase.value, remote: remoteDatabaseForm.value })
+      .then(() => {
+        remoteDatabaseModal.value = false
+      })
+      .catch(error => {
+        const { response: { data: { message = '' } = {} } = {} } = error
+        remoteDatabaseTestError.value = true
+        remoteDatabaseTestMessage.value = message
+      })
+      .finally(() => {
+        remoteDatabaseLoading.value = false
+      })
+  }
+  const remoteDatabaseRef = ref(null)
+  const remoteDatabaseValid = useDebouncedWatchHandler([remoteDatabaseForm, remoteDatabaseModal], () => (!remoteDatabaseRef.value || remoteDatabaseRef.value.$el.querySelectorAll('.is-invalid').length === 0))
 
   return {
     form,
@@ -528,7 +668,21 @@ export const setup = (props, context) => {
     canCreateUser,
     onCreateUser: assignDatabase,
     isCreatingUser,
-    userCreationError
+    userCreationError,
+
+    remoteDatabase,
+    remoteDatabaseModal,
+    remoteDatabaseForm,
+    remoteDatabaseSchema,
+    remoteDatabaseLoading,
+    remoteDatabaseDisabled,
+    remoteDatabaseCancel,
+    remoteDatabaseTest,
+    remoteDatabaseTestError,
+    remoteDatabaseTestMessage,
+    remoteDatabaseRef,
+    remoteDatabaseValid,
+
   }
 }
 

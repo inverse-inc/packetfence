@@ -6,6 +6,7 @@
     parameters:
     - in: path
       name: certificate_id
+      required: true
       schema:
         type: string
         enum:
@@ -36,10 +37,12 @@
     parameters:
     - in: query
       name: domain
+      required: true
       schema:
         type: string
     responses:
       '200':
+        description: Request successful.
         content:
           application/json:
             schema:
@@ -61,6 +64,7 @@
     parameters:
     - in: path
       name: certificate_id
+      required: true
       schema:
         type: string
         enum:
@@ -91,6 +95,7 @@
     parameters:
     - in: path
       name: certificate_id
+      required: true
       schema:
         type: string
         enum:
@@ -98,11 +103,11 @@
           - radius
     responses:
       '200':
+        description: Request successful.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ConfigCertificate'
-        description: Item
       '401':
         $ref: '#/components/responses/Unauthorized'
       '404':
@@ -117,6 +122,7 @@
     parameters:
     - in: path
       name: certificate_id
+      required: true
       schema:
         type: string
         enum:
@@ -124,6 +130,7 @@
           - radius
     - in: query
       name: check_chain
+      required: true
       schema:
         type: string
         enum:
@@ -156,6 +163,7 @@
     parameters:
     - in: path
       name: certificate_id
+      required: true
       schema:
         type: string
         enum:
@@ -163,11 +171,11 @@
           - radius
     responses:
       '200':
+        description: Request successful.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ConfigCertificateInfo'
-        description: Item
       '401':
         $ref: '#/components/responses/Unauthorized'
       '404':

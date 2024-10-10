@@ -1,6 +1,0 @@
-name: Sleep some time
-testcases:
-- name: sleep_some_time
-  steps:
-  - type: sleep
-    time_to_sleep: 20

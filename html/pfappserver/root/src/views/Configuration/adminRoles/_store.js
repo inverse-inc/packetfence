@@ -42,7 +42,8 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
+      fields: ['id'].join(','),
+      limit: 1000
     }
     return api.list(params).then(response => {
       return response.items

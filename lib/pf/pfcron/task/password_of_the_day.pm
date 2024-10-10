@@ -25,6 +25,7 @@ use DateTime;
 use DateTime::Format::MySQL;
 use pf::log;
 use pf::I18N;
+use DateTime::TimeZone;
 pf::I18N::setup_text_domain();
 
 extends qw(pf::pfcron::task);
@@ -37,14 +38,18 @@ run the password generation task
 
 sub run {
     my ( $self ) = @_;
-    my $now = DateTime->now(time_zone => "local");
+    my $tz = $ENV{TZ} || DateTime::TimeZone->new( name => 'local' )->name();
+    my $now = DateTime->now(time_zone => $tz);
     my $logger = get_logger();
     my $sources = pf::authentication::getAuthenticationSourcesByType("Potd");
     my $new_password;
     foreach my $source (@{$sources}) {
         unless (person_exist($source->{id})) {
             $logger->info("Create Person $source->{id}");
-            person_add($source->{id}, (potd => 'yes'));
+            my $return = person_add($source->{id}, (potd => 'yes'));
+            if ($return == 2 ) {
+                next;
+            }
             $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0',$source);
             $self->send_email(pid => $source->{id}, password => $new_password, email => $source->{password_email_update}, expiration => pf::config::access_duration($source->{password_rotation}));
             next;
@@ -53,7 +58,7 @@ sub run {
         if(defined($password)){
             my $expiration = $password->{expiration};
             $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
-            $expiration->set_time_zone("local");
+            $expiration->set_time_zone($tz);
             if ( $now->epoch > $expiration->epoch) {
                 $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0',$source);
                 $self->send_email(pid => $source->{id},password => $new_password, email => $source->{password_email_update}, expiration => pf::config::access_duration($source->{password_rotation}));
@@ -87,7 +92,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -110,7 +110,7 @@ bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 
 bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
-	$(CC) -g -std=c99 -Wall $< -o $@
+	$(CC) -g -std=c99 -Wall $< -o $@ -lcurl -lcjson
 
 src/mariadb_udf/pf_udf.so: src/mariadb_udf/pf_udf.c $(PF_UDF_OBJ)
 	$(CC) -O2 -Wall -g $$(pkg-config libmariadb --cflags) -fPIC -shared -o $@ $< $(PF_UDF_OBJ)
@@ -271,7 +271,7 @@ npm_clean:
 dist: distclean
 	mkdir -p packetfence-$(PF_PATCH_RELEASE)
 	# preserve, recursive and symlinks
-	cp -pRH $(files_to_include) packetfence-$(PF_PATCH_RELEASE)
+	cp -pRH $(files_to_include) $(SRC_ROOT_DIR)/.dockerignore packetfence-$(PF_PATCH_RELEASE)
 	tar c --exclude-from=$(SRC_ROOT_DIR)/dist_ignore \
 	-f packetfence-$(PF_PATCH_RELEASE).tar packetfence-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-$(PF_PATCH_RELEASE)
@@ -376,4 +376,5 @@ material:
 html/captive-portal/profile-templates/default/logo.png:
 	mkdir -p html/captive-portal/profile-templates/default
 	cp html/common/packetfence-cp.png /usr/local/pf/html/captive-portal/profile-templates/default/logo.png
+
 

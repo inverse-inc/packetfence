@@ -17,11 +17,15 @@ use warnings;
 use base qw(Exporter);
 use Readonly;
 
-our @EXPORT_OK = qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT $UNKNOWN);
+our @EXPORT_OK = qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT $UNKNOWN $API $REEVALUATE $DHCP $ACCOUNTING);
 
 Readonly::Scalar our $SYSLOG_TRANSPORT => "syslog";
 Readonly::Scalar our $HTTP_TRANSPORT => "http";
 Readonly::Scalar our $UNKNOWN => "unknown";
+Readonly::Scalar our $API => "api";
+Readonly::Scalar our $REEVALUATE => "reevaluate";
+Readonly::Scalar our $DHCP => "DHCP";
+Readonly::Scalar our $ACCOUNTING => "accounting";
 
 Readonly::Scalar our $FIREWALL_TYPES => [
     "BarracudaNG",
@@ -45,7 +49,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -47,6 +47,11 @@
                              namespace="category"
         />
 
+    <form-group-rules :column-label="$i18n.t('Rules')"
+                     :text="$i18n.t('Rules to apply.')"
+                     namespace="rules"
+    />
+
         <form-group-ssid :column-label="$i18n.t('SSID')"
                          namespace="ssid"
         />
@@ -71,7 +76,7 @@
 
         <form-group-dpsk v-if="wantsDpsk"
                          :column-label="$i18n.t('Enable DPSK')"
-                         :text="$i8n.t('Define if the PSK needs to be generated.')"
+                         :text="$i18n.t('Define if the PSK needs to be generated.')"
                          disabled-value="0"
                          enabled-value="1"
                          namespace="dpsk"
@@ -155,6 +160,7 @@ import {
   FormGroupPkiProvider,
   FormGroupPrivateKey,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupSecurityType,
   FormGroupServerCertificatePath,
   FormGroupSsid
@@ -183,6 +189,7 @@ const components = {
   FormGroupPkiProvider,
   FormGroupPrivateKey,
   FormGroupRoleToApply,
+  FormGroupRules,
   FormGroupSecurityType,
   FormGroupServerCertificatePath,
   FormGroupSsid

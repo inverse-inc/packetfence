@@ -7,7 +7,14 @@
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
-        <b-button variant="outline-primary" @click="goToNew({ collection: collection.collection })">{{ $t('New Filter') }}</b-button>
+        <b-dropdown v-if="types.length"
+          :text="$t('New Filter')" variant="outline-primary">
+          <b-dropdown-item v-for="type in types" :key="type.value"
+            :to="{ name: 'newFilterEngineSubType', params: { collection: collection.collection, type: type.value } }"
+          >{{ type.text }}</b-dropdown-item>
+        </b-dropdown>
+        <b-button v-else
+          variant="outline-primary" @click="goToNew({ collection: collection.collection })">{{ $t('New Filter') }}</b-button>
       </base-search>
       <base-table-sortable ref="tableRef"
         :busy="isLoading"
@@ -124,6 +131,7 @@ import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
 import { apiFactory } from '../_api'
 import { useSearch, useStore, useRouter } from '../_composables/useCollection'
+import { provisioningTypes } from '../../provisioners/config'
 
 const setup = (props, context) => {
 
@@ -167,7 +175,8 @@ const setup = (props, context) => {
 
   const {
     deleteItem,
-    sortItems
+    sortItems,
+    getItemOptions
   } = useStore($store)
 
   const onRemove = id => {
@@ -181,6 +190,20 @@ const setup = (props, context) => {
       .then(() => reSearch())
   }
 
+
+  const types = ref([])
+  getItemOptions(collection.value)
+    .then(filterEngineOptions => {
+      const { meta: { type: { allowed: filterEngineTypes = [] } = {} } = {} } = filterEngineOptions
+      types.value = filterEngineTypes
+        // friendly names
+        .map(({ value }) => {
+          return { text: provisioningTypes[value] || value, value }
+        })
+        // sorted by locale
+        .sort((a,b) => a.text.localeCompare(b.text))
+    })
+
   return {
     useSearch,
     tableRef,
@@ -190,7 +213,8 @@ const setup = (props, context) => {
     goToPreview,
     onBulkExport,
     onRemove,
-    onSorted
+    onSorted,
+    types,
   }
 }
 

@@ -1,9 +1,0 @@
-ConfigDomainsList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigDomain'
-        type: array
-    type: object

@@ -5,5 +5,3 @@ user_id:
   description: The users `PRIMARY_KEY`
   schema:
     type: string
-
-

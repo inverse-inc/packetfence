@@ -18,13 +18,15 @@ endif::[]
 
 //== Authentication Mechanisms
 
-This section details most of the authentication mechasnisms supported by PacketFence. It walks you through the required steps to properly use an authentication mechanism on your captive portal, for example. For Public Key Infrastructure (PKI) integration, please refer to the PKI Integration section from this document.
+This section details most of the authentication mechanisms supported by PacketFence. It walks you through the required steps to properly use an authentication mechanism on your captive portal, for example. For Public Key Infrastructure (PKI) integration, please refer to the PKI Integration section from this document.
 
 === Microsoft Active Directory (AD)
 
 Go in the Administration interface under _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_.
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
+
+NOTE: If you are running a windows server earlier than *Windows Server 2008* as a domain controller, you'll need to upgrade your windows server. From PacketFence 13.1, we use secure channel to perform ntlm authentication, it is only supported in windows server 2008 and later.
 
 Click *New Domain* and fill in the information about your domain.
 
@@ -37,23 +39,34 @@ Where :
 * *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
 * *This server's name* is the name that the server's account will have in your Active Directory.
 * *Sticky DC* is the preferred domain controller to connect to.
-* *Active Directory server* is the IP or DNS name of one of the DC of the domain.
+* *Active Directory FQDN* FQDN of the Domain Controller.
+* *Active Directory IP* IP Address of the Domain Controller.
 * *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
 * *OU* is the OU in the Active Directory where you want to create your computer account.
-* *ntlmv2 only* forces the NTLNM authentication (802.1X on AD) to use the NTLM version 2.
+* *Machine account password* password of server's account in your Active Directory
 * *Allow on registration* would allow devices in the registration network to communicate with the DC.
+
+You can always check your domain settings by running `net config workstation` on your domain controller.
+form the output,
+
+* _Full Computer Name_ is for *Active Directory FQDN*,
+* _Workstation Domain DNS Name_ is for *DNS name of the domain*
+* _Workstation domain_ is for *Workgroup*
+
 
 NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
 
+NOTE: If you are using PacketFence in cluster mode, you must save the domain settings on *each* of the nodes by given the same *clear-text* machine account password. By default, PacketFence will only save the NT hash of the machine account password, and it will be shown in Admin UI. However, PacketFence won't be able to create a machine account using a password hash. In order to keep the domain settings identical on all the nodes, you'll have to type in the same clear-text machine account password on each of the node and save them.
+
+NOTE: after version 14.0, the PacketFence domain.conf will be updated, domain identifier is changed from previously single identifier to "hostname + identifier". If you are running PacketFence in a cluster, please check the corresponding sections for each node.
+
 ==== Troubleshooting
 
-* In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
+* In order to troubleshoot unsuccessful binds, please refer to the following file : `/usr/local/pf/log/packetfence.log`. Search for "ntlm-auth-api-domain" for all ntlm-auth-api entries.
 
-* You can validate the domain bind using the following command : `chroot /chroots/<mydomain> wbinfo -u`
+* you can check the service status and journal log using `journalctl -f -u packetfence-ntlm-auth-api-domain@[domain_id]` for domain specific logs. Replace [domain_id] with your domain
 
-* You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
-
-NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting. Also try reloading the page in the GUI since in some case the browser side of the ajax call may time out while the join actually succeeds.
+* You can test the authentication process using the following command `/usr/local/pf/bin/ntlm_auth_wrapper --username=administrator`
 
 ==== Default Domain Configuration
 

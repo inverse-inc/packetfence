@@ -59,8 +59,12 @@ sub do_sso {
         $username = $node->{pid};
     }
     my ($stripped_username, $realm) = pf::util::strip_username($username);
+    my $apiClient = pf::api::unifiedapiclient->management_client;
+    if (!pf::util::isenabled($Config{'active_active'}{'firewall_sso_on_management'})) {
+        $apiClient = pf::api::unifiedapiclient->default_client;
+    }
 
-    pf::api::unifiedapiclient->management_client->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
+    $apiClient->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
         ip                => $postdata{ip},
         mac               => $mac,
         # All values must be string for pfsso
@@ -74,6 +78,7 @@ sub do_sso {
         device_class      => $node->{device_class} || $UNKNOWN,
         device_type       => $node->{device_type} || $UNKNOWN,
         computername      => $node->{computername} || $UNKNOWN,
+        source            => ($postdata{source} // "" ) ."",
     });
 
     return $TRUE;
@@ -88,7 +93,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

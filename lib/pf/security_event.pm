@@ -454,11 +454,15 @@ sub security_event_add {
         ticket_ref   => $data{ticket_ref},
         notes        => $data{notes}
     });
+
+    my $extra = undef;
+    $extra->{fleetdm} = $data{fleetdm} if defined($data{fleetdm});
+    $extra->{fleetdm_json_text} = $data{fleetdm_json_text} if defined($data{fleetdm_json_text});
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
         $logger->info("security event $security_event_id added for $mac as $data{status}");
         if($data{status} eq 'open') {
-            pf::action::action_execute( $mac, $security_event_id, $data{notes} );
+            pf::action::action_execute( $mac, $security_event_id, $data{notes} , $extra);
             security_event_post_open_action($mac, $security_event_id);
         }
         return ($last_id);
@@ -555,18 +559,18 @@ sub info_for_security_event_engine {
     my $last_ip = pf::ip4log::mac2ip($mac) || 0;
 
     my $info = {
-      device_id => $device_id,
-      dhcp_fingerprint_id => $results->{dhcp_fingerprint},
-      dhcp_vendor_id => $results->{dhcp_vendor},
-      dhcp6_fingerprint_id => $results->{dhcp6_fingerprint},
-      dhcp6_enterprise_id => $results->{dhcp6_enterprise},
-      mac => $mac,
-      mac_vendor_id => $mac_vendor_id,
-      last_switch => $node_info->{'last_switch'},
-      role => $node_info->{category},
-      last_vlan => $node_info->{last_vlan},
-      last_ip => $last_ip,
-      last_accounting_events => $accounting_history,
+        device_id              => $device_id,
+        dhcp_fingerprint_id    => $results->{dhcp_fingerprint},
+        dhcp_vendor_id         => $results->{dhcp_vendor},
+        dhcp6_fingerprint_id   => $results->{dhcp6_fingerprint},
+        dhcp6_enterprise_id    => $results->{dhcp6_enterprise},
+        mac                    => $mac,
+        mac_vendor_id          => $mac_vendor_id,
+        last_switch            => $node_info->{'last_switch'},
+        role                   => $node_info->{category},
+        last_vlan              => $node_info->{last_vlan},
+        last_ip                => $last_ip,
+        last_accounting_events => $accounting_history,
     };
 
     my $trigger_info = $pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
@@ -691,6 +695,8 @@ sub security_event_trigger {
         $data{'release_date'} = $date;
 
         $data{'notes'} = $argv->{'notes'} if defined($argv->{'notes'});
+        $data{'fleetdm'} = $argv->{'fleetdm'} if defined($argv->{'fleetdm'});
+        $data{'fleetdm_json_text'} = $argv->{'fleetdm_json_text'} if defined($argv->{'fleetdm_json_text'});
 
         $logger->info("calling security_event_add with security_event_id=$security_event_id mac=$mac release_date=$date (trigger ${type}::${tid})");
         security_event_add($mac, $security_event_id, %data);
@@ -1042,7 +1048,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

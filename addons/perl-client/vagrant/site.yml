@@ -1,0 +1,15 @@
+---
+- hosts: dev
+  name: install fingerbank development packages
+  become: True
+  collections:
+    - debops.debops
+    - debops.roles01
+    - debops.roles02
+    - debops.roles03
+
+  roles:
+    - role: apt_preferences
+      when: ansible_os_family == 'Debian'
+
+    - role: inverse_inc.gitlab_buildpkg_tools

@@ -210,7 +210,6 @@ sub listScanEngines {
 
     my $req = HTTP::Request->new(GET => $self->buildApiUri("scan_engines"));
     my $response = $self->doRequest($req);
-    
     return $response->is_success ? decode_json($response->decoded_content)->{"resources"} : undef;
 }
 
@@ -423,7 +422,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

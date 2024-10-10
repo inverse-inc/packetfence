@@ -10,7 +10,6 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 type DbTokenBackend struct {
@@ -21,7 +20,6 @@ type DbTokenBackend struct {
 }
 
 func NewDbTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) TokenBackend {
-	pfconfigdriver.PfconfigPool.AddStruct(context.Background(), &pfconfigdriver.Config.PfConf.Database)
 	return &DbTokenBackend{
 		inActivityTimeout: expiration,
 		maxExpiration:     maxExpiration,
@@ -156,8 +154,8 @@ func (tb *DbTokenBackend) TouchTokenInfo(token string) {
 	}
 }
 
-func (tb *DbTokenBackend) AdminActionsForToken(token string) map[string]bool {
-	return AdminActionsForToken(tb, token)
+func (tb *DbTokenBackend) AdminActionsForToken(ctx context.Context, token string) map[string]bool {
+	return AdminActionsForToken(ctx, tb, token)
 }
 
 var _ TokenBackend = (*DbTokenBackend)(nil)

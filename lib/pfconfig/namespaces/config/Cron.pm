@@ -59,6 +59,11 @@ sub build_child {
                 next;
             }
 
+            if ($key eq 'filter_events' || $key eq 'heuristics') {
+                $task_data->{$key} += 0;
+                next;
+            }
+
             if ($key =~ /batch$/) {
                 $task_data->{$key} += 0;
             }
@@ -71,6 +76,9 @@ sub build_child {
         }
 
         $task_data->{interval} = $interval;
+        if (exists $task_data->{kafka_brokers}) {
+            $task_data->{kafka_brokers} = [split(/\s*,\s*/, $task_data->{kafka_brokers})];
+        }
     }
 
     return $tmp_cfg;
@@ -83,7 +91,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

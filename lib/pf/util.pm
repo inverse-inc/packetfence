@@ -47,17 +47,20 @@ use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
 use Net::Ping;
+use Net::DNS;
 use Crypt::OpenSSL::X509;
 use Date::Parse;
 use pf::CHI;
 use pf::constants qw($DIR_MODE);
+use IPC::Open3;
+use Symbol qw(gensym);
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        valid_date valid_ip valid_ips reverse_ip clean_ip
+        valid_date valid_ip valid_ips valid_ip_fqdn valid_fqdn reverse_ip clean_ip
         clean_mac valid_mac mac2nb macoui2nb format_mac_for_acct format_mac_as_cisco
         ip2int int2ip sort_ip
         isenabled isdisabled isempty
@@ -120,6 +123,7 @@ BEGIN {
         strip_path_for_git_storage
         chown_pf
         norm_net_mask
+        safe_pf_run
     );
 }
 
@@ -163,6 +167,7 @@ sub valid_date {
 our $VALID_IP_REGEX = qr/^(?:\d{1,3}\.){3}\d{1,3}$/;
 our $VALID_IPS_REGEX = qr/^((?:\d{1,3}\.){3}\d{1,3},*)+?$/;
 our $NON_VALID_IP_REGEX = qr/^(?:0\.){3}0$/;
+our $VALID_FQDN_REGEX = qr/(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)/;
 
 sub valid_ip {
     my ($ip) = @_;
@@ -184,6 +189,29 @@ sub valid_ips {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
         $logger->debug("invalid IPs: $ip from $caller");
+        return (0);
+    } else {
+        return (1);
+    }
+}
+
+sub valid_ip_fqdn {
+    my ($id) = @_;
+    if (valid_ip($id)) {
+        return (1);
+    } elsif(valid_fqdn($id)) {
+        return (1);
+    }
+    return (0);
+}
+
+sub valid_fqdn {
+    my ($fqdn) = @_;
+    my $logger = get_logger();
+    if ( !$fqdn || $fqdn !~ $VALID_FQDN_REGEX) {
+        my $caller = ( caller(1) )[3] || basename($0);
+        $caller =~ s/^(pf::\w+|main):://;
+        $logger->debug("invalid FQDN: $fqdn from $caller");
         return (0);
     } else {
         return (1);
@@ -542,7 +570,7 @@ fix the file permissions of the files
 
 sub fix_file_permissions {
     my ($file) = @_;
-    pf_run("sudo PF_GID='$pf::constants::user::PF_GID' PF_UID='$pf::constants::user::PF_UID' /usr/local/pf/bin/pfcmd fixpermissions file '$file'");
+    safe_pf_run('sudo', "PF_GID=$pf::constants::user::PF_GID", "PF_UID=$pf::constants::user::PF_UID", '/usr/local/pf/bin/pfcmd', 'fixpermissions', 'file', $file);
 }
 
 =item fix_files_permissions
@@ -552,7 +580,7 @@ Fix the files permissions
 =cut
 
 sub fix_files_permissions {
-    pf_run("sudo PF_GID='$pf::constants::user::PF_GID' PF_UID='$pf::constants::user::PF_UID' /usr/local/pf/bin/pfcmd fixpermissions");
+    safe_pf_run('sudo', "PF_GID=$pf::constants::user::PF_GID", "PF_UID=$pf::constants::user::PF_UID", '/usr/local/pf/bin/pfcmd', 'fixpermissions');
 }
 
 sub parse_template {
@@ -924,6 +952,139 @@ sub pf_run {
 
     chdir $switch_back_wd if(defined($switch_back_wd));
     return;
+}
+
+=item safe_pf_run ( BINARY, @ARGS ,\%OPTIONS )
+
+Execute a system command but check the return status and log anything not normal.
+
+Returns output in list or string based on context (like backticks does ``)
+but returns undef on a failure. Non-zero exit codes are considered failures.
+
+Does not enforce any security. Callers should take care of string sanitization.
+
+Takes an optional hash that offers additional options. For now,
+accepted_exit_status => arrayref allows the command to succeed and a proper
+value being returned if the exit status is mentionned in the arrayref. For
+example: accepted_exit_status => [ 1, 2, 3] will allow the process to exit
+with code 1, 2 or 3 without reporting it as an error.
+
+=cut
+
+sub safe_pf_run {
+    my ($bin, @args) = @_;
+    no warnings qw(once);
+    my $logger = get_logger();
+    my $options = {};
+    my ($switch_back_wd);
+    my ($chld_out, $chld_in, $chld_err);
+    $chld_err = gensym;
+    if (@args && ref($args[-1])) {
+        $options = pop @args;
+    }
+
+    my $stdin = $options->{stdin};
+    if ($stdin) {
+        open(IN_PF_RUN, '<', $stdin) or die "cannot open $stdin: $!";
+        $chld_in = '<&IN_PF_RUN';
+    }
+
+    my $stdout = $options->{stdout};
+    if ($stdout) {
+        my $mode = $options->{stdout_append} ? '>>' : '>';
+        open(OUT_PF_RUN, $mode, $stdout) or die "cannot open $stdout $!";
+        $chld_out = '>&OUT_PF_RUN';
+    }
+
+    my $redirect_stderr_to_stdout = $options->{redirect_stderr_to_stdout};
+    if ($redirect_stderr_to_stdout) {
+        if ($chld_out) {
+            $chld_err = $chld_out;
+        } else {
+            $chld_out = $chld_err;
+        }
+    }
+
+    if (defined($options->{working_directory})) {
+        $switch_back_wd = getcwd();
+        chdir $options->{working_directory};
+    }
+
+    local $?;
+    local $!;
+    local $ENV{LANG} = 'C';
+    my $pid = eval {open3($chld_in, $chld_out, $chld_err, $bin, @args)};
+    if ($@) {
+        chdir $switch_back_wd if defined($switch_back_wd);
+        if (defined($options->{log_strip})) {
+            $@ =~ s/$options->{log_strip}/*obfuscated-information*/g;
+        }
+
+        $logger->error($@);
+        my $want = wantarray;
+        return if (not defined $want); # void context
+        return if $want; # list context
+        return undef; # scalar context
+    }
+
+    waitpid($pid, 0);
+    my $status = $?;
+    my $out;
+    if (!$stdout) {
+        $out = do {
+            local $/ = undef;
+            my $o = <$chld_out>;
+            $o
+        };
+    }
+
+    chdir $switch_back_wd if defined($switch_back_wd);
+    if ($status == 0) {
+        my $want = wantarray;
+        return if (not defined $want); # void context
+        return split /(?<=\n)/, $out if $want; # list context
+        return $out; # scalar context
+    }
+
+    my $exception = $!;
+    my $caller = ( caller(1) )[3] || basename($0);
+    $caller =~ s/^(pf::\w+|main):://;
+    my $loggable_command = join(" ", $bin, @args);
+
+    if(defined($options->{log_strip})){
+        $loggable_command =~ s/$options->{log_strip}/*obfuscated-information*/g;
+    }
+
+    if ($status == -1) {
+        $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception");
+        return;
+    }
+
+    if ($status & 127) {
+        my $signal = ($status & 127);
+        my $with_core = ($status & 128) ? 'with' : 'without';
+        $logger->warn(
+            "Problem trying to run command: $loggable_command called from $caller. "
+            . "Child died with signal $signal $with_core coredump."
+        );
+        return 
+    }
+    my $exit_status = $status >> 8;
+    # user specified that this error code is ok
+    if (grep { $_ == $exit_status } @{$options->{'accepted_exit_status'} // []}) {
+        # we accept the result
+        my $want = wantarray;
+        return if (not defined $want); # void context
+        return split /(?<=\n)/, $out if $want; # list context
+        return $out; # scalar context
+    }
+
+    $logger->warn(
+        "Problem trying to run command: $loggable_command called from $caller. "
+        . "Child exited with non-zero value $exit_status"
+    );
+
+    return 
 }
 
 =item generate_id
@@ -1472,9 +1633,9 @@ sub find_outgoing_interface {
     my @interface_src;
 
     if (defined $dev) {
-        @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway iif $dev"));
+        @interface_src = split(" ", safe_pf_run(qw(sudo ip route get 8.8.8.8 from), $gateway, 'iif', $dev));
     } else {
-        @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
+        @interface_src = split(" ", safe_pf_run(qw(sudo ip route get 8.8.8.8 from), $gateway));
     }
 
     if ($interface_src[3] eq 'via') {
@@ -1494,7 +1655,7 @@ sub find_outgoing_srcip {
     my ($target) = @_;
     my @src_ip;
 
-    @src_ip = split(" ", pf_run("sudo ip route get $target"));
+    @src_ip = split(" ", safe_pf_run(qw(sudo ip route get), $target));
 
     if ($src_ip[1] eq 'via') {
         return $src_ip[6];
@@ -1753,6 +1914,42 @@ sub resolve {
     return \@addresses;
 }
 
+sub dns_resolve {
+    (my $q, my $dns, my $domain) = @_;
+    unless (defined($domain)) {
+        $domain = "";
+    }
+
+    my @dns_servers = split(',', $dns);
+
+    my $resolver = Net::DNS::Resolver->new(
+        nameservers => \@dns_servers,
+        domain      => $domain,
+        recurse     => 1,
+        timeout     => 3,
+        # debug       => 1
+    );
+
+    my $query = $resolver->search($q);
+
+    unless (defined($query)) {
+        return (undef, undef, $resolver->errorstring)
+    }
+
+    my $hostname;
+    my $ip;
+    foreach my $rr ($query->answer) {
+        if ($rr->type eq 'PTR') {
+            $hostname = $rr->ptrdname;
+        }
+
+        if ($rr->type eq 'A') {
+            $ip = $rr->address;
+        }
+    }
+    return ($hostname, $ip, "");
+}
+
 sub random_mac {
     return clean_mac(unpack("h*", pack("S", int(rand(65536)))) . unpack("h*", pack("N", $$ + rand(2147352576))));
 }
@@ -1789,7 +1986,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

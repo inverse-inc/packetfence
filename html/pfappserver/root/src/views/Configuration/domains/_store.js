@@ -4,7 +4,6 @@
 import Vue from 'vue'
 import { types } from '@/store'
 import { computed } from '@vue/composition-api'
-import store from '@/store' // required for 'pfqueue'
 import api from './_api'
 
 export const useStore = $store => {
@@ -21,6 +20,7 @@ export const useStore = $store => {
     getItemOptions: params => $store.dispatch('$_domains/options', params.id),
     updateItem: params => $store.dispatch('$_domains/updateDomain', params),
     deleteItem: params => $store.dispatch('$_domains/deleteDomain', params.id),
+    testItem: params => $store.dispatch('$_domains/testMachineAccount', params)
   }
 }
 
@@ -28,7 +28,6 @@ export const useStore = $store => {
 const state = () => {
   return {
     cache: {}, // items details
-    joins: {}, // domain join details
     message: '',
     itemStatus: ''
   }
@@ -36,8 +35,7 @@ const state = () => {
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
-  isLoading: state => state.itemStatus === types.LOADING,
-  joins: state => state.joins
+  isLoading: state => state.itemStatus === types.LOADING
 }
 
 const actions = {
@@ -112,56 +110,14 @@ const actions = {
       throw err
     })
   },
-  testDomain: ({ state, commit }, id) => {
-    commit('TEST_REQUEST', id)
-    return api.test(id).then(response => {
-      const { task_id } = response
-      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
-        commit('TEST_SUCCESS', { id: id, response })
-        return state.joins[id]
-      })
-    }).catch(error => {
-      commit('TEST_ERROR', { id: id, response: error })
-      return state.joins[id]
-    })
-  },
-  joinDomain: ({ state, commit }, data) => {
-    commit('JOIN_REQUEST', data.id)
-    return api.join(data).then(response => {
-      const { task_id } = response
-      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
-        commit('JOIN_SUCCESS', { id: data.id, response })
-        return state.joins[data.id]
-      })
-    }).catch(error => {
-      commit('JOIN_ERROR', { id: data.id, response: error })
-      return state.joins[data.id]
-    })
-  },
-  rejoinDomain: ({ state, commit }, data) => {
-    commit('JOIN_REQUEST', data.id)
-    return api.rejoin(data).then(response => {
-      const { task_id } = response
-      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
-        commit('JOIN_SUCCESS', { id: data.id, response })
-        return state.joins[data.id]
-      })
-    }).catch(error => {
-      commit('JOIN_ERROR', { id: data.id, response: error })
-      return state.joins[data.id]
-    })
-  },
-  unjoinDomain: ({ state, commit }, data) => {
-    commit('UNJOIN_REQUEST', data.id)
-    return api.unjoin(data).then(response => {
-      const { task_id } = response
-      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
-        commit('UNJOIN_SUCCESS', { id: data.id, response })
-        return state.joins[data.id]
-      })
-    }).catch(error => {
-      commit('UNJOIN_ERROR', { id: data.id, response: error })
-      return state.joins[data.id]
+  testMachineAccount: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return api.testMachineAccount(data).then(response => {
+      commit('ITEM_SUCCESS', data)
+      return response.message
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response.message)
+      throw err.response.data.message
     })
   }
 }
@@ -174,15 +130,10 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, data)
-    if (data.id in state.joins) {
-      Vue.delete(state.joins, data.id) // clear cache
-      store.dispatch('$_domains/testDomain', data.id) // refresh cache
-    }
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, id, null)
-    Vue.delete(state.joins, id)
   },
   ITEM_ERROR: (state, response) => {
     state.itemStatus = types.ERROR
@@ -192,52 +143,6 @@ const mutations = {
   },
   ITEM_SUCCESS: (state) => {
     state.itemStatus = types.SUCCESS
-  },
-  TEST_REQUEST: (state, id) => {
-    if (!(id in state.joins)) {
-      Vue.set(state.joins, id, {})
-    }
-    Vue.set(state.joins[id], 'status', null)
-    Vue.set(state.joins[id], 'message', null)
-  },
-  TEST_SUCCESS: (state, data) => {
-    Vue.set(state.joins[data.id], 'status', true)
-    Vue.set(state.joins[data.id], 'message', data.response.message)
-  },
-  TEST_ERROR: (state, data) => {
-    Vue.set(state.joins[data.id], 'status', false)
-    const { error: { response: { data: { message = null } = {} } = {} } = {} } = data
-    Vue.set(state.joins[data.id], 'message', message || data.response.message)
-  },
-  JOIN_REQUEST: (state, id) => {
-    if (!(id in state.joins)) {
-      Vue.set(state.joins, id, {})
-    }
-    Vue.set(state.joins[id], 'status', null)
-    Vue.set(state.joins[id], 'message', null)
-  },
-  JOIN_SUCCESS: (state, data) => {
-    // clear all join items except this one
-    Vue.set(state, 'joins', { [data.id]: { ...state.joins[data.id], status: true, message: data.response.message } })
-  },
-  JOIN_ERROR: (state, data) => {
-    Vue.set(state.joins[data.id], 'status', false)
-    Vue.set(state.joins[data.id], 'message', data.response.message)
-  },
-  UNJOIN_REQUEST: (state, id) => {
-    if (!(id in state.joins)) {
-      Vue.set(state.joins, id, {})
-    }
-    Vue.set(state.joins[id], 'status', null)
-    Vue.set(state.joins[id], 'message', null)
-  },
-  UNJOIN_SUCCESS: (state, data) => {
-    // clear all join items except this one
-    Vue.set(state, 'joins', { [data.id]: { ...state.joins[data.id], status: false, message: data.response.message } })
-  },
-  UNJOIN_ERROR: (state, data) => {
-    Vue.set(state.joins[data.id], 'status', true)
-    Vue.set(state.joins[data.id], 'message', data.response.message)
   }
 }
 

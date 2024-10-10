@@ -121,8 +121,8 @@
     <form-group-high-availability v-show="isType('none', 'management')"
                                   namespace="high_availability"
                                   :column-label="$i18n.t('High availability')"
-                                  enabled-value="1"
-                                  disabled-value="0"
+                                  :enabled-value="1"
+                                  :disabled-value="0"
     />
   </base-form>
 </template>

@@ -63,9 +63,9 @@ sub save {
     my ($class, $save_file) = @_;
     my $logger = get_logger();
     $logger->info( "saving existing ip6tables to " . $save_file );
-    pf_run("/usr/sbin/ip6tables-save -t nat > $save_file");
-    pf_run("/usr/sbin/ip6tables-save -t mangle >> $save_file");
-    pf_run("/usr/sbin/ip6tables-save -t filter >> $save_file");
+    safe_pf_run("/usr/sbin/ip6tables-save", '-t', 'nat', { stdout => $save_file});
+    safe_pf_run("/usr/sbin/ip6tables-save", '-t', 'mangle', { stdout => $save_file, stdout_append => 1});
+    safe_pf_run("/usr/sbin/ip6tables-save", '-t', 'filter', { stdout => $save_file, stdout_append => 1});
 }
 
 sub restore {
@@ -73,7 +73,7 @@ sub restore {
     my $logger = get_logger();
     if ( -r $restore_file ) {
         $logger->info( "restoring ip6tables from " . $restore_file );
-        pf_run("/usr/sbin/ip6tables-restore < $restore_file");
+        safe_pf_run("/usr/sbin/ip6tables-restore", { stdin => $restore_file });
     }
 }
 
@@ -85,7 +85,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

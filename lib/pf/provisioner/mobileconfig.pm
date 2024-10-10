@@ -21,8 +21,10 @@ use pf::constants;
 use fingerbank::Constant;
 
 use pf::util;
+use pf::ssl qw(cn_from_dn);
 use pf::person;
 use pf::password;
+use pf::services::manager::radiusd_child qw(get_cn_and_cert_radiusd_certificates);
 
 use Crypt::GeneratePassword qw(word);
 
@@ -197,12 +199,7 @@ sub _raw_server_cert_string {
 
 sub _certificate_cn {
     my ($self, $cert) = @_;
-    if($cert->subject =~ /CN=(.*?)(,|$)/g){
-        return $1;
-    }
-    else {
-        return undef;
-    }
+    return pf::ssl::cn_from_dn($cert->subject);
 }
 
 =head2 raw_server_cert_string
@@ -274,6 +271,16 @@ sub ca_cert_cn {
     }
 }
 
+=head2 get_other_radiusd_certificates
+
+Get Other Radius server CA Certificates
+
+=cut
+
+sub get_other_radiusd_certificates {
+    my ($self) = @_;
+    return [$self->pf::services::manager::radiusd_child::get_cn_and_cert_radiusd_certificates()];
+}
 
 =head2 authorize
 
@@ -287,6 +294,7 @@ sub authorize {
     unless($info->{pid} eq $default_pid) {
         $self->for_username($info->{pid});
     }
+    $self->handleAuthorizeEnforce($mac, {node_info => $info});
     return $FALSE;
 }
 
@@ -339,7 +347,7 @@ sub generate_dpsk {
         person_modify($username,psk => $password->{password});
         return $password->{password};
     }
-    elsif (defined $person->{psk} && $person->{psk} ne '') {
+    elsif (ref($person) eq 'HASH' && defined $person->{psk} && $person->{psk} ne '') {
         get_logger->debug("Returning psk key $person->{psk} for user $username");
         return $person->{psk};
     }
@@ -365,7 +373,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

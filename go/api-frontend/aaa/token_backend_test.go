@@ -1,6 +1,7 @@
 package aaa
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -35,12 +36,12 @@ func TestTokenBackend(t *testing.T) {
 		b := test.b
 		t.Run(test.name, func(t *testing.T) {
 			token := "my-beautiful-token"
-
+			ctx := context.Background()
 			if b.TokenIsValid(token) {
 				t.Error("Non existing token is invalid")
 			}
 
-			roles := b.AdminActionsForToken(token)
+			roles := b.AdminActionsForToken(ctx, token)
 
 			if len(roles) != 0 {
 				t.Error("Got some roles for an existant token", spew.Sdump(roles))
@@ -56,7 +57,7 @@ func TestTokenBackend(t *testing.T) {
 				t.Error("Existing token is not valid")
 			}
 
-			roles = b.AdminActionsForToken(token)
+			roles = b.AdminActionsForToken(ctx, token)
 
 			if len(roles) != 4 {
 				t.Error("Got the wrong amount of roles for an existant token", spew.Sdump(roles))
@@ -69,7 +70,7 @@ func TestTokenBackend(t *testing.T) {
 				t.Error("Non existing token is invalid")
 			}
 
-			roles = b.AdminActionsForToken(token)
+			roles = b.AdminActionsForToken(ctx, token)
 
 			if len(roles) != 0 {
 				t.Error("Got some roles for an expired token", spew.Sdump(roles))
@@ -106,7 +107,7 @@ func (tb *Blackhole) Type() string {
 	return "blackhole"
 }
 
-func (tb *Blackhole) AdminActionsForToken(token string) map[string]bool {
+func (tb *Blackhole) AdminActionsForToken(ctx context.Context, token string) map[string]bool {
 	return nil
 }
 

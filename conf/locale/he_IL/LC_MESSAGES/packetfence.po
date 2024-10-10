@@ -1,5 +1,5 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2023 Inverse inc.
+# Copyright (C) 2005-2024 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 # 
 # Translators:
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: he_IL\n"
-"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2;\n"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
@@ -362,6 +362,7 @@ msgstr ""
 # html/captive-portal/templates/provisioner/dpsk.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
@@ -1038,6 +1039,7 @@ msgstr ""
 # html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid ""
@@ -1665,6 +1667,7 @@ msgid ""
 msgstr ""
 
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 msgid ""
 "To complete your network activation you need to install the JAMF client."
 msgstr ""

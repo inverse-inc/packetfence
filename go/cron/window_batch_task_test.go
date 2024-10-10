@@ -62,7 +62,7 @@ func TestAdminApiAuditLogCleanup(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "admin_api_audit_log entries left",
 				sql:           ` SELECT COUNT(*) FROM admin_api_audit_log `,
 				expectedCount: 8,
@@ -104,7 +104,7 @@ func TestAuthLogCleanup(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "auth_log entries left",
 				sql:           ` SELECT COUNT(*) FROM auth_log `,
 				expectedCount: 8,
@@ -146,7 +146,7 @@ func TestDnsAuditLogCleanup(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "dns_audit_log entries left",
 				sql:           ` SELECT COUNT(*) FROM dns_audit_log `,
 				expectedCount: 8,
@@ -188,7 +188,7 @@ func TestRadiusAuditLogCleanup(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "radius_audit_log entries left",
 				sql:           ` SELECT COUNT(*) FROM radius_audit_log `,
 				expectedCount: 8,
@@ -248,12 +248,12 @@ func TestLocationlogCleanup(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "locationlog entries left",
 				sql:           ` SELECT COUNT(*) FROM locationlog `,
 				expectedCount: 8,
 			},
-			sqlCountTest{
+			{
 				name:          "locationlog_history entries left",
 				sql:           ` SELECT COUNT(*) FROM locationlog_history `,
 				expectedCount: 8,
@@ -315,12 +315,12 @@ func TestAcctCleanup(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "radacct entries left",
 				sql:           ` SELECT COUNT(*) FROM radacct `,
 				expectedCount: 8,
 			},
-			sqlCountTest{
+			{
 				name:          "radacct entries left",
 				sql:           ` SELECT COUNT(*) FROM radacct_log `,
 				expectedCount: 8,
@@ -363,7 +363,7 @@ func TestNodeCurrentSessionCleanup(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "node_current_session entries left",
 				sql:           ` SELECT COUNT(*) FROM node_current_session`,
 				expectedCount: 8,

@@ -32,6 +32,7 @@ type DHCPHandler struct {
 	role          string
 	ipReserved    string
 	ipAssigned    map[string]uint32
+	dstIp         string
 }
 
 // Interfaces struct
@@ -68,24 +69,16 @@ func newDHCPConfig() *Interfaces {
 }
 
 func (d *Interfaces) readConfig() {
-
-	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
-
-	var DHCPinterfaces pfconfigdriver.DHCPInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &DHCPinterfaces)
+	interfaces := pfconfigdriver.GetType[pfconfigdriver.ListenInts](ctx)
+	DHCPinterfaces := pfconfigdriver.GetType[pfconfigdriver.DHCPInts](ctx)
+	portal := pfconfigdriver.GetType[pfconfigdriver.PfConfCaptivePortal](ctx)
+	general := pfconfigdriver.GetType[pfconfigdriver.PfConfGeneral](ctx)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
 	keyConfNet.PfconfigHostnameOverlay = "yes"
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
-
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
-	portal := pfconfigdriver.Config.PfConf.CaptivePortal
-
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
-	general := pfconfigdriver.Config.PfConf.General
 
 	var intDhcp []string
 
@@ -245,6 +238,13 @@ func (d *Interfaces) readConfig() {
 							} else {
 								backend = ConfNet.PoolBackend
 							}
+							var dstReplyIp string
+							if ConfNet.DhcpReplyIp == "" {
+								dstReplyIp = "giaddr"
+							} else {
+								dstReplyIp = ConfNet.DhcpReplyIp
+							}
+							DHCPScope.dstIp = dstReplyIp
 							// Initialize dhcp pool
 							available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(ip, ips)), DHCPNet.network.IP.String()+Role, algorithm, StatsdClient, MySQLdatabase)
 
@@ -317,6 +317,14 @@ func (d *Interfaces) readConfig() {
 						} else {
 							backend = ConfNet.PoolBackend
 						}
+						var dstReplyIp string
+
+						if ConfNet.DhcpReplyIp == "" {
+							dstReplyIp = "giaddr"
+						} else {
+							dstReplyIp = ConfNet.DhcpReplyIp
+						}
+						DHCPScope.dstIp = dstReplyIp
 						// Initialize dhcp pool
 						available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), DHCPNet.network.IP.String(), algorithm, StatsdClient, MySQLdatabase)
 
@@ -371,7 +379,7 @@ func (d *Interfaces) readConfig() {
 	}
 }
 
-func detectPortalURL(ConfNet pfconfigdriver.RessourseNetworkConf, general pfconfigdriver.PfConfGeneral) string {
+func detectPortalURL(ConfNet pfconfigdriver.RessourseNetworkConf, general *pfconfigdriver.PfConfGeneral) string {
 	var portalURL string
 	if ConfNet.PortalFQDN != "" {
 		portalURL = "https://" + ConfNet.PortalFQDN + "/rfc7710"

@@ -1,9 +1,0 @@
-ConfigPkiProvidersList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigPkiProvider'
-        type: array
-    type: object

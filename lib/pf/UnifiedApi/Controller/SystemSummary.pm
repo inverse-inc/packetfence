@@ -17,7 +17,7 @@ use pf::db;
 use pf::config::util qw(is_inline_configured);
 use pf::version;
 use pf::cluster;
-use pf::util qw(pf_run isenabled);
+use pf::util qw(safe_pf_run isenabled);
 use pf::file_paths qw($git_commit_id_file $install_dir);
 use Fcntl qw(SEEK_SET);
 use pf::UnifiedApi::Controller::Config::System;
@@ -81,7 +81,7 @@ sub git_commit_id {
             chomp($id);
         }
     } elsif (-d "$install_dir/.git") {
-        $id = pf_run("git -C $install_dir log -n1 --format=%H");
+        $id = safe_pf_run('git', '-C', "$install_dir", qw(log -n1 --format=%H));
         chomp($id);
     }
 
@@ -94,7 +94,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

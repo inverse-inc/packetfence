@@ -4,9 +4,8 @@
     parameters:
       - $ref: "#/components/parameters/user_id"
       - $ref: "#/components/parameters/cursor"
-      - allOf:
-        - $ref: "#/components/parameters/limit"
-        - in: query
+      - $ref: "#/components/parameters/limit"
+        in: query
     responses:
       '200':
         $ref: "#/components/responses/UserNodes"

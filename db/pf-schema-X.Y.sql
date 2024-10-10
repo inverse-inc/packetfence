@@ -4,7 +4,7 @@ SET sql_mode = "NO_ENGINE_SUBSTITUTION";
 -- Setting the major/minor version of the DB
 --
 
-SET @MAJOR_VERSION = 13;
+SET @MAJOR_VERSION = 14;
 SET @MINOR_VERSION = 1;
 
 --
@@ -142,7 +142,6 @@ CREATE TABLE node (
   `detect_date` datetime NOT NULL default "0000-00-00 00:00:00",
   `regdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
-  `lastskip` datetime NOT NULL default "0000-00-00 00:00:00",
   `time_balance` int(10) unsigned DEFAULT NULL,
   `bandwidth_balance` bigint(20) unsigned DEFAULT NULL,
   `status` varchar(15) NOT NULL default "unreg",
@@ -189,7 +188,18 @@ CREATE TABLE node_current_session (
   `last_session_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
   `is_online` BOOLEAN DEFAULT 1,
   PRIMARY KEY (mac)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Table structure for table `node_meta`
+--
+
+CREATE TABLE node_meta (
+    `name` varchar(255) NOT NULL,
+    `mac` varchar(17) NOT NULL,
+    `value` MEDIUMBLOB NULL,
+    PRIMARY KEY(name, mac)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci' ROW_FORMAT=COMPRESSED;
 
 --
 -- Table structure for table `action`
@@ -496,7 +506,7 @@ CREATE TABLE sms_carrier (
     `email_pattern` varchar(255) not null comment 'sprintf pattern for making an email address from a phone number',
     `created` datetime not null comment 'date this record was created',
     `modified` timestamp comment 'date this record was modified'
-) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_bin AUTO_INCREMENT = 100056;
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci' AUTO_INCREMENT = 100056;
 
 --
 -- Insert data for table `sms_carrier`
@@ -647,7 +657,7 @@ CREATE TABLE radacct (
   KEY `nasipaddress` (`nasipaddress`),
   KEY `callingstationid` (`callingstationid`),
   KEY `acctstart_acctstop` (`acctstarttime`,`acctstoptime`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 -- Adding RADIUS update log table
 
@@ -1095,7 +1105,7 @@ CREATE TABLE pf_version (`id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NO
 
 CREATE TABLE radius_audit_log (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` TIMESTAMP NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `mac` char(17) NOT NULL,
   `ip` varchar(255) NULL,
   `computer_name` varchar(255) NULL,
@@ -1321,7 +1331,7 @@ CREATE TABLE `admin_api_audit_log` (
    KEY `user_name` (`user_name`),
    KEY `object_id_action` (`object_id`, `action`),
    KEY `created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPRESSED;
 
 
 --
@@ -1341,183 +1351,223 @@ CREATE TABLE dhcppool (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
+-- Table structure for table `pki_scep_servers`
+--
+
+CREATE TABLE `pki_scep_servers` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `name` varchar(191) DEFAULT NULL,
+  `url` longtext DEFAULT NULL,
+  `shared_secret` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `idx_pki_scep_servers_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Default values for pki_scep_servers table
+--
+
+INSERT INTO `pki_scep_servers` VALUES (1,'2023-11-09 10:36:34.489','2023-11-09 10:36:34.489',NULL,'Null','http://127.0.0.1','password');
+
+--
 -- Table structure for table `pki_cas`
 --
 
 CREATE TABLE `pki_cas` (
-  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` datetime NULL DEFAULT NULL,
-  `updated_at` datetime NULL DEFAULT NULL,
-  `deleted_at` datetime NULL DEFAULT NULL,
-  `cn` varchar(255) DEFAULT NULL,
-  `mail` varchar(255) DEFAULT NULL,
-  `organisation` varchar(255) DEFAULT NULL,
-  `organisational_unit` varchar(255) DEFAULT NULL,
-  `country` varchar(255) DEFAULT NULL,
-  `state` varchar(255) DEFAULT NULL,
-  `locality` varchar(255) DEFAULT NULL,
-  `street_address` varchar(255) DEFAULT NULL,
-  `postal_code` varchar(255) DEFAULT NULL,
-  `key_type` int(11) DEFAULT NULL,
-  `key_size` int(11) DEFAULT NULL,
-  `digest` int(11) DEFAULT NULL,
-  `key_usage` varchar(255) DEFAULT NULL,
-  `extended_key_usage` varchar(255) DEFAULT NULL,
-  `days` int(11) DEFAULT NULL,
-  `key` longtext,
-  `cert` longtext,
-  `issuer_key_hash` varchar(255) DEFAULT NULL,
-  `issuer_name_hash` varchar(255) DEFAULT NULL,
-  `ocsp_url` varchar(255) DEFAULT NULL,
-  `serial_number` int(11) DEFAULT '1',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `cn` varchar(191) DEFAULT NULL,
+  `mail` varchar(191) DEFAULT NULL,
+  `organisation` varchar(191) DEFAULT NULL,
+  `organisational_unit` longtext DEFAULT NULL,
+  `country` longtext DEFAULT NULL,
+  `state` longtext DEFAULT NULL,
+  `locality` longtext DEFAULT NULL,
+  `street_address` longtext DEFAULT NULL,
+  `postal_code` longtext DEFAULT NULL,
+  `key_type` bigint(20) DEFAULT NULL,
+  `key_size` bigint(20) DEFAULT NULL,
+  `digest` bigint(20) DEFAULT NULL,
+  `key_usage` longtext DEFAULT NULL,
+  `extended_key_usage` longtext DEFAULT NULL,
+  `days` bigint(20) DEFAULT NULL,
+  `key` longtext DEFAULT NULL,
+  `cert` longtext DEFAULT NULL,
+  `issuer_key_hash` longtext DEFAULT NULL,
+  `issuer_name_hash` longtext DEFAULT NULL,
+  `ocsp_url` longtext DEFAULT NULL,
+  `serial_number` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `cn` (`cn`),
-  UNIQUE KEY `uix_cas_issuer_key_hash` (`issuer_key_hash`),
-  UNIQUE KEY `uix_cas_issuer_name_hash` (`issuer_name_hash`),
+  KEY `idx_pki_cas_deleted_at` (`deleted_at`),
   KEY `mail` (`mail`),
-  KEY `organisation` (`organisation`),
-  KEY `idx_cas_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4';
-
---
--- Table structure for table `pki_certs`
---
-
-CREATE TABLE `pki_certs` (
-  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` datetime NULL DEFAULT NULL,
-  `updated_at` datetime NULL DEFAULT NULL,
-  `deleted_at` datetime NULL DEFAULT NULL,
-  `cn` varchar(255) DEFAULT NULL,
-  `mail` varchar(255) DEFAULT NULL,
-  `ca_id` int(10) unsigned DEFAULT NULL,
-  `ca_name` varchar(255) DEFAULT NULL,
-  `street_address` varchar(255) DEFAULT NULL,
-  `organisation` varchar(255) DEFAULT NULL,
-  `organisational_unit` varchar(255) DEFAULT NULL,
-  `country` varchar(255) DEFAULT NULL,
-  `state` varchar(255) DEFAULT NULL,
-  `locality` varchar(255) DEFAULT NULL,
-  `postal_code` varchar(255) DEFAULT NULL,
-  `key` longtext,
-  `cert` longtext,
-  `profile_id` int(10) unsigned DEFAULT NULL,
-  `profile_name` varchar(255) DEFAULT NULL,
-  `valid_until` datetime NULL DEFAULT NULL,
-  `not_before` datetime DEFAULT NULL,
-  `date` datetime NULL DEFAULT CURRENT_TIMESTAMP,
-  `serial_number` varchar(255) DEFAULT NULL,
-  `dns_names` varchar(255) DEFAULT NULL,
-  `ip_addresses` varchar(255) DEFAULT NULL,
-  `scep` BOOLEAN DEFAULT FALSE,
-  `csr` BOOLEAN DEFAULT FALSE,
-  `alert` BOOLEAN DEFAULT FALSE,
-  `subject` varchar(255) DEFAULT NULL,
-  UNIQUE (`subject`),
-  KEY `profile_name` (`profile_name`),
-  KEY `valid_until` (`valid_until`),
-  KEY `idx_certs_deleted_at` (`deleted_at`),
-  KEY `mail` (`mail`),
-  KEY `ca_id` (`ca_id`),
-  KEY `ca_name` (`ca_name`),
-  KEY `organisation` (`organisation`),
-  KEY `profile_id` (`profile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARACTER SET = 'utf8mb4';
+  KEY `organisation` (`organisation`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_profiles`
 --
 
 CREATE TABLE `pki_profiles` (
-  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` datetime NULL DEFAULT NULL,
-  `updated_at` datetime NULL DEFAULT NULL,
-  `deleted_at` datetime NULL DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `mail` varchar(255) DEFAULT NULL,
-  `organisation` varchar(255) DEFAULT NULL,
-  `organisational_unit` varchar(255) DEFAULT NULL,
-  `country` varchar(255) DEFAULT NULL,
-  `state` varchar(255) DEFAULT NULL,
-  `locality` varchar(255) DEFAULT NULL,
-  `street_address` varchar(255) DEFAULT NULL,
-  `postal_code` varchar(255) DEFAULT NULL,
-  `ca_id` int(10) unsigned DEFAULT NULL,
-  `ca_name` varchar(255) DEFAULT NULL,
-  `validity` int(11) DEFAULT NULL,
-  `key_type` int(11) DEFAULT NULL,
-  `key_size` int(11) DEFAULT NULL,
-  `digest` int(11) DEFAULT NULL,
-  `key_usage` varchar(255) DEFAULT NULL,
-  `extended_key_usage` varchar(255) DEFAULT NULL,
-  `ocsp_url` varchar(255) DEFAULT NULL,
-  `p12_mail_password` int(11) DEFAULT NULL,
-  `p12_mail_subject` varchar(255) DEFAULT NULL,
-  `p12_mail_from` varchar(255) DEFAULT NULL,
-  `p12_mail_header` varchar(255) DEFAULT NULL,
-  `p12_mail_footer` varchar(255) DEFAULT NULL,
-  `scep_enabled` int(11) DEFAULT NULL,
-  `scep_challenge_password` varchar(255) DEFAULT NULL,
-  `scep_days_before_renewal` varchar(255) DEFAULT 14,
-  `days_before_renewal` varchar(255) DEFAULT 14,
-  `renewal_mail` int(11) DEFAULT 1,
-  `days_before_renewal_mail` varchar(255) DEFAULT 14,
-  `renewal_mail_subject` varchar(255) DEFAULT 'Certificate expiration',
-  `renewal_mail_from` varchar(255) DEFAULT NULL,
-  `renewal_mail_header` varchar(255) DEFAULT NULL,
-  `renewal_mail_footer` varchar(255) DEFAULT NULL,
-  `revoked_valid_until` varchar(255) DEFAULT 14,
-  `cloud_enabled` int(11) DEFAULT NULL,
-  `cloud_service` varchar(255) DEFAULT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `name` varchar(191) DEFAULT NULL,
+  `mail` varchar(191) DEFAULT NULL,
+  `organisation` varchar(191) DEFAULT NULL,
+  `organisational_unit` longtext DEFAULT NULL,
+  `country` longtext DEFAULT NULL,
+  `state` longtext DEFAULT NULL,
+  `locality` longtext DEFAULT NULL,
+  `street_address` longtext DEFAULT NULL,
+  `postal_code` longtext DEFAULT NULL,
+  `ca_id` bigint(20) unsigned DEFAULT NULL,
+  `ca_name` varchar(191) DEFAULT NULL,
+  `validity` bigint(20) DEFAULT NULL,
+  `key_type` bigint(20) DEFAULT NULL,
+  `key_size` bigint(20) DEFAULT NULL,
+  `digest` bigint(20) DEFAULT NULL,
+  `key_usage` longtext DEFAULT NULL,
+  `extended_key_usage` longtext DEFAULT NULL,
+  `ocsp_url` longtext DEFAULT NULL,
+  `p12_mail_password` bigint(20) DEFAULT NULL,
+  `p12_mail_subject` longtext DEFAULT NULL,
+  `p12_mail_from` longtext DEFAULT NULL,
+  `p12_mail_header` longtext DEFAULT NULL,
+  `p12_mail_footer` longtext DEFAULT NULL,
+  `scep_enabled` bigint(20) DEFAULT NULL,
+  `scep_challenge_password` longtext DEFAULT NULL,
+  `scep_days_before_renewal` bigint(20) DEFAULT 14,
+  `days_before_renewal` bigint(20) DEFAULT 14,
+  `renewal_mail` bigint(20) DEFAULT 1,
+  `days_before_renewal_mail` bigint(20) DEFAULT 14,
+  `renewal_mail_subject` varchar(191) DEFAULT 'Certificate expiration',
+  `renewal_mail_from` longtext DEFAULT NULL,
+  `renewal_mail_header` longtext DEFAULT NULL,
+  `renewal_mail_footer` longtext DEFAULT NULL,
+  `revoked_valid_until` bigint(20) DEFAULT 14,
+  `cloud_enabled` bigint(20) DEFAULT NULL,
+  `cloud_service` longtext DEFAULT NULL,
+  `scep_server_id` bigint(20) unsigned DEFAULT NULL,
+  `scep_server_enabled` bigint(20) DEFAULT 0,
+  `allow_duplicated_cn` bigint(20) unsigned DEFAULT 0,
+  `maximum_duplicated_cn` bigint(20) DEFAULT 0,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
-  KEY `idx_profiles_deleted_at` (`deleted_at`),
+  KEY `ca_name` (`ca_name`),
+  KEY `scep_server_id` (`scep_server_id`),
+  KEY `idx_pki_profiles_deleted_at` (`deleted_at`),
+  KEY `mail` (`mail`),
+  KEY `organisation` (`organisation`),
   KEY `ca_id` (`ca_id`),
-  KEY `ca_name` (`ca_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARACTER SET = 'utf8mb4';
+  CONSTRAINT `fk_pki_profiles_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
+  CONSTRAINT `fk_pki_profiles_scep_server` FOREIGN KEY (`scep_server_id`) REFERENCES `pki_scep_servers` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Table structure for table `pki_certs`
+--
+
+CREATE TABLE `pki_certs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `cn` longtext DEFAULT NULL,
+  `mail` varchar(191) DEFAULT NULL,
+  `ca_id` bigint(20) unsigned DEFAULT NULL,
+  `ca_name` varchar(191) DEFAULT NULL,
+  `street_address` longtext DEFAULT NULL,
+  `organisation` varchar(191) DEFAULT NULL,
+  `organisational_unit` longtext DEFAULT NULL,
+  `country` longtext DEFAULT NULL,
+  `state` longtext DEFAULT NULL,
+  `locality` longtext DEFAULT NULL,
+  `postal_code` longtext DEFAULT NULL,
+  `key` longtext DEFAULT NULL,
+  `cert` longtext DEFAULT NULL,
+  `profile_id` bigint(20) unsigned DEFAULT NULL,
+  `profile_name` varchar(191) DEFAULT NULL,
+  `valid_until` datetime(3) DEFAULT NULL,
+  `not_before` datetime(3) DEFAULT NULL,
+  `date` datetime(3) DEFAULT current_timestamp(3),
+  `serial_number` longtext DEFAULT NULL,
+  `dns_names` longtext DEFAULT NULL,
+  `ip_addresses` longtext DEFAULT NULL,
+  `scep` tinyint(1) DEFAULT 0,
+  `csr` tinyint(1) DEFAULT 0,
+  `alert` tinyint(1) DEFAULT 0,
+  `subject` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cn_serial` (`cn`,`serial_number`) USING HASH,
+  KEY `ca_id` (`ca_id`),
+  KEY `ca_name` (`ca_name`),
+  KEY `profile_name` (`profile_name`),
+  KEY `valid_until` (`valid_until`),
+  KEY `idx_pki_certs_deleted_at` (`deleted_at`),
+  KEY `mail` (`mail`),
+  KEY `organisation` (`organisation`),
+  KEY `profile_id` (`profile_id`),
+  KEY `not_before` (`not_before`),
+  CONSTRAINT `fk_pki_certs_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
+  CONSTRAINT `fk_pki_certs_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_revoked_certs`
 --
 
 CREATE TABLE `pki_revoked_certs` (
-  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` datetime NULL DEFAULT NULL,
-  `updated_at` datetime NULL DEFAULT NULL,
-  `deleted_at` datetime NULL DEFAULT NULL,
-  `cn` varchar(255) DEFAULT NULL,
-  `mail` varchar(255) DEFAULT NULL,
-  `ca_id` int(10) unsigned DEFAULT NULL,
-  `ca_name` varchar(255) DEFAULT NULL,
-  `street_address` varchar(255) DEFAULT NULL,
-  `organisation` varchar(255) DEFAULT NULL,
-  `organisational_unit` varchar(255) DEFAULT NULL,
-  `country` varchar(255) DEFAULT NULL,
-  `state` varchar(255) DEFAULT NULL,
-  `locality` varchar(255) DEFAULT NULL,
-  `postal_code` varchar(255) DEFAULT NULL,
-  `key` longtext,
-  `cert` longtext,
-  `profile_id` int(10) unsigned DEFAULT NULL,
-  `profile_name` varchar(255) DEFAULT NULL,
-  `valid_until` datetime NULL DEFAULT NULL,
-  `not_before` datetime DEFAULT NULL,
-  `date` datetime NULL DEFAULT CURRENT_TIMESTAMP,
-  `serial_number` varchar(255) DEFAULT NULL,
-  `dns_names` varchar(255) DEFAULT NULL,
-  `ip_addresses` varchar(255) DEFAULT NULL,
-  `revoked` timestamp NULL DEFAULT NULL,
-  `crl_reason` int(11) DEFAULT NULL,
-  `subject` varchar(255) DEFAULT NULL,
-  KEY `valid_until` (`valid_until`),
-  KEY `crl_reason` (`crl_reason`),
-  KEY `idx_revoked_certs_deleted_at` (`deleted_at`),
-  KEY `cn` (`cn`),
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `cn` varchar(191) DEFAULT NULL,
+  `mail` varchar(191) DEFAULT NULL,
+  `ca_id` bigint(20) unsigned DEFAULT NULL,
+  `ca_name` varchar(191) DEFAULT NULL,
+  `street_address` longtext DEFAULT NULL,
+  `organisation` varchar(191) DEFAULT NULL,
+  `organisational_unit` longtext DEFAULT NULL,
+  `country` longtext DEFAULT NULL,
+  `state` longtext DEFAULT NULL,
+  `locality` longtext DEFAULT NULL,
+  `postal_code` longtext DEFAULT NULL,
+  `key` longtext DEFAULT NULL,
+  `cert` longtext DEFAULT NULL,
+  `profile_id` bigint(20) unsigned DEFAULT NULL,
+  `profile_name` varchar(191) DEFAULT NULL,
+  `valid_until` datetime(3) DEFAULT NULL,
+  `not_before` datetime(3) DEFAULT NULL,
+  `date` datetime(3) DEFAULT current_timestamp(3),
+  `serial_number` longtext DEFAULT NULL,
+  `dns_names` longtext DEFAULT NULL,
+  `ip_addresses` longtext DEFAULT NULL,
+  `revoked` datetime(3) DEFAULT NULL,
+  `crl_reason` bigint(20) DEFAULT NULL,
+  `subject` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `mail` (`mail`),
-  KEY `ca_id` (`ca_id`),
+  KEY `valid_until` (`valid_until`),
+  KEY `not_before` (`not_before`),
+  KEY `revoked` (`revoked`),
+  KEY `crl_reason` (`crl_reason`),
   KEY `profile_id` (`profile_id`),
   KEY `profile_name` (`profile_name`),
+  KEY `idx_pki_revoked_certs_deleted_at` (`deleted_at`),
+  KEY `cn` (`cn`),
+  KEY `ca_id` (`ca_id`),
   KEY `ca_name` (`ca_name`),
   KEY `organisation` (`organisation`),
-  KEY `revoked` (`revoked`)
+  CONSTRAINT `fk_pki_revoked_certs_ca` FOREIGN KEY (`ca_id`) REFERENCES `pki_cas` (`id`),
+  CONSTRAINT `fk_pki_revoked_certs_profile` FOREIGN KEY (`profile_id`) REFERENCES `pki_profiles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --

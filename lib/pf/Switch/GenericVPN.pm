@@ -101,8 +101,9 @@ sub parseVPNRequest {
     my ( $self, $radius_request ) = @_;
     my $logger = $self->logger;
 
+    my $mac;
     my $client_ip       = $radius_request->{'Calling-Station-Id'};
-    my $mac             = '02:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $radius_request->{'Calling-Station-Id'});
+    $mac                = '02:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $radius_request->{'Calling-Station-Id'}) if (exists $radius_request->{'Calling-Station-Id'});
     my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
     my $port            = $radius_request->{'NAS-Port'};
@@ -119,7 +120,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

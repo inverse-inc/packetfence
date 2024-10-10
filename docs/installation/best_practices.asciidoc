@@ -60,10 +60,6 @@ If you have multiple Active Directory servers, you will want to apply the follow
 
 In order to ensure the authentication layer will be able to fail-over efficiently, you will want to ensure that the 'Sticky DC' parameter of your domain configuration is set to `*`. Additionally, you will want to specify more than one DNS servers in that configuration. If you have more than one availability zone, then you will want to alternate the order of the servers. For example, if you have the following DNS servers in the first availability zone: `10.0.1.100,10.0.1.101` and the following in the second availability zone: `10.0.2.100,10.0.2.101`, then the DNS servers list should be: `10.0.1.100,10.0.2.100,10.0.1.101,10.0.2.101` which will ensure the second DNS server to be queried is part of a different availability zone than the first one when winbindd queries DNS to find an available Active Directory domain controller. 
 
-Note that after changing the settings above, you need to regenerate the domain configuration and restart winbindd using:
-
-  /usr/local/pf/bin/pfcmd generatedomainconfig
-  /usr/local/pf/bin/pfcmd service winbindd restart
 
 ===== Additional safety using monit
 

@@ -52,51 +52,11 @@ type TypedConfig struct {
 	Type string `json:"type"`
 }
 
-type configStruct struct {
-	Passthroughs struct {
-		Registration PassthroughsConf
-		Isolation    PassthroughsIsolationConf
-	}
-	Interfaces struct {
-		ListenInts        ListenInts
-		ManagementNetwork ManagementNetwork
-		DHCPInts          DHCPInts
-		DNSInts           DNSInts
-		RADIUSInts        RADIUSInts
-	}
-	PfConf struct {
-		Advanced      PfConfAdvanced
-		General       PfConfGeneral
-		Fencing       PfConfFencing
-		CaptivePortal PfConfCaptivePortal
-		Webservices   PfConfWebservices
-		Database      PfConfDatabase
-		Parking       PfConfParking
-		Alerting      PfConfAlerting
-		ActiveActive  PfConfActiveActive
-		Services      PfConfServices
-		ServicesURL   PfConfServicesURL
-		Pfconnector   PfConfPfconnector
-		AdminLogin    PfConfAdminLogin
-	}
-	AdminRoles AdminRoles
-	Cluster    struct {
-		HostsIp struct {
-			PfconfigKeys
-			PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
-			PfconfigClusterNameOverlay string `val:"yes"`
-		}
-		AllServers AllClusterServers
-	}
-	Dns struct {
-		Configuration PfConfDns
-	}
-	UnifiedApiSystemUser UnifiedApiSystemUser
-	EAPConfiguration     EAPConfiguration
-	RolesChildren        RolesChildren
+type HostsIp struct {
+	PfconfigKeys
+	PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
+	PfconfigClusterNameOverlay string `val:"yes"`
 }
-
-var Config configStruct
 
 // Represents the pf.conf general section
 type PfConfGeneral struct {
@@ -219,7 +179,6 @@ type PfConfServices struct {
 	Snmptrapd            string `json:"snmptrapd"`
 	TC                   string `json:"tc"`
 	TrackingConfig       string `json:"tracking-config"`
-	Winbindd             string `json:"winbindd"`
 }
 
 type PfConfWebservices struct {
@@ -398,6 +357,7 @@ type NetworkConf struct {
 	Algorithm                string `json:"algorithm"`
 	PoolBackend              string `json:"pool_backend"`
 	NetflowAccountingEnabled string `json:"netflow_accounting_enabled"`
+	DhcpReplyIp              string `json:"dhcp_reply_ip"`
 }
 
 type Interface struct {
@@ -440,6 +400,7 @@ type RessourseNetworkConf struct {
 	NetflowAccountingEnabled string    `json:"netflow_accounting_enabled"`
 	NatDNS                   string    `json:"nat_dns"`
 	ForceGatewayVIP          string    `json:"force_gateway_vip"`
+	DhcpReplyIp              string    `json:"dhcp_reply_ip"`
 }
 
 type PfRoles struct {
@@ -566,8 +527,12 @@ func (t *AuthenticationSourceLdap) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	if sharedutils.IsEnabled(dataGeneric["use_connector"].(string)) {
-		dataGeneric["use_connector"] = true
+	if use_connector, found := dataGeneric["use_connector"]; found {
+		if str, ok := use_connector.(string); ok {
+			dataGeneric["use_connector"] = sharedutils.IsEnabled(str)
+		} else {
+			dataGeneric["use_connector"] = false
+		}
 	} else {
 		dataGeneric["use_connector"] = false
 	}
@@ -747,6 +712,51 @@ type PfConfRadiusConfiguration struct {
 	PfacctWorkQueueSize                string   `json:"pfacct_work_queue_size"`
 }
 
+type PfQueueConfig struct {
+	StructConfig
+	PfconfigMethod string                `val:"hash_element"`
+	PfconfigNS     string                `val:"config::Pfqueue"`
+	PfQueue        PfQueue               `json:"pfqueue"`
+	Queues         []Queue               `json:"queues"`
+	Consumer       Consumer              `json:"consumer"`
+	QueueConfig    map[string]QueueEntry `json:"queue_config"`
+	Producer       Producer              `json:"producer"`
+}
+
+type PfQueue struct {
+	Workers    int `json:"workers"`
+	TaskJitter int `json:"task_jitter"`
+	MaxTasks   int `json:"max_tasks"`
+}
+
+type Queue struct {
+	Weight   int    `json:"weight"`
+	RealName string `json:"real_name"`
+	Name     string `json:"name"`
+	Hashed   string `json:"hashed,omitempty"`
+	Workers  int    `json:"workers"`
+}
+
+type RedisArgs struct {
+	Reconnect int    `json:"reconnect"`
+	Every     int    `json:"every"`
+	Server    string `json:"server"`
+}
+
+type Consumer struct {
+	RedisArgs RedisArgs `json:"redis_args"`
+}
+
+type QueueEntry struct {
+	Weight  int    `json:"weight"`
+	Hashed  string `json:"hashed"`
+	Workers int    `json:"workers"`
+}
+
+type Producer struct {
+	RedisServer string `json:"redis_server"`
+}
+
 type Certificate struct {
 	StructConfig
 	Cert               string `json:"cert"`
@@ -823,6 +833,22 @@ type NtlmRedisCachedDomains struct {
 	PfconfigNS              string `val:"resource::NtlmRedisCachedDomains"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 []string
+}
+
+type Domain struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Domain"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
+}
+
+type FleetDM struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::FleetDM"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
 }
 
 type Cloud struct {

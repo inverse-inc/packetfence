@@ -25,7 +25,15 @@ configure_and_check() {
 
     # if no token defined, we die
     [ -n "${GITLAB_API_TOKEN}" ] || die "not set: GITLAB_API_TOKEN"
-    
+
+    TOKEN_ERROR_DESC=$(curl --header "PRIVATE-TOKEN: ${GITLAB_API_TOKEN}" \
+                               -s "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}" \
+                              | jq -r '.error_description')
+
+    if [ "$TOKEN_ERROR_DESC" != null ]; then
+        die "Error $TOKEN_ERROR_DESC"
+    fi
+
     # get SHA of latest pipeline scheduled with status=succes for that branch
     SHA_LATEST_PIPELINE=$(curl --header "PRIVATE-TOKEN: ${GITLAB_API_TOKEN}" \
                                -s "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/pipelines?status=success&source=schedule&ref=${COMMIT_REF_NAME_ENCODED}" \

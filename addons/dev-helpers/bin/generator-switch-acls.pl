@@ -43,6 +43,9 @@ my $tt = Template->new({
 });
 
 $Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Purity = 1;
+$Data::Dumper::Terse = 0;
+$Data::Dumper::Indent = 2;
 
 $tt->process(
     "pf-switch-acls.pm.tt",
@@ -60,7 +63,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

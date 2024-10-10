@@ -214,7 +214,7 @@ const components = {
 import {computed, customRef, inject, ref, unref, watch} from '@vue/composition-api'
 import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue'
 import {useFormGroupProps as props} from '@/composables/useFormGroup'
-import BaseInputSwitch from '@/components/new/BaseInputSwitch.vue';
+import BaseInputSwitch from '@/components/new/BaseInputSwitch';
 
 const setup = () => {
 

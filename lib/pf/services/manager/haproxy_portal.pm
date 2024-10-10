@@ -97,7 +97,7 @@ sub generateConfig {
             my $backend_hosts_config = '';
             foreach my $back ( @backend_hosts ) {
                 # cluster specific
-                next if($back eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
+                next if($back eq "$cfg->{ip}:8080" && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_hosts_config .= <<"EOT";
         server $back $back check inter 10s fastinter 2s
@@ -256,7 +256,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

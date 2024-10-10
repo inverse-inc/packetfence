@@ -83,12 +83,6 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-# it will be restarted when a new join will start
-- name: stop_packetfence_winbindd
-  steps:
-  - type: exec
-    script: systemctl stop packetfence-winbindd
-
 - name: delete_connection_profile
   steps:
   - type: http

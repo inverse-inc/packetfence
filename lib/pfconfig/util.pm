@@ -94,8 +94,9 @@ sub socket_expire {
         namespace => $namespace,
         light => $light,
     };
+
     my $response = pfconfig::util::fetch_decode_socket(encode_json($payload), %opts);
-    return $response->{status} eq "OK.";
+    return ($response->{status} // "") eq "OK.";
 }
 
 sub socket_pull_expire {
@@ -173,7 +174,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

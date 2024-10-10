@@ -18,10 +18,13 @@ const encodeURL = (url) => {
 
 const api = {
   getAdminRoles () {
-    return apiCall({ url: 'config/admin_roles', method: 'get' })
+    return apiCall({ url: 'config/admin_roles', method: 'get', params: { limit: 1000 } })
   },
   getBaseActiveActive () {
     return apiCall({ url: 'config/base/active_active', method: 'get' })
+  },
+  getBaseFleetDM () {
+    return apiCall({ url: 'config/base/fleetdm', method: 'get' })
   },
   getBaseAdvanced () {
     return apiCall({ url: 'config/base/advanced', method: 'get' })
@@ -143,6 +146,9 @@ const api = {
   getPkiCerts () {
     return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
   },
+  getPkiScepServers () {
+    return apiCall({ url: 'pki/scepservers', method: 'get', params: { limit: 1000 } })
+  },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
@@ -209,8 +215,8 @@ const api = {
   getSyslogForwarders () {
     return apiCall({ url: 'config/syslog_forwarders', method: 'get' })
   },
-  getSyslogParsers () {
-    return apiCall({ url: 'config/syslog_parsers', method: 'get' })
+  getEventHandlers () {
+    return apiCall({ url: 'config/event_handlers', method: 'get' })
   },
   getWrixLocations () {
     return apiCall({ url: 'wrix_locations', method: 'get' })
@@ -237,6 +243,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     adminRolesStatus: '',
     baseActiveActive: false,
     baseActiveActiveStatus: '',
+    baseFleetDM: false,
+    baseFleetDMStatus: '',
     baseAdvanced: false,
     baseAdvancedStatus: '',
     baseAlerting: false,
@@ -317,6 +325,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     pkiProfilesStatus: '',
     pkiCerts: false,
     pkiCertsStatus: '',
+    pkiScepServers: false,
+    pkiScepServersStatus: '',
     pkiProviders: false,
     pkiProvidersStatus: '',
     portalModules: false,
@@ -357,8 +367,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     switchesStatus: '',
     syslogForwarders: false,
     syslogForwardersStatus: '',
-    syslogParsers: false,
-    syslogParsersStatus: '',
+    eventHandlers: false,
+    eventHandlersStatus: '',
     wrixLocations: false,
     wrixLocationsStatus: ''
   }
@@ -397,6 +407,9 @@ const getters = {
   },
   isLoadingBaseActiveActive: state => {
     return state.baseActiveActiveStatus === types.LOADING
+  },
+  isLoadingBaseFleetDM: state => {
+    return state.baseFleetDMStatus === types.LOADING
   },
   isLoadingBaseAdvanced: state => {
     return state.baseAdvancedStatus === types.LOADING
@@ -518,6 +531,9 @@ const getters = {
   isLoadingPkiCerts: state => {
     return state.pkiCertsStatus === types.LOADING
   },
+  isLoadingPkiScepServers: state => {
+    return state.pkiScepServersStatus === types.LOADING
+  },
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
   },
@@ -575,8 +591,8 @@ const getters = {
   isLoadingSyslogForwarders: state => {
     return state.syslogForwardersStatus === types.LOADING
   },
-  isLoadingSyslogParsers: state => {
-    return state.syslogParsersStatus === types.LOADING
+  isLoadingEventHandlers: state => {
+    return state.eventHandlersStatus === types.LOADING
   },
   isLoadingWrixLocations: state => {
     return state.wrixLocationsStatus === types.LOADING
@@ -719,6 +735,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.baseActiveActive)
+    }
+  },
+  getBaseFleetDM: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseFleetDM) {
+      return Promise.resolve(state.baseFleetDM)
+    }
+    if (!state.baseFleetDM) {
+      commit('BASE_FLEETDM_REQUEST')
+      return api.getBaseFleetDM().then(response => {
+        commit('BASE_FLEETDM_UPDATED', response.data.item)
+        return state.baseFleetDM
+      })
+    } else {
+      return Promise.resolve(state.baseFleetDM)
     }
   },
   getBaseAdvanced: ({ state, getters, commit }) => {
@@ -1318,6 +1348,26 @@ const actions = {
       commit('PKI_CERTS_RESET')
     }
   },
+  getPkiScepServers: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiScepServers) {
+      return Promise.resolve(state.pkiScepServers)
+    }
+    if (!state.pkiScepServers) {
+      commit('PKI_SCEPSERVERS_REQUEST')
+      return api.getPkiScepServers().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_SCEPSERVERS_UPDATED', items || [])
+        return state.pkiScepServers
+      })
+    } else {
+      return Promise.resolve(state.pkiScepServers)
+    }
+  },
+  resetPkiScepServers: ({ state, commit }) => {
+    if (state.pkiScepServers) {
+      commit('PKI_SCEPSERVERS_RESET')
+    }
+  },
   getPkiProviders: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiProviders) {
       return Promise.resolve(state.pkiProviders)
@@ -1628,18 +1678,18 @@ const actions = {
       return Promise.resolve(state.syslogForwarders)
     }
   },
-  getSyslogParsers: ({ state, getters, commit }) => {
-    if (getters.isLoadingSyslogParsers) {
-      return Promise.resolve(state.syslogParsers)
+  getEventHandlers: ({ state, getters, commit }) => {
+    if (getters.isLoadingEventHandlers) {
+      return Promise.resolve(state.eventHandlers)
     }
-    if (!state.syslogParsers) {
-      commit('SYSLOG_PARSERS_REQUEST')
-      return api.getSyslogParsers().then(response => {
-        commit('SYSLOG_PARSERS_UPDATED', response.data.items)
-        return state.syslogParsers
+    if (!state.eventHandlers) {
+      commit('EVENT_HANDLERS_REQUEST')
+      return api.getEventHandlers().then(response => {
+        commit('EVENT_HANDLERS_UPDATED', response.data.items)
+        return state.eventHandlers
       })
     } else {
-      return Promise.resolve(state.syslogParsers)
+      return Promise.resolve(state.eventHandlers)
     }
   },
   getWrixLocations: ({ commit, getters, state }) => {
@@ -1688,6 +1738,13 @@ const mutations = {
   BASE_ACTIVE_ACTIVE_UPDATED: (state, baseActiveActive) => {
     state.baseActiveActive = baseActiveActive
     state.baseActiveActiveStatus = types.SUCCESS
+  },
+  BASE_FLEETDM_REQUEST: (state) => {
+    state.baseFleetDMStatus = types.LOADING
+  },
+  BASE_FLEETDM_UPDATED: (state, baseFleetDM) => {
+    state.baseFleetDM = baseFleetDM
+    state.baseFleetDMStatus = types.SUCCESS
   },
   BASE_ADVANCED_REQUEST: (state) => {
     state.baseAdvancedStatus = types.LOADING
@@ -1988,6 +2045,16 @@ const mutations = {
   PKI_CERTS_RESET: (state) => {
     state.pkiCerts = false
   },
+  PKI_SCEPSERVERS_REQUEST: (state) => {
+    state.pkiScepServersStatus = types.LOADING
+  },
+  PKI_SCEPSERVERS_UPDATED: (state, pkiCerts) => {
+    state.pkiScepServers = pkiCerts
+    state.pkiScepServersStatus = types.SUCCESS
+  },
+  PKI_SCEPSERVERS_RESET: (state) => {
+    state.pkiScepServers = false
+  },
   PKI_PROVIDERS_REQUEST: (state) => {
     state.pkiProvidersStatus = types.LOADING
   },
@@ -2143,12 +2210,12 @@ const mutations = {
     state.syslogForwarders = syslogForwarders
     state.syslogForwardersStatus = types.SUCCESS
   },
-  SYSLOG_PARSERS_REQUEST: (state) => {
-    state.syslogParsersStatus = types.LOADING
+  EVENT_HANDLERS_REQUEST: (state) => {
+    state.eventHandlersStatus = types.LOADING
   },
-  SYSLOG_PARSERS_UPDATED: (state, syslogParsers) => {
-    state.syslogParsers = syslogParsers
-    state.syslogParsersStatus = types.SUCCESS
+  EVENT_HANDLERS_UPDATED: (state, eventHandlers) => {
+    state.eventHandlers = eventHandlers
+    state.eventHandlersStatus = types.SUCCESS
   },
   WRIX_LOCATIONS_REQUEST: (state) => {
     state.wrixLocationsStatus = types.LOADING

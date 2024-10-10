@@ -29,7 +29,7 @@ case "$1" in
             echo "pfconfig.conf already exists, won't touch it!"
         fi
 	/sbin/ldconfig
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ] || [ ${DIST} = "bookworm" ]; then
 	    systemctl enable packetfence-config
         fi
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then

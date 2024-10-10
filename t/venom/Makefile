@@ -65,6 +65,14 @@ halt_pf_force:
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	./test-wrapper.sh halt_force
 
+teardown: teardown_pf clean_cache
+teardown_pf:
+	PF_VM_NAMES="$(PF_VM_NAMES)" \
+	CLUSTER_NAME="$(CLUSTER_NAME)" \
+	RESULT_DIR=$(RESULT_DIR) \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	./test-wrapper.sh teardown
+
 clean: clean_pf clean_cache
 
 clean_pf:
@@ -83,9 +91,9 @@ configurator_el8_pristine:
 	SCENARIOS_TO_RUN=configurator \
 	$(MAKE_TARGET)
 
-configurator_deb11_pristine:
+configurator_deb12_pristine:
 	make \
-	PF_VM_NAMES=deb11$(DEV_ENV) \
+	PF_VM_NAMES=deb12$(DEV_ENV) \
 	SCENARIOS_TO_RUN=configurator \
 	$(MAKE_TARGET)
 
@@ -103,9 +111,9 @@ configurator_el8:
 	SCENARIOS_TO_RUN=configurator \
 	$(MAKE_TARGET)
 
-configurator_deb11:
+configurator_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	SCENARIOS_TO_RUN=configurator \
 	$(MAKE_TARGET)
 
@@ -116,9 +124,9 @@ dot1x_eap_peap_el8:
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
 
-dot1x_eap_peap_deb11:
+dot1x_eap_peap_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="ad switch01 node01 node03 wireless01" \
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
@@ -130,9 +138,9 @@ mac_auth_el8:
 	SCENARIOS_TO_RUN=mac_auth \
 	$(MAKE_TARGET)
 
-mac_auth_deb11:
+mac_auth_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01 wireless01" \
 	SCENARIOS_TO_RUN=mac_auth \
 	$(MAKE_TARGET)
@@ -144,16 +152,16 @@ dot1x_eap_tls_el8:
 	SCENARIOS_TO_RUN=dot1x_eap_tls \
 	$(MAKE_TARGET)
 
-dot1x_eap_tls_deb11:
+dot1x_eap_tls_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="ad switch01 node01" \
 	SCENARIOS_TO_RUN=dot1x_eap_tls \
 	$(MAKE_TARGET)
 
-inline_deb11:
+inline_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	SCENARIOS_TO_RUN=inline \
 	$(MAKE_TARGET)
 
@@ -163,23 +171,23 @@ inline_el8:
 	SCENARIOS_TO_RUN=inline \
 	$(MAKE_TARGET)
 
-fingerbank_invalid_db_deb11:
+fingerbank_invalid_db_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
 	SCENARIOS_TO_RUN=fingerbank_invalid_db \
 	$(MAKE_TARGET)
 
-external_integrations_deb11:
+external_integrations_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="linux02" \
 	SCENARIOS_TO_RUN=external_integrations \
 	$(MAKE_TARGET)
 
-security_events_deb11:
+security_events_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01" \
 	SCENARIOS_TO_RUN=security_events \
 	$(MAKE_TARGET)
@@ -190,9 +198,9 @@ cli_login_el8:
         SCENARIOS_TO_RUN=cli_login \
         $(MAKE_TARGET)
 
-cli_login_deb11:
+cli_login_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	SCENARIOS_TO_RUN=cli_login \
 	$(MAKE_TARGET)
 
@@ -203,9 +211,9 @@ captive_portal_el8:
 	SCENARIOS_TO_RUN=captive_portal \
 	$(MAKE_TARGET)
 
-captive_portal_deb11:
+captive_portal_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01" \
 	SCENARIOS_TO_RUN=captive_portal \
 	$(MAKE_TARGET)
@@ -214,12 +222,12 @@ inline_l2_and_radius_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01 node03" \
+
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
-
-inline_l2_and_radius_deb11:
+inline_l2_and_radius_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01 node03" \
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
@@ -230,9 +238,9 @@ pfappserver_el8:
 	SCENARIOS_TO_RUN=pfappserver \
 	$(MAKE_TARGET)
 
-pfappserver_deb11:
+pfappserver_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	SCENARIOS_TO_RUN=pfappserver \
 	$(MAKE_TARGET)
 
@@ -245,24 +253,24 @@ example_el8:
 	$(MAKE_TARGET)
 
 # can be overriden like this:
-# make -C t/venom/ INT_TEST_VM_NAMES=switch01 SCENARIOS_TO_RUN=configurator example_deb11
-example_deb11: SCENARIOS_TO_RUN=example
-example_deb11:
+# make -C t/venom/ INT_TEST_VM_NAMES=switch01 SCENARIOS_TO_RUN=configurator example_deb12
+example_deb12: SCENARIOS_TO_RUN=example
+example_deb12:
 	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	$(MAKE_TARGET)
 
-test_deb11:
+test_deb12:
 	make \
-        PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+        PF_VM_NAMES=pfdeb12$(DEV_ENV) \
         SCENARIOS_TO_RUN=test_venom\
         $(MAKE_TARGET)
 
-cluster_deb11:
+cluster_deb12:
 	make \
-	PF_VM_NAMES="pf1deb11$(DEV_ENV) pf2deb11$(DEV_ENV) pf3deb11$(DEV_ENV)" \
+	PF_VM_NAMES="pf1deb12$(DEV_ENV) pf2deb12$(DEV_ENV) pf3deb12$(DEV_ENV)" \
 	CLUSTER_NAME="$@$(DEV_ENV)" \
 	SCENARIOS_TO_RUN=cluster \
 	$(MAKE_TARGET)
@@ -276,23 +284,23 @@ cluster_el8:
 
 ### alias to run tests on other branches
 # it's a hack to simplify definition of jobs in .gitlab-ci.yml
-captive_portal_deb11_branches: captive_portal_deb11
+captive_portal_deb12_branches: captive_portal_deb12
 captive_portal_el8_branches: captive_portal_el8
-cli_login_deb11_branches: cli_login_deb11
+cli_login_deb12_branches: cli_login_deb12
 cli_login_el8_branches: cli_login_el8
-configurator_deb11_branches: configurator_deb11
+configurator_deb12_branches: configurator_deb12
 configurator_el8_branches: configurator_el8
-dot1x_eap_peap_deb11_branches: dot1x_eap_peap_deb11
+dot1x_eap_peap_deb12_branches: dot1x_eap_peap_deb12
 dot1x_eap_peap_el8_branches: dot1x_eap_peap_el8
-dot1x_eap_tls_deb11_branches: dot1x_eap_tls_deb11
+dot1x_eap_tls_deb12_branches: dot1x_eap_tls_deb12
 dot1x_eap_tls_el8_branches: dot1x_eap_tls_el8
-external_integrations_deb11_branches: external_integrations_deb11
-fingerbank_invalid_db_deb11_branches: fingerbank_invalid_db_deb11
-inline_deb11_branches: inline_deb11
+external_integrations_deb12_branches: external_integrations_deb12
+fingerbank_invalid_db_deb12_branches: fingerbank_invalid_db_deb12
+inline_deb12_branches: inline_deb12
 inline_el8_branches: inline_el8
-mac_auth_deb11_branches: mac_auth_deb11
+mac_auth_deb12_branches: mac_auth_deb12
 mac_auth_el8_branches: mac_auth_el8
-security_events_deb11_branches: security_events_deb11
+security_events_deb12_branches: security_events_deb12
 unit_tests_el8_branches: unit_tests_el8
 pfappserver_el8_branches: pfappserver_el8
-pfappserver_deb11_branches: pfappserver_deb11
+pfappserver_deb12_branches: pfappserver_deb12

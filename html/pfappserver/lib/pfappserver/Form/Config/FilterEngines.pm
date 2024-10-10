@@ -100,7 +100,31 @@ our %ADDITIONAL_FIELD_OPTIONS = (
                 allowed_values => [ map { { text => $_, value => $_  } } keys %RADIUS_EAP_TYPE_2_VALUES  ],
             }
         },
-    }
+    },
+    'compliant_check' => {
+        siblings => {
+            value => {
+                allowed_values => [
+                    { text => 'compliant',    value => 1 },
+                    { text => 'noncompliant', value => 0 },
+                ],
+            },
+            op => {
+                allowed => [
+                    {
+                        "requires" => [ "value", "field" ],
+                        "text"     => "equals",
+                        "value"    => "equals"
+                    },
+                    {
+                        "requires" => [ "value", "field" ],
+                        "text"     => "not_equals",
+                        "value"    => "not_equals"
+                    },
+                ],
+            },
+        },
+      },
 );
 
 sub option_scopes {
@@ -157,7 +181,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

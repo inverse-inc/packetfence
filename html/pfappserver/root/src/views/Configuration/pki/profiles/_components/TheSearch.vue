@@ -154,7 +154,7 @@ const setup = (props, context) => {
   })
 
   $store.dispatch('$_pkis/allCas')
-  const cas = computed(() => $store.getters['$_pkis/cas'] || [])
+  const cas = computed(() => $store.state.$_pkis.caListCache || [])
   const casSorted = computed(() => {
     return Array.prototype.slice.call(cas.value)
       .sort((a, b) => a.cn.localeCompare(b.cn)) // sort cas by 'cn'

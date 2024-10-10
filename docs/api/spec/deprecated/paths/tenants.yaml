@@ -10,12 +10,6 @@
     - $ref: '#/components/parameters/fields'
     - $ref: '#/components/parameters/sort'
     responses:
-      '200':
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TenantsList'
-        description: List
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -25,12 +19,6 @@
     description: Create an item
     operationId: api.v1.Tenants.create
     parameters: []
-    requestBody:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Tenant'
-      description: Create item
     responses:
       '201':
         $ref: '#/components/responses/Created'

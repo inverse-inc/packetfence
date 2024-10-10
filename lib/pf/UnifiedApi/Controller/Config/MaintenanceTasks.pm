@@ -52,6 +52,7 @@ use pfappserver::Form::Config::Pfcron::purge_binary_logs;
 use pfappserver::Form::Config::Pfcron::node_current_session_cleanup;
 use pfappserver::Form::Config::Pfcron::flush_radius_audit_log;
 use pfappserver::Form::Config::Pfcron::flush_dns_audit_log;
+use pfappserver::Form::Config::Pfcron::pfflow;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfcron::$_" } qw(
@@ -83,6 +84,7 @@ our %TYPES_TO_FORMS = (
       node_current_session_cleanup
       flush_radius_audit_log
       flush_dns_audit_log
+      pfflow
     )
 );
 
@@ -134,7 +136,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

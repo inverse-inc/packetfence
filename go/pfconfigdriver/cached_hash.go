@@ -9,25 +9,25 @@ import (
 
 type CachedHash struct {
 	PfconfigNS string
-	ids        PfconfigKeys
+	Ids        PfconfigKeys
 	Structs    map[string]PfconfigObject
 	New        func(context.Context, string) (PfconfigObject, error)
 }
 
 func (cc *CachedHash) Refresh(ctx context.Context) {
-	cc.ids.PfconfigNS = cc.PfconfigNS
+	cc.Ids.PfconfigNS = cc.PfconfigNS
 
 	var reload bool
 
 	// If ids changed, we want to reload
-	if !IsValid(ctx, &cc.ids) {
+	if !IsValid(ctx, &cc.Ids) {
 		reload = true
 	}
 
-	FetchDecodeSocketCache(ctx, &cc.ids)
+	FetchDecodeSocketCache(ctx, &cc.Ids)
 
 	if cc.Structs != nil {
-		for _, id := range cc.ids.Response.Keys {
+		for _, id := range cc.Ids.Response.Keys {
 			o, ok := cc.Structs[id]
 
 			if !ok {
@@ -48,7 +48,7 @@ func (cc *CachedHash) Refresh(ctx context.Context) {
 	if reload {
 		newObjects := make(map[string]PfconfigObject)
 
-		for _, id := range cc.ids.Response.Keys {
+		for _, id := range cc.Ids.Response.Keys {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Adding object %s", id))
 
 			o, err := cc.New(ctx, id)
@@ -62,6 +62,25 @@ func (cc *CachedHash) Refresh(ctx context.Context) {
 	}
 }
 
+func (cc *CachedHash) IsValid(ctx context.Context) bool {
+	if !IsValid(ctx, &cc.Ids) {
+		return false
+	}
+
+	for _, id := range cc.Ids.Response.Keys {
+		o, ok := cc.Structs[id]
+		if !ok {
+			return false
+		}
+
+		if !IsValid(ctx, o) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (cc *CachedHash) Keys(ctx context.Context) []string {
-	return cc.ids.Keys
+	return cc.Ids.Keys
 }

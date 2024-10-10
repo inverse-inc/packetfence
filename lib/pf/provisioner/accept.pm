@@ -1,4 +1,5 @@
 package pf::provisioner::accept;
+
 =head1 NAME
 
 pf::provisioner::accept add documentation
@@ -15,6 +16,8 @@ use strict;
 use warnings;
 use List::MoreUtils qw(any);
 use Moo;
+use pf::node qw(node_view);
+
 extends 'pf::provisioner';
 
 =head1 METHODS
@@ -25,8 +28,12 @@ always authorize user
 
 =cut
 
-sub authorize { 1 };
-
+sub authorize {
+    my ($self, $mac) = @_;
+    my $node_info = node_view($mac);
+    $self->handleAuthorizeEnforce($mac, {node_info => $node_info});
+    return 1;
+}
  
 =head1 AUTHOR
 
@@ -34,7 +41,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
@@ -56,4 +63,3 @@ USA.
 =cut
 
 1;
-

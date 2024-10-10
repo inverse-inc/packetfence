@@ -363,7 +363,7 @@ sub check_if_radius_request_psk_matches {
 
     my $pmk = $self->cache->compute(
         "Ruckus::SmartZone::check_if_radius_request_psk_matches::PMK::$radius_request->{'Ruckus-Wlan-Name'}+$psk", 
-        "1 month",
+        {expires_in => '1 month', expires_variance => '.20'},
         sub { pf::util::wpa::calculate_pmk($radius_request->{"Ruckus-Wlan-Name"}, $psk) },
     );
 
@@ -450,7 +450,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

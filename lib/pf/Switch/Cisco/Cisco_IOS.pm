@@ -699,13 +699,16 @@ sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
     # http://www.cpanforum.com/threads/6909
 
-    my $command =
-        "/usr/local/pf/bin/pfcmd_vlan -switch $self->{_ip} "
-        . "-runSwitchMethod _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex $ifIndex $maxSecureMac"
-    ;
-
     $logger->info("spawning a pfcmd_vlan process to set 'switchport port-security maximum $maxSecureMac vlan access'");
-    pf_run($command);
+    safe_pf_run(
+        "/usr/local/pf/bin/pfcmd_vlan",
+        '-switch', $self->{_ip},
+        "-runSwitchMethod",
+        '_setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex',
+        $ifIndex,
+        $maxSecureMac
+    );
+
     return $TRUE;
 }
 
@@ -1200,7 +1203,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

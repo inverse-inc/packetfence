@@ -23,7 +23,7 @@ use Moo;
 use NetAddr::IP;
 use Template;
 use Data::Dumper;
-use File::Slurp qw(write_file);
+use File::Slurp qw(read_file write_file);
 
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
@@ -35,6 +35,7 @@ use Socket;
 
 use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_error);
+use pf::ssl qw(x509_from_string cn_from_dn);
 
 use pf::file_paths qw(
     $conf_dir
@@ -812,7 +813,7 @@ $edir_options
     }
     user {
         base_dn = "\${..base_dn}"
-        filter = "(&(|$searchattributes($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{%{Stripped-User-Name}:-%{User-Name}}))$append)"
+        filter = "(&(|$searchattributes($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{Stripped-User-Name})($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{User-Name}))$append)"
     }
     options {
         chase_referrals = yes
@@ -916,6 +917,12 @@ EOT
             $tags{'config'} .= <<"EOT";
 }
 EOT
+        }
+        #Add radius sources defined in eduroam source
+        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+        if (@eduroam_authentication_source) {
+            my $eduroam_source = $eduroam_authentication_source[0];
+            push(@radius_sources, @{$eduroam_source->{'eduroam_radius_auth'}});
         }
         if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
             $tags{'config'} .= <<"EOT";
@@ -1043,49 +1050,27 @@ $source->{'options'}
 EOT
     }
     # Eduroam configuration
-    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
-        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-        my $server_pool;
+    my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+    if (@eduroam_authentication_source) {
+        my $eduroam_source = $eduroam_authentication_source[0];
         my $home_server;
-        my $eduroam_options = $eduroam_authentication_source[0]->{'eduroam_options'};
-        my $eduroam_radius_auth_proxy_type = $eduroam_authentication_source[0]->{'eduroam_radius_auth_proxy_type'};
+        my $eduroam_options = $eduroam_source->{'eduroam_options'};
+        my $eduroam_radius_auth_proxy_type = $eduroam_source->{'eduroam_radius_auth_proxy_type'};
         my $i = 0;
-        foreach my $radius_server (@{$eduroam_authentication_source[0]->{'eduroam_radius_auth'}}) {
-            $i++;
-
-            my $radius_source = pf::authentication::getAuthenticationSource($radius_server);
-            my $radius_secret = $radius_source->{secret};
-            my $radius_ip = $radius_source->{host};
-            my $radius_port = $radius_source->{port};
-            my $radius_options = $radius_source->{options};
-            $server_pool .= <<"EOT";
-    home_server = eduroam_server$i
-EOT
-
-            $home_server .= <<"EOT";
-home_server eduroam_server$i {
-    $radius_options
-    ipaddr = $radius_ip
-    port = $radius_port
-    secret = '$radius_secret'
-}
-
-EOT
-
-        }
-        if ($i) {
+        my $server_pool = join("\n", map { "    home_server = $_" } @{$eduroam_source->{'eduroam_radius_auth'}});
+        if ($server_pool) {
         $tags{'eduroam'} = <<"EOT";
-# Eduroam integration
 
+# Eduroam integration
 realm eduroam {
     auth_pool = eduroam_auth_pool
     $eduroam_options
 }
+
 home_server_pool eduroam_auth_pool {
 $server_pool
-type = $eduroam_radius_auth_proxy_type
+    type = $eduroam_radius_auth_proxy_type
 }
-$home_server
 EOT
         }
     } else {
@@ -1115,10 +1100,10 @@ home_server pfacct_local {
 }
 
 EOT
-    }
-    else {
+    } else {
         $tags{'pfacct'} = "# pfacct is not enabled";
     }
+
     $tt->process("$conf_dir/radiusd/proxy.conf.inc", \%tags, "$install_dir/raddb/proxy.conf.inc") or die $tt->error();
 
     undef %tags;
@@ -1561,10 +1546,15 @@ sub generate_multi_domain_constants {
 package multi_domain_constants;
 our (%ConfigRealm, @ConfigOrderedRealm, %ConfigDomain);
 ];
-    $content .= Data::Dumper->Dump(
-        [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomain],
-        ['*ConfigRealm', '*ConfigOrderedRealm', '*ConfigDomain']
-    );
+    {
+        local $Data::Dumper::Purity = 1;
+        local $Data::Dumper::Terse = 0;
+        local $Data::Dumper::Indent = 2;
+        $content .= Data::Dumper->Dump(
+            [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomain],
+            ['*ConfigRealm', '*ConfigOrderedRealm', '*ConfigDomain']
+        );
+    }
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
     chmod(0644, "$install_dir/raddb/mods-config/perl/multi_domain_constants.pm");
@@ -1615,6 +1605,52 @@ sub generate_radiusd_certificates {
             }
         }
     }
+}
+
+=head2 get_cn_and_cert_radiusd_certificates
+
+Extract all CA certificates from radius files
+Organize them in a table of haches with keys cn and base64
+
+=cut
+
+sub _extract_radiusd_certificates {
+    my ($self) = @_;
+    my %hcerts;
+    my @vals = ("crt","pem");
+    foreach my $ext (@vals){
+        foreach my $key (keys %ConfigEAP) {
+            foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
+                my $ckey = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
+                my $mkey = pf::ssl::rsa_from_string($ckey);
+                my $cext = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".".$ext);
+                my @certs = split_pem($cext);
+                foreach my $cert (@certs) {
+                    my $mcert = pf::ssl::x509_from_string($cert);
+                    my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($mcert, $mkey);
+                    unless($key_match_res) {
+                        $hcerts{$cert} = $mcert;
+                    }
+                }
+            }
+        }
+    }
+    return %hcerts;
+}
+
+sub get_cn_and_cert_radiusd_certificates {
+    my ($self) = @_;
+    my %hcerts = _extract_radiusd_certificates();
+    my @certDict;
+    if(%hcerts){
+        foreach my $cert (keys %hcerts) {
+            my $s = pf::ssl::cn_from_dn($hcerts{$cert}->subject);
+            if ($s) {
+                push ( @certDict, { cn => $s, base64 => $cert });
+            }
+        }
+    }
+    return @certDict;
 }
 
 =head2 generate_container_environments
@@ -1686,7 +1722,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

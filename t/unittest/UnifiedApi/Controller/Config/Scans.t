@@ -22,8 +22,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 12;
 use Test::Mojo;
+use IPC::Open3;
+use IO::Handle;
+use pf::defer;
+use Symbol 'gensym';
 
 #This test will running last
 use Test::NoWarnings;
@@ -32,6 +36,21 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/scans';
 
 my $base_url = '/api/v1/config/scan';
+
+my $child_err = gensym;
+my $pid = open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/rapid7.pl", "daemon", "-l", "https://localhost:8834");
+my $defer = pf::defer::defer(
+    sub {
+        kill( 'INT', $pid );
+        waitpid( $pid, 0 );
+    }
+);
+
+$t->options_ok("$base_url/rapid7")
+  ->status_is(200)
+  ->json_is("/meta/site_id/allowed/0/value", 5)
+  ->json_is("/meta/engine_id/allowed/0/value", 6)
+  ->json_is("/meta/template_id/allowed/0/value", 'full-audit-without-web-spider' );
 
 $t->get_ok($collection_base_url)
   ->status_is(200);
@@ -42,13 +61,15 @@ $t->post_ok($collection_base_url => json => {})
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
 
+#use Data::Dumper;print Dumper($t->tx->res->json);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

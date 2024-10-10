@@ -50,7 +50,7 @@ use Utils;
     node_add_simple($mac2);
     node_register($mac2, $pid2, last_seen => $last_seen2, auto_registered => 1, category_id => 1);
 
-    node_cleanup(12*60*60, 0, 'disabled');
+    node_cleanup(12*60*60, 0, 'disabled', 100, 10);
     $node1 = node_view($mac1);
     ok(!defined ($node1), "$mac1 was cleaned");
 
@@ -58,7 +58,7 @@ use Utils;
     ok(defined ($node2), "$mac2 was not cleaned");
     is($node2->{status}, "reg", "$mac2 is reg");
 
-    node_cleanup(0, 6*60*60, 'disabled');
+    node_cleanup(0, 6*60*60, 'disabled', 100, 10);
     $node2 = node_view($mac2);
     is($node2->{status}, "unreg", "$mac2 is unreg");
 }
@@ -85,7 +85,7 @@ use Utils;
     node_add_simple($mac2);
     node_register($mac2, $pid2, last_seen => $last_seen2, auto_registered => 1, category_id => 1);
 
-    node_cleanup(12*60*60, 6*60*60, 'disabled');
+    node_cleanup(12*60*60, 6*60*60, 'disabled', 100, 10);
     $node1 = node_view($mac1);
     ok(!defined ($node1), "$mac1 was cleaned");
 
@@ -101,7 +101,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

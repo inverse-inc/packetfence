@@ -35,7 +35,21 @@ my @binaries = (
 plan tests => 2;
 my $ast = Test2::AsyncSubtest->new(name => "binaries");
 my $current_children = 0;
+
+sub is_python {
+    my ($b) = @_;
+    $b =~ /\.py$/;
+}
+
 foreach my $current_binary (@binaries) {
+    if (is_python($current_binary)) {
+        $ast->run_fork(sub {
+            is( system("/usr/bin/python3 -m py_compile $current_binary 2>&1"), 0, "$current_binary compiles" );
+        });
+
+        next;
+    }
+
     my $flags = '-I/usr/local/pf/t -Mtest_paths';
     if ($current_binary =~ m#/usr/local/pf/bin/pfcmd\.pl#) {
         $flags .= ' -T';
@@ -60,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

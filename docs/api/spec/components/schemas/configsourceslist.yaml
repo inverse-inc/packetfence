@@ -1,9 +1,0 @@
-ConfigSourcesList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ConfigSource'
-        type: array
-    type: object

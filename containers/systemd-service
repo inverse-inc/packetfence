@@ -19,6 +19,7 @@ function base_args {
   args="$args -ePF_UID=`id -u pf` -e PF_GID=`id -g pf`"
   args="$args -eFINGERBANK_UID=`id -u fingerbank` -e FINGERBANK_GID=`id -g fingerbank`"
   args="$args -eIS_A_CLASSIC_PF_CONTAINER=yes"
+  args="$args -eTZ=`timedatectl | grep Time | awk '{print $3}'`"
 
   if [ -f /usr/local/pf/containers/.local_env ]; then
     args="$args --env-file /usr/local/pf/containers/.local_env"
@@ -37,8 +38,6 @@ function base_args {
   if [ -f /usr/local/pf/var/conf/$name.env ]; then
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
   fi
-
-  args="$args -v /etc/localtime:/etc/localtime:ro"
 
   echo "$args"
 }
@@ -100,6 +99,21 @@ function run {
   fi
 }
 
+function run_multi() {
+  local name="$1"
+  local suffix="$2"
+  local args="$3"
+  local cmd="$4"
+  local img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
+  if [ "$LOCAL_DEV" = "true" ]; then
+    cd /usr/local/pf/
+    systemd-notify --ready
+    img=$(build_img $name)
+    run_img $img "$name-$suffix" "$args" "$cmd"
+  else
+    run_img $img "$name-$suffix" "$args" "$cmd"
+  fi
+}
 function sdproxy() {
   SD_NOTIFY_PROXY=/usr/local/pf/sbin/sdnotify-proxy
   SD_SOCK=/usr/local/pf/var/run/$1-systemd-notify.sock

@@ -134,6 +134,11 @@ sub instantiate {
                 if (my $rangeConfig = first { $ip->within($_->[0]) } @SwitchRanges) {
                     $requestedSwitch = $search;
                     $switch_data     = $SwitchConfig{$rangeConfig->[1]};
+                    if (!defined $switch_data) {
+                        $logger->error("$search matched but it is not found");
+                        next;
+                    }
+
                     last;
                 }
             }
@@ -366,7 +371,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

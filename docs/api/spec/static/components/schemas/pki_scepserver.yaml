@@ -1,0 +1,147 @@
+PkiScepServer:
+  type: object
+  properties:
+    name:
+      type: string
+    url:
+      type: string
+    shared_secret:
+      type: string
+
+PkiScepServerForm:
+  allOf:
+    - $ref: '#/components/schemas/PkiScepServer'
+    - required:
+      - name
+      - url
+      - shared_secret
+
+PkiScepServersList:
+  type: object
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - properties:
+        contentType:
+          type: string
+        error:
+          type: string
+        items:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/PkiScepServer'
+        password:
+          type: string
+        raw:
+          type: string
+          nullable: true
+        serial:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+
+PkiScepServersSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - type: object
+      properties:
+        items:
+          description: SCEP Servers.
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiScepServer'
+
+PkiScepServersQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/PkiScepServersQueryNested'
+    - $ref: '#/components/schemas/PkiScepServersQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/PkiScepServersQueryNested'
+      or: '#/components/schemas/PkiScepServersQueryNested'
+      contains: '#/components/schemas/PkiScepServersQueryField'
+      not_contains: '#/components/schemas/PkiScepServersQueryField'
+      match: '#/components/schemas/PkiScepServersQueryField'
+      not_match: '#/components/schemas/PkiScepServersQueryField'
+      between: '#/components/schemas/PkiScepServersQueryField'
+      not_between: '#/components/schemas/PkiScepServersQueryField'
+      is: '#/components/schemas/PkiScepServersQueryField'
+      is_not: '#/components/schemas/PkiScepServersQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+PkiScepServersQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/PkiScepServersQuery'
+
+PkiScepServersQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/PkiScepServersField'
+    value:
+      description: Search criteria.
+      type: string
+
+PkiScepServersFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/PkiScepServersField'
+  example:
+    - id
+    - name
+    - url
+    - shared_secret
+
+PkiScepServersField:
+  type: string
+  example: id
+  enum:
+    - id
+    - name
+    - url
+    - shared_secret
+
+PkiScepServersSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - name ASC
+      - name DESC
+      - url ASC
+      - url DESC

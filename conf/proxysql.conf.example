@@ -70,8 +70,10 @@ mysql_variables=
 
 [% monitor %]
 
+[% IF scheduler %]
     monitor_galera_healthcheck_interval=2000
     monitor_galera_healthcheck_timeout=800
+[% END %]
 }
 
 [% UNLESS single_server %]
@@ -89,6 +91,7 @@ mysql_replication_hostgroups =
 
   [% ELSE %]
 
+    [% IF scheduler %]
 mysql_galera_hostgroups =
 (
     {
@@ -102,7 +105,7 @@ mysql_galera_hostgroups =
         active=1
     }
 )
-
+    [% END %]
   [% END %]
 [% END %]
  
@@ -158,9 +161,11 @@ mysql_users =
 )
 
 [% UNLESS single_server %]
+
 scheduler =
 (
   {
+  [% IF scheduler %]
      id=1
      active=1
      interval_ms=5000
@@ -169,6 +174,14 @@ scheduler =
      arg2="{\"username\":\"[% mysql_pf_user %]\", \"password\":\"[% mysql_pf_pass %]\"}"
      arg3="{\"read_write_hostgroup\":10, \"read_hostgroup\":30, \"rule_ids\":\"100,400\"}"
      arg4="/proxysql-read-only-handler.log"
+  [% ELSE %]
+     id=11
+     active=1
+     interval_ms=2000
+     filename="/pxc_scheduler_handler"
+     arg1="--configfile=config.toml"
+     arg2="--configpath=/usr/local/pf/var/conf"
+  [% END %]
   }
 )
 [% END %]

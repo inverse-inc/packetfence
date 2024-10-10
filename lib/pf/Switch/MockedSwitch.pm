@@ -3311,11 +3311,10 @@ sub returnPushAclsRoleAttributes {
     return ($self->returnRoleAttribute() => $role);
 }
 
-
 sub usePushACLs {
     my ($self) = @_;
     return $self->supportsPushACLs() &&
-        isenabled($self->{_PushACLs});
+        isenabled($self->{_UsePushACLs});
 }
 
 =head2 acl_chewer
@@ -3382,7 +3381,7 @@ sub generateAnsibleConfiguration {
 
     return if ($self->{_id} =~ /.*\/.*/ or $self->{_id} =~ /.*\:.*/ or $self->{_id} eq 'default' or $self->{_id} eq '100.64.0.1' or $self->{_id} eq '127.0.0.1');
     my $switch_id = $self->{_id};
-    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_PushACLs'}));
+    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_UsePushACLs'}));
 
     my $switch_ip = $switch_id;
     $switch_id =~ s/\./_/g;
@@ -3476,7 +3475,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

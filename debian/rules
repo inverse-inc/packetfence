@@ -61,6 +61,8 @@ install: build
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 
+	install -d -m2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/caddy-services/api.conf.d
+
 	# packetfence-test package
 	make DESTDIR=$(CURDIR)/debian/packetfence-test test_install
 
@@ -151,6 +153,7 @@ install: build
 	#PacketFence Mariadb plugin
 	make src/mariadb_udf/pf_udf.so
 	install -D -m0755 src/mariadb_udf/pf_udf.so $(CURDIR)/debian/packetfence/$$(pkg-config mariadb --variable=plugindir)/pf_udf.so
+	install -m0755 .dockerignore $(CURDIR)/debian/packetfence/.dockerignore
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
@@ -229,7 +232,9 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfcron
 	dh_installinit --name=packetfence-pfperl-api
 	dh_installinit --name=packetfence-pfpki
-	dh_installinit --name=packetfence-pfqueue
+	dh_installinit --name=packetfence-pfqueue-backend
+	dh_installinit --name=packetfence-pfqueue-go
+	dh_installinit --name=packetfence-pfqueue-perl
 	dh_installinit --name=packetfence-pfsso
 	dh_installinit --name=packetfence-radiusd-acct
 	dh_installinit --name=packetfence-radiusd-auth
@@ -240,7 +245,6 @@ binary-arch: build install
 	dh_installinit --name=packetfence-redis_ntlm_cache
 	dh_installinit --name=packetfence-redis_queue
 	dh_installinit --name=packetfence-snmptrapd
-	dh_installinit --name=packetfence-winbindd
 	dh_installinit --name=packetfence-pfdhcp
 	dh_installinit --name=packetfence-pfipset
 	dh_installinit --name=packetfence-pfunified-api
@@ -250,8 +254,11 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfconnector-client
 	dh_installinit --name=packetfence-proxysql
 	dh_installinit --name=packetfence-pfldapexplorer
+	dh_installinit --no-start --name=packetfence-ntlm-auth-api
+	dh_installinit --name=packetfence-ntlm-auth-api-domain@
 	dh_installinit --name=packetfence-pfsetacls
 	dh_installinit --no-start --name=packetfence-tracking-config
+	dh_installinit --no-start --name=packetfence-kafka
 
 	dh_installcron
 #	dh_installinfo
@@ -270,6 +277,7 @@ binary-arch: build install
 	dh_compress
 	# PERMISSIONS
 	chmod 0750 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf
+	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/services.d
 	### Executables
 	# packetfence-export pkg
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/export.sh
@@ -398,6 +406,9 @@ ifeq ($(DIST),stretch)
 	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
 ifeq ($(DIST),bullseye)
+	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
+endif
+ifeq ($(DIST),bookworm)
 	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
 	dh_md5sums

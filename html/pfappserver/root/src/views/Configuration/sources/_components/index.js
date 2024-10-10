@@ -128,6 +128,7 @@ export {
   BaseFormGroupInput                        as FormGroupTwilioPhoneNumber,
   BaseFormGroupSwitch                       as FormGroupUseConnector,
   BaseFormGroupInputNumber                  as FormGroupUserGroupsCache,
+  BaseFormGroupInput                        as FormGroupUserGroupsUrl,
   BaseFormGroupInput                        as FormGroupUserHeader,
   BaseFormGroupChosenOne                    as FormGroupUsernameAttribute,
   BaseFormGroupInput                        as FormGroupUsernameAttributeString,

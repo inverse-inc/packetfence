@@ -41,24 +41,17 @@ export default {
       throw err
     })
   },
-  join: data => {
-    return apiCall.post(['config', 'domain', data.id, 'join'], data).then(response => {
-      return response.data
-    })
-  },
-  rejoin: data => {
-    return apiCall.post(['config', 'domain', data.id, 'rejoin'], data).then(response => {
-      return response.data
-    })
-  },
-  unjoin: data => {
-    return apiCall.post(['config', 'domain', data.id, 'unjoin'], data).then(response => {
-      return response.data
-    })
-  },
   search: data => {
     return apiCall.post('config/domains/search', data).then(response => {
       return response.data
+    })
+  },
+  testMachineAccount: data => {
+    const post = data.quiet ? 'postQuiet' : 'post'
+    return apiCall[post]('ntlm/test', data).then(response => {
+      return response.data
+    }).catch(err=> {
+      throw err
     })
   }
 }

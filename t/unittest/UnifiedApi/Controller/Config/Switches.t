@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 74;
+use Test::More tests => 80;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -60,6 +60,33 @@ my $defaults = $cs->read('defaults');
 
         }
     )->status_is(422);
+}
+
+{
+
+    my $id =  "arubra.packetfence.org";
+    $t->post_ok(
+        $collection_base_url => json => {
+            type => 'Aruba',
+            id                     => $id,
+            voiceVlan              => '222',
+            description            => "Bob",
+
+        }
+    )->status_is(422);
+
+    $t->post_ok(
+        $collection_base_url => json => {
+            type => 'Aruba::Instant',
+            id                     => $id,
+            voiceVlan              => '222',
+            description            => "Bob",
+
+        }
+    )->status_is(201);
+
+    $t->get_ok("$base_url/$id")
+    ->status_is(200);
 }
 
 {
@@ -293,7 +320,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

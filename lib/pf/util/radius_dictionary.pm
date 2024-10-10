@@ -5583,6 +5583,8 @@ our $RADIUS_DICTIONARY = bless(
             "PacketFence-Mac"                          => "Inverse",
             "PacketFence-NasName"                      => "Inverse",
             "PacketFence-NTCacheHash"                  => "Inverse",
+            "PacketFence-NTLM-Auth-Host"               => "Inverse",
+            "PacketFence-NTLM-Auth-Port"               => "Inverse",
             "PacketFence-NTLMv2-Only"                  => "Inverse",
             "PacketFence-Outer-User"                   => "Inverse",
             "PacketFence-Profile"                      => "Inverse",
@@ -15271,6 +15273,8 @@ our $RADIUS_DICTIONARY = bless(
                 38 => [ "PacketFence-reply-insert",         "string" ],
                 39 => [ "PacketFence-UserPassword",         "string" ],
                 40 => [ "PacketFence-ConnectorID",          "string" ],
+                41 => [ "PacketFence-NTLM-Auth-Host",       "string" ],
+                42 => [ "PacketFence-NTLM-Auth-Port",       "string" ],
             },
             29671 => {
                 1 => [ "Meraki-Device-Name",  "string" ],
@@ -30693,6 +30697,8 @@ our $RADIUS_DICTIONARY = bless(
                 "PacketFence-Mac"                  => [ 6,  "string" ],
                 "PacketFence-NasName"              => [ 25, "string" ],
                 "PacketFence-NTCacheHash"          => [ 34, "string" ],
+                "PacketFence-NTLM-Auth-Host"       => [ 41, "string" ],
+                "PacketFence-NTLM-Auth-Port"       => [ 42, "string" ],
                 "PacketFence-NTLMv2-Only"          => [ 35, "string" ],
                 "PacketFence-Outer-User"           => [ 36, "string" ],
                 "PacketFence-Profile"              => [ 20, "string" ],
@@ -38511,7 +38517,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

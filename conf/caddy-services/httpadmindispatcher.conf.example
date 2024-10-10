@@ -1,29 +1,49 @@
 # Copyright (C) Inverse inc.
+{
+	admin off
+	#debug
+}
+
 :8890 {
-  logger {
-    level INFO
-  }
-  httpdportalpreview
+	route * {
+		logger {
+			level INFO
+		}
+		httpdportalpreview
+	}
 }
 
-:8891/static/doc {
-  root /usr/local/pf/docs
-}
+:8891 {
+	log {
+		level DEBUG
+	}
 
-:8891/static {
-  root /usr/local/pf/html/pfappserver/root
-}
+	handle_path /static/doc/* {
+		root * /usr/local/pf/docs
+		file_server
+	}
 
-:8891/common {
-  root /usr/local/pf/html/common
-}
+	handle_path /static/* {
+		root * /usr/local/pf/html/pfappserver/root
+		file_server
+	}
 
-:8891/admin {
-  root /usr/local/pf/html/pfappserver/root/dist
-  index index.html
-}
+	rewrite /oas /oas/*
 
-:8891/oas {
-  root /usr/local/pf/html/swagger-ui
-  index index.html
+	handle_path /oas/* {
+		root * /usr/local/pf/html/swagger-ui
+		file_server
+	}
+
+	handle_path /common/* {
+		root * /usr/local/pf/html/common
+		file_server
+	}
+
+	rewrite /admin /admin/
+
+	handle_path /admin/* {
+		root * /usr/local/pf/html/pfappserver/root/dist
+		file_server
+	}
 }

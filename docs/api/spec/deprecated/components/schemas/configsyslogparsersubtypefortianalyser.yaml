@@ -1,0 +1,30 @@
+ConfigSyslogParserSubTypeFortianalyser:
+  properties:
+    id:
+      description: Detector
+      type: string
+    path:
+      description: Alert pipe
+      type: string
+    rate_limit:
+      description: Rate limit requests.
+      properties:
+        interval:
+          description: Interval
+          type: integer
+        unit:
+          description: Unit
+          type: string
+      type: object
+    status:
+      description: Enabled
+      type: string
+    type:
+      default: fortianalyser
+      description: Discriminator `fortianalyser`
+      type: string
+  required:
+  - id
+  - path
+  - type
+  type: object

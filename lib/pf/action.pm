@@ -175,6 +175,7 @@ sub action_api {
     my $class_info = class_view($security_event_id);
     my @params = split(' ', $class_info->{'external_command'});
     my $return;
+    my @cmd;
     my $node_info = node_view($mac);
     my $ip = pf::ip4log::mac2ip($mac) || 0;
     $node_info = {%$node_info, 'last_ip' => $ip};
@@ -183,12 +184,13 @@ sub action_api {
         $param =~ s/\$security_event_id/$security_event_id/ge;
         $param =~ s/\$(.*)/$node_info->{$1}/ge;
         $return .= $param." ";
+        push @cmd, $param;
     }
     $logger->warn($return);
 
     my $cmd = "$return 2>&1";
 
-    my @lines  = pf_run($cmd);
+    my @lines  = safe_pf_run(@cmd);
     return;
 }
 
@@ -207,7 +209,7 @@ our %ACTIONS = (
 );
 
 sub action_execute {
-    my ($mac, $security_event_id, $notes) = @_;
+    my ($mac, $security_event_id, $notes, $extra) = @_;
     my $logger = get_logger();
     my $leave_open = 0;
     my @actions = action_view_all($security_event_id);
@@ -223,7 +225,7 @@ sub action_execute {
         if ($action eq $REEVALUATE_ACCESS) {
             $leave_open = 1;
         }
-        $ACTIONS{$action}->($mac, $security_event_id, $notes);
+        $ACTIONS{$action}->($mac, $security_event_id, $notes, $extra);
     }
     if (!$leave_open && !($security_event_id eq $POST_SCAN_SECURITY_EVENT_ID || $security_event_id eq $PRE_SCAN_SECURITY_EVENT_ID || $security_event_id eq $SCAN_SECURITY_EVENT_ID)) {
         $logger->info("this is a non-reevaluate-access security_event, closing security_event entry now");
@@ -288,7 +290,7 @@ sub action_email_admin {
 }
 
 sub action_email_user {
-    my ($mac, $security_event_id, $notes) = @_;
+    my ($mac, $security_event_id, $notes, $extra) = @_;
     my $node_info = node_attributes($mac);
     my $person    = person_view( $node_info->{pid} );
 
@@ -300,17 +302,27 @@ sub action_email_user {
 
         my $additionnal_message = join('<br/>', split('\n', $pf::security_event_config::SecurityEvent_Config{$security_event_id}{user_mail_message}));
         my $to = $person->{email};
+        my $vars = {
+            description         => $description,
+            hostname            => $node_info->{computername},
+            os                  => $node_info->{device_type},
+            mac                 => $mac,
+            additionnal_message => $additionnal_message,
+        };
+        if (defined($extra) && defined($extra->{fleetdm})) {
+            $vars->{fleetdm} = $extra->{fleetdm};
+            if (defined($extra->{fleetdm}->{policy})) {
+                $vars->{policy} = $extra->{fleetdm}->{policy}
+            }
+            if (defined($extra->{fleetdm}->{vulnerability})) {
+                $vars->{cve} = $extra->{fleetdm}->{vulnerability}
+            }
+        }
         pf::config::util::send_email(
             'security_event-triggered',
             $to,
             "$description detection on $mac",
-            {
-                description         => $description,
-                hostname            => $node_info->{computername},
-                os                  => $node_info->{device_type},
-                mac                 => $mac,
-                additionnal_message => $additionnal_message,
-            }
+            $vars,
         );
     }
     else {
@@ -319,7 +331,7 @@ sub action_email_user {
 }
 
 sub action_email_recipient {
-    my ($mac, $security_event_id, $notes) = @_;
+    my ($mac, $security_event_id, $notes, $extra) = @_;
     my $class_info  = class_view($security_event_id);
     my $node_info = node_attributes($mac);
 
@@ -328,18 +340,28 @@ sub action_email_recipient {
 
     my $additionnal_message = join('<br/>', split('\n', $pf::security_event_config::SecurityEvent_Config{$security_event_id}{email_recipient_message}));
     my $to = $pf::security_event_config::SecurityEvent_Config{$security_event_id}{recipient_email};
+    my $vars = {
+        description         => $description,
+        hostname            => $node_info->{computername},
+        os                  => $node_info->{device_type},
+        mac                 => $mac,
+        additionnal_message => $additionnal_message,
+    };
+    if (defined($extra) && defined($extra->{fleetdm})) {
+        $vars->{fleetdm} = $extra->{fleetdm};
+        if (defined($extra->{fleetdm}->{policy})) {
+            $vars->{policy} = $extra->{fleetdm}->{policy}
+        }
+        if (defined($extra->{fleetdm}->{vulnerability})) {
+            $vars->{cve} = $extra->{fleetdm}->{vulnerability}
+        }
+    }
     if ($to ne "") {
         pf::config::util::send_email(
             $pf::security_event_config::SecurityEvent_Config{$security_event_id}{recipient_template_email},
             $to,
             "$description detection on $mac",
-            {
-                description         => $description,
-                hostname            => $node_info->{computername},
-                os                  => $node_info->{device_type},
-                mac                 => $mac,
-                additionnal_message => $additionnal_message,
-            }
+            $vars
         );
     }
     else {
@@ -427,7 +449,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

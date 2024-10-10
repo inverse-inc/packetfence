@@ -1,0 +1,68 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=ntlm-auth-api
+
+conf_dir="/usr/local/pf/var/conf/${name}.d/"
+cd $conf_dir || {
+    echo "Can not locate config dir: /usr/local/pf/var/conf/${name}.d/. Service unable to start."
+    exit 1
+}
+env_files=$(ls *.env 2>/dev/null)
+cd - || exit 1
+
+option=$1
+
+if [ -z "$env_files" ]; then
+    echo "No .env file found in /usr/local/pf/var/conf/${name}.d/. Service unable to start. Do you have a valid domain.conf, or manually edited domain.conf without a pfcmd configreload ?"
+    exit 1
+fi
+
+if [ "$option" == "" ]; then
+    echo "No option given, terminated"
+    exit 1
+fi
+
+if [ "$option" = "start" ]; then
+    for env_file in $env_files; do
+        iden=$(echo $env_file | awk -F '.' '{print $1}')
+        echo "Starting ntlm auth api domain service for: $iden using env file: $env_file"
+        systemctl start packetfence-ntlm-auth-api-domain@"$iden" &
+    done
+    /usr/local/pf/sbin/ntlm-auth-api-monitor &
+elif [ "$option" = "stop" ]; then
+    pids=$(pgrep -f "ntlm-auth-api-monitor")
+
+    if [ -n "$pids" ]; then
+        echo "$pids" | xargs kill
+        echo '' >/usr/local/pf/var/run/ntlm-auth-api.pid
+    fi
+
+    for env_file in $env_files; do
+        iden=$(echo $env_file | awk -F '.' '{print $1}')
+        echo "Stopping ntlm auth api domain service for: $iden"
+        systemctl stop packetfence-ntlm-auth-api-domain@"$iden" &
+    done
+
+    failures=0
+    while true; do
+        svcs=$(docker ps | grep "ntlm-auth-api-")
+        if [ -n "$svcs" ]; then
+            failures=$((failures + 1))
+        else
+            echo "Stopped."
+            break
+        fi
+
+        if [ $failures -gt 30 ]; then
+            echo "Some sub services failed to stop after 30s. Please check running containers docker ps | grep ntlm-auth-api for sub service details"
+            exit 1
+        fi
+
+        sleep 1
+    done
+
+    echo "stopped"
+    sleep 1
+fi

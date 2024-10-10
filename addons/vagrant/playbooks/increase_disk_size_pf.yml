@@ -1,0 +1,17 @@
+- hosts: pfservers
+  name: increase pf disk size on standalone
+  become: True
+
+  tasks:
+
+    - name: increase disk size
+      ansible.builtin.shell: |
+        if [ -f /etc/redhat-release ] ; then
+          lvextend -l +100%FREE /dev/rhel_rhel8/root
+          xfs_growfs /dev/rhel_rhel8/root
+        else
+          apt update
+          apt install -y cloud-guest-utils
+          growpart /dev/vda 1
+          resize2fs -p /dev/vda1
+        fi

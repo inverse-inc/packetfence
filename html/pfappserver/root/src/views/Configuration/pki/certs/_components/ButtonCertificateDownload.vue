@@ -1,6 +1,6 @@
 <template>
   <b-button-group v-if="!isClone && !isNew && !isScep && !isCsr">
-    <b-button size="sm" variant="outline-primary" :disabled="disabled || isLoading" @click="onShowModal">{{ $t('Download') }}</b-button>
+    <b-button :size="size" variant="outline-primary" :disabled="disabled || isLoading" @click="onShowModal">{{ $t('Download') }}</b-button>
     <b-modal v-model="isShowModal"
       size="lg" centered cancel-disabled>
       <template v-slot:modal-title>
@@ -57,6 +57,11 @@ const props = {
   },
   disabled: {
     type: Boolean
+  },
+  size: {
+    type: String,
+    default: "md",
+    validator: value => ['sm', 'md', 'lg'].includes(value)
   }
 }
 

@@ -2,11 +2,8 @@ include ../config.mk
 GO ?= go
 build_cmd = $(GO) build $(ARGS)
 
-.PHONY: clean-caddy-src
-clean-caddy-src:
-	find caddy/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
-	find caddy/ -type f -exec sed -i.bak "s'github.com/caddyserver/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
-	find caddy/caddy/ -name '*_test.go' -delete
+.PHONY: all
+all: $(PF_BINARIES)
 
 .PHONY: go-env
 go-env:
@@ -21,18 +18,11 @@ CMDS = $(wildcard cmd/*)
 ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 .PHONY: $(ALL_BINARIES)
 $(ALL_BINARIES):
-	cd cmd/$@ && \
-	$(build_cmd) && \
-	mv $@ ../..
+	$(build_cmd) -C cmd/$@ -o ../../$@
 
 ALL_BINARIES_RACE = $(patsubst cmd/%, %-race, $(CMDS))
 $(ALL_BINARIES_RACE):
-	cd cmd/$(@:-race=) && \
-	$(build_cmd) -o $@ -race && \
-	mv $@ ../..
-
-.PHONY: all
-all: $(PF_BINARIES)
+	$(build_cmd) -C cmd/$(@:-race=) -o ../../$@ -race
 
 .PHONY: copy
 copy:

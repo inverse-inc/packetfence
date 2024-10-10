@@ -33,13 +33,17 @@ Readonly our $OLDEST_RELEASED_ALGORITHM => 2;
 Readonly our $MEMORY_POOL => "memory";
 Readonly our $MYSQL_POOL => "mysql";
 
+# DHCP reply ip
+Readonly our $GIADDR => "giaddr";
+Readonly our $SRCIPDHCP => "srcip";
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

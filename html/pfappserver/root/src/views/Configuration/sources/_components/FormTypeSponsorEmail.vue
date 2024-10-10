@@ -54,6 +54,8 @@
     <form-group-register-on-activation namespace="register_on_activation"
                                        :column-label="$i18n.t('Register on activation')"
                                        :text="$i18n.t('Whether or not to register the user when the sponsor enables the access. When this is disabled, it requires the user to stay on the portal while it waits for the sponsor to enable the access in order to be able to chain this authentication with other portal modules.')"
+                                       enabled-value="enabled"
+                                       disabled-value="disabled"
     />
 
     <form-group-validate-sponsor namespace="validate_sponsor"

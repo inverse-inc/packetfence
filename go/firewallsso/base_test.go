@@ -5,18 +5,17 @@ import (
 	"testing"
 
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/util"
 )
 
 var ctx = log.LoggerNewContext(context.Background())
 
 var sampleInfo = map[string]string{
-	"username":  "lzammit",
-	"ip":        "1.2.3.4",
-	"mac":       "00:11:22:33:44:55",
-	"role":      "default",
-	"status":    "reg",
+	"username": "lzammit",
+	"ip":       "1.2.3.4",
+	"mac":      "00:11:22:33:44:55",
+	"role":     "default",
+	"status":   "reg",
 }
 
 func TestStart(t *testing.T) {
@@ -193,8 +192,6 @@ func TestGetSourceIp(t *testing.T) {
 	// Test firewall that has 1 or more role assigned to it
 	fw, err := factory.Instantiate(ctx, "testfw2")
 	util.CheckTestError(t, err)
-
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
 
 	expected := "10.0.0.13"
 	if fw.getSourceIp(ctx).String() != expected {

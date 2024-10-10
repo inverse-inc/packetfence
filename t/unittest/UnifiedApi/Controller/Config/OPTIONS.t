@@ -83,7 +83,7 @@ $t->options_ok("/api/v1/config/floating_devices")
 );
 
 
-$t->options_ok("/api/v1/config/syslog_parsers")
+$t->options_ok("/api/v1/config/event_handlers")
   ->status_is(200)
   ->json_is(
     {
@@ -143,7 +143,7 @@ $t->options_ok("/api/v1/config/provisionings?type=mobileconfig")
     }
   );
 
-$t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
+$t->options_ok("/api/v1/config/event_handlers?type=regex")->status_is(200)
   ->json_is(
     {
 meta => {
@@ -217,6 +217,24 @@ meta => {
                                         },
                                         text  => "Register node by MAC",
                                         value => "dynamic_register_node"
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => 'mac, $mac'
+                                            },
+                                        },
+                                        text => "fingerbank_lookup",
+                                        value => "fingerbank_lookup",
+                                    },
+                                    {
+                                        sibling => {
+                                            api_parameters => {
+                                                default => 'mac, $mac, ip, $ip, timeout, $timeout'
+                                            },
+                                        },
+                                        text => "firewall_sso_call",
+                                        value => "firewall_sso_call",
                                     },
                                     {
                                         sibling => {
@@ -342,6 +360,15 @@ meta => {
                                         },
                                         text  => "Update role configuration",
                                         value => "update_role_configuration"
+                                    },
+                                    {
+                                        text => 'update_switch_role_network',
+                                        value => 'update_switch_role_network',
+                                        sibling => {
+                                            api_parameters => {
+                                                default => 'mac, $mac, ip, $ip',
+                                            }
+                                        },
                                     }
                                 ],
                                 implied  => undef,
@@ -495,6 +522,64 @@ meta => {
         implied  => undef,
         type        => "string"
     },
+    'rate_limit' => {
+        'default' => {
+            'unit'     => 's',
+            'interval' => 0
+        },
+        'properties' => {
+            'interval' => {
+                'placeholder' => undef,
+                'implied'     => undef,
+                'min_value'   => 0,
+                'required'    => $false,
+                'default'     => 0,
+                'type'        => 'integer'
+            },
+            'unit' => {
+                'type'    => 'string',
+                'default' => 's',
+                'implied' => undef,
+                'allowed' => [
+                    {
+                        'text'  => 'seconds',
+                        'value' => 's'
+                    },
+                    {
+                        'value' => 'm',
+                        'text'  => 'minutes'
+                    },
+                    {
+                        'value' => 'h',
+                        'text'  => 'hours'
+                    },
+                    {
+                        'value' => 'D',
+                        'text'  => 'days'
+                    },
+                    {
+                        'value' => 'W',
+                        'text'  => 'weeks'
+                    },
+                    {
+                        'text'  => 'months',
+                        'value' => 'M'
+                    },
+                    {
+                        'text'  => 'years',
+                        'value' => 'Y'
+                    }
+                ],
+                'required'     => $false,
+                'placeholder'  => undef,
+                'allow_custom' => $false,
+            }
+        },
+        'type'        => 'object',
+        'placeholder' => undef,
+        'required'    => $false,
+        'implied'     => undef
+      },
   },
         status => 200
     }
@@ -570,7 +655,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -38,9 +38,12 @@ testcases:
 - name: restart_pfqueue_service
   steps:
   - type: pf_api_service_restart
-    service: pfqueue
+    service: pfqueue-backend
+
+  - type: pf_api_service_restart
+    service: pfqueue-go
 
 - name: restart_httpd.webservices_service
   steps:
-  - type: pf_api_service_restart
+  - type: pf_api_service_restart_async
     service: httpd.webservices

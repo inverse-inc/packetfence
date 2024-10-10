@@ -200,16 +200,20 @@ unconfigure() {
     fi
 }
 
+ansible_teardown() {
+    if unconfigure; then
+        echo "Ansible teardown succeed"
+    else
+        echo "Ansible teardown failed"
+    fi
+}
+
 halt() {
     # work as try/catch to continue even if an error has been detected
     # We always want VM to be halted even if Ansible failed
     local force=${1:-}
     if [ -z "$force" ]; then
-	if unconfigure; then
-            echo "Ansible teardown succeed"
-	else
-            echo "Ansible teardown failed"
-	fi
+        ansible_teardown
     else
 	echo "Halt force detected: only halting VM"
     fi
@@ -230,9 +234,10 @@ halt_other_vm() {
 
 teardown() {
     log_section "Teardown"
-    halt
-    delete_ansible_files
+    #halt
+    ansible_teardown
     destroy
+    delete_ansible_files
 }
 
 delete_ansible_files() {
@@ -247,14 +252,16 @@ destroy() {
     log_subsection "Destroy virtual machine(s)"
 
     if [ "$DESTROY_ALL" = "yes" ]; then
-        echo "Destroy all VM"
+        echo "Destroy all VM and clean all directories"
         destroy_pf_vm
         destroy_other_vm
         delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
         delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}
     else
+        echo "Destroy all VM and clean only PF"
         destroy_pf_vm
         delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
+	destroy_other_vm
     fi
 }
 

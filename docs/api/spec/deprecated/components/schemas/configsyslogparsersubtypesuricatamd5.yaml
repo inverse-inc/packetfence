@@ -1,0 +1,30 @@
+ConfigSyslogParserSubTypeSuricataMd5:
+  properties:
+    id:
+      description: Detector
+      type: string
+    path:
+      description: Alert pipe
+      type: string
+    rate_limit:
+      description: Rate limit requests.
+      properties:
+        interval:
+          description: Interval
+          type: integer
+        unit:
+          description: Unit
+          type: string
+      type: object
+    status:
+      description: Enabled
+      type: string
+    type:
+      default: suricata_md5
+      description: Discriminator `suricata_md5`
+      type: string
+  required:
+  - id
+  - path
+  - type
+  type: object

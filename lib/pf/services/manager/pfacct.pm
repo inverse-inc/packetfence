@@ -66,7 +66,7 @@ sub generate_container_environments {
     }
     my $vars = {
        env_dict => {
-           PFACCT_ADDRESS=> "$management_ip:$port",
+           PFACCT_ADDRESS=> "$port",
        },
     };
     $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/acct.env") or die $tt->error();
@@ -78,7 +78,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

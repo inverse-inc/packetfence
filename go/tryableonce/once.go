@@ -38,5 +38,4 @@ func (o *TryableOnce) Do(f func() error) error {
 		}
 	}
 
-	return nil
 }

@@ -26,7 +26,7 @@ type PfAuthenticationReply struct {
 }
 
 func NewPfAuthenticationBackend(ctx context.Context, url *url.URL, checkCert bool) *PfAuthenticationBackend {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
+	pfconfigdriver.AddStruct(context.Background(), "AdminRoles", &pfconfigdriver.AdminRoles{})
 
 	tr := &http.Transport{
 		MaxIdleConnsPerHost:   30,

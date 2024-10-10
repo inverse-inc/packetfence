@@ -1,7 +1,0 @@
-ConfigFloatingDeviceWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigFloatingDevice'
-    status:
-      type: integer
-  type: object

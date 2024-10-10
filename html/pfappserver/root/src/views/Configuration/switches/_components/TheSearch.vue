@@ -12,6 +12,7 @@
             :to="{ name: 'newSwitch', params: { switchGroup: switchGroup.id } }">{{ switchGroup.id }}</b-dropdown-item>
         </b-dropdown>
         <b-button variant="outline-primary" class="mr-1" :to="{ name: 'importSwitch' }">{{ $t('Import CSV') }}</b-button>
+        <b-button variant="outline-primary" class="mr-1" @click="onPrecreateAcls">{{ $t('Precreate ACLs') }}</b-button>
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading"
@@ -73,6 +74,22 @@
           <template v-else>
             {{ item.type }}
           </template>
+        </template>
+        <template #cell(UsePushACLs)="item">
+          <span v-b-tooltip.right.d300 :title="$t('yes')" v-if="item.value === 'Y'">
+            <icon name="circle" class="text-success" />
+          </span>
+          <span v-b-tooltip.right.d300 :title="$t('no')" v-else-if="item.value === 'N'">
+            <icon name="circle" class="text-danger" />
+          </span>
+        </template>
+        <template #cell(UseDownloadableACLs)="item">
+          <span v-b-tooltip.right.d300 :title="$t('yes')" v-if="item.value === 'Y'">
+            <icon name="circle" class="text-success" />
+          </span>
+          <span v-b-tooltip.right.d300 :title="$t('no')" v-else-if="item.value === 'N'">
+            <icon name="circle" class="text-danger" />
+          </span>
         </template>
         <template #cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right">
@@ -143,7 +160,8 @@ const setup = (props, context) => {
   const { root: { $router, $store } = {} } = context
 
   const {
-    deleteItem
+    deleteItem,
+    precreateItemAcls
   } = useStore($store)
 
   const router = useRouter($router)
@@ -197,6 +215,18 @@ const setup = (props, context) => {
       })
     })
 
+  const onPrecreateAcls = () => {
+    $store.dispatch('$_switches/allPushACLs').then(ids => {
+      ids.forEach(id => {
+        precreateItemAcls({ id }).then(() => {
+          $store.dispatch('notification/info', { message: i18n.t('Successfully precreated ACLs on switch <code>{id}</code>.', { id }) })
+        }).catch(() => {
+          $store.dispatch('notification/info', { message: i18n.t('Failed to precreate ACLs on switch <code>{id}</code>.', { id }) })
+        })
+      })
+    })
+  }
+
   return {
     useSearch,
     tableRef,
@@ -207,7 +237,8 @@ const setup = (props, context) => {
     ...selected,
     ...toRefs(search),
     switchGroups,
-    switchTemplates
+    switchTemplates,
+    onPrecreateAcls,
   }
 }
 

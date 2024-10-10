@@ -30,6 +30,7 @@ use pf::config::trapping_range;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::ConfigStore::Roles();
+use pf::ConfigStore::Switch();
 use pf::ip4log();
 use pf::fingerbank;
 use pf::Connection::ProfileFactory();
@@ -54,6 +55,7 @@ use pf::pfqueue::stats();
 use pf::pfqueue::producer::redis();
 use pf::util qw(mysql_date);
 use pf::bandwidth_accounting qw();
+use pf::cidr_role();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap any);
@@ -77,10 +79,12 @@ use Hash::Merge qw (merge);
 
 use pf::constants::api;
 use pf::constants::realm;
+use pf::constants::firewallsso qw($ACCOUNTING $API);
 use DateTime::Format::MySQL;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use pf::Redis;
 use pf::acls_push;
+use Digest::MD5 qw(md5_base64);
 
 my $logger = pf::log::get_logger();
 
@@ -510,7 +514,6 @@ sub _node_determine_and_set_into_VLAN {
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     my %locker_ref;
-    $locker_ref{$switch->{_ip}} = &share({});
 
     $switch->setVlan(
         $ifIndex,
@@ -1182,6 +1185,18 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     }
 }
 
+=head2 fingerbank_lookup
+
+=cut
+
+sub fingerbank_lookup : Public :AllowedAsAction(mac, $mac) {
+    my ($class, %params) = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $params{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+    pf::fingerbank::process($params{'mac'},$pf::config::TRUE);
+}
+
 =head2 fingerbank_process
 
 =cut
@@ -1495,9 +1510,12 @@ sub handle_accounting_metadata : Public {
         my $advanced = $pf::config::Config{advanced};
         # Tracking IP address.
         my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
-        if ($framed_ip && pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
-            $logger->info("Updating iplog from accounting request");
-            $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
+        if ($framed_ip) {
+            if (pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
+                $logger->info("Updating iplog from accounting request");
+                $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
+            }
+            $client->notify('update_switch_role_network', ( mac => $mac, ip => $framed_ip, mask => undef, lease_length => undef) ) unless (pf::util::isdisabled($pf::config::Config{'network'}{'learn_network_cidr_by_role'}));
         }
         else {
             $logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
@@ -1536,7 +1554,7 @@ Update the firewall sso based on radius accounting
 
 sub firewallsso_accounting : Public {
     my ($class, %RAD_REQUEST) = @_;
-    if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && pf::util::isenabled($pf::config::Config{advanced}{sso_on_accounting})) {
+    if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && scalar keys %pf::config::ConfigFirewallSSO != 0 && (grep { $_ eq $pf::config::TRUE } map { $_->{'sso_on_accounting'} } values %pf::config::ConfigFirewallSSO) ) {
         my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
         my $node = pf::node::node_attributes($mac);
         my $ip = $RAD_REQUEST{'Framed-IP-Address'};
@@ -1555,15 +1573,33 @@ sub firewallsso_accounting : Public {
             }
             my $oldip  = pf::ip4log::mac2ip($mac);
             if ( $oldip && $oldip ne $ip ) {
-                $client->notify( 'firewallsso', (method => 'Stop', mac => $mac, ip => $oldip, timeout => undef) );
+                $client->notify( 'firewallsso', (method => 'Stop', mac => $mac, ip => $oldip, timeout => undef, source => $ACCOUNTING) );
             }
         }
 
         $firewallsso_method = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP) ? "Stop" : "Update";
 
         $logger->warn("Firewall SSO Notify");
-        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout, username => $username) );
+        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout, username => $username, source => $ACCOUNTING) );
     }
+}
+
+=head2 firewall_sso_call
+
+Trigger a firewall SSO
+
+=cut
+
+sub firewall_sso_call : Public :AllowedAsAction(mac, $mac, ip, $ip, timeout, $timeout) {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac ip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $timeout = $postdata{'timeout'} || '3600';
+    my $node = pf::node::node_view($postdata{'mac'});
+    my $client = pf::client::getClient();
+    $client->notify( 'firewallsso', (method => "Update", mac => $postdata{'mac'}, ip => $postdata{'ip'}, timeout => $timeout, username => $node->{'pid'}, source => $API) );
 }
 
 =head2 services_status
@@ -1919,13 +1955,34 @@ sub push_acls : Public {
     return $pf::config::TRUE;
 }
 
+
+=head2 update_switch_role_network
+
+Update switch role network based on provided IP addresses and MAC addresses
+
+=cut
+
+sub update_switch_role_network : Public :AllowedAsAction(mac, $mac, ip, $ip) {
+    my ($class, %postdata) = @_;
+    my @require = qw(mac ip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    $postdata{"mask"} = $postdata{"mask"} // undef;
+    $postdata{"lease_length"} = $postdata{"lease_length"} // undef;
+
+    my $cidr_role = pf::cidr_role->new();
+
+    $cidr_role->update(%postdata);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

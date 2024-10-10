@@ -1,9 +1,5 @@
 import {
   BaseView,
-  ButtonCertificateCopy,
-  ButtonCertificateDownload,
-  ButtonCertificateEmail,
-  ButtonCertificateRevoke,
   FormButtonBar,
   TheForm
 } from './'
@@ -13,7 +9,6 @@ const components = {
   TheForm
 }
 
-import { renderHOCWithScopedSlots } from '@/components/new/'
 import { useViewCollectionItem, useViewCollectionItemProps } from '../../../_composables/useViewCollectionItem'
 import * as collection from '../_composables/useCollection'
 
@@ -22,31 +17,14 @@ const props = {
   ...collection.useItemProps
 }
 
-const setup = (props, context) => {
-  const viewCollectionItem = useViewCollectionItem(collection, props, context)
-  return {
-    ...viewCollectionItem,
-    scopedSlotProps: props
-  }
-}
-
-import { BButtonGroup } from 'bootstrap-vue'
-
-const render = renderHOCWithScopedSlots(BaseView, { components, props, setup }, {
-  buttonsAppend: (h, props) => {
-    return h(BButtonGroup, {}, [
-      h(ButtonCertificateCopy, { props }),
-      h(ButtonCertificateDownload, { props }),
-      h(ButtonCertificateEmail, { props }),
-      h(ButtonCertificateRevoke, { props })
-    ])
-  }
-})
+const setup = (props, context) => useViewCollectionItem(collection, props, context)
 
 // @vue/component
 export default {
   name: 'the-view',
+  extends: BaseView,
   inheritAttrs: false,
+  components,
   props,
-  render
+  setup
 }

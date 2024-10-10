@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use base ('pf::Switch::HP::Procurve_2500');
+use base ('pf::Switch::HP::Old_Procurve');
 
 sub description { 'HP ProCurve 4100 Series' }
 
@@ -29,7 +29,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

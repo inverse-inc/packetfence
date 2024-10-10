@@ -27,6 +27,7 @@ use pf::ip4log;
 use pf::ConfigStore::Provisioning;
 use DateTime::Format::RFC3339;
 use pf::security_event;
+use pf::node;
 
 =head1 Atrributes
 
@@ -36,7 +37,7 @@ tenant ID
 
 =cut
 
-has tenantID => => (is => 'rw');
+has tenantID => (is => 'rw');
 
 =head2 applicationID
 
@@ -171,8 +172,7 @@ sub refresh_access_token {
         # Failed to contact the Graph API.;
         $logger->error("Cannot connect to Graph to refresh the token");
         return $pf::provisioner::COMMUNICATION_FAILED;
-    }
-    else {
+    } else {
         my $json_response = decode_json($response_body);
         my $updated_config = {};
         my $access_token = $json_response->{'access_token'};
@@ -209,7 +209,7 @@ sub update_config {
 }
 
 sub perform_get_device_info {
-    my ($self, $mac, $url) = @_;
+    my ($self, $url) = @_;
     my $logger = get_logger();
 
     unless ($self->get_access_token()) {
@@ -233,26 +233,53 @@ sub perform_get_device_info {
     return $self->decode_response($curl_info, $response_body);
 }
 
+sub find_device_by_mac {
+    my ($self, $info, $mac) = @_;
+    for my $entry (@{$info->{value} // []}) {
+        if ($entry->{wiFiMacAddress} eq $mac || ($entry->{ethernetMacAddress} // "") eq $mac) {
+            return $entry;
+        }
+    }
+
+    return undef;
+}
+
+sub get_device_by_id {
+    my ($self, $id) = @_;
+    my $info = $self->perform_get_device_info($self->protocol.'://' . $self->host . ':' .  $self->port . "/v1.0/deviceManagement/managedDevices/$id");
+    return $info;
+}
+
 sub get_device_info {
     my ($self, $mac) = @_;
     my $logger = get_logger();
+    my $azuremac = uc($mac);
+    $azuremac =~ s/://g;
 
     my @infos;
-
-    my $info = $self->perform_get_device_info($mac, $self->protocol.'://' . $self->host . ':' .  $self->port . '/v1.0/deviceManagement/managedDevices?$select=wiFiMacAddress,complianceState,id');
+    my $info = $self->perform_get_device_info($self->protocol.'://' . $self->host . ':' .  $self->port . '/v1.0/deviceManagement/managedDevices?$select=wiFiMacAddress,complianceState,id,ethernetMacAddress');
     if($info == $pf::provisioner::COMMUNICATION_FAILED) {
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
-    push @infos, $info;
 
-    while($info && $info != $pf::provisioner::COMMUNICATION_FAILED && $info->{'@odata.nextLink'}) {
-        $info = $self->perform_get_device_info($mac, $info->{'@odata.nextLink'});
+    my $entry = $self->find_device_by_mac($info, $azuremac);
+    if (defined $entry) {
+        return $entry;
+    }
+
+    while ($info && $info != $pf::provisioner::COMMUNICATION_FAILED && $info->{'@odata.nextLink'}) {
+        $info = $self->perform_get_device_info($info->{'@odata.nextLink'});
         if($info == $pf::provisioner::COMMUNICATION_FAILED) {
             return $pf::provisioner::COMMUNICATION_FAILED;
         }
-        push @infos, $info;
+
+        my $entry = $self->find_device_by_mac($info, $azuremac);
+        if (defined $entry) {
+            return $entry;
+        }
     }
-    return {value => [map{@{$_->{value}}} @infos]}
+
+    return undef;
 }
 
 
@@ -261,53 +288,36 @@ sub authorize {
     my $logger = get_logger();
 
     my $result = $self->get_device_info($mac);
-    if( $result == $pf::provisioner::COMMUNICATION_FAILED){
+    if (defined $result && $result == $pf::provisioner::COMMUNICATION_FAILED) {
         $logger->info("Graph access token is probably not valid anymore.");
         $self->refresh_access_token();
         $result = $self->get_device_info($mac);
     }
 
-    if($result == $pf::provisioner::COMMUNICATION_FAILED){
+    if (defined $result && $result == $pf::provisioner::COMMUNICATION_FAILED) {
         $logger->error("Unable to contact the Graph API to validate if mac $mac is registered.");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
-    else{
-        # take the opportunity to check compliance
-        return $self->verify_compliance($mac, $result);
-    }
 
+    return $self->verify_compliance($mac, $result);
 }
 
 sub verify_compliance {
     my ($self, $mac, $info) = @_;
     my $logger = get_logger();
     # Format the mac to the azure format
-    my $azuremac = uc($mac);
-    $azuremac =~ s/://g;
-
-
-    if($info != $pf::provisioner::COMMUNICATION_FAILED){
-        my $not_compliant = $FALSE;
-        foreach my $entry (@{$info->{value}}) {
-            if (uc($entry->{wiFiMacAddress}) eq $azuremac) {
-                $logger->warn($azuremac);
-                if ($entry->{complianceState} eq 'compliant') {
-                    $logger->info("Device $mac is compliant.");
-                    return $TRUE;
-                } else {
-                    $not_compliant = $TRUE;
-                }
-            }
-        }
-        if($not_compliant) {
+    my $device = $self->get_device_by_id($info->{id});
+    my $node_info = node_view($mac);
+    if ($info->{complianceState} ne 'compliant') {
+        if ($self->{non_compliance_security_event}) {
             pf::security_event::security_event_add($mac, $self->{non_compliance_security_event}, ());
         }
-        return $FALSE;
+
+        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, compliant_check => 0, intune => $device}, $FALSE);
     }
-    else{
-        $logger->warn("Couldn't contact Graph API to validate compliance of $mac");
-        return $FALSE;
-    }
+
+    $logger->info("Device $mac is compliant.");
+    return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, intune => $device, compliant_check => 1}, $TRUE);
 }
 
 sub decode_response {
@@ -350,7 +360,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
@@ -372,4 +382,3 @@ USA.
 =cut
 
 1;
-

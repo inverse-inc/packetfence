@@ -57,11 +57,40 @@
                               enabled-value="1"
                               namespace="use_connector"
     />
+
+    <form-group-sso-on-access-reevaluation namespace="sso_on_access_reevaluation"
+                                           :column-label="$i18n.t('SSO on access reevaluation')"
+                                           :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on access reevaluation.')"
+                                           disabled-value="0"
+                                           enabled-value="1"
+    />
+
+    <form-group-sso-on-accounting namespace="sso_on_accounting"
+                                  :column-label="$i18n.t('SSO on accounting')"
+                                  :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on accounting start/interim/stop.')"
+                                  disabled-value="0"
+                                  enabled-value="1"
+    />
+    
+    <form-group-act-on-accounting-stop namespace="act_on_accounting_stop"
+                                       :column-label="$i18n.t('SSO on accounting stop')"
+                                       :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on accounting stop.')"
+                                       disabled-value="0"
+                                       enabled-value="1"
+    />
+
+    <form-group-sso-on-dhcp namespace="sso_on_dhcp"
+                            :column-label="$i18n.t('SSO on DHCP')"
+                            :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on dhcp.')"
+                            disabled-value="0"
+                            enabled-value="1"
+    />
   </base-form>
 </template>
 <script>
 import {BaseForm} from '@/components/new/'
 import {
+  FormGroupActOnAccountingStop,
   FormGroupCacheTimeout,
   FormGroupCacheUpdates,
   FormGroupCategories,
@@ -73,13 +102,17 @@ import {
   FormGroupUseConnector,
   FormGroupUsername,
   FormGroupUsernameFormat,
-  FormGroupVsys
+  FormGroupVsys,
+  FormGroupSsoOnAccessReevaluation,
+  FormGroupSsoOnAccounting,
+  FormGroupSsoOnDhcp,
 } from './'
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
 const components = {
   BaseForm,
 
+  FormGroupActOnAccountingStop,
   FormGroupCacheTimeout,
   FormGroupCacheUpdates,
   FormGroupCategories,
@@ -91,7 +124,10 @@ const components = {
   FormGroupUseConnector,
   FormGroupUsername,
   FormGroupUsernameFormat,
-  FormGroupVsys
+  FormGroupVsys,
+  FormGroupSsoOnAccessReevaluation,
+  FormGroupSsoOnAccounting,
+  FormGroupSsoOnDhcp,
 }
 
 // @vue/component

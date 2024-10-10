@@ -29,6 +29,7 @@ use pf::constants;
 use pf::config::cluster;
 use File::Slurp qw(read_file);
 use URI ();
+use Sys::Hostname;
 
 BEGIN {
     use Exporter ();
@@ -92,6 +93,7 @@ Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
 Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
+tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
 =head1 SUBROUTINES
 
@@ -121,15 +123,14 @@ sub iptables_generate {
     my $logger = get_logger();
     my %tags = (
         'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
-        'filter_forward_vlan' => '', 'filter_forward_domain' => '',
+        'filter_forward_vlan' => '', 'mangle_postrouting_inline' => '',
         'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '',
         'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
         'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
-        'domain_postrouting' => '','mangle_postrouting_inline' => '',
         'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
-        'filter_forward' => '', 'forward_netflow' => '',
+        'filter_forward' => '', 'forward_netflow' => '', 'kafka' => '',
     );
 
     # global substitution variables
@@ -202,6 +203,8 @@ sub iptables_generate {
 
     #DNAT traffic from docker to mgmt ip
     $self->generate_dnat_from_docker(\$tags{'nat_if_src_to_chain'});
+    #Kafka iptables
+    $self->generate_kafka_rules(\$tags{'kafka'});
 
     # OAuth
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
@@ -218,7 +221,6 @@ sub iptables_generate {
         $tags{'nat_if_src_to_chain'}, $tags{'nat_prerouting_inline'},
   );
 
-    generate_domain_rules(\$tags{'filter_forward_domain'}, \$tags{'domain_postrouting'});
     generate_netflow_rules(\$tags{'forward_netflow'});
 
     $tags{'input_include'} = "#BEGIN include iptables-input.conf.inc\n" . read_file("$conf_dir/iptables-input.conf.inc") . "#END include iptables-input.conf.inc\n";
@@ -228,6 +230,30 @@ sub iptables_generate {
     $self->iptables_restore("$generated_conf_dir/iptables.conf");
 }
 
+=head2 generate_kafka_rules
+
+generate_kafka_rules
+
+=cut
+
+sub generate_kafka_rules {
+    my ($self, $rule) = @_;
+    return if !exists $ConfigKafka{hostname()};
+
+    $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 9092 --jump ACCEPT\n";
+    $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 9093 --jump ACCEPT\n";
+    $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 29092 --jump ACCEPT\n";
+
+#    for my $client (@{$ConfigKafka{iptables}{clients}}) {
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $client --dport 9092 --jump ACCEPT\n";
+#    }
+#
+#    for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 29092 --jump ACCEPT\n";
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9092 --jump ACCEPT\n";
+#        $$rule .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport 9093 --jump ACCEPT\n";
+#    }
+}
 
 =item generate_filter_if_src_to_chain
 
@@ -478,9 +504,9 @@ sub generate_passthrough_rules {
     $logger->info("Adding IP based passthrough for connectivitycheck.gstatic.com");
     # Allow the host for the onboarding of devices
     my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,80 2>&1");
-    pf_run($cmd);
+    safe_pf_run(qw(sudo ipset --add pfsession_passthrough), "172.217.13.99,80");
     $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,443 2>&1");
-    pf_run($cmd);
+    safe_pf_run(qw(sudo ipset --add pfsession_passthrough), "172.217.13.99,443");
 
     $logger->info("Adding NAT Masquerade statement.");
     my ($SNAT_ip, $mgmt_int);
@@ -655,9 +681,9 @@ sub iptables_save {
     my ($self, $save_file) = @_;
     my $logger = get_logger();
     $logger->info( "saving existing iptables to " . $save_file );
-    pf_run("/sbin/iptables-save -t nat > $save_file");
-    pf_run("/sbin/iptables-save -t mangle >> $save_file");
-    pf_run("/sbin/iptables-save -t filter >> $save_file");
+    safe_pf_run("/usr/sbin/iptables-save", '-t', 'nat', { stdout => $save_file });
+    safe_pf_run("/usr/sbin/iptables-save", '-t', 'mangle', { stdout => $save_file, stdout_append => 1 });
+    safe_pf_run("/usr/sbin/iptables-save", '-t', 'filter', { stdout => $save_file, stdout_append => 1 });
 }
 
 sub iptables_restore {
@@ -665,7 +691,7 @@ sub iptables_restore {
     my $logger = get_logger();
     if ( -r $restore_file ) {
         $logger->info( "restoring iptables from " . $restore_file );
-        pf_run("/sbin/iptables-restore < $restore_file");
+        safe_pf_run("/sbin/iptables-restore", {stdin => $restore_file});
     }
 }
 
@@ -675,7 +701,7 @@ sub iptables_restore_noflush {
     if ( -r $restore_file ) {
         $logger->info(
             "restoring iptables (no flush) from " . $restore_file );
-        pf_run("/sbin/iptables-restore -n < $restore_file");
+        safe_pf_run("/sbin/iptables-restore", '-n', {stdin => $restore_file});
     }
 }
 
@@ -780,6 +806,11 @@ sub generate_interception_rules {
     }
 }
 
+sub add_to_pfsession_passthrough {
+    my ($host, $port) = @_;
+    safe_pf_run(qw(sudo ipset --add pfsession_passthrough), "$host,$port");
+}
+
 sub generate_provisioning_passthroughs {
     my $logger = get_logger();
     $logger->debug("Installing passthroughs for provisioning");
@@ -787,62 +818,32 @@ sub generate_provisioning_passthroughs {
         $logger->info("Adding passthrough for Kandji");
         my $enroll_host = $config->{enroll_url} ? URI->new($config->{enroll_url})->host : $config->{host};
         my $enroll_port = $config->{enroll_url} ? URI->new($config->{enroll_url})->port : $config->{port};
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough ".$enroll_host.",".$enroll_port." 2>&1");
-        my @lines  = pf_run($cmd);
+        my @lines  = add_to_pfsession_passthrough($enroll_host, $enroll_port);
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
         $logger->info("Adding passthrough for MobileIron");
         # Allow the host for the onboarding of devices
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
-        my @lines  = pf_run($cmd);
-        # Allow http communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
-        @lines  = pf_run($cmd);
-        # Allow https communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
-        @lines  = pf_run($cmd);
+        for my $port ($config->{boarding_port}, $HTTP_PORT, $HTTPS_PORT) { 
+            my @lines  = add_to_pfsession_passthrough($config->{boarding_host}, $port);
+        }
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
         $logger->info("Adding passthrough for OPSWAT");
-        # Allow http communication with the OSPWAT server
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-        my @lines  = pf_run($cmd);
-        # Allow https communication with the OPSWAT server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
-        @lines  = pf_run($cmd);
+        for my $port ($HTTP_PORT, $HTTPS_PORT) { 
+            my @lines  = add_to_pfsession_passthrough($config->{host}, $port);
+        }
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
         $logger->info("Adding passthrough for SentinelOne");
-        # Allow http communication with the SentinelOne server
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
-        my @lines  = pf_run($cmd);
-        # Allow https communication with the SentinelOne server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
-        @lines  = pf_run($cmd);
+        for my $port ($HTTP_PORT, $HTTPS_PORT) { 
+            my @lines  = add_to_pfsession_passthrough($config->{host}, $port);
+        }
     }
 
 
-}
-
-sub generate_domain_rules {
-    my ( $filter_forward_domain, $domain_postrouting ) = @_;
-    my $logger = get_logger();
-    foreach my $name (@{pf::ConfigStore::Domain->new->readAllIds}){
-        $$filter_forward_domain .= "-A FORWARD -o $name-b -j ACCEPT\n";
-        $$filter_forward_domain .= "-A FORWARD -i $name-b -j ACCEPT\n";
-    }
-
-    return if !$management_network;
-
-    # MOVE ME TO SOMEWHERE - BUT WHERE ????? - ANYWHERE IS BETTER THAN THIS !
-    my $domain_network = "169.254.0.0/16";
-
-    my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
-    my $mgmt_int = $management_network->tag('int');
-    $$domain_postrouting .= "-A POSTROUTING -s $domain_network -o $mgmt_int -j SNAT --to-source $mgmt_ip \n"
 }
 
 sub generate_netflow_rules {
@@ -876,7 +877,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -1,7 +1,9 @@
 package cnet
 
 import (
+	"bytes"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -9,26 +11,33 @@ import (
 
 type wsConn struct {
 	*websocket.Conn
-	buff []byte
+	buff *bytes.Buffer
 }
 
-//NewWebSocketConn converts a websocket.Conn into a net.Conn
+var buffPool = sync.Pool{
+	New: func() interface{} {
+		return bytes.NewBuffer(make([]byte, 0, 1024))
+	},
+}
+
+// NewWebSocketConn converts a websocket.Conn into a net.Conn
 func NewWebSocketConn(websocketConn *websocket.Conn) net.Conn {
 	c := wsConn{
 		Conn: websocketConn,
+		buff: buffPool.Get().(*bytes.Buffer),
 	}
 	return &c
 }
 
-//Read is not threadsafe though thats okay since there
-//should never be more than one reader
+// Read is not threadsafe though thats okay since there
+// should never be more than one reader
 func (c *wsConn) Read(dst []byte) (int, error) {
 	ldst := len(dst)
 	//use buffer or read new message
 	var src []byte
-	if len(c.buff) > 0 {
-		src = c.buff
-		c.buff = nil
+	if c.buff.Len() > 0 {
+		src = c.buff.Bytes()
+		c.buff.Reset()
 	} else if _, msg, err := c.Conn.ReadMessage(); err == nil {
 		src = msg
 	} else {
@@ -41,9 +50,7 @@ func (c *wsConn) Read(dst []byte) (int, error) {
 		n = copy(dst, src[:ldst])
 		//copy remainder into buffer
 		r := src[ldst:]
-		lr := len(r)
-		c.buff = make([]byte, lr)
-		copy(c.buff, r)
+		c.buff.Write(r)
 	} else {
 		//copy all of src into dst
 		n = copy(dst, src)
@@ -65,4 +72,13 @@ func (c *wsConn) SetDeadline(t time.Time) error {
 		return err
 	}
 	return c.Conn.SetWriteDeadline(t)
+}
+
+func (c *wsConn) Close() error {
+	if c.buff != nil {
+		c.buff.Reset()
+		buffPool.Put(c.buff)
+		c.buff = nil
+	}
+	return c.Conn.Close()
 }

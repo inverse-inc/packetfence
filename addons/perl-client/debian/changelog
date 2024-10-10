@@ -1,0 +1,209 @@
+fingerbank (4.3.2) unstable; urgency=medium
+
+  * Adjust permissions detection for SQLite3 databases
+
+ -- Inverse inc. <info@inverse.ca>  Tue, 23 Aug 2022 10:36:12 +0200
+
+fingerbank (4.3.1) unstable; urgency=medium
+
+  * Add function to list top device classes as objects
+
+ -- Inverse inc. <info@inverse.ca>  Thu, 16 Jun 2022 10:36:12 +0200
+
+fingerbank (4.3.0) unstable; urgency=medium
+
+  * Support containers based PacketFence (v12)
+
+ -- Inverse inc. <info@inverse.ca>  Fri, 29 Apr 2022 10:36:12 +0200
+
+fingerbank (4.2.3) unstable; urgency=medium
+
+  * Allow to add environment overrides to collector via the config
+
+ -- Inverse inc. <info@inverse.ca>  Mon, 14 Feb 2022 10:36:12 +0200
+
+fingerbank (4.2.2) unstable; urgency=medium
+
+  * New upstream version
+  * Switch from non-native to native package
+
+ -- Inverse inc. <info@inverse.ca>  Thu, 01 Jul 2021 10:36:12 +0200
+
+fingerbank (4.2.1-1) unstable; urgency=medium
+
+  * New upstream version
+
+ -- Inverse inc. <info@inverse.ca>  Wed, 22 Jul 2020 10:36:12 +0200
+
+fingerbank (4.2.0-1) unstable; urgency=medium
+
+  * New upstream version
+
+ -- Inverse inc. <info@inverse.ca>  Wed, 19 Feb 2020 10:36:12 +0200
+
+fingerbank (4.1.5-1) unstable; urgency=medium
+
+  * New upstream version
+
+ -- Inverse inc. <info@inverse.ca>  Wed, 23 Oct 2019 10:36:12 +0200
+
+fingerbank (4.1.4-2) unstable; urgency=medium
+
+  * Fix permissions for fingerbank.conf
+
+ -- Inverse inc. <info@inverse.ca>  Sun, 21 Jul 2019 17:13:12 +0200
+
+fingerbank (4.1.4-1) unstable; urgency=medium
+
+ -- Inverse inc. <info@inverse.ca>  Fri, 19 Jul 2019 14:39:12 -0400
+
+fingerbank (4.1.3-4) unstable; urgency=medium
+
+  * Remove new vagrant directory from packaging
+
+ -- Inverse inc. <info@inverse.ca>  Fri, 28 Jun 2019 14:39:12 +0200
+
+fingerbank (4.1.3-3) unstable; urgency=medium
+
+  * Allow fingerbank to be installed without packetfence on Debian
+
+ -- Inverse inc. <info@inverse.ca>  Fri, 28 Jun 2019 14:28:17 +0200
+
+fingerbank (4.1.3-2) unstable; urgency=low
+
+  * Adapt Debian packaging to CI
+
+ -- Inverse inc. <info@inverse.ca>  Mon, 29 Apr 2019 12:15:08 +0200
+
+fingerbank (4.1.3-1) unstable; urgency=low
+
+  * Version 4.1.3
+
+ -- Inverse Support (package signing) <support@inverse.ca>  Mon, 19 Nov 2018 09:18:00 -0400
+
+fingerbank (4.1.2-1) unstable; urgency=low
+
+  * Version 4.1.2
+
+ -- Inverse Support (package signing) <support@inverse.ca>  Mon, 24 Oct 2018 09:18:00 -0400
+
+fingerbank (4.1.1-1) unstable; urgency=low
+
+  * Version 4.1.1
+
+ -- Inverse Support (package signing) <support@inverse.ca>  Mon, 4 Sep 2018 09:18:00 -0400
+
+fingerbank (4.1.0-1) unstable; urgency=low
+
+  * Version 4.1.0
+
+ -- Inverse Support (package signing) <support@inverse.ca>  Wed, 27 Jun 2018 09:18:00 -0400
+
+fingerbank (4.0.1-1) unstable; urgency=low
+
+  * Version 4.0.1
+
+ -- Inverse Support (package signing) <support@inverse.ca>  Fri, 25 May 2018 09:18:00 -0400
+
+fingerbank (4.0.0-1) unstable; urgency=low
+
+  * Version 4.0.0
+
+ -- Inverse Support (package signing) <support@inverse.ca>  Mon, 12 Feb 2018 09:18:00 -0400
+
+fingerbank (3.1.1-1) unstable; urgency=low
+
+  * Version 3.1.1
+
+ -- Inverse Support (package signing) <support@inverse.ca>  Wed, 06 Jul 2017 09:18:00 -0400
+
+fingerbank (3.1.0-1) unstable; urgency=low
+
+  * Version 3.1.0
+
+ -- Inverse Support (package signing) <support@inverse.ca>  Wed, 24 Mar 2017 09:18:00 -0400
+
+fingerbank (3.0.1-1) unstable; urgency=low
+
+  * Version 3.0.1
+
+ -- Durand Fabrice <fdurand@inverse.ca>  Wed, 19 Oct 2016 08:15:59 -0400
+
+fingerbank (3.0.0-1) unstable; urgency=low
+
+  * Version 3.0.0
+
+ -- Wuelfrath Derek <dwuelfrath@inverse.ca>  Fri, 29 Jul 2016 14:12:59 -0400
+
+fingerbank (2.3.0-1) unstable; urgency=low
+
+  * Version 2.3.0
+
+ -- Semaan Julien <jsemaan@inverse.ca>  Fri, 15 Jul 2016 14:12:59 -0400
+
+fingerbank (2.2.2-1) unstable; urgency=low
+
+  * Version 2.2.2
+
+ -- Wuelfrath Derek <dwuelfrath@inverse.ca>  Fri, 17 Jun 2016 11:15:59 -0400
+
+fingerbank (2.2.1-1) unstable; urgency=low
+
+  * Version 2.2.1
+
+ -- Wuelfrath Derek <dwuelfrath@inverse.ca>  Thu, 12 May 2016 11:15:59 -0400
+
+fingerbank (2.2.0-1) unstable; urgency=low
+
+  * Version 2.2.0
+
+ -- Wuelfrath Derek <dwuelfrath@inverse.ca>  Tue, 22 Mar 2016 11:15:59 -0400
+
+fingerbank (2.1.1-1) unstable; urgency=low
+
+  * Version 2.1.1
+
+ -- Semaan Julien <jsemaan@inverse.ca>  Mon, 14 Dec 2015 11:15:59 -0400
+
+fingerbank (2.1.0-1) unstable; urgency=low
+
+  * Version 2.1.0
+
+ -- Wuelfrath Derek <dwuelfrath@inverse.ca>  Fri, 04 Dec 2015 11:15:59 -0400
+
+fingerbank (2.0.1-1) unstable; urgency=low
+
+  * Version 2.0.1
+
+ -- Wuelfrath Derek <dwuelfrath@inverse.ca>  Fri, 27 Nov 2015 11:15:59 -0400
+
+fingerbank (2.0.0-1) unstable; urgency=low
+
+  * Version 2.0.0
+
+ -- Wuelfrath Derek <dwuelfrath@inverse.ca>  Wed, 04 Nov 2015 11:15:59 -0400
+
+fingerbank (1.0.4-1) unstable; urgency=low
+
+  * Version 1.0.4
+
+ -- Durand Fabrice <fdurand@inverse.ca>  Mon, 28 Sep 2015 11:15:59 -0400
+
+fingerbank (1.0.3-1) unstable; urgency=low
+
+  * Version 1.0.3
+
+ -- Wuelfrath Derek <dwuelfrath@inverse.ca>  Thu, 18 Jun 2015 11:15:59 -0400
+
+fingerbank (1.0.2-1) unstable; urgency=low
+
+  * Version 1.0.2
+
+ -- Durand Fabrice <fdurand@inverse.ca>  Wed, 12 May 2015 13:05:59 -0400
+
+fingerbank (1.0.0) unstable; urgency=low
+
+  * Initial release
+
+ -- Durand Fabrice <fdurand@inverse.ca>  Wed, 08 Apr 2015 13:05:59 -0400
+

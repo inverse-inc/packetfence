@@ -178,6 +178,21 @@
                   />
                 </template>
               </div>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Interface mapping by Access List'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-interface-map namespace="InterfaceMap"
+                  :column-label="$i18n.t('Interface by Access List')"
+                  :text="$i18n.t('Define the interface name where the acl associated to the role will be applied.')"
+                />
+
+                <template v-if="isInterfaceMap">
+                  <form-group-role-map-interface v-for="role in roles" :key="`${role}Interface`" :namespace="`${role}Interface`"
+                    :column-label="role"
+                  />
+                </template>
+              </div>
             </b-card>
           </base-form-tab>
 
@@ -196,6 +211,39 @@
                   <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" :namespace="`${role}Url`"
                     :column-label="role"
                   />
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
+
+          <base-form-tab
+            :title="$i18n.t('Network CIDR')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by Network CIDR'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-network-map namespace="NetworkMap"
+                  :column-label="$i18n.t('Role by Network CIDR')"
+                />
+
+                <template v-if="isNetworkMap">
+                  <b-form-group v-for="role in roles" :key="`${role}Network`"
+                    :label="role" label-cols="3"
+                    class="base-form-group"
+                  >
+                    <b-input-group>
+                      <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                        <b-col sm="6" align-self="center">
+                          <input-role-map-network :namespace="`${role}Network`"
+                            :disabled="form[`${role}NetworkFrom`] !== 'static'" />
+                        </b-col>
+                        <b-col sm="6" align-self="center" class="pl-1">
+                          <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
+                        </b-col>
+                      </b-row>
+                    </b-input-group>
+                  </b-form-group>
                 </template>
               </div>
             </b-card>
@@ -389,17 +437,16 @@
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
 
-        <form-group-push-acls v-show="supports(['PushACLs'])"
-          namespace="PushACLs"
+        <form-group-use-push-acls v-show="supports(['PushACLs'])"
+          namespace="UsePushACLs"
           :column-label="$i18n.t('Push ACLs')"
           :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
         />
 
-        <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
-          namespace="UseDownloadableACLs"
-          :column-label="$i18n.t('Downloadable ACLs')"
-          :text="$i18n.t('Enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
-        />
+        <form-group-container v-show="supports(['PushACLs']) && isUsePushACLs">
+          <b-button :disabled="isLoading"
+            variant="outline-primary" @click="onPrecreate">Precreate ACLs</b-button>
+        </form-group-container>
 
         <form-group-downloadable-acls-limit v-show="supports(['DownloadableListBasedEnforcement'])"
           namespace="DownloadableACLsLimit"
@@ -407,7 +454,13 @@
           :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch.')"
         />
 
-        <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement'])"
+        <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
+          namespace="UseDownloadableACLs"
+          :column-label="$i18n.t('Downloadable ACLs')"
+          :text="$i18n.t('Enable Downloadable ACLs through RADIUS instead of Dynamic ACLs.')"
+        />
+
+        <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement']) && isUseDownloadableACLs"
           :column-label="$i18n.t('Maximum ACLs per RADIUS reply')"
           :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"
         />
@@ -424,6 +477,7 @@ import {
   BaseInputToggleAdvancedMode
 } from '@/components/new/'
 import {
+  FormGroupContainer,
   FormGroupCliAccess,
   FormGroupCliEnablePwd,
   FormGroupCliPwd,
@@ -448,6 +502,7 @@ import {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleMapInterface,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -475,11 +530,13 @@ import {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
+  FormGroupToggleInterfaceMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
-  FormGroupPushAcls,
+  FormGroupUsePushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
@@ -492,6 +549,9 @@ import {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 } from './'
 
 const components = {
@@ -499,6 +559,7 @@ const components = {
   BaseFormTab,
   BaseInputToggleAdvancedMode,
 
+  FormGroupContainer,
   FormGroupCliAccess,
   FormGroupCliEnablePwd,
   FormGroupCliPwd,
@@ -523,6 +584,7 @@ const components = {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleMapInterface,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -550,11 +612,13 @@ const components = {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
+  FormGroupToggleInterfaceMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
-  FormGroupPushAcls,
+  FormGroupUsePushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupAclsLimit,
   FormGroupDownloadableAclsLimit,
@@ -567,6 +631,9 @@ const components = {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 }
 
 import { useForm, useFormProps as props } from '../_composables/useForm'

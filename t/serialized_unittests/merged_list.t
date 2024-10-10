@@ -52,6 +52,7 @@ my @additionnal = (
 my $cs = pf::ConfigStore::Pf->new;
 $cs->update('fencing', {'proxy_passthroughs' => join ',', @additionnal});
 $cs->commit();
+sleep(5);
 
 Test2::Tools::Compare::isnt(
     $pf::config::Config{fencing}{proxy_passthroughs},
@@ -79,7 +80,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

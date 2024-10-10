@@ -21,7 +21,7 @@ use File::Spec::Functions;
 
 our (
     #Directories
-    $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir,
+    $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir, $run_dir,
     $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir, $domains_ntlm_cache_users_dir, $systemd_unit_dir, $acme_challenge_dir,
     $conf_uploads,
 
@@ -126,7 +126,14 @@ our (
     $cron_config_file, $cron_default_config_file,
     $mfa_config_file,
     $connectors_config_file,
+    $kafka_config_file,
     $git_commit_id_file,
+    $pfqueue_backend_socket,
+    $kafka_config_dir,
+    $provisioning_filters_config_file,
+    $provisioning_filters_config_default_file,
+    $provisioning_filters_meta_config_file,
+    $provisioning_filters_meta_config_default_file,
 );
 
 BEGIN {
@@ -136,7 +143,7 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT_OK = qw(
-        $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir
+        $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir $run_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir $acme_challenge_dir $conf_uploads
         $pf_default_file
         $pf_config_file
@@ -227,7 +234,14 @@ BEGIN {
         $cron_config_file $cron_default_config_file
         $mfa_config_file
         $connectors_config_file
+        $kafka_config_file
         $git_commit_id_file
+        $pfqueue_backend_socket
+        $kafka_config_dir
+        $provisioning_filters_config_file
+        $provisioning_filters_config_default_file
+        $provisioning_filters_meta_config_file
+        $provisioning_filters_meta_config_default_file
     );
 }
 
@@ -246,12 +260,14 @@ $lib_dir  = catdir($install_dir, "lib");
 $html_dir = catdir($install_dir, "html");
 $log_dir  = catdir($install_dir, "logs");
 $log_conf_dir  = catdir($conf_dir,"log.conf.d");
+$kafka_config_dir = catdir($conf_dir, "kafka");
 
 $generated_conf_dir   = catdir($var_dir, "conf");
 $tt_compile_cache_dir = catdir($var_dir, "tt_compile_cache");
 $control_dir  = catdir( $var_dir, "control");
 $switch_control_dir  = catdir($var_dir, "switch_control");
 $pfconfig_cache_dir = catdir($var_dir, "cache/pfconfig");
+$run_dir  = catdir($var_dir, "run");
 $domains_chroot_dir = catdir("/chroots");
 $domains_ntlm_cache_users_dir = catdir($var_dir, "cache/ntlm_cache_users");
 $systemd_unit_dir   = "/usr/lib/systemd/system"; 
@@ -306,6 +322,10 @@ $allowed_device_oui_file   = catfile($conf_dir,"allowed_device_oui.txt");
 $allowed_device_types_file = catfile($conf_dir,"allowed_device_types.txt");
 $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $vlan_filters_config_default_file = catfile($conf_dir, "vlan_filters.conf.defaults");
+$provisioning_filters_config_file = catfile($conf_dir, "provisioning_filters.conf");
+$provisioning_filters_config_default_file = catfile($conf_dir, "provisioning_filters.conf.defaults");
+$provisioning_filters_meta_config_file = catfile($conf_dir, "provisioning_filters_meta.conf");
+$provisioning_filters_meta_config_default_file = catfile($conf_dir, "provisioning_filters_meta.conf.defaults");
 $cloud_config_file = catfile($conf_dir,"cloud.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
@@ -368,6 +388,7 @@ $captiveportal_profile_templates_path = catdir ($install_dir,"html/captive-porta
 $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_templates_path,"default");
 
 $mfa_config_file = catdir($conf_dir,"mfa.conf");
+$kafka_config_file = catdir($conf_dir, "kafka.conf");
 $connectors_config_file = catdir($conf_dir,"connectors.conf");
 
 @log_files = map {catfile($log_dir, $_)}
@@ -413,10 +434,13 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $cron_config_file,
     $domain_config_file,
     $mfa_config_file,
+    $kafka_config_file,
     $connectors_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
+
+$pfqueue_backend_socket = catfile($run_dir, "pfqueue-backend.sock");
 
 $cache_control_file = catfile($var_dir, "cache_control");
 
@@ -435,7 +459,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

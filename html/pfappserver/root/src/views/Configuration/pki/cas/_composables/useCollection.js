@@ -33,15 +33,7 @@ export const useItemConfirmSave = props => {
   return computed(() => !(isNew.value || isClone.value))
 }
 
-export { recomposeGorm as useResponse } from '../../config'
-
-export const useServices = () => computed(() => {
-  return {
-    message: i18n.t('Creating or modifying the PKI configuration requires services restart.'),
-    services: ['pfpki'],
-    k8s_services: ['pfpki']
-  }
-})
+export { useServices } from '../../config'
 
 export { useRouter } from '../_router'
 

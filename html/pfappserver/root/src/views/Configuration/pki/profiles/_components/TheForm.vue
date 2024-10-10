@@ -48,7 +48,7 @@
         -->
         <form-group-validity namespace="validity"
                              :column-label="$i18n.t('Validity')"
-                             :text="$i18n.t('Number of days the certificate will be valid.')"
+                             :text="$i18n.t('Number of days the certificate will be valid. (value greater than 380 wont work on some devices)')"
         />
         <form-group-key-type namespace="key_type"
                              :column-label="$i18n.t('Key type')"
@@ -70,15 +70,25 @@
         />
         <form-group-ocsp-url namespace="ocsp_url"
                              :column-label="$i18n.t('OCSP URL')"
-                             :text="$i18n.t('Optional. This is the URL of the OCSP server that will be added in the certificate. If empty then the ca one will be used')"
+                             :text="$i18n.t('Optional.URL of the OCSP server that will be added in the certificate. If empty then the CA is used')"
+        />
+        <form-group-allow-duplicated-cn namespace="allow_duplicated_cn"
+                                        :column-label="$i18n.t('Allow multiple certificates with same Common Name')"
+                                        :text="$i18n.t(`Optional. Allow this profile to create multiple certificates with the same Common Name. Enabling will disable the 'Days before renewal'.`)"
+                                        :enabled-value="1"
+                                        :disabled-value="0"
+        />
+        <form-group-maximum-duplicated-cn namespace="maximum_duplicated_cn"
+                                         :column-label="$i18n.t('Maximum number of certificates with same Common Name.')"
+                                         :text="$i18n.t('Determine the maximum number of certificates the PKI can generate with the same Common Name. Use 0 for unlimited. Expired certs are automatically revoked.')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('PKCS 12')">
         <form-group-p12-mail-password namespace="p12_mail_password"
                                       :column-label="$i18n.t('P12 mail password')"
                                       :text="$i18n.t('Email the password of the pkcs12 file.')"
-                                      :enabled-value="1"
-                                      :disabled-value="0"
+                                      enabled-value="1"
+                                      disabled-value="0"
         />
         <form-group-p12-mail-subject namespace="p12_mail_subject"
                                      :column-label="$i18n.t('P12 mail subject')"
@@ -123,6 +133,14 @@
         <form-group-cloud-service namespace="cloud_service"
                                   :column-label="$i18n.t('Cloud Service')"
                                   :text="$i18n.t('Cloud Service to integrate.')"
+        />
+        <form-group-scep-server-enabled namespace="scep_server_enabled"
+                                        :column-label="$i18n.t('SCEP Server Enabled')"
+                                        :enabled-value="1"
+                                        :disabled-value="0"
+        />
+        <form-group-scep-server-id namespace="scep_server_id"
+                                  :column-label="$i18n.t('SCEP Server')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Renewal Configuration')">
@@ -185,6 +203,7 @@
 import {BaseForm, BaseFormTab} from '@/components/new/'
 import schemaFn from '../schema'
 import {
+  FormGroupAllowDuplicatedCn,
   FormGroupCaId,
   FormGroupCloudEnabled,
   FormGroupCloudService,
@@ -199,6 +218,7 @@ import {
   FormGroupKeyUsage,
   FormGroupLocality,
   FormGroupMail,
+  FormGroupMaximumDuplicatedCn,
   FormGroupName,
   FormGroupOcspUrl,
   FormGroupOrganisation,
@@ -219,7 +239,9 @@ import {
   FormGroupScepEnabled,
   FormGroupState,
   FormGroupStreetAddress,
-  FormGroupValidity
+  FormGroupValidity,
+  FormGroupScepServerEnabled,
+  FormGroupScepServerId
 } from './'
 import {computed, toRefs} from '@vue/composition-api'
 import {keySizes, keyTypes} from '../../config'
@@ -229,6 +251,7 @@ const components = {
   BaseFormTab,
 
   FormGroupIdentifier,
+  FormGroupAllowDuplicatedCn,
   FormGroupCaId,
   FormGroupName,
   FormGroupMail,
@@ -245,6 +268,7 @@ const components = {
   FormGroupDigest,
   FormGroupKeyUsage,
   FormGroupExtendedKeyUsage,
+  FormGroupMaximumDuplicatedCn,
   FormGroupOcspUrl,
   FormGroupP12MailPassword,
   FormGroupP12MailSubject,
@@ -263,7 +287,9 @@ const components = {
   FormGroupRenewalMailFrom,
   FormGroupRenewalMailHeader,
   FormGroupRenewalMailFooter,
-  FormGroupRevokedValidUntil
+  FormGroupRevokedValidUntil,
+  FormGroupScepServerEnabled,
+  FormGroupScepServerId
 }
 
 export const props = {

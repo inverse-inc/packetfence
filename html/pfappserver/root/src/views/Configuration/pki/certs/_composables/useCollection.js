@@ -35,6 +35,8 @@ export const useItemTitle = (props) => {
   })
 }
 
+export { useServices } from '../../config'
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'

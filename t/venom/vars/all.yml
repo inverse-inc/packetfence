@@ -348,7 +348,8 @@ wired_dot1x_eap_tls_manual.certs.user.mail: '{{.configurator.email}}'
 wired_dot1x_eap_tls_manual.certs.user.scep_enabled: 1
 wired_dot1x_eap_tls_manual.certs.user.scep_challenge_password: secret
 wired_dot1x_eap_tls_manual.certs.user.scep_days_before_renewal: 0
-wired_dot1x_eap_tls_manual.certs.user.subject: "/C={{.wired_dot1x_eap_tls_manual.certs.country}}/ST={{.wired_dot1x_eap_tls_manual.certs.state}}/L={{.wired_dot1x_eap_tls_manual.certs.locality}}/O={{.wired_dot1x_eap_tls_manual.certs.organisation}}/OU={{.wired_dot1x_eap_tls_manual.certs.organisational_unit}}/CN={{.wired_dot1x_eap_tls_manual.certs.user.cn}}"
+  #wired_dot1x_eap_tls_manual.certs.user.subject: "/C={{.wired_dot1x_eap_tls_manual.certs.country}}/ST={{.wired_dot1x_eap_tls_manual.certs.state}}/L={{.wired_dot1x_eap_tls_manual.certs.locality}}/O={{.wired_dot1x_eap_tls_manual.certs.organisation}}/OU={{.wired_dot1x_eap_tls_manual.certs.organisational_unit}}/CN={{.wired_dot1x_eap_tls_manual.certs.user.cn}}"
+wired_dot1x_eap_tls_manual.certs.user.subject: "/CN={{.wired_dot1x_eap_tls_manual.certs.user.cn}}"
 
 # OCSP config
 wired_dot1x_eap_tls_manual.ocsp.id: ocsp_from_cert
@@ -606,7 +607,7 @@ security_event_autoreg.node.dhcp_fingerprint_id: 276
 ## Security event suricata test suite specific variables
 #################################################################################
 security_event_suricata.event.id: '88888889'
-security_event_suricata.syslog_parser.id: 'Suricata'
+security_event_suricata.event_handler.id: 'Suricata'
 security_event_suricata.event.access_duration: '12h'
 security_event_suricata.event.desc: 'ET P2P Kaaza Media'
 security_event_suricata.fifo_file: '/usr/local/pf/var/suricata'

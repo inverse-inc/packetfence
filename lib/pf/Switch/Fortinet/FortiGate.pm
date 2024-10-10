@@ -31,8 +31,9 @@ use HTTP::Request::Common;
 use pf::log;
 use pf::constants;
 use pf::accounting qw(node_accounting_dynauth_attr);
-use pf::config qw ($WEBAUTH_WIRELESS);
+use pf::config qw ($WEBAUTH_WIRELESS $WEBAUTH_WIRED $WIRED_802_1X $WIRED_MAC_AUTH);
 use pf::constants::role qw($REJECT_ROLE);
+use pf::ip4log qw(mac2ip);
 
 use base ('pf::Switch::Fortinet');
 
@@ -48,6 +49,8 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     WiredMacAuth
     WirelessDot1x
+    WirelessWebAuth
+    WiredWebAuth
     RoleBasedEnforcement
     VPNRoleBasedEnforcement
     VPN
@@ -202,10 +205,11 @@ sub deauthenticateMacDefault {
 
     #Fetching the acct-session-id
     my $dynauth = node_accounting_dynauth_attr($mac);
+    my $ipAddress = pf::ip4log::mac2ip($mac);
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect(
-        $mac, { 'Acct-Session-Id' => $dynauth->{'acctsessionid'}, 'User-Name' => $dynauth->{'username'} },
+        $mac, { 'Acct-Session-Id' => $dynauth->{'acctsessionid'}, 'User-Name' => $dynauth->{'username'},'Framed-IP-Address' => $ipAddress },
     );
 }
 
@@ -240,10 +244,18 @@ sub identifyConnectionType {
     } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(admin-login)$/i ) {
         $connection->isVPN($FALSE);
         $connection->isCLI($TRUE);
-    } else {
-        # Default to CLI
+    } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(web-auth)$/i) {
         $connection->isVPN($FALSE);
-        $connection->isCLI($TRUE);
+        $connection->isCLI($FALSE);
+        $connection->isWebAuth($TRUE);
+        if (exists $radius_request->{'Fortinet-SSID'}) {
+            $connection->transport("Wireless");
+        } else {
+            $connection->transport("Wired");
+        }
+    } else {
+        $connection->isVPN($FALSE);
+        $connection->isCLI($FALSE);
     }
 }
 
@@ -313,6 +325,48 @@ sub parseVPNRequest {
     return ($nas_port_type, $eap_type, undef, $port, $user_name, $nas_port_id, undef, $nas_port_id);
 }
 
+=item wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => 'dot1xPortReauthenticate',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WEBAUTH_WIRED) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacDefault',
+        );
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
 
 =head1 AUTHOR
 
@@ -320,7 +374,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

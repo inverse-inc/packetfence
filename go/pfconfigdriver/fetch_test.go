@@ -127,6 +127,13 @@ func TestFetchDecodeSocketCache(t *testing.T) {
 	// Test changing data in pfconfig and reloading the resource
 	cmd := exec.Command("sed", "-i.bak", "s/domain=pfdemo.org/domain=zammitcorp.com/g", "/usr/local/pf/t/data/pf.conf")
 	err = cmd.Run()
+	defer func() {
+		// Restore the prestine version of pf.conf
+		err = os.Rename("/usr/local/pf/t/data/pf.conf.bak", "/usr/local/pf/t/data/pf.conf")
+		sharedutils.CheckError(err)
+		// Reset the pfconfig namespace after putting back the old data
+		FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
+	}()
 	sharedutils.CheckError(err)
 
 	// Expire data in pfconfig
@@ -145,12 +152,6 @@ func TestFetchDecodeSocketCache(t *testing.T) {
 	if gen.Domain != expected {
 		t.Errorf("Resource domain wasn't loaded correctly through resource pool. Got %s instead of %s", gen.Domain, expected)
 	}
-	// Restore the prestine version of pf.conf
-	err = os.Rename("/usr/local/pf/t/data/pf.conf.bak", "/usr/local/pf/t/data/pf.conf")
-	sharedutils.CheckError(err)
-
-	// Reset the pfconfig namespace after putting back the old data
-	FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
 
 }
 

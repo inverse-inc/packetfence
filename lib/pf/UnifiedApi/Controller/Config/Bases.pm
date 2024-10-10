@@ -27,11 +27,13 @@ use pf::pfqueue::status_updater::redis;
 use pf::util::pfqueue qw(consumer_redis_client);
 use pf::config;
 use pf::util;
+use pf::file_paths qw($conf_uploads);
 use pfappserver::Form::Config::Pf;
 use pf::I18N::pfappserver;
 use pf::error qw(is_error);
 use pf::ConfigStore::Pf;
 use pf::ConfigStore::Network;
+use pfappserver::Model::Config::Pfconfig;
 use pf::config qw(
     %Config
     %Doc_Config
@@ -132,8 +134,9 @@ sub database_test {
         $self->render(json => {message => "Unable to parse JSON payload"}, status => 400);
         return;
     }
-    my $db = $json->{database} // "mysql";
-    my ($status, $status_msg) = $self->database_model->connect($db, $json->{username}, $json->{password});
+
+    $json->{database} //= "mysql";
+    my ($status, $status_msg) = $self->database_model->test_connection($json);
     $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
 }
 
@@ -208,24 +211,21 @@ sub database_create {
 
 sub do_database_create {
     my ($self, $json) = @_;
-    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{username}, $json->{password});
+    my ($status, $status_msg) = $self->database_model->create_database($json);
     if(is_error($status)) {
         return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
     }
 
-    ($status, $status_msg) = $self->database_model->create($json->{database}, $json->{username}, $json->{password});
-    if(is_error($status)) {
-        return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
-    }
-
-    ($status, $status_msg) = $self->database_model->schema($json->{database}, $json->{username}, $json->{password});
+    ($status, $status_msg) = $self->database_model->apply_schema($json);
     if(is_error($status)) {
         return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
     }
 
     my $pf_cs = pf::ConfigStore::Pf->new;
-    $pf_cs->update("database", {db => $json->{database}});
+    my $db = $json->{database};
+    $pf_cs->update("database", {db => $db});
     $pf_cs->commit();
+    pfappserver::Model::Config::Pfconfig->new->update_db_name($db);
     return 200, {message => "Created database and loaded the schema"};
 }
 
@@ -237,26 +237,38 @@ sub database_assign {
         return;
     }
 
-    my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{root_username}, $json->{root_password});
+    my ($status, $status_msg) = $self->database_model->assign_database($json);
     if(is_error($status)) {
         $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
         return;
     }
 
-    ($status, $status_msg) = $self->database_model->assign($json->{database}, $json->{pf_username}, $json->{pf_password});
-    if(is_error($status)) {
-        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
-        return;
-    }
-
-    require pfappserver::Model::Config::Pfconfig;
     pfappserver::Model::Config::Pfconfig->new->update_mysql_credentials($json->{pf_username}, $json->{pf_password});
 
     my $pf_cs = pf::ConfigStore::Pf->new;
-    $pf_cs->update("database", {user => $json->{pf_username}, pass => $json->{pf_password}});
+    my %database = (user => $json->{pf_username}, pass => $json->{pf_password});
+    if ($json->{is_remote}) {
+        my $remote = $json->{remote};
+        my %database_proxysql = (
+            status => 'enabled',
+            backend => $remote->{host},
+        );
+        if ($remote->{ca_cert}) {
+            my $path = "$conf_uploads/pf/database_proxysql_cacert.crt";
+            open(my $fh, ">", $path);
+            print $fh $remote->{ca_cert};
+            close($fh);
+            $database_proxysql{cacert} = $path;
+        }
+        $pf_cs->update("database_proxysql", \%database_proxysql);
+        $database{port} = '6033';
+        $database{host} = '100.64.0.1';
+    }
+    $pf_cs->update("database", \%database);
     $pf_cs->commit();
-
     $self->render(json => {message => "Granted rights to user and adjusted the configuration"}, status => 200);
+
+    return;
 }
 
 sub test_smtp {
@@ -288,7 +300,8 @@ sub test_smtp {
         return $self->render_error(400, pf::util::strip_filename_from_exceptions($@));
     }
 
-    return $self->render(json => { message => 'Testing SMTP success' });
+    $self->render(json => { message => 'Testing SMTP success' });
+    return;
 }
 
 =head2 fields_to_mask
@@ -305,7 +318,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

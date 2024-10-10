@@ -65,6 +65,12 @@ sub operation_generators {
     \%OPERATION_GENERATORS;
 }
 
+sub paramUnique {
+    my ($p) = @_;
+    return $p->{name} if exists $p->{name};
+    return "$p";
+}
+
 =head2 operationParameters
 
 operationParameters
@@ -75,14 +81,17 @@ sub operationParameters {
     my ($self, $scope, $c, $m, $a) = @_;
     my @parameters = @{$self->SUPER::operationParameters($scope, $c, $m, $a)};
     push @parameters, $self->parent_path_parameters($scope, $c, $m, $a);
-    return \@parameters;
+    my %seen;
+    use Data::Dumper;
+    return [ grep { my $u = paramUnique($_); my $e = exists $seen{$u}; $seen{$u} = 1 ;!$e} @parameters ];
 }
 
 sub resoureParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
     push @$parameters, $self->path_parameter($c->url_param_name);
-    return $parameters;
+    my %seen;
+    return [ grep { my $u = paramUnique($_); my $e = exists $seen{$u}; $seen{$u} = 1 ;!$e} @$parameters ];
 }
 
 sub parent_path_parameters {
@@ -166,7 +175,7 @@ sub dalToOpenAPISchemaProperties {
             $properties{$k}->{nullable} = JSON::MaybeXS::true;
         };
         if ($v->{enums_values}) {
-            $properties{$k}->{enum} = [ keys %{$v->{enums_values}} ];
+            $properties{$k}->{enum} = [ sort { $a cmp $b } keys %{$v->{enums_values}} ];
         };
     }
     return \%properties;
@@ -207,6 +216,8 @@ sub dalToOpFields {
     return {
         name => 'fields',
         required => JSON::MaybeXS::true,
+        in => 'path',
+        required => JSON::MaybeXS::true,
         schema => {
             type => 'array',
             items => {
@@ -215,7 +226,7 @@ sub dalToOpFields {
             },
             example => [@$fields],
         },
-        style => 'form',
+        style => 'simple',
         explode => JSON::MaybeXS::false,
         description => 'Comma delimited list of fields to return with each item.'
     };
@@ -227,6 +238,8 @@ sub dalToOpSort {
     my $pk = $self->dalToPK($dal);
     return {
         name => 'sort',
+        in => 'path',
+        required => JSON::MaybeXS::true,
         schema => {
             type => 'array',
             items => {
@@ -235,7 +248,7 @@ sub dalToOpSort {
             },
             example => [ $pk.' ASC' ],
         },
-        style => 'form',
+        style => 'simple',
         explode => JSON::MaybeXS::false,
         description => 'Comma delimited list of fields and respective order to sort items (`default: [ '.$pk.' ASC ]`).',
     };
@@ -250,12 +263,19 @@ sub dalToExampleQuery {
 
 sub operationParametersLookup {
     my ($self, $scope, $c, $m, $a) = @_;
+
+    my $opFields = $self->dalToOpFields($c->dal);
+    $opFields->{in} = 'query';
+
+    my $opSort = $self->dalToOpSort($c->dal);
+    $opSort->{in} = 'query';
+
     return {
         list => [
-            { allOf => [ $self->dalToOpFields($c->dal), { in => 'query' } ] },
-            { allOf => [ $self->dalToOpSort($c->dal), { in => 'query' } ] },
-            { allOf => [ { "\$ref" => "#/components/parameters/limit" }, { in => 'query' } ] },
-            { allOf => [ { "\$ref" => "#/components/parameters/cursor" }, { in => 'query' } ] },
+            $opFields,
+            $opSort,
+            { "\$ref" => "#/components/parameters/limit", in => 'query' },
+            { "\$ref" => "#/components/parameters/cursor", in => 'query' },
         ]
     }
 }
@@ -271,6 +291,7 @@ sub getResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
         '200' => {
+            description => 'Request successful.',
             content => {
                 "application/json" => {
                     schema => {
@@ -387,14 +408,12 @@ sub searchRequestBody {
                             "\$ref" => "#/components/schemas/Search"
                         },
                         {
-                            required => [ 'fields' ],
+                            required => [ 'fields', 'sort' ],
                             properties => {
                                 cursor => {
-                                    required => JSON::MaybeXS::false,
                                     type => 'string',
                                 },
                                 fields => {
-                                    required => JSON::MaybeXS::true,
                                     type => 'array',
                                     items => {
                                         type => 'string',
@@ -402,13 +421,11 @@ sub searchRequestBody {
                                     },
                                 },
                                 limit => {
-                                    required => JSON::MaybeXS::false,
                                     type => 'integer',
                                     minimum => 1,
                                     maximum => 1000,
                                 },
                                 sort => {
-                                    required => JSON::MaybeXS::true,
                                     type => 'array',
                                     items => {
                                         type => 'string',
@@ -442,6 +459,7 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         '200' => {
+            description => 'Request successful.',
             content => {
                 "application/json" => {
                     schema => {
@@ -652,7 +670,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

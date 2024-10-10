@@ -1,7 +1,7 @@
 SET sql_mode = "NO_ENGINE_SUBSTITUTION";
 
 --
--- PacketFence SQL schema upgrade from 11.0 to 11.1
+-- PacketFence SQL schema upgrade from 13.1 to 13.2
 --
 
 
@@ -9,11 +9,11 @@ SET sql_mode = "NO_ENGINE_SUBSTITUTION";
 -- Setting the major/minor version of the DB
 --
 
-SET @MAJOR_VERSION = 13;
+SET @MAJOR_VERSION = 14;
 SET @MINOR_VERSION = 1;
 
 
-SET @PREV_MAJOR_VERSION = 13;
+SET @PREV_MAJOR_VERSION = 14;
 SET @PREV_MINOR_VERSION = 0;
 
 --
@@ -51,9 +51,21 @@ call ValidateVersion;
 
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
---
--- UPGRADE STATEMENTS GO HERE
---
+\! echo "altering pki_profiles"
+ALTER TABLE `pki_profiles`
+    ADD IF NOT EXISTS `allow_duplicated_cn` bigint(20) UNSIGNED DEFAULT 0,
+    ADD IF NOT EXISTS `maximum_duplicated_cn` bigint(20) DEFAULT 0,
+    MODIFY `scep_server_enabled` bigint(20) DEFAULT 0,
+    RENAME INDEX scep_server__id TO scep_server_id;
+
+\! echo "altering pki_certs"
+ALTER TABLE `pki_certs`
+    MODIFY `subject` longtext DEFAULT NULL,
+    DROP INDEX IF EXISTS `subject`,
+    ADD UNIQUE KEY IF NOT EXISTS `cn_serial` (`cn`,`serial_number`) USING HASH;
+
+\! echo "Adding default timestamp to RADIUS audit logs";
+ALTER TABLE radius_audit_log MODIFY created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

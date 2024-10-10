@@ -1,19 +1,16 @@
 import { computed } from '@vue/composition-api'
 import store, { types } from '@/store'
 import api from './_api'
-import {
-  decomposeCa,
-  recomposeCa
-} from './config'
 
 export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_pkis/isCaLoading']),
     getList: () => $store.dispatch('$_pkis/allCas'),
-    createItem: params => $store.dispatch('$_pkis/createCa', recomposeCa(params)),
-    getItem: params => $store.dispatch('$_pkis/getCa', params.id)
-      .then(item => decomposeCa(item)),
-    updateItem: params => $store.dispatch('$_pkis/resignCa', recomposeCa(params)),
+    createItem: params => $store.dispatch('$_pkis/createCa', params),
+    getItem: params => $store.dispatch('$_pkis/getCa', params.id),
+    resignItem: params => $store.dispatch('$_pkis/resignCa', params),
+    generateCsrItem: params => $store.dispatch('$_pkis/generateCsrCa', params),
+    updateItem: params => $store.dispatch('$_pkis/updateCa', params)
   }
 }
 
@@ -23,7 +20,7 @@ export const state = () => {
     caListCache: false, // ca list details
     caItemCache: {}, // ca item details
     caMessage: '',
-    caStatus: ''
+    caStatus: '',
   }
 }
 
@@ -87,6 +84,32 @@ export const actions = {
       commit('CA_ERROR', err.response)
       throw err
     })
+  },
+  generateCsrCa: ({ commit }, data) => {
+    commit('CA_REQUEST')
+    // strip cert
+    const { cert, ...rest } = data
+    return api.csr(rest).then(item => {
+      commit('CA_SUCCESS')
+      return item
+    }).catch(err => {
+      commit('CA_ERROR', err.response)
+      throw err
+    })
+  },
+  updateCa: ({ commit, dispatch }, data) => {
+    commit('CA_REQUEST')
+    return api.update(data).then(item => {
+      // reset list
+      commit('CA_LIST_RESET')
+      dispatch('allCas')
+      // update item
+      commit('CA_ITEM_REPLACED', item)
+      return item
+    }).catch(err => {
+      commit('CA_ERROR', err.response)
+      throw err
+    })
   }
 }
 
@@ -107,10 +130,13 @@ export const mutations = {
     state.caItemCache[data.id] = data
     store.dispatch('config/resetPkiCas')
   },
+  CA_SUCCESS: (state) => {
+    state.caStatus = types.SUCCESS
+  },
   CA_ERROR: (state, response) => {
     state.caStatus = types.ERROR
     if (response && response.data) {
       state.caMessage = response.data.message
     }
-  }
+  },
 }

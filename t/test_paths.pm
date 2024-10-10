@@ -56,6 +56,7 @@ BEGIN {
     $pf::file_paths::roles_config_file = catfile($test_dir,'data/roles.conf');
     $pf::file_paths::event_loggers_config_file = catfile($test_dir,'data/event_loggers.conf');
     $pf::file_paths::switch_filters_config_file = catfile($test_dir,"data/switch_filters.conf"); 
+    $pf::file_paths::provisioning_filters_config_file = catfile($test_dir, "data/provisioning_filters.conf");
 
     $pf::file_paths::server_cert = catfile($test_dir,'data/server.crt');
     $pf::file_paths::server_key = catfile($test_dir,'data/server.key');
@@ -105,7 +106,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -45,6 +45,8 @@ use pf::config qw(
     $WIRELESS_MAC_AUTH
     $WIRELESS_802_1X
     $VIRTUAL_VPN
+    $WEBAUTH_WIRED
+    $WEBAUTH_WIRELESS
 );
 use pf::client;
 use pf::locationlog;
@@ -193,7 +195,7 @@ sub authorize {
 
     $logger->info("handling radius autz request: from switch_ip => ($switch_ip), "
         . "connection_type => " . connection_type_to_str($connection_type) . ","
-        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\""
+        . " switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\""
         . ( defined $ssid ? ", ssid => $ssid" : '' ) );
 
     my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
@@ -646,6 +648,10 @@ sub _isSwitchSupported {
         return $args->{'switch'}->supportsWiredMacAuth();
     } elsif ($args->{'connection_type'} == $WIRED_802_1X) {
         return $args->{'switch'}->supportsWiredDot1x();
+    } elsif ($args->{'connection_type'} == $WEBAUTH_WIRED) {
+        return $args->{'switch'}->supportsWiredWebAuth();
+    } elsif ($args->{'connection_type'} == $WEBAUTH_WIRELESS) {
+        return $args->{'switch'}->supportsWirelessWebAuth();
     } elsif ($args->{'connection_type'} == $WIRELESS_MAC_AUTH) {
         # TODO implement supportsWirelessMacAuth (or supportsWireless)
         $logger->trace("Wireless doesn't have a supports...() call for now, always say it's supported");
@@ -1419,7 +1425,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

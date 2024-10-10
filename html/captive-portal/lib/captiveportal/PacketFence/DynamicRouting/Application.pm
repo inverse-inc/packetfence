@@ -456,7 +456,7 @@ sub _template_toolkit_options {
         RELATIVE => 1,
         PRE_PROCESS => 'macros.inc',
         INCLUDE_PATH => $self->profile->{_template_paths},
-        #        ENCODING => 'utf8',
+        ENCODING => 'utf8',
         COMPILE_DIR => $install_dir . "/var/tt_compile_cache",
         COMPILE_EXT => '.compiled.template',
     };
@@ -607,7 +607,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

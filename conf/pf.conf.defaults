@@ -92,6 +92,12 @@ dhcp_process_ipv6=enabled
 # This is implicitly activated on registration interfaces on which dhcpd runs.
 force_listener_update_on_ack=disabled
 #
+# network.learn_network_cidr_by_role
+#
+# This will enable the learning of the networks tied to each roles on each switches by using the dhcp traffic and radius accounting.
+# To act on DHCP ACK (that contain the netmask) you need to enable force_listener_on_ack otherwise PacketFence will try to detect the cidr network based on the minumum address and the maximum address.
+learn_network_cidr_by_role=disabled
+#
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=
@@ -318,6 +324,10 @@ cacert=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_CACERT", "") %]
 #
 #
 backend=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "") %]
+#
+# database_proxysql.scheduler
+#
+scheduler=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "default") %]
 
 [database_advanced]
 #
@@ -546,15 +556,30 @@ snmptrapd=disabled
 # Location of the snmptrapd binary. Only necessary to change if you are not using the RPMed version.
 snmptrapd_binary=/usr/sbin/snmptrapd
 #
+# services.pfqueue-backend
+#
+# Should pfqueue-backend be managed by PacketFence?
+pfqueue-backend=enabled
+#
 # services.pfqueue
 #
 # Should pfqueue be managed by PacketFence?
 pfqueue=enabled
 #
+# services.pfqueue-go
+#
+# Should pfqueue-go be managed by PacketFence?
+pfqueue-go=enabled
+#
 # services.pfcron
 #
 # Should pfcron be managed by PacketFence?
 pfcron=enabled
+#
+# services.pfdetect
+#
+# Should pfdetect be started?
+pfdetect=enabled
 #
 # services.redis_cache
 #
@@ -594,15 +619,6 @@ keepalived=enabled
 #
 # Location of the keepalived binary. Only necessary to change if you are not running the RPMed version.
 keepalived_binary=/usr/sbin/keepalived
-# services.winbindd
-#
-# Should winbindd be started?
-winbindd=enabled
-# 
-# services.winbindd_binary
-# 
-# location of the winbindd binary. only necessary to change if you are not running the rpmed version.
-winbindd_binary=/usr/sbin/winbindd
 #
 # services.radsniff
 #
@@ -732,6 +748,16 @@ proxysql_binary=/usr/bin/proxysql
 #
 # Should pfsetacls be started?
 pfsetacls=enabled
+#
+# services.kafka
+#
+# Should Kafka be started?
+kafka=disabled
+#
+# services.ntlm-auth-api
+#
+# Should ntlm-auth-api be started?
+ntlm-auth-api=enabled
 
 [snmp_traps]
 #
@@ -805,7 +831,7 @@ network_detection=enabled
 # It is recommended that you allow your users to reach your packetfence server and put your LAN's PacketFence IP.
 # By default we will make this reach PacketFence's website as an easy solution.
 #
-network_detection_ip = web.inverse.ca
+network_detection_ip = netdetect.packetfence.org
 #
 # captive_portal.network_detection_initial_delay
 #
@@ -930,24 +956,10 @@ admin_csp_security_headers=disabled
 #
 portal_csp_security_headers=enabled
 #
-# advanced.sso_on_access_reevaluation
-#
-# Trigger Single-Sign-On (Firewall SSO) on access reevaluation
-sso_on_access_reevaluation=disabled
-#
 # advanced.scan_on_accounting
 #
 # Trigger scan engines on accounting
 scan_on_accounting=disabled
-#
-# advanced.sso_on_accounting
-#
-# Trigger Single-Sign-On (Firewall SSO) on accounting
-sso_on_accounting=disabled
-# advanced.sso_on_dhcp
-#
-# Trigger Single-Sign-On (Firewall SSO) on dhcp
-sso_on_dhcp=enabled
 #
 # advanced.hash_passwords
 #
@@ -1232,7 +1244,7 @@ galera_replication_password=
 #
 # Centralize the virtual IP addresses on the same node instead of distributing them on the two first nodes of the cluster
 centralize_vips=disabled
-
+#
 # active_active.probe_mysql_from_haproxy_db
 #
 # Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers.
@@ -1243,6 +1255,12 @@ probe_mysql_from_haproxy_db=disabled
 # Proxy the RADIUS requests received on the RADIUS load balancer using the VIP
 # When deploying in an environment where the virtual IP is a software load balancer, disable this so that servers proxy the requests using their own IP address
 radius_proxy_with_vip=enabled
+#
+# active_active.firewall_sso_on_management
+#
+# Process Firewall SSO only on the managemenr server (the current load balancer).
+# Disabling it will allow each members of the cluster to send Firewall SSO request to firewalls
+firewall_sso_on_management=disabled
 
 [parking]
 #
@@ -1510,3 +1528,9 @@ sso_login_path=/admin-sso
 sso_authorize_path=/portaltoken
 sso_login_text=Single Sign On
 allow_username_password=enabled
+
+[fleetdm]
+host=
+email=
+password=
+token=

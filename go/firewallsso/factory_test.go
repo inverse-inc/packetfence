@@ -1,10 +1,11 @@
 package firewallsso
 
 import (
+	"testing"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/util"
-	"testing"
 )
 
 func TestInstantiate(t *testing.T) {

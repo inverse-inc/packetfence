@@ -87,7 +87,13 @@ image::meraki-dpsk-connection-profile-2.jpg[scaledwidth="100%",alt="Connection P
 
 image::meraki-dpsk-connection-profile-3.jpg[scaledwidth="100%",alt="Connection Profile configuration"]
 
-===== Switch MS220-8
+===== MS Switch Modules
+
+MS Modules
+This is a standard switch module designed to support all the legacy Meraki Switch series using MS version earlier than v15.x.
+
+Meraki MSv15 
+MSv15 module is designed for the switch series operating on MS_OS v15. Furthermore, it inherits all functionalities from the old "MS220_8" module, making all the configurations below applicable to MSv15.
 
 NOTE: You should already have one port setup as Uplink, using a mode trunk, with at least your Registration and Production VLAN allowed on it.
 

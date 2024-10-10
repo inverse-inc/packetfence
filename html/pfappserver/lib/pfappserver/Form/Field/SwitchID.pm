@@ -40,7 +40,7 @@ apply
             my ( $value, $field ) = @_;
             return 1 if ($field->accept && grep { $_ eq $value } @{$field->accept});
             return 1 if valid_ip_range( $value );
-            return valid_mac_or_ip( $value );
+            return valid_mac_or_ip( $value ) || valid_fqdn($value);
         }
     },
     {
@@ -52,7 +52,11 @@ apply
     {
         transform => sub {
             my ($val) = @_;
-            return clean_mac( $val ) if !valid_ip($val) && valid_mac($val);
+            if (!valid_ip($val)) {
+                return clean_mac($val) if valid_mac($val);
+                return $val if pf::util::valid_fqdn($val);
+            }
+
             my $ip = NetAddr::IP->new($val);
             if ($ip->num == 1) {
                 return $ip->addr;
@@ -65,7 +69,7 @@ apply
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

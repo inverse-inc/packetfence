@@ -35,7 +35,7 @@ func TestChiCleanup(t *testing.T) {
 		},
 		0,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "chi_cache entries left",
 				sql:           ` SELECT COUNT(*) FROM chi_cache `,
 				expectedCount: 10,

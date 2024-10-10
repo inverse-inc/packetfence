@@ -1,6 +1,6 @@
 <template>
   <b-button v-if="!isClone && !isNew && !isScep && !isCsr"
-    size="sm" variant="outline-primary" :disabled="disabled || isLoading" @click.stop.prevent="onEmail">{{ $t('Email') }}</b-button>
+    :size="size" variant="outline-primary" :disabled="disabled || isLoading" @click.stop.prevent="onEmail">{{ $t('Email') }}</b-button>
 </template>
 <script>
 import {
@@ -25,6 +25,11 @@ const props = {
   },
   disabled: {
     type: Boolean
+  },
+  size: {
+    type: String,
+    default: "md",
+    validator: value => ['sm', 'md', 'lg'].includes(value)
   }
 }
 

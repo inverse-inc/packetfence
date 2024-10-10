@@ -128,6 +128,7 @@ __PACKAGE__->config(
 before handle_request => sub {
     pf::CHI::Request::clear_all();
     pf::log::reset_log_context();
+    umask(0002);
 };
 
 sub loadCustomStatic {
@@ -286,7 +287,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

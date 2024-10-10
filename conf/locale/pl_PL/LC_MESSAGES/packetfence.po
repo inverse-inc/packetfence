@@ -1,5 +1,5 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2023 Inverse inc.
+# Copyright (C) 2005-2024 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 # 
 # Translators:
@@ -368,6 +368,7 @@ msgstr "Potwierdź hasło"
 # html/captive-portal/templates/provisioner/dpsk.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
@@ -1044,6 +1045,7 @@ msgstr "Gdy będziesz na miejscu, wybierz dostęp dla gości\ni użyj następuj�
 # html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid ""
@@ -1671,6 +1673,7 @@ msgid ""
 msgstr ""
 
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/jamfcloud.html
 msgid ""
 "To complete your network activation you need to install the JAMF client."
 msgstr ""

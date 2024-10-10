@@ -2,7 +2,7 @@
 apt_preferences__list:
   - filename: 'packetfence-ppa.pref'
     package: 'packetfence*'
-    pin: 'release a=bullseye-gitlab,n=bullseye,c=main,b=amd64'
+    pin: 'release a={{ ansible_distribution_release }}-gitlab,n={{ ansible_distribution_release }},c=main,b=amd64'
     priority: '900'
     reason: 'always install packetfence packages from packetfence-ppa repository'
 
@@ -16,8 +16,8 @@ gitlab_buildpkg_tools__ppa_url_deb: '{{ gitlab_buildpkg_tools__ppa_url }}/debian
 # redefine this variables to avoid confusion with official "packetfence" repositories
 gitlab_buildpkg_tools__deb_ppa:
   - name: 'packetfence-ppa'
-    # force to "bullseye" because we don't build anymore for stretch
-    baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} bullseye main"
+    # force to "bookworm" because we don't build anymore for stretch
+    baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_distribution_release }} main"
     gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
 
 gitlab_buildpkg_tools__deb_pkgs:

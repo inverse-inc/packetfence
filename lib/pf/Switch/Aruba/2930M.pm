@@ -18,7 +18,7 @@ VoIP not tested using MAC Authentication/802.1X
 
 use strict;
 use warnings;
-use base ('pf::Switch::HP::Procurve_2920');
+use base ('pf::Switch::HP::AOS_Switch_v16_X');
 use pf::constants;
 use pf::util;
 use pf::radius::constants;
@@ -294,7 +294,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

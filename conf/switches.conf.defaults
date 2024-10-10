@@ -16,8 +16,8 @@ isolationVlan = 3
 voiceVlan = 5
 inlineVlan = 6
 REJECTVlan = -1
-inlineTrigger = 
-normalRole = 
+inlineTrigger =
+normalRole =
 registrationRole =
 isolationRole =
 macDetectionRole =
@@ -37,13 +37,13 @@ uplink = dynamic
 pushACLs = N
 
 #
-# Command Line Interface 
+# Command Line Interface
 #
 # cliTransport could be: Telnet, SSH or Serial
 cliTransport = Telnet
-cliUser = 
-cliPwd = 
-cliEnablePwd = 
+cliUser =
+cliPwd =
+cliEnablePwd =
 #
 # SNMP section
 #
@@ -57,12 +57,12 @@ SNMPCommunityWrite = private
 #SNMPUserNameRead = readUser
 #SNMPAuthProtocolRead = MD5
 #SNMPAuthPasswordRead = authpwdread
-#SNMPPrivProtocolRead = DES 
+#SNMPPrivProtocolRead = DES
 #SNMPPrivPasswordRead = privpwdread
 #SNMPUserNameWrite = writeUser
 #SNMPAuthProtocolWrite = MD5
 #SNMPAuthPasswordWrite = authpwdwrite
-#SNMPPrivProtocolWrite = DES 
+#SNMPPrivProtocolWrite = DES
 #SNMPPrivPasswordWrite = privpwdwrite
 
 # Switch -> PacketFence
@@ -74,12 +74,12 @@ SNMPCommunityTrap = public
 #SNMPPrivPasswordTrap = privpwdread
 
 #
-# Web Services Interface 
+# Web Services Interface
 #
 # wsTransport could be: http or https
 wsTransport = http
-wsUser = 
-wsPwd = 
+wsUser =
+wsPwd =
 #
 # RADIUS NAS Client config
 #
@@ -95,10 +95,8 @@ radiusDeauthUseConnector=Y
 VoIPLLDPDetect=Y
 PostMfaValidation=N
 
-# Push ACLs
-PushACLs=N
-
-# Downloadable ACLs
-DownloadableACLsLimit=384
+# ACLs
+UsePushACLs=N
 UseDownloadableACLs=N
 ACLsLimit=20
+DownloadableACLsLimit=384

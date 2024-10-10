@@ -105,6 +105,11 @@ sub update_fields {
     my $params = $self->params;
     my $id = defined $params ?  $params->{id} : undef;
     if (!defined $id) {
+        my $init_object = $self->init_object;
+        $id = defined $init_object ? $init_object->{id} : undef;
+    }
+
+    if (!defined $id) {
         foreach my $field_name (qw(engine_id template_id site_id)) {
             my $field = $self->field($field_name);
             $field->options([{label => $params->{$field_name} // '', value => $params->{$field_name} // ''}]);
@@ -115,7 +120,7 @@ sub update_fields {
     }
 
     my $scan = eval {
-        pf::factory::scan->new($params->{id});
+        pf::factory::scan->new($id);
     };
 
     if (!defined $scan) {
@@ -149,7 +154,7 @@ sub update_fields {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

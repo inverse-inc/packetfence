@@ -261,7 +261,7 @@ sub reassign_role_config_store_switch {
     my $i = 0;
     my $cachedConfig = $cs->cachedConfig;
     for my $sect ($cachedConfig->Sections()) {
-        for my $f (map { "${old}${_}" } qw(Role Url Vlan AccessList Vpn) ) {
+        for my $f (map { "${old}${_}" } qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom) ) {
             next if !$cachedConfig->exists($sect, $f);
             $cachedConfig->delval($sect, $f);
             $i |= 1;
@@ -423,7 +423,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

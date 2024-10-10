@@ -29,7 +29,7 @@ type ApiUser struct {
 }
 
 func NewDbAuthenticationBackend(ctx context.Context, db *sql.DB, tableName string) *DbAuthenticationBackend {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
+	pfconfigdriver.AddStruct(context.Background(), "AdminRoles", &pfconfigdriver.AdminRoles{})
 
 	return &DbAuthenticationBackend{
 		db:        db,

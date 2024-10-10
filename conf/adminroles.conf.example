@@ -11,3 +11,11 @@ allowed_access_levels=User Manager
 [Security Event Manager]
 description=Security Events managements
 actions=SECURITY_EVENTS_READ,SECURITY_EVENTS_CREATE,SECURITY_EVENTS_UPDATE,SECURITY_EVENTS_DELETE,USERS_READ,NODES_READ
+
+[Windows Event Receiver NTLM]
+description=Receives Windows AD event reports
+actions=WINDOWS_EVENTS_READ
+
+[FleetDM Event Handler]
+description=Receives FleetDM events
+actions=FLEETDM_EVENTS_READ

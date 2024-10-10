@@ -1,4 +1,5 @@
 package pf::provisioner::sentinelone;
+
 =head1 NAME
 
 pf::provisioner::sentinelone
@@ -196,23 +197,24 @@ Execute a request, retrying it one if the request is unauthenticated (in case th
 sub execute_request {
     my ($self, $req) = @_;
     my $res = $self->_execute_request($req);
-    if($res->is_success) {
+    if ($res->is_success) {
         return $res;
     }
-    else {
-        if($res->code == $STATUS::FORBIDDEN || $res->code == $STATUS::UNAUTHORIZED){
-            # We try again but with a fully refreshed token
-            $self->cache->remove($self->_token_cache_key);
-            $res = $self->_execute_request($req);
-            if($res->is_success){
-                return $res;
-            }
-            elsif($res->code == $STATUS::FORBIDDEN || $res->code == $STATUS::UNAUTHORIZED){
-                get_logger->error("Cannot authenticate against SentinelOne API. Please check your configuration.");
-                return $pf::provisioner::COMMUNICATION_FAILED;
-            }
+
+    if ($res->code == $STATUS::FORBIDDEN || $res->code == $STATUS::UNAUTHORIZED) {
+        # We try again but with a fully refreshed token
+        $self->cache->remove($self->_token_cache_key);
+        $res = $self->_execute_request($req);
+        if ($res->is_success) {
+            return $res;
+        }
+
+        if ($res->code == $STATUS::FORBIDDEN || $res->code == $STATUS::UNAUTHORIZED) {
+            get_logger->error("Cannot authenticate against SentinelOne API. Please check your configuration.");
+            return $pf::provisioner::COMMUNICATION_FAILED;
         }
     }
+
     get_logger->error("Failure while communicating with SentinelOne API: ".$res->status_line);
     return $pf::provisioner::COMMUNICATION_FAILED;
 }
@@ -239,31 +241,54 @@ MISSING : compliance check
 =cut
 
 sub authorize {
-    my ($self,$mac) = @_;
+    my ($self, $mac) = @_;
     my $logger = get_logger();
-
     my $info = $self->fetch_agent_info($mac);
-
-    if( $info == $pf::provisioner::COMMUNICATION_FAILED){
+    if ($info == $pf::provisioner::COMMUNICATION_FAILED) {
         return $info;
     }
-    elsif(!$info){
+
+    if (!$info) {
         return $FALSE;
     }
-    else {
-        if($info->{is_uninstalled} || $info->{isUninstalled}) {
-            $logger->info("Agent is uninstalled on device");
-            return $FALSE;
-        }
-        elsif($info->{is_active} || $info->{isActive}){
-            $logger->info("Agent is installed and active.");
-            return $TRUE;
-        }
-        else {
-            $logger->info("Agent is not active on device");
-            return $FALSE;
-        }
+
+    my $node_info = node_view($mac);
+    if ($info->{is_uninstalled} || $info->{isUninstalled}) {
+        $logger->info("Agent is uninstalled on device");
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info => $node_info,
+                sentinelone => $info,
+                compliant_check => 0
+            },
+            $FALSE
+        );
     }
+
+    if ($info->{is_active} || $info->{isActive}) {
+        $logger->info("Agent is installed and active.");
+        return $self->handleAuthorizeEnforce(
+            $mac,
+            {
+                node_info => $node_info,
+                sentinelone => $info,
+                compliant_check => 1
+            },
+            $TRUE
+        );
+    }
+
+    $logger->info("Agent is not active on device");
+    return $self->handleAuthorizeEnforce(
+        $mac,
+        {
+            node_info => $node_info,
+            sentinelone => $info,
+            compliant_check => 0
+        },
+        $FALSE
+    );
 }
 
 =head2 _build_uri
@@ -380,7 +405,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 
@@ -402,4 +427,3 @@ USA.
 =cut
 
 1;
-

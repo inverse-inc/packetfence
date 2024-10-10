@@ -108,6 +108,7 @@ Readonly::Scalar our $EXT_URL_AEROHIVE_SHORT        => '^/AeroHIVE';
 Readonly::Scalar our $EXT_URL_ARUBA                 => '^/Aruba';
 Readonly::Scalar our $EXT_URL_ARUBA_SWITCH          => '^/Aruba::2930M';
 Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960   => '^/Cisco::Catalyst_2960';
+Readonly::Scalar our $EXT_URL_CISCO_CISCO_IOS_15_0  => '^/Cisco::Cisco_IOS_15_0';
 Readonly::Scalar our $EXT_URL_CISCO_WLC             => '^/Cisco::WLC';
 Readonly::Scalar our $EXT_URL_CISCO_ASA             => '^/Cisco::ASA';
 Readonly::Scalar our $EXT_URL_COOVACHILLI           => '^/CoovaChilli';
@@ -124,6 +125,7 @@ Readonly::Scalar our $EST_URL_DELL                  => '^/Dell:N1500';
 Readonly::Scalar our $EXT_URL_EXOS                  => '^/Extreme::EXOS';
 Readonly::Scalar our $EXT_URL_EXTREME_AP            => '^/Extreme::AP';
 Readonly::Scalar our $EXT_URL_F5                    => '^/F5';
+Readonly::Scalar our $EXT_URL_MERAKI_MS             => '^/Meraki::MS';
 
 # Ubiquiti doesn't support setting the URL so we much detect it using this URL which will then map to the Ubiquiti module in pf::web::externalportal
 Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/[a-zA-Z0-9]+/';
@@ -274,7 +276,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

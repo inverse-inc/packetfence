@@ -60,6 +60,7 @@ use pf::role::custom $ROLE_API_LEVEL;
 use pf::client;
 use pf::cluster;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
+use pf::constants::firewallsso qw($REEVALUATE);
 use pf::ip4log;
 use pf::Connection::ProfileFactory;
 use NetAddr::IP;
@@ -89,16 +90,16 @@ sub reevaluate_access {
     $opts{'force'} = '1' if ($function eq 'admin_modify');
     my $ip = pf::ip4log::mac2ip($mac);
     my $sync = $opts{sync};
-    if (isenabled($Config{advanced}{sso_on_access_reevaluation}) && scalar keys %ConfigFirewallSSO != 0 ) {
+    if ( (grep { defined $_ && $_ eq $TRUE } map { $_->{'sso_on_access_reevaluation'} } values %ConfigFirewallSSO) ) {
         my $node = node_attributes($mac);
         if ($ip) {
             my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";
             if ($sync) {
                 my $client = pf::api::jsonrpcclient->new;
-                $client->call( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
+                $client->call( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH, source => $REEVALUATE) );
             } else {
                 my $client = pf::client::getClient();
-                $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
+                $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH, source => $REEVALUATE) );
             }
         } else {
             $logger->error("Can't do SSO for $mac because can't find its IP address");
@@ -338,7 +339,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

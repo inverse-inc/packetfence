@@ -90,22 +90,48 @@ has_field 'actions' =>
    element_attr => {'data-placeholder' => 'Click to add an action' }
   );
 has_field 'user_mail_message' =>
-  (
-   type => 'TextArea',
-   label => 'Additionnal message for the user',
-   element_class => ['input-large'],
-   tags => { after_element => \&help, 
-             help => 'A message that will be added to the e-mail sent to the user regarding this security event.' }, 
-  );
+    (
+        type                   => 'TextArea',
+        label                  => 'Additionnal message for the user',
+        element_class          => [ 'input-large' ],
+        tags                   => {
+            after_element => \&help,
+            help          => 'A message that will be added to the e-mail sent to the user regarding this security event.' },
+        inflate_default_method => \&inflate_extra_message,
+        deflate_value_method   => \&deflate_extra_message,
+    );
 
-  has_field 'email_recipient_message' =>
-  (
-   type => 'TextArea',
-   label => 'Additionnal message for the user',
-   element_class => ['input-large'],
-   tags => { after_element => \&help,
-             help => 'A message that will be added to the e-mail sent to the user regarding this security event.' },
-  );
+has_field 'email_recipient_message' =>
+    (
+        type                   => 'TextArea',
+        label                  => 'Additionnal message for the user',
+        element_class          => [ 'input-large' ],
+        tags                   => {
+            after_element => \&help,
+            help          => 'A message that will be added to the e-mail sent to the user regarding this security event.' },
+        inflate_default_method => \&inflate_extra_message,
+        deflate_value_method   => \&deflate_extra_message,
+    );
+
+sub inflate_extra_message {
+    my ($self, $value) = @_;
+    $value =~ s/\[% ENV.BRL %\]/::____ OPEN ____::/g;
+    $value =~ s/\[% ENV.BRR %\]/::____ CLOS ____::/g;
+    $value =~ s/::____ OPEN ____::/\[%/g;
+    $value =~ s/::____ CLOS ____::/%\]/g;
+
+    return $value;
+}
+
+sub deflate_extra_message {
+    my ($self, $value) = @_;
+    $value =~ s/\[%/::____ OPEN ____::/g;
+    $value =~ s/%\]/::____ CLOS ____::/g;
+    $value =~ s/::____ OPEN ____::/\[% ENV.BRL %\]/g;
+    $value =~ s/::____ CLOS ____::/\[% ENV.BRR %\]/g;
+
+    return $value;
+}
 
 has_field 'recipient_email' =>
   (
@@ -473,7 +499,7 @@ sub validate_id {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

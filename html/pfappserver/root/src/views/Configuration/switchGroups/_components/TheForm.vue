@@ -110,7 +110,7 @@
                 />
 
                 <template v-if="isVlanMap">
-                  <form-group-role-map-vlan v-for="role in roles" :key="`${role}Vlan`" 
+                  <form-group-role-map-vlan v-for="role in roles" :key="`${role}Vlan`"
                                             :namespace="`${role}Vlan`"
                                             :column-label="role"
                   />
@@ -120,20 +120,19 @@
           </base-form-tab>
 
           <base-form-tab v-if="supports(['RoleBasedEnforcement'])"
-                         :title="$i18n.t('Switch Role')">
+            :title="$i18n.t('Switch Role')">
             <b-card class="mb-3 pb-0" no-body>
               <b-card-header>
                 <h4 class="mb-0" v-t="'Role mapping by Switch Role'"></h4>
               </b-card-header>
               <div class="card-body pb-0">
                 <form-group-toggle-role-map namespace="RoleMap"
-                                            :column-label="$i18n.t('Role by Switch Role')"
+                  :column-label="$i18n.t('Role by Switch Role')"
                 />
 
                 <template v-if="isRoleMap">
-                  <form-group-role-map-role v-for="role in roles" :key="`${role}Role`" 
-                                            :namespace="`${role}Role`"
-                                            :column-label="role"
+                  <form-group-role-map-role v-for="role in roles" :key="`${role}Role`" :namespace="`${role}Role`"
+                    :column-label="role"
                   />
                 </template>
               </div>
@@ -141,20 +140,19 @@
           </base-form-tab>
 
           <base-form-tab v-if="supports(['VPNRoleBasedEnforcement'])"
-                         :title="$i18n.t('Vpn Role')">
+            :title="$i18n.t('Vpn Role')">
             <b-card class="mb-3 pb-0" no-body>
               <b-card-header>
                 <h4 class="mb-0" v-t="'Role mapping by Vpn Role'"></h4>
               </b-card-header>
               <div class="card-body pb-0">
                 <form-group-toggle-access-list-map namespace="VpnMap"
-                                                   :column-label="$i18n.t('Role by Vpn Role')"
+                  :column-label="$i18n.t('Role by Vpn Role')"
                 />
 
                 <template v-if="isVpnMap">
-                  <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`" 
-                                           :namespace="`${role}Vpn`"
-                                           :column-label="role"
+                  <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`" :namespace="`${role}Vpn`"
+                    :column-label="role"
                   />
                 </template>
               </div>
@@ -162,15 +160,30 @@
           </base-form-tab>
 
           <base-form-tab v-if="supports(['AccessListBasedEnforcement'])"
-                         :title="$i18n.t('Access List')">
+            :title="$i18n.t('Access List')">
             <b-card class="mb-3 pb-0" no-body>
               <b-card-header>
                 <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
               </b-card-header>
               <div class="card-body pb-0">
+                <form-group-toggle-access-list-map namespace="AccessListMap"
+                  :column-label="$i18n.t('Role by Access List')"
+                  :text="$i18n.t('Defining an ACL will supersede the one defined directly in the role configuration.')"
+                />
+
                 <template v-if="isAccessListMap">
-                  <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" 
-                                                   :namespace="`${role}AccessList`"
+                  <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" :namespace="`${role}AccessList`"
+                    :column-label="role"
+                  />
+                </template>
+              </div>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Interface mapping to Access List'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <template v-if="isInterfaceMap">
+                  <form-group-role-map-interface v-for="role in roles" :key="`${role}Interface`"
+                                                   :namespace="`${role}Interface`"
                                                    :column-label="role"
                   />
                 </template>
@@ -179,21 +192,53 @@
           </base-form-tab>
 
           <base-form-tab v-if="supports(['ExternalPortal'])"
-                         :title="$i18n.t('Web Auth URL')">
+            :title="$i18n.t('Web Auth URL')">
             <b-card class="mb-3 pb-0" no-body>
               <b-card-header>
                 <h4 class="mb-0" v-t="'Role mapping by Web Auth URL'"></h4>
               </b-card-header>
               <div class="card-body pb-0">
                 <form-group-toggle-url-map namespace="UrlMap"
-                                           :column-label="$i18n.t('Role by Web Auth URL')"
+                  :column-label="$i18n.t('Role by Web Auth URL')"
                 />
 
                 <template v-if="isUrlMap">
-                  <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" 
-                                            :namespace="`${role}Url`"
-                                            :column-label="role"
+                  <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" :namespace="`${role}Url`"
+                    :column-label="role"
                   />
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
+
+          <base-form-tab
+            :title="$i18n.t('Network CIDR')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by network CIDR'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-network-map namespace="NetworkMap"
+                  :column-label="$i18n.t('Role by Network CIDR')"
+                />
+
+                <template v-if="isNetworkMap">
+                  <b-form-group v-for="role in roles" :key="`${role}Network`"
+                    :label="role" label-cols="3"
+                    class="base-form-group"
+                  >
+                    <b-input-group>
+                      <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                        <b-col sm="6" align-self="center">
+                          <input-role-map-network :namespace="`${role}Network`"
+                            :disabled="form[`${role}NetworkFrom`] !== 'static'" />
+                        </b-col>
+                        <b-col sm="6" align-self="center" class="pl-1">
+                          <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
+                        </b-col>
+                      </b-row>
+                    </b-input-group>
+                  </b-form-group>
                 </template>
               </div>
             </b-card>
@@ -388,27 +433,27 @@
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
 
-        <form-group-push-acls v-show="supports(['PushACLs'])"
-          namespace="PushACLs"
+        <form-group-use-push-acls v-show="supports(['PushACLs'])"
+          namespace="UsePushACLs"
           :column-label="$i18n.t('Push ACLs')"
           :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
+        />
+
+        <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement'])"
+          :column-label="$i18n.t('Maximum ACLs per RADIUS reply')"
+          :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"
         />
 
         <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
           namespace="UseDownloadableACLs"
           :column-label="$i18n.t('Downloadable ACLs')"
-          :text="$i18n.t('Enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
+          :text="$i18n.t('Enable Downloadable ACLs through RADIUS instead of Dynamic ACLs.')"
         />
 
         <form-group-downloadable-acls-limit v-show="supports(['DownloadableListBasedEnforcement'])"
           namespace="DownloadableACLsLimit"
           :column-label="$i18n.t('Maximum ACLs per switch')"
           :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch.')"
-        />
-
-        <form-group-acls-limit namespace="ACLsLimit" v-show="supports(['DownloadableListBasedEnforcement'])"
-          :column-label="$i18n.t('Maximum ACLs per RADIUS reply')"
-          :text="$i18n.t('The maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"
         />
 
       </base-form-tab>
@@ -525,6 +570,7 @@ import {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleMapInterface,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -552,11 +598,13 @@ import {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
+  FormGroupToggleInterfaceMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
-  FormGroupPushAcls,
+  FormGroupUsePushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
@@ -569,6 +617,9 @@ import {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 } from './'
 
 const components = {
@@ -602,6 +653,7 @@ const components = {
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
+  FormGroupRoleMapInterface,
   FormGroupSnmpAuthProtocolTrap,
   FormGroupSnmpAuthPasswordTrap,
   FormGroupSnmpCommunityRead,
@@ -629,11 +681,13 @@ const components = {
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
+  FormGroupToggleNetworkMap,
+  FormGroupToggleInterfaceMap,
   FormGroupType,
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
-  FormGroupPushAcls,
+  FormGroupUsePushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
@@ -646,6 +700,9 @@ const components = {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+
+  InputRoleMapNetwork,
+  InputToggleNetworkFrom,
 }
 
 import {useForm as useSwitchForm, useFormProps as props} from '../../switches/_composables/useForm'

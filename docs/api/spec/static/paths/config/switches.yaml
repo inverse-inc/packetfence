@@ -4,6 +4,7 @@
     parameters:
     - in: path
       name: switch_id
+      required: true
       schema:
         type: string
     responses:

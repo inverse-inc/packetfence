@@ -23,6 +23,7 @@
     parameters:
     - in: path
       name: preference_id
+      required: true
       schema:
         type: string
     responses:
@@ -42,6 +43,7 @@
     parameters:
     - in: path
       name: preference_id
+      required: true
       schema:
         type: string
     responses:
@@ -63,6 +65,7 @@
     parameters:
     - in: path
       name: preference_id
+      required: true
       schema:
         type: string
     requestBody:

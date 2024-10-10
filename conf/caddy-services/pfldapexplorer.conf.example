@@ -1,6 +1,14 @@
-0.0.0.0:22229 {
-  logger {
-    level INFO
-  }
-  pfldapexplorer
+# Copyright (C) Inverse inc.
+{
+	admin off
+	#debug
+}
+
+:22229 {
+	route * {
+		logger {
+			level INFO
+		}
+		pfldapexplorer
+	}
 }

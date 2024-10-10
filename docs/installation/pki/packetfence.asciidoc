@@ -23,14 +23,18 @@ This section has been created to give a quick start to configure the PacketFence
 
 ==== Certificate Authority creation
 
-
 You will need to create a new certificate authority. Go to the PacketFence web administration under the section Configuration -> Integration -> PKI -> Certificate Authorities and click on *New Certificate Authority*
 
 image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification authority creation"]
 
+Optionally if you want the CA to be a sub-CA of another PKI then you can click on 'Generate CSR' (top right of the CA form), modify the information (if needed) and click 'Generate CSR'. On the next page copy the CSR and provide it to the external CA to be able to retrieve a Signed Certficate. On the last page provide the Signed Certificate and click 'Save'.
+
+If the CA certificate is about to expire, generate a new CSR or click on Resign CA Certificate (self-signed).
+
 ===== Here's a CA example:
 
 image::packetfence-pki-ca_creation.png[scaledwidth="100%",alt="Certification authority creation"]
+
 
 ===== Once you have created the CA, you should see the Root CA certificate displayed at the bottom of the page:
 
@@ -70,6 +74,7 @@ image::packetfence-pki-scep.png[scaledwidth="100%",alt="SCEP configuration"]
 IMPORTANT: Common name and Subject Alt Name attributes provided in CSR to get a certificate through SCEP will override values in PKI template.
 Other values like Signature Algorithm, Key usage, Extended key usage will be taken from PKI template.
 
+Optionally, enable 'SCEP Server Enabled' and define an external SCEP server to proxy the request.
 
 ====== SCEP Test
 
@@ -164,6 +169,12 @@ If you revoke a certificate it can't be recovered and you would need to recreate
 
 image::packetfence-pki-revoked_certificate.png[scaledwidth="100%",alt="Revoke a certificate"]
 
+==== Resign a certificate
+
+Resign-ing an existing Certificate will extend the duration by reusing the private-key to generate a new public certificate.
+Click the 'Resign' button (top-right), modify the information (if needed) and click 'Resign'.
+
+
 ==== PKI Provider
 
 You can hand out certificate to non-BYOD device on a captive portal.
@@ -197,7 +208,7 @@ On the next page you have to copy the "Application (Client) ID" and the "Directo
 
 image::Intune-3-App-Detail.png[scaledwidth="100%",alt="Application-Detail"]
 
-Then you need to generate a "Client secrets", to do that click on "Add a certificate or secret" 
+Then you need to generate a "Client secrets", to do that click on "Add a certificate or secret"
 
 image::Intune-4-App-Certificates-Secrets.png[scaledwidth="100%",alt="App-Certificates-Secrets"]
 
@@ -263,3 +274,4 @@ For this section you can follow the instruction on the Microsoft web site:
 From the PacketFence server you will need to extract the PKI Ca certificate associated to the template and put it in Intune as a "trusted certificate"
 
 Then set the SCEP URL to http://ip_addresse/scep/template_name or https://ip_addresse/scep/template_name
+

@@ -56,7 +56,7 @@ Newer versions of VMware Player handle VLAN trunking a lot better. With that in 
 
 === Installing PacketFence from the ISO
 
-The ISO edition of PacketFence allows you to install PacketFence on Debian 11 with minimal effort. Instead of manually installing Debian 11 and installing PacketFence after, this will perform both tasks and select the optimal parameters and best practices for installing the operating system.
+The ISO edition of PacketFence allows you to install PacketFence on Debian 12 with minimal effort. Instead of manually installing Debian 12 and installing PacketFence after, this will perform both tasks and select the optimal parameters and best practices for installing the operating system.
 
 You can download the ISO here: https://www.packetfence.org/download.html#/releases
 
@@ -182,12 +182,21 @@ yum install --enablerepo=packetfence packetfence
 
 ===== Debian-based systems
 
-In order to use the repository, create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
+In order to use the repository, you have to install the GPG key of the PacketFence repository:
+
+[source,bash]
+----
+apt-get update
+apt install gnupg sudo curl
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+----
+
+Create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
 
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye' > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
 /etc/apt/sources.list.d/packetfence.list
 ----
 
@@ -197,8 +206,6 @@ server, DHCP server, RADIUS server) using:
 
 [source,bash]
 ----
-apt install gnupg sudo
-wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
 apt-get update
 apt-get install packetfence
 ----

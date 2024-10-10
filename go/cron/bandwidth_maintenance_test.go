@@ -593,7 +593,7 @@ FROM macs JOIN dates;
 	testSqlCountTests(
 		t,
 		[]sqlCountTest{
-			sqlCountTest{
+			{
 				name:          "bandwidth_accounting marked done",
 				sql:           `SELECT COUNT(*) FROM bandwidth_accounting WHERE last_updated = '0000-00-00 00:00:00'`,
 				expectedCount: 7200,

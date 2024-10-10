@@ -1,6 +1,0 @@
-Config:
-  description: 'Choose one of the request bodies by discriminator (`type`). '
-  discriminator:
-    mapping: {}
-    propertyName: type
-  oneOf: []

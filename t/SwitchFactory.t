@@ -10,13 +10,13 @@ BEGIN {
 }
 
 
-use Test::More tests => 62;
+use Test::More tests => 63;
 use Test::NoWarnings;
 use_ok('pf::SwitchFactory');
 
 my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 
-isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_2900XL' );
+isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_3500XL' );
 is( $switch->{_ip}, '192.168.0.1', 'IP Address of 192.168.0.1' );
 is_deeply( $switch->{_uplink}, [qw(23)], 'Uplink of 192.168.0.1' );
 is( $switch->{_SNMPVersion}, '2c', 'SNMP version of 192.168.0.1' );
@@ -96,18 +96,18 @@ isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0');
 is($switch->{_controllerIp}, '1.2.3.4', "Do not override  controllerIp address if set");
 
 $switch = pf::SwitchFactory->instantiate({ switch_mac => "ff:01:01:01:01:04", switch_ip => "192.168.0.1", controllerIp => "1.1.1.1"});
-isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_2900XL' );
+isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_3500XL' );
 is($switch->{_id}, '192.168.0.1', "Proper id is set for 192.168.0.1");
 
 #Test using ip address in a range
 $switch = pf::SwitchFactory->instantiate('172.16.3.1');
-isa_ok($switch, 'pf::Switch::Cisco::Catalyst_3750G');
-is("pf::Switch::Cisco::Catalyst_3750G",ref $switch, "Got the correct switch type");
+isa_ok($switch, 'pf::Switch::Cisco::Catalyst_3750');
+is("pf::Switch::Cisco::Catalyst_3750",ref $switch, "Got the correct switch type");
 is($switch->{_id}, '172.16.3.1', "Proper id is set for 172.16.3.1");
 
 $switch = pf::SwitchFactory->instantiate('172.16.3.2');
-isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960G');
-is('pf::Switch::Cisco::Catalyst_2960G', ref $switch,"Got the proper switch type for 172.16.3.2");
+isa_ok($switch, 'pf::Switch::Cisco::Cisco_IOS_15_0');
+is('pf::Switch::Cisco::Cisco_IOS_15_0', ref $switch,"Got the proper switch type for 172.16.3.2");
 is($switch->{_id}, '172.16.3.2', "Proper id is set for 172.16.3.2");
 
 $switch = pf::SwitchFactory->instantiate('172.16.0.1');
@@ -129,13 +129,16 @@ $switch = pf::SwitchFactory->instantiate('172.16.8.25');
 isa_ok($switch, 'pf::Switch::Template');
 is(ref($switch->{_template}), 'HASH', "template args are passed");
 
+$switch = pf::SwitchFactory->instantiate('aruba.com');
+isa_ok($switch, 'pf::Switch::Aruba::Instant');
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,82 @@
+/api/v1/pki/scepservers:
+  get:
+    summary: Get PKI SCEP Servers.
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiScepServersList'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+  post:
+    summary: Create PKI SCEP Server.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiScepServer'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiScepServerCreate'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - PKI
+
+/api/v1/pki/scepservers/search:
+  post:
+    summary: Search PKI SCEP Servers.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiScepServersSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiScepServersSearch'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - PKI
+
+/api/v1/pki/scepserver/{scepserver_id}:
+  get:
+    summary: Get PKI SCEP Server.
+    parameters:
+      - name: scepserver_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiScepServer'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+  patch:
+    summary: Update PKI SCEP Server.
+    parameters:
+      - name: scepserver_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    requestBody:
+      $ref: '#/components/requestBodies/PkiScepServer'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiScepServer'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI

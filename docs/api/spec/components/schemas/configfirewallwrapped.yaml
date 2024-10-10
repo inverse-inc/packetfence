@@ -1,7 +1,0 @@
-ConfigFirewallWrapped:
-  properties:
-    item:
-      $ref: '#/components/schemas/ConfigFirewall'
-    status:
-      type: integer
-  type: object

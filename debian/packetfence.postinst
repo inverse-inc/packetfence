@@ -97,7 +97,7 @@ case "$1" in
         if [ ! -f /usr/local/pf/conf/pf.conf ]; then
             echo "pf.conf doesnt exits"
             touch /usr/local/pf/conf/pf.conf
-            chown pf.pf /usr/local/pf/conf/pf.conf
+            chown pf:pf /usr/local/pf/conf/pf.conf
         else
             echo "pf.conf already exists, won't touch it!"
         fi
@@ -107,7 +107,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata collectd proxysql; do
+        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba nmbd mysql snmpd netdata collectd proxysql; do
 
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
@@ -117,7 +117,7 @@ case "$1" in
                     update-rc.d $service remove > /dev/null 2>&1
                 fi
             fi
-            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
+            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]  || [ ${DIST} = "bookworm" ]; then
                 if [ -e "/lib/systemd/system/"$service".service" ] ; then
                     systemctl stop $service
                     systemctl disable $service
@@ -178,6 +178,7 @@ case "$1" in
         if [ -n "$2" ]; then
             if dpkg --compare-versions "$2" lt "12"; then
                 echo "Migrating from a version prior to 12.0. Need to restart some services..."
+                systemctl start packetfence-config
                 systemctl restart packetfence-mariadb
                 systemctl restart packetfence-redis-cache
             fi
@@ -235,7 +236,11 @@ case "$1" in
             /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
             set -e
         fi
-
+        if [ ${DIST} = "bookworm" ] && [ "$DEBIAN_ISO_INSTALLER" = "no" ]; then
+            set +e
+            /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
+            set -e
+        fi
         # Install the monitoring scripts signing key
         echo "Install the monitoring scripts signing key"
         gpg --no-default-keyring --keyring /root/.gnupg/pubring.kbx --import /usr/share/keyrings/monitoring-scripts-keyring.gpg

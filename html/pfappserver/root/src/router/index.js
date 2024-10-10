@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 import Router from 'vue-router'
 import store from '@/store'
 import axios from 'axios'
@@ -14,6 +16,25 @@ import ConfigurationRoute from '@/views/Configuration/_router'
 import ConfiguratorRoute from '@/views/Configurator/_router'
 import PreferencesRoute from '@/views/Preferences/_router'
 import ResetRoute from '@/views/Reset/_router'
+
+Vue.use(Loading)
+
+let loader = null
+const hideLoader = () => {
+  if (loader) {
+    loader.hide()
+  }
+}
+const showLoader = () => {
+  hideLoader()
+  loader = Vue.$loading.show({
+    loader: 'dots',
+    color: 'var(--primary)',
+    width: 64,
+    height: 64,
+    opacity: 0.5
+  })
+}
 
 Vue.use(Router)
 
@@ -48,14 +69,17 @@ let router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)) {
+    showLoader()
+  }
   /**
   * 1. Check if a matching route defines a transition delay
   * 2. Hide the document scrollbar during the transition (see bootstrap/scss/_modal.scss)
   */
-  let transitionRoute = from.matched.find(route => {
+  let transitionDelay = from.matched.find(route => {
     return route.meta.transitionDelay // [1]
   })
-  if (transitionRoute) {
+  if (transitionDelay) {
     document.body.classList.add('modal-open') // [2]
   }
   /**
@@ -103,15 +127,14 @@ router.afterEach((to, from) => {
   * 2. Restore the document scrollbar after the transition delay
   * 3. Scroll to top of the page
   */
-  let transitionRoute = from.matched.find(route => {
+  let transitionDelay = from.matched.find(route => {
     return route.meta.transitionDelay // [1]
   })
-  if (transitionRoute) {
-    setTimeout(() => {
-      document.body.classList.remove('modal-open') // [2]
-      window.scrollTo(0, 0) // [3]
-    }, transitionRoute.meta.transitionDelay)
-  }
+  setTimeout(() => {
+    document.body.classList.remove('modal-open') // [2]
+    window.scrollTo(0, 0) // [3]
+    hideLoader()
+  }, transitionDelay || 300)
   /**
    * Fetch data required for ALL authenticated pages
    */

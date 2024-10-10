@@ -32,6 +32,7 @@ BEGIN {
 }
 
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
+use Socket qw(unpack_sockaddr_in unpack_sockaddr_un inet_ntoa);
 use JSON::MaybeXS;
 use pfconfig::manager;
 use pf::AtFork;
@@ -124,18 +125,21 @@ $pfconfig::constants::CONFIG_FILE_PATH = $args{c} if($args{c});
 my $socket_path = $args{s};
 unlink($socket_path);
 
+Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 my $cache = pfconfig::manager->new;
 $cache->{pfconfig_server} = 1;
 $cache->preload_all();
 
+
 #Ensure that the file permissions of the socket is correct 0770
 umask(0007);
 
-my $listner;
+my $listener;
 my $config = $pfconfig::config::INI_CONFIG;
+my $proto = $config->get_proto;
 
-if($config->get_proto eq "tcp") {
-    $listner = IO::Socket::INET->new(
+if ($proto eq "tcp") {
+    $listener = IO::Socket::INET->new(
        LocalHost => '0.0.0.0',
        LocalPort => $config->section('general')->{tcp_port},
        Proto => 'tcp',
@@ -143,7 +147,7 @@ if($config->get_proto eq "tcp") {
        Reuse => 1
     ) or die("Can't create server socket: $!\n");
 } else {
-    $listner = IO::Socket::UNIX->new(
+    $listener = IO::Socket::UNIX->new(
        Type   => SOCK_STREAM,
        Local  => $socket_path,
        Listen => SOMAXCONN,
@@ -165,8 +169,6 @@ our %DISPATCH = (
     'sleep'              => \&server_sleep,
     'pull_expire'        => \&pull_expire,
 );
-
-Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 # Used to set the current prefered encoding
 my $encoding;
 
@@ -182,40 +184,58 @@ while($RUNNING) {
     my $socket;
     my $line;
     my $query;
+    local $SIG{ALRM} = sub { die "timeout of $REQUEST_TIMEOUT has been reached\n" };
     eval {
-        my $paddr = accept($socket,$listner);
+        my $paddr = accept($socket, $listener);
         #Check if a signal was caught
         unless (defined $paddr || $! == EINTR) {
             die("Can't accept connection: $!\n");
         }
-        local $SIG{ALRM} = sub { die "timeout of $REQUEST_TIMEOUT has been reached\n" };
         alarm $REQUEST_TIMEOUT;
+
         if($paddr) {
-            chomp( $line = <$socket> );
-
-            if($line eq "exit") {exit}
-
-            $query = decode_json($line);
-            #use Data::Dumper;
-            #print Dumper($query);
-            $encoding = $query->{encoding};
-
-            # we support hash namespaced queries
-            # where
-            #  - line = 'config' return the whole config hash
-            #  - line = 'config;value' return the value in the config hash
-            my $method = $query->{method};
-            if (exists $DISPATCH{$method}) {
-                $DISPATCH{$method}->($query, $socket);
+            $line = <$socket>;
+            if (!defined $line) {
+                print STDERR "error reading from socket$!\n";
+                if ($proto eq 'tcp') {
+                    my ($port, $iaddr) = unpack_sockaddr_in($paddr);
+                    $iaddr = inet_ntoa($iaddr);
+                    print STDERR "error from client at ${iaddr}:$port\n";
+                } else {
+                    my ($path) = unpack_sockaddr_un($paddr);
+                    print STDERR "error from client at $path\n";
+                }
             } else {
-                print STDERR "Unknown method $query->{method}";
-                print "undef";
+                chomp($line);
+
+                if($line eq "exit") {exit}
+
+                $query = decode_json($line);
+                #use Data::Dumper;
+                #print Dumper($query);
+                $encoding = $query->{encoding};
+
+                # we support hash namespaced queries
+                # where
+                #  - line = 'config' return the whole config hash
+                #  - line = 'config;value' return the value in the config hash
+                my $method = $query->{method};
+                if (exists $DISPATCH{$method}) {
+                    $DISPATCH{$method}->($query, $socket);
+                } else {
+                    print STDERR "Unknown method $query->{method}";
+                    print "undef";
+                }
             }
         }
         $socket = undef;
         alarm 0;
     };
     if($@){
+        if ($@ !~ /^timeout of/) {
+            alarm 0;
+        }
+
         print STDERR "$line : $@";
         send_output(undef, $socket, $query) if $socket;
     }
@@ -541,7 +561,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

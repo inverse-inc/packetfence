@@ -18,6 +18,7 @@ use Module::Load;
 use Moo;
 use pf::UnifiedApi::GenerateSpec;
 use pf::constants::pfconf;
+use JSON::MaybeXS;
 
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
@@ -99,12 +100,15 @@ sub resourceParameters {
     if (ref($c) =~ /Config::.*(?<!Subtype)$/ && $c->config_store->importConfigFile) {
         my $ini = Config::IniFiles->new(
             -file => $c->config_store->importConfigFile,
+            -allowempty => 1,
         );
         my $enum = [];
         for my $section ($ini->Sections) {
             push @$enum, $section;
         };
-        $parameter->{schema}->{enum} = [sort @$enum];
+        if (@$enum) {
+            $parameter->{schema}->{enum} = [sort @$enum];
+        }
     }
     push @$parameters, $parameter;
     return $parameters;
@@ -315,7 +319,6 @@ sub generateSchemas {
     my $list_path = $self->schemaListPath($controller);
     my $item_path = $self->schemaItemPath($controller);
     my $item_wrapped_path = $self->schemaItemWrappedPath($controller);
-    my $meta_path = $self->schemaMetaPath($controller);
     my @forms = buildForms($controller);
     return {
         $list_path => {
@@ -346,8 +349,7 @@ sub generateSchemas {
                 }
             }
         },
-        $meta_path => pf::UnifiedApi::GenerateSpec::formsToMetaSchema(\@forms),
-
+        %{pf::UnifiedApi::GenerateSpec::formsToMetaSchemas($item_path, \@forms)},
         %{pf::UnifiedApi::GenerateSpec::formsToSubTypeSchemas($item_path, \@forms)}
     };
 }
@@ -397,32 +399,26 @@ sub searchRequestBody {
                             "\$ref" => "#/components/schemas/Search"
                         },
                         {
-                            required => [ 'fields' ],
+                            required => [ 'fields', 'sort' ],
                             properties => {
                                 cursor => {
-                                    required => JSON::MaybeXS::false,
                                     type => 'string',
                                 },
                                 fields => {
-                                    required => JSON::MaybeXS::true,
                                     type => 'array',
                                     items => {
                                         type => 'string',
-#                                        enum => \@$fields,
                                     },
                                 },
                                 limit => {
-                                    required => JSON::MaybeXS::false,
                                     type => 'integer',
                                     minimum => 1,
                                     maximum => 1000,
                                 },
                                 sort => {
-                                    required => JSON::MaybeXS::true,
                                     type => 'array',
                                     items => {
                                         type => 'string',
-#                                        enum => \@$sorts,
                                     },
                                 }
                             }
@@ -432,10 +428,7 @@ sub searchRequestBody {
                 },
                 example => {
                     cursor => 0,
-#                    fields => \@$fields,
                     limit => 25,
-#                    sort => [ $pk.' ASC' ],
-#                    query => $query,
                 }
             }
         }
@@ -513,7 +506,7 @@ sub bulkDeleteRequestBody {
                             type => 'array',
                             items => {
                                 type => 'string',
-                                description => '`PRIMARY_KEY`'
+                                description => '`PRIMARY KEY`'
                             }
                         }
                     }
@@ -593,7 +586,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

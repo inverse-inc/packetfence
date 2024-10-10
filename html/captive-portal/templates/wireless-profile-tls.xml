@@ -145,7 +145,21 @@
                         <string>c83817c4-d7c4-11e4-b9d6-696969696969</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
+		</dict>
+                [% IF for_android %]
+                [% FOREACH ca_cert IN provisioner.get_other_radiusd_certificates() %]
+                <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% ca_cert.cn %]</string>
+                        <key>PayloadContent</key>
+                        <string>[% ca_cert.base64 %]</string>
+                        <key>PayloadDescription</key>
+                        <string>Provides other CA required for authentication.</string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.other_ca</string>
                 </dict>
+                [% END %]
+                [% END %]
         </array>
         <key>PayloadDescription</key>
         <string>Profile description.</string>

@@ -39,7 +39,6 @@ BEGIN {
         detect_date
         regdate
         unregdate
-        lastskip
         time_balance
         bandwidth_balance
         status
@@ -74,7 +73,6 @@ BEGIN {
         detect_date => '0000-00-00 00:00:00',
         regdate => '0000-00-00 00:00:00',
         unregdate => '0000-00-00 00:00:00',
-        lastskip => '0000-00-00 00:00:00',
         time_balance => undef,
         bandwidth_balance => undef,
         status => 'unreg',
@@ -109,7 +107,6 @@ BEGIN {
         detect_date
         regdate
         unregdate
-        lastskip
         time_balance
         bandwidth_balance
         status
@@ -169,12 +166,6 @@ BEGIN {
             is_nullable => 0,
         },
         unregdate => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        lastskip => {
             type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -351,7 +342,6 @@ BEGIN {
         node.detect_date
         node.regdate
         node.unregdate
-        node.lastskip
         node.time_balance
         node.bandwidth_balance
         node.status
@@ -484,7 +474,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

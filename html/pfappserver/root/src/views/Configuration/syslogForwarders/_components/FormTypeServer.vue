@@ -24,13 +24,13 @@
 
     <form-group-all-logs namespace="all_logs"
                          :column-label="$i18n.t('All logs')"
+                         enabled-value="enabled"
+                         disabled-value="disabled"
     />
 
     <form-group-logs v-show="form.all_logs === 'disabled'"
                      namespace="logs"
                      :column-label="$i18n.t('Logs')"
-                     enabled-value="enabled"
-                     disabled-value="disabled"
     />
   </base-form>
 </template>

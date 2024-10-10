@@ -69,6 +69,7 @@ Vagrant.configure("2") do |config|
         srv.vm.provider "libvirt" do |v|
           v.cpus = details['cpus']
           v.memory = details['memory']
+          v.machine_virtual_size = details['disk_size']
         end
 
         # provisionners

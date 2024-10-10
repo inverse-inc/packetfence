@@ -397,6 +397,7 @@ sub create {
         return 0;
     }
 
+    my $old_config = $self->item_from_store($id);
     $item = $self->cleanupItemForCreate($item);
     (my $status, $item, my $form) = $self->validate_item($item);
     if (is_error($status)) {
@@ -410,7 +411,7 @@ sub create {
 
     $cs->create($id, $item);
     return unless($self->commit($cs));
-    $self->post_create($id);
+    $self->post_create($id, $old_config);
     my $additional_out = $self->additional_create_out($form, $item);
     $self->stash( $self->primary_key => $id );
     $self->res->headers->location($self->make_location_url($id));
@@ -522,14 +523,21 @@ sub remove {
 
     my $id = $self->id;
     my $cs = $self->config_store;
+    my $old_item = $self->item_from_store($id);
+    $self->pre_remove($id, $old_item);
     ($msg, my $deleted) = $cs->remove($id, 'id');
     if (!$deleted) {
         return $self->render_error(422, "Unable to delete $id - $msg");
     }
 
     return unless($self->commit($cs));
+    $self->post_remove($id, $old_item);
     return $self->render(json => {message => "Deleted $id successfully"}, status => 200);
 }
+
+sub post_remove { }
+
+sub pre_remove { }
 
 sub addFormWarnings {
     my ($self, $form, $response) = @_;
@@ -568,7 +576,7 @@ sub update {
     my $id =  $self->id;
     $cs->update($id, $new_data);
     return unless($self->commit($cs));
-    $self->post_update($id);
+    $self->post_update($id, $old_item);
     $self->render(status => 200, json => $self->update_response($form));
 }
 
@@ -1521,7 +1529,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -187,13 +187,13 @@
     tags:
       - Ipset
 
-/api/v1/ipset/add_ip/{set_name}:
+/api/v1/ipset/add_ip/{ipset_name}:
   post:
     summary: Add an IP to a specific ipset
     description: Add an IP to a specific ipset
     parameters:
-      - $ref: '#/components/parameters/local'
       - $ref: '#/components/parameters/ipset_name'
+      - $ref: '#/components/parameters/local'
     requestBody:
       required: true
       content:
@@ -210,13 +210,13 @@
     tags:
       - Ipset
 
-/api/v1/ipset/remove_ip/{set_name}:
+/api/v1/ipset/remove_ip/{ipset_name}:
   post:
     summary: Removes an IP from a specific ipset
     description: Removes an IP from a specific ipset
     parameters:
-      - $ref: '#/components/parameters/local'
       - $ref: '#/components/parameters/ipset_name'
+      - $ref: '#/components/parameters/local'
     requestBody:
       required: true
       content:

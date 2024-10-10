@@ -82,7 +82,7 @@ BEGIN {
         report_topauthenticationsuccesses_by_ssid
         report_topauthenticationsuccesses_by_username
         report_topauthenticationsuccesses_by_computername
-        
+
         translate_connection_type
     );
 }
@@ -115,7 +115,6 @@ sub report_db_prepare {
         pid,
         detect_date,
         regdate,
-        lastskip,
         status,
         user_agent,
         computername,
@@ -142,7 +141,6 @@ sub report_db_prepare {
         pid,
         detect_date,
         regdate,
-        lastskip,
         status,
         user_agent,
         computername,
@@ -164,7 +162,6 @@ sub report_db_prepare {
         pid,
         detect_date,
         regdate,
-        lastskip,
         status,
         user_agent,
         computername,
@@ -186,7 +183,6 @@ sub report_db_prepare {
         pid,
         detect_date,
         regdate,
-        lastskip,
         status,
         user_agent,
         computername,
@@ -209,7 +205,6 @@ sub report_db_prepare {
         pid,
         detect_date,
         regdate,
-        lastskip,
         status,
         user_agent,
         computername,
@@ -231,7 +226,6 @@ sub report_db_prepare {
         pid,
         detect_date,
         regdate,
-        lastskip,
         status,
         user_agent,
         computername,
@@ -351,7 +345,7 @@ sub report_db_prepare {
       SELECT
         *
       FROM node
-      WHERE 
+      WHERE
         (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
     ]);
 
@@ -1788,7 +1782,7 @@ sub report_topauthenticationfailures_by_mac {
         }
     }
     push @return_data, { mac => "Total", percent => "100", count => $total, total => $total };
-    return (@return_data);    
+    return (@return_data);
 }
 
 =item _report_topauthenticationfailures_by_ssid
@@ -1817,7 +1811,7 @@ sub report_topauthenticationfailures_by_ssid {
         }
     }
     push @return_data, { ssid => "Total", percent => "100", count => $total, total => $total };
-    return (@return_data);    
+    return (@return_data);
 }
 
 =item _report_topauthenticationfailures_by_username
@@ -1846,7 +1840,7 @@ sub report_topauthenticationfailures_by_username {
         }
     }
     push @return_data, { user_name => "Total", percent => "100", count => $total, total => $total };
-    return (@return_data);    
+    return (@return_data);
 }
 
 =item _report_topauthenticationsuccesses_by_mac
@@ -1875,7 +1869,7 @@ sub report_topauthenticationsuccesses_by_mac {
         }
     }
     push @return_data, { mac => "Total", percent => "100", count => $total, total => $total };
-    return (@return_data);    
+    return (@return_data);
 }
 
 =item _report_topauthenticationsuccesses_by_ssid
@@ -1904,7 +1898,7 @@ sub report_topauthenticationsuccesses_by_ssid {
         }
     }
     push @return_data, { ssid => "Total", percent => "100", count => $total, total => $total };
-    return (@return_data);    
+    return (@return_data);
 }
 
 =item _report_topauthenticationsuccesses_by_username
@@ -1933,7 +1927,7 @@ sub report_topauthenticationsuccesses_by_username {
         }
     }
     push @return_data, { user_name => "Total", percent => "100", count => $total, total => $total };
-    return (@return_data);    
+    return (@return_data);
 }
 
 =item _report_topauthenticationsuccesses_by_computername
@@ -1962,7 +1956,7 @@ sub report_topauthenticationsuccesses_by_computername {
         }
     }
     push @return_data, { computer_name => "Total", percent => "100", count => $total, total => $total };
-    return (@return_data);    
+    return (@return_data);
 }
 
 =item translate_connection_type
@@ -2021,7 +2015,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

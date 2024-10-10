@@ -167,7 +167,7 @@ ok ( $value =~ /\d{4}-\d\d-\d\d \d\d:\d\d:\d\d/, "Value returned by set_access_d
 $source_id_ref = undef;
 
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
-my $date = sprintf("%04d-02-02", $year+1901);
+my $date = sprintf("%04d-01-01", $year+1901);
 is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }, 'set_unreg_date'), $date, "Set unreg date test");
 
 is_deeply(
@@ -566,7 +566,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

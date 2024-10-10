@@ -27,6 +27,9 @@ const useFormProps = {
   id: {
     type: String
   },
+  type: {
+    type: String
+  },
 }
 
 const useForm = (props, context) => {

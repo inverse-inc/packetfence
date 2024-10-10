@@ -40,6 +40,9 @@ our %MappingKey = (
     UrlMapping => 'url',
     ControllerRoleMapping => 'controller_role',
     VpnMapping => 'vpn',
+    NetworkMapping => 'network',
+    NetworkFromMapping => 'networkfrom',
+    InterfaceMapping => 'interface',
 );
 
 our %MappingKey2 = (
@@ -48,6 +51,9 @@ our %MappingKey2 = (
     UrlMapping => 'Url',
     ControllerRoleMapping => 'Role',
     VpnMapping => 'Vpn',
+    NetworkMapping => 'Network',
+    NetworkFromMapping => 'NetworkFrom',
+    InterfaceMapping => 'Interface',
 );
 
 =head2 Methods
@@ -103,7 +109,7 @@ sub _expandMapping {
     # We put it back as a string so it works in the admin UI
     my $toset = {};
     while (my ($attr, $val) = each %$switch) {
-        if ($attr =~ /(.*)(AccessList|Vlan|Url|Role|Vpn)$/) {
+        if ($attr =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom)$/) {
             my $type = $2;
             my $role = $1;
             if ($type eq 'AccessList' && ref($val) eq 'ARRAY') {
@@ -127,7 +133,7 @@ sub _expandMapping {
         $switch->{$attr} = $val;
     }
 
-    for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping))  {
+    for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping))  {
         next if !exists $switch->{$k};
         $switch->{$k} = [sort { $a->{role} cmp $b->{role} } @{$switch->{$k} // []}]
     }
@@ -156,7 +162,7 @@ sub cleanupBeforeCommit {
 
 sub _flattenRoleMappings {
     my ( $switch ) = @_;
-    for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping))  {
+    for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping))  {
         my $list = $switch->{$namespace} // [];
         for my $mapping (@$list) {
             my $role = $mapping->{role};
@@ -167,7 +173,7 @@ sub _flattenRoleMappings {
 
 sub _deleteRoleMappings {
     my ( $switch ) = @_;
-    delete @{$switch}{qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping)};
+    delete @{$switch}{qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping)};
 }
 
 =head2 _normalizeUplink
@@ -286,7 +292,7 @@ __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

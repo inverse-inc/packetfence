@@ -58,5 +58,8 @@ export default {
   },
   invalidateCache: id => {
     return apiCall.post(['config', 'switch', id, 'invalidate_cache'])
+  },
+  precreateAcls: id => {
+    return apiCall.post(['config', 'switch', id, 'precreate_acls'])
   }
 }

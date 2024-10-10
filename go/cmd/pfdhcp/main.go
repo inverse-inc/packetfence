@@ -95,8 +95,7 @@ func main() {
 	GlobalFilterCache = cache.New(2*time.Minute, 4*time.Minute)
 
 	// Read DB config
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-	configDatabase := pfconfigdriver.Config.PfConf.Database
+	configDatabase := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](ctx)
 
 	connectDB(configDatabase)
 
@@ -163,8 +162,7 @@ func main() {
 	// Read pfconfig
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig()
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
-	webservices = pfconfigdriver.Config.PfConf.Webservices
+	webservices := pfconfigdriver.GetType[pfconfigdriver.PfConfWebservices](ctx)
 
 	// Queue value
 	var (
@@ -255,6 +253,12 @@ func main() {
 				daemon.SdNotify(false, "WATCHDOG=1")
 			}
 			time.Sleep(interval / 3)
+		}
+	}()
+	go func() {
+		for {
+			pfconfigdriver.PfConfigStorePool.Refresh(context.Background())
+			time.Sleep(time.Second * 1)
 		}
 	}()
 	srv.ListenAndServe()
@@ -351,7 +355,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	if VIP[I.Name] || handler.available.Listen() {
 
 		defer recoverName(options)
-
+		answer.DstIP = handler.dstIp
 		var Options map[string]string
 		Options = make(map[string]string)
 		for option, value := range options {
@@ -522,7 +526,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool")
 						handler.available.FreeIPIndex(uint64(free))
 					}(ctx, free, ipaddr)
-					free = 0
+					free = -1
 					goto retry
 				}
 				// 5 seconds to send a request
@@ -719,6 +723,10 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					// Update Global Caches
 					GlobalIPCache.Set(reqIP.String(), answer.MAC.String(), cacheDuration)
 					GlobalMacCache.Set(answer.MAC.String(), reqIP.String(), cacheDuration)
+					err := MysqlUpdateIP4Log(answer.MAC.String(), reqIP.String(), cacheDuration)
+					if err != nil {
+						log.LoggerWContext(ctx).Info(err.Error())
+					}
 					log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")")
 
 					handler.hwcache.Set(answer.MAC.String(), Index, cacheDuration)

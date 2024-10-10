@@ -31,6 +31,8 @@ Calls the api call
 sub doTask {
     my ($self, $args) = @_;
     my $api_client = pf::api::can_fork->new();
+    my $method = $args->[0];
+    $logger->info("Calling api task $method");
     $api_client->notify(@$args);
     return (undef, undef);
 }
@@ -41,7 +43,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

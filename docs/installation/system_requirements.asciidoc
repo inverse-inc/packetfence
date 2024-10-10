@@ -53,7 +53,7 @@ PacketFence supports the following operating systems on the x86_64 architecture:
 
 [options="compact"]
 * Red Hat Enterprise Linux 8.x Server
-* Debian 11.x (Bullseye)
+* Debian 12.x (Bookworm)
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 

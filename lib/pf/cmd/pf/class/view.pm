@@ -25,7 +25,7 @@ sub run {
     } else {
         $function = \&class_view_all;
     }
-    return $self->print_results( $function, $id ) ;
+    return $self->showHelp( $function, $id ) ;
 }
 
 sub field_order_ui { "class view" }
@@ -38,7 +38,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2023 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

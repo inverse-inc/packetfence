@@ -28,6 +28,12 @@ log_section "Replace /usr/local/pf by git repository"
 mv /usr/local/pf /usr/local/pf-pkg
 git clone https://github.com/inverse-inc/packetfence /usr/local/pf
 
+log_section "Set the safe.directory in git"
+git config --global --add safe.directory /usr/local/pf
+
+log_section "install required header files from PF repo"
+dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
+
 cd /usr/local/pf/
 
 BRANCH=${BRANCH:-devel}
@@ -73,7 +79,7 @@ TAG_OR_BRANCH_NAME=`git rev-parse --abbrev-ref HEAD | sed 's#[/|.]#-#g'`
 echo -n TAG_OR_BRANCH_NAME=$TAG_OR_BRANCH_NAME > conf/build_id
 echo LOCAL_DEV=true > containers/.local_env
 
-for img in pfbuild-debian-bullseye pfdebian radiusd; do
+for img in pfbuild-debian-bookworm pfdebian radiusd; do
   docker pull ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME
   docker tag ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME packetfence/$img:$TAG_OR_BRANCH_NAME
 done

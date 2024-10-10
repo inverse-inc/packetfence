@@ -75,11 +75,11 @@ import {BaseInputChosenOneSearchableProps} from '@/components/new'
 import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue'
 import {computed, inject, ref, unref} from '@vue/composition-api'
 import MultiselectFacade
-  from '@/views/Configuration/sources/_components/ldapCondition/MultiselectFacade.vue'
+  from '@/views/Configuration/sources/_components/ldapCondition/MultiselectFacade'
 import {valueToSelectValue} from '@/utils/convert'
 import _ from 'lodash'
 import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
-import BaseFormGroup from '@/components/new/BaseFormGroup.vue';
+import BaseFormGroup from '@/components/new/BaseFormGroup';
 
 
 export const props = {
