@@ -16,7 +16,7 @@ RUN xcaddy build --with github.com/mholt/caddy-l4
 
 RUN old_bin_file=$(which caddy) && rm -rf $old_bin_file
 
-RUN apk add python3 py3-pip  && pip install -U Flask 
+RUN apk update && apk add python3  py3-flask 
 
 COPY containers/caddy-l4/dns_register_alert.py /srv/  
 
