@@ -20,6 +20,10 @@ RUN apk update && apk add python3  py3-flask
 
 COPY containers/caddy-l4/dns_register_alert.py /srv/  
 
+COPY containers/caddy-l4/startup.sh /srv/
+
+RUN chmod +x /srv/startup.sh
+
 ENV PATH="$PATH:/srv"
 
-CMD /usr/bin/python3 /srv/dns_register_alert.py; caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+CMD ["/srv/startup.sh"]
