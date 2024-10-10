@@ -22,4 +22,4 @@ COPY containers/caddy-l4/dns_register_alert.py /srv/
 
 ENV PATH="$PATH:/srv"
 
-CMD ["/srv/dns_register_alert.py"]
+CMD ["/usr/bin/python3", "/srv/dns_register_alert.py"]
