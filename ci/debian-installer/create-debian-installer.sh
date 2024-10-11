@@ -32,8 +32,11 @@ chmod -w -R isofiles/install.amd/
 chmod a+w isofiles/isolinux/gtk.cfg isofiles/isolinux/drkgtk.cfg isofiles/boot/grub/grub.cfg
 cp gtk.cfg isofiles/isolinux/gtk.cfg
 cp gtk.cfg isofiles/isolinux/drkgtk.cfg
+cp drk.cfg isofiles/isolinux/drk.cfg
+cp menu.cfg isofiles/isolinux/menu.cfg
+cp txt.cfg isofiles/isolinux/txt.cfg
 cp grub.cfg isofiles/boot/grub/grub.cfg
-chmod 0444 isofiles/isolinux/gtk.cfg isofiles/isolinux/drkgtk.cfg isofiles/boot/grub/grub.cfg
+chmod 0444 isofiles/isolinux/*
 
 cp postinst-debian-installer.sh isofiles/
 cd isofiles
