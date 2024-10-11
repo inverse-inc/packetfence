@@ -40,6 +40,7 @@
     <form-group-acls namespace="acls"
                      :column-label="$i18n.t('ACLs')"
                      :text="$i18n.t('Access Control Lists')"
+                     rows="10"
     />
 
     <form-group-inherit-vlan namespace="inherit_vlan"
