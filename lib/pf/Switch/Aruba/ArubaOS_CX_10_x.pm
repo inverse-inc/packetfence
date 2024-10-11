@@ -423,6 +423,17 @@ sub acl_chewer {
     return $acl_chewed;
 }
 
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Aruba-User-Role';
+}
 
 =back
 
