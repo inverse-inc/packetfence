@@ -15,10 +15,14 @@ use warnings;
 use pf::util;
 use Moo;
 use Template;
+use pf::log;
 use pf::cluster;
 use pf::config qw(
     $management_network
+    %Config
+    @radius_ints
 );
+use List::MoreUtils qw(any uniq);
 
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::env_golang_service';
@@ -58,15 +62,37 @@ Generate the environment variables for running the container
 
 sub generate_container_environments {
     my ($self, $tt) = @_;
-    my $management_ip = $management_network->tag('ip');
+    my $logger = get_logger();
+    my @listen_ips;
 
-    my $port = '1813';
-    if ($cluster_enabled) {
-        $port = '1823';
+    my $port = '-p 1813:1813/udp';
+    my $port_save;
+    my $listeningIp = "";
+    if ($cluster_enabled || isenabled($Config{services}{radiusd_acct})) {
+        my $management_ip = $management_network->tag('ip');
+        $port = "-p $management_ip:1823:1813/udp";
+        $port_save = "1823"
+    }
+    if ($cluster_enabled && isenabled($Config{services}{radiusd_acct})) {
+        $port = "-p 1833:1813/udp";
+        $port_save = "1833";
+    }
+    my $listen = $port;
+    if (isenabled($Config{services}{radiusd_acct})) {
+        $listeningIp = '127.0.0.1';
+        $listen = "-p $listeningIp:$port_save:1813/udp";
+    } else {
+         if (!$cluster_enabled) {
+            foreach my $interface ( uniq(@radius_ints) ) {
+                push @listen_ips, $interface->tag('ip');
+            }
+            my @interfaces = map { $_.":1813:1813/udp" } @listen_ips;
+            $listen = "-p " . join " -p ",@interfaces;
+         }
     }
     my $vars = {
        env_dict => {
-           PFACCT_ADDRESS=> "$port",
+           PFACCT_ADDRESS=> "$listen",
        },
     };
     $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/acct.env") or die $tt->error();
