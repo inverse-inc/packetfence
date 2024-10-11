@@ -1,2 +1,2 @@
 pf ALL=NOPASSWD: /bin/systemctl, /sbin/iptables, /usr/sbin/ip6tables, /usr/sbin/ipset, /sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /usr/bin/systemctl, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/freeradius, /usr/sbin/chroot, /usr/local/pf/bin/pfcmd, /usr/sbin/conntrack, /usr/bin/timedatectl, /usr/bin/hostnamectl
-Defaults env_check="PF_UID PF_GID", !requiretty
+Defaults env_check+="PF_UID PF_GID", !requiretty
