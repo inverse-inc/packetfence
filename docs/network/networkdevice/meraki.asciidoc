@@ -101,7 +101,7 @@ The Meraki switch offer configuration for VLAN enforcement only.
 
 You will need to access the Meraki dashboard to configure your switch. When you reach it you will need first to create a policy. You can create a "MAC authentication bypass" or a "802.1X" policy. Depending if you want to authenticate user via dot1x or MAB. You cannot combine both neither use a fallback mode on the same port, each port with a policy applied will be exclusive to MAB or dot1x.
 
-To access the policy creation go to 'Switch->Access policies' in the Meraki dashboard menu. From there create a new policy, use the example below to create your policy.
+To access the policy creation go to 'Switching->Access Policies' in the Meraki dashboard menu. From there create a new policy, use the example below to create your policy.
 
 image::Meraki-switch-policies.png[scaledwidth="100%",alt="Access policies"]
 
@@ -117,7 +117,7 @@ Then, in order to enable RADSEC, go in your SSID configuration and under 'RADIUS
 
 After saving, check the RADSEC checkbox and save your settings.
 
-Now, on your PacketFence server, you must add the Meraki CA root to the trusted Certificate Authorities of FreeRADIUS when performing RADSEC. You should download the Meraki CA certificate from here http://changeme.com/meraki-root.crt and append it to the content of /usr/local/pf/raddb/certs/ca.pem on your PacketFence server.
+Now, on your PacketFence server, you must add the Meraki CA root to the trusted Certificate Authorities of FreeRADIUS when performing RADSEC. You should download the Meraki CA certificate from your Meraki dashboard under Organization->Configure->Certificates and selecting "Download CA" below RadSec AP Certificates. You can then append the content of this certificate to /usr/local/pf/raddb/certs/ca.pem on your PacketFence server.
 
 Next, restart radiusd to reload the CA certificates using:
 
