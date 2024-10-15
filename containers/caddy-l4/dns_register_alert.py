@@ -20,12 +20,12 @@ def send_mail(client_id, client_email, domain ):
     body = """
     <html>
     <body>
-        <p>Hi!</p>
+        <p>Hi {client_id}!</p>
         <p>The domain <b> {domain} </b> failed to resolve. Kindly create a DNS entry and try again.</p>
     </body>
     </html>
     """
-    body = body.format(domain=domain)
+    body = body.format(domain=domain, client_id=client_id)
     msg = MIMEText(body, 'html')
     msg['Subject'] = subject
     msg['From'] = sender
@@ -137,7 +137,7 @@ def check_domain():
         return jsonify({"domain": domain, "status": "allowed"}), 200
     else:
         client_email=find_email(domain)
-        client_id = find_id_by_fqdn_recursive(load_data_from_json(), client_email)
+        client_id = find_id_by_fqdn_recursive(load_data_from_json(), domain)
         send_mail(client_id, client_email, domain)
         return jsonify({"domain": domain, "status": "not allowed"}), 404
 
