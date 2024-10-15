@@ -137,7 +137,7 @@ def check_domain():
         return jsonify({"domain": domain, "status": "allowed"}), 200
     else:
         client_email=find_email(domain)
-        client_id = find_id_by_fqdn_recursive(load_data_from_json(), "matei1.mateiparent.packetfence.net")
+        client_id = find_id_by_fqdn_recursive(load_data_from_json(), client_email)
         send_mail(client_id, client_email, domain)
         return jsonify({"domain": domain, "status": "not allowed"}), 404
 
