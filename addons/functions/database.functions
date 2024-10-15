@@ -48,6 +48,7 @@ function import_mysqldump() {
     # Detect minor version of the restored data
     restoring_version=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+'`
     echo "Importing bare schema for $restoring_version"
+    handle_devel_db_schema $restoring_version
     mysql ${mariadb_args} $db_name < /usr/local/pf/db/pf-schema-$restoring_version.sql
     check_code $?
 
@@ -253,4 +254,14 @@ function uninstall_current_mariabackup() {
     else
 	yum remove -q -y MariaDB-backup
   fi
+}
+
+function handle_devel_db_schema() {
+    local restoring_version=$1
+    if [ ! -f /usr/local/pf/db/pf-schema-$restoring_version.sql ]; then
+      main_splitter
+      echo "The db schema for $restoring_version does not exist in /usr/local/pf/db/. pf-schema-X.Y.sql will be used."
+      sub_splitter
+      cp /usr/local/pf/db/pf-schema-X.Y.sql /usr/local/pf/db/pf-schema-$restoring_version.sql
+    fi
 }
