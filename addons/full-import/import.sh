@@ -188,7 +188,7 @@ Options:
  -f,--file                  Import a PacketFence export (mandatory)
  -h,--help                  Display this help
  --db                       Import only database from PacketFence export
- --db-restore               Restore only database from PacketFence export
+ --db-restore               Restore only database from PacketFence export without upgrade process
  --conf                     Import only configuration from PacketFence export
  --skip-adjust-conf         Don't run adjustments on configuration (only use it if you know what you are doing)
 
