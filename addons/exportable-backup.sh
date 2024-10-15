@@ -101,10 +101,16 @@ create_backup_directory(){
 ### Cleaning
 #############################################################################
 clean_backup(){
+    echo "Start backup cleaning"
     find $BACKUP_DIRECTORY -name "$BACKUP_PF_FILENAME-*.tgz" -mtime +$NB_DAYS_TO_KEEP_BACKUP -delete
+    echo "Old backup cleaned"
     find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -delete
+    echo "Temp db backup cleaned"
     find $BACKUP_DIRECTORY -name "$BACKUP_CONF_FILENAME-*.tgz"  -delete
-    find $BACKUP_DIRECTORY -name "$BACKUP_OLD_CONF_FILENAME-*.tgz"  -delete
+    echo "Temp config backup cleaned"
+    find $BACKUP_DIRECTORY -name "$BACKUP_OLD_CONF_FILENAME-*.tgz" -mtime +$NB_DAYS_TO_KEEP_BACKUP -delete
+    echo "Old config backup cleaned"
+    echo "Backup cleaning is done"
 }
 
 #############################################################################
@@ -153,20 +159,24 @@ done
 
 if [ -z "$BACKUP_FILE" ]; then
     echo "Default directory $BACKUP_DIRECTORY will be used."
-    BACKUP_FILE=$BACKUP_DIRECTORY/$BACKUP_CONF_FILENAME-`date +%F_%Hh%M`.tgz
+    BACKUP_FILE=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
+    echo "The backup file will be $BACKUP_FILE"
 fi
 
 #############################################################################
 ### Main
 #############################################################################
-/bin/bash /usr/local/pf/addons/backup-and-maintenance.sh
-if [ ! -f $BACKUP_FILE ]; then
-    /bin/bash /usr/local/pf/addons/full-import/export.sh $BACKUP_FILE
-else
-    echo -e $BACKUP_DIRECTORY$BACKUP_CONF_FILENAME ", file already created. \n"
+create_backup_directory
+if check_disk_space; then
+    /bin/bash /usr/local/pf/addons/backup-and-maintenance.sh
+    if [ ! -f $BACKUP_FILE ]; then
+        /bin/bash /usr/local/pf/addons/full-import/export.sh $BACKUP_FILE
+    else
+        echo -e $BACKUP_FILE ", file already created. \n"
+    fi
+    clean_backup
+    if [ $do_replication == 1 ]; then
+        replicate_backup
+    fi
+    echo "Exportable backup is done"
 fi
-clean_backup
-if [ $do_replication == 1 ]; then
-  replicate_backup
-fi
-echo "Exportable backup is done"
