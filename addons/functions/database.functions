@@ -45,12 +45,6 @@ function import_mysqldump() {
   # We reimport the schema so that we have the functions and triggers if the dump doesn't contain the triggers
   if ! egrep "CREATE.*TRIGGER.*(AFTER|BEFORE)" $dump_file > /dev/null; then
     echo "Dump file was made without triggers and procedures"
-    # Detect minor version of the restored data
-    restoring_version=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+'`
-    echo "Importing bare schema for $restoring_version"
-    handle_devel_db_schema $restoring_version
-    mysql ${mariadb_args} $db_name < /usr/local/pf/db/pf-schema-$restoring_version.sql
-    check_code $?
 
     sub_splitter
     echo "Replacing create statements from the dump and removing drop statements"
