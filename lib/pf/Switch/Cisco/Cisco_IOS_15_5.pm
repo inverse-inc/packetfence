@@ -170,7 +170,7 @@ sub returnRadiusAccessAccept {
                     my @acl = split("\n", $access_list);
                     $args->{'acl'} = \@acl;
                     $args->{'acl_num'} = '101';
-                    push(@av_pairs, "subscriber:service-name=$mac-".$self->setRadiusSession($args));
+                    push(@av_pairs, "subscriber:service-name=".$args->{'user_role'}."-".$self->setRadiusSession($args));
                 } else {
                     my $acl_num = 101;
                     while($access_list =~ /([^\n]+)\n?/g){
@@ -213,7 +213,7 @@ sub returnRadiusAdvanced {
     my ($self, $args, $options) = @_;
     my $logger = $self->logger;
     my $status = $RADIUS::RLM_MODULE_OK;
-    my ($mac, $session_id) = split('-', $args->{'user_name'});
+    my ($role, $session_id) = split('-', $args->{'user_name'});
     my $radius_reply_ref = ();
     my @av_pairs;
     $radius_reply_ref->{'control:Proxy-To-Realm'} = 'LOCAL';
