@@ -30,16 +30,6 @@ testcases:
   - type: exec
     script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-exportable-backup-*.tgz" -newermt "-1 minute"'
 
-- name: drop_pf_db
-  steps:
-  - type: exec
-    script: mysql -e "DROP DATABASE pf;"
-
-- name: create_pf_db
-  steps:
-  - type: exec
-    script: mysql -e "CREATE DATABASE pf;"
-
 - name: import
   steps:
   - type: exec
