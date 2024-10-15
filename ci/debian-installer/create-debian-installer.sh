@@ -8,13 +8,13 @@ function clean() {
   chmod a+rw $ISO_OUT
 }
 
-ISO_IN=${ISO_IN:-debian-12.4.0-amd64-netinst.iso}
+ISO_IN=${ISO_IN:-debian-12.6.0-amd64-netinst.iso}
 ISO_OUT=${ISO_OUT:-packetfence-debian-installer.iso}
 
 trap clean EXIT
 
 if ! [ -f $ISO_IN ]; then
-	wget https://cdimage.debian.org/cdimage/archive/12.4.0/amd64/iso-cd/$ISO_IN
+	wget https://cdimage.debian.org/cdimage/archive/12.6.0/amd64/iso-cd/$ISO_IN
 fi
 
 rm -fr isofiles/
@@ -31,9 +31,10 @@ chmod -w -R isofiles/install.amd/
 
 chmod a+w isofiles/isolinux/gtk.cfg isofiles/isolinux/drkgtk.cfg isofiles/boot/grub/grub.cfg
 cp gtk.cfg isofiles/isolinux/gtk.cfg
-cp gtk.cfg isofiles/isolinux/drkgtk.cfg
+cp drkgtk.cfg isofiles/isolinux/drkgtk.cfg
+cp menu.cfg isofiles/isolinux/menu.cfg
 cp grub.cfg isofiles/boot/grub/grub.cfg
-chmod 0444 isofiles/isolinux/gtk.cfg isofiles/isolinux/drkgtk.cfg isofiles/boot/grub/grub.cfg
+chmod 0444 isofiles/isolinux/*
 
 cp postinst-debian-installer.sh isofiles/
 cd isofiles
