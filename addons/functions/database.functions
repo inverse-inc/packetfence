@@ -57,14 +57,6 @@ function import_mysqldump() {
     sed -i 's/DELETE IGNORE FROM `action`;//g' $dump_file
     sed -i 's/DELETE IGNORE FROM `activation`;//g' $dump_file
 
-    # We need to drop the data from all the tables that contain data in our bare schema
-    # This is because the mysqldump import already contains this data
-    mysql ${mariadb_args} $db_name -e 'delete ignore from node_category;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from password;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from person;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from pf_version;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from radreply;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from sms_carrier;'
   else
     echo "Dump file includes triggers and procedures"
   fi
