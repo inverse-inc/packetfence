@@ -29,14 +29,21 @@ testcases:
   steps:
   - type: exec
     script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-exportable-backup-*.tgz" -newermt "-1 minute"'
-    vars: 
-      backup_name:
-        from: result.systemout
+
+- name: drop_pf_db
+  steps:
+  - type: exec
+    script: mysql -e "DROP DATABASE pf;"
+
+- name: create_pf_db
+  steps:
+  - type: exec
+    script: mysql -e "CREATE DATABASE pf;"
 
 - name: import
   steps:
   - type: exec
-    script: '/usr/local/pf/addons/full-import/import.sh --db -f {{ .backup_name }}'
+    script: '/usr/local/pf/addons/full-import/import.sh --db -f {{.get_backup_name.result.systemout}}'
 
 - name: search_user_in_db
   steps:
