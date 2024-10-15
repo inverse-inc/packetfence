@@ -111,7 +111,7 @@ def  generate_token(jwt_token, org_github_apps_id, github_client_repository_name
 
 
 def send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name ):
-    subject = "PacketFence Cloud NAC: Error token update"
+    subject = f"[ PFaaS: {client_id} ] Error token update"
     sender = "packetfenceaas@gmail.com"
     recipients = [client_email, "dl-Inverse-All@akamai.com"]
     body = """
