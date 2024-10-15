@@ -20,11 +20,7 @@ def send_mail(client_id, client_email, domain ):
     body = """
     <html>
     <body>
-<<<<<<< HEAD
         <p>Hi {client_id}!</p>
-=======
-        <p>Hi!</p>
->>>>>>> 22e6e7a546 (search id client from json)
         <p>The domain <b> {domain} </b> failed to resolve. Kindly create a DNS entry and try again.</p>
     </body>
     </html>
