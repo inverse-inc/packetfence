@@ -52,10 +52,13 @@ function import_mysqldump() {
     check_code $?
 
     sub_splitter
-    echo "Replacing create statements from the dump and removing drop statements"
+    echo "Replacing CREATE TABLE and DROP TABLE statements"
     # This is done so that tables aren't dropped
-    sed -i "s/^DROP TABLE IF EXISTS /---DROP TABLE IF EXISTS /g" $dump_file
+    sed -i "s/^DROP TABLE IF EXISTS /-- DROP TABLE IF EXISTS /g" $dump_file
     sed -i "s/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g" $dump_file
+
+    echo "Replacing INSERT statements"
+    sed -i "s/^INSERT INTO /INSERT IGNORE INTO /g" $dump_file
 
     # Delete this statement if its there because this table isn't in our schema anymore but some old deployments have it
     sed -i 's/DELETE IGNORE FROM `dhcp_fingerprint`;//g' $dump_file
