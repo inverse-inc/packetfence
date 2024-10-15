@@ -9,8 +9,8 @@ import os.path
 
 app = Flask(__name__)
 
-def send_mail( client_email, domain ):
-    subject = f"PacketFence Cloud NAC: Error DNS resolution for {domain}"
+def send_mail(client_id, client_email, domain ):
+    subject = f"[ PFaaS: {client_id} ] Error DNS resolution for {domain}"
     sender = "packetfenceaas@gmail.com"
     if client_email == None:
         client_email = "dl-Inverse-All@akamai.com"
@@ -21,7 +21,7 @@ def send_mail( client_email, domain ):
     <html>
     <body>
         <p>Hi!</p>
-        <p>The domain {domain} failed to resolve. Kindly create a DNS entry and try again.</p>
+        <p>The domain <b> {domain} </b> failed to resolve. Kindly create a DNS entry and try again.</p>
     </body>
     </html>
     """
@@ -101,6 +101,30 @@ def api(path='', method='GET', string=None, data=None):
 
     return dict(message='unknown error', path=path)
 
+# Function to find the ID by FQDN (same as before)
+def find_id_by_fqdn_recursive(data, fqdn_to_find):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if key == 'fqdn' and value == fqdn_to_find:
+                return data.get('id', None)
+            result = find_id_by_fqdn_recursive(value, fqdn_to_find)
+            if result:
+                return result
+    elif isinstance(data, list):
+        for item in data:
+            result = find_id_by_fqdn_recursive(item, fqdn_to_find)
+            if result:
+                return result
+    return None
+
+# Reading the JSON file
+def load_data_from_json(file_path='/srv/vars/lb_client_vars.json'):
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return data
+
+
+
 @app.route('/check', methods=['GET'])
 def check_domain():
     # Get the domain parameter from the query string
@@ -113,7 +137,8 @@ def check_domain():
         return jsonify({"domain": domain, "status": "allowed"}), 200
     else:
         client_email=find_email(domain)
-        send_mail(client_email, domain)
+        client_id = find_id_by_fqdn_recursive(load_data_from_json(), "matei1.mateiparent.packetfence.net")
+        send_mail(client_id, client_email, domain)
         return jsonify({"domain": domain, "status": "not allowed"}), 404
 
 
