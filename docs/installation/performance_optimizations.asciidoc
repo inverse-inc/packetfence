@@ -55,10 +55,13 @@ each of the sub process will take a dedicate machine account to perform the auth
 
 ==== Benchmarks and suggested settings ====
 We did a benchmark on this feature, here's some results for reference:
-The test is based on a VM of 4 CPU 32 Gig DDR4 VM hosted on ESXi, CPU: Intel D2123-IT 2.2G
+All the tests are done on VMs by ESXi 7.0 hosted on a SuperMicro server with 1 CPU of Intel D2123-IT (4C8T @2.2G), 128 G DDR4 RDIMM.
 
-we are testing this using ab (apache benchmark) to directly test against NTLM auth API.
-2 additional machine accounts is added (total 3)
+we are testing this using ab (apache benchmark) to directly test against NTLM auth API with:
+
+1. 2 additional machine accounts is added (total 3)
+2. The PacketFence is hosted on a 4 vCPU 32 Gig VM on ESXi.
+3. The Windows AD is hosted on a 2 vCPU 8 Gig VM on ESXi in the same local network with PacketFence.
 
 ```
 ab -n 20000 -c 1 -p ~/eapol_test/payload.admin-akam.json -T 'application/json'  http://127.0.0.1:5002/ntlm/auth
@@ -81,9 +84,17 @@ Requests per second:    932.21 [#/sec] (mean)
 Time per request:       3.218 [ms] (mean)
 Time per request:       1.073 [ms] (mean, across all concurrent requests)
 
-
 ```
 
+Based on the test results, with a single machine account created on Windows AD, the backend API is possible to handle around
+400 requests/s, with 3 machine accounts, the capacity will raise up to around 1000 req/s, which is a quite busy and
+heavy-load case.
+
+We suggest creating no more than 5 additional machine accounts (6 total) to maximize the performance as well as keeping
+the Windows Event log clean and easy for debugging.
+
+For low worker loads cases, 1 additional machine account is recommended - just to avoid jitter when the master process terminates
+the old process after 10k requests and re-spawn a new one.
 
 
 === NT Key Caching ===
