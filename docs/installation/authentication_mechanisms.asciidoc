@@ -45,6 +45,7 @@ Where :
 * *OU* is the OU in the Active Directory where you want to create your computer account.
 * *Machine account password* password of server's account in your Active Directory
 * *Allow on registration* would allow devices in the registration network to communicate with the DC.
+* *additional machine accounts* How many *additional* machine accounts will be created to handle NTLM authentication. By default 0. Means only 1 machine account will be created. Maximum is 10, you can only create 10 additional machine accounts.
 
 You can always check your domain settings by running `net config workstation` on your domain controller.
 form the output,

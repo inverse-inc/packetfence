@@ -1,8 +1,13 @@
 import datetime
+import inspect
 import re
-import constants
+
 import dns.resolver
+import psutil
 import pytz
+
+import constants
+
 
 # simplified IPv4 validator.
 def is_ipv4(address):
@@ -97,7 +102,7 @@ def expires(in_second):
 
 
 def now():
-    ts= datetime.datetime.now().timestamp()
+    ts = datetime.datetime.now().timestamp()
     return int(ts)
 
 
@@ -110,3 +115,35 @@ def extract_event_timestamp(s):
         return int(number)
     else:
         return 0
+
+
+def get_process_info(pid):
+    try:
+        process = psutil.Process(pid)
+        process_name = process.name()
+        process_cmdline = process.cmdline()
+        process_status = process.status()
+        process_cpu_percent = process.cpu_percent(interval=1.0)
+        process_memory_info = process.memory_info()
+        process_create_time = process.create_time()
+
+        return {
+            "pid": pid,
+            "name": process_name,
+            "cmdline": process_cmdline,
+            "status": process_status,
+            "cpu_percent": process_cpu_percent,
+            "memory_info": process_memory_info,
+            "create_time": process_create_time,
+        }, None
+    except psutil.NoSuchProcess:
+        return None, psutil.NoSuchProcess
+    except psutil.AccessDenied:
+        return None, psutil.AccessDenied
+    except Exception as e:
+        return None, e
+
+
+def current_function_name():
+    # Get the name of the current function
+    return inspect.currentframe().f_code.co_name

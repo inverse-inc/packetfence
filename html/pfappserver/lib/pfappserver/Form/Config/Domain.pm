@@ -258,6 +258,14 @@ has_field 'machine_account_password' =>
         tags => { after_element => \&help,
             help => 'Password of the machine account to be added to Active Directory.' },
     );
+has_field 'additional_machine_accounts' =>
+    (
+        type => 'PosInteger',
+        label => 'Additional machine account for NTLM authentication',
+        default => 0,
+        tags => { after_element => \&help,
+            help => 'How many additional machine accounts should be created and used to parallel NTLM authentication' },
+    );
 has_field 'password_is_nt_hash' =>
     (
         type => 'Text',
