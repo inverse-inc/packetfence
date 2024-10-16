@@ -6,31 +6,28 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-if [ "$2" = "--force" ];then
-  echo "Force flag enabled"
-  mtime=""
-else
-  mtime="-mtime -1"
-fi
-
 set -o nounset -o pipefail -o errexit
 
 source /usr/local/pf/addons/functions/helpers.functions
 source /usr/local/pf/addons/functions/database.functions
 
 output="$1"
+BACKUP_DB_FILENAME='packetfence-db-dump-*'
+BACKUP_CONF_FILENAME='packetfence-conf-dump-*'
 
-db_dump=`find /root/backup -name 'packetfence-db-dump-*' -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+echo "Search last database dump available."
+last_db_dump=`find /root/backup -name $BACKUP_DB_FILENAME -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
 
-if [ -z "$db_dump" ]; then
-  echo "Unable to find a database dump that was done in the last 24 hours. Add --force to ignore this."
+if [ -z "$last_db_dump" ]; then
+  echo "Unable to find a database dump."
   exit 1
 fi
 
-files_dump=`find /root/backup -name 'packetfence-files-dump-*' -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+echo "Search last config dump available."
+last_conf_dump=`find /root/backup -name $BACKUP_CONF_FILENAME -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
 
-if [ -z "$files_dump" ]; then
-  echo "Unable to find a files dump that was done in the last 24 hours. Add --force to ignore this."
+if [ -z "$last_conf_dump" ]; then
+  echo "Unable to find a config dump."
   exit 1
 fi
 
@@ -46,12 +43,12 @@ pushd $build_dir
 
 main_splitter
 echo "Copying dump files to temporary export directory"
-cp -a $db_dump $build_dir/
-cp -a $files_dump $build_dir/
+cp -a $last_db_dump $build_dir/
+cp -a $last_conf_dump $build_dir/
 
 mariadb_args=""
 
-if echo "$db_dump" | grep '\.sql.gz$' >/dev/null; then
+if echo "$last_db_dump" | grep '\.sql.gz$' >/dev/null; then
   if ! test_db_connection_no_creds; then
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
@@ -85,12 +82,12 @@ for f in $add_files; do
 done
 
 main_splitter
-echo "Creating export archive"
+echo "Creating exportable backup archive"
 tar -cvzf $output *
 check_code $?
 
 main_splitter
-echo "Done exporting to $output"
+echo "Done backuping to $output"
 
 popd > /dev/null
 

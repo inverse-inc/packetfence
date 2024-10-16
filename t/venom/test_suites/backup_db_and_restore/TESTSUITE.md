@@ -5,12 +5,8 @@ MariaDB running and available using UNIX socket
 
 ## Scenario steps
 1. Create user in DB using API
-2. Backup files and DB with backup-and-maintenance script
-3. Check DB file has been created by backup script
-4. Unzip DB file
-5. Drop DB
-6. Recreate DB based on current schema
-7. Restore data from backup DB file
+2. Backup files and DB with exportable-backup script
+7. Import only db from backup
 8. Check that user created at first step is still here using API: validate
    that application is running after DB restore
 

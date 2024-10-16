@@ -146,20 +146,21 @@ If you need to externalize those backups, they are in:
 ----
 /root/backup
 ----
-Files description:
+File description:
 
-* `packetfence-db-dump-innobackup-DATE_00h30.xbstream.gz` are the SQL dump of your MariaDB database.
-* `packetfence-files-dump-DATE_00h30.tgz` are the dump of the PacketFence files.
+* packetfence-exportable-backup-DATE_00h30.tgz is an exportable packetfence backup that contains:
+ * `packetfence-db-dump-innobackup-DATE_00h30.xbstream.gz` are the SQL dump of your MariaDB database.
+ * `packetfence-config-dump-DATE_00h30.tgz` are the dump of the PacketFence files.
 
 ==== Manual backups
 
 In case you need to make a "manual" backup, you can type the following command:
 
 ----
-/usr/local/pf/addons/backup-and-maintenance.sh
+/usr/local/pf/addons/exportable-backup.sh
 ----
 
-As the daily automatic backups, you will find the files in:
+As the daily automatic backups, you will find the file in:
 
 ----
 /root/backup/

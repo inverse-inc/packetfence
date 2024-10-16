@@ -40,7 +40,7 @@ prepare_import() {
     ls -l | grep -v export.tgz
 
     main_splitter
-    files_dump=`ls packetfence-files-*`
+    files_dump=`ls packetfence-conf-*`
     echo "Found files dump '$files_dump'"
 
     echo "Extracting files dump"
@@ -79,31 +79,36 @@ import_db() {
     if echo "$db_dump" | grep '\.sql$' >/dev/null; then
         echo "The database dump uses mysqldump"
         #TODO /tmp/grants.sql should be included in the export
-        import_mysqldump grants.sql $db_dump usr/local/pf/conf/pf.conf
+        import_mysqldump grants.sql $db_dump usr/local/pf/conf/pf.conf $do_db_restore
     elif echo "$db_dump" | grep '\.xbstream$' >/dev/null; then
         echo "The database uses mariabackup"
-	# permit to remove mariabackup if everything goes well
-	# or to uninstall it if a failure occurs during installation
+        # permit to remove mariabackup if everything goes well
+        # or to uninstall it if a failure occurs during installation
         if install_mariabackup $pf_version_in_export; then
-	    mariabackup_installed=true
-	else
-	    uninstall_mariabackup $pf_version_in_export
-	    exit 1
-	fi
+            mariabackup_installed=true
+        else
+            uninstall_mariabackup $pf_version_in_export
+            exit 1
+        fi
         import_mariabackup $db_dump
     else
         echo "Unable to detect format of the database dump"
         exit 1
     fi
 
-    handle_devel_upgrade `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+'`
+    if [ "$do_db_restore" -eq 0 ] ; then
+        handle_devel_upgrade `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+'`
 
-    #TODO: check the version of the export, we want to support only 10.3.0 and above
-    #TODO: check if galera is enabled and stop if its the case
+        #TODO: check the version of the export, we want to support only 10.3.0 and above
+        #TODO: check if galera is enabled and stop if its the case
 
-    main_splitter
-    db_name=`get_db_name usr/local/pf/conf/pf.conf`
-    upgrade_database $db_name
+        main_splitter
+        db_name=`get_db_name usr/local/pf/conf/pf.conf`
+        upgrade_database $db_name
+    else
+        main_splitter
+        echo "Only database restoration has been selected. No upgrade on database will be done"
+    fi
 }
 
 import_config() {
@@ -132,31 +137,44 @@ import_config() {
     restore_certificates
 }
 
+
 finalize_import() {
-    main_splitter
-    echo "Finalizing import"
+    if [ "$do_db_restore" -eq 0 ] ; then
+        main_splitter
+        echo "Finalizing import"
 
-    sub_splitter
-    echo "Applying fixpermissions"
-    /usr/local/pf/bin/pfcmd fixpermissions
+        sub_splitter
+        echo "Applying fixpermissions"
+        /usr/local/pf/bin/pfcmd fixpermissions
 
-    sub_splitter
-    echo "Restarting packetfence-redis-cache"
-    systemctl restart packetfence-redis-cache
+        sub_splitter
+        echo "Restarting packetfence-redis-cache"
+        systemctl restart packetfence-redis-cache
 
-    sub_splitter
-    echo "Restarting packetfence-config"
-    systemctl restart packetfence-config
+        sub_splitter
+        echo "Restarting packetfence-config"
+        systemctl restart packetfence-config
 
-    sub_splitter
-    echo "Reloading configuration"
-    configreload
+        sub_splitter
+        echo "Reloading configuration"
+        configreload
 
-    main_splitter
-    echo "Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence"
+        main_splitter
+        echo "Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence"
 
-    # Done with everything, time to cleanup!
-    systemctl cat monit > /dev/null 2>&1 && systemctl enable monit
+        # Done with everything, time to cleanup!
+        systemctl cat monit > /dev/null 2>&1 && systemctl enable monit
+    else
+        main_splitter
+        echo "Finalizing db restoration"
+
+        sub_splitter
+        echo "Restarting service packetfence-httpd.admin_dispatcher"
+        systemctl restart packetfence-httpd.admin_dispatcher
+        echo "Restarting packetfence-haproxy-admin service"
+        systemctl start packetfence-haproxy-admin
+        echo "Completed import of the database! Complete any necessary adjustments and restart PacketFence"
+    fi
     popd > /dev/null
 }
 
@@ -169,9 +187,10 @@ Usage: $0 -f /path/to/export.tgz [OPTION]...
 Options:
  -f,--file                  Import a PacketFence export (mandatory)
  -h,--help                  Display this help
- --db			    Import only database from PacketFence export
- --conf			    Import only configuration from PacketFence export
- --skip-adjust-conf	    Don't run adjustments on configuration (only use it if you know what you are doing)
+ --db                       Import only database from PacketFence export
+ --db-restore               Restore only database from PacketFence export without upgrade process
+ --conf                     Import only configuration from PacketFence export
+ --skip-adjust-conf         Don't run adjustments on configuration (only use it if you know what you are doing)
 
 EOF
 }
@@ -181,6 +200,7 @@ EOF
 #############################################################################
 do_full_import=1
 do_db_import=0
+do_db_restore=0
 do_config_import=0
 do_adjust_config=1
 mariabackup_installed=false
@@ -189,7 +209,7 @@ EXPORT_FILE=${EXPORT_FILE:-}
 # Parse option
 # TEMP=$(getopt -o f:h --long file:,help,db,conf \
     #      -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
-TEMP=$(getopt -o f:h --long file:,help,db,conf,skip-adjust-conf \
+TEMP=$(getopt -o f:h --long file:,help,db,db-restore,conf,skip-adjust-conf \
      -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
 
 # Note the quotes around `$TEMP': they are essential!
@@ -198,15 +218,18 @@ eval set -- "$TEMP"
 while true ; do
     case "$1" in
         -f|--file)
-	    # first shift is mandatory to get file path
-	    shift 
-            EXPORT_FILE="$1" ; shift 
+            # first shift is mandatory to get file path
+            shift
+            EXPORT_FILE="$1" ; shift
             ;;
         -h|--help)
-            help ; exit 0 ; shift 
+            help ; exit 0 ; shift
             ;;
         --db)
-            do_db_import=1 ; do_full_import=0 ; shift 
+            do_db_restore=0 ; do_db_import=1 ; do_full_import=0 ; shift
+            ;;
+        --db-restore)
+            do_db_restore=1 ; do_db_import=1 ; do_full_import=0 ; shift
             ;;
         --conf)
             do_config_import=1 ; do_full_import=0 ; shift
@@ -214,11 +237,11 @@ while true ; do
         --skip-adjust-conf)
             do_adjust_config=0 ; shift
             ;;
-        --) 
-            shift ; break 
+        --)
+            shift ; break
             ;;
-        *) 
-            echo "Wrong usage !" ; help ; exit 1 
+        *)
+            echo "Wrong usage !" ; help ; exit 1
             ;;
     esac
 done
