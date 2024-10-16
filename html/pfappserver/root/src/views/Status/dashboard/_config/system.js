@@ -80,7 +80,7 @@ export default [
           {
             title: 'CPU usage', // i18n defer
             metric: 'system.cpu',
-            mode: modes.SINGLE,
+            mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             params: {
               dimensions: 'user,system',

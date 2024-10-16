@@ -19,6 +19,7 @@ args+=" -v /usr/local/pf/var/conf/monitoring:/etc/netdata"
 args+=" -v /usr/local/pf/var/netdata-cache:/var/cache/netdata"
 args+=" -v /usr/local/pf/var/netdata-lib:/var/lib/netdata"
 
+args+=" -v /:/host/root:ro,rslave"
 args+=" -v /usr/local/pf/logs:/usr/local/pf/logs"
 args+=" -v /etc/passwd:/host/etc/passwd:ro"
 args+=" -v /etc/group:/host/etc/group:ro"

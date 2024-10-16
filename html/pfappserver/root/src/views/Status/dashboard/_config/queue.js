@@ -1,14 +1,4 @@
-import store from '@/store'
 import { modes, libraries } from '../_components/Chart'
-
-const chartDimensions = chart => {
-  const definition = store.getters[`$_status/uniqueCharts`].find(o => o.id === chart)
-  if (definition) {
-    const { dimensions } = definition
-    return Object.values(dimensions).map(dimension => dimension.name)
-  }
-  return []
-}
 
 export default [
   {
