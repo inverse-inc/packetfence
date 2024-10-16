@@ -1,6 +1,7 @@
 import apache from './apache'
 import authentication from './authentication'
 import dhcp from './dhcp'
+import virtualization from './virtualization'
 import endpoints from './endpoints'
 import logs from './logs'
 import queue from './queue'
@@ -16,4 +17,5 @@ export default [
   ...endpoints,
   ...queue,
   ...logs,
+  ...virtualization,
 ]
