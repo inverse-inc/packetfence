@@ -81,8 +81,8 @@ check_disk_space(){
     if (( $BACKUPS_AVAILABLE_SPACE < (( (( $MYSQL_USED_SPACE + $CONF_USED_SPACE )) /2 )) )); then
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup exportable. Skipping backup." >&2
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup exportable. Skipping backup." > /usr/local/pf/var/backup_pf.status
+        exit $BACKUPRC
     fi
-    exit $BACKUPRC
 }
 
 
