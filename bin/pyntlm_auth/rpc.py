@@ -10,7 +10,6 @@ from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_
 import binascii
 import random
 
-
 def init_secure_connection():
     netbios_name = global_vars.c_netbios_name
     realm = global_vars.c_realm
@@ -20,11 +19,11 @@ def init_secure_connection():
     password = global_vars.c_password
     domain = global_vars.c_domain
     username = global_vars.c_username
-    server_name = global_vars.c_server_name # FQDN of Domain Controller
+    server_name = global_vars.c_server_name  # FQDN of Domain Controller
 
     domain_controller_records = utils.find_ldap_servers(global_vars.c_realm, global_vars.c_dns_servers)
     if len(domain_controller_records) > 0:
-        idx = random.randint(0, len(domain_controller_records) -1)
+        idx = random.randint(0, len(domain_controller_records) - 1)
         record = domain_controller_records[idx]
         server_name = record.get('target')
 
@@ -95,9 +94,11 @@ def get_secure_channel_connection():
             return global_vars.s_secure_channel_connection, global_vars.s_machine_cred, global_vars.s_connection_id, 0, ""
 
 
-def transitive_login(account_username, challenge, nt_response):
+def transitive_login(account_username, challenge, nt_response, domain=None):
+    if domain is None:
+        domain = global_vars.c_domain
+
     server_name = global_vars.c_server_name
-    domain = global_vars.c_domain
     workstation = global_vars.c_workstation
     global_vars.s_secure_channel_connection, global_vars.s_machine_cred, global_vars.s_connection_id, error_code, error_message = get_secure_channel_connection()
     if error_code != 0:
