@@ -221,14 +221,14 @@ management=false
 [metric 'Events in pfconnector-server.log']
 type=tail_file
 file=/usr/local/pf/logs/pfconnector-server.log
-match=lvl=dbug,lvl=info,lvl=warn,lvl=err
+match=lvl=dbug,lvl=info,lvl=warn,lvl=eror
 statsd_ns=source.packetfence.pfconnector_server_log.debug,source.packetfence.pfconnector_server_log.info,source.packetfence.pfconnector_server_log.warning,source.packetfence.pfconnector_server_log.error,
 management=false
 
 [metric 'Events in pfconnector-client.log']
 type=tail_file
 file=/usr/local/pf/logs/pfconnector-client.log
-match=lvl=dbug,lvl=info,lvl=warn,lvl=err
+match=lvl=dbug,lvl=info,lvl=warn,lvl=eror
 statsd_ns=source.packetfence.pfconnector_client_log.debug,source.packetfence.pfconnector_client_log.info,source.packetfence.pfconnector_client_log.warning,source.packetfence.pfconnector_client_log.error,
 management=false
 
