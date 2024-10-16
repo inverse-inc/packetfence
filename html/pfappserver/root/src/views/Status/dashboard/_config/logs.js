@@ -5,7 +5,7 @@ export default [
     name: 'Logs', // i18n defer
     groups: [
       {
-        name: 'packetfence.log events',
+        name: 'packetfence.log',
         items: [
           {
             title: 'Number of events', // i18n defer
@@ -24,26 +24,21 @@ export default [
         ]
       },
       {
-        name: 'pfconnector-server events',
+        name: 'pfconnector.log',
         items: [
           {
-            title: 'Number of events', // i18n defer
+            title: 'Server events', // i18n defer
             metric: 'packetfence.logs.pfconnector_server_log',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            cols: 12
-          }
-        ]
-      },
-      {
-        name: 'pfconnector-client events',
-        items: [
+            cols: 6
+          },
           {
-            title: 'Number of events', // i18n defer
+            title: 'Client events', // i18n defer
             metric: 'packetfence.logs.pfconnector_client_log',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
-            cols: 12
+            cols: 6
           }
         ]
       },

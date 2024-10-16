@@ -27,6 +27,7 @@ export const libraries = {
   DYGRAPH_COUNTER: 'dygraph-counter',
   EASYPIECHART: 'easypiechart',
   GAUGE: 'gauge',
+  GOOGLE: 'google',
   D3PIE: 'd3pie',
   SPARKLINE: 'sparkline',
   PEITY: 'peity'
