@@ -33,7 +33,7 @@ testcases:
 - name: import
   steps:
   - type: exec
-    script: '/usr/local/pf/addons/full-import/import.sh --db -f {{.get_backup_name.result.systemout}}'
+    script: '/usr/local/pf/addons/full-import/import.sh --db-restore -f {{.get_backup_name.result.systemout}}'
 
 - name: search_user_in_db
   steps:
