@@ -24,10 +24,13 @@ use pf::util;
 use pf::cluster;
 use pf::constants;
 use NetAddr::IP;
+use Net::DNS;
+use Net::IP;
 
 use pf::config qw(
     $management_network
     %Config
+    %ConfigDomain
 );
 use pfconfig::cached_array;
 
@@ -158,6 +161,52 @@ families: *
 
 EOT
     }
+
+    my @ips;
+
+    for my $identifier (keys(%ConfigDomain)) {
+
+        my $ad_server = $ConfigDomain{$identifier}{ad_server};
+        my $dns_servers = $ConfigDomain{$identifier}{dns_servers};
+        my $domain = $ConfigDomain{$identifier}{dns_name};
+
+        if (Net::IP::ip_is_ipv4($ad_server)) {
+            push(@ips, $ad_server)
+        }
+
+        if (defined($dns_servers)) {
+            my @dns_servers = map {s/^\s+|\s+$//gr} split(',', $dns_servers);
+
+            push(@ips, @dns_servers);
+
+            my $resolver = Net::DNS::Resolver->new(nameservers => \@dns_servers, recurse => 1, timeout => 3,);
+
+            my @results;
+            my $query = $resolver->query("_ldap._tcp.dc._msdcs.$domain", "SRV");
+            if ($query) {
+                foreach my $rr ($query->answer) {
+                    next unless $rr->type eq "SRV";
+                    push(@results, $rr->target);
+                }
+            }
+
+            foreach my $record (@results) {
+                my $query = $resolver->query($record, "A");
+
+                if ($query) {
+                    foreach my $rr ($query->answer) {
+                        next unless $rr->type eq "A";
+                        push(@ips, $rr->address);
+                    }
+                }
+            }
+        }
+    }
+    my %seen;
+    my @uniq_ips = grep {!$seen{$_}++} @ips;
+
+    $tags{'members'} = $tags{'members'} + " " + " ".join(@uniq_ips);
+
 
     $tags{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
     $tags{'management_ip'}
