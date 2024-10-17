@@ -101,7 +101,7 @@ jobs:
           PATH_PACKAGE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'rhel8' || 'debian' }}
     
       - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  ${{ inputs._OUTPUT_DIRECTORY }}/${{ env.PATH_PACKAGE }}/packages/${{ env.PACKAGE_NAME }}
