@@ -70,7 +70,7 @@ jobs:
           CI_COMMIT_REF_NAME: ${{ inputs._BRANCH_NAME }}
     
       - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: ${{ env.ARTIFACTORY_NAME }}
 #          path:  /__w/packetfence/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian11' && 'debian/bookworm'}}/${{ env.PACKAGE_NAME }}
