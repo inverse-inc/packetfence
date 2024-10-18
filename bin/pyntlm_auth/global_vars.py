@@ -1,5 +1,4 @@
 import datetime
-import threading
 
 _global_dict = {}
 
@@ -27,7 +26,7 @@ s_connection_id = 1
 s_reconnect_id = 0
 s_connection_last_active_time = datetime.datetime.now()
 
-s_lock = threading.Lock()
+s_lock = None
 
 s_worker = None  # gunicorn worker object.
 s_bind_account = None  # machine account bind to specific worker

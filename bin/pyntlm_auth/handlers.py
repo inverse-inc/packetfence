@@ -135,6 +135,18 @@ def _build_machine_account_bind_mapping(machine_accounts):
 def _submit_machine_account_test_job(machine_accounts, password=""):
     job_id = time.time()
 
+    key_lock = f"{redis_client.namespace}:async-test:lock:{job_id}"
+    try:
+        redis_client.r.lpush(key_lock, 1)
+    except redis.ConnectionError:
+        msg = "error submitting machine account test job: lock init failed due to redis connection error"
+        code = HTTPStatus.INTERNAL_SERVER_ERROR
+        return None, code, msg
+    except Exception as e:
+        msg = f"error submitting machine account test job: lock init failed due to {str(e)}"
+        code = HTTPStatus.INTERNAL_SERVER_ERROR
+        return None, code, msg
+
     for m in machine_accounts:
         key = f"{redis_client.namespace}:async-test:jobs:{m}"
 
@@ -217,7 +229,7 @@ def _aggregate_results(results, machine_accounts):
             continue
 
     if (not timeout) and (not failed) and (not exception):
-        return "OK", HTTPStatus.OK
+        return "OK\n", HTTPStatus.OK
 
     s_successful = ""
     if successful:

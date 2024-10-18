@@ -2,6 +2,7 @@ import configparser
 import os
 import socket
 import sys
+import threading
 import time
 from configparser import ConfigParser
 
@@ -386,6 +387,7 @@ def config_load():
 
 
 def reload_worker_config():
+    global_vars.s_lock = threading.Lock()
     computer_account = global_vars.s_bind_account.replace("$", "")
 
     global_vars.c_username = computer_account.upper() + "$"

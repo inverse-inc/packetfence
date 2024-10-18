@@ -68,6 +68,24 @@ def async_test(worker):
 
 
 def _test_schannel(job_id, machine_account, password=""):
+
+    key_lock = f"{redis_client.namespace}:async-test:lock:{job_id}"
+    try:
+        v = redis_client.r.brpop(key_lock, 2)
+        if v is None:
+            msg = f"lock '{key_lock}' wait timed out. job '{job_id}' failed."
+            global_vars.s_worker.log.warning(msg)
+            return
+
+    except redis.ConnectionError:
+        msg = f"redis connection error occurred when obtaining lock '{key_lock}', job '{job_id}' failed."
+        global_vars.s_worker.log.warning(msg)
+        return
+    except Exception as e:
+        msg = f"error occurred when obtaining lock '{key_lock}': {str(e)}, job '{job_id}' failed."
+        global_vars.s_worker.log.warning(msg)
+        return
+
     if not password:
         password = global_vars.s_password_ro
 
@@ -84,6 +102,17 @@ def _test_schannel(job_id, machine_account, password=""):
 
     with global_vars.s_lock:
         global_vars.c_password = global_vars.s_password_ro
+
+    try:
+        redis_client.r.lpush(key_lock, global_vars.s_worker.pid)
+    except redis.ConnectionError:
+        msg = f"redis connection error occurred when releasing lock '{key_lock}', job '{job_id}' failed."
+        global_vars.s_worker.log.warning(msg)
+        return
+    except Exception as e:
+        msg = f"error occurred when releasing lock '{key_lock}': {str(e)}, job '{job_id}' failed."
+        global_vars.s_worker.log.warning(msg)
+        return
 
     if error_code == 0:
         result = "OK"

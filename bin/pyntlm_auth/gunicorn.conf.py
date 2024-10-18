@@ -75,7 +75,8 @@ def post_fork(server, worker):
 
     background_jobs = (
         Thread(target=t_worker_register.primary_worker_register, daemon=True, args=(worker,)),
-        Thread(target=t_sdnotify.sd_notify, daemon=True, args=(worker,))
+        Thread(target=t_sdnotify.sd_notify, daemon=True, args=(worker,)),
+        Thread(target=t_worker_register.gc_expire_redis_locks, daemon=True, args=(worker,))
     )
 
     for job in background_jobs:
