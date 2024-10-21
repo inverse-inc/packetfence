@@ -40,13 +40,13 @@ FBGROUP=fingerbank
 
 init-db-local:
 	@db/upgrade.pl --database db/fingerbank_Local.db; \
-	chown fingerbank.fingerbank /usr/local/fingerbank/db/fingerbank_Local.db; \
+	chown fingerbank:fingerbank /usr/local/fingerbank/db/fingerbank_Local.db; \
 	chmod 664 /usr/local/fingerbank/db/fingerbank_Local.db; \
 
 init-db-upstream:
 	@read -p "API key (ENTER if none): " api_key; \
 	perl -I/usr/local/fingerbank/lib -Mfingerbank::DB -Mfingerbank::Util -Mfingerbank::Log -e "fingerbank::Log::init_logger; fingerbank::DB::update_upstream( (api_key => \"$$api_key\") )"; \
-	chown fingerbank.fingerbank /usr/local/fingerbank/db/fingerbank_Upstream.db; \
+	chown fingerbank:fingerbank /usr/local/fingerbank/db/fingerbank_Upstream.db; \
 	chmod 664 /usr/local/fingerbank/db/fingerbank_Upstream.db; \
 
 package-files:

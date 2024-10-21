@@ -715,7 +715,7 @@ fi
 if [ ! -f /usr/local/pf/conf/pf.conf ]; then
   echo "Touch pf.conf because it doesnt exist"
   touch /usr/local/pf/conf/pf.conf
-  chown pf.pf /usr/local/pf/conf/pf.conf
+  chown pf:pf /usr/local/pf/conf/pf.conf
 else
   echo "pf.conf already exists, won't touch it!"
 fi
@@ -723,7 +723,7 @@ fi
 if [ ! -f /usr/local/pf/conf/pfconfig.conf ]; then
   echo "Touch pfconfig.conf because it doesnt exist"
   touch /usr/local/pf/conf/pfconfig.conf
-  chown pf.pf /usr/local/pf/conf/pfconfig.conf
+  chown pf:pf /usr/local/pf/conf/pfconfig.conf
 else
   echo "pfconfig.conf already exists, won't touch it!"
 fi

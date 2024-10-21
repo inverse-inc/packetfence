@@ -31,7 +31,7 @@ start() {
 	fi
   # create directory, fix rights and remove previous socket
   mkdir -p $control_files_dir
-  chown -R $User.$User $control_files_dir
+  chown -R $User:$User $control_files_dir
   chmod 0775 $control_files_dir
   rm -f $socket_path
 	daemon --user=$User ${prog} -d 

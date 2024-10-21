@@ -51,7 +51,7 @@ id -u pf-monitoring || execute_and_check "useradd pf-monitoring -s /bin/bash"
 execute_and_check "usermod -a -G pf pf-monitoring"
 
 execute_and_check "mkdir -p $script_dir"
-execute_and_check "chown root.pf-monitoring $script_dir"
+execute_and_check "chown root:pf-monitoring $script_dir"
 execute_and_check "chmod 0750 $script_dir"
 
 download_and_check $script_registry_url $script_registry_file
@@ -76,7 +76,7 @@ while read u; do
   echo "Placing $u in $fname"
   execute_and_check "mv $tmp $script_dir/$fname" "Cannot place file in script directory"
   execute_and_check "chmod ug+rx $script_dir/$fname" "Cannot set executable bit on script"
-  execute_and_check "chown pf-monitoring.pf-monitoring $script_dir/$fname" "Cannot set executable bit on script"
+  execute_and_check "chown pf-monitoring:pf-monitoring $script_dir/$fname" "Cannot set executable bit on script"
 done <$script_registry_file
 
 if [ $ERROR -ne 0 ]; then
