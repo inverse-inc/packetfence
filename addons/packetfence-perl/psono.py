@@ -48,7 +48,7 @@ def return_data(return_value, decrypted_secret):
     elif return_value == "password_notes":
         return decrypted_secret['application_password_notes']
     elif return_value == "all":
-        return decrypted_secret
+        return json.dumps(decrypted_secret)
     else:
         return f"The condition does not correspond"
 
