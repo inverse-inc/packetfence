@@ -327,7 +327,7 @@ sub generate_dpsk_attribute_value {
 
 
 sub find_user_by_psk {
-    my ($self, $radius_request) = @_;
+    my ($self, $radius_request, $args) = @_;
     my ($status, $iter) = pf::dal::person->search(
         -where => {
             psk => {'!=' => [-and => '', undef]},
@@ -336,6 +336,12 @@ sub find_user_by_psk {
 
     my $matched = 0;
     my $pid;
+    if (exists $args->{'owner'} && $args->{'owner'}->{'pid'} ne "" ) {
+        if($self->check_if_radius_request_psk_matches($radius_request, $args->{'owner'}->{'psk'})) {
+            get_logger->info("PSK matches the pid associated with the mac ".$args->{'owner'}->{'pid'});
+	    return $args->{'owner'}->{'pid'};
+	}
+    }
     while(my $person = $iter->next) {
         get_logger->debug("User ".$person->{pid}." has a PSK. Checking if it matches the one in the packet");
         if($self->check_if_radius_request_psk_matches($radius_request, $person->{psk})) {

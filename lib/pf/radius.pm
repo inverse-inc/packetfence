@@ -1388,7 +1388,7 @@ sub handleUnboundDPSK {
 
     if($profile->unboundDpskEnabled()) {
         my $accept = $FALSE;
-        if(my $pid = $switch->find_user_by_psk($radius_request)) {
+        if(my $pid = $switch->find_user_by_psk($radius_request,$args)) {
             $logger->info("Unbound DPSK user found $pid. Changing this request to use the 802.1x logic");
             $connection->isMacAuth($FALSE);
             $connection->is8021X($TRUE);

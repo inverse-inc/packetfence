@@ -59,7 +59,7 @@ sub returnRadiusAccessAccept {
 }
 
 sub find_user_by_psk {
-    my ($self, $radius_request) = @_;
+    my ($self, $radius_request, $args) = @_;
 
     my ($status, $iter) = pf::dal::person->search(
         -where => {
