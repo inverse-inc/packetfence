@@ -8,6 +8,9 @@ then
   PF_VERSION+=${BASH_REMATCH[1]};
   PF_VERSION+=.0;
   echo "Maintenance Branch detected, try to match tag version with PF version = $PF_VERSION"
+elif [[ "$PF_VERSION" =~ ^.*\/.*$ ]];
+then
+  PF_VERSION="`echo $PF_VERSION | sed -r 's/\//-/g'`"
 fi
 
 VM_NAME=${VM_NAME:-vm}
