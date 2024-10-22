@@ -23,8 +23,10 @@ import (
 )
 
 const DefaultTimeDuration = 5 * time.Minute
-const DefaultRadiusWorkers = 5
+const DefaultRadiusWorkers = 15
 const DefaultRadiusWorkQueueSize = 1000
+const DefaultHttpdWorkQueueSize = 1000
+const DefaulHttpdWorkers = 100
 
 type radiusRequest struct {
 	w          radius.ResponseWriter
@@ -52,6 +54,7 @@ type PfAcct struct {
 	StatsdOption         statsd.Option
 	StatsdClient         *statsd.Client
 	radiusRequests       []chan<- radiusRequest
+	httpdRequest         chan *radius.Request
 	localSecret          string
 	StatsdOnce           tryableonce.TryableOnce
 	isProxied            bool
@@ -60,6 +63,8 @@ type PfAcct struct {
 	ProcessBandwidthAcct bool
 	RadiusWorkers        int
 	RadiusWorkQueueSize  int
+	HttpdWorkQueueSize   int
+	HttpdWorkers         int
 }
 
 func NewPfAcct() *PfAcct {
@@ -84,6 +89,8 @@ func NewPfAcct() *PfAcct {
 		TimeDuration:        DefaultTimeDuration,
 		RadiusWorkers:       DefaultRadiusWorkers,
 		RadiusWorkQueueSize: DefaultRadiusWorkQueueSize,
+		HttpdWorkQueueSize:  DefaultHttpdWorkQueueSize,
+		HttpdWorkers:        DefaulHttpdWorkers,
 	}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
@@ -93,8 +100,19 @@ func NewPfAcct() *PfAcct {
 
 	pfAcct.SetupConfig(ctx)
 	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, pfAcct.RadiusWorkers, pfAcct.RadiusWorkQueueSize)
+	pfAcct.httpdRequest = make(chan *radius.Request, pfAcct.HttpdWorkQueueSize)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 	//pfAcct.Dispatcher = NewDispatcher(16, 128)
+
+	// create workers
+	for i := 1; i <= pfAcct.HttpdWorkers; i++ {
+		go func(i int) {
+			for j := range pfAcct.httpdRequest {
+				pfAcct.sendRadiusAccountingCall(j)
+			}
+		}(i)
+	}
+
 	pfAcct.runPing()
 	return pfAcct
 }
@@ -108,6 +126,7 @@ func makeRadiusRequests(h *PfAcct, requestFanOut, backlog int) []chan<- radiusRe
 			for rr := range c {
 				h.handleAccountingRequest(rr)
 			}
+			fmt.Println(len(c))
 		}(c)
 	}
 

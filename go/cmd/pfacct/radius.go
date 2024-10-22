@@ -305,6 +305,18 @@ func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) uint64 {
 }
 
 func (h *PfAcct) sendRadiusAccounting(r *radius.Request, switchInfo *SwitchInfo) {
+
+	h.sendRadiusAccountingToQueue(r)
+
+}
+
+func (h *PfAcct) sendRadiusAccountingToQueue(r *radius.Request) {
+	go func(h *PfAcct, r *radius.Request) {
+		h.httpdRequest <- r
+	}(h, r)
+}
+
+func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request) {
 	ctx := r.Context()
 	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
@@ -316,7 +328,6 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request, switchInfo *SwitchInfo)
 		attr["NAS-IP-Address"] = strings.Split(r.RemoteAddr.String(), ":")[0]
 		logWarn(ctx, fmt.Sprintf("Empty NAS-IP-Address, using the source IP address of the packet (%s)", attr["NAS-IP-Address"]))
 	}
-
 	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr); err != nil {
 		logError(ctx, err.Error())
 	}
