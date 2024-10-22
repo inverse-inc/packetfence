@@ -377,7 +377,7 @@ sub util_all_icmp_blocks {
 sub util_all_sources {
   my $c  = shift;
   my $zc = shift;
-  if ( exists( $c->{"sources"} ) ) {
+  if ( exists( $c->{"sources"} ) && length($c->{"sources"}) > 0 ) {
     my @t;
     my $vl = $c->{"sources"} ;
     foreach my $v ( @{ $vl } ) {
@@ -708,9 +708,14 @@ sub util_get_name_files_from_dir {
     foreach my $file ( @files ) {
       my $b = basename($file);
       $b =~ s/\.[^.]+$//;
-      $xml{$b} = 1;
+      if (length($b)>2) {
+        $xml{$b} = 1;
+      }
     }
-    return \%xml;
+    if (scalar(keys(%xml))>0) {
+      return \%xml;
+
+    }
   }
   return undef;
 }
