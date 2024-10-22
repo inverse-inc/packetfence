@@ -67,6 +67,9 @@ ALTER TABLE `pki_certs`
 \! echo "Adding default timestamp to RADIUS audit logs";
 ALTER TABLE radius_audit_log MODIFY created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
+\! echo "Make psk unique";
+ALTER TABLE person ADD CONSTRAINT person_psk (`psk`);
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 

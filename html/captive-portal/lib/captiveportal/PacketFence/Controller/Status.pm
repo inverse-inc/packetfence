@@ -113,6 +113,9 @@ sub userIsAuthenticated : Private {
         foreach my $provisioner (@provisioners) {
             next unless $provisioner->isa("pf::provisioner::dpsk");
             my $dpsk = $provisioner->generate_dpsk($pid);
+            if (!$dpsk) {
+                $dpsk = "Error generating the PSK, contact your administrator";
+            }
             $c->stash( psk => $dpsk);
         }
     }

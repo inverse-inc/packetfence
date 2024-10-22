@@ -143,7 +143,13 @@ sub execute_child {
         $self->done();
     }
     elsif ($self->is_dpsk) {
-        $self->show_provisioning({psk => $provisioner->generate_dpsk($self->username), ssid => $provisioner->ssid});
+        my $psk = $provisioner->generate_dpsk($self->username);
+        if ($psk) {
+            $self->show_provisioning({psk => $psk, ssid => $provisioner->ssid});
+        } else {
+            $self->app->flash->{error} = [ "Error trying to generate your PSK. Please contact the administrator." ];
+            $self->show_provisioning();
+        }
     } else {
         my $result = $provisioner->authorize_enforce($mac);
         if ($result == 0) {
