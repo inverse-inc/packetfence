@@ -1,0 +1,18 @@
+# Copyright (C) Inverse inc.
+[neighbour-advertisement]
+short=Neighbour Advertisement (Neighbor Advertisement)
+description=This informational message is sent in response to a neighbour-solicitation message in order to (unreliably) propagate new information quickly.
+destinations=ipv4:no,ipv6:yes
+
+[neighbour-solicitation]
+short=Neighbour Solicitation (Neighbor Solicitation)
+description=This informational message is sent by a node to determine the link-layer address of a neighbor, or to verify that a neighbor is still reachable via a cached link-layer address. Neighbor Solicitations are also used for Duplicate Address Detection.
+destinations=ipv4:no,ipv6:yes
+
+[router-advertisement]
+short=Router Advertisement
+description=This message is used by routers to periodically announce the IP address of a multicast interface.
+
+[redirect]
+short=Redirect
+description=This error message informs a host to send packets on another route.

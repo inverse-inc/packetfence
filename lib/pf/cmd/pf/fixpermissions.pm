@@ -37,7 +37,6 @@ use pf::file_paths qw(
     $html_dir
     $lib_dir
     $config_version_file
-    $iptable_config_file
 );
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
@@ -74,7 +73,6 @@ sub action_all {
         $pfconfig_cache_dir,
         @extra_var_dirs,
         $config_version_file,
-        $iptable_config_file,
     );
     _changePathToOwnerRecursive('pf', $html_dir);
     _changeFilesToOwner(
@@ -82,7 +80,7 @@ sub action_all {
         $pfcmd,
     );
     chmod($PFCMD_MODE, $pfcmd);
-    chmod(0664, @stored_config_files, $iptable_config_file, $config_version_file);
+    chmod(0664, @stored_config_files, $config_version_file);
     chmod($DIR_MODE, $conf_dir, $var_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
     print "Fixed permissions.\n";

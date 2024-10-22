@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ipset type="[% type %]" [% version_xml %]>
+  <!-- source: https://firewalld.org/documentation/man-pages/firewalld.ipset.html -->
+  [% IF short != "" %]
+    <short>[% short %]</short>
+  [% END %]
+  [% IF description != "" %]
+    <description>[% description %]</description>
+  [% END %]
+  [% FOREACH entry IN entries %]
+  <entry>[% entry %]</entry>
+  [% END %]
+</ipset>

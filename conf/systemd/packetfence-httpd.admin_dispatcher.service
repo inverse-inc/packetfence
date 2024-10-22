@@ -1,12 +1,17 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence HTTP Admin Dispatcher
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+#
+# Even if there is no rules for that service, packetfence-firewalld.service
+# is used on installation and should failed in order to used the ExecStopPost
+# of packetfence-firewalld.service
+#
+# Also usefull when reboot a vm, since the current service is one of the
+# first packetfence service to restart.
+#
+Wants=packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-base.target packetfence-config.service packetfence-firewalld.service
 Before=packetfence-haproxy-admin.service
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
 
 [Service]
 Type=notify

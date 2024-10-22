@@ -1,0 +1,4 @@
+executor: reload_firewalld_config_hard
+steps:
+- type: pfcmd_run_command
+  command: generatefirewalldconfig hard

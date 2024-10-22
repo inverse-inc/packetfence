@@ -315,12 +315,13 @@ Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 Requires: fingerbank >= 4.3.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
-
 # For NTLM-Auth
 Requires: python3-samba
 Requires: tdb-tools
 # For ntlm_auth_wrapper
 Requires: cjson >= 1.7.14
+# For FirewallD in Rockylinux 8
+Requires: firewalld >= 0.9.11-1.el8_8
 
 %description
 
@@ -395,9 +396,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service %{buildroot}%{_unitdir}/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service %{buildroot}%{_unitdir}/packetfence-httpd.webservices.service
-%{__install} -D -m0644 conf/systemd/packetfence-docker-iptables.service %{buildroot}%{_unitdir}/packetfence-docker-iptables.service
-%{__install} -D -m0644 conf/systemd/packetfence-iptables.service %{buildroot}%{_unitdir}/packetfence-iptables.service
-%{__install} -D -m0644 conf/systemd/packetfence-ip6tables.service %{buildroot}%{_unitdir}/packetfence-ip6tables.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service %{buildroot}%{_unitdir}/packetfence-pfperl-api.service
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service %{buildroot}%{_unitdir}/packetfence-keepalived.service
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service %{buildroot}%{_unitdir}/packetfence-mariadb.service
@@ -437,6 +435,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api-domain@.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api-domain@.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
 %{__install} -D -m0644 conf/systemd/packetfence-kafka.service %{buildroot}%{_unitdir}/packetfence-kafka.service
+%{__install} -D -m0644 conf/systemd/packetfence-firewalld.service %{buildroot}%{_unitdir}/packetfence-firewalld.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -471,6 +470,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/webadmin_cache
 %{__install} -d %{buildroot}/usr/local/pf/var/control
 %{__install} -d %{buildroot}/usr/local/pf/var/kafka
+%{__install} -d %{buildroot}/usr/local/pf/var/firewalld
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
 %{__install} -d %{buildroot}/etc/docker
@@ -574,7 +574,11 @@ rm -rf %{buildroot}
 # Disable libvirtd and kill its dnsmasq if its there so that it doesn't prevent pfdns from starting
 /usr/bin/systemctl --now mask libvirtd
 /usr/bin/pkill -f dnsmasq
-
+# Disable default firewalld
+/usr/bin/systemctl --now mask firewalld
+/usr/bin/systemctl --now stop firewalld
+/usr/bin/systemctl --now disable firewalld
+/bin/rm /usr/lib/systemd/system/firewalld.service || true
 
 # This (extremelly) ugly hack below will make the current processes part of a cgroup other than the one for user-0.slice
 # This will allow for the current shells that are opened to be protected against stopping when we'll be calling isolate below which stops user-0.slice
@@ -743,6 +747,26 @@ sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
 /usr/local/pf/bin/pfcmd fixpermissions
 
+#Check if Firewalld exist and is enabled
+if [ -f /lib/systemd/system/firewalld.service ]; then
+  echo "Remove and disable firewalld"
+  /bin/systemctl stop firewalld.service > /dev/null 2>&1
+  /bin/systemctl disable firewalld.service > /dev/null 2>&1
+  /bin/systemctl mask firewalld.service > /dev/null 2>&1
+  /bin/rm -rf /usr/lib/systemd/system/firewalld.service > /dev/null 2>&1
+  /bin/systemctl daemon-reload > /dev/null 2>&1
+else
+  echo "Firewalld has already been removed."
+fi
+if [ -f /usr/lib/systemd/system/packetfence-iptables.service ]; then
+  echo "Disabling/Remove Packetfence Iptables service"
+  /bin/systemctl stop packetfence-iptables.service > /dev/null 2>&1
+  /bin/systemctl disable packetfence-iptables.service > /dev/null 2>&1
+  /bin/systemctl mask packetfence-iptables.service > /dev/null 2>&1
+  /bin/rm -rf /usr/lib/systemd/system/packetfence-iptables.services > /dev/null 2>&1
+  /bin/systemctl daemon-reload > /dev/null 2>&1
+fi
+
 # reloading systemd unit files
 /bin/systemctl daemon-reload
 
@@ -764,13 +788,9 @@ fi
 # get containers images and tag them locally
 if /usr/local/pf/containers/manage-images.sh; then
     rm -rf /usr/local/pf/var/cache/
-    /usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
-    /bin/systemctl disable firewalld
     /bin/systemctl enable packetfence-mariadb
     /bin/systemctl enable packetfence-redis-cache
     /bin/systemctl enable packetfence-config
-    /bin/systemctl disable packetfence-iptables
-    /bin/systemctl stop packetfence-iptables
     /bin/systemctl start packetfence-config
     # next command need packetfence-config started
     /usr/local/pf/bin/pfcmd generatemariadbconfig --force
@@ -785,8 +805,8 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl start packetfence-httpd.admin_dispatcher
     /bin/systemctl start packetfence-haproxy-admin
 
-    /bin/systemctl enable packetfence-iptables
-    /bin/systemctl stop packetfence-iptables
+    /bin/systemctl enable packetfence-firewalld
+    /bin/systemctl stop packetfence-firewalld
     /usr/local/pf/containers/docker-minimal-rules.sh
 
     /usr/local/pf/bin/pfcmd service pf updatesystemd
@@ -796,7 +816,7 @@ if /usr/local/pf/containers/manage-images.sh; then
 
     echo Installation complete
     echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
-    echo "  * Please stop your iptables service if you don't have access to configurator."
+    echo "  * Please stop your firewalld service if you don't have access to configurator."
 
     rm -f /usr/local/pf/var/run/pkg_install_in_progress
 else
@@ -1246,11 +1266,40 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
-%config                 /usr/local/pf/conf/iptables.conf
-%config(noreplace)      /usr/local/pf/conf/iptables-input.conf.inc
-%config(noreplace)      /usr/local/pf/conf/iptables-input-management.conf.inc
-%config                 /usr/local/pf/conf/ip6tables.conf
-%config(noreplace)      /usr/local/pf/conf/ip6tables-input-management.conf.inc
+%dir                    /usr/local/pf/conf/firewalld
+%config(noreplace)      /usr/local/pf/conf/firewalld/firewalld.conf
+                        /usr/local/pf/conf/firewalld/firewalld_helpers.conf
+                        /usr/local/pf/conf/firewalld/firewalld_icmptypes.conf
+                        /usr/local/pf/conf/firewalld/firewalld_ipsets.conf
+                        /usr/local/pf/conf/firewalld/firewalld_lockdown_whitelist.conf
+                        /usr/local/pf/conf/firewalld/firewalld_policies.conf
+                        /usr/local/pf/conf/firewalld/firewalld_services.conf
+                        /usr/local/pf/conf/firewalld/firewalld_zones.conf
+%config                 /usr/local/pf/conf/firewalld/firewalld.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_helpers.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_icmptypes.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_ipsets.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_lockdown_whitelist.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_policies.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_services.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld_zones.conf.example
+                        /usr/local/pf/conf/firewalld/firewalld.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_helpers.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_icmptypes.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_ipsets.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_lockdown_whitelist.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_policies.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_services.conf.defaults
+                        /usr/local/pf/conf/firewalld/firewalld_zones.conf.defaults
+%dir                    /usr/local/pf/conf/firewalld/template
+%config                 /usr/local/pf/conf/firewalld/template/firewalld.conf
+                        /usr/local/pf/conf/firewalld/template/helper.xml
+                        /usr/local/pf/conf/firewalld/template/icmptype.xml
+                        /usr/local/pf/conf/firewalld/template/ipset.xml
+                        /usr/local/pf/conf/firewalld/template/lockdown_whitelist.xml
+                        /usr/local/pf/conf/firewalld/template/policy.xml
+                        /usr/local/pf/conf/firewalld/template/service.xml
+                        /usr/local/pf/conf/firewalld/template/zone.xml
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
 %config(noreplace)      /usr/local/pf/conf/cluster.conf

@@ -3,9 +3,6 @@
 Description=PacketFence HAProxy Load Balancer for the Admin GUI
 Wants=packetfence-base.target packetfence-config.service packetfence-pfperl-api.service packetfence-api-frontend.service packetfence-httpd.admin_dispatcher.service packetfence-redis_queue.service packetfence-pfqueue-go.service
 After=packetfence-base.target packetfence-config.service packetfence-pfperl-api.service packetfence-api-frontend.service packetfence-httpd.admin_dispatcher.service packetfence-redis_queue.service packetfence-pfqueue-go.service
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
 
 [Service]
 Type=notify
@@ -19,6 +16,9 @@ Restart=on-failure
 TimeoutStopSec=30
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/haproxy-admin-systemd-notify.pid
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_haproxy_admin_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target

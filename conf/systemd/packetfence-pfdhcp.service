@@ -1,8 +1,8 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence GO DHCPv4 Server Daemon
-Wants=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-firewalld.service
+After=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-firewalld.service
 Before=packetfence-httpd.portal.service
 
 [Service]
@@ -15,6 +15,9 @@ EnvironmentFile=-/usr/local/pf/conf/pfdhcp.conf
 ExecStart=/usr/local/pf/sbin/pfdhcp
 Restart=on-failure
 Slice=packetfence.slice
+# Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_pfdhcp_rules("remove")'
 
 [Install]
 WantedBy=packetfence.target

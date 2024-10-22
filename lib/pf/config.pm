@@ -185,6 +185,8 @@ our (
     %ConfigAuthenticationEdir,
 # MFA
     %ConfigMfa,
+# Firewalld
+    %ConfigFirewalld,
 );
 
 BEGIN {
@@ -256,6 +258,7 @@ BEGIN {
         %ConfigEAP
         %ConfigAuthenticationEdir
         %ConfigMfa
+        %ConfigFirewalld
     );
 }
 
@@ -348,6 +351,8 @@ tie %ConfigAuthenticationEdir, 'pfconfig::cached_hash', 'resource::authenticatio
 
 tie %ConfigMfa, 'pfconfig::cached_hash', 'config::Mfa';
 
+tie %ConfigFirewalld, 'pfconfig::cached_hash', 'resource::all_firewalld';
+
 $thread = 0;
 
 my $logger = get_logger();
@@ -397,8 +402,8 @@ Readonly::Scalar our $IPTABLES_MARK_UNREG => "3";
 
 %mark_type = (
     'Reg'   => $IPTABLES_MARK_REG,
-    'Isol' => $IPTABLES_MARK_ISOLATION,
-    'Unreg'          => $IPTABLES_MARK_UNREG,
+    'Isol'  => $IPTABLES_MARK_ISOLATION,
+    'Unreg' => $IPTABLES_MARK_UNREG,
 );
 
 # Their string equivalent for database storage

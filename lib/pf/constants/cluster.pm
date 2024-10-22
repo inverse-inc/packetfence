@@ -26,14 +26,21 @@ use pf::file_paths qw(
     $radius_server_cert
     $radius_ca_cert
     $conf_dir
-    $iptable_config_file
-    $iptable_input_config_file
-    $iptable_input_management_config_file
-    $ip6table_config_file
-    $ip6table_input_management_config_file
     $local_secret_file
     $unified_api_system_pass_file
     $network_behavior_policy_config_file
+    $firewalld_config_path_default
+    $firewalld_config_path_default_template
+    $firewalld_config_path_generated
+    $firewalld_config_path_applied
+    $firewalld_config_config_file $firewalld_config_config_defaults_file    
+    $firewalld_services_config_file $firewalld_services_config_defaults_file
+    $firewalld_zones_config_file $firewalld_zones_config_defaults_file
+    $firewalld_policies_config_file $firewalld_policies_config_defaults_file
+    $firewalld_ipsets_config_file $firewalld_ipsets_config_defaults_file
+    $firewalld_icmptypes_config_file $firewalld_icmptypes_config_defaults_file
+    $firewalld_helpers_config_file $firewalld_helpers_config_defaults_file
+    $firewalld_lockdown_whitelist_config_file $firewalld_lockdown_whitelist_config_defaults_file
 );
 
 our @EXPORT_OK = qw(@FILES_TO_SYNC);
@@ -49,13 +56,28 @@ our @FILES_TO_SYNC = (
     $unified_api_system_pass_file,
     $network_behavior_policy_config_file,
     $pfconfig::constants::CONFIG_FILE_PATH,
-    $iptable_config_file,
-    $iptable_input_config_file,
-    $iptable_input_management_config_file,
-    $ip6table_config_file,
-    $ip6table_input_management_config_file,
     $fingerbank::FilePath::CONF_FILE, 
-    $fingerbank::FilePath::LOCAL_DB_FILE
+    $fingerbank::FilePath::LOCAL_DB_FILE,
+    $firewalld_config_path_default,
+    $firewalld_config_path_default_template,
+    $firewalld_config_path_generated,
+    $firewalld_config_path_applied,
+    $firewalld_config_config_file,
+    $firewalld_config_config_defaults_file,
+    $firewalld_services_config_file,
+    $firewalld_services_config_defaults_file,
+    $firewalld_zones_config_file,
+    $firewalld_zones_config_defaults_file,
+    $firewalld_policies_config_file,
+    $firewalld_policies_config_defaults_file,
+    $firewalld_ipsets_config_file,
+    $firewalld_ipsets_config_defaults_file,
+    $firewalld_icmptypes_config_file,
+    $firewalld_icmptypes_config_defaults_file,
+    $firewalld_helpers_config_file,
+    $firewalld_helpers_config_defaults_file,
+    $firewalld_lockdown_whitelist_config_file,
+    $firewalld_lockdown_whitelist_config_defaults_file
 );
 
 =head1 AUTHOR

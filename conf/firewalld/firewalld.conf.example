@@ -1,0 +1,12 @@
+[config]
+#DefaultZone=eth0
+#CleanupOnExit=yes
+##CleanupModulesOnExit=yes
+#Lockdown=no
+#IPv6_rpfilter=yes
+#IndividualCalls=no
+#LogDenied=off
+#FirewallBackend=nftables
+#FlushAllOnReload=yes
+#RFC3964_IPv4=yes
+#AllowZoneDrifting=no

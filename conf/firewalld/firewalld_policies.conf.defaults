@@ -1,0 +1,36 @@
+# Copyright (C) Inverse inc.
+[allow-host-ipv6]
+short=Allow host IPv6
+description=Allows basic IPv6 functionality for the host running firewalld.
+ingress_zones=allow-host-ipv6.ingress_zone1
+egress_zones=allow-host-ipv6.egress_zone1
+match_rules=allow-host-ipv6_rule1,allow-host-ipv6_rule2,allow-host-ipv6_rule3,allow-host-ipv6_rule4
+target=continue
+priority=-15000
+
+[allow-host-ipv6.ingress_zone1]
+name=ANY
+
+[allow-host-ipv6.egress_zone1]
+name=HOST
+
+[allow-host-ipv6_rule1]
+name=icmp_type
+family=ipv6
+icmp_type=neighbour-advertisement
+
+[allow-host-ipv6_rule2]
+name=icmp_type
+family=ipv6
+icmp_type=neighbour-solicitation
+
+[allow-host-ipv6_rule3]
+name=icmp_type
+family=ipv6
+icmp_type=router-advertisement
+
+[allow-host-ipv6_rule4]
+name=icmp_type
+family=ipv6
+icmp_type=redirect
+

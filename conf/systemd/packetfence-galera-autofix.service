@@ -11,6 +11,9 @@ Slice=packetfence-base.slice
 User=root
 # Prevents systemd on giving up on the restart of this service
 StartLimitInterval=0
+#Firewalld
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("add")' || true
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::firewalld::fd_galera_autofix_rules("remove")' || true
 
 [Install]
 WantedBy=packetfence-base.target

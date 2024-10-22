@@ -23,10 +23,10 @@ testcases:
     assertions:
     - result.statuscode ShouldEqual 200
 
-- name: drop_wan_traffic_in_iptables
+- name: drop_wan_traffic_in_firewalld
   steps:
-  - type: exec
-    script: systemctl stop packetfence-iptables
+  - type: systemctl_service_stop
+    service: packetfence-firewalld
 
   - type: exec
     script: iptables -A OUTPUT -d 8.8.8.8/32 -j ACCEPT
@@ -58,8 +58,8 @@ testcases:
 
 - name: restart_collector_and_clear_cache
   steps:
-  - type: exec
-    script: systemctl restart packetfence-fingerbank-collector
+  - type: systemctl_service_restart
+    service: packetfence-fingerbank-collector
 
   - type: exec
     script: /usr/local/pf/bin/pfcmd cache fingerbank clear

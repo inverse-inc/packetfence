@@ -584,7 +584,7 @@ sub fix_files_permissions {
 }
 
 sub parse_template {
-    my ( $tags, $template, $destination, $comment_char ) = @_;
+    my ( $tags, $template, $destination, $start_comment_char, $end_comment_char ) = @_;
     my $logger = get_logger();
     my (@parsed);
     my $template_fh;
@@ -598,10 +598,11 @@ sub parse_template {
     }
 
     # add generated file header (inserting in front of array)
-    $comment_char = "#" if (!defined($comment_char));
+    $start_comment_char = "#" if (!defined($start_comment_char));
+    $end_comment_char   = ""  if (!defined($end_comment_char));
     unshift @parsed,
-        "$comment_char This file is generated from a template at $template\n"
-        ."$comment_char Any changes made to this file will be lost on restart\n\n";
+        "$start_comment_char This file is generated from a template at $template $end_comment_char\n"
+        ."$start_comment_char Any changes made to this file will be lost on restart $end_comment_char\n\n";
 
     if ($destination) {
         if ($destination =~ /(.*)\/\w+/) {
