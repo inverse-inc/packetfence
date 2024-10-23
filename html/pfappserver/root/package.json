@@ -23,7 +23,7 @@
     "mime-types": "^2.1.35",
     "mixpanel-browser": "^2.50.0",
     "papaparse": "5.4.1",
-    "pinia": "^2.1.7",
+    "pinia": "^2.2.2",
     "plotly.js-locales": "^2.32.0",
     "plotly.js-dist-min": "^2.32.0",
     "promised-debounce": "^0.4.2",
