@@ -10,7 +10,7 @@
   "license": "GPL-2.0",
   "dependencies": {
     "dgram": "^1.0.1",
-    "express": "^4.20.0",
+    "express": "^4.21.1",
     "node-persist": "^3.1.0",
     "radius": "^1.1.4"
   }
