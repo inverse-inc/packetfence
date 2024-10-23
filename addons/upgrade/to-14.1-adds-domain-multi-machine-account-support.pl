@@ -17,8 +17,6 @@ use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw($domain_config_file);
-use pf::util;
-use Sys::Hostname;
 
 my $ini = pf::IniFiles->new(-file => $domain_config_file, -allowempty => 1);
 
