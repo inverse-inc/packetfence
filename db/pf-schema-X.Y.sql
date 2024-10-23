@@ -79,7 +79,8 @@ CREATE TABLE person (
   `potd` enum('no','yes') NOT NULL DEFAULT 'no',
   `otp` MEDIUMTEXT NULL DEFAULT NULL,
   `sponsored_date` DATETIME DEFAULT NULL,
-  PRIMARY KEY (`pid`)
+  PRIMARY KEY (`pid`),
+  UNIQUE KEY person_psk (`psk`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
