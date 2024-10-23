@@ -1,9 +1,11 @@
 import os
+import signal
 import sys
 from threading import Thread
 
 import config_loader
 import global_vars
+import redis_client
 import t_async_job
 import t_health_checker
 import t_sdnotify
@@ -29,15 +31,14 @@ wsgi_app = 'entrypoint:app'
 bind = f"0.0.0.0:{bind_port}"
 backlog = 2048
 workers = worker_num
-worker_class = 'sync'  # use sync, do not use 'gevent', or 'eventlet' due to block operations.
+worker_class = 'sync'
 timeout = 30
 graceful_timeout = 10
 
-accesslog = '-'  # to stdout
-errorlog = '-'  # to stdout/err
-loglevel = 'info'  # debug info warning error critical
-capture_output = False  # do not forward logs from stdout / err to log files.
-# access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'     # default access log format.
+accesslog = '-'
+errorlog = '-'
+loglevel = 'info'
+capture_output = False
 access_log_format = '%(h)s %(l)s %(u)s %(p)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 
 keepalive = 2
@@ -45,14 +46,12 @@ max_requests = 10000
 max_requests_jitter = 50
 
 daemon = False
-# pidfile = '/tmp/gunicorn.pid'
 
 limit_request_line = 4094
 limit_request_fields = 100
 limit_request_field_size = 8190
 
-# preload_app = True
-reload = True  # reload apps when the source code changes, For debugging purpose only.
+reload = False
 
 
 def on_exit(server):
@@ -72,6 +71,10 @@ def worker_exit(server, worker):
 def post_fork(server, worker):
     worker.log.info(f"post fork hook: worker spawned with PID of {worker.pid} by master {server.pid}")
     global_vars.s_worker = worker
+
+    if not redis_client.init_connection():
+        worker.log.error("unable to initialize redis connection, worker failed to start")
+        os.kill(server.pid, signal.SIGTERM)
 
     background_jobs = (
         Thread(target=t_worker_register.primary_worker_register, daemon=True, args=(worker,)),

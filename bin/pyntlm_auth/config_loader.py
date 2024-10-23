@@ -161,19 +161,6 @@ def config_load():
         print(f"  Error loading config from domain.conf: {e}. Terminated.")
         sys.exit(1)
 
-    conf_db = f"/usr/local/pf/var/conf/ntlm-auth-api.d/db.ini"
-    cp_db = ConfigParser(interpolation=None)
-    print(f"Load database config from {conf_db}")
-    try:
-        with open(conf_db, 'r') as file:
-            cp_db.read_file(file)
-        if 'DB' not in cp_db:
-            print(f"  Section [DB] not found, ntlm-auth-api starts without NT Key caching capability.")
-    except FileNotFoundError:
-        print(f"  {conf_db} not found, ntlm-auth-api@{identifier} starts without NT Key caching capability.")
-    except configparser.Error as e:
-        print(f"  Error loading {conf_db}: {e}, ntlm-auth-api@{identifier} starts without NT Key caching capability.")
-
     server_name_raw = cp_dm.get(identifier, 'server_name')
 
     additional_machine_accounts = 0
@@ -212,6 +199,40 @@ def config_load():
     ad_account_lockout_duration = cp_dm.get(identifier, 'ad_account_lockout_duration', fallback=0)
     ad_reset_account_lockout_count_after = cp_dm.get(identifier, 'ad_reset_account_lockout_counter_after', fallback=0)
     ad_old_password_allowed_period = cp_dm.get(identifier, 'ad_old_password_allowed_period', fallback=60)
+
+    conf_db = f"/usr/local/pf/var/conf/ntlm-auth-api.d/db.ini"
+    cp_db = ConfigParser(interpolation=None)
+    print(f"Load database config from {conf_db}")
+    try:
+        with open(conf_db, 'r') as file:
+            cp_db.read_file(file)
+    except FileNotFoundError:
+        print(f"  {conf_db} not found, ntlm-auth-api@{identifier} terminated.")
+        sys.exit(1)
+    except configparser.Error as e:
+        print(f"  Error loading {conf_db}: {e}, ntlm-auth-api@{identifier} terminated.")
+        sys.exit(1)
+
+    if 'CACHE' not in cp_db:
+        print(f"  section [CACHE] not found, ntlm-auth-api@{identifier} terminated.")
+        sys.exit(1)
+
+    c_cache_host = cp_db.get('CACHE', 'CACHE_HOST', fallback=None)
+    c_cache_port = cp_db.get('CACHE', 'CACHE_PORT', fallback=None)
+    if c_cache_host is None or c_cache_port is None:
+        print(f"  unable to load 'CACHE_HOST', 'CACHE_PORT' from config, ntlm-auth-api@{identifier} terminated.")
+        sys.exit(1)
+
+    if c_cache_port.isdigit() and 0 < int(c_cache_port) < 65536:
+        c_cache_port = int(c_cache_port)
+    else:
+        print(f"  unable to parse CACHE_PORT, value must be a valid port within 1..65535.")
+        sys.exit(1)
+
+    print(f"  redis://{c_cache_host}:{c_cache_port}")
+
+    if 'DB' not in cp_db:
+        print(f"  Section [DB] not found, ntlm-auth-api starts without NT Key caching capability.")
 
     c_db_host = cp_db.get('DB', "DB_HOST", fallback=None)
     c_db_port = cp_db.get('DB', "DB_PORT", fallback=None)
@@ -382,6 +403,9 @@ def config_load():
     global_vars.c_db_pass = c_db_pass
     global_vars.c_db = c_db
     global_vars.c_db_unix_socket = c_db_unix_socket
+
+    global_vars.c_cache_host = c_cache_host
+    global_vars.c_cache_port = c_cache_port
 
     global_vars.s_computer_account_base = username
 

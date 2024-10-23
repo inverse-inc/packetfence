@@ -56,6 +56,10 @@ c_db_pass = None
 c_db = None
 c_db_unix_socket = None
 
+# config for domain.conf - redis cache
+c_cache_host = None
+c_cache_port = None
+
 # config for domain.conf - nt key cache
 c_nt_key_cache_enabled = None
 c_nt_key_cache_expire = None
