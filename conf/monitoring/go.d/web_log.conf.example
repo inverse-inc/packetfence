@@ -1,4 +1,5 @@
 # https://github.com/netdata/go.d.plugin/blob/master/modules/weblog/integrations/web_server_log_files.md#options
+# format options: https://github.com/netdata/go.d.plugin/blob/master/modules/weblog/integrations/web_server_log_files.md#options
 
 jobs:
   - name: httpd.aaa
@@ -32,6 +33,14 @@ jobs:
     log_type: csv
     csv_config:
       format: '- - - $remote_addr - - [- -] "$request" $status $bytes_sent $request_length $request_time - - "$host"'
+
+  - name: ntlm-auth-api
+    path: /usr/local/pf/logs/ntlm-auth-api.log
+    filter:
+      include: ntlm-auth-api-docker-wrapper
+    log_type: csv
+    csv_config:
+      format: '- - - - - "$request" $status - - -'
 
   # - name: httpd.dispatcher
   #   path: /usr/local/pf/logs/httpd.apache
