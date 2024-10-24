@@ -15,7 +15,7 @@ apt-install-depends() {
         | sed -n \
           -e "/^Inst $pkg /d" \
           -e 's/^Inst \([^ ]\+\) .*$/\1/p' \
-        | xargs apt-get install -y
+        | xargs apt-get -qq --no-install-recommends install -y
 }
 
 declare -p PKGS_TO_EXCLUDE

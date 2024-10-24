@@ -4,7 +4,7 @@
 export PF_VERSION=$(egrep -o '[0-9]+\.[0-9]+' $CI_PROJECT_DIR/conf/pf-release)
 
 # only used for pfdebian build
-export PKGS_TO_EXCLUDE="packetfence|freeradius"
+export PKGS_TO_EXCLUDE="packetfence|freeradius|container.io|docker-ce|docker-ce-cli|docker-ce-rootless-extras|gcc"
 
 # variables to pass during build
 DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY BUILD_PFAPPSERVER_VUE PKGS_TO_EXCLUDE'
