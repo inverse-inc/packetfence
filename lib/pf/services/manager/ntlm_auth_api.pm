@@ -63,6 +63,10 @@ sub generateConfig {
     pf_run("sudo echo 'DB=$db' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
     pf_run("sudo echo 'DB_UNIX_SOCKET=$db_unix_socket' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
 
+    pf_run("sudo echo '[CACHE]' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'CACHE_HOST=containers-gateway.internal' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    pf_run("sudo echo 'CACHE_PORT=6379' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+
     my $host_id = hostname();
     for my $identifier (keys(%ConfigDomain)) {
         my %conf = %{$ConfigDomain{$identifier}};

@@ -25,6 +25,7 @@ export {
   BaseFormGroupInput                  as FormGroupOu,
   BaseFormGroupInputPassword          as FormGroupMachineAccountPasswordOnly,
   BaseFormGroupInputTest              as FormGroupMachineAccountPassword,
+  BaseFormGroupInput                  as FormGroupAdditionalMachineAccounts,
   BaseFormGroupInput                  as FormGroupBindDn,
   BaseFormGroupInputPassword          as FormGroupBindPass,
   BaseFormGroupSwitch                 as FormGroupNtlmv2Only,

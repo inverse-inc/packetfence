@@ -2,12 +2,103 @@ import configparser
 import os
 import socket
 import sys
+import threading
 import time
 from configparser import ConfigParser
 
+import psutil
+import redis
+
 import config_generator
 import global_vars
+import redis_client
 import utils
+
+
+def expand_machine_account_list():
+    r = [global_vars.s_computer_account_base]
+
+    m = global_vars.s_computer_account_base.replace("$", "")
+    for i in range(global_vars.c_additional_machine_accounts):
+        r.append(f"{m}-{i}$")
+
+    return r
+
+
+def cleanup_machine_account_binding():
+    machine_accounts = expand_machine_account_list()
+
+    for m in machine_accounts:
+        key = f"{redis_client.namespace}:machine-account-bind:{m}"
+
+        try:
+            res = redis_client.r.get(key)
+        except UnicodeDecodeError:
+            print(f"can not decode retrieved value of key: {key}. Check the value and remove the key manually.")
+            continue
+        except redis.ConnectionError:
+            print("redis connection error when trying to bind machine account.")
+            continue
+        except Exception as e:
+            print(f"unexpected error when trying to bind machine account: {type(e)}: {str(e)}")
+            continue
+
+        if res is None:
+            continue
+
+        if not (isinstance(res, str) and res.isdigit()):
+            print(f"value of key {key} is not a valid PID. Check the value and remove the key manually.")
+            continue
+
+        bind_pid = int(res)
+
+        if not psutil.pid_exists(bind_pid):
+            print(f"PID {bind_pid} is already died. Cleaning up.")
+            try:
+                redis_client.r.delete(key)
+            except Exception as e:
+                print(f"error occurred when trying to clean up machine account binding: key: {key}, err: {str(e)}")
+
+            continue
+
+        cleanup_flag = False
+        try:
+            process = psutil.Process(bind_pid)
+            process_name = process.name()
+            if process_name != "gunicorn":
+                cleanup_flag = True
+                print(f"process {bind_pid} is not a gunicorn managed process. A clean up will be performed.")
+        except psutil.NoSuchProcess:
+            print(f"no such process with PID: {bind_pid}, maybe it died right before we check it. Removing binding.")
+            cleanup_flag = True
+        except psutil.AccessDenied:
+            print(f"unable to access process with PID: {bind_pid}, this shouldn't happen. Cleaning up anyway.")
+            cleanup_flag = True
+        except Exception as e:
+            print(f"error occurred when trying to read process info: pid: {bind_pid}, {str(e)}")
+            continue
+
+        if cleanup_flag:
+            try:
+                redis_client.r.delete(key)
+            except Exception as e:
+                print(f"error occurred when trying to clean up machine account binding: key: {key}, err: {str(e)}")
+
+
+def bind_machine_account(worker_pid):
+    machine_accounts = expand_machine_account_list()
+    for m in machine_accounts:
+        try:
+            key = f"{redis_client.namespace}:machine-account-bind:{m}"
+            res = redis_client.r.set(name=key, value=worker_pid, nx=True)
+            if res is True:
+                return m
+        except redis.ConnectionError:
+            print("redis connection error when trying to bind machine account.")
+        except Exception as e:
+            print(f"unexpected error when trying to bind machine account: {str(e)}")
+
+    return None
 
 
 def get_boolean_value(v):
@@ -31,21 +122,26 @@ def get_int_value(v):
     try:
         ret = int(v)
         return ret, None
-    except ValueError as e:
+    except ValueError:
         return None, 'Value error, can not convert specified value to int'
     except Exception as e:
-        return None, 'General error, can not convert specified value to int'
+        return None, f'General error, can not convert specified value to int: {str(e)}'
 
 
 def config_load():
-    global_vars.c_listen_port = os.getenv("LISTEN")
-    global_vars.c_domain_identifier = socket.gethostname() + " " + os.getenv("IDENTIFIER")
+    _LISTEN = os.getenv("LISTEN")
+    if _LISTEN is None or _LISTEN == "":
+        print("parameter LISTEN not found in system environment. unable to start ntlm-auth-api.")
+        sys.exit(1)
+    global_vars.c_listen_port = _LISTEN
 
-    if global_vars.c_domain_identifier == "" or global_vars.c_listen_port == "":
-        print("Unable to start ntlm-auth-api: 'IDENTIFIER' or 'LISTEN' is missing.")
-        exit(1)
+    _IDENTIFIER = os.getenv("IDENTIFIER")
+    if _IDENTIFIER is None or _IDENTIFIER == "":
+        print("parameter IDENTIFIER not found in system environment. unable to start ntlm-auth-api.")
+        sys.exit(1)
+    global_vars.c_domain_identifier = socket.gethostname() + " " + _IDENTIFIER
 
-    print(f"ntlm-auth-api@{global_vars.c_domain_identifier} on port {global_vars.c_listen_port}...")
+    print(f"ntlm-auth-api@{_IDENTIFIER} is starting on port {global_vars.c_listen_port}.")
 
     identifier = global_vars.c_domain_identifier
 
@@ -65,23 +161,23 @@ def config_load():
         print(f"  Error loading config from domain.conf: {e}. Terminated.")
         sys.exit(1)
 
-    conf_db = f"/usr/local/pf/var/conf/ntlm-auth-api.d/db.ini"
-    cp_db = ConfigParser(interpolation=None)
-    print(f"Load database config from {conf_db}")
-    try:
-        with open(conf_db, 'r') as file:
-            cp_db.read_file(file)
-        if 'DB' not in cp_db:
-            print(f"  Section [DB] not found, ntlm-auth-api starts without NT Key caching capability.")
-    except FileNotFoundError:
-        print(f"  {conf_db} not found, ntlm-auth-api@{identifier} starts without NT Key caching capability.")
-    except configparser.Error as e:
-        print(f"  Error loading {conf_db}: {e}, ntlm-auth-api@{identifier} starts without NT Key caching capability.")
-
     server_name_raw = cp_dm.get(identifier, 'server_name')
+
+    additional_machine_accounts = 0
+    try:
+        additional_machine_accounts = cp_dm.get(identifier, 'additional_machine_accounts')
+        additional_machine_accounts = int(additional_machine_accounts)
+    except Exception as e:
+        print(f"  failed loading additional_machine_accounts: {str(e)}. using 0 as default.")
+
+    if additional_machine_accounts < 0 or additional_machine_accounts > 10:
+        additional_machine_accounts = 0
+        print(f"  invalid additional machine account range, using 0 as default.")
+
     server_name_or_hostname = server_name_raw
-    if server_name_raw.strip() == "%h":
-        server_name_or_hostname = socket.gethostname().split(".")[0]
+    if "%h" in server_name_or_hostname.strip():
+        ph = socket.gethostname().split(".")[0]
+        server_name_or_hostname = server_name_or_hostname.replace("%h", ph)
 
     ad_fqdn = cp_dm.get(identifier, 'ad_fqdn')
     ad_server = cp_dm.get(identifier, 'ad_server')
@@ -103,6 +199,40 @@ def config_load():
     ad_account_lockout_duration = cp_dm.get(identifier, 'ad_account_lockout_duration', fallback=0)
     ad_reset_account_lockout_count_after = cp_dm.get(identifier, 'ad_reset_account_lockout_counter_after', fallback=0)
     ad_old_password_allowed_period = cp_dm.get(identifier, 'ad_old_password_allowed_period', fallback=60)
+
+    conf_db = f"/usr/local/pf/var/conf/ntlm-auth-api.d/db.ini"
+    cp_db = ConfigParser(interpolation=None)
+    print(f"Load database config from {conf_db}")
+    try:
+        with open(conf_db, 'r') as file:
+            cp_db.read_file(file)
+    except FileNotFoundError:
+        print(f"  {conf_db} not found, ntlm-auth-api@{identifier} terminated.")
+        sys.exit(1)
+    except configparser.Error as e:
+        print(f"  Error loading {conf_db}: {e}, ntlm-auth-api@{identifier} terminated.")
+        sys.exit(1)
+
+    if 'CACHE' not in cp_db:
+        print(f"  section [CACHE] not found, ntlm-auth-api@{identifier} terminated.")
+        sys.exit(1)
+
+    c_cache_host = cp_db.get('CACHE', 'CACHE_HOST', fallback=None)
+    c_cache_port = cp_db.get('CACHE', 'CACHE_PORT', fallback=None)
+    if c_cache_host is None or c_cache_port is None:
+        print(f"  unable to load 'CACHE_HOST', 'CACHE_PORT' from config, ntlm-auth-api@{identifier} terminated.")
+        sys.exit(1)
+
+    if c_cache_port.isdigit() and 0 < int(c_cache_port) < 65536:
+        c_cache_port = int(c_cache_port)
+    else:
+        print(f"  unable to parse CACHE_PORT, value must be a valid port within 1..65535.")
+        sys.exit(1)
+
+    print(f"  redis://{c_cache_host}:{c_cache_port}")
+
+    if 'DB' not in cp_db:
+        print(f"  Section [DB] not found, ntlm-auth-api starts without NT Key caching capability.")
 
     c_db_host = cp_db.get('DB', "DB_HOST", fallback=None)
     c_db_port = cp_db.get('DB', "DB_PORT", fallback=None)
@@ -251,6 +381,7 @@ def config_load():
     global_vars.c_workgroup = workgroup
     global_vars.c_username = username
     global_vars.c_password = password
+    global_vars.c_additional_machine_accounts = additional_machine_accounts
     global_vars.c_netbios_name = netbios_name
     global_vars.c_workstation = workstation
     global_vars.c_server_string = server_string
@@ -272,3 +403,20 @@ def config_load():
     global_vars.c_db_pass = c_db_pass
     global_vars.c_db = c_db
     global_vars.c_db_unix_socket = c_db_unix_socket
+
+    global_vars.c_cache_host = c_cache_host
+    global_vars.c_cache_port = c_cache_port
+
+    global_vars.s_computer_account_base = username
+
+
+def reload_worker_config():
+    global_vars.s_lock = threading.Lock()
+    computer_account = global_vars.s_bind_account.replace("$", "")
+
+    global_vars.c_username = computer_account.upper() + "$"
+    global_vars.c_netbios_name = computer_account.upper()
+    global_vars.c_workstation = computer_account.upper()
+    global_vars.c_server_string = computer_account
+
+    global_vars.s_password_ro = global_vars.c_password

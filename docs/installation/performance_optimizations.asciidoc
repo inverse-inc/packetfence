@@ -18,6 +18,85 @@ endif::[]
 
 //== Performance Optimizations
 
+
+=== Multi Machine Account Support ===
+
+Starting from PacketFence 14.1, we brought new feature to ntlm-auth-api that allows the backend API to be able to process NTLM
+requests in a multi-processes model.
+Previously, only one machine account will be created and new NTLM auth request has to wait until the previous one was done.
+The single thread model can slow down the performance in some extreme heavy loaded scenarios: e.g., a huge enterprise with
+a giant windows AD database and devices.
+
+Now we are able to create multiple machine accounts and register each machine account with a dedicate process when NTLM auth API
+starts.
+
+To enable this feature, you'll have to set the `additional_machine_accounts` to a non-zero value, and corresponding machine
+account will be created based on the previous machine account name.
+
+The name pattern of additional machine account is: "base_machine_account_name"-N, N will be 0..9
+E.g., the machine account you created before was NODE-PF, and the additional machine accounts is set to 2,
+then 2 additional accounts will be created on Windows AD with the names of `NODE-PF-0` and `NODE-PF-1`.
+
+NOTE: There's a hard limitation of how many characters can we use for a machine account name. On windows system, the
+limit is 14, if you want to enable this feature, you'll have to make sure the machine account name has a length less than
+12. So PacketFence can create additional accounts with a "-N" suffix.
+
+
+==== How does this work ====
+PacketFence will re-generate the config file load the configuration file, determine how many sub-processes will be needed
+to use all those machine accounts, then gunicorn master process will launch the X sub processes to handle the requests.
+each of the sub process will take a dedicate machine account to perform the authentication.
+
+==== Limitations ====
+
+1. You can not create more than 10 additional machine accounts for each domain.
+2. The machine account name can not exceed 12 chars if you want to enable `additional_machine_accounts`.
+3. If you use %h as machine account name, the parsed value of %h also need to be less than 12 to enable additional machine accounts.
+
+==== Benchmarks and suggested settings ====
+We did a benchmark on this feature, here's some results for reference:
+All the tests are done on VMs by ESXi 7.0 hosted on a SuperMicro server with 1 CPU of Intel D2123-IT (4C8T @2.2G), 128 G DDR4 RDIMM.
+
+we are testing this using ab (apache benchmark) to directly test against NTLM auth API with:
+
+1. 2 additional machine accounts is added (total 3)
+2. The PacketFence is hosted on a 4 vCPU 32 Gig VM on ESXi.
+3. The Windows AD is hosted on a 2 vCPU 8 Gig VM on ESXi in the same local network with PacketFence.
+
+```
+ab -n 20000 -c 1 -p ~/eapol_test/payload.admin-akam.json -T 'application/json'  http://127.0.0.1:5002/ntlm/auth
+
+Requests per second:    448.22 [#/sec] (mean)
+Time per request:       2.231 [ms] (mean)
+Time per request:       2.231 [ms] (mean, across all concurrent requests)
+
+
+ab -n 20000 -c 2 -p ~/eapol_test/payload.admin-akam.json -T 'application/json'  http://127.0.0.1:5002/ntlm/auth
+
+Requests per second:    721.03 [#/sec] (mean)
+Time per request:       2.774 [ms] (mean)
+Time per request:       1.387 [ms] (mean, across all concurrent requests)
+
+
+ab -n 20000 -c 3 -p ~/eapol_test/payload.admin-akam.json -T 'application/json'  http://127.0.0.1:5002/ntlm/auth
+
+Requests per second:    932.21 [#/sec] (mean)
+Time per request:       3.218 [ms] (mean)
+Time per request:       1.073 [ms] (mean, across all concurrent requests)
+
+```
+
+Based on the test results, with a single machine account created on Windows AD, the backend API is possible to handle around
+400 requests/s, with 3 machine accounts, the capacity will raise up to around 1000 req/s, which is a quite busy and
+heavy-load case.
+
+We suggest creating no more than 5 additional machine accounts (6 total) to maximize the performance as well as keeping
+the Windows Event log clean and easy for debugging.
+
+For low worker loads cases, 1 additional machine account is recommended - just to avoid jitter when the master process terminates
+the old process after 10k requests and re-spawn a new one.
+
+
 === NT Key Caching ===
 
 NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Authentication Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure these two components.

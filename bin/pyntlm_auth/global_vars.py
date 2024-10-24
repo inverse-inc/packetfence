@@ -1,5 +1,4 @@
 import datetime
-import threading
 
 _global_dict = {}
 
@@ -27,7 +26,12 @@ s_connection_id = 1
 s_reconnect_id = 0
 s_connection_last_active_time = datetime.datetime.now()
 
-s_lock = threading.Lock()
+s_lock = None
+
+s_worker = None  # gunicorn worker object.
+s_bind_account = None  # machine account bind to specific worker
+s_computer_account_base = None
+s_password_ro = None  # machine account password loaded from config file
 
 # config for domain.conf - AD
 c_netbios_name = None
@@ -36,6 +40,7 @@ c_server_string = None
 c_workgroup = None
 c_workstation = None
 c_password = None
+c_additional_machine_accounts = None
 c_domain = None
 c_username = None
 c_server_name = None
@@ -51,14 +56,17 @@ c_db_pass = None
 c_db = None
 c_db_unix_socket = None
 
+# config for domain.conf - redis cache
+c_cache_host = None
+c_cache_port = None
+
 # config for domain.conf - nt key cache
 c_nt_key_cache_enabled = None
 c_nt_key_cache_expire = None
 
-c_ad_account_lockout_threshold = 0                  # 0..999. Default=0, never locks
-c_ad_account_lockout_duration = None                # Default not set
-c_ad_reset_account_lockout_counter_after = None     # Default not set
-c_ad_old_password_allowed_period = None             # Windows 2003+, Default not set, if not set, 60
+c_ad_account_lockout_threshold = 0  # 0..999. Default=0, never locks
+c_ad_account_lockout_duration = None  # Default not set
+c_ad_reset_account_lockout_counter_after = None  # Default not set
+c_ad_old_password_allowed_period = None  # Windows 2003+, Default not set, if not set, 60
 
 c_max_allowed_password_attempts_per_device = None
-
