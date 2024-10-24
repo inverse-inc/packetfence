@@ -146,7 +146,7 @@ if($master_server){
             open(my $fh, '>', $file);
             print $fh $result;
             close($fh);
-            `chown pf.pf $file`;
+            `chown pf:pf $file`;
         };
         if($@){
             get_logger->error("Failed to sync file : $file . $@");
