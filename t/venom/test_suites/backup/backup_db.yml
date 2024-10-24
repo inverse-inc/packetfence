@@ -3,4 +3,4 @@ testcases:
 - name: backup
   steps:
   - type: exec
-    script: /usr/local/pf/addons/backup-and-maintenance.sh
+    script: /usr/local/pf/addons/exportable-backup.sh

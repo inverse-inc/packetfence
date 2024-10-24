@@ -45,11 +45,6 @@ function import_mysqldump() {
   # We reimport the schema so that we have the functions and triggers if the dump doesn't contain the triggers
   if ! egrep "CREATE.*TRIGGER.*(AFTER|BEFORE)" $dump_file > /dev/null; then
     echo "Dump file was made without triggers and procedures"
-    # Detect minor version of the restored data
-    restoring_version=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+'`
-    echo "Importing bare schema for $restoring_version"
-    mysql ${mariadb_args} $db_name < /usr/local/pf/db/pf-schema-$restoring_version.sql
-    check_code $?
 
     sub_splitter
     echo "Replacing CREATE TABLE and DROP TABLE statements"
@@ -65,14 +60,6 @@ function import_mysqldump() {
     sed -i 's/DELETE IGNORE FROM `action`;//g' $dump_file
     sed -i 's/DELETE IGNORE FROM `activation`;//g' $dump_file
 
-    # We need to drop the data from all the tables that contain data in our bare schema
-    # This is because the mysqldump import already contains this data
-    mysql ${mariadb_args} $db_name -e 'delete ignore from node_category;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from password;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from person;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from pf_version;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from radreply;'
-    mysql ${mariadb_args} $db_name -e 'delete ignore from sms_carrier;'
   else
     echo "Dump file includes triggers and procedures"
   fi
@@ -256,4 +243,14 @@ function uninstall_current_mariabackup() {
     else
 	yum remove -q -y MariaDB-backup
   fi
+}
+
+function handle_devel_db_schema() {
+    local restoring_version=$1
+    if [ ! -f /usr/local/pf/db/pf-schema-$restoring_version.sql ]; then
+      main_splitter
+      echo "The db schema for $restoring_version does not exist in /usr/local/pf/db/. pf-schema-X.Y.sql will be used."
+      sub_splitter
+      cp /usr/local/pf/db/pf-schema-X.Y.sql /usr/local/pf/db/pf-schema-$restoring_version.sql
+    fi
 }

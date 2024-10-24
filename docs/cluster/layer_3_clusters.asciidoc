@@ -416,7 +416,7 @@ First restart packetfence-mariadb on all of the servers in the main cluster.
 
  systemctl restart packetfence-mariadb
 
-Run the /usr/local/pf/addons/backup-and-maintenance.sh script on the master node of the main cluster. If you do not know which server is the master run this command on all nodes in the main cluster and only the master will create a backup file (eg: /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz).
+Run the /usr/local/pf/addons/exportable-backup.sh script on the master node of the main cluster. If you do not know which server is the master run this command on all nodes in the main cluster and only the master will create a backup file (eg: /root/backup/packetfence-exportable-backup-YYYY-MM-DD_HHhss.tgz).
 Transfer this file to the remote server (eg: /root/backup/)
 
 Connect to the remote server and perform the following to sync the configuration from the master cluster:
@@ -425,18 +425,8 @@ Connect to the remote server and perform the following to sync the configuration
  /usr/local/pf/bin/pfcmd configreload hard
 
 Then the following command to import the backup:
-
- mkdir /root/backup/restore
- cd /root/backup/restore
- cp ../packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz .
- gunzip packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz
- mbstream -x < packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream
- mv packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream ../
- mariabackup --prepare --target-dir=./
- systemctl stop packetfence-mariadb
- rm -fr /var/lib/mysql/*
- mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf      --move-back --force-non-empty-directories ./
- chown -R mysql: /var/lib/mysql
+ 
+ /usr/local/pf/addons/full-import/import.sh --db -f /root/backup/packetfence-exportable-backup-YYYY-MM-DD_HHhss.tgz
  systemctl start packetfence-mariadb
 
 On the master node of the main cluster, grant replication for the replication user:

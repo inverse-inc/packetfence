@@ -93,14 +93,7 @@ configuration in your export, run:
 
 [source,bash]
 ----
-/usr/local/pf/addons/backup-and-maintenance.sh
-----
-
-Next, run the export script:
-
-[source,bash]
-----
-/usr/local/pf/addons/full-import/export.sh /tmp/export.tgz
+/usr/local/pf/addons/exportable-backup.sh -f /tmp/export.tgz
 ----
 
 The command above will create your export archive in [filename]`/tmp/export.tgz`. You will
