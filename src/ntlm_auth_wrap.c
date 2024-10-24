@@ -45,6 +45,13 @@ The process is meant to be very short lived and never reused. */
 const char *argp_program_version = "ntlm_auth_wrapper 1.0";
 const char *argp_program_bug_address = "<info@inverse.ca>";
 
+const int exit_code_no_error = 0;
+const int exit_code_general_error = 1;
+const int exit_code_network_error = 2;
+const int exit_code_auth_failed = 3;
+const int exit_code_api_error = 4;
+const int exit_code_invalid_input = 5;
+
 
 /* Program documentation. */
 static char doc[] =
@@ -334,19 +341,23 @@ char **argv, **envp;
 
     // keep the same values we used before, so SIGTERM = timeout, other non-zero values = auth error
     int status = 0;
+    int exit_code = exit_code_no_error;
 
-    if (strcmp(arguments.api_host, "") ==0 || strcmp(arguments.api_port, "0") == 0) {
+    if (strcmp(arguments.api_host, "") == 0 || strcmp(arguments.api_port, "0") == 0) {
         fprintf(stderr, "Error: missing NTLM auth API host or port settings.\n");
         fprintf(stderr, "This could happen if you previously manually joined this server to Windows AD.\n");
         fprintf(stderr, "If this is the case, you need to go to the admin UI, re-create the domain configuration.\n");
-        exit(1);
+
+        exit(exit_code_invalid_input);
     }
 
     cJSON *json = cJSON_CreateObject();
     if (json == NULL) {
         fprintf(stderr, "Error: could not create JSON object. Exiting.");
-        exit(1);
+
+        exit(exit_code_general_error);
     }
+
     for (int i = 1; i < argc; i++) {
         if (strncmp(argv[i], "--username=", strlen("--username=")) == 0) {
             cJSON_AddStringToObject(json, "username", argv[i] + strlen("--username="));
@@ -393,23 +404,38 @@ char **argv, **envp;
 
         cURLCode = curl_easy_perform(curl);
         free(uri);
+
         if (cURLCode == CURLE_OK) {
-            status = 0;
             long http_response_code;
             curl_easy_getinfo(curl, CURLINFO_HTTP_CODE, &http_response_code);
-            if (http_response_code != 200) {
+            if (http_response_code == 200) {
+                status = 0;
+                exit_code = 0;
+            } else {
                 status = http_response_code;  // consider non-200 response as auth failures.
+                exit_code = exit_code_general_error;
+                if (400 <= http_response_code && http_response_code <= 499) {
+                    exit_code = exit_code_auth_failed;
+                }
+                if (500 <= http_response_code && http_response_code <= 599) {
+                    exit_code = exit_code_api_error;
+                }
             }
             printf("%s\n", chunk.memory);
         } else {
-            status = cURLCode;
+            exit_code = exit_code_network_error;
             if (cURLCode==CURLE_OPERATION_TIMEDOUT || cURLCode == CURLE_COULDNT_RESOLVE_HOST || cURLCode == CURLE_COULDNT_CONNECT) {
-                status = SIGTERM; // timeout or any network errors, considered as time-outs
+                status = SIGTERM; // timeout / unreachable dest are considered as "network issues" (previously SIGTERM)
+            } else {
+                status = cURLCode;
             }
             fprintf(stderr, "exec curl failed: %s\n", curl_easy_strerror(cURLCode));
         }
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
+    } else {
+        exit_code = exit_code_general_error;
+        fprintf(stderr, "Unable to initialize curl object.");
     }
     free(chunk.memory);
     free(json_string);
@@ -423,7 +449,5 @@ char **argv, **envp;
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
 
-    if (status != 0) {
-        exit(1);
-    }
+    exit(exit_code);
 }
