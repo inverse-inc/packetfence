@@ -25,7 +25,7 @@ listen stats
   stats uri /stats
   stats realm HAProxy\ Statistics
   stats auth admin:packetfence
-
+	http-request use-service prometheus-exporter if { path /metrics }
 
 defaults
 	log	global

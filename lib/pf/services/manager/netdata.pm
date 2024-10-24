@@ -65,16 +65,16 @@ sub generateConfig {
     my $logger = get_logger();
     my %tags;
 
-    $tags{'members'} = '';
-    $tags{'members_csv'} = '';
+    $tags{'hosts_cluster_members'} = '';
     if ($cluster_enabled) {
         my $int = $management_network->tag('int');
-        $tags{'members'} = join(" ", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
-        $tags{'members_csv'} = join(",", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
+        $tags{'hosts_cluster_members'} = join(",", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
     }
-    $tags{'dns_servers'} = %{pf::UnifiedApi::Controller::Config::System::_get_dns_servers};
-    $tags{'dns_servers_csv'} = join(",", %{pf::UnifiedApi::Controller::Config::System::_get_dns_servers});
+    $tags{'hosts_dns'} = join(",", %{pf::UnifiedApi::Controller::Config::System::_get_dns_servers});
 
+    $tags{'hosts_domains'} = ('127.0.0.1');
+
+    $tags{'hosts_sources'} = '';
     foreach my $source  (@authentication_sources_monitored) {
         my $host = $source->{'host'};
         my @hosts;
@@ -86,14 +86,14 @@ sub generateConfig {
             }
 
         }
-        foreach my $member (@hosts) {
-            $tags{'members'} .= " $member";
+        foreach my $source (@hosts) {
+            $tags{'hosts_sources'} .= " $source";
         }
         if ($source->{'server1_address'}) {
-            $tags{'members'} .= " $source->{'server1_address'}";
+            $tags{'hosts_sources'} .= " $source->{'server1_address'}";
         }
         if ($source->{'server2_address'}) {
-            $tags{'members'} .= " $source->{'server2_address'}";
+            $tags{'hosts_sources'} .= " $source->{'server2_address'}";
         }
         my $type = $source->{'type'};
 
@@ -180,8 +180,6 @@ EOT
 
     parse_template( \%tags, "$conf_dir/monitoring/netdata.conf", "$generated_conf_dir/monitoring/netdata.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/apps_groups.conf", "$generated_conf_dir/monitoring/apps_groups.conf" );
-    # parse_template( \%tags, "$conf_dir/monitoring/charts.d.conf", "$generated_conf_dir/monitoring/charts.d.conf" );
-    # parse_template( \%tags, "$conf_dir/monitoring/charts.d/example.conf", "$generated_conf_dir/monitoring/charts.d/example.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/fping.conf", "$generated_conf_dir/monitoring/fping.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/health.d/apache.conf", "$generated_conf_dir/monitoring/health.d/apache.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/health.d/backend.conf", "$generated_conf_dir/monitoring/health.d/backend.conf" );
@@ -225,7 +223,7 @@ EOT
     # parse_template( \%tags, "$conf_dir/monitoring/health.d/varnish.conf", "$generated_conf_dir/monitoring/health.d/varnish.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/health.d/web_log.conf", "$generated_conf_dir/monitoring/health.d/web_log.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/health.d/zfs.conf", "$generated_conf_dir/monitoring/health.d/zfs.conf" );
-    # parse_template( \%tags, "$conf_dir/monitoring/health.d/statsd.conf", "$generated_conf_dir/monitoring/health.d/statsd.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/health.d/statsd.conf", "$generated_conf_dir/monitoring/health.d/statsd.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/health_alarm_notify.conf", "$generated_conf_dir/monitoring/health_alarm_notify.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/health_email_recipients.conf", "$generated_conf_dir/monitoring/health_email_recipients.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/node.d.conf", "$generated_conf_dir/monitoring/node.d.conf" );
@@ -254,15 +252,17 @@ EOT
     parse_template( \%tags, "$conf_dir/monitoring/go.d.conf", "$generated_conf_dir/monitoring/go.d.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/go.d/apache.conf", "$generated_conf_dir/monitoring/go.d/apache.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/go.d/chrony.conf", "$generated_conf_dir/monitoring/go.d/chrony.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/go.d/docker.conf", "$generated_conf_dir/monitoring/go.d/docker.conf" );
+    # parse_template( \%tags, "$conf_dir/monitoring/go.d/docker_engine.conf", "$generated_conf_dir/monitoring/go.d/docker_engine.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/go.d/dns_query.conf", "$generated_conf_dir/monitoring/go.d/dns_query.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/go.d/freeradius.conf", "$generated_conf_dir/monitoring/go.d/freeradius.conf" );
-    # parse_template( \%tags, "$conf_dir/monitoring/go.d/haproxy.conf", "$generated_conf_dir/monitoring/go.d/haproxy.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/go.d/haproxy.conf", "$generated_conf_dir/monitoring/go.d/haproxy.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/go.d/mysql.conf", "$generated_conf_dir/monitoring/go.d/mysql.conf" );
-    # parse_template( \%tags, "$conf_dir/monitoring/go.d/ping.conf", "$generated_conf_dir/monitoring/go.d/ping.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/go.d/ping.conf", "$generated_conf_dir/monitoring/go.d/ping.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/go.d/proxysql.conf", "$generated_conf_dir/monitoring/go.d/proxysql.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/go.d/redis.conf", "$generated_conf_dir/monitoring/go.d/redis.conf" );
     # parse_template( \%tags, "$conf_dir/monitoring/go.d/systemdunits.conf", "$generated_conf_dir/monitoring/go.d/systemdunits.conf" );
-    # parse_template( \%tags, "$conf_dir/monitoring/go.d/web_log.conf", "$generated_conf_dir/monitoring/go.d/web_log.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/go.d/web_log.conf", "$generated_conf_dir/monitoring/go.d/web_log.conf" );
     return 1;
 }
 
