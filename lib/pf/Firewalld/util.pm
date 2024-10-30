@@ -65,6 +65,8 @@ BEGIN {
     is_ipset_type_available
     is_ipset_available
     is_helper_available
+    fd_fix_file_permissions
+    fd_fix_dir_permissions
   );
 }
 
@@ -749,7 +751,7 @@ sub util_create_config_file {
     ABSOLUTE => 1,
   );
   $tt->process( $file_template, $conf, $file ) or die $tt->error();
-  fix_file_permissions($file);
+  fix_fd_file_permissions($file);
 }
 
 # Services Functions
@@ -967,6 +969,17 @@ sub is_helper_available {
   get_logger->error( "Helper $s does not exist." );
   return undef;
 }
+
+sub fd_fix_file_permissions {
+    my ($file) = @_;
+    safe_pf_run('sudo', 'chown', 'root:pf', $file);
+}
+
+sub fd_fix_dir_permissions {
+    safe_pf_run('sudo', 'chmod', '02770', '/usr/local/pf/var/conf/firewalld');
+    safe_pf_run('sudo', 'chown', 'root:pf', '-R', '/usr/local/pf/var/conf/firewalld');
+}
+
 
 =head1 AUTHOR
 
