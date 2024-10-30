@@ -1,28 +1,4 @@
 # Needed By system
-[block]
-target=REJECT
-short=Block
-description=Unsolicited incoming network packets are rejected. Incoming packets that are related to outgoing network connections are accepted. Outgoing network connections are allowed.
-
-[drop]
-target=DROP
-short=Drop
-description=Unsolicited incoming network packets are dropped. Incoming packets that are related to outgoing network connections are accepted. Outgoing network connections are allowed.
-
-[trusted]
-target=ACCEPT
-short=Trusted
-description=All network connections are accepted.
-
-[eth0]
-short=Default interface
-masquerade=yes
-forward=yes
-target=default
-services=ssh
-interface=eth0
-version=0.1
-
 [docker0]
 short=Docker Interface
 masquerade=yes
@@ -38,4 +14,3 @@ target=ACCEPT
 interface=lo
 version=0.1
 forward=yes
-sources=
