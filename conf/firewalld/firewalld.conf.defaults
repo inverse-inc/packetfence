@@ -1,5 +1,5 @@
 [config]
-DefaultZone=eth0
+DefaultZone=public
 CleanupOnExit=yes
 #CleanupModulesOnExit=yes
 Lockdown=no
