@@ -12,7 +12,7 @@ index 64f5e73f3d..90319cfc09 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 781e2ba9a3..bc4140c4af 100644
+index cf2f824190..9a25f03741 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -479,7 +479,7 @@ radiusd=enabled
@@ -66,7 +66,7 @@ index 24deb8ac93..a491112d49 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-firewalld.service b/conf/systemd/packetfence-firewalld.service
-index b28e1fedb0..c087139583 100644
+index 4ee9c7326f..f8398b0240 100644
 --- a/conf/systemd/packetfence-firewalld.service
 +++ b/conf/systemd/packetfence-firewalld.service
 @@ -14,10 +14,10 @@ TimeoutStopSec=600
@@ -75,7 +75,7 @@ index b28e1fedb0..c087139583 100644
  ExecStartPre=/bin/bash -c "/bin/rm -rf /usr/lib/systemd/system/firewalld.service || true"
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_pfconf_configs()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_pfconf_configs()'
- ExecStart=/bin/bash -c "[ -f /usr/local/pf/var/conf/firewalld/firewalld.conf ] && /usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/local/pf/var/conf/firewalld || exit 0"
+ ExecStart=/bin/bash -c "[ -f /usr/local/pf/var/conf/firewalld/firewalld.conf ] && /usr/sbin/firewalld --nofork --nopid $FIREWALLD_ARGS --system-config /usr/local/pf/var/conf/firewalld --default-config /usr/lib/firewalld/ || exit 0"
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_dynamic_configs()'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' '-Mpf::services::manager::firewalld' -e 'pf::services::manager::firewalld->new()->_stop()'
 +ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_generate_dynamic_configs()'
