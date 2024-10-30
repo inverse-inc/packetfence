@@ -222,42 +222,6 @@ protocols=vrrp_protocol1
 [vrrp_protocol1]
 value=vrrp
 
-[dhcp]
-short=dhcp
-description=Firewalld rules for dhcp services
-ports=dhcp_port1
-
-[dhcp_port1]
-port=67
-type=udp
-
-[ssh]
-short=SSH
-description=Secure Shell (SSH) is a protocol for logging into and executing commands on remote machines. It provides secure encrypted communications. If you plan on accessing your machine remotely via SSH over a firewalled interface, enable this option. You need the openssh-server package installed for this option to be useful.
-ports=ssh_port1
-
-[ssh_port1]
-type=tcp
-port=22
-
-[http]
-short=WWW (HTTP)
-description=HTTP is the protocol used to serve Web pages. If you plan to make your Web server publicly available, enable this option. This option is not required for viewing pages locally or developing Web pages.
-ports=http_port1
-
-[http_port1]
-type=tcp
-port=80
-
-[https]
-short=Secure WWW (HTTPS)
-description=HTTPS is a modified HTTP used to serve Web pages when security is important. Examples are sites that require logins like stores or web mail. This option is not required for viewing pages locally or developing Web pages. You need the httpd package installed for this option to be useful.
-ports=https_port1
-
-[https_port1]
-type=tcp
-port=443
-
 [docker_swarm]
 short=Docker integrated swarm mode
 description=Natively managed cluster of Docker Engines (>=1.12.0), where you deploy services.
@@ -292,46 +256,6 @@ port=9300
 type=tcp
 port=9200
 
-[ldap]
-short=LDAP
-description=Lightweight Directory Access Protocol (LDAP) server
-ports=ldap_port1
-
-[ldap_port1]
-type=tcp
-port=389
-
-[dhcpv6_client]
-short=DHCPv6 Client
-description=This option allows a DHCP for IPv6 (DHCPv6) client to obtain addresses and other IPv6 settings from DHCPv6 server.
-ports=dhcpv6_client_port1
-destinations=ipv6:"fe80::/64"
-
-[dhcpv6_client_port1]
-type=udp
-port=546
-
-[dhcpv6]
-short=DHCPv6
-description=This allows a DHCPv6 server to accept messages from DHCPv6 clients and relay agents.
-ports=dhcpv6_port1
-
-[dhcpv6_port1]
-type=udp
-port=547
-
-[dns]
-short=DNS
-description=The Domain Name System (DNS) is used to provide and request host and domain names. Enable this option, if you plan to provide a domain name service (e.g. with bind).
-ports=dns_port1,dns_port2
-
-[dns_port1]
-type=tcp
-port=53
-[dns_port2]
-type=udp
-port=53
-
 [proxy_dhcp]
 short=Proxy DHCP
 description=PXE redirection service (Proxy DHCP) responds to PXE clients and provides redirection to PXE boot servers.
@@ -340,36 +264,6 @@ ports=proxy_dhcp_port1
 [proxy_dhcp_port1]
 type=udp
 port=4011
-
-[syslog]
-short=syslog
-description=Syslog is a client/server protocol: a logging application transmits a text message to the syslog receiver. The receiver is commonly called syslogd, syslog daemon or syslog server.
-ports=syslog_port1
-
-[syslog_port1]
-type=udp
-port=514
-
-[syslog_tls]
-short=syslog-tls
-description=Syslog is a client/server protocol: a logging application transmits a text message to the syslog receiver. The receiver is commonly called syslogd, syslog daemon or syslog server. Syslog-tls uses TLS encryption to protect the messages during transport.
-ports=syslog_tls_port1,syslog_tls_port2
-
-[syslog_tls_port1]
-type=tcp
-port=6514
-[syslog_tls_port2]
-type=udp
-port=6514
-
-[mysql]
-short=MySQL
-description=MySQL Database Server.
-ports=mysql_port1
-
-[mysql_port1]
-type=tcp
-port=3306
 
 [mysql_prob]
 short=MySQL_prob
@@ -380,25 +274,25 @@ ports=mysql_prob_port1
 type=tcp
 port=3307
 
-[samba]
+[samba_pf]
 short=Samba
 description=This option allows you to access and participate in Windows file and printer sharing networks. You need the samba package installed for this option to be useful.
-helpers=samba_helper1
-ports=samba_port1,samba_port2,samba_port3,samba_part4
+helpers=samba_pf_helper1
+ports=samba_pf_port1,samba_pf_port2,samba_pf_port3,samba_pf_part4
 
-[samba_port1]
+[samba_pf_port1]
 type=udp
 port=137
-[samba_port2]
+[samba_pf_port2]
 type=udp
 port=138
-[samba_port3]
+[samba_pf_port3]
 type=tcp
 port=139
-[samba_port4]
+[samba_pf_port4]
 type=tcp
 port=445
-[samba_helper1]
+[samba_pf_helper1]
 name=netbios-ns
 
 [haproxy-portal]
