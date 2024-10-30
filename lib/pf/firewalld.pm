@@ -171,6 +171,7 @@ sub fd_generate_dynamic_configs {
     pf::ipset->new()->iptables_generate();
     fd_services_rules("add");
     fd_add_extra_direct_rules();
+    fd_fix_dir_permissions();
   } else {
     $logger->info( "No management defined" );
   }
@@ -195,6 +196,7 @@ sub fd_generate_pfconf_configs {
     generate_services_config();
     generate_zones_config();
     generate_policies_config();
+    fd_fix_dir_permissions();
   } else {
     $logger->info( "No management defined" );
   }
