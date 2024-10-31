@@ -751,7 +751,7 @@ sub util_create_config_file {
     ABSOLUTE => 1,
   );
   $tt->process( $file_template, $conf, $file ) or die $tt->error();
-  fix_fd_file_permissions($file);
+  fd_fix_file_permissions($file);
 }
 
 # Services Functions
