@@ -1492,9 +1492,9 @@ sub inline_nat_redirect_rules {
 
     if ($passthrough_enabled) {
       $rule = " -m set --match-set pfsession_passthrough dst,dst -m mark --mark 0x$IPTABLES_MARK_UNREG -j ACCEPT";
-      util_direct_rule("ipv4 nat PREROUTING -50 ", $action );
+      util_direct_rule("ipv4 nat PREROUTING -50 $rule", $action );
       $rule = " -m set --match-set pfsession_isol_passthrough dst,dst -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j ACCEPT";
-      util_direct_rule("ipv4 nat PREROUTING -50 ", $action );
+      util_direct_rule("ipv4 nat PREROUTING -50 $rule", $action );
     }
 
     # Now, do your magic
@@ -1511,7 +1511,7 @@ sub inline_nat_redirect_rules {
         $rule =
         " -p $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
         " -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway";
-        util_direct_rule("ipv4 nat PREROUTING -50 ", $action );
+        util_direct_rule("ipv4 nat PREROUTING -50 $rule", $action );
       }
     }
   } else {
