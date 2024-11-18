@@ -1102,7 +1102,7 @@ Firewalld rules for fingerbank collector service
 sub fd_fingerbank_collector_rules {
   my $action = shift;
   if (netflow_enabled()) {
-    util_direct_rule( "ipv4 filter FORWARD -97 -j NETFLOW" , $action );
+    util_direct_rule( "ipv4 filter FORWARD +5 -j NETFLOW" , $action );
   }
 }
 
