@@ -1359,7 +1359,7 @@ sub inline_nat_if_src_rules {
       # inline enforcement
       if (is_type_inline($enforcement_type)) {
          # send everything from inline interfaces to the inline chain
-        util_direct_rule("ipv4 nat POSTROUTING 100 -j MASQUERADE", $action );
+        util_direct_rule("ipv4 nat POSTROUTING 120 -j MASQUERADE", $action );
       }
     }
 
