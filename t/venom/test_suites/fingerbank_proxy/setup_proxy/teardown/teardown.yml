@@ -23,10 +23,6 @@ testcases:
     assertions:
     - result.statuscode ShouldEqual 200
 
-- name: reload_firewalld_config_hard
-  steps:                                          
-  - type: reload_firewalld_config_hard
-
 - name: ping_to_wan_should_work
   steps:
   - type: exec

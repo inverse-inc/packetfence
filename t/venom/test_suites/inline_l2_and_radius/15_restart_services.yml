@@ -1,9 +1,5 @@
 name: Restart services
 testcases:
-- name: reload_firewalld_config_hard
-  steps:
-  - type: reload_firewalld_config_hard
-
 - name: restart_pfdns
   steps:
   - type: pf_api_service_restart

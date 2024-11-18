@@ -76,10 +76,6 @@ testcases:
     url: 'config/security_event/{{.security_event_random_mac.event.id}}'
     body: '{"id":"{{.security_event_random_mac.event.id}}","enabled":"N","quiet":true}'
 
-- name: reload_config_firewalld_hard
-  steps:
-  - type: reload_firewalld_config_hard
-
 - name: restart_pfdns_service
   steps:
   - type: systemctl_service_restart

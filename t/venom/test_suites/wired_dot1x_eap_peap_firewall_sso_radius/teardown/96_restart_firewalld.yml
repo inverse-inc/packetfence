@@ -1,6 +1,0 @@
-name: Reload firewalld config hard
-testcases:
-# temp, as a workaround
-- name: reload_firewalld_config_hard
-  steps:
-  - type: reload_firewalld_config_hard
