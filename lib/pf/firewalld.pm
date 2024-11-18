@@ -1409,7 +1409,7 @@ sub inline_mangle_rules {
           $rule .= " -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
         }
         $rule .= "-j MARK --set-mark 0x$IPTABLES_MARK";
-        util_direct_rule("ipv4 mangle PREROUTING 0 ", $action );
+        util_direct_rule("ipv4 mangle PREROUTING 0 $rule", $action );
       }
     }
 
