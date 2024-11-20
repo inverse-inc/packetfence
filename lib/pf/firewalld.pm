@@ -1148,6 +1148,7 @@ So related to ipset.pm
 
 sub fd_pfipset_rules {
   my $action = shift;
+  pf::ipset->new()->iptables_generate();
   my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
   my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
   foreach my $interface (@internal_nets) {
