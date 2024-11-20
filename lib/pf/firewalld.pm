@@ -257,15 +257,15 @@ sub fd_create_all_zones {
     }
     util_zone_set_forward( $tint , "remove" );
     util_zone_set_masquerade( $tint , "add" );
-    util_direct_rule("ipv4 filter INPUT -1000 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       util_set_default_zone( $tint );
-      util_direct_rule("ipv4 filter INPUT -1000 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
       my $web_admin_port = $Config{'ports'}{'admin'};
-      util_direct_rule("ipv4 filter INPUT -1000 -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", "add" );
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", "add" );
       util_zone_set_forward( $tint , "add" );
       util_zone_set_masquerade( $tint, "add" );
     }
@@ -389,14 +389,14 @@ sub fd_keepalived_rules {
   my $action = shift;
   foreach my $tint ( @listen_ints ){
     # Never remove, used several time
-    util_direct_rule("ipv4 filter INPUT -500 -i $tint -d 224.0.0.0/8 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT -500 -i $tint -p vrrp -j ACCEPT", $action ) if ($cluster_enabled);
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -d 224.0.0.0/8 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p vrrp -j ACCEPT", $action ) if ($cluster_enabled);
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      util_direct_rule("ipv4 filter INPUT -500 -i $tint -d 224.0.0.0/8 -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT -500 -i $tint -p vrrp -j ACCEPT", $action ) if ($cluster_enabled);
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -d 224.0.0.0/8 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p vrrp -j ACCEPT", $action ) if ($cluster_enabled);
     }
   }
 }
@@ -454,7 +454,7 @@ sub fd_haproxy_admin_rules {
       my $tint = $management_network->{Tint};
       if ( $tint ne "" ) {
         my $web_admin_port = $Config{'ports'}{'admin'};
-        util_direct_rule("ipv4 filter INPUT -1000 -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", $action );
+        util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", $action );
       }
     }
   } else {
@@ -475,7 +475,7 @@ sub fd_httpd_webservices_rules {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       my $webservices_port = $Config{'ports'}{'soap'};
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $webservices_port -j ACCEPT", $action );
+      util_direct_rule( "ipv4 filter INPUT 10 -i $tint -p tcp -m tcp --dport $webservices_port -j ACCEPT", $action );
     }
   }
 }
@@ -491,7 +491,7 @@ sub fd_snmptrapd_rules {
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 162 -j ACCEPT", $action );
+      util_direct_rule( "ipv4 filter INPUT 20 -i $tint -p udp -m udp --dport 162 -j ACCEPT", $action );
     }
   }
 }
@@ -509,7 +509,7 @@ sub fd_httpd_aaa_rules {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       my $aaa_port = $Config{'ports'}{'aaa'};
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $aaa_port -j ACCEPT", $action );
+      util_direct_rule( "ipv4 filter INPUT 30 -i $tint -p tcp -m tcp --dport $aaa_port -j ACCEPT", $action );
     }
   }
 }
@@ -527,12 +527,12 @@ sub fd_httpd_dispatcher_rules {
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $action );
+      util_direct_rule( "ipv4 filter INPUT 40 -i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $action );
     }
   }
   foreach my $network ( @vlan_enforcement_nets ) {
     my $tint =  $network->{Tint};
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $action );
+    util_direct_rule( "ipv4 filter INPUT 40 -i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $action );
   }
 }
 
@@ -549,7 +549,7 @@ sub fd_api_frontend_rules {
   if ( util_reload_firewalld() ) {
     my $tint = $management_network->{Tint};
     my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $unifiedapi_port -j ACCEPT", $action );
+    util_direct_rule( "ipv4 filter INPUT 50 -i $tint -p tcp -m tcp --dport $unifiedapi_port -j ACCEPT", $action );
   } else {
     $logger->warn("Firewalld is not started yet");
   }
@@ -566,10 +566,10 @@ sub fd_httpd_portal_rules {
   my $action = shift;
   my $mgnt_zone = $management_network->{Tint};
   my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
-  util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp -m tcp --dport $httpd_portal_modstatus -j ACCEPT", $action );
+  util_direct_rule( "ipv4 filter INPUT 60 -i $mgnt_zone -p tcp -m tcp --dport $httpd_portal_modstatus -j ACCEPT", $action );
   foreach my $network ( @portal_ints ) {
     my $tint =  $network->{Tint};
-    util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 8080 -j ACCEPT", $action );
+    util_direct_rule( "ipv4 filter INPUT 60 -i $tint -p tcp -m tcp --dport 8080 -j ACCEPT", $action );
   }
 }
 
@@ -584,8 +584,8 @@ sub fd_haproxy_db_rules {
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 1025 -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 70 -i $tint -p tcp -m tcp --dport 1025 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 70 -i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $action );
     }
   }
 }
@@ -600,28 +600,28 @@ sub fd_haproxy_portal_rules {
   my $action = shift;
   foreach my $tint (@ha_ints){
     my $web_admin_port = $Config{'ports'}{'admin'};
-    util_direct_rule("ipv4 filter INPUT -1000 -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", $action );
   }
   foreach my $network ( @portal_ints ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
   }
   foreach my $network ( @inline_enforcement_nets ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
   }
   foreach my $network ( @vlan_enforcement_nets ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
     }
   }
 }
@@ -636,8 +636,8 @@ sub fd_radiusd_acct_rules {
   my $action = shift;
   foreach my $network ( @radius_ints ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1813 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1823 -j ACCEPT", $action ) if ($cluster_enabled);
+    util_direct_rule("ipv4 filter INPUT 90 -i $tint -p udp -m udp --dport 1813 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 90 -i $tint -p udp -m udp --dport 1823 -j ACCEPT", $action ) if ($cluster_enabled);
   }
 }
 
@@ -651,8 +651,8 @@ sub fd_pfacct_rules {
   my $action = shift;
   foreach my $network ( @radius_ints ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1813 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1823 -j ACCEPT", $action ) if ($cluster_enabled);
+    util_direct_rule("ipv4 filter INPUT 100 -i $tint -p udp -m udp --dport 1813 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 100 -i $tint -p udp -m udp --dport 1823 -j ACCEPT", $action ) if ($cluster_enabled);
   }
 }
 
@@ -666,10 +666,10 @@ sub fd_radiusd_auth_rules {
   my $action = shift;
   foreach my $network ( @radius_ints ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1812 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 2083 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 2093 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1822 -j ACCEPT", $action ) if ($cluster_enabled);
+    util_direct_rule("ipv4 filter INPUT 110 -i $tint -p udp -m udp --dport 1812 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 110 -i $tint -p tcp -m tcp --dport 2083 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 110 -i $tint -p tcp -m tcp --dport 2093 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 110 -i $tint -p udp -m udp --dport 1822 -j ACCEPT", $action ) if ($cluster_enabled);
   }
 }
 
@@ -683,8 +683,8 @@ sub fd_radiusd_cli_rules {
   my $action = shift;
   foreach my $network ( @radius_ints ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1815 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1825 -j ACCEPT", $action ) if ($cluster_enabled);
+    util_direct_rule("ipv4 filter INPUT 120 -i $tint -p udp -m udp --dport 1815 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 120 -i $tint -p udp -m udp --dport 1825 -j ACCEPT", $action ) if ($cluster_enabled);
   }
 }
 
@@ -697,24 +697,24 @@ Firewalld rules for pfdns service
 sub fd_pfdns_rules {
   my $action = shift;
   foreach my $tint ( @dns_ints ) {
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 53 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 130 -i $tint -p udp -m udp --dport 53 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 130 -i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $action );
   }
   foreach my $network ( @inline_enforcement_nets ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 53 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 130 -i $tint -p udp -m udp --dport 53 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 130 -i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $action );
   }
   foreach my $network ( @vlan_enforcement_nets ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 53 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 130 -i $tint -p udp -m udp --dport 53 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 130 -i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $action );
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 53 -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 130 -i $tint -p udp -m udp --dport 53 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 130 -i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $action );
     }
   }
   # OAuth
@@ -730,8 +730,8 @@ sub fd_pfdns_rules {
       if ($tint =~ m/(\w+):\d+/) {
         $tint = $1;
       }
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p tcp -m tcp --dport 53 -j ACCEPT", $action );
-      util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip -p udp -m udp --dport 53 -j ACCEPT", $action );
+      util_direct_rule( "ipv4 filter INPUT 130 -i $tint -d $internal_portal_ip -p tcp -m tcp --dport 53 -j ACCEPT", $action );
+      util_direct_rule( "ipv4 filter INPUT 130 -i $tint -d $internal_portal_ip -p udp -m udp --dport 53 -j ACCEPT", $action );
     }
   }
   #NAT Intercept Proxy
@@ -787,7 +787,7 @@ sub dns_interception_rules {
         my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
         if (is_type_inline($enforcement_type)) {
           my $rule = "-p tcp --destination-port $intercept_port";
-          util_direct_rule( "ipv4 filter INPUT 0 -i $tint -d $internal_portal_ip $rule -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 130 -i $tint -d $internal_portal_ip $rule -j ACCEPT", $action );
         }
       }
     }
@@ -887,23 +887,23 @@ sub fd_pfdhcp_rules {
   my $action = shift;
   my $logger = get_logger();
   foreach my $tint ( @dhcp_ints ) {
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 140 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
   }
   foreach my $tint ( @dhcplistener_ints ) {
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 140 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
   }
   foreach my $network ( @inline_enforcement_nets ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 140 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
   }
   foreach my $network ( @vlan_enforcement_nets ) {
     my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 140 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 140 -i $tint -p udp -m udp --dport 67 -j ACCEPT", $action );
     }
   }
   my $internal_portal_ip = $Config{captive_portal}{ip_address};
@@ -920,30 +920,30 @@ sub fd_pfdhcp_rules {
       }
       my ($type,$chain) = get_network_type_and_chain($ip);
       if ( $type eq $pf::config::NET_TYPE_VLAN_REG && $chain eq "input-internal-isol_vlan-if" ) {
-        util_direct_rule( "ipv4 filter INPUT -30 -i $tint -d $internal_portal_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT -29 -i $tint -d $internal_portal_ip -p udp -m udp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT -30 -i $tint -d $cluster_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
-        util_direct_rule( "ipv4 filter INPUT -29 -i $tint -d $cluster_ip -p udp -m udp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
-        util_direct_rule( "ipv4 filter INPUT -28 -i $tint -d $interface->tag('vip') -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
-        util_direct_rule( "ipv4 filter INPUT -27 -i $tint -d $interface->tag('vip') -p udp -m udp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
-        util_direct_rule( "ipv4 filter INPUT -26 -i $tint -d $interface->tag('ip') -p tcp -m tcp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT -25 -i $tint -d $interface->tag('ip') -p udp -m udp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT -24 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport 67 -j ACCEPT", $action );
-        util_direct_rule( "ipv4 filter INPUT -23 -i $tint -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $internal_portal_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $internal_portal_ip -p udp -m udp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $cluster_ip -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $cluster_ip -p udp -m udp --dport 67 -j ACCEPT", $action ) if ($cluster_enabled);
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $interface->tag('vip') -p tcp -m tcp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $interface->tag('vip') -p udp -m udp --dport 67 -j ACCEPT", $action ) if $interface->tag("vip");
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $interface->tag('ip') -p tcp -m tcp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $interface->tag('ip') -p udp -m udp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport 67 -j ACCEPT", $action );
+        util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT", $action );
       }
     } elsif (is_type_inline($enforcement_type)) {
       if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
         $logger->info("Adding Proxy interception rules");
         foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-          util_direct_rule( "ipv4 filter INPUT -22 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT -21 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT -20 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
-          util_direct_rule( "ipv4 filter INPUT -19 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT -18 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT -17 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
-          util_direct_rule( "ipv4 filter INPUT -16 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT -15 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
-          util_direct_rule( "ipv4 filter INPUT -14 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
+          util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
+          util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
+          util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $action );
+          util_direct_rule( "ipv4 filter INPUT 150 -i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $action );
         }
       }
     }
@@ -960,14 +960,14 @@ sub fd_netdata_rules {
   my $action = shift;
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
-    util_direct_rule("ipv4 filter INPUT -50 -i $tint -p tcp -m tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 160 -i $tint -p tcp -m tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $action );
     if ($cluster_enabled) {
       push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
       foreach my $mgmt_back (uniq(@mgmt_backend)) {
-        util_direct_rule("ipv4 filter INPUT -50 -i $tint -p tcp -m tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
+        util_direct_rule("ipv4 filter INPUT 160 -i $tint -p tcp -m tcp -s $mgmt_back --dport 19999 -j ACCEPT", $action );
       }
     }
-    util_direct_rule("ipv4 filter INPUT -49 -i $tint -p tcp -m tcp --dport 19999 -j DROP", $action );
+    util_direct_rule("ipv4 filter INPUT 160 -i $tint -p tcp -m tcp --dport 19999 -j DROP", $action );
   }
 }
 
@@ -987,7 +987,7 @@ sub fd_pfconnector_server_rules {
     push @pfconnector_ips, $management_network->{Tip};
     @pfconnector_ips = uniq sort @pfconnector_ips;
     for my $ip (@pfconnector_ips) {
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 170 -i $tint -p tcp -m multiport -s $ip --dports 23001:23256 -j ACCEPT", $action );
     }
   }
 }
@@ -1004,10 +1004,10 @@ sub fd_galera_autofix_rules {
   if ( util_reload_firewalld() ) {
     foreach my $network ( @ha_ints ) {
       my $tint =  $network->{Tint};
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 4253 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 180 -i $tint -p udp -m udp --dport 4253 -j ACCEPT", $action );
     }
     foreach my $tint ( @dhcplistener_ints ) {
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 4253 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 180 -i $tint -p udp -m udp --dport 4253 -j ACCEPT", $action );
     }
   } else {
     $logger->warn("Firewalld is not started yet");
@@ -1025,7 +1025,7 @@ sub fd_mariadb_rules {
   my $logger = get_logger();
   if ( util_reload_firewalld() ) {
     my $tint = $management_network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $action );
+    util_direct_rule("ipv4 filter INPUT 190 -i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $action );
   } else {
     $logger->warn("Firewalld is not started yet");
   }
@@ -1042,7 +1042,7 @@ sub fd_mysql_prob_rules {
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport 3307 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 200 -i $tint -p tcp -m tcp --dport 3307 -j ACCEPT", $action );
     }
   }
 }
@@ -1059,12 +1059,12 @@ sub fd_kafka_rules {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       for my $client (@{$ConfigKafka{iptables}{clients}}) {
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp -s $client --dport 9092 -j ACCEPT" , $action );
+        util_direct_rule( "ipv4 filter INPUT 210 -i $tint -p tcp -m tcp -s $client --dport 9092 -j ACCEPT" , $action );
       }
       for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp -s $ip --dport 29092 -j ACCEPT" , $action );
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp -s $ip --dport 9092 -j ACCEPT" , $action );
-        util_direct_rule( "ipv4 filter INPUT 0 -i $tint -p tcp -m tcp -s $ip --dport 9093 -j ACCEPT" , $action );
+        util_direct_rule( "ipv4 filter INPUT 210 -i $tint -p tcp -m tcp -s $ip --dport 29092 -j ACCEPT" , $action );
+        util_direct_rule( "ipv4 filter INPUT 210 -i $tint -p tcp -m tcp -s $ip --dport 9092 -j ACCEPT" , $action );
+        util_direct_rule( "ipv4 filter INPUT 210 -i $tint -p tcp -m tcp -s $ip --dport 9093 -j ACCEPT" , $action );
       }
     }
   }
@@ -1121,16 +1121,16 @@ sub fd_radiusd_eduroam_rules {
     my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
     my $eduroam_listening_port_backend = $eduroam_listening_port + 10;
     my $mgnt_zone = $management_network->{Tint};
-    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT", $action );
-    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port -j ACCEPT", $action );
-    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT", $action ) if ($cluster_enabled);
-    util_direct_rule( "ipv4 filter INPUT 0 -i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT", $action ) if ($cluster_enabled);
+    util_direct_rule( "ipv4 filter INPUT 220 -i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT", $action );
+    util_direct_rule( "ipv4 filter INPUT 220 -i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port -j ACCEPT", $action );
+    util_direct_rule( "ipv4 filter INPUT 220 -i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT", $action ) if ($cluster_enabled);
+    util_direct_rule( "ipv4 filter INPUT 220 -i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT", $action ) if ($cluster_enabled);
     foreach my $network ( @radius_ints ) {
       my $tint = $network->{Tint};
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport $eduroam_listening_port -j ACCEPT", $action );
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT", $action ) if ($cluster_enabled);
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT", $action ) if ($cluster_enabled);
+      util_direct_rule("ipv4 filter INPUT 220 -i $tint -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 220 -i $tint -p udp -m udp --dport $eduroam_listening_port -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 220 -i $tint -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT", $action ) if ($cluster_enabled);
+      util_direct_rule("ipv4 filter INPUT 220 -i $tint -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT", $action ) if ($cluster_enabled);
     }
   }
   else {
