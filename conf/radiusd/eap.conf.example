@@ -847,6 +847,59 @@ eap [% key -%] {
 		#  identify it.
 #		identity = "FreeRADIUS"
 	}
+[% ELSIF eaptype == "TEAP" %]
+	#  EAP-TEAP
+	#
+	#  The TEAP module implements the EAP-TEAP protocol
+	#
+	teap {
+		#  Point to the common TLS configuration
+		#
+		tls = [% eap.$key.teap_config.tls %]
+
+		#  If 'cipher_list' is set here, it will over-ride the
+		#  'cipher_list' configuration from the 'tls-common'
+		#  configuration.  The EAP-TEAP module has it's own
+		#  over-ride for 'cipher_list' because the
+		#  specifications mandata a different set of ciphers
+		#  than are used by the other EAP methods.
+		#
+		#  cipher_list though must include "ADH" for anonymous provisioning.
+		#  This is not as straight forward as appending "ADH" alongside
+		#  "DEFAULT" as "DEFAULT" contains "!aNULL" so instead it is
+		#  recommended "ALL:!EXPORT:!eNULL:!SSLv2" is used
+		#
+		#cipher_list = "ALL:!EXPORT:!eNULL:!SSLv2"
+
+		#pac = no
+		#  PAC lifetime in seconds (default: seven days)
+		#
+		# pac_lifetime = 604800
+
+		#  Authority ID of the server
+		#
+		#  If you are running a cluster of RADIUS servers, you should make
+		#  the value chosen here (and for "pac_opaque_key") the same on all
+		#  your RADIUS servers.  This value should be unique to your
+		#  installation.  We suggest using a domain name.
+		#
+		authority_identity = [% eap.$key.teap_config.authority_identity %]
+
+		#  PAC Opaque encryption key (must be exactly 32 bytes in size)
+		#
+		#  This value MUST be secret, and MUST be generated using
+		#  a secure method, such as via 'openssl rand -hex 32'
+		#
+		pac_opaque_key = [% eap.$key.teap_config.pac_opaque_key %]
+
+		#  Same as for TTLS, PEAP, etc.
+		#
+		virtual_server = "packetfence-tunnel-fast"
+
+		copy_request_to_tunnel = yes
+
+		use_tunneled_reply = yes
+	}
 
 [% ELSIF eaptype == "FAST" %]
 	## EAP-FAST
