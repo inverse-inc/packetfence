@@ -115,7 +115,11 @@ packetfence-mschap-authenticate {
         chrooted_mschap_machine
       }
       else {
-        chrooted_mschap
+        if ( &EAP-Type == "TEAP" ) {
+          chrooted_mschap_mppe
+        } else {
+          chrooted_mschap
+        }
       }
     }
     else {

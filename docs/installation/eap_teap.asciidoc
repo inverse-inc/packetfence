@@ -1,0 +1,43 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//== PacketFence Certificates (for v11.2 and later)
+
+=== Introduction
+
+==== Context and Objectives of the Documentation
+
+Since PacketFence v14.2, we introduced EAP TEAP support, EAP-TEAP is considered as a faster and next generation of EAP PEAP.
+
+
+==== Important notes before starting
+
+EAP TEAP is supported only with PacketFence v14.2 or later.
+EAP TEAP is supported on Windows 10 (20H2) or later.
+
+==== Enable TEAP in PacketFence
+To use TEAP, you'll need to enable TEAP.
+1. Go to *Configuration* -> *System Configuration* -> *RADIUS* -> *EAP Profiles*
+2. In EAP Profiles you are using, in *EAP Authentication types*, adds "TEAP" and click save.
+
+==== TEAP Limitations
+1. EAP TEAP is widely supported on Windows platform, however, it's not widely supported on other platforms, such as MacOS, iOS or Android.
+1. There's a limitation on domain joined machines to enable EAP TEAP if your Domain Controller is running Windows 2019 or earlier. They will not be able to do EAP chaining. But you can still configure TEAP on your wired or wirless network.
+1. To use EAP chaining on a domain-joined machine, you'll have to make sure the Domain Controller is running a Windows Server 2022 or later.
+

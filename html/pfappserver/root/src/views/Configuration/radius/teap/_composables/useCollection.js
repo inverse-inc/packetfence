@@ -10,11 +10,11 @@ export const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('EAP Profile <code>{id}</code>', { id: id.value })
+        return i18n.t('Teap Profile <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone EAP Profile <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Teap Profile <code>{id}</code>', { id: id.value })
       default:
-        return i18n.t('New EAP Profile')
+        return i18n.t('New Teap Profile')
     }
   })
 }
@@ -26,7 +26,7 @@ export { useStore } from '../_store'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import api from '../_api'
-export const useSearch = makeSearch('radiusEap', {
+export const useSearch = makeSearch('radiusTeap', {
   api,
   columns: [
     {
@@ -43,43 +43,8 @@ export const useSearch = makeSearch('radiusEap', {
       visible: true
     },
     {
-      key: 'default_eap_type',
-      label: 'Default EAP', // i18n defer
-      searchable: true,
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'tls_tlsprofile',
-      label: 'TLS Profile', // i18n defer
-      searchable: true,
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'ttls_tlsprofile',
-      label: 'TTLS Profile', // i18n defer
-      searchable: true,
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'peap_tlsprofile',
-      label: 'PEAP Profile', // i18n defer
-      searchable: true,
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'fast_config',
-      label: 'Fast Profile', // i18n defer
-      searchable: true,
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'teap_config',
-      label: 'TEAP Profile', // i18n defer
+      key: 'tls',
+      label: 'TLS', // i18n defer
       searchable: true,
       sortable: true,
       visible: true
