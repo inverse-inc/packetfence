@@ -1,0 +1,5 @@
+[default]
+tls = tls-eap-teap
+authority_identity = 1234
+pac_opaque_key = 0123456789abcdef0123456789ABCDEF
+

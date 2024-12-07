@@ -9,3 +9,4 @@ tls_tlsprofile = tls-common
 ttls_tlsprofile = tls-common
 peap_tlsprofile = tls-common
 fast_config = default
+teap_config = default

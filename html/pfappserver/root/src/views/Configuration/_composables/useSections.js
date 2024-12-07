@@ -152,6 +152,7 @@ export const useSections = () => {
             { name: i18n.t('EAP Profiles'), path: '/configuration/radius/eap', saveSearchNamespace: 'radiusEap' },
             { name: i18n.t('TLS Profiles'), path: '/configuration/radius/tls', saveSearchNamespace: 'radiusTls' },
             { name: i18n.t('Fast Profiles'), path: '/configuration/radius/fast', saveSearchNamespace: 'radiusFast' },
+            { name: i18n.t('TEAP Profiles'), path: '/configuration/radius/teap', saveSearchNamespace: 'radiusTeap' },
             { name: i18n.t('PKI SSL Certificates'), path: '/configuration/radius/ssl', saveSearchNamespace: 'radiusSsl' },
             { name: i18n.t('OCSP Profiles'), path: '/configuration/radius/ocsp', saveSearchNamespace: 'radiusOcsp' }
           ]
