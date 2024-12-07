@@ -85,6 +85,7 @@
 /usr/local/pf/conf/radiusd/eap_profiles.conf
 /usr/local/pf/conf/radiusd/eduroam.conf
 /usr/local/pf/conf/radiusd/fast.conf
+/usr/local/pf/conf/radiusd/teap.conf
 /usr/local/pf/conf/radiusd/ldap_packetfence.conf
 /usr/local/pf/conf/radiusd/load_balancer.conf
 /usr/local/pf/conf/radiusd/mschap.conf

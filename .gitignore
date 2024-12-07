@@ -48,6 +48,7 @@ conf/template_switches.conf
 conf/uploads/*
 conf/radiusd/eap_profiles.conf
 conf/radiusd/fast.conf
+conf/radiusd/teap.conf
 conf/radiusd/ocsp.conf
 conf/radiusd/tls.conf
 conf/radiusd/radiusd_cli.conf

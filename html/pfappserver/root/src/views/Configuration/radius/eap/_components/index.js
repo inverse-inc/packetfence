@@ -26,6 +26,7 @@ export {
   BaseFormGroupChosenOne          as FormGroupTtlsTlsprofile,
   BaseFormGroupChosenOne          as FormGroupPeapTlsprofile,
   BaseFormGroupChosenOne          as FormGroupFastConfig,
+  BaseFormGroupChosenOne          as FormGroupTeapConfig,
 
   BaseViewCollectionItem          as BaseView,
   TheForm,
