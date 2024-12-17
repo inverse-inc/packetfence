@@ -40,10 +40,10 @@ has_field 'pac_opaque_key' => (
     type     => 'Text',
     apply    => [
         {
-            check   => sub { $_[0] =~ /^[0-9a-fA-F]+$/ },
+            check   => sub { $_[0] =~ /^[0-9a-fA-F]{32}$/ },
             message => sub {
                 my ( $value, $field ) = @_;
-                return $field->name . " must be hexadecimal";
+                return $field->name . " must be 32-chars hexadecimal. e.g., openssl rand -hex 32";
             },
         }
     ]
