@@ -1,18 +1,5 @@
-diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
-index 64f5e73f3d..90319cfc09 100644
---- a/conf/monitoring/netdata.conf.example
-+++ b/conf/monitoring/netdata.conf.example
-@@ -8,7 +8,7 @@
- [global]
- 	run as user = netdata
- 	web files owner = root
--	web files group = netdata
-+	web files group = root
-         config directory = /usr/local/pf/var/conf/monitoring
-         # Netdata is not designed to be exposed to potentially hostile networks
-         # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index cf2f824190..9a25f03741 100644
+index 88ca293b8c..57dbad0f9e 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -479,7 +479,7 @@ radiusd=enabled
@@ -344,20 +331,11 @@ index 1d0091384e..ce63c4b8e0 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-netdata.service b/conf/systemd/packetfence-netdata.service
-index bd14033b14..ceb163447d 100644
+index 02497ee946..ac90b9c71a 100644
 --- a/conf/systemd/packetfence-netdata.service
 +++ b/conf/systemd/packetfence-netdata.service
-@@ -13,7 +13,7 @@ RuntimeDirectoryMode=0775
- ExecStart=/usr/sbin/netdata -P /run/netdata/netdata.pid -D -c /usr/local/pf/var/conf/monitoring/netdata.conf 
- ExecStartPre=/bin/mkdir -p /var/cache/netdata
- ExecStartPre=/bin/chown -R netdata:netdata /var/cache/netdata
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::netdata' -e 'pf::services::manager::netdata->new()->generateConfig()'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::netdata' -e 'pf::services::manager::netdata->new()->generateConfig()'
- PermissionsStartOnly=true
- 
- 
-@@ -49,8 +49,8 @@ RestartSec=30
- Slice=packetfence.slice
+@@ -24,8 +24,8 @@ Slice=packetfence.slice
+ PIDFile=/usr/local/pf/var/run/netdata-systemd-notify.pid
  
  # Firewalld
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
@@ -367,7 +345,6 @@ index bd14033b14..ceb163447d 100644
  
  [Install]
  WantedBy=packetfence.target
->>>>>>> ab3b63a75e (Firewalld Fix debianize.patch (~10))
 diff --git a/conf/systemd/packetfence-ntlm-auth-api.service b/conf/systemd/packetfence-ntlm-auth-api.service
 index d1dcc888ce..8f5b6c6ae0 100644
 --- a/conf/systemd/packetfence-ntlm-auth-api.service
