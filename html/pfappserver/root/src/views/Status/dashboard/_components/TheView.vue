@@ -19,7 +19,7 @@
               <b-row align-h="center">
                 <b-col class="mt-3 chart" v-for="(chart, chartIndex) in group.items" :key="`${chartIndex}-${chart.metric}`" :md="cols(chart.cols, group.items.length)">
                   <small class="text-muted cursor-pointer pb-3">
-                    {{ chart.title }}
+                    {{ $i18n.t(chart.title) }}
                   </small>
                   <div class="mt-2">
                     <chart :definition="chart" host="/netdata/127.0.0.1" :data-colors="palette(0)"></chart>
