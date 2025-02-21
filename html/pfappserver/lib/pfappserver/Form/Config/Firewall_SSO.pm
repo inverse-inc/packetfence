@@ -23,8 +23,6 @@ use pf::util;
 use File::Find qw(find);
 use pf::constants::firewallsso;
 
-our $META = pf::Authentication::Source::LDAPSource->meta;
-
 has_field 'id' =>
   (
    type => 'Text',
@@ -118,7 +116,7 @@ has_field 'use_connector',
    type => 'Toggle',
    checkbox_value => '1',
    unchecked_value => '0',
-   default => $META->get_attribute('use_connector')->default,
+   default => '1',
   );
 
 has_field 'act_on_accounting_stop',
