@@ -1507,7 +1507,7 @@ CREATE TABLE `pki_certs` (
   `alert` tinyint(1) DEFAULT 0,
   `subject` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `cn_serial` (`cn`,`serial_number`) USING HASH,
+  UNIQUE KEY `cn_serial` (`cn`(127),`serial_number`(127)) USING HASH,
   KEY `ca_id` (`ca_id`),
   KEY `ca_name` (`ca_name`),
   KEY `profile_name` (`profile_name`),
