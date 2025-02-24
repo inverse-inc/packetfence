@@ -12,7 +12,6 @@ import (
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-radius/rfc2869"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/config/pfcrypt"
 )
 
@@ -25,17 +24,14 @@ type ContentKeeper struct {
 // Send an SSO start to the ContentKeeper firewall
 // Returns an error unless there is a valid reply from the firewall
 func (fw *ContentKeeper) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
+
 	p := fw.startRadiusPacket(ctx, info, timeout)
 	client := fw.getRadiusClient(ctx)
-
-	var err error
-	client.Dialer.LocalAddr, err = net.ResolveUDPAddr("udp", fw.getSourceIp(ctx).String()+":0")
-	sharedutils.CheckError(err)
-
 	// Use the background context since we don't want the lib to use our context
 	ctx2, cancel := fw.RadiusContextWithTimeout()
 	defer cancel()
-	_, err = client.Exchange(ctx2, p, fw.PfconfigHashNS+":"+fw.Port)
+	dst := fw.getDst(ctx, "udp", fw.PfconfigHashNS, fw.Port)
+	_, err := client.Exchange(ctx2, p, dst)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the ContentKeeper, got the following error: %s", err))
 		return false, err
