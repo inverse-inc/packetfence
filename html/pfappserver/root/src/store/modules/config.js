@@ -177,6 +177,9 @@ const api = {
   getRadiusFasts () {
     return apiCall({ url: 'config/radiusd/fast_profiles', method: 'get' })
   },
+  getRadiusTeaps () {
+    return apiCall({ url: 'config/radiusd/teap_profiles', method: 'get' })
+  },
   getRadiusOcsps () {
     return apiCall({ url: 'config/radiusd/ocsp_profiles', method: 'get' })
   },
@@ -368,6 +371,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     radiusEapsStatus: '',
     radiusFasts: false,
     radiusFastsStatus: '',
+    radiusTeaps: false,
+    radiusTeapsStatus: '',
     radiusOcsps: false,
     radiusOcspsStatus: '',
     radiusSsls: false,
@@ -586,6 +591,9 @@ const getters = {
   },
   isLoadingRadiusFasts: state => {
     return state.radiusFastsStatus === types.LOADING
+  },
+  isLoadingRadiusTeaps: state => {
+    return state.radiusTeapsStatus === types.LOADING
   },
   isLoadingRadiusOcsps: state => {
     return state.radiusOcspsStatus === types.LOADING
@@ -1504,6 +1512,20 @@ const actions = {
       return Promise.resolve(state.radiusFasts)
     }
   },
+  getRadiusTeaps: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusTeaps) {
+      return Promise.resolve(state.radiusTeaps)
+    }
+    if (!state.radiusTeaps) {
+      commit('RADIUS_TEAPS_REQUEST')
+      return api.getRadiusTeaps().then(response => {
+        commit('RADIUS_TEAPS_UPDATED', response.data.items)
+        return state.radiusTeaps
+      })
+    } else {
+      return Promise.resolve(state.radiusTeaps)
+    }
+  },
   getRadiusOcsps: ({ state, getters, commit }) => {
     if (getters.isLoadingRadiusOcsps) {
       return Promise.resolve(state.radiusOcsps)
@@ -2195,6 +2217,13 @@ const mutations = {
   RADIUS_FASTS_UPDATED: (state, eaps) => {
     state.radiusFasts = eaps
     state.radiusFastsStatus = types.SUCCESS
+  },
+  RADIUS_TEAPS_REQUEST: (state) => {
+    state.radiusTeapsStatus = types.LOADING
+  },
+  RADIUS_TEAPS_UPDATED: (state, eaps) => {
+    state.radiusTeaps = eaps
+    state.radiusTeapsStatus = types.SUCCESS
   },
   RADIUS_OCSPS_REQUEST: (state) => {
     state.radiusOcspsStatus = types.LOADING

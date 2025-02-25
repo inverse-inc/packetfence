@@ -19,8 +19,12 @@
       :column-label="$i18n.t('Authority Identity')"
     />
 
+    <form-group-identity-types namespace="identity_types"
+                                   :column-label="$i18n.t('Identity Types')"
+    />
+
     <form-group-pac-opaque-key namespace="pac_opaque_key"
-      :column-label="$i18n.t('Key')"
+                                   :column-label="$i18n.t('Key')"
     />
   </base-form>
 </template>
@@ -34,6 +38,7 @@ import {
   FormGroupIdentifier,
   FormGroupTls,
   FormGroupAuthorityIdentity,
+  FormGroupIdentityTypes,
   FormGroupPacOpaqueKey
 } from './'
 
@@ -43,6 +48,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupTls,
   FormGroupAuthorityIdentity,
+  FormGroupIdentityTypes,
   FormGroupPacOpaqueKey
 }
 
