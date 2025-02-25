@@ -885,6 +885,8 @@ eap [% key -%] {
 		#
 		authority_identity = [% eap.$key.teap_config.authority_identity %]
 
+		identity_types = [% eap.$key.teap_config.identity_types %]
+
 		#  PAC Opaque encryption key (must be exactly 32 bytes in size)
 		#
 		#  This value MUST be secret, and MUST be generated using
