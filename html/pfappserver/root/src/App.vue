@@ -167,7 +167,7 @@ const setup = (props, context) => {
     return warnings
   })
 
-  const tenants = computed(() => $store.state.session.tenants)
+  const tenants = computed(() => $store.state.session.tenants.sort((a, b) => a.name.localeCompare(b.name)))
   const tenant = computed(() => $store.state.session.tenant)
   const tenant_id_mask = computed(() => $store.getters['session/tenantIdMask'])
   const tenant_mask_name = computed(() => {
