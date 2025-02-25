@@ -31,6 +31,12 @@ has_field 'tls' =>
         options_method => \&options_tls,
     );
 
+has_field 'identity_types' =>
+    (
+        type => 'Select',
+        options_method => \&options_identity_types,
+    );
+
 has_field 'authority_identity' =>
     (
         type => 'Text',
@@ -51,6 +57,10 @@ has_field 'pac_opaque_key' => (
 
 sub options_tls {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TLSProfile->new->readAllIds};
+}
+
+sub options_identity_types {
+    return map {{ value => $_, label => $_ }} ('machine,user', 'user,machine', 'user', 'machine');
 }
 
 =head1 AUTHOR
