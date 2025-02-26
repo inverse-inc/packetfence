@@ -23,21 +23,75 @@ endif::[]
 
 ==== Context and Objectives of the Documentation
 
-Since PacketFence v14.2, we introduced EAP TEAP support, EAP-TEAP is considered as a faster and next generation of EAP PEAP.
+Since PacketFence v15.0, we introduced EAP-TEAP support, EAP-TEAP is considered as a faster and next generation of EAP-PEAP.
+As EAP-TEAP is still being developed rapidly and refined by many organizations and corporations, it may not be fully supported
+in some of platforms.
 
+It is tested and known to work on
 
-==== Important notes before starting
+ 1. Windows 10 (22H2+) / 11
+ 2. Windows Server 2016(with limited support), Windows Server 2019 or later.
+ 3. Modern Cisco devices
 
-EAP TEAP is supported only with PacketFence v14.2 or later.
-EAP TEAP is supported on Windows 10 (20H2) or later.
+It is know not to work with:
+
+ 1. some versions of eapol_test
+ 2. some versions of wpa_supplicant
+ 3. iOS / MacOS (not supported yet)
+
+==== Supported inner methods
+
+For now, we support MSCHAPv2 and TLS for EAP-TEAP.
+Those 2 inner methods are exactly the two supported and recommended by default in Windows wired / wireless 802.1x client.
+
+For EAP-TEAP, there are other inner methods can be used such as password authentication, but it's not recommended,
+You may try authentication using password mechanism on a test purpose on some of the supported platforms, but typically,
+It's not recommended to do that on a production environment of Windows domain.
+
+==== EAP chaining
+
+One of the most enticing feature that EAP TEAP brings to us is EAP chaining, it allows you to authenticate multiple times
+in a single EAP session, which saves a lot of time and has a faster and more secure protection of your credentials passed to the Radius server.
+
+If eap chaining is enabled, you are expected to provided both "machine identity" and "user identity",
+A most common case in Windows client authentication is:
+
+Machine identity refers to the "machine account password" if you use MSCHAPv2, or "TLS certificate" for machine if you choose a certificate based authentication.
+User identity refers to the "user password" or a "user certificate" which is more secure.
+
+Either authentication failure will result the whole authentication flow to fail, and the connection won't be established.
+
 
 ==== Enable TEAP in PacketFence
-To use TEAP, you'll need to enable TEAP.
+Enable TEAP in EAP profiles.
+
 1. Go to *Configuration* -> *System Configuration* -> *RADIUS* -> *EAP Profiles*
-2. In EAP Profiles you are using, in *EAP Authentication types*, adds "TEAP" and click save.
+2. In *EAP Authentication types*, adds "TEAP" and click save.
+3. Restart the radiusd related services if you don't need any other changes.
+
+image::eap-profile.jpg[scaledwidth="100%",alt="EAP Profile Settings"]
+
+Config TEAP Profiles
+
+1. Go to *Configurations* -> *System Configuration* -> *RADIUS* -> *TEAP Profiles*
+2. You will see a "Default" Profile in the page, create a new one or clone from the default config if you need to change the settings.
+3. In the teap profile you are editing, you can change the TLS profile you previously created or updated, or change other settings or the *Identity Types*
+
+*Itentity Types* is a setting that telling Radius Server which identities should be authenticated. Supported values are "machine", "machine,user", "user", "user,machine".
+If you want to authenticate both machine identity and user identity, select "machine,user" or "user,machine".
+
+image::teap-profiles.jpg[scaledwidth="100%",alt="EAP Profile Settings"]
+
+Restart radiusd service
+
+`/usr/local/pf/bin/pfcmd service radiusd restart`
+
+You should be able to have TEAP support.
 
 ==== TEAP Limitations
-1. EAP TEAP is widely supported on Windows platform, however, it's not widely supported on other platforms, such as MacOS, iOS or Android.
 1. There's a limitation on domain joined machines to enable EAP TEAP if your Domain Controller is running Windows 2019 or earlier. They will not be able to do EAP chaining. But you can still configure TEAP on your wired or wirless network.
 1. To use EAP chaining on a domain-joined machine, you'll have to make sure the Domain Controller is running a Windows Server 2022 or later.
 
+Please see the discussions here to learn about how to setup EAP TEAP client on Windows and Windows Domain Controller.
+
+https://community.cisco.com/t5/security-knowledge-base/teap-for-windows-10-using-group-policy-and-ise-teap/ta-p/4134289
