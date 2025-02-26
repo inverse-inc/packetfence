@@ -23,8 +23,15 @@ export LC_CTYPE
 
 DIST=$(lsb_release -c -s)
 
+setup_system_init_key() {
+    if [ ! -f /usr/local/pf/conf/system_init_key ]; then
+        hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+    fi
+}
+
 case "$1" in
     configure)
+        setup_system_init_key
         export PACKETFENCE=/usr/local/pf
         export PERL5LIB=/usr/local/pf/lib
         find $PACKETFENCE/conf -type f -exec chmod 664 '{}' \;

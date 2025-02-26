@@ -51,8 +51,15 @@ rm_conffile() {
     fi
 }
 
+setup_system_init_key() {
+    if [ ! -f /usr/local/pf/conf/system_init_key ]; then
+        hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+    fi
+}
+
 case "$1" in
     install)
+        setup_system_init_key
         stop_service_if_exists packetfence
         if [ -z "$(getent passwd pf)" ]; then
             if ! /usr/bin/id -g pf &>/dev/null; then
@@ -87,6 +94,7 @@ case "$1" in
     ;;
 
     upgrade)
+        setup_system_init_key
         # mv the old raddb dir if upgrading from FreeRADIUS 2
         echo "Upgrading from $2"
         if dpkg --compare-versions "$2" lt "6"; then
