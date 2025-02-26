@@ -209,22 +209,25 @@ def transitive_login(account_username, challenge, nt_response, domain=None):
 
             nt_key = [x if isinstance(x, str) else hex(x)[2:].zfill(2) for x in info.base.key.key]
             nt_key_str = ''.join(nt_key)
-            log.info(f"Auth OK '{account_username}@{domain}', NT_KEY = '{utils.mask_password(nt_key_str)}'.")
+            log.info(f"Auth OK '{account_username}@{domain}', NT_KEY = '{utils.mask_password(nt_key_str)}' using {global_vars.c_server_name}\\{global_vars.c_username}")
             return nt_key_str.encode('utf-8').strip().decode('utf-8'), 0, info
         except NTSTATUSError as e:
             nt_error_code = e.args[0]
             nt_error_message = f"NT Error: code: {nt_error_code}, message: {str(e)}"
-            log.warning(f"auth failed: user = '{account_username}@{domain}', e = {nt_error_code}, m = {nt_error_message}")
-            if error_code == 0xc0000022:
+            log.warning(f"auth failed: user = '{account_username}@{domain}', e = {nt_error_code}, m = {nt_error_message} using {global_vars.c_server_name}\\{global_vars.c_username}")
+
+            if nt_error_code == 0xc0000022:
                 log.warning("Is this machine account is shared by another ntlm_auth process (or another cluster node)?")
+            if nt_error_code == 0xC000006a:
+                log.warning("Are you using the correct password or there's a password change recently?")
 
             global_vars.s_reconnect_id = global_vars.s_connection_id
             return nt_error_message, nt_error_code, None
         except Exception as e:
             global_vars.s_reconnect_id = global_vars.s_connection_id
             if isinstance(e.args, tuple) and len(e.args) > 0:
-                log.warning(f"auth failed: user = '{account_username}@{domain}', e = {e.args[0]} m = {str(e)}.")
+                log.warning(f"auth failed: user = '{account_username}@{domain}', e = {e.args[0]} m = {str(e)} using {global_vars.c_server_name}\\{global_vars.c_username}")
                 return f"General Error: code {e.args[0]}, {str(e)}", e.args[0], None
             else:
-                log.warning(f"auth failed: user = '{account_username}@{domain}', m = {str(e)}.")
+                log.warning(f"auth failed: user = '{account_username}@{domain}', m = {str(e)} using {global_vars.c_server_name}\\{global_vars.c_username}")
                 return f"General Error: {str(e)}", -1, None
