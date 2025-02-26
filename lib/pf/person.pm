@@ -288,14 +288,12 @@ sub person_reg_nodes {
     my ($status, $iter) = pf::dal::node->search(
         -where => {
             pid => $pid,
+            status => "reg",
         },
         -columns => [qw(mac pid notes regdate unregdate status user_agent computername device_class time_balance bandwidth_balance)],
         #To avoid join
         -from => pf::dal::node->table,
         -with_class => undef,
-        -where => {
-            status => "reg",
-        },
     );
     if (is_error($status)) {
         return;
