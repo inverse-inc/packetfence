@@ -17,13 +17,14 @@ export default class CustomFormatter {
   }
 
   interpolate (message, values) {
+    let escaped = MessageFormat.escape(message)
     // reference cache
-    let fn = this._caches[message]
+    let fn = this._caches[escaped]
     if (!fn) {
       // no cache, compile once
-      fn = this._formatter.compile(message, this._locale)
+      fn = this._formatter.compile(escaped, this._locale)
       // cache
-      this._caches[message] = fn
+      this._caches[escaped] = fn
     }
     return [fn(values)]
   }
