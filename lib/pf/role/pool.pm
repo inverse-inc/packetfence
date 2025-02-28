@@ -247,8 +247,8 @@ sub getPerUserVlan {
             return $available_vlan;
         }
         else {
-            $logger->error("No available VLAN in the pool");
-            return;
+            $logger->error("No available VLAN in the pool returning a random vlan");
+            return $vlans[int(rand(scalar @vlans))];
         }
     }
 }
