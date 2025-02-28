@@ -23,7 +23,7 @@
             <template v-slot:button-content>
               <icon name="ellipsis-v"></icon>
             </template>
-            <b-dropdown-item-button v-for="language in languages" v-show="$i18n.locale !== language.language" :key="`debug-${language-language}`"
+            <b-dropdown-item-button v-for="language in languages" v-show="$i18n.locale !== language.language" :key="`debug-${language.language}`"
               @click="setLanguage(language.language)">{{ $t(language.label, language.language) }}</b-dropdown-item-button>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/login">{{ $t('Login to Administration') }}</b-dropdown-item>
@@ -34,7 +34,7 @@
             <template v-slot:button-content>
               <icon name="user-circle"></icon> {{ username }}
             </template>
-            <b-dropdown-item-button v-for="language in languages" v-show="$i18n.locale !== language.language" :key="`auth-${language-language}`"
+            <b-dropdown-item-button v-for="language in languages" v-show="$i18n.locale !== language.language" :key="`auth-${language.language}`"
               @click="setLanguage(language.language)">{{ $t(language.label, language.language) }}</b-dropdown-item-button>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/preferences">{{ $t('Preferences') }}</b-dropdown-item>
