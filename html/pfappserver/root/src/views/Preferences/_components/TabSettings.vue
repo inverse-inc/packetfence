@@ -11,8 +11,8 @@
           :text="$t('Language is set after login and may be temporarily overridden from the header menu.')"
         >
           <div>
-            <b-form-radio v-model="settings.language" name="language" :value="'en'">{{ $t('English') }}</b-form-radio>
-            <b-form-radio v-model="settings.language" name="language" :value="'fr'">{{ $t('French') }}</b-form-radio>
+            <b-form-radio v-for="language in languages" :key="language.locale"
+              v-model="settings.language" name="language" :value="language.language">{{ $t(language.label) }} (<code>{{ language.locale }}</code>)</b-form-radio>
             <b-form-radio v-model="settings.language" name="language" :value="null">{{ $t('Use web browser default') }}</b-form-radio>
           </div>
         </base-form-group>
@@ -179,7 +179,7 @@ const components = {
 
 import { computed, nextTick, ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import i18n from '@/utils/locale'
+import i18n, { languages } from '@/utils/locale'
 import yup from '@/utils/yup'
 import usersApi from '@/views/Users/_api'
 import defaultSettings from '../config'
@@ -397,6 +397,9 @@ const setup = (props, context) => {
     isLoading,
     isValid,
     changePassword,
+
+    // locales
+    languages,
 
     // preferences
     preferences,

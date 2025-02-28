@@ -28,6 +28,10 @@ else
   args="$args -v/usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates"
 fi
 
+if ! [ -z "$LIB_MOUNT" ]; then
+  args="$args -v$LIB_MOUNT:/usr/local/pf/lib"
+fi
+
 cd /usr/local/pf/
 
 run $name "$args"
