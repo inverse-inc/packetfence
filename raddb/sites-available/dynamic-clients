@@ -79,7 +79,6 @@ server dynamic_clients {
 	#
 	#  The only contents of the virtual server is the "authorize" section.
 	authorize {
-
 		#
 		#  Put any modules you want here.  SQL, LDAP, "exec",
 		#  Perl, etc.  The only requirements is that the
@@ -141,7 +140,6 @@ SELECT nasname FROM (\
 
             }
         }
-
     if ( &control:PacketFence-NasName != "" && &control:FreeRADIUS-Client-Shortname != "" && &control:FreeRADIUS-Client-Secret != "" && &control:FreeRADIUS-Client-NAS-Type != "" ) {
         ok
     } 
