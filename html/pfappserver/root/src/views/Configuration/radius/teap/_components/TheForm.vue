@@ -7,29 +7,36 @@
     :isReadonly="id === 'default' && !isClone"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Identifier')"
-      :disabled="!isNew && !isClone"
+                           :column-label="$i18n.t('Identifier')"
+                           :disabled="!isNew && !isClone"
     />
 
     <form-group-tls namespace="tls"
-      :column-label="$i18n.t('TLS Profile')"
+                    :column-label="$i18n.t('TLS Profile')"
+                    :text="$i18n.t('The TLS Profile for EAP-TEAP')"
     />
 
     <form-group-authority-identity namespace="authority_identity"
-      :column-label="$i18n.t('Authority Identity')"
+                                   :column-label="$i18n.t('Authority Identity')"
+                                   :text="$i18n.t('Authority ID of the server, If you are running a cluster of RADIUS server, you should make the value chose here the same on all your RADIUS servers. This value should be unique to your installation.')"
     />
 
     <form-group-identity-types namespace="identity_types"
-                                   :column-label="$i18n.t('Identity Types')"
+                               :column-label="$i18n.t('Identity Types')"
+                               :text="$i18n.t('This sets &session-state:FreeRADIUS-EAP-TEAP-TLV-Identity-Type with the relevant values. The TEAP module then picks those values, in order, to authenticate the chosen identity.')"
+
     />
 
     <form-group-pac-opaque-key namespace="pac_opaque_key"
-                                   :column-label="$i18n.t('Key')"
+                               :column-label="$i18n.t('Key')"
+                               :text="$i18n.t('this is a field containing the ticket that is sent to the EAP server during the TEAP Phase 1 tunnel establishment, keep this a 32 char hex string. E.g., 0123456789abcdef0123456789ABCDEF')"
+
+
     />
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
+import {computed} from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
