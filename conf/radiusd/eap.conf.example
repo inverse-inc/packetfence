@@ -859,7 +859,6 @@ eap [% key -%] {
 
 		default_eap_type = mschapv2
 
-
 		#  Set the EAP type for user / machine authentication.
 		#
 		#  If set, these values over-ride "default_eap_type"
@@ -897,7 +896,7 @@ eap [% key -%] {
 		#  EAP-TLS, EAP-MSCHAPv2, and PAP.
 
 		user_eap_type = tls
-		machine_eap_type = mschapv2
+		machine_eap_type = tls
 
 		#
 		#  If 'cipher_list' is set here, it will over-ride the
