@@ -585,14 +585,35 @@ pfdetect=enabled
 #
 # Should redis be managed by PacketFence?
 redis_cache=enabled
+#
+# services.redis_cache_host
+redis_cache_host=[% ENV.env_or_default("REDIS_CACHE_HOST_PORT", "containers-gateway.internal") %]
+#
+# services.redis_cache_port
+redis_cache_port=[% ENV.env_or_default("REDIS_CACHE_PORT", "6379") %]
+#
 # services.redis_queue
 #
 # Should redis be managed by PacketFence?
 redis_queue=enabled
+#
+# services.redis_queue_host
+redis_queue_host=[% ENV.env_or_default("REDIS_QUEUE_HOST", "containers-gateway.internal") %]
+#
+# services.redis_queue_port
+redis_queue_port=[% ENV.env_or_default("REDIS_QUEUE_PORT", "6380") %]
+#
 # services.redis_ntlm_cache
 #
 # Should redis be managed by PacketFence?
 redis_ntlm_cache=disabled
+#
+# services.redis_ntlm_cache_host
+redis_ntlm_cache_host=[% ENV.env_or_default("REDIS_NTLM_CACHE_HOST_PORT", "containers-gateway.internal") %]
+#
+# services.redis_ntlm_cache_port
+redis_ntlm_cache_port=[% ENV.env_or_default("REDIS_NTLM_CACHE_PORT", "6383") %]
+#
 # 
 # services.redis_binary
 # 
