@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -504,7 +504,7 @@ func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *
 }
 
 func (s *Server) handleRemoteFingerbankCollectorNbaConf(w http.ResponseWriter, req *http.Request) {
-	if nbaConf, err := ioutil.ReadFile("/usr/local/pf/conf/network_behavior_policies.conf"); err == nil {
+	if nbaConf, err := os.ReadFile("/usr/local/pf/conf/network_behavior_policies.conf"); err == nil {
 		w.Write(nbaConf)
 	} else {
 		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error while reading Fingerbank NBA config: %s", err))
