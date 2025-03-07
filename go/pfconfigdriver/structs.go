@@ -1078,10 +1078,3 @@ type PfConfDnsConnectors struct {
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]interface{}
 }
-
-type Dns struct {
-	Domains         string `json:"domains"`
-	Ip              string `json:"ip"`
-	Port            string `json:"port"`
-	PfConnectorPort string `json:"pf_connector_port"`
-}
