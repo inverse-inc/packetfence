@@ -1188,6 +1188,8 @@ fi
                         /usr/local/pf/conf/radiusd/load_balancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/rest.conf
                         /usr/local/pf/conf/radiusd/rest.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/redis.conf
+                        /usr/local/pf/conf/radiusd/redis.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/cli.conf
                         /usr/local/pf/conf/radiusd/cli.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cli
