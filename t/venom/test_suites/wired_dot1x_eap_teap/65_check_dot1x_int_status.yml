@@ -16,7 +16,7 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       # we didn't check MAC address on port to make this testcase reusable
-      - result.body ShouldContainSubstring "{{.dot1x_eap_peap.roles.ad_user.vlan_id}}"
-      - result.body ShouldContainSubstring PEAP
+      - result.body ShouldContainSubstring "{{.dot1x_eap_teap.roles.ad_user.vlan_id}}"
+      - result.body ShouldContainSubstring TEAP
       - result.body ShouldContainSubstring AUTHORIZED
       - result.statuscode ShouldEqual 200
