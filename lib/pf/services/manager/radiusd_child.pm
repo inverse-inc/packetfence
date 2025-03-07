@@ -112,6 +112,7 @@ sub _generateConfig {
     $self->generate_radiusd_acctconf($tt);
     $self->generate_radiusd_eapconf($tt);
     $self->generate_radiusd_restconf($tt);
+    $self->generate_radiusd_redisconf($tt);
     $self->generate_radiusd_sqlconf($tt);
     $self->generate_radiusd_sitesconf($tt);
     $self->generate_radiusd_proxy($tt);
@@ -365,6 +366,21 @@ sub generate_radiusd_restconf {
 
     $tt->process("$conf_dir/radiusd/rest.conf", \%tags, "$install_dir/raddb/mods-enabled/rest") or die $tt->error();
 }
+
+sub generate_radiusd_redisconf {
+    my ($self, $tt) = @_;
+    my %tags;
+
+    $tags{'template'}    = "$conf_dir/radiusd/redis.conf";
+    $tags{'install_dir'} = $install_dir;
+    $tags{'redis_cache_host'} = $Config{services}{redis_cache_host} || "127.0.0.1";
+    $tags{'redis_cache_host'} = $Config{services}{redis_cache_port} || "6379";
+    $tags{'redis_ntlm_cache_host'} = $Config{services}{redis_ntlm_cache_host} || "127.0.0.1";
+    $tags{'redis_ntlm_cache_port'} = $Config{services}{redis_ntlm_cache_port} || "6383";
+
+    $tt->process("$conf_dir/radiusd/redis.conf", \%tags, "$install_dir/raddb/mods-enabled/redis") or die $tt->error();
+}
+
 
 sub generate_radiusd_authconf {
     my ($self, $tt) = @_;
