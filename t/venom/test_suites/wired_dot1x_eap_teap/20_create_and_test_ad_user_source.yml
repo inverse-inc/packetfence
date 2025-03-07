@@ -21,11 +21,11 @@ testcases:
             "actions": [
               {
                 "type": "set_role",
-                "value": "{{.dot1x_eap_peap.roles.ad_user.id}}"
+                "value": "{{.dot1x_eap_teap.roles.ad_user.id}}"
               },
               {
                 "type": "set_access_duration",
-                "value": "{{.dot1x_eap_peap.sources.ad_user.access_duration}}"
+                "value": "{{.dot1x_eap_teap.sources.ad_user.access_duration}}"
               }
             ],
             "conditions": []
@@ -35,13 +35,13 @@ testcases:
         "binddn": "{{.ad_domain_admin_user}}@{{.ad_dns_domain}}",
         "cache_match": "0",
         "connection_timeout": 1,
-        "description": "{{.dot1x_eap_peap.sources.ad_user.description}}",
+        "description": "{{.dot1x_eap_teap.sources.ad_user.description}}",
         "email_attribute": "mail",
         "encryption": "starttls",
         "host": [
           "{{.ad_mgmt_ip}}"
         ],
-        "id": "{{.dot1x_eap_peap.sources.ad_user.name}}",
+        "id": "{{.dot1x_eap_teap.sources.ad_user.name}}",
         "monitor": "1",
         "password": "{{.ad_domain_admin_password}}",
         "port": "389",
@@ -76,12 +76,12 @@ testcases:
         "basedn": "{{.ad_base_dn}}",
         "binddn": "{{.ad_domain_admin_user}}@{{.ad_dns_domain}}",
         "connection_timeout": 1,
-        "description": "{{.dot1x_eap_peap.sources.ad_user.description}}",
+        "description": "{{.dot1x_eap_teap.sources.ad_user.description}}",
         "encryption": "starttls",
         "host": [
           "{{.ad_mgmt_ip}}"
         ],
-        "id": "{{.dot1x_eap_peap.sources.ad_user.name}}",
+        "id": "{{.dot1x_eap_teap.sources.ad_user.name}}",
         "password": "{{.ad_domain_admin_password}}",
         "port": "389",
         "read_timeout": 10,
