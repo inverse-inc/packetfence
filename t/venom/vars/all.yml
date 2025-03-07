@@ -184,6 +184,76 @@ wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type: Wireless-802.
 wireless_dot1x_eap_peap.profiles.wireless.filters.connection_sub_type: MS-EAP-Authentication
 wireless_dot1x_eap_peap.profiles.wireless.unreg_on_acct_stop: enabled
 
+
+################################################################################
+# eap_teap test suites specific variables
+################################################################################
+# AD user
+eap_teap.roles.ad_user.id: user_employee
+eap_teap.roles.ad_user.notes: User employee
+eap_teap.roles.ad_user.vlan_id: 100
+
+eap_teap.roles.ad_machine.id: machine_employee
+eap_teap.roles.ad_machine.notes: Machine Employee
+eap_teap.roles.ad_machine.vlan_id: 100
+
+################################################################################
+# dot1x_eap_teap test suite specific variables
+################################################################################
+# Roles
+dot1x_eap_teap.roles.ad_user.id: '{{.eap_teap.roles.ad_user.id}}'
+dot1x_eap_teap.roles.ad_user.notes: '{{.eap_teap.roles.ad_user.notes}}'
+dot1x_eap_teap.roles.ad_user.vlan_id: '{{.eap_teap.roles.ad_user.vlan_id}}'
+
+dot1x_eap_teap.roles.ad_machine.id: '{{.eap_teap.roles.ad_machine.id}}'
+dot1x_eap_teap.roles.ad_machine.notes: '{{.eap_teap.roles.ad_machine.notes}}'
+dot1x_eap_teap.roles.ad_machine.vlan_id: '{{.eap_teap.roles.ad_machine.vlan_id}}'
+
+# Sources
+dot1x_eap_teap.sources.ad_user.name: dot1x_eap_teap_user_auth
+dot1x_eap_teap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
+dot1x_eap_teap.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
+
+dot1x_eap_teap.sources.ad_machine.name: dot1x_eap_teap_machine_auth
+dot1x_eap_teap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
+dot1x_eap_teap.sources.ad_machine.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+dot1x_eap_teap.profiles.wired.id: catch_dot1x_wired_eap_teap_mschapv2
+dot1x_eap_teap.profiles.wired.description: 802.1X wired EAP-TEAP-MSCHAPv2
+dot1x_eap_teap.profiles.wired.filters.connection_type: Ethernet-EAP
+dot1x_eap_teap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
+dot1x_eap_teap.profiles.wired.unreg_on_acct_stop: enabled
+
+################################################################################
+# wireless_dot1x_eap_teap test suite specific variables
+################################################################################
+# Roles
+wireless_dot1x_eap_teap.roles.ad_user.id: '{{.eap_teap.roles.ad_user.id}}'
+wireless_dot1x_eap_teap.roles.ad_user.notes: '{{.eap_teap.roles.ad_user.notes}}'
+wireless_dot1x_eap_teap.roles.ad_user.vlan_id: '{{.eap_teap.roles.ad_user.vlan_id}}'
+
+wireless_dot1x_eap_teap.roles.ad_machine.id: '{{.eap_teap.roles.ad_machine.id}}'
+wireless_dot1x_eap_teap.roles.ad_machine.notes: '{{.eap_teap.roles.ad_machine.notes}}'
+wireless_dot1x_eap_teap.roles.ad_machine.vlan_id: '{{.eap_teap.roles.ad_machine.vlan_id}}'
+
+# Sources
+wireless_dot1x_eap_teap.sources.ad_user.name: wireless_dot1x_eap_teap_user_auth
+wireless_dot1x_eap_teap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
+wireless_dot1x_eap_teap.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
+
+wireless_dot1x_eap_teap.sources.ad_machine.name: wireless_dot1x_eap_teap_machine_auth
+wireless_dot1x_eap_teap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
+wireless_dot1x_eap_teap.sources.ad_machine.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+wireless_dot1x_eap_teap.profiles.wireless.id: catch_dot1x_wireless_eap_teap_mschapv2
+wireless_dot1x_eap_teap.profiles.wireless.description: 802.1X wireless EAP-TEAP-MSCHAPv2
+wireless_dot1x_eap_teap.profiles.wireless.filters.connection_type: Wireless-802.11-EAP
+wireless_dot1x_eap_teap.profiles.wireless.filters.connection_sub_type: MS-EAP-Authentication
+wireless_dot1x_eap_teap.profiles.wireless.unreg_on_acct_stop: enabled
+
+
 ################################################################################
 ## backup db and restore test suite specific variables
 #################################################################################
