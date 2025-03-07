@@ -1,0 +1,27 @@
+name: Create TEAP Profile
+testcases:
+  - name: get_login_token
+    steps:
+      - type: get_login_token
+
+  - name: create_teap_profile
+    steps:
+      - type: http
+        method: POST
+        url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/teap_profiles'
+        ignore_verify_ssl: true
+        body: >-
+          {
+            "id":"test-teap-profile",
+            "isClone":false,
+            "isNew":true,
+            "authority_identity":"1234",
+            "identity_types":"machine,user",
+            "pac_opaque_key":"0123456789abcdef0123456789ABCDEF",
+            "tls":"tls-eap-teap"
+          }
+        headers:
+          "Authorization": "{{.get_login_token.result.token}}"
+          "Content-Type": "application/json"
+        assertions:
+          - result.statuscode ShouldEqual 201
