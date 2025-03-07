@@ -587,7 +587,7 @@ pfdetect=enabled
 redis_cache=enabled
 #
 # services.redis_cache_host
-redis_cache_host=[% ENV.env_or_default("REDIS_CACHE_HOST_PORT", "containers-gateway.internal") %]
+redis_cache_host=[% ENV.env_or_default("REDIS_CACHE_HOST", "containers-gateway.internal") %]
 #
 # services.redis_cache_port
 redis_cache_port=[% ENV.env_or_default("REDIS_CACHE_PORT", "6379") %]
@@ -609,7 +609,7 @@ redis_queue_port=[% ENV.env_or_default("REDIS_QUEUE_PORT", "6380") %]
 redis_ntlm_cache=disabled
 #
 # services.redis_ntlm_cache_host
-redis_ntlm_cache_host=[% ENV.env_or_default("REDIS_NTLM_CACHE_HOST_PORT", "containers-gateway.internal") %]
+redis_ntlm_cache_host=[% ENV.env_or_default("REDIS_NTLM_CACHE_HOST", "containers-gateway.internal") %]
 #
 # services.redis_ntlm_cache_port
 redis_ntlm_cache_port=[% ENV.env_or_default("REDIS_NTLM_CACHE_PORT", "6383") %]
