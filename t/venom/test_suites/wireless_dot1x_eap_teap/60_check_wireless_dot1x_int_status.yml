@@ -9,3 +9,6 @@ testcases:
           cd /usr/local/pf/t/venom ; \
           sudo VENOM_COMMON_FLAGS='--output-dir={{.test_suite_results_dir}}/{{.venom.testcase}}' \
           /usr/local/pf/t/venom/venom-wrapper.sh {{.switch_test_suite_dir}}/common/check_wlan0.x_int_status_eap_peap_user.yml
+
+# Note: we are checking the IF status using the PEAP script. since it's not a complex validator,
+# we keep this as-is. consider moving this to a dedicated test case just for TEAP when necessary.

@@ -8,4 +8,4 @@ testcases:
       command:  |
           cd /usr/local/pf/t/venom ; \
           sudo VENOM_COMMON_FLAGS='--output-dir={{.test_suite_results_dir}}/{{.venom.testcase}}' \
-          /usr/local/pf/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/wireless_dot1x_eap_peap/run_wpasupplicant.yml
+          /usr/local/pf/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/wireless_dot1x_eap_teap/run_wpasupplicant.yml
