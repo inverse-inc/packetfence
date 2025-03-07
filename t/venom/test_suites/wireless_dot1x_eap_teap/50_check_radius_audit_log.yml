@@ -62,7 +62,7 @@ testcases:
                 {
                   "field": "connection_type",
                   "op": "equals",
-                  "value": "{{.wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type}}"
+                  "value": "{{.wireless_dot1x_eap_teap.profiles.wireless.filters.connection_type}}"
                 }
               ]
             }
@@ -90,5 +90,5 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wireless_dot1x_eap_peap.roles.ad_user.vlan_id}}"'
-      - result.bodyjson.item.profile ShouldEqual "{{.wireless_dot1x_eap_peap.profiles.wireless.id}}"
+      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wireless_dot1x_eap_teap.roles.ad_user.vlan_id}}"'
+      - result.bodyjson.item.profile ShouldEqual "{{.wireless_dot1x_eap_teap.profiles.wireless.id}}"

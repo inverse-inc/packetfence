@@ -4,7 +4,7 @@ testcases:
   steps:
   - type: get_login_token
 
-- name: create_wireless_dot1x_wired_eap_peap_mschapv2connection_profile
+- name: create_wireless_dot1x_wired_eap_teap_mschapv2connection_profile
   steps:
   - type: http
     method: POST
@@ -22,22 +22,22 @@ testcases:
           "unit": "m"
         },
         "default_psk_key": null,
-        "description": "{{.wireless_dot1x_eap_peap.profiles.wireless.description}}",
+        "description": "{{.wireless_dot1x_eap_teap.profiles.wireless.description}}",
         "dot1x_recompute_role_from_portal": "enabled",
         "dot1x_unset_on_unmatch": "disabled",
         "dpsk": "disabled",
         "filter": [
           {
             "type": "connection_type",
-            "match": "{{.wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type}}"
+            "match": "{{.wireless_dot1x_eap_teap.profiles.wireless.filters.connection_type}}"
           },
           {
             "type": "connection_sub_type",
-            "match": "{{.wireless_dot1x_eap_peap.profiles.wireless.filters.connection_sub_type}}"
+            "match": "{{.wireless_dot1x_eap_teap.profiles.wireless.filters.connection_sub_type}}"
           }          
         ],
         "filter_match_style": "all",
-        "id": "{{.wireless_dot1x_eap_peap.profiles.wireless.id}}",
+        "id": "{{.wireless_dot1x_eap_teap.profiles.wireless.id}}",
         "locale": null,
         "login_attempt_limit": 0,
         "logo": null,
@@ -54,11 +54,11 @@ testcases:
         "sms_pin_retry_limit": 0,
         "sms_request_limit": 0,
         "sources": [
-          "{{.wireless_dot1x_eap_peap.sources.ad_machine.name}}",
-          "{{.wireless_dot1x_eap_peap.sources.ad_user.name}}"
+          "{{.wireless_dot1x_eap_teap.sources.ad_machine.name}}",
+          "{{.wireless_dot1x_eap_teap.sources.ad_user.name}}"
         ],
         "status": "enabled",
-        "unreg_on_acct_stop": "{{.wireless_dot1x_eap_peap.profiles.wireless.unreg_on_acct_stop}}",
+        "unreg_on_acct_stop": "{{.wireless_dot1x_eap_teap.profiles.wireless.unreg_on_acct_stop}}",
         "vlan_pool_technique": "username_hash"
       }
     headers:
