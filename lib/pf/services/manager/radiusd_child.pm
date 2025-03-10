@@ -374,7 +374,7 @@ sub generate_radiusd_redisconf {
     $tags{'template'}    = "$conf_dir/radiusd/redis.conf";
     $tags{'install_dir'} = $install_dir;
     $tags{'redis_cache_host'} = $Config{services}{redis_cache_host} || "127.0.0.1";
-    $tags{'redis_cache_host'} = $Config{services}{redis_cache_port} || "6379";
+    $tags{'redis_cache_port'} = $Config{services}{redis_cache_port} || "6379";
     $tags{'redis_ntlm_cache_host'} = $Config{services}{redis_ntlm_cache_host} || "127.0.0.1";
     $tags{'redis_ntlm_cache_port'} = $Config{services}{redis_ntlm_cache_port} || "6383";
 
