@@ -381,7 +381,6 @@ sub generate_radiusd_redisconf {
     $tt->process("$conf_dir/radiusd/redis.conf", \%tags, "$install_dir/raddb/mods-enabled/redis") or die $tt->error();
 }
 
-
 sub generate_radiusd_authconf {
     my ($self, $tt) = @_;
     my %tags;
