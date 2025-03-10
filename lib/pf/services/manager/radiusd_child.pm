@@ -326,7 +326,6 @@ EOT
 
 }
 
-
 =head2 generate_radiusd_mainconf
 
 Generates the radiusd.conf configuration file
@@ -352,6 +351,12 @@ sub generate_radiusd_mainconf {
     $tt->process("$conf_dir/radiusd/radiusd_cli.conf", \%tags, "$install_dir/raddb/radiusd_cli.conf") or die $tt->error();
 }
 
+=head2 generate_radiusd_restconf
+
+Generates the rest configuration file
+
+=cut
+
 sub generate_radiusd_restconf {
     my ($self, $tt) = @_;
     my %tags;
@@ -366,6 +371,12 @@ sub generate_radiusd_restconf {
 
     $tt->process("$conf_dir/radiusd/rest.conf", \%tags, "$install_dir/raddb/mods-enabled/rest") or die $tt->error();
 }
+
+=head2 generate_radiusd_redisconf
+
+Generates the redis configuration file
+
+=cut
 
 sub generate_radiusd_redisconf {
     my ($self, $tt) = @_;
