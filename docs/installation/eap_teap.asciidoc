@@ -24,43 +24,49 @@ endif::[]
 ==== Context and Objectives of the Documentation
 
 Since PacketFence v15.0, we introduced EAP-TEAP support, EAP-TEAP is considered as a faster and next generation of EAP-PEAP.
-As EAP-TEAP is still being developed rapidly and refined by many organizations and corporations, it may not be fully supported
-in some of platforms.
+As EAP-TEAP is still being developed rapidly, it may not be fully supported on all your network devices or platforms.
 
 It is tested and known to work on
-
- 1. Windows 10 (22H2+) / 11
- 2. Windows Server 2016(with limited support), Windows Server 2019 or later.
- 3. Modern Cisco devices
+ 1. Windows 10 (22H2+) / 11 (as TEAP client)
+ 2. Windows Server 2016 (limited support), Windows Server 2019 (limited support) and Windows Server 2022.
+ 3. some Cisco Devices running ISE 2.7 Patch2+
+ 4. some versions of eapol_test (currently, latest devel build)
 
 It is know not to work with:
-
- 1. some versions of eapol_test
- 2. some versions of wpa_supplicant
+ 1. some versions of eapol_test (2.11 or earlier)
+ 2. some versions of wpa_supplicant (2.11 or earlier)
  3. iOS / MacOS (not supported yet)
 
 ==== Supported inner methods
 
-For now, we support MSCHAPv2 and TLS for EAP-TEAP.
-Those 2 inner methods are exactly the two supported and recommended by default in Windows wired / wireless 802.1x client.
-
-For EAP-TEAP, there are other inner methods can be used such as password authentication, but it's not recommended,
-You may try authentication using password mechanism on a test purpose on some of the supported platforms, but typically,
-It's not recommended to do that on a production environment of Windows domain.
+TEAP supports EAP-MSCHAPv2, EAP-TLS and PAP as inner methods, but it's always better to use secure and mature inner methods.
+Windows by default supports EAP-MSCHAPv2 and EAP-TLS when you configure 802.1x client and TEAP.
+We currently enabled EAP-MSCHAPv2 and EAP-TLS as inner methods for TEAP by default.
 
 ==== EAP chaining
 
-One of the most enticing feature that EAP TEAP brings to us is EAP chaining, it allows you to authenticate multiple times
-in a single EAP session, which saves a lot of time and has a faster and more secure protection of your credentials passed to the Radius server.
+One of the most enticing feature that TEAP brings to us is EAP chaining, it allows you to authenticate both user identities
+and machine identities in a single EAP session, which is faster and more efficient.
+If eap chaining is enabled, you are expected to provide both "machine identity" and "user identity".
 
-If eap chaining is enabled, you are expected to provided both "machine identity" and "user identity",
-A most common case in Windows client authentication is:
+Machine authentication and User authentication both takes either EAP-MSCHAPv2 or EAP-TLS, you can configure your Windows
+client to use any of the 4 following combinations:
 
-Machine identity refers to the "machine account password" if you use MSCHAPv2, or "TLS certificate" for machine if you choose a certificate based authentication.
-User identity refers to the "user password" or a "user certificate" which is more secure.
+ 1. MSCHAPv2 for both Machine and User
+ 2. TLS for both Machine and User
+ 3. MSCHAPv2 for Machine and TLS for User
+ 4. TLS for Machine and MSCHAPv2 for User
 
-Either authentication failure will result the whole authentication flow to fail, and the connection won't be established.
+Using both MSCHAPv2 for Machine identity and User identity is one of the most common cases:
 
+When the computer is turned on and booted to log-in screen, machine identity is authenticated.
+When the user types in their username and password, user identity is authenticated.
+Either authentication failure will result the whole authentication flow to fail.
+
+Therefore, devices knowing the user credentials will *NOT* be granted network access, access is granted only to those
+devices joined to Windows domain with correct user credentials.
+
+By default, PacketFence is configured only verifying user identities.
 
 ==== Enable TEAP in PacketFence
 Enable TEAP in EAP profiles.
@@ -88,10 +94,28 @@ Restart radiusd service
 
 You should be able to have TEAP support.
 
-==== TEAP Limitations
-1. There's a limitation on domain joined machines to enable EAP TEAP if your Domain Controller is running Windows 2019 or earlier. They will not be able to do EAP chaining. But you can still configure TEAP on your wired or wirless network.
-1. To use EAP chaining on a domain-joined machine, you'll have to make sure the Domain Controller is running a Windows Server 2022 or later.
+==== Limitations
+1. If you are running Windows Server 2019 or earlier as a Domain Controller, there will NOT be a GUI way to configure EAP TEAP policies and
+  push your policies to your workstations. You might need to manually generate and push a modified XML to enable TEAP.
+2. TEAP is supported since Windows 10 (22H2) and later. Please make sure all your workstations are running the compatible version.
 
-Please see the discussions here to learn about how to setup EAP TEAP client on Windows and Windows Domain Controller.
+Here is a discussion on Cisco Forum showing how to setup and deploy EAP TEAP Profile from an earlier Windows Domain Controller (see limitations 1)
 
 https://community.cisco.com/t5/security-knowledge-base/teap-for-windows-10-using-group-policy-and-ise-teap/ta-p/4134289
+
+==== Realms
+
+It is possible to specify an EAP Profiles for a specific Realm. This provides an extra flexibility for those
+who want to enable or disable a feature only for a specific domain.
+
+For example, there are 2 domains, domain A and domain B.
+For domain A, we want the most secure policies to be applied. We require TEAP Machine + User authentications.
+For domain B, we accept a loose security policy, only user credentials will be validated.
+
+Here are the steps:
+
+ 1. we create TEAP profile `teap-domain-A` with "identity types" set to "machine,user"
+ 2. we create another TEAP profile `teap-domain-B` with "identity types" set to "user"
+ 3. we go back to EAP Profiles, create two corresponding EAP profile, both enable TEAP, and select `teap-domain-A` and `teap-domain-B` respectively. The EAP Profiles are named "eap-domain-A", "eap-domain-B"
+ 4. go to Realms, associate the corresponding EAP Profile `eap-domain-A` and `eap-domain-B` to the Realm Domain A and Realm Domain B respectively.
+ 5. After a restart of related Radiusd services, PacketFence will be able to handle requests against domain A and domain B with associated EAP Profiles.
