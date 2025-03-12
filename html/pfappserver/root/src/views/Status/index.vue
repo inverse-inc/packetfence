@@ -30,13 +30,11 @@ const setup = (props, context) => {
   const sections = computed(() => ([
     {
       name: i18n.t('Dashboard'),
-      path: '/status/dashboard',
-      class: 'no-saas'
+      path: '/status/dashboard'
     },
     {
       name: i18n.t('Monitoring'),
       path: '/status/monitoring',
-      class: 'no-saas',
       items: monitoringHosts.value
     },
     {
