@@ -107,7 +107,7 @@ function set_upgrade_to() {
 
 function apt_upgrade_packetfence_package() {
   set_upgrade_to
-  echo "deb http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
+  echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
   apt update
   if is_enabled $1; then
     apt-mark hold packetfence-upgrade
