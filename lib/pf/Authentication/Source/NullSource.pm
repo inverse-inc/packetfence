@@ -21,6 +21,7 @@ use Email::Valid;
 use pf::util;
 
 extends 'pf::Authentication::Source';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'Null');
