@@ -147,6 +147,7 @@ our %RADIUS_EAP_TYPE_2_VALUES = (
     "Microsoft-MS-CHAPv2" => 26,
     "Cisco-MS-CHAPv2" => 29,
     "MS-CHAP-V2" => 26,
+    "EAP-TEAP" => 55,
 );
 
 our %RADIUS_EAP_VALUES_2_TYPE = map { $RADIUS_EAP_TYPE_2_VALUES{$_} => $_ } keys %RADIUS_EAP_TYPE_2_VALUES;
