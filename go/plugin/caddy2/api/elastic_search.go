@@ -15,10 +15,10 @@ func (h APIHandler) handleElasticsearch(w http.ResponseWriter, r *http.Request, 
 		User string `json:"user"`
 		Pass string `json:"pass"`
 	}{
-		Host: os.Getenv("PFCONFIG_ELASTICSEARCH_HOST"),
-		Port: os.Getenv("PFCONFIG_ELASTICSEARCH_PORT"),
-		User: os.Getenv("PFCONFIG_ELASTICSEARCH_USER"),
-		Pass: os.Getenv("PFCONFIG_ELASTICSEARCH_PASS"),
+		Host: os.Getenv("KIBANA_HOST"),
+		Port: os.Getenv("KIBANA_PORT"),
+		User: os.Getenv("KIBANA_USER"),
+		Pass: os.Getenv("KIBANA_PASS"),
 	}
 
 	json.NewEncoder(w).Encode(info)
