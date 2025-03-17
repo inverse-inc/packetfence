@@ -20,6 +20,7 @@ use pf::log;
 use pf::auth_log;
 use pf::Authentication::constants;
 use pf::constants::realm;
+use pf::person;
 
 has '+source' => (isa => 'pf::Authentication::Source::NullSource');
 
