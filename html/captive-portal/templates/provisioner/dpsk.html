@@ -1,6 +1,7 @@
 <div class="layout--center">
   <h5 class="u-mb--">[% i18n("Here is your password to connect on the following SSID.") %]</h5>
-  <h5 class="u-mb--">[% i18n("Password: ") %] [% psk %] [% i18n("SSID: ") %] [% ssid %]</h5>
+  <h5 class="u-mb--">[% i18n("Password: ") %] [% psk %]</h5>
+  <h5 class="u-mb--">[% i18n("SSID: ") %] [% ssid %]</h5>
 
    [% IF skipable %]
    <a href="/captive-portal?next=next" class="c-btn c-btn--tertiary u-margin-top">
@@ -9,4 +10,3 @@
    [% END %]
 
 </div>
-
