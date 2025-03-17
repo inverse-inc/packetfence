@@ -42,7 +42,7 @@ before generateConfig => sub {
            STATSD_ADDRESS => $Config{advanced}{statsd_listen_host}.":".$Config{advanced}{statsd_listen_port},
            PFCONNECTOR_SERVER_DYN_REVERSE_HOST => $management_network ? $management_network->{Tip} : '',
            PFCONFIG_ELASTICSEARCH_HOST => $pfconfig_config->section("elasticsearch")->{host},
-           PFCONFIG_ELASTICSEARCH_PORT => $pfconfig_config->section("elasticsearch")->{port},
+           PFCONFIG_ELASTICSEARCH_PORT => $pfconfig_config->section("elasticsearch")->{port_kibana},
            PFCONFIG_ELASTICSEARCH_USER => $pfconfig_config->section("elasticsearch")->{user},
            PFCONFIG_ELASTICSEARCH_PASS => $pfconfig_config->section("elasticsearch")->{pass},
        },
