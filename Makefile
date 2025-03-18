@@ -1,6 +1,7 @@
 include config.mk
 
 PF_UDF_OBJ = $(patsubst src/mariadb_udf/%.c, src/mariadb_udf/%.o, $(filter-out src/mariadb_udf/pf_udf.c src/mariadb_udf/test_pf_udf.c, $(wildcard src/mariadb_udf/*.c)))
+MYSQL_SUFFIX=
 
 all:
 	@echo "Please chose which documentation to build:"
@@ -113,7 +114,7 @@ bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
 	$(CC) -g -std=c99 -Wall $< -o $@ -lcurl -lcjson
 
 src/mariadb_udf/pf_udf.so: src/mariadb_udf/pf_udf.c $(PF_UDF_OBJ)
-	$(CC) -O2 -Wall -g $$(pkg-config libmariadb --cflags) -fPIC -shared -o $@ $< $(PF_UDF_OBJ)
+	$(CC) -O2 -Wall -g $$(pkg-config libmariadb --cflags|sed -e 's/[[:space:]]*$$//')$(MYSQL_PREFIX) -fPIC -shared -o $@ $< $(PF_UDF_OBJ)
 
 src/mariadb_udf/%.o: src/mariadb_udf/%.c src/mariadb_udf/%.h
 	$(CC) $(TEST_CFLAGS) $(CFLAGS) -fPIC -c $< -o $@
