@@ -45,6 +45,8 @@ BEGIN {
       last_end_time
       last_role
       last_start_timestamp
+      last_teap_username
+      last_teap_machinename
     );
 }
 
@@ -225,6 +227,8 @@ sub _load_locationlog {
             "locationlog.start_time|last_start_time",
             "locationlog.end_time|last_end_time",
             "locationlog.role|last_role",
+            "locationlog.teap_username|last_teap_username",
+            "locationlog.teap_machinename|last_teap_machinename",
             "UNIX_TIMESTAMP(`locationlog`.`start_time`)|last_start_timestamp",
           ],
         -from => 'locationlog',
