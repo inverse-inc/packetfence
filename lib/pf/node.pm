@@ -475,6 +475,8 @@ sub node_view_all {
           locationlog.dot1x_username|last_dot1x_username locationlog.ssid|last_ssid
           locationlog.stripped_user_name|stripped_user_name locationlog.realm|realm
           locationlog.switch_mac|last_switch_mac
+          locationlog.teap_username|last_teap_username
+          locationlog.teap_machinename|last_teap_machinename
           ip4log.ip|last_ip
           ),
         \"COUNT(DISTINCT security_event.id) as nbopensecurity_events",
