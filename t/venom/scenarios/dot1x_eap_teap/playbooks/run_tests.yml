@@ -9,6 +9,8 @@
     - global_config
     - wired_dot1x_eap_teap
     - wired_dot1x_eap_teap/teardown
+    - wired_dot1x_eap_teap_tls
+    - wired_dot1x_eap_teap_tls/teardown
     - global_teardown
 
   tasks:
