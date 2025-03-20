@@ -624,6 +624,83 @@ wired_dot1x_eap_tls_pki.paths.clients_directory: /root/client_certificates
 wired_dot1x_eap_tls_pki.paths.per_client_directory: '{{.wired_dot1x_eap_tls_pki.paths.clients_directory}}/{{.wired_dot1x_eap_tls_pki.certs.user.cn}}'
 
 ################################################################################
+# wired_dot1x_eap_teap_tls test suite specific variables
+################################################################################
+### General settings for certs
+wired_dot1x_eap_teap_tls.certs.validity: 750
+wired_dot1x_eap_teap_tls.certs.key_size: 2048
+wired_dot1x_eap_teap_tls.certs.key_type: 1
+wired_dot1x_eap_teap_tls.certs.digest: 4
+wired_dot1x_eap_teap_tls.certs.country: CA
+wired_dot1x_eap_teap_tls.certs.state: Quebec
+wired_dot1x_eap_teap_tls.certs.locality: Montreal
+wired_dot1x_eap_teap_tls.certs.organisation: Inverse
+wired_dot1x_eap_teap_tls.certs.organisational_unit: PacketFence
+wired_dot1x_eap_teap_tls.certs.ocsp_url: 'https://127.0.0.1:22225/api/v1/pki/ocsp'
+
+# CA
+wired_dot1x_eap_teap_tls.certs.ca.cn: InverseCA1
+wired_dot1x_eap_teap_tls.certs.ca.mail: '{{.configurator.email}}'
+
+wired_dot1x_eap_teap_tls.certs.ca.issuer: "/C={{.wired_dot1x_eap_teap_tls.certs.country}}/ST={{.wired_dot1x_eap_teap_tls.certs.state}}/L={{.wired_dot1x_eap_teap_tls.certs.locality}}/O={{.wired_dot1x_eap_teap_tls.certs.organisation}}/OU={{.wired_dot1x_eap_teap_tls.certs.organisational_unit}}/CN={{.wired_dot1x_eap_teap_tls.certs.ca.cn}}"
+
+### Templates
+wired_dot1x_eap_teap_tls.templates.radius.name: '{{.wired_dot1x_eap_teap_tls.certs.ca.cn}}_radius'
+wired_dot1x_eap_teap_tls.templates.http.name: '{{.wired_dot1x_eap_teap_tls.certs.ca.cn}}_http'
+wired_dot1x_eap_teap_tls.templates.user.name: '{{.wired_dot1x_eap_teap_tls.certs.ca.cn}}_user'
+
+# RADIUS cert
+wired_dot1x_eap_teap_tls.certs.radius.cn: '{{.wired_dot1x_eap_teap_tls.templates.radius.name}}_cert'
+wired_dot1x_eap_teap_tls.certs.radius.mail: '{{.configurator.email}}'
+wired_dot1x_eap_teap_tls.certs.radius.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}}'
+wired_dot1x_eap_teap_tls.certs.radius.ip_addresses: '{{.configurator.interfaces.mgmt.ip}}'
+
+# HTTP cert
+wired_dot1x_eap_teap_tls.certs.http.cn: '{{.wired_dot1x_eap_teap_tls.templates.http.name}}_cert'
+wired_dot1x_eap_teap_tls.certs.http.mail: '{{.configurator.email}}'
+wired_dot1x_eap_teap_tls.certs.http.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}},packetfence.example.lan'
+wired_dot1x_eap_teap_tls.certs.http.ip_addresses: '{{.configurator.interfaces.mgmt.ip}},66.70.255.147,{{.configurator.interfaces.reg.ip}},{{.configurator.interfaces.iso.ip}}'
+
+# User cert
+wired_dot1x_eap_teap_tls.certs.user.cn: '{{.wired_dot1x_eap_teap_tls.templates.user.name}}_cert'
+wired_dot1x_eap_teap_tls.certs.user.mail: '{{.configurator.email}}'
+wired_dot1x_eap_teap_tls.certs.user.scep_enabled: 1
+wired_dot1x_eap_teap_tls.certs.user.scep_challenge_password: secret
+wired_dot1x_eap_teap_tls.certs.user.scep_days_before_renewal: 0
+#wired_dot1x_eap_teap_tls.certs.user.subject: "/C={{.wired_dot1x_eap_teap_tls.certs.country}}/ST={{.wired_dot1x_eap_teap_tls.certs.state}}/L={{.wired_dot1x_eap_teap_tls.certs.locality}}/O={{.wired_dot1x_eap_teap_tls.certs.organisation}}/OU={{.wired_dot1x_eap_teap_tls.certs.organisational_unit}}/CN={{.wired_dot1x_eap_teap_tls.certs.user.cn}}"
+wired_dot1x_eap_teap_tls.certs.user.subject: "/CN={{.wired_dot1x_eap_teap_tls.certs.user.cn}}"
+
+# OCSP config
+wired_dot1x_eap_teap_tls.ocsp.id: ocsp_from_cert
+wired_dot1x_eap_teap_tls.ocsp.enable: yes
+wired_dot1x_eap_teap_tls.ocsp.url: ""
+wired_dot1x_eap_teap_tls.ocsp.override_cert_url: no
+wired_dot1x_eap_teap_tls.ocsp.softfail: no
+wired_dot1x_eap_teap_tls.ocsp.timeout: 0
+wired_dot1x_eap_teap_tls.ocsp.use_nonce: yes
+
+# Roles
+wired_dot1x_eap_teap_tls.roles.dot1x_eap_tls.id: dot1x_eap_teap_tls
+wired_dot1x_eap_teap_tls.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
+wired_dot1x_eap_teap_tls.roles.dot1x_eap_tls.vlan_id: 100
+
+# Sources
+wired_dot1x_eap_teap_tls.sources.eaptls.name: 'eapteaptls'
+wired_dot1x_eap_teap_tls.sources.eaptls.description: 'EAP-TEAP-TLS source'
+wired_dot1x_eap_teap_tls.sources.eaptls.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+wired_dot1x_eap_teap_tls.profiles.wired.id: catch_dot1x_wired_eap_teap_tls
+wired_dot1x_eap_teap_tls.profiles.wired.description: 802.1X wired EAP-TEAP-TLS
+wired_dot1x_eap_teap_tls.profiles.wired.filters.connection_type: Ethernet-EAP
+wired_dot1x_eap_teap_tls.profiles.wired.filters.connection_sub_type: EAP-TEAP
+wired_dot1x_eap_teap_tls.profiles.wired.unreg_on_acct_stop: enabled
+
+# Path to client certificates
+wired_dot1x_eap_teap_tls.paths.clients_directory: /root/client_certificates
+wired_dot1x_eap_teap_tls.paths.per_client_directory: '{{.wired_dot1x_eap_teap_tls.paths.clients_directory}}/{{.wired_dot1x_eap_teap_tls.certs.user.cn}}'
+
+################################################################################
 # fingerbank_proxy test suite specific variables
 ################################################################################
 fingerbank_proxy_test_wan_ip: 1.1.1.1
