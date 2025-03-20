@@ -37,8 +37,7 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Common name required.'))
       .max(64, i18n.t('Maximum 64 characters.'))
-      .pkiCaCnNotExistsExcept((!isNew && !isClone) ? cn : undefined, i18n.t('Common name exists.'))
-      .isCommonNameOrFQDN(i18n.t('Invalid common name.')),
+      .pkiCaCnNotExistsExcept((!isNew && !isClone) ? cn : undefined, i18n.t('Common name exists.')),
 
     mail: yup.string()
       .nullable()
