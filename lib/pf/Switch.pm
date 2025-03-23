@@ -96,6 +96,7 @@ use pf::SwitchSupports qw(
 );
 use pf::api::queue_cluster;
 use File::Find;
+use MIME::Base64;
 
 #
 # %TRAP_NORMALIZERS
@@ -3952,11 +3953,13 @@ sub getCiscoAvPairAttribute {
     my $logger = $self->logger;
     my $avpair = listify($radius_request->{'Cisco-AVPair'} // []);
     foreach my $ciscoAVPair (@{$avpair}) {
-        $logger->trace("Cisco-AVPair: $ciscoAVPair $attr");
-        if ($ciscoAVPair =~ /^\Q$attr\E=(.*)$/ig) {
+        if ($ciscoAVPair =~ /^base64:(.*)$/i) {
+            $ciscoAVPair = decode_base64($1);
+        }
+        if ($ciscoAVPair =~ /^\Q$attr\E=([\s\S]*)/ig) {
             return $1;
         } else {
-            $logger->info("Unable to extract $attr of Cisco-AVPair: $ciscoAVPair");
+            $logger->debug("Unable to extract $attr of Cisco-AVPair: $ciscoAVPair");
         }
     }
 
