@@ -1,3 +1,5 @@
+ARG KNK_REGISTRY_URL
+ARG IMAGE_TAG
 FROM golang:1.24.1-bookworm AS build
 
 ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
@@ -43,7 +45,7 @@ RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source} ./
 RUN deployment/docker/ci/bin/install
 
 # Prepapre the VM
-FROM debian:12
+FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
 COPY --from=build /usr/lib /usr/lib
 COPY --from=build /usr/local/lib /usr/local/lib
