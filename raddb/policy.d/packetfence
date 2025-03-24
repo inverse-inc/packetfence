@@ -5,7 +5,7 @@ mac-addr-regexp = '([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^
 # databases.
 # If this fails, the mschap module will try to authenticate using ntlm_auth.
 
-packetfence-local-auth { 
+packetfence-local-auth {
     # Disable ntlm_auth
     update control {
         &MS-CHAP-Use-NTLM-Auth := No
@@ -111,24 +111,22 @@ packetfence-audit-log-reject {
 
 packetfence-mschap-authenticate {
     if(PacketFence-Domain) {
-      if ( "%{User-Name}" =~ /^host\/.*/) {
-        chrooted_mschap_machine
-      }
-      else {
-        if ( &EAP-Type == "TEAP" ) {
-          chrooted_mschap_mppe
-        } else {
-          chrooted_mschap
+        if ( "%{User-Name}" =~ /^host\/.*/) {
+            chrooted_mschap_machine
         }
-      }
-    }
-    else {
-      if ( "%{User-Name}" =~ /^host\/.*/) {
-        mschap_machine
-      }
-      else {
-        mschap
-      }
+        else {
+            if ( &outer.EAP-Type == "TEAP" ) {
+                chrooted_mschap_mppe
+            } else {
+                chrooted_mschap
+            }
+        }
+    } else {
+        if ( "%{User-Name}" =~ /^host\/.*/) {
+            mschap_machine
+        } else {
+            mschap
+        }
     }
 }
 
