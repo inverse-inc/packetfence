@@ -91,6 +91,35 @@ has_field 'heuristics' => (
     },
 );
 
+has_field 'fingerprint' => (
+    type            => 'Toggle',
+    checked_value   => '1',
+    unchecked_value => '0',
+    default_method  => \&default_field_method,
+    tags => {
+        after_element   => \&help,
+        help            => "Fingerprint nodes",
+    },
+);
+
+has_field 'fingerprint_cache_expiration' => (
+    type            => 'Duration',
+    default_method  => \&default_field_method,
+    tags => {
+        after_element   => \&help,
+        help            => "Fingerprint nodes",
+    },
+);
+
+has_field 'fingerprint_cache_expiration' => (
+    type            => 'Duration',
+    default_method  => \&default_field_method,
+    tags => {
+        after_element   => \&help,
+        help            => "Fingerprint nodes",
+    },
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

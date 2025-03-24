@@ -1131,6 +1131,21 @@ filter_events=1
 # flow aggregator heuristics
 heuristics=0
 #
+# fingerprint
+#
+# fingerprint pfflows
+fingerprint=0
+#
+# fingerprint_cache_expiration
+#
+# fingerprint cache expiration
+fingerprint_cache_expiration=24h
+#
+# fingerprint_networks
+#
+# fingerprint networks
+fingerprint_networks=
+#
 # local
 #
 # Local task

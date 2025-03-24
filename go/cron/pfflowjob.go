@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/segmentio/kafka-go"
@@ -15,26 +16,65 @@ var ChanPfFlow chan []*PfFlows = make(chan []*PfFlows, 1000)
 
 type PfFlowJob struct {
 	Task
-	ReadTopic    string
-	Brokers      []string
-	GroupID      string
-	UUID         string
-	UserName     string
-	Password     string
-	FilterEvents int
+	ReadTopic       string
+	Brokers         []string
+	GroupID         string
+	UUID            string
+	UserName        string
+	Password        string
+	FilterEvents    int
+	fingerprintChan chan []*PfFlows
+}
+
+func defaultFromConfig[T any](config map[string]interface{}, name string, defaultVal T) T {
+	i := config[name]
+	if i == nil {
+		return defaultVal
+	}
+
+	if v, ok := i.(T); ok {
+		return v
+	}
+
+	return defaultVal
+}
+
+func defaultIntConfig(config map[string]interface{}, name string, defaultVal int) int {
+	i := config[name]
+	if i == nil {
+		return defaultVal
+	}
+
+	switch v := i.(type) {
+	case string:
+		val, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return defaultVal
+		}
+
+		return int(val)
+	case int64:
+		return int(v)
+	case float64:
+		return int(v)
+	default:
+		return defaultVal
+	}
 }
 
 func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
 	hosts := interfaceArrayToStringArray(config["kafka_brokers"].([]interface{}))
 	SetupKafka(config)
+	fingerbankChan := SetupFingerPrintingJob(config)
 	return &PfFlowJob{
-		Task:      SetupTask(config),
-		Brokers:   hosts,
-		GroupID:   config["group_id"].(string),
-		ReadTopic: config["read_topic"].(string),
-		UUID:      config["uuid"].(string),
-		UserName:  config["kafka_user"].(string),
-		Password:  config["kafka_pass"].(string),
+		Task:            SetupTask(config),
+		Brokers:         hosts,
+		GroupID:         config["group_id"].(string),
+		ReadTopic:       config["read_topic"].(string),
+		UUID:            config["uuid"].(string),
+		UserName:        config["kafka_user"].(string),
+		Password:        config["kafka_pass"].(string),
+		fingerprintChan: fingerbankChan,
 	}
 }
 
@@ -83,5 +123,8 @@ func (j *PfFlowJob) Run() {
 		}
 
 		ChanPfFlow <- []*PfFlows{pfFlows}
+		if j.fingerprintChan != nil {
+			j.fingerprintChan <- []*PfFlows{pfFlows}
+		}
 	}
 }

@@ -205,6 +205,20 @@
                      disabled-value="0"
     />
 
+    <form-group-fingerprint v-show="wants('fingerprint')"
+                     namespace="fingerprint"
+                     :column-label="$i18n.t('Enable Fingerprinting')"
+                     :text="$i18n.t('Fingerprint.')"
+                     enabled-value="1"
+                     disabled-value="0"
+    />
+
+    <form-group-fingerprint-networks v-show="wants('fingerprint_networks')"
+                     namespace="fingerprint_networks"
+                     :column-label="$i18n.t('Networks where Fingerprinting in enabled')"
+                     :text="$i18n.t('Fingerprint.')"
+    />
+
   </base-form>
 </template>
 <script>
