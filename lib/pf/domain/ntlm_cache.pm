@@ -85,11 +85,10 @@ Call the secretsdump binary and return the NTDS filename
 =cut
 
 sub secretsdump {
-    my ($domain, $source, @opts) = @_;
+    my ($tmpfile, $domain, $source, @opts) = @_;
     my $logger = get_logger;
     my $config = $ConfigDomain{$domain};
 
-    my $tmpfile = File::Temp->new()->filename;
     my $ntds_file = $tmpfile.".ntds";
 
     my ($sAMAccountName, $msg) = get_sync_samaccountname($domain, $source);
@@ -154,7 +153,9 @@ sub cache_user {
     if (defined($user)) {
         $username = $user;
     }
-    my ($ntds_file, $msg) = secretsdump($domain, $source, '-just-dc-user', $username);
+    my $tmpdir = File::Tempdir->new();
+    my $tmpfile = catfile($tmpdir->name, "out");
+    my ($ntds_file, $msg) = secretsdump($tmpfile, $domain, $source, '-just-dc-user', $username);
     return ($FALSE, $msg) unless($ntds_file);
 
     my $info = extract_info_from_dump_line(read_ntds_file($ntds_file));
@@ -204,8 +205,6 @@ Returns the content of an NTDS file and deletes it at the same time
 sub read_ntds_file {
     my ($ntds_file) = @_;
     my $content = read_file($ntds_file);
-    # file isn't needed anymore
-    unlink($ntds_file);
     return $content;
 }
 
