@@ -5,6 +5,7 @@ import i18n from './locale'
 import {
   reAlphaNumeric,
   reAlphaNumericHyphenUnderscoreDot,
+  reAlphaNumericHyphenUnderscoreDotAtsign,
   reCommonName,
   reEmail,
   reDomain,
@@ -189,7 +190,7 @@ yup.addMethod(yup.string, 'isCommonNameOrFQDNOrMAC', function (message) {
   return this.test({
     name: 'isCommonNameOrFQDNOrMAC',
     message: message || i18n.t('Invalid common name.'),
-    test: (value) => (isCommonName(value) || isFQDN(value, ALLOW_WILDCARD) || `${value}`.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12)
+    test: (value) => (isCommonName(value) || isFQDN(value, ALLOW_WILDCARD) || isHex(value, 12) || (reAlphaNumericHyphenUnderscoreDotAtsign(value) && value.length <= 64))
   })
 })
 
@@ -363,6 +364,18 @@ yup.addMethod(yup.string, 'isFQDN', function (message) {
     name: 'isFQDN',
     message: message || i18n.t('Invalid FQDN.'),
     test: isFQDN
+  })
+})
+
+export const isHex = (value, length = 16) => {
+  return `${value}`.toLowerCase().replace(/[^0-9a-f]/g, '').length === length
+}
+
+yup.addMethod(yup.string, 'isHostname', function (message) {
+  return this.test({
+    name: 'isFQDN',
+    message: message || i18n.t('Invalid hostname.'),
+    test: value => ['', null, undefined].includes(value) || reIpv4(value) || isFQDN(value)
   })
 })
 

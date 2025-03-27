@@ -2,11 +2,13 @@ export const reAlphaNumeric = value => /^[a-zA-Z0-9]*$/.test(value)
 
 export const reAlphaNumericHyphenUnderscoreDot = value => /^[a-zA-Z0-9-_.]*$/.test(value)
 
-export const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
+export const reAlphaNumericHyphenUnderscoreDotAtsign = value => /^[a-zA-Z0-9-_.@]*$/.test(value)
 
-export const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/.test(value)
+export const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z-_:]*[0-9A-Z]+)$/i.test(value)
 
 export const reDomain = value => /^((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9*]+\.)+[a-zA-Z]{2,}))$/.test(value)
+
+export const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/.test(value)
 
 export const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
 
@@ -21,5 +23,5 @@ export const reNumeric = value => /^-?[0-9]*$/.test(value)
 // eslint-disable-next-line no-useless-escape
 export const reStaticRoute = value => /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/?(\d+)?\s+?(via\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}\s+?)?dev\s+[a-z,0-9\.]+$/i.test(value)
 
- 
+
 export const reAscii = value => /^([\x20-\x7E]+)$/.test(value)
