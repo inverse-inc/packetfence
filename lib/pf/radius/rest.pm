@@ -20,6 +20,7 @@ use Apache2::Const -compile =>
   qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_FORBIDDEN HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
 use pf::api::error;
 use pf::radius::constants;
+use MIME::Base64 qw(decode_base64);
 
 =head2 format_response
 
@@ -66,9 +67,12 @@ Format a FreeRADIUS REST RADIUS request to the format PacketFence expects it
 sub format_request {
     my ($request) = @_;
     # transform the request according to what radius_authorize expects
-    my %remapped_radius_request = map {
-        (@{$request->{$_}->{value}} > 1) ? ($_ => $request->{$_}->{value}) : ($_ => $request->{$_}->{value}[0]);
-    } keys %{$request};
+    keys(my %remapped_radius_request) = scalar keys %$request;
+    while (my ($k, $v) = each %$request) {
+        my @values = map { rindex($_, "base64:", 0) == 0 ? decode_base64(substr($_, 7)) : $_ } @$v;
+        $remapped_radius_request{$k} = (@values > 1) ? \@values : $values[0];
+    }
+
     return \%remapped_radius_request;
 }
 
