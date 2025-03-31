@@ -42,6 +42,7 @@ use pf::locationlog();
 use pf::ipset();
 use pfconfig::util;
 use pfconfig::manager;
+use pfconfig::cached_hash;
 use pf::api::jsonrpcclient;
 use pf::cluster;
 use pf::config::cluster;
@@ -148,8 +149,8 @@ sub echo : Public {
 
 sub switch_freeradius_populate_nas_config : Public {
     my ($class) = @_;
-    my $switches = pfconfig::manager->new->config_builder("config::Switch");
-    pf::freeradius::freeradius_populate_nas_config($switches);
+    tie my %switches, 'pfconfig::cached_hash', "config::Switch";
+    pf::freeradius::freeradius_populate_nas_config(\%switches);
     return;
 }
 
