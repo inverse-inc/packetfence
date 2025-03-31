@@ -26,6 +26,7 @@ has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'tenant_id' => (isa => "Str", is => "rw", required => 1);
 has 'token_url' => (isa => 'Str', is => 'rw', default => "https://login.microsoftonline.com/%TENANT_ID/oauth2/v2.0/token");
+has 'scope_url' => (isa => 'Str', is => 'rw', default => "https://graph.microsoft.com/.default");
 has 'user_groups_url' => (isa => 'Str', is => 'rw', default => "https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf");
 has 'user_groups_cache' => (isa => 'Int', is => "rw", default => 0);
 has 'timeout' => (isa => 'Int', is => 'rw', default => 10);
@@ -96,7 +97,7 @@ sub _get_admin_token {
     my $r = $ua->post($self->build_token_url, [
         client_id => $self->client_id,
         client_secret => $self->client_secret,
-        scope => "https://graph.microsoft.com/.default",
+        scope => $self->scope_url,
         grant_type => "client_credentials",
     ]);
     if($r->is_success) {

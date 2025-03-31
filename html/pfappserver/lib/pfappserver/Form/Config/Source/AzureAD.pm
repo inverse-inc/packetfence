@@ -70,6 +70,37 @@ has_field 'timeout' =>
     default => $META->get_attribute('timeout')->default,
   );
 
+has_field 'user_groups_url' =>
+  (
+   type => 'Text',
+   required => 1,
+    element_attr => {
+        'placeholder' => $META->get_attribute('user_groups_url')->default
+    },
+    default => $META->get_attribute('user_groups_url')->default,
+  );
+
+has_field 'token_url' =>
+  (
+   type => 'Text',
+   required => 1,
+    element_attr => {
+        'placeholder' => $META->get_attribute('token_url')->default
+    },
+    default => $META->get_attribute('token_url')->default,
+  );
+
+has_field 'scope_url' =>
+  (
+   type => 'Text',
+   required => 1,
+    element_attr => {
+        'placeholder' => $META->get_attribute('scope_url')->default
+    },
+    default => $META->get_attribute('scope_url')->default,
+  );
+
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2025 Inverse inc.
