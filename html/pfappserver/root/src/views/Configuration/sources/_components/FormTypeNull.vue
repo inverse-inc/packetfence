@@ -16,8 +16,8 @@
 
     <form-group-email-required namespace="email_required"
                                :column-label="$i18n.t('Email required')"
-                               :enabled-value="1"
-                               :disabled-value="0"
+                               enabled-value="yes"
+                               disabled-value="no"
     />
 
     <form-group-authentication-rules namespace="authentication_rules"
