@@ -220,11 +220,57 @@ func (dp *Memory) GetFreeIPIndex(mac string) (uint64, string, error) {
 
 		}
 	}
+	// Removes duplicated IPs from the pool
+	dp.Remove(mac, available)
 
 	delete(dp.DHCPPool.free, available)
 	dp.DHCPPool.mac[available] = mac
 
 	return available, mac, nil
+}
+
+// Remove removes the IP from the pool if duplicated
+func (dp *Memory) Remove(mac string, index uint64) {
+
+	var duplicated []uint64
+	t := dp.DHCPPool.NewTiming()
+	macMap := copyMap(dp.DHCPPool.mac)
+	defer dp.DHCPPool.timeTrack(t, "Remove")
+	for i := uint64(0); i < dp.DHCPPool.capacity; i++ {
+		if index != i {
+			if macMap[i] == mac {
+				duplicated = append(duplicated, i)
+			}
+		}
+	}
+	dp.FreeIPIndexes(duplicated)
+}
+
+func copyMap(m map[uint64]string) map[uint64]string {
+	m2 := make(map[uint64]string, len(m))
+	var id uint64
+	for id, m2[id] = range m {
+	}
+	return m2
+}
+
+// FreeIPIndexes frees multiples IP in the pool, returns an error if the IP is already free
+func (dp *Memory) FreeIPIndexes(indexes []uint64) error {
+	t := dp.DHCPPool.NewTiming()
+	defer dp.DHCPPool.timeTrack(t, "FreeIPIndex")
+	for _, index := range indexes {
+		if !dp.IndexInPool(index) {
+			continue
+		}
+
+		if _, free := dp.DHCPPool.free[index]; free {
+			continue
+		}
+		dp.DHCPPool.free[index] = true
+		dp.DHCPPool.released[index] = time.Now().UnixNano()
+		delete(dp.DHCPPool.mac, index)
+	}
+	return nil
 }
 
 // IndexInPool returns whether or not a specific index is in the capacity of the pool
