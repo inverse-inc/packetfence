@@ -26,11 +26,15 @@
       :column-label="$i18n.t('Tenant ID')"
     />
 
-    <form-group-user-groups-url namespace="user_groups_url"
-      :column-label="$i18n.t('User Groups Url')"
-      :text="$i18n.t('What is the API Url where to check the groupmembership.')"
+    <form-group-user-groups-url namespace="graph_url"
+      :column-label="$i18n.t('Graph Url')"
+      :text="$i18n.t('What is the Graph API Url.')"
     />
 
+    <form-group-user-groups-url namespace="oauth_url"
+      :column-label="$i18n.t('OAuth Url')"
+      :text="$i18n.t('What is the OAuth API Url to get the oauth token.')"
+    />
 
     <form-group-timeout namespace="timeout"
       :column-label="$i18n.t('Timeout')"

@@ -42,16 +42,6 @@ has_field 'tenant_id' =>
    default => '',
   );
 
-has_field 'user_groups_url' =>
-  (
-   type => 'Text',
-   required => 1,
-    element_attr => {
-        'placeholder' => $META->get_attribute('user_groups_url')->default
-    },
-    default => $META->get_attribute('user_groups_url')->default,
-  );
-
 has_field 'user_groups_cache' =>
   (
     type         => 'PosInteger',
@@ -70,34 +60,24 @@ has_field 'timeout' =>
     default => $META->get_attribute('timeout')->default,
   );
 
-has_field 'user_groups_url' =>
+has_field 'graph_url' =>
   (
    type => 'Text',
    required => 1,
     element_attr => {
-        'placeholder' => $META->get_attribute('user_groups_url')->default
+        'placeholder' => $META->get_attribute('graph_url')->default
     },
-    default => $META->get_attribute('user_groups_url')->default,
+    default => $META->get_attribute('graph_url')->default,
   );
 
-has_field 'token_url' =>
+has_field 'oauth_url' =>
   (
    type => 'Text',
    required => 1,
     element_attr => {
-        'placeholder' => $META->get_attribute('token_url')->default
+        'placeholder' => $META->get_attribute('oauth_url')->default
     },
-    default => $META->get_attribute('token_url')->default,
-  );
-
-has_field 'scope_url' =>
-  (
-   type => 'Text',
-   required => 1,
-    element_attr => {
-        'placeholder' => $META->get_attribute('scope_url')->default
-    },
-    default => $META->get_attribute('scope_url')->default,
+    default => $META->get_attribute('oauth_url')->default,
   );
 
 

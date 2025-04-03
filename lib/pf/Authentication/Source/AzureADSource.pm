@@ -25,9 +25,8 @@ has '+class' => (default => 'internal');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'tenant_id' => (isa => "Str", is => "rw", required => 1);
-has 'token_url' => (isa => 'Str', is => 'rw', default => "https://login.microsoftonline.com/%TENANT_ID/oauth2/v2.0/token");
-has 'scope_url' => (isa => 'Str', is => 'rw', default => "https://graph.microsoft.com/.default");
-has 'user_groups_url' => (isa => 'Str', is => 'rw', default => "https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf");
+has 'graph_url' => (isa => 'Str', is => 'rw', default => 'https://graph.microsoft.com');
+has 'oauth_url' => (isa => 'Str', is => 'rw', default => 'https://login.microsoftonline.com');
 has 'user_groups_cache' => (isa => 'Int', is => "rw", default => 0);
 has 'timeout' => (isa => 'Int', is => 'rw', default => 10);
 
@@ -75,18 +74,24 @@ sub dynamic_routing_module { 'Authentication::Login' }
 
 sub build_token_url {
     my ($self) = @_;
-    my $url = $self->token_url;
+    my $url = $self->oauth_url;
     my $tenant_id = $self->tenant_id;
     $url =~ s/%TENANT_ID/$tenant_id/g;
-    return $url;
+    return "$url/$tenant_id/oauth2/v2.0/token";
 }
 
 sub build_user_groups_url {
     my ($self, $username) = @_;
     my $encoded_username = uri_escape($username);
-    my $url = $self->user_groups_url;
+    my $url = $self->graph_url;
     $url =~ s/%USERNAME/$encoded_username/g;
     return $url;
+}
+
+sub build_scope_url {
+    my ($self, $username) = @_;
+    my $url = $self->graph_url;
+    return "$url/.default";
 }
 
 sub _get_admin_token {
