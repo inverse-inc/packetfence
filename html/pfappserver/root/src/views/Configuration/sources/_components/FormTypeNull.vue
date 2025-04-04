@@ -29,7 +29,7 @@
 
     <form-group-hash-passwords namespace="hash_passwords"
                                :column-label="$i18n.t('Database passwords hashing method')"
-                               :text="$i18n.t('The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.')"
+                               :text="$i18n.t('The algorithm used to hash the passwords in the database. This will only affect newly created or reset passwords.')"
     />
 
     <form-group-password-length namespace="password_length"
