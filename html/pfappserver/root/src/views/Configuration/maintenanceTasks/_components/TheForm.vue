@@ -243,7 +243,7 @@ import {
   FormGroupSendTopic,
   FormGroupUuid,
   FormGroupGroupId,
-  FormGroupFilterRvents,
+  FormGroupFilterEvents,
   FormGroupHeuristics
 } from './'
 
@@ -272,15 +272,15 @@ const components = {
   FormGroupTimeout,
   FormGroupUnregWindow,
   FormGroupVoip,
-  FormGroupWindow
-  FormGroupKafkaBrokers
-  FormGroupKafkaPass
-  FormGroupKafkaUser
-  FormGroupReadTopic
-  FormGroupSendTopic
-  FormGroupUuid
-  FormGroupGroupId
-  FormGroupFilterRvents
+  FormGroupWindow,
+  FormGroupKafkaBrokers,
+  FormGroupKafkaPass,
+  FormGroupKafkaUser,
+  FormGroupReadTopic,
+  FormGroupSendTopic,
+  FormGroupUuid,
+  FormGroupGroupId,
+  FormGroupFilterEvents,
   FormGroupHeuristics
 }
 

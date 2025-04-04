@@ -55,7 +55,7 @@ export {
   BaseFormGroupInput                  as FormGroupSendTopic,
   BaseFormGroupInput                  as FormGroupUuid,
   BaseFormGroupInput                  as FormGroupGroupId,
-  BaseFormGroupSwitch                 as FormGroupFilterRvents,
+  BaseFormGroupSwitch                 as FormGroupFilterEvents,
   BaseFormGroupSwitch                 as FormGroupHeuristics,
 
   TheForm,
