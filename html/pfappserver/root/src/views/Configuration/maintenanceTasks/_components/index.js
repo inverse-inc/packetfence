@@ -48,6 +48,15 @@ export {
   BaseFormGroupInput                  as FormGroupUuid,
   BaseFormGroupSwitch                 as FormGroupVoip,
   BaseFormGroupIntervalUnit           as FormGroupWindow,
+  BaseFormGroupInput                  as FormGroupKafkaBrokers,
+  BaseFormGroupInput                  as FormGroupKafkaPass
+  BaseFormGroupInput                  as FormGroupKafkaUser
+  BaseFormGroupInput                  as FormGroupReadTopic
+  BaseFormGroupInput                  as FormGroupSendTopic
+  BaseFormGroupInput                  as FormGroupUuid
+  BaseFormGroupInput                  as FormGroupGroupId
+  BaseFormGroupSwitch                 as FormGroupFilterRvents
+  BaseFormGroupSwitch                 as FormGroupHeuristics
 
   TheForm,
   TheView,

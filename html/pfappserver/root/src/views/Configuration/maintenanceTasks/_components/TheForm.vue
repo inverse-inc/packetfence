@@ -236,6 +236,15 @@ import {
   FormGroupUnregWindow,
   FormGroupVoip,
   FormGroupWindow
+  FormGroupKafkaBrokers
+  FormGroupKafkaPass
+  FormGroupKafkaUser
+  FormGroupReadTopic
+  FormGroupSendTopic
+  FormGroupUuid
+  FormGroupGroupId
+  FormGroupFilterRvents
+  FormGroupHeuristics
 } from './'
 
 const components = {
@@ -264,6 +273,15 @@ const components = {
   FormGroupUnregWindow,
   FormGroupVoip,
   FormGroupWindow
+  FormGroupKafkaBrokers
+  FormGroupKafkaPass
+  FormGroupKafkaUser
+  FormGroupReadTopic
+  FormGroupSendTopic
+  FormGroupUuid
+  FormGroupGroupId
+  FormGroupFilterRvents
+  FormGroupHeuristics
 }
 
 export const props = {
