@@ -235,15 +235,15 @@ import {
   FormGroupTimeout,
   FormGroupUnregWindow,
   FormGroupVoip,
-  FormGroupWindow
-  FormGroupKafkaBrokers
-  FormGroupKafkaPass
-  FormGroupKafkaUser
-  FormGroupReadTopic
-  FormGroupSendTopic
-  FormGroupUuid
-  FormGroupGroupId
-  FormGroupFilterRvents
+  FormGroupWindow,
+  FormGroupKafkaBrokers,
+  FormGroupKafkaPass,
+  FormGroupKafkaUser,
+  FormGroupReadTopic,
+  FormGroupSendTopic,
+  FormGroupUuid,
+  FormGroupGroupId,
+  FormGroupFilterRvents,
   FormGroupHeuristics
 } from './'
 
