@@ -193,8 +193,8 @@
                      namespace="filter_events"
                      :column-label="$i18n.t('Filter Events')"
                      :text="$i18n.t('Filter Events.')"
-                     enabled-value="1"
-                     disabled-value="0"
+                     enabled-value="Y"
+                     disabled-value="N"
     />
 
     <form-group-heuristics v-show="wants('heuristics')"
