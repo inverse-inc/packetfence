@@ -39,7 +39,7 @@
 
     <form-group-local-account-logins namespace="local_account_logins"
                                      :column-label="$i18n.t('Amount of logins for the local account')"
-                                     :text="$i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.')"
+                                     :text="$i18n.t('The amount of times the local account can be used after it is created. 0 means infinite.')"
     />
 
     <form-group-local-account-expiration namespace="local_account_expiration"
