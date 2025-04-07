@@ -19,7 +19,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($cron_config_file $cron_default_config_file);
-use pf::util qw(normalize_time);
+use pf::util qw(normalize_time isenabled);
 use pf::IniFiles;
 use Clone qw(clone);
 
@@ -60,7 +60,7 @@ sub build_child {
             }
 
             if ($key eq 'filter_events' || $key eq 'heuristics') {
-                $task_data->{$key} += 0;
+                $task_data->{$key} = isenabled($task_data->{$key}) ? 1: 0;
                 next;
             }
 
