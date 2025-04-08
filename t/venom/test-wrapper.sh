@@ -143,7 +143,7 @@ start_vm() {
         ( cd ${VAGRANT_DIR} ; \
           run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
           VAGRANT_DOTFILE_PATH=${dotfile_path} \
-                  vagrant up \
+                  vagrant up --debug \
                   ${vm} \
                   ${VAGRANT_UP_OPTS} )
     fi
