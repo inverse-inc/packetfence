@@ -70,6 +70,7 @@ func wrapJob(logger log.PfLogger, j string, l bool) cron.Job {
 	return cron.FuncJob(func() {
 		defer func() {
 			if r := recover(); r != nil {
+				ch <- struct{}{}
 				logger.Error(fmt.Sprintf("Job %s panic: %s", j, r))
 			}
 		}()
