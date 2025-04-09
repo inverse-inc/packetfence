@@ -225,7 +225,7 @@ After saving the changes, please re-generate the FreeRADIUS configuration by res
 
 === OAuth2 Authentication
 
-NOTE: OAuth2 authentication does not work with Webauth enforcement
+NOTE: OAuth2 authentication does not work with Webauth enforcement.  This means it cannot be used in "out-of-band enfocement" mode.
 
 NOTE: OAuth2 authentication will fail by design when previewed through "Connection Profiles"
 
