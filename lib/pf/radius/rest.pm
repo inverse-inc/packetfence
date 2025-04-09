@@ -19,6 +19,7 @@ use pf::log;
 use Apache2::Const -compile =>
   qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_FORBIDDEN HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
 use pf::api::error;
+use pf::util qw(listify);
 use pf::radius::constants;
 use MIME::Base64 qw(decode_base64);
 
@@ -69,7 +70,7 @@ sub format_request {
     # transform the request according to what radius_authorize expects
     keys(my %remapped_radius_request) = scalar keys %$request;
     while (my ($k, $v) = each %$request) {
-        my @values = map { rindex($_, "base64:", 0) == 0 ? decode_base64(substr($_, 7)) : $_ } @$v;
+        my @values = map { rindex($_, "base64:", 0) == 0 ? decode_base64(substr($_, 7)) : $_ } @{$v->{value}};
         $remapped_radius_request{$k} = (@values > 1) ? \@values : $values[0];
     }
 
