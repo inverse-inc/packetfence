@@ -25,6 +25,7 @@ use Sys::Hostname;
 
 use Template;
 use pf::constants qw($TRUE $FALSE);
+use pf::config qw ($management_network);
 use pfconfig::cached_hash;
 tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
@@ -67,12 +68,13 @@ sub env_vars {
     my ($self) = @_;
     my %env;
     my $hostname = hostname();
-    for my $top ('cluster', $hostname) {
+    my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
+    for my $top ('cluster', $hostname, '%hostname%') {
         while (my ($k, $v) = each %{$ConfigKafka{$top}}) {
+            $v =~ s/%mgmtip%/$mgmt_ip/g;
             $env{$k} = $v;
         }
     }
-
     return \%env;
 }
 
