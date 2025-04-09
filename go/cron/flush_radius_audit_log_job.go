@@ -57,13 +57,16 @@ func (j *FlushRadiusAuditLogJob) Run() {
 			break
 		}
 
+		log.LogInfof(ctx, "%s processing %d entries", j.Name(), len(a))
 		rows_affected += len(a)
 
 		var entries [][]interface{} = make([][]interface{}, 0, len(a))
 		for _, jsonStr := range a {
 			if jsonStr == "" {
+				log.LogInfof(ctx, "%s empty entry skipped", j.Name())
 				continue
 			}
+
 			var entry []interface{} = make([]interface{}, 4)
 			if jsonStr[0] != '[' {
 				s, err := base64.StdEncoding.DecodeString(jsonStr)
@@ -77,11 +80,16 @@ func (j *FlushRadiusAuditLogJob) Run() {
 			err := json.Unmarshal([]byte(jsonStr), &entry)
 
 			if err != nil {
-				log.LogError(ctx, fmt.Sprintf("%s error running: %s", j.Name(), err.Error()))
+				log.LogError(ctx, fmt.Sprintf("%s error running: %s jsonStr '%s'", j.Name(), err.Error(), jsonStr))
 				continue
 			}
 
 			entries = append(entries, entry)
+		}
+
+		if len(entries) == 0 {
+			log.LogErrorf(ctx, "%s error processing some entries", j.Name())
+			continue
 		}
 
 		j.flushLogs(entries)
