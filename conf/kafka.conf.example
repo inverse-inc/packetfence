@@ -30,3 +30,38 @@
 #[[% ENV.env_or_default("KAFKA_HOSTNAME", '%hostname%') %]]
 #KAFKA_NODE_ID=1
 #KAFKA_ADVERTISED_LISTENERS=INTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:29092,EXTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_EXTERNAL", '%mgmtip%') %]:9092,PF://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:9095,PFCONNECTOR://127.0.0.1:9096
+
+[iptables]
+# The list of client
+clients=100.64.0.1
+# All the IP address of the cluster members
+cluster_ips=100.64.0.1
+
+
+[auth client]
+pass=oidsa89@e8
+
+[admin]
+user=admin
+pass=P@ck3tF3nc3
+
+
+###Cluster wide ENV Variables
+[cluster]
+# ID from uuidgen | tr -d '-' | base64 | cut -b 1-22
+CLUSTER_ID=Y2I2MtduMGNlMjI4NDUyMw
+KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+KAFKA_CONTROLLER_QUORUM_VOTERS=1@[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", '%mgmtip%') %]:9093
+KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+KAFKA_LISTENERS=INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092,PF://0.0.0.0:9095
+KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT,PF:PLAINTEXT
+#_PLAINTEXT
+KAFKA_LOG_DIRS=/usr/local/pf/var/kafka
+KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+KAFKA_PROCESS_ROLES=broker,controller
+KAFKA_OPTS=-Djava.security.auth.login.config=/usr/local/pf/conf/kafka/kafka_server_jaas.conf
+KAFKA_SASL_ENABLED_MECHANISMS=PLAIN
+
+[[% ENV.env_or_default("KAFKA_HOSTNAME", '%hostname%') %]]
+KAFKA_NODE_ID=1
+KAFKA_ADVERTISED_LISTENERS=INTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:29092,EXTERNAL://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_EXTERNAL", '%mgmtip%') %]:9092,PF://[% ENV.env_or_default("KAFKA_ADVERTISED_LISTENER_PF", 'containers-gateway.internal') %]:9095
