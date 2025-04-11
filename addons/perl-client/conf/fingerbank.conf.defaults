@@ -7,7 +7,8 @@ db_path = /api/v2/download/db
 sqlite_db_retention = 2
 
 [collector]
-host=100.64.0.1
+host=[% ENV.env_or_default("FINGERBANK_COLLECTOR_SERVICE_HOST", "100.64.0.1") %]
+port=[% ENV.env_or_default("FINGERBANK_COLLECTOR_SERVICE_PORT", "4723") %]
 port=4723
 use_https=enabled
 inactive_endpoints_expiration=168
