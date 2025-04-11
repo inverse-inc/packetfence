@@ -67,6 +67,7 @@ sub read_config {
             -file       => $CONF_FILE,
             -import     => fingerbank::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE ),
             -allowempty => 1,
+            -envsubst   => 1
         ) or $logger->error("Invalid Fingerbank configuration file: $!");
 
         if ( !%Config ) {
@@ -80,7 +81,8 @@ sub read_config {
     else {
         $logger->debug("No existing Fingerbank configuration file. Loading defaults");
         tie %Config, 'fingerbank::IniFiles', (
-            -import => fingerbank::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE )
+            -import => fingerbank::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE ),
+            -envsubst => 1
         ) or $logger->error("Invalid Fingerbank default configuration file: $!");
 
         if ( !%Config ) {
