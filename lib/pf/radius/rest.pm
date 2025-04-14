@@ -19,7 +19,6 @@ use pf::log;
 use Apache2::Const -compile =>
   qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_FORBIDDEN HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
 use pf::api::error;
-use pf::util qw(listify);
 use pf::radius::constants;
 use MIME::Base64 qw(decode_base64);
 
