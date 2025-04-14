@@ -107,16 +107,16 @@ has_field 'fingerprint_cache_expiration' => (
     default_method  => \&default_field_method,
     tags => {
         after_element   => \&help,
-        help            => "Fingerprint nodes",
+        help            => "Fingerprint cache expiration",
     },
 );
 
-has_field 'fingerprint_cache_expiration' => (
-    type            => 'Duration',
+has_field 'fingerprint_networks' => (
+    type => 'Text',
     default_method  => \&default_field_method,
     tags => {
         after_element   => \&help,
-        help            => "Fingerprint nodes",
+        help            => "Fingerprint networks",
     },
 );
 
