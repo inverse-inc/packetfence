@@ -13,7 +13,7 @@ Reading and writing configuration parameters
 use strict;
 use warnings;
 
-use Config::IniFiles;
+use fingerbank::IniFiles;
 
 use fingerbank::Constant qw($TRUE $FALSE);
 use fingerbank::FilePath qw($CONF_FILE $CONFIG_DEFAULTS_FILE $CONFIG_DOC_FILE $COMBINATION_MAP_FILE);
@@ -63,10 +63,11 @@ sub read_config {
     # We allow empty file in the case a 'fingerbank.conf' file is modified to reflect all the defaults parameters (which will lead to an empty 'fingerbank.conf' file) and that file is not being deleted.
     if ( (-e $CONFIG_DEFAULTS_FILE) && (-e $CONF_FILE) ) {
         $logger->debug("Existing Fingerbank configuration file. Loading it with defaults");
-        tie %Config, 'Config::IniFiles', (
+        tie %Config, 'fingerbank::IniFiles', (
             -file       => $CONF_FILE,
-            -import     => Config::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE ),
+            -import     => fingerbank::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE, -envsubst => 1 ),
             -allowempty => 1,
+            -envsubst   => 1
         ) or $logger->error("Invalid Fingerbank configuration file: $!");
 
         if ( !%Config ) {
@@ -79,8 +80,9 @@ sub read_config {
     # SetFileName allow the saving of the tied hash later with the accurate file name
     else {
         $logger->debug("No existing Fingerbank configuration file. Loading defaults");
-        tie %Config, 'Config::IniFiles', ( 
-            -import => Config::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE )
+        tie %Config, 'fingerbank::IniFiles', (
+            -import     => fingerbank::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE, -envsubst => 1 ),
+            -envsubst => 1
         ) or $logger->error("Invalid Fingerbank default configuration file: $!");
 
         if ( !%Config ) {
@@ -109,8 +111,9 @@ sub read_defaults {
     }
 
     $logger->debug("Attempting to read Fingerbank default configuration file '$CONFIG_DEFAULTS_FILE'");
-    tie %config_defaults, 'Config::IniFiles', (
+    tie %config_defaults, 'fingerbank::IniFiles', (
         -file => $CONFIG_DEFAULTS_FILE,
+        -envsubst => 1
     ) or $logger->error("Invalid Fingerbank default configuration file: $!");
 
     if ( !%config_defaults ) {
@@ -136,8 +139,9 @@ sub read_doc {
     }
 
     $logger->debug("Attempting to read Fingerbank configuration documentation file '$CONFIG_DOC_FILE'");
-    tie %config_doc, 'Config::IniFiles', (
+    tie %config_doc, 'fingerbank::IniFiles', (
         -file => $CONFIG_DOC_FILE,
+        -envsubst => 1
     ) or $logger->error("Invalid Fingerbank configuration documentation file: $!");
 
     if ( !%config_doc ) {
@@ -165,8 +169,8 @@ sub write_config {
     # Loading the defaults to compare and delete configuration parameters that are equals to their defaults.
     my %defaultConfig;
     $logger->debug("Loading default configuration to compare before write.");
-    tie %defaultConfig, 'Config::IniFiles', (
-        -import => Config::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE )
+    tie %defaultConfig, 'fingerbank::IniFiles', (
+        -import     => fingerbank::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE, -envsubst => 1 )
     ) or $logger->error("Invalid Fingerbank default configuration file: $!");
     
     if ( !%defaultConfig ) {
