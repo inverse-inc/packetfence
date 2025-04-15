@@ -1,6 +1,6 @@
 %global     fb_prefix %{_prefix}/local/%{name}
 Name:       fingerbank
-Version:    4.3.2
+Version:    4.3.3
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    An exhaustive device profiling tool
@@ -118,6 +118,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Apr 15 2025 Inverse Inc. <info@inverse.ca> - 4.3.3-1
+- USe environment variables for the configuration
 * Tue Aug 23 2022 Inverse Inc. <info@inverse.ca> - 4.3.2-1
 - Adjust permissions detection for SQLite3 databases
 * Thu Jun 16 2022 Inverse Inc. <info@inverse.ca> - 4.3.1-1
