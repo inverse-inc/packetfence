@@ -17,6 +17,7 @@ import (
 	"strconv"
 	"time"
 
+	"net/http/pprof"
 	_ "net/http/pprof"
 
 	"github.com/coreos/go-systemd/daemon"
@@ -25,7 +26,6 @@ import (
 	cache "github.com/fdurand/go-cache"
 	"github.com/go-errors/errors"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
 	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/go-utils/log"
@@ -927,6 +927,20 @@ func setupAPIRoutes(db *sql.DB) *mux.Router {
 	router.HandleFunc("/api/v1/dhcp/options/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleOverrideOptions).Methods("POST")
 	router.HandleFunc("/api/v1/dhcp/options/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleRemoveOptions).Methods("DELETE")
 
+	// Register pprof handlers with your router
+	router.HandleFunc("/debug/pprof/", pprof.Index)
+	router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	router.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	router.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
+	// These paths are for the various profile types
+	router.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+	router.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+	router.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
+	router.Handle("/debug/pprof/block", pprof.Handler("block"))
+	router.Handle("/debug/pprof/mutex", pprof.Handler("mutex"))
+
 	return router
 }
 
@@ -934,7 +948,7 @@ func setupAPIRoutes(db *sql.DB) *mux.Router {
 func createHTTPServer(router *mux.Router) *http.Server {
 	return &http.Server{
 		Addr:         httpServerPort,
-		Handler:      httpauth.SimpleBasicAuth(webservices.User, webservices.Pass.String())(router),
+		Handler:      router,
 		ReadTimeout:  httpServerTimeout,
 		WriteTimeout: httpServerTimeout,
 		IdleTimeout:  httpServerTimeout,
