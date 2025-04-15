@@ -17,6 +17,8 @@ import (
 	"strconv"
 	"time"
 
+	_ "net/http/pprof"
+
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/fdurand/arp"
