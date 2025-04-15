@@ -50,6 +50,7 @@ use pfappserver::Form::Config::Pfcron::bandwidth_maintenance;
 use pfappserver::Form::Config::Pfcron::ubiquiti_ap_mac_to_ip;
 use pfappserver::Form::Config::Pfcron::purge_binary_logs;
 use pfappserver::Form::Config::Pfcron::node_current_session_cleanup;
+use pfappserver::Form::Config::Pfcron::security_event_purge;
 use pfappserver::Form::Config::Pfcron::flush_radius_audit_log;
 use pfappserver::Form::Config::Pfcron::flush_dns_audit_log;
 use pfappserver::Form::Config::Pfcron::pfflow;
@@ -82,6 +83,7 @@ our %TYPES_TO_FORMS = (
       ubiquiti_ap_mac_to_ip
       purge_binary_logs
       node_current_session_cleanup
+      security_event_purge
       flush_radius_audit_log
       flush_dns_audit_log
       pfflow
