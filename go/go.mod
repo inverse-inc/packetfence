@@ -68,11 +68,11 @@ require (
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	github.com/ti-mo/netfilter v0.2.0
-	golang.org/x/crypto v0.31.0
-	golang.org/x/net v0.28.0
-	golang.org/x/sync v0.10.0
-	golang.org/x/sys v0.28.0
-	golang.org/x/text v0.21.0
+	golang.org/x/crypto v0.36.0
+	golang.org/x/net v0.38.0
+	golang.org/x/sync v0.12.0
+	golang.org/x/sys v0.31.0
+	golang.org/x/text v0.23.0
 	google.golang.org/api v0.180.0 // indirect
 	google.golang.org/grpc v1.63.2 // indirect
 	gopkg.in/DataDog/dd-trace-go.v1 v1.57.0 // indirect
@@ -215,7 +215,7 @@ require (
 	github.com/jpillora/ansi v1.0.2 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
-	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/term v0.30.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 )
