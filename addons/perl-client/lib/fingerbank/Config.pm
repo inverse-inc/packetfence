@@ -74,6 +74,7 @@ sub read_config {
             $logger->error("Error while reading Fingerbank configuration file. Cannot continue");
             return;
         }
+        tied(%Config)->SetFileName($CONF_FILE);
     }
 
     # No configuration file found. Loading the defaults
