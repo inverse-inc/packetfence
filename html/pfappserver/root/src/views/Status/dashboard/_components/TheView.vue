@@ -6,23 +6,38 @@
         <base-button-service v-can:read="'services'"
           service="netdata" restart start stop class="mr-1" />
       </b-alert>
+
+      <b-row class="align-items-center mb-3">
+        <b-col cols="4" align-h="start">
+          <h4>{{ $i18n.t('Dashboard') }}</h4>
+        </b-col>
+        <b-col cols="8" align="end">
+          <small class="mx-3">{{ $t('Show Last') }}</small>
+          <b-button-group size="sm" class="mr-3">
+            <b-button v-for="period in periods" :key="period.text"
+              :variant="(showAfter == period.value) ? 'primary' : 'light'" @click="showAfter = period.value" v-b-tooltip.hover.bottom.d300 :title="period.title">{{ period.text }}</b-button>
+          </b-button-group>
+        </b-col>
+      </b-row>
+
       <b-tabs nav-class="nav-fill" v-model="tabIndex" lazy :key="$i18n.locale">
         <b-tab v-for="(section, sectionIndex) in filteredSections" :title="$i18n.t(section.name)" :key="`${section.name}-${sectionIndex}`">
-          <b-row align-h="center" v-if="sectionIndex === 0"><!-- Show uptime on first tab only -->
+          <b-row align-h="center"><!-- Show uptime on first tab only -->
             <b-col class="mt-3 text-center" :md="Math.max(parseInt(12/cluster.length), 3)" v-for="({ management_ip, host}, i) in cluster" :key="management_ip">
               <badge :ip="management_ip" :chart="'system.uptime'" :label="`${host} - uptime`" :colors="palette(i)" />
             </b-col>
           </b-row>
           <template v-for="(group, groupIndex) in section.groups">
             <!-- Named groups are rendered inside a card -->
-            <component :is="group.name ? 'b-card' : 'div'" class="mt-3" :key="`${group.name}-${groupIndex}`" :title="$i18n.t(group.name)">
+            <component :is="group.name ? 'b-card' : 'div'" class="mt-3" :key="`${group.name}-${groupIndex}-${showAfter}`" :title="$i18n.t(group.name)">
               <b-row align-h="center">
                 <b-col class="mt-3 chart" v-for="(chart, chartIndex) in group.items" :key="`${chartIndex}-${chart.metric}`" :md="cols(chart.cols, group.items.length)">
                   <small class="text-muted cursor-pointer pb-3">
                     {{ $i18n.t(chart.title) }}
                   </small>
                   <div class="mt-2">
-                    <chart :definition="chart" host="/netdata/127.0.0.1" :data-colors="palette(0)"></chart>
+                    <chart :definition="chart" host="/netdata/127.0.0.1" :data-colors="palette(0)"
+                      :data-after="-showAfter" :data-before="0" />
                   </div>
                 </b-col>
               </b-row>
@@ -186,9 +201,26 @@ const setup = (props, context) => {
       clearTimeout(getAlarmsTimer.value)
   })
 
-  watch([tabIndex, () => i18n.locale], () => {
+  const showAfter = ref(60 * 60)
+  const periods = [
+    { title: i18n.t('5 minutes'),  text: '5m', value: 60 * 5 },
+    { title: i18n.t('15 minutes'), text: '15m', value: 60 * 15 },
+    { title: i18n.t('30 minutes'), text: '30m', value: 60 * 30 },
+    { title: i18n.t('1 hour'),     text: '1h',  value: 60 * 60 },
+    { title: i18n.t('2 hours'),    text: '2h',  value: 60 * 60 * 2 },
+    { title: i18n.t('6 hours'),    text: '6h',  value: 60 * 60 * 6 },
+    { title: i18n.t('12 hours'),   text: '12h', value: 60 * 60 * 12 },
+    { title: i18n.t('24 hours'),   text: '24h',  value: 60 * 60 * 24 },
+    { title: i18n.t('2 days'),     text: '2D',  value: 60 * 60 * 24 * 2 },
+    { title: i18n.t('4 days'),     text: '4D',  value: 60 * 60 * 24 * 4 },
+    { title: i18n.t('1 week'),     text: '1W',  value: 60 * 60 * 24 * 7 },
+    { title: i18n.t('2 weeks'),    text: '2W',  value: 60 * 60 * 24 * 14 },
+    { title: i18n.t('28 days'),    text: '28D',  value: 60 * 60 * 24 * 28 }
+  ]
+
+  watch([tabIndex, showAfter, () => i18n.locale], () => {
     nextTick(() => {
-      window.NETDATA.parseDom()
+      window.NETDATA.updatedDom()
     })
   })
 
@@ -198,7 +230,10 @@ const setup = (props, context) => {
     chartsError,
     cluster,
     cols,
-    palette
+    palette,
+
+    showAfter,
+    periods
   }
 }
 

@@ -48,42 +48,42 @@
       </template>
     </b-modal>
 
-      <b-row class="align-items-center mb-3">
-        <b-col cols="4" align-h="start">
-          <b-input-group class="flex-grow-1">
-            <b-form-input v-model="filter"
-              :placeholder="$i18n.t('Filter Metrics')" />
-            <template v-slot:append>
-              <b-button
-                :disabled="filter==''"
-                tabIndex="-1"
-                @click="filter = ''"
-              >
-                <icon name="times"/>
-              </b-button>
+    <b-row class="align-items-center mb-3">
+      <b-col cols="4" align-h="start">
+        <b-input-group class="flex-grow-1">
+          <b-form-input v-model="filter"
+            :placeholder="$i18n.t('Filter Metrics')" />
+          <template v-slot:append>
+            <b-button
+              :disabled="filter==''"
+              tabIndex="-1"
+              @click="filter = ''"
+            >
+              <icon name="times"/>
+            </b-button>
+          </template>
+        </b-input-group>
+      </b-col>
+      <b-col cols="8" align="end">
+        <small class="mx-3">{{ $t('Show Last') }}</small>
+        <b-button-group size="sm" class="mr-3">
+          <b-button v-for="period in periods" :key="period.text"
+            :variant="(showAfter == period.value) ? 'primary' : 'light'" @click="showAfter = period.value" v-b-tooltip.hover.bottom.d300 :title="period.title">{{ period.text }}</b-button>
+        </b-button-group>
+        <b-button-group size="sm">
+          <b-dropdown right variant="success" size="sm">
+            <template v-slot:button-content>
+              Netdata Cloud <icon name="external-link-alt" class="mx-1" />
             </template>
-          </b-input-group>
-        </b-col>
-        <b-col cols="8" align="end">
-          <small class="mx-3">{{ $t('Show Last') }}</small>
-          <b-button-group size="sm" class="mr-3">
-            <b-button v-for="period in periods" :key="period.text"
-              :variant="(showAfter == period.value) ? 'primary' : 'light'" @click="showAfter = period.value" v-b-tooltip.hover.bottom.d300 :title="period.title">{{ period.text }}</b-button>
-          </b-button-group>
-          <b-button-group size="sm">
-            <b-dropdown right variant="success" size="sm">
-              <template v-slot:button-content>
-                Netdata Cloud <icon name="external-link-alt" class="mx-1" />
-              </template>
-              <b-dropdown-text><small>{{ $t('Choose Host') }}</small></b-dropdown-text>
-              <b-dropdown-divider/>
-              <b-dropdown-item v-for="({ management_ip, host: memberHost }) in cluster" :key="management_ip"
-                :href="`/netdata/${management_ip}/`" target="_blank"
-                :active="memberHost == host">{{ host }}</b-dropdown-item>
-            </b-dropdown>
-          </b-button-group>
-        </b-col>
-      </b-row>
+            <b-dropdown-text><small>{{ $t('Choose Host') }}</small></b-dropdown-text>
+            <b-dropdown-divider/>
+            <b-dropdown-item v-for="({ management_ip, host: memberHost }) in cluster" :key="management_ip"
+              :href="`/netdata/${management_ip}/`" target="_blank"
+              :active="memberHost == host">{{ host }}</b-dropdown-item>
+          </b-dropdown>
+        </b-button-group>
+      </b-col>
+    </b-row>
 
     <b-tabs nav-class="nav-fill" v-model="tabIndex" lazy :key="`${host}-${$i18n.locale}`">
       <b-tab v-for="(section, sectionIndex) in filteredSections" :title="$i18n.t(section.name)" :key="`${section.name}-${sectionIndex}-${showAfter}`">
