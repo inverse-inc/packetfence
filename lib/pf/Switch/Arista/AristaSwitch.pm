@@ -317,6 +317,49 @@ sub returnRoleAttribute {
     return 'Filter-Id';
 }
 
+=head2 returnInAccessListAttribute
+
+Returns the attribute to use when pushing an input ACL using RADIUS
+
+=cut
+
+sub returnInAccessListAttribute {
+    my ($self) = @_;
+    return '';
+}
+
+
+=head2 returnOutAccessListAttribute
+
+Returns the attribute to use when pushing an output ACL using RADIUS
+
+=cut
+
+sub returnOutAccessListAttribute {
+    my ($self) = @_;
+    return '';
+}
+
+=head2 returnAccessListAttribute
+
+Returns the attribute to use when pushing an ACL using RADIUS
+
+=cut
+
+sub returnAccessListAttribute {
+    my ($self, $acl_num, $acl) = @_;
+    if ($acl =~ /^out\|(.*)/) {
+        if ($self->supportsOutAcl) {
+            return $TRUE, $self->returnOutAccessListAttribute.$acl_num.$1;
+        } else {
+            return $FALSE, '';
+        }
+    } elsif ($acl =~ /^in\|(.*)/) {
+        return $TRUE, $self->returnInAccessListAttribute.$acl_num.$1;
+    } else {
+        return $TRUE, $self->returnInAccessListAttribute.$acl_num.$acl;
+    }
+}
 
 =back
 
