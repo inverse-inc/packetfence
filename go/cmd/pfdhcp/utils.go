@@ -122,44 +122,43 @@ func InterfaceScopeFromMac(MAC string) string {
 }
 
 // Detect the vip on each interfaces
-func (d *Interfaces) detectVIP(interfaces []string, db *sql.DB) {
+func (d *Interfaces) detectVIP(Interfaces []*net.Interface, db *sql.DB) {
 
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range interfaces {
-		keyConfCluster.PfconfigHashNS = "interface " + v
+	for _, v := range Interfaces {
+		keyConfCluster.PfconfigHashNS = "interface " + v.Name
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
 		// Nothing in keyConfCluster.Ip so we are not in cluster mode
 		if keyConfCluster.Ip == "" {
-			VIP[v] = true
+			VIP[v.Name] = true
 			continue
 		}
 
-		if _, found := VIP[v]; !found {
-			VIP[v] = false
+		if _, found := VIP[v.Name]; !found {
+			VIP[v.Name] = false
 		}
 
-		eth, _ := net.InterfaceByName(v)
-		adresses, _ := eth.Addrs()
+		adresses, _ := v.Addrs()
 		var found bool
 		found = false
 		for _, adresse := range adresses {
 			IP, _, _ := net.ParseCIDR(adresse.String())
-			VIPIp[v] = net.ParseIP(keyConfCluster.Ip)
-			if IP.Equal(VIPIp[v]) {
+			VIPIp[v.Name] = net.ParseIP(keyConfCluster.Ip)
+			if IP.Equal(VIPIp[v.Name]) {
 				found = true
-				if VIP[v] == false {
-					log.LoggerWContext(ctx).Info(v + " got the VIP")
-					if h, ok := intNametoInterface[v]; ok {
-						go h.handleAPIReq(APIReq{Req: "initialease", NetInterface: v, NetWork: ""}, db)
+				if VIP[v.Name] == false {
+					log.LoggerWContext(ctx).Info(v.Name + " got the VIP")
+					if h, ok := intNametoInterface[v.Name]; ok {
+						go h.handleAPIReq(APIReq{Req: "initialease", NetInterface: v.Name, NetWork: ""}, db)
 					}
-					VIP[v] = true
+					VIP[v.Name] = true
 				}
 			}
 		}
 		if found == false {
-			VIP[v] = false
+			VIP[v.Name] = false
 		}
 	}
 }

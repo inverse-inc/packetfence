@@ -827,8 +827,18 @@ func detectVIPLoop(ctx context.Context, db *sql.DB) {
 					}
 				}
 			}
+			var CardNet []*net.Interface
 
-			DHCPConfig.detectVIP(sharedutils.RemoveDuplicates(append(interfaces.Element, intDhcp...)), db)
+			NetCard := sharedutils.RemoveDuplicates(append(interfaces.Element, intDhcp...))
+			for _, v := range NetCard {
+				eth, err := net.InterfaceByName(v)
+				if err != nil {
+					log.LoggerWContext(ctx).Error("Unable to get interface " + v + ": " + err.Error())
+					continue
+				}
+				CardNet = append(CardNet, eth)
+			}
+			DHCPConfig.detectVIP(CardNet, db)
 		}
 	}
 }
