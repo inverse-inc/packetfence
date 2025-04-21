@@ -1,0 +1,354 @@
+package pf::Switch::Arista::AristaSwitch;
+
+=head1 NAME
+
+pf::Switch::Arista::AristaSwitch - Object oriented module to access and configure Arista Switch
+
+=head1 STATUS
+
+The minimum required firmware version is 4.29.1F.
+
+=over
+
+=item Supports
+
+=over
+
+=item 802.1X with or without VoIP
+
+=item MAC notifications with VoIP
+
+=back
+
+=item Untested
+
+=over
+
+=item RADIUS VoIP authorization (we relied on LLDP discovery instead)
+
+=back
+
+=back
+
+This module extends pf::Switch.
+
+=head1 BUGS AND LIMITATIONS
+
+=back
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+F<conf/switches.conf>
+
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
+=cut
+
+use strict;
+use warnings;
+
+use base ('pf::Switch');
+use Carp;
+use Net::SNMP;
+use Readonly;
+
+use pf::constants;
+use pf::config qw(
+    $ROLE_API_LEVEL
+    $MAC
+    $PORT
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+    %ConfigRoles
+);
+use pf::locationlog;
+sub description { 'Arista Switch' }
+
+# importing switch constants
+use pf::Switch::constants;
+use pf::util;
+use pf::config::util;
+use pf::role::custom $ROLE_API_LEVEL;
+
+=head1 SUBROUTINES
+
+Warning: The list of subroutine is incomplete
+
+=over
+
+=cut
+
+# CAPABILITIES
+# access technology supported
+# special features
+use pf::SwitchSupports qw(
+    WiredDot1x
+    RadiusDynamicVlanAssignment
+    AccessListBasedEnforcement
+    RoleBasedEnforcement
+    ExternalPortal
+    RadiusVoip
+    Lldp
+);
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$PORT); }
+
+sub getMinOSVersion {
+    my $self   = shift;
+    my $logger = $self->logger;
+    return '4.29.1F';
+}
+
+
+=item NasPortToIfIndex
+
+Translate RADIUS NAS-Port into switch's ifIndex.
+
+=cut
+
+sub NasPortToIfIndex {
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
+
+    # 50017 is ifIndex 17
+    if ($NAS_port =~ s/^500//) {
+        return $NAS_port;
+    } else {
+        $logger->warn("Unknown NAS-Port format. ifIndex translation could have failed. "
+            ."VLAN re-assignment and switch/port accounting will be affected.");
+    }
+    return $NAS_port;
+}
+
+=item getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+
+sub getVoipVsa {
+    my ($self) = @_;
+    my $logger = $self->logger;
+
+    return ('Arista-AVPair' => "device-traffic-class=voice");
+}
+
+=item getPhonesLLDPAtIfIndex
+
+Return list of MACs found through LLDP on a given ifIndex.
+
+If this proves to be generic enough, it could be promoted to L<pf::Switch>.
+In that case, create a generic ifIndexToLldpLocalPort also.
+
+=cut
+
+sub getPhonesLLDPAtIfIndex {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    #Transfer ifIndex to LLDP index
+    my $lldpPort = $self->ifIndexToLldpLocalPort($ifIndex);
+    if (!defined($lldpPort)) {
+        $logger->info("Unable to lookup LLDP port from IfIndex. LLDP VoIP detection will not work. Is LLDP enabled?");
+        return;
+    }
+
+    my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
+    my $oid_lldpRemSysCapEnabled = '1.0.8802.1.1.2.1.4.1.1.12';
+
+    $logger->trace(
+        "SNMP get_next_request for lldpRemSysCapEnabled: "
+        . "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort"
+    );
+    my $result = $self->{_sessionRead}->get_table(
+        -baseoid => "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort"
+    );
+    # Cap entries look like this:
+    # iso.0.8802.1.1.2.1.4.1.1.12.0.10.29 = Hex-STRING: 24 00
+    # We want to validate that the telephone capability bit is turned on.
+    my @phones = ();
+    foreach my $oid ( keys %{$result} ) {
+
+        # grab the lldpRemIndex
+        if ( $oid =~ /^$oid_lldpRemSysCapEnabled\.[0-9]+\.$lldpPort\.([0-9]+)$/ ) {
+
+            my $lldpRemIndex = $1;
+
+            # make sure that what is connected is a VoIP phone based on lldpRemSysCapEnabled information
+            if ( $self->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+                # we have a phone on the port. Get the MAC
+                $logger->trace(
+                    "SNMP get_request for lldpRemPortId: "
+                    . "$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"
+                );
+                my $portIdResult = $self->{_sessionRead}->get_request(
+                    -varbindlist => [
+                        "$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"
+                    ]
+                );
+                next if (!defined($portIdResult));
+                if ($portIdResult->{"$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"}
+                        =~ /^(?:0x)?([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})(?::..)?$/i) {
+                    push @phones, lc("$1:$2:$3:$4:$5:$6");
+                }
+            }
+        }
+    }
+    return @phones;
+}
+
+=item getIfIndexByNasPortId
+
+Fetch the ifindex on the switch by NAS-Port-Id radius attribute
+
+=cut
+
+sub getIfIndexByNasPortId {
+    my ($self, $ifDesc_param) = @_;
+
+    if ( !defined($ifDesc_param) || !$self->connectRead() ) {
+        return 0;
+    }
+
+    my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
+    my $ifDescHashRef;
+    my $result = $self->cachedSNMPTable([-baseoid => $OID_ifDesc]);
+    foreach my $key ( keys %{$result} ) {
+        my $ifDesc = $result->{$key};
+        if ( $ifDesc =~ /^$ifDesc_param$/i ) {
+            $key =~ /^$OID_ifDesc\.(\d+)$/;
+            return $1;
+        }
+    }
+}
+
+=head2 returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept response for the network device.
+
+Overrides the default implementation to add the dynamic acls
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    $args->{'unfiltered'} = $TRUE;
+    $self->compute_action(\$args);
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
+    my @av_pairs = defined($radius_reply_ref->{'Arista-AVPair'}) ? @{$radius_reply_ref->{'Arista-AVPair'}} : ();
+
+    if ( $args->{'compute_acl'} && isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac})) && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} )){
+            if ($access_list) {
+                my $acl_num = 101;
+                my @acls;
+                while($access_list =~ /([^\n]+)\n?/g){
+                    my $acl = $1;
+                    if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
+                        next;
+                    }
+                    my ($test, $formated_acl) = $self->returnAccessListAttribute($acl_num,$acl);
+                    if ($test) {
+                        push(@acls, $formated_acl);
+                    } else {
+                        next;
+                    }
+                    $acl_num ++;
+                    $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
+                }
+                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+                $radius_reply_ref->{'Arista-AVPair'} = \@acls;
+            } else {
+                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+            }
+        }
+    }
+
+    my $role = $self->getRoleByName($args->{'user_role'});
+    if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
+            my $mac = $args->{'mac'};
+            $args->{'session_id'} = "sid".$self->setSession($args);
+            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+            $redirect_url .= $args->{'session_id'};
+            #override role if a role in role map is defined
+            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+                my $role_map = $self->getRoleByName($args->{'user_role'});
+                $role = $role_map if (defined($role_map));
+                # remove the role if any as we push the redirection ACL along with it's role
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
+            }
+            $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
+            push @av_pairs, "url-redirect-acl=$role";
+            push @av_pairs, "url-redirect=".$redirect_url;
+
+        }
+    }
+
+
+    $radius_reply_ref->{'Arista-AVPair'} = \@av_pairs;
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+=head2 returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role be returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
+
+
+=back
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2024 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
