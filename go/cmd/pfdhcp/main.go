@@ -131,17 +131,17 @@ func main() {
 	defer dbConnPool.Close()
 
 	// Keep database connection alive
-	go keepDatabaseAlive(rootCtx, dbConnPool)
+	go keepDatabaseAlive(ctx, dbConnPool)
 
 	// Initialize VIP maps
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
 
 	// Start VIP detection in background
-	go detectVIPLoop(rootCtx, dbConnPool)
+	go detectVIPLoop(ctx, dbConnPool)
 
 	// Initialize StatsD client
-	go initStatsD(rootCtx)
+	go initStatsD(ctx)
 
 	// Initialize DHCP configuration
 	DHCPConfig = newDHCPConfig()
@@ -158,17 +158,17 @@ func main() {
 	startNetworkListeners(ctx, jobChan)
 
 	// Setup and start HTTP API
-	router := setupAPIRoutes(dbConnPool)
+	router := setupAPIRoutes(ctx, dbConnPool)
 	srv := createHTTPServer(router)
 
 	// Notify systemd we're ready
 	daemon.SdNotify(false, "READY=1")
 
 	// Setup systemd watchdog
-	go setupSystemdWatchdog(rootCtx)
+	go setupSystemdWatchdog(ctx)
 
 	// Periodically refresh configuration
-	go refreshConfigLoop(rootCtx)
+	go refreshConfigLoop(ctx)
 
 	// Start HTTP server and wait for shutdown
 	go func() {
@@ -461,7 +461,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 			// Update Global Caches
 			GlobalIPCache.Set(reqIP.String(), answer.MAC.String(), cacheDuration)
 			GlobalMacCache.Set(answer.MAC.String(), reqIP.String(), cacheDuration)
-			err := MysqlUpdateIP4Log(answer.MAC.String(), reqIP.String(), cacheDuration, db)
+			err := MysqlUpdateIP4Log(ctx, answer.MAC.String(), reqIP.String(), cacheDuration, db)
 			if err != nil {
 				log.LoggerWContext(ctx).Info(err.Error())
 			}
@@ -919,8 +919,8 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 }
 
 // setupAPIRoutes configures the HTTP API routes
-func setupAPIRoutes(db *sql.DB) *mux.Router {
-	api := &API{DB: db}
+func setupAPIRoutes(ctx context.Context, db *sql.DB) *mux.Router {
+	api := &API{DB: db, Ctx: ctx}
 	router := mux.NewRouter()
 
 	// API endpoints

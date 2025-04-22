@@ -1,18 +1,22 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"time"
 
 	"github.com/inverse-inc/go-utils/log"
 )
 
 // MysqlInsert function
-func MysqlInsert(key string, value string, db *sql.DB) bool {
-	if err := db.PingContext(ctx); err != nil {
+func MysqlInsert(ctx context.Context, key string, value string, db *sql.DB) bool {
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	if err := db.PingContext(dbCtx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
+	_, err := db.ExecContext(dbCtx,
 
-	_, err := db.Exec(
 		`
 INSERT into key_value_storage values(?,?)
 ON DUPLICATE KEY UPDATE value = VALUES(value)
@@ -31,10 +35,13 @@ ON DUPLICATE KEY UPDATE value = VALUES(value)
 
 // MysqlGet function
 func MysqlGet(key string, db *sql.DB) (string, string) {
-	if err := db.PingContext(ctx); err != nil {
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	if err := db.PingContext(dbCtx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
-	rows, err := db.Query("select id, value from key_value_storage where id = ?", "/dhcpd/"+key)
+
+	rows, err := db.QueryContext(dbCtx, "select id, value from key_value_storage where id = ?", "/dhcpd/"+key)
 	defer rows.Close()
 	if err != nil {
 		log.LoggerWContext(ctx).Debug("Error while getting MySQL '" + key + "': " + err.Error())
@@ -55,10 +62,12 @@ func MysqlGet(key string, db *sql.DB) (string, string) {
 
 // MysqlDel function
 func MysqlDel(key string, db *sql.DB) bool {
-	if err := db.PingContext(ctx); err != nil {
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	if err := db.PingContext(dbCtx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
-	rows, err := db.Query("delete from key_value_storage where id = ?", "/dhcpd/"+key)
+	rows, err := db.QueryContext(dbCtx, "delete from key_value_storage where id = ?", "/dhcpd/"+key)
 	defer rows.Close()
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Error while deleting MySQL key '" + key + "': " + err.Error())

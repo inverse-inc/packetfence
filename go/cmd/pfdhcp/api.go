@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/binary"
 	"encoding/json"
@@ -22,7 +23,8 @@ import (
 )
 
 type API struct {
-	DB *sql.DB
+	DB  *sql.DB
+	Ctx context.Context
 }
 
 // Node struct
@@ -243,7 +245,7 @@ func (a *API) handleOverrideOptions(res http.ResponseWriter, req *http.Request) 
 	}
 
 	// Insert information in MySQL
-	_ = MysqlInsert(vars["mac"], sharedutils.ConvertToString(body), a.DB)
+	_ = MysqlInsert(a.Ctx, vars["mac"], sharedutils.ConvertToString(body), a.DB)
 
 	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
@@ -267,7 +269,7 @@ func (a *API) handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Re
 	}
 
 	// Insert information in MySQL
-	_ = MysqlInsert(vars["network"], sharedutils.ConvertToString(body), a.DB)
+	_ = MysqlInsert(a.Ctx, vars["network"], sharedutils.ConvertToString(body), a.DB)
 
 	var result = &Info{Network: vars["network"], Status: "ACK"}
 

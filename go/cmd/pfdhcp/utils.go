@@ -166,7 +166,17 @@ func (d *Interfaces) detectVIP(Interfaces []*net.Interface, db *sql.DB) {
 // NodeInformation return the node information
 func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (r NodeInfo) {
 
-	rows, err := db.Query("SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
+	if err := db.PingContext(ctx); err != nil {
+		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
+	}
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	// Prepare the statements
+	// We use the same context for all the queries
+	// because we want to be sure that all the queries are executed in the same context
+	// and that the context is cancelled if one of the queries fails
+
+	rows, err := db.QueryContext(dbCtx, "SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
 	defer rows.Close()
 
 	if err != nil {
@@ -433,10 +443,17 @@ func IsIPv6(address net.IP) bool {
 }
 
 // MysqlUpdateIP4Log update the ip4log table
-func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration, db *sql.DB) error {
-	if err := db.PingContext(ctx); err != nil {
+func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time.Duration, db *sql.DB) error {
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	if err := db.PingContext(dbCtx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
+
+	// Prepare the statements
+	// We use the same context for all the queries
+	// because we want to be sure that all the queries are executed in the same context
+	// and that the context is cancelled if one of the queries fails
 
 	MAC2IP, err := db.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
 	if err != nil {
@@ -465,27 +482,27 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration, db *sql.DB
 		oldMAC string
 		oldIP  string
 	)
-	err = MAC2IP.QueryRow(mac).Scan(&oldIP)
+	err = MAC2IP.QueryRowContext(dbCtx, mac).Scan(&oldIP)
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
-	err = IP2MAC.QueryRow(ip).Scan(&oldMAC)
+	err = IP2MAC.QueryRowContext(dbCtx, ip).Scan(&oldMAC)
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
 	if len(oldMAC) > 0 && (oldMAC != mac) {
-		_, err = IPClose.Exec(ip)
+		_, err = IPClose.ExecContext(dbCtx, ip)
 		if err != nil {
 			return err
 		}
 	}
 	if len(oldIP) > 0 && (oldIP != ip) {
-		_, err = IPClose.Exec(oldIP)
+		_, err = IPClose.ExecContext(dbCtx, oldIP)
 		if err != nil {
 			return err
 		}
 	}
-	_, err = IPInsert.Exec(mac, ip, duration.Seconds())
+	_, err = IPInsert.ExecContext(dbCtx, mac, ip, duration.Seconds())
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
