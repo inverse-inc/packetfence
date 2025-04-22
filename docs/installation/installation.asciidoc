@@ -151,7 +151,6 @@ apt-get install packetfence
 
 First install your supported distribution with minimal installation and no additional packages. Then:
 
-On Red Hat-based systems
 [options="compact"]
 * Disable firewall
 * Disable SELinux
