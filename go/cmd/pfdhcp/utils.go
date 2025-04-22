@@ -250,7 +250,20 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 func Shuffle(addresses string, excluded []string) (r []byte) {
 	var array []net.IP
 	var found bool
+	addressesArray := strings.Split(addresses, ",")
+	if len(addressesArray) == 1 {
+		SingleIP := net.ParseIP(addressesArray[0]).To4()
+		slice := make([]byte, 0, len(SingleIP))
+		slice = append(slice, SingleIP...)
+		return slice
+	}
+	if len(addressesArray) == 0 {
+		return nil
+	}
 
+	// Check if the address is in the excluded list
+	// If it is, remove it from the list
+	// and add it to the array
 	for _, adresse := range strings.Split(addresses, ",") {
 		found = false
 		for _, exclude := range excluded {
@@ -265,15 +278,18 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 
 	slice := make([]byte, 0, len(array))
 
-	random := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i := len(array) - 1; i > 0; i-- {
-		j := random.Intn(i + 1)
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+
+	random.Shuffle(len(array), func(i, j int) {
 		array[i], array[j] = array[j], array[i]
-	}
+	})
+
 	for _, element := range array {
 		elem := []byte(element)
 		slice = append(slice, elem...)
 	}
+
 	return slice
 }
 
