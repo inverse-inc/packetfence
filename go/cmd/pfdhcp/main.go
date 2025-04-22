@@ -209,7 +209,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	answer.MAC = p.CHAddr()
 	answer.SrcIP = I.Ipv4
 
-	ctx = log.AddToLogContext(ctx, "mac", answer.MAC.String())
+	// ctx = log.AddToLogContext(ctx, "mac", answer.MAC.String())
 	clientMac := answer.MAC.String()
 	clientHostname := string(options[dhcp.OptionHostName])
 	prettyType := "DHCP" + strings.ToUpper(msgType.String())
@@ -243,7 +243,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	case dhcp.Decline:
 		return I.handleDecline(ctx, p, handler, answer, options, clientMac, clientHostname, prettyType)
 	default:
-		log.LoggerWContext(ctx).Info(clientMac + " NAK " + sharedutils.ByteToString(p.XId()))
+		log.LoggerWContext(ctx).Info(clientMac + " NAK " + sharedutils.ByteToString(p.XId()) + " mac=" + clientMac)
 		answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 		return answer
 	}
@@ -254,7 +254,7 @@ func (I *Interface) handleDecline(ctx context.Context, p dhcp.Packet, handler DH
 	if reqIP == nil {
 		reqIP = net.IP(p.CIAddr())
 	}
-	log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (" + clientHostname + ")")
+	log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (" + clientHostname + ")" + " mac=" + clientMac)
 
 	// Static IP ?
 	if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
@@ -268,10 +268,10 @@ func (I *Interface) handleDecline(ctx context.Context, p dhcp.Packet, handler DH
 		// Remove the mac from the cache
 		if x, found := handler.hwcache.Get(answer.MAC.String()); found {
 			if leaseNum == x.(int) {
-				log.LoggerWContext(ctx).Debug(prettyType + " Found the ip " + reqIP.String() + " in the cache")
+				log.LoggerWContext(ctx).Debug(prettyType + " Found the ip " + reqIP.String() + " in the cache" + " mac=" + clientMac)
 				_, returnedMac, _ := handler.available.GetMACIndex(uint64(x.(int)))
 				if returnedMac == answer.MAC.String() {
-					log.LoggerWContext(ctx).Info("Temporarily declaring " + reqIP.String() + " as unusable")
+					log.LoggerWContext(ctx).Info("Temporarily declaring " + reqIP.String() + " as unusable" + " mac=" + clientMac)
 					// Remove in the cache and in the pool
 					handler.hwcache.Delete(answer.MAC.String())
 					// Assign the fakemac to reserve the ip
@@ -285,13 +285,13 @@ func (I *Interface) handleDecline(ctx context.Context, p dhcp.Packet, handler DH
 					}(ctx, leaseNum, reqIP)
 				}
 			} else {
-				log.LoggerWContext(ctx).Debug(prettyType + "Found the mac in the cache for but wrong IP")
+				log.LoggerWContext(ctx).Debug(prettyType + "Found the mac in the cache for but wrong IP" + " mac=" + clientMac)
 			}
 		}
 
 	}
 
-	log.LoggerWContext(ctx).Info(prettyType + " of " + reqIP.String() + " from " + clientMac)
+	log.LoggerWContext(ctx).Info(prettyType + " of " + reqIP.String() + " from " + clientMac + " mac=" + clientMac)
 
 	return answer
 }
@@ -301,7 +301,7 @@ func (I *Interface) handleRelease(ctx context.Context, p dhcp.Packet, handler DH
 	if reqIP == nil {
 		reqIP = net.IP(p.CIAddr())
 	}
-	log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (" + clientHostname + ")")
+	log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (" + clientHostname + ")" + " mac=" + clientMac)
 
 	if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
 		// Static ip address assigned ?
@@ -313,10 +313,10 @@ func (I *Interface) handleRelease(ctx context.Context, p dhcp.Packet, handler DH
 		}
 		if x, found := handler.hwcache.Get(answer.MAC.String()); found {
 			if leaseNum == x.(int) {
-				log.LoggerWContext(ctx).Debug(prettyType + " Found the ip " + reqIP.String() + " in the cache")
+				log.LoggerWContext(ctx).Debug(prettyType + " Found the ip " + reqIP.String() + " in the cache" + " mac=" + clientMac)
 				_, returnedMac, _ := handler.available.GetMACIndex(uint64(x.(int)))
 				if returnedMac == answer.MAC.String() {
-					log.LoggerWContext(ctx).Info("Temporarily declaring " + reqIP.String() + " as unusable")
+					log.LoggerWContext(ctx).Info("Temporarily declaring " + reqIP.String() + " as unusable" + " mac=" + clientMac)
 					// Remove in the cache and in the pool
 					handler.hwcache.Delete(answer.MAC.String())
 					// Assign the fakemac to reserve the ip
@@ -330,12 +330,12 @@ func (I *Interface) handleRelease(ctx context.Context, p dhcp.Packet, handler DH
 					}(ctx, leaseNum, reqIP)
 				}
 			} else {
-				log.LoggerWContext(ctx).Debug(prettyType + " Found the mac in the cache for but wrong IP")
+				log.LoggerWContext(ctx).Debug(prettyType + " Found the mac in the cache for but wrong IP" + " mac=" + clientMac)
 			}
 		}
 	}
 
-	log.LoggerWContext(ctx).Info(prettyType + " of " + reqIP.String() + " from " + clientMac)
+	log.LoggerWContext(ctx).Info(prettyType + " of " + reqIP.String() + " from " + clientMac + " mac=" + clientMac)
 
 	return answer
 }
@@ -346,7 +346,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 		reqIP = net.IP(p.CIAddr())
 	}
 
-	log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (" + clientHostname + ")")
+	log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (" + clientHostname + ")" + " mac=" + clientMac)
 	cacheKey := answer.MAC.String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
 
 	// In the event of a DHCPREQUEST, we do not reply if we're not the server ID in the request
@@ -355,7 +355,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 		serverID := net.IPv4(serverIDBytes[0], serverIDBytes[1], serverIDBytes[2], serverIDBytes[3])
 		if !serverID.Equal(setOptionServerIdentifier(srvIP, handler.ip).To4()) {
 			if !serverID.Equal(handler.ip.To4()) {
-				log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer (offered by %s, we are %s)", prettyType, serverID, handler.ip.To4()))
+				log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer (offered by %s, we are %s)", prettyType, serverID, handler.ip.To4()) + " mac=" + clientMac)
 				return Answer{}
 			}
 		}
@@ -390,7 +390,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 					if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
 						id, _ := GlobalTransactionLock.Lock()
 						if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
-							log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed")
+							log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed" + " mac=" + clientMac)
 							Reply = false
 							GlobalTransactionLock.Unlock(id)
 							return answer
@@ -403,7 +403,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 						// So remove the ip from the cache
 					} else {
 						Reply = false
-						log.LoggerWContext(ctx).Info(answer.MAC.String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()))
+						log.LoggerWContext(ctx).Info(answer.MAC.String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()) + " mac=" + clientMac)
 						if index, found = handler.xid.Get(fmt.Sprintf("%d", (binary.BigEndian.Uint32(p.XId())))); found {
 							if index.(int) == 1 {
 								handler.hwcache.Delete(answer.MAC.String())
@@ -412,7 +412,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 					}
 				} else {
 					// Not in the cache so we don't reply
-					log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer", prettyType))
+					log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer", prettyType) + " mac=" + clientMac)
 					return Answer{}
 				}
 			}
@@ -445,7 +445,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 			}
 
 			if reject != nil {
-				log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
+				log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac + " mac=" + clientMac)
 				answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 				return answer
 			}
@@ -463,20 +463,20 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 			GlobalMacCache.Set(answer.MAC.String(), reqIP.String(), cacheDuration)
 			err := MysqlUpdateIP4Log(ctx, answer.MAC.String(), reqIP.String(), cacheDuration, db)
 			if err != nil {
-				log.LoggerWContext(ctx).Info(err.Error())
+				log.LoggerWContext(ctx).Info(err.Error() + " mac=" + clientMac)
 			}
-			log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")")
+			log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")" + " mac=" + clientMac)
 
 			handler.hwcache.Set(answer.MAC.String(), Index, cacheDuration)
 			handler.available.ReserveIPIndex(uint64(Index), answer.MAC.String())
 
 		} else {
-			log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
+			log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac + " mac=" + clientMac)
 			answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 		}
 		return answer
 	}
-	log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
+	log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac + " mac=" + clientMac)
 	answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 	return answer
 }
@@ -497,23 +497,23 @@ func (I *Interface) getOptions(p dhcp.Packet) map[string]string {
 
 func (I *Interface) handleDiscover(ctx context.Context, p dhcp.Packet, handler DHCPHandler, answer Answer, clientMac string, clientHostname string, NetScope net.IPNet, srvIP net.IP, msgType dhcp.MessageType, db *sql.DB) Answer {
 	firstTry := true
-	log.LoggerWContext(ctx).Info("DHCPDISCOVER from " + clientMac + " (" + clientHostname + ")")
+	log.LoggerWContext(ctx).Info("DHCPDISCOVER from " + clientMac + " (" + clientHostname + ")" + " mac=" + clientMac)
 	var free int
 	free = -1
 	// Static assign IP address ?
 	if position, ok := handler.ipAssigned[answer.MAC.String()]; ok {
 		free = int(position)
-		log.LoggerWContext(ctx).Debug("Static IP found")
+		log.LoggerWContext(ctx).Debug("Static IP found" + " mac=" + clientMac)
 		goto reply
 	}
 	// Search in the cache if the mac address already get assigned
-	log.LoggerWContext(ctx).Debug("Search in the cache if an IP has already been assigned")
+	log.LoggerWContext(ctx).Debug("Search in the cache if an IP has already been assigned" + " mac=" + clientMac)
 	if x, found := handler.hwcache.Get(answer.MAC.String()); found {
-		log.LoggerWContext(ctx).Debug("Found in the cache that a IP has already been assigned")
+		log.LoggerWContext(ctx).Debug("Found in the cache that a IP has already been assigned" + " mac=" + clientMac)
 		// Test if we find the the mac address at the index
 		_, returnedMac, err := handler.available.GetMACIndex(uint64(x.(int)))
 		if err != nil {
-			log.LoggerWContext(ctx).Error(err.Error())
+			log.LoggerWContext(ctx).Error(err.Error() + " mac=" + clientMac)
 		}
 		if returnedMac == answer.MAC.String() {
 			free = x.(int)
@@ -524,7 +524,7 @@ func (I *Interface) handleDiscover(ctx context.Context, p dhcp.Packet, handler D
 			// Reserve the ip
 			returnedMac, err = handler.available.ReserveIPIndex(uint64(x.(int)), answer.MAC.String())
 			if err != nil {
-				log.LoggerWContext(ctx).Error(err.Error())
+				log.LoggerWContext(ctx).Error(err.Error() + " mac=" + clientMac)
 			}
 			if err == nil && returnedMac == answer.MAC.String() {
 				free = x.(int)
@@ -543,27 +543,27 @@ func (I *Interface) handleDiscover(ctx context.Context, p dhcp.Packet, handler D
 		}
 		goto reply
 	}
-	log.LoggerWContext(ctx).Debug("Not Found in the cache that a IP has already been assigned")
+	log.LoggerWContext(ctx).Debug("Not Found in the cache that a IP has already been assigned" + " mac=" + clientMac)
 retry:
 	// Search for the next available ip in the pool
-	log.LoggerWContext(ctx).Debug("Search if there is still available IP in the pool")
+	log.LoggerWContext(ctx).Debug("Search if there is still available IP in the pool" + " mac=" + clientMac)
 	if handler.available.FreeIPsRemaining() > 0 {
-		log.LoggerWContext(ctx).Debug("Still available IP in the pool")
+		log.LoggerWContext(ctx).Debug("Still available IP in the pool" + " mac=" + clientMac)
 		var element uint32
 		// Check if the device request a specific ip
 		if p.ParseOptions()[50] != nil && firstTry {
-			log.LoggerWContext(ctx).Debug("Attempting to use the IP requested by the device")
+			log.LoggerWContext(ctx).Debug("Attempting to use the IP requested by the device" + " mac=" + clientMac)
 			element = uint32(binary.BigEndian.Uint32(p.ParseOptions()[50])) - uint32(binary.BigEndian.Uint32(handler.start.To4()))
 			// Test if we find the mac address at the index
 			_, returnedMac, err := handler.available.GetMACIndex(uint64(element))
 			if err != nil {
-				log.LoggerWContext(ctx).Error(err.Error())
+				log.LoggerWContext(ctx).Error(err.Error() + " mac=" + clientMac)
 			}
 			if err == nil && returnedMac == answer.MAC.String() {
-				log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
+				log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool" + " mac=" + clientMac)
 				free = int(element)
 			} else if err == nil && returnedMac == FreeMac {
-				log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
+				log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool" + " mac=" + clientMac)
 				// The ip is free use it
 				returnedMac, err = handler.available.ReserveIPIndex(uint64(element), answer.MAC.String())
 				// Reserve the ip
@@ -574,7 +574,7 @@ retry:
 					goto retry
 				}
 				if err == nil && returnedMac == answer.MAC.String() {
-					log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
+					log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool" + " mac=" + clientMac)
 					free = int(element)
 				}
 			} else {
@@ -585,10 +585,10 @@ retry:
 		}
 		// If we still haven't found an IP address to offer, we get the next one
 		if free == -1 {
-			log.LoggerWContext(ctx).Debug("Grabbing next available IP")
+			log.LoggerWContext(ctx).Debug("Grabbing next available IP" + " mac=" + clientMac)
 			freeu64, _, err := handler.available.GetFreeIPIndex(answer.MAC.String())
 			if err != nil {
-				log.LoggerWContext(ctx).Error(err.Error())
+				log.LoggerWContext(ctx).Error(err.Error() + " mac=" + clientMac)
 				return answer
 			}
 			free = int(freeu64)
@@ -604,7 +604,7 @@ retry:
 			mac := arp.Search(dhcp.IPAdd(handler.start, free).String())
 			if mac != "" && mac != FreeMac {
 				if answer.MAC.String() != mac {
-					log.LoggerWContext(ctx).Info(answer.MAC.String() + " in arp table Ip " + dhcp.IPAdd(handler.start, free).String() + " is already own by " + mac)
+					log.LoggerWContext(ctx).Info(answer.MAC.String() + " in arp table Ip " + dhcp.IPAdd(handler.start, free).String() + " is already own by " + mac + " mac=" + clientMac)
 					inarp = true
 				}
 			}
@@ -614,19 +614,19 @@ retry:
 		if pingreply || inarp {
 			// Found in the arp cache or able to ping it
 			ipaddr := dhcp.IPAdd(handler.start, free)
-			log.LoggerWContext(ctx).Info(answer.MAC.String() + " Ip " + ipaddr.String() + " already in use, trying next")
+			log.LoggerWContext(ctx).Info(answer.MAC.String() + " Ip " + ipaddr.String() + " already in use, trying next" + " mac=" + clientMac)
 			// Added back in the pool since it's not the dhcp server who gave it
 			handler.hwcache.Delete(answer.MAC.String())
 
 			firstTry = false
 
-			log.LoggerWContext(ctx).Info("Temporarily declaring " + ipaddr.String() + " as unusable")
+			log.LoggerWContext(ctx).Info("Temporarily declaring " + ipaddr.String() + " as unusable" + " mac=" + clientMac)
 			// Reserve with a fake mac
 			handler.available.ReserveIPIndex(uint64(free), FakeMac)
 			// Put it back into the available IPs in 10 minutes
 			go func(ctx context.Context, free int, ipaddr net.IP) {
 				time.Sleep(10 * time.Minute)
-				log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool")
+				log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool" + " mac=" + clientMac)
 				handler.available.FreeIPIndex(uint64(free))
 			}(ctx, free, ipaddr)
 			free = -1
@@ -636,7 +636,7 @@ retry:
 		handler.hwcache.Set(answer.MAC.String(), free, time.Duration(5)*time.Second)
 		handler.xid.Replace(sharedutils.ByteToString(p.XId()), 1, time.Duration(5)*time.Second)
 	} else {
-		log.LoggerWContext(ctx).Info(answer.MAC.String() + " Nak No space left in the pool ")
+		log.LoggerWContext(ctx).Info(answer.MAC.String() + " Nak No space left in the pool " + " mac=" + clientMac)
 		return answer
 	}
 
@@ -680,7 +680,7 @@ reply:
 	reject := AddPffilterDevicesOptions(info, GlobalOptions)
 
 	if reject != nil {
-		log.LoggerWContext(ctx).Info("DHCPNAK on to " + clientMac)
+		log.LoggerWContext(ctx).Info("DHCPNAK on to " + clientMac + " mac=" + clientMac)
 		answer.D = dhcp.ReplyPacket(p, dhcp.NAK, setOptionServerIdentifier(srvIP, handler.ip).To4(), nil, 0, nil)
 		return answer
 	}

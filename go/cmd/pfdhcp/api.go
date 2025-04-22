@@ -228,7 +228,7 @@ func (a *API) handleReleaseIP(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		log.LoggerWContext(ctx).Error("Error releasing IP: " + err.Error())
+		log.LoggerWContext(ctx).Error("Error releasing IP: " + err.Error() + " mac=" + vars["mac"])
 	}
 }
 
@@ -252,7 +252,7 @@ func (a *API) handleOverrideOptions(res http.ResponseWriter, req *http.Request) 
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		log.LoggerWContext(ctx).Error("Error adding MAC options: " + err.Error())
+		log.LoggerWContext(ctx).Error("Error adding MAC options: " + err.Error() + " mac=" + vars["mac"])
 	}
 }
 
@@ -293,7 +293,7 @@ func (a *API) handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		log.LoggerWContext(ctx).Error("Error removing MAC options: " + err.Error())
+		log.LoggerWContext(ctx).Error("Error removing MAC options: " + err.Error() + " mac=" + vars["mac"])
 	}
 }
 
