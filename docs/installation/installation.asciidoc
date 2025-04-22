@@ -87,28 +87,22 @@ These repositories contain all required dependencies to install PacketFence. Thi
 * everything is packaged as RPM and Debian packages
 * easy upgrade
 
+*NOTE*: If running *UEFI mode*, make sure *secureboot* is *disabled*.
+
+==== Installing PacketFence on Debian
+
 First install your supported distribution with minimal installation and no additional packages. Then:
 
-On Red Hat-based systems
-[options="compact"]
-* Disable firewall
-* Disable SELinux
-
-On Debian
 [options="compact"]
 * Disable AppArmor
 * Disable resolvconf
 
-*NOTE*: If running *UEFI mode*, make sure *secureboot* is *disabled*.
+For AppArmor, you need to follow instructions on
+link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
 
-Make sure your system is up to date and your yum or apt-get database is updated. On a RHEL-based system, do:
+For resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
-[source,bash]
-----
-yum update
-----
-
-On a Debian system, do:
+Make sure your system is up to date do:
 
 [source,bash]
 ----
@@ -116,41 +110,7 @@ apt-get update
 apt-get upgrade
 ----
 
-Regarding SELinux or AppArmor, even if they may be wanted by some
-organizations, PacketFence will not work properly if SELinux or AppArmor are
-enabled. You will need to explicitly disable SELinux from the
-`/etc/selinux/config` file and reboot the machine. For AppArmor, you need to
-follow instructions on
-link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
-
-Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
-
-==== RHEL-based systems
-
-Install kernel development package:
-
-[source,bash]
-----
-yum install kernel-devel-$(uname -r)
-----
-
-Ensure `runc` and `podman` are uninstalled (PacketFence uses docker+containerd.io)
-
-[source,bash]
-----
-yum remove runc podman
-----
-
-
 NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
-
-===== RHEL 8.x
-
-You need to have a valid subscription to be able to install PacketFence dependencies.
-
-==== Debian-based systems
-
-Install kernel development package:
 
 [source,bash]
 ----
@@ -158,29 +118,6 @@ apt install linux-headers-$(uname -r)
 ----
 
 NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
-
-==== Software Installation
-
-===== RHEL-based systems
-
-NOTE: On RHEL 8.x systems, as a preliminary step, you need to run: `rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY` before installing `packetfence-release` package.
-
-In order to use the PacketFence repository:
-
-// subs=attributes allow to substitute {release_minor} in code block
-[source,bash,subs="attributes"]
-----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
-----
-
-Once the repository is defined, you can install PacketFence with all its dependencies, and the required external services (database server, DHCP server, RADIUS server) using:
-
-[source,bash]
-----
-yum install --enablerepo=packetfence packetfence
-----
-
-===== Debian-based systems
 
 In order to use the repository, you have to install the GPG key of the PacketFence repository:
 
@@ -208,6 +145,62 @@ server, DHCP server, RADIUS server) using:
 ----
 apt-get update
 apt-get install packetfence
+----
+
+==== Installing PacketFence on RHEL8
+
+First install your supported distribution with minimal installation and no additional packages. Then:
+
+On Red Hat-based systems
+[options="compact"]
+* Disable firewall
+* Disable SELinux
+
+You will need to explicitly disable SELinux from the
+`/etc/selinux/config` file and reboot the machine.
+
+Make sure your system is up to date, do:
+
+[source,bash]
+----
+yum update
+----
+
+Install kernel development package:
+
+[source,bash]
+----
+yum install kernel-devel-$(uname -r)
+----
+
+Ensure `runc` and `podman` are uninstalled (PacketFence uses docker+containerd.io)
+
+[source,bash]
+----
+yum remove runc podman
+----
+
+NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
+
+===== RHEL 8.x
+
+You need to have a valid subscription to be able to install PacketFence dependencies.
+
+NOTE: On RHEL 8.x systems, as a preliminary step, you need to run: `rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY` before installing `packetfence-release` package.
+
+In order to use the PacketFence repository:
+
+// subs=attributes allow to substitute {release_minor} in code block
+[source,bash,subs="attributes"]
+----
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
+----
+
+Once the repository is defined, you can install PacketFence with all its dependencies, and the required external services (database server, DHCP server, RADIUS server) using:
+
+[source,bash]
+----
+yum install --enablerepo=packetfence packetfence
 ----
 
 === Installing PacketFence on Linode
