@@ -52,7 +52,7 @@ Make sure that there is only one virtual network card created, and also make sur
 
 ==== Import to VMware Player/Workstation for Linux
 
-Newer versions of VMware Player handle VLAN trunking a lot better. With that in mind,  we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
+Newer versions of VMware Player handle VLAN trunking a lot better. With that in mind, we can use a single interface on the VM. So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
 
 === Installing PacketFence from the ISO
 
