@@ -138,7 +138,7 @@ func (a *API) handleAllStats(res http.ResponseWriter, req *http.Request) {
 	}
 	for _, i := range interfaces.Element {
 		if h, ok := intNametoInterface[i]; ok {
-			stat := h.handleAPIReq(APIReq{Req: "stats", NetInterface: i, NetWork: ""}, a.DB)
+			stat := h.handleAPIReq(a.Ctx, APIReq{Req: "stats", NetInterface: i, NetWork: ""}, a.DB)
 			for _, s := range stat.([]Stats) {
 				result.Items = append(result.Items, s)
 			}
@@ -161,7 +161,7 @@ func (a *API) handleStats(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if h, ok := intNametoInterface[vars["int"]]; ok {
-		stat := h.handleAPIReq(APIReq{Req: "stats", NetInterface: vars["int"], NetWork: vars["network"]}, a.DB)
+		stat := h.handleAPIReq(a.Ctx, APIReq{Req: "stats", NetInterface: vars["int"], NetWork: vars["network"]}, a.DB)
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -182,7 +182,7 @@ func (a *API) handleDuplicates(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if h, ok := intNametoInterface[vars["int"]]; ok {
-		stat := h.handleAPIReq(APIReq{Req: "duplicates", NetInterface: vars["int"], NetWork: vars["network"]}, a.DB)
+		stat := h.handleAPIReq(a.Ctx, APIReq{Req: "duplicates", NetInterface: vars["int"], NetWork: vars["network"]}, a.DB)
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -203,7 +203,7 @@ func (a *API) handleDebug(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if h, ok := intNametoInterface[vars["int"]]; ok {
-		stat := h.handleAPIReq(APIReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]}, a.DB)
+		stat := h.handleAPIReq(a.Ctx, APIReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]}, a.DB)
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -314,9 +314,9 @@ func (a *API) handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Requ
 	}
 }
 
-func decodeOptions(b string, db *sql.DB) (map[dhcp.OptionCode][]byte, error) {
+func decodeOptions(ctx context.Context, b string, db *sql.DB) (map[dhcp.OptionCode][]byte, error) {
 	var options []Options
-	_, value := MysqlGet(b, db)
+	_, value := MysqlGet(ctx, b, db)
 	decodedValue := sharedutils.ConvertToByte(value)
 	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
 	if err := json.Unmarshal(decodedValue, &options); err != nil {
@@ -366,7 +366,7 @@ func extractMembers(v Network) ([]Node, []string, int) {
 	return Members, Macs, Count
 }
 
-func (h *Interface) handleAPIReq(Request APIReq, db *sql.DB) interface{} {
+func (h *Interface) handleAPIReq(ctx context.Context, Request APIReq, db *sql.DB) interface{} {
 	var stats []Stats
 
 	if Request.Req == "duplicates" {
@@ -405,7 +405,7 @@ func (h *Interface) handleAPIReq(Request APIReq, db *sql.DB) interface{} {
 			}
 
 			// Add network options on the fly
-			x, err := decodeOptions(v.network.IP.String(), db)
+			x, err := decodeOptions(ctx, v.network.IP.String(), db)
 			if err == nil {
 				for key, value := range x {
 					Options[key.String()] = Tlv.Tlvlist[int(key)].Transform.String(value)

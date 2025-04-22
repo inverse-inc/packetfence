@@ -34,7 +34,7 @@ ON DUPLICATE KEY UPDATE value = VALUES(value)
 }
 
 // MysqlGet function
-func MysqlGet(key string, db *sql.DB) (string, string) {
+func MysqlGet(ctx context.Context, key string, db *sql.DB) (string, string) {
 	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if err := db.PingContext(dbCtx); err != nil {

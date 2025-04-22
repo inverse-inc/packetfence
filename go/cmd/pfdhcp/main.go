@@ -662,7 +662,7 @@ reply:
 	leaseDuration := handler.leaseDuration
 
 	// Add network options on the fly
-	x, err := decodeOptions(NetScope.IP.String(), db)
+	x, err := decodeOptions(ctx, NetScope.IP.String(), db)
 	if err == nil {
 		for key, value := range x {
 			if key == dhcp.OptionIPAddressLeaseTime {
@@ -688,7 +688,7 @@ reply:
 		leaseDuration = 0
 	}
 	// Add device (mac) options on the fly
-	x, err = decodeOptions(answer.MAC.String(), db)
+	x, err = decodeOptions(ctx, answer.MAC.String(), db)
 	if err == nil {
 		for key, value := range x {
 			if key == dhcp.OptionIPAddressLeaseTime {
@@ -838,7 +838,7 @@ func detectVIPLoop(ctx context.Context, db *sql.DB) {
 				}
 				CardNet = append(CardNet, eth)
 			}
-			DHCPConfig.detectVIP(CardNet, db)
+			DHCPConfig.detectVIP(ctx, CardNet, db)
 		}
 	}
 }

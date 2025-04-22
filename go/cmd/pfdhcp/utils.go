@@ -122,7 +122,7 @@ func InterfaceScopeFromMac(MAC string) string {
 }
 
 // Detect the vip on each interfaces
-func (d *Interfaces) detectVIP(Interfaces []*net.Interface, db *sql.DB) {
+func (d *Interfaces) detectVIP(ctx context.Context, Interfaces []*net.Interface, db *sql.DB) {
 
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
@@ -151,7 +151,7 @@ func (d *Interfaces) detectVIP(Interfaces []*net.Interface, db *sql.DB) {
 				if VIP[v.Name] == false {
 					log.LoggerWContext(ctx).Info(v.Name + " got the VIP")
 					if h, ok := intNametoInterface[v.Name]; ok {
-						go h.handleAPIReq(APIReq{Req: "initialease", NetInterface: v.Name, NetWork: ""}, db)
+						go h.handleAPIReq(ctx, APIReq{Req: "initialease", NetInterface: v.Name, NetWork: ""}, db)
 					}
 					VIP[v.Name] = true
 				}
@@ -372,7 +372,7 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 
 // AddDevicesOptions function add options on the fly
 func AddDevicesOptions(object string, leaseDuration *time.Duration, GlobalOptions map[dhcp.OptionCode][]byte, db *sql.DB) {
-	x, err := decodeOptions(object, db)
+	x, err := decodeOptions(ctx, object, db)
 	if err == nil {
 		for key, value := range x {
 			if key == dhcp.OptionIPAddressLeaseTime {
