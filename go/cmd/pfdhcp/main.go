@@ -809,35 +809,38 @@ func detectVIPLoop(ctx context.Context, db *sql.DB) {
 	ticker := time.NewTicker(vipDetectInterval)
 	defer ticker.Stop()
 
+	var DHCPinterfaces pfconfigdriver.DHCPInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &DHCPinterfaces)
+	var interfaces pfconfigdriver.ListenInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+
+	var intDhcp []string
+	for _, vi := range DHCPinterfaces.Element {
+		for key, dhcpint := range vi.(map[string]interface{}) {
+			if key == "int" {
+				intDhcp = append(intDhcp, dhcpint.(string))
+			}
+		}
+	}
+	var CardNet []*net.Interface
+
+	NetCard := sharedutils.RemoveDuplicates(append(interfaces.Element, intDhcp...))
+
+	for _, v := range NetCard {
+		eth, err := net.InterfaceByName(v)
+		if err != nil {
+			log.LoggerWContext(ctx).Error("Unable to get interface " + v + ": " + err.Error())
+			continue
+		}
+		CardNet = append(CardNet, eth)
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			var DHCPinterfaces pfconfigdriver.DHCPInts
-			pfconfigdriver.FetchDecodeSocket(ctx, &DHCPinterfaces)
-			var interfaces pfconfigdriver.ListenInts
-			pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 
-			var intDhcp []string
-			for _, vi := range DHCPinterfaces.Element {
-				for key, dhcpint := range vi.(map[string]interface{}) {
-					if key == "int" {
-						intDhcp = append(intDhcp, dhcpint.(string))
-					}
-				}
-			}
-			var CardNet []*net.Interface
-
-			NetCard := sharedutils.RemoveDuplicates(append(interfaces.Element, intDhcp...))
-			for _, v := range NetCard {
-				eth, err := net.InterfaceByName(v)
-				if err != nil {
-					log.LoggerWContext(ctx).Error("Unable to get interface " + v + ": " + err.Error())
-					continue
-				}
-				CardNet = append(CardNet, eth)
-			}
 			DHCPConfig.detectVIP(ctx, CardNet, db)
 		}
 	}
