@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"fmt"
-	"math/rand"
 	"net"
 	"os"
 	"regexp"
@@ -277,13 +276,8 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 	}
 
 	slice := make([]byte, 0, len(array))
-
-	source := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(source)
-
-	random.Shuffle(len(array), func(i, j int) {
-		array[i], array[j] = array[j], array[i]
-	})
+	randSrc := time.Now().UnixNano()
+	array = redistributeByIndexModulo(array, randSrc)
 
 	for _, element := range array {
 		elem := []byte(element)
@@ -307,16 +301,28 @@ func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
 	if randSrc == 0 {
 		randSrc = time.Now().UnixNano()
 	}
-	source := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(source)
-	random.Shuffle(len(array), func(i, j int) {
-		array[i], array[j] = array[j], array[i]
-	})
+	array = redistributeByIndexModulo(array, randSrc)
+
 	for _, element := range array {
 		elem := []byte(element)
 		slice = append(slice, elem...)
 	}
 	return slice
+}
+
+func redistributeByIndexModulo(arr []net.IP, m int64) []net.IP {
+	n := int64(len(arr))
+	if n == 0 || m <= 0 {
+		return arr
+	}
+	var i int64
+	result := make([]net.IP, n)
+	for i = 0; i < n; i++ {
+		newIndex := (i * m) % n
+		result[newIndex] = arr[i]
+	}
+
+	return result
 }
 
 // ShuffleIP shuffle ip

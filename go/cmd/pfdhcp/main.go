@@ -840,7 +840,6 @@ func detectVIPLoop(ctx context.Context, db *sql.DB) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-
 			DHCPConfig.detectVIP(ctx, CardNet, db)
 		}
 	}
