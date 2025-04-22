@@ -295,17 +295,23 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 
 // ShuffleNetIP shuffle an array of net.IP
 func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
+	if len(array) == 1 {
+		SingleIP := array[0].To4()
+		slice := make([]byte, 0, len(SingleIP))
+		slice = append(slice, SingleIP...)
+		return slice
+	}
 
 	slice := make([]byte, 0, len(array))
 
 	if randSrc == 0 {
 		randSrc = time.Now().UnixNano()
 	}
-	random := rand.New(rand.NewSource(randSrc))
-	for i := len(array) - 1; i > 0; i-- {
-		j := random.Intn(i + 1)
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+	random.Shuffle(len(array), func(i, j int) {
 		array[i], array[j] = array[j], array[i]
-	}
+	})
 	for _, element := range array {
 		elem := []byte(element)
 		slice = append(slice, elem...)
