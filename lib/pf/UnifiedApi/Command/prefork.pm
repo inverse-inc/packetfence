@@ -14,6 +14,10 @@ sd_ready;
 
 sub run {
   my ($self, @args) = @_;
+  # init app force (important!)
+  my $app = $self->app;
+  # trigger log module and init the APP constructor
+  my $log = $app->log;
   Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
   my $timeout = $Config{advanced}{pfperl_api_timeout} // 600;
   eval {
