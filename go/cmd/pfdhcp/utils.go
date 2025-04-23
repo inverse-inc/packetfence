@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"fmt"
+	"math/big"
 	"net"
 	"os"
 	"regexp"
@@ -203,7 +204,7 @@ func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (
 }
 
 // ShuffleDNS return the dns list
-func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
+func ShuffleDNS(ctx context.Context, ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	matched, _ := regexp.MatchString(`inlinel[2-3]`, ConfNet.Type)
 	if matched {
 		if !sharedutils.IsEnabled(ConfNet.NatDNS) {
@@ -215,18 +216,18 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 		if ConfNet.Dnsvip != "" {
 			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 		}
-		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
 		return Shuffle(ConfNet.ClusterIPs, excluded)
 	}
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	}
-	excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+	excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
 	return Shuffle(ConfNet.Dns, excluded)
 }
 
 // ShuffleGateway return the gateway list
-func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
+func ShuffleGateway(ctx context.Context, ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.NextHop != "" {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
 	} else if ConfNet.ClusterIPs != "" {
@@ -237,7 +238,7 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 			return []byte(net.ParseIP(ConfNet.ForceGatewayVIP).To4())
 		}
 
-		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
 		return Shuffle(ConfNet.ClusterIPs, excluded)
 
 	} else {
@@ -277,7 +278,7 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 
 	slice := make([]byte, 0, len(array))
 	randSrc := time.Now().UnixNano()
-	array = redistributeByIndexModulo(array, randSrc)
+	array = ReorganizeIPsByModulo(array, randSrc)
 
 	for _, element := range array {
 		elem := []byte(element)
@@ -301,7 +302,7 @@ func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
 	if randSrc == 0 {
 		randSrc = time.Now().UnixNano()
 	}
-	array = redistributeByIndexModulo(array, randSrc)
+	array = ReorganizeIPsByModulo(array, randSrc)
 
 	for _, element := range array {
 		elem := []byte(element)
@@ -310,16 +311,37 @@ func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
 	return slice
 }
 
-func redistributeByIndexModulo(arr []net.IP, m int64) []net.IP {
-	n := int64(len(arr))
-	if n == 0 || m <= 0 {
-		return arr
+func ReorganizeIPsByModulo(ips []net.IP, mod int64) []net.IP {
+	if mod <= 0 {
+		return ips
 	}
-	var i int64
-	result := make([]net.IP, n)
-	for i = 0; i < n; i++ {
-		newIndex := (i * m) % n
-		result[newIndex] = arr[i]
+
+	type ipMod struct {
+		ip       net.IP
+		modValue int
+	}
+
+	ipMods := make([]ipMod, len(ips))
+
+	for i, ip := range ips {
+		ipInt := big.NewInt(0)
+		ipInt.SetBytes(ip)
+
+		modValue := new(big.Int).Mod(ipInt, big.NewInt(mod)).Int64()
+		ipMods[i] = ipMod{ip: ip, modValue: int(modValue)}
+	}
+
+	for i := 0; i < len(ipMods)-1; i++ {
+		for j := i + 1; j < len(ipMods); j++ {
+			if ipMods[i].modValue > ipMods[j].modValue {
+				ipMods[i], ipMods[j] = ipMods[j], ipMods[i]
+			}
+		}
+	}
+
+	result := make([]net.IP, len(ipMods))
+	for i, item := range ipMods {
+		result[i] = item.ip
 	}
 
 	return result
@@ -553,7 +575,7 @@ func setOptionServerIdentifier(srvIP net.IP, handlerIP net.IP) net.IP {
 	return srvIP
 }
 
-func DetectDisabledServer(addresses string, netint string) []string {
+func DetectDisabledServer(ctx context.Context, addresses string, netint string) []string {
 
 	var array []string
 	for _, adresse := range strings.Split(addresses, ",") {
