@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"encoding/binary"
 	"fmt"
@@ -277,8 +278,7 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 	}
 
 	slice := make([]byte, 0, len(array))
-	randSrc := time.Now().UnixNano()
-	array = ReorganizeIPsByModulo(array, randSrc)
+	array = cryptoShuffle(array)
 
 	for _, element := range array {
 		elem := []byte(element)
@@ -289,7 +289,7 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 }
 
 // ShuffleNetIP shuffle an array of net.IP
-func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
+func ShuffleNetIP(array []net.IP) (r []byte) {
 	if len(array) == 1 {
 		SingleIP := array[0].To4()
 		slice := make([]byte, 0, len(SingleIP))
@@ -298,17 +298,36 @@ func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
 	}
 
 	slice := make([]byte, 0, len(array))
-
-	if randSrc == 0 {
-		randSrc = time.Now().UnixNano()
-	}
-	array = ReorganizeIPsByModulo(array, randSrc)
+	array = cryptoShuffle(array)
 
 	for _, element := range array {
-		elem := []byte(element)
+		elem := []byte(element.To4())
 		slice = append(slice, elem...)
 	}
 	return slice
+}
+
+func cryptoShuffle(ips []net.IP) []net.IP {
+	// Note: This is just an example. In real code, handle errors properly.
+	n := len(ips)
+	for i := n - 1; i > 0; i-- {
+		// Generate a secure random number modulo (i+1)
+		var b [8]byte
+		_, err := rand.Read(b[:])
+		if err != nil {
+			panic(err)
+		}
+		// Convert bytes to int and apply modulo
+		j := int(uint64(b[0])|uint64(b[1])<<8|uint64(b[2])<<16|uint64(b[3])<<24|
+			uint64(b[4])<<32|uint64(b[5])<<40|uint64(b[6])<<48|uint64(b[7])<<56) % (i + 1)
+		if j < 0 {
+			j += i + 1
+		}
+
+		// Swap
+		ips[i], ips[j] = ips[j], ips[i]
+	}
+	return ips
 }
 
 func ReorganizeIPsByModulo(ips []net.IP, mod int64) []net.IP {
@@ -348,14 +367,14 @@ func ReorganizeIPsByModulo(ips []net.IP, mod int64) []net.IP {
 }
 
 // ShuffleIP shuffle ip
-func ShuffleIP(a []byte, randSrc int64) (r []byte) {
+func ShuffleIP(a []byte) (r []byte) {
 
 	var array []net.IP
 	for len(a) != 0 {
 		array = append(array, net.IPv4(a[0], a[1], a[2], a[3]).To4())
 		_, a = a[0], a[4:]
 	}
-	return ShuffleNetIP(array, randSrc)
+	return ShuffleNetIP(array)
 }
 
 // IPsFromRange split ip range

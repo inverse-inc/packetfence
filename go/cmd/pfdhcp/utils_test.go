@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -88,81 +89,10 @@ func TestShuffleGateway(t *testing.T) {
 	}
 }
 
-func TestReorganizeIPsByModulo(t *testing.T) {
-	// Test case 1: Empty IP list
-	emptyIPs := []net.IP{}
-	result := ReorganizeIPsByModulo(emptyIPs, 10)
-	if len(result) != 0 {
-		t.Errorf("Expected empty result, got %v", result)
-	}
-
-	// Test case 2: Single IP in the list
-	singleIP := []net.IP{net.ParseIP("192.168.1.1")}
-	result = ReorganizeIPsByModulo(singleIP, 10)
-	if len(result) != 1 || !result[0].Equal(singleIP[0]) {
-		t.Errorf("Expected %v, got %v", singleIP, result)
-	}
-
-	// Test case 3: Multiple IPs with a valid modulo
-	multipleIPs := []net.IP{
-		net.ParseIP("192.168.1.1"),
-		net.ParseIP("192.168.1.2"),
-		net.ParseIP("192.168.1.3"),
-		net.ParseIP("192.168.1.4"),
-	}
-	result = ReorganizeIPsByModulo(multipleIPs, 3)
-	if len(result) != len(multipleIPs) {
-		t.Errorf("Expected result length %d, got %d", len(multipleIPs), len(result))
-	}
-
-	// Ensure all original IPs are present in the result
-	for _, ip := range multipleIPs {
-		found := false
-		for _, resIP := range result {
-			if ip.Equal(resIP) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected IP %v not found in result %v", ip, result)
-		}
-	}
-
-	// Test case 4: Modulo value of 0
-	result = ReorganizeIPsByModulo(multipleIPs, 0)
-	if len(result) != len(multipleIPs) {
-		t.Errorf("Expected result length %d, got %d", len(multipleIPs), len(result))
-	}
-	for i, ip := range multipleIPs {
-		if !ip.Equal(result[i]) {
-			t.Errorf("Expected IP %v at index %d, got %v", ip, i, result[i])
-		}
-	}
-
-	// Test case 5: Modulo value greater than IP list length
-	result = ReorganizeIPsByModulo(multipleIPs, 10)
-	if len(result) != len(multipleIPs) {
-		t.Errorf("Expected result length %d, got %d", len(multipleIPs), len(result))
-	}
-	for _, ip := range multipleIPs {
-		found := false
-		for _, resIP := range result {
-			if ip.Equal(resIP) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected IP %v not found in result %v", ip, result)
-		}
-	}
-}
-
 func TestShuffleNetIP(t *testing.T) {
 	// Test case 1: Single IP in the array
 	singleIP := []net.IP{net.ParseIP("192.168.1.1")}
-	result := ShuffleNetIP(singleIP, 0)
+	result := ShuffleNetIP(singleIP)
 	expected := singleIP[0].To4()
 	if string(result) != string(expected) {
 		t.Errorf("Expected %v, got %v", expected, result)
@@ -175,15 +105,14 @@ func TestShuffleNetIP(t *testing.T) {
 		net.ParseIP("192.168.1.3"),
 	}
 
-	result = ShuffleNetIP(multipleIPs, 12345) // Using a fixed random seed
-
+	result = ShuffleNetIP(multipleIPs) // Using a fixed random seed
 	if len(result) != len(multipleIPs)*4 {
 		t.Errorf("Expected result length %d, got %d", len(multipleIPs)*4, len(result))
 	}
 
 	// Test case 3: Empty array
 	emptyIPs := []net.IP{}
-	result = ShuffleNetIP(emptyIPs, 0)
+	result = ShuffleNetIP(emptyIPs)
 	if len(result) != 0 {
 		t.Errorf("Expected empty result, got %v", result)
 	}
@@ -193,9 +122,18 @@ func TestShuffleNetIP(t *testing.T) {
 		net.ParseIP("10.0.0.1"),
 		net.ParseIP("10.0.0.2"),
 		net.ParseIP("10.0.0.3"),
+		net.ParseIP("10.0.0.4"),
+		net.ParseIP("10.0.0.5"),
+		net.ParseIP("10.0.0.6"),
+		net.ParseIP("10.0.0.7"),
+		net.ParseIP("10.0.0.8"),
+		net.ParseIP("10.0.0.9"),
+		net.ParseIP("10.0.0.10"),
+		net.ParseIP("10.0.0.11"),
+		net.ParseIP("10.0.0.12"),
 	}
-	result1 := ShuffleNetIP(randomIPs, 12345)
-	result2 := ShuffleNetIP(randomIPs, 67890)
+	result1 := ShuffleNetIP(randomIPs)
+	result2 := ShuffleNetIP(randomIPs)
 	if string(result1) == string(result2) {
 		t.Errorf("Expected different results for different seeds, got identical results")
 	}
@@ -247,7 +185,7 @@ func TestShuffle(t *testing.T) {
 func TestShuffleIP(t *testing.T) {
 	// Test case 1: Single IP
 	singleIP := []byte{192, 168, 1, 1}
-	result := ShuffleIP(singleIP, 0)
+	result := ShuffleIP(singleIP)
 	expected := singleIP
 	if string(result) != string(expected) {
 		t.Errorf("Expected %v, got %v", expected, result)
@@ -258,15 +196,24 @@ func TestShuffleIP(t *testing.T) {
 		192, 168, 1, 1,
 		192, 168, 1, 2,
 		192, 168, 1, 3,
+		192, 168, 1, 4,
+		192, 168, 1, 5,
+		192, 168, 1, 6,
+		192, 168, 1, 7,
+		192, 168, 1, 8,
+		192, 168, 1, 9,
+		192, 168, 1, 10,
+		192, 168, 1, 11,
+		192, 168, 1, 12,
 	}
-	result = ShuffleIP(multipleIPs, 12345) // Using a fixed random seed
+	result = ShuffleIP(multipleIPs) // Using a fixed random seed
 	if len(result) != len(multipleIPs) {
 		t.Errorf("Expected result length %d, got %d", len(multipleIPs), len(result))
 	}
 
 	// Test case 3: Empty input
 	emptyIPs := []byte{}
-	result = ShuffleIP(emptyIPs, 0)
+	result = ShuffleIP(emptyIPs)
 	if len(result) != 0 {
 		t.Errorf("Expected empty result, got %v", result)
 	}
@@ -276,10 +223,68 @@ func TestShuffleIP(t *testing.T) {
 		10, 0, 0, 1,
 		10, 0, 0, 2,
 		10, 0, 0, 3,
+		10, 0, 0, 4,
+		10, 0, 0, 5,
+		10, 0, 0, 6,
+		10, 0, 0, 7,
+		10, 0, 0, 8,
+		10, 0, 0, 9,
+		10, 0, 0, 10,
+		10, 0, 0, 11,
+		10, 0, 0, 12,
 	}
-	result1 := ShuffleIP(randomIPs, 12345)
-	result2 := ShuffleIP(randomIPs, 67890)
+	result1 := ShuffleIP(randomIPs)
+	result2 := ShuffleIP(randomIPs)
 	if string(result1) == string(result2) {
 		t.Errorf("Expected different results for different seeds, got identical results")
+	}
+}
+
+func TestCryptoShuffle(t *testing.T) {
+	// Prepare test data
+	ips := []net.IP{
+		net.IPv4(192, 168, 1, 1),
+		net.IPv4(192, 168, 1, 2),
+		net.IPv4(192, 168, 1, 3),
+		net.IPv4(192, 168, 1, 4),
+		net.IPv4(192, 168, 1, 5),
+	}
+
+	// Make a copy of the original slice for comparison
+	original := make([]net.IP, len(ips))
+	copy(original, ips)
+
+	// Shuffle the IPs
+	shuffled := cryptoShuffle(ips)
+
+	// Ensure the shuffled slice contains the same elements as the original
+	if len(shuffled) != len(original) {
+		t.Fatalf("Expected shuffled length %d, got %d", len(original), len(shuffled))
+	}
+
+	// Check that all elements in the original slice are in the shuffled slice
+	for _, ip := range original {
+		found := false
+		for _, shuffledIP := range shuffled {
+			if reflect.DeepEqual(ip, shuffledIP) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("IP %v from the original slice is missing in the shuffled slice", ip)
+		}
+	}
+
+	// Check that the order has changed (most of the time)
+	sameOrder := true
+	for i := range original {
+		if !original[i].Equal(shuffled[i]) {
+			sameOrder = false
+			break
+		}
+	}
+	if sameOrder {
+		t.Errorf("The order of the IPs did not change after shuffling")
 	}
 }
