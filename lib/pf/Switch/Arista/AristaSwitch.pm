@@ -85,6 +85,7 @@ Warning: The list of subroutine is incomplete
 # special features
 use pf::SwitchSupports qw(
     WiredDot1x
+    WiredMacAuth
     RadiusDynamicVlanAssignment
     AccessListBasedEnforcement
     RoleBasedEnforcement
@@ -267,7 +268,7 @@ sub returnRadiusAccessAccept {
                     $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                 }
                 $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-                $radius_reply_ref->{'Arista-AVPair'} = \@acls;
+                $radius_reply_ref->{'NAS-Filter-Rule'} = \@acls;
             } else {
                 $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }
@@ -350,16 +351,74 @@ sub returnAccessListAttribute {
     my ($self, $acl_num, $acl) = @_;
     if ($acl =~ /^out\|(.*)/) {
         if ($self->supportsOutAcl) {
-            return $TRUE, $self->returnOutAccessListAttribute.$acl_num.$1;
+            return $TRUE, $self->returnOutAccessListAttribute.$1;
         } else {
             return $FALSE, '';
         }
     } elsif ($acl =~ /^in\|(.*)/) {
-        return $TRUE, $self->returnInAccessListAttribute.$acl_num.$1;
+        return $TRUE, $self->returnInAccessListAttribute.$1;
     } else {
-        return $TRUE, $self->returnInAccessListAttribute.$acl_num.$acl;
+        return $TRUE, $self->returnInAccessListAttribute.$acl;
     }
 }
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    my $logger = $self->logger;
+    my ($acl_ref , @direction) = $self->format_acl($acl);
+
+    my $i = 0;
+    my $acl_chewed;
+    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
+        next if (defined($acl->{'tcp_flags'}));
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        my $dest;
+        my $dest_port;
+        if (defined($acl->{'destination'}->{'port'})) {
+            $dest_port = $acl->{'destination'}->{'port'};
+            $dest_port =~ s/\w+\s+//;
+        }
+        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $dest = "any";
+        } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
+                my $net_addr = NetAddr::IP->new($acl->{'destination'}->{'ipv4_addr'}, norm_net_mask($acl->{'destination'}->{'wildcard'}));
+                my $cidr = $net_addr->cidr();
+                $dest = $cidr;
+            } else {
+                $dest = $acl->{'destination'}->{'ipv4_addr'};
+            }
+        }
+        my $src;
+        if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $src = "any";
+        } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
+                my $net_addr = NetAddr::IP->new($acl->{'source'}->{'ipv4_addr'}, norm_net_mask($acl->{'source'}->{'wildcard'}));
+                my $cidr = $net_addr->cidr();
+                $src = $cidr;
+            } else {
+                $src = $acl->{'source'}->{'ipv4_addr'};
+            }
+        }
+        my $j = $i + 1;
+        if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? "eq ".$acl->{'destination'}->{'port'} : '' )."\n";
+        } else {
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? "eq ".$dest_port : '' )."\n";
+        }
+        $i++;
+    }
+    return $acl_chewed;
+}
+
 
 =back
 
