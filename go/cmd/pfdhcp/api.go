@@ -228,8 +228,7 @@ func (a *API) handleReleaseIP(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		log.LoggerWContext(ctx).Error("Error releasing IP: " + err.Error() + " mac=" + vars["mac"])
-	}
+		log.LoggerWContext(a.Ctx).Error("Error releasing IP: " + err.Error() + " mac=" + vars["mac"])
 }
 
 func (a *API) handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
