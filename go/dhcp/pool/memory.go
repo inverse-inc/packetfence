@@ -246,8 +246,8 @@ func (dp *Memory) Remove(mac string, index uint64) {
 
 func copyMap(m map[uint64]string) map[uint64]string {
 	m2 := make(map[uint64]string, len(m))
-	var id uint64
-	for id, m2[id] = range m {
+	for k, v := range m {
+		m2[k] = v
 	}
 	return m2
 }
