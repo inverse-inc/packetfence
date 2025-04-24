@@ -307,15 +307,14 @@ func ShuffleNetIP(array []net.IP) (r []byte) {
 	return slice
 }
 
-func cryptoShuffle(ips []net.IP) []net.IP {
-	// Note: This is just an example. In real code, handle errors properly.
+func cryptoShuffle(ips []net.IP) ([]net.IP, error) {
 	n := len(ips)
 	for i := n - 1; i > 0; i-- {
 		// Generate a secure random number modulo (i+1)
 		var b [8]byte
 		_, err := rand.Read(b[:])
 		if err != nil {
-			panic(err)
+			return nil, fmt.Errorf("failed to generate random number: %w", err)
 		}
 		// Convert bytes to int and apply modulo
 		j := int(uint64(b[0])|uint64(b[1])<<8|uint64(b[2])<<16|uint64(b[3])<<24|
