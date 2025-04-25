@@ -4234,6 +4234,10 @@ sub format_acl {
                 next;
             }
         }
+        if ($acl_line =~ /^#.*/i) {
+            get_logger->warn("Bypass ACL because it is starting with #: ".$acl_line);
+            next;
+        }
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
             my $raw_acl = $2;
