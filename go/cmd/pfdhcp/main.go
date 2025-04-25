@@ -426,7 +426,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 			var options = make(map[dhcp.OptionCode][]byte)
 			for key, value := range handler.options {
 				if key == dhcp.OptionDomainNameServer || key == dhcp.OptionRouter {
-					options[key] = ShuffleIP(value)
+					options[key] = ShuffleIP(ctx, value)
 				} else {
 					options[key] = value
 				}
@@ -653,7 +653,7 @@ reply:
 	var options = make(map[dhcp.OptionCode][]byte)
 	for key, value := range handler.options {
 		if key == dhcp.OptionDomainNameServer || key == dhcp.OptionRouter {
-			options[key] = ShuffleIP(value)
+			options[key] = ShuffleIP(ctx, value)
 		} else {
 			options[key] = value
 		}

@@ -92,7 +92,7 @@ func TestShuffleGateway(t *testing.T) {
 func TestShuffleNetIP(t *testing.T) {
 	// Test case 1: Single IP in the array
 	singleIP := []net.IP{net.ParseIP("192.168.1.1")}
-	result := ShuffleNetIP(singleIP)
+	result := ShuffleNetIP(context.Background(), singleIP)
 	expected := singleIP[0].To4()
 	if string(result) != string(expected) {
 		t.Errorf("Expected %v, got %v", expected, result)
@@ -105,14 +105,14 @@ func TestShuffleNetIP(t *testing.T) {
 		net.ParseIP("192.168.1.3"),
 	}
 
-	result = ShuffleNetIP(multipleIPs) // Using a fixed random seed
+	result = ShuffleNetIP(context.Background(), multipleIPs) // Using a fixed random seed
 	if len(result) != len(multipleIPs)*4 {
 		t.Errorf("Expected result length %d, got %d", len(multipleIPs)*4, len(result))
 	}
 
 	// Test case 3: Empty array
 	emptyIPs := []net.IP{}
-	result = ShuffleNetIP(emptyIPs)
+	result = ShuffleNetIP(context.Background(), emptyIPs)
 	if len(result) != 0 {
 		t.Errorf("Expected empty result, got %v", result)
 	}
@@ -132,8 +132,8 @@ func TestShuffleNetIP(t *testing.T) {
 		net.ParseIP("10.0.0.11"),
 		net.ParseIP("10.0.0.12"),
 	}
-	result1 := ShuffleNetIP(randomIPs)
-	result2 := ShuffleNetIP(randomIPs)
+	result1 := ShuffleNetIP(context.Background(), randomIPs)
+	result2 := ShuffleNetIP(context.Background(), randomIPs)
 	if string(result1) == string(result2) {
 		t.Errorf("Expected different results for different seeds, got identical results")
 	}
@@ -143,7 +143,7 @@ func TestShuffle(t *testing.T) {
 	// Test case 1: Single address
 	addresses := "192.168.1.1"
 	excluded := []string{}
-	result := Shuffle(addresses, excluded)
+	result := Shuffle(context.Background(), addresses, excluded)
 	expected := net.ParseIP("192.168.1.1").To4()
 	if string(result) != string(expected) {
 		t.Errorf("Expected %v, got %v", expected, result)
@@ -152,7 +152,7 @@ func TestShuffle(t *testing.T) {
 	// Test case 2: Multiple addresses with no exclusions
 	addresses = "192.168.1.1,192.168.1.2,192.168.1.3"
 	excluded = []string{}
-	result = Shuffle(addresses, excluded)
+	result = Shuffle(context.Background(), addresses, excluded)
 	if len(result) != 12 { // 3 IPs * 4 bytes each
 		t.Errorf("Expected result length 12, got %d", len(result))
 	}
@@ -160,7 +160,7 @@ func TestShuffle(t *testing.T) {
 	// Test case 3: Multiple addresses with exclusions
 	addresses = "192.168.1.1,192.168.1.2,192.168.1.3"
 	excluded = []string{"192.168.1.2"}
-	result = Shuffle(addresses, excluded)
+	result = Shuffle(context.Background(), addresses, excluded)
 	if strings.Contains(string(result), "192.168.1.2") {
 		t.Errorf("Excluded address 192.168.1.2 should not be in the result")
 	}
@@ -168,7 +168,7 @@ func TestShuffle(t *testing.T) {
 	// Test case 4: Empty addresses
 	addresses = ""
 	excluded = []string{}
-	result = Shuffle(addresses, excluded)
+	result = Shuffle(context.Background(), addresses, excluded)
 	if len(result) != 0 {
 		t.Errorf("Expected empty result, got %v", result)
 	}
@@ -176,7 +176,7 @@ func TestShuffle(t *testing.T) {
 	// Test case 5: All addresses excluded
 	addresses = "192.168.1.1,192.168.1.2"
 	excluded = []string{"192.168.1.1", "192.168.1.2"}
-	result = Shuffle(addresses, excluded)
+	result = Shuffle(context.Background(), addresses, excluded)
 	if len(result) != 0 {
 		t.Errorf("Expected empty result, got %v", result)
 	}
@@ -185,7 +185,7 @@ func TestShuffle(t *testing.T) {
 func TestShuffleIP(t *testing.T) {
 	// Test case 1: Single IP
 	singleIP := []byte{192, 168, 1, 1}
-	result := ShuffleIP(singleIP)
+	result := ShuffleIP(context.Background(), singleIP)
 	expected := singleIP
 	if string(result) != string(expected) {
 		t.Errorf("Expected %v, got %v", expected, result)
@@ -206,14 +206,14 @@ func TestShuffleIP(t *testing.T) {
 		192, 168, 1, 11,
 		192, 168, 1, 12,
 	}
-	result = ShuffleIP(multipleIPs) // Using a fixed random seed
+	result = ShuffleIP(context.Background(), multipleIPs) // Using a fixed random seed
 	if len(result) != len(multipleIPs) {
 		t.Errorf("Expected result length %d, got %d", len(multipleIPs), len(result))
 	}
 
 	// Test case 3: Empty input
 	emptyIPs := []byte{}
-	result = ShuffleIP(emptyIPs)
+	result = ShuffleIP(context.Background(), emptyIPs)
 	if len(result) != 0 {
 		t.Errorf("Expected empty result, got %v", result)
 	}
@@ -233,8 +233,8 @@ func TestShuffleIP(t *testing.T) {
 		10, 0, 0, 11,
 		10, 0, 0, 12,
 	}
-	result1 := ShuffleIP(randomIPs)
-	result2 := ShuffleIP(randomIPs)
+	result1 := ShuffleIP(context.Background(), randomIPs)
+	result2 := ShuffleIP(context.Background(), randomIPs)
 	if string(result1) == string(result2) {
 		t.Errorf("Expected different results for different seeds, got identical results")
 	}

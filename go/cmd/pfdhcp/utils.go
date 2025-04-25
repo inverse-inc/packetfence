@@ -40,7 +40,7 @@ func connectDB(configDatabase *pfconfigdriver.PfConfDatabase) *sql.DB {
 }
 
 // initiaLease fetch the database to remove already assigned ip addresses
-func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetworkConf, db *sql.DB) {
+func initiaLease(ctx context.Context, dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetworkConf, db *sql.DB) {
 	// Need to calculate the end ip because of the ip per role feature
 	now := time.Now()
 	endip := binary.BigEndian.Uint32(dhcpHandler.start.To4()) + uint32(dhcpHandler.leaseRange) - uint32(1)
@@ -102,7 +102,7 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 }
 
 // InterfaceScopeFromMac detect in which scope the mac is
-func InterfaceScopeFromMac(MAC string) string {
+func InterfaceScopeFromMac(ctx context.Context, MAC string) string {
 	var NetWork string
 	if index, found := GlobalMacCache.Get(MAC); found {
 		for _, v := range DHCPConfig.intsNet {
@@ -209,7 +209,7 @@ func ShuffleDNS(ctx context.Context, ConfNet pfconfigdriver.RessourseNetworkConf
 	if matched {
 		if !sharedutils.IsEnabled(ConfNet.NatDNS) {
 			var excluded []string
-			return Shuffle(ConfNet.Dns, excluded)
+			return Shuffle(ctx, ConfNet.Dns, excluded)
 		}
 	}
 	if ConfNet.ClusterIPs != "" {
@@ -217,13 +217,13 @@ func ShuffleDNS(ctx context.Context, ConfNet pfconfigdriver.RessourseNetworkConf
 			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 		}
 		excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
-		return Shuffle(ConfNet.ClusterIPs, excluded)
+		return Shuffle(ctx, ConfNet.ClusterIPs, excluded)
 	}
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	}
 	excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
-	return Shuffle(ConfNet.Dns, excluded)
+	return Shuffle(ctx, ConfNet.Dns, excluded)
 }
 
 // ShuffleGateway return the gateway list
@@ -239,7 +239,7 @@ func ShuffleGateway(ctx context.Context, ConfNet pfconfigdriver.RessourseNetwork
 		}
 
 		excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
-		return Shuffle(ConfNet.ClusterIPs, excluded)
+		return Shuffle(ctx, ConfNet.ClusterIPs, excluded)
 
 	} else {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
@@ -247,7 +247,7 @@ func ShuffleGateway(ctx context.Context, ConfNet pfconfigdriver.RessourseNetwork
 }
 
 // Shuffle addresses
-func Shuffle(addresses string, excluded []string) (r []byte) {
+func Shuffle(ctx context.Context, addresses string, excluded []string) (r []byte) {
 	var array []net.IP
 	var found bool
 	addressesArray := strings.Split(addresses, ",")
@@ -297,7 +297,7 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 }
 
 // ShuffleNetIP shuffle an array of net.IP
-func ShuffleNetIP(array []net.IP) (r []byte) {
+func ShuffleNetIP(ctx context.Context, array []net.IP) (r []byte) {
 	if len(array) == 1 {
 		SingleIP := array[0].To4()
 		slice := make([]byte, 0, len(SingleIP))
@@ -346,14 +346,14 @@ func cryptoShuffle(ips []net.IP) ([]net.IP, error) {
 }
 
 // ShuffleIP shuffle ip
-func ShuffleIP(a []byte) (r []byte) {
+func ShuffleIP(ctx context.Context, a []byte) (r []byte) {
 
 	var array []net.IP
 	for len(a) != 0 {
 		array = append(array, net.IPv4(a[0], a[1], a[2], a[3]).To4())
 		_, a = a[0], a[4:]
 	}
-	return ShuffleNetIP(array)
+	return ShuffleNetIP(ctx, array)
 }
 
 // IPsFromRange split ip range
