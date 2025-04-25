@@ -229,6 +229,7 @@ func (a *API) handleReleaseIP(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		log.LoggerWContext(a.Ctx).Error("Error releasing IP: " + err.Error() + " mac=" + vars["mac"])
+	}
 }
 
 func (a *API) handleOverrideOptions(res http.ResponseWriter, req *http.Request) {

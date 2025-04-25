@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"fmt"
-	"math/big"
 	"net"
 	"os"
 	"regexp"
@@ -278,9 +277,18 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 	}
 
 	slice := make([]byte, 0, len(array))
-	array = cryptoShuffle(array)
+	shuffleArray, err := cryptoShuffle(array)
 
-	for _, element := range array {
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Shuffle error: " + err.Error())
+		// Return original array if shuffle fails
+		for _, element := range array {
+			elem := []byte(element.To4())
+			slice = append(slice, elem...)
+		}
+		return slice
+	}
+	for _, element := range shuffleArray {
 		elem := []byte(element)
 		slice = append(slice, elem...)
 	}
@@ -298,9 +306,17 @@ func ShuffleNetIP(array []net.IP) (r []byte) {
 	}
 
 	slice := make([]byte, 0, len(array))
-	array = cryptoShuffle(array)
-
-	for _, element := range array {
+	shuffleArray, err := cryptoShuffle(array)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Shuffle error: " + err.Error())
+		// Return original array if shuffle fails
+		for _, element := range array {
+			elem := []byte(element.To4())
+			slice = append(slice, elem...)
+		}
+		return slice
+	}
+	for _, element := range shuffleArray {
 		elem := []byte(element.To4())
 		slice = append(slice, elem...)
 	}
@@ -326,43 +342,7 @@ func cryptoShuffle(ips []net.IP) ([]net.IP, error) {
 		// Swap
 		ips[i], ips[j] = ips[j], ips[i]
 	}
-	return ips
-}
-
-func ReorganizeIPsByModulo(ips []net.IP, mod int64) []net.IP {
-	if mod <= 0 {
-		return ips
-	}
-
-	type ipMod struct {
-		ip       net.IP
-		modValue int
-	}
-
-	ipMods := make([]ipMod, len(ips))
-
-	for i, ip := range ips {
-		ipInt := big.NewInt(0)
-		ipInt.SetBytes(ip)
-
-		modValue := new(big.Int).Mod(ipInt, big.NewInt(mod)).Int64()
-		ipMods[i] = ipMod{ip: ip, modValue: int(modValue)}
-	}
-
-	for i := 0; i < len(ipMods)-1; i++ {
-		for j := i + 1; j < len(ipMods); j++ {
-			if ipMods[i].modValue > ipMods[j].modValue {
-				ipMods[i], ipMods[j] = ipMods[j], ipMods[i]
-			}
-		}
-	}
-
-	result := make([]net.IP, len(ipMods))
-	for i, item := range ipMods {
-		result[i] = item.ip
-	}
-
-	return result
+	return ips, nil
 }
 
 // ShuffleIP shuffle ip

@@ -255,7 +255,10 @@ func TestCryptoShuffle(t *testing.T) {
 	copy(original, ips)
 
 	// Shuffle the IPs
-	shuffled := cryptoShuffle(ips)
+	shuffled, err := cryptoShuffle(ips)
+	if err != nil {
+		t.Fatalf("Error during shuffle: %v", err)
+	}
 
 	// Ensure the shuffled slice contains the same elements as the original
 	if len(shuffled) != len(original) {
