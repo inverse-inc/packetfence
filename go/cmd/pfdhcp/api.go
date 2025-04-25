@@ -221,7 +221,7 @@ func (a *API) handleDebug(res http.ResponseWriter, req *http.Request) {
 
 func (a *API) handleReleaseIP(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	_ = InterfaceScopeFromMac(vars["mac"])
+	_ = InterfaceScopeFromMac(a.Ctx, vars["mac"])
 
 	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
@@ -252,7 +252,7 @@ func (a *API) handleOverrideOptions(res http.ResponseWriter, req *http.Request) 
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		log.LoggerWContext(ctx).Error("Error adding MAC options: " + err.Error() + " mac=" + vars["mac"])
+		log.LoggerWContext(a.Ctx).Error("Error adding MAC options: " + err.Error() + " mac=" + vars["mac"])
 	}
 }
 
