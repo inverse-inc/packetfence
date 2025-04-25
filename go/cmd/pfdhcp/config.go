@@ -269,7 +269,7 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 							DHCPScope.xid = xid
 							wg.Add(1)
 							go func() {
-								initiaLease(DHCPScope, ConfNet, MyDB)
+								initiaLease(ctx, DHCPScope, ConfNet, MyDB)
 								wg.Done()
 							}()
 							var options = make(map[dhcp.OptionCode][]byte)
@@ -349,7 +349,7 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 						DHCPScope.xid = xid
 						wg.Add(1)
 						go func() {
-							initiaLease(DHCPScope, ConfNet, MyDB)
+							initiaLease(ctx, DHCPScope, ConfNet, MyDB)
 							wg.Done()
 						}()
 
