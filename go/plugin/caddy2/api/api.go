@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"net/http/pprof"
 	"sync"
 	"time"
 
@@ -75,6 +76,13 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 
 	router.POST("/api/v1/fleetdm-events/policy", m.Policy)
 	router.POST("/api/v1/fleetdm-events/cve", m.CVE)
+
+	//pprof api endpoints
+	router.Handler(http.MethodGet, "/api/v1/pprof/goroutine", pprof.Handler("goroutine"))
+	router.Handler(http.MethodGet, "/api/v1/pprof/heap", pprof.Handler("heap"))
+	router.Handler(http.MethodGet, "/api/v1/pprof/threadcreate", pprof.Handler("threadcreate"))
+	router.Handler(http.MethodGet, "/api/v1/pprof/block", pprof.Handler("block"))
+	router.Handler(http.MethodGet, "/api/v1/pprof/mutex", pprof.Handler("mutex"))
 
 	var DBP **gorm.DB
 	var DB *gorm.DB
