@@ -6,15 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/packetfence/go/dal/models"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -72,7 +71,7 @@ func removeDBTestEntriesDnsAuditLog(t *testing.T, id int64) error {
 }
 
 func dalDnsAuditLog() http.HandlerFunc {
-	router := httprouter.New()
+	router := chi.NewMux()
 	ctx := context.Background()
 	dbs, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 	if err != nil {
@@ -102,7 +101,7 @@ func TestListDnsAuditLog(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())
 	} else {
@@ -172,7 +171,7 @@ func TestSearchDnsAuditLog(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())
 	} else {
@@ -231,7 +230,7 @@ func TestGetDnsAuditLog(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())

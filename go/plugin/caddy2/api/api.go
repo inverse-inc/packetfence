@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"net/http"
-	"net/http/pprof"
 	"sync"
 	"time"
 
@@ -13,13 +12,13 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	chi "github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
-	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -41,7 +40,7 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 }
 
 type APIHandler struct {
-	router *httprouter.Router
+	router *chi.Mux
 }
 
 // Setup the api middleware
@@ -64,25 +63,31 @@ func (m *APIHandler) Provision(_ caddy.Context) error {
 
 // Build the Handler which will initialize the routes
 func (m *APIHandler) buildHandler(ctx context.Context) error {
-	router := httprouter.New()
+	router := chi.NewRouter()
 	m.router = router
 
-	router.POST("/api/v1/radius_attributes", m.searchRadiusAttributes)
+	router.Route("/api/v1", func(r chi.Router) {
+		// CAS api endpoint
+		r.Route("/radius_attributes", func(r chi.Router) {
+			r.Post("/", m.searchRadiusAttributes)
+		})
+		// CA api endpoint
+		r.Route("nodes/fingerbank_communications", func(r chi.Router) {
 
-	router.POST("/api/v1/nodes/fingerbank_communications", m.nodeFingerbankCommunications)
+			r.Post("/", m.nodeFingerbankCommunications)
+		})
+		// Profiles api endpoint
+		r.Route("/ntlm", func(r chi.Router) {
+			r.Post("/test", m.ntlmTest)
+			r.Post("/event-report", m.eventReport)
+		})
+		// Profile api endpoint
+		r.Route("/fleetdm-events", func(r chi.Router) {
+			r.Post("/policy", m.Policy)
+			r.Post("/cve", m.CVE())
 
-	router.POST("/api/v1/ntlm/test", m.ntlmTest)
-	router.POST("/api/v1/ntlm/event-report", m.eventReport)
-
-	router.POST("/api/v1/fleetdm-events/policy", m.Policy)
-	router.POST("/api/v1/fleetdm-events/cve", m.CVE)
-
-	//pprof api endpoints
-	router.Handler(http.MethodGet, "/api/v1/pprof/goroutine", pprof.Handler("goroutine"))
-	router.Handler(http.MethodGet, "/api/v1/pprof/heap", pprof.Handler("heap"))
-	router.Handler(http.MethodGet, "/api/v1/pprof/threadcreate", pprof.Handler("threadcreate"))
-	router.Handler(http.MethodGet, "/api/v1/pprof/block", pprof.Handler("block"))
-	router.Handler(http.MethodGet, "/api/v1/pprof/mutex", pprof.Handler("mutex"))
+		})
+	})
 
 	var DBP **gorm.DB
 	var DB *gorm.DB

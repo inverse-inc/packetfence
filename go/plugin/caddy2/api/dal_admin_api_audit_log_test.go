@@ -11,10 +11,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	chi "github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
 	"github.com/inverse-inc/packetfence/go/dal/models"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -79,7 +79,7 @@ func removeDBTestEntries(t *testing.T, id int64) error {
 }
 
 func dalAdminApiAuditLog() http.HandlerFunc {
-	router := httprouter.New()
+	router := chi.NewMux()
 	ctx := context.Background()
 	dbs, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 	if err != nil {
