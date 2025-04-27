@@ -69,21 +69,21 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	router.Route("/api/v1", func(r chi.Router) {
 		// CAS api endpoint
 		r.Route("/radius_attributes", func(r chi.Router) {
-			r.Post("/", m.searchRadiusAttributes)
+			r.Post("/", m.searchRadiusAttributes())
 		})
 		// CA api endpoint
 		r.Route("nodes/fingerbank_communications", func(r chi.Router) {
 
-			r.Post("/", m.nodeFingerbankCommunications)
+			r.Post("/", m.nodeFingerbankCommunications())
 		})
 		// Profiles api endpoint
 		r.Route("/ntlm", func(r chi.Router) {
-			r.Post("/test", m.ntlmTest)
-			r.Post("/event-report", m.eventReport)
+			r.Post("/test", m.ntlmTest())
+			r.Post("/event-report", m.eventReport())
 		})
 		// Profile api endpoint
 		r.Route("/fleetdm-events", func(r chi.Router) {
-			r.Post("/policy", m.Policy)
+			r.Post("/policy", m.Policy())
 			r.Post("/cve", m.CVE())
 
 		})
