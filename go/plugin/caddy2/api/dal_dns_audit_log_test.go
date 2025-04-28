@@ -71,21 +71,25 @@ func removeDBTestEntriesDnsAuditLog(t *testing.T, id int64) error {
 }
 
 func dalDnsAuditLog() http.HandlerFunc {
-	router := chi.NewMux()
+	router := chi.NewRouter()
 	ctx := context.Background()
 	dbs, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 	if err != nil {
 		fmt.Println("error occured while connecting to mysql, ", err.Error())
 	}
+	rctx := chi.NewRouteContext()
+	ctx = context.WithValue(ctx, rctx, chi.RouteCtxKey)
+
+	rctx.Routes = router
 
 	NewDnsAuditLog(ctx, &dbs).AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
-			// We always default to application/json
-			w.Header().Set("Content-Type", "application/json")
-			handle(w, r, params)
-			return
+		r = r.WithContext(ctx)
+		if router.Match(rctx, r.Method, r.URL.Path) {
+			router.ServeHTTP(w, r)
+
 		}
+
 		w.WriteHeader(500)
 		io.WriteString(w, "{}")
 	})

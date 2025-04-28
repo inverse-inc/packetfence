@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
@@ -12,7 +11,7 @@ import (
 
 func (h APIHandler) Policy() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			res, _ := json.Marshal(map[string]string{

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -165,7 +165,7 @@ func (a *RadiusAuditLog) UpdateItem() http.HandlerFunc {
 			return
 		}
 
-		payload, err := ioutil.ReadAll(r.Body)
+		payload, err := io.ReadAll(r.Body)
 		if err != nil {
 			setError(&body, err, http.StatusBadRequest)
 			outputResult(w, body)

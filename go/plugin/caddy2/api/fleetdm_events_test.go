@@ -15,34 +15,34 @@ type pfqueueResponse struct {
 
 func TestFleetDMPolicy(t *testing.T) {
 	var testPayload = `{
-		"timestamp": "2024-05-27T20:27:40.274362577Z",
-		"policy": {
-			"id": 12,
-			"name": "test_policy_regex__",
-			"query": "SELECT (total_seconds / 86400) AS uptime_in_days FROM uptime WHERE uptime_in_days \u003c 5;",
-			"critical": false,
-			"description": "aaa",
-			"author_id": 1,
-			"author_name": "admin",
-			"author_email": "stgmsa@gmail.com",
-			"team_id": null,
-			"resolution": "aaa",
-			"platform": "darwin,windows,linux",
-			"calendar_events_enabled": false,
-			"created_at": "2024-05-27T20:27:07Z",
-			"updated_at": "2024-05-27T20:27:07Z",
-			"passing_host_count": 0,
-			"failing_host_count": 0,
-			"host_count_updated_at": null
-		},
-		"hosts": [
-			{
-				"id": 3,
-				"hostname": "localhost",
-				"display_name": "",
-				"url": "https://fleet.stgmsa.me:8080/hosts/1"
-			}
-		]}`
+        "timestamp": "2024-05-27T20:27:40.274362577Z",
+        "policy": {
+            "id": 12,
+            "name": "test_policy_regex__",
+            "query": "SELECT (total_seconds / 86400) AS uptime_in_days FROM uptime WHERE uptime_in_days \u003c 5;",
+            "critical": false,
+            "description": "aaa",
+            "author_id": 1,
+            "author_name": "admin",
+            "author_email": "stgmsa@gmail.com",
+            "team_id": null,
+            "resolution": "aaa",
+            "platform": "darwin,windows,linux",
+            "calendar_events_enabled": false,
+            "created_at": "2024-05-27T20:27:07Z",
+            "updated_at": "2024-05-27T20:27:07Z",
+            "passing_host_count": 0,
+            "failing_host_count": 0,
+            "host_count_updated_at": null
+        },
+        "hosts": [
+            {
+                "id": 3,
+                "hostname": "localhost",
+                "display_name": "",
+                "url": "https://fleet.stgmsa.me:8080/hosts/1"
+            }
+        ]}`
 
 	h := APIHandler{}
 	req := httptest.NewRequest(
@@ -51,18 +51,21 @@ func TestFleetDMPolicy(t *testing.T) {
 		bytes.NewBufferString(testPayload),
 	)
 	w := httptest.NewRecorder()
-	h.Policy(w, req, nil)
+
+	// Pass the request's context instead of nil
+	h.Policy()(w, req)
+
 	resp := w.Result()
 	body, _ := io.ReadAll(resp.Body)
 
 	if w.Code != http.StatusAccepted {
-		t.Error("FleetDM API responsed with non-202 code: ", w.Code)
+		t.Error("FleetDM API responded with non-202 code: ", w.Code)
 	}
 
 	j := &pfqueueResponse{}
 	err := json.Unmarshal(body, j)
 	if err != nil {
-		t.Error("Can not unmarshal FleetDM API response.", err.Error())
+		t.Error("Cannot unmarshal FleetDM API response.", err.Error())
 	}
 
 	if len(j.TaskKey) <= 10 {
@@ -104,7 +107,7 @@ func TestFleetDMCVE(t *testing.T) {
 		bytes.NewBufferString(testPayload),
 	)
 	w := httptest.NewRecorder()
-	h.CVE(w, req, nil)
+	h.CVE()(w, req)
 	resp := w.Result()
 	body, _ := io.ReadAll(resp.Body)
 

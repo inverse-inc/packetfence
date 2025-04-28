@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -76,7 +76,7 @@ func TestApiAAATokenInfo(t *testing.T) {
 	respMap := struct {
 		Item *PrettyTokenInfo
 	}{Item: prettyInfo}
-	b, _ := ioutil.ReadAll(recorder.Body)
+	b, _ := io.ReadAll(recorder.Body)
 	err := json.Unmarshal(b, &respMap)
 	sharedutils.CheckError(err)
 

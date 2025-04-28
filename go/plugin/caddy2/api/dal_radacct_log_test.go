@@ -6,15 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	chi "github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/packetfence/go/dal/models"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -71,21 +70,25 @@ func removeDBTestEntriesRadacctLog(t *testing.T, id int64) error {
 }
 
 func dalRadacctLog() http.HandlerFunc {
-	router := httprouter.New()
+	router := chi.NewRouter()
 	ctx := context.Background()
 	dbs, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 	if err != nil {
 		fmt.Println("error occured while connecting to mysql, ", err.Error())
 	}
+	rctx := chi.NewRouteContext()
+	ctx = context.WithValue(ctx, rctx, chi.RouteCtxKey)
+
+	rctx.Routes = router
 
 	NewRadacctLog(ctx, &dbs).AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
-			// We always default to application/json
-			w.Header().Set("Content-Type", "application/json")
-			handle(w, r, params)
-			return
+		r = r.WithContext(ctx)
+		if router.Match(rctx, r.Method, r.URL.Path) {
+			router.ServeHTTP(w, r)
+
 		}
+
 		w.WriteHeader(500)
 		io.WriteString(w, "{}")
 	})
@@ -101,7 +104,7 @@ func TestListRadacctLog(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())
 	} else {
@@ -171,7 +174,7 @@ func TestSearchRadacctLog(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())
 	} else {
@@ -230,7 +233,7 @@ func TestGetRadacctLog(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())

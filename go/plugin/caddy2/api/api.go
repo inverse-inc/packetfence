@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"net/http/pprof"
 	"sync"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -40,7 +42,8 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 }
 
 type APIHandler struct {
-	router *chi.Mux
+	router  *chi.Mux
+	Handler types.Handler
 }
 
 // Setup the api middleware
@@ -87,6 +90,19 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 			r.Post("/cve", m.CVE())
 
 		})
+		// Register pprof handlers with your router
+		r.HandleFunc("/debug/pprof/", pprof.Index)
+		r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		r.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		r.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
+		// These paths are for the various profile types
+		r.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+		r.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+		r.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
+		r.Handle("/debug/pprof/block", pprof.Handler("block"))
+		r.Handle("/debug/pprof/mutex", pprof.Handler("mutex"))
 	})
 
 	var DBP **gorm.DB
@@ -164,15 +180,7 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 
 	defer panichandler.Http(ctx, w)
 
-	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
-		// We always default to application/json
-		w.Header().Set("Content-Type", "application/json")
-		handle(w, r, params)
-		return nil
-	} else {
-		return next.ServeHTTP(w, r)
-	}
-
+	return h.Handler.ServeHTTP(w, r, next)
 }
 
 func (p *APIHandler) Validate() error {
