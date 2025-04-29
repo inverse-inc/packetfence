@@ -13,6 +13,7 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	chi "github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/go-utils/statsd"
@@ -20,7 +21,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
-	"github.com/julienschmidt/httprouter"
 )
 
 // Register the plugin in caddy
@@ -47,7 +47,7 @@ type PrettyTokenInfo struct {
 }
 
 type ApiAAAHandler struct {
-	router             *httprouter.Router                 `json:"-"`
+	router             *chi.Mux                           `json:"-"`
 	systemBackend      *aaa.MemAuthenticationBackend      `json:"-"`
 	webservicesBackend *aaa.MemAuthenticationBackend      `json:"-"`
 	authentication     *aaa.TokenAuthenticationMiddleware `json:"-"`
@@ -196,114 +196,135 @@ func (h *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 
 	h.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
 
-	router := httprouter.New()
-	router.POST("/api/v1/login", h.handleLogin)
-	router.GET("/api/v1/token_info", h.handleTokenInfo)
-	router.GET("/api/v1/sso_info", h.handleSSOInfo)
+	router := chi.NewRouter()
 
+	router.Route("/api/v1", func(r chi.Router) {
+		r.Post("/login", h.handleLogin())
+		r.Get("/token_info", h.handleTokenInfo())
+		r.Get("/sso_info", h.handleSSOInfo())
+		// // Register pprof handlers with your router
+		// r.HandleFunc("/debug/pprof/", pprof.Index)
+		// r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		// r.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		// r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		// r.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
+		// // These paths are for the various profile types
+		// r.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+		// r.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+		// r.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
+		// r.Handle("/debug/pprof/block", pprof.Handler("block"))
+		// r.Handle("/debug/pprof/mutex", pprof.Handler("mutex"))
+	})
 	h.router = router
 
 	return nil
 }
 
 // Handle an API login
-func (h ApiAAAHandler) handleLogin(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	ctx := r.Context()
-	defer statsd.NewStatsDTiming(ctx).Send("api-aaa.login")
+func (h ApiAAAHandler) handleLogin() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		defer statsd.NewStatsDTiming(ctx).Send("api-aaa.login")
 
-	var loginParams struct {
-		Username string
-		Password string
-	}
+		var loginParams struct {
+			Username string
+			Password string
+		}
 
-	err := json.NewDecoder(r.Body).Decode(&loginParams)
+		err := json.NewDecoder(r.Body).Decode(&loginParams)
 
-	if err != nil {
-		msg := fmt.Sprintf("Error while decoding payload: %s", err)
-		log.LoggerWContext(ctx).Error(msg)
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-		return
-	}
+		if err != nil {
+			msg := fmt.Sprintf("Error while decoding payload: %s", err)
+			log.LoggerWContext(ctx).Error(msg)
+			http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+			return
+		}
 
-	auth, token, err := h.authentication.Login(ctx, loginParams.Username, loginParams.Password)
-	w.Header().Set("Content-Type", "application/json")
+		auth, token, err := h.authentication.Login(ctx, loginParams.Username, loginParams.Password)
+		w.Header().Set("Content-Type", "application/json")
 
-	if auth {
-		expire := time.Now().Add(15 * time.Minute)
-		cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, MaxAge: 90000}
-		http.SetCookie(w, &cookie)
-		w.WriteHeader(http.StatusOK)
-		res, _ := json.Marshal(map[string]string{
-			"token": token,
-		})
-		w.Write(res)
-	} else {
-		w.WriteHeader(http.StatusUnauthorized)
-		res, _ := json.Marshal(map[string]string{
-			"message": err.Error(),
-		})
-		w.Write(res)
-	}
+		if auth {
+			expire := time.Now().Add(15 * time.Minute)
+			cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, MaxAge: 90000}
+			http.SetCookie(w, &cookie)
+			w.WriteHeader(http.StatusOK)
+			res, _ := json.Marshal(map[string]string{
+				"token": token,
+			})
+			w.Write(res)
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			res, _ := json.Marshal(map[string]string{
+				"message": err.Error(),
+			})
+			w.Write(res)
+		}
+	})
 }
 
 // Handle getting the token info
-func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	ctx := r.Context()
-	defer statsd.NewStatsDTiming(ctx).Send("api-aaa.token_info")
+func (h ApiAAAHandler) handleTokenInfo() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		defer statsd.NewStatsDTiming(ctx).Send("api-aaa.token_info")
 
-	if r.URL.Query().Get("no-expiration-extension") == "" {
-		h.authentication.TouchTokenInfo(ctx, w, r)
-	}
-	info, expiration := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
-
-	if info != nil {
-		// We'll want to render the roles as an array, not as a map
-		prettyInfo := PrettyTokenInfo{
-			AdminActions: make([]string, len(info.AdminActions(ctx))),
-			AdminRoles:   make([]string, len(info.AdminRoles)),
-			Username:     info.Username,
-			ExpiresAt:    expiration,
+		if r.URL.Query().Get("no-expiration-extension") == "" {
+			h.authentication.TouchTokenInfo(ctx, w, r)
 		}
+		info, expiration := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
 
-		i := 0
-		for r, _ := range info.AdminActions(ctx) {
-			prettyInfo.AdminActions[i] = r
-			i++
+		if info != nil {
+			// We'll want to render the roles as an array, not as a map
+			prettyInfo := PrettyTokenInfo{
+				AdminActions: make([]string, len(info.AdminActions(ctx))),
+				AdminRoles:   make([]string, len(info.AdminRoles)),
+				Username:     info.Username,
+				ExpiresAt:    expiration,
+			}
+
+			i := 0
+			for r, _ := range info.AdminActions(ctx) {
+				prettyInfo.AdminActions[i] = r
+				i++
+			}
+
+			i = 0
+			for r, _ := range info.AdminRoles {
+				prettyInfo.AdminRoles[i] = r
+				i++
+			}
+
+			w.WriteHeader(http.StatusOK)
+			res, _ := json.Marshal(map[string]interface{}{
+				"item": prettyInfo,
+			})
+			w.Write(res)
+		} else {
+			w.WriteHeader(http.StatusNotFound)
+			res, _ := json.Marshal(map[string]string{
+				"message": "Couldn't find any information for the current token. Either it is invalid or it has expired.",
+			})
+			w.Write(res)
 		}
-
-		i = 0
-		for r, _ := range info.AdminRoles {
-			prettyInfo.AdminRoles[i] = r
-			i++
-		}
-
-		w.WriteHeader(http.StatusOK)
-		res, _ := json.Marshal(map[string]interface{}{
-			"item": prettyInfo,
-		})
-		w.Write(res)
-	} else {
-		w.WriteHeader(http.StatusNotFound)
-		res, _ := json.Marshal(map[string]string{
-			"message": "Couldn't find any information for the current token. Either it is invalid or it has expired.",
-		})
-		w.Write(res)
-	}
+	})
 }
 
-func (h ApiAAAHandler) handleSSOInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	adminLogin := pfconfigdriver.GetStruct(r.Context(), "PfConfAdminLogin").(*pfconfigdriver.PfConfAdminLogin)
-	info := struct {
-		LoginText string `json:"login_text"`
-		LoginURL  string `json:"login_url"`
-		IsEnabled bool   `json:"is_enabled"`
-	}{
-		LoginText: adminLogin.SSOLoginText,
-		LoginURL:  fmt.Sprintf("%s%s", adminLogin.SSOBaseUrl, adminLogin.SSOLoginPath),
-		IsEnabled: sharedutils.IsEnabled(adminLogin.SSOStatus),
-	}
+func (h ApiAAAHandler) handleSSOInfo() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		adminLogin := pfconfigdriver.GetStruct(r.Context(), "PfConfAdminLogin").(*pfconfigdriver.PfConfAdminLogin)
+		info := struct {
+			LoginText string `json:"login_text"`
+			LoginURL  string `json:"login_url"`
+			IsEnabled bool   `json:"is_enabled"`
+		}{
+			LoginText: adminLogin.SSOLoginText,
+			LoginURL:  fmt.Sprintf("%s%s", adminLogin.SSOBaseUrl, adminLogin.SSOLoginPath),
+			IsEnabled: sharedutils.IsEnabled(adminLogin.SSOStatus),
+		}
 
-	json.NewEncoder(w).Encode(info)
+		json.NewEncoder(w).Encode(info)
+	})
 }
 
 func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
@@ -381,8 +402,14 @@ func (h *ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next c
 		}
 	}()
 
-	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
-		handle(w, r, params)
+	defer panichandler.Http(ctx, w)
+	rctx := chi.NewRouteContext()
+	ctx = context.WithValue(ctx, rctx, chi.RouteCtxKey)
+	r = r.WithContext(ctx)
+	rctx.Routes = h.router
+	rctx.URLParams = chi.NewRouteContext().URLParams
+	if h.router.Match(rctx, r.Method, r.URL.Path) {
+		h.router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
 		return nil

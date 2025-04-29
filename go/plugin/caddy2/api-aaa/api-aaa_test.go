@@ -14,7 +14,6 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/julienschmidt/httprouter"
 )
 
 var ctx = log.LoggerNewContext(context.Background())
@@ -36,7 +35,7 @@ func TestApiAAALogin(t *testing.T) {
 	)
 
 	recorder := httptest.NewRecorder()
-	apiAAA.handleLogin(recorder, req, httprouter.Params{})
+	apiAAA.handleLogin()(recorder, req)
 
 	if recorder.Code != http.StatusOK {
 		t.Error("Wrong status code from handleStart")
@@ -49,7 +48,7 @@ func TestApiAAALogin(t *testing.T) {
 	)
 
 	recorder = httptest.NewRecorder()
-	apiAAA.handleLogin(recorder, req, httprouter.Params{})
+	apiAAA.handleLogin()(recorder, req)
 
 	if recorder.Code != http.StatusUnauthorized {
 		t.Error("Wrong status code from handleStart")
@@ -66,7 +65,7 @@ func TestApiAAATokenInfo(t *testing.T) {
 	req.Header.Add("Authorization", "Bearer "+token)
 
 	recorder := httptest.NewRecorder()
-	apiAAA.handleTokenInfo(recorder, req, httprouter.Params{})
+	apiAAA.handleTokenInfo()(recorder, req)
 
 	if recorder.Code != http.StatusOK {
 		t.Error("Wrong status code from HandleAAA")
@@ -101,7 +100,7 @@ func TestApiAAAHandleAAA(t *testing.T) {
 	)
 
 	recorder := httptest.NewRecorder()
-	apiAAA.handleLogin(recorder, req, httprouter.Params{})
+	apiAAA.handleLogin()(recorder, req)
 
 	if recorder.Code != http.StatusOK {
 		t.Error("Wrong status code from handleStart")

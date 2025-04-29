@@ -19,7 +19,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -42,8 +41,7 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 }
 
 type APIHandler struct {
-	router  *chi.Mux
-	Handler types.Handler
+	router *chi.Mux
 }
 
 // Setup the api middleware
@@ -75,7 +73,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 			r.Post("/", m.searchRadiusAttributes())
 		})
 		// CA api endpoint
-		r.Route("nodes/fingerbank_communications", func(r chi.Router) {
+		r.Route("/nodes/fingerbank_communications", func(r chi.Router) {
 
 			r.Post("/", m.nodeFingerbankCommunications())
 		})
@@ -179,8 +177,19 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
+	rctx := chi.NewRouteContext()
+	ctx = context.WithValue(ctx, rctx, chi.RouteCtxKey)
+	r = r.WithContext(ctx)
+	rctx.Routes = h.router
+	rctx.URLParams = chi.NewRouteContext().URLParams
+	if h.router.Match(rctx, r.Method, r.URL.Path) {
+		h.router.ServeHTTP(w, r)
 
-	return h.Handler.ServeHTTP(w, r, next)
+		// TODO change me and wrap actions into something that handles server errors
+		return nil
+	}
+
+	return next.ServeHTTP(w, r)
 }
 
 func (p *APIHandler) Validate() error {
