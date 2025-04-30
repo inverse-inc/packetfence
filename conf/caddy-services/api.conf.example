@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 {
-	admin off
+	#admin :2019
 	#debug
 }
 
