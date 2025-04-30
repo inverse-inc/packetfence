@@ -87,6 +87,9 @@ sub put_dns_servers {
 
 sub _get_hostname {
     my ($self) = @_;
+    if (defined ($ENV{PF_EXTERNAL_HOSTNAME}) && $ENV{PF_EXTERNAL_HOSTNAME} ne "") {
+        return $ENV{PF_EXTERNAL_HOSTNAME};
+    }
     my $hostname = safe_pf_run(qw(hostnamectl --static));
     chomp($hostname);
     return $hostname if defined($hostname);
