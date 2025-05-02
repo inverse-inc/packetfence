@@ -42,7 +42,7 @@ require (
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20220811032638-9fee2fa31606
 	github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4
-	github.com/inverse-inc/scep v0.0.0-20231110153716-8deeb4991691
+	github.com/inverse-inc/scep v0.0.0-20250502184807-8e146f44db98
 	github.com/jcuga/golongpoll v1.3.1
 	github.com/jpillora/backoff v1.0.0
 	github.com/jpillora/requestlog v1.0.0

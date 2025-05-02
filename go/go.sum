@@ -457,6 +457,8 @@ github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7 h1:1wjwpitH5JfZ4
 github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7/go.mod h1:adBgAyadl5D9Mz9rhkQyzZpwcUK9eXdKslXH4oImbB0=
 github.com/inverse-inc/scep v0.0.0-20231110153716-8deeb4991691 h1:wyawWifgAQ/OFjoF6+UmwRmMwa7FrckZSohqQkAaffw=
 github.com/inverse-inc/scep v0.0.0-20231110153716-8deeb4991691/go.mod h1:6HItlrf6qIzcFzQp87fUuOhgtyqFF/7LV9hFgPUomQ0=
+github.com/inverse-inc/scep v0.0.0-20250502184807-8e146f44db98 h1:eElVghardRGWCcHFk1/MAJjh+38Sm8Cv2ZHF/EqSRdk=
+github.com/inverse-inc/scep v0.0.0-20250502184807-8e146f44db98/go.mod h1:6HItlrf6qIzcFzQp87fUuOhgtyqFF/7LV9hFgPUomQ0=
 github.com/jackc/chunkreader v1.0.0/go.mod h1:RT6O25fNZIuasFJRyZ4R/Y2BbhasbmZXF9QQ7T3kePo=
 github.com/jackc/chunkreader/v2 v2.0.0/go.mod h1:odVSm741yZoC3dpHEUXIqA9tQRhFrgOHwnPIn9lDKlk=
 github.com/jackc/chunkreader/v2 v2.0.1 h1:i+RDz65UE+mmpjTfyz0MoVTnzeYxroil2G82ki7MGG8=
