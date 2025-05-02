@@ -213,6 +213,13 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 				}
 			}
 		}
+		if k == "error" {
+			for m, n := range v.(map[string]interface{}) {
+				if m == "message" {
+					return errors.New(n.(string))
+				}
+			}
+		}
 		if k == "value" {
 			for _, n := range v.([]interface{}) {
 				for a, b := range n.(map[string]interface{}) {
@@ -253,6 +260,7 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	request.Request.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
 
 	slcB, _ := json.Marshal(request)
+
 	req, err := http.NewRequest("POST", cl.Endpoint.Uri+"/"+VALIDATION_URL, bytes.NewBuffer(slcB))
 	if err != nil {
 		log.Print(err)
