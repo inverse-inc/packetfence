@@ -4371,6 +4371,7 @@ sub generateAnsibleConfiguration {
             case /Cisco::Cisco_WLC_AireOS/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
             case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
+            case /Arista::AristaSwitch/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arista.eos.eos" }
     }
 
     foreach my $role (keys %ConfigRoles) {

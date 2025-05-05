@@ -7,3 +7,5 @@ collections:
       version: 5.0.0
     - name: cisco.asa
       version: 4.0.1
+    - name: arista.eos
+      version: 10.1.1
