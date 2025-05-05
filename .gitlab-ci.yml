@@ -650,7 +650,6 @@ pfdeb_based_dev:
           - "netdata"
           - "git-sync"
           - "github-apps-token"
-          - "pfstats"
           - "caddy-l4"
 
 img_dev:
@@ -751,6 +750,7 @@ pfdeb_based_br_maint:
           - "git-sync"
           - "github-apps-token"
           - "caddy-l4"
+          - "pfstats"
 
 img_br_maint:
   extends:
