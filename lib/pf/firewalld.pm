@@ -257,15 +257,17 @@ sub fd_create_all_zones {
     }
     util_zone_set_forward( $tint , "remove" );
     util_zone_set_masquerade( $tint , "add" );
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
+    util_direct_rule(" ipv4 filter INPUT 0 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
+      util_firewalld_job( " --permanent --delete-zone=$tint" );
+      util_firewalld_job( " --permanent --new-zone=$tint" );
       util_set_default_zone( $tint );
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
+      util_direct_rule( " ipv4 filter INPUT 0 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT ", "add" );
       my $web_admin_port = $Config{'ports'}{'admin'};
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", "add" );
+      util_direct_rule( " ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT ", "add" );
       util_zone_set_forward( $tint , "add" );
       util_zone_set_masquerade( $tint, "add" );
     }
