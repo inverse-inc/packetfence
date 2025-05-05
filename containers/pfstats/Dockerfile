@@ -17,7 +17,7 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
 WORKDIR /usr/local/pf/
 
-COPY --from=0 /usr/local/pf/go/pfstats /usr/local/pf/sbin/pfacct
+COPY --from=0 /usr/local/pf/go/pfstats /usr/local/pf/sbin/pfstats
 
 #RUN apt update && apt install freeradius-utils -y
 
