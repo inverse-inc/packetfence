@@ -846,6 +846,7 @@ pfdeb_based_cloud_nac:
           - "kafka"
           - "ntlm-auth-api"
           - "netdata"
+          - "pfstats"
 
 img_cloud_nac:
   extends:
