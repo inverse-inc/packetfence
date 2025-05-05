@@ -678,6 +678,7 @@ pfdeb_based_dev:
           - "netdata"
           - "git-sync"
           - "github-apps-token"
+          - "pfstats"
           - "caddy-l4"
           - "pfstats"
           - "pfdns-connector"
