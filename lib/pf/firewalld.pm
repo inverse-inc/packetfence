@@ -264,6 +264,8 @@ sub fd_create_all_zones {
     if ( $tint ne "" ) {
       util_firewalld_job( " --permanent --delete-zone=$tint" );
       util_firewalld_job( " --permanent --new-zone=$tint" );
+      util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
+      util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
       util_set_default_zone( $tint );
       util_direct_rule( " ipv4 filter INPUT 0 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT ", "add" );
       my $web_admin_port = $Config{'ports'}{'admin'};
