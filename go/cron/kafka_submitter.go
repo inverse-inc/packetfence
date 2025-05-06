@@ -188,5 +188,6 @@ func SetupKafka(config map[string]interface{}) {
 			},
 		)
 		go aggregator.handleEvents()
+
 	})
 }
