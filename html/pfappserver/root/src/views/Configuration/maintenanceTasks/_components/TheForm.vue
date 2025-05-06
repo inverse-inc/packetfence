@@ -220,7 +220,7 @@
     />
 
     <form-group-fingerprint-cache-expiration v-show="wants('fingerprint_cache_expiration')"
-                     :namespace="fingerprint_cache_expiration"
+                     namespace="fingerprint_cache_expiration"
                      :column-label="$i18n.t('Fingerprint Cache Expiration')"
                      :text="$i18n.t('Fingerprint Cache Expiration')"
     />
