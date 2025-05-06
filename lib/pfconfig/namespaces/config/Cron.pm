@@ -49,6 +49,12 @@ sub golangDurationToSeconds {
     return $i;
 }
 
+my %int_values = (
+    'filter_events' => undef,
+    'heuristics'    => undef,
+    'fingerprint'   => undef,
+);
+
 sub build_child {
     my ($self) = @_;
     my $tmp_cfg = clone($self->{cfg});
@@ -59,13 +65,13 @@ sub build_child {
                 next;
             }
 
-            if ($key eq 'filter_events' || $key eq 'heuristics') {
-                $task_data->{$key} = isenabled($task_data->{$key}) ? 1: 0;
+            if (exists $int_values{$key} || $key =~ /batch$/) {
+                $task_data->{$key} += 0;
                 next;
             }
 
-            if ($key =~ /batch$/) {
-                $task_data->{$key} += 0;
+            if ($key eq 'fingerprint_cache_expiration') {
+                $task_data->{$key} = golangDurationToSeconds($task_data->{$key});
             }
         }
 
@@ -76,14 +82,15 @@ sub build_child {
         }
 
         $task_data->{interval} = $interval;
-        if (exists $task_data->{kafka_brokers}) {
-            $task_data->{kafka_brokers} = [split(/\s*,\s*/, $task_data->{kafka_brokers})];
+        for my $f (qw(fingerprint_networks kafka_brokers)) {
+            if (exists $task_data->{$f}) {
+                $task_data->{$f} = [split(/\s*,\s*/, $task_data->{$f})];
+            }
         }
     }
 
     return $tmp_cfg;
 }
-
 
 =head1 AUTHOR
 
