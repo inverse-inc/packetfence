@@ -219,6 +219,12 @@
                      :text="$i18n.t('Fingerprint.')"
     />
 
+    <form-group-fingerprint-cache-expiration v-show="wants('fingerprint_cache_expiration')"
+                     :namespace="fingerprint_cache_expiration"
+                     :column-label="$i18n.t('Fingerprint Cache Expiration')"
+                     :text="$i18n.t('Fingerprint Cache Expiration')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -257,6 +263,9 @@ import {
   FormGroupSendTopic,
   FormGroupUuid,
   FormGroupGroupId,
+  FormGroupFingerprint,
+  FormGroupFingerprintNetworks,
+  FormGroupFingerprintCacheExpiration,
   FormGroupFilterEvents,
   FormGroupHeuristics
 } from './'
@@ -294,6 +303,9 @@ const components = {
   FormGroupSendTopic,
   FormGroupUuid,
   FormGroupGroupId,
+  FormGroupFingerprint,
+  FormGroupFingerprintNetworks,
+  FormGroupFingerprintCacheExpiration,
   FormGroupFilterEvents,
   FormGroupHeuristics
 }

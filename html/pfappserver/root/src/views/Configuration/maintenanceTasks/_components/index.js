@@ -24,6 +24,7 @@ export {
   BaseFormGroupSwitch                 as FormGroupFilterEvents,
   BaseFormGroupSwitch                 as FormGroupFingerprint,
   BaseFormGroupInput                  as FormGroupFingerprintNetworks,
+  BaseFormGroupIntervalUnit           as FormGroupFingerprintCacheExpiration,
   BaseFormGroupInput                  as FormGroupGroupId,
   BaseFormGroupSwitch                 as FormGroupHeuristics,
   BaseFormGroupInputNumber            as FormGroupHistoryBatch,
@@ -50,9 +51,6 @@ export {
   BaseFormGroupInput                  as FormGroupReadTopic,
   BaseFormGroupInput                  as FormGroupSendTopic,
   BaseFormGroupInput                  as FormGroupUuid,
-  BaseFormGroupInput                  as FormGroupGroupId,
-  BaseFormGroupSwitch                 as FormGroupFilterEvents,
-  BaseFormGroupSwitch                 as FormGroupHeuristics,
 
   TheForm,
   TheView,
