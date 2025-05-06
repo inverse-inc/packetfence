@@ -71,6 +71,7 @@ use pf::Switch::constants;
 use pf::util;
 use pf::config::util;
 use pf::role::custom $ROLE_API_LEVEL;
+use pf::radius::constants;
 
 =head1 SUBROUTINES
 
@@ -306,6 +307,56 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     return [$status, %$radius_reply_ref];
+}
+
+=head2 wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::SNMP => 'dot1xPortReauthenticate',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
+
+=head2 deauthenticateMacRadius
+
+Method to deauth a wired node with CoA.
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ($self, $ifIndex,$mac) = @_;
+    my $logger = $self->logger;
+
+
+    # perform CoA
+    $self->radiusDisconnect($mac ,{ 'Acct-Terminate-Cause' => 'Admin-Reset'});
 }
 
 =head2 returnRoleAttribute
