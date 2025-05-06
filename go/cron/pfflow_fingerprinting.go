@@ -39,6 +39,7 @@ func NewFingerPrintingJobOptions(config map[string]interface{}) *FingerPrintingJ
 	for _, n := range network_strings {
 		networks = append(networks, netip.MustParsePrefix(n))
 	}
+	options.Networks = networks
 
 	return options
 }
