@@ -124,6 +124,7 @@ func (j *PfFlowJob) Run() {
 
 		ChanPfFlow <- []*PfFlows{pfFlows}
 		if j.fingerprintChan != nil {
+			// Send the flows to the fingerprint channel
 			j.fingerprintChan <- []*PfFlows{pfFlows}
 		}
 	}
