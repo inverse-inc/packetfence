@@ -171,9 +171,9 @@
                      :text="$i18n.t('Read Topic.')"
     />
 
-    <form-group-send-topic v-show="wants('send_topic')"
-                     namespace="send_topic"
-                     :column-label="$i18n.t('Send Topic')"
+    <form-group-write-topic v-show="wants('write_topic')"
+                     namespace="write_topic"
+                     :column-label="$i18n.t('Write Topic')"
                      :text="$i18n.t('Send Topic.')"
     />
 
@@ -260,7 +260,7 @@ import {
   FormGroupKafkaPass,
   FormGroupKafkaUser,
   FormGroupReadTopic,
-  FormGroupSendTopic,
+  FormGroupWriteTopic,
   FormGroupUuid,
   FormGroupGroupId,
   FormGroupFingerprint,
@@ -300,7 +300,7 @@ const components = {
   FormGroupKafkaPass,
   FormGroupKafkaUser,
   FormGroupReadTopic,
-  FormGroupSendTopic,
+  FormGroupWriteTopic,
   FormGroupUuid,
   FormGroupGroupId,
   FormGroupFingerprint,
