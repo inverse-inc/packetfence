@@ -1,6 +1,6 @@
 module github.com/inverse-inc/packetfence/go
 
-go 1.24.2
+go 1.24.3
 
 require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible // indirect
