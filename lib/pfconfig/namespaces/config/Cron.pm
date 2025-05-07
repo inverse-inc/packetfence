@@ -49,11 +49,6 @@ sub golangDurationToSeconds {
     return $i;
 }
 
-my %int_values = (
-    'filter_events' => undef,
-    'heuristics'    => undef,
-);
-
 sub build_child {
     my ($self) = @_;
     my $tmp_cfg = clone($self->{cfg});
@@ -64,7 +59,7 @@ sub build_child {
                 next;
             }
 
-            if (exists $int_values{$key} || $key =~ /batch$/) {
+            if ($key =~ /batch$/) {
                 $task_data->{$key} += 0;
                 next;
             }
