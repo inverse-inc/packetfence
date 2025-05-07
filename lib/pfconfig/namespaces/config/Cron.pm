@@ -52,7 +52,6 @@ sub golangDurationToSeconds {
 my %int_values = (
     'filter_events' => undef,
     'heuristics'    => undef,
-    'fingerprint'   => undef,
 );
 
 sub build_child {
