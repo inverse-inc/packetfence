@@ -441,7 +441,7 @@ loop:
 
 					key := f.Key(&pfflows.Header)
 					val := a.events[key]
-					if a.Heuristics > 0 {
+					if a.Heuristics {
 						f.Heuristics()
 					}
 
