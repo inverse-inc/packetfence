@@ -26,7 +26,7 @@ has_field 'batch' => (
 
 has_field 'rotate' => (
     type => 'Toggle',
-    checked_value => 'enabled',
+    checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
