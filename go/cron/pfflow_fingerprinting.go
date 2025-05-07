@@ -15,6 +15,8 @@ import (
 
 var fingerPrintingJobOnce sync.Once
 
+var fingerprintChan chan []*PfFlows
+
 type FingerPrintingJob struct {
 	fingerprintChan <-chan []*PfFlows
 	stopChan        chan struct{}
@@ -147,19 +149,18 @@ func (f *FingerPrintingJob) addNode(ctx context.Context, node *NodeInfo) {
 }
 
 func SetupFingerPrintingJob(config map[string]interface{}) chan []*PfFlows {
-	var pfflow_chan chan []*PfFlows
 	fingerPrintingJobOnce.Do(func() {
 		options := NewFingerPrintingJobOptions(config)
 		if options.Fingerprint == 0 {
 			return
 		}
 
-		pfflow_chan = options.FingerprintChan
+		fingerprintChan = options.FingerprintChan
 		fb := NewFingerPrintingJob(options)
 		go fb.Run()
 	})
 
-	return pfflow_chan
+	return fingerprintChan
 }
 
 func (f *FingerPrintingJob) handleFlows(pfflows []*PfFlows) {
@@ -171,21 +172,23 @@ func (f *FingerPrintingJob) handleFlows(pfflows []*PfFlows) {
 }
 
 func (f *FingerPrintingJob) Run() {
-LOOP:
 	for {
 		select {
 		case <-f.stopChan:
-			break LOOP
-		case pfflows := <-f.fingerprintChan:
+			// Properly drain the fingerprintChan before exiting
+			for pfflows := range f.fingerprintChan {
+				f.handleFlows(pfflows)
+			}
+			close(f.stopChan) // Close stopChan to signal completion
+			return
+		case pfflows, ok := <-f.fingerprintChan:
+			if !ok {
+				// Channel is closed, exit the loop
+				return
+			}
 			f.handleFlows(pfflows)
 		}
 	}
-
-	for pfflows := range f.fingerprintChan {
-		f.handleFlows(pfflows)
-	}
-
-	close(f.stopChan)
 }
 
 func (f *FingerPrintingJob) Stop() {
