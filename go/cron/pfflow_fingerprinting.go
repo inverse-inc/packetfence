@@ -10,6 +10,7 @@ import (
 	"github.com/fdurand/go-cache"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/mac"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 )
 
@@ -30,7 +31,7 @@ func NewFingerPrintingJobOptions(config map[string]interface{}) *FingerPrintingJ
 	options.CacheExpiration = time.Duration(int(config["fingerprint_cache_expiration"].(float64))) * time.Second
 	options.FingerprintChan = make(chan []*PfFlows, 1000)
 	options.StopChan = make(chan struct{})
-	options.Fingerprint = defaultIntConfig(config, "fingerprint", 0)
+	options.Fingerprint = sharedutils.ISENABLED[config["fingerprint"].(string)]
 	db, err := getDb()
 	if err != nil {
 		panic(err)
@@ -48,7 +49,7 @@ func NewFingerPrintingJobOptions(config map[string]interface{}) *FingerPrintingJ
 
 type FingerPrintingJobOptions struct {
 	FingerprintChan chan []*PfFlows
-	Fingerprint     int
+	Fingerprint     bool
 	StopChan        chan struct{}
 	CacheExpiration time.Duration
 	Networks        []netip.Prefix
@@ -151,7 +152,7 @@ func (f *FingerPrintingJob) addNode(ctx context.Context, node *NodeInfo) {
 func SetupFingerPrintingJob(config map[string]interface{}) chan []*PfFlows {
 	fingerPrintingJobOnce.Do(func() {
 		options := NewFingerPrintingJobOptions(config)
-		if options.Fingerprint == 0 {
+		if !options.Fingerprint {
 			return
 		}
 

@@ -71,8 +71,8 @@ has_field 'kakfa_pass' => (
 
 has_field 'filter_events' => (
     type            => 'Toggle',
-    checkbox_value   => '1',
-    unchecked_value => '0',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
     default_method  => \&default_field_method,
     tags => {
         after_element   => \&help,
@@ -82,8 +82,8 @@ has_field 'filter_events' => (
 
 has_field 'heuristics' => (
     type            => 'Toggle',
-    checkbox_value   => '1',
-    unchecked_value => '0',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
     default_method  => \&default_field_method,
     tags => {
         after_element   => \&help,
@@ -93,8 +93,8 @@ has_field 'heuristics' => (
 
 has_field 'fingerprint' => (
     type            => 'Toggle',
-    checkbox_value   => '1',
-    unchecked_value => '0',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
     default_method  => \&default_field_method,
     tags => {
         after_element   => \&help,

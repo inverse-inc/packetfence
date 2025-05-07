@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/compress"
 	"github.com/segmentio/kafka-go/sasl/plain"
@@ -22,7 +23,7 @@ type KafkaSubmiterOptions struct {
 	UseTLS       bool
 	Username     string
 	Password     string
-	FilterEvents int
+	FilterEvents bool
 }
 
 type KafkaSubmiter struct {
@@ -75,7 +76,7 @@ func NewKafkaSubmiter(o *KafkaSubmiterOptions) (*KafkaSubmiter, error) {
 			Transport:              o.Transport(),
 			AllowAutoTopicCreation: true,
 		},
-		filterEvents: o.FilterEvents != 0,
+		filterEvents: o.FilterEvents != false,
 	}, nil
 }
 
@@ -163,7 +164,7 @@ func SetupKafka(config map[string]interface{}) {
 			Topic:        config["write_topic"].(string),
 			Username:     config["kafka_user"].(string),
 			Password:     config["kafka_pass"].(string),
-			FilterEvents: int(config["filter_events"].(float64)),
+			FilterEvents: sharedutils.ISENABLED[config["filter_events"].(string)],
 		}
 
 		db, err := getDb()
@@ -183,7 +184,7 @@ func SetupKafka(config map[string]interface{}) {
 			&AggregatorOptions{
 				NetworkEventChan: aggregatorChan,
 				Timeout:          time.Minute,
-				Heuristics:       int(config["heuristics"].(float64)),
+				Heuristics:       sharedutils.ISENABLED[config["heuristics"].(string)],
 				Db:               db,
 			},
 		)
