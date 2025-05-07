@@ -32,7 +32,7 @@ has_field 'read_topic' => (
     tags => { help => 'The Kafka topic to read pfflows from' },
 );
 
-has_field 'send_topic' => (
+has_field 'write_topic' => (
     type => 'Text',
     default_method => \&default_field_method,
     tags => { help => 'The Kafka topic to write network events to' },

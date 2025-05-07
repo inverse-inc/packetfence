@@ -49,7 +49,7 @@ export {
   BaseFormGroupInput                  as FormGroupKafkaPass,
   BaseFormGroupInput                  as FormGroupKafkaUser,
   BaseFormGroupInput                  as FormGroupReadTopic,
-  BaseFormGroupInput                  as FormGroupSendTopic,
+  BaseFormGroupInput                  as FormGroupWriteTopic,
   BaseFormGroupInput                  as FormGroupUuid,
 
   TheForm,
