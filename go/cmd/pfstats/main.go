@@ -247,7 +247,7 @@ func main() {
 			keyConfAdvanced.PfconfigNS = "config::Pf"
 			keyConfAdvanced.PfconfigHostnameOverlay = "yes"
 			pfconfigdriver.FetchDecodeSocket(ctx, &keyConfAdvanced)
-			Options := statsd.Address("localhost:" + keyConfAdvanced.StatsdListenPort)
+			Options := statsd.Address(keyConfAdvanced.StatsdListenHost + ":" + keyConfAdvanced.StatsdListenPort)
 			StatsdClient, err = statsd.New(Options)
 			if err != nil {
 				log.LoggerWContext(ctx).Error("Error while creating statsd client: " + err.Error())
