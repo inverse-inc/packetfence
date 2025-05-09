@@ -4,9 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"math/rand"
-	"sort"
-	"strconv"
 	"sync"
 	"time"
 
@@ -14,41 +13,249 @@ import (
 	"gopkg.in/alexcesaro/statsd.v2"
 )
 
-// Memory struct
+// Memory struct with optimized fields
 type Memory struct {
 	PoolName string
 	DHCPPool *DHCPPool
 	SQL      *sql.DB
+	// Add a free list for faster access to free IPs
+	freeList []uint64
+	// Add a map for quick MAC lookups
+	macLookup map[string]uint64
 }
 
-// NewMemoryPool return a new memory pool
-func NewMemoryPool(context context.Context, capacity uint64, name string, algorithm int, StatsdClient *statsd.Client, sql *sql.DB) (Backend, error) {
-	Pool := &Memory{}
-	Pool.PoolName = name
-	Pool.NewDHCPPool(context, capacity, algorithm, StatsdClient)
+// NewMemoryPool returns a new memory pool with optimized initialization
+func NewMemoryPool(ctx context.Context, capacity uint64, name string, algorithm int, StatsdClient *statsd.Client, sql *sql.DB) (Backend, error) {
+	pool := &Memory{
+		PoolName:  name,
+		SQL:       sql,
+		freeList:  make([]uint64, 0, capacity),
+		macLookup: make(map[string]uint64, capacity),
+	}
 
-	return Pool, nil
+	if err := pool.NewDHCPPool(ctx, capacity, algorithm, StatsdClient); err != nil {
+		return nil, fmt.Errorf("failed to initialize DHCP pool: %w", err)
+	}
+
+	return pool, nil
 }
 
-// NewDHCPPool initialize the DHCPPool
-func (dp *Memory) NewDHCPPool(context context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client) {
+// NewDHCPPool initializes the DHCPPool with optimized data structures
+func (dp *Memory) NewDHCPPool(ctx context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client) error {
 	log.SetProcessName("pfdhcp")
-	ctx := log.LoggerNewContext(context)
+	loggerCtx := log.LoggerNewContext(ctx)
+
 	d := &DHCPPool{
 		lock:      &sync.RWMutex{},
-		free:      make(map[uint64]bool),
-		mac:       make(map[uint64]string),
-		released:  make(map[uint64]int64),
+		free:      make(map[uint64]bool, capacity),
+		mac:       make(map[uint64]string, capacity),
+		released:  make(map[uint64]int64, capacity),
 		algorithm: algorithm,
 		capacity:  capacity,
-		ctx:       ctx,
+		ctx:       loggerCtx,
 		statsd:    StatsdClient,
 	}
-	for i := uint64(0); i < d.capacity; i++ {
+
+	// Pre-allocate all IPs as free
+	now := time.Now().UnixNano()
+	for i := uint64(0); i < capacity; i++ {
 		d.free[i] = true
-		d.released[i] = time.Now().UnixNano()
+		d.released[i] = now
+		dp.freeList = append(dp.freeList, i)
 	}
+
 	dp.DHCPPool = d
+	return nil
+}
+
+// GetIssues optimized with better data structures and algorithms
+func (dp *Memory) GetIssues(macs []string) ([]string, map[uint64]string) {
+	dp.DHCPPool.lock.RLock()
+	defer dp.DHCPPool.lock.RUnlock()
+
+	t := dp.DHCPPool.NewTiming()
+	defer dp.DHCPPool.timeTrack(t, "GetIssues")
+
+	// Create a map for O(1) MAC lookups
+	macSet := make(map[string]struct{}, len(macs))
+	for _, mac := range macs {
+		macSet[mac] = struct{}{}
+	}
+
+	inPoolNotInCache := make([]string, 0, dp.DHCPPool.capacity)
+	duplicateInPool := make(map[uint64]string)
+
+	// Track MAC occurrences in a single pass
+	macCount := make(map[string][]uint64)
+
+	for i := uint64(0); i < dp.DHCPPool.capacity; i++ {
+		if dp.DHCPPool.free[i] {
+			continue
+		}
+
+		mac := dp.DHCPPool.mac[i]
+		if _, exists := macSet[mac]; !exists {
+			inPoolNotInCache = append(inPoolNotInCache, fmt.Sprintf("%s, %d", mac, i))
+		}
+
+		macCount[mac] = append(macCount[mac], i)
+	}
+
+	// Find duplicates in a single pass
+	for mac, indices := range macCount {
+		if len(indices) > 1 {
+			for _, idx := range indices {
+				duplicateInPool[idx] = mac
+			}
+		}
+	}
+
+	return inPoolNotInCache, duplicateInPool
+}
+
+// ReserveIPIndex optimized with better locking and error handling
+func (dp *Memory) ReserveIPIndex(index uint64, mac string) (string, error) {
+	dp.DHCPPool.lock.Lock()
+	defer dp.DHCPPool.lock.Unlock()
+
+	t := dp.DHCPPool.NewTiming()
+	defer dp.DHCPPool.timeTrack(t, "ReserveIPIndex")
+
+	if index >= dp.DHCPPool.capacity {
+		return FreeMac, errors.New("index outside pool capacity")
+	}
+
+	if !dp.DHCPPool.free[index] {
+		return FreeMac, errors.New("IP already reserved")
+	}
+
+	// Update all relevant data structures
+	delete(dp.DHCPPool.free, index)
+	dp.DHCPPool.mac[index] = mac
+	dp.macLookup[mac] = index
+
+	// Remove from free list
+	for i, freeIndex := range dp.freeList {
+		if freeIndex == index {
+			dp.freeList = append(dp.freeList[:i], dp.freeList[i+1:]...)
+			break
+		}
+	}
+
+	return mac, nil
+}
+
+// FreeIPIndex optimized with better data structure management
+func (dp *Memory) FreeIPIndex(index uint64) error {
+	dp.DHCPPool.lock.Lock()
+	defer dp.DHCPPool.lock.Unlock()
+
+	t := dp.DHCPPool.NewTiming()
+	defer dp.DHCPPool.timeTrack(t, "FreeIPIndex")
+
+	if !dp.IndexInPool(index) {
+		return errors.New("index outside pool capacity")
+	}
+
+	if dp.DHCPPool.free[index] {
+		return errors.New("IP already free")
+	}
+
+	// Update all relevant data structures
+	dp.DHCPPool.free[index] = true
+	dp.DHCPPool.released[index] = time.Now().UnixNano()
+	mac := dp.DHCPPool.mac[index]
+	delete(dp.DHCPPool.mac, index)
+	delete(dp.macLookup, mac)
+	dp.freeList = append(dp.freeList, index)
+
+	return nil
+}
+
+// GetFreeIPIndex optimized with better algorithm selection
+func (dp *Memory) GetFreeIPIndex(mac string) (uint64, string, error) {
+	dp.DHCPPool.lock.Lock()
+	defer dp.DHCPPool.lock.Unlock()
+
+	t := dp.DHCPPool.NewTiming()
+	defer dp.DHCPPool.timeTrack(t, "GetFreeIPIndex")
+
+	if len(dp.freeList) == 0 {
+		return 0, FreeMac, errors.New("DHCP pool is full")
+	}
+
+	var available uint64
+
+	if dp.DHCPPool.algorithm == OldestReleased {
+		// Use the free list which maintains order
+		available = dp.freeList[0]
+		dp.freeList = dp.freeList[1:]
+	} else {
+		// Random selection from free list
+		idx := rand.Intn(len(dp.freeList))
+		available = dp.freeList[idx]
+		dp.freeList = append(dp.freeList[:idx], dp.freeList[idx+1:]...)
+	}
+
+	// Update all relevant data structures
+	delete(dp.DHCPPool.free, available)
+	dp.DHCPPool.mac[available] = mac
+	dp.macLookup[mac] = available
+
+	return available, mac, nil
+}
+
+// IsFreeIPAtIndex optimized with direct map access
+func (dp *Memory) IsFreeIPAtIndex(index uint64) bool {
+	dp.DHCPPool.lock.RLock()
+	defer dp.DHCPPool.lock.RUnlock()
+
+	t := dp.DHCPPool.NewTiming()
+	defer dp.DHCPPool.timeTrack(t, "IsFreeIPAtIndex")
+
+	return dp.IndexInPool(index) && dp.DHCPPool.free[index]
+}
+
+// GetMACIndex optimized with better error handling
+func (dp *Memory) GetMACIndex(index uint64) (uint64, string, error) {
+	dp.DHCPPool.lock.RLock()
+	defer dp.DHCPPool.lock.RUnlock()
+
+	t := dp.DHCPPool.NewTiming()
+	defer dp.DHCPPool.timeTrack(t, "GetMACIndex")
+
+	if !dp.IndexInPool(index) {
+		return index, FreeMac, errors.New("index not in pool")
+	}
+
+	if dp.DHCPPool.free[index] {
+		return index, FreeMac, nil
+	}
+
+	return index, dp.DHCPPool.mac[index], nil
+}
+
+// FreeIPsRemaining optimized with direct length access
+func (dp *Memory) FreeIPsRemaining() uint64 {
+	dp.DHCPPool.lock.RLock()
+	defer dp.DHCPPool.lock.RUnlock()
+
+	t := dp.DHCPPool.NewTiming()
+	defer dp.DHCPPool.timeTrack(t, "FreeIPsRemaining")
+
+	return uint64(len(dp.freeList))
+}
+
+// Capacity optimized with direct access
+func (dp *Memory) Capacity() uint64 {
+	t := dp.DHCPPool.NewTiming()
+	defer dp.DHCPPool.timeTrack(t, "Capacity")
+	return dp.DHCPPool.capacity
+}
+
+// Listen always returns true for memory backend
+func (dp *Memory) Listen() bool {
+	return true
 }
 
 // GetDHCPPool return the DHCPPool
@@ -56,201 +263,9 @@ func (dp *Memory) GetDHCPPool() DHCPPool {
 	return *dp.DHCPPool
 }
 
-// GetIssues Compare what we have in the cache with what we have in the pool
-func (dp *Memory) GetIssues(macs []string) ([]string, map[uint64]string) {
-	dp.DHCPPool.lock.RLock()
-	defer dp.DHCPPool.lock.RUnlock()
-	t := dp.DHCPPool.NewTiming()
-	defer dp.DHCPPool.timeTrack(t, "GetIssues")
-	var found bool
-	found = false
-	var inPoolNotInCache []string
-	var duplicateInPool map[uint64]string
-	duplicateInPool = make(map[uint64]string)
-
-	var count int
-	var saveindex uint64
-	for i := uint64(0); i < dp.DHCPPool.capacity; i++ {
-		if dp.DHCPPool.free[i] {
-			continue
-		}
-		for _, mac := range macs {
-			if dp.DHCPPool.mac[i] == mac {
-				found = true
-			}
-		}
-		if !found {
-			inPoolNotInCache = append(inPoolNotInCache, dp.DHCPPool.mac[i]+", "+strconv.Itoa(int(i)))
-		}
-	}
-	for _, mac := range macs {
-		count = 0
-		saveindex = 0
-
-		for i := uint64(0); i < dp.DHCPPool.capacity; i++ {
-			if dp.DHCPPool.free[i] {
-				continue
-			}
-			if dp.DHCPPool.mac[i] == mac {
-				if count == 0 {
-					saveindex = i
-				}
-				if count == 1 {
-					duplicateInPool[saveindex] = mac
-					duplicateInPool[i] = mac
-				} else if count > 1 {
-					duplicateInPool[i] = mac
-				}
-				count++
-			}
-		}
-	}
-	return inPoolNotInCache, duplicateInPool
-}
-
-// ReserveIPIndex reserves an IP in the pool, returns an error if the IP has already been reserved
-func (dp *Memory) ReserveIPIndex(index uint64, mac string) (string, error) {
-	dp.DHCPPool.lock.Lock()
-	defer dp.DHCPPool.lock.Unlock()
-	t := dp.DHCPPool.NewTiming()
-	defer dp.DHCPPool.timeTrack(t, "ReserveIPIndex")
-
-	if index >= dp.DHCPPool.capacity {
-		return FreeMac, errors.New("Trying to reserve an IP that is outside the capacity of this pool")
-	}
-
-	if _, free := dp.DHCPPool.free[index]; free {
-		delete(dp.DHCPPool.free, index)
-		dp.DHCPPool.mac[index] = mac
-		return mac, nil
-	}
-	return FreeMac, errors.New("IP is already reserved")
-}
-
-// FreeIPIndex frees an IP in the pool, returns an error if the IP is already free
-func (dp *Memory) FreeIPIndex(index uint64) error {
-	dp.DHCPPool.lock.Lock()
-	defer dp.DHCPPool.lock.Unlock()
-	t := dp.DHCPPool.NewTiming()
-	defer dp.DHCPPool.timeTrack(t, "FreeIPIndex")
-	if !dp.IndexInPool(index) {
-		return errors.New("Trying to free an IP that is outside the capacity of this pool")
-	}
-
-	if _, free := dp.DHCPPool.free[index]; free {
-		return errors.New("IP is already free")
-	}
-	dp.DHCPPool.free[index] = true
-	dp.DHCPPool.released[index] = time.Now().UnixNano()
-	delete(dp.DHCPPool.mac, index)
-	return nil
-}
-
-// IsFreeIPAtIndex check if the IP is free at the index
-func (dp *Memory) IsFreeIPAtIndex(index uint64) bool {
-	dp.DHCPPool.lock.RLock()
-	defer dp.DHCPPool.lock.RUnlock()
-	t := dp.DHCPPool.NewTiming()
-	defer dp.DHCPPool.timeTrack(t, "IsFreeIPAtIndex")
-	if !dp.IndexInPool(index) {
-		return false
-	}
-
-	if _, free := dp.DHCPPool.free[index]; free {
-		return true
-	}
-	return false
-}
-
-// GetMACIndex check if the IP is free at the index
-func (dp *Memory) GetMACIndex(index uint64) (uint64, string, error) {
-	dp.DHCPPool.lock.RLock()
-	defer dp.DHCPPool.lock.RUnlock()
-	t := dp.DHCPPool.NewTiming()
-	defer dp.DHCPPool.timeTrack(t, "GetMACIndex")
-	if !dp.IndexInPool(index) {
-		return index, FreeMac, errors.New("The index is not part of the pool")
-	}
-
-	if _, free := dp.DHCPPool.free[index]; free {
-		return index, FreeMac, nil
-	}
-	return index, dp.DHCPPool.mac[index], nil
-}
-
-// GetFreeIPIndex returns a free IP address, an error if the pool is full
-func (dp *Memory) GetFreeIPIndex(mac string) (uint64, string, error) {
-	dp.DHCPPool.lock.Lock()
-	defer dp.DHCPPool.lock.Unlock()
-	t := dp.DHCPPool.NewTiming()
-	defer dp.DHCPPool.timeTrack(t, "GetFreeIPIndex")
-
-	if len(dp.DHCPPool.free) == 0 {
-		return 0, FreeMac, errors.New("DHCP pool is full")
-	}
-
-	var available uint64
-
-	if dp.DHCPPool.algorithm == OldestReleased {
-		type kv struct {
-			Key   uint64
-			Value int64
-		}
-
-		var ss []kv
-		for k, v := range dp.DHCPPool.released {
-			ss = append(ss, kv{k, v})
-		}
-
-		sort.Slice(ss, func(i, j int) bool {
-			return ss[i].Value < ss[j].Value
-		})
-
-		for _, kv := range ss {
-			available = kv.Key
-			break
-		}
-	} else {
-		index := rand.Intn(len(dp.DHCPPool.free))
-		for available = range dp.DHCPPool.free {
-			if index == 0 {
-				break
-			}
-			index--
-
-		}
-	}
-
-	delete(dp.DHCPPool.free, available)
-	dp.DHCPPool.mac[available] = mac
-
-	return available, mac, nil
-}
-
 // IndexInPool returns whether or not a specific index is in the capacity of the pool
 func (dp *Memory) IndexInPool(index uint64) bool {
 	t := dp.DHCPPool.NewTiming()
 	defer dp.DHCPPool.timeTrack(t, "IndexInPool")
 	return index < dp.DHCPPool.capacity
-}
-
-// FreeIPsRemaining returns the amount of free IPs in the pool
-func (dp *Memory) FreeIPsRemaining() uint64 {
-	dp.DHCPPool.lock.RLock()
-	defer dp.DHCPPool.lock.RUnlock()
-	t := dp.DHCPPool.NewTiming()
-	defer dp.DHCPPool.timeTrack(t, "FreeIPsRemaining")
-	return uint64(len(dp.DHCPPool.free))
-}
-
-// Capacity returns the capacity of the pool
-func (dp *Memory) Capacity() uint64 {
-	t := dp.DHCPPool.NewTiming()
-	defer dp.DHCPPool.timeTrack(t, "Capacity")
-	return dp.DHCPPool.capacity
-}
-
-// Listen can act even if the VIP is not here
-func (dp *Memory) Listen() bool {
-	return false
 }

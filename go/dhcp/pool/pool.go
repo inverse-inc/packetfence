@@ -23,7 +23,7 @@ const OldestReleased = 2
 
 // Backend interface
 type Backend interface {
-	NewDHCPPool(ctx context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client)
+	NewDHCPPool(ctx context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client) error
 	ReserveIPIndex(index uint64, mac string) (string, error)
 	IsFreeIPAtIndex(index uint64) bool
 	GetMACIndex(index uint64) (uint64, string, error)

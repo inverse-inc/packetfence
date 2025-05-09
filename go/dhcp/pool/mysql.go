@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"math"
 	"strconv"
 	"sync"
@@ -31,7 +32,7 @@ func NewMysqlPool(context context.Context, capacity uint64, name string, algorit
 }
 
 // NewDHCPPool initialize the DHCPPool
-func (dp *Mysql) NewDHCPPool(context context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client) {
+func (dp *Mysql) NewDHCPPool(context context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client) error {
 	log.SetProcessName("pfdhcp")
 	ctx := log.LoggerNewContext(context)
 	d := &DHCPPool{
@@ -47,11 +48,11 @@ func (dp *Mysql) NewDHCPPool(context context.Context, capacity uint64, algorithm
 
 	_, err := dp.SQL.Exec("DELETE FROM dhcppool WHERE pool_name=?", dp.PoolName)
 	if err != nil {
-		return
+		return fmt.Errorf("failed to delete existing pool: %w", err)
 	}
 	dp.initializePool(capacity)
 	dp.DHCPPool = d
-
+	return nil
 }
 
 const maxBatch = 512 * 512
@@ -142,47 +143,45 @@ func (dp *Mysql) FreeIPIndex(index uint64) error {
 	defer dp.DHCPPool.timeTrack(t, "FreeIPIndex")
 
 	if !dp.IndexInPool(index) {
-		return errors.New("Trying to free an IP that is outside the capacity of this pool")
+		return errors.New("index outside pool capacity")
 	}
 
-	query := "UPDATE dhcppool set free = 1, mac = ?, released = NOW() WHERE idx = ? AND free = 0 AND pool_name = ?"
-	res, err := dp.SQL.Exec(query, FreeMac, index, dp.PoolName)
-
+	result, err := dp.SQL.Exec(
+		"UPDATE dhcppool SET free = 1, mac = ?, released = NOW() WHERE idx = ? AND free = 0 AND pool_name = ?",
+		FreeMac, index, dp.PoolName,
+	)
 	if err != nil {
-		return errors.New("IP is already free")
+		return fmt.Errorf("failed to free IP: %w", err)
 	}
-	count, err2 := res.RowsAffected()
-	if err2 != nil {
-		return errors.New("IP is already free")
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get affected rows: %w", err)
 	}
-	if count == 1 {
-		return nil
+
+	if affected == 0 {
+		return errors.New("IP is already free or does not exist")
 	}
-	return errors.New("IP is already free")
+
+	return nil
 }
 
 // IsFreeIPAtIndex check if the IP is free at the index
 func (dp *Mysql) IsFreeIPAtIndex(index uint64) bool {
 	t := dp.DHCPPool.NewTiming()
 	defer dp.DHCPPool.timeTrack(t, "IsFreeIPAtIndex")
+
 	if !dp.IndexInPool(index) {
 		return false
 	}
 
-	query := "SELECT free FROM dhcppool WHERE free = 1 AND idx = ? AND pool_name = ?"
-	res, err := dp.SQL.Exec(query, index, dp.PoolName)
+	var free bool
+	err := dp.SQL.QueryRow(
+		"SELECT free FROM dhcppool WHERE idx = ? AND pool_name = ?",
+		index, dp.PoolName,
+	).Scan(&free)
 
-	if err != nil {
-		return false
-	}
-	count, err2 := res.RowsAffected()
-	if err2 != nil {
-		return false
-	}
-	if count == 1 {
-		return true
-	}
-	return false
+	return err == nil && free
 }
 
 // GetMACIndex check if the IP is free at the index
@@ -216,64 +215,57 @@ func (dp *Mysql) GetFreeIPIndex(mac string) (uint64, string, error) {
 	t := dp.DHCPPool.NewTiming()
 	defer dp.DHCPPool.timeTrack(t, "GetFreeIPIndex")
 
-	Count := dp.FreeIPsRemaining()
-	if Count == 0 {
+	if dp.FreeIPsRemaining() == 0 {
 		return 0, FreeMac, errors.New("DHCP pool is full")
 	}
 
-	// Search for available index
-
-	tx, err := dp.SQL.Begin()
-
-	if err != nil {
-		return 0, FreeMac, err
-	}
 	var query string
-
 	if dp.DHCPPool.algorithm == OldestReleased {
-		query = "UPDATE dhcppool D SET D.mac = ?, D.free = 0 WHERE D.pool_name = ? AND D.idx IN ( SELECT temp.tmpidx FROM ( SELECT idx as tmpidx FROM dhcppool P WHERE P.free = 1 AND P.pool_name = ? ORDER BY released LIMIT 1 ) AS temp )"
+		query = `
+            UPDATE dhcppool 
+            SET mac = ?, free = 0 
+            WHERE pool_name = ? 
+            AND idx = (
+                SELECT idx 
+                FROM (
+                    SELECT idx 
+                    FROM dhcppool 
+                    WHERE free = 1 
+                    AND pool_name = ? 
+                    ORDER BY released 
+                    LIMIT 1
+                ) AS temp
+            )
+            RETURNING idx`
 	} else {
-		query = "UPDATE dhcppool D SET D.mac = ?, D.free = 0 WHERE D.pool_name = ? AND D.idx IN ( SELECT temp.tmpidx FROM ( SELECT idx as tmpidx FROM dhcppool P WHERE P.free = 1 AND P.pool_name = ? ORDER BY RAND() LIMIT 1 ) AS temp )"
+		query = `
+            UPDATE dhcppool 
+            SET mac = ?, free = 0 
+            WHERE pool_name = ? 
+            AND idx = (
+                SELECT idx 
+                FROM (
+                    SELECT idx 
+                    FROM dhcppool 
+                    WHERE free = 1 
+                    AND pool_name = ? 
+                    ORDER BY RAND() 
+                    LIMIT 1
+                ) AS temp
+            )
+            RETURNING idx`
 	}
-	res, err := tx.Exec(query, mac, dp.PoolName, dp.PoolName)
 
+	var index int
+	err := dp.SQL.QueryRow(query, mac, dp.PoolName, dp.PoolName).Scan(&index)
 	if err != nil {
-		tx.Commit()
+		if err == sql.ErrNoRows {
+			return 0, FreeMac, errors.New("no free IPs available")
+		}
 		return 0, FreeMac, err
-
 	}
 
-	count, err2 := res.RowsAffected()
-
-	if err2 != nil {
-		tx.Commit()
-		return 0, FreeMac, err2
-	}
-	if count == 1 {
-		query = "SELECT idx from dhcppool where free = 0 and pool_name = ? and mac = ?"
-		rows, err := tx.Query(query, dp.PoolName, mac)
-		defer rows.Close()
-		if err != nil {
-			tx.Commit()
-			return 0, FreeMac, err2
-		}
-		var (
-			Index int
-		)
-		for rows.Next() {
-			err := rows.Scan(&Index)
-			tx.Commit()
-			if err != nil {
-				return 0, FreeMac, err
-			}
-			return uint64(Index), mac, nil
-		}
-		tx.Commit()
-		return 0, FreeMac, errors.New("Not able to fetch the index from the db")
-	}
-	tx.Commit()
-	return 0, FreeMac, errors.New("Doesn't suppose to reach here")
-
+	return uint64(index), mac, nil
 }
 
 // IndexInPool returns whether or not a specific index is in the capacity of the pool
@@ -287,26 +279,17 @@ func (dp *Mysql) IndexInPool(index uint64) bool {
 func (dp *Mysql) FreeIPsRemaining() uint64 {
 	t := dp.DHCPPool.NewTiming()
 	defer dp.DHCPPool.timeTrack(t, "FreeIPsRemaining")
-	rows, err := dp.SQL.Query("SELECT COUNT(*) FROM dhcppool WHERE free = 1 AND pool_name = ?", dp.PoolName)
-	defer rows.Close()
+
+	var count uint64
+	err := dp.SQL.QueryRow(
+		"SELECT COUNT(*) FROM dhcppool WHERE free = 1 AND pool_name = ?",
+		dp.PoolName,
+	).Scan(&count)
 
 	if err != nil {
 		return 0
 	}
-	var (
-		Count int
-	)
-	for rows.Next() {
-		err := rows.Scan(&Count)
-		if err != nil {
-			return 0
-		}
-		if Count == 0 {
-			return 0
-		}
-		return uint64(Count)
-	}
-	return 0
+	return count
 }
 
 // Capacity returns the capacity of the pool
