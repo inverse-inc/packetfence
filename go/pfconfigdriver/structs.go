@@ -591,6 +591,7 @@ type PfConfAdvanced struct {
 	SsoOnDhcp                        string   `json:"sso_on_dhcp"`
 	Language                         string   `json:"language"`
 	StatsdListenPort                 string   `json:"statsd_listen_port"`
+	StatsdListenHost                 string   `json:"statsd_listen_host"`
 	SsoOnAccounting                  string   `json:"sso_on_accounting"`
 	LocationlogCloseOnAccountingStop string   `json:"locationlog_close_on_accounting_stop"`
 	PortalCspSecurityHeaders         string   `json:"portal_csp_security_headers"`
