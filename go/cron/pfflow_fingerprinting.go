@@ -38,9 +38,11 @@ func NewFingerPrintingJobOptions(config map[string]interface{}) *FingerPrintingJ
 	if err != nil {
 		panic(err)
 	}
+
 	options.DB = db
 	network_strings := interfaceArrayToStringArray(config["fingerprint_networks"].([]interface{}))
 	networks := []netip.Prefix{}
+
 	for _, n := range network_strings {
 		networks = append(networks, netip.MustParsePrefix(n))
 	}
