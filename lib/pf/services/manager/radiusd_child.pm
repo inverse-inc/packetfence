@@ -1088,7 +1088,7 @@ EOT
             $port = '1833';
         }
 
-	$tags{'pfacct'} = <<"EOT";
+    $tags{'pfacct'} = <<"EOT";
 # pfacct configuration
 
 realm pfacct {
