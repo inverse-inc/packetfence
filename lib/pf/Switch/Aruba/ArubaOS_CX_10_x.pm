@@ -387,7 +387,12 @@ sub acl_chewer {
         my $dest_port;
         if (defined($acl->{'destination'}->{'port'})) {
             $dest_port = $acl->{'destination'}->{'port'};
-            $dest_port =~ s/\w+\s+//;
+            if ($dest_port =~ /range\s+(.*)/) {
+                $dest_port = $1;
+                $dest_port =~ s/\s/-/;
+            } else {
+                $dest_port =~ s/\w+\s+//;
+            }
         }
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
             $dest = "any";
