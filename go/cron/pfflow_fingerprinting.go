@@ -116,63 +116,63 @@ func IsInNetwork(ctx context.Context, networks []netip.Prefix, ip netip.Addr) bo
 }
 
 func (f *FingerPrintingJob) skip(p *NodeInfo) bool {
-	log.LogDebugf(f.ctx, "Checking if NodeInfo should be skipped: %+v", p)
-	if p == nil || p.Mac.IsZero() || p.Ip.IsUnspecified() || !p.Ip.IsValid() || !IsInNetwork(f.ctx, f.networks, p.Ip) {
-		log.LogDebug(f.ctx, "NodeInfo is invalid or not in network, skipping")
+	log.LogDebugf(f.Ctx, "Checking if NodeInfo should be skipped: %+v", p)
+	if p == nil || p.Mac.IsZero() || p.Ip.IsUnspecified() || !p.Ip.IsValid() || !IsInNetwork(f.Ctx, f.networks, p.Ip) {
+		log.LogDebug(f.Ctx, "NodeInfo is invalid or not in network, skipping")
 		return true
 	}
 
 	if _, found := f.nodeCache.Get(p.Mac.String()); found {
-		log.LogDebugf(f.ctx, "NodeInfo with MAC %s is already in cache, skipping", p.Mac.String())
+		log.LogDebugf(f.Ctx, "NodeInfo with MAC %s is already in cache, skipping", p.Mac.String())
 		return true
 	}
 
 	if err := f.nodeCache.Add(p.Mac.String(), &struct{}{}, 0); err != nil {
-		log.LogDebugf(f.ctx, "Failed to add NodeInfo with MAC %s to cache: %s", p.Mac.String(), err)
+		log.LogDebugf(f.Ctx, "Failed to add NodeInfo with MAC %s to cache: %s", p.Mac.String(), err)
 		return true
 	}
 
-	log.LogDebugf(f.ctx, "NodeInfo with MAC %s is valid and not in cache, processing", p.Mac.String())
+	log.LogDebugf(f.Ctx, "NodeInfo with MAC %s is valid and not in cache, processing", p.Mac.String())
 	return false
 }
 
 func (f *FingerPrintingJob) handleFlow(pfflow *PfFlow) {
-	log.LogDebugf(f.ctx, "Handling flow: %+v", pfflow)
+	log.LogDebugf(f.Ctx, "Handling flow: %+v", pfflow)
 	srcNode, dstNode := f.getMacInfo(pfflow)
-	log.LogDebugf(f.ctx, "Source NodeInfo: %+v, Destination NodeInfo: %+v", srcNode, dstNode)
+	log.LogDebugf(f.Ctx, "Source NodeInfo: %+v, Destination NodeInfo: %+v", srcNode, dstNode)
 	f.handleNodeInfo(srcNode)
 	f.handleNodeInfo(dstNode)
 }
 
-func (f *FingerPrintingJob) fingerPrint(ctx context.Context, nodeInfo *NodeInfo) {
-	log.LogDebugf(ctx, "Sending fingerprint request for NodeInfo: %+v", nodeInfo)
-	client := jsonrpc2.NewClientFromConfig(ctx)
+func (f *FingerPrintingJob) fingerPrint(nodeInfo *NodeInfo) {
+	log.LogDebugf(f.Ctx, "Sending fingerprint request for NodeInfo: %+v", nodeInfo)
+	client := jsonrpc2.NewClientFromConfig(f.Ctx)
 	client.Notify(
-		ctx,
+		f.Ctx,
 		"fingerbank_process",
 		[]interface{}{nodeInfo.Mac.String()},
 	)
 }
 
 func (f *FingerPrintingJob) handleNodeInfo(nodeInfo *NodeInfo) {
-	log.LogDebugf(f.ctx, "Handling NodeInfo: %+v", nodeInfo)
+	log.LogDebugf(f.Ctx, "Handling NodeInfo: %+v", nodeInfo)
 	if !f.skip(nodeInfo) {
-		log.LogDebugf(f.ctx, "Adding NodeInfo to database and sending fingerprint request: %+v", nodeInfo)
+		log.LogDebugf(f.Ctx, "Adding NodeInfo to database and sending fingerprint request: %+v", nodeInfo)
 		f.addNode(nodeInfo)
-		f.fingerPrint(f.ctx, nodeInfo)
+		f.fingerPrint(nodeInfo)
 	} else {
-		log.LogDebugf(f.ctx, "NodeInfo skipped: %+v", nodeInfo)
+		log.LogDebugf(f.Ctx, "NodeInfo skipped: %+v", nodeInfo)
 	}
 }
 
 func (f *FingerPrintingJob) addNode(node *NodeInfo) {
-	log.LogDebugf(f.ctx, "Adding NodeInfo to database: %+v", node)
+	log.LogDebugf(f.Ctx, "Adding NodeInfo to database: %+v", node)
 	if _, err := f.db.Exec("INSERT IGNORE INTO node (mac, pid, last_seen, detect_date, status) VALUES (?, 'default', NOW(), NOW(), 'unreg')", node.Mac.String()); err != nil {
-		log.LogErrorf(f.ctx, "Error adding NodeInfo to node table: %s", err.Error())
+		log.LogErrorf(f.Ctx, "Error adding NodeInfo to node table: %s", err.Error())
 	}
 
 	if _, err := f.db.Exec("INSERT IGNORE INTO ip4log (mac, ip) VALUES (?, ?)", node.Mac.String(), node.Ip.String()); err != nil {
-		log.LogErrorf(f.ctx, "Error adding NodeInfo to ip4log table: %s", err.Error())
+		log.LogErrorf(f.Ctx, "Error adding NodeInfo to ip4log table: %s", err.Error())
 	}
 }
 
@@ -180,6 +180,7 @@ func SetupFingerPrintingJob(config map[string]interface{}) chan []*PfFlows {
 	fingerPrintingJobOnce.Do(func() {
 		options := NewFingerPrintingJobOptions(config)
 		if !options.Fingerprint {
+			log.LogDebugf(options.Ctx, "Fingerprinting is disabled, not starting fingerprint job")
 			return
 		}
 
@@ -192,42 +193,42 @@ func SetupFingerPrintingJob(config map[string]interface{}) chan []*PfFlows {
 }
 
 func (f *FingerPrintingJob) handleFlows(pfflows []*PfFlows) {
-	log.LogDebugf(f.ctx, "Handling flows: %+v", pfflows)
+	log.LogDebugf(f.Ctx, "Handling flows: %+v", pfflows)
 	for _, flows := range pfflows {
 		for _, flow := range *flows.Flows {
-			log.LogDebugf(f.ctx, "Processing flow: %+v", flow)
+			log.LogDebugf(f.Ctx, "Processing flow: %+v", flow)
 			f.handleFlow(&flow)
 		}
 	}
 }
 
 func (f *FingerPrintingJob) Run() {
-	log.LogDebug(f.ctx, "Starting FingerPrintingJob")
+	log.LogDebug(f.Ctx, "Starting FingerPrintingJob")
 	for {
 		select {
 		case <-f.stopChan:
-			log.LogDebug(f.ctx, "Stop signal received, draining fingerprintChan")
+			log.LogDebug(f.Ctx, "Stop signal received, draining fingerprintChan")
 			for pfflows := range f.fingerprintChan {
-				log.LogDebugf(f.ctx, "Draining flows: %+v", pfflows)
+				log.LogDebugf(f.Ctx, "Draining flows: %+v", pfflows)
 				f.handleFlows(pfflows)
 			}
 			close(f.stopChan)
-			log.LogDebug(f.ctx, "FingerPrintingJob stopped")
+			log.LogDebug(f.Ctx, "FingerPrintingJob stopped")
 			return
 		case pfflows, ok := <-f.fingerprintChan:
 			if !ok {
-				log.LogDebug(f.ctx, "fingerprintChan closed, exiting")
+				log.LogDebug(f.Ctx, "fingerprintChan closed, exiting")
 				return
 			}
-			log.LogDebugf(f.ctx, "Received flows from fingerprintChan: %+v", pfflows)
+			log.LogDebugf(f.Ctx, "Received flows from fingerprintChan: %+v", pfflows)
 			f.handleFlows(pfflows)
 		}
 	}
 }
 
 func (f *FingerPrintingJob) Stop() {
-	log.LogDebug(f.ctx, "Stopping FingerPrintingJob")
+	log.LogDebug(f.Ctx, "Stopping FingerPrintingJob")
 	f.stopChan <- struct{}{}
 	<-f.stopChan
-	log.LogDebug(f.ctx, "FingerPrintingJob stopped")
+	log.LogDebug(f.Ctx, "FingerPrintingJob stopped")
 }
