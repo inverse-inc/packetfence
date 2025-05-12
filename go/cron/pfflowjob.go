@@ -65,6 +65,7 @@ func defaultIntConfig(config map[string]interface{}, name string, defaultVal int
 func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
 	hosts := interfaceArrayToStringArray(config["kafka_brokers"].([]interface{}))
 	SetupKafka(config)
+
 	fingerbankChan := SetupFingerPrintingJob(config)
 	return &PfFlowJob{
 		Task:            SetupTask(config),
