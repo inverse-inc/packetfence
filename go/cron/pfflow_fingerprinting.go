@@ -141,13 +141,15 @@ func (f *FingerPrintingJob) skip(p *NodeInfo) bool {
 func (f *FingerPrintingJob) handleFlow(pfflow *PfFlow) {
 	log.LogDebugf(f.Ctx, "Handling flow: %+v", pfflow)
 	srcNode, dstNode := f.getMacInfo(pfflow)
-	log.LogDebugf(f.Ctx, "Source NodeInfo: %+v, Destination NodeInfo: %+v", srcNode, dstNode)
-	f.handleNodeInfo(srcNode)
-	f.handleNodeInfo(dstNode)
+	if srcNode != nil {
+		f.handleNodeInfo(srcNode)
+	} else if dstNode != nil {
+		f.handleNodeInfo(dstNode)
+	}
 }
 
 func (f *FingerPrintingJob) fingerPrint(nodeInfo *NodeInfo) {
-	log.LogDebugf(f.Ctx, "Sending fingerprint request for NodeInfo: %+v", nodeInfo)
+	log.LogDebugf(f.Ctx, "Sending fingerprint request for NodeInfo: MAC=%s, IP=%s", nodeInfo.Mac.String(), nodeInfo.Ip.String())
 	client := jsonrpc2.NewClientFromConfig(f.Ctx)
 	client.Notify(
 		f.Ctx,
@@ -157,18 +159,18 @@ func (f *FingerPrintingJob) fingerPrint(nodeInfo *NodeInfo) {
 }
 
 func (f *FingerPrintingJob) handleNodeInfo(nodeInfo *NodeInfo) {
-	log.LogDebugf(f.Ctx, "Handling NodeInfo: %+v", nodeInfo)
+	log.LogDebugf(f.Ctx, "Handling NodeInfo: MAC=%s, IP=%s", nodeInfo.Mac.String(), nodeInfo.Ip.String())
 	if !f.skip(nodeInfo) {
-		log.LogDebugf(f.Ctx, "Adding NodeInfo to database and sending fingerprint request: %+v", nodeInfo)
+		log.LogDebugf(f.Ctx, "Adding NodeInfo to database and sending fingerprint request: MAC=%s, IP=%s", nodeInfo.Mac.String(), nodeInfo.Ip.String())
 		f.addNode(nodeInfo)
 		f.fingerPrint(nodeInfo)
 	} else {
-		log.LogDebugf(f.Ctx, "NodeInfo skipped: %+v", nodeInfo)
+		log.LogDebugf(f.Ctx, "NodeInfo skipped: MAC=%s, IP=%s", nodeInfo.Mac.String(), nodeInfo.Ip.String())
 	}
 }
 
 func (f *FingerPrintingJob) addNode(node *NodeInfo) {
-	log.LogDebugf(f.Ctx, "Adding NodeInfo to database: %+v", node)
+	log.LogDebugf(f.Ctx, "Adding NodeInfo to database: MAC=%s, IP=%s", node.Mac.String(), node.Ip.String())
 	if _, err := f.db.Exec("INSERT IGNORE INTO node (mac, pid, last_seen, detect_date, status) VALUES (?, 'default', NOW(), NOW(), 'unreg')", node.Mac.String()); err != nil {
 		log.LogErrorf(f.Ctx, "Error adding NodeInfo to node table: %s", err.Error())
 	}
@@ -185,7 +187,7 @@ func SetupFingerPrintingJob(config map[string]interface{}) chan []*PfFlows {
 			log.LogDebugf(options.Ctx, "Fingerprinting is disabled, not starting fingerprint job")
 			return
 		}
-
+		log.LogDebugf(options.Ctx, "Fingerprinting is enabled, starting fingerprint job")
 		fingerprintChan = options.FingerprintChan
 		fb := NewFingerPrintingJob(options)
 		go fb.Run()
