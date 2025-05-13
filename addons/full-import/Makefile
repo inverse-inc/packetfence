@@ -5,11 +5,16 @@ SRC_ADDONS_DIR=$(shell dirname $(CURDIR))
 SRC_FULLIMPORT_DIR=$(SRC_ADDONS_DIR)/full-import
 SRC_FUNCTIONS_DIR=$(SRC_ADDONS_DIR)/functions
 EXPORT_FILES_LIST = 'export.sh find-extra-files.pl'
+EXPORTABLE_BACKUP_FILE = 'exportable-backup.sh'
+EXPORTABLE_BACKUP_FILE_DIR = /usr/local/pf/addons/
 
 install:
 	@echo "create directories"
 	install -d -m0755 $(DESTDIR)$(FULL_IMPORT_DIR)
 	install -d -m0755 $(DESTDIR)$(FUNCTIONS_DIR)
+
+        @echo "install exportable backup files"
+        install -v -m 0644 $(EXPORTABLE_BACKUP_FILE) -D $(DESTDIR)$(EXPORTABLE_BACKUP_FILE_DIR) ; \
 
 	@echo "install full import files"
 	for file in $(EXPORT_FILES_LIST); do \

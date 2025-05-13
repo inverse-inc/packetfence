@@ -42,6 +42,7 @@ This package should only be installed on releases before v11.
 %dir /usr/local/pf/addons/functions
 # add files in package **and** set permissions
 # we only add files install during install process
+%attr(0755, -, -)     /usr/local/pf/addons/exportable-backup.sh
 %attr(0755, -, -)     /usr/local/pf/addons/full-import/export.sh
 %attr(0755, -, -)     /usr/local/pf/addons/full-import/find-extra-files.pl
 %attr(0644, -, -)     /usr/local/pf/addons/functions/*.functions
