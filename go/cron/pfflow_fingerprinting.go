@@ -118,7 +118,7 @@ func IsInNetwork(ctx context.Context, networks []netip.Prefix, ip netip.Addr) bo
 }
 
 func (f *FingerPrintingJob) skip(p *NodeInfo) bool {
-	log.LogDebugf(f.Ctx, "Checking if NodeInfo should be skipped: %+v", p)
+	log.LogDebugf(f.Ctx, "Checking if NodeInfo should be skipped: MAC=%s, IP=%s", p.Mac.String(), p.Ip.String())
 	if p == nil || p.Mac.IsZero() || p.Ip.IsUnspecified() || !p.Ip.IsValid() || !IsInNetwork(f.Ctx, f.networks, p.Ip) {
 		log.LogDebug(f.Ctx, "NodeInfo is invalid or not in network, skipping")
 		return true
