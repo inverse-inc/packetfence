@@ -13,6 +13,6 @@ args="$args -v /usr/local/pf/conf/system_init_key:/usr/local/pf/conf/system_init
 args="$args -v /usr/local/pf/raddb:/usr/local/pf/raddb"
 args="$args -v /usr/share/freeradius:/usr/share/freeradius"
 args="$args -p 2056:2056/udp"
-args="$args -p $PFACCT_ADDRESS:1813/udp"
+args="$args $PFACCT_ADDRESS"
 
 run $name "$args"
