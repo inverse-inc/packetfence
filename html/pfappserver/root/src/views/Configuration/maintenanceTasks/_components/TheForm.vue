@@ -135,8 +135,8 @@
                                      namespace="process_switchranges"
                                      :column-label="$i18n.t('Process switchranges')"
                                      :text="$i18n.t('Whether or not a switch range should be expanded to process each of its IPs.')"
-                                     enabled-value="Y"
-                                     disabled-value="N"
+                                     enabled-value="enabled"
+                                     disabled-value="disabled"
     />
 
     <form-group-voip v-show="wants('voip')"
@@ -193,24 +193,24 @@
                      namespace="filter_events"
                      :column-label="$i18n.t('Filter Events')"
                      :text="$i18n.t('Filter Events.')"
-                     enabled-value="Y"
-                     disabled-value="N"
+                     enabled-value="enabled"
+                     disabled-value="disabled"
     />
 
     <form-group-heuristics v-show="wants('heuristics')"
                      namespace="heuristics"
                      :column-label="$i18n.t('Heuristics')"
                      :text="$i18n.t('Heuristics.')"
-                     enabled-value="1"
-                     disabled-value="0"
+                     enabled-value="enabled"
+                     disabled-value="disabled"
     />
 
     <form-group-fingerprint v-show="wants('fingerprint')"
                      namespace="fingerprint"
                      :column-label="$i18n.t('Enable Fingerprinting')"
                      :text="$i18n.t('Fingerprint.')"
-                     enabled-value="1"
-                     disabled-value="0"
+                     enabled-value="enabled"
+                     disabled-value="disabled"
     />
 
     <form-group-fingerprint-networks v-show="wants('fingerprint_networks')"
