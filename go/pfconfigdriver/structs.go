@@ -154,7 +154,7 @@ type PfConfServices struct {
 	HttpdDispatcher      string `json:"httpd_dispatcher"`
 	HttpdPortal          string `json:"httpd_portal"`
 	HttpdWebservices     string `json:"httpd_webservices"`
-	Iptables             string `json:"iptables"`
+	Firewalld            string `json:"firewalld"`
 	Keepalived           string `json:"keepalived"`
 	Netdata              string `json:"netdata"`
 	NetFlowAddress       string `json:"netflow_address"`
