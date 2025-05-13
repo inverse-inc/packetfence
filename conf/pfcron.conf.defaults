@@ -1166,17 +1166,17 @@ kafka_pass=
 # filter events
 #
 # Filter events
-filter_events=1
+filter_events=enabled
 #
 # heuristics
 #
 # flow aggregator heuristics
-heuristics=0
+heuristics=disabled
 #
 # fingerprint
 #
 # fingerprint pfflows
-fingerprint=0
+fingerprint=disabled
 #
 # fingerprint_cache_expiration
 #
