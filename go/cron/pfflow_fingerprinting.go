@@ -143,7 +143,8 @@ func (f *FingerPrintingJob) handleFlow(pfflow *PfFlow) {
 	srcNode, dstNode := f.getMacInfo(pfflow)
 	if srcNode != nil {
 		f.handleNodeInfo(srcNode)
-	} else if dstNode != nil {
+	}
+	if dstNode != nil {
 		f.handleNodeInfo(dstNode)
 	}
 }
