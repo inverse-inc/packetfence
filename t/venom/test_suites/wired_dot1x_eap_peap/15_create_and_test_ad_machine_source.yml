@@ -64,6 +64,8 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+    retry: 3
+    delay: 5
 
 - name: test_ad_machine_source
   steps:

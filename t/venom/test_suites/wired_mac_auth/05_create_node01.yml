@@ -41,6 +41,8 @@ testcases:
     vars:
       category_id:
         from: result.bodyjson.items.items0.category_id
+    retry: 6
+    delay: 10
 
 - name: create_node01
   steps:
@@ -63,3 +65,5 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+    retry: 6
+    delay: 10

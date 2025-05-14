@@ -21,6 +21,8 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+    retry: 6
+    delay: 10
 
 - name: create_eap_peap_roles_machine
   steps:
@@ -39,6 +41,8 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+    retry: 6
+    delay: 10
 
 - name: create_headless_device_role
   steps:
@@ -57,6 +61,8 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+    retry: 6
+    delay: 10
 
 - name: create_wired_dot1x_eap_tls_manual_role
   steps:
@@ -75,6 +81,8 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+    retry: 6
+    delay: 10
 
 - name: create_wired_dot1x_eap_tls_scep_role
   steps:
@@ -93,6 +101,8 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldBeIn 201
+    retry: 6
+    delay: 10
 
 - name: create_inline_l2_and_radius_first_role
   steps:
@@ -110,6 +120,8 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+    retry: 6
+    delay: 10
 
 - name: create_inline_l2_and_radius_second_role
   steps:
@@ -127,3 +139,5 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+    retry: 6
+    delay: 10
