@@ -96,7 +96,6 @@ use pf::SwitchSupports qw(
 );
 use pf::api::queue_cluster;
 use File::Find;
-use MIME::Base64;
 
 #
 # %TRAP_NORMALIZERS
