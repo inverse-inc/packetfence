@@ -23,6 +23,23 @@ testcases:
     assertions:
     - result.statuscode ShouldEqual 200
 
+- name: reset_iptables_rules
+  steps:
+  - type: exec
+    script: /usr/local/pf/addons/reset-iptables-rules-and-policies-in-venom-tests.sh
+
+- name: restart_collector
+  steps:
+  - type: systemctl_service_restart
+    service: packetfence-fingerbank-collector
+    time_to_sleep: 5
+
+- name: restart_firewalld
+  steps:
+  - type: systemctl_service_srestart
+    service: packetfence-firewalld
+    time_to_sleep: 20
+
 - name: ping_to_wan_should_work
   steps:
   - type: exec

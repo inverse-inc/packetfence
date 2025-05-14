@@ -27,6 +27,7 @@ testcases:
   steps:
   - type: systemctl_service_stop
     service: packetfence-firewalld
+    time_to_sleep: 20
 
   - type: exec
     script: iptables -A OUTPUT -d 8.8.8.8/32 -j ACCEPT
