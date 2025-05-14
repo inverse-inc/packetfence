@@ -32,7 +32,7 @@ has_field 'read_topic' => (
     tags => { help => 'The Kafka topic to read pfflows from' },
 );
 
-has_field 'send_topic' => (
+has_field 'write_topic' => (
     type => 'Text',
     default_method => \&default_field_method,
     tags => { help => 'The Kafka topic to write network events to' },
@@ -71,8 +71,8 @@ has_field 'kakfa_pass' => (
 
 has_field 'filter_events' => (
     type            => 'Toggle',
-    checked_value   => '1',
-    unchecked_value => '0',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
     default_method  => \&default_field_method,
     tags => {
         after_element   => \&help,
@@ -82,12 +82,41 @@ has_field 'filter_events' => (
 
 has_field 'heuristics' => (
     type            => 'Toggle',
-    checked_value   => '1',
-    unchecked_value => '0',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
     default_method  => \&default_field_method,
     tags => {
         after_element   => \&help,
         help            => "Heuristics",
+    },
+);
+
+has_field 'fingerprint' => (
+    type            => 'Toggle',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default_method  => \&default_field_method,
+    tags => {
+        after_element   => \&help,
+        help            => "Fingerprint nodes",
+    },
+);
+
+has_field 'fingerprint_cache_expiration' => (
+    type            => 'Duration',
+    default_method  => \&default_field_method,
+    tags => {
+        after_element   => \&help,
+        help            => "Fingerprint cache expiration",
+    },
+);
+
+has_field 'fingerprint_networks' => (
+    type => 'Text',
+    default_method  => \&default_field_method,
+    tags => {
+        after_element   => \&help,
+        help            => "Fingerprint networks",
     },
 );
 

@@ -38,7 +38,7 @@ func NewAggregator(o *AggregatorOptions) *Aggregator {
 type AggregatorOptions struct {
 	NetworkEventChan chan []*NetworkEvent
 	Timeout          time.Duration
-	Heuristics       int
+	Heuristics       bool
 	Db               *sql.DB
 }
 
@@ -54,7 +54,7 @@ type Aggregator struct {
 	networkEventChan chan []*NetworkEvent
 	backlog          int
 	timeout          time.Duration
-	Heuristics       int
+	Heuristics       bool
 	db               *sql.DB
 }
 
@@ -441,7 +441,7 @@ loop:
 
 					key := f.Key(&pfflows.Header)
 					val := a.events[key]
-					if a.Heuristics > 0 {
+					if a.Heuristics {
 						f.Heuristics()
 					}
 
