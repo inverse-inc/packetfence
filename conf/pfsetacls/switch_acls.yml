@@ -33,6 +33,20 @@
         src: "{{ acl_config }}"
       when: ansible_network_os == 'arubanetworks.aoscx.aoscx'
 
+    - name: Parse the Arista acls configuration file
+      arista.eos.eos_acls:
+        running_config: "{{ lookup('file', acl_config ) }}"
+        state: parsed
+      register: aristaacls
+      when: ansible_network_os == 'arista.eos.eos'
+
+    - name: Load new acl into Arista Switch
+      arista.eos.eos_acls:
+        config: "{{ aristaacls.parsed }}"[% IF delete >= 1 %]
+        state: deleted[% ELSE %]
+        state: replaced[% END %]
+      when: ansible_network_os == 'arista.eos.eos'
+
 [% FOREACH role IN interfaces_delete.keys %]
 [% FOREACH interface IN interfaces_delete.$role %]
     - name: remove acl on interface
