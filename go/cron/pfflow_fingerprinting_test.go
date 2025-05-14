@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"context"
 	"net/netip"
 	"testing"
 	"time"
@@ -76,7 +77,8 @@ func TestFingerPrintingJob(t *testing.T) {
 		Networks:        []netip.Prefix{
 			//			netip.MustParsePrefix("1.1.1.0/24"),
 		},
-		DB: db,
+		Ctx: context.Background(),
+		DB:  db,
 	}
 
 	fb := NewFingerPrintingJob(&options)
