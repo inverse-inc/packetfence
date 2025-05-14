@@ -36,8 +36,7 @@ export default (props) => {
     name: yup.string()
       .nullable()
       .required(i18n.t('Common name required.'))
-      .pkiProfileNameNotExistsExcept((!isNew && !isClone) ? name : undefined, i18n.t('Common name exists.'))
-      .isCommonNameOrFQDN(i18n.t('Invalid Common name.')),
+      .pkiProfileNameNotExistsExcept((!isNew && !isClone) ? name : undefined, i18n.t('Common name exists.')),
 
     mail: yup.string()
       .nullable()
