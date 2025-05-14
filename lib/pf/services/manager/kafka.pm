@@ -81,7 +81,7 @@ sub env_vars {
 sub isManaged {
     my ($self) = @_;
     my $hostname = hostname();
-    ($self->SUPER::isManaged && exists $ConfigKafka{$hostname}) ? $TRUE : $FALSE
+    ($self->SUPER::isManaged && (exists $ConfigKafka{$hostname} || exists $ConfigKafka{'%hostname%'})) ? $TRUE : $FALSE
 }
 
 =head1 AUTHOR
