@@ -19,3 +19,13 @@ steps:
   delay: 3
   assertions:
     - result.pf_api_service_status_json.alive ShouldEqual 1
+
+# Firewalld can take time to prepare rules
+# so, also one of the lastest vital services to start
+- type: pf_api_service_status
+  service: "firewalld"
+  retry: 600
+  delay: 3
+  assertions:
+    - result.pf_api_service_status_json.alive ShouldEqual 1
+
