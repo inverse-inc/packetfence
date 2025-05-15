@@ -39,4 +39,5 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.items.items0.online ShouldEqual off
-  
+    retry: 10
+    delay: 1
