@@ -27,6 +27,8 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Updated systemd for pf"
+    retry: 6
+    delay: 10
 
 - name: restart_haproxy_admin_service
   steps:
