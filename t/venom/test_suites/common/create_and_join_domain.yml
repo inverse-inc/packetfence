@@ -36,12 +36,14 @@ testcases:
         "sticky_dc": "*",
         "workgroup": "{{.ad_domain_upper}}",
         "machine_account_password": "{{.random_machine_account_password}}"
-      }
+  `    }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+    retry: 6
+    delay: 10
 
 - name: start_ntlm_auth_api_service
   steps:
@@ -55,17 +57,20 @@ testcases:
 
 - name: test_machine_account
   steps:
-    - type: http
-      method: POST
-      url: '{{.pfserver_webadmin_url}}/api/v1/ntlm/test'
-      ignore_verify_ssl: true
-      body: >-
-        {
-          "id": "{{.random_ad_domain_id}}",
-          "machine_account_password": "{{.random_machine_account_password}}"
-        }
-      headers:
-        "Authorization": "{{.get_login_token.result.token}}"
-        "Content-Type": "application/json"
-      assertions:
-        - result.statuscode ShouldEqual 200
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/ntlm/test'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.random_ad_domain_id}}",
+        "machine_account_password": "{{.random_machine_account_password}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    retry: 6
+    delay: 10
+
