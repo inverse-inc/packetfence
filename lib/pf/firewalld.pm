@@ -246,32 +246,34 @@ sub fd_create_all_zones {
   my $logger = get_logger();
   $logger->info( "Create all zones." );
   foreach my $tint ( @listen_ints ) {
+    my $zone = $tint =~ s/\./-/gr;
     if ( defined $name_files && exists $name_files->{$tint} ) {
       $logger->error( "Network Interface $tint  is handle by configuration files" );
     } else {
-      util_firewalld_job( " --permanent --delete-zone=$tint" );
-      util_firewalld_job( " --permanent --new-zone=$tint" );
-      util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
-      util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
+      util_firewalld_job( " --permanent --delete-zone=$zone" );
+      util_firewalld_job( " --permanent --new-zone=$zone" );
+      util_firewalld_job( " --permanent --zone=$zone --set-target=DROP");
+      util_firewalld_job( " --permanent --zone=$zone --change-interface=$tint");
       util_reload_firewalld();
     }
-    util_zone_set_forward( $tint , "remove" );
-    util_zone_set_masquerade( $tint , "add" );
-    util_direct_rule(" ipv4 filter INPUT 0 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
+    util_zone_set_forward( $zone , "remove" );
+    util_zone_set_masquerade( $zone , "add" );
+    util_direct_rule(" ipv4 filter INPUT 0 -i $zone -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      util_firewalld_job( " --permanent --delete-zone=$tint" );
-      util_firewalld_job( " --permanent --new-zone=$tint" );
-      util_firewalld_job( " --permanent --zone=$tint --set-target=DROP");
-      util_firewalld_job( " --permanent --zone=$tint --change-interface=$tint");
-      util_set_default_zone( $tint );
-      util_direct_rule( " ipv4 filter INPUT 0 -i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT ", "add" );
+      my $zone = $tint =~ s/\./-/gr;
+      util_firewalld_job( " --permanent --delete-zone=$zone" );
+      util_firewalld_job( " --permanent --new-zone=$zone" );
+      util_firewalld_job( " --permanent --zone=$zone --set-target=DROP");
+      util_firewalld_job( " --permanent --zone=$zone --change-interface=$tint");
+      util_set_default_zone( $zone );
+      util_direct_rule( " ipv4 filter INPUT 0 -i $zone -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT ", "add" );
       my $web_admin_port = $Config{'ports'}{'admin'};
-      util_direct_rule( " ipv4 filter INPUT 0 -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT ", "add" );
-      util_zone_set_forward( $tint , "add" );
-      util_zone_set_masquerade( $tint, "add" );
+      util_direct_rule( " ipv4 filter INPUT 0 -i $zone -p tcp -m tcp --dport $web_admin_port -j ACCEPT ", "add" );
+      util_zone_set_forward( $zone , "add" );
+      util_zone_set_masquerade( $zone, "add" );
     }
   }
 }
