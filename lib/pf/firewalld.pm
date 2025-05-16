@@ -247,6 +247,7 @@ sub fd_create_all_zones {
   $logger->info( "Create all zones." );
   foreach my $tint ( @listen_ints ) {
     my $zone = $tint =~ s/\./-/gr;
+    $zone =~ s/:/-/g;
     if ( defined $name_files && exists $name_files->{$tint} ) {
       $logger->error( "Network Interface $tint  is handle by configuration files" );
     } else {
@@ -264,6 +265,7 @@ sub fd_create_all_zones {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
       my $zone = $tint =~ s/\./-/gr;
+      $zone =~ s/:/-/g;
       util_firewalld_job( " --permanent --delete-zone=$zone" );
       util_firewalld_job( " --permanent --new-zone=$zone" );
       util_firewalld_job( " --permanent --zone=$zone --set-target=DROP");
