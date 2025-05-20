@@ -331,16 +331,16 @@ index 1d0091384e..ce63c4b8e0 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-netdata.service b/conf/systemd/packetfence-netdata.service
-index 02497ee946..ac90b9c71a 100644
+index 8280daf77f..f88b8bc3e7 100644
 --- a/conf/systemd/packetfence-netdata.service
 +++ b/conf/systemd/packetfence-netdata.service
 @@ -24,8 +24,8 @@ Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/netdata-systemd-notify.pid
  
  # Firewalld
--ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
 -ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("remove")'
-+ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("add")'
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ '-Mpf::firewalld' '-Mpf::config' -e 'pf::firewalld::fd_netdata_rules("remove")'
  
  [Install]
