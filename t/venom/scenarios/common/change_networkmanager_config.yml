@@ -1,0 +1,31 @@
+---
+- hosts: pfservers
+  name: REmove interface management for NetworkManager
+  become: True
+
+  tasks:
+    - name: Check if network-scripts directory exists
+      stat:
+        path: /etc/sysconfig/network-scripts/
+      register: network_scripts_dir
+
+    - name: Add unmanaged-devices configuration
+      ansible.builtin.blockinfile:
+        path: /etc/NetworkManager/conf.d/99-unmanaged-devices.conf
+        block: |
+          [keyfile]
+          unmanaged-devices=interface-name:eth1;interface-name:eth2;interface-name:eth3;interface-name:eth4;interface-name:docker0
+        create: yes
+      when: network_scripts_dir.stat.exists
+
+    - name: Restart NetworkManager service
+      service:
+        name: NetworkManager
+        state: restarted
+      when: network_scripts_dir.stat.exists
+
+    - name: Restart NetworkManager service
+      service:
+        name: NetworkManager
+        state: reloaded
+      when: network_scripts_dir.stat.exists

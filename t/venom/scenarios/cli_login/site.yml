@@ -9,4 +9,6 @@
 # Add extra configuration before running venom tests
 - import_playbook: playbooks/configure.yml
 
+- import_playbook: ../common/change_networkmanager_config.yml
+
 - import_playbook: playbooks/run_tests.yml

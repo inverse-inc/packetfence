@@ -8,4 +8,6 @@
 - import_playbook: playbooks/localdev.yml
   when: lookup("env", "CI") != 'true'
 
+- import_playbook: ../common/change_networkmanager_config.yml
+
 - import_playbook: playbooks/run_tests.yml

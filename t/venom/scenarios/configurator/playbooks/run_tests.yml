@@ -8,45 +8,6 @@
       - configurator
 
   tasks:
-    - name: Check if network-scripts directory exists
-      stat:
-        path: /etc/sysconfig/network-scripts/
-      register: network_scripts_dir
-
-    - name: Find all interface config files
-      find:
-        paths: /etc/sysconfig/network-scripts/
-        patterns: "ifcfg-*"
-        excludes: "ifcfg-lo,ifcfg-eth0"
-      register: network_configs
-      when: network_scripts_dir.stat.exists
-
-    - name: Standardize network config
-      replace:
-        path: "/etc/sysconfig/network-scripts/{{ item.path | basename }}"
-        regexp: '^(NM_CONTROLLED|ZONE)=.*$'
-        replace: ''
-      with_items: "{{ network_configs.files }}"
-      when: network_scripts_dir.stat.exists
-
-    - name: Ensure proper network configuration
-      blockinfile:
-        path: "/etc/sysconfig/network-scripts/{{ item.path | basename }}"
-        block: |
-          NM_CONTROLLED=no
-          ZONE={{ (item.path | basename).replace('ifcfg-', '') }}
-        marker: "# {mark} ANSIBLE MANAGED NETWORK CONFIG"
-        insertafter: "^DEVICE="
-        backup: yes
-      with_items: "{{ network_configs.files }}"
-      when: network_scripts_dir.stat.exists
-
-    - name: Restart network services
-      service:
-        name: network
-        state: restarted
-      when: ansible_os_family == 'RedHat' and ansible_distribution_major_version|int < 8
-
     - name: Run Venom testsuites
       command: '{{ venom_dir }}/venom-wrapper.sh {{ venom_dir }}/test_suites/{{ item }}'
       args:
