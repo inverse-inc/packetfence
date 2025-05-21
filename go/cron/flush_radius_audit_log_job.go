@@ -76,9 +76,8 @@ func (j *FlushRadiusAuditLogJob) Run() {
 				}
 				jsonStr = string(s)
 			}
-			jsonStr = strings.Replace(jsonStr, "\\", "", -1)
-			err := json.Unmarshal([]byte(jsonStr), &entry)
 
+			err := json.Unmarshal([]byte(jsonStr), &entry)
 			if err != nil {
 				log.LogError(ctx, fmt.Sprintf("%s error running: %s jsonStr '%s'", j.Name(), err.Error(), jsonStr))
 				continue
