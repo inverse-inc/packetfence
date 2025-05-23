@@ -121,14 +121,14 @@ configurator_deb12:
 dot1x_eap_peap_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01 node03 wireless01" \
+	INT_TEST_VM_NAMES="node01 switch01 ad wireless01" \
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
 
 dot1x_eap_peap_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01 node03 wireless01" \
+	INT_TEST_VM_NAMES="node01 switch01 ad wireless01" \
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
 
@@ -149,14 +149,14 @@ mac_auth_deb12:
 dot1x_eap_tls_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01" \
+	INT_TEST_VM_NAMES="node01 switch01 ad" \
 	SCENARIOS_TO_RUN=dot1x_eap_tls \
 	$(MAKE_TARGET)
 
 dot1x_eap_tls_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01" \
+	INT_TEST_VM_NAMES="node01 switch01 ad" \
 	SCENARIOS_TO_RUN=dot1x_eap_tls \
 	$(MAKE_TARGET)
 
@@ -175,7 +175,7 @@ inline_el8:
 fingerbank_invalid_db_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
+	INT_TEST_VM_NAMES="node01 switch01 wireless01 ad" \
 	SCENARIOS_TO_RUN=fingerbank_invalid_db \
 	$(MAKE_TARGET)
 
