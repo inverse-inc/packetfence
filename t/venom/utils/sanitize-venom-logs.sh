@@ -11,7 +11,6 @@ venom_result_dir=${venom_root}/results
 venom_result_archive=${venom_root}/results-$(hostname).tar.gz
 venom_local_vars_file=${venom_root}/vars/local.yml
 PSONO_CI_API_KEY_ID=${PSONO_CI_API_KEY_ID:-}
-MIN_SIZE_MB=10
 
 # https://stackoverflow.com/a/2705678
 escape_secret () {
@@ -28,13 +27,6 @@ create_archive() {
 	 all_path="${all_path} ${pf_logs_root}"
     fi
     tar c -zf ${venom_result_archive} $all_path
-
-    file_size=$(stat -c%s "${venom_result_archive}")
-    file_size_mb=$((file_size / 1048576))
-    if [ "${file_size_mb}" -gt "${MIN_SIZE_MB}" ]; then
-        echo "The archive is bigger than ${MIN_SIZE_MB} MB. Only Venom results will be used"
-        tar c -zf ${venom_result_archive} ${result_dir}
-    fi
 }
 
 check_psono_vars() {
