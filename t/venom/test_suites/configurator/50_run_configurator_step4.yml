@@ -43,6 +43,14 @@ testcases:
     service: 'packetfence-pfperl-api'
     time_to_sleep: 10
 
+- name: check_if_mgnt_interface_is_set
+  steps:
+  - type: exec
+    script: /bin/bash -c 'grep -oP "\047Tint\047\s*=>\s*\047\K[^\047]+" <<< "$(/usr/local/pf/bin/pfcmd pfconfig show interfaces::management_network)"'
+    assertions:
+    - result..code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "eth1"
+
 - name: start_pf_services
   steps:
   - type: pf_api_service_pf_start_async
