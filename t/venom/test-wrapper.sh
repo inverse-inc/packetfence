@@ -255,7 +255,7 @@ destroy_other_vm() {
 }
 
 destroy_paused_vms() {
-    log_subsection "Visrh Destroy Paused VMs on the runner"
+    log_subsection "Virsh Destroy Paused VMs on the runner"
     for vm in $(virsh list --name --state-paused); do
         echo "Destroying and undefining VM: $vm"
         virsh destroy "$vm" && virsh undefine "$vm" --remove-all-storage || true
