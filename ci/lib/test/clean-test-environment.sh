@@ -31,35 +31,37 @@ configure_and_check() {
     if [ -z "$JOB_STATUS" ]; then
         echo "Passed tests"
         if [ "$KEEP_VMS" = "yes" ]; then
-            echo "Keeping VM according to 'KEEP_VMS' value"
-            halt_force
+            echo "\nKeeping VM according to 'KEEP_VMS' value\n"
+            teardown
         else
-            echo "Cleaning VM according to 'KEEP_VMS' value"
-            MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME} || halt_force
+            echo "\nCleaning VM according to 'KEEP_VMS' value\n"
+            teardown_clean
         fi
 	# even if tests passed, we want to exit with return code of last command
 	# to detect a potential failure during cleanup
 	# if there is no failure, job must be marked as passed
 	exit $?
     else
-        echo "Failed tests"
+        echo "\nFailed tests\n"
         # We don't want other jobs to be canceled when running a manual pipeline
         if [ "$CI_PIPELINE_SOURCE" = "schedule" ]; then
-            echo "Cancelling jobs not started and then teardown VM"
+            echo "\nCancelling jobs not started and then teardown VM\n"
             ${PF_SRC_DIR}/ci/lib/test/cancel-pending-jobs.sh
-        else
-            echo "Teardown VM"
         fi
-        halt_force
+        echo "\nTeardown VMs\n"
+        teardown_clean
         exit $JOB_STATUS
     fi
 }
 
-halt_force() {
+teardown() {
     MAKE_TARGET=teardown make -e -C ${TEST_DIR} ${CI_JOB_NAME}
 }
 
-
+teardown_clean() {
+    teardown
+    MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+}
 
 log_section "Configure and check"
 configure_and_check
