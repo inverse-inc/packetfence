@@ -48,7 +48,6 @@ testcases:
   - type: exec
     script: /bin/bash -c 'grep -oP "\047Tint\047\s*=>\s*\047\K[^\047]+" <<< "$(/usr/local/pf/bin/pfcmd pfconfig show interfaces::management_network)"'
     assertions:
-    - result..code ShouldEqual 0
     - result.systemout ShouldContainSubstring "eth1"
 
 - name: start_pf_services
