@@ -44,15 +44,33 @@ sub remove { return; }
 
 =head2 cleanupAfterRead
 
-Clean up settings data
+Clean up realm data
 
 =cut
 
 sub cleanupAfterRead {
-    my ($self, $id, $data) = @_;
-    if($data->{additional_env}) {
-        $data->{additional_env} = join("\n", split(/\s*,\s*/, $data->{additional_env}));
+    my ($self, $id, $item) = @_;
+    $self->join_line($item, $self->_fields_expanded);
+}
+
+sub join_line {
+    my ($self, $item, @fields) = @_;
+    for my $f (@fields) {
+        if (exists $item->{$f}) {
+            my $val = $item->{$f};
+            if (ref($val) eq 'ARRAY') {
+                $item->{$f} = join("\n", @$val);
+            }
+        }
     }
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(additional_env);
 }
 
 =head2 cleanupBeforeCommit
@@ -63,9 +81,6 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $data) = @_;
-    if($data->{additional_env}) {
-        $data->{additional_env} = join(",", split("\n", $data->{additional_env}));
-    }
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
