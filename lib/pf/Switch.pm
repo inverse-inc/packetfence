@@ -96,6 +96,7 @@ use pf::SwitchSupports qw(
 );
 use pf::api::queue_cluster;
 use File::Find;
+use Digest::SHA qw(sha512_hex);
 
 #
 # %TRAP_NORMALIZERS
@@ -3446,7 +3447,14 @@ Create a radius session id.
 sub setRadiusSession {
     my($self, $args) = @_;
     my $mac = $args->{'mac'};
-    my $session_id = ( exists($args->{'id_session'}) ? $args->{'id_session'} : generate_session_id(6) );
+    my $session_id;
+    if (exists($args->{'id_session'})) {
+        $session_id = $args->{'id_session'};
+    } else {
+        my $acl_part = $args->{acl} ? join(".", map { ref eq 'ARRAY' ? @$_ : $_ } @{$args->{acl}}) : "";
+        my $stringToHash = join('.', grep { $_ ne "" } ($mac, $args->{'switch'}->{'_id'}, $acl_part));
+        $session_id = substr(sha512_hex($stringToHash), 0, 6);
+    }
     my $chi = $self->radius_cache_distributed;
     $chi->set($session_id,{
         client_mac => $mac,
