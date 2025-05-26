@@ -4,12 +4,28 @@
   become: True
   gather_facts: False
   
-  collections:
-    - inverse_inc.packetfence
-
   pre_tasks:
   - name: wait for SSH available (after reboot) before provisioning
     wait_for_connection:
 
-  roles:
-    - role: wpasupplicant
+  tasks:
+  # tasks file for wpasupplicant
+  - name: ensure wpasupplicant installed
+    apt:
+      name: '{{ wpasupplicant__pkg_name }}'
+      state: present
+      update_cache: '{{ wpasupplicant__pkg_update_cache }}'
+  
+  - name: Stop wpasupplicant daemon
+    service:
+      name: '{{ wpasupplicant__service }}'
+      state: "stopped"
+
+  - name: Disable wpasupplicant daemon
+    service:
+      name: '{{ wpasupplicant__service }}'
+      enabled: 'false'
+
+  - name: deploy wpasupplicant config files
+    include_tasks: deploy_configs.yml
+    loop: '{{ wpasupplicant__configs }}'
