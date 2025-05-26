@@ -194,14 +194,6 @@ teardown() {
 }
 
 ansible_teardown() {
-    if unconfigure; then
-        echo "Ansible teardown succeed"
-    else
-        echo "Ansible teardown failed"
-    fi
-}
-
-ansible_teardown() {
     log_subsection "Ansible teardown (RHEL8 Unregister and Get Logs on all VM)"
     if [ -n "${ANSIBLE_VM_LIST}" ]; then
         ( cd $VAGRANT_DIR ; \
