@@ -108,12 +108,12 @@ run_ansible_galaxy() {
 run() {
     check_free_space
     log_section "Tests"
-    start_and_provision_pf_vm ${PF_VM_NAMES}
     if [ -n "${INT_TEST_VM_NAMES}" ]; then
         start_and_provision_other_vm ${INT_TEST_VM_NAMES}
     else
         log_subsection "No additional VM to start and provision"
     fi
+    start_and_provision_pf_vm ${PF_VM_NAMES}
     run_tests
 }
 
