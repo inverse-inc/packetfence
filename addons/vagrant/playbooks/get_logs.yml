@@ -24,10 +24,15 @@
       # to make Psono variables available
       environment: '{{ inventory__group_environment | d({}) }}'
 
+    - name: Check if source directory exists
+      stat:
+        path: '{{ venom_dir }}'
+      register: venom_dir_stat
+
     # Store archive into result_dir/results/results-$(hostname).tar.gz
     - name: Get logs on runner
-      fetch:
+      copy:
         src: '{{ venom_dir }}/results-{{ ansible_fqdn }}.tar.gz'
         dest: '{{ result_dir }}/'
-        flat: True
-      failed_when: false
+        remote_src: no  # Forces local copy
+      when: result_file.stat.exists

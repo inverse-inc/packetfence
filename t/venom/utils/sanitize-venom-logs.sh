@@ -5,6 +5,7 @@ set -o nounset -o pipefail -o errexit
 # found in Venom results by REDACTED
 # Create an archive
 
+pf_logs_root=/usr/local/pf/logs
 venom_root=/usr/local/pf/t/venom
 venom_result_dir=${venom_root}/results
 venom_result_archive=${venom_root}/results-$(hostname).tar.gz
@@ -14,13 +15,18 @@ PSONO_CI_API_KEY_ID=${PSONO_CI_API_KEY_ID:-}
 # https://stackoverflow.com/a/2705678
 escape_secret () {
     local secret=$1
-    printf '%s\n' "$secret" | sed -e 's/[]\/$*.^[]/\\&/g'
+    printf '%s\n' "${secret}" | sed -e 's/[]\/$*.^[]/\\&/g'
 }
 
 # to simplify export of logs later
 create_archive() {
     local result_dir=$1
-    tar c -zf ${venom_result_archive} $result_dir
+    all_path="${result_dir}"
+    if [[ -d ${pf_logs_root} ]]; then
+         # add pf logs if available
+	 all_path="${all_path} ${pf_logs_root}"
+    fi
+    tar c -zf "${venom_result_archive}" "${all_path}"
 }
 
 check_psono_vars() {
@@ -48,6 +54,7 @@ if check_psono_vars; then
 else
     echo "No secrets to remove"
 fi
+
 if [[ -d ${venom_result_dir} ]] || [[ -f ${venom_result_dir} ]]; then
     create_archive ${venom_result_dir}
 fi

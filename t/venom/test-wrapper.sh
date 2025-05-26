@@ -155,7 +155,6 @@ start_and_provision_pf_vm() {
     for vm in ${vm_names}; do
         start_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
     done
-
 }
 
 start_and_provision_other_vm() {
@@ -188,16 +187,10 @@ run_tests() {
     done
 }
 
-unconfigure() {
-    log_subsection "Unconfigure virtual machines"
-    # when we call "make halt" without options (localdev)
-    # no VM are provided
-    if [ -n "${ANSIBLE_VM_LIST}" ]; then
-        ( cd $VAGRANT_DIR ; \
-          ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST )
-    else
-        echo "No VM detected, nothing to unconfigure"
-    fi
+teardown() {
+    log_section "Teardown"
+    ansible_teardown
+    delete_ansible_files
 }
 
 ansible_teardown() {
@@ -208,36 +201,14 @@ ansible_teardown() {
     fi
 }
 
-halt() {
-    # work as try/catch to continue even if an error has been detected
-    # We always want VM to be halted even if Ansible failed
-    local force=${1:-}
-    if [ -z "$force" ]; then
-        ansible_teardown
+ansible_teardown() {
+    log_subsection "Ansible teardown (RHEL8 Unregister and Get Logs on all VM)"
+    if [ -n "${ANSIBLE_VM_LIST}" ]; then
+        ( cd $VAGRANT_DIR ; \
+          ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST )
     else
-	echo "Halt force detected: only halting VM"
+        echo "No VM detected, nothing to unconfigure"
     fi
-    log_subsection "Halt virtual machine(s)"
-    halt_pf_vm
-    halt_other_vm
-}
-
-halt_pf_vm() {
-   ( cd $VAGRANT_DIR ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant halt -f )
-}
-
-halt_other_vm() {
-    ( cd $VAGRANT_DIR ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant halt -f )
-}
-
-teardown() {
-    log_section "Teardown"
-    #halt
-    ansible_teardown
-    destroy
-    delete_ansible_files
 }
 
 delete_ansible_files() {
@@ -249,25 +220,28 @@ delete_ansible_files() {
 }
 
 destroy() {
-    log_subsection "Destroy virtual machine(s)"
+    log_section "Destroy virtual machines"
+    resume_paused_vms
+    destroy_pf_vm
+    destroy_other_vm
+    delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
+    delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}
+    destroy_paused_vms
+}
 
-    if [ "$DESTROY_ALL" = "yes" ]; then
-        echo "Destroy all VM and clean all directories"
-        destroy_pf_vm
-        destroy_other_vm
-        delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
-        delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}
-    else
-        echo "Destroy all VM and clean only PF"
-        destroy_pf_vm
-        delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
-	destroy_other_vm
-    fi
+# try to restart paused vms
+resume_paused_vms() {
+    log_subsection "Resuming paused VMs"
+    for vm in $(virsh list --name --state-paused); do
+        echo "Resuming VM: $vm"
+        virsh resume "$vm" || true
+    done
 }
 
 # using "|| true" as a workaround to unusual behavior
 # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
 destroy_pf_vm() {
+    log_subsection "Vagrant Destroy PF"
     ( cd $VAGRANT_DIR ; \
       VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant destroy -f || true )
 }
@@ -275,20 +249,33 @@ destroy_pf_vm() {
 # using "|| true" as a workaround to unusual behavior
 # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
 destroy_other_vm() {
+    log_subsection "Vagrant Destroy other VMs"
     ( cd $VAGRANT_DIR ; \
       VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant destroy -f || true )
 }
 
+destroy_paused_vms() {
+    log_subsection "Virsh Destroy Paused VMs on the runner"
+    for vm in $(virsh list --name --state-paused); do
+        echo "Destroying and undefining VM: $vm"
+        virsh destroy "$vm" && virsh undefine "$vm" --remove-all-storage || true
+    done
+}
+
+destroy_all_vms() {
+    log_subsection "Visrh Destroy ALL VMs on the runner"
+    for vm in $(virsh list --name); do
+        echo "Destroying and undefining VM: $vm"
+        virsh destroy "$vm" && virsh undefine "$vm" --remove-all-storage || true
+    done
+}
 
 configure_and_check
 
 case $1 in
     run) run ;;
     run_tests) run_tests ;;
-    halt) halt ;;
-    halt_force) halt force ;;
-    delete) delete_ansible_files ;;
+    destroy) destroy ;;
     teardown) teardown ;;
     *) die "Wrong argument"
-                                              
 esac

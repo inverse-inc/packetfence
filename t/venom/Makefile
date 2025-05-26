@@ -49,6 +49,7 @@ run_tests:
 	./test-wrapper.sh run_tests
 
 halt: halt_pf clean_cache
+
 halt_force: halt_pf_force clean_cache
 
 halt_pf:
@@ -66,6 +67,7 @@ halt_pf_force:
 	./test-wrapper.sh halt_force
 
 teardown: teardown_pf clean_cache
+
 teardown_pf:
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
 	CLUSTER_NAME="$(CLUSTER_NAME)" \
@@ -73,11 +75,10 @@ teardown_pf:
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	./test-wrapper.sh teardown
 
-clean: clean_pf clean_cache
+clean: clean_runner clean_cache
 
-clean_pf:
-	RESULT_DIR=$(RESULT_DIR) \
-	./test-wrapper.sh teardown
+clean_runner:
+	./test-wrapper.sh destroy
 
 clean_cache:
 	sudo /bin/sync; echo 1 | sudo /usr/bin/tee /proc/sys/vm/drop_caches
@@ -222,9 +223,9 @@ inline_l2_and_radius_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01 node03" \
-
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
+
 inline_l2_and_radius_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
