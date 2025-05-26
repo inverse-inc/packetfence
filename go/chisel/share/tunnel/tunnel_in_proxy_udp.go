@@ -111,7 +111,7 @@ func (u *udpListener) runInbound(ctx context.Context) error {
 			return u.Errorf("read error: %w", err)
 		}
 		//upsert ssh channel
-		uc, err := u.getUDPChan(ctx)
+		uc, err := u.getUDPChan(ctx, false)
 		if err != nil {
 			if strings.HasSuffix(err.Error(), "EOF") {
 				continue
@@ -136,7 +136,7 @@ func (u *udpListener) runInbound(ctx context.Context) error {
 func (u *udpListener) runOutbound(ctx context.Context) error {
 	for !isDone(ctx) {
 		//upsert ssh channel
-		uc, err := u.getUDPChan(ctx)
+		uc, err := u.getUDPChan(ctx, false)
 		if err != nil {
 			if strings.HasSuffix(err.Error(), "EOF") {
 				continue
@@ -147,6 +147,23 @@ func (u *udpListener) runOutbound(ctx context.Context) error {
 		p := udpPacket{}
 		if err := uc.decode(&p); err == io.EOF {
 			u.Infof("ssh disconnected,")
+			//if EOF, then the ssh connection was closed
+			//we need to get a new channel
+			//this will also close the old channel
+			u.Debugf("reconnecting outbound udp channel")
+			//close the old channel
+			if uc.c != nil {
+				uc.c.Close()
+			}
+			//get a new channel
+			//this will block until a new channel is available
+			//if the ssh connection is still alive
+			//if the ssh connection is dead, then this will return an error
+			//and we will retry the next time around
+			//this will also reset the outbound channel
+			//so we can reuse the same udpChannel struct
+
+			uc, err = u.getUDPChan(ctx, true)
 			//outbound ssh disconnected, get new connection...
 			continue
 		} else if err != nil {
@@ -167,11 +184,11 @@ func (u *udpListener) runOutbound(ctx context.Context) error {
 	return nil
 }
 
-func (u *udpListener) getUDPChan(ctx context.Context) (*udpChannel, error) {
+func (u *udpListener) getUDPChan(ctx context.Context, disconnected bool) (*udpChannel, error) {
 	u.outboundMut.Lock()
 	defer u.outboundMut.Unlock()
 	//cached
-	if u.outbound != nil {
+	if u.outbound != nil && !disconnected {
 		return u.outbound, nil
 	}
 	//not cached, bind
