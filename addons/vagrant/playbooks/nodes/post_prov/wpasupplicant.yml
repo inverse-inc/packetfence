@@ -48,7 +48,7 @@
       state: present
       update_cache: '{{ wpasupplicant__pkg_update_cache }}'
 
-  - name: Stop and disable wpasupplicant (Atomic)
+  - name: Stop and disable wpasupplicant
     systemd:
       name: wpasupplicant
       state: stopped
