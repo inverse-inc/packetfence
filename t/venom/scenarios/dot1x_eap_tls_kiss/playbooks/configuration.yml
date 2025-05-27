@@ -1,0 +1,15 @@
+---
+- hosts: pfservers
+  name: Prepare dot1x_eap_tls eapol_test (install and config) and radclient (install and config)
+  become: True
+
+  tasks:
+  - name: Install wpasupplicant
+    include_tasks: ../common/wpasupplicant.yml
+
+  - name: deploy wpasupplicant config files
+    include_tasks: ../common/deploy_configs.yml
+    loop: '{{ wpasupplicant__configs }}'
+
+  - name: Install eapol_test
+    include_tasks: ../common/eapol_test.yml

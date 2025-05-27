@@ -1,0 +1,16 @@
+---
+- name: create target directory for config
+  file:
+    state: directory
+    path: '{{ item.dir }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+
+- name: generate config for wpasupplicant
+  template:
+    src: '{{ item.filename }}.j2'
+    dest: '{{ item.dir }}/{{ item.filename }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'

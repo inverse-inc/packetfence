@@ -1,0 +1,17 @@
+---
+# tasks
+- name: ensure wpasupplicant installed
+  apt:
+    name: '{{ wpasupplicant__pkg_name }}'
+    state: present
+    update_cache: '{{ wpasupplicant__pkg_update_cache }}'
+
+- name: Stopped wpasupplicant daemon
+  service:
+    name: '{{ wpasupplicant__service }}'
+    state: '{{ wpasupplicant__state }}'
+
+- name: Disabled wpasupplicant daemon
+  service:
+    name: '{{ wpasupplicant__service }}'
+    enabled: '{{ wpasupplicant__enabled }}'

@@ -160,6 +160,19 @@ dot1x_eap_tls_deb12:
 	SCENARIOS_TO_RUN=dot1x_eap_tls \
 	$(MAKE_TARGET)
 
+
+dot1x_eap_tls_el8_kiss:
+	make \
+        PF_VM_NAMES=pfel8$(DEV_ENV) \
+        SCENARIOS_TO_RUN=dot1x_eap_tlsi_kiss \
+        $(MAKE_TARGET)
+
+dot1x_eap_tls_deb12_kiss:
+	make \
+        PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+        SCENARIOS_TO_RUN=dot1x_eap_tls_kiss \
+        $(MAKE_TARGET)
+
 inline_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \

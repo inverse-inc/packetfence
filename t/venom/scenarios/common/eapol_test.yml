@@ -1,0 +1,8 @@
+---
+# tasks
+- name: ensure eapol_test installed
+  apt:
+    name: '{{ eapol_test__pkg_name }}'
+    state: present
+    update_cache: '{{ eapol_test__pkg_update_cache }}'
+
