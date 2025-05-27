@@ -26,7 +26,7 @@ create_archive() {
          # add pf logs if available
 	 all_path="${all_path} ${pf_logs_root}"
     fi
-    tar c -zf "${venom_result_archive}" "${all_path}"
+    tar c -zf "${venom_result_archive}" ${all_path}
 }
 
 check_psono_vars() {
