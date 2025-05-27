@@ -36,7 +36,7 @@ testcases:
         "sticky_dc": "*",
         "workgroup": "{{.ad_domain_upper}}",
         "machine_account_password": "{{.random_machine_account_password}}"
-  `    }
+      }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
