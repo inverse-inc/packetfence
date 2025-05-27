@@ -52,8 +52,8 @@
     systemd:
       name: wpasupplicant
       state: stopped
-      enabled: no
-      masked: no
+      enabled: false
+      masked: true
 
   - name: deploy wpasupplicant config files
     include_tasks: deploy_configs.yml
