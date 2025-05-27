@@ -1,0 +1,14 @@
+.:53 {
+    forward . ${KUBE_DNS} 
+    cache
+    errors
+    log
+}
+
+
+[% domain %]:53 {
+    forward . ${PFCONNECTOR_SERVICE_HOST}:[% pfconnector_port %]
+    cache
+    errors
+}
+
