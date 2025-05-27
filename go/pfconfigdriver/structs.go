@@ -495,6 +495,7 @@ type AuthenticationSourceRadius struct {
 	Port           string `json:"port"`
 	Host           string `json:"host"`
 	Timeout        string `json:"timeout"`
+	UseConnector   bool   `json:"use_connector"`
 	Monitor        string `json:"monitor"`
 	Type           string `json:"type"`
 }

@@ -23,6 +23,7 @@ import (
 	radius "github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
@@ -91,6 +92,19 @@ type TypeSource interface {
 	Test(source interface{}, ctx context.Context)
 }
 
+func getDst(ctx context.Context, proto string, toIP string, toPort string, useConnector bool) string {
+	if useConnector {
+		return fmt.Sprintf("%s:%s", toIP, toPort)
+	} else {
+		dst, err := connector.OpenConnectionTo(ctx, proto, toIP, toPort)
+		if err != nil {
+			panic(err)
+		} else {
+			return dst
+		}
+	}
+}
+
 var RADIUS radiustype
 
 type radiustype struct{}
@@ -112,9 +126,10 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	client.MaxPacketErrors = 2
 	sources := strings.Split(radiusSource.Host, ",")
 	for num, src := range sources {
+		dst := getDst(ctx, "udp", src, radiusSource.Port, radiusSource.UseConnector)
 		ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
-		response, err := client.Exchange(ctx2, packet, src+":"+radiusSource.Port)
+		response, err := client.Exchange(ctx2, packet, dst)
 		if err != nil {
 			StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS+strconv.Itoa(num), 0)
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("RADIUS test on %s returned this error: %s", sourceId, err.Error()))
@@ -138,12 +153,13 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	t := StatsdClient.NewTiming()
 	sources := source.(pfconfigdriver.AuthenticationSourceLdap).Host
 	for num, src := range sources {
+		dst := getDst(ctx, "tcp", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port, source.(pfconfigdriver.AuthenticationSourceLdap).UseConnector)
 		var l *ldap.Conn
 		var err error
 		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "ssl" {
-			l, err = ldap.Dial("tcp", fmt.Sprintf("%s:%s", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port))
+			l, err = ldap.Dial("tcp", dst)
 		} else {
-			l, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%s", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port), &tls.Config{InsecureSkipVerify: true})
+			l, err = ldap.DialTLS("tcp", dst, &tls.Config{InsecureSkipVerify: true})
 		}
 		if err != nil {
 			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 0)
