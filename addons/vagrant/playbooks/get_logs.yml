@@ -35,4 +35,4 @@
         src: '{{ venom_dir }}/results-{{ ansible_fqdn }}.tar.gz'
         dest: '{{ result_dir }}/'
         remote_src: no  # Forces local copy
-      when: result_file.stat.exists
+      when: venom_dir_stat.stat.exists
