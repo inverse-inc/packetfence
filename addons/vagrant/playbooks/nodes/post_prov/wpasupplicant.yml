@@ -54,7 +54,6 @@
       state: stopped
       enabled: no
       masked: no
-    register: result
 
   - name: deploy wpasupplicant config files
     include_tasks: deploy_configs.yml
