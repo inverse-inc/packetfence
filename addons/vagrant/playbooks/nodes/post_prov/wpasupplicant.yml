@@ -50,7 +50,7 @@
 
   - name: Stop and disable wpasupplicant
     systemd:
-      name: wpasupplicant
+      name: '{{ wpasupplicant__service }}'
       state: stopped
       enabled: false
       masked: true
