@@ -26,8 +26,8 @@
 
     - name: Check if source directory exists
       stat:
-        path: '{{ venom_dir }}'
-      register: venom_dir_stat
+        path: '{{ venom_dir }}/results-{{ ansible_fqdn }}.tar.gz'
+      register: venom_zip_file_stat
 
     # Store archive into result_dir/results/results-$(hostname).tar.gz
     - name: Get logs on runner
@@ -35,4 +35,4 @@
         src: '{{ venom_dir }}/results-{{ ansible_fqdn }}.tar.gz'
         dest: '{{ result_dir }}/'
         remote_src: no  # Forces local copy
-      when: venom_dir_stat.stat.exists
+      when: venom_zip_file_stat.stat.exists
