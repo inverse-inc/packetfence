@@ -48,23 +48,13 @@
       state: present
       update_cache: '{{ wpasupplicant__pkg_update_cache }}'
 
-  - name: Check if wpasupplicant is running
-    command: "systemctl is-active wpasupplicant"
-    register: wpasupplicant_service_status
-    ignore_errors: yes
-    changed_when: false
-  
-  - name: Stop wpasupplicant daemon
-    service:
-      name: '{{ wpasupplicant__service }}'
+  - name: Stop and disable wpasupplicant (Atomic)
+    systemd:
+      name: wpasupplicant
       state: stopped
-      force: yes
-    when: wpasupplicant_service_status.rc == 0
-
-  - name: Disable wpasupplicant daemon
-    service:
-      name: '{{ wpasupplicant__service }}'
-      enabled: 'false'
+      enabled: no
+      masked: no
+    register: result
 
   - name: deploy wpasupplicant config files
     include_tasks: deploy_configs.yml
