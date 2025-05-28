@@ -383,7 +383,7 @@ $eap_default_config_file = catfile($conf_dir,"radiusd/eap_profiles.conf.defaults
 $fast_config_file = catfile($conf_dir,"radiusd/fast.conf");
 $fast_default_config_file = catfile($conf_dir,"radiusd/fast.conf.defaults");
 $dns_connectors_config_file = catfile($conf_dir,"dns_connectors.conf");
-$domains_connectors_config_file = catfile($confdir, "domains_connectors.conf");
+$domains_connectors_config_file = catfile($conf_dir, "domains_connectors.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
