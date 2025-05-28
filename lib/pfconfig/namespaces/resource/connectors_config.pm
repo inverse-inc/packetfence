@@ -17,14 +17,15 @@ use warnings;
 use pf::util;
 
 use base 'pfconfig::namespaces::resource';
-use pfconfig::namespaces::config::DnsConnector;
+use pfconfig::namespaces::config::DnsConnectors;
 use pfconfig::namespaces::config::Connector;
+use pfconfig::namespaces::config::DomainsConnectors;
 
 sub init {
     my ($self) = @_;
 
-    $self->{domains} = $self->{cache}->get_cache("config::DomainsConnector");
-    $self->{dns} = $self->{cache}->get_cache("config::DnsConnector");
+    $self->{domains} = $self->{cache}->get_cache("config::DomainsConnectors");
+    $self->{dns} = $self->{cache}->get_cache("config::DnsConnectors");
     $self->{connector} = $self->{cache}->get_cache("config::Connector");
 
 }
@@ -36,9 +37,13 @@ sub build {
     foreach my $connector ( keys %{$self->{connector}} ) {
         foreach my $key ( keys %{$self->{connector}{$connector}} ) {
             if ($key eq "domains") {
-                 $ConfigConnector{$connector}{$key} = $self->{domains}{$self->{connector}{$connector}{$key}};
+                 foreach my $domain (split(',',$self->{connector}{$connector}{$key})) {
+                     foreach my $dns (split(',',$self->{domains}{$domain}{'dns'})) {
+                         $ConfigConnector{$connector}{$key}{$domain}{$dns} = $self->{dns}{$dns};
+                     }
+                 }
              } else {
-                 $ConfigConnector{$connector}{$key} = $self->{domains}{$connector}{$key};
+                 $ConfigConnector{$connector}{$key} = $self->{connector}{$connector}{$key};
              }
          }
     }
