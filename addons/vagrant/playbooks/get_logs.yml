@@ -24,7 +24,7 @@
       # to make Psono variables available
       environment: '{{ inventory__group_environment | d({}) }}'
 
-    - name: Check if source directory exists
+    - name: Check if source file exists
       stat:
         path: '{{ venom_dir }}/results-{{ ansible_fqdn }}.tar.gz'
       register: venom_zip_file_stat
@@ -34,5 +34,5 @@
       copy:
         src: '{{ venom_dir }}/results-{{ ansible_fqdn }}.tar.gz'
         dest: '{{ result_dir }}/'
-        remote_src: no  # Forces local copy
+        remote_src: true
       when: venom_zip_file_stat.stat.exists
