@@ -135,7 +135,7 @@ our (
     $provisioning_filters_meta_config_file,
     $provisioning_filters_meta_config_default_file,
     $pfperl_api_restart_task,
-    $dns_connector_config_file,
+    $dns_connectors_config_file, $domains_connectors_config_file,
 );
 
 BEGIN {
@@ -245,7 +245,7 @@ BEGIN {
         $provisioning_filters_meta_config_file
         $provisioning_filters_meta_config_default_file
         $pfperl_api_restart_task
-        $dns_connector_config_file
+        $dns_connectors_config_file $domain_connectors_config_file
     );
 }
 
@@ -382,7 +382,8 @@ $eap_config_file = catfile($conf_dir,"radiusd/eap_profiles.conf");
 $eap_default_config_file = catfile($conf_dir,"radiusd/eap_profiles.conf.defaults");
 $fast_config_file = catfile($conf_dir,"radiusd/fast.conf");
 $fast_default_config_file = catfile($conf_dir,"radiusd/fast.conf.defaults");
-$dns_connector_config_file = catfile($conf_dir,"dns_connector.conf");
+$dns_connectors_config_file = catfile($conf_dir,"dns_connectors.conf");
+$domains_connectors_config_file = catfile($confdir, "domains_connectors.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
