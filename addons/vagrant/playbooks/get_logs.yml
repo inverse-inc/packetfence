@@ -31,8 +31,9 @@
 
     # Store archive into result_dir/results/results-$(hostname).tar.gz
     - name: Get logs on runner
-      copy:
+      fetch:
         src: '{{ venom_dir }}/results-{{ ansible_fqdn }}.tar.gz'
         dest: '{{ result_dir }}/'
-        remote_src: true
+        flat: True
+      failed_when: false
       when: venom_zip_file_stat.stat.exists
