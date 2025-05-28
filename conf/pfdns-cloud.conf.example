@@ -1,14 +1,14 @@
 .:53 {
-    forward . ${KUBE_DNS} 
+    forward . [% MAIN_DNS %]
     cache
     errors
     log
 }
 
 
-[% domain %]:53 {
-    forward . ${PFCONNECTOR_SERVICE_HOST}:[% pfconnector_port %]
+[% FOREACH key IN connectors.keys %][% FOREACH domain IN connectors.$key.domains %][% domain.key -%]:53 {
+    forward . [% PFCONNECTOR_SERVICE_HOST %]:[% PFCONNECTOR_PORT %]
     cache
     errors
 }
-
+[% END %][% END %]

@@ -1,4 +1,5 @@
 package pf::services::manager::pfdns;
+
 =head1 NAME
 
 pf::services::manager::pfdns
@@ -37,6 +38,7 @@ extends 'pf::services::manager';
 has '+name' => ( default => sub { 'pfdns' } );
 
 tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_servers';
+tie our %connector_config, 'pfconfig::cached_hash', 'resource::connector_config';
 
 =head2 generateConfig
 
@@ -70,6 +72,24 @@ EOT
     }
 
     $tt->process("$conf_dir/pfdns.conf", \%tags, "$generated_conf_dir/pfdns.conf") or die $tt->error();
+    undef %tags;
+    $tags{'connectors'} = \%connector_config;
+    if (exists $ENV{PFCONNECTOR_SERVICE_HOST}) {
+        $tags{'PFCONNECTOR_SERVICE_HOST'} = '{PFCONNECTOR_SERVICE_HOST}';
+    } else {
+        $tags{'PFCONNECTOR_SERVICE_HOST'} = "100.64.0.1";
+    }
+    $tags{'PFCONNECTOR_PORT'} = "53";
+    if (isenabled($ENV{PF_SAAS})) {
+        $tags{'MAIN_DNS'} = '{$KUBE_DNS}';
+    } else {
+        $tags{'MAIN_DNS'} = <<"EOT";
+/etc/resolv.conf {
+        prefer udp
+    }
+EOT
+    }
+    $tt->process("$conf_dir/pfdns-cloud.conf", \%tags, "$generated_conf_dir/pfdns-cloud.conf") or die $tt->error();
 }
 
 =head1 AUTHOR
