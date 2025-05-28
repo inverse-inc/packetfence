@@ -81,7 +81,7 @@ EOT
     }
     $tags{'PFCONNECTOR_PORT'} = "53";
     if (isenabled($ENV{PF_SAAS})) {
-        $tags{'MAIN_DNS'} = '{$KUBE_DNS}';
+        $tags{'MAIN_DNS'} = '{$K8S_DNS_SERVER}';
     } else {
         $tags{'MAIN_DNS'} = <<"EOT";
 /etc/resolv.conf {
