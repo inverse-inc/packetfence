@@ -1,45 +1,49 @@
-package pfconfig::namespaces::config::DnsConnector;
+package pfconfig::namespaces::resource::connectors_config;
 
 =head1 NAME
 
-pfconfig::namespaces::config::DnsConnector
+pfconfig::namespaces::resource::connectors_config
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::DnsConnector
-
-This module creates the configuration hash associated to dnsconnector.conf
+pfconfig::namespaces::resource::connectors_config
 
 =cut
 
 use strict;
 use warnings;
-
-use pfconfig::namespaces::config;
-use pf::file_paths qw($dns_connector_config_file);
 use pf::util;
 
-use base 'pfconfig::namespaces::config';
+use base 'pfconfig::namespaces::resource';
+use pfconfig::namespaces::config::DnsConnector;
+use pfconfig::namespaces::config::Connector;
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $dns_connector_config_file;
 
-    $self->{child_resources} = [
-        'resource::connector_config'
-    ];
+    $self->{domains} = $self->{cache}->get_cache("config::DomainsConnector");
+    $self->{dns} = $self->{cache}->get_cache("config::DnsConnector");
+    $self->{connector} = $self->{cache}->get_cache("config::Connector");
 
 }
 
-sub build_child {
+sub build {
     my ($self) = @_;
 
-    my %tmp_cfg = %{ $self->{cfg} };
+    my %ConfigConnector;
+    foreach my $connector ( keys %{$self->{connector}} ) {
+        foreach my $key ( keys %{$self->{connector}{$connector}} ) {
+            if ($key eq "domains") {
+                 $ConfigConnector{$connector}{$key} = $self->{domains}{$self->{connector}{$connector}{$key}};
+             } else {
+                 $ConfigConnector{$connector}{$key} = $self->{domains}{$connector}{$key};
+             }
+         }
+    }
 
-    return \%tmp_cfg;
-
+    return \%ConfigConnector;
 }
 
 =head1 AUTHOR
