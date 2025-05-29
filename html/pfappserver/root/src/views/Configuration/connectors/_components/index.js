@@ -5,6 +5,8 @@ import {
   BaseFormGroupInputPassword
 } from '@/components/new/'
 import BaseFormGroupNetworks from './BaseFormGroupNetworks'
+import BaseFormGroupDomains from './BaseFormGroupDomains'
+import BaseFormGroupDns from './BaseFormGroupDns'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -16,6 +18,8 @@ export {
   BaseFormGroupInput          as FormGroupDescription,
   BaseFormGroupInputPassword  as FormGroupSecret,
   BaseFormGroupNetworks       as FormGroupNetworks,
+  BaseFormGroupDomains        as FormGroupDomains,
+  BaseFormGroupDns            as FormGroupDns,
 
   TheForm,
   TheView
