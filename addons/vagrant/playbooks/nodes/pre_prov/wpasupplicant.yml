@@ -11,10 +11,6 @@
     wpasupplicant__pkg_update_cache: 'no'
     wpasupplicant__service: 'wpa_supplicant'
 
-  pre_tasks:
-  - name: wait for SSH available (after reboot) before provisioning
-    wait_for_connection:
-
   tasks:
   - name: ensure wpasupplicant installed
     apt:
