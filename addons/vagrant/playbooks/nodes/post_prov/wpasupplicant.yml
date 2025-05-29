@@ -1,0 +1,10 @@
+---
+- name: configure wpasupplicant on nodes to test 802.1X
+  hosts: nodes
+  become: True
+  gather_facts: False
+
+  tasks:
+  - name: deploy wpasupplicant config files
+    include_tasks: deploy_configs.yml
+    loop: '{{ wpasupplicant__configs }}'

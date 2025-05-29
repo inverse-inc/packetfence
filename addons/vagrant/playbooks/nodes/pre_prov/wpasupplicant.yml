@@ -1,40 +1,8 @@
 ---
-- name: configure wpasupplicant on nodes to test 802.1X
+- name: wpasupplicant set service on nodes
   hosts: nodes
   become: True
   gather_facts: False
-
-  vars:
-    # defaults file for wpasupplicant
-    wpasupplicant__pkg_name: 'wpasupplicant'
-    wpasupplicant__pkg_update_cache: 'no'
-    wpasupplicant__conf_dir: '/etc/wpa_supplicant'
-    
-    wpasupplicant__service: 'wpa_supplicant'
-    
-    wpasupplicant__configs:
-    
-      - dir: '{{ wpasupplicant__conf_dir }}/eap_tls'
-        filename: 'eap_tls.conf'
-    
-      - dir: '{{ wpasupplicant__conf_dir }}/eap_peap'
-        filename: 'eap_peap_mschapv2.conf'
-    
-      - dir: '{{ wpasupplicant__conf_dir }}/eap_ttls'
-        filename: 'eap_ttls_pap.conf'
-    
-    
-    ### eap_tls template variables
-    wpasupplicant__eap_tls_identity: 'inverse'
-    wpasupplicant__eap_tls_private_key_passwd: 'whatever'
-    
-    ### eap_peap_mschapv2 template variables
-    #wpasupplicant__eap_peap_mschapv2_identity: "{{ hostvars['ad']['packetfence_domain_account'] }}"
-    #wpasupplicant__eap_peap_mschapv2_password: "{{ hostvars['ad']['packetfence_domain_password'] }}"
-    
-    ### eap_ttls_pap template variables
-    wpasupplicant__eap_ttls_pap_identity: 'inverse'
-    wpasupplicant__eap_ttls_pap_password: 'secret'
 
   tasks:
   # tasks file for wpasupplicant
@@ -47,10 +15,6 @@
   - name: Stop and disable wpasupplicant
     systemd:
       name: '{{ wpasupplicant__service }}'
-      state: stopped
-      enabled: false
-      masked: true
-
-  - name: deploy wpasupplicant config files
-    include_tasks: deploy_configs.yml
-    loop: '{{ wpasupplicant__configs }}'
+      state: "{{ wpasupplicant__state }}"
+      enabled: "{{ wpasupplicant__enabled }}"
+      masked: "{{ wpasupplicant__masked }}"
