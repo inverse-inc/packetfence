@@ -29,8 +29,8 @@
     wpasupplicant__eap_tls_private_key_passwd: 'whatever'
     
     ### eap_peap_mschapv2 template variables
-    wpasupplicant__eap_peap_mschapv2_identity: 'inverse'
-    wpasupplicant__eap_peap_mschapv2_password: 'secret'
+    wpasupplicant__eap_peap_mschapv2_identity: "{{ hostvars['ad']['packetfence_domain_account'] }}"
+    wpasupplicant__eap_peap_mschapv2_password: "{{ hostvars['ad']['packetfence_domain_password'] }}"
     
     ### eap_ttls_pap template variables
     wpasupplicant__eap_ttls_pap_identity: 'inverse'
