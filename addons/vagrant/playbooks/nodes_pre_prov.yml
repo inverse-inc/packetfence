@@ -10,3 +10,5 @@
 - import_playbook: nodes/pre_prov/packages.yml
 
 - import_playbook: nodes/pre_prov/venom.yml
+
+- import_playbook: nodes/pre_prov/wpasupplicant.yml

@@ -36,10 +36,6 @@
     wpasupplicant__eap_ttls_pap_identity: 'inverse'
     wpasupplicant__eap_ttls_pap_password: 'secret'
 
-  pre_tasks:
-  - name: wait for SSH available (after reboot) before provisioning
-    wait_for_connection:
-
   tasks:
   # tasks file for wpasupplicant
   - name: ensure wpasupplicant installed
