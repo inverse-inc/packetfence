@@ -2,10 +2,17 @@
 - name: wpasupplicant set service on nodes
   hosts: nodes
   become: True
-  gather_facts: False
+
+  vars:
+    wpasupplicant__enabled: False
+    wpasupplicant__state: stopped
+    wpasupplicant__masked: true
+    wpasupplicant__pkg_name: 'wpasupplicant'
+    wpasupplicant__pkg_update_cache: 'no'
+    wpasupplicant__service: 'wpa_supplicant'
+
 
   tasks:
-  # tasks file for wpasupplicant
   - name: ensure wpasupplicant installed
     apt:
       name: '{{ wpasupplicant__pkg_name }}'
