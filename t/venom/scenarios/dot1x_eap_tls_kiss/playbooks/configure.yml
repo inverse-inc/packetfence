@@ -37,11 +37,11 @@
 
   tasks:
   - name: Install wpasupplicant
-    include_tasks: ../common/wpasupplicant.yml
+    include_tasks: ../../common/wpasupplicant.yml
 
   - name: deploy wpasupplicant config files
-    include_tasks: ../common/deploy_configs.yml
+    include_tasks: ../../common/deploy_configs.yml
     loop: '{{ wpasupplicant__configs }}'
 
   - name: Install eapol_test
-    include_tasks: ../common/eapol_test.yml
+    include_tasks: ../../common/eapol_test.yml
