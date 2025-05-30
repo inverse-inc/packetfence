@@ -1317,7 +1317,7 @@ dot1x_eap_tls_deb12:
     - .test_script_job
     - .test_devel_and_maintenance_rules
 
-dot1x_eap_tls_el8_kiss:
+dot1x_eap_tls_kiss_el8:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
@@ -1325,7 +1325,7 @@ dot1x_eap_tls_el8_kiss:
     - .test_script_job
     - .test_devel_and_maintenance_rules
 
-dot1x_eap_tls_deb12_kiss:
+dot1x_eap_tls_kiss_deb12:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
@@ -1506,7 +1506,7 @@ dot1x_eap_tls_deb12_branches:
     - .test_script_job
     - .test_branches_only_rules
 
-dot1x_eap_tls_el8_kiss_branches:
+dot1x_eap_tls_kiss_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -1515,7 +1515,7 @@ dot1x_eap_tls_el8_kiss_branches:
     - .test_script_job
     - .test_branches_only_rules
 
-dot1x_eap_tls_deb12_kiss_branches:
+dot1x_eap_tls_kiss_deb12_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
