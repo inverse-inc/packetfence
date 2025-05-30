@@ -11,6 +11,7 @@ Form definition to create or update a connector
 =cut
 
 use HTML::FormHandler::Moose;
+use pf::ConfigStore::Connector::DomainsConnectors;
 extends 'pfappserver::Base::Form';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -43,6 +44,17 @@ has_field 'secret' =>
    type => 'Text',
    required => 1,
   );
+
+has_field 'domains' =>
+  (
+   type => 'Select',
+   options_method => \&options_domains,
+  );
+
+
+sub options_domains {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Connector::DomainsConnectors->new->readAllIds};
+}
 
 =over
 
