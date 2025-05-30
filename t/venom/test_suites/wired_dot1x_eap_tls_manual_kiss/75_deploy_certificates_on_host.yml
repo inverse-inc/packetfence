@@ -1,0 +1,7 @@
+iname: Deploy certificates on node01
+testcases:
+  - name: move_certificates
+    steps:
+      - type: exec
+        script:  |
+          sudo cp -v {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}/* /etc/wpa_supplicant/eap_tls/

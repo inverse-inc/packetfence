@@ -1,0 +1,7 @@
+name: Check logs on eapol-test results
+testcases:
+  - name: check_eapol_test_logs
+    steps:
+      - type: exec
+        script: |
+          grep "access accept" -r log_of_eapol_test
