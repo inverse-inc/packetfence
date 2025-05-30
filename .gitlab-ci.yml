@@ -651,6 +651,7 @@ pfdeb_based_dev:
           - "git-sync"
           - "github-apps-token"
           - "caddy-l4"
+          - "pfdns-cloud"
 
 img_dev:
   extends:
@@ -751,6 +752,7 @@ pfdeb_based_br_maint:
           - "github-apps-token"
           - "caddy-l4"
           - "pfstats"
+          - "pfdns-cloud"
 
 img_br_maint:
   extends:
@@ -848,6 +850,7 @@ pfdeb_based_cloud_nac:
           - "ntlm-auth-api"
           - "netdata"
           - "pfstats"
+          - "pfdns-cloud"
 
 img_cloud_nac:
   extends:
@@ -944,6 +947,7 @@ pfdeb_based_rel:
           - "kafka"
           - "ntlm-auth-api"
           - "netdata"
+          - "pfdns-cloud"
 
 img_rel:
   extends:
