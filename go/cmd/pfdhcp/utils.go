@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"encoding/binary"
 	"fmt"
-	"math/rand"
 	"net"
 	"os"
 	"regexp"
@@ -40,7 +40,7 @@ func connectDB(configDatabase *pfconfigdriver.PfConfDatabase) *sql.DB {
 }
 
 // initiaLease fetch the database to remove already assigned ip addresses
-func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetworkConf, db *sql.DB) {
+func initiaLease(ctx context.Context, dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetworkConf, db *sql.DB) {
 	// Need to calculate the end ip because of the ip per role feature
 	now := time.Now()
 	endip := binary.BigEndian.Uint32(dhcpHandler.start.To4()) + uint32(dhcpHandler.leaseRange) - uint32(1)
@@ -102,7 +102,7 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 }
 
 // InterfaceScopeFromMac detect in which scope the mac is
-func InterfaceScopeFromMac(MAC string) string {
+func InterfaceScopeFromMac(ctx context.Context, MAC string) string {
 	var NetWork string
 	if index, found := GlobalMacCache.Get(MAC); found {
 		for _, v := range DHCPConfig.intsNet {
@@ -122,44 +122,43 @@ func InterfaceScopeFromMac(MAC string) string {
 }
 
 // Detect the vip on each interfaces
-func (d *Interfaces) detectVIP(interfaces []string, db *sql.DB) {
+func (d *Interfaces) detectVIP(ctx context.Context, Interfaces []*net.Interface, db *sql.DB) {
 
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range interfaces {
-		keyConfCluster.PfconfigHashNS = "interface " + v
+	for _, v := range Interfaces {
+		keyConfCluster.PfconfigHashNS = "interface " + v.Name
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
 		// Nothing in keyConfCluster.Ip so we are not in cluster mode
 		if keyConfCluster.Ip == "" {
-			VIP[v] = true
+			VIP[v.Name] = true
 			continue
 		}
 
-		if _, found := VIP[v]; !found {
-			VIP[v] = false
+		if _, found := VIP[v.Name]; !found {
+			VIP[v.Name] = false
 		}
 
-		eth, _ := net.InterfaceByName(v)
-		adresses, _ := eth.Addrs()
+		adresses, _ := v.Addrs()
 		var found bool
 		found = false
 		for _, adresse := range adresses {
 			IP, _, _ := net.ParseCIDR(adresse.String())
-			VIPIp[v] = net.ParseIP(keyConfCluster.Ip)
-			if IP.Equal(VIPIp[v]) {
+			VIPIp[v.Name] = net.ParseIP(keyConfCluster.Ip)
+			if IP.Equal(VIPIp[v.Name]) {
 				found = true
-				if VIP[v] == false {
-					log.LoggerWContext(ctx).Info(v + " got the VIP")
-					if h, ok := intNametoInterface[v]; ok {
-						go h.handleAPIReq(APIReq{Req: "initialease", NetInterface: v, NetWork: ""}, db)
+				if VIP[v.Name] == false {
+					log.LoggerWContext(ctx).Info(v.Name + " got the VIP")
+					if h, ok := intNametoInterface[v.Name]; ok {
+						go h.handleAPIReq(ctx, APIReq{Req: "initialease", NetInterface: v.Name, NetWork: ""}, db)
 					}
-					VIP[v] = true
+					VIP[v.Name] = true
 				}
 			}
 		}
 		if found == false {
-			VIP[v] = false
+			VIP[v.Name] = false
 		}
 	}
 }
@@ -167,7 +166,17 @@ func (d *Interfaces) detectVIP(interfaces []string, db *sql.DB) {
 // NodeInformation return the node information
 func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (r NodeInfo) {
 
-	rows, err := db.Query("SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
+	if err := db.PingContext(ctx); err != nil {
+		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
+	}
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	// Prepare the statements
+	// We use the same context for all the queries
+	// because we want to be sure that all the queries are executed in the same context
+	// and that the context is cancelled if one of the queries fails
+
+	rows, err := db.QueryContext(dbCtx, "SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
 	defer rows.Close()
 
 	if err != nil {
@@ -195,30 +204,30 @@ func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (
 }
 
 // ShuffleDNS return the dns list
-func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
+func ShuffleDNS(ctx context.Context, ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	matched, _ := regexp.MatchString(`inlinel[2-3]`, ConfNet.Type)
 	if matched {
 		if !sharedutils.IsEnabled(ConfNet.NatDNS) {
 			var excluded []string
-			return Shuffle(ConfNet.Dns, excluded)
+			return Shuffle(ctx, ConfNet.Dns, excluded)
 		}
 	}
 	if ConfNet.ClusterIPs != "" {
 		if ConfNet.Dnsvip != "" {
 			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 		}
-		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
-		return Shuffle(ConfNet.ClusterIPs, excluded)
+		excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		return Shuffle(ctx, ConfNet.ClusterIPs, excluded)
 	}
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	}
-	excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
-	return Shuffle(ConfNet.Dns, excluded)
+	excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+	return Shuffle(ctx, ConfNet.Dns, excluded)
 }
 
 // ShuffleGateway return the gateway list
-func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
+func ShuffleGateway(ctx context.Context, ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.NextHop != "" {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
 	} else if ConfNet.ClusterIPs != "" {
@@ -229,8 +238,8 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 			return []byte(net.ParseIP(ConfNet.ForceGatewayVIP).To4())
 		}
 
-		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
-		return Shuffle(ConfNet.ClusterIPs, excluded)
+		excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		return Shuffle(ctx, ConfNet.ClusterIPs, excluded)
 
 	} else {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
@@ -238,10 +247,23 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 }
 
 // Shuffle addresses
-func Shuffle(addresses string, excluded []string) (r []byte) {
+func Shuffle(ctx context.Context, addresses string, excluded []string) (r []byte) {
 	var array []net.IP
 	var found bool
+	addressesArray := strings.Split(addresses, ",")
+	if len(addressesArray) == 1 {
+		singleIP := net.ParseIP(addressesArray[0]).To4()
+		slice := make([]byte, 0, len(singleIP))
+		slice = append(slice, singleIP...)
+		return slice
+	}
+	if len(addressesArray) == 0 {
+		return nil
+	}
 
+	// Check if the address is in the excluded list
+	// If it is, remove it from the list
+	// and add it to the array
 	for _, adresse := range strings.Split(addresses, ",") {
 		found = false
 		for _, exclude := range excluded {
@@ -255,48 +277,83 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 	}
 
 	slice := make([]byte, 0, len(array))
+	shuffleArray, err := cryptoShuffle(array)
 
-	random := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i := len(array) - 1; i > 0; i-- {
-		j := random.Intn(i + 1)
-		array[i], array[j] = array[j], array[i]
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Shuffle error: " + err.Error())
+		// Return original array if shuffle fails
+		for _, element := range array {
+			elem := []byte(element.To4())
+			slice = append(slice, elem...)
+		}
+		return slice
 	}
-	for _, element := range array {
-		elem := []byte(element)
+	for _, element := range shuffleArray {
+		elem := []byte(element.To4())
 		slice = append(slice, elem...)
 	}
+
 	return slice
 }
 
 // ShuffleNetIP shuffle an array of net.IP
-func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
+func ShuffleNetIP(ctx context.Context, array []net.IP) (r []byte) {
+	if len(array) == 1 {
+		singleIP := array[0].To4()
+		slice := make([]byte, 0, len(singleIP))
+		slice = append(slice, singleIP...)
+		return slice
+	}
 
 	slice := make([]byte, 0, len(array))
-
-	if randSrc == 0 {
-		randSrc = time.Now().UnixNano()
+	shuffleArray, err := cryptoShuffle(array)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Shuffle error: " + err.Error())
+		// Return original array if shuffle fails
+		for _, element := range array {
+			elem := []byte(element.To4())
+			slice = append(slice, elem...)
+		}
+		return slice
 	}
-	random := rand.New(rand.NewSource(randSrc))
-	for i := len(array) - 1; i > 0; i-- {
-		j := random.Intn(i + 1)
-		array[i], array[j] = array[j], array[i]
-	}
-	for _, element := range array {
-		elem := []byte(element)
+	for _, element := range shuffleArray {
+		elem := []byte(element.To4())
 		slice = append(slice, elem...)
 	}
 	return slice
 }
 
+func cryptoShuffle(ips []net.IP) ([]net.IP, error) {
+	n := len(ips)
+	for i := n - 1; i > 0; i-- {
+		// Generate a secure random number modulo (i+1)
+		var b [8]byte
+		_, err := rand.Read(b[:])
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate random number: %w", err)
+		}
+		// Convert bytes to int and apply modulo
+		j := int(uint64(b[0])|uint64(b[1])<<8|uint64(b[2])<<16|uint64(b[3])<<24|
+			uint64(b[4])<<32|uint64(b[5])<<40|uint64(b[6])<<48|uint64(b[7])<<56) % (i + 1)
+		if j < 0 {
+			j += i + 1
+		}
+
+		// Swap
+		ips[i], ips[j] = ips[j], ips[i]
+	}
+	return ips, nil
+}
+
 // ShuffleIP shuffle ip
-func ShuffleIP(a []byte, randSrc int64) (r []byte) {
+func ShuffleIP(ctx context.Context, a []byte) (r []byte) {
 
 	var array []net.IP
 	for len(a) != 0 {
 		array = append(array, net.IPv4(a[0], a[1], a[2], a[3]).To4())
 		_, a = a[0], a[4:]
 	}
-	return ShuffleNetIP(array, randSrc)
+	return ShuffleNetIP(ctx, array)
 }
 
 // IPsFromRange split ip range
@@ -363,7 +420,7 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 
 // AddDevicesOptions function add options on the fly
 func AddDevicesOptions(object string, leaseDuration *time.Duration, GlobalOptions map[dhcp.OptionCode][]byte, db *sql.DB) {
-	x, err := decodeOptions(object, db)
+	x, err := decodeOptions(ctx, object, db)
 	if err == nil {
 		for key, value := range x {
 			if key == dhcp.OptionIPAddressLeaseTime {
@@ -434,10 +491,17 @@ func IsIPv6(address net.IP) bool {
 }
 
 // MysqlUpdateIP4Log update the ip4log table
-func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration, db *sql.DB) error {
-	if err := db.PingContext(ctx); err != nil {
+func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time.Duration, db *sql.DB) error {
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	if err := db.PingContext(dbCtx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
+
+	// Prepare the statements
+	// We use the same context for all the queries
+	// because we want to be sure that all the queries are executed in the same context
+	// and that the context is cancelled if one of the queries fails
 
 	MAC2IP, err := db.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
 	if err != nil {
@@ -466,27 +530,27 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration, db *sql.DB
 		oldMAC string
 		oldIP  string
 	)
-	err = MAC2IP.QueryRow(mac).Scan(&oldIP)
+	err = MAC2IP.QueryRowContext(dbCtx, mac).Scan(&oldIP)
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
-	err = IP2MAC.QueryRow(ip).Scan(&oldMAC)
+	err = IP2MAC.QueryRowContext(dbCtx, ip).Scan(&oldMAC)
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
 	if len(oldMAC) > 0 && (oldMAC != mac) {
-		_, err = IPClose.Exec(ip)
+		_, err = IPClose.ExecContext(dbCtx, ip)
 		if err != nil {
 			return err
 		}
 	}
 	if len(oldIP) > 0 && (oldIP != ip) {
-		_, err = IPClose.Exec(oldIP)
+		_, err = IPClose.ExecContext(dbCtx, oldIP)
 		if err != nil {
 			return err
 		}
 	}
-	_, err = IPInsert.Exec(mac, ip, duration.Seconds())
+	_, err = IPInsert.ExecContext(dbCtx, mac, ip, duration.Seconds())
 	if err != nil {
 		log.LoggerWContext(ctx).Info(err.Error())
 	}
@@ -509,7 +573,7 @@ func setOptionServerIdentifier(srvIP net.IP, handlerIP net.IP) net.IP {
 	return srvIP
 }
 
-func DetectDisabledServer(addresses string, netint string) []string {
+func DetectDisabledServer(ctx context.Context, addresses string, netint string) []string {
 
 	var array []string
 	for _, adresse := range strings.Split(addresses, ",") {

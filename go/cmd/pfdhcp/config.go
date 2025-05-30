@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/binary"
 	"math"
@@ -69,7 +70,7 @@ func newDHCPConfig() *Interfaces {
 	return &p
 }
 
-func (d *Interfaces) readConfig(MyDB *sql.DB) {
+func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 	interfaces := pfconfigdriver.GetType[pfconfigdriver.ListenInts](ctx)
 	DHCPinterfaces := pfconfigdriver.GetType[pfconfigdriver.DHCPInts](ctx)
 	portal := pfconfigdriver.GetType[pfconfigdriver.PfConfCaptivePortal](ctx)
@@ -268,7 +269,7 @@ func (d *Interfaces) readConfig(MyDB *sql.DB) {
 							DHCPScope.xid = xid
 							wg.Add(1)
 							go func() {
-								initiaLease(DHCPScope, ConfNet, MyDB)
+								initiaLease(ctx, DHCPScope, ConfNet, MyDB)
 								wg.Done()
 							}()
 							var options = make(map[dhcp.OptionCode][]byte)
@@ -348,15 +349,15 @@ func (d *Interfaces) readConfig(MyDB *sql.DB) {
 						DHCPScope.xid = xid
 						wg.Add(1)
 						go func() {
-							initiaLease(DHCPScope, ConfNet, MyDB)
+							initiaLease(ctx, DHCPScope, ConfNet, MyDB)
 							wg.Done()
 						}()
 
 						var options = make(map[dhcp.OptionCode][]byte)
 
 						options[dhcp.OptionSubnetMask] = []byte(net.ParseIP(ConfNet.Netmask).To4())
-						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ConfNet)
-						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
+						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ctx, ConfNet)
+						options[dhcp.OptionRouter] = ShuffleGateway(ctx, ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 						if portal.SecureRedirect == "enabled" {
 							options[dhcp.OptionCaptivePortal] = []byte(detectPortalURL(ConfNet, general))
