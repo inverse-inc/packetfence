@@ -21,7 +21,7 @@ BEGIN {
 }
 
 use pf::Authentication::Condition;
-use Test::More tests => 3;
+use Test::More tests => 5;
 
 #This test will running last
 use Test::NoWarnings;
@@ -31,6 +31,10 @@ my $c = pf::Authentication::Condition->new({attribute => 'bob', operator => 'is'
 
 ok($c->matches('bob', 'bob', {bobby=> 'bob'}));
 ok(!$c->matches('bob', 'bob', {bobby=> 'bobb'}));
+
+$c = pf::Authentication::Condition->new({attribute => 'bob', operator => 'not contains', value => '${bobby}'}); 
+ok(!$c->matches('bob', 'bob', {bobby=> 'bob'}));
+ok($c->matches('bob', 'bob', {bobby=> 'james'}));
 
 =head1 AUTHOR
 
