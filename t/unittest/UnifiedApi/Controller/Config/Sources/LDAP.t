@@ -44,20 +44,12 @@ my %args = (
                     value => "1h",
                 }
             ],
-            conditions  => [
-                {
+            conditions  => [{
                     type => 'ldap',
                     value => '1',
                     attribute => 'cn',
                     operator => 'is',
-                },
-                {
-                    type => 'ldap',
-                    value => '1',
-                    attribute => 'cn',
-                    operator => 'not contains',
-                }
-            ],
+            }],
             description => undef,
             id          => "catchall",
             match       => "all"
