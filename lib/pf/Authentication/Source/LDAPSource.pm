@@ -678,8 +678,6 @@ sub ldap_filter_for_conditions {
               $str = "${attribute}=${value}";
           } elsif ($operator eq $Conditions::NOT_EQUALS) {
               $str = "!(${attribute}=${value})";
-          } elsif ($operator eq $Conditions::NOT_CONTAINS) {
-              $str = "!(${attribute}=*${value}*)";
           } elsif ($operator eq $Conditions::CONTAINS) {
               $str = "${attribute}=*${value}*";
           } elsif ($operator eq $Conditions::STARTS) {

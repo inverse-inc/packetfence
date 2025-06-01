@@ -82,7 +82,6 @@ package Conditions;
 Readonly::Scalar our $EQUALS => 'equals';
 Readonly::Scalar our $NOT_EQUALS => 'not equals';
 Readonly::Scalar our $CONTAINS => 'contains';
-Readonly::Scalar our $NOT_CONTAINS => 'not contains';
 Readonly::Scalar our $STARTS => 'starts';
 Readonly::Scalar our $ENDS => 'ends';
 Readonly::Scalar our $MATCHES => 'matches regexp';
