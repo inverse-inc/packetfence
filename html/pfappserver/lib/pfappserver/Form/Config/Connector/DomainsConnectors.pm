@@ -13,7 +13,7 @@ pfappserver::Form::Config::Connector::DomainsConnectors
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-use pf::ConfigStore::Connector::DnsConnectors;
+use pf::ConfigStore::Connector;
 extends 'pfappserver::Base::Form';
 with qw(pfappserver::Base::Form::Role::Help);
 
@@ -25,14 +25,14 @@ has_field 'id' => (
     messages => { required => 'Please specify the domaine name.' },
 );
 
-has_field dns => (
+has_field connector => (
     type     => 'Select',
-    label    => 'DNS Server(s)',
-    options_method => \&options_dns,
+    label    => 'Connector',
+    options_method => \&options_connector,
 );
 
-sub options_dns {
-    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Connector::DnsConnectors->new->readAllIds};
+sub options_connector {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Connector->new->readAllIds};
 }
 
 =head1 AUTHOR

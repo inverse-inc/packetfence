@@ -12,6 +12,7 @@ pfappserver::Form::Config::Connector::DnsConnectors
 
 use strict;
 use warnings;
+use pf::ConfigStore::Connector::DomainsConnectors;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with qw(pfappserver::Base::Form::Role::Help);
@@ -38,6 +39,17 @@ has_field pfconnectorport => (
     type     => 'Text',
     label    => 'pfconnector port to reach out the dns server',
 );
+
+has_field domains => (
+    type     => 'Select',
+    label    => 'Domain(s) name',
+    options_method => \&options_domains,
+);
+
+sub options_domains {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Connector::DomainsConnectors->new->readAllIds};
+}
+
 
 =head1 AUTHOR
 
