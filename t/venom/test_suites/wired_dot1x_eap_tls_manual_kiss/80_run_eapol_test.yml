@@ -4,4 +4,4 @@ testcases:
     steps:
       - type: exec
         script: |
-          eapol_test -c eap_tls/eap_tls.conf -s testing123 -a 172.18.120.15  -M de:ad:be:ef:42:42 -N 30:s:44:38:39:00:00:12:UConnect -N4:x:c0a80001
+          eapol_test -c /etc/wpa_supplicant/eap_tls/eap_tls.conf -s $(cat /usr/local/pf/conf/local_secret) -a 172.18.120.15  -M de:ad:be:ef:42:42 -N 30:s:44:38:39:00:00:12:UConnect -N4:x:c0a80001
