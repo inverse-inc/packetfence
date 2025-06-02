@@ -1,0 +1,5 @@
+name: Kill wpasupplicant on node01
+testcases:
+- name: kill_wpasupplicant_on_node01
+  steps:
+  - type: node01_kill_wpasupplicant

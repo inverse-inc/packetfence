@@ -1,0 +1,6 @@
+name: Restart pfcron service
+testcases:
+- name: restart_pfcron_service
+  steps:
+  - type: pf_api_service_restart
+    service: pfcron

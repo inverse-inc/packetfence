@@ -1,0 +1,36 @@
+name: Check autoregister node
+testcases:
+- name: check_autoregister_node
+  steps:
+  - type: pf_api_action
+    url: 'node/{{.node01_ens7_mac_address_url_encoded}}'
+    assertions:
+      - result.pf_api_action_json.item.autoreg ShouldEqual yes
+      - result.pf_api_action_json.item.category ShouldEqual "user_employee"
+      - result.pf_api_action_json.item.pid ShouldEqual "packetfence"
+      - result.pf_api_action_json.item.status ShouldEqual reg
+    vars:
+      regdate:
+        from: result.pf_api_action_json.item.regdate
+      unregdate:
+        from: result.pf_api_action_json.item.unregdate
+
+# temp, need a feature in Venom assertion available in 1.0.0 (ShouldHappenBetween)
+# convert 5m to 5minutes
+# In order to calculate unregdate based on regdate + 5minutes using date command (next testcase)
+# - name: convert_access_duration
+#   steps:
+#   - type: exec
+#     script: |
+#       perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::config::util \
+#       -e 'my @times = get_translatable_time("{{.wired_dot1x_eap_tls_pki.sources.eaptls.access_duration}}"); print("$times[2]$times[1]");'
+#     vars:
+#       translatable_time:
+#         from: result.systemout
+
+# - name: check_unregdate_match_access_duration
+#   steps:
+#   - type: exec
+#     script: "date '+%Y-%m-%d %H:%M:%S' --date='{{.check_autoregister_node.regdate}} {{.convert_access_duration.translatable_time}}'"
+#     assertions:
+#       - result.systemout ShouldEqual "{{.check_autoregister_node.unregdate}}"

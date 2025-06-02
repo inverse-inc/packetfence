@@ -1,0 +1,5 @@
+name: Check if node01 is offline
+testcases:
+- name: check_offline_status
+  steps:
+  - type: node01_offline
