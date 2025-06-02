@@ -14,7 +14,11 @@
     wpasupplicant__state: stopped
 
     wpasupplicant__configs:
-      - dir: '{{ wpasupplicant__conf_dir }}/eap_tls'
+      - dir: '{{ wpasupplicant__conf_dir }}/eap_tls_scep'
+        filename: 'eap_tls.conf'
+      - dir: '{{ wpasupplicant__conf_dir }}/eap_tls_namual'
+        filename: 'eap_tls.conf'
+      - dir: '{{ wpasupplicant__conf_dir }}/eap_tls_pki'
         filename: 'eap_tls.conf'
       - dir: '{{ wpasupplicant__conf_dir }}/eap_peap'
         filename: 'eap_peap_mschapv2.conf'
