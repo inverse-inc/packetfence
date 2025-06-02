@@ -1,6 +1,6 @@
-iname: Deploy certificates on node01
+iname: Deploy certificates on PF
 testcases:
-  - name: move_certificates
+  - name: copy_certificates
     steps:
       - type: exec
         script:  |
