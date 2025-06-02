@@ -38,7 +38,7 @@ extends 'pf::services::manager';
 has '+name' => ( default => sub { 'pfdns' } );
 
 tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_servers';
-tie our %connector_config, 'pfconfig::cached_hash', 'resource::connector_config';
+tie our %connectors_config, 'pfconfig::cached_hash', 'resource::connectors_config';
 
 =head2 generateConfig
 
