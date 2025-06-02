@@ -45,17 +45,6 @@ has_field 'secret' =>
    required => 1,
   );
 
-has_field 'domains' =>
-  (
-   type => 'Select',
-   options_method => \&options_domains,
-  );
-
-
-sub options_domains {
-    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Connector::DomainsConnectors->new->readAllIds};
-}
-
 =over
 
 =back
