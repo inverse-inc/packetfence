@@ -21,3 +21,21 @@
       name: "{{ switch01_api_user }}"
       password: "{{ switch01_api_password | password_hash }}"
       force: true
+
+  - name: Ensure directory exists
+    ansible.builtin.file:
+      path: /var/lib/ifupdown2/policy.d/
+      state: directory
+      mode: 0755
+
+  - name: Deploy updated address.json
+    ansible.builtin.template:
+      src: templates/address.json.j2
+      dest: /var/lib/ifupdown2/policy.d/address.json
+      mode: 0644
+    notify: Reload interfaces with ifreload
+
+  handlers:
+    - name: Reload interfaces with ifreload
+      ansible.builtin.command: /usr/sbin/ifreload -a
+      changed_when: false  # Ensures handler runs even if no changes detected

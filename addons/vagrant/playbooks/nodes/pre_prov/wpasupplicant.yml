@@ -1,0 +1,26 @@
+---
+- name: wpasupplicant set service on nodes
+  hosts: nodes
+  become: True
+
+  vars:
+    wpasupplicant__enabled: False
+    wpasupplicant__state: stopped
+    wpasupplicant__masked: true
+    wpasupplicant__pkg_name: 'wpasupplicant'
+    wpasupplicant__pkg_update_cache: 'no'
+    wpasupplicant__service: 'wpa_supplicant'
+
+  tasks:
+  - name: ensure wpasupplicant installed
+    apt:
+      name: '{{ wpasupplicant__pkg_name }}'
+      state: present
+      update_cache: '{{ wpasupplicant__pkg_update_cache }}'
+
+  - name: Stop and disable wpasupplicant
+    systemd:
+      name: '{{ wpasupplicant__service }}'
+      state: "{{ wpasupplicant__state }}"
+      enabled: "{{ wpasupplicant__enabled }}"
+      masked: "{{ wpasupplicant__masked }}"

@@ -3,13 +3,12 @@
   hosts: nodes
   become: True
   gather_facts: False
-  
-  collections:
-    - inverse_inc.packetfence
 
   pre_tasks:
   - name: wait for SSH available (after reboot) before provisioning
     wait_for_connection:
 
-  roles:
-    - role: wpasupplicant
+  tasks:
+  - name: deploy wpasupplicant config files
+    include_tasks: deploy_configs.yml
+    loop: '{{ wpasupplicant__configs }}'
