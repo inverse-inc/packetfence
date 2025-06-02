@@ -33,19 +33,31 @@ sub init {
 sub build {
     my ($self) = @_;
 
+    my %ConfigDomains;
     my %ConfigConnector;
+
+    foreach my $dns ( keys %{$self->{dns}} ) {
+        foreach my $domain (split(',',$self->{dns}{$dns}{'domains'})) {
+            my $dnsConfig;
+            foreach my $key ( keys %{$self->{dns}{$dns}}) {
+                next if ($key eq 'domains');
+                $dnsConfig->{$key} = $self->{dns}{$dns}{$key};
+            }
+            $ConfigDomains{$domain}{$dns} = $dnsConfig;
+        }
+    }
+
     foreach my $connector ( keys %{$self->{connector}} ) {
         foreach my $key ( keys %{$self->{connector}{$connector}} ) {
-            if ($key eq "domains") {
-                 foreach my $domain (split(',',$self->{connector}{$connector}{$key})) {
-                     foreach my $dns (split(',',$self->{domains}{$domain}{'dns'})) {
-                         $ConfigConnector{$connector}{$key}{$domain}{$dns} = $self->{dns}{$dns};
-                     }
-                 }
-             } else {
-                 $ConfigConnector{$connector}{$key} = $self->{connector}{$connector}{$key};
-             }
-         }
+             $ConfigConnector{$connector}{$key} = $self->{connector}{$connector}{$key};
+        }
+        foreach my $domain ( keys %{$self->{domains}} ) {
+            if ($self->{domains}{$domain}{'connector'} eq $connector) {
+                if (exists $ConfigDomains{$domain}) {
+                    $ConfigConnector{$connector}{'domains'}{$domain} = $ConfigDomains{$domain};
+                }
+            }
+        }
     }
 
     return \%ConfigConnector;
