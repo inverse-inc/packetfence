@@ -408,6 +408,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdns-cloud.service %{buildroot}%{_unitdir}/packetfence-pfdns-cloud.service
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}%{_unitdir}/packetfence-pffilter.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfcron.service %{buildroot}%{_unitdir}/packetfence-pfcron.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue-go.service %{buildroot}%{_unitdir}/packetfence-pfqueue-go.service
