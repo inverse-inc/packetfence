@@ -2205,8 +2205,8 @@ sub setup_api_v1_config_dns_connectors_routes {
       $self->setup_api_v1_std_config_routes(
         $root,
         "Config::DnsConnectors",
-        "/dnsconnectors",
-        "/dnsconnector/#dns_connector_id",
+        "/connector_dns",
+        "/connector_dns/#dns_connector_id",
         "api.v1.Config.DnsConnectors"
     );
 
@@ -2225,8 +2225,8 @@ sub setup_api_v1_config_domains_connectors_routes {
       $self->setup_api_v1_std_config_routes(
         $root,
         "Config::DomainsConnectors",
-        "/domainsconnectors",
-        "/domainsconnector/#domain_connector_id",
+        "/connector_domains",
+        "/connector_domains/#domains_connector_id",
         "api.v1.Config.DomainsConnectors"
     );
 
