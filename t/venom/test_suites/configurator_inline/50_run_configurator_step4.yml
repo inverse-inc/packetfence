@@ -2,18 +2,24 @@ name: Restart services
 testcases:
 - name: restart_packetfence_config_service
   steps:
-  - type: pf_api_system_service_restart_async
+  - type: systemctl_service_restart
     service: 'packetfence-config'
+    time_to_sleep: 5
 
-- name: restart_pfqueue_service
+- name: restart_pfqueue-backend_service
   steps:
-  - type: pf_api_service_restart_async
-    service: "pfqueue-backend"
-    time_to_sleep: 5
+  - type: systemctl_service_restart
+    service: "packetfence-pfqueue-backend"
 
-  - type: pf_api_service_restart_async
-    service: "pfqueue-go"
-    time_to_sleep: 5
+- name: restart_pfqueue-go_service
+  steps:
+  - type: systemctl_service_restart
+    service: "packetfence-pfqueue-go"
+
+- name: restart_packetfence-haproxy-admin
+  steps:
+  - type: systemctl_service_restart
+    service: "packetfence-haproxy-admin"
 
 - name: update_systemd
   steps:
@@ -29,8 +35,8 @@ testcases:
 
 - name: restart_haproxy_admin_service
   steps:
-  - type: pf_api_service_restart_async
-    service: 'haproxy-admin'
+  - type: systemctl_service_restart
+    service: 'packetfence-haproxy-admin'
 
 # to apply changes made during custom step
 # no API call usable
@@ -39,6 +45,13 @@ testcases:
   - type: systemctl_service_restart
     service: 'packetfence-pfperl-api'
     time_to_sleep: 10
+
+- name: check_if_mgnt_interface_is_set
+  steps:
+  - type: exec
+    script: /bin/bash -c 'grep -oP "\047Tint\047\s*=>\s*\047\K[^\047]+" <<< "$(/usr/local/pf/bin/pfcmd pfconfig show interfaces::management_network)"'
+    assertions:
+    - result.systemout ShouldContainSubstring "eth1"
 
 - name: start_pf_services
   steps:
