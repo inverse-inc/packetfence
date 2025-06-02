@@ -245,7 +245,7 @@ BEGIN {
         $provisioning_filters_meta_config_file
         $provisioning_filters_meta_config_default_file
         $pfperl_api_restart_task
-        $dns_connectors_config_file $domain_connectors_config_file
+        $dns_connectors_config_file $domains_connectors_config_file
     );
 }
 
