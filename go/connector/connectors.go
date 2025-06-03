@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
@@ -55,6 +57,33 @@ const connectorsContainerContextKey = "ConnectorsContainerContextKey"
 
 func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort string) (string, error) {
 	if cc := ConnectorsContainerFromContext(ctx); cc != nil {
+		dstIp := net.ParseIP(toIP)
+		if dstIp == nil {
+			// probably a hostname, try to resolve it
+			dnsServer := os.Getenv("PF_CLOUD_DNS_SERVER")
+			if dnsServer == "" {
+				// If PF_DNS_SERVER is not set, use K8S_DNS_SERVER as a fallback
+				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
+				// and PF_DNS_SERVER is not defined.
+				// This allows the code to work in both standalone and Kubernetes environments.
+				dnsServer = os.Getenv("K8S_DNS_SERVER")
+			}
+			ips, err := resolveDNSWithCustomResolver(toIP, dnsServer)
+			if err != nil {
+				return "", fmt.Errorf("unable to resolve %s: %v", toIP, err)
+			}
+			if len(ips) == 0 {
+				return "", fmt.Errorf("no IPs resolved for %s", toIP)
+			}
+			if len(ips) > 1 {
+				return "", fmt.Errorf("multiple IPs resolved for %s: %v", toIP, ips)
+			}
+			dstIp = net.ParseIP(ips[0])
+			if dstIp == nil {
+				return "", fmt.Errorf("resolved IP %s is not a valid IP address", ips[0])
+			}
+			toIP = dstIp.String()
+		}
 		c := cc.ForIP(ctx, net.ParseIP(toIP))
 		connInfo, err := c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
 		if err != nil {
@@ -77,4 +106,33 @@ func ConnectorsContainerFromContext(ctx context.Context) *ConnectorsContainer {
 
 func WithConnectorsContainer(ctx context.Context, cc *ConnectorsContainer) context.Context {
 	return context.WithValue(ctx, connectorsContainerContextKey, cc)
+}
+
+func resolveDNSWithCustomResolver(fqdn, dnsServer string) ([]string, error) {
+	resolver := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			d := net.Dialer{
+				Timeout: 2 * time.Second,
+			}
+			return d.DialContext(ctx, network, dnsServer+":53")
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	ips, err := resolver.LookupIPAddr(ctx, fqdn)
+	if err != nil {
+		return nil, fmt.Errorf("error trying to resolve: %v", err)
+	}
+
+	var result []string
+	for _, ip := range ips {
+		if ip.IP.To4() != nil { // IPv4 seulement
+			result = append(result, ip.IP.String())
+		}
+	}
+
+	return result, nil
 }
