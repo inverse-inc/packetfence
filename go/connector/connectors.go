@@ -60,13 +60,36 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 		dstIp := net.ParseIP(toIP)
 		if dstIp == nil {
 			// probably a hostname, try to resolve it
-			dnsServer := os.Getenv("PF_CLOUD_DNS_SERVER")
+			// Use pfconfig instead
+			dnsServer := os.Getenv("PFDNS_CONNECTOR_HOST_PORT")
+			host, port, err := net.SplitHostPort(dnsServer)
+			if err != nil {
+				return "", err
+			}
+			dnsServerIP := net.ParseIP(host) // Ensure dnsServer is a valid IP address
 			if dnsServer == "" {
-				// If PF_DNS_SERVER is not set, use K8S_DNS_SERVER as a fallback
+				// If PFDNS_CONNECTOR_HOST_PORT is not set, use the default DNS server
 				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
-				// and PF_DNS_SERVER is not defined.
 				// This allows the code to work in both standalone and Kubernetes environments.
 				dnsServer = os.Getenv("K8S_DNS_SERVER")
+			} else if dnsServerIP == nil {
+				// If PFDNS_CONNECTOR_HOST_PORT is a hostname , use the default DNS server
+				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
+				// This allows the code to work in both standalone and Kubernetes environments.
+				kubeDnsServer := os.Getenv("K8S_DNS_SERVER")
+				ips, err := resolveDNSWithCustomResolver(host, kubeDnsServer)
+				if err != nil {
+					return "", fmt.Errorf("unable to resolve %s: %v", host, err)
+				}
+				if len(ips) == 0 {
+					return "", fmt.Errorf("no IPs resolved for %s", host)
+				}
+
+				dstIp = net.ParseIP(ips[0])
+				if dstIp == nil {
+					return "", fmt.Errorf("resolved IP %s is not a valid IP address", ips[0])
+				}
+				dnsServer = dstIp.String() + ":" + port // Append the DNS port
 			}
 			ips, err := resolveDNSWithCustomResolver(toIP, dnsServer)
 			if err != nil {
@@ -75,9 +98,7 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 			if len(ips) == 0 {
 				return "", fmt.Errorf("no IPs resolved for %s", toIP)
 			}
-			if len(ips) > 1 {
-				return "", fmt.Errorf("multiple IPs resolved for %s: %v", toIP, ips)
-			}
+
 			dstIp = net.ParseIP(ips[0])
 			if dstIp == nil {
 				return "", fmt.Errorf("resolved IP %s is not a valid IP address", ips[0])
@@ -115,7 +136,7 @@ func resolveDNSWithCustomResolver(fqdn, dnsServer string) ([]string, error) {
 			d := net.Dialer{
 				Timeout: 2 * time.Second,
 			}
-			return d.DialContext(ctx, network, dnsServer+":53")
+			return d.DialContext(ctx, network, dnsServer)
 		},
 	}
 
