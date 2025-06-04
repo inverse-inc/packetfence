@@ -246,6 +246,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	payload := struct {
 		ConnectorID string `json:"connector_id"`
 		To          string `json:"to"`
+		LocalPort   string `json:"local_port,omitempty"`
 	}{}
 
 	err := json.NewDecoder(req.Body).Decode(&payload)
@@ -272,7 +273,12 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		for i := 0; i < DYNREVERSE_BIND_ATTEMPTS; i++ {
 			tun := o.(*tunnel.Tunnel)
 			to := payload.To
-			remoteStr := fmt.Sprintf("R:0:%s", to)
+			if payload.LocalPort != "" {
+				to = fmt.Sprintf("%s:%s", payload.LocalPort, to)
+			} else {
+				to = fmt.Sprintf("0:%s", to)
+			}
+			remoteStr := fmt.Sprintf("R:%s", to)
 			remote, err := settings.DecodeRemote(remoteStr)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
