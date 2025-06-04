@@ -89,7 +89,7 @@ EOT
     }
 EOT
     }
-    $tt->process("$conf_dir/pfdns-cloud.conf", \%tags, "$generated_conf_dir/pfdns-cloud.conf") or die $tt->error();
+    $tt->process("$conf_dir/pfdns-connector.conf", \%tags, "$generated_conf_dir/pfdns-connector.conf") or die $tt->error();
 }
 
 =head1 AUTHOR
