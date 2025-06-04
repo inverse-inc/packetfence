@@ -12,13 +12,14 @@ pf::UnifiedApi::Controller::SystemSummary
 
 use strict;
 use warnings;
+use Digest::SHA qw(sha256_hex);
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::db;
 use pf::config::util qw(is_inline_configured);
 use pf::version;
 use pf::cluster;
 use pf::util qw(safe_pf_run isenabled);
-use pf::file_paths qw($git_commit_id_file $install_dir);
+use pf::file_paths qw($git_commit_id_file $install_dir $unified_api_system_pass_file);
 use Fcntl qw(SEEK_SET);
 use pf::UnifiedApi::Controller::Config::System;
 use pf::config qw(%Config);
@@ -27,6 +28,7 @@ sub get {
     my ($self) = @_;
     return $self->render(
         json => {
+           uuid(),
            readonly_mode => db_check_readonly() ? $self->json_true : $self->json_false,
            is_inline_configured => is_inline_configured() ? $self->json_true : $self->json_false,
            version => pf::version::version_get_current(),
@@ -60,6 +62,29 @@ sub uptime {
     my $uptime_info = <$UPTIME_FH>;
     my ($uptime, $idle) = $uptime_info =~ /(\d+(?:\.\d+)?) ((\d+(?:\.\d+)?))/;
     return (uptime => $uptime)
+}
+
+=head2 uuid
+
+uuid
+
+=cut
+
+sub uuid {
+    my ($self, $ctx, $args) = @_;
+    my $uuid = undef;
+    if (-f $unified_api_system_pass_file) {
+        if (open(my $fh, $unified_api_system_pass_file)) {
+            {
+                local $/ = undef;
+                $uuid = <$fh>;
+            }
+
+            chomp($uuid);
+            $uuid = sha256_hex($uuid);
+        }
+    }
+    return (uuid => $uuid)
 }
 
 =head2 git_commit_id
