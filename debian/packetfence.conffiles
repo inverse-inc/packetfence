@@ -32,7 +32,7 @@
 /usr/local/pf/conf/pfdetect.conf
 /usr/local/pf/conf/pfdhcp.conf
 /usr/local/pf/conf/pfdns.conf
-/usr/local/pf/conf/pfdns.conf
+/usr/local/pf/conf/pfdns-connector.conf
 /usr/local/pf/conf/pfqueue.conf
 /usr/local/pf/conf/pki_provider.conf
 /usr/local/pf/conf/portal_modules.conf

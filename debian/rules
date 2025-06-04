@@ -229,7 +229,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfdetect
 	dh_installinit --name=packetfence-pfdhcplistener
 	dh_installinit --name=packetfence-pfdns
-	dh_installinit --no-start --name=packetfence-pfdns-cloud
+	dh_installinit --name=packetfence-pfdns-connector
 	dh_installinit --name=packetfence-pffilter
 	dh_installinit --name=packetfence-pfcron
 	dh_installinit --name=packetfence-pfperl-api

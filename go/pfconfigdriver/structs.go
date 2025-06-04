@@ -1065,8 +1065,8 @@ type PfSwitches struct {
 
 type PfConfPfDnsConnector struct {
 	StructConfig
-	PfconfigMethod   string `val:"hash_element"`
-	PfconfigNS       string `val:"config::Pf"`
-	PfconfigHashNS   string `val:"pfdns_connector"`
-	PfdnsCloudServer string `json:"pfdns_connector_server"`
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Pf"`
+	PfconfigHashNS       string `val:"pfdns_connector"`
+	PfdnsConnectorServer string `json:"pfdns_connector_server"`
 }
