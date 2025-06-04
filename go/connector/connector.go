@@ -82,3 +82,21 @@ func (c *Connector) DynReverse(ctx context.Context, to string) (DynReverseConnec
 	log.LoggerWContext(ctx).Info(resp.Message)
 	return resp, err
 }
+
+func (c *Connector) DynReverseWithPort(ctx context.Context, to string, localPort string) (DynReverseConnectionInfo, error) {
+	client, err := c.connectorServerApiClient(ctx)
+	if err != nil {
+		return DynReverseConnectionInfo{}, err
+	}
+	resp := DynReverseConnectionInfo{}
+	err = client.CallWithBody(ctx, "GET", "/api/v1/pfconnector/dynreverse",
+		gin.H{"to": to, "connector_id": c.PfconfigHashNS, "local_port": localPort},
+		&resp,
+	)
+	if err != nil {
+		return DynReverseConnectionInfo{}, err
+	}
+
+	log.LoggerWContext(ctx).Info(resp.Message)
+	return resp, err
+}
