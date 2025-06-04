@@ -39,6 +39,7 @@ Services managed by PacketFence:
   pfdhcp                 | dhcpd daemon
   pfdhcplistener         | PF DHCP monitoring daemon
   pfdns                  | DNS daemon
+  pfdns-connector        | DNS daemon for pfconnector
   pffilter               | PF conditions filtering daemon
   pfipset                | IPSET daemon
   pfldapexplorer         | PF ldap search daemon

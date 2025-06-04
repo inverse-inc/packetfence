@@ -1,43 +1,34 @@
-package pf::services::manager::pfdns;
+package pf::services::manager::pfdns_connector;
 
 =head1 NAME
 
-pf::services::manager::pfdns
+pf::services::manager::pfdns_connector
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::pfdns
+pf::services::manager::pfdns_connector
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
 use Template;
-use NetAddr::IP;
-
-use pf::cluster;
-use pf::config qw(
-    %Config
-    %ConfigNetworks
-);
 
 use pf::file_paths qw(
     $conf_dir
-    $install_dir
-    $var_dir
     $generated_conf_dir
 );
 
 use pf::util;
+use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub { 'pfdns' } );
+has '+name' => ( default => sub { 'pfdns-connector' } );
 
-tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_servers';
+tie our %connectors_config, 'pfconfig::cached_hash', 'resource::connectors_config';
 
 =head2 generateConfig
 
@@ -50,27 +41,23 @@ sub generateConfig {
     my $tt = Template->new(ABSOLUTE => 1);
     my %tags;
 
-    foreach my $key ( keys %domain_dns_servers ) {
-        my $dns = join ' ',@{$domain_dns_servers{$key}};
-        $tags{'domain'} .= <<"EOT";
-    forward $key. $dns
-EOT
+    $tags{'connectors'} = \%connectors_config;
+    if (exists $ENV{PFCONNECTOR_SERVICE_HOST}) {
+        $tags{'PFCONNECTOR_SERVICE_HOST'} = '${PFCONNECTOR_SERVICE_HOST}';
+    } else {
+        $tags{'PFCONNECTOR_SERVICE_HOST'} = "containers-gateway.internal";
     }
-
-    foreach my $network ( keys %ConfigNetworks ) {
-        # We skip non-inline networks/interfaces
-        next if ( !pf::config::is_network_type_inline($network) );
-        my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-        my $cidr = $net_addr->cidr();
-        my $dns =  join ' ',split(',',$ConfigNetworks{$network}{'dns'});
-        $tags{'inline'} .= <<"EOT";
-    forward . $dns {
-        network_source $cidr
+    $tags{'PFCONNECTOR_PORT'} = "53";
+    if (isenabled($ENV{PF_SAAS})) {
+        $tags{'MAIN_DNS'} = '{$K8S_DNS_SERVER}';
+    } else {
+        $tags{'MAIN_DNS'} = <<"EOT";
+/etc/resolv.conf {
+        prefer udp
     }
 EOT
     }
-
-    $tt->process("$conf_dir/pfdns.conf", \%tags, "$generated_conf_dir/pfdns.conf") or die $tt->error();
+    $tt->process("$conf_dir/pfdns-connector.conf", \%tags, "$generated_conf_dir/pfdns-connector.conf") or die $tt->error();
 }
 
 =head1 AUTHOR
@@ -80,7 +67,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2025 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 =head1 LICENSE
 

@@ -690,6 +690,16 @@ pfdns=enabled
 #
 # Location of the pfdns binary.
 pfdns_binary=/usr/local/pf/sbin/pfdns
+#
+# services.pfdns-connector
+#
+# Should pfdns-connector be managed by PacketFence?
+pfdns-connector=enabled
+#
+# services.pfdns-connector_binary
+#
+# Location of the pfdns-connector binary.
+pfdns-connector_binary=/usr/local/pf/sbin/pfdns
 
 # services.pfacct
 #
