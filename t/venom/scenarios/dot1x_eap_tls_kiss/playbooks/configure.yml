@@ -9,7 +9,7 @@
     wpasupplicant__configs:
       - dir: '{{ wpasupplicant__conf_dir }}/eap_tls_scep'
         filename: 'eap_tls.conf'
-      - dir: '{{ wpasupplicant__conf_dir }}/eap_tls_namual'
+      - dir: '{{ wpasupplicant__conf_dir }}/eap_tls_mauual'
         filename: 'eap_tls.conf'
       - dir: '{{ wpasupplicant__conf_dir }}/eap_tls_pki'
         filename: 'eap_tls.conf'
