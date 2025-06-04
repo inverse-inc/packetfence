@@ -1070,3 +1070,18 @@ type PfConfPfDnsConnector struct {
 	PfconfigHashNS       string `val:"pfdns_connector"`
 	PfdnsConnectorServer string `json:"pfdns_connector_server"`
 }
+
+type PfConfDnsConnectors struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::DnsConnectors"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 []Dns
+}
+
+type Dns struct {
+	Domains         string `json:"domains"`
+	Ip              string `json:"ip"`
+	Port            string `json:"port"`
+	PfConnectorPort string `json:"pf_connector_port"`
+}

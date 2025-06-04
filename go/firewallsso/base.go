@@ -277,7 +277,7 @@ func (fw *FirewallSSO) getDst(ctx context.Context, proto string, toIP string, to
 	if !sharedutils.IsEnabled(fw.UseConnector) {
 		return fmt.Sprintf("%s:%s", toIP, toPort)
 	} else {
-		dst, err := connector.OpenConnectionTo(ctx, proto, toIP, toPort)
+		dst, err := connector.OpenConnectionTo(ctx, proto, toIP, toPort, "")
 		if err != nil {
 			panic(err)
 		} else {
