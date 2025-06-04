@@ -104,8 +104,6 @@ const actions = {
       .then(send_anonymous_stats => {
         if (send_anonymous_stats) {
           const [eventName, eventData] = event
-//eslint-disable-next-line
-console.log({ getters, state })
           mixpanel.track(eventName, { ...eventData, ...getters.route, ...state.summary, locale: i18n.locale })
         }
       })
