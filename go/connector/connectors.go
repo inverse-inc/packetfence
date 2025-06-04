@@ -57,11 +57,15 @@ const connectorsContainerContextKey = "ConnectorsContainerContextKey"
 
 func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort string) (string, error) {
 	if cc := ConnectorsContainerFromContext(ctx); cc != nil {
+		keyPfConfPfDnsConnector := pfconfigdriver.PfConfPfDnsConnector{}
+		keyPfConfPfDnsConnector.PfconfigNS = "config::Pf"
+		keyPfConfPfDnsConnector.PfconfigHostnameOverlay = "yes"
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyPfConfPfDnsConnector)
+
 		dstIp := net.ParseIP(toIP)
 		if dstIp == nil {
 			// probably a hostname, try to resolve it
-			// Use pfconfig instead
-			dnsServer := os.Getenv("PFDNS_CONNECTOR_HOST_PORT")
+			dnsServer := keyPfConfPfDnsConnector.PfdnsConnectorServer
 			host, port, err := net.SplitHostPort(dnsServer)
 			if err != nil {
 				return "", err
