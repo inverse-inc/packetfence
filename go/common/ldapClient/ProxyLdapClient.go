@@ -56,6 +56,6 @@ func (c *ProxyLdapClient) openProxyConnection() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	addr, err := connector.OpenConnectionTo(c.connectorContext, "tcp", host, port)
+	addr, err := connector.OpenConnectionTo(c.connectorContext, "tcp", host, port, "")
 	return addr, err
 }

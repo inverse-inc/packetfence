@@ -55,7 +55,7 @@ func (cc *ConnectorsContainer) ForIP(ctx context.Context, ip net.IP) *Connector 
 
 const connectorsContainerContextKey = "ConnectorsContainerContextKey"
 
-func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort string) (string, error) {
+func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort string, localPort string) (string, error) {
 	if cc := ConnectorsContainerFromContext(ctx); cc != nil {
 		keyPfConfPfDnsConnector := pfconfigdriver.PfConfPfDnsConnector{}
 		keyPfConfPfDnsConnector.PfconfigNS = "config::Pf"
@@ -110,11 +110,16 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 			toIP = dstIp.String()
 		}
 		c := cc.ForIP(ctx, net.ParseIP(toIP))
-		connInfo, err := c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
+		var connInfo DynReverseConnectionInfo
+		var err error
+		if localPort == "" {
+			connInfo, err = c.DynReverseWithPort(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto), localPort)
+		} else {
+			connInfo, err = c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
+		}
 		if err != nil {
 			return "", fmt.Errorf("unable to obtain dynreverse for %s on port %s with proto %s", toIP, toPort, proto)
 		}
-
 		return fmt.Sprintf("%s:%s", connInfo.Host, connInfo.Port), nil
 	}
 
