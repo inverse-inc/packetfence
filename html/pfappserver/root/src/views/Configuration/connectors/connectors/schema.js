@@ -25,36 +25,6 @@ const schemaNetworks = yup.array().ensure()
   .unique(i18n.t('Duplicate network.'))
   .of(schemaNetwork)
 
-const schemaDomain = yup.string().nullable()
-  .required(i18n.t('Domain required.'))
-  .isDomain()
-
-const schemaDomains = yup.array().ensure()
-  .unique(i18n.t('Duplicate domain.'))
-  .of(schemaDomain)
-
-const schemaDns = yup.object().shape({
-  domain: yup.string()
-    .nullable()
-    .required(i18n.t('Domain required.')),
-  port: yup.string()
-    .nullable()
-    .required(i18n.t('Port required.'))
-    .isPort(),
-  ip: yup.string()
-    .nullable()
-    .required(i18n.t('IP required.'))
-    .isIpv4(),
-  pfconnector_port: yup.string()
-    .nullable()
-    .required(i18n.t('Connector port required.'))
-    .isPort()
-})
-
-const schemaDnses = yup.array().ensure()
-  .unique(i18n.t('Duplicate domain.'), row => row.domain)
-  .of(schemaDns)
-
 export default (props) => {
   const {
     id,
@@ -76,7 +46,5 @@ export default (props) => {
       .required(i18n.t('Secret required.'))
       .label(i18n.t('Secret')),
     networks: schemaNetworks,
-    domains: schemaDomains,
-    dns: schemaDnses,
   })
 }

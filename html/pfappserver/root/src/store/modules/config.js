@@ -107,6 +107,12 @@ const api = {
   getConnectors () {
     return apiCall({ url: 'config/connectors', method: 'get' })
   },
+  getConnectorsDns () {
+    return apiCall({ url: 'config/dns_connectors', method: 'get' })
+  },
+  getConnectorsDomains () {
+    return apiCall({ url: 'config/domains_connectors', method: 'get' })
+  },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
@@ -299,6 +305,10 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     connectionProfilesStatus: '',
     connectors: false,
     connectorsStatus: '',
+    connectorsDns: false,
+    connectorsDnsStatus: '',
+    connectorsDomains: false,
+    connectorsDomainsStatus: '',
     domains: false,
     domainsStatus: '',
     eventLoggers: false,
@@ -488,6 +498,12 @@ const getters = {
   },
   isLoadingConnectors: state => {
     return state.connectorsStatus === types.LOADING
+  },
+  isLoadingConnectorsDns: state => {
+    return state.connectorsDnsStatus === types.LOADING
+  },
+  isLoadingConnectorsDomains: state => {
+    return state.connectorsDomainsStatus === types.LOADING
   },
   isLoadingSelfServices: state => {
     return state.selfServicesStatus === types.LOADING
@@ -1132,6 +1148,34 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.connectors)
+    }
+  },
+  getConnectorsDns: ({ state, getters, commit }) => {
+    if (getters.isLoadingConnectorsDns) {
+      return Promise.resolve(state.connectorsDns)
+    }
+    if (!state.connectorsDns) {
+      commit('CONNECTORS_DNS_REQUEST')
+      return api.getConnectorsDns().then(response => {
+        commit('CONNECTORS_DNS_UPDATED', response.data.items)
+        return state.connectorsDns
+      })
+    } else {
+      return Promise.resolve(state.connectorsDns)
+    }
+  },
+  getConnectorsDomains: ({ state, getters, commit }) => {
+    if (getters.isLoadingConnectorsDomains) {
+      return Promise.resolve(state.connectorsDomains)
+    }
+    if (!state.connectorsDomains) {
+      commit('CONNECTORS__DOMAINS_REQUEST')
+      return api.getConnectorsDomains().then(response => {
+        commit('CONNECTORS_DOMAINS_UPDATED', response.data.items)
+        return state.connectorsDomains
+      })
+    } else {
+      return Promise.resolve(state.connectorsDomains)
     }
   },
   getSelfServices: ({ state, getters, commit }) => {
@@ -1937,6 +1981,20 @@ const mutations = {
   CONNECTORS_UPDATED: (state, connectors) => {
     state.connectors = connectors
     state.connectorsStatus = types.SUCCESS
+  },
+  CONNECTORS_DNS_REQUEST: (state) => {
+    state.connectorsDnsStatus = types.LOADING
+  },
+  CONNECTORS_DNS_UPDATED: (state, connectors) => {
+    state.connectorsDns = connectors
+    state.connectorsDnsStatus = types.SUCCESS
+  },
+  CONNECTORS_DOMAINS_REQUEST: (state) => {
+    state.connectorsDomainsStatus = types.LOADING
+  },
+  CONNECTORS_DOMAINS_UPDATED: (state, connectors) => {
+    state.connectorsDomains = connectors
+    state.connectorsDomainsStatus = types.SUCCESS
   },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING
