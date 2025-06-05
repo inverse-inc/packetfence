@@ -55,7 +55,7 @@ sub generateConfig {
     } else {
         $tags{'MAIN_DNS'} = <<"EOT";
 /etc/resolv.conf {
-        prefer udp
+        prefer_udp
     }
 EOT
     }
