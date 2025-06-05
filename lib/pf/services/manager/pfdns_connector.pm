@@ -20,11 +20,13 @@ use pf::file_paths qw(
     $conf_dir
     $generated_conf_dir
 );
+use pf::config;
 
 use pf::util;
 use Moo;
 
 extends 'pf::services::manager';
+with 'pf::services::manager::roles::env_golang_service';
 
 has '+name' => ( default => sub { 'pfdns-connector' } );
 
