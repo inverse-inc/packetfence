@@ -154,6 +154,13 @@ const setup = () => {
           ]
         },
         { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },
+        { name: i18n.t('Connectors'),
+          items: [
+            { name: i18n.t('Connectors'), path: '/configuration/connectors/connectors' },
+            { name: i18n.t('DNS'), path: '/configuration/connectors/dns' },
+            { name: i18n.t('Domains'), path: '/configuration/connectors/domains' }
+          ]
+        },
         { name: i18n.t('RADIUS'),
           items: [
             { name: i18n.t('General'), path: '/configuration/radius/general' },
@@ -166,7 +173,6 @@ const setup = () => {
         },
         { name: i18n.t('Admin Access'), path: '/configuration/admin_roles' },
         { name: i18n.t('Admin Login'), path: '/configuration/admin_login' },
-        { name: i18n.t('Connectors'), path: '/configuration/connectors' },
         { name: i18n.t('DNS Configuration'), path: '/configuration/dns' },
         { name: i18n.t('FleetDM'), path: '/configuration/fleetdm', class: 'no-saas'},
         { name: i18n.t('Kafka'), path: '/configuration/kafka' },
