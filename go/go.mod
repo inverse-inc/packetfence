@@ -1,6 +1,6 @@
 module github.com/inverse-inc/packetfence/go
 
-go 1.24.3
+go 1.24.4
 
 require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible // indirect
@@ -26,7 +26,6 @@ require (
 	github.com/go-errors/errors v1.0.1
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
