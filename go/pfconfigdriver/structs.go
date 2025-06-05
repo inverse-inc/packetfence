@@ -1071,10 +1071,10 @@ type PfConfPfDnsConnector struct {
 
 type PfConfDnsConnectors struct {
 	StructConfig
-	PfconfigMethod          string `val:"element"`
-	PfconfigNS              string `val:"config::DnsConnectors"`
-	PfconfigDecodeInElement string `val:"yes"`
-	Element                 []Dns
+	PfconfigMethod          string         `val:"element"`
+	PfconfigNS              string         `val:"config::DnsConnectors"`
+	PfconfigDecodeInElement string         `val:"yes"`
+	Element                 map[string]Dns `json:"-"`
 }
 
 type Dns struct {
