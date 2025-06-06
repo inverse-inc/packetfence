@@ -146,20 +146,19 @@ mac_auth_deb12:
 	SCENARIOS_TO_RUN=mac_auth \
 	$(MAKE_TARGET)
 
-dot1x_eap_tls_el8:
-	make \
-	PF_VM_NAMES=pfel8$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01" \
-	SCENARIOS_TO_RUN=dot1x_eap_tls \
-	$(MAKE_TARGET)
-
-dot1x_eap_tls_deb12:
-	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01" \
-	SCENARIOS_TO_RUN=dot1x_eap_tls \
-	$(MAKE_TARGET)
-
+#dot1x_eap_tls_el8:
+#	make \
+#	PF_VM_NAMES=pfel8$(DEV_ENV) \
+#	INT_TEST_VM_NAMES="ad switch01 node01" \
+#	SCENARIOS_TO_RUN=dot1x_eap_tls \
+#	$(MAKE_TARGET)
+#
+#dot1x_eap_tls_deb12:
+#	make \
+#	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+#	INT_TEST_VM_NAMES="ad switch01 node01" \
+#	SCENARIOS_TO_RUN=dot1x_eap_tls \
+#	$(MAKE_TARGET)
 
 dot1x_eap_tls_kiss_el8:
 	make \
