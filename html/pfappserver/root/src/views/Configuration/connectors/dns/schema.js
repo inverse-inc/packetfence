@@ -35,8 +35,8 @@ export default (props) => {
   return yup.object().shape({
     id: yup.string()
       .nullable()
-      .required(i18n.t('DNS required.'))
-      .dnsConnectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('DNS exists.')),
+      .required(i18n.t('Identifier required.'))
+      .dnsConnectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
     ip: yup.string()
       .nullable()
       .required(i18n.t('IPv4 required.'))

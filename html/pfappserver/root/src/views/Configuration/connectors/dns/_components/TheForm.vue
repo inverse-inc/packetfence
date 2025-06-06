@@ -6,7 +6,7 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('DNS')"
+      :column-label="$i18n.t('Identifier')"
       :disabled="!isNew && !isClone"
     />
 
