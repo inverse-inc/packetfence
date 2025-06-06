@@ -38,6 +38,9 @@
             </template>
           </span>
         </template>
+        <template v-slot:cell(networks)="item">
+          <b-badge v-for="(network, index) in item.item.networks" :key="index" class="mr-1" variant="secondary">{{ network }}</b-badge>
+        </template>
         <template #cell(selected)="{ index, rowSelected }">
           <span @click.stop="onItemSelected(index)">
             <template v-if="rowSelected">
