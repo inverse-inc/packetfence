@@ -19,7 +19,7 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
 has 'config_store_class' => 'pf::ConfigStore::Connector::DomainsConnectors';
 has 'form_class' => 'pfappserver::Form::Config::Connector::DomainsConnectors';
-has 'primary_key' => 'domain_profile_id';
+has 'primary_key' => 'domains_connectors_id';
 
 use pf::ConfigStore::Connector::DomainsConnectors;
 use pfappserver::Form::Config::Connector::DomainsConnectors;

@@ -19,7 +19,7 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
 has 'config_store_class' => 'pf::ConfigStore::Connector::DnsConnectors';
 has 'form_class' => 'pfappserver::Form::Config::Connector::DnsConnectors';
-has 'primary_key' => 'dns_profile_id';
+has 'primary_key' => 'dns_connectors_id';
 
 use pf::ConfigStore::Connector::DnsConnectors;
 use pfappserver::Form::Config::Connector::DnsConnectors;
