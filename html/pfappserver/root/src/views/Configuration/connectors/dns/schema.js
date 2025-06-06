@@ -17,13 +17,13 @@ yup.addMethod(yup.string, 'dnsConnectorIdentifierNotExistsExcept', function (exc
   })
 })
 
-const schemaNetwork = yup.string().nullable()
-  .required(i18n.t('Network required.'))
-  .isCIDR()
+const schemaDomain = yup.string().nullable()
+  .required(i18n.t('Domain required.'))
+  .isDomain()
 
-const schemaNetworks = yup.array().ensure()
-  .unique(i18n.t('Duplicate network.'))
-  .of(schemaNetwork)
+const schemaDomains = yup.array().ensure()
+  .unique(i18n.t('Duplicate domain.'))
+  .of(schemaDomain)
 
 export default (props) => {
   const {
@@ -35,16 +35,23 @@ export default (props) => {
   return yup.object().shape({
     id: yup.string()
       .nullable()
-      .required(i18n.t('Connector ID required.'))
-      .dnsConnectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Connector ID exists.')),
-    description: yup.string()
+      .required(i18n.t('DNS required.'))
+      .dnsConnectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('DNS exists.')),
+    ip: yup.string()
       .nullable()
-      .required(i18n.t('Description required.'))
-      .label(i18n.t('Description')),
-    secret: yup.string()
+      .required(i18n.t('IPv4 required.'))
+      .label(i18n.t('IPv4'))
+      .isIpv4(),
+    port: yup.string()
       .nullable()
-      .required(i18n.t('Secret required.'))
-      .label(i18n.t('Secret')),
-    networks: schemaNetworks,
+      .required(i18n.t('Port required.'))
+      .label(i18n.t('Port'))
+      .isPort(),
+    pfconnectorport: yup.string()
+      .nullable()
+      .required(i18n.t('Port required.'))
+      .label(i18n.t('Port'))
+      .isPort(),
+    domains: schemaDomains
   })
 }
