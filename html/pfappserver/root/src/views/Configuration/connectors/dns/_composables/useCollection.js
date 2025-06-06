@@ -37,7 +37,7 @@ export const useSearch = makeSearch('connectorsDns', {
     },
     {
       key: 'id',
-      label: 'DNS', // i18n defer
+      label: 'Identifier', // i18n defer
       required: true,
       searchable: true,
       visible: true

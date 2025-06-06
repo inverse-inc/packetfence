@@ -27,8 +27,8 @@ export default (props) => {
   return yup.object().shape({
     id: yup.string()
       .nullable()
-      .required(i18n.t('Domain required.'))
-      .domainsConnectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Connector ID exists.'))
+      .required(i18n.t('Identifier required.'))
+      .domainsConnectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.'))
       .isAlphaNumericHyphenUnderscoreDot(),
     connector: yup.string()
       .nullable()
