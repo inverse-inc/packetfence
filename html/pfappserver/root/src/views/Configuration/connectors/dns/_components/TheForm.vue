@@ -6,21 +6,28 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Connector ID')"
+      :column-label="$i18n.t('DNS')"
       :disabled="!isNew && !isClone"
     />
 
-    <form-group-description namespace="description"
-      :column-label="$i18n.t('Description')"
+    <form-group-ip namespace="ip"
+      :column-label="$i18n.t('IP')"
+      :text="$i18n.t('IP of the DNS server.')"
     />
 
-    <form-group-secret namespace="secret"
-      :column-label="$i18n.t('Secret')"
+    <form-group-port namespace="port"
+      :column-label="$i18n.t('Port')"
+      :text="$i18n.t('Port of the DNS server.')"
     />
 
-    <form-group-networks namespace="networks"
-      :column-label="$i18n.t('Networks')"
-      :text="$i18n.t('Outbound networks for which this connector should be used. When a network matches multiple connectors, a top-down match is performed based on their order in the configuration. This filtering only applies when PacketFence performs outbound traffic to a server or equipment via the connector, not when receiving inbound traffic.')"
+    <form-group-pfconnectorport namespace="pfconnectorport"
+      :column-label="$i18n.t('Connector Port')"
+      :text="$i18n.t('Connector port to reach out the DNS server.')"
+    />
+
+    <form-group-domains namespace="domains"
+      :column-label="$i18n.t('Domains')"
+      :text="$i18n.t('Domain(s) name.')"
     />
   </base-form>
 </template>
@@ -32,16 +39,20 @@ import {
 import schemaFn from '../schema'
 import {
   FormGroupIdentifier,
-  FormGroupDescription,
-  FormGroupSecret,
+  FormGroupIp,
+  FormGroupPort,
+  FormGroupPfconnectorport,
+  FormGroupDomains,
 } from './'
 
 const components = {
   BaseForm,
 
   FormGroupIdentifier,
-  FormGroupDescription,
-  FormGroupSecret,
+  FormGroupIp,
+  FormGroupPort,
+  FormGroupPfconnectorport,
+  FormGroupDomains,
 }
 
 export const props = {
