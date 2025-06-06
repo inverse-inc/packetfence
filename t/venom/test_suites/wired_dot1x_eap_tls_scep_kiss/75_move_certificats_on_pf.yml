@@ -94,9 +94,9 @@ testcases:
 
   # check subject
   - type: exec
-      script: 'openssl x509 -in {{.create_temp_directory.temp_dir}}/client.pem -noout -subject'
-      assertions:
-        - result.systemout ShouldContainSubstring "{{.wired_dot1x_eap_tls_scep.certs.user.subject_openssl}}"
+    script: 'openssl x509 -in {{.create_temp_directory.temp_dir}}/client.pem -noout -subject'
+    assertions:
+      - result.systemout ShouldContainSubstring "{{.wired_dot1x_eap_tls_scep.certs.user.subject_openssl}}"
 
   # check email
   - type: exec
