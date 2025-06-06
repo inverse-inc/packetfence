@@ -47,7 +47,7 @@ sub generateConfig {
     if (exists $ENV{PFCONNECTOR_SERVICE_HOST}) {
         $tags{'PFCONNECTOR_SERVICE_HOST'} = '${PFCONNECTOR_SERVICE_HOST}';
     } else {
-        $tags{'PFCONNECTOR_SERVICE_HOST'} = "containers-gateway.internal";
+        $tags{'PFCONNECTOR_SERVICE_HOST'} = '100.64.0.1';
     }
     $tags{'PFCONNECTOR_PORT'} = "53";
     if (isenabled($ENV{PF_SAAS})) {
