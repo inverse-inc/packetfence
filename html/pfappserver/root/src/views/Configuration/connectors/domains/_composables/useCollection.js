@@ -43,8 +43,8 @@ export const useSearch = makeSearch('connectorsDomains', {
       visible: true
     },
     {
-      key: 'description',
-      label: 'Description', // i18n defer
+      key: 'connector',
+      label: 'Connector', // i18n defer
       searchable: true,
       visible: true
     },

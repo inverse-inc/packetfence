@@ -40,7 +40,7 @@ export const actions = {
   allDomains: () => {
     const params = {
       sort: 'id',
-      fields: ['id', 'description'].join(',')
+      fields: ['id', 'connector'].join(',')
     }
     return api.list(params).then(response => {
       return response.items
