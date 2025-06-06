@@ -51,23 +51,21 @@ TODO:
 1. Check Internet access *on* node01 (common) = down
 
 ## Teardown steps
-1. Kill wpa_supplicant: an accounting stop will be generated if we wait
-   EAP-TIMEOUT on the switch (not the case here due to next task). Access is
-   still working until we run next task.
 1. Unconfigure switch port and dynamic VLAN on switch01
    1. Generate a RADIUS Accounting stop message (sent by switch01) which update
       `last_seen` attribute of node01 and unreg device based on
       `unreg_on_accounting_stop`
    1. Don't send a RADIUS Disconnect message
 1. Check online status of node01: should be offline due to accounting stop
-1. Check node status for node01
 1. Wait `delete_windows` + 10 seconds before running `node_cleanup` task
 1. Delete node by running `pfcron's node_cleanup` task
-1. Check node has been deleted
 1. Disable `node_cleanup` task
 1. Restart `pfcron` to take change into account
 1. Delete connection profile, EAPTLS source, OCSP profile and configuration
 1. Restart RADIUS services (common test suite)
+
+### TODO
+Bring back accounting on tests
 
 ## Additional notes
 
