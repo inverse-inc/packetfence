@@ -49,6 +49,11 @@ export const useSearch = makeSearch('connectorsConnectors', {
       visible: true
     },
     {
+      key: 'networks',
+      label: 'Networks', // i18n defer
+      visible: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
