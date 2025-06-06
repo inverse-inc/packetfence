@@ -22,7 +22,7 @@ const schemaDomain = yup.string().nullable()
   .isDomain()
 
 const schemaDomains = yup.array().ensure()
-  .unique(i18n.t('Duplicate domain.'))
+  .required(i18n.t('Domain(s) required.'))
   .of(schemaDomain)
 
 export default (props) => {
