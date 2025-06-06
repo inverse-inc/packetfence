@@ -21,8 +21,8 @@ has 'config_store_class' => 'pf::ConfigStore::Connector::DnsConnectors';
 has 'form_class' => 'pfappserver::Form::Config::Connector::DnsConnectors';
 has 'primary_key' => 'dns_profile_id';
 
-use pf::ConfigStore::Connectors::DnsConnectors;
-use pfappserver::Form::Config::Connectors::DnsConnectors;
+use pf::ConfigStore::Connector::DnsConnectors;
+use pfappserver::Form::Config::Connector::DnsConnectors;
 
 =head1 AUTHOR
 
