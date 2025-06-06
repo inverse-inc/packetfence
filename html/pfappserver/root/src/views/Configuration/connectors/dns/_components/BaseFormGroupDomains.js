@@ -1,26 +1,25 @@
-import { BaseFormGroupArray, BaseFormGroupArrayProps, BaseInput } from '@/components/new'
-import i18n from '@/utils/locale'
+import { BaseFormGroupChosenMultiple, BaseFormGroupChosenMultipleProps } from '@/components/new/'
+import store from '@/store'
+import StoreModule from '../../_store'
 
 export const props = {
-  ...BaseFormGroupArrayProps,
+  ...BaseFormGroupChosenMultipleProps,
 
-  buttonLabel: {
-    type: String,
-    default: i18n.t('Add Domain')
-  },
-  // overload :childComponent
-  childComponent: {
-    type: Object,
-    default: () => BaseInput
-  },
-  // overload :defaultItem
-  defaultItem: {
-    type: String
+  // overload :options default
+  options: {
+    type: Promise,
+    default: () => {
+      if (!store.state.$_connectors)
+        store.registerModule('$_connectors', StoreModule)
+      return store.dispatch('$_connectors/allDomains').then(domains => {
+        return domains.map(domain => ({ text: `${domain.id}`, value: domain.id }))
+      })
+    }
   }
 }
 
 export default {
   name: 'base-form-group-domains',
-  extends: BaseFormGroupArray,
+  extends: BaseFormGroupChosenMultiple,
   props
 }

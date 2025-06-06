@@ -2,7 +2,7 @@ import { BaseViewCollectionItem } from '../../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupInput,
-  BaseFormGroupInputPassword
+  BaseFormGroupChosenOne
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -12,8 +12,7 @@ export {
   BaseFormButtonBar           as FormButtonBar,
 
   BaseFormGroupInput          as FormGroupIdentifier,
-  BaseFormGroupInput          as FormGroupDescription,
-  BaseFormGroupInputPassword  as FormGroupSecret,
+  BaseFormGroupChosenOne      as FormGroupConnector,
 
   TheForm,
   TheView
