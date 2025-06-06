@@ -22,13 +22,13 @@ const tabs = {
     title: 'Connectors', // i18n defer
     component: ConnectorsSearch
   },
-  connectorsDns: {
-    title: 'DNS', // i18n defer
-    component: DnsSearch
-  },
   connectorsDomains: {
     title: 'Domains', // i18n defer
     component: DomainsSearch
+  },
+  connectorsDns: {
+    title: 'DNS', // i18n defer
+    component: DnsSearch
   }
 }
 
