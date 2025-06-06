@@ -37,14 +37,26 @@ export const useSearch = makeSearch('connectorsDns', {
     },
     {
       key: 'id',
-      label: 'Identifier', // i18n defer
+      label: 'DNS', // i18n defer
       required: true,
       searchable: true,
       visible: true
     },
     {
-      key: 'domains',
-      label: 'Domains', // i18n defer
+      key: 'ip',
+      label: 'IP Address', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'port',
+      label: 'Port', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'pfconnectorport',
+      label: 'PF Connector Port', // i18n defer
       searchable: true,
       visible: true
     },
