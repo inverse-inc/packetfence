@@ -7,7 +7,7 @@
       type="button"
       :variant="variant"
       :disabled="disabled"
-      @click="startInterrupt($event)"
+      @click.stop="startInterrupt($event)"
     >
       <slot name="default"></slot>
     </b-button>
@@ -21,7 +21,7 @@
     <b-button v-if="interrupt"
       type="button"
       variant="danger"
-      @click="onClick($event)"
+      @click.stop="onClick($event)"
       @mousemove="startInterrupt($event)"
       @mouseover="startInterrupt($event)"
     >
