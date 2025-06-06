@@ -21,8 +21,8 @@ has 'config_store_class' => 'pf::ConfigStore::Connector::DomainsConnectors';
 has 'form_class' => 'pfappserver::Form::Config::Connector::DomainsConnectors';
 has 'primary_key' => 'domain_profile_id';
 
-use pf::ConfigStore::Connectors::DomainsConnectors;
-use pfappserver::Form::Config::Connectors::DomainsConnectors;
+use pf::ConfigStore::Connector::DomainsConnectors;
+use pfappserver::Form::Config::Connector::DomainsConnectors;
 
 =head1 AUTHOR
 
