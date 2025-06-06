@@ -29,7 +29,7 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Domain required.'))
       .domainsConnectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Connector ID exists.'))
-      .isDomain(),
+      .isAlphaNumericHyphenUnderscoreDot(),
     connector: yup.string()
       .nullable()
       .required(i18n.t('Connector required.'))
