@@ -164,12 +164,14 @@ dot1x_eap_tls_deb12:
 dot1x_eap_tls_kiss_el8:
 	make \
         PF_VM_NAMES=pfel8$(DEV_ENV) \
+	INT_TEST_VM_NAMES="ad" \
         SCENARIOS_TO_RUN=dot1x_eap_tls_kiss \
         $(MAKE_TARGET)
 
 dot1x_eap_tls_kiss_deb12:
 	make \
         PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	INT_TEST_VM_NAMES="ad" \
         SCENARIOS_TO_RUN=dot1x_eap_tls_kiss \
         $(MAKE_TARGET)
 
