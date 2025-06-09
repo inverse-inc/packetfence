@@ -157,8 +157,8 @@ const setup = () => {
         { name: i18n.t('Connectors'),
           items: [
             { name: i18n.t('Connectors'), path: '/configuration/connectors/connectors' },
-            { name: i18n.t('DNS'), path: '/configuration/connectors/dns' },
-            { name: i18n.t('Domains'), path: '/configuration/connectors/domains' }
+            { name: i18n.t('Domains'), path: '/configuration/connectors/domains' },
+            { name: i18n.t('DNS'), path: '/configuration/connectors/dns' }
           ]
         },
         { name: i18n.t('RADIUS'),
