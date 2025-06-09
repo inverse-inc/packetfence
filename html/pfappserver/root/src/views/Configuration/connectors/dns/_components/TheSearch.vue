@@ -38,6 +38,9 @@
             </template>
           </span>
         </template>
+        <template v-slot:cell(domains)="item">
+          <b-badge v-for="(domain, index) in item.item.domains" :key="index" class="mr-1" variant="secondary">{{ domain }}</b-badge>
+        </template>
         <template #cell(selected)="{ index, rowSelected }">
           <span @click.stop="onItemSelected(index)">
             <template v-if="rowSelected">
