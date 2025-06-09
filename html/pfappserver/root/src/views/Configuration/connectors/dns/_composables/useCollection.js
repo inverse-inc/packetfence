@@ -61,6 +61,11 @@ export const useSearch = makeSearch('connectorsDns', {
       visible: true
     },
     {
+      key: 'domains',
+      label: 'Domains', // i18n defer
+      visible: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
