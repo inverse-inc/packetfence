@@ -42,6 +42,7 @@ has_field pfconnectorport => (
 
 has_field domains => (
     type     => 'Select',
+    multiple => 1,
     label    => 'Domain(s) name',
     options_method => \&options_domains,
 );

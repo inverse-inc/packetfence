@@ -25,6 +25,36 @@ sub configFile { $dns_connectors_config_file }
 
 sub pfconfigNamespace {'config::DnsConnectors'}
 
+=head2 cleanupAfterRead
+
+Clean up data
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $data) = @_;
+    $self->expand_list($data, $self->_fields_expanded);
+}
+
+=head2 cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $data) = @_;
+    $self->flatten_list($data, $self->_fields_expanded);
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(domains);
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
