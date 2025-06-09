@@ -28,8 +28,6 @@ yup.addMethod(yup.string, 'dnsConnectorPfconnectorportNotExistsExcept', function
     test: (value) => {
       if (!value) return true
       return store.dispatch('config/getConnectorsDns').then(response => {
-        //eslint-disable-next-line
-        console.log({exceptName, value, response})
         return response.filter(connectorDn =>  connectorDn.id.toLowerCase() !== exceptName.toLowerCase() && connectorDn.pfconnectorport.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
@@ -53,7 +51,7 @@ export default (props) => {
     isClone
   } = props
 
-  const portRangeMessage = i18n.t('Port out of range {min}-{max}.', { min: pfconnectorPortMin, max: pfconnectorPortMax } )
+  const portRangeMessage = i18n.t('Port out of range ({min}-{max}).', { min: pfconnectorPortMin, max: pfconnectorPortMax } )
 
   return yup.object().shape({
     id: yup.string()
