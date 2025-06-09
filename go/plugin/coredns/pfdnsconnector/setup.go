@@ -2,10 +2,12 @@ package pfdnsconnector
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/coredns/caddy"
 	"github.com/coredns/coredns/core/dnsserver"
 	"github.com/coredns/coredns/plugin"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
@@ -36,7 +38,7 @@ func setuppfdnsconnector(c *caddy.Controller) error {
 				for _, proto := range []string{"tcp", "udp"} {
 					_, err := connector.OpenConnectionTo(ctx, proto, dns["ip"].(string), dns["port"].(string), dns["pfconnectorport"].(string))
 					if err != nil {
-						panic(err)
+						log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to open the remote dns server, dns requests will fail: %s", err))
 					}
 				}
 			}
