@@ -93,7 +93,7 @@ type TypeSource interface {
 }
 
 func getDst(ctx context.Context, proto string, toIP string, toPort string, useConnector bool) string {
-	if useConnector {
+	if !useConnector {
 		return fmt.Sprintf("%s:%s", toIP, toPort)
 	} else {
 		dst, err := connector.OpenConnectionTo(ctx, proto, toIP, toPort)
@@ -280,6 +280,8 @@ func main() {
 		ln.Close()
 		os.Exit(0)
 	}(ln, sigc)
+	Connectors := connector.NewConnectorsContainer(ctx)
+	ctx = connector.WithConnectorsContainer(ctx, Connectors)
 
 	// LDAP Sources
 	go func() {
