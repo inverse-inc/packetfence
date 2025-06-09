@@ -25,7 +25,6 @@ func setuppfdnsconnector(c *caddy.Controller) error {
 	Connectors := connector.NewConnectorsContainer(ctx)
 	ctx = connector.WithConnectorsContainer(ctx, Connectors)
 	pfconfigdriver.AddType[pfconfigdriver.PfConfDnsConnectors](ctx)
-
 	dnsserver.GetConfig(c).AddPlugin(
 		func(next plugin.Handler) plugin.Handler {
 			dnsServers := pfconfigdriver.GetType[pfconfigdriver.PfConfDnsConnectors](context.Background())
