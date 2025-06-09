@@ -27,6 +27,7 @@ export default [
     path: 'connectors/connectors',
     name: 'connectorsConnectors',
     component: TheTabs,
+    props: () => ({ tab: 'connectorsConnectors' }),
     beforeEnter
   },
   {
