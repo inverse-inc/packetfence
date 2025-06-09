@@ -112,7 +112,7 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 		c := cc.ForIP(ctx, net.ParseIP(toIP))
 		var connInfo DynReverseConnectionInfo
 		var err error
-		if localPort == "" {
+		if localPort != "" {
 			connInfo, err = c.DynReverseWithPort(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto), localPort)
 		} else {
 			connInfo, err = c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
