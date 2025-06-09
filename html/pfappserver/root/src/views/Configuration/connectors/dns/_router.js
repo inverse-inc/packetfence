@@ -27,6 +27,7 @@ export default [
     path: 'connectors/dns',
     name: 'connectorsDns',
     component: TheTabs,
+    props: () => ({ tab: 'connectorsDns' }),
     beforeEnter
   },
   {
