@@ -33,6 +33,8 @@ BEGIN {
     util_chain
     util_rich_rule
     util_direct_rule
+    util_get_zone_name_from_int
+    util_set_zone_from_interface
     util_zone_set_forward
     util_zone_set_masquerade
     util_listen_ints_hash
@@ -135,6 +137,38 @@ sub util_get_firewalld_cmd {
   }
   $fbin =~ s/\n//g;
   return $fbin;
+}
+
+sub util_get_zone_name_from_int {
+  my $tint = shift;
+  my $zone = $tint =~ s/\./-/gr;
+  $zone =~ s/:/-/g;
+  return $zone;
+}
+
+sub util_set_zone_from_interface {
+  my $tint = shift;
+  my $forward_action = shift // "";
+  $forward_action = "remove" if $forward_action eq "";
+  my $masquerade_action = shift // "";
+  $masquerade_action = "add" if $masquerade_action eq "";
+
+  my $zone = util_get_zone_name_from_int($tint);
+  my $name_files = util_get_name_files_from_dir("zones");
+  if ( defined $name_files && exists $name_files->{$zone} ) {
+    return 0;
+  }
+  # for now lest do it each time.
+  #unless ( is_zone_available($zone) ) {
+    util_firewalld_job( " --permanent --delete-zone=$zone" );
+    util_firewalld_job( " --permanent --new-zone=$zone" );
+    util_firewalld_job( " --permanent --zone=$zone --set-target=DROP");
+    util_firewalld_job( " --permanent --zone=$zone --change-interface=$tint");
+    util_reload_firewalld();
+    util_zone_set_forward( $zone , "$forward_action" );
+    util_zone_set_masquerade( $zone , "$masquerade_action" );
+  #}
+  return 1;
 }
 
 sub util_zone_set_forward {
@@ -680,7 +714,6 @@ sub util_set_default_zone {
   my $default_zone = util_firewalld_cmd( " --get-default-zone" );
   if ( $zone ne $default_zone ) {
     if ( util_firewalld_job( " --set-default-zone=$zone" ) ){
-      util_firewalld_cmd( " --permanent --zone=$zone --add-masquerade" );
       util_reload_firewalld();
       get_logger->info( "Set default zone is a success" );
     } else {
