@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -66,6 +68,8 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 		if dstIp == nil {
 			// probably a hostname, try to resolve it
 			dnsServer := keyPfConfPfDnsConnector.PfdnsConnectorServer
+			dnsServer = replaceMgmtIP(ctx, dnsServer)
+
 			host, port, err := net.SplitHostPort(dnsServer)
 			if err != nil {
 				return "", err
@@ -124,6 +128,27 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 	}
 
 	return "", fmt.Errorf("unable to find connectors container in context")
+}
+
+// Get the management IP address
+func getDnsDestinationIp(ctx context.Context) net.IP {
+	managementNetwork := pfconfigdriver.GetType[pfconfigdriver.ManagementNetwork](ctx)
+	return net.ParseIP(managementNetwork.Ip)
+}
+
+func replaceMgmtIP(ctx context.Context, input string) string {
+	match := "%mgmtip%:5353"
+	if strings.Contains(input, match) {
+		re := regexp.MustCompile(`%mgmtip%`)
+		// Replace %mgmtip% with the management IP address
+		mgmtIP := getDnsDestinationIp(ctx)
+		if mgmtIP == nil {
+			return "100.64.0.1:5353"
+		}
+		outputString := re.ReplaceAllString(input, mgmtIP.String())
+		return outputString
+	}
+	return input
 }
 
 func ConnectorsContainerFromContext(ctx context.Context) *ConnectorsContainer {
