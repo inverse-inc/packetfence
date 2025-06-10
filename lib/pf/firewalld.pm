@@ -151,7 +151,7 @@ Remove firewalld configuration from /usr/local/pf/var/conf/firewalld/
 
 sub fd_clean_pfconf_configs {
   my $logger = get_logger();
-  $logger->info( "Remove config from /usr/local/pf/var/conf/firewalld/" );
+  $logger->info( "Remove config from $firewalld_config_path_generated" );
   rmtree $firewalld_config_path_generated;
   fd_clean_all_previous_rules();
 }
@@ -242,30 +242,20 @@ Then an interface = a firewalld zone
 =cut
 
 sub fd_create_all_zones {
-  my $name_files = util_get_name_files_from_dir("zones");
   my $logger = get_logger();
   $logger->info( "Create all zones." );
   foreach my $tint ( @listen_ints ) {
-    my $zone = $tint =~ s/\./-/gr;
-    $zone =~ s/:/-/g;
-    if ( defined $name_files && exists $name_files->{$tint} ) {
-      $logger->error( "Network Interface $tint  is handle by configuration files" );
+    if (util_set_zone_from_interface($tint)) {
+      my $zone = util_get_zone_name_from_int($tint);
+      util_direct_rule(" ipv4 filter INPUT 0 -i $zone -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
     } else {
-      util_firewalld_job( " --permanent --delete-zone=$zone" );
-      util_firewalld_job( " --permanent --new-zone=$zone" );
-      util_firewalld_job( " --permanent --zone=$zone --set-target=DROP");
-      util_firewalld_job( " --permanent --zone=$zone --change-interface=$tint");
-      util_reload_firewalld();
+      $logger->info( "Network Interface $tint is handle by configuration files." );
     }
-    util_zone_set_forward( $zone , "remove" );
-    util_zone_set_masquerade( $zone , "add" );
-    util_direct_rule(" ipv4 filter INPUT 0 -i $zone -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT", "add" );
   }
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      my $zone = $tint =~ s/\./-/gr;
-      $zone =~ s/:/-/g;
+      my $zone = util_get_zone_name_from_int($tint);
       util_firewalld_job( " --permanent --delete-zone=$zone" );
       util_firewalld_job( " --permanent --new-zone=$zone" );
       util_firewalld_job( " --permanent --zone=$zone --set-target=DROP");
@@ -628,8 +618,8 @@ sub fd_haproxy_portal_rules {
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
-    util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $action );
+      util_direct_rule("ipv4 filter INPUT 80 -i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $action );
     }
   }
 }
@@ -728,12 +718,8 @@ sub fd_pfdns_rules {
   # OAuth
   my $internal_portal_ip = $Config{captive_portal}{ip_address};
   foreach my $interface (@internal_nets) {
-    my @all_dev_rules;
     my $tint = $interface->tag("int");
-    my $ip = $interface->tag("vip") || $interface->tag("ip");
     my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
-    my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
-
     if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
       if ($tint =~ m/(\w+):\d+/) {
         $tint = $1;
@@ -916,7 +902,6 @@ sub fd_pfdhcp_rules {
   }
   my $internal_portal_ip = $Config{captive_portal}{ip_address};
   foreach my $interface ( @internal_nets ) {
-    my @all_dev_rules;
     my $tint = $interface->tag("int");
     my $ip = $interface->tag("vip") || $interface->tag("ip");
     my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
@@ -1160,11 +1145,9 @@ sub fd_pfipset_rules {
   my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
   my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
   foreach my $interface (@internal_nets) {
-    my @all_dev_rules;
     my $tint = $interface->tag("int");
     my $ip = $interface->tag("vip") || $interface->tag("ip");
     my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
-    my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
 
     if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
       if ($tint =~ m/(\w+):\d+/) {
@@ -1284,13 +1267,13 @@ sub inline_nat_back_rules {
   # Allow the NAT back inside through the forwarding table if inline is enabled
   if ( is_inline_enforcement_enabled() ) {
     my @values = split( ',' , get_inline_snat_interface() );
-    foreach my $dev (@values) {
+    foreach my $tint (@values) {
       foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
         my $nat = $ConfigNetworks{$network}{'nat_enabled'};
         if ( defined ( $nat ) && ( isdisabled($nat) ) ) {
-          util_direct_rule("ipv4 filter FORWARD 0 -d $network/$inline_obj->{BITS} -i $dev -j ACCEPT", $action );
+          util_direct_rule("ipv4 filter FORWARD 0 -d $network/$inline_obj->{BITS} -i $tint -j ACCEPT", $action );
         }
       }
       util_direct_rule("ipv4 filter FORWARD 0 -m state --state ESTABLISHED,RELATED -j ACCEPT", $action );
@@ -1317,8 +1300,8 @@ sub inline_generate_rules {
       # We skip non-inline networks/interfaces
       next if ( !pf::config::is_network_type_inline($network) );
       # Set the correct gateway if it is an inline Layer 3 network
-      my $dev = $NetworkConfig{$network}{'interface'}{'int'};
-      my $gateway = $Config{"interface $dev"}{'ip'};
+      my $tint = $NetworkConfig{$network}{'interface'}{'int'};
+      my $gateway = $Config{"interface $tint"}{'ip'};
 
       my $rule = "-p udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
       util_direct_rule("ipv4 nat PREROUTING -50 $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $action );
@@ -1362,12 +1345,12 @@ sub inline_nat_if_src_rules {
     $logger->info("The action $action has been set on inline clients for table NAT.");
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
-      my $dev = $interface->tag("int");
-      my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
+      my $tint = $interface->tag("int");
+      my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
 
       # inline enforcement
       if (is_type_inline($enforcement_type)) {
-         # send everything from inline interfaces to the inline chain
+        # send everything from inline interfaces to the inline chain
         util_direct_rule("ipv4 nat POSTROUTING 120 -j MASQUERADE", $action );
       }
     }
@@ -1513,8 +1496,8 @@ sub inline_nat_redirect_rules {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
         # Set the correct gateway if it is an inline Layer 3 network
-        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
-        my $gateway = $Config{"interface $dev"}{'ip'};
+        my $tint = $NetworkConfig{$network}{'interface'}{'int'};
+        my $gateway = $Config{"interface $tint"}{'ip'};
 
         # Destination NAT to the portal on the ISOLATION mark
         $rule =
