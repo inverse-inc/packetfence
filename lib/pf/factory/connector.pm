@@ -20,6 +20,7 @@ use pf::config qw($management_network %ConfigConnector %Config);
 use NetAddr::IP;
 use Net::IP;
 use Net::DNS;
+use pf::log;
 
 tie my @connectors_ordered, 'pfconfig::cached_array',
   'resource::connectors_ordered';
@@ -47,15 +48,29 @@ sub local_connector {
     my ($class) = @_;
     return $class->new("local_connector");
 }
-
 sub for_ip {
     my ( $class, $ip ) = @_;
     $ip = NetAddr::IP->new($ip);
+    for my $connector_id (@connectors_ordered) {
+        for my $net (@{$ConfigConnector{$connector_id}{networks}}) {
+            $net = NetAddr::IP->new($net);
+            if($net->contains($ip)) {
+                return $class->new($connector_id);
+            }
+        }
+    }
+    return $class->local_connector();
+}
+
+sub resolve {
+    my ($class, $ip) = @_;
+    my $iptest = NetAddr::IP->new($ip);
     # Check if the IP is valid if not then it's a hostname
-    if (!$ip || !$ip->is_ipv4) {
+    if (!$iptest || !$iptest->is_ipv4) {
         # If the IP is not valid, we assume it's a hostname and resolve it
         my ($resolved_ips, $error) = resolve_dns_with_custom_resolver($ip, $Config{pfdns_connector}{pfdns_connector_server});
         if (!$resolved_ips || !@{$resolved_ips}) {
+            get_logger->error($error);
             return undef; # No valid IPs resolved
         }
         # If we have multiple IPs, we take the first one
@@ -64,15 +79,7 @@ sub for_ip {
     if (!$ip) {
         return undef;
     }
-    for my $connector_id (@connectors_ordered) {
-        for my $net ( @{ $ConfigConnector{$connector_id}{networks} } ) {
-            $net = NetAddr::IP->new($net);
-            if ( $net->contains($ip) ) {
-                return $class->new($connector_id);
-            }
-        }
-    }
-    return $class->local_connector();
+    return $ip->addr();
 }
 
 
@@ -92,19 +99,17 @@ sub replace_mgmt_ip {
 
 sub resolve_dns_with_custom_resolver {
     my ($fqdn, $dns_server_str) = @_;
-    $dns_server_str = replace_mgmt_ip($dns_server_str);
+    $dns_server_str = select_dns_server($dns_server_str);
     my $dns_server_str_save = $dns_server_str; # Save the original DNS server string for error messages
     my $err;
-    $dns_server_str = $ENV{'K8S_DNS_SERVER'} unless $dns_server_str;
-
-    unless (Net::IP::ip_is_ipv4($dns_server_str)) {
+    my ($dns_host, $dns_port) = ($dns_server_str =~ /^(.*?)(?::(\d+))?$/);
+    unless (Net::IP::ip_is_ipv4($dns_host)) {
         my $kube_dns = $ENV{'K8S_DNS_SERVER'};
-        my ($dns_host, $dns_port) = ($dns_server_str =~ /^(.*?)(?::(\d+))?$/);
         ($dns_server_str, $err) = resolve_dns($dns_server_str_save, $kube_dns);
         $dns_server_str = $dns_server_str.":".$dns_port;
     }
     return (undef, "DNS server not configured and K8S_DNS_SERVER is not defined") unless $dns_server_str;
-    return resolve_dns($fqdn, $dns_server_str) if Net::IP::ip_is_ipv4($dns_server_str);
+    return resolve_dns($fqdn, $dns_server_str) if Net::IP::ip_is_ipv4($dns_host);
     return (undef, "Invalid DNS server format: $dns_server_str") unless $dns_server_str =~ /^(.*?)(?::(\d+))?$/;
 }
 
@@ -123,24 +128,20 @@ sub resolve_dns {
     unless ($packet) {
         return (undef, "Error trying to resolve '$fqdn' via $dns_host: " . $resolver->errorstring);
     }
-
     my @ips;
     foreach my $rr ($packet->answer) {
         push @ips, $rr->address if $rr->type eq 'A';
     }
-
     return (\@ips, undef);
 }
 
 sub select_dns_server {
-    my ($class, $dns_server_str) = @_;
+    my ($dns_server_str) = @_;
     $dns_server_str = replace_mgmt_ip($dns_server_str);
     return $dns_server_str if $dns_server_str;
 
     # If no DNS server is provided, we use the default one
-    return $ENV{'K8S_DNS_SERVER'} || '1.1.1.1:53';
-
-
+    return $ENV{'K8S_DNS_SERVER'};
 }
 
 =head1 AUTHOR
