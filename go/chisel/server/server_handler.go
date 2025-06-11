@@ -178,6 +178,16 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 
 	localSecret := pfconfigdriver.LocalSecret{}
 	pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret)
+	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections)
+	additionalRemotes := chshare.Remotes{}
+	if remotes, found := pfconnectorStaticConnections.Element[user.Name]; found {
+		for _, remoteDef := range remotes {
+			if remote, err := settings.DecodeRemote(remoteDef); err == nil {
+				additionalRemotes = append(additionalRemotes, remote)
+			}
+		}
+	}
 	//successfuly validated config!
 	r.Reply(true, nil)
 	//tunnel per ssh connection
@@ -195,9 +205,10 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		//connected, handover ssh connection for tunnel to use, and block
 		return tunnel.BindSSH(ctx, sshConn, reqs, chans)
 	})
+	//connected, setup reversed-remotes?
+	serverInbound := c.Remotes.Reversed(true)
+	serverInbound = append(serverInbound, additionalRemotes...)
 	eg.Go(func() error {
-		//connected, setup reversed-remotes?
-		serverInbound := c.Remotes.Reversed(true)
 		if len(serverInbound) == 0 {
 			return nil
 		}
