@@ -1146,6 +1146,7 @@ sub fd_pfipset_rules {
   my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
   foreach my $interface (@internal_nets) {
     my $tint = $interface->tag("int");
+    util_set_zone_from_interface($tint,"add","add");
     my $ip = $interface->tag("vip") || $interface->tag("ip");
     my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
 
