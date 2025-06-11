@@ -29,7 +29,7 @@ sub build {
         next unless $data->{'type'} eq 'RADIUS';
         my $connector = $data->{'connect_through'};
         my $r =
-"100.64.0.1:$data->{'connect_through_port'}:$data->{host}:$data->{port}";
+"100.64.0.1:$data->{'connect_through_port'}:$data->{host}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
     }
     return \%hash;
