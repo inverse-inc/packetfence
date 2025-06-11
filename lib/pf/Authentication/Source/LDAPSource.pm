@@ -278,7 +278,8 @@ sub _connect {
 
         if($self->use_connector) {
             require pf::factory::connector;
-            my $connector_conn = pf::factory::connector->for_ip($LDAPServer)->dynreverse("$LDAPServer:$LDAPServerPort");
+            my $dest_ip = pf::factory::connector->resolve($LDAPServer);
+            my $connector_conn = pf::factory::connector->for_ip($dest_ip)->dynreverse("$dest_ip:$LDAPServerPort");
             $connection = pf::LDAP->new(
                 $connector_conn->{host},
                 %LDAPArgs,
