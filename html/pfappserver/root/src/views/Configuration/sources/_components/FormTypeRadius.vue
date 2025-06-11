@@ -45,6 +45,16 @@
                               :disabled-value="0"
     />
 
+    <form-group-connect-through namespace="connect_through"
+                              :column-label="$i18n.t('Connect Through')"
+                              :text="$i18n.t('Specify which connector to use to connect to this authentication source.')"
+    />
+
+    <form-group-connect-port namespace="connect_through_port"
+                              :column-label="$i18n.t('Connect Through Port')"
+                              :text="$i18n.t('Which port to use.')"
+    />
+
     <form-group-nas-ip-address namespace="nas_ip_address"
                                :column-label="$i18n.t('NAS IP Address')"
                                :text="$i18n.t('Which NAS IP Address to use when communicating with the RADIUS server. Leaving this empty will make the source use the management IP of the server (management VIP in a cluster).')"
@@ -74,6 +84,8 @@ import {BaseForm} from '@/components/new/'
 import {
   FormGroupAdministrationRules,
   FormGroupAuthenticationRules,
+  FormGroupConnectThrough,
+  FormGroupConnectThroughPort,
   FormGroupDescription,
   FormGroupHost,
   FormGroupIdentifier,
@@ -92,6 +104,8 @@ const components = {
 
   FormGroupAdministrationRules,
   FormGroupAuthenticationRules,
+  FormGroupConnectThrough,
+  FormGroupConnectThroughPort,
   FormGroupDescription,
   FormGroupHost,
   FormGroupIdentifier,
