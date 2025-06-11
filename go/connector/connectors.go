@@ -12,6 +12,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
+var mgmtipregex = regexp.MustCompile(`%mgmtip%`)
+
 // A struct which contains all the connector IDs along with their instantiated Connectors struct
 // It implements pfconfigdriver.Refreshable so that this can be part of a pfconfigdriver.Pool
 type ConnectorsContainer struct {
@@ -139,13 +141,12 @@ func getDnsDestinationIp(ctx context.Context) net.IP {
 func replaceMgmtIP(ctx context.Context, input string) string {
 	match := "%mgmtip%:5353"
 	if strings.Contains(input, match) {
-		re := regexp.MustCompile(`%mgmtip%`)
 		// Replace %mgmtip% with the management IP address
 		mgmtIP := getDnsDestinationIp(ctx)
 		if mgmtIP == nil {
 			return "100.64.0.1:5353"
 		}
-		outputString := re.ReplaceAllString(input, mgmtIP.String())
+		outputString := mgmtipregex.ReplaceAllString(input, mgmtIP.String())
 		return outputString
 	}
 	return input

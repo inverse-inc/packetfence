@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 [Unit]
-Description=PacketFence GO DNS Cconnector Server Daemon
+Description=PacketFence GO DNS Connector Server Daemon
 Wants=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
 Before=packetfence-httpd.portal.service
