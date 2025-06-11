@@ -72,17 +72,19 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 			dnsServer := keyPfConfPfDnsConnector.PfdnsConnectorServer
 			dnsServer = replaceMgmtIP(ctx, dnsServer)
 
-			host, port, err := net.SplitHostPort(dnsServer)
-			if err != nil {
-				return "", err
-			}
-			dnsServerIP := net.ParseIP(host) // Ensure dnsServer is a valid IP address
 			if dnsServer == "" {
 				// If PFDNS_CONNECTOR_HOST_PORT is not set, use the default DNS server
 				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
 				// This allows the code to work in both standalone and Kubernetes environments.
 				dnsServer = os.Getenv("K8S_DNS_SERVER")
-			} else if dnsServerIP == nil {
+			}
+
+			host, port, err := net.SplitHostPort(dnsServer)
+			if err != nil {
+				return "", err
+			}
+			dnsServerIP := net.ParseIP(host) // Ensure dnsServer is a valid IP address
+			if dnsServerIP == nil {
 				// If PFDNS_CONNECTOR_HOST_PORT is a hostname , use the default DNS server
 				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
 				// This allows the code to work in both standalone and Kubernetes environments.
