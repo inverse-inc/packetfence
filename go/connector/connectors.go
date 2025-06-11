@@ -14,6 +14,8 @@ import (
 
 var mgmtipregex = regexp.MustCompile(`%mgmtip%`)
 
+const dockerIpPort = "100.64.0.1:5353"
+
 // A struct which contains all the connector IDs along with their instantiated Connectors struct
 // It implements pfconfigdriver.Refreshable so that this can be part of a pfconfigdriver.Pool
 type ConnectorsContainer struct {
@@ -146,7 +148,7 @@ func replaceMgmtIP(ctx context.Context, input string) string {
 		// Replace %mgmtip% with the management IP address
 		mgmtIP := getDnsDestinationIp(ctx)
 		if mgmtIP == nil {
-			return "100.64.0.1:5353"
+			return dockerIpPort
 		}
 		outputString := mgmtipregex.ReplaceAllString(input, mgmtIP.String())
 		return outputString
