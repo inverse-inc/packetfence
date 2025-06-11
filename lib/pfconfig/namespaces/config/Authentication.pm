@@ -21,7 +21,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($authentication_config_file);
-use pf::util qw(isdisabled);
+use pf::util       qw(isdisabled);
 use pf::constants::authentication;
 use pf::config::crypt;
 use pf::Authentication::constants;
@@ -49,6 +49,7 @@ sub init {
         'resource::authentication_sources_ldap',
         'resource::authentication_sources_radius',
         'resource::RolesReverseLookup',
+        'resource::pfconnector_static_connections',
     ];
 }
 
@@ -61,13 +62,13 @@ sub build_child {
         $self->cleanup_after_read( $key, $cfg{$key} );
     }
 
-    my @authentication_sources = ();
-    my %authentication_lookup  = ();
+    my @authentication_sources     = ();
+    my %authentication_lookup      = ();
     my %authentication_config_hash = ();
     my %roleReverseLookup;
     foreach my $source_id ( @{ $self->{ordered_sections} } ) {
 
-        my $current_source_config = { %{$cfg{$source_id}} };
+        my $current_source_config = { %{ $cfg{$source_id} } };
 
         # We skip groups from our ini files
         if ( $source_id =~ m/\s/ ) {
@@ -79,33 +80,37 @@ sub build_child {
         delete $cfg{$source_id}{type};
 
         # Instantiate the source object
-        my $current_source = $self->newAuthenticationSource( $type, $source_id, $cfg{$source_id} );
+        my $current_source =
+          $self->newAuthenticationSource( $type, $source_id, $cfg{$source_id} );
         my @ldap_attributes;
 
         # Parse rules
         foreach my $rule_id ( $self->GroupMembers($source_id) ) {
-            my ($id) = $rule_id =~ m/$source_id rule (\S+)$/;
+            my ($id)        = $rule_id =~ m/$source_id rule (\S+)$/;
             my $rule_config = $cfg{$rule_id};
-            my $class = $rule_config->{class};
-            if (ref($class) || (defined $class && $class =~ /\n/s)) {
-                print STDERR "rule '$rule_id' seems to be defined multiple times skipping rule\n";
+            my $class       = $rule_config->{class};
+            if ( ref($class) || ( defined $class && $class =~ /\n/s ) ) {
+                print STDERR
+"rule '$rule_id' seems to be defined multiple times skipping rule\n";
                 next;
             }
             my $status = $rule_config->{status} // 'enabled';
-            if (isdisabled($status)) {
+            if ( isdisabled($status) ) {
                 next;
             }
 
-            my $current_rule = pf::Authentication::Rule->new( { match => $Rules::ANY, id => $id } );
+            my $current_rule = pf::Authentication::Rule->new(
+                { match => $Rules::ANY, id => $id } );
             my %current_rule_config = ();
-            my $cache_key = '';
-            foreach my $parameter ( nsort keys( %$rule_config ) ) {
+            my $cache_key           = '';
+            foreach my $parameter ( nsort keys(%$rule_config) ) {
                 my $config_value = $rule_config->{$parameter};
                 if ( $parameter =~ m/condition(\d+)/ ) {
-                    my ( $attribute, $operator, $value ) = split( ',', $config_value, 3 );
+                    my ( $attribute, $operator, $value ) =
+                      split( ',', $config_value, 3 );
                     my $type;
-                    if ($attribute =~ /^(.*?):(.*)$/) {
-                        $type = $1;
+                    if ( $attribute =~ /^(.*?):(.*)$/ ) {
+                        $type      = $1;
                         $attribute = $2;
                         if ( $type eq 'ldap' ) {
                             push @ldap_attributes, $attribute;
@@ -114,7 +119,8 @@ sub build_child {
 
                     $current_rule->add_condition(
                         pf::Authentication::Condition->new(
-                            {   attribute => $attribute,
+                            {
+                                attribute => $attribute,
                                 operator  => $operator,
                                 value     => $value,
                                 type      => $type,
@@ -123,56 +129,67 @@ sub build_child {
                     );
 
                     $cache_key .= $config_value;
-                    $current_rule_config{'conditions'}{$parameter} = $config_value;
+                    $current_rule_config{'conditions'}{$parameter} =
+                      $config_value;
                 }
                 elsif ( $parameter =~ m/action(\d+)/ ) {
                     my ( $type, $value ) = split( '=', $config_value, 2 );
                     $current_rule->add_action(
                         pf::Authentication::Action->new(
                             {
-                                type  => $type,
-                                (defined $value ? (value => $value) : ()),
-                                class => pf::Authentication::Action->getRuleClassForAction($type),
+                                type => $type,
+                                ( defined $value ? ( value => $value ) : () ),
+                                class => pf::Authentication::Action
+                                  ->getRuleClassForAction(
+                                    $type),
                             },
                         )
                     );
-                    if ( $type eq 'set_role') {
-                        push @{$roleReverseLookup{$value}{authentication}}, $rule_id;
+                    if ( $type eq 'set_role' ) {
+                        push @{ $roleReverseLookup{$value}{authentication} },
+                          $rule_id;
                     }
 
                     $current_rule_config{'actions'}{$parameter} = $config_value;
-                } else {
-                    $current_rule->{$parameter} = $current_rule_config{$parameter} = $config_value;
+                }
+                else {
+                    $current_rule->{$parameter} =
+                      $current_rule_config{$parameter} = $config_value;
                 }
             }
 
-            if ($current_source->isa("pf::Authentication::Source::LDAPSource")) {
+            if (
+                $current_source->isa("pf::Authentication::Source::LDAPSource") )
+            {
                 my $usernameattribute = $current_source->usernameattribute;
                 if ($usernameattribute) {
                     push @ldap_attributes, $usernameattribute;
                 }
 
                 my %seen;
-                @ldap_attributes = map {  { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } sort {$a cmp $b} uniq @ldap_attributes;
-                $current_source->_ldap_attributes(\@ldap_attributes);
+                @ldap_attributes =
+                  map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } }
+                  sort { $a cmp $b } uniq @ldap_attributes;
+                $current_source->_ldap_attributes( \@ldap_attributes );
             }
 
             $current_rule->cache_key($cache_key);
             $current_rule_config{cache_key} = $cache_key;
             $current_source->add_rule($current_rule);
-            $current_source_config->{'rules'}->{$rule_id} = \%current_rule_config;
+            $current_source_config->{'rules'}->{$rule_id} =
+              \%current_rule_config;
         }
 
         push( @authentication_sources, $current_source );
-        $authentication_lookup{$source_id} = $current_source;
+        $authentication_lookup{$source_id}      = $current_source;
         $authentication_config_hash{$source_id} = $current_source_config;
     }
 
     my %resources;
-    $resources{authentication_sources} = \@authentication_sources;
-    $resources{authentication_lookup}  = \%authentication_lookup;
-    $resources{authentication_config_hash}  = \%authentication_config_hash;
-    $self->{roleReverseLookup} = \%roleReverseLookup;
+    $resources{authentication_sources}     = \@authentication_sources;
+    $resources{authentication_lookup}      = \%authentication_lookup;
+    $resources{authentication_config_hash} = \%authentication_config_hash;
+    $self->{roleReverseLookup}             = \%roleReverseLookup;
     return \%resources;
 
 }
@@ -189,7 +206,8 @@ sub newAuthenticationSource {
     my $source;
     $type = lc($type);
     if ( exists $pf::constants::authentication::TYPE_TO_SOURCE{$type} ) {
-        my $source_module = $pf::constants::authentication::TYPE_TO_SOURCE{$type};
+        my $source_module =
+          $pf::constants::authentication::TYPE_TO_SOURCE{$type};
         $source = $source_module->new( { id => $source_id, %{$attrs} } );
     }
 
@@ -199,11 +217,21 @@ sub newAuthenticationSource {
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
     my $type = $data->{type};
-    if (defined $type && $type eq 'OpenID') {
+    if ( defined $type && $type eq 'OpenID' ) {
         pf::Authentication::utils::inflatePersonMappings($data);
     }
 
-    $self->expand_list( $data, qw(realms local_realm reject_realm searchattributes sources eduroam_radius_auth), (defined $type && ($type eq 'LDAP' || $type eq 'AD' || $type eq 'EDIR' || $type eq 'GoogleWorkspaceLDAP' || $type eq "Eduroam")) ? ('host') : () );
+    $self->expand_list(
+        $data,
+        qw(realms local_realm reject_realm searchattributes sources eduroam_radius_auth),
+        (
+            defined $type && ( $type eq 'LDAP'
+                || $type eq 'AD'
+                || $type eq 'EDIR'
+                || $type eq 'GoogleWorkspaceLDAP'
+                || $type eq "Eduroam" )
+        ) ? ('host') : ()
+    );
 }
 
 =head1 AUTHOR
