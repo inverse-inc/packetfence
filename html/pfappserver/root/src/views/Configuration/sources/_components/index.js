@@ -67,6 +67,7 @@ export {
   BaseFormGroupInput                        as FormGroupEmailAddress,
   BaseFormGroupInput                        as FormGroupEmailAttribute,
   BaseFormGroupSwitch                       as FormGroupEmailRequired,
+  BaseFormGroupInput                        as FormGroupFrom,
   BaseFormGroupInput                        as FormGroupGroupHeader,
   BaseFormGroupChosenOne                    as FormGroupHashPasswords,
   BaseFormGroupInput                        as FormGroupHost,

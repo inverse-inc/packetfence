@@ -26,6 +26,7 @@ import FormTypeAuthorization from './FormTypeAuthorization'
 import FormTypeAzureAD from './FormTypeAzureAD'
 import FormTypeBlackhole from './FormTypeBlackhole'
 import FormTypeClickatell from './FormTypeClickatell'
+import FormTypeAllMySMS from './FormTypeAllMySMS'
 import FormTypeEapTls from './FormTypeEapTls'
 import FormTypeEdir from './FormTypeEdir'
 import FormTypeEduroam from './FormTypeEduroam'
@@ -59,6 +60,7 @@ const components = {
   FormTypeAzureAD,
   FormTypeBlackhole,
   FormTypeClickatell,
+  FormTypeAllMySMS,
   FormTypeEapTls,
   FormTypeEdir,
   FormTypeEduroam,
@@ -100,6 +102,7 @@ export const setup = (props) => {
       case 'AzureAD':             return FormTypeAzureAD // break
       case 'Blackhole':           return FormTypeBlackhole //break
       case 'Clickatell':          return FormTypeClickatell //break
+      case 'AllMySMS':            return FormTypeAllMySMS //break
       case 'EAPTLS':              return FormTypeEapTls //break
       case 'EDIR':                return FormTypeEdir // break
       case 'Eduroam':             return FormTypeEduroam // break

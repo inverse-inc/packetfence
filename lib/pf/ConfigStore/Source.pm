@@ -48,6 +48,7 @@ our %TYPE_TO_FLATTEN = (
     SMS => [qw(message)],
     Twilio => [qw(message)],
     Clickatell => [qw(message)],
+    AllMySMS => [qw(message)],
     Email => [qw(allowed_domains banned_domains)],
     RADIUS => [qw(options)],
 );
