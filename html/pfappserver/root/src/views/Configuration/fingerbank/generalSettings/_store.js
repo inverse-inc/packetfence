@@ -8,18 +8,21 @@ export const state = () => {
     generalSettings: {
       cache: false,
       message: '',
-      status: ''
+      status: '',
+      environment: {}
     }
   }
 }
 
 export const getters = {
+  apiKey: ({ generalSettings: { cache: { upstream: { api_key } = {} } = {} } = {} }) => api_key,
+  environment: state => state.generalSettings.environment,
   isGeneralSettingsWaiting: state => [types.LOADING, types.DELETING].includes(state.generalSettings.status),
   isGeneralSettingsLoading: state => state.generalSettings.status === types.LOADING
 }
 
 export const actions = {
-  getGeneralSettings: ({ state, commit }) => {
+  getGeneralSettings: ({ state, getters, commit }) => {
     if (state.generalSettings.cache) {
       return Promise.resolve(state.generalSettings.cache)
     }
@@ -39,6 +42,22 @@ export const actions = {
           }, {})
       })
       commit('GENERAL_SETTINGS_REPLACED', refactored)
+      if (getters.apiKey) {
+        api.fingerbankCollectorFlags(getters.apiKey).then(response => {
+          //eslint-disable-next-line no-unused-vars
+          const environment = Object.entries(response || {}).reduce((o, [key, flag]) => {
+            // eslint-disable-next-line
+            const { default: _default, usage } = flag
+            //eslint-disable-next-line no-unused-vars
+            const [ env, _ ] = usage.match(/([A-Z]+_[A-Z_]+[A-Z]+)/) || []
+            if (env) {
+              o[env] = _default
+            }
+            return o
+          }, {})
+          commit('FINGERBANK_COLLECTOR_ENV', environment)
+        })
+      }
       return refactored
     }).catch(err => {
       commit('GENERAL_SETTINGS_ERROR', err.response)
@@ -88,6 +107,8 @@ export const mutations = {
     for (let id of Object.keys(data)) {
       Vue.set(state.generalSettings.cache, id, data[id])
     }
+    const { upstream: { api_key } = {} } = data
+    state.generalSettings.api_key = api_key
   },
   GENERAL_SETTINGS_ERROR: (state, response) => {
     state.generalSettings.status = types.ERROR
@@ -97,5 +118,8 @@ export const mutations = {
   },
   GENERAL_SETTINGS_SUCCESS: (state) => {
     state.generalSettings.status = types.SUCCESS
+  },
+  FINGERBANK_COLLECTOR_ENV: (state, environment) => {
+    state.generalSettings.environment = environment
   }
 }
