@@ -1549,4 +1549,4 @@ password=
 token=
 
 [pfdns_connector]
-pfdns_connector_server=[% ENV.env_or_default("PFDNS_CONNECTOR_HOST_PORT", "100.64.0.1:5353") %]
+pfdns_connector_server=[% ENV.env_or_default("PFDNS_CONNECTOR_HOST_PORT", "%mgmtip%:5353") %]
