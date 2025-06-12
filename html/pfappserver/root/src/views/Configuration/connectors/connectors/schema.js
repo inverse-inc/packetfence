@@ -25,6 +25,17 @@ const schemaNetworks = yup.array().ensure()
   .unique(i18n.t('Duplicate network.'))
   .of(schemaNetwork)
 
+const schemaFingerbankEnvironment = yup.object().shape({
+  name: yup.string().nullable()
+    .required(i18n.t('ENV required.')),
+  value: yup.string().nullable()
+    .required(i18n.t('Value required.'))
+})
+
+const schemaFingerbankEnvironments = yup.array().ensure()
+  .unique(i18n.t('Duplicate ENV'), ({ name }) => name)
+  .of(schemaFingerbankEnvironment)
+
 export default (props) => {
   const {
     id,
@@ -48,5 +59,6 @@ export default (props) => {
       .required(i18n.t('Secret required.'))
       .label(i18n.t('Secret')),
     networks: schemaNetworks,
+    fingerbank_environment: schemaFingerbankEnvironments
   })
 }

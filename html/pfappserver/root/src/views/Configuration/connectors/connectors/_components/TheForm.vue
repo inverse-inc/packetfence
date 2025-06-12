@@ -5,23 +5,32 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-    <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Connector ID')"
-      :disabled="!isNew && !isClone"
-    />
+    <b-tabs card>
+      <base-form-tab :title="$i18n.t('Connector')" active>
+        <form-group-identifier namespace="id"
+          :column-label="$i18n.t('Connector ID')"
+          :disabled="!isNew && !isClone"
+        />
 
-    <form-group-description namespace="description"
-      :column-label="$i18n.t('Description')"
-    />
+        <form-group-description namespace="description"
+          :column-label="$i18n.t('Description')"
+        />
 
-    <form-group-secret namespace="secret"
-      :column-label="$i18n.t('Secret')"
-    />
+        <form-group-secret namespace="secret"
+          :column-label="$i18n.t('Secret')"
+        />
 
-    <form-group-networks namespace="networks"
-      :column-label="$i18n.t('Networks')"
-      :text="$i18n.t('Outbound networks for which this connector should be used. When a network matches multiple connectors, a top-down match is performed based on their order in the configuration. This filtering only applies when PacketFence performs outbound traffic to a server or equipment via the connector, not when receiving inbound traffic.')"
-    />
+        <form-group-networks namespace="networks"
+          :column-label="$i18n.t('Networks')"
+          :text="$i18n.t('Outbound networks for which this connector should be used. When a network matches multiple connectors, a top-down match is performed based on their order in the configuration. This filtering only applies when PacketFence performs outbound traffic to a server or equipment via the connector, not when receiving inbound traffic.')"
+        />
+      </base-form-tab>
+      <base-form-tab :title="$i18n.t('Fingerbank')">
+        <form-group-fingerbank-environment namespace="fingerbank_environment"
+          :column-label="$i18n.t('Environment')"
+        />
+      </base-form-tab>
+    </b-tabs>
   </base-form>
 </template>
 <script>
@@ -35,6 +44,7 @@ import {
   FormGroupDescription,
   FormGroupNetworks,
   FormGroupSecret,
+  FormGroupFingerbankEnvironment,
 } from './'
 
 const components = {
@@ -44,6 +54,7 @@ const components = {
   FormGroupDescription,
   FormGroupNetworks,
   FormGroupSecret,
+  FormGroupFingerbankEnvironment,
 }
 
 export const props = {
@@ -87,4 +98,3 @@ export default {
   setup
 }
 </script>
-

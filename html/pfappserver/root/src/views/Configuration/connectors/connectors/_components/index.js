@@ -5,17 +5,19 @@ import {
   BaseFormGroupInputPassword
 } from '@/components/new/'
 import BaseFormGroupNetworks from './BaseFormGroupNetworks'
+import BaseFormGroupFingerbankEnvironment from './BaseFormGroupFingerbankEnvironment'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseViewCollectionItem      as BaseView,
-  BaseFormButtonBar           as FormButtonBar,
+  BaseViewCollectionItem              as BaseView,
+  BaseFormButtonBar                   as FormButtonBar,
 
-  BaseFormGroupInput          as FormGroupIdentifier,
-  BaseFormGroupInput          as FormGroupDescription,
-  BaseFormGroupInputPassword  as FormGroupSecret,
-  BaseFormGroupNetworks       as FormGroupNetworks,
+  BaseFormGroupInput                  as FormGroupIdentifier,
+  BaseFormGroupInput                  as FormGroupDescription,
+  BaseFormGroupInputPassword          as FormGroupSecret,
+  BaseFormGroupNetworks               as FormGroupNetworks,
+  BaseFormGroupFingerbankEnvironment  as FormGroupFingerbankEnvironment,
 
   TheForm,
   TheView
