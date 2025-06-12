@@ -84,6 +84,7 @@ export const schema = (props) => {
 
   const {
     cert_file_upload,
+    connect_through,
     idp_ca_cert_path_upload,
     idp_cert_path_upload,
     idp_metadata_path_upload,
@@ -92,7 +93,6 @@ export const schema = (props) => {
     paypal_cert_file_upload,
     sp_cert_path_upload,
     sp_key_path_upload,
-
   } = form || {}
 
   return yup.object({
@@ -128,6 +128,13 @@ export const schema = (props) => {
     client_id: yup.string().label(i18n.t('Client ID')),
     client_key_file: yup.string().nullable().label(i18n.t('Client key')),
     client_secret: yup.string().label(i18n.t('Secret')),
+    connect_through: yup.string().nullable().label(i18n.t('Connect Through')),
+    connect_through_port: yup.string()
+      .when('connect_through', () => {
+        return (!connect_through)
+          ? yup.string().nullable()
+          : yup.string().nullable().required(i18n.t('Port required.'))
+      }),
     description: yup.string().label(i18n.t('Description')).required(i18n.t('Description required.')),
     domains: yup.string().label(i18n.t('Domains')),
     email_address: yup.string().label(i18n.t('Email')),

@@ -46,13 +46,13 @@
     />
 
     <form-group-connect-through namespace="connect_through"
-                              :column-label="$i18n.t('Connect Through')"
-                              :text="$i18n.t('Specify which connector to use to connect to this authentication source.')"
+                                :column-label="$i18n.t('Connect Through')"
+                                :text="$i18n.t('Specify which connector to use to connect to this authentication source.')"
     />
 
-    <form-group-connect-port namespace="connect_through_port"
-                              :column-label="$i18n.t('Connect Through Port')"
-                              :text="$i18n.t('Which port to use.')"
+    <form-group-connect-through-port namespace="connect_through_port"
+                                     :column-label="$i18n.t('Connect Through Port')"
+                                     :text="$i18n.t('Which port to use.')"
     />
 
     <form-group-nas-ip-address namespace="nas_ip_address"
