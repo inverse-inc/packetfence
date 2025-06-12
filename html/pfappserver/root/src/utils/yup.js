@@ -421,11 +421,11 @@ yup.addMethod(yup.string, 'isMAC', function (message) {
   })
 })
 
-yup.addMethod(yup.string, 'isPort', function (message) {
+yup.addMethod(yup.string, 'isPort', function (min = 1, max = 65535, message) {
   return this.test({
     name: 'isPort',
-    message: message || i18n.t('Invalid port.'),
-    test: value => ['', null, undefined].includes(value) || (+value === parseInt(value) && +value >= 1 && +value <= 65535)
+    message: message || i18n.t(`Invalid port range (${min}-${max}).`),
+    test: value => ['', null, undefined].includes(value) || (+value === parseInt(value) && +value >= min && +value <= max)
   })
 })
 
