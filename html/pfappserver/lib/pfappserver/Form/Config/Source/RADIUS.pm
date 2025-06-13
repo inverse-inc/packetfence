@@ -13,7 +13,11 @@ Form definition to create or update a RADIUS user source.
 use HTML::FormHandler::Moose;
 use pf::ConfigStore::Connector;
 use pf::config qw(%Config);
+use pf::authentication;
+use pf::Authentication::Source::RADIUSSource;
+my $META = pf::Authentication::Source::RADIUSSource->meta;
 extends 'pfappserver::Form::Config::Source';
+
 with 'pfappserver::Base::Form::Role::Help',
   'pfappserver::Base::Form::Role::InternalSource';
 
@@ -68,9 +72,7 @@ has_field 'monitor' => (
         after_element => \&help,
         help          => 'Do you want to monitor this source?'
     },
-    default =>
-      pf::Authentication::Source::RADIUSSource->meta->get_attribute('monitor')
-      ->default,
+    default => $META->get_attribute('monitor')->default,
 );
 
 has_field 'use_connector',
@@ -78,8 +80,7 @@ has_field 'use_connector',
     type            => 'Toggle',
     checkbox_value  => '1',
     unchecked_value => '0',
-    default => pf::Authentication::Source::RADIUSSource->meta->get_attribute(
-        'use_connector')->default,
+    default         => $META->get_attribute('use_connector')->default,
   );
 
 has_field 'connect_through' => (
@@ -114,14 +115,35 @@ has_field 'options' => (
 
 has_field 'nas_ip_address' => (
     type    => 'Text',
-    default => pf::Authentication::Source::RADIUSSource->meta->get_attribute(
-        'nas_ip_address')->default,
+    default => $META->get_attribute('nas_ip_address')->default,
 );
 
 sub _options_set_role_from_source {
     my ($self) = @_;
     return
       map { $_ => $_ } @{ $Config{radius_configuration}{radius_attributes} };
+}
+
+sub validate {
+    my ($self)          = @_;
+    my $value           = $self->value;
+    my $connect_through = $value->{connect_through};
+    return if !defined $connect_through || length($connect_through) == 0;
+    my $id      = $value->{id};
+    my $port    = $value->{connect_through_port};
+    my $sources = pf::authentication::getAuthenticationSourcesByType('RADIUS');
+
+    for my $source (@$sources) {
+        if ( $id eq $source->{id} ) {
+            next;
+        }
+
+        my $p = $source->{connect_through_port};
+        if ( defined $p && $p == $port ) {
+            $self->field('connect_through_port')
+              ->add_error('Only a single port should be defined');
+        }
+    }
 }
 
 =head1 COPYRIGHT
