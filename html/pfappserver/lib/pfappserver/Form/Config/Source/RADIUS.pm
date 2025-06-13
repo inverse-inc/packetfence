@@ -141,7 +141,7 @@ sub validate {
         my $p = $source->{connect_through_port};
         if ( defined $p && $p == $port ) {
             $self->field('connect_through_port')
-              ->add_error('Only a single port should be defined');
+              ->add_error('Port should be unique');
         }
     }
 }

@@ -58,7 +58,7 @@ $t->post_ok(
         errors => [
             {
                 field   => 'connect_through_port',
-                message => 'Only a single port should be defined',
+                message => 'Port should be unique',
             }
         ],
         message => 'Unable to validate',
