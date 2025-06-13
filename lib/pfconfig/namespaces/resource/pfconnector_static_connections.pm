@@ -20,6 +20,10 @@ sub init {
       $self->{cache}->get_cache('config::Authentication');
 }
 
+sub find_connector {
+
+}
+
 sub build {
     my ($self) = @_;
     my %hash;
@@ -27,9 +31,10 @@ sub build {
         each %{ $self->{_authentication_config}{authentication_config_hash} } )
     {
         next unless $data->{'type'} eq 'RADIUS';
-        my $connector = $data->{'connect_through'};
-        my $r =
-"100.64.0.1:$data->{'connect_through_port'}:$data->{host}:$data->{port}/udp";
+        my $port = $data->{'connect_through_port'};
+        next unless defined $port;
+        my $connector = $self->find_connector( $data->{host} );
+        my $r         = "100.64.0.1:${port}:$data->{host}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
     }
     return \%hash;

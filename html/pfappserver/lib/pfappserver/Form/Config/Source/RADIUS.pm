@@ -125,12 +125,11 @@ sub _options_set_role_from_source {
 }
 
 sub validate {
-    my ($self)          = @_;
-    my $value           = $self->value;
-    my $connect_through = $value->{connect_through};
-    return if !defined $connect_through || length($connect_through) == 0;
+    my ($self) = @_;
+    my $value  = $self->value;
+    my $port   = $value->{connect_through_port};
+    return if !defined $port || length($port) == 0;
     my $id      = $value->{id};
-    my $port    = $value->{connect_through_port};
     my $sources = pf::authentication::getAuthenticationSourcesByType('RADIUS');
 
     for my $source (@$sources) {

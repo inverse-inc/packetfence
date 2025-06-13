@@ -98,8 +98,12 @@ sub _send_radius_auth {
     my ( $self, $username, $password, @attributes ) = @_;
     my $logger    = get_logger();
     my $host_port = "$self->{'host'}:$self->{'port'}";
-    if ( $self->connect_through && $self->connect_through_port ) {
-        $host_port = "100.64.0.1:" . $self->connect_through_port;
+    if ( $self->use_connector && $self->connect_through_port ) {
+        my $host =
+          exists $ENV{PFCONNECTOR_SERVICE_HOST}
+          ? $ENV{PFCONNECTOR_SERVICE_HOST}
+          : "100.64.0.1";
+        $host_port = "$host:" . $self->connect_through_port;
     }
     elsif ( $self->use_connector ) {
         require pf::factory::connector;

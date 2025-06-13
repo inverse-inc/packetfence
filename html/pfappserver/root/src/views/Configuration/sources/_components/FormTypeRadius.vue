@@ -45,11 +45,6 @@
                               :disabled-value="0"
     />
 
-    <form-group-connect-through namespace="connect_through"
-                                :column-label="$i18n.t('Connect Through')"
-                                :text="$i18n.t('Specify which connector to use to connect to this authentication source.')"
-    />
-
     <form-group-connect-through-port namespace="connect_through_port"
                                      :column-label="$i18n.t('Connect Through Port')"
                                      :text="$i18n.t('Which port to use.')"
@@ -84,7 +79,6 @@ import {BaseForm} from '@/components/new/'
 import {
   FormGroupAdministrationRules,
   FormGroupAuthenticationRules,
-  FormGroupConnectThrough,
   FormGroupConnectThroughPort,
   FormGroupDescription,
   FormGroupHost,
@@ -104,7 +98,6 @@ const components = {
 
   FormGroupAdministrationRules,
   FormGroupAuthenticationRules,
-  FormGroupConnectThrough,
   FormGroupConnectThroughPort,
   FormGroupDescription,
   FormGroupHost,

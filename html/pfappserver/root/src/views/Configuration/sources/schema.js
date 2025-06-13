@@ -103,7 +103,6 @@ export const schema = (props) => {
 
   const {
     cert_file_upload,
-    connect_through,
     idp_ca_cert_path_upload,
     idp_cert_path_upload,
     idp_metadata_path_upload,
@@ -152,18 +151,6 @@ export const schema = (props) => {
     client_id: yup.string().label(i18n.t('Client ID')),
     client_key_file: yup.string().nullable().label(i18n.t('Client key')),
     client_secret: yup.string().label(i18n.t('Secret')),
-    connect_through: yup.string().nullable().label(i18n.t('Connector')),
-    connect_through_port: yup.string()
-      .when('connect_through', () => {
-        return (!connect_through)
-          ? yup.string().nullable()
-          : yup.string()
-            .nullable()
-            .required(i18n.t('Port required.'))
-            .label(i18n.t('Port'))
-            .isPort(connectThroughPortMin, connectThroughPortMax)
-            .sourceConnectThroughPortNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Port exists.'))
-      }),
     description: yup.string().label(i18n.t('Description')).required(i18n.t('Description required.')),
     domains: yup.string().label(i18n.t('Domains')),
     email_address: yup.string().label(i18n.t('Email')),
