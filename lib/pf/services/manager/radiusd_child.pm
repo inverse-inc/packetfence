@@ -1042,7 +1042,7 @@ EOT
         my $host = $source->{'host'};
         my $port = $source->{'port'};
         if ($source->{'use_connector'} && $source->{'connect_through_port'} ne "") {
-            $host = exists($ENV{PFCONNECTOR_SERVICE_HOST}}) ? $ENV{PFCONNECTOR_SERVICE_HOST} : "100.64.0.1";
+            $host = exists $ENV{PFCONNECTOR_SERVICE_HOST} ? $ENV{PFCONNECTOR_SERVICE_HOST} : "100.64.0.1";
             $port = $source->{'connect_through_port'};
         }
         $tags{'radius_sources'} .= <<"EOT";
