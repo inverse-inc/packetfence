@@ -13,15 +13,32 @@ pfconfig::namespaces::resource::pfconnector_static_connections
 use strict;
 use warnings;
 use base 'pfconfig::namespaces::resource';
+use NetAddr::IP;
 
 sub init {
     my ($self) = @_;
     $self->{_authentication_config} =
       $self->{cache}->get_cache('config::Authentication');
+    $self->{_connector_config} =
+      $self->{cache}->get_cache('config::Connector');
+    $self->{_connectors_ordered} =
+      $self->{cache}->get_cache('resource::connectors_ordered');
 }
 
 sub find_connector {
+    my ( $self, $ip ) = @_;
+    $ip = NetAddr::IP->new($ip);
+    my $config = $self->{_connector_config};
+    for my $connector_id ( @{ $self->{_connectors_ordered} // [] } ) {
+        for my $net ( @{ $config->{$connector_id}{networks} } ) {
+            $net = NetAddr::IP->new($net);
+            if ( $net->contains($ip) ) {
+                return $connector_id;
+            }
+        }
+    }
 
+    return 'local_connector';
 }
 
 sub build {
