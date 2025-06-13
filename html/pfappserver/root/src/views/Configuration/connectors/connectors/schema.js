@@ -27,13 +27,13 @@ const schemaNetworks = yup.array().ensure()
 
 const schemaFingerbankEnvironment = yup.object().shape({
   name: yup.string().nullable()
-    .required(i18n.t('ENV required.')),
+    .required(i18n.t('Environment variable required.')),
   value: yup.string().nullable()
     .required(i18n.t('Value required.'))
 })
 
 const schemaFingerbankEnvironments = yup.array().ensure()
-  .unique(i18n.t('Duplicate ENV'), ({ name }) => name)
+  .unique(i18n.t('Duplicate environment variable.'), ({ name }) => name)
   .of(schemaFingerbankEnvironment)
 
 export default (props) => {

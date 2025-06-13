@@ -51,7 +51,7 @@ export const actions = {
             //eslint-disable-next-line no-unused-vars
             const [ env, _ ] = usage.match(/([A-Z]+_[A-Z_]+[A-Z]+)/) || []
             if (env) {
-              o[env] = _default
+              o[env] = { text: usage, value: _default }
             }
             return o
           }, {})

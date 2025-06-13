@@ -4,6 +4,7 @@
     <base-input-chosen-one ref="nameComponentRef"
       :namespace="`${namespace}.name`"
       :options="nameOptions"
+      :text="nameText"
     />
 
     <component :is="valueComponent" ref="valueComponentRef"
@@ -50,6 +51,11 @@ const setup = (props, context) => {
     .map(([text]) => ({ text, value: text }))
     .sort(({ text: textA }, { text: textB }) => textA.localeCompare(textB))
 
+  const nameText = computed(() => {
+    const { name } = unref(inputValue) || {}
+    const { [name]: { text } = {} } = store.getters[`$_fingerbank/environment`]
+    return text
+  })
 
   watch( // when `name` is mutated
     () => unref(inputValue) && unref(inputValue).name,
@@ -68,7 +74,7 @@ const setup = (props, context) => {
 
   const valuePlaceholder = computed(() => {
     const { name } = unref(inputValue) || {}
-    const { [name]: value } = store.getters[`$_fingerbank/environment`]
+    const { [name]: { value } = {} } = store.getters[`$_fingerbank/environment`]
     return value
   })
 
@@ -84,11 +90,10 @@ const setup = (props, context) => {
     }
   })
 
-
-
   return {
     nameComponentRef,
     nameOptions,
+    nameText,
     valueComponent,
     valueComponentRef,
     valuePlaceholder
