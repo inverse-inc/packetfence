@@ -1041,7 +1041,7 @@ EOT
         $source->{'options'} =~ s/\$src_ip/$src_ip/;
         my $host = $source->{'host'};
         my $port = $source->{'port'};
-        if ($source->{'use_connector'}) {
+        if ($source->{'use_connector'} && $source->{'connect_through_port'} ne "") {
             $host = exists($ENV{PFCONNECTOR_SERVICE_HOST}}) ? $ENV{PFCONNECTOR_SERVICE_HOST} : "100.64.0.1";
             $port = $source->{'connect_through_port'};
         }
