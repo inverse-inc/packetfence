@@ -29,6 +29,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+ * Allow RADIUS sources to define a static port to use when behind a connector. (#8676)
+
 === Bug Fixes
 
 === Security Fixes
