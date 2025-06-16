@@ -126,7 +126,7 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	client.MaxPacketErrors = 2
 	sources := strings.Split(radiusSource.Host, ",")
 	for num, src := range sources {
-		dst := getDst(ctx, "udp", src, radiusSource.Port, radiusSource.UseConnector)
+		dst := getDst(ctx, "udp", src, radiusSource.Port, bool(radiusSource.UseConnector))
 		ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 		response, err := client.Exchange(ctx2, packet, dst)
@@ -153,7 +153,7 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	t := StatsdClient.NewTiming()
 	sources := source.(pfconfigdriver.AuthenticationSourceLdap).Host
 	for num, src := range sources {
-		dst := getDst(ctx, "tcp", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port, source.(pfconfigdriver.AuthenticationSourceLdap).UseConnector)
+		dst := getDst(ctx, "tcp", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port, bool(source.(pfconfigdriver.AuthenticationSourceLdap).UseConnector))
 		var l *ldap.Conn
 		var err error
 		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "ssl" {

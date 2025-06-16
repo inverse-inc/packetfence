@@ -3,10 +3,11 @@ package pfconfigdriver
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net"
+	"strings"
 	"time"
 
-	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/config/pfcrypt"
 )
 
@@ -495,17 +496,17 @@ type AuthenticationSourceEduroam struct {
 
 type AuthenticationSourceRadius struct {
 	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"resource::authentication_sources_radius"`
-	PfconfigHashNS string `val:"-"`
-	Description    string `json:"description"`
-	Secret         string `json:"secret"`
-	Port           string `json:"port"`
-	Host           string `json:"host"`
-	Timeout        string `json:"timeout"`
-	UseConnector   bool   `json:"use_connector"`
-	Monitor        string `json:"monitor"`
-	Type           string `json:"type"`
+	PfconfigMethod string     `val:"hash_element"`
+	PfconfigNS     string     `val:"resource::authentication_sources_radius"`
+	PfconfigHashNS string     `val:"-"`
+	Description    string     `json:"description"`
+	Secret         string     `json:"secret"`
+	Port           string     `json:"port"`
+	Host           string     `json:"host"`
+	Timeout        string     `json:"timeout"`
+	UseConnector   BoolString `json:"use_connector"`
+	Monitor        string     `json:"monitor"`
+	Type           string     `json:"type"`
 }
 
 type AuthenticationSourceLdap struct {
@@ -523,39 +524,25 @@ type AuthenticationSourceLdap struct {
 	Scope             string              `json:"scope"`
 	EmailAttribute    string              `json:"email_attribute"`
 	UserNameAttribute string              `json:"usernameattribute"`
-	UseConnector      bool                `json:"use_connector"`
+	UseConnector      BoolString          `json:"use_connector"`
 	BindDN            string              `json:"binddn"`
 	Encryption        string              `json:"encryption"`
 	Monitor           string              `json:"monitor"`
 	Type              string              `json:"type"`
 }
 
-func (t *AuthenticationSourceLdap) UnmarshalJSON(data []byte) error {
-	var dataGeneric map[string]interface{}
+type BoolString bool
 
-	if err := json.Unmarshal(data, &dataGeneric); err != nil {
-		return err
-	}
-
-	if use_connector, found := dataGeneric["use_connector"]; found {
-		if str, ok := use_connector.(string); ok {
-			dataGeneric["use_connector"] = sharedutils.IsEnabled(str)
-		} else {
-			dataGeneric["use_connector"] = false
-		}
+func (bit *BoolString) UnmarshalJSON(data []byte) error {
+	asString := strings.ToLower(strings.Trim(string(data), `"`))
+	if asString == "1" {
+		*bit = true
+	} else if asString == "0" {
+		*bit = false
 	} else {
-		dataGeneric["use_connector"] = false
+		return fmt.Errorf("boolean string must be '1' or '0', got %q", asString)
 	}
-
-	// Re-marshal after fixing the data
-	newData, ok := json.Marshal(dataGeneric)
-	if ok != nil {
-		return ok
-	}
-
-	// Without new type the same UnmarshalJSON will be called recursively
-	type ldap2 AuthenticationSourceLdap
-	return json.Unmarshal(newData, (*ldap2)(t))
+	return nil
 }
 
 type PfStats struct {
