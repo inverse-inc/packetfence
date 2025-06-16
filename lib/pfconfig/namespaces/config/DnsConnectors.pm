@@ -30,7 +30,6 @@ sub init {
     $self->{child_resources} = [
         'resource::connectors_config'
     ];
-
 }
 
 sub build_child {
