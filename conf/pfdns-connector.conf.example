@@ -1,8 +1,6 @@
 .:53 {
     # This configuration will check in the /etc/hosts and if the fqdn match it will return the corresponding ip.
     # If it doesn't match then it will continue
-    pfdnsconnector {
-    }
     hosts {
         fallthrough
     }
