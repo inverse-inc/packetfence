@@ -2,6 +2,10 @@ import store from '@/store'
 import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import {
+  connectThroughPortMin,
+  connectThroughPortMax
+} from './config'
 
 yup.addMethod(yup.string, 'sourceIdExists', function (message) {
   return this.test({
@@ -26,6 +30,21 @@ yup.addMethod(yup.string, 'sourceIdNotExistsExcept', function (exceptId = '', me
       if (!value || value.toLowerCase() === exceptId.toLowerCase()) return true
       return store.dispatch('config/getSources').then(response => {
         return response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length === 0
+      }).catch(() => {
+        return true
+      })
+    }
+  })
+})
+
+yup.addMethod(yup.string, 'sourceConnectThroughPortNotExistsExcept', function (exceptName = '', message) {
+  return this.test({
+    name: 'sourceConnectThroughPortNotExistsExcept',
+    message: message || i18n.t('Name exists.'),
+    test: (value) => {
+      if (!value) return true
+      return store.dispatch('config/getSources').then(response => {
+        return response.filter(source =>  source.id.toLowerCase() !== exceptName.toLowerCase() && source.connect_through_port.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })
@@ -92,8 +111,12 @@ export const schema = (props) => {
     paypal_cert_file_upload,
     sp_cert_path_upload,
     sp_key_path_upload,
-
   } = form || {}
+
+  //eslint-disable-next-line
+  console.log({connectThroughPortMin, connectThroughPortMax})
+
+  const connectThroughPortRangeMessage = i18n.t('Port out of range ({min}-{max}).', { min: connectThroughPortMin, max: connectThroughPortMax } )
 
   return yup.object({
     id: yup.string()
@@ -136,7 +159,7 @@ export const schema = (props) => {
     hash_passwords: yup.string().nullable().label(i18n.t('Hash')),
     host: schemaHosts,
     identity_token: yup.string().label(i18n.t('Token')),
-    idp_ca_cert_path: yup.string()
+    idp_ca_cert_path: yup.string() .isPort()
       .when('idp_ca_cert_path_upload', () => {
         return (!idp_ca_cert_path_upload)
           ? yup.string().nullable().required(i18n.t('Certificate required.'))
@@ -186,7 +209,7 @@ export const schema = (props) => {
     redirect_url: yup.string().label(i18n.t('URL')),
     scope: yup.string().nullable().label(i18n.t('Scope')),
     secret_key: yup.string().label(i18n.t('Key')),
-    secret: yup.string().label(i18n.t('Secret')),
+    secret: yup.string().label(i18n.t('Secret')).required(i18n.t('Secret required.')),
     server1_address: yup.string().label(i18n.t('Address')),
     server2_address: yup.string().label(i18n.t('Address')),
     shared_secret_direct: yup.string().label(i18n.t('Secret')),

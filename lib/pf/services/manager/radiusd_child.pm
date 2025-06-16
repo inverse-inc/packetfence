@@ -1039,11 +1039,17 @@ EOT
         my @ips = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
         my $src_ip = pf::util::find_outgoing_srcip($ips[0]);
         $source->{'options'} =~ s/\$src_ip/$src_ip/;
+        my $host = $source->{'host'};
+        my $port = $source->{'port'};
+        if ($source->{'use_connector'} && $source->{'connect_through_port'} ne "") {
+            $host = exists $ENV{PFCONNECTOR_SERVICE_HOST} ? $ENV{PFCONNECTOR_SERVICE_HOST} : "100.64.0.1";
+            $port = $source->{'connect_through_port'};
+        }
         $tags{'radius_sources'} .= <<"EOT";
 
 home_server $radius {
-ipaddr = $source->{'host'}
-port = $source->{'port'}
+ipaddr = $host
+port = $port
 secret = '$source->{'secret'}'
 $source->{'options'}
 }

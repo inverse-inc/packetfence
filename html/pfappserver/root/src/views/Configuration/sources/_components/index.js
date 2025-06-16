@@ -56,6 +56,7 @@ export {
   BaseFormGroupInput                        as FormGroupClientIdentifier,
   BaseFormGroupFileUpload                   as FormGroupClientKeyFile,
   BaseFormGroupInput                        as FormGroupClientSecret,
+  BaseFormGroupInputNumber                  as FormGroupConnectThroughPort,
   BaseFormGroupInputNumber                  as FormGroupConnectionTimeout,
   BaseFormGroupSwitch                       as FormGroupCreateLocalAccount,
   BaseFormGroupChosenOne                    as FormGroupCurrency,

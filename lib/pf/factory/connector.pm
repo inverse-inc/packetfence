@@ -16,20 +16,22 @@ use strict;
 use warnings;
 use pf::connector;
 use pf::config qw(%ConfigConnector);
+use NetAddr::IP;
 
-tie my @connectors_ordered, 'pfconfig::cached_array', 'resource::connectors_ordered';
+tie my @connectors_ordered, 'pfconfig::cached_array',
+  'resource::connectors_ordered';
 
 sub factory_for { 'pf::connector' }
 
 sub new {
-    my ($class,$name) = @_;
+    my ( $class, $name ) = @_;
     my $object;
-    if (!exists $ConfigConnector{$name}) {
+    if ( !exists $ConfigConnector{$name} ) {
         return undef;
     }
 
     my $data = $ConfigConnector{$name};
-    if (!defined $data) {
+    if ( !defined $data ) {
         return undef;
     }
 
@@ -44,16 +46,16 @@ sub local_connector {
 }
 
 sub for_ip {
-    my ($class, $ip) = @_;
+    my ( $class, $ip ) = @_;
     $ip = NetAddr::IP->new($ip);
     for my $connector_id (@connectors_ordered) {
-        for my $net (@{$ConfigConnector{$connector_id}{networks}}) {
+        for my $net ( @{ $ConfigConnector{$connector_id}{networks} } ) {
             $net = NetAddr::IP->new($net);
-            if($net->contains($ip)) {
+            if ( $net->contains($ip) ) {
                 return $class->new($connector_id);
             }
         }
-    } 
+    }
     return $class->local_connector();
 }
 

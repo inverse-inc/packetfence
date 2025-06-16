@@ -12,83 +12,121 @@ Form definition to create or update a RADIUS user source.
 
 use HTML::FormHandler::Moose;
 use pf::config qw(%Config);
+use pf::authentication;
+use pf::Authentication::Source::RADIUSSource;
+my $META = pf::Authentication::Source::RADIUSSource->meta;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
+
+with 'pfappserver::Base::Form::Role::Help',
+  'pfappserver::Base::Form::Role::InternalSource';
 
 # Form fields
-has_field 'host' =>
-  (
-   type => 'Text',
-   label => 'Host',
-   element_class => ['input-small'],
-   element_attr => {'placeholder' => '127.0.0.1'},
-   default => '127.0.0.1',
-   required => 1,
-  );
-has_field 'port' =>
-  (
-   type => 'Port',
-   label => 'Port',
-   element_class => ['input-mini'],
-   element_attr => {'placeholder' => '1812'},
-   default => 1812,
-   required => 1,
-   tags => { after_element => \&help,
-             help => 'If you use this source in the realm configuration the accounting port will be this port + 1' },
-  );
-has_field 'secret' =>
-  (
-   type => 'ObfuscatedText',
-   label => 'Secret',
-   required => 1,
-   # Default value needed for creating dummy source
-   default => '',
-  );
-has_field 'timeout' =>
-  (
-   type => 'PosInteger',
-   label => 'Timeout',
-   required => 1,
-   element_class => ['input-mini'],
-   element_attr => {'placeholder' => '1'},
-   default => 1,
-  );
-has_field 'monitor',
-  (
-   type => 'Toggle',
-   label => 'Monitor',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   tags => { after_element => \&help,
-             help => 'Do you want to monitor this source?' },
-   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('monitor')->default,
+has_field 'host' => (
+    type          => 'Text',
+    label         => 'Host',
+    element_class => ['input-small'],
+    element_attr  => { 'placeholder' => '127.0.0.1' },
+    default       => '127.0.0.1',
+    required      => 1,
 );
+
+has_field 'port' => (
+    type          => 'Port',
+    label         => 'Port',
+    element_class => ['input-mini'],
+    element_attr  => { 'placeholder' => '1812' },
+    default       => 1812,
+    required      => 1,
+    tags          => {
+        after_element => \&help,
+        help          =>
+'If you use this source in the realm configuration the accounting port will be this port + 1'
+    },
+);
+
+has_field 'secret' => (
+    type     => 'ObfuscatedText',
+    label    => 'Secret',
+    required => 1,
+
+    # Default value needed for creating dummy source
+    default => '',
+);
+
+has_field 'timeout' => (
+    type          => 'PosInteger',
+    label         => 'Timeout',
+    required      => 1,
+    element_class => ['input-mini'],
+    element_attr  => { 'placeholder' => '1' },
+    default       => 1,
+);
+
+has_field 'monitor' => (
+    type            => 'Toggle',
+    label           => 'Monitor',
+    checkbox_value  => '1',
+    unchecked_value => '0',
+    tags            => {
+        after_element => \&help,
+        help          => 'Do you want to monitor this source?'
+    },
+    default => $META->get_attribute('monitor')->default,
+);
+
 has_field 'use_connector',
   (
-   type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('use_connector')->default,
-);
-
-has_field 'options',
-  (
-   type => 'TextArea',
-   label => 'Options',
-   tags => { after_element => \&help,
-             help => 'Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radius restart.' },
-   default => 'type = auth+acct',
-);
-
-has_field 'nas_ip_address' =>
-  (
-   type => 'Text',
-   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('nas_ip_address')->default,
+    type            => 'Toggle',
+    checkbox_value  => '1',
+    unchecked_value => '0',
+    default         => $META->get_attribute('use_connector')->default,
   );
+
+has_field 'connect_through_port' => (
+    type          => 'Port',
+);
+
+has_field 'options' => (
+    type  => 'TextArea',
+    label => 'Options',
+    tags  => {
+        after_element => \&help,
+        help          =>
+'Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radius restart.'
+    },
+    default => 'type = auth+acct',
+);
+
+has_field 'nas_ip_address' => (
+    type    => 'Text',
+    default => $META->get_attribute('nas_ip_address')->default,
+);
 
 sub _options_set_role_from_source {
     my ($self) = @_;
-    return map { $_ => $_} @{$Config{radius_configuration}{radius_attributes}};
+    return
+      map { $_ => $_ } @{ $Config{radius_configuration}{radius_attributes} };
+}
+
+sub validate {
+    my ($self) = @_;
+    my $value  = $self->value;
+    my $port   = $value->{connect_through_port};
+    return if !defined $port || length($port) == 0;
+    my $id      = $value->{id};
+    my $sources = pf::authentication::getAuthenticationSourcesByType('RADIUS');
+
+    for my $source (@$sources) {
+        if ( $id eq $source->{id} ) {
+            next;
+        }
+
+        my $p = $source->{connect_through_port};
+        if ( defined $p && $p == $port ) {
+            $self->field('connect_through_port')
+              ->add_error('Port should be unique');
+        }
+    }
 }
 
 =head1 COPYRIGHT

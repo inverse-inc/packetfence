@@ -8,16 +8,16 @@ pf::Authentication::Source::RADIUSSource
 
 =cut
 
-use pf::constants qw($TRUE $FALSE);
+use pf::constants                 qw($TRUE $FALSE);
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::constants::authentication::messages;
 use pf::log;
-use pf::config qw(%Config);
+use pf::config          qw(%Config);
 use pf::config::cluster qw($cluster_enabled);
 
-our $RADIUS_STATE = 'State';
+our $RADIUS_STATE         = 'State';
 our $RADIUS_REPLY_MESSAGE = 'Reply-Message';
-our $RADIUS_ERROR_NONE = 'ENONE';
+our $RADIUS_ERROR_NONE    = 'ENONE';
 
 use Authen::Radius;
 Authen::Radius->load_dictionary("/usr/share/freeradius/dictionary");
@@ -27,15 +27,16 @@ use List::Util qw(first);
 extends 'pf::Authentication::Source';
 with qw(pf::Authentication::InternalRole);
 
-has '+type' => ( default => 'RADIUS' );
-has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
-has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
-has 'timeout' => (isa => 'Maybe[Int]', is => 'rw', default => 1);
-has 'secret' => (isa => 'Str', is => 'rw', required => 1);
-has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
-has 'options' => (isa => 'Str', is => 'rw', required => 1);
-has 'use_connector' => (isa => 'Bool', is => 'rw', default => 1);
-has 'nas_ip_address' => (isa => 'Maybe[Str]', is => 'rw', default => '');
+has '+type'   => ( default => 'RADIUS' );
+has 'host'    => ( isa => 'Maybe[Str]', is => 'rw', default  => '127.0.0.1' );
+has 'port'    => ( isa => 'Maybe[Int]', is => 'rw', default  => 1812 );
+has 'timeout' => ( isa => 'Maybe[Int]', is => 'rw', default  => 1 );
+has 'secret'  => ( isa => 'Str',        is => 'rw', required => 1 );
+has 'monitor' => ( isa => 'Bool',       is => 'rw', default  => 1 );
+has 'options' => ( isa => 'Str',        is => 'rw', required => 1 );
+has 'use_connector'  => ( isa => 'Bool',       is => 'rw', default => 1 );
+has 'nas_ip_address' => ( isa => 'Maybe[Str]', is => 'rw', default => '' );
+has 'connect_through_port' => ( isa => 'Maybe[Int]', is => 'rw' );
 
 =head2 dynamic_routing_module
 
@@ -52,12 +53,15 @@ Add additional available attributes
 =cut
 
 sub available_attributes {
-  my $self = shift;
+    my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes;
-  my @attributes = @{$Config{radius_configuration}->{radius_attributes} // []};
-  my @radius_attributes = map { { value => "radius_request.".$_, type => $Conditions::SUBSTRING } } @attributes;
-  return [@$super_attributes, @radius_attributes];
+    my $super_attributes = $self->SUPER::available_attributes;
+    my @attributes =
+      @{ $Config{radius_configuration}->{radius_attributes} // [] };
+    my @radius_attributes = map {
+        { value => "radius_request." . $_, type => $Conditions::SUBSTRING }
+    } @attributes;
+    return [ @$super_attributes, @radius_attributes ];
 }
 
 =head2  authenticate
@@ -65,8 +69,8 @@ sub available_attributes {
 =cut
 
 sub authenticate {
-    my ($self, $username, $password) = @_;
-    return $self->_send_radius_auth($username, $password);
+    my ( $self, $username, $password ) = @_;
+    return $self->_send_radius_auth( $username, $password );
 }
 
 =head2 challenge
@@ -76,44 +80,54 @@ Send the a radius authentication with challenge state
 =cut
 
 sub challenge {
-    my ($self, $username, $password, $challenge_data) = @_;
+    my ( $self, $username, $password, $challenge_data ) = @_;
     my $attribute = {
         Name  => $challenge_data->{state_code},
         Value => $challenge_data->{state},
         Type  => 'string'
     };
-    return $self->_send_radius_auth($username, $password, $attribute);
+    return $self->_send_radius_auth( $username, $password, $attribute );
 }
-
 
 =head2 _send_radius_auth
 
 =cut
 
 sub _send_radius_auth {
-    my ($self, $username, $password, @attributes) = @_;
-    my $logger = get_logger();
-    
+    my ( $self, $username, $password, @attributes ) = @_;
+    my $logger    = get_logger();
     my $host_port = "$self->{'host'}:$self->{'port'}";
-    if($self->use_connector) {
+    if ( $self->use_connector && $self->connect_through_port ) {
+        my $host =
+          exists $ENV{PFCONNECTOR_SERVICE_HOST}
+          ? $ENV{PFCONNECTOR_SERVICE_HOST}
+          : "100.64.0.1";
+        $host_port = "$host:" . $self->connect_through_port;
+    }
+    elsif ( $self->use_connector ) {
         require pf::factory::connector;
-        my $connector_conn = pf::factory::connector->for_ip($self->{'host'})->dynreverse("$self->{'host'}:$self->{'port'}/udp");
-        $host_port = $connector_conn->{host}.":".$connector_conn->{port};
+        my $connector_conn = pf::factory::connector->for_ip( $self->{'host'} )
+          ->dynreverse("$self->{'host'}:$self->{'port'}/udp");
+        $host_port = $connector_conn->{host} . ":" . $connector_conn->{port};
     }
 
     my $radius = Authen::Radius->new(
-        Host   => $host_port,
-        Secret => $self->{'secret'},
+        Host    => $host_port,
+        Secret  => $self->{'secret'},
         TimeOut => $self->{'timeout'},
     );
 
-    if (!defined $radius) {
-        $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error());
-        return ($FALSE, $COMMUNICATION_ERROR_MSG);
+    if ( !defined $radius ) {
+        $logger->error(
+            "Unable to perform RADIUS authentication on any server: "
+              . Authen::Radius::get_error() );
+        return ( $FALSE, $COMMUNICATION_ERROR_MSG );
     }
 
-    my $result = $self->check_radius_password($radius, $username, $password, undef, @attributes);
-    return $self->_handle_radius_request($radius, $result);
+    my $result =
+      $self->check_radius_password( $radius, $username, $password, undef,
+        @attributes );
+    return $self->_handle_radius_request( $radius, $result );
 }
 
 =head2 challenge_handle_radius_request
@@ -121,19 +135,23 @@ sub _send_radius_auth {
 =cut
 
 sub _handle_radius_request {
-    my ($self, $radius, $result) = @_;
+    my ( $self, $radius, $result ) = @_;
     my $logger = get_logger();
-    if ($radius->get_error() ne $RADIUS_ERROR_NONE) {
-        $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error());
-        return ($FALSE, $COMMUNICATION_ERROR_MSG);
+    if ( $radius->get_error() ne $RADIUS_ERROR_NONE ) {
+        $logger->error(
+            "Unable to perform RADIUS authentication on any server: "
+              . Authen::Radius::get_error() );
+        return ( $FALSE, $COMMUNICATION_ERROR_MSG );
     }
-    if ($result == ACCESS_ACCEPT) {
-        return ($TRUE, $AUTH_SUCCESS_MSG, $self->_fetch_attributes($result, $radius));
+    if ( $result == ACCESS_ACCEPT ) {
+        return ( $TRUE, $AUTH_SUCCESS_MSG,
+            $self->_fetch_attributes( $result, $radius ) );
     }
-    elsif ($result == ACCESS_CHALLENGE) {
-        return ($LOGIN_CHALLENGE, $self->_make_challenge_data($result, $radius));
+    elsif ( $result == ACCESS_CHALLENGE ) {
+        return ( $LOGIN_CHALLENGE,
+            $self->_make_challenge_data( $result, $radius ) );
     }
-    return ($FALSE, $AUTH_FAIL_MSG);
+    return ( $FALSE, $AUTH_FAIL_MSG );
 }
 
 =head2 _make_challenge_data
@@ -141,10 +159,11 @@ sub _handle_radius_request {
 =cut
 
 sub _make_challenge_data {
-    my ($self, $result, $radius) = @_;
+    my ( $self, $result, $radius ) = @_;
     my @attributes = $radius->get_attributes;
-    my ($state_attribute) = grep { $_->{Name} eq  $RADIUS_STATE} @attributes;
-    my ($message_attribute) = grep { $_->{Name} eq $RADIUS_REPLY_MESSAGE } @attributes;
+    my ($state_attribute) = grep { $_->{Name} eq $RADIUS_STATE } @attributes;
+    my ($message_attribute) =
+      grep { $_->{Name} eq $RADIUS_REPLY_MESSAGE } @attributes;
     return {
         id         => $self->id,
         result     => $result,
@@ -160,11 +179,9 @@ sub _make_challenge_data {
 =cut
 
 sub _fetch_attributes {
-    my ($self, $result, $radius) = @_;
+    my ( $self, $result, $radius ) = @_;
     my @attributes = $radius->get_attributes;
-    return {
-        attributes => \@attributes,
-    };
+    return { attributes => \@attributes, };
 }
 
 =head2 check_radius_password
@@ -172,23 +189,26 @@ sub _fetch_attributes {
 =cut
 
 sub check_radius_password {
-    my ($self, $radius, $name, $pwd, $nas, @extra) = @_;
+    my ( $self, $radius, $name, $pwd, $nas, @extra ) = @_;
 
     require pf::cluster;
     require pf::config;
-    if(!defined($nas)) {
-        if($self->nas_ip_address) {
+    if ( !defined($nas) ) {
+        if ( $self->nas_ip_address ) {
             $nas = $self->nas_ip_address;
         }
         else {
-            $nas = $cluster_enabled ? pf::cluster::management_cluster_ip() : $pf::config::management_network->{Tip};
+            $nas =
+              $cluster_enabled
+              ? pf::cluster::management_cluster_ip()
+              : $pf::config::management_network->{Tip};
         }
     }
     $radius->clear_attributes;
     $radius->add_attributes(
-        {Name => 1, Value => $name, Type => 'string'},
-        {Name => 2, Value => $pwd,  Type => 'string'},
-        {Name => 4, Value => $nas || '127.0.0.1', Type => 'ipaddr'},
+        { Name => 1, Value => $name,               Type => 'string' },
+        { Name => 2, Value => $pwd,                Type => 'string' },
+        { Name => 4, Value => $nas || '127.0.0.1', Type => 'ipaddr' },
         @extra
     );
 
@@ -202,32 +222,39 @@ sub check_radius_password {
 =cut
 
 sub match_in_subclass {
-    my ($self, $params, $rule, $own_conditions, $matching_conditions, $extra) = @_;
-    my $username =  $params->{'username'};
+    my ( $self, $params, $rule, $own_conditions, $matching_conditions, $extra )
+      = @_;
+    my $username = $params->{'username'};
 
-    foreach my $condition (@{ $own_conditions }) {
+    foreach my $condition ( @{$own_conditions} ) {
         my $name = $condition->{'attribute'};
-        if ($name eq "username") {
-            if ( $condition->matches("username", $username, $params) ) {
-                push(@{ $matching_conditions }, $condition);
+        if ( $name eq "username" ) {
+            if ( $condition->matches( "username", $username, $params ) ) {
+                push( @{$matching_conditions}, $condition );
             }
-        } elsif (defined($extra)) {
-            my $attribute = first { $_->{Name} eq $name } @{ $extra->{attributes}};
-            if ($attribute && $condition->matches($name, $attribute->{'Value'}) ) {
-                push(@{ $matching_conditions }, $condition);
+        }
+        elsif ( defined($extra) ) {
+            my $attribute =
+              first { $_->{Name} eq $name } @{ $extra->{attributes} };
+            if (   $attribute
+                && $condition->matches( $name, $attribute->{'Value'} ) )
+            {
+                push( @{$matching_conditions}, $condition );
             }
         }
     }
-    return ($username, undef);
+    return ( $username, undef );
 }
 
 sub lookupRole {
-    my ($self, $rule, $role_info, $params, $extra, $attributes) = @_;
-    for my $attribute (@{ $extra->{attributes}} ) {
-        $$attributes->{"radius_attribute"}->{$attribute->{'Name'}} = $attribute->{'RawValue'};
+    my ( $self, $rule, $role_info, $params, $extra, $attributes ) = @_;
+    for my $attribute ( @{ $extra->{attributes} } ) {
+        $$attributes->{"radius_attribute"}->{ $attribute->{'Name'} } =
+          $attribute->{'RawValue'};
     }
-    if (defined $extra) {
-        my $attribute = first { $_->{Name} eq $role_info } @{ $extra->{attributes}};
+    if ( defined $extra ) {
+        my $attribute =
+          first { $_->{Name} eq $role_info } @{ $extra->{attributes} };
         if ($attribute) {
             return $attribute->{Value};
         }
