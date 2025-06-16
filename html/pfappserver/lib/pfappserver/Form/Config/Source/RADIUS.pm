@@ -11,7 +11,6 @@ Form definition to create or update a RADIUS user source.
 =cut
 
 use HTML::FormHandler::Moose;
-use pf::ConfigStore::Connector;
 use pf::config qw(%Config);
 use pf::authentication;
 use pf::Authentication::Source::RADIUSSource;
@@ -83,24 +82,9 @@ has_field 'use_connector',
     default         => $META->get_attribute('use_connector')->default,
   );
 
-has_field 'connect_through' => (
-    type           => 'Select',
-    options_method => \&options_connectors,
-);
-
 has_field 'connect_through_port' => (
     type          => 'Port',
-    required_when => {
-        connect_through => sub {
-            defined $_[0] && length( $_[0] );
-        },
-    },
 );
-
-sub options_connectors {
-    return map { { value => $_, label => $_ } } '',
-      @{ pf::ConfigStore::Connector->new->readAllIds }, 'local_connector';
-}
 
 has_field 'options' => (
     type  => 'TextArea',

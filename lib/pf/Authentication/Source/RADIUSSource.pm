@@ -36,7 +36,6 @@ has 'monitor' => ( isa => 'Bool',       is => 'rw', default  => 1 );
 has 'options' => ( isa => 'Str',        is => 'rw', required => 1 );
 has 'use_connector'  => ( isa => 'Bool',       is => 'rw', default => 1 );
 has 'nas_ip_address' => ( isa => 'Maybe[Str]', is => 'rw', default => '' );
-has 'connect_through'      => ( isa => 'Maybe[Str]', is => 'rw' );
 has 'connect_through_port' => ( isa => 'Maybe[Int]', is => 'rw' );
 
 =head2 dynamic_routing_module
