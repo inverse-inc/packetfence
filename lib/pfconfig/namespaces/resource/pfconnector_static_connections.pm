@@ -23,6 +23,8 @@ sub init {
       $self->{cache}->get_cache('config::Connector');
     $self->{_connectors_ordered} =
       $self->{cache}->get_cache('resource::connectors_ordered');
+    $self->{_dns_connectors_config} =
+      $self->{cache}->get_cache('config::DnsConnectors');
 }
 
 sub find_connector {
@@ -52,6 +54,15 @@ sub build {
         next unless defined $port;
         my $connector = $self->find_connector( $data->{host} );
         my $r         = "${port}:$data->{host}:$data->{port}/udp";
+        push @{ $hash{$connector} }, $r;
+    }
+    while ( my ( $id, $data ) =
+        each %{ $self->{_dns_connectors_config} } )
+    {
+        my $port = $data->{'pfconnectorport'};
+        next unless defined $port;
+        my $connector = $self->find_connector( $data->{ip} );
+        my $r         = "100.64.0.1:${port}:$data->{ip}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
     }
     return \%hash;
