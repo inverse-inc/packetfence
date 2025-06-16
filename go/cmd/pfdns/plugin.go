@@ -53,5 +53,4 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/plugin/coredns/caddylog"
 	_ "github.com/inverse-inc/packetfence/go/plugin/coredns/forward"
 	_ "github.com/inverse-inc/packetfence/go/plugin/coredns/pfdns"
-	_ "github.com/inverse-inc/packetfence/go/plugin/coredns/pfdnsconnector"
 )

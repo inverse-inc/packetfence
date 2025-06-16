@@ -11,7 +11,6 @@ import (
 
 func init() {
 	dnsserver.Directives = insertBefore(dnsserver.Directives, searchIndex(dnsserver.Directives, "forward"), "pfdns")
-	dnsserver.Directives = insertBefore(dnsserver.Directives, searchIndex(dnsserver.Directives, "pfdns"), "pfdnsconnector")
 	dnsserver.Directives = insertBefore(dnsserver.Directives, searchIndex(dnsserver.Directives, "log")+1, "logger")
 	dnsserver.Directives = moveValueAfter(dnsserver.Directives, "hosts", "pfdns")
 }
