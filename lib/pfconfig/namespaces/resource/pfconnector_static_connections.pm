@@ -53,7 +53,7 @@ sub build {
         my $port = $data->{'connect_through_port'};
         next unless defined $port;
         my $connector = $self->find_connector( $data->{host} );
-        my $r         = "100.64.0.1:${port}:$data->{host}:$data->{port}/udp";
+        my $r         = "${port}:$data->{host}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
     }
     while ( my ( $id, $data ) =
@@ -62,7 +62,7 @@ sub build {
         my $port = $data->{'pfconnectorport'};
         next unless defined $port;
         my $connector = $self->find_connector( $data->{ip} );
-        my $r         = "100.64.0.1:${port}:$data->{ip}:$data->{port}/udp";
+        my $r         = "${port}:$data->{ip}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
     }
     return \%hash;
