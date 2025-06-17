@@ -20,7 +20,7 @@
       :text="$i18n.t('Port of the DNS server.')"
     />
 
-    <form-group-pfconnectorport namespace="pfconnectorport"
+    <form-group-pfconnector-port namespace="pfconnector_port"
       :column-label="$i18n.t('Connector Port')"
       :text="$i18n.t('Connector port to reach out the DNS server.')"
     />
@@ -41,7 +41,7 @@ import {
   FormGroupIdentifier,
   FormGroupIp,
   FormGroupPort,
-  FormGroupPfconnectorport,
+  FormGroupPfconnectorPort,
   FormGroupDomains,
 } from './'
 
@@ -51,7 +51,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupIp,
   FormGroupPort,
-  FormGroupPfconnectorport,
+  FormGroupPfconnectorPort,
   FormGroupDomains,
 }
 

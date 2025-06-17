@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use base 'pfconfig::namespaces::resource';
 use NetAddr::IP;
+use pf::util qw(listify);
 
 sub init {
     my ($self) = @_;
@@ -49,17 +50,20 @@ sub build {
     while ( my ( $id, $data ) =
         each %{ $self->{_authentication_config}{authentication_config_hash} } )
     {
-        next unless $data->{'type'} eq 'RADIUS';
-        my $port = $data->{'connect_through_port'};
-        next unless defined $port;
-        my $connector = $self->find_connector( $data->{host} );
-        my $r         = "${port}:$data->{host}:$data->{port}/udp";
-        push @{ $hash{$connector} }, $r;
+        next unless $data->{'use_connector'};
+        my $type = $data->{'type'};
+        my $port = $data->{'pfconnector_port'};
+        next unless $port && ( $type eq 'RADIUS' );
+        my $proto = $type eq 'RADIUS' ? '/udp' : '';
+        for my $h ( @{ listify( $data->{host} ) } ) {
+            my $connector = $self->find_connector($h);
+            my $r         = "${port}:$h:$data->{port}$proto";
+            push @{ $hash{$connector} }, $r;
+        }
     }
-    while ( my ( $id, $data ) =
-        each %{ $self->{_dns_connectors_config} } )
-    {
-        my $port = $data->{'pfconnectorport'};
+
+    while ( my ( $id, $data ) = each %{ $self->{_dns_connectors_config} } ) {
+        my $port = $data->{'pfconnector_port'};
         next unless defined $port;
         my $connector = $self->find_connector( $data->{ip} );
         my $r         = "${port}:$data->{ip}:$data->{port}/udp";
