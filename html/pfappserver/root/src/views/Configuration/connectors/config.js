@@ -1,2 +1,2 @@
-export const pfconnectorPortMin = 1000
-export const pfconnectorPortMax = 2000
+export const pfconnectorPortMin = 30000
+export const pfconnectorPortMax = 30999
