@@ -21,14 +21,14 @@ yup.addMethod(yup.string, 'dnsConnectorIdentifierNotExistsExcept', function (exc
   })
 })
 
-yup.addMethod(yup.string, 'dnsConnectorPfconnectorportNotExistsExcept', function (exceptName = '', message) {
+yup.addMethod(yup.string, 'dnsConnectorPfconnectorPortNotExistsExcept', function (exceptName = '', message) {
   return this.test({
-    name: 'dnsConnectorPfconnectorportNotExistsExcept',
+    name: 'dnsConnectorPfconnectorPortNotExistsExcept',
     message: message || i18n.t('Name exists.'),
     test: (value) => {
       if (!value) return true
       return store.dispatch('config/getConnectorsDns').then(response => {
-        return response.filter(connectorDn =>  connectorDn.id.toLowerCase() !== exceptName.toLowerCase() && connectorDn.pfconnectorport.toLowerCase() === value.toLowerCase()).length === 0
+        return response.filter(connectorDn =>  connectorDn.id.toLowerCase() !== exceptName.toLowerCase() && connectorDn.pfconnector_port.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })
@@ -68,12 +68,12 @@ export default (props) => {
       .required(i18n.t('Port required.'))
       .label(i18n.t('Port'))
       .isPort(),
-    pfconnectorport: yup.string()
+    pfconnector_port: yup.string()
       .nullable()
       .required(i18n.t('Port required.'))
       .label(i18n.t('Port'))
       .isPort()
-      .dnsConnectorPfconnectorportNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Port exists.'))
+      .dnsConnectorPfconnectorPortNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Port exists.'))
       .min(pfconnectorPortMin, portRangeMessage)
       .max(pfconnectorPortMax, portRangeMessage),
     domains: schemaDomains

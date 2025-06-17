@@ -34,9 +34,9 @@ has 'timeout' => ( isa => 'Maybe[Int]', is => 'rw', default  => 1 );
 has 'secret'  => ( isa => 'Str',        is => 'rw', required => 1 );
 has 'monitor' => ( isa => 'Bool',       is => 'rw', default  => 1 );
 has 'options' => ( isa => 'Str',        is => 'rw', required => 1 );
-has 'use_connector'  => ( isa => 'Bool',       is => 'rw', default => 1 );
-has 'nas_ip_address' => ( isa => 'Maybe[Str]', is => 'rw', default => '' );
-has 'connect_through_port' => ( isa => 'Maybe[Int]', is => 'rw' );
+has 'use_connector'    => ( isa => 'Bool',       is => 'rw', default => 1 );
+has 'nas_ip_address'   => ( isa => 'Maybe[Str]', is => 'rw', default => '' );
+has 'pfconnector_port' => ( isa => 'Maybe[Int]', is => 'rw' );
 
 =head2 dynamic_routing_module
 
@@ -97,18 +97,19 @@ sub _send_radius_auth {
     my ( $self, $username, $password, @attributes ) = @_;
     my $logger    = get_logger();
     my $host_port = "$self->{'host'}:$self->{'port'}";
-    if ( $self->use_connector && $self->connect_through_port ) {
+    if ( $self->use_connector && $self->pfconnector_port ) {
         my $host =
           exists $ENV{PFCONNECTOR_SERVICE_HOST}
           ? $ENV{PFCONNECTOR_SERVICE_HOST}
           : "100.64.0.1";
-        $host_port = "$host:" . $self->connect_through_port;
+        $host_port = "$host:" . $self->pfconnector_port;
     }
     elsif ( $self->use_connector ) {
         require pf::factory::connector;
-        my $dest_ip = pf::factory::connector->resolve($self->{'host'});
-        my $connector_conn = pf::factory::connector->for_ip($dest_ip)->dynreverse("$dest_ip:$self->{'port'}/udp");
-        $host_port = $connector_conn->{host}.":".$connector_conn->{port};
+        my $dest_ip        = pf::factory::connector->resolve( $self->{'host'} );
+        my $connector_conn = pf::factory::connector->for_ip($dest_ip)
+          ->dynreverse("$dest_ip:$self->{'port'}/udp");
+        $host_port = $connector_conn->{host} . ":" . $connector_conn->{port};
     }
 
     my $radius = Authen::Radius->new(

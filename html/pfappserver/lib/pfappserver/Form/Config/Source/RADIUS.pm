@@ -82,9 +82,7 @@ has_field 'use_connector',
     default         => $META->get_attribute('use_connector')->default,
   );
 
-has_field 'connect_through_port' => (
-    type          => 'Port',
-);
+has_field 'pfconnector_port' => ( type => 'Port', );
 
 has_field 'options' => (
     type  => 'TextArea',
@@ -111,7 +109,7 @@ sub _options_set_role_from_source {
 sub validate {
     my ($self) = @_;
     my $value  = $self->value;
-    my $port   = $value->{connect_through_port};
+    my $port   = $value->{pfconnector_port};
     return if !defined $port || length($port) == 0;
     my $id      = $value->{id};
     my $sources = pf::authentication::getAuthenticationSourcesByType('RADIUS');
@@ -121,9 +119,9 @@ sub validate {
             next;
         }
 
-        my $p = $source->{connect_through_port};
+        my $p = $source->{pfconnector_port};
         if ( defined $p && $p == $port ) {
-            $self->field('connect_through_port')
+            $self->field('pfconnector_port')
               ->add_error('Port should be unique');
         }
     }

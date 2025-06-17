@@ -26,31 +26,32 @@ has_field 'id' => (
 );
 
 has_field ip => (
-    type     => 'Text',
-    label    => 'IP of the dns server',
+    type  => 'Text',
+    label => 'IP of the dns server',
 );
 
 has_field port => (
-    type     => 'Text',
-    label    => 'Port of the dns server',
+    type  => 'Text',
+    label => 'Port of the dns server',
 );
 
-has_field pfconnectorport => (
-    type     => 'Text',
-    label    => 'pfconnector port to reach out the dns server',
+has_field pfconnector_port => (
+    type  => 'Text',
+    label => 'pfconnector port to reach out the dns server',
 );
 
 has_field domains => (
-    type     => 'Select',
-    multiple => 1,
-    label    => 'Domain(s) name',
+    type           => 'Select',
+    multiple       => 1,
+    label          => 'Domain(s) name',
     options_method => \&options_domains,
 );
 
 sub options_domains {
-    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Connector::DomainsConnectors->new->readAllIds};
+    return
+      map { { value => $_, label => $_ } }
+      @{ pf::ConfigStore::Connector::DomainsConnectors->new->readAllIds };
 }
-
 
 =head1 AUTHOR
 

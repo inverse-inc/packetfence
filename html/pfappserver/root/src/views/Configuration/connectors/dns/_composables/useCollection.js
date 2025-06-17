@@ -55,7 +55,7 @@ export const useSearch = makeSearch('connectorsDns', {
       visible: true
     },
     {
-      key: 'pfconnectorport',
+      key: 'pfconnector_port',
       label: 'PF Connector Port', // i18n defer
       searchable: true,
       visible: true
