@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 7;
 use Test::Mojo;
 use Utils;
 
@@ -29,26 +29,43 @@ use Utils;
 use Test::NoWarnings;
 use pf::ConfigStore::Source;
 
-my ( $fh, $filename ) =
-  Utils::tempfileForConfigStore("pf::ConfigStore::Source");
+my ( $fh, $filename ) = Utils::tempfileForConfigStore("pf::ConfigStore::Source");
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
 my $collection_base_url = '/api/v1/config/sources';
 
 my %options = (
-    pfconnector_port => 30000,
-    type             => 'RADIUS',
-    port             => 1812,
-    host             => '1.2.3.4',
-    timeout          => 1000,
-    description      => 'Blag balh',
-    secret           => 'bob',
+    type        => 'RADIUS',
+    port        => 1812,
+    host        => '1.2.3.4',
+    timeout     => 1000,
+    description => 'Blag balh',
+    secret      => 'bob',
 );
 
 $t->post_ok(
     $collection_base_url => json => {
-        id => 'RADIUS_CONNECT_THROUGH_TEST2',
+        id               => 'RADIUS_CONNECT_THROUGH_TEST2',
+        pfconnector_port => 30000,
+        %options,
+    }
+)->status_is(422)->json_is(
+    {
+        status => 422,
+        errors => [
+            {
+                field   => 'pfconnector_port',
+                message => 'Port should be unique',
+            }
+        ],
+        message => 'Unable to validate',
+    }
+);
+$t->post_ok(
+    $collection_base_url => json => {
+        id               => 'RADIUS_CONNECT_THROUGH_TEST2',
+        pfconnector_port => 30001,
         %options,
     }
 )->status_is(422)->json_is(
