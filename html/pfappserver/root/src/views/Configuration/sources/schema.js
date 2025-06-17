@@ -40,7 +40,7 @@ yup.addMethod(yup.string, 'sourceConnectThroughPortNotExistsExcept', function (e
     test: (value) => {
       if (!value) return true
       return store.dispatch('config/getSources').then(response => {
-        return response.filter(source =>  source.id.toLowerCase() !== exceptName.toLowerCase() && source.connect_through_port.toLowerCase() === value.toLowerCase()).length === 0
+        return response.filter(source =>  source.id.toLowerCase() !== exceptName.toLowerCase() && source.pfconnector_port.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })

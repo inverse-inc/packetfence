@@ -15,7 +15,7 @@ export {
   BaseFormGroupInput          as FormGroupIdentifier,
   BaseFormGroupInput          as FormGroupIp,
   BaseFormGroupInputNumber    as FormGroupPort,
-  BaseFormGroupInputNumber    as FormGroupPfconnectorport,
+  BaseFormGroupInputNumber    as FormGroupPfconnectorPort,
   BaseFormGroupDomains        as FormGroupDomains,
 
   TheForm,
