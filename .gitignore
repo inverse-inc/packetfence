@@ -25,6 +25,7 @@ conf/event_loggers.conf
 conf/pf.conf
 conf/monitoring/go.d/*.conf
 conf/monitoring/go.d.conf
+conf/pfdns-connector.conf
 conf/*.lock
 conf/*.lockonce
 conf/git_commit_id
