@@ -37,7 +37,7 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/sources';
 
 my %options = (
-    pfconnector_port => 1234,
+    pfconnector_port => 30000,
     type             => 'RADIUS',
     port             => 1812,
     host             => '1.2.3.4',
