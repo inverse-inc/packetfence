@@ -36,8 +36,10 @@ has_field port => (
 );
 
 has_field pfconnector_port => (
-    type  => 'Text',
-    label => 'pfconnector port to reach out the dns server',
+    type        => 'Text',
+    label       => 'pfconnector port to reach out the dns server',
+    range_start => 30000,
+    range_end   => 30999,
 );
 
 has_field domains => (

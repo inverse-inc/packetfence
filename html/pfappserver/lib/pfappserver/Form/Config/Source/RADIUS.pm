@@ -82,7 +82,11 @@ has_field 'use_connector',
     default         => $META->get_attribute('use_connector')->default,
   );
 
-has_field 'pfconnector_port' => ( type => 'Port', );
+has_field 'pfconnector_port' => (
+    type        => 'Port',
+    range_start => 30000,
+    range_end   => 30999,
+);
 
 has_field 'options' => (
     type  => 'TextArea',
