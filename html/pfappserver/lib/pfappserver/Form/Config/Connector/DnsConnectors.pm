@@ -15,7 +15,10 @@ use warnings;
 use pf::ConfigStore::Connector::DomainsConnectors;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with qw(pfappserver::Base::Form::Role::Help);
+with qw(
+  pfappserver::Base::Form::Role::Help
+  pfappserver::Role::Form::ConnectPortValidate
+);
 ## Definition
 
 has_field 'id' => (
@@ -53,6 +56,11 @@ sub options_domains {
     return
       map { { value => $_, label => $_ } }
       @{ pf::ConfigStore::Connector::DomainsConnectors->new->readAllIds };
+}
+
+sub validate {
+    my ($self) = @_;
+    $self->validate_connect_port();
 }
 
 =head1 AUTHOR

@@ -18,7 +18,8 @@ my $META = pf::Authentication::Source::RADIUSSource->meta;
 extends 'pfappserver::Form::Config::Source';
 
 with 'pfappserver::Base::Form::Role::Help',
-  'pfappserver::Base::Form::Role::InternalSource';
+  'pfappserver::Base::Form::Role::InternalSource',
+  'pfappserver::Role::Form::ConnectPortValidate';
 
 # Form fields
 has_field 'host' => (
@@ -112,23 +113,7 @@ sub _options_set_role_from_source {
 
 sub validate {
     my ($self) = @_;
-    my $value  = $self->value;
-    my $port   = $value->{pfconnector_port};
-    return if !defined $port || length($port) == 0;
-    my $id      = $value->{id};
-    my $sources = pf::authentication::getAuthenticationSourcesByType('RADIUS');
-
-    for my $source (@$sources) {
-        if ( $id eq $source->{id} ) {
-            next;
-        }
-
-        my $p = $source->{pfconnector_port};
-        if ( defined $p && $p == $port ) {
-            $self->field('pfconnector_port')
-              ->add_error('Port should be unique');
-        }
-    }
+    $self->validate_connect_port();
 }
 
 =head1 COPYRIGHT
