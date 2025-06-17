@@ -16,12 +16,11 @@ Overrides the the location of config files to help with testing
 use strict;
 use warnings;
 use lib qw(
-    /usr/local/pf/lib
-    /usr/local/pf/lib_perl/lib/perl5
+  /usr/local/pf/lib
+  /usr/local/pf/lib_perl/lib/perl5
 );
 
 use File::FcntlLock;
-
 
 our $PFCONFIG_TEST_PID_FILE = "/usr/local/pf/var/run/pfconfig-test.pid";
 our $test_dir;
@@ -29,48 +28,48 @@ our $PFCONFIG_RUNNER;
 
 BEGIN {
     use File::Spec::Functions qw(catfile catdir rel2abs);
-    use File::Basename qw(dirname);
-    use pf::file_paths qw($install_dir);
+    use File::Basename        qw(dirname);
+    use pf::file_paths        qw($install_dir);
     use pfconfig::constants;
 
-    $test_dir = rel2abs(dirname($INC{'test_paths.pm'})) if exists $INC{'test_paths.pm'};
-    $test_dir ||= catdir($install_dir,'t');
-    $PFCONFIG_RUNNER = catdir($test_dir, 'pfconfig-test'); 
-    $pf::file_paths::switches_config_file = catfile($test_dir,'data/switches.conf');
-    $pf::file_paths::admin_roles_config_file = catfile($test_dir,'data/admin_roles.conf');
-    $pf::file_paths::chi_config_file = catfile($test_dir,'data/chi.conf');
-    $pf::file_paths::profiles_config_file = catfile($test_dir,'data/profiles.conf');
-    $pf::file_paths::authentication_config_file = catfile($test_dir,'data/authentication.conf');
-    $pf::file_paths::log_config_file = catfile($test_dir,'log.conf');
-    $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');
-    $pf::file_paths::radius_filters_config_file = catfile($test_dir,'data/radius_filters.conf');
-    $pf::file_paths::security_events_config_file = catfile($test_dir,'data/security_events.conf');
-    $pf::file_paths::firewall_sso_config_file = catfile($test_dir,'data/firewall_sso.conf');
-    $pf::file_paths::scan_config_file = catfile($test_dir,'data/scan.conf');
-    $pf::file_paths::provisioning_config_file = catfile($test_dir,'data/provisioning.conf');
-    $pf::file_paths::pfdetect_config_file = catfile($test_dir,'data/pfdetect.conf');
-    $pf::file_paths::config_file = catfile($test_dir,'data/pf.conf');
-    $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
-    $pf::file_paths::realm_config_file = catfile($test_dir,'data/realm.conf');
-    $pf::file_paths::report_config_file = catfile($test_dir,'data/report.conf');
-    $pf::file_paths::roles_config_file = catfile($test_dir,'data/roles.conf');
-    $pf::file_paths::event_loggers_config_file = catfile($test_dir,'data/event_loggers.conf');
-    $pf::file_paths::switch_filters_config_file = catfile($test_dir,"data/switch_filters.conf"); 
-    $pf::file_paths::provisioning_filters_config_file = catfile($test_dir, "data/provisioning_filters.conf");
+    $test_dir = rel2abs( dirname( $INC{'test_paths.pm'} ) ) if exists $INC{'test_paths.pm'};
+    $test_dir ||= catdir( $install_dir, 't' );
+    $PFCONFIG_RUNNER                                  = catdir( $test_dir, 'pfconfig-test' );
+    $pf::file_paths::switches_config_file             = catfile( $test_dir, 'data/switches.conf' );
+    $pf::file_paths::admin_roles_config_file          = catfile( $test_dir, 'data/admin_roles.conf' );
+    $pf::file_paths::chi_config_file                  = catfile( $test_dir, 'data/chi.conf' );
+    $pf::file_paths::profiles_config_file             = catfile( $test_dir, 'data/profiles.conf' );
+    $pf::file_paths::authentication_config_file       = catfile( $test_dir, 'data/authentication.conf' );
+    $pf::file_paths::log_config_file                  = catfile( $test_dir, 'log.conf' );
+    $pf::file_paths::vlan_filters_config_file         = catfile( $test_dir, 'data/vlan_filters.conf' );
+    $pf::file_paths::radius_filters_config_file       = catfile( $test_dir, 'data/radius_filters.conf' );
+    $pf::file_paths::security_events_config_file      = catfile( $test_dir, 'data/security_events.conf' );
+    $pf::file_paths::firewall_sso_config_file         = catfile( $test_dir, 'data/firewall_sso.conf' );
+    $pf::file_paths::scan_config_file                 = catfile( $test_dir, 'data/scan.conf' );
+    $pf::file_paths::provisioning_config_file         = catfile( $test_dir, 'data/provisioning.conf' );
+    $pf::file_paths::pfdetect_config_file             = catfile( $test_dir, 'data/pfdetect.conf' );
+    $pf::file_paths::config_file                      = catfile( $test_dir, 'data/pf.conf' );
+    $pf::file_paths::pf_config_file                   = catfile( $test_dir, 'data/pf.conf' );
+    $pf::file_paths::realm_config_file                = catfile( $test_dir, 'data/realm.conf' );
+    $pf::file_paths::report_config_file               = catfile( $test_dir, 'data/report.conf' );
+    $pf::file_paths::roles_config_file                = catfile( $test_dir, 'data/roles.conf' );
+    $pf::file_paths::event_loggers_config_file        = catfile( $test_dir, 'data/event_loggers.conf' );
+    $pf::file_paths::switch_filters_config_file       = catfile( $test_dir, "data/switch_filters.conf" );
+    $pf::file_paths::provisioning_filters_config_file = catfile( $test_dir, "data/provisioning_filters.conf" );
 
-    $pf::file_paths::server_cert = catfile($test_dir,'data/server.crt');
-    $pf::file_paths::server_key = catfile($test_dir,'data/server.key');
-    $pf::file_paths::server_pem = catfile($test_dir,'data/server.pem');
-    $pf::file_paths::template_switches_config_file = catfile($test_dir,'data/template_switches.conf');
+    $pf::file_paths::server_cert                   = catfile( $test_dir, 'data/server.crt' );
+    $pf::file_paths::server_key                    = catfile( $test_dir, 'data/server.key' );
+    $pf::file_paths::server_pem                    = catfile( $test_dir, 'data/server.pem' );
+    $pf::file_paths::template_switches_config_file = catfile( $test_dir, 'data/template_switches.conf' );
 
-    $pf::file_paths::radius_server_cert = catfile($test_dir,'data/radius_server.crt');
-    $pf::file_paths::radius_server_key = catfile($test_dir,'data/radius_server.key');
-    $pf::file_paths::radius_ca_cert = catfile($test_dir,'data/radius_ca.pem');
-    $pf::file_paths::system_init_key_file = catfile($test_dir, 'data/system_init_key');
+    $pf::file_paths::radius_server_cert         = catfile( $test_dir, 'data/radius_server.crt' );
+    $pf::file_paths::radius_server_key          = catfile( $test_dir, 'data/radius_server.key' );
+    $pf::file_paths::radius_ca_cert             = catfile( $test_dir, 'data/radius_ca.pem' );
+    $pf::file_paths::system_init_key_file       = catfile( $test_dir, 'data/system_init_key' );
+    $pf::file_paths::dns_connectors_config_file = catfile( $test_dir, 'data/dns_connectors.conf' );
 
-    $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_paths::test_dir, 'data/pfconfig.conf');
-    $pfconfig::constants::SOCKET_PATH = "/usr/local/pf/var/run/pfconfig-test.sock";
-
+    $pfconfig::constants::CONFIG_FILE_PATH = catfile( $test_paths::test_dir, 'data/pfconfig.conf' );
+    $pfconfig::constants::SOCKET_PATH      = "/usr/local/pf/var/run/pfconfig-test.sock";
 
 }
 
@@ -85,20 +84,19 @@ sub testIfFileUnlock {
     my $fs = File::FcntlLock->new(
         l_type   => F_WRLCK,
         l_whence => SEEK_SET,
-        l_start => 0,
-        l_len => 0,
+        l_start  => 0,
+        l_len    => 0,
     );
     my $fh;
-    unless (open( $fh, "+>>", $filename)) {
+    unless ( open( $fh, "+>>", $filename ) ) {
         return undef;
     }
-    my $result = $fs->lock($fh, F_GETLK); 
+    my $result = $fs->lock( $fh, F_GETLK );
     unless ($result) {
         return undef;
     }
     return $fs->l_type == F_UNLCK;
 }
-
 
 =head1 AUTHOR
 
@@ -129,5 +127,4 @@ USA.
 =cut
 
 1;
-
 
