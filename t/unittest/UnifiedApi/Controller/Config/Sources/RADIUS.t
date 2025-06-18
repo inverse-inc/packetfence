@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 12;
 use Test::Mojo;
 use Utils;
 
@@ -88,6 +88,25 @@ $t->post_ok(
         %options,
     }
 )->status_is(201);
+
+$t->post_ok(
+    $collection_base_url => json => {
+        id               => 'RADIUS_CONNECT_THROUGH_TEST3',
+        pfconnector_port => 29999,
+        %options,
+    }
+)->status_is(422)->json_is(
+    {
+        status => 422,
+        errors => [
+            {
+                field   => 'pfconnector_port',
+                message => 'Value must be between 30000 and 30999',
+            }
+        ],
+        message => 'Unable to validate',
+    }
+);
 
 =head1 AUTHOR
 
