@@ -2,6 +2,10 @@ import store from '@/store'
 import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import {
+  connectThroughPortMin,
+  connectThroughPortMax
+} from './config'
 
 yup.addMethod(yup.string, 'sourceIdExists', function (message) {
   return this.test({
@@ -191,6 +195,10 @@ export const schema = (props) => {
           : yup.string().nullable()
       }),
     person_mappings: schemaPersonMappings,
+    pfconnector_port: yup.string().nullable()
+      .label(i18n.t('Port'))
+      .sourceConnectThroughPortNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Port exists.'))
+      .isPort(connectThroughPortMin, connectThroughPortMax),
     port: yup.string().label(i18n.t('Port')).isPort(),
     protected_resource_url: yup.string().label(i18n.t('URL')),
     proxy_addresses: yup.string().label(i18n.t('Addresses')),
