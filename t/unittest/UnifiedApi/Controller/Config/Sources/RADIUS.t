@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 use Test::Mojo;
 use Utils;
 
@@ -80,6 +80,14 @@ $t->post_ok(
         message => 'Unable to validate',
     }
 );
+
+$t->post_ok(
+    $collection_base_url => json => {
+        id               => 'RADIUS_CONNECT_THROUGH_TEST2',
+        pfconnector_port => 30002,
+        %options,
+    }
+)->status_is(201);
 
 =head1 AUTHOR
 
