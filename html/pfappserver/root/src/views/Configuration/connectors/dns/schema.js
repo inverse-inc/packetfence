@@ -72,10 +72,8 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Port required.'))
       .label(i18n.t('Port'))
-      .isPort()
-      .dnsConnectorPfconnectorPortNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Port exists.'))
-      .min(pfconnectorPortMin, portRangeMessage)
-      .max(pfconnectorPortMax, portRangeMessage),
+      .isPort(pfconnectorPortMin, pfconnectorPortMax)
+      .dnsConnectorPfconnectorPortNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Port exists.')),
     domains: schemaDomains
   })
 }

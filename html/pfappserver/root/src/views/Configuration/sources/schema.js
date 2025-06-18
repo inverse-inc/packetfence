@@ -2,10 +2,6 @@ import store from '@/store'
 import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
-import {
-  connectThroughPortMin,
-  connectThroughPortMax
-} from './config'
 
 yup.addMethod(yup.string, 'sourceIdExists', function (message) {
   return this.test({
@@ -112,11 +108,6 @@ export const schema = (props) => {
     sp_cert_path_upload,
     sp_key_path_upload,
   } = form || {}
-
-  //eslint-disable-next-line
-  console.log({connectThroughPortMin, connectThroughPortMax})
-
-  const connectThroughPortRangeMessage = i18n.t('Port out of range ({min}-{max}).', { min: connectThroughPortMin, max: connectThroughPortMax } )
 
   return yup.object({
     id: yup.string()
