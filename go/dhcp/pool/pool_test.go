@@ -3,6 +3,7 @@ package pool
 import (
 	"context"
 	"database/sql"
+	"net"
 	"testing"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -128,6 +129,9 @@ func TestGetFreeIPIndex(t *testing.T) {
 	for i := uint64(0); i < dp.GetDHCPPool().capacity; i++ {
 		index, _, err := dp.GetFreeIPIndex(mac)
 
+		macObj, _ := net.ParseMAC(mac)
+		mac = IncrementMAC(macObj).String()
+
 		if err != nil {
 			t.Error("Error while trying to get a free IP in a non-full pool")
 		}
@@ -221,6 +225,8 @@ func TestFreeIPsRemaining(t *testing.T) {
 	// Empty the pool, should be 0
 	for i := uint64(0); i < cap; i++ {
 		dp.GetFreeIPIndex(mac)
+		macObj, _ := net.ParseMAC(mac)
+		mac = IncrementMAC(macObj).String()
 	}
 
 	expected = 0
@@ -241,4 +247,16 @@ func TestCapacity(t *testing.T) {
 	if dp.Capacity() != cap {
 		t.Error("Pool capacity not equal the one provided at instantiation")
 	}
+}
+
+func IncrementMAC(mac net.HardwareAddr) net.HardwareAddr {
+	inc := make(net.HardwareAddr, len(mac))
+	copy(inc, mac)
+	for i := len(inc) - 1; i >= 0; i-- {
+		inc[i]++
+		if inc[i] != 0 {
+			break
+		}
+	}
+	return inc
 }
