@@ -51,8 +51,6 @@ export default (props) => {
     isClone
   } = props
 
-  const portRangeMessage = i18n.t('Port out of range ({min}-{max}).', { min: pfconnectorPortMin, max: pfconnectorPortMax } )
-
   return yup.object().shape({
     id: yup.string()
       .nullable()
