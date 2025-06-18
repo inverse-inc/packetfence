@@ -4,6 +4,7 @@
     hosts {
         fallthrough
     }
+    #Default DNS forwarder
     forward . [% MAIN_DNS %]
     cache
     errors
