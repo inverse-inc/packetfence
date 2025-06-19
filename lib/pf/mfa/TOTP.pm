@@ -19,7 +19,7 @@ use pf::person;
 use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use Digest::SHA qw(hmac_sha1_hex);
-use pf::util qw(normalize_time);
+use pf::util    qw(normalize_time);
 
 extends 'pf::mfa';
 
@@ -37,7 +37,7 @@ Character that split the username and otp
 
 =cut
 
-has split_char => (is => 'rw' );
+has split_char => ( is => 'rw' );
 
 sub module_description { 'Generic TOTP MFA' }
 
@@ -48,12 +48,12 @@ Get the devices of the user
 =cut
 
 sub check_user {
-    my ($self, $username, $otp, $device) = @_;
+    my ( $self, $username, $otp, $device ) = @_;
     my $logger = get_logger();
     my $message;
-    if ($self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password') {
-        if ($otp =~ /^\d{6,6}$/) {
-            return $self->verify_otp($username, $otp);
+    if ( $self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password' ) {
+        if ( $otp =~ /^\d{6,6}$/ ) {
+            return $self->verify_otp( $username, $otp );
         } else {
             $message = "Method not supported for user $username";
             $logger->warn($message);
@@ -63,17 +63,20 @@ sub check_user {
 }
 
 sub verify_otp {
-    my ($self, $username, $otp) = @_;
+    my ( $self, $username, $otp ) = @_;
     my $logger = get_logger();
     my $message;
     my $person = person_view($username);
-    if (defined $person->{otp} && $person->{otp} ne '') {
-        my $local_otp = $self->generateCurrentNumber($person->{otp});
-        if ($otp == $local_otp) {
-            $self->set_mfa_success($username);
-            $message = "OTP token match for user $username";
-            $logger->info($message);
-            return $TRUE, $message;
+    if ( defined $person->{otp} && $person->{otp} ne '' ) {
+        my $start_time = time;
+        for my $time ( $start_time - 30, $start_time, $start_time + 30 ) {
+            my $local_otp = $self->generateCurrentNumber( $person->{otp}, $time );
+            if ( $otp == $local_otp ) {
+                $self->set_mfa_success($username);
+                $message = "OTP token match for user $username";
+                $logger->info($message);
+                return $TRUE, $message;
+            }
         }
         $message = "OTP token doesnt match for user $username";
         $logger->info($message);
@@ -85,33 +88,33 @@ sub verify_otp {
 }
 
 sub generateCurrentNumber {
-    my ($self, $otp) = @_;
+    my ( $self, $otp, $time ) = @_;
 
-    my $paddedTime = sprintf("%016x", int(time() / 30));
-    my $data = pack('H*', $paddedTime);
-    my $key = $self->decodeBase32($otp);
+    my $paddedTime = sprintf( "%016x", int( $time / 30 ) );
+    my $data       = pack( 'H*', $paddedTime );
+    my $key        = $self->decodeBase32($otp);
 
-    my $hmac = hmac_sha1_hex($data, $key);
+    my $hmac = hmac_sha1_hex( $data, $key );
 
-    my $offset = hex(substr($hmac, -1));
-    my $encrypted = hex(substr($hmac, $offset * 2, 8)) & 0x7fffffff;
+    my $offset    = hex( substr( $hmac, -1 ) );
+    my $encrypted = hex( substr( $hmac, $offset * 2, 8 ) ) & 0x7fffffff;
 
     my $token = $encrypted % 1000000;
-    return sprintf("%06d", $token);
+    return sprintf( "%06d", $token );
 
 }
 
 sub decodeBase32 {
-    my ($self, $val) = @_;
+    my ( $self, $val ) = @_;
 
     $val =~ tr|A-Z2-7|\0-\37|;
-    $val = unpack('B*', $val);
+    $val = unpack( 'B*', $val );
 
     $val =~ s/000(.....)/$1/g;
     my $len = length($val);
-    $val = substr($val, 0, $len & ~7) if $len & 7;
+    $val = substr( $val, 0, $len & ~7 ) if $len & 7;
 
-    $val = pack('B*', $val);
+    $val = pack( 'B*', $val );
     return $val;
 }
 
@@ -122,38 +125,36 @@ Generate redirection information
 =cut
 
 sub redirect_info {
-    my ($self, $username) = @_;
+    my ( $self, $username ) = @_;
     my $logger = get_logger();
-    $logger->info("MFA USERNAME: ".$username);
-    my ($exist, $otp) = $self->generate_otp($username);
+    $logger->info( "MFA USERNAME: " . $username );
+    my ( $exist, $otp ) = $self->generate_otp($username);
     $self->set_redirect($username);
     return {
-        exist => $exist,
+        exist    => $exist,
         username => $username,
-        otp => $otp
+        otp      => $otp
     };
 }
 
 sub generate_otp {
-    my ($self ,$username) = @_;
+    my ( $self, $username ) = @_;
     my $person = person_view($username);
-    if ($person && exists($person->{otp}) && defined $person->{otp} && $person->{otp} ne '') {
+    if ( $person && exists( $person->{otp} ) && defined $person->{otp} && $person->{otp} ne '' ) {
         get_logger->debug("Returning OTP key $person->{otp} for user $username");
-        return ($TRUE, $person->{otp});
-    }
-    else {
-        my @chars = ("A".."Z", "2".."7");
-        my $length = scalar(@chars);
+        return ( $TRUE, $person->{otp} );
+    } else {
+        my @chars        = ( "A" .. "Z", "2" .. "7" );
+        my $length       = scalar(@chars);
         my $base32Secret = "";
-        for (my $i = 0; $i < 16; $i++) {
-            $base32Secret .= $chars[rand($length)];
+        for ( my $i = 0 ; $i < 16 ; $i++ ) {
+            $base32Secret .= $chars[ rand($length) ];
         }
-        person_modify($username,otp => $base32Secret);
-        get_logger->info("OTP key has been generated for user ".$username);
-        return ($FALSE, $base32Secret);
+        person_modify( $username, otp => $base32Secret );
+        get_logger->info( "OTP key has been generated for user " . $username );
+        return ( $FALSE, $base32Secret );
     }
 }
-
 
 =head2 verify_response
 
@@ -162,8 +163,9 @@ Verify the response
 =cut
 
 sub verify_response {
-    my ($self, $params, $username) = @_;
-    return $self->verify_otp($username, $params->{otp});
+    my ( $self, $params, $username ) = @_;
+    my ( $result, $msg ) = $self->verify_otp( $username, $params->{otp} );
+    return $result;
 }
 
 =head1 AUTHOR
