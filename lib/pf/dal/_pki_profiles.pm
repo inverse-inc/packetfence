@@ -73,6 +73,10 @@ BEGIN {
         revoked_valid_until
         cloud_enabled
         cloud_service
+        scep_server_id
+        scep_server_enabled
+        allow_duplicated_cn
+        maximum_duplicated_cn
     );
 
     %DEFAULTS = (
@@ -115,6 +119,10 @@ BEGIN {
         revoked_valid_until => '14',
         cloud_enabled => undef,
         cloud_service => undef,
+        scep_server_id => undef,
+        scep_server_enabled => '0',
+        allow_duplicated_cn => '0',
+        maximum_duplicated_cn => '0',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -157,6 +165,10 @@ BEGIN {
         revoked_valid_until
         cloud_enabled
         cloud_service
+        scep_server_id
+        scep_server_enabled
+        allow_duplicated_cn
+        maximum_duplicated_cn
     );
 
     %FIELDS_META = (
@@ -203,43 +215,43 @@ BEGIN {
             is_nullable => 1,
         },
         organisational_unit => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         country => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         state => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         locality => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         street_address => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         postal_code => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         ca_id => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -251,109 +263,109 @@ BEGIN {
             is_nullable => 1,
         },
         validity => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         key_type => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         key_size => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         digest => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         key_usage => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         extended_key_usage => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         ocsp_url => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         p12_mail_password => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         p12_mail_subject => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         p12_mail_from => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         p12_mail_header => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         p12_mail_footer => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         scep_enabled => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         scep_challenge_password => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         scep_days_before_renewal => {
-            type => 'VARCHAR',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         days_before_renewal => {
-            type => 'VARCHAR',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         renewal_mail => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         days_before_renewal_mail => {
-            type => 'VARCHAR',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -365,37 +377,61 @@ BEGIN {
             is_nullable => 1,
         },
         renewal_mail_from => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         renewal_mail_header => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         renewal_mail_footer => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         revoked_valid_until => {
-            type => 'VARCHAR',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         cloud_enabled => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         cloud_service => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        scep_server_id => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        scep_server_enabled => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        allow_duplicated_cn => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        maximum_duplicated_cn => {
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -447,6 +483,10 @@ BEGIN {
         pki_profiles.revoked_valid_until
         pki_profiles.cloud_enabled
         pki_profiles.cloud_service
+        pki_profiles.scep_server_id
+        pki_profiles.scep_server_enabled
+        pki_profiles.allow_duplicated_cn
+        pki_profiles.maximum_duplicated_cn
     );
 
 }
@@ -554,7 +594,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2025 Inverse inc.
 
 =head1 LICENSE
 
