@@ -210,6 +210,12 @@ Depends: fingerbank-collector-remote (>= 1.4.1), freeradius-common
 Description: PacketFence Connector
  PacketFence Connector files. This package contains all files related to PacketFence Connector.
 
+Package: packetfence-ntlm-auth-api-remote
+Architecture: all
+Depends: packetfence-pfconnector-remote
+Description: PacketFence NTLM Auth API remote
+ PacketFence NTLM Auth API files. This package contains all files related to PacketFence NTLM Auth API remote.
+
 Package: packetfence-ci-lib
 Architecture: all
 Description: CI librairies used by PacketFence
