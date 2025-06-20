@@ -72,9 +72,11 @@ case "$1" in
         # Related to firewalld.service
         /bin/systemctl stop firewalld.service
         /bin/systemctl disable firewalld.service
-        /bin/systemctl mask firewalld.service
-        /bin/rm -rf /usr/lib/systemd/system/firewalld.service
-        /bin/systemctl daemon-reload
+	sudo apt purge firewalld -y
+	sudo rm -rf /usr/lib/python3*/dist-packages/firewall
+	sudo rm -rf /usr/lib/python3*/site-packages/firewall
+	sudo rm -rf /usr/lib/python3*/dist-packages/{firewall*,slip*}
+	sudo apt autoremove -y
         set -e
 
         # prevent conflicting mariadb service from starting 
@@ -125,8 +127,13 @@ case "$1" in
         # Related to firewalld.service
         /bin/systemctl stop firewalld.service
         /bin/systemctl disable firewalld.service
-        /bin/systemctl mask firewalld.service
-        /bin/rm -rf /usr/lib/systemd/system/firewalld.service
+        /bin/systemctl stop firewalld.service
+        /bin/systemctl disable firewalld.service
+        sudo apt purge firewalld -y
+        sudo rm -rf /usr/lib/python3*/dist-packages/firewall
+        sudo rm -rf /usr/lib/python3*/site-packages/firewall
+        sudo rm -rf /usr/lib/python3*/dist-packages/{firewall*,slip*}
+        sudo apt autoremove -y
 
         # Related to packetfence-iptables.service
         /bin/systemctl stop packetfence-iptables.service
