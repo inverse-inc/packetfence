@@ -1,0 +1,23 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence NTLM auth Backend API Controller
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-httpd.portal.service
+Before=packetfence-docker-iptables.service
+
+[Service]
+Type=forking
+TimeoutStopSec=60
+NotifyAccess=all
+LimitNOFILE=8192
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ntlm_auth_api' -e 'pf::services::manager::ntlm_auth_api->new()->generateConfig()'
+ExecStart=/usr/local/pf/sbin/ntlm-auth-api-docker-wrapper start
+ExecStop=/usr/local/pf/sbin/ntlm-auth-api-docker-wrapper stop
+Restart=on-failure
+Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/ntlm-auth-api.pid
+
+[Install]
+WantedBy=packetfence.target
+

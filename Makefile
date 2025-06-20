@@ -326,6 +326,33 @@ pfconnector_remote_install:
 	make -C $(SRC_GODIR) pfconnector
 	install -v -m 0755 $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
 
+.PHONY: ntlm_auth_api_remote_install
+ntlm_auth_api_remote_install:
+	# logrotate config is installed through dh_installlogrotate
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_LOGDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_BINDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_CONF)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_UPGRADEDIR)
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)
+
+	@echo "install $(SRC_NTLM_AUTH_APIDIR) files"
+	for file in $(shell find $$(SRC_NTLM_AUTH_APIDIR) -type f); do \
+		install -v -m 0644 $$file -D $(DESTDIR)$(NTLM_AUTH_API_BINDIR)/$$file ; \
+	done
+
+	install -v -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-domain -D $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-domain
+	install -v -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-monitor -D $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-monitor
+	install -v -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-docker-wrapper -D $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-docker-wrapper
+
+	install -v -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-api-domain@.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api-domain@.service
+	install -v -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-api.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api.service
+	install -v -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/containers/systemd-service $(DESTDIR)$(NTLM_AUTH_API_CONF)/systemd-service
+
+	TMPDIR=$(shell mktemp -d)
+	touch $(TMPDIR)/ntlm_auth_api.env
+	install -v -m 0600 $(TMPDIR)/ntlm_auth_api.env $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/ntlm_auth_api.env
+
 # install -D will automatically create target directories
 # SRC_RELATIVE_CILIBDIR is used to only get relative paths from PF source tree
 # $$file in destination of install command contain relative path
