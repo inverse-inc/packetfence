@@ -26,7 +26,7 @@ export { useStore } from '../_store'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import api from '../_api'
-export const useSearch = makeSearch('connectors', {
+export const useSearch = makeSearch('connectorsConnectors', {
   api,
   sortBy: null, // use natural order (sortable)
   columns: [
@@ -46,6 +46,11 @@ export const useSearch = makeSearch('connectors', {
       key: 'description',
       label: 'Description', // i18n defer
       searchable: true,
+      visible: true
+    },
+    {
+      key: 'networks',
+      label: 'Networks', // i18n defer
       visible: true
     },
     {

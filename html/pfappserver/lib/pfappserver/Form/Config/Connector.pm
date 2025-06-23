@@ -11,6 +11,7 @@ Form definition to create or update a connector
 =cut
 
 use HTML::FormHandler::Moose;
+use pf::ConfigStore::Connector::DomainsConnectors;
 extends 'pfappserver::Base::Form';
 with qw(
     pfappserver::Base::Form::Role::Help

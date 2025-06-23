@@ -2,12 +2,12 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="d-flex align-items-center mb-0">
-        {{ $t('Connector') }}
+        {{ $t('DNS') }}
       </h4>
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
-        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Connector') }}</b-button>
+        <b-button variant="outline-primary" @click="goToNew">{{ $t('New DNS') }}</b-button>
       </base-search>
       <base-table-sortable ref="tableRef"
         :busy="isLoading"
@@ -38,6 +38,9 @@
             </template>
           </span>
         </template>
+        <template v-slot:cell(domains)="item">
+          <b-badge v-for="(domain, index) in item.item.domains" :key="index" class="mr-1" variant="secondary">{{ domain }}</b-badge>
+        </template>
         <template #cell(selected)="{ index, rowSelected }">
           <span @click.stop="onItemSelected(index)">
             <template v-if="rowSelected">
@@ -60,7 +63,7 @@
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
-              :confirm="$t('Delete Connector?')"
+              :confirm="$t('Delete DNS?')"
               @click="onRemove(item.id)"
             >{{ $t('Delete') }}</base-button-confirm>
             <b-button

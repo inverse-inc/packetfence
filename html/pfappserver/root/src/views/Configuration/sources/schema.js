@@ -44,7 +44,7 @@ yup.addMethod(yup.string, 'sourceConnectThroughPortNotExistsExcept', function (e
     test: (value) => {
       if (!value) return true
       return store.dispatch('config/getSources').then(response => {
-        return response.filter(source =>  source.id.toLowerCase() !== exceptName.toLowerCase() && source.connect_through_port.toLowerCase() === value.toLowerCase()).length === 0
+        return response.filter(source =>  source.id.toLowerCase() !== exceptName.toLowerCase() && source.pfconnector_port.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })
@@ -112,11 +112,6 @@ export const schema = (props) => {
     sp_cert_path_upload,
     sp_key_path_upload,
   } = form || {}
-
-  //eslint-disable-next-line
-  console.log({connectThroughPortMin, connectThroughPortMax})
-
-  const connectThroughPortRangeMessage = i18n.t('Port out of range ({min}-{max}).', { min: connectThroughPortMin, max: connectThroughPortMax } )
 
   return yup.object({
     id: yup.string()
@@ -200,6 +195,10 @@ export const schema = (props) => {
           : yup.string().nullable()
       }),
     person_mappings: schemaPersonMappings,
+    pfconnector_port: yup.string().nullable()
+      .label(i18n.t('Port'))
+      .sourceConnectThroughPortNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Port exists.'))
+      .isPort(connectThroughPortMin, connectThroughPortMax),
     port: yup.string().label(i18n.t('Port')).isPort(),
     protected_resource_url: yup.string().label(i18n.t('URL')),
     proxy_addresses: yup.string().label(i18n.t('Addresses')),

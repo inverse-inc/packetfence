@@ -1058,4 +1058,21 @@ type PfSwitches struct {
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"config::Switch"`
 	Keys           []string
+
+}
+
+type PfConfPfDnsConnector struct {
+	StructConfig
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Pf"`
+	PfconfigHashNS       string `val:"pfdns_connector"`
+	PfdnsConnectorServer string `json:"pfdns_connector_server"`
+}
+
+type PfConfDnsConnectors struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::DnsConnectors"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
 }

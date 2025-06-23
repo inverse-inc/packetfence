@@ -1067,9 +1067,9 @@ EOT
         $source->{'options'} =~ s/\$src_ip/$src_ip/;
         my $host = $source->{'host'};
         my $port = $source->{'port'};
-        if ($source->{'use_connector'} && $source->{'connect_through_port'} ne "") {
+        if ($source->{'use_connector'} && $source->{'pfconnector_port'} ne "") {
             $host = exists $ENV{PFCONNECTOR_SERVICE_HOST} ? $ENV{PFCONNECTOR_SERVICE_HOST} : "100.64.0.1";
-            $port = $source->{'connect_through_port'};
+            $port = $source->{'pfconnector_port'};
         }
         $tags{'radius_sources'} .= <<"EOT";
 
@@ -1416,18 +1416,18 @@ EOT
     } else {
         my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
         unlink($file);
-	#my $management_ip
-	#= defined( $management_network->tag('vip') )
-	#? $management_network->tag('vip')
-	#: $management_network->tag('ip');
-	#$tags{'config'} .= <<"EOT";
-	#client $management_ip {
-	#require_message_authenticator = no
-	#ipaddr = $management_ip
-	#secret = '$local_secret'
-	#shortname = pf
-	#}
-	#EOT
+        #my $management_ip
+        #= defined( $management_network->tag('vip') )
+        #? $management_network->tag('vip')
+        #: $management_network->tag('ip');
+        #$tags{'config'} .= <<"EOT";
+        #client $management_ip {
+        #require_message_authenticator = no
+        #ipaddr = $management_ip
+        #secret = '$local_secret'
+        #shortname = pf
+        #}
+        #EOT
     }
     # Ensure raddb/clients.conf.inc exists. radiusd won't start otherwise.
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";

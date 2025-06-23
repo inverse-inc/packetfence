@@ -250,7 +250,11 @@ sub _connect {
       @LDAPServers = @{$self->{'host'} // []};
   } else {
       # Lookup the server hostnames to IPs so they can be shuffled better and to improve the failure detection
-      @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @{$self->{'host'} // []};     
+      if(!$self->use_connector) {
+          @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @{$self->{'host'} // []};
+      } else {
+          @LDAPServers = @{$self->{'host'} // []};
+      }
   }
   if ($self->shuffle) {
       @LDAPServers = List::Util::shuffle @LDAPServers;
@@ -274,7 +278,8 @@ sub _connect {
 
         if($self->use_connector) {
             require pf::factory::connector;
-            my $connector_conn = pf::factory::connector->for_ip($LDAPServer)->dynreverse("$LDAPServer:$LDAPServerPort");
+            my $dest_ip = pf::factory::connector->resolve($LDAPServer);
+            my $connector_conn = pf::factory::connector->for_ip($dest_ip)->dynreverse("$dest_ip:$LDAPServerPort");
             $connection = pf::LDAP->new(
                 $connector_conn->{host},
                 %LDAPArgs,

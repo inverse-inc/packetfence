@@ -36,8 +36,17 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Connector ID required.'))
+      .isAlphaNumeric()
+      .length(40, i18n.t('Connector ID must be 40 characters.'))
       .connectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Connector ID exists.')),
-    description: yup.string().nullable().label(i18n.t('Description')),
-    networks: schemaNetworks
+    description: yup.string()
+      .nullable()
+      .required(i18n.t('Description required.'))
+      .label(i18n.t('Description')),
+    secret: yup.string()
+      .nullable()
+      .required(i18n.t('Secret required.'))
+      .label(i18n.t('Secret')),
+    networks: schemaNetworks,
   })
 }
