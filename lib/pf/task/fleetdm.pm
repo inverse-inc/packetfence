@@ -306,7 +306,11 @@ sub getHostMac {
         return "";
     }
 
-    my $data = decode_json($response->{content});
+    my $data = eval{ decode_json($response->{content})};
+    if ($@) {
+        $logger->error("Error parsing results: $@");
+        return "";
+    }
 
     unless (exists($data->{host}) && exists($data->{host}->{primary_mac})) {
         $msg = "unable to extract primary mac from host API response for host id: {$host_id}.";
