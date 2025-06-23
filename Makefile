@@ -335,6 +335,9 @@ ntlm_auth_api_remote_install:
 	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_CONF)
 	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_UPGRADEDIR)
 	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/conf
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/run
 
 	@echo "install $(SRC_NTLM_AUTH_APIDIR) files"
 	for file in $(shell find $$(SRC_NTLM_AUTH_APIDIR) -type f); do \
@@ -348,6 +351,11 @@ ntlm_auth_api_remote_install:
 	install -v -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-api-domain@.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api-domain@.service
 	install -v -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-api.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api.service
 	install -v -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/containers/systemd-service $(DESTDIR)$(NTLM_AUTH_API_CONF)/systemd-service
+
+	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(NTLM_AUTH_API_CONF)/build_id
+	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(NTLM_AUTH_API_CONF)/pf-release
+	make -C $(SRC_GODIR) sdnotify-proxy
+	install -v -m 0755 $(SRC_GODIR)/sdnotify-proxy $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/sdnotify-proxy
 
 	TMPDIR=$(shell mktemp -d)
 	touch $(TMPDIR)/ntlm_auth_api.env
