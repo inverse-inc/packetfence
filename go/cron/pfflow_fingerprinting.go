@@ -220,11 +220,7 @@ func (f *FingerPrintingJob) Run() {
 			close(f.stopChan)
 			log.LogDebug(f.Ctx, "FingerPrintingJob stopped")
 			return
-		case pfflows, ok := <-f.fingerprintChan:
-			if !ok {
-				log.LogDebug(f.Ctx, "fingerprintChan closed, exiting")
-				return
-			}
+		case pfflows := <-f.fingerprintChan:
 			log.LogDebugf(f.Ctx, "Received flows from fingerprintChan: %+v", pfflows)
 			f.handleFlows(pfflows)
 		}
