@@ -146,32 +146,18 @@ mac_auth_deb12:
 	SCENARIOS_TO_RUN=mac_auth \
 	$(MAKE_TARGET)
 
-#dot1x_eap_tls_el8:
-#	make \
-#	PF_VM_NAMES=pfel8$(DEV_ENV) \
-#	INT_TEST_VM_NAMES="ad switch01 node01" \
-#	SCENARIOS_TO_RUN=dot1x_eap_tls \
-#	$(MAKE_TARGET)
-#
-#dot1x_eap_tls_deb12:
-#	make \
-#	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
-#	INT_TEST_VM_NAMES="ad switch01 node01" \
-#	SCENARIOS_TO_RUN=dot1x_eap_tls \
-#	$(MAKE_TARGET)
-
-dot1x_eap_tls_kiss_el8:
+dot1x_eap_tls_el8:
 	make \
         PF_VM_NAMES=pfel8$(DEV_ENV) \
 	INT_TEST_VM_NAMES="ad" \
-        SCENARIOS_TO_RUN=dot1x_eap_tls_kiss \
+        SCENARIOS_TO_RUN=dot1x_eap_tls \
         $(MAKE_TARGET)
 
-dot1x_eap_tls_kiss_deb12:
+dot1x_eap_tls_deb12:
 	make \
         PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="ad" \
-        SCENARIOS_TO_RUN=dot1x_eap_tls_kiss \
+        SCENARIOS_TO_RUN=dot1x_eap_tls \
         $(MAKE_TARGET)
 
 inline_deb12:
@@ -309,8 +295,6 @@ dot1x_eap_peap_deb12_branches: dot1x_eap_peap_deb12
 dot1x_eap_peap_el8_branches: dot1x_eap_peap_el8
 dot1x_eap_tls_deb12_branches: dot1x_eap_tls_deb12
 dot1x_eap_tls_el8_branches: dot1x_eap_tls_el8
-dot1x_eap_tls_kiss_deb12_branches: dot1x_eap_tls_kiss_deb12
-dot1x_eap_tls_kiss_el8_branches: dot1x_eap_tls_kiss_el8
 external_integrations_deb12_branches: external_integrations_deb12
 fingerbank_invalid_db_deb12_branches: fingerbank_invalid_db_deb12
 inline_deb12_branches: inline_deb12
