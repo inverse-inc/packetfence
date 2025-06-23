@@ -55,8 +55,8 @@
     />
 
     <form-group-broadcast :column-label="$i18n.t('Broadcast network')"
-                          :disabled-value="0"
-                          :enabled-value="1"
+                          disabled-value="0"
+                          enabled-value="1"
                           :text="$i18n.t('Disable this box if you are using a hidden SSID.')"
                           namespace="broadcast"
     />
