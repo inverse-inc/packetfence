@@ -24,7 +24,7 @@ yup.addMethod(yup.string, 'dnsConnectorIdentifierNotExistsExcept', function (exc
 yup.addMethod(yup.string, 'dnsConnectorPfconnectorPortNotExistsExcept', function (exceptName = '', message) {
   return this.test({
     name: 'dnsConnectorPfconnectorPortNotExistsExcept',
-    message: message || i18n.t('Name exists.'),
+    message: message || i18n.t('Port exists.'),
     test: (value) => {
       if (!value) return true
       return store.dispatch('config/getConnectorsDns').then(response => {
