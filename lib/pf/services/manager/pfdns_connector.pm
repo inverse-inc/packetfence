@@ -44,7 +44,7 @@ sub generateConfig {
 
     $tags{'connectors'} = \%connectors_config;
     if (exists $ENV{PFCONNECTOR_SERVICE_HOST}) {
-        $tags{'PFCONNECTOR_SERVICE_HOST'} = '${PFCONNECTOR_SERVICE_HOST}';
+        $tags{'PFCONNECTOR_SERVICE_HOST'} = '{$PFCONNECTOR_SERVICE_HOST}';
     } else {
         $tags{'PFCONNECTOR_SERVICE_HOST'} = '100.64.0.1';
     }
