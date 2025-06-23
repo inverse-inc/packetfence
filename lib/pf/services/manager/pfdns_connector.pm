@@ -21,7 +21,6 @@ use pf::file_paths qw(
     $generated_conf_dir
 );
 use pf::config;
-
 use pf::util;
 use Moo;
 
