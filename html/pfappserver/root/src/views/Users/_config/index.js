@@ -17,7 +17,9 @@ export const userActions = [
   'mark_as_sponsor',
   'set_role_by_acl_user',
   'set_access_durations',
-  'set_unreg_date_by_acl_user'
+  'set_unreg_date_by_acl_user',
+  'trigger_radius_mfa',
+  'trigger_portal_mfa',
 ]
 
 export const passwordOptions = {
