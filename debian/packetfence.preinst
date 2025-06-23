@@ -72,7 +72,7 @@ case "$1" in
         # Related to firewalld.service
         /bin/systemctl stop firewalld.service
         /bin/systemctl disable firewalld.service
-	sudo apt remove --purge firewalld -y
+	sudo apt purge firewalld -y
 	sudo rm -rf /usr/lib/python3*/dist-packages/firewall
 	sudo rm -rf /usr/lib/python3*/site-packages/firewall
 	sudo rm -rf /usr/lib/python3*/dist-packages/{firewall*,slip*}
@@ -129,7 +129,7 @@ case "$1" in
         /bin/systemctl disable firewalld.service
         /bin/systemctl stop firewalld.service
         /bin/systemctl disable firewalld.service
-        sudo apt remove --purge firewalld -y
+        sudo apt purge firewalld -y
         sudo rm -rf /usr/lib/python3*/dist-packages/firewall
         sudo rm -rf /usr/lib/python3*/site-packages/firewall
         sudo rm -rf /usr/lib/python3*/dist-packages/{firewall*,slip*}
