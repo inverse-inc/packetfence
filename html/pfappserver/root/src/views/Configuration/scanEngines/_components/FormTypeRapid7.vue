@@ -67,22 +67,22 @@
     <form-group-pre-registration namespace="pre_registration"
                                  :column-label="$i18n.t('Scan before registration')"
                                  :text="$i18n.t('If this option is enabled, the PF system will scan host before the registration.')"
-                                 :enabled-value="1"
-                                 :disabled-value="0"
+                                 enabled-value="1"
+                                 disabled-value="0"
     />
 
     <form-group-registration namespace="registration"
                              :column-label="$i18n.t('Scan on registration')"
                              :text="$i18n.t('If this option is enabled, the PF system will scan each host after registration is complete.')"
-                             :enabled-value="1"
-                             :disabled-value="0"
+                             enabled-value="1"
+                             disabled-value="0"
     />
 
     <form-group-post-registration namespace="post_registration"
                                   :column-label="$i18n.t('Scan after registration')"
                                   :text="$i18n.t('If this option is enabled, the PF system will scan host after on the production VLAN.')"
-                                  :enabled-value="1"
-                                  :disabled-value="0"
+                                  enabled-value="1"
+                                  disabled-value="0"
     />
   </base-form>
 </template>

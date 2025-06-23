@@ -26,8 +26,8 @@
 
     <form-group-test-mode namespace="test_mode"
                           :column-label="$i18n.t('Test mode')"
-                          :enabled-value="1"
-                          :disabled-value="0"
+                          enabled-value="1"
+                          disabled-value="0"
     />
 
     <form-group-secret-key namespace="secret_key"
@@ -50,8 +50,8 @@
     <form-group-customer-portal namespace="customer_portal"
                                 :column-label="$i18n.t('Customer portal')"
                                 :text="$i18n.t('Whether or not the Stripe Customer Portal should be enabled for this source.')"
-                                :enabled-value="1"
-                                :disabled-value="0"
+                                enabled-value="1"
+                                disabled-value="0"
     />
 
     <form-group-create-local-account namespace="create_local_account"
