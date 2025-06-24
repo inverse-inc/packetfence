@@ -3,6 +3,7 @@ package connector
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"regexp"
@@ -70,50 +71,65 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 
 		dstIp := net.ParseIP(toIP)
 		if dstIp == nil {
+			log.Printf("OpenConnectionTo: %s is not a valid IP address, trying to resolve it", toIP)
 			// probably a hostname, try to resolve it
 			dnsServer := keyPfConfPfDnsConnector.PfdnsConnectorServer
+			log.Printf("OpenConnectionTo: using DNS server %s to resolve %s", dnsServer, toIP)
 			dnsServer = replaceMgmtIP(ctx, dnsServer)
+			log.Printf("OpenConnectionTo: replaced management IP in DNS server: %s", dnsServer)
 
 			if dnsServer == "" {
 				// If PFDNS_CONNECTOR_HOST_PORT is not set, use the default DNS server
 				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
 				// This allows the code to work in both standalone and Kubernetes environments.
 				dnsServer = os.Getenv("K8S_DNS_SERVER") + ":53"
+				log.Printf("OpenConnectionTo: PFDNS_CONNECTOR_HOST_PORT is not set, using default DNS server %s", dnsServer)
 			}
 
 			host, port, err := net.SplitHostPort(dnsServer)
 			if err != nil {
+				log.Printf("OpenConnectionTo: unable to split host and port %s: %v", dnsServer, err)
 				return "", err
 			}
 			dnsServerIP := net.ParseIP(host) // Ensure dnsServer is a valid IP address
 			if dnsServerIP == nil {
+				log.Printf("OpenConnectionTo: resolved DNS server %s is not a valid IP address", host)
 				// If PFDNS_CONNECTOR_HOST_PORT is a hostname , use the default DNS server
 				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
 				// This allows the code to work in both standalone and Kubernetes environments.
 				kubeDnsServer := os.Getenv("K8S_DNS_SERVER") + ":53"
 				ips, err := resolveDNSWithCustomResolver(host, kubeDnsServer)
 				if err != nil {
+					log.Printf("OpenConnectionTo: unable to resolve %s: %v", host, err)
 					return "", fmt.Errorf("unable to resolve %s: %v", host, err)
 				}
 				if len(ips) == 0 {
+					log.Printf("OpenConnectionTo: no IPs resolved for %s", host)
 					return "", fmt.Errorf("no IPs resolved for %s", host)
 				}
-
+				log.Printf("OpenConnectionTo: resolved DNS server %s to %s", host, ips[0])
 				dstIp = net.ParseIP(ips[0])
 				if dstIp == nil {
+					log.Printf("OpenConnectionTo: resolved IP %s is not a valid IP address", ips[0])
 					return "", fmt.Errorf("resolved IP %s is not a valid IP address", ips[0])
 				}
 				dnsServer = dstIp.String() + ":" + port // Append the DNS port
 			}
+			log.Printf("OpenConnectionTo: using DNS server %s", dnsServer)
+
 			ips, err := resolveDNSWithCustomResolver(toIP, dnsServer)
 			if err != nil {
+				log.Printf("OpenConnectionTo: unable to resolve %s: %v", toIP, err)
 				return "", fmt.Errorf("unable to resolve %s: %v", toIP, err)
 			}
 			if len(ips) == 0 {
+				log.Printf("OpenConnectionTo: no IPs resolved for %s", toIP)
 				return "", fmt.Errorf("no IPs resolved for %s", toIP)
 			}
 
 			dstIp = net.ParseIP(ips[0])
+			log.Printf("OpenConnectionTo: resolved %s to %s", toIP, dstIp.String())
+
 			if dstIp == nil {
 				return "", fmt.Errorf("resolved IP %s is not a valid IP address", ips[0])
 			}
