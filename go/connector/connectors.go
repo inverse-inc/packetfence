@@ -78,7 +78,7 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 				// If PFDNS_CONNECTOR_HOST_PORT is not set, use the default DNS server
 				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
 				// This allows the code to work in both standalone and Kubernetes environments.
-				dnsServer = os.Getenv("K8S_DNS_SERVER")
+				dnsServer = os.Getenv("K8S_DNS_SERVER") + ":53"
 			}
 
 			host, port, err := net.SplitHostPort(dnsServer)
@@ -90,7 +90,7 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 				// If PFDNS_CONNECTOR_HOST_PORT is a hostname , use the default DNS server
 				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
 				// This allows the code to work in both standalone and Kubernetes environments.
-				kubeDnsServer := os.Getenv("K8S_DNS_SERVER")
+				kubeDnsServer := os.Getenv("K8S_DNS_SERVER") + ":53"
 				ips, err := resolveDNSWithCustomResolver(host, kubeDnsServer)
 				if err != nil {
 					return "", fmt.Errorf("unable to resolve %s: %v", host, err)
@@ -169,6 +169,14 @@ func WithConnectorsContainer(ctx context.Context, cc *ConnectorsContainer) conte
 }
 
 func resolveDNSWithCustomResolver(fqdn, dnsServer string) ([]string, error) {
+	host, port, err := net.SplitHostPort(dnsServer)
+	if err != nil {
+		return nil, fmt.Errorf("invalid DNS server address: %v", err)
+	}
+	if port == "" {
+		// If no port is specified, default to port 53
+		dnsServer = host + ":53"
+	}
 	resolver := &net.Resolver{
 		PreferGo: true,
 		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
