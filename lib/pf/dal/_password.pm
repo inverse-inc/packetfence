@@ -58,8 +58,8 @@ BEGIN {
         sponsor => '0',
         unregdate => '0000-00-00 00:00:00',
         login_remaining => undef,
-        trigger_radius_mfa => '0',
-        trigger_portal_mfa => '0',
+        trigger_radius_mfa => undef,
+        trigger_portal_mfa => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -139,16 +139,16 @@ BEGIN {
             is_nullable => 1,
         },
         trigger_radius_mfa => {
-            type => 'TINYINT',
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 0,
+            is_nullable => 1,
         },
         trigger_portal_mfa => {
-            type => 'TINYINT',
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 0,
+            is_nullable => 1,
         },
     );
 

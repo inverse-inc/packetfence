@@ -57,8 +57,8 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 \! echo "updating password";
 ALTER TABLE `password`
-    ADD COLUMN `trigger_radius_mfa` tinyint(1) NOT NULL default 0,
-    ADD COLUMN `trigger_portal_mfa` tinyint(1) NOT NULL default 0;
+    ADD COLUMN IF NOT EXISTS `trigger_radius_mfa` varchar(255) default NULL,
+    ADD COLUMN IF NOT EXISTS `trigger_portal_mfa` varchar(255) default NULL;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
