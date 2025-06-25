@@ -39,8 +39,6 @@ const setup = (props, context) => {
           case 'set_access_level':
           case 'set_role':
           case 'set_unreg_date':
-          case 'trigger_radius_mfa':
-          case 'trigger_portal_mfa':
             return `${action}_by_acl_user` // remap action to user ACL
             // break
           default:
