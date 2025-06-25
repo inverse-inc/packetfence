@@ -138,6 +138,24 @@ sub match {
         });
     }
 
+    my $trigger_radius_mfa = $result->{'trigger_radius_mfa'};
+    if (defined $trigger_radius_mfa) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::TRIGGER_RADIUS_MFA,
+            value   => $trigger_radius_mfa,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::TRIGGER_RADIUS_MFA),
+        });
+    }
+
+    my $trigger_portal_mfa = $result->{'trigger_portal_mfa'};
+    if (defined $trigger_portal_mfa) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::TRIGGER_PORTAL_MFA,
+            value   => $trigger_portal_mfa,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::TRIGGER_PORTAL_MFA),
+        });
+    }
+
     my $time_balance = $result->{'time_balance'};
     if (defined $time_balance) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE, value => $time_balance});
