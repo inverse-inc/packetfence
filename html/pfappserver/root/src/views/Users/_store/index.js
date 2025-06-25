@@ -25,10 +25,10 @@ const inflateActions = (data) => {
   if (data.access_level) {
     data.actions.push({ type: pfActions.set_access_level.value, value: data.access_level.split(',') })
   }
-  if (data.trigger_radius_mfa && parseInt(data.trigger_radius_mfa)) {
+  if (data.trigger_radius_mfa) {
     data.actions.push({ type: pfActions.trigger_radius_mfa.value, value: data.trigger_radius_mfa })
   }
-  if (data.trigger_portal_mfa && parseInt(data.trigger_portal_mfa)) {
+  if (data.trigger_portal_mfa) {
     data.actions.push({ type: pfActions.trigger_portal_mfa.value, value: data.trigger_portal_mfa })
   }
   if (data.can_sponsor && parseInt(data.can_sponsor)) {
@@ -63,10 +63,10 @@ const deflateActions = (data) => {
           data.access_level = action.value.join(',')
           break
         case pfActions.trigger_radius_mfa.value:
-          data.trigger_radius_mfa = 1
+          data.trigger_radius_mfa = action.value
           break
         case pfActions.trigger_portal_mfa.value:
-          data.trigger_portal_mfa = 1
+          data.trigger_portal_mfa = action.value
           break
         case pfActions.mark_as_sponsor.value:
           data.sponsor = 1
