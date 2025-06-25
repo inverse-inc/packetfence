@@ -284,6 +284,14 @@ export const pfFieldTypeValues = {
   [pfFieldType.DURATIONS]: () =>
     store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList']),
 
+  [pfFieldType.MFA]: () =>
+    store.dispatch('config/getMfas').then(items => [
+      { value: null, text: i18n.t('empty - None') },
+      ...items.map((item) => {
+        return { value: item.id, text: item.id }
+      })
+    ]),
+
   [pfFieldType.OPTIONS]: ({ field }) => {
     if (field === undefined) {
       throw new Error('Missing `field` in pfFieldTypeValues[pfFieldType.OPTIONS]')

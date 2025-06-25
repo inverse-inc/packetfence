@@ -135,7 +135,7 @@ const api = {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
   getMfas () {
-    return apiCall({ url: 'config/mfas', method: 'get' })
+    return apiCall({ url: 'config/mfas', method: 'get', params: { limit: 1000 } })
   },
   getPkiCas () {
     return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
