@@ -134,16 +134,12 @@ export const pfActions = {
   trigger_radius_mfa: {
     value: 'trigger_radius_mfa',
     text: i18n.t('Trigger RADIUS MFA'),
-    types: [fieldType.HIDDEN],
-    staticValue: '1',
-    default: '1'
+    types: [fieldType.SELECTONE]
   },
   trigger_portal_mfa: {
     value: 'trigger_portal_mfa',
     text: i18n.t('Trigger Portal MFA'),
-    types: [fieldType.HIDDEN],
-    staticValue: '1',
-    default: '1'
+    types: [fieldType.SELECTONE]
   },
   set_unreg_date: {
     value: 'set_unreg_date',
