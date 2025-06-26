@@ -103,35 +103,54 @@ sub resolve_dns_with_custom_resolver {
     my $dns_server_str_save = $dns_server_str; # Save the original DNS server string for error messages
     my $err;
     my ($dns_host, $dns_port) = ($dns_server_str =~ /^(.*?)(?::(\d+))?$/);
+    my $dns_port_default = $dns_port // "53";
     unless (Net::IP::ip_is_ipv4($dns_host)) {
         my $kube_dns = $ENV{'K8S_DNS_SERVER'};
         ($dns_server_str, $err) = resolve_dns($dns_host, $kube_dns);
-        $dns_server_str = $dns_server_str[0].":".$dns_port;
+        if ($err) {
+            return (undef, "Error resolving DNS server '$dns_host': $err");
+        }
     }
     return (undef, "DNS server not configured and K8S_DNS_SERVER is not defined") unless $dns_server_str;
-    return resolve_dns($fqdn, $dns_server_str) if Net::IP::ip_is_ipv4($dns_host);
+    return resolve_dns($fqdn, $dns_server_str, $dns_port_default) if Net::IP::ip_is_ipv4($dns_host);
     return (undef, "Invalid DNS server format: $dns_server_str") unless $dns_server_str =~ /^(.*?)(?::(\d+))?$/;
 }
 
 sub resolve_dns {
-    my ($fqdn, $dns_server_str) = @_;
-    my ($dns_host, $dns_port) = ($dns_server_str =~ /^(.*?)(?::(\d+))?$/);
-    $dns_port ||= 53; # Default DNS port
+    my ($fqdn, $dns_server_str, $dns_port_default) = @_;
+
+    my @dns_hosts;
+    my $dns_port = $dns_port_default // "53"; # Default DNS port
+
+    # Support arrayref or scalar for dns_server_str
+    if (ref($dns_server_str) eq 'ARRAY') {
+        @dns_hosts = @$dns_server_str;
+    } else {
+        # Parse host:port if present
+        my ($host, $port) = ($dns_server_str =~ /^(.*?)(?::(\d+))?$/);
+        $dns_port = $port if $port;
+        push @dns_hosts, $host if $host;
+    }
+
+    # Remove any empty hosts
+    @dns_hosts = grep { $_ } @dns_hosts;
+
     my $resolver = Net::DNS::Resolver->new(
-        nameservers => [$dns_host],
+        nameservers => \@dns_hosts,
         port        => $dns_port,
         recurse     => 1,
-        timeout     => 5, # Timeout of 5 second
+        timeout     => 5, # Timeout of 5 seconds
     );
 
     my $packet = $resolver->query($fqdn, 'A'); # A record research (IPv4)
     unless ($packet) {
-        return (undef, "Error trying to resolve '$fqdn' via $dns_host: " . $resolver->errorstring);
+        return (undef, "Error trying to resolve '$fqdn' via [@dns_hosts]: " . $resolver->errorstring);
     }
     my @ips;
     foreach my $rr ($packet->answer) {
         push @ips, $rr->address if $rr->type eq 'A';
     }
+
     return (\@ips, undef);
 }
 
