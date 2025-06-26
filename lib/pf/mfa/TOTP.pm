@@ -69,7 +69,8 @@ sub verify_otp {
     my $person = person_view($username);
     if ( defined $person->{otp} && $person->{otp} ne '' ) {
         my $start_time = time;
-        for my $time ( $start_time - 30, $start_time, $start_time + 30 ) {
+        my @times = ($start_time, $start_time - 30, $start_time + 30 );
+        for my $time (@times) {
             my $local_otp = $self->generateCurrentNumber( $person->{otp}, $time );
             if ( $otp == $local_otp ) {
                 $self->set_mfa_success($username);
