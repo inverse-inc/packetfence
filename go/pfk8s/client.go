@@ -1,6 +1,7 @@
 package pfk8s
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
@@ -33,6 +34,21 @@ type PodList struct {
 			}
 		}
 	}
+}
+
+type PatchPorts struct {
+	Spec PatchPortsSpec `json:"spec"`
+}
+
+type PatchPort struct {
+	Port       int    `json:"port"`
+	TargetPort int    `json:"targetPort"`
+	Protocol   string `json:"protocol"`
+	Name       string `json:"name"`
+}
+
+type PatchPortsSpec struct {
+	Ports []PatchPort `json:"ports"`
 }
 
 type Client struct {
@@ -128,6 +144,37 @@ func (c *Client) ListPods(appSelector string) (PodList, error) {
 	}
 
 	return pods, nil
+}
+
+func (c *Client) PatchPorts(p PatchPorts) error {
+	data, err := json.Marshal(p)
+	if err != nil {
+		return fmt.Errorf("PatchPorts: %w", err)
+	}
+
+	req, err := c.newRequest("PATCH", "/api/v1/namespaces/"+c.Namespace+"services/pfconnector", bytes.NewBuffer(data))
+	if err != nil {
+		return fmt.Errorf("PatchPorts: %w", err)
+	}
+
+	req.Header.Add("Content-Type", "application/strategic-merge-patch+json")
+	resp, err := c.getHttpClient().Do(req)
+	if err != nil {
+		return fmt.Errorf("PatchPorts: %w", err)
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("PatchPorts: %w", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("PatchPorts: %d", resp.StatusCode)
+	}
+	_ = body
+
+	return nil
 }
 
 func (c *Client) UnifiedAPICallDeployment(ctx context.Context, useTLS bool, appSelector, method, path string, createResponseStructPtr func(serverId string) interface{}) map[string]error {

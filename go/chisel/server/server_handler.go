@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -186,6 +187,26 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			if remote, err := settings.DecodeRemote(remoteDef); err == nil {
 				additionalRemotes = append(additionalRemotes, remote)
 			}
+		}
+	}
+
+	if pfk8s.IsRunningInK8S() {
+		patchPorts := pfk8s.PatchPorts{
+			Spec: pfk8s.PatchPortsSpec{
+				Ports: make([]pfk8s.PatchPort, 0, len(additionalRemotes)),
+			},
+		}
+		for _, remote := range additionalRemotes {
+			port, _ := strconv.ParseUint(remote.LocalPort, 10, 16)
+			patchPorts.Spec.Ports = append(
+				patchPorts.Spec.Ports,
+				pfk8s.PatchPort{Port: int(port), TargetPort: int(port), Protocol: remote.LocalProto, Name: "port-" + remote.LocalPort},
+			)
+		}
+
+		client := pfk8s.NewClientFromEnv()
+		if err := client.PatchPorts(patchPorts); err != nil {
+
 		}
 	}
 	//successfuly validated config!
