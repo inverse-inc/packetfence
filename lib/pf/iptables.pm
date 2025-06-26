@@ -119,6 +119,62 @@ sub new {
 }
 
 
+sub add_to_rules {
+  my $rules = shift;
+  my $entry = shift;
+  return $rules."\n".$entry;
+}
+
+sub create_chains {
+    my %chains = (
+        'filter' => { 'INPUT' => [], 'FORWARD' => [], 'OUTPUT' => [] },
+        'mangle' => { 'PREROUTING'=> [], 'INPUT' => [], 'FORWARD' => [], 'OUTPUT' => [], 'POSTROUTING' => [] },
+        'nat' => { 'PREROUTING' => [], 'OUTPUT' => [], 'POSTROUTING' => []}
+    );
+    return %chains;
+}
+
+sub safe_push {
+    my ($array_ref, $value) = @_;
+    unless (any { $_ eq $value } @$array_ref) {
+        push @$array_ref, $value;
+    }
+}
+
+sub fw_haproxy_portal_rules {
+    # Initialize
+    my %chains = create_chains();
+    my $file="fw_haproxy_portal_rules_configfile";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+            safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+            if ($cluster_enabled) {
+                my $web_admin_port = $Config{'ports'}{'admin'};
+                safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
+            }
+        }
+    }
+    foreach my $network ( @portal_ints ) {
+        my $tint =  $network->{Tint};
+        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+    }
+    foreach my $network ( @inline_enforcement_nets ) {
+        my $tint =  $network->{Tint};
+        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+    }
+    foreach my $network ( @vlan_enforcement_nets ) {
+        my $tint =  $network->{Tint};
+        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+    }
+    parse_template( \%chains, "$conf_dir/iptables_default.conf", "$generated_conf_dir/iptables/$file.conf" );
+    iptables_generate_config();
+}
+
 sub iptables_generate {
     my ($self) = @_;
     my $logger = get_logger();
@@ -689,6 +745,38 @@ sub iptables_save {
     safe_pf_run("/usr/sbin/iptables-save", '-t', 'nat', { stdout => $save_file });
     safe_pf_run("/usr/sbin/iptables-save", '-t', 'mangle', { stdout => $save_file, stdout_append => 1 });
     safe_pf_run("/usr/sbin/iptables-save", '-t', 'filter', { stdout => $save_file, stdout_append => 1 });
+}
+
+sub iptables_generate_config {
+    my ($self, $config_dir) = @_;
+    my $logger = get_logger();
+    my %tags = (
+        'fw_haproxy_portal_rules_configfile' => '', 'filter_forward_inline' => '',
+        'filter_forward_vlan' => '', 'mangle_postrouting_inline' => '',
+        'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '',
+        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
+        'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
+        'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
+        'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
+        'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
+        'filter_forward' => '', 'forward_netflow' => '', 'kafka' => '',
+    );
+
+    my @config_files = read_dir_recursive($config_dir);
+    my %hash;
+    open(my $fh, '<', 'filename.txt') or die "Cannot open file: $!";
+    while (my $line = <$fh>) {
+        chomp $line;  # Remove newline character
+        # Use line number as key (or modify as needed)
+        $hash{$.} = $line;  # $. is the current line number
+    }
+    close($fh);
+
+    each line is related to a tag
+    write each tag in the default config
+
+    parse_template( \%tags, "$conf_dir/iptables.conf", "$generated_conf_dir/iptables.conf" );
+    $self->iptables_restore("$generated_conf_dir/iptables.conf");
 }
 
 sub iptables_restore {
