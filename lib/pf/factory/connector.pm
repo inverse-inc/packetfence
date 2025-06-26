@@ -106,7 +106,7 @@ sub resolve_dns_with_custom_resolver {
     unless (Net::IP::ip_is_ipv4($dns_host)) {
         my $kube_dns = $ENV{'K8S_DNS_SERVER'};
         ($dns_server_str, $err) = resolve_dns($dns_host, $kube_dns);
-        $dns_server_str = $dns_server_str.":".$dns_port;
+        $dns_server_str = $dns_server_str[0].":".$dns_port;
     }
     return (undef, "DNS server not configured and K8S_DNS_SERVER is not defined") unless $dns_server_str;
     return resolve_dns($fqdn, $dns_server_str) if Net::IP::ip_is_ipv4($dns_host);
