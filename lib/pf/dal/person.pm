@@ -27,6 +27,8 @@ my @PASSWORD_FIELDS = qw(
     access_level
     unregdate
     login_remaining
+    trigger_radius_mfa
+    trigger_portal_mfa
 );
 
 our @COLUMN_NAMES = (
