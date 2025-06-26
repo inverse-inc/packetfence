@@ -13,7 +13,7 @@
 
 
 [% FOREACH key IN connectors.keys %][% FOREACH domain IN connectors.$key.domains %][% domain.key %]:53 {
-    forward . [% FOREACH dns IN domain.value %][% FOREACH pfconnector IN PFCONNECTOR_SERVICE_HOST %][% pfconnector %]:[% dns.value.pfconnector_port %][% END %] [% END %]
+    forward . [% FOREACH dns IN domain.value %][% FOREACH pfconnector IN PFCONNECTOR_SERVICE_HOST %][% pfconnector %]:[% dns.value.pfconnector_port %] [% END %] [% END %]
     cache
     errors
 }
