@@ -45,10 +45,12 @@ sub generateConfig {
     $tags{'connectors'} = \%connectors_config;
     if (isenabled($ENV{PF_SAAS})) {
         my @ips;
-        foreach my $element ('pfconnector-0.pfconnector-headless','pfconnector-1.pfconnector-headless') {
-            my $ip = pf::util::resolve($element);
-            if (defined($ip)) {
-                push(@ips, $ip);
+        foreach my $fqdn ('pfconnector-0.pfconnector-headless','pfconnector-1.pfconnector-headless') {
+            my $resolved_ips = pf::util::resolve($fqdn);
+            if (defined($resolved_ips)) {
+	        foreach my $ip (@{$resolved_ips}) {
+                    push(@ips, $ip);
+                }
             }
         }
         if (@ips) {
