@@ -206,7 +206,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 
 		client := pfk8s.NewClientFromEnv()
 		if err := client.PatchPorts(patchPorts); err != nil {
-
+			l.Printf("Error patching ports: %v", err)
 		}
 	}
 	//successfuly validated config!
