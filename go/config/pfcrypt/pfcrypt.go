@@ -1,6 +1,7 @@
 package pfcrypt
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -35,6 +36,10 @@ func encodeParts(inputs ...part) string {
 }
 
 func PfEncrypt(data []byte) (string, error) {
+	if bytes.HasPrefix(data, []byte(PREFIX)) {
+		return string(data), nil
+	}
+
 	aesCypher, err := aes.NewCipher(dervivedKey)
 	ad := []byte{}
 	if err != nil {
@@ -108,6 +113,10 @@ func getPart(parts []part, name string) (part, bool) {
 }
 
 func PfDecrypt(data string) ([]byte, error) {
+	if !strings.HasPrefix(data, PREFIX) {
+		return []byte(data), nil
+	}
+
 	parts, err := decodeParts(data)
 	if err != nil {
 		return nil, err
