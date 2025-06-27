@@ -25,8 +25,6 @@
 ### filter INPUT chain ###
 :INPUT DROP [0:0]
 
-%%input_conf_inc_rules%%
-
 # accept loopback stuff
 -A INPUT --in-interface lo --jump ACCEPT
 # accept packets from the docker containers as if they were on lo
@@ -53,17 +51,31 @@
 -A DOCKER-ISOLATION-STAGE-2 -j RETURN
 -A DOCKER-USER -j RETURN
 
+[% IF custom.filter.INPUT && custom.filter.INPUT.size %]
+[% INCLUDE chain_rules chain='INPUT' rules=custom.filter.INPUT %]
+[% END %]
+
+[% IF merged.filter.INPUT && merged.filter.INPUT.size %]
 [% INCLUDE chain_rules chain='INPUT' rules=merged.filter.INPUT %]
+[% END %]
 
 ### filter FORWARD chain ###
 :FORWARD DROP [0:0]
 
+[% IF custom.filter.FORWARD && custom.filter.FORWARD.size %]
+[% INCLUDE chain_rules chain='FORWARD' rules=custom.filter.FORWARD %]
+[% END %]
+
+[% IF merged.filter.FORWARD && merged.filter.FORWARD.size %]
 [% INCLUDE chain_rules chain='FORWARD' rules=merged.filter.FORWARD %]
+[% END %]
 
 ### filter OUTPUT chain ###
 :OUTPUT ACCEPT [0:0]
 
+[% IF merged.filter.OUTPUT && merged.filter.OUTPUT.size %]
 [% INCLUDE chain_rules chain='OUTPUT' rules=merged.filter.OUTPUT %]
+[% END %]
 
 COMMIT
 
@@ -74,25 +86,35 @@ COMMIT
 ### mangle PREROUTING chain ###
 :PREROUTING ACCEPT [0:0]
 #%%mangle_prerouting_inline%%
+[% IF merged.mangle.PREROUTING && merged.mangle.PREROUTING.size %]
 [% INCLUDE chain_rules chain='PREROUTING' rules=merged.mangle.PREROUTING %]
+[% END %]
 
 ### mangle INPUT chain ###
 :INPUT ACCEPT [0:0]
+[% IF merged.mangle.INPUT && merged.mangle.INPUT.size %]
 [% INCLUDE chain_rules chain='INPUT' rules=merged.mangle.INPUT %]
+[% END %]
 
 ### mangle FORWARD chain ###
 :FORWARD ACCEPT [0:0]
+[% IF merged.mangle.FORWARD && merged.mangle.FORWARD.size %]
 [% INCLUDE chain_rules chain='FORWARD' rules=merged.mangle.FORWARD %]
+[% END %]
 
 ### mangle OUTPUT chain ###
 :OUTPUT ACCEPT [0:0]
+[% IF merged.mangle.OUTPUT && merged.mangle.OUTPUT.size %]
 [% INCLUDE chain_rules chain='OUTPUT' rules=merged.mangle.OUTPUT %]
+[% END %]
 
 ### mangle POSTROUTING chain ###
 :POSTROUTING ACCEPT [0:0]
 #%%mangle_postrouting_inline%%
 #%%mangle_if_src_to_chain%%
+[% IF merged.mangle.POSTROUTING && merged.mangle.POSTROUTING.size %]
 [% INCLUDE chain_rules chain='POSTROUTING' rules=merged.mangle.POSTROUTING %]
+[% END %]
 
 COMMIT
 
@@ -103,19 +125,25 @@ COMMIT
 :PREROUTING ACCEPT [0:0]
 #%%nat_prerouting_inline%%
 #%%nat_prerouting_vlan%%
+[% IF merged.nat.PREROUTING && merged.nat.PREROUTING.size %]
 [% INCLUDE chain_rules chain='PREROUTING' rules=merged.nat.PREROUTING %]
+[% END %]
 
 ### nat OUTPUT chain ###
 :OUTPUT ACCEPT [0:0]
 #%%nat_if_src_to_chain%%
+[% IF merged.nat.OUTPUT && merged.nat.OUTPUT.size %]
 [% INCLUDE chain_rules chain='OUTPUT' rules=merged.nat.OUTPUT %]
+[% END %]
 
 ### nat POSTROUTING chain ###
 :POSTROUTING ACCEPT [0:0]
 #%%nat_postrouting_inline%%
 #%%routed_postrouting_inline%%
 #%%nat_postrouting_vlan%%
+[% IF merged.nat.POSTROUTING && merged.nat.POSTROUTING.size %]
 [% INCLUDE chain_rules chain='POSTROUTING' rules=merged.nat.POSTROUTING %]
+[% END %]
 
 -N DOCKER
 -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER

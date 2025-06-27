@@ -822,19 +822,19 @@ sub iptables_generate_config {
     my ($self) = @_;
     my $logger = get_logger();
 
-    my %configs;
-
+    my %custom_configs;
     # Check for and load content from custom specific files if it exists
-    my @custom_file = ('iptables.conf.inc');
+    my @custom_file = ('iptables-custom.conf.inc');
     foreach my $custom_file (@custom_files) {
         my $file = $conf_dir."/".$custom_file;
-        if (util_add_custom_config_from_file($configs, $file)) {
+        if (util_add_custom_config_from_file($custom_configs, $custom_file)) {
             $logger->info( "Successfully loaded custom configuration from $file" );
         } else {
             $logger->info( "No custom configuration file ($file) found" );
         }
     }
 
+    my %configs;
     # Get content from service generated json config files
     my @config_files = read_dir_recursive($generated_iptables_conf_dir);
     if (@config_files) {
@@ -893,6 +893,7 @@ sub iptables_generate_config {
         "$conf_dir/iptables.tt",
         {
             configs => $configs,
+            custom => \%custom_configs,
             merged => \%merged
         },
         "$generated_conf_dir/generated.iptables.conf"
@@ -1193,15 +1194,15 @@ Function to load and validate custom config from file
 sub util_add_custom_config_from_file {
     my ($configs_ref, $filename) = @_;
     my $logger = get_logger();
-    return 0 unless -e $filename;    
+    my $file = $conf_dir."/".$custom_file;
+
+    return 0 unless -e $file;
+
     try {
-        my $json_content = read_file($filename);
+        my $json_content = read_file($file);
         my $custom_config = decode_json($json_content);
         
-        unless ($custom_config->{name}) {
-            $logger->warn("Config in $filename missing 'name' field");
-            return 0;
-        }
+        $custom_config->{name}=$filename;
         
         my %allowed_structure = (
             filter => { INPUT => 1, FORWARD => 1, OUTPUT => 1 },
