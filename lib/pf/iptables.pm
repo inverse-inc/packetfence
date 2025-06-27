@@ -27,9 +27,12 @@ use NetAddr::IP;
 use List::MoreUtils qw(uniq);
 use pf::constants;
 use pf::config::cluster;
-use File::Slurp qw(read_file);
 use URI ();
 use Sys::Hostname;
+use Template;
+use JSON;
+use File::Slurp;
+use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -62,7 +65,7 @@ use pf::config qw(
     @dns_ints
     netflow_enabled
 );
-use pf::file_paths qw($generated_conf_dir $conf_dir);
+use pf::file_paths qw($generated_conf_dir $conf_dir $generated_iptables_conf_dir);
 use pf::util;
 use pf::security_event qw(security_event_view_open_uniq security_event_count);
 use pf::authentication;
@@ -118,61 +121,123 @@ sub new {
    return $self;
 }
 
+=item iptables_services_rules
 
-sub add_to_rules {
-  my $rules = shift;
-  my $entry = shift;
-  return $rules."\n".$entry;
-}
+Firewalld apply rules according to running services
+need to get services that are running and use the dedicated function to restart accordingly
 
-sub create_chains {
-    my %chains = (
-        'filter' => { 'INPUT' => [], 'FORWARD' => [], 'OUTPUT' => [] },
-        'mangle' => { 'PREROUTING'=> [], 'INPUT' => [], 'FORWARD' => [], 'OUTPUT' => [], 'POSTROUTING' => [] },
-        'nat' => { 'PREROUTING' => [], 'OUTPUT' => [], 'POSTROUTING' => []}
-    );
-    return %chains;
-}
+=cut
 
-sub safe_push {
-    my ($array_ref, $value) = @_;
-    unless (any { $_ eq $value } @$array_ref) {
-        push @$array_ref, $value;
+sub iptables_services_rules {
+  my $logger = get_logger();
+  my $action = shift;
+  my $services = [qw(
+      docker.service
+      packetfence-api-frontend.service
+      packetfence-fingerbank-collector.service
+      packetfence-galera-autofix.service
+      packetfence-haproxy-admin.service
+      packetfence-haproxy-db.service
+      packetfence-haproxy-portal.service
+      packetfence-httpd.aaa.service
+      packetfence-httpd.dispatcher.service
+      packetfence-httpd.portal.service
+      packetfence-httpd.webservices.service
+      packetfence-kafka.service
+      packetfence-keepalived.service
+      packetfence-mariadb.service
+      packetfence-mysql-probe.service
+      packetfence-netdata.service
+      packetfence-pfacct.service
+      packetfence-pfconnector-server.service
+      packetfence-pfdhcp.service
+      packetfence-pfdns.service
+      packetfence-pfipset.service
+      packetfence-proxysql.service
+      packetfence-radiusd-acct.service
+      packetfence-radiusd-auth.service
+      packetfence-radiusd-cli.service
+      packetfence-radiusd-eduroam.service
+      packetfence-radiusd-load_balancer.service
+      packetfence-snmptrapd.service
+    )];
+  my $states = getServiveState($services,[qw(Id ActiveState)]);
+  foreach my $state ( @{ $states } ) {
+    if ( $state->{"ActiveState"} eq "active" ) {
+      $logger->info("$state->{'Id'} is active");
+      switch( $state->{'Id'} ) {
+        case "docker.service"                            { iptables_docker_dnat_rules($action); }
+        case "packetfence-api-frontend.service"          { iptables_api_frontend_rules($action); }
+        case "packetfence-fingerbank-collector.service"  { iptables_fingerbank_collector_rules($action); }
+        case "packetfence-galera-autofix.service"        { iptables_galera_autofix_rules($action); }
+        case "packetfence-haproxy-admin.service"         { iptables_haproxy_admin_rules($action); }
+        case "packetfence-haproxy-db.service"            { iptables_haproxy_db_rules($action); }
+        case "packetfence-haproxy-portal.service"        { iptables_haproxy_portal_rules($action); }
+        case "packetfence-httpd.aaa.service"             { iptables_httpd_aaa_rules($action); }
+        case "packetfence-httpd.dispatcher.service"      { iptables_httpd_dispatcher_rules($action); }
+        case "packetfence-httpd.portal.service"          { iptables_httpd_portal_rules($action); }
+        case "packetfence-httpd.webservices.service"     { iptables_httpd_webservices_rules($action); }
+        case "packetfence-kafka.service"                 { iptables_kafka_rules($action); }
+        case "packetfence-keepalived.service"            { iptables_keepalived_rules($action); }
+        case "packetfence-mariadb.service"               { iptables_mariadb_rules($action); }
+        case "packetfence-mysql-probe.service"           { iptables_mysql_prob_rules($action); }
+        case "packetfence-netdata.service"               { iptables_netdata_rules($action); }
+        case "packetfence-pfacct.service"                { iptables_pfacct_rules($action); }
+        case "packetfence-pfconnector-server.service"    { iptables_pfconnector_server_rules($action); }
+        case "packetfence-pfdhcp.service"                { iptables_pfdhcp_rules($action); }
+        case "packetfence-pfdns.service"                 { iptables_pfdns_rules($action); }
+        case "packetfence-pfipset.service"               { iptables_pfipset_rules($action); }
+        case "packetfence-proxysql.service"              { iptables_proxysql_rules($action); }
+        case "packetfence-radiusd-acct.service"          { iptables_radiusd_acct_rules($action); }
+        case "packetfence-radiusd-auth.service"          { iptables_radiusd_auth_rules($action); }
+        case "packetfence-radiusd-cli.service"           { iptables_radiusd_cli_rules($action); }
+        case "packetfence-radiusd-eduroam.service"       { iptables_radiusd_eduroam_rules($action); }
+        case "packetfence-radiusd-load_balancer.service" { iptables_radiusd_lb_rules($action); }
+        case "packetfence-snmptrapd.service"             { iptables_snmptrapd_rules($action); }
+        else { $logger->info( "The service $state->{'Id'} is not using Firewalld for its configuration" ) }
+      }
     }
+  }
 }
 
-sub fw_haproxy_portal_rules {
+=item iptables_haproxy_portal_rules
+
+Iptable rules for haproxy portal service
+
+=cut
+
+sub iptables_haproxy_portal_rules {
     # Initialize
-    my %chains = create_chains();
-    my $file="fw_haproxy_portal_rules_configfile";
+    my %chains = util_create_chains();
+    @{$chains{'name'}} = "haproxy_portal_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
-            safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
-            safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
             if ($cluster_enabled) {
                 my $web_admin_port = $Config{'ports'}{'admin'};
-                safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
             }
         }
     }
     foreach my $network ( @portal_ints ) {
         my $tint =  $network->{Tint};
-        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
-        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
     }
     foreach my $network ( @inline_enforcement_nets ) {
         my $tint =  $network->{Tint};
-        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
-        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
     }
     foreach my $network ( @vlan_enforcement_nets ) {
         my $tint =  $network->{Tint};
-        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
-        safe_push( @{$chains{'filter'}{'INPUT'}} , "-A INPUT -i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
     }
-    parse_template( \%chains, "$conf_dir/iptables_default.conf", "$generated_conf_dir/iptables/$file.conf" );
-    iptables_generate_config();
+    # Convert to JSON and save to file
+    util_save_service_chains_to_json(\%chains);
 }
 
 sub iptables_generate {
@@ -747,36 +812,93 @@ sub iptables_save {
     safe_pf_run("/usr/sbin/iptables-save", '-t', 'filter', { stdout => $save_file, stdout_append => 1 });
 }
 
+=item iptables_generate_config
+
+Generate the iptable config from iptables service config.
+
+=cut
+
 sub iptables_generate_config {
-    my ($self, $config_dir) = @_;
+    my ($self) = @_;
     my $logger = get_logger();
-    my %tags = (
-        'fw_haproxy_portal_rules_configfile' => '', 'filter_forward_inline' => '',
-        'filter_forward_vlan' => '', 'mangle_postrouting_inline' => '',
-        'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '',
-        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
-        'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
-        'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
-        'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
-        'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
-        'filter_forward' => '', 'forward_netflow' => '', 'kafka' => '',
+
+    my %configs;
+
+    # Check for and load content from custom specific files if it exists
+    my @custom_file = ('iptables.conf.inc');
+    foreach my $custom_file (@custom_files) {
+        my $file = $conf_dir."/".$custom_file;
+        if (util_add_custom_config_from_file($configs, $file)) {
+            $logger->info( "Successfully loaded custom configuration from $file" );
+        } else {
+            $logger->info( "No custom configuration file ($file) found" );
+        }
+    }
+
+    # Get content from service generated json config files
+    my @config_files = read_dir_recursive($generated_iptables_conf_dir);
+    if (@config_files) {
+        foreach my $conf ( @config_files ) {
+            my $json_text = read_file($conf);
+            my $data = decode_json($json_text);
+            my $conf_name = $data->{name};
+            $configs->{$conf_name} = $data;
+        }
+    }
+
+    # Merge configurations
+    my %merged = (
+        filter => { INPUT => [], FORWARD => [], OUTPUT => [] },
+        mangle => { PREROUTING => [], INPUT => [], FORWARD => [], OUTPUT => [], POSTROUTING => [] },
+        nat => { PREROUTING => [], OUTPUT => [], POSTROUTING => [] }
     );
 
-    my @config_files = read_dir_recursive($config_dir);
-    my %hash;
-    open(my $fh, '<', 'filename.txt') or die "Cannot open file: $!";
-    while (my $line = <$fh>) {
-        chomp $line;  # Remove newline character
-        # Use line number as key (or modify as needed)
-        $hash{$.} = $line;  # $. is the current line number
+    foreach my $name (sort keys %$configs) {
+        my $fw = $configs->{$name};
+        # Merge filter rules if they exist
+        if ($fw->{filter}) {
+            foreach my $chain (keys %{$merged{filter}}) {
+                push @{$merged{filter}{$chain}}, @{$fw->{filter}{$chain}} if $fw->{filter}{$chain};
+            }
+        }
+        # Merge mangle rules if they exist
+        if ($fw->{mangle}) {
+            foreach my $chain (keys %{$merged{mangle}}) {
+                push @{$merged{mangle}{$chain}}, @{$fw->{mangle}{$chain}} if $fw->{mangle}{$chain};
+            }
+        }
+        # Merge nat rules if they exist
+        if ($fw->{nat}) {
+            foreach my $chain (keys %{$merged{nat}}) {
+                push @{$merged{nat}{$chain}}, @{$fw->{nat}{$chain}} if $fw->{nat}{$chain};
+            }
+        }
     }
-    close($fh);
 
-    each line is related to a tag
-    write each tag in the default config
+    # Remove duplicates while preserving order
+    foreach my $table (keys %merged) {
+        foreach my $chain (keys %{$merged{$table}}) {
+            my @unique_rules;
+            my %seen;
+            foreach my $rule (@{$merged{$table}{$chain}}) {
+                push @unique_rules, $rule unless $seen{$rule}++;
+            }
+            $merged{$table}{$chain} = \@unique_rules;
+        }
+    }
 
-    parse_template( \%tags, "$conf_dir/iptables.conf", "$generated_conf_dir/iptables.conf" );
-    $self->iptables_restore("$generated_conf_dir/iptables.conf");
+    # Process template
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process(
+        "$conf_dir/iptables.template",
+        {
+            configs => $configs,
+            merged => \%merged
+        },
+        "$generated_conf_dir/generated.iptables.conf"
+    ) or die $tt->error();
+
+    #$self->iptables_restore("$generated_conf_dir/iptables.conf");
 }
 
 sub iptables_restore {
@@ -958,6 +1080,165 @@ sub generate_dnat_from_docker {
 
     my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
     $$nat_if_src_to_chain .= "-A PREROUTING --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1\n";
+}
+
+###################
+# UTILS
+###################
+
+=item util_getServiveState
+
+Get state of services
+
+=cut
+
+sub util_getServiveState {
+    my ($services, $props) = @_;
+    return [] if @$services == 0;
+    my @args = ((map { ('-p' => $_) } @$props), @$services);
+    my $pid = open3(my $chld_in, my $chld_out, my $chld_err = gensym, 'sudo', 'systemctl', 'show', @args);
+    waitpid( $pid, 0 );
+    my $child_exit_status = $? >> 8;
+    my $out = do {
+        local $/ = undef;
+        <$chld_out>
+    };
+    close($chld_in);
+    close($chld_out);
+    close($chld_err);
+
+    my @states;
+    my $state = {};
+    for my $line (split '\n', $out) {
+        if ($line eq '') {
+            push @states, $state;
+            $state = {};
+            next;
+        }
+
+        my ($k, $v) = split('=', $line, 2);
+        $state->{$k} = $v;
+    }
+
+    push @states, $state;
+    return \@states;
+}
+
+=item util_create_chains
+
+Create default iptables chain
+
+=cut
+
+sub util_create_chains {
+    my %chains = (
+        'name'   => "",
+        'filter' => { 'INPUT' => [], 'FORWARD' => [], 'OUTPUT' => [] },
+        'mangle' => { 'PREROUTING'=> [], 'INPUT' => [], 'FORWARD' => [], 'OUTPUT' => [], 'POSTROUTING' => [] },
+        'nat'    => { 'PREROUTING' => [], 'OUTPUT' => [], 'POSTROUTING' => [] }
+    );
+    return %chains;
+}
+
+=item util_safe_push
+
+Add value only if not other equal value are in array
+
+=cut
+
+sub util_safe_push {
+    my ($array_ref, $value) = @_;
+    unless (any { $_ eq $value } @$array_ref) {
+        push @$array_ref, $value;
+    }
+}
+
+# Function definition
+sub util_save_service_chains_to_json {
+    my $chains_ref = @_;
+    my $logger = get_logger();
+
+    # Convert to JSON with pretty formatting
+    my $json = JSON->new->pretty->canonical->encode($chains_ref);
+
+    # Add .json extension if not present
+    $output_name = $generated_iptables_conf_dir."/".$chains_ref->name.'.json';
+
+    # Create directory if it doesn't exist
+    unless (-d $generated_iptables_conf_dir) {
+        make_path($generated_iptables_conf_dir) or die $logger->err("Could not create directory $generated_iptables_conf_dir: $!");
+    }
+
+    # Write to file
+    open(my $fh, '>', $output_name) or die $logger->err("Could not open $output_name: $!");
+    print $fh $json;
+    close($fh);
+
+    # Verify file was created
+    unless (-e $output_name) {
+        die $logger->err("Failed to create JSON file $output_name");
+    }
+
+    $logger->info("Successfully saved chains to $output_name");
+}
+
+util_save_service_chains_to_json
+
+=item util_add_custom_config_from_file
+
+Function to load and validate custom config from file
+
+=cut
+
+sub util_add_custom_config_from_file {
+    my ($configs_ref, $filename) = @_;
+    my $logger = get_logger();
+    return 0 unless -e $filename;    
+    try {
+        my $json_content = read_file($filename);
+        my $custom_config = decode_json($json_content);
+        
+        unless ($custom_config->{name}) {
+            $logger->warn("Config in $filename missing 'name' field");
+            return 0;
+        }
+        
+        my %allowed_structure = (
+            filter => { INPUT => 1, FORWARD => 1, OUTPUT => 1 },
+            mangle => { PREROUTING => 1, INPUT => 1, FORWARD => 1, OUTPUT => 1, POSTROUTING => 1 },
+            nat => { PREROUTING => 1, OUTPUT => 1, POSTROUTING => 1 }
+        );
+
+        my $has_rules = 0;
+        foreach my $table (keys %$custom_config) {
+            next if $table eq 'name';
+            
+            unless (exists $allowed_structure{$table}) {
+                $logger->warn("Invalid table '$table' in $filename");
+                return 0;
+            }
+            
+            foreach my $chain (keys %{$custom_config->{$table}}) {
+                unless (exists $allowed_structure{$table}{$chain}) {
+                    $logger->warn("Invalid chain '$chain' in table '$table' in $filename");
+                    return 0;
+                }
+                
+                $has_rules = 1 if @{$custom_config->{$table}{$chain}};
+            }
+        }
+        
+        if ($has_rules) {
+            $configs_ref->{$custom_config->{name}} = $custom_config;
+            return 1;
+        }
+        
+        $logger->warn("Config in $filename contains no rules");
+        return 0;
+    } catch {
+        $logger->warn("Failed to process $filename: $_");
+        return 0;
+    };
 }
 
 =back

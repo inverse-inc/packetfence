@@ -1274,6 +1274,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config                 /usr/local/pf/conf/iptables.conf
+%config(noreplace)      /usr/local/pf/conf/iptables-custom.conf.inc
 %config(noreplace)      /usr/local/pf/conf/iptables-input.conf.inc
 %config(noreplace)      /usr/local/pf/conf/iptables-input-management.conf.inc
 %config                 /usr/local/pf/conf/ip6tables.conf
