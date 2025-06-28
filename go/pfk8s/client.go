@@ -149,28 +149,28 @@ func (c *Client) ListPods(appSelector string) (PodList, error) {
 func (c *Client) PatchPorts(p PatchPorts) error {
 	data, err := json.Marshal(p)
 	if err != nil {
-		return fmt.Errorf("PatchPorts: %w", err)
+		return fmt.Errorf("PatchPorts, failed to encode to JSON: %w", err)
 	}
 
-	req, err := c.newRequest("PATCH", "/api/v1/namespaces/"+c.Namespace+"services/pfconnector", bytes.NewBuffer(data))
+	req, err := c.newRequest("PATCH", "/api/v1/namespaces/"+c.Namespace+"/services/pfconnector", bytes.NewBuffer(data))
 	if err != nil {
-		return fmt.Errorf("PatchPorts: %w", err)
+		return fmt.Errorf("PatchPorts, failed to create the request: %w", err)
 	}
 
 	req.Header.Add("Content-Type", "application/strategic-merge-patch+json")
 	resp, err := c.getHttpClient().Do(req)
 	if err != nil {
-		return fmt.Errorf("PatchPorts: %w", err)
+		return fmt.Errorf("PatchPorts, failed request: %w", err)
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("PatchPorts: %w", err)
+		return fmt.Errorf("PatchPorts, failed to read the body: %w", err)
 	}
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("PatchPorts: %d", resp.StatusCode)
+		return fmt.Errorf("PatchPorts, request error returned: %d", resp.StatusCode)
 	}
 	_ = body
 
