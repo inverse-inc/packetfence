@@ -170,7 +170,7 @@ func (c *Client) PatchPorts(p PatchPorts) error {
 	}
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("PatchPorts, request error returned: %d", resp.StatusCode)
+		return fmt.Errorf("PatchPorts, request error returned: %d %s", resp.StatusCode, string(body))
 	}
 	_ = body
 

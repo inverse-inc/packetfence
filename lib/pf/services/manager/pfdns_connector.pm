@@ -43,21 +43,8 @@ sub generateConfig {
     my %tags;
 
     $tags{'connectors'} = \%connectors_config;
-    if (isenabled($ENV{PF_SAAS})) {
-        my @ips;
-        foreach my $fqdn ('pfconnector-0.pfconnector-headless','pfconnector-1.pfconnector-headless') {
-            my $resolved_ips = pf::util::resolve($fqdn);
-            if (defined($resolved_ips)) {
-	        foreach my $ip (@{$resolved_ips}) {
-                    push(@ips, $ip);
-                }
-            }
-        }
-        if (@ips) {
-            $tags{'PFCONNECTOR_SERVICE_HOST'} = \@ips;
-        } else {
-            $tags{'PFCONNECTOR_SERVICE_HOST'} = '{$K8S_DNS_SERVER}';
-        }
+    if (exists $ENV{PFCONNECTOR_SERVICE_HOST}) {Add commentMore actions
+        $tags{'PFCONNECTOR_SERVICE_HOST'} = '{$PFCONNECTOR_SERVICE_HOST}';
     } else {
         $tags{'PFCONNECTOR_SERVICE_HOST'} = '100.64.0.1';
     }
