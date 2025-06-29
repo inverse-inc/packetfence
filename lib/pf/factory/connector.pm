@@ -64,26 +64,23 @@ sub for_ip {
 
 sub resolve {
     my ($class, $ip) = @_;
-    my $iptest = NetAddr::IP->new($ip);
     # Check if the IP is valid if not then it's a hostname
-    if (!$iptest || !$iptest->is_ipv4) {
+    if (!Net::IP::ip_is_ipv4($ip)) {
         # If the IP is not valid, we assume it's a hostname and resolve it
-        my $resolved_ips = [];
-        my $error;
-        ($resolved_ips, $error) = resolve_dns_with_custom_resolver($ip, $Config{pfdns_connector}{pfdns_connector_server});
-        if (!$resolved_ips || !@{$resolved_ips}) {
-            get_logger->error($error);
+        my ($resolved_ips, $error) = resolve_dns_with_custom_resolver($ip, $Config{pfdns_connector}{pfdns_connector_server});
+        if (!@{$resolved_ips}) {
             return undef; # No valid IPs resolved
         }
         # If we have multiple IPs, we take the first one
         $ip = NetAddr::IP->new($resolved_ips->[0]);
+    } else {
+        $ip = NetAddr::IP->new($ip);
     }
     if (!$ip) {
         return undef;
     }
     return $ip->addr();
 }
-
 
 sub replace_mgmt_ip {
     my ($input_string) = @_;
@@ -110,14 +107,14 @@ sub resolve_dns_with_custom_resolver {
         my $kube_dns = $ENV{'K8S_DNS_SERVER'};
         if ($dns_host !~ /\.svc\.cluster\.local/) {
             $dns_host .= ".svc.cluster.local";
-	}
+        }
         ($dns_server_str, $err) = resolve_dns($dns_host, $kube_dns);
         if ($err) {
             return (undef, "Error resolving DNS server '$dns_host': $err");
         }
     }
     return (undef, "DNS server not configured and K8S_DNS_SERVER is not defined") unless $dns_server_str;
-    return resolve_dns($fqdn, $dns_server_str, $dns_port_default) if Net::IP::ip_is_ipv4($dns_host);
+    return resolve_dns($fqdn, $dns_server_str, $dns_port_default) if Net::IP::ip_is_ipv4($dns_server_str->[0]);
     return (undef, "Invalid DNS server format: $dns_server_str") unless $dns_server_str =~ /^(.*?)(?::(\d+))?$/;
 }
 
