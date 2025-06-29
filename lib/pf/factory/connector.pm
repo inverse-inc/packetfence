@@ -68,7 +68,9 @@ sub resolve {
     # Check if the IP is valid if not then it's a hostname
     if (!$iptest || !$iptest->is_ipv4) {
         # If the IP is not valid, we assume it's a hostname and resolve it
-        my ($resolved_ips, $error) = resolve_dns_with_custom_resolver($ip, $Config{pfdns_connector}{pfdns_connector_server});
+        my $resolved_ips = [];
+        my $error;
+        ($resolved_ips, $error) = resolve_dns_with_custom_resolver($ip, $Config{pfdns_connector}{pfdns_connector_server});
         if (!$resolved_ips || !@{$resolved_ips}) {
             get_logger->error($error);
             return undef; # No valid IPs resolved
