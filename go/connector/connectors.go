@@ -98,6 +98,9 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 				// This is useful in Kubernetes environments where the DNS server is set as an environment variable
 				// This allows the code to work in both standalone and Kubernetes environments.
 				kubeDnsServer := os.Getenv("K8S_DNS_SERVER") + ":53"
+				if !(strings.Contains(host, ".svc.cluster.local")) {
+					host = host + ".svc.cluster.local"
+				}
 				ips, err := resolveDNSWithCustomResolver(host, kubeDnsServer)
 				if err != nil {
 					log.Printf("OpenConnectionTo: unable to resolve %s: %v", host, err)
