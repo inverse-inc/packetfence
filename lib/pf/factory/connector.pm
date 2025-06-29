@@ -106,6 +106,9 @@ sub resolve_dns_with_custom_resolver {
     my $dns_port_default = $dns_port // "53";
     unless (Net::IP::ip_is_ipv4($dns_host)) {
         my $kube_dns = $ENV{'K8S_DNS_SERVER'};
+        if ($dns_host !~ /\.svc\.cluster\.local/) {
+            $dns_host .= ".svc.cluster.local";
+	}
         ($dns_server_str, $err) = resolve_dns($dns_host, $kube_dns);
         if ($err) {
             return (undef, "Error resolving DNS server '$dns_host': $err");
