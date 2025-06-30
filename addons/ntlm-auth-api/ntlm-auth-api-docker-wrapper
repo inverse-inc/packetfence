@@ -28,7 +28,7 @@ if [ "$option" = "start" ]; then
     for env_file in $env_files; do
         iden=$(echo $env_file | awk -F '.' '{print $1}')
         echo "Starting ntlm auth api domain service for: $iden using env file: $env_file"
-        systemctl start packetfence-ntlm-auth-api-domain@"$iden" &
+        systemctl start packetfence-ntlm-auth-api-domain-remote@"$iden" &
     done
     /usr/local/ntlm-auth-api/sbin/ntlm-auth-api-monitor &
 elif [ "$option" = "stop" ]; then
@@ -42,7 +42,7 @@ elif [ "$option" = "stop" ]; then
     for env_file in $env_files; do
         iden=$(echo $env_file | awk -F '.' '{print $1}')
         echo "Stopping ntlm auth api domain service for: $iden"
-        systemctl stop packetfence-ntlm-auth-api-domain@"$iden" &
+        systemctl stop packetfence-ntlm-auth-api-domain-remote@"$iden" &
     done
 
     failures=0
