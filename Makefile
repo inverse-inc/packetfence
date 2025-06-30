@@ -348,8 +348,8 @@ ntlm_auth_api_remote_install:
 	install -v -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-monitor -D $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-monitor
 	install -v -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-docker-wrapper -D $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-docker-wrapper
 
-	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-ntlm-auth-api-domain@.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api-domain@.service
-	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-ntlm-auth-api.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api.service
+	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-ntlm-auth-api-domain@.service -D $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api-domain@.service
+	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-ntlm-auth-api.service -D $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api.service
 	install -v -m 0644 $(RC_ROOT_DIR)/containers/systemd-service $(DESTDIR)$(NTLM_AUTH_API_CONF)/systemd-service
 
 	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(NTLM_AUTH_API_CONF)/build_id
