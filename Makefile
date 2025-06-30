@@ -340,7 +340,7 @@ ntlm_auth_api_remote_install:
 	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/run
 
 	@echo "install $(SRC_NTLM_AUTH_APIDIR) files"
-	for file in $(shell find $$(SRC_NTLM_AUTH_APIDIR) -type f); do \
+	for file in $(shell find $(SRC_NTLM_AUTH_APIDIR) -type f); do \
 		install -v -m 0644 $$file -D $(DESTDIR)$(NTLM_AUTH_API_BINDIR)/$$file ; \
 	done
 
