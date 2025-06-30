@@ -240,6 +240,27 @@ sub iptables_haproxy_portal_rules {
     util_save_service_chains_to_json(\%chains);
 }
 
+=item iptables_radiusd_lb_rules
+
+iptables rules for radius lb service
+
+=cut
+
+sub iptables_radiusd_lb_rules {
+  my $action = shift;
+  foreach my $network ( @radius_ints ) {
+    my $tint =  $network->{Tint};
+    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1814 -j ACCEPT", $action );
+  }
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
+    if ( $tint ne "" ) {
+      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1814 -j ACCEPT", $action );
+    }
+  }
+}
+
+
 sub iptables_generate {
     my ($self) = @_;
     my $logger = get_logger();
