@@ -247,20 +247,20 @@ iptables rules for radius lb service
 =cut
 
 sub iptables_radiusd_lb_rules {
-  my %chains = util_create_chains();
-  @{$chains{'name'}} = "radiusd_lb_rules";
-  if (ref($management_network) && exists $management_network->{Tint} ) {
-    my $tint = $management_network->{Tint};
-    if ( $tint ne "" ) {
-      util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
+    my %chains = util_create_chains();
+    @{$chains{'name'}} = "radiusd_lb_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
+        }
     }
-  }
-  foreach my $network ( @radius_ints ) {
-    my $tint =  $network->{Tint};
-    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
-  }
-  # Convert to JSON and save to file
-  util_save_service_chains_to_json(\%chains);
+    foreach my $network ( @radius_ints ) {
+        my $tint =  $network->{Tint};
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
+    }
+    # Convert to JSON and save to file
+    util_save_service_chains_to_json(\%chains);
 }
 
 =item iptables_keepalived_rules
@@ -270,31 +270,31 @@ Iptable rules for keepalived service
 =cut
 
 sub iptables_keepalived_rules {
-  my %chains = util_create_chains();
-  @{$chains{'name'}} = "keepalived_rules";
-  # if input-management-if
-  if (ref($management_network) && exists $management_network->{Tint} ) {
-    my $tint = $management_network->{Tint};
-    if ( $tint ne "" ) {
-      util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
-      util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" ) if ($cluster_enabled);
+    my %chains = util_create_chains();
+    @{$chains{'name'}} = "keepalived_rules";
+    # if input-management-if
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" ) if ($cluster_enabled);
+        }
     }
-  }
-  # 'portal' interfaces handling
-  foreach my $portal_interface ( @portal_ints ) {
-    my $tint = $portal_interface->tag("int");
-    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
-    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" );
-  }
+    # 'portal' interfaces handling
+    foreach my $portal_interface ( @portal_ints ) {
+        my $tint = $portal_interface->tag("int");
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" );
+    }
 
-  # 'radius' interfaces handling
-  foreach my $radius_interface ( @radius_ints ) {
-    my $tint = $radius_interface->tag("int");
-    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
-    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" );
-  }
-  # Convert to JSON and save to file
-  util_save_service_chains_to_json(\%chains);
+    # 'radius' interfaces handling
+    foreach my $radius_interface ( @radius_ints ) {
+        my $tint = $radius_interface->tag("int");
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" );
+    }
+    # Convert to JSON and save to file
+    util_save_service_chains_to_json(\%chains);
 }
 
 =item iptables_proxysql_rules
@@ -304,17 +304,17 @@ Iptable rules for proxysql service
 =cut
 
 sub iptables_proxysql_rules {
-  my $logger = get_logger();
-  if (ref($management_network) && exists $management_network->{Tint} ) {
-    my %chains = util_create_chains();
-    @{$chains{'name'}} = "proxysql_rules";
-    my $tint = $management_network->{Tint};
-    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 6033 -j ACCEPT" );
-    # Convert to JSON and save to file
-    util_save_service_chains_to_json(\%chains);
-  } else {
-    $logger->warn("Firewalld is not started yet");
-  }
+    my $logger = get_logger();
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my %chains = util_create_chains();
+        @{$chains{'name'}} = "proxysql_rules";
+        my $tint = $management_network->{Tint};
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 6033 -j ACCEPT" );
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    } else {
+        $logger->warn("Management Interface is not set.");
+    }
 }
 
 =item iptables_haproxy_admin_rules
@@ -324,20 +324,43 @@ Iptable rules for haproxy admin service
 =cut
 
 sub iptables_haproxy_admin_rules {
-  my $logger = get_logger();
-  if (ref($management_network) && exists $management_network->{Tint} ) {
-    if ( $tint ne "" ) {
-        my %chains = util_create_chains();
-        @{$chains{'name'}} = "haproxy_admin_rules";
-        my $tint = $management_network->{Tint};
-        my $web_admin_port = $Config{'ports'}{'admin'};
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
-        # Convert to JSON and save to file
-        util_save_service_chains_to_json(\%chains);
+    my $logger = get_logger();
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            @{$chains{'name'}} = "haproxy_admin_rules";
+            my $tint = $management_network->{Tint};
+            my $web_admin_port = $Config{'ports'}{'admin'};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Management Interface is not set.");
     }
-  } else {
-    $logger->warn("Firewalld is not started yet");
-  }
+}
+
+=item iptables_httpd_webservices_rules
+
+Iptable rules for httpd webservices service
+
+=cut
+
+sub iptables_httpd_webservices_rules {
+    my $logger = get_logger();
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            @{$chains{'name'}} = "httpd_webservices_rules";
+            my $webservices_port = $Config{'ports'}{'soap'};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $webservices_port -j ACCEPT" );
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Management Interface is not set.");
+    }
 }
 
 
