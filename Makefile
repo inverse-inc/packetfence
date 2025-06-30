@@ -332,7 +332,7 @@ ntlm_auth_api_remote_install:
 	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_LOGDIR)
 	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_BINDIR)
 	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)
-	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_CONF)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)
 	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_UPGRADEDIR)
 	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)
 	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)
@@ -350,10 +350,10 @@ ntlm_auth_api_remote_install:
 
 	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-ntlm-auth-api-domain@.service -D $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api-domain@.service
 	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-ntlm-auth-api.service -D $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api.service
-	install -v -m 0644 $(SRC_ROOT_DIR)/containers/systemd-service $(DESTDIR)$(NTLM_AUTH_API_CONF)/systemd-service
+	install -v -m 0644 $(SRC_ROOT_DIR)/containers/systemd-service $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/systemd-service
 
-	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(NTLM_AUTH_API_CONF)/build_id
-	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(NTLM_AUTH_API_CONF)/pf-release
+	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/build_id
+	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/pf-release
 	make -C $(SRC_GODIR) sdnotify-proxy
 	install -v -m 0755 $(SRC_GODIR)/sdnotify-proxy $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/sdnotify-proxy
 
