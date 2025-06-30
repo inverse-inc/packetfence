@@ -247,17 +247,20 @@ iptables rules for radius lb service
 =cut
 
 sub iptables_radiusd_lb_rules {
-  my $action = shift;
-  foreach my $network ( @radius_ints ) {
-    my $tint =  $network->{Tint};
-    util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1814 -j ACCEPT", $action );
-  }
+  my %chains = util_create_chains();
+  @{$chains{'name'}} = "radiusd_lb_rules";
   if (ref($management_network) && exists $management_network->{Tint} ) {
     my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
-      util_direct_rule("ipv4 filter INPUT 0 -i $tint -p udp -m udp --dport 1814 -j ACCEPT", $action );
+      util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
     }
   }
+  foreach my $network ( @radius_ints ) {
+    my $tint =  $network->{Tint};
+    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
+  }
+  # Convert to JSON and save to file
+  util_save_service_chains_to_json(\%chains);
 }
 
 
