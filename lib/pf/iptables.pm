@@ -263,6 +263,79 @@ sub iptables_radiusd_lb_rules {
   util_save_service_chains_to_json(\%chains);
 }
 
+=item iptables_keepalived_rules
+
+Iptable rules for keepalived service
+
+=cut
+
+sub iptables_keepalived_rules {
+  my %chains = util_create_chains();
+  @{$chains{'name'}} = "keepalived_rules";
+  # if input-management-if
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my $tint = $management_network->{Tint};
+    if ( $tint ne "" ) {
+      util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
+      util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" ) if ($cluster_enabled);
+    }
+  }
+  # 'portal' interfaces handling
+  foreach my $portal_interface ( @portal_ints ) {
+    my $tint = $portal_interface->tag("int");
+    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
+    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" );
+  }
+
+  # 'radius' interfaces handling
+  foreach my $radius_interface ( @radius_ints ) {
+    my $tint = $radius_interface->tag("int");
+    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
+    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" );
+  }
+  # Convert to JSON and save to file
+  util_save_service_chains_to_json(\%chains);
+}
+
+=item iptables_proxysql_rules
+
+Iptable rules for proxysql service
+
+=cut
+
+sub iptables_proxysql_rules {
+  my $logger = get_logger();
+  if ( $management_network->{Tint} ) {
+    my %chains = util_create_chains();
+    @{$chains{'name'}} = "proxysql_rules";
+    my $tint = $management_network->{Tint};
+    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 6033 -j ACCEPT" );
+    # Convert to JSON and save to file
+    util_save_service_chains_to_json(\%chains);
+  } else {
+    $logger->warn("Firewalld is not started yet");
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 sub iptables_generate {
     my ($self) = @_;
