@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/google/uuid"
+	"github.com/inverse-inc/packetfence/go/config/pfcrypt"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 )
@@ -133,7 +134,12 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		if cname == name {
 			cl.ClientID = vi.(map[string]interface{})["client_id"].(string)
 			cl.TenantID = vi.(map[string]interface{})["tenant_id"].(string)
-			cl.ClientSecret = vi.(map[string]interface{})["client_secret"].(string)
+			s, err := pfcrypt.PfDecrypt(vi.(map[string]interface{})["client_secret"].(string))
+			if err != nil {
+				return err
+			}
+
+			cl.ClientSecret = string(s)
 		}
 	}
 
