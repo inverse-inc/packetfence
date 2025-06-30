@@ -209,10 +209,11 @@ Iptable rules for haproxy portal service
 sub iptables_haproxy_portal_rules {
     # Initialize
     my %chains = util_create_chains();
-    @{$chains{'name'}} = "haproxy_portal_rules";
+    my $service_name = "haproxy_portal_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
+	    @{$chains{'name'}} = $service_name;
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
             if ($cluster_enabled) {
@@ -220,24 +221,46 @@ sub iptables_haproxy_portal_rules {
                 util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
             }
         }
+    } else {
+        $logger->warn("Service $service_name: Management interface is not set.");
     }
-    foreach my $network ( @portal_ints ) {
-        my $tint =  $network->{Tint};
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+    if ( @portal_ints && @portal_ints.size ) {
+        # 'portal' interfaces handling
+        @{$chains{'name'}} = $service_name;
+        foreach my $portal_interface ( @portal_ints ) {
+            my $tint = $portal_interface->tag("int");
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Portal Ints are not set.");
     }
-    foreach my $network ( @inline_enforcement_nets ) {
-        my $tint =  $network->{Tint};
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+    if ( @inline_enforcement_nets && @inline_enforcement_nets.size ) {
+        # 'portal' interfaces handling
+        @{$chains{'name'}} = $service_name;
+        foreach my $network ( @inline_enforcement_nets ) {
+            my $tint =  $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
     }
-    foreach my $network ( @vlan_enforcement_nets ) {
-        my $tint =  $network->{Tint};
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+    if ( @vlan_enforcement_nets && @vlan_enforcement_nets.size ) {
+        # 'portal' interfaces handling
+        @{$chains{'name'}} = $service_name;
+        foreach my $network ( @vlan_enforcement_nets ) {
+            my $tint =  $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Vlan Enforcement Nets are not set.");
     }
-    # Convert to JSON and save to file
-    util_save_service_chains_to_json(\%chains);
+    if (@{$chains{'name'}} ne "") {
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    }
 }
 
 =item iptables_radiusd_lb_rules
@@ -248,19 +271,30 @@ iptables rules for radius lb service
 
 sub iptables_radiusd_lb_rules {
     my %chains = util_create_chains();
-    @{$chains{'name'}} = "radiusd_lb_rules";
+    my $service_name = "radiusd_lb_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
+	    @{$chains{'name'}} = $service_name;
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
         }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
     }
-    foreach my $network ( @radius_ints ) {
-        my $tint =  $network->{Tint};
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
+    if ( @radius_ints && @radius_ints.size ) {
+        # 'radius' interfaces handling
+        @{$chains{'name'}} = $service_name;
+        foreach my $network ( @radius_ints ) {
+            my $tint =  $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Radius Ints are not set.");
     }
-    # Convert to JSON and save to file
-    util_save_service_chains_to_json(\%chains);
+    if (@{$chains{'name'}} ne "") {
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    }
 }
 
 =item iptables_keepalived_rules
@@ -271,30 +305,44 @@ Iptable rules for keepalived service
 
 sub iptables_keepalived_rules {
     my %chains = util_create_chains();
-    @{$chains{'name'}} = "keepalived_rules";
+    my $service_name = "keepalived_rules";
     # if input-management-if
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
+            @{$chains{'name'}} = $service_name;
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" ) if ($cluster_enabled);
         }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
     }
-    # 'portal' interfaces handling
-    foreach my $portal_interface ( @portal_ints ) {
-        my $tint = $portal_interface->tag("int");
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" );
+    if ( @portal_ints && @portal_ints.size ) {
+        # 'portal' interfaces handling
+        @{$chains{'name'}} = $service_name;
+        foreach my $portal_interface ( @portal_ints ) {
+            my $tint = $portal_interface->tag("int");
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" ) if ($cluster_enabled);
+        }
+    } else {
+        $logger->warn("Service $service_name: Portal Ints are not set.");
     }
-
-    # 'radius' interfaces handling
-    foreach my $radius_interface ( @radius_ints ) {
-        my $tint = $radius_interface->tag("int");
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
-        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" );
+    if ( @radius_ints && @radius_ints.size ) {
+        # 'radius' interfaces handling
+	@{$chains{'name'}} = $service_name;
+        foreach my $radius_interface ( @radius_ints ) {
+            my $tint = $radius_interface->tag("int");
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT") if ($cluster_enabled);
+        }
+    } else {
+        $logger->warn("Service $service_name: Radius Ints are not set.");
     }
-    # Convert to JSON and save to file
-    util_save_service_chains_to_json(\%chains);
+    if (@{$chains{'name'}} ne "") {
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    }
 }
 
 =item iptables_proxysql_rules
@@ -445,7 +493,7 @@ sub iptables_httpd_dispatcher_rules {
     } else {
         $logger->warn("Service $service_name: No Vlan Enforcement Nets is not set.");
     }
-    if (@{$chains{'name'}}) {
+    if (@{$chains{'name'}} ne "") {
         # Convert to JSON and save to file
         util_save_service_chains_to_json(\%chains);
     }
