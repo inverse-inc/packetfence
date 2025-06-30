@@ -207,13 +207,12 @@ Iptable rules for haproxy portal service
 =cut
 
 sub iptables_haproxy_portal_rules {
-    # Initialize
     my %chains = util_create_chains();
     my $service_name = "haproxy_portal_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
-	    @{$chains{'name'}} = $service_name;
+	    $chains->name = $service_name;
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT" );
             if ($cluster_enabled) {
@@ -226,7 +225,7 @@ sub iptables_haproxy_portal_rules {
     }
     if ( @portal_ints && @portal_ints.size ) {
         # 'portal' interfaces handling
-        @{$chains{'name'}} = $service_name;
+        $chains->name = $service_name;
         foreach my $portal_interface ( @portal_ints ) {
             my $tint = $portal_interface->tag("int");
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
@@ -237,7 +236,7 @@ sub iptables_haproxy_portal_rules {
     }
     if ( @inline_enforcement_nets && @inline_enforcement_nets.size ) {
         # 'portal' interfaces handling
-        @{$chains{'name'}} = $service_name;
+        $chains->name = $service_name;
         foreach my $network ( @inline_enforcement_nets ) {
             my $tint =  $network->{Tint};
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
@@ -248,7 +247,7 @@ sub iptables_haproxy_portal_rules {
     }
     if ( @vlan_enforcement_nets && @vlan_enforcement_nets.size ) {
         # 'portal' interfaces handling
-        @{$chains{'name'}} = $service_name;
+        $chains->name = $service_name;
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT" );
@@ -257,7 +256,7 @@ sub iptables_haproxy_portal_rules {
     } else {
         $logger->warn("Service $service_name: Vlan Enforcement Nets are not set.");
     }
-    if (@{$chains{'name'}} ne "") {
+    if ($chains->name ne "") {
         # Convert to JSON and save to file
         util_save_service_chains_to_json(\%chains);
     }
@@ -275,7 +274,7 @@ sub iptables_radiusd_lb_rules {
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
-	    @{$chains{'name'}} = $service_name;
+	    $chains->name = $service_name;
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
         }
     } else {
@@ -283,7 +282,7 @@ sub iptables_radiusd_lb_rules {
     }
     if ( @radius_ints && @radius_ints.size ) {
         # 'radius' interfaces handling
-        @{$chains{'name'}} = $service_name;
+        $chains->name = $service_name;
         foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1814 -j ACCEPT" );
@@ -291,7 +290,7 @@ sub iptables_radiusd_lb_rules {
     } else {
         $logger->warn("Service $service_name: Radius Ints are not set.");
     }
-    if (@{$chains{'name'}} ne "") {
+    if ($chains->name ne "") {
         # Convert to JSON and save to file
         util_save_service_chains_to_json(\%chains);
     }
@@ -310,7 +309,7 @@ sub iptables_keepalived_rules {
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
-            @{$chains{'name'}} = $service_name;
+            $chains->name = $service_name;
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT" ) if ($cluster_enabled);
         }
@@ -319,7 +318,7 @@ sub iptables_keepalived_rules {
     }
     if ( @portal_ints && @portal_ints.size ) {
         # 'portal' interfaces handling
-        @{$chains{'name'}} = $service_name;
+        $chains->name = $service_name;
         foreach my $portal_interface ( @portal_ints ) {
             my $tint = $portal_interface->tag("int");
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
@@ -330,7 +329,7 @@ sub iptables_keepalived_rules {
     }
     if ( @radius_ints && @radius_ints.size ) {
         # 'radius' interfaces handling
-	@{$chains{'name'}} = $service_name;
+	$chains->name = $service_name;
         foreach my $radius_interface ( @radius_ints ) {
             my $tint = $radius_interface->tag("int");
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 224.0.0.0/8 -j ACCEPT" );
@@ -339,7 +338,7 @@ sub iptables_keepalived_rules {
     } else {
         $logger->warn("Service $service_name: Radius Ints are not set.");
     }
-    if (@{$chains{'name'}} ne "") {
+    if ($chains->name ne "") {
         # Convert to JSON and save to file
         util_save_service_chains_to_json(\%chains);
     }
@@ -356,7 +355,7 @@ sub iptables_proxysql_rules {
     my $service_name = "proxysql_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my %chains = util_create_chains();
-        @{$chains{'name'}} = $service_name;
+        $chains->name = $service_name;
         my $tint = $management_network->{Tint};
         util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 6033 -j ACCEPT" );
         # Convert to JSON and save to file
@@ -379,7 +378,7 @@ sub iptables_haproxy_admin_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             my %chains = util_create_chains();
-            @{$chains{'name'}} = $service_name;
+            $chains->name = $service_name;
             my $tint = $management_network->{Tint};
             my $web_admin_port = $Config{'ports'}{'admin'};
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
@@ -404,7 +403,7 @@ sub iptables_httpd_webservices_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             my %chains = util_create_chains();
-            @{$chains{'name'}} = $service_name;
+            $chains->name = $service_name;
             my $webservices_port = $Config{'ports'}{'soap'};
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $webservices_port -j ACCEPT" );
             # Convert to JSON and save to file
@@ -428,7 +427,7 @@ sub iptables_snmptrapd_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             my %chains = util_create_chains();
-            @{$chains{'name'}} = $service_name;
+            $chains->name = $service_name;
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 162 -j ACCEPT" );
             # Convert to JSON and save to file
             util_save_service_chains_to_json(\%chains);
@@ -451,7 +450,7 @@ sub iptables_httpd_aaa_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             my %chains = util_create_chains();
-            @{$chains{'name'}} = $service_name;
+            $chains->name = $service_name;
             my $aaa_port = $Config{'ports'}{'aaa'};
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $aaa_port -j ACCEPT" );
             # Convert to JSON and save to file
@@ -473,12 +472,11 @@ sub iptables_httpd_dispatcher_rules {
     my $logger = get_logger();
     my $service_name = "httpd_dispatcher_rules";
     my %chains = util_create_chains();
-
     #  HTTP (parking portal)
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
-            @{$chains{'name'}} = $service_name;
+            $chains->name = $service_name;
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 5252 -j ACCEPT" );
         }
     } else {
@@ -487,17 +485,818 @@ sub iptables_httpd_dispatcher_rules {
     if ( @vlan_enforcement_nets && @vlan_enforcement_nets.size ) {
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
-            @{$chains{'name'}} = $service_name;
-            util_direct_rule( "ipv4 filter INPUT 40 -i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $action );
+            $chains->name = $service_name;
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 5252 -j ACCEPT" );
         }
     } else {
         $logger->warn("Service $service_name: No Vlan Enforcement Nets is not set.");
     }
-    if (@{$chains{'name'}} ne "") {
+    if ($chains->name ne "") {
         # Convert to JSON and save to file
         util_save_service_chains_to_json(\%chains);
     }
 }
+
+=item iptables_api_frontend_rules
+
+Iptable rules for api frontend service
+
+=cut
+
+sub iptables_api_frontend_rules {
+    my $logger = get_logger();
+    my $service_name = "api_frontend_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            $chains->name = $service_name;
+            my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $unifiedapi_port -j ACCEPT" );
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_httpd_portal_rules
+
+Iptable rules for httpd portal service
+
+=cut
+
+sub iptables_httpd_portal_rules {
+    my $logger = get_logger();
+    my %chains = util_create_chains();
+    my $service_name = "httpd_portal_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            $chains->name = $service_name;
+            my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $mgnt_zone -p tcp -m tcp --dport $httpd_portal_modstatus -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+
+    if ( @portal_ints && @portal_ints.size ) {
+        $chains->name = $service_name;
+        foreach my $network ( @portal_ints ) {
+            my $tint =  $network->{Tint};
+            util_direct_rule( "-i $tint -p tcp -m tcp --dport 8080 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: No Portal Ints are not set.");
+    }
+    if ($chains->name ne "") {
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    }
+}
+
+=item iptables_haproxy_db_rules
+
+Iptable rules for haproxy db service
+
+=cut
+
+sub iptables_haproxy_db_rules {
+    my $logger = get_logger();
+    my $service_name = "haproxy_db_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            $chains->name = $service_name;
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 1025 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT" );
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_radiusd_acct_rules
+
+Iptable rules for radiusd acct service
+
+=cut
+
+sub iptables_radiusd_acct_rules {
+    my $logger = get_logger();
+    my $service_name = "haproxy_db_rules";
+    if ( @radius_ints && @radius_ints.size ) {
+        my %chains = util_create_chains();
+        $chains->name = $service_name;
+        foreach my $radius_interface ( @radius_ints ) {
+            my $tint = $radius_interface->tag("int");
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1813 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1823 -j ACCEPT") if ($cluster_enabled);
+        }
+        util_save_service_chains_to_json(\%chains);
+    } else {
+        $logger->warn("Service $service_name: Radius Ints are not set.");
+    }
+}
+
+=item iptables_pfacct_rules
+
+Iptable rules for pfacct service
+
+=cut
+
+sub iptables_pfacct_rules {
+    my $logger = get_logger();
+    my $service_name = "pfacct_rules";
+    if ( @radius_ints && @radius_ints.size ) {
+        my %chains = util_create_chains();
+        $chains->name = $service_name;
+        foreach my $radius_interface ( @radius_ints ) {
+            my $tint = $radius_interface->tag("int");
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1813 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1823 -j ACCEPT") if ($cluster_enabled);
+        }
+        util_save_service_chains_to_json(\%chains);
+    } else {
+        $logger->warn("Service $service_name: Radius Ints are not set.");
+    }
+}
+
+=item iptables_radiusd_auth_rules
+
+Iptable rules for radiusd auth service
+
+=cut
+
+sub iptables_radiusd_auth_rules {
+    my $logger = get_logger();
+    my $service_name = "radiusd_auth_rules";
+    if ( @radius_ints && @radius_ints.size ) {
+        my %chains = util_create_chains();
+        $chains->name = $service_name;
+        foreach my $radius_interface ( @radius_ints ) {
+            my $tint =  $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1812 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 2083 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 2093 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1822 -j ACCEPT" ) if ($cluster_enabled);
+        }
+        util_save_service_chains_to_json(\%chains);
+    } else {
+        $logger->warn("Service $service_name: Radius Ints are not set.");
+    }
+}
+
+=item iptables_radiusd_cli_rules
+
+Iptable rules for radiusd cli service
+
+=cut
+
+sub iptables_radiusd_cli_rules {
+    my $logger = get_logger();
+    my $service_name = "radiusd_cli_rules";
+    if ( @radius_ints && @radius_ints.size ) {
+        my %chains = util_create_chains();
+        $chains->name = $service_name;
+        foreach my $radius_interface ( @radius_ints ) {
+            my $tint =  $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1815 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1825 -j ACCEPT" ) if ($cluster_enabled);
+        }
+        util_save_service_chains_to_json(\%chains);
+    } else {
+        $logger->warn("Service $service_name: Radius Ints are not set.");
+    }
+}
+
+=item iptables_pfdns_rules
+
+Iptable rules for pfdns service
+
+=cut
+
+sub iptables_pfdns_rules {
+    my %chains = util_create_chains();
+    my $service_name = "pfdns_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            $chains->name = $service_name;
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 53 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Management interface is not set.");
+    }
+    if ( @dns_ints && @dns_ints.size ) {
+        $chains->name = $service_name;
+        foreach my $tint ( @dns_ints ) {
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 53 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: DNS Ints are not set.");
+    }
+    if ( @inline_enforcement_nets && @inline_enforcement_nets.size ) {
+        $chains->name = $service_name;
+        foreach my $network ( @inline_enforcement_nets ) {
+            my $tint =  $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 53 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
+    }
+    if ( @vlan_enforcement_nets && @vlan_enforcement_nets.size ) {
+        $chains->name = $service_name;
+        foreach my $network ( @vlan_enforcement_nets ) {
+            my $tint =  $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 53 -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
+    }
+    if ( @vlan_enforcement_nets && @vlan_enforcement_nets.size ) {
+        $chains->name = $service_name;
+        # OAuth
+        my $internal_portal_ip = $Config{captive_portal}{ip_address};
+        foreach my $interface (@internal_nets) {
+            my $tint = $interface->tag("int");
+            my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+            if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
+                if ($tint =~ m/(\w+):\d+/) {
+                    $tint = $1;
+                }
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $internal_portal_ip -p tcp -m tcp --dport 53 -j ACCEPT" );
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $internal_portal_ip -p udp -m udp --dport 53 -j ACCEPT" );
+            }
+        }
+    } else {
+        $logger->warn("Service $service_name: Vlan Enforcement Nets are not set.");
+    }
+    #NAT Intercept Proxy
+    if ( @internal_nets && @internal_nets.size ) {
+        $chains->name = $service_name;
+        dns_interception_rules(\%chains);
+        dns_oauth_passthrough_rules(\%chains);
+    } else {
+        $logger->warn("Service $service_name: No Interna Nets defined.");
+    }
+
+    if ($chains->name ne "") {
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    }
+}
+
+sub dns_interception_rules {
+    my $chains = shift;
+    my $logger = get_logger();
+  
+    $logger->info("Service $chains->name: Interception rules are starting.");
+    # internal interfaces handling
+    foreach my $interface (@internal_nets) {
+        my $tint = $interface->tag("int");
+        my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+        my $net_addr = NetAddr::IP->new($Config{"interface $tint"}{'ip'},$Config{"interface $tint"}{'mask'});
+        $logger->info($enforcement_type);
+        # vlan enforcement
+        if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
+            # send everything from vlan interfaces to the vlan chain
+            foreach my $network ( keys %ConfigNetworks ) {
+                next if (pf::config::is_network_type_inline($network));
+                my %net = %{$ConfigNetworks{$network}};
+                my $ip;
+                if (defined($net{'next_hop'})) {
+                    $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'});
+                } else {
+                    $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
+                }
+                if ($net_addr->contains($ip)) {
+                    my $destination = $Config{"interface $tint"}{'vip'} || $Config{"interface $tint"}{'ip'};
+                    if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+                        foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
+                            my $rule = "-p tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
+                            util_safe_push( @{$chains{'nat'}{'PREROUTING'}} , "-i $tint $rule -j DNAT --to $destination" );
+                        }
+                    }
+                    my $rule = "-p udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+                    util_safe_push( @{$chains{'nat'}{'PREROUTING'}} , "-i $tint $rule -j DNAT --to $destination" );
+                    $rule    = "-p tcp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+                    util_safe_push( @{$chains{'nat'}{'PREROUTING'}} , "-i $tint $rule -j DNAT --to $destination" );
+                }
+            }
+        }
+    }
+    if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+        my $internal_portal_ip = $Config{captive_portal}{ip_address};
+        foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
+            foreach my $interface (@internal_nets) {
+                my $tint = $interface->tag("int");
+                my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+                if (is_type_inline($enforcement_type)) {
+                    my $rule = "-p tcp --destination-port $intercept_port";
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $internal_portal_ip $rule -j ACCEPT" );
+                }
+            }
+        }
+    }
+    $logger->info("Service $chains->name: Interception rules are done.");
+}
+
+sub dns_oauth_passthrough_rules {
+    my $chains = shift;
+    my $logger = get_logger();
+    $logger->info("Service $chains->name: DNS oauth rules are starting.");
+    # OAuth
+    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
+    my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
+    my ($SNAT_ip, $mgmt_int);
+    if ($passthrough_enabled) {
+        $logger->info("Service $chains->name: Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
+        foreach my $interface (@internal_nets) {
+            my $tint = $interface->tag("int");
+            my $ip   = $interface->tag("vip") || $interface->tag("ip");
+            my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+            # VLAN enforcement
+            if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
+                if ($tint =~ m/(\w+):\d+/) {
+                    $tint = $1;
+                }
+                my ($type,$chain) = get_network_type_and_chain($ip);
+                if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
+                    util_safe_push( @{$chains{'filter'}{'FORWARD'}} , "-i $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'FORWARD'}} , "-i $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'FORWARD'}} , "-o $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'FORWARD'}} , "-o $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT" );
+                }
+                if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
+                    util_safe_push( @{$chains{'filter'}{'FORWARD'}} , "-i $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'FORWARD'}} , "-i $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'FORWARD'}} , "-o $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'FORWARD'}} , "-o $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT" );
+                }
+            }
+        }
+        $mgmt_int = $management_network->tag("int");
+        if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+            if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+              $SNAT_ip = $management_network->{'Tvip'};
+            } else {
+              $SNAT_ip = $management_network->{'Tip'};
+            }
+        }
+        if ($SNAT_ip) {
+            foreach my $network ( keys %ConfigNetworks ) {
+                my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+                if ( pf::config::is_network_type_inline($network) ) {
+                    my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+                    if (defined ($nat) && (isenabled($nat))) {
+                        util_safe_push( @{$chains{'nat'}{'POSTROUTING'}} , "-s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip" );
+                    }
+                } else {
+                   util_safe_push( @{$chains{'nat'}{'POSTROUTING'}} , "-s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip" );
+                }
+            }
+        }
+        # Enable nat if we defined another interface to route to internet
+        my @ints = split(',', get_network_snat_interface());
+        foreach my $int (@ints) {
+            my $if   = IO::Interface::Simple->new($int);
+            next unless defined($if);
+            foreach my $network ( keys %ConfigNetworks ) {
+                my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+                if ( pf::config::is_network_type_inline($network) ) {
+                    my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+                    if (defined ($nat) && (isenabled($nat))) {
+                        util_safe_push( @{$chains{'nat'}{'POSTROUTING'}} , "-s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address );
+                    }
+                } else {
+                    util_safe_push( @{$chains{'nat'}{'POSTROUTING'}} , "-s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address );
+                }
+            }
+        }
+    }
+    $logger->info("Service $chains->name: DNS oauth rules are done.");
+}
+
+sub get_network_snat_interface {
+  my ($self) = @_;
+  my $logger = get_logger();
+  if (defined ($Config{'network'}{'interfaceSNAT'}) && $Config{'network'}{'interfaceSNAT'} ne '') {
+    return $Config{'network'}{'interfaceSNAT'};
+  }
+}
+
+=item fd_pfdhcp_rules
+
+Firewalld rules for pfdhcp service
+
+=cut
+
+sub fd_pfdhcp_rules {
+    my $logger = get_logger();
+    my %chains = util_create_chains();
+    my $service_name = "pfdhcp_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            $chains->name = $service_name;
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 67 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+
+    if ( @dhcp_ints && @dhcp_ints.size ) {
+        $chains->name = $service_name;
+        foreach my $tint ( @dhcp_ints ) {
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 67 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: DHCP Ints are not set.");
+    }
+
+    if ( @dhcplistener_ints && @dhcplistener_ints.size ) {
+        $chains->name = $service_name;
+        foreach my $tint ( @dhcplistener_ints ) {
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 67 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: DHCP Listener Ints are not set.");
+    }
+
+    if ( @inline_enforcement_nets && @inline_enforcement_nets.size ) {
+        $chains->name = $service_name;
+        foreach my $network ( @inline_enforcement_nets ) {
+            my $tint =  $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 67 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
+    }
+
+    if ( @vlan_enforcement_nets && @vlan_enforcement_nets.size ) {
+        $chains->name = $service_name;
+        foreach my $network ( @vlan_enforcement_nets ) {
+            my $tint =  $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 67 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Vlan Enforcement Nets are not set.");
+    }
+
+    if ( @internal_nets && @internal_nets.size ) {
+        $chains->name = $service_name;
+        my $internal_portal_ip = $Config{captive_portal}{ip_address};
+        foreach my $interface ( @internal_nets ) {
+            my $tint = $interface->tag("int");
+            my $ip = $interface->tag("vip") || $interface->tag("ip");
+            my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+
+            if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
+                if ($tint =~ m/(\w+):\d+/) {
+                    $tint = $1;
+                }
+                my ($type,$chain) = get_network_type_and_chain($ip);
+                if ( $type eq $pf::config::NET_TYPE_VLAN_REG && $chain eq "input-internal-isol_vlan-if" ) {
+                    if ( $interface->tag("vip") ){
+                        my $vip = $interface->tag("vip");
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $vip -p tcp -m tcp --dport 67 -j ACCEPT" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $vip -p udp -m udp --dport 67 -j ACCEPT" );
+                    }
+                    if ( $interface->tag('ip') ){
+                        my $tip = $interface->tag('ip');
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $tip -p tcp -m tcp --dport 67 -j ACCEPT" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $tip -p udp -m udp --dport 67 -j ACCEPT" );
+                    }
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $internal_portal_ip -p tcp -m tcp --dport 67 -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $internal_portal_ip -p udp -m udp --dport 67 -j ACCEPT" );
+                    if ($cluster_enabled) {
+                        my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $cluster_ip -p tcp -m tcp --dport 647 -j ACCEPT" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $cluster_ip -p udp -m udp --dport 647 -j ACCEPT" );
+                    }
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport 67 -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT" );
+                }
+            } elsif (is_type_inline($enforcement_type)) {
+                if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+                    $logger->info("Adding Proxy interception rules");
+                    my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
+                    foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT" );
+                        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP" );
+                    }
+                }
+            }
+        }
+    }
+    if ($chains->name ne "") {
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    }
+}
+
+=item iptables_netdata_rules
+
+Iptable rules for netdata service
+
+=cut
+
+sub iptables_netdata_rules {
+    my $logger = get_logger();
+    my $service_name = "netdate_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            $chains->name = $service_name;
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 19999 -j ACCEPT" );
+            if ($cluster_enabled) {
+                push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+                foreach my $mgmt_back (uniq(@mgmt_backend)) {
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp -s $mgmt_back --dport 19999 -j ACCEPT" );
+                }
+            }
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 19999 -j DROP" );
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_pfconnector_server_rules
+
+Iptable rules for pfconnector server service
+
+=cut
+
+sub iptables_pfconnector_server_rules {
+    my $logger = get_logger();
+    my $service_name = "pfconnector_server_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            $chains->name = $service_name;
+            my @pfconnector_ips = ("127.0.0.1");
+            push @pfconnector_ips, (map { $_->{management_ip} } pf::cluster::config_enabled_servers()) if ($cluster_enabled);
+            push @pfconnector_ips, $management_network->{Tip};
+            @pfconnector_ips = uniq sort @pfconnector_ips;
+            for my $ip (@pfconnector_ips) {
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m multiport -s $ip --dports 23001:23256 -j ACCEPT" );
+            }
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_galera_autofix_rules
+
+Iptable rules for galera autofix server service
+
+=cut
+
+sub iptables_galera_autofix_rules {
+    my $logger = get_logger();
+    my $service_name = "galera_autofix_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            if ($cluster_enabled) {
+                $chains->name = $service_name;
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 4253 -j ACCEPT" );
+            } else {
+                $logger->warn("Service $service_name: Cluster is not enable.");
+            }
+            if ( @dhcplistener_ints && @dhcplistener_ints.size ) {
+                $chains->name = $service_name;
+                foreach my $tint ( @dhcplistener_ints ) {
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 4253 -j ACCEPT" );
+                }
+            } else {
+                $logger->warn("Service $service_name: Dhcplistener Ints is not set.");
+            }
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_mariadb_rules
+
+Iptable rules for mariadb server service
+
+=cut
+
+sub iptables_mariadb_rules {
+    my $logger = get_logger();
+    my $service_name = "mariadb_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            $chains->name = $service_name;
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT" );
+            if ($cluster_enabled) {
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 4444 -j ACCEPT");
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 4567 -j ACCEPT");
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 4568 -j ACCEPT");
+            } else {
+                $logger->warn("Service $service_name: Cluster is not enable.");
+            }
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_mysql_prob_rules
+
+Iptable rules for mysql prob service
+
+=cut
+
+sub iptables_mysql_prob_rules {
+    my $logger = get_logger();
+    my $service_name = "mysql_prob_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            $chains->name = $service_name;
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 3307 -j ACCEPT" );
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_kafka_rules
+
+Iptables rules for kafka service
+
+=cut
+
+sub iptables_kafka_rules {
+    my $logger = get_logger();
+    my $service_name = "kafka_rules";
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            if ( @{$ConfigKafka{iptables}{clients}} && @{$ConfigKafka{iptables}{clients}}.size ) {
+                $chains->name = $service_name;
+                for my $client (@{$ConfigKafka{iptables}{clients}}) {
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp -s $client --dport 9092 -j ACCEPT" );
+                }
+            } else {
+                $logger->warn("Service $service_name: No ConfigKafka iptables clients is available.");
+            }
+            if ( @{$ConfigKafka{iptables}{cluster_ips}} && @{$ConfigKafka{iptables}{cluster_ips}}.size ) {
+                $chains->name = $service_name;
+                for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp -s $ip --dport 29092 -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp -s $ip --dport 9092 -j ACCEPT" );
+                    util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp -s $ip --dport 9093 -j ACCEPT" );
+                }
+            } else {
+                $logger->warn("Service $service_name: No ConfigKafka iptables cluster_ips is available.");
+            }
+            if ($chains->name ne "") {
+                # Convert to JSON and save to file
+                util_save_service_chains_to_json(\%chains);
+            }
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_docker_dnat_rules
+
+Iptables rules for docker service
+
+=cut
+
+sub iptables_docker_dnat_rules {
+    my $logger = get_logger();
+    my $service_name = "docker_dnat_rules";
+    # 100.64.0.0/10 is docker ip range.
+    my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
+    if ( $mgmt_ip ne "" ) {
+        my %chains = util_create_chains();
+        $chains->name = $service_name;
+        util_safe_push( @{$chains{'nat'}{'PREROUTING'}} , "-p udp -s 100.64.0.0/10 -d $mgmt_ip -j DNAT --to 100.64.0.1" );
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_fingerbank_collector_rules
+
+Iptable rules for fingerbank collector service
+
+=cut
+
+sub iptables_fingerbank_collector_rules {
+    my $logger = get_logger();
+    my $service_name = "fingerbank_collector_rules";
+    if (netflow_enabled()) {
+        my %chains = util_create_chains();
+        $chains->name = $service_name;
+        util_safe_push( @{$chains{'filter'}{'FORWARD'}} , "-j NETFLOW" );
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
+
+=item iptables_radiusd_eduroam_rules
+
+Iptable rules for radiusd eduroam service
+
+=cut
+
+sub iptables_radiusd_eduroam_rules {
+    my $logger = get_logger();
+    my $service_name = "radiusd_eduroam_rules";
+    # eduroam RADIUS virtual-server
+    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+        my %chains = util_create_chains();
+        $chains->name = $service_name;
+        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+        my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $eduroam_listening_port_backend = $eduroam_listening_port + 10;
+        my $mgnt_zone = $management_network->{Tint};
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT" );
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port -j ACCEPT" );
+        if ($cluster_enabled) {
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT");
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT");
+        }
+        foreach my $network ( @radius_ints ) {
+            my $tint = $network->{Tint};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT" );
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport $eduroam_listening_port -j ACCEPT" );
+            if ($cluster_enabled) {
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT" );
+                util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT" );
+            }
+        }
+    } else {
+        $logger->info( "Service $service_name: Eduroam integration is not configured" );
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
