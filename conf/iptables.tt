@@ -16,6 +16,9 @@
 [% FOREACH name IN configs.keys.sort -%]
 # - [% name %]
 [% END -%]
+[% IF custom.name %]
+[% INCLUDE custom.name %]
+[% END -%]
 # Generated on [% USE date; date.format(date.now, '%Y-%m-%d %H:%M:%S') %]
 
 
@@ -73,6 +76,10 @@
 ### filter OUTPUT chain ###
 :OUTPUT ACCEPT [0:0]
 
+[% IF custom.filter.OUTPUT && custom.filter.OUTPUT.size %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=custom.filter.INPUT %]
+[% END %]
+
 [% IF merged.filter.OUTPUT && merged.filter.OUTPUT.size %]
 [% INCLUDE chain_rules chain='OUTPUT' rules=merged.filter.OUTPUT %]
 [% END %]
@@ -86,24 +93,44 @@ COMMIT
 ### mangle PREROUTING chain ###
 :PREROUTING ACCEPT [0:0]
 #%%mangle_prerouting_inline%%
+
+[% IF custom.mangle.PREROUTING && custom.mangle.PREROUTING.size %]
+[% INCLUDE chain_rules chain='PREROUTING' rules=custom.mangle.PREROUTING %]
+[% END %]
+
 [% IF merged.mangle.PREROUTING && merged.mangle.PREROUTING.size %]
 [% INCLUDE chain_rules chain='PREROUTING' rules=merged.mangle.PREROUTING %]
 [% END %]
 
 ### mangle INPUT chain ###
 :INPUT ACCEPT [0:0]
+
+[% IF custom.mangle.INPUT && custom.mangle.INPUT.size %]
+[% INCLUDE chain_rules chain='INPUT' rules=custom.mangle.INPUT %]
+[% END %]
+
 [% IF merged.mangle.INPUT && merged.mangle.INPUT.size %]
 [% INCLUDE chain_rules chain='INPUT' rules=merged.mangle.INPUT %]
 [% END %]
 
 ### mangle FORWARD chain ###
 :FORWARD ACCEPT [0:0]
+
+[% IF custom.mangle.FORWARD && custom.mangle.FORWARD.size %]
+[% INCLUDE chain_rules chain='FORWARD' rules=custom.mangle.FORWARD %]
+[% END %]
+
 [% IF merged.mangle.FORWARD && merged.mangle.FORWARD.size %]
 [% INCLUDE chain_rules chain='FORWARD' rules=merged.mangle.FORWARD %]
 [% END %]
 
 ### mangle OUTPUT chain ###
 :OUTPUT ACCEPT [0:0]
+
+[% IF custom.mangle.OUTPUT && custom.mangle.OUTPUT.size %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=custom.mangle.OUTPUT %]
+[% END %]
+
 [% IF merged.mangle.OUTPUT && merged.mangle.OUTPUT.size %]
 [% INCLUDE chain_rules chain='OUTPUT' rules=merged.mangle.OUTPUT %]
 [% END %]
@@ -112,6 +139,11 @@ COMMIT
 :POSTROUTING ACCEPT [0:0]
 #%%mangle_postrouting_inline%%
 #%%mangle_if_src_to_chain%%
+
+[% IF custom.mangle.POSTROUTING && custom.mangle.POSTROUTING.size %]
+[% INCLUDE chain_rules chain='POSTROUTING' rules=custom.mangle.POSTROUTING %]
+[% END %]
+
 [% IF merged.mangle.POSTROUTING && merged.mangle.POSTROUTING.size %]
 [% INCLUDE chain_rules chain='POSTROUTING' rules=merged.mangle.POSTROUTING %]
 [% END %]
@@ -125,6 +157,11 @@ COMMIT
 :PREROUTING ACCEPT [0:0]
 #%%nat_prerouting_inline%%
 #%%nat_prerouting_vlan%%
+
+[% IF custom.nat.PREROUTING && custom.nat.PREROUTING.size %]
+[% INCLUDE chain_rules chain='PREROUTING' rules=custom.nat.PREROUTING %]
+[% END %]
+
 [% IF merged.nat.PREROUTING && merged.nat.PREROUTING.size %]
 [% INCLUDE chain_rules chain='PREROUTING' rules=merged.nat.PREROUTING %]
 [% END %]
@@ -132,6 +169,11 @@ COMMIT
 ### nat OUTPUT chain ###
 :OUTPUT ACCEPT [0:0]
 #%%nat_if_src_to_chain%%
+
+[% IF custom.nat.OUTPUT && custom.nat.OUTPUT.size %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=custom.nat.OUTPUT %]
+[% END %]
+
 [% IF merged.nat.OUTPUT && merged.nat.OUTPUT.size %]
 [% INCLUDE chain_rules chain='OUTPUT' rules=merged.nat.OUTPUT %]
 [% END %]
@@ -141,6 +183,11 @@ COMMIT
 #%%nat_postrouting_inline%%
 #%%routed_postrouting_inline%%
 #%%nat_postrouting_vlan%%
+
+[% IF custom.nat.POSTROUTING && custom.nat.POSTROUTING.size %]
+[% INCLUDE chain_rules chain='POSTROUTING' rules=custom.nat.POSTROUTING %]
+[% END %]
+
 [% IF merged.nat.POSTROUTING && merged.nat.POSTROUTING.size %]
 [% INCLUDE chain_rules chain='POSTROUTING' rules=merged.nat.POSTROUTING %]
 [% END %]
