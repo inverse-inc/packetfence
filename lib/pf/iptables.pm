@@ -399,7 +399,6 @@ Iptable rules for httpd aaa service
 sub iptables_httpd_aaa_rules {
     my $logger = get_logger();
     my $service_name = "snmptrapd_rules";
-
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -415,6 +414,42 @@ sub iptables_httpd_aaa_rules {
     }
 }
 
+=item iptables_httpd_dispatcher_rules
+
+Iptable rules for httpd dispatcher service
+HTTP (parking portal)
+
+=cut
+
+sub iptables_httpd_dispatcher_rules {
+    my $logger = get_logger();
+    my $service_name = "httpd_dispatcher_rules";
+    my %chains = util_create_chains();
+
+    #  HTTP (parking portal)
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            @{$chains{'name'}} = $service_name;
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 5252 -j ACCEPT" );
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+    if ( @vlan_enforcement_nets && @vlan_enforcement_nets.size ) {
+        foreach my $network ( @vlan_enforcement_nets ) {
+            my $tint =  $network->{Tint};
+            @{$chains{'name'}} = $service_name;
+            util_direct_rule( "ipv4 filter INPUT 40 -i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $action );
+        }
+    } else {
+        $logger->warn("Service $service_name: No Vlan Enforcement Nets is not set.");
+    }
+    if (@{$chains{'name'}}) {
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
+    }
+}
 
 
 
