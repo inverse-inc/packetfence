@@ -375,7 +375,7 @@ Iptable rules for snmptrapd service
 
 sub iptables_snmptrapd_rules {
     my $logger = get_logger();
-    my $service_name = "snmptrapd_rules"
+    my $service_name = "snmptrapd_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -390,6 +390,30 @@ sub iptables_snmptrapd_rules {
     }
 }
 
+=item iptables_httpd_aaa_rules
+
+Iptable rules for httpd aaa service
+
+=cut
+
+sub iptables_httpd_aaa_rules {
+    my $logger = get_logger();
+    my $service_name = "snmptrapd_rules";
+
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            @{$chains{'name'}} = $service_name;
+            my $aaa_port = $Config{'ports'}{'aaa'};
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $aaa_port -j ACCEPT" );
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
 
 
 
