@@ -305,7 +305,7 @@ Iptable rules for proxysql service
 
 sub iptables_proxysql_rules {
   my $logger = get_logger();
-  if ( $management_network->{Tint} ) {
+  if (ref($management_network) && exists $management_network->{Tint} ) {
     my %chains = util_create_chains();
     @{$chains{'name'}} = "proxysql_rules";
     my $tint = $management_network->{Tint};
@@ -317,6 +317,26 @@ sub iptables_proxysql_rules {
   }
 }
 
+=item iptables_haproxy_admin_rules
+
+Iptable rules for haproxy admin service
+
+=cut
+
+sub iptables_haproxy_admin_rules {
+  my $logger = get_logger();
+  if (ref($management_network) && exists $management_network->{Tint} ) {
+    my %chains = util_create_chains();
+    @{$chains{'name'}} = "haproxy_admin_rules";
+    my $tint = $management_network->{Tint};
+    if ( $tint ne "" ) {
+        my $web_admin_port = $Config{'ports'}{'admin'};
+        util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
+    }
+  } else {
+    $logger->warn("Firewalld is not started yet");
+  }
+}
 
 
 
