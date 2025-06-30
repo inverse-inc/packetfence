@@ -305,15 +305,16 @@ Iptable rules for proxysql service
 
 sub iptables_proxysql_rules {
     my $logger = get_logger();
+    my $service_name = "proxysql_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my %chains = util_create_chains();
-        @{$chains{'name'}} = "proxysql_rules";
+        @{$chains{'name'}} = $service_name;
         my $tint = $management_network->{Tint};
         util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 6033 -j ACCEPT" );
         # Convert to JSON and save to file
         util_save_service_chains_to_json(\%chains);
     } else {
-        $logger->warn("Management Interface is not set.");
+        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -325,10 +326,12 @@ Iptable rules for haproxy admin service
 
 sub iptables_haproxy_admin_rules {
     my $logger = get_logger();
+    my $service_name = "haproxy_admin_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             my %chains = util_create_chains();
-            @{$chains{'name'}} = "haproxy_admin_rules";
+            @{$chains{'name'}} = $service_name;
             my $tint = $management_network->{Tint};
             my $web_admin_port = $Config{'ports'}{'admin'};
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
@@ -336,7 +339,7 @@ sub iptables_haproxy_admin_rules {
             util_save_service_chains_to_json(\%chains);
         }
     } else {
-        $logger->warn("Management Interface is not set.");
+        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -348,21 +351,44 @@ Iptable rules for httpd webservices service
 
 sub iptables_httpd_webservices_rules {
     my $logger = get_logger();
+    my $service_name = "httpd_webservices_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             my %chains = util_create_chains();
-            @{$chains{'name'}} = "httpd_webservices_rules";
+            @{$chains{'name'}} = $service_name;
             my $webservices_port = $Config{'ports'}{'soap'};
             util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $webservices_port -j ACCEPT" );
             # Convert to JSON and save to file
             util_save_service_chains_to_json(\%chains);
         }
     } else {
-        $logger->warn("Management Interface is not set.");
+        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
+=item iptables_snmptrapd_rules
+
+Iptable rules for snmptrapd service
+
+=cut
+
+sub iptables_snmptrapd_rules {
+    my $logger = get_logger();
+    my $service_name = "snmptrapd_rules"
+    if (ref($management_network) && exists $management_network->{Tint} ) {
+        my $tint = $management_network->{Tint};
+        if ( $tint ne "" ) {
+            my %chains = util_create_chains();
+            @{$chains{'name'}} = $service_name;
+            util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 162 -j ACCEPT" );
+            # Convert to JSON and save to file
+            util_save_service_chains_to_json(\%chains);
+        }
+    } else {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+    }
+}
 
 
 
