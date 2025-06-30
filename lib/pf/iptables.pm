@@ -326,17 +326,21 @@ Iptable rules for haproxy admin service
 sub iptables_haproxy_admin_rules {
   my $logger = get_logger();
   if (ref($management_network) && exists $management_network->{Tint} ) {
-    my %chains = util_create_chains();
-    @{$chains{'name'}} = "haproxy_admin_rules";
-    my $tint = $management_network->{Tint};
     if ( $tint ne "" ) {
+        my %chains = util_create_chains();
+        @{$chains{'name'}} = "haproxy_admin_rules";
+        my $tint = $management_network->{Tint};
         my $web_admin_port = $Config{'ports'}{'admin'};
         util_safe_push( @{$chains{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
+        # Convert to JSON and save to file
+        util_save_service_chains_to_json(\%chains);
     }
   } else {
     $logger->warn("Firewalld is not started yet");
   }
 }
+
+
 
 
 
