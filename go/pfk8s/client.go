@@ -2,6 +2,7 @@ package pfk8s
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
@@ -62,8 +63,22 @@ func IsRunningInK8S() bool {
 	return os.Getenv("K8S_MASTER_TOKEN") != ""
 }
 
-func NewClient(baseURI string, token string) *Client {
-	return &Client{BaseURI: baseURI, Token: token, Namespace: "default"}
+func NewAdminClientFromEnv() *Client {
+	if !IsRunningInK8S() {
+		return nil
+	}
+
+	baseURI := sharedutils.EnvOrDefault("K8S_MASTER_URI", "http://localhost")
+	token := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("K8S_ADMIN_TOKEN_PATH", " /var/run/secrets/kubernetes.io/serviceaccount/token"))
+	namespace := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_NAMESPACE_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/namespace"))
+	c := NewClient(baseURI, token, namespace)
+	c.SetTLSConfigFromEnv()
+
+	return c
+}
+
+func NewClient(baseURI string, token string, namespace string) *Client {
+	return &Client{BaseURI: baseURI, Token: token, Namespace: cmp.Or(namespace, "default")}
 }
 
 func NewClientFromEnv() *Client {
@@ -71,16 +86,18 @@ func NewClientFromEnv() *Client {
 	token := sharedutils.EnvOrDefault("K8S_MASTER_TOKEN", "")
 	namespace := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_NAMESPACE_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/namespace"))
 
-	c := NewClient(baseURI, token)
-	c.Namespace = string(namespace)
-
+	c := NewClient(baseURI, token, namespace)
 	c.SetTLSConfigFromEnv()
 
 	return c
 }
 
 func (c *Client) SetTLSConfigFromEnv() {
-	caCerts := []byte(sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("K8S_MASTER_CA_FILE", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")))
+	c.SetTLSConfigFromFile(sharedutils.EnvOrDefault("K8S_MASTER_CA_FILE", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"))
+}
+
+func (c *Client) SetTLSConfigFromFile(path string) {
+	caCerts := []byte(sharedutils.ReadFromFileOrStr(path))
 	rootCAs, _ := x509.SystemCertPool()
 	if rootCAs == nil {
 		rootCAs = x509.NewCertPool()
