@@ -1,8 +1,13 @@
 [%- BLOCK chain_rules -%]
-[% FOREACH rule IN rules -%]
-[% IF rule -%]-A [% chain %] [% rule %] [% IF comment %]/* [% comment %] */[% END %]
-[% END -%]
-[% END -%]
+  [% FOREACH rule IN rules -%]
+    [% IF rule -%]
+      [% IF rule.match('^#') -%]
+[% rule %]
+      [% ELSE -%]
+-A [% chain %] [% rule %][% IF comment %] /* [% comment %] */[% END %]
+      [% END -%]
+    [% END -%]
+  [% END -%]
 [%- END -%]
 
 # Copyright (C) Inverse inc.
