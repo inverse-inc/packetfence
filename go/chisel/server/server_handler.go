@@ -190,7 +190,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	if pfk8s.IsRunningInK8S() {
+	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
 		patchPorts := pfk8s.PatchPorts{
 			Spec: pfk8s.PatchPortsSpec{
 				Ports: make([]pfk8s.PatchPort, 0, len(additionalRemotes)),
@@ -204,7 +204,6 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			)
 		}
 
-		client := pfk8s.NewClientFromEnv()
 		if err := client.PatchPorts(patchPorts); err != nil {
 			l.Printf("Error patching ports: %v", err)
 		}
