@@ -32,7 +32,7 @@ case "$1" in
         /bin/systemctl stop packetfence-ntlm-auth-api-remote.service
     fi
     
-    echo "Connector installation completed"
+    echo "NTLM Auth API installation completed"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
