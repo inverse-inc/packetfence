@@ -69,7 +69,7 @@ func NewAdminClientFromEnv() *Client {
 	}
 
 	baseURI := sharedutils.EnvOrDefault("K8S_MASTER_URI", "http://localhost")
-	token := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("K8S_ADMIN_TOKEN_PATH", " /var/run/secrets/kubernetes.io/serviceaccount/token"))
+	token := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("K8S_ADMIN_TOKEN_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/token"))
 	namespace := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_NAMESPACE_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/namespace"))
 	c := NewClient(baseURI, token, namespace)
 	c.SetTLSConfigFromEnv()
