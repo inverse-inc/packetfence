@@ -142,14 +142,14 @@ Reload the config
 =cut
 
 sub iptables_configreload {
-  my ($force) = @_;
-  my $logger = get_logger();
-  $logger->info( "Start config reload" );
-  if ($force eq 1) {
-    iptables_services_rules("REMOVE");
-  }
-  iptables_services_rules("ADD");
-  iptables_generate_config();
+    my ($force) = @_;
+    my $logger = get_logger();
+    $logger->info( "Start config reload" );
+    if ($force eq 1) {
+        iptables_services_rules("REMOVE");
+    }
+    iptables_services_rules("ADD");
+    iptables_generate_config();
 }
 
 =item iptables_save
@@ -263,7 +263,7 @@ sub iptables_generate_config {
         "$generated_conf_dir/generated.iptables.conf"
     ) or die $tt->error();
 
-    #$self->iptables_restore("$generated_conf_dir/iptables.conf");
+    $self->iptables_restore("$generated_conf_dir/iptables.conf");
 }
 
 sub iptables_restore {

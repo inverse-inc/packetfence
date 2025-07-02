@@ -144,7 +144,6 @@ sub _stop {
     safe_pf_run(qw(sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER));
     safe_pf_run(qw(sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE));
     safe_pf_run(qw(sudo iptables -t nat -A DOCKER -i docker0 -j RETURN));
-
     return 1;
 }
 
@@ -162,7 +161,7 @@ sub isAlive {
     my $pid = $self->pid;
     my $_EXIT_CODE_EXISTS = "0";
     my $rules = safe_pf_run('sudo', 'iptables', '-S') // '';
-    return ($rules =~ /-A input-management-if -p tcp -m tcp --dport 1443 -j ACCEPT/ ? 1: 0);
+    return ($rules =~ /-p tcp -m tcp --dport 1443 -j ACCEPT/ ? 1: 0);
 }
 
 =head1 AUTHOR
