@@ -2125,6 +2125,12 @@ sub util_create_service_rules {
     $logger->info("Successfully saved chains to $output_name");
 }
 
+=item util_remove_service_rules
+
+Remove service rules JSON file
+
+=cut
+
 sub util_remove_service_rules {
     my $service_name = shift;
     my $logger = get_logger();
