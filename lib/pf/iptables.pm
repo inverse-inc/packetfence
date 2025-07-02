@@ -177,6 +177,11 @@ sub iptables_generate_config {
     my ($self) = @_;
     my $logger = get_logger();
 
+    if (!ref($management_network || ! exists $management_network->{Tint} || $management_network->{Tint} eq "" ) ) {
+        $logger->warn( "Management network is not defined" );
+        return;
+    }
+
     my %custom_configs;
     # Check for and load content from custom specific files if it exists
     my @custom_file = ('iptables-custom.conf.inc');
@@ -208,6 +213,9 @@ sub iptables_generate_config {
         mangle => { PREROUTING => [], INPUT => [], FORWARD => [], OUTPUT => [], POSTROUTING => [] },
         nat => { PREROUTING => [], OUTPUT => [], POSTROUTING => [] }
     );
+
+    my $tint = $management_network->{Tint};
+    push @{$merged{filter}{INPUT}}, "-i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT";
 
     foreach my $name (sort keys %$configs) {
         my $fw = $configs->{$name};
@@ -249,8 +257,8 @@ sub iptables_generate_config {
         "$conf_dir/iptables.tt",
         {
             configs => $configs,
-            custom => \%custom_configs,
-            merged => \%merged
+            custom  => \%custom_configs,
+            merged  => \%merged
         },
         "$generated_conf_dir/generated.iptables.conf"
     ) or die $tt->error();
