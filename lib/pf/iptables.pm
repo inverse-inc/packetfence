@@ -235,13 +235,14 @@ Iptable rules for haproxy portal service
 =cut
 
 sub iptables_haproxy_portal_rules {
-    my $action = shift;
     my $service_name = "haproxy_portal_rules";
-    my $logger = get_logger();
+    my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_chains($service_name);
+       util_remove_service_rules($service_name);
        return;
     }
+
+    my $logger = get_logger();
     my %chains = util_create_chains();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
@@ -303,9 +304,14 @@ iptables rules for radius lb service
 =cut
 
 sub iptables_radiusd_lb_rules {
+    my $service_name = "radiusd_lb_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
     my $logger = get_logger();
     my %chains = util_create_chains();
-    my $service_name = "radiusd_lb_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -338,9 +344,14 @@ Iptable rules for keepalived service
 =cut
 
 sub iptables_keepalived_rules {
+    my $service_name = "keepalived_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
     my $logger = get_logger();
     my %chains = util_create_chains();
-    my $service_name = "keepalived_rules";
     # if input-management-if
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
@@ -387,8 +398,13 @@ Iptable rules for proxysql service
 =cut
 
 sub iptables_proxysql_rules {
-    my $logger = get_logger();
     my $service_name = "proxysql_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my %chains = util_create_chains();
         $chains->name = $service_name;
@@ -408,8 +424,13 @@ Iptable rules for haproxy admin service
 =cut
 
 sub iptables_haproxy_admin_rules {
-    my $logger = get_logger();
     my $service_name = "haproxy_admin_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -433,8 +454,13 @@ Iptable rules for httpd webservices service
 =cut
 
 sub iptables_httpd_webservices_rules {
-    my $logger = get_logger();
     my $service_name = "httpd_webservices_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -457,8 +483,13 @@ Iptable rules for snmptrapd service
 =cut
 
 sub iptables_snmptrapd_rules {
-    my $logger = get_logger();
     my $service_name = "snmptrapd_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -480,8 +511,13 @@ Iptable rules for httpd aaa service
 =cut
 
 sub iptables_httpd_aaa_rules {
-    my $logger = get_logger();
     my $service_name = "snmptrapd_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -505,8 +541,13 @@ HTTP (parking portal)
 =cut
 
 sub iptables_httpd_dispatcher_rules {
-    my $logger = get_logger();
     my $service_name = "httpd_dispatcher_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     my %chains = util_create_chains();
     #  HTTP (parking portal)
     if (ref($management_network) && exists $management_network->{Tint} ) {
@@ -540,8 +581,13 @@ Iptable rules for api frontend service
 =cut
 
 sub iptables_api_frontend_rules {
-    my $logger = get_logger();
     my $service_name = "api_frontend_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -564,9 +610,14 @@ Iptable rules for httpd portal service
 =cut
 
 sub iptables_httpd_portal_rules {
+    my $service_name = "httpd_portal_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
     my $logger = get_logger();
     my %chains = util_create_chains();
-    my $service_name = "httpd_portal_rules";
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -600,8 +651,13 @@ Iptable rules for haproxy db service
 =cut
 
 sub iptables_haproxy_db_rules {
-    my $logger = get_logger();
     my $service_name = "haproxy_db_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -624,8 +680,13 @@ Iptable rules for radiusd acct service
 =cut
 
 sub iptables_radiusd_acct_rules {
-    my $logger = get_logger();
     my $service_name = "haproxy_db_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if ( @radius_ints && @radius_ints.size ) {
         my %chains = util_create_chains();
         $chains->name = $service_name;
@@ -647,8 +708,13 @@ Iptable rules for pfacct service
 =cut
 
 sub iptables_pfacct_rules {
-    my $logger = get_logger();
     my $service_name = "pfacct_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if ( @radius_ints && @radius_ints.size ) {
         my %chains = util_create_chains();
         $chains->name = $service_name;
@@ -670,8 +736,13 @@ Iptable rules for radiusd auth service
 =cut
 
 sub iptables_radiusd_auth_rules {
-    my $logger = get_logger();
     my $service_name = "radiusd_auth_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if ( @radius_ints && @radius_ints.size ) {
         my %chains = util_create_chains();
         $chains->name = $service_name;
@@ -695,8 +766,13 @@ Iptable rules for radiusd cli service
 =cut
 
 sub iptables_radiusd_cli_rules {
-    my $logger = get_logger();
     my $service_name = "radiusd_cli_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if ( @radius_ints && @radius_ints.size ) {
         my %chains = util_create_chains();
         $chains->name = $service_name;
@@ -718,8 +794,13 @@ Iptable rules for pfdns service
 =cut
 
 sub iptables_pfdns_rules {
-    my %chains = util_create_chains();
     my $service_name = "pfdns_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my %chains = util_create_chains();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -939,10 +1020,14 @@ Iptable rules for pfdhcp service
 =cut
 
 sub iptables_pfdhcp_rules {
+    my $service_name = "pfdhcp_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
     my $logger = get_logger();
     my %chains = util_create_chains();
-    my $service_name = "pfdhcp_rules";
-
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -1057,9 +1142,13 @@ Iptable rules for netdata service
 =cut
 
 sub iptables_netdata_rules {
+    my $service_name = "netdata_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
     my $logger = get_logger();
-    my $service_name = "netdate_rules";
-
     if (ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
@@ -1088,9 +1177,13 @@ Iptable rules for pfconnector server service
 =cut
 
 sub iptables_pfconnector_server_rules {
-    my $logger = get_logger();
     my $service_name = "pfconnector_server_rules";
-
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
@@ -1119,9 +1212,13 @@ Iptable rules for galera autofix server service
 =cut
 
 sub iptables_galera_autofix_rules {
-    my $logger = get_logger();
     my $service_name = "galera_autofix_rules";
-
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
@@ -1156,9 +1253,13 @@ Iptable rules for mariadb server service
 =cut
 
 sub iptables_mariadb_rules {
-    my $logger = get_logger();
     my $service_name = "mariadb_rules";
-
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
@@ -1188,9 +1289,13 @@ Iptable rules for mysql prob service
 =cut
 
 sub iptables_mysql_prob_rules {
-    my $logger = get_logger();
     my $service_name = "mysql_prob_rules";
-
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
@@ -1213,9 +1318,13 @@ Iptables rules for kafka service
 =cut
 
 sub iptables_kafka_rules {
-    my $logger = get_logger();
     my $service_name = "kafka_rules";
-
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (ref($management_network) && exists $management_network->{Tint} ) {
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
@@ -1256,9 +1365,13 @@ Iptables rules for docker service
 =cut
 
 sub iptables_docker_dnat_rules {
-    my $logger = get_logger();
     my $service_name = "docker_dnat_rules";
-
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     # 100.64.0.0/10 is docker ip range.
     my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
     if ( $mgmt_ip ne "" ) {
@@ -1279,9 +1392,13 @@ Iptable rules for fingerbank collector service
 =cut
 
 sub iptables_fingerbank_collector_rules {
-    my $logger = get_logger();
     my $service_name = "fingerbank_collector_rules";
-
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     if (netflow_enabled()) {
         my %chains = util_create_chains();
         $chains->name = $service_name;
@@ -1300,9 +1417,13 @@ Iptable rules for radiusd eduroam service
 =cut
 
 sub iptables_radiusd_eduroam_rules {
-    my $logger = get_logger();
     my $service_name = "radiusd_eduroam_rules";
-
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
+    my $logger = get_logger();
     # eduroam RADIUS virtual-server
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my %chains = util_create_chains();
@@ -1340,11 +1461,15 @@ So related to lib/pf/ipset.pm
 =cut
 
 sub iptables_pfipset_rules {
+    my $service_name = "pfipset_rules";
+    my $action = shift;
+    if ( $action eq "REMOVE" ) {
+       util_remove_service_rules($service_name);
+       return;
+    }
     my $logger = get_logger();
     pf::ipset->new()->iptables_generate();
-    my $service_name = "pfipset_rules";
     my %chains = util_create_chains();
-
     # eduroam RADIUS virtual-server
     if ( @internal_nets && @internal_nets.size ) {
         $chains->name = $service_name;
@@ -2678,7 +2803,7 @@ sub util_save_service_chains_to_json {
     my $json = JSON->new->pretty->canonical->encode($chains_ref);
 
     # Add .json extension if not present
-    $output_name = $generated_iptables_conf_dir."/".$chains_ref->name.'.json';
+    $filename = $generated_iptables_conf_dir."/".$chains_ref->name.'.json';
 
     # Create directory if it doesn't exist
     unless (-d $generated_iptables_conf_dir) {
@@ -2686,7 +2811,7 @@ sub util_save_service_chains_to_json {
     }
 
     # Write to file
-    open(my $fh, '>', $output_name) or die $logger->error("Could not open $output_name: $!");
+    open(my $fh, '>', $filename) or die $logger->error("Could not open $output_name: $!");
     print $fh $json;
     close($fh);
 
@@ -2698,7 +2823,7 @@ sub util_save_service_chains_to_json {
     $logger->info("Successfully saved chains to $output_name");
 }
 
-sub util_remove_service_chains {
+sub util_remove_service_rules {
     my $service_name = shift;
     my $logger = get_logger();
 
