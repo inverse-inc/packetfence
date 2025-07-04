@@ -45,6 +45,14 @@ has_field 'secret' =>
    required => 1,
   );
 
+has_field 'fingerbank_environment' => (
+   type => 'Repeatable',
+);
+
+has_field 'fingerbank_environment.contains' => (
+   type => 'NameVal',
+);
+
 =over
 
 =back

@@ -13,6 +13,8 @@ has secret => (is => 'rw');
 
 has networks => (is => 'rw');
 
+has fingerbank_environment => (is => 'rw');
+
 my %connections;
 my $redis;
 sub CLONE {
