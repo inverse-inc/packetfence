@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from '../_store'
+import FingerbankStoreModule from '../../fingerbank/_store'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/TheTabsConnectors')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -7,7 +8,11 @@ const TheView = () => import(/* webpackChunkName: "Configuration" */ './_compone
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_connectors)
     store.registerModule('$_connectors', StoreModule)
-  next()
+  if (!store.state.$_fingerbank)
+    store.registerModule('$_fingerbank', FingerbankStoreModule)
+  store.dispatch('$_fingerbank/getGeneralSettings').then(() => {
+    next()
+  })
 }
 
 export const useRouter = $router => {
