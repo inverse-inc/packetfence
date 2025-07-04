@@ -185,7 +185,7 @@ sub iptables_generate_config {
 
     my %custom_configs;
     # Check for and load content from custom specific files if it exists
-    my @custom_file = ('iptables-custom.conf.inc');
+    my @custom_files = ('iptables-custom.conf.inc');
     foreach my $custom_file (@custom_files) {
         my $file = $conf_dir."/".$custom_file;
         if (util_add_custom_config_from_file($custom_configs, $custom_file)) {
