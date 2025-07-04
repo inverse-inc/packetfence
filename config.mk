@@ -29,6 +29,7 @@ NTLM_AUTH_API_CONFDIR = $(NTLM_AUTH_API_PREFIX)/conf
 NTLM_AUTH_API_LOGDIR = $(NTLM_AUTH_API_PREFIX)/logs
 NTLM_AUTH_API_UPGRADEDIR = $(NTLM_AUTH_API_PREFIX)/upgrade
 NTLM_AUTH_API_VARDIR = $(NTLM_AUTH_API_PREFIX)/var
+NTLM_AUTH_API_CONTAINERSDIR = $(NTLM_AUTH_API_PREFIX)/containers
 
 # source dirs
 # hack to get directory of config.mk from any Makefile in source tree
