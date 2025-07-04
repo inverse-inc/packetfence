@@ -187,13 +187,13 @@ sub iptables_generate_config {
 
     my %custom_configs;
     # Check for and load content from custom specific files if it exists
-    my @custom_files = ('iptables-custom.conf.inc');
+    my @custom_files = ("iptables-custom.conf.inc");
     foreach my $custom_file (@custom_files) {
-        my $file = $conf_dir."/".$custom_file;
-        if (util_add_custom_config_from_file(%custom_configs, $custom_file)) {
-            $logger->info( "Successfully loaded custom configuration from $file" );
+        #my $file = $conf_dir."/".$custom_file;
+        if ( util_add_custom_config_from_file( $custom_file, \%custom_configs ) ) {
+            $logger->info( "Successfully loaded custom configuration from $conf_dir/$custom_file" );
         } else {
-            $logger->info( "No custom configuration file ($file) found" );
+            $logger->info( "No custom configuration file ($conf_dir/$custom_file) found" );
         }
     }
 
@@ -266,15 +266,18 @@ sub iptables_generate_config {
         "$generated_conf_dir/generated.iptables.conf"
     ) or die $tt->error();
 
-    $self->iptables_restore("$generated_conf_dir/iptables.conf");
+    iptables_restore("$generated_conf_dir/generated.iptables.conf");
 }
 
 sub iptables_restore {
-    my ($self, $restore_file) = @_;
+    my ($restore_file) = @_;
     my $logger = get_logger();
     if ( -r $restore_file ) {
         $logger->info( "restoring iptables from " . $restore_file );
         safe_pf_run("/sbin/iptables-restore", {stdin => $restore_file});
+    } else {
+        printf "\n\nFAILED TO RESTORE\n\n";
+        $logger->warm( "Failed to restore IPTABLES from " . $restore_file );
     }
 }
 
@@ -2154,9 +2157,9 @@ Function to load and validate custom config from file
 =cut
 
 sub util_add_custom_config_from_file {
-    my ($configs_ref, $filename) = @_;
+    my ( $filename , $configs_ref ) = @_;
     my $logger = get_logger();
-    my $file = $conf_dir."/".$filename;
+    my $file = "".$conf_dir."/".$filename;
 
     return 0 unless -e $file;
 
@@ -2164,7 +2167,7 @@ sub util_add_custom_config_from_file {
         my $json_content = read_file($file);
         my $custom_config = decode_json($json_content);
         
-        $custom_config->{name}=$filename;
+        $custom_config->{'name'}=$filename;
         
         my %allowed_structure = (
             filter => { INPUT => 1, FORWARD => 1, OUTPUT => 1 },
