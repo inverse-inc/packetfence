@@ -26,10 +26,11 @@ sub is_management_network_set {
 }
 
 if ( $managed ) {
-    $inotify->watch( $generated_iptables_conf_dir, IN_MODIFY | IN_CLOSE_WRITE, sub {
+    my $logger = get_logger();
+    $logger->info("Service Iptables: Management interface is waiting.");
+    $inotify->watch( $generated_iptables_conf_dir, IN_MODIFY | IN_CREATE | IN_DELETE, sub {
         my $event = shift;
         my $file = $event->fullname;
-        my $logger = get_logger();
     
         if (ref($management_network) && exists $management_network->{Tint} ) {
             my $tint = $management_network->{Tint};
