@@ -1,5 +1,5 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index ac7975cbbd..6601d93350 100644
+index aa8447a4e4..d4d209b070 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -479,7 +479,7 @@ radiusd=enabled
@@ -165,20 +165,18 @@ index 22c4a14db3..7dc96ff370 100644
  
  [Install]
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index a3ac735600..be76136201 100644
+index 2e5216acb5..58071315b7 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
-@@ -7,8 +7,8 @@ After=packetfence-base.target packetfence-config.service
- [Service]
- StartLimitBurst=3
- StartLimitInterval=10
--ExecStart=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_ping() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
--ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
-+ExecStart=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_ping() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
-+ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
- Slice=packetfence.slice
- 
- [Install]
+@@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service
+ Type=simple
+ ExecStart=/usr/local/pf/sbin/iptables_monitor.pl
+ ExecStop=/usr/bin/kill -TERM $MAINPID
+-ExecStopPost==/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
++ExecStopPost==/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
+ KillSignal=TERM
+ Restart=always
+ RestartSec=5
 diff --git a/conf/systemd/packetfence-kafka.service b/conf/systemd/packetfence-kafka.service
 index 07741f392b..0457137d92 100644
 --- a/conf/systemd/packetfence-kafka.service
@@ -284,10 +282,10 @@ index 69b288b4c4..8e9543e5aa 100644
  Restart=on-failure
  Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-pfipset.service b/conf/systemd/packetfence-pfipset.service
-index bd9e8060fb..3e76aabf68 100644
+index 4ced8854e7..ba889fa6f6 100644
 --- a/conf/systemd/packetfence-pfipset.service
 +++ b/conf/systemd/packetfence-pfipset.service
-@@ -10,7 +10,7 @@ StartLimitBurst=3
+@@ -10,13 +10,13 @@ StartLimitBurst=3
  StartLimitInterval=60
  Type=notify
  Environment=LOG_LEVEL=INFO
@@ -296,6 +294,14 @@ index bd9e8060fb..3e76aabf68 100644
  ExecStart=/bin/bash -c "export $(cat /usr/local/pf/var/conf/pfipset.env | xargs) && /usr/local/pf/sbin/pfhttpd run --adapter caddyfile -c /usr/local/pf/conf/caddy-services/pfipset.conf"
  Restart=on-failure
  Slice=packetfence.slice
+ # Iptable
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("REMOVE")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("REMOVE")'
+ 
+ 
+ [Install]
 diff --git a/conf/systemd/packetfence-pfldapexplorer.service b/conf/systemd/packetfence-pfldapexplorer.service
 index 6d8ba20106..b665aa773e 100644
 --- a/conf/systemd/packetfence-pfldapexplorer.service
