@@ -203,7 +203,7 @@ sub iptables_generate_config {
     my @config_files = read_dir_recursive($generated_iptables_conf_dir);
     if (@config_files) {
         foreach my $conf ( @config_files ) {
-            my $json_text = read_file($conf);
+            my $json_text = read_file($generated_iptables_conf_dir."/".$conf);
             my $data = decode_json($json_text);
             my $conf_name = $data->{name};
             $configs{$conf_name} = $data;
@@ -2117,7 +2117,7 @@ sub util_create_service_rules {
     unless (-e $filename) {
         die $logger->error("Failed to create JSON file $filename");
     }
-
+    util_generated_iptables_fix_dir_permissions();
     $logger->info("Successfully saved chains to $filename");
 }
 
