@@ -6,7 +6,7 @@
       "OUTPUT" :  []
    },
    "mangle" : {
-      "PRETROUTING" : [],
+      "PREROUTING" : [],
       "INPUT" : [],
       "FORWARD" : [],
       "OUTPUT" : [],
