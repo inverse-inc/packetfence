@@ -115,6 +115,7 @@ our (
     $fingerbank_doc_file,
     $api_i18n_dir,
     $iptable_config_file,
+    $iptable_custom_config_file,
     $iptable_input_config_file,
     $iptable_input_management_config_file,
     $ip6table_config_file,
@@ -226,6 +227,7 @@ BEGIN {
         $fingerbank_doc_file
         $api_i18n_dir
         $iptable_config_file
+	$iptable_custom_config_file
         $iptable_input_config_file
         $iptable_input_management_config_file
         $ip6table_config_file
