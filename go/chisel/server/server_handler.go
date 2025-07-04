@@ -494,6 +494,11 @@ func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *
 	webservices := pfconfigdriver.PfConfWebservices{}
 	pfconfigdriver.FetchDecodeSocket(req.Context(), &webservices)
 
+	connectors := pfconfigdriver.Connectors{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors)
+
+	connectorId := req.URL.Query().Get("CONNECTOR_ID")
+
 	env := map[string]string{
 		"COLLECTOR_ARP_LOOKUP":                fingerbankSettings.Collector.ArpLookup,
 		"COLLECTOR_CLUSTERED":                 "true",
@@ -522,6 +527,20 @@ func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *
 		}
 	}
 
+	if connectorId != "" {
+		for name, connector := range connectors.Element {
+			if name == connectorId {
+				for _, l := range strings.Split(connector.FingerbankEnvironment, "\n") {
+					d := strings.Split(l, "=")
+					if len(d) == 2 {
+						env[d[0]] = d[1]
+					} else if len(d) > 2 {
+						env[d[0]] = strings.Join(d[1:len(d)], "=")
+					}
+				}
+			}
+		}
+	}
 	envFile := ""
 	for k, v := range env {
 		envFile += fmt.Sprintf("export %s=%s\n", k, v)
