@@ -899,7 +899,10 @@ type Connectors struct {
 	PfconfigNS              string `val:"config::Connector"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]struct {
-		Secret string `json:"secret"`
+		Secret                string   `json:"secret"`
+		Networks              []string `json:"networks"`
+		Description           string   `json:"description"`
+		FingerbankEnvironment string   `json:"fingerbank_environment"`
 	}
 }
 
@@ -1058,7 +1061,6 @@ type PfSwitches struct {
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"config::Switch"`
 	Keys           []string
-
 }
 
 type PfConfPfDnsConnector struct {
