@@ -254,7 +254,7 @@ sub iptables_generate_config {
     # Process template
     my $tt = Template->new(ABSOLUTE => 1);
     $tt->process(
-        "$conf_dir/iptables.tt",
+        "$conf_dir/iptables.conf.tt",
         {
             configs => $configs,
             custom  => \%custom_configs,
