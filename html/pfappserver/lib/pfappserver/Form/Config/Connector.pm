@@ -50,7 +50,7 @@ has_field 'fingerbank_environment' => (
 );
 
 has_field 'fingerbank_environment.contains' => (
-   type => 'NameVal',
+   type => 'EnvVar',
 );
 
 =over
