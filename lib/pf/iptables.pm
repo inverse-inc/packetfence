@@ -33,6 +33,7 @@ use Template;
 use JSON;
 use File::Slurp;
 use Try::Tiny;
+use Switch;
 
 BEGIN {
   use Exporter ();
