@@ -35,6 +35,7 @@ use File::Slurp;
 use Try::Tiny;
 use Switch;
 use Symbol qw(gensym);
+use File::Path qw(make_path);
 
 BEGIN {
   use Exporter ();
@@ -576,7 +577,7 @@ sub iptables_haproxy_admin_rules {
             $chains->{'name'} = $service_name;
             my $tint = $management_network->{Tint};
             my $web_admin_port = $Config{'ports'}{'admin'};
-            util_safe_push( @{$chains->{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
+            util_safe_push( $chains->{'filter'}{'INPUT'} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
@@ -2078,9 +2079,10 @@ Add value only if not other equal value are in array
 
 sub util_safe_push {
     my ($array_ref, $value) = @_;
-    unless (any { $_ eq $value } @$array_ref) {
-        push @$array_ref, $value;
+    foreach my $item (@$array_ref) {
+        return if $item eq $value;
     }
+    push @$array_ref, $value;
 }
 
 
@@ -2092,14 +2094,14 @@ Save Chains Hash to JSON file
 
 # Function definition
 sub util_create_service_rules {
-    my $chains_ref = @_;
+    my $chains_ref = shift;
     my $logger = get_logger();
 
     # Convert to JSON with pretty formatting
     my $json = JSON->new->pretty->canonical->encode($chains_ref);
 
     # Add .json extension if not present
-    my $filename = $generated_iptables_conf_dir."/".$chains_ref->name.'.json';
+    my $filename = $generated_iptables_conf_dir."/".$chains_ref->{'name'}.'.json';
 
     # Create directory if it doesn't exist
     unless (-d $generated_iptables_conf_dir) {
