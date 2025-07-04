@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Linux::Inotify2;
 
 use lib '/usr/local/pf/lib';
 use lib '/usr/local/pf/lib_perl/lib/perl5';
@@ -10,6 +9,7 @@ use pf::file_paths qw($generated_iptables_conf_dir);
 use pf::log;
 use pf::iptables qw(iptables_generate_config);
 use pf::config qw($management_network);
+use Linux::Inotify2;
 
 my $inotify = new Linux::Inotify2 or die "Unable to create inotify object: $!";
 
