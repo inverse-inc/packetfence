@@ -530,7 +530,7 @@ func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *
 	if connectorId != "" {
 		for name, connector := range connectors.Element {
 			if name == connectorId {
-				for _, l := range strings.Split(connector.FingerbankEnvironment, "\n") {
+				for _, l := range connector.FingerbankEnvironment {
 					d := strings.Split(l, "=")
 					if len(d) == 2 {
 						env[d[0]] = d[1]
