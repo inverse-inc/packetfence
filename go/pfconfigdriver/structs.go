@@ -904,7 +904,7 @@ type Connectors struct {
 		Secret                string   `json:"secret"`
 		Networks              []string `json:"networks"`
 		Description           string   `json:"description"`
-		FingerbankEnvironment string   `json:"fingerbank_environment"`
+		FingerbankEnvironment []string `json:"fingerbank_environment"`
 	}
 }
 
