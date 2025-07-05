@@ -58,7 +58,7 @@ deflate the api method spec hash to a string
 
 sub deflate {
     my ($self, $value) = @_;
-    return join("=", $value->{key}, $value->{value});
+    return join("=", $value->{name}, $value->{value});
 }
 
 =head1 AUTHOR
