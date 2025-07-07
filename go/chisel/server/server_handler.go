@@ -386,7 +386,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		}
 		// If we're here, then we failed multiple times at creating the remote. There must be something terribly wrong
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to create dynreverse remote")})
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: "Unable to create dynreverse remote"})
 		return
 	} else {
 		w.WriteHeader(http.StatusNotFound)
@@ -526,18 +526,28 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing CONNECTOR_ID query parameter"})
 		return
 	}
-	domain := pfconfigdriver.Domain{}
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &domain)
-	Connnectors := connector.NewConnectorsContainer(req.Context())
-	for _, Elements := range domain.Element {
-		ServerIp := Elements.(map[string]interface{})["ad_server"].(string)
-		Connector := Connnectors.ForIP(req.Context(), net.ParseIP(ServerIp))
+	domains := pfconfigdriver.Domains{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &domains)
+	Connectors := connector.NewConnectorsContainer(req.Context())
+	var Domains map[string]pfconfigdriver.Domain
+	Domains = make(map[string]pfconfigdriver.Domain)
+	for domain, Elements := range domains.Element {
+		ServerIp := Elements.AdServer
+
+		Connector := Connectors.ForIP(req.Context(), net.ParseIP(ServerIp))
 		if Connector.PfconfigHashNS == connectorId {
-			// We found the connector, we can return the env
+			Domains[domain] = Elements
 		}
 	}
-	w.Write([]byte("export var=val\n"))
-
+	jsonData, err := json.Marshal(Domains)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Error while marshalling domains: %s", err)})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *http.Request) {

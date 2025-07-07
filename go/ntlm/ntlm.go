@@ -6,14 +6,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
-func GetDomainConfig(ctx context.Context) (pfconfigdriver.Domain, error) {
-	var domain pfconfigdriver.Domain
+func GetDomainConfig(ctx context.Context) (pfconfigdriver.Domains, error) {
+	var domain pfconfigdriver.Domains
 	err := pfconfigdriver.FetchDecodeSocket(ctx, &domain)
 	if err != nil {
 		return domain, nil
