@@ -11,3 +11,25 @@ if [ -z "$CONNECTOR_ID" ]; then
 fi
 
 curl --fail "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-env?CONNECTOR_ID=$CONNECTOR_ID" > /usr/local/ntlm-auth-api/conf/ntlm_auth_api.env
+
+
+# JSON File
+INPUT_FILE="/usr/local/ntlm-auth-api/conf/ntlm_auth_api.env"
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Error: File $INPUT_FILE doesn't exists"
+    exit 1
+fi
+
+# Extraire les noms de domaine
+domains=$(jq -r 'keys[]' "$INPUT_FILE")
+
+for domain in $domains; do
+    output_file="/usr/local/ntlm-auth-api/var/conf/${domain}.env"
+
+    host=$(jq -r ".\"$domain\".ntlm_auth_host" "$INPUT_FILE")
+    port=$(jq -r ".\"$domain\".ntlm_auth_port" "$INPUT_FILE")
+
+    echo "HOST=$host" > "$output_file"
+    echo "LISTEN=$port" >> "$output_file"
+    echo "IDENTIFIER=$domain" >> "$output_file"
+done

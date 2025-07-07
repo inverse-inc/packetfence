@@ -214,7 +214,7 @@ Package: packetfence-ntlm-auth-api-remote
 Architecture: all
 Depends: packetfence-pfconnector-remote,
 # Docker runtime
- docker-ce, docker-ce-cli, containerd.io
+ docker-ce, docker-ce-cli, containerd.io, jq
 Description: PacketFence NTLM Auth API remote
  PacketFence NTLM Auth API files. This package contains all files related to PacketFence NTLM Auth API remote.
 
