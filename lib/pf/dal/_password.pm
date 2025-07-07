@@ -43,6 +43,8 @@ BEGIN {
         sponsor
         unregdate
         login_remaining
+        trigger_radius_mfa
+        trigger_portal_mfa
     );
 
     %DEFAULTS = (
@@ -56,6 +58,8 @@ BEGIN {
         sponsor => '0',
         unregdate => '0000-00-00 00:00:00',
         login_remaining => undef,
+        trigger_radius_mfa => undef,
+        trigger_portal_mfa => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -69,6 +73,8 @@ BEGIN {
         sponsor
         unregdate
         login_remaining
+        trigger_radius_mfa
+        trigger_portal_mfa
     );
 
     %FIELDS_META = (
@@ -132,6 +138,18 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        trigger_radius_mfa => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        trigger_portal_mfa => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -149,6 +167,8 @@ BEGIN {
         password.sponsor
         password.unregdate
         password.login_remaining
+        password.trigger_radius_mfa
+        password.trigger_portal_mfa
     );
 
 }
@@ -256,7 +276,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2025 Inverse inc.
 
 =head1 LICENSE
 

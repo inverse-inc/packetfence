@@ -42,22 +42,23 @@ export const pfFieldType = {
   /* Promise field types */
   ADMINROLE:                           'adminrole',
   ADMINROLE_BY_ACL_USER:               'adminrole_by_acl_user',
-  DURATION:                            'duration',
   DURATION_BY_ACL_USER:                'duration_by_acl_user',
+  DURATION:                            'duration',
   DURATIONS:                           'durations',
+  MFA:                                 'mfa',
   OPTIONS:                             'options',
   REALM:                               'realm',
-  ROLE:                                'role',
-  ROLE_BY_NAME:                        'role_by_name',
   ROLE_BY_ACL_NODE:                    'role_by_acl_node',
   ROLE_BY_ACL_USER:                    'role_by_acl_user',
+  ROLE_BY_NAME:                        'role_by_name',
+  ROLE:                                'role',
   ROOT_PORTAL_MODULE:                  'root_portal_module',
   SOURCE:                              'source',
   SSID:                                'ssid',
   SWITCHE:                             'switche',
   SWITCH_GROUP:                        'switch_group',
+  TIME_PERIOD:                         'time_period',
   TIME:                                'time',
-  TIME_PERIOD:                         'time_period'
 }
 
 export const pfFieldTypeComponent = {
@@ -282,6 +283,14 @@ export const pfFieldTypeValues = {
 
   [pfFieldType.DURATIONS]: () =>
     store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList']),
+
+  [pfFieldType.MFA]: () =>
+    store.dispatch('config/getMfas').then(items => [
+      { value: null, text: i18n.t('empty - None') },
+      ...items.map((item) => {
+        return { value: item.id, text: item.id }
+      })
+    ]),
 
   [pfFieldType.OPTIONS]: ({ field }) => {
     if (field === undefined) {

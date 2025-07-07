@@ -84,7 +84,7 @@ BEGIN {
         issuer_key_hash => undef,
         issuer_name_hash => undef,
         ocsp_url => undef,
-        serial_number => '1',
+        serial_number => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -158,73 +158,73 @@ BEGIN {
             is_nullable => 1,
         },
         organisational_unit => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         country => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         state => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         locality => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         street_address => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         postal_code => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         key_type => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         key_size => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         digest => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         key_usage => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         extended_key_usage => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         days => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -242,25 +242,25 @@ BEGIN {
             is_nullable => 1,
         },
         issuer_key_hash => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         issuer_name_hash => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         ocsp_url => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         serial_number => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -404,7 +404,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2025 Inverse inc.
 
 =head1 LICENSE
 

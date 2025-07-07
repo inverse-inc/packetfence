@@ -84,6 +84,7 @@ BEGIN {
         profile_name => undef,
         valid_until => undef,
         not_before => undef,
+        date => 'current_timestamp(3)',
         serial_number => undef,
         dns_names => undef,
         ip_addresses => undef,
@@ -113,6 +114,7 @@ BEGIN {
         profile_name
         valid_until
         not_before
+        date
         serial_number
         dns_names
         ip_addresses
@@ -159,7 +161,7 @@ BEGIN {
             is_nullable => 1,
         },
         ca_id => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -171,7 +173,7 @@ BEGIN {
             is_nullable => 1,
         },
         street_address => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -183,31 +185,31 @@ BEGIN {
             is_nullable => 1,
         },
         organisational_unit => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         country => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         state => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         locality => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         postal_code => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -225,7 +227,7 @@ BEGIN {
             is_nullable => 1,
         },
         profile_id => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -255,37 +257,37 @@ BEGIN {
             is_nullable => 1,
         },
         serial_number => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         dns_names => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         ip_addresses => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         revoked => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         crl_reason => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         subject => {
-            type => 'VARCHAR',
+            type => 'LONGTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -432,7 +434,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2025 Inverse inc.
 
 =head1 LICENSE
 

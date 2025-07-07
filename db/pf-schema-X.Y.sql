@@ -467,6 +467,8 @@ CREATE TABLE `password` (
   `sponsor` tinyint(1) NOT NULL default 0,
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `login_remaining` int DEFAULT NULL,
+  `trigger_radius_mfa` varchar(255) default NULL,
+  `trigger_portal_mfa` varchar(255) default NULL,
   PRIMARY KEY (pid),
   KEY password_category (category),
   UNIQUE KEY pid_password_unique (pid)
