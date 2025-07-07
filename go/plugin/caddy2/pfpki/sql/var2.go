@@ -2,10 +2,13 @@ package sql
 
 import (
 	"errors"
+	"net/http"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
+
+	jsonv2 "github.com/go-json-experiment/json"
 )
 
 type Vars2 struct {
@@ -74,9 +77,10 @@ func (vars *Vars2) SqlSelect(class interface{}) (string, error) {
 
 func (vars *Vars2) SqlOrder(class interface{}) (string, error) {
 	if len(vars.Sort) == 0 {
-		f, _ := reflect.TypeOf(vars).FieldByName("Sort")
+		f, _ := reflect.TypeOf(vars).Elem().FieldByName("Sort")
 		vars.Sort = append(vars.Sort, f.Tag.Get("default"))
 	}
+
 	classFields := SqlFields(class)
 	orderFields := make([]string, 0)
 	var valid bool = false
@@ -107,6 +111,7 @@ func (vars *Vars2) SqlOrder(class interface{}) (string, error) {
 			}
 		}
 	}
+
 	return strings.Join(orderFields, ","), nil
 }
 
@@ -114,27 +119,44 @@ func (vars *Vars2) SqlOffset() (int, error) {
 	var defaultCursor int
 	var err error
 	if vars.Cursor < 0 {
-		f, _ := reflect.TypeOf(vars).FieldByName("Cursor")
+		f, _ := reflect.TypeOf(vars).Elem().FieldByName("Cursor")
 
 		if defaultCursor, err = strconv.Atoi(f.Tag.Get("default")); err != nil {
 			return 0, err
 		}
 		return defaultCursor, nil
-	} else {
-		return vars.Cursor, nil
 	}
+
+	return vars.Cursor, nil
 }
 
 func (vars *Vars2) SqlLimit() (int, error) {
 	var defaultLimit int
 	var err error
 	if vars.Limit <= 0 {
-		f, _ := reflect.TypeOf(vars).FieldByName("Limit")
+		f, _ := reflect.TypeOf(vars).Elem().FieldByName("Limit")
 		if defaultLimit, err = strconv.Atoi(f.Tag.Get("default")); err != nil {
 			return 0, err
 		}
+
 		return defaultLimit, nil
-	} else {
-		return vars.Limit, nil
 	}
+
+	return vars.Limit, nil
+}
+
+func VarsFromHttpRequest(req *http.Request) (*Vars2, error) {
+	vars := Vars2{}
+	defer req.Body.Close()
+	err := jsonv2.UnmarshalRead(
+		req.Body,
+		&vars,
+		jsonv2.WithUnmarshalers(SearchOpUnmarshalers),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &vars, nil
 }
