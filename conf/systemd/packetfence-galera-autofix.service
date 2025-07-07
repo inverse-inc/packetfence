@@ -11,6 +11,9 @@ Slice=packetfence-base.slice
 User=root
 # Prevents systemd on giving up on the restart of this service
 StartLimitInterval=0
+# iptables rules
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_galera_autofix_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_galera_autofix_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence-base.target

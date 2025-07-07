@@ -18,6 +18,5 @@ Slice=packetfence.slice
 ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("add")'
 ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("REMOVE")'
 
-
 [Install]
 WantedBy=packetfence.target
