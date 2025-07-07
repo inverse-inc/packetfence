@@ -388,12 +388,8 @@ sub iptables_haproxy_portal_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
 	    $chains->{'name'} = $service_name;
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            if ($cluster_enabled) {
-                my $web_admin_port = $Config{'ports'}{'admin'};
-                util_safe_push( "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            }
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Management interface is not set.");
@@ -403,8 +399,8 @@ sub iptables_haproxy_portal_rules {
 	$chains->{'name'} = $service_name;
         foreach my $portal_interface ( @portal_ints ) {
             my $tint = $portal_interface->tag("int");
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Portal Ints are not set.");
@@ -414,8 +410,8 @@ sub iptables_haproxy_portal_rules {
 	$chains->{'name'} = $service_name;
         foreach my $network ( @inline_enforcement_nets ) {
             my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
@@ -425,8 +421,8 @@ sub iptables_haproxy_portal_rules {
 	$chains->{'name'} = $service_name;
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Vlan Enforcement Nets are not set.");
@@ -456,7 +452,7 @@ sub iptables_radiusd_lb_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
 	    $chains->{'name'} = $service_name;
-            util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Management Interface is not set.");
@@ -466,7 +462,7 @@ sub iptables_radiusd_lb_rules {
 	$chains->{'name'} = $service_name;
         foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Radius Ints are not set.");
@@ -497,8 +493,8 @@ sub iptables_keepalived_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             $chains->{'name'} = $service_name;
-            util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p vrrp -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} ) if ($cluster_enabled);
+            util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
         }
     } else {
         $logger->warn("Service $service_name: Management Interface is not set.");
@@ -508,8 +504,8 @@ sub iptables_keepalived_rules {
         $chains->{'name'} = $service_name;
         foreach my $portal_interface ( @portal_ints ) {
             my $tint = $portal_interface->tag("int");
-            util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p vrrp -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} ) if ($cluster_enabled);
+            util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
         }
     } else {
         $logger->warn("Service $service_name: Portal Ints are not set.");
@@ -519,8 +515,8 @@ sub iptables_keepalived_rules {
         $chains->{'name'} = $service_name;
         foreach my $radius_interface ( @radius_ints ) {
             my $tint = $radius_interface->tag("int");
-            util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( @{$chains->{'filter'}{'INPUT'}} , "-i $tint -p vrrp -j ACCEPT") if ($cluster_enabled);
+            util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
         }
     } else {
         $logger->warn("Service $service_name: Radius Ints are not set.");
@@ -549,7 +545,7 @@ sub iptables_proxysql_rules {
         my $chains = util_create_chains();
         $chains->{'name'} = $service_name;
         my $tint = $management_network->{Tint};
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 6033 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 6033 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     } else {
@@ -571,14 +567,14 @@ sub iptables_haproxy_admin_rules {
        return;
     }
     my $logger = get_logger();
-    if (ref($management_network) && exists $management_network->{Tint} ) {
+    if ( ref($management_network) && exists $management_network->{Tint} ) {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             my $chains = util_create_chains();
             $chains->{'name'} = $service_name;
             my $tint = $management_network->{Tint};
             my $web_admin_port = $Config{'ports'}{'admin'};
-            util_safe_push( $chains->{'filter'}{'INPUT'} , "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT" );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
@@ -607,7 +603,7 @@ sub iptables_httpd_webservices_rules {
             my $chains = util_create_chains();
             $chains->{'name'} = $service_name;
             my $webservices_port = $Config{'ports'}{'soap'};
-            util_safe_push( "-i $tint -p tcp -m tcp --dport $webservices_port -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport $webservices_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
@@ -635,7 +631,7 @@ sub iptables_snmptrapd_rules {
         if ( $tint ne "" ) {
             my $chains = util_create_chains();
             $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -p udp -m udp --dport 162 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 162 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
@@ -664,7 +660,7 @@ sub iptables_httpd_aaa_rules {
             my $chains = util_create_chains();
             $chains->{name} = $service_name;
             my $aaa_port = $Config{'ports'}{'aaa'};
-            util_safe_push( "-i $tint -p tcp -m tcp --dport $aaa_port -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport $aaa_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
@@ -694,7 +690,7 @@ sub iptables_httpd_dispatcher_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Management Interface is not set.");
@@ -703,7 +699,7 @@ sub iptables_httpd_dispatcher_rules {
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
             $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 5252 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: No Vlan Enforcement Nets is not set.");
@@ -734,7 +730,7 @@ sub iptables_api_frontend_rules {
             my $chains = util_create_chains();
             $chains->{name} = $service_name;
             my $unifiedapi_port = $Config{'ports'}{'unifiedapi'};
-            util_safe_push( "-i $tint -p tcp -m tcp --dport $unifiedapi_port -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport $unifiedapi_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
@@ -763,7 +759,7 @@ sub iptables_httpd_portal_rules {
         if ( $tint ne "" ) {
             $chains->{name} = $service_name;
             my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
-            util_safe_push( "-i $tint -p tcp -m tcp --dport $httpd_portal_modstatus -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport $httpd_portal_modstatus -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Management Interface is not set.");
@@ -803,8 +799,8 @@ sub iptables_haproxy_db_rules {
         if ( $tint ne "" ) {
             my $chains = util_create_chains();
             $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 1025 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 1025 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
@@ -832,8 +828,8 @@ sub iptables_radiusd_acct_rules {
         $chains->{name} = $service_name;
         foreach my $radius_interface ( @radius_ints ) {
             my $tint = $radius_interface->tag("int");
-            util_safe_push( "-i $tint -p udp -m udp --dport 1813 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( @{$chains->{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1823 -j ACCEPT") if ($cluster_enabled);
+            util_safe_push( "-i $tint -p udp -m udp --dport 1813 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 1823 -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
         }
         util_create_service_rules($chains);
     } else {
@@ -860,8 +856,8 @@ sub iptables_pfacct_rules {
         $chains->{name} = $service_name;
         foreach my $radius_interface ( @radius_ints ) {
             my $tint = $radius_interface->tag("int");
-            util_safe_push( "-i $tint -p udp -m udp --dport 1813 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( @{$chains->{'filter'}{'INPUT'}} , "-i $tint -p udp -m udp --dport 1823 -j ACCEPT") if ($cluster_enabled);
+            util_safe_push( "-i $tint -p udp -m udp --dport 1813 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 1823 -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
         }
         util_create_service_rules($chains);
     } else {
@@ -888,10 +884,10 @@ sub iptables_radiusd_auth_rules {
         $chains->{name} = $service_name;
 	foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 1812 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 2083 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 2093 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p udp -m udp --dport 1822 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} ) if ($cluster_enabled);
+            util_safe_push( "-i $tint -p udp -m udp --dport 1812 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 2083 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 2093 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 1822 -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
         }
         util_create_service_rules($chains);
     } else {
@@ -918,8 +914,8 @@ sub iptables_radiusd_cli_rules {
         $chains->{name} = $service_name;
 	foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 1815 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p udp -m udp --dport 1825 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} ) if ($cluster_enabled);
+            util_safe_push( "-i $tint -p udp -m udp --dport 1815 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 1825 -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
         }
         util_create_service_rules($chains);
     } else {
@@ -946,8 +942,8 @@ sub iptables_pfdns_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Management interface is not set.");
@@ -955,8 +951,8 @@ sub iptables_pfdns_rules {
     if ( @dns_ints ) {
         $chains->{name} = $service_name;
         foreach my $tint ( @dns_ints ) {
-            util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: DNS Ints are not set.");
@@ -965,8 +961,8 @@ sub iptables_pfdns_rules {
         $chains->{name} = $service_name;
         foreach my $network ( @inline_enforcement_nets ) {
             my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
@@ -975,8 +971,8 @@ sub iptables_pfdns_rules {
         $chains->{name} = $service_name;
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
@@ -992,8 +988,8 @@ sub iptables_pfdns_rules {
                 if ($tint =~ m/(\w+):\d+/) {
                     $tint = $1;
                 }
-                util_safe_push( "-i $tint -d $internal_portal_ip -p tcp -m tcp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                util_safe_push( "-i $tint -d $internal_portal_ip -p udp -m udp --dport 53 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                util_safe_push( "-i $tint -d $internal_portal_ip -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                util_safe_push( "-i $tint -d $internal_portal_ip -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             }
         }
     } else {
@@ -1042,13 +1038,13 @@ sub dns_interception_rules {
                     if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
                         foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
                             my $rule = "-p tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
-                            util_safe_push( "-i $tint $rule -j DNAT --to $destination", @{$chains->{'nat'}{'PREROUTING'}} );
+                            util_safe_push( "-i $tint $rule -j DNAT --to $destination", $chains->{'nat'}{'PREROUTING'} );
                         }
                     }
                     my $rule = "-p udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-                    util_safe_push( "-i $tint $rule -j DNAT --to $destination", @{$chains->{'nat'}{'PREROUTING'}} );
+                    util_safe_push( "-i $tint $rule -j DNAT --to $destination", $chains->{'nat'}{'PREROUTING'} );
                     $rule    = "-p tcp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-                    util_safe_push( "-i $tint $rule -j DNAT --to $destination", @{$chains->{'nat'}{'PREROUTING'}} );
+                    util_safe_push( "-i $tint $rule -j DNAT --to $destination", $chains->{'nat'}{'PREROUTING'} );
                 }
             }
         }
@@ -1061,7 +1057,7 @@ sub dns_interception_rules {
                 my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
                 if (is_type_inline($enforcement_type)) {
                     my $rule = "-p tcp --destination-port $intercept_port";
-                    util_safe_push( "-i $tint -d $internal_portal_ip $rule -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                    util_safe_push( "-i $tint -d $internal_portal_ip $rule -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 }
             }
         }
@@ -1091,16 +1087,16 @@ sub dns_oauth_passthrough_rules {
                 }
                 my ($type,$chain) = get_network_type_and_chain($ip);
                 if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
-                    util_safe_push( "-i $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                    util_safe_push( "-i $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                    util_safe_push( "-o $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                    util_safe_push( "-o $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
+                    util_safe_push( "-i $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                    util_safe_push( "-i $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                    util_safe_push( "-o $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                    util_safe_push( "-o $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
                 }
                 if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
-                    util_safe_push( "-i $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                    util_safe_push( "-i $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                    util_safe_push( "-o $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                    util_safe_push( "-o $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
+                    util_safe_push( "-i $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                    util_safe_push( "-i $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                    util_safe_push( "-o $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                    util_safe_push( "-o $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
                 }
             }
         }
@@ -1118,10 +1114,10 @@ sub dns_oauth_passthrough_rules {
                 if ( pf::config::is_network_type_inline($network) ) {
                     my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                     if (defined ($nat) && (isenabled($nat))) {
-                        util_safe_push( "-s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", @{$chains->{'nat'}{'POSTROUTING'}} );
+                        util_safe_push( "-s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $chains->{'nat'}{'POSTROUTING'} );
                     }
                 } else {
-                   util_safe_push( "-s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", @{$chains->{'nat'}{'POSTROUTING'}} );
+                   util_safe_push( "-s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $chains->{'nat'}{'POSTROUTING'} );
                 }
             }
         }
@@ -1135,10 +1131,10 @@ sub dns_oauth_passthrough_rules {
                 if ( pf::config::is_network_type_inline($network) ) {
                     my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                     if (defined ($nat) && (isenabled($nat))) {
-                        util_safe_push( @{$chains->{'nat'}{'POSTROUTING'}} , "-s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address );
+                        util_safe_push( "-s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address , $chains->{'nat'}{'POSTROUTING'} );
                     }
                 } else {
-                    util_safe_push( @{$chains->{'nat'}{'POSTROUTING'}} , "-s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address );
+                    util_safe_push( "-s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address , $chains->{'nat'}{'POSTROUTING'} );
                 }
             }
         }
@@ -1165,7 +1161,7 @@ sub iptables_pfdhcp_rules {
         my $tint = $management_network->{Tint};
         if ( $tint ne "" ) {
             $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Management Interface is not set.");
@@ -1174,7 +1170,7 @@ sub iptables_pfdhcp_rules {
     if ( @dhcp_ints ) {
         $chains->{name} = $service_name;
         foreach my $tint ( @dhcp_ints ) {
-            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: DHCP Ints are not set.");
@@ -1183,7 +1179,7 @@ sub iptables_pfdhcp_rules {
     if ( @dhcplistener_ints ) {
         $chains->{name} = $service_name;
         foreach my $tint ( @dhcplistener_ints ) {
-            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: DHCP Listener Ints are not set.");
@@ -1193,7 +1189,7 @@ sub iptables_pfdhcp_rules {
         $chains->{name} = $service_name;
         foreach my $network ( @inline_enforcement_nets ) {
             my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
@@ -1203,7 +1199,7 @@ sub iptables_pfdhcp_rules {
         $chains->{name} = $service_name;
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: Vlan Enforcement Nets are not set.");
@@ -1225,38 +1221,38 @@ sub iptables_pfdhcp_rules {
                 if ( $type eq $pf::config::NET_TYPE_VLAN_REG && $chain eq "input-internal-isol_vlan-if" ) {
                     if ( $interface->tag("vip") ){
                         my $vip = $interface->tag("vip");
-                        util_safe_push( "-i $tint -d $vip -p tcp -m tcp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d $vip -p udp -m udp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                        util_safe_push( "-i $tint -d $vip -p tcp -m tcp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d $vip -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                     }
                     if ( $interface->tag('ip') ){
                         my $tip = $interface->tag('ip');
-                        util_safe_push( "-i $tint -d $tip -p tcp -m tcp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d $tip -p udp -m udp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                        util_safe_push( "-i $tint -d $tip -p tcp -m tcp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d $tip -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                     }
-                    util_safe_push( "-i $tint -d $internal_portal_ip -p tcp -m tcp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                    util_safe_push( "-i $tint -d $internal_portal_ip -p udp -m udp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                    util_safe_push( "-i $tint -d $internal_portal_ip -p tcp -m tcp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                    util_safe_push( "-i $tint -d $internal_portal_ip -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                     if ($cluster_enabled) {
                         my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
-                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport 647 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d $cluster_ip -p udp -m udp --dport 647 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport 647 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d $cluster_ip -p udp -m udp --dport 647 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                     }
-                    util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                    util_safe_push( "-i $tint -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                    util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                    util_safe_push( "-i $tint -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 }
             } elsif (is_type_inline($enforcement_type)) {
                 if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
                     $logger->info("Adding Proxy interception rules");
                     my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
                     foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                        util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", @{$chains->{'filter'}{'INPUT'}} );
+                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                        util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $chains->{'filter'}{'INPUT'} );
                     }
                 }
             }
@@ -1287,14 +1283,14 @@ sub iptables_netdata_rules {
         if ( $tint ne "" ) {
             my $chains = util_create_chains();
             $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 19999 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             if ($cluster_enabled) {
                 push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
                 foreach my $mgmt_back (uniq(@mgmt_backend)) {
-                    util_safe_push( "-i $tint -p tcp -m tcp -s $mgmt_back --dport 19999 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                    util_safe_push( "-i $tint -p tcp -m tcp -s $mgmt_back --dport 19999 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 }
             }
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 19999 -j DROP", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 19999 -j DROP", $chains->{'filter'}{'INPUT'} );
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
@@ -1328,7 +1324,7 @@ sub iptables_pfconnector_server_rules {
             push @pfconnector_ips, $management_network->{Tip};
             @pfconnector_ips = uniq sort @pfconnector_ips;
             for my $ip (@pfconnector_ips) {
-                util_safe_push( "-i $tint -p tcp -m multiport -s $ip --dports 23001:23256 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                util_safe_push( "-i $tint -p tcp -m multiport -s $ip --dports 23001:23256 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             }
             # Convert to JSON and save to file
             util_create_service_rules($chains);
@@ -1359,14 +1355,14 @@ sub iptables_galera_autofix_rules {
             my $chains = util_create_chains();
             if ($cluster_enabled) {
                 $chains->{name} = $service_name;
-                util_safe_push( "-i $tint -p udp -m udp --dport 4253 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                util_safe_push( "-i $tint -p udp -m udp --dport 4253 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             } else {
                 $logger->warn("Service $service_name: Cluster is not enable.");
             }
             if ( @dhcplistener_ints ) {
                 $chains->{name} = $service_name;
                 foreach my $tint ( @dhcplistener_ints ) {
-                    util_safe_push( "-i $tint -p udp -m udp --dport 4253 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                    util_safe_push( "-i $tint -p udp -m udp --dport 4253 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 }
             } else {
                 $logger->warn("Service $service_name: Dhcplistener Ints is not set.");
@@ -1399,11 +1395,11 @@ sub iptables_mariadb_rules {
         if ( $tint ne "" ) {
             my $chains = util_create_chains();
             $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             if ($cluster_enabled) {
-                util_safe_push( @{$chains->{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 4444 -j ACCEPT");
-                util_safe_push( @{$chains->{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 4567 -j ACCEPT");
-                util_safe_push( @{$chains->{'filter'}{'INPUT'}} , "-i $tint -p tcp -m tcp --dport 4568 -j ACCEPT");
+                util_safe_push( "-i $tint -p tcp -m tcp --dport 4444 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                util_safe_push( "-i $tint -p tcp -m tcp --dport 4567 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                util_safe_push( "-i $tint -p tcp -m tcp --dport 4568 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             } else {
                 $logger->warn("Service $service_name: Cluster is not enable.");
             }
@@ -1435,7 +1431,7 @@ sub iptables_mysql_prob_rules {
         if ( $tint ne "" ) {
             my $chains = util_create_chains();
             $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 3307 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 3307 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
@@ -1462,15 +1458,15 @@ sub iptables_kafka_rules {
     if (ref($management_network) && exists $management_network->{Tint} ) {
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 9092 --jump ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 9093 --jump ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 29092 --jump ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 9092 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 9093 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 29092 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         if ( $tint ne "" ) {
             my $chains = util_create_chains();
             if ( @{$ConfigKafka{iptables}{clients}} ) {
                 $chains->{name} = $service_name;
                 for my $client (@{$ConfigKafka{iptables}{clients}}) {
-                    util_safe_push( "-i $tint -p tcp -m tcp -s $client --dport 9092 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                    util_safe_push( "-i $tint -p tcp -m tcp -s $client --dport 9092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 }
             } else {
                 $logger->warn("Service $service_name: No ConfigKafka iptables clients is available.");
@@ -1478,9 +1474,9 @@ sub iptables_kafka_rules {
             if ( @{$ConfigKafka{iptables}{cluster_ips}} ) {
                 $chains->{name} = $service_name;
                 for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
-                    util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 29092 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                    util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9092 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                    util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9093 -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                    util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 29092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                    util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                    util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9093 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 }
             } else {
                 $logger->warn("Service $service_name: No ConfigKafka iptables cluster_ips is available.");
@@ -1514,7 +1510,7 @@ sub iptables_docker_dnat_rules {
     if ( $mgmt_ip ne "" ) {
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-        util_safe_push( "-p udp -s 100.64.0.0/10 -d $mgmt_ip -j DNAT --to 100.64.0.1", @{$chains->{'nat'}{'PREROUTING'}} );
+        util_safe_push( "-p udp -s 100.64.0.0/10 -d $mgmt_ip -j DNAT --to 100.64.0.1", $chains->{'nat'}{'PREROUTING'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     } else {
@@ -1539,7 +1535,7 @@ sub iptables_fingerbank_collector_rules {
     if (netflow_enabled()) {
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-        util_safe_push( "-j NETFLOW", @{$chains->{'filter'}{'FORWARD'}} );
+        util_safe_push( "-j NETFLOW", $chains->{'filter'}{'FORWARD'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     } else {
@@ -1569,19 +1565,19 @@ sub iptables_radiusd_eduroam_rules {
         my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
         my $eduroam_listening_port_backend = $eduroam_listening_port + 10;
         my $mgnt_zone = $management_network->{Tint};
-        util_safe_push( "-i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-        util_safe_push( "-i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+        util_safe_push( "-i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         if ($cluster_enabled) {
-            util_safe_push( @{$chains->{'filter'}{'INPUT'}} , "-i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT");
-            util_safe_push( @{$chains->{'filter'}{'INPUT'}} , "-i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT");
+            util_safe_push( "-i $mgnt_zone -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $mgnt_zone -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
         foreach my $network ( @radius_ints ) {
             my $tint = $network->{Tint};
-            util_safe_push( "-i $tint -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-            util_safe_push( "-i $tint -p udp -m udp --dport $eduroam_listening_port -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport $eduroam_listening_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p udp -m udp --dport $eduroam_listening_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             if ($cluster_enabled) {
-                util_safe_push( "-i $tint -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
-                util_safe_push( "-i $tint -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT", @{$chains->{'filter'}{'INPUT'}} );
+                util_safe_push( "-i $tint -p tcp -m tcp --dport $eduroam_listening_port_backend -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                util_safe_push( "-i $tint -p udp -m udp --dport $eduroam_listening_port_backend -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             }
         }
     } else {
@@ -1624,16 +1620,16 @@ sub iptables_pfipset_rules {
                 my ($type,$chain) = get_network_type_and_chain($ip);
                 if ( $type eq $pf::config::NET_TYPE_VLAN_REG) {
                     if ( $passthrough_enabled && ( $type eq $pf::config::NET_TYPE_VLAN_REG ) ) {
-                        util_safe_push( "-i $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                        util_safe_push( "-o $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                        util_safe_push( "-i $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                        util_safe_push( "-o $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
+                        util_safe_push( "-i $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                        util_safe_push( "-o $tint -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                        util_safe_push( "-i $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                        util_safe_push( "-o $tint -m set --match-set pfsession_passthrough src,src -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
                     }
                     if ( $isolation_passthrough_enabled && ( $type eq $pf::config::NET_TYPE_VLAN_ISOL ) ) {
-                        util_safe_push( "-i $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                        util_safe_push( "-o $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                        util_safe_push( "-i $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                        util_safe_push( "-o $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
+                        util_safe_push( "-i $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                        util_safe_push( "-o $tint -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                        util_safe_push( "-i $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                        util_safe_push( "-o $tint -m set --match-set pfsession_isol_passthrough src,src -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
                     }
                 }
             }
@@ -1724,14 +1720,14 @@ sub inline_nat_back_rules {
                 my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                 if ( defined ( $nat ) && ( isdisabled($nat) ) ) {
-                  util_safe_push( "-d $network/$inline_obj->{BITS} -i $tint -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
+                  util_safe_push( "-d $network/$inline_obj->{BITS} -i $tint -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
                 }
             }
-            util_safe_push( "-m state --state ESTABLISHED,RELATED -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
+            util_safe_push( "-m state --state ESTABLISHED,RELATED -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
         }
         if($management_network) {
             my $mgmt_int = $management_network->tag("int");
-            util_safe_push( "-i $mgmt_int -m state --state ESTABLISHED,RELATED -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
+            util_safe_push( "-i $mgmt_int -m state --state ESTABLISHED,RELATED -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
         } else {
             $logger->info("NO Action taken on nat back inline rules to forwaard for management network.");
         }
@@ -1756,21 +1752,21 @@ sub inline_generate_rules {
             my $gateway = $Config{"interface $tint"}{'ip'};
 
             my $rule = "-p udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-            util_safe_push( @{$chains->{'nat'}{'PREROUTING'}} , "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway");
-            util_safe_push( @{$chains->{'nat'}{'PREROUTING'}} , "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway");
+            util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
+            util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
 
             if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
                 $rule = "-p udp --destination-port 53 -s $ConfigNetworks{$network}{'reg_network'}";
-                util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", @{$chains->{'nat'}{'PREROUTING'}} );
-                util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", @{$chains->{'nat'}{'PREROUTING'}} );
+                util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
+                util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
             }
 
             if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
                 $logger->info("Adding Proxy interception rules");
                 foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
                     my $rule = "-p tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
-                    util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", @{$chains->{'nat'}{'PREROUTING'}} );
-                    util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", @{$chains->{'nat'}{'PREROUTING'}} );
+                    util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
+                    util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
                 }
             }
         }
@@ -1783,8 +1779,8 @@ sub inline_generate_rules {
             # Set the correct gateway if it is an inline Layer 3 network
             my $tint = $NetworkConfig{$network}{'interface'}{'int'};
             if ($passthrough_enabled) {
-                util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
-                util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_ISOLATION -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
+                util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+                util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_ISOLATION -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
             }
             util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_REG -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
         }
@@ -1809,7 +1805,7 @@ sub inline_nat_if_src_rules {
             # inline enforcement
             if (is_type_inline($enforcement_type)) {
                 # send everything from inline interfaces to the inline chain
-                util_safe_push( "-o $tint -j MASQUERADE", @{$chains->{'nat'}{'POSTROUTING'}} );
+                util_safe_push( "-o $tint -j MASQUERADE", $chains->{'nat'}{'POSTROUTING'} );
             }
         }
 
@@ -1824,13 +1820,13 @@ sub inline_nat_if_src_rules {
                     my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                     my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                     if (defined ($nat) && (isdisabled($nat))) {
-                        util_safe_push( "-s $network/$inline_obj->{BITS} -o $tint -m mark --mark 0x$_ -j ACCEPT", @{$chains->{'nat'}{'POSTROUTING'}} );
+                        util_safe_push( "-s $network/$inline_obj->{BITS} -o $tint -m mark --mark 0x$_ -j ACCEPT", $chains->{'nat'}{'POSTROUTING'} );
                     }
                 }
-                util_safe_push( "-o $tint -m mark --mark 0x$_ -j MASQUERADE", @{$chains->{'nat'}{'POSTROUTING'}} );
+                util_safe_push( "-o $tint -m mark --mark 0x$_ -j MASQUERADE", $chains->{'nat'}{'POSTROUTING'} );
             }
             my $mgmt_int = $management_network->tag("int");
-            util_safe_push( "-o $mgmt_int -m mark --mark 0x$_ -j MASQUERADE", @{$chains->{'nat'}{'POSTROUTING'}} );
+            util_safe_push( "-o $mgmt_int -m mark --mark 0x$_ -j MASQUERADE", $chains->{'nat'}{'POSTROUTING'} );
         }
         $logger->info("Inline if src rules are done for NAT.");
     } else {
@@ -1851,7 +1847,7 @@ sub inline_mangle_rules {
         foreach my $network ( keys %ConfigNetworks ) {
             next if ( !pf::config::is_network_type_inline($network) );
             my $tint = $NetworkConfig{$network}{'interface'}{'int'};
-            util_safe_push( "-i $tint -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", @{$chains->{'mangle'}{'PREROUTING'}} );
+            util_safe_push( "-i $tint -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", $chains->{'mangle'}{'PREROUTING'} );
             foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
                 my $rule = "";
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
@@ -1860,9 +1856,9 @@ sub inline_mangle_rules {
                     $rule .= " -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
                 }
                 $rule .= "-j MARK --set-mark 0x$IPTABLES_MARK";
-                util_safe_push( "-i $tint $rule", @{$chains->{'mangle'}{'PREROUTING'}} );
+                util_safe_push( "-i $tint $rule", $chains->{'mangle'}{'PREROUTING'} );
             }
-            util_safe_push( "-o $tint -j ACCEPT", @{$chains->{'mangle'}{'POSTROUTING'}} );
+            util_safe_push( "-o $tint -j ACCEPT", $chains->{'mangle'}{'POSTROUTING'} );
         }
 
         # Build lookup table for MAC/IP mapping
@@ -1935,7 +1931,7 @@ sub inline_mangle_rules {
         $logger->info("Mangle rules inline snat interface starts.");
         $chains->{name} = $service_name;
         foreach my $tint (@values) {
-            util_safe_push( "-o $tint -j ACCEPT", @{$chains->{'mangle'}{'POSTROUTING'}} );
+            util_safe_push( "-o $tint -j ACCEPT", $chains->{'mangle'}{'POSTROUTING'} );
         }
         $logger->info("Mangle rules inline snat interface are done.");
     }
@@ -1956,9 +1952,9 @@ sub inline_nat_redirect_rules {
             my $tint = $NetworkConfig{$network}{'interface'}{'int'};
             if ($passthrough_enabled) {
                 $rule = " -m set --match-set pfsession_passthrough dst,dst -m mark --mark 0x$IPTABLES_MARK_UNREG -j ACCEPT";
-                util_safe_push( "-i $tint $rule", @{$chains->{'mangle'}{'PREROUTING'}} );
+                util_safe_push( "-i $tint $rule", $chains->{'mangle'}{'PREROUTING'} );
                 $rule = " -m set --match-set pfsession_isol_passthrough dst,dst -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j ACCEPT";
-                util_safe_push( "-i $tint $rule", @{$chains->{'mangle'}{'PREROUTING'}} );
+                util_safe_push( "-i $tint $rule", $chains->{'mangle'}{'PREROUTING'} );
             }
         }
         # Now, do your magic
@@ -1975,7 +1971,7 @@ sub inline_nat_redirect_rules {
                 $rule =
                 " -p $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
                 " -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway";
-                util_safe_push( "-i $tint $rule", @{$chains->{'mangle'}{'PREROUTING'}} );
+                util_safe_push( "-i $tint $rule", $chains->{'mangle'}{'PREROUTING'} );
             }
         }
         $logger->info("Nat redirect rules are done.");
