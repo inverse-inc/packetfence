@@ -1,6 +1,6 @@
 module github.com/inverse-inc/packetfence/go
 
-go 1.23.4
+go 1.24.4
 
 require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible // indirect
@@ -26,7 +26,6 @@ require (
 	github.com/go-errors/errors v1.0.1
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
@@ -225,6 +224,7 @@ require (
 	github.com/caddyserver/forwardproxy v0.0.0-20240314124830-ec0619230bc0
 	github.com/caddyserver/transform-encoder v0.0.0-20240312163748-f627fc4f7633
 	github.com/fatih/structtag v1.2.0
+	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b
 	github.com/huandu/go-clone/generic v1.6.0
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.29.0
@@ -265,7 +265,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fxamacker/cbor/v2 v2.6.0 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.3 // indirect
-	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
