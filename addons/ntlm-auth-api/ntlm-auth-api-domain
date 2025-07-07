@@ -4,7 +4,7 @@ source /usr/local/ntlm-auth-api/containers/systemd-service
 
 name=ntlm-auth-api
 
-conf_dir="/usr/local/ntlm-auth-api/var/conf/${name}.d/"
+conf_dir="/usr/local/ntlm-auth-api/var/conf/"
 
 env_file="$1.env"
 IDENTIFIER=$1

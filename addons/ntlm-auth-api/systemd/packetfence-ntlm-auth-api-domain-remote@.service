@@ -12,7 +12,7 @@ ExecStop=/bin/bash -c "docker stop ntlm-auth-api-%i; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/ntlm-auth-api/var/run/ntlm-auth-api-%i-systemd-notify.pid
-#EnvironmentFile=-/usr/local/pf/conf/log.conf.d/ntlm-auth-api.conf
+EnvironmentFile=-/usr/local/ntlm-auth-api/conf/log.conf.d/ntlm-auth-api.conf
 
 [Install]
 WantedBy=multi-user.target

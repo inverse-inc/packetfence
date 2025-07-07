@@ -5,7 +5,7 @@ source /usr/local/ntlm-auth-api/containers/systemd-service
 name=ntlm-auth-api
 pid=$$
 
-conf_dir="/usr/local/ntlm-auth-api/var/conf/${name}.d/"
+conf_dir="/usr/local/ntlm-auth-api/var/conf/"
 cd $conf_dir || exit 1
 env_files=$(ls *.env 2>/dev/null)
 

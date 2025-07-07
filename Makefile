@@ -355,6 +355,8 @@ ntlm_auth_api_remote_install:
 	install -v -m 0644 $(SRC_ROOT_DIR)/containers/ntlm-auth-api/Dockerfile -D $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)/ntlm-auth-api/Dockerfile
 	install -v -m 0644 $(SRC_ROOT_DIR)/config.mk $(DESTDIR)/config.mk
 
+	install -v -m 0644 ${SRC_CONFDIR}/log.conf.d/ntlm-auth-api.conf.example -D $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/log.conf.d/ntlm-auth-api.conf
+
 	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/build_id
 	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/pf-release
 	make -C $(SRC_GODIR) sdnotify-proxy
