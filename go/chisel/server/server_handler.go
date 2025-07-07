@@ -21,6 +21,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	"github.com/inverse-inc/packetfence/go/cluster"
+	connector "github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfk8s"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
@@ -89,6 +90,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/remote-fingerbank-collector-nba-conf":
 		s.handleRemoteFingerbankCollectorNbaConf(w, r)
+		return
+	case apiPrefix + "/remote-ntlm-auth-api-env":
+		s.handleRemoteNtlmAuthAPIEnv(w, r)
 		return
 	}
 	//missing :O
@@ -513,6 +517,27 @@ func (s *Server) handleLocalFingerbankCollectorEndpoints(w http.ResponseWriter, 
 	})
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
+}
+
+func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Request) {
+	connectorId := req.URL.Query().Get("CONNECTOR_ID")
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing CONNECTOR_ID query parameter"})
+		return
+	}
+	domain := pfconfigdriver.Domain{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &domain)
+	Connnectors := connector.NewConnectorsContainer(req.Context())
+	for _, Elements := range domain.Element {
+		ServerIp := Elements.(map[string]interface{})["ad_server"].(string)
+		Connector := Connnectors.ForIP(req.Context(), net.ParseIP(ServerIp))
+		if Connector.PfconfigHashNS == connectorId {
+			// We found the connector, we can return the env
+		}
+	}
+	w.Write([]byte("export var=val\n"))
+
 }
 
 func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *http.Request) {
