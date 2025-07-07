@@ -1,36 +1,5 @@
 ---
 - name: allow ssh on default interface for vagrant management
-  blockinfile:
-    path: "/usr/local/pf/conf/iptables-custom.conf.inc"
-    block: |
-        {
-           "filter" : {
-              "FORWARD" : [],
-              "INPUT" : [
-                 "# allow all ports for vagrant management",
-                 "-i {{ ansible_default_ipv4.interface }} -j ACCEPT",
-                 "# allow MailHog (SMTP and web interface) on management interface",
-                 "-i {{ packetfence_install__mgmt_interface['id'] }} --protocol tcp --match tcp --dport {{ mailhog__smtp_port }} --jump ACCEPT",
-                 "-i {{ packetfence_install__mgmt_interface['id'] }} --protocol tcp --match tcp --dport {{ mailhog__api_port }}  --jump ACCEPT",
-                 "# allow Smocker interface on management interface",
-                 "-i {{ packetfence_install__mgmt_interface['id'] }} --protocol tcp --match tcp --dport {{ smocker__port_config }} --jump ACCEPT",
-                 "# allow RADIUS mock ports on management interface",
-                 "-i {{ packetfence_install__mgmt_interface['id'] }} --protocol tcp --match tcp --dport {{ radius_mock__api_port }} --jump ACCEPT",
-                 "-i {{ packetfence_install__mgmt_interface['id'] }} --protocol tcp --match tcp --dport {{ radius_mock__radius_port }} --jump ACCEPT"
-              ],
-              "OUTPUT" :  []
-           },
-           "mangle" : {
-              "PREROUTING" : [],
-              "INPUT" : [],
-              "FORWARD" : [],
-              "OUTPUT" : [],
-              "POSTROUTING" : []
-           },
-           "nat" : {
-              "POSTROUTING" : [],
-              "OUTPUT" : [],
-              "PREROUTING" : []
-           }
-        }
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - vagrant"
+  template:
+    src: iptables-custom.conf.inc.j2
+    dest: "/usr/local/pf/conf/iptables-custom.conf.inc"
