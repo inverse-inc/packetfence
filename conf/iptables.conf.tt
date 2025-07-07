@@ -9,7 +9,6 @@
 [% END -%]
 [% END -%]
 [%- END -%]
-
 # Copyright (C) Inverse inc.
 # iptables template
 # This file is manipulated on PacketFence's startup before being given to iptables
@@ -21,8 +20,8 @@
 [% FOREACH name IN configs.keys.sort -%]
 # - [% name %]
 [% END -%]
-[% IF custom.name %]
-[% INCLUDE custom.name %]
+[%- IF custom.name -%]
+# - [% custom.name %]
 [% END -%]
 # Generated on [% USE date; date.format(date.now, '%Y-%m-%d %H:%M:%S') %]
 
@@ -97,7 +96,6 @@ COMMIT
 
 ### mangle PREROUTING chain ###
 :PREROUTING ACCEPT [0:0]
-#%%mangle_prerouting_inline%%
 
 [% IF custom.mangle.PREROUTING && custom.mangle.PREROUTING.size %]
 [% INCLUDE chain_rules chain='PREROUTING' rules=custom.mangle.PREROUTING %]
@@ -142,8 +140,6 @@ COMMIT
 
 ### mangle POSTROUTING chain ###
 :POSTROUTING ACCEPT [0:0]
-#%%mangle_postrouting_inline%%
-#%%mangle_if_src_to_chain%%
 
 [% IF custom.mangle.POSTROUTING && custom.mangle.POSTROUTING.size %]
 [% INCLUDE chain_rules chain='POSTROUTING' rules=custom.mangle.POSTROUTING %]
@@ -160,8 +156,6 @@ COMMIT
 
 ### nat PREROUTING chain ###
 :PREROUTING ACCEPT [0:0]
-#%%nat_prerouting_inline%%
-#%%nat_prerouting_vlan%%
 
 [% IF custom.nat.PREROUTING && custom.nat.PREROUTING.size %]
 [% INCLUDE chain_rules chain='PREROUTING' rules=custom.nat.PREROUTING %]
@@ -173,7 +167,6 @@ COMMIT
 
 ### nat OUTPUT chain ###
 :OUTPUT ACCEPT [0:0]
-#%%nat_if_src_to_chain%%
 
 [% IF custom.nat.OUTPUT && custom.nat.OUTPUT.size %]
 [% INCLUDE chain_rules chain='OUTPUT' rules=custom.nat.OUTPUT %]
@@ -185,9 +178,6 @@ COMMIT
 
 ### nat POSTROUTING chain ###
 :POSTROUTING ACCEPT [0:0]
-#%%nat_postrouting_inline%%
-#%%routed_postrouting_inline%%
-#%%nat_postrouting_vlan%%
 
 [% IF custom.nat.POSTROUTING && custom.nat.POSTROUTING.size %]
 [% INCLUDE chain_rules chain='POSTROUTING' rules=custom.nat.POSTROUTING %]

@@ -1,5 +1,4 @@
 {
-   "name": "Custom rules",
    "filter" : {
       "FORWARD" : [],
       "INPUT" :   [],

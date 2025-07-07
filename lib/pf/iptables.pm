@@ -37,6 +37,8 @@ use Switch;
 use Symbol qw(gensym);
 use File::Path qw(make_path);
 
+use Data::Dumper;
+
 BEGIN {
   use Exporter ();
   our ( @ISA, @EXPORT );
@@ -185,16 +187,13 @@ sub iptables_generate_config {
         return;
     }
 
-    my %custom_configs;
-    # Check for and load content from custom specific files if it exists
-    my @custom_files = ("iptables-custom.conf.inc");
-    foreach my $custom_file (@custom_files) {
-        #my $file = $conf_dir."/".$custom_file;
-        if ( util_add_custom_config_from_file( $custom_file, \%custom_configs ) ) {
-            $logger->info( "Successfully loaded custom configuration from $conf_dir/$custom_file" );
-        } else {
-            $logger->info( "No custom configuration file ($conf_dir/$custom_file) found" );
-        }
+    # Check for and load content from custom specific file if it exists
+    my $custom_file = "iptables-custom.conf.inc";
+    my $custom = util_add_custom_config_from_file( $custom_file );
+    if ($custom) {
+        $logger->info( "Successfully loaded custom configuration from $conf_dir/$custom_file" );
+    } else {
+        $logger->info( "No custom configuration file ($conf_dir/$custom_file) found" );
     }
 
     util_generated_iptables_fix_dir_permissions();
@@ -260,7 +259,7 @@ sub iptables_generate_config {
         "$conf_dir/iptables.conf.tt",
         {
             configs => \%configs,
-            custom  => \%custom_configs,
+            custom  => $custom,
             merged  => \%merged
         },
         "$generated_conf_dir/generated.iptables.conf"
@@ -2163,12 +2162,13 @@ sub util_add_custom_config_from_file {
 
     return 0 unless -e $file;
 
+    my %empty_hash;
     try {
         my $json_content = read_file($file);
         my $custom_config = decode_json($json_content);
         
         $custom_config->{'name'}=$filename;
-        
+
         my %allowed_structure = (
             filter => { INPUT => 1, FORWARD => 1, OUTPUT => 1 },
             mangle => { PREROUTING => 1, INPUT => 1, FORWARD => 1, OUTPUT => 1, POSTROUTING => 1 },
@@ -2180,14 +2180,15 @@ sub util_add_custom_config_from_file {
             next if $table eq 'name';
             
             unless (exists $allowed_structure{$table}) {
+                printf ("Invalid table '$table' in $filename");
                 $logger->warn("Invalid table '$table' in $filename");
-                return 0;
+                return \%empty_hash;
             }
             
             foreach my $chain (keys %{$custom_config->{$table}}) {
                 unless (exists $allowed_structure{$table}{$chain}) {
                     $logger->warn("Invalid chain '$chain' in table '$table' in $filename");
-                    return 0;
+                    return \%empty_hash;
                 }
                 
                 $has_rules = 1 if @{$custom_config->{$table}{$chain}};
@@ -2195,16 +2196,19 @@ sub util_add_custom_config_from_file {
         }
         
         if ($has_rules) {
-            $configs_ref->{$custom_config->{name}} = $custom_config;
-            return 1;
+            $logger->info("Rules available  in $filename");
+            return $custom_config;
+        } else {
+            $logger->warn("No rules available in $filename");
         }
         
         $logger->warn("Config in $filename contains no rules");
-        return 0;
+        return \%empty_hash;
     } catch {
         my $error = shift;
+        printf("Failed to process $filename: $error");
         $logger->warn("Failed to process $filename: $error");
-        return 0;
+        return \%empty_hash;
     };
 }
 
