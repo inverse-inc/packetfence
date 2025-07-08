@@ -238,8 +238,8 @@ func (t *SearchOpWrapper) UnmarshalJSONFrom(d *jsontext.Decoder) error {
 		return err
 	}
 
-	value := make([]byte, 0, len(d.UnreadBuffer()))
-	value = append(value, '{')
+	value := make([]byte, 1, len(d.UnreadBuffer()))
+	value[0] = '{'
 
 	typeFound := false
 	fields := 0
@@ -250,6 +250,7 @@ func (t *SearchOpWrapper) UnmarshalJSONFrom(d *jsontext.Decoder) error {
 			return err
 		}
 
+		name = bytes.Clone(name)
 		value = append(value, name...)
 		value = append(value, ':')
 		val, err := d.ReadValue()
