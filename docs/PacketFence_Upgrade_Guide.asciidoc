@@ -799,13 +799,14 @@ follow the upgrade instructions <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_st
 
 === Custom Iptables Rules
 
-The new version provide a dynamic iptables rules creations.
-Before restarting all services and if files [filename]`/usr/local/pf/conf/iptables-input.conf.inc` or [filename]`/usr/local/pf/conf/iptables-input-management.conf.inc` contain lines, it should be manually translated in a new json file: [filename]`/usr/local/pf/conf/iptables-custom.conf.inc`.
+The hosts iptables rules are dynamically created, and custom rules should be migrated before resarting any services.
 
-An example of the file is available here [filename]`/usr/local/pf/conf/iptables-custom.conf.inc.example`.
-That file is a json file will add rules on top of all other Packetfence rules for each tables or chains. The entry should only contain the rule without the "-A", the table and the chain.
-For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT, the file will be:
-[source,bash]
+Manually translate rules from both [filename]`/usr/local/pf/conf/iptables-input.conf.inc` and [filename]`/usr/local/pf/conf/iptables-input-management.conf.inc` in to the new JSON file [filename]`/usr/local/pf/conf/iptables-custom.conf.inc`.
+
+The custom configuration file appends the iptables rules on top of all other rules for all tables and chains. Each entry should only contain the rule without the "-A", and start with the `chain rule-specification [options]`.
+
+For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT:
+[source,json]
 ---
 {
    "filter" : {
@@ -832,6 +833,7 @@ For example: to open tcp port 123, and udp port 234 with interface the eth0 on f
 }
 ---
 
+An example file is available [filename]`/usr/local/pf/conf/iptables-custom.conf.inc.example`.
 
 
 == Archived upgrade notes
