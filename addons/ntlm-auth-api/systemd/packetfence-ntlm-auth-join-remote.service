@@ -1,0 +1,15 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence NTLM Auth join remote
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=60
+Type=notify
+WatchdogSec=30s
+Environment=LOG_LEVEL=INFO
+ExecStart=/usr/local/ntlm-auth-api/sbin/ntlm-join-remote
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
