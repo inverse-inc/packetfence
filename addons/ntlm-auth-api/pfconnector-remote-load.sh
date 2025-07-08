@@ -20,7 +20,7 @@ if [ ! -f "$INPUT_FILE" ]; then
     exit 1
 fi
 
-# Extraire les noms de domaine
+# Generate $domain.env files
 domains=$(jq -r 'keys[]' "$INPUT_FILE")
 
 for domain in $domains; do
@@ -33,3 +33,14 @@ for domain in $domains; do
     echo "LISTEN=$port" >> "$output_file"
     echo "IDENTIFIER=$domain" >> "$output_file"
 done
+
+# Generate domain.conf
+
+output_ini="/usr/local/ntlm-auth-api/conf/domain.conf"
+
+> "output_ini"
+
+jq -r 'to_entries[] |
+       "[\(.key)]",
+       (.value | to_entries[] | "\(.key)=\(.value)"),
+       ""' "$INPUT_FILE" >> "$output_ini"

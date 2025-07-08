@@ -98,7 +98,7 @@ function run_multi() {
 }
 function sdproxy() {
   SD_NOTIFY_PROXY=/usr/local/ntlm-auth-api/sbin/sdnotify-proxy
-  SD_SOCK=/usr/local/ntlm-auth-pi/var/run/$1-systemd-notify.sock
+  SD_SOCK=/usr/local/ntlm-auth-api/var/run/$1-systemd-notify.sock
   WATCHDOG_USEC_D=10000000
   $SD_NOTIFY_PROXY $SD_SOCK /usr/bin/docker run --volume=$SD_SOCK:$SD_SOCK --env NOTIFY_SOCKET=$SD_SOCK --env WATCHDOG_USEC=$WATCHDOG_USEC_D ${@:2}
 }

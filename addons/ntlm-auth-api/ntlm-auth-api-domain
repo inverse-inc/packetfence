@@ -22,6 +22,7 @@ args=$(base_args "${name}-${IDENTIFIER}")
 args="$args -v /usr/local/ntlm-auth-api/conf:/usr/local/pf/conf"
 args="$args -v /usr/local/ntlm-auth-api/logs:/usr/local/pf/logs"
 args="$args -v /usr/local/ntlm-auth-api/var/conf:/usr/local/pf/var/conf"
+args="$args -v /usr/local/ntlm-auth-api/sbin:/usr/local/pf/sbin"
 args="$args -v /var/log:/var/log:ro"
 args="$args -p $LISTEN:$LISTEN"
 args="$args -e LISTEN=$LISTEN"
