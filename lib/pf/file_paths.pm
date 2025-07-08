@@ -372,7 +372,6 @@ $cron_default_config_file = catfile($conf_dir,"pfcron.conf.defaults");
 $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
-$iptable_config_file = catfile($conf_dir, "iptables.conf");
 $iptable_custom_config_file = catfile($conf_dir, "iptables-custom.conf.inc");
 $ip6table_config_file = catfile($conf_dir, "ip6tables.conf");
 $ip6table_input_management_config_file = catfile($conf_dir, "ip6tables-input-management.conf.inc");

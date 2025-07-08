@@ -1273,7 +1273,6 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
-%config                 /usr/local/pf/conf/iptables.conf
 %config                 /usr/local/pf/conf/iptables.conf.tt
 %config(noreplace)      /usr/local/pf/conf/iptables-custom.conf.inc
 %config                 /usr/local/pf/conf/ip6tables.conf

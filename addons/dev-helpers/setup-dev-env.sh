@@ -54,8 +54,6 @@ mkdir -p /usr/local/pf/conf/ssl/acme-challenge
 cp /usr/local/pf-pkg/conf/pf.conf conf/
 cp /usr/local/pf-pkg/conf/pfconfig.conf conf/
 cp /usr/local/pf-pkg/conf/networks.conf conf/
-# to keep iptables rule for vagrant management
-cp /usr/local/pf-pkg/conf/iptables.conf conf/
 cp /usr/local/pf-pkg/sbin/sdnotify-proxy sbin/sdnotify-proxy
 
 log_section "Build web admin"
