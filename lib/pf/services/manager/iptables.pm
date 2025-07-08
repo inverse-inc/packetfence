@@ -29,25 +29,6 @@ has '+shouldCheckup' => ( default => sub { 1 }  );
 
 has 'runningServices' => (is => 'rw', default => sub { 0 } );
 
-
-=head2 start
-
-start iptables
-
-=cut
-
-sub startService {
-    my ($self) = @_;
-    my $technique;
-    unless ($self->isAlive()) {
-        $technique = getIptablesTechnique();
-        $technique->iptables_save($install_dir . '/var/iptables.bak');
-    }
-    $technique ||= getIptablesTechnique();
-    $technique->iptables_generate();
-    return 1;
-}
-
 =head2
 
 generateConfig
@@ -55,22 +36,8 @@ generateConfig
 =cut
 
 sub generateConfig {
-    my $technique;
-    $technique ||= getIptablesTechnique();
-    $technique->iptables_generate();
+    pf::iptables::iptables_generate_config();
     return 1;
-}
-
-=head2 getIptablesTechnique
-
-getIptablesTechnique
-
-=cut
-
-sub getIptablesTechnique {
-    require pf::inline::custom;
-    my $iptables = pf::inline::custom->new();
-    return $iptables->{_technique};
 }
 
 =head2 start
@@ -130,20 +97,7 @@ stop iptables (called from systemd)
 sub _stop {
     my ($self) = @_;
     my $logger = get_logger();
-    safe_pf_run(qw(sudo iptables -F));
-    safe_pf_run(qw(sudo iptables -X));
-    safe_pf_run(qw(sudo iptables -t nat -F));
-    safe_pf_run(qw(sudo iptables -t nat -X));
-    safe_pf_run(qw(sudo iptables -t mangle -F));
-    safe_pf_run(qw(sudo iptables -t mangle -X));
-    safe_pf_run(qw(sudo iptables -P INPUT ACCEPT));
-    safe_pf_run(qw(sudo iptables -P FORWARD ACCEPT));
-    safe_pf_run(qw(sudo iptables -P OUTPUT ACCEPT));
-    safe_pf_run(qw(sudo iptables -t nat -N DOCKER));
-    safe_pf_run(qw(sudo iptables -t nat -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER));
-    safe_pf_run(qw(sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER));
-    safe_pf_run(qw(sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE));
-    safe_pf_run(qw(sudo iptables -t nat -A DOCKER -i docker0 -j RETURN));
+    pf::iptables::iptables_flush_to_default();
     return 1;
 }
 

@@ -150,11 +150,33 @@ sub iptables_configreload {
     my $logger = get_logger();
     $logger->info( "Start config reload" );
     if ($force eq 1) {
+        iptables_flush_to_default();
         iptables_services_rules("REMOVE");
     }
     iptables_services_rules("ADD");
     iptables_generate_config();
 }
+
+sub iptables_flush_to_default {
+    my $logger = get_logger();
+    safe_pf_run(qw(sudo iptables -F));
+    safe_pf_run(qw(sudo iptables -X));
+    safe_pf_run(qw(sudo iptables -t nat -F));
+    safe_pf_run(qw(sudo iptables -t nat -X));
+    safe_pf_run(qw(sudo iptables -t mangle -F));
+    safe_pf_run(qw(sudo iptables -t mangle -X));
+    safe_pf_run(qw(sudo iptables -P INPUT ACCEPT));
+    safe_pf_run(qw(sudo iptables -P FORWARD ACCEPT));
+    safe_pf_run(qw(sudo iptables -P OUTPUT ACCEPT));
+    safe_pf_run(qw(sudo iptables -t nat -N DOCKER));
+    safe_pf_run(qw(sudo iptables -t nat -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER));
+    safe_pf_run(qw(sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER));
+    safe_pf_run(qw(sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE));
+    safe_pf_run(qw(sudo iptables -t nat -A DOCKER -i docker0 -j RETURN));
+    $logger->info( "Iptables have been flush to default" );
+    return 1;
+}
+
 
 =item iptables_save
 
@@ -283,8 +305,7 @@ sub iptables_restore_noflush {
     my ($self, $restore_file) = @_;
     my $logger = get_logger();
     if ( -r $restore_file ) {
-        $logger->info(
-            "restoring iptables (no flush) from " . $restore_file );
+        $logger->info( "restoring iptables (no flush) from " . $restore_file );
         safe_pf_run("/sbin/iptables-restore", '-n', {stdin => $restore_file});
     }
 }
