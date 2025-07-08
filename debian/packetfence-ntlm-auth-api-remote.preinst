@@ -19,9 +19,9 @@ case "$1" in
                 echo "pf user already exist"
         else
             if ! /usr/bin/id -g pf &>/dev/null; then
-                useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
+                useradd -r -d "/usr/local/ntlm-auth-api" -s /bin/sh -c "PacketFence" -M pf
             else
-                useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf
+                useradd -r -d "/usr/local/ntlm-auth-api" -s /bin/sh -c "PacketFence" -M pf -g pf
             fi
             echo "create pf user"
         fi
