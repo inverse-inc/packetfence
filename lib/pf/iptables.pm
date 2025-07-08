@@ -21,12 +21,9 @@ use strict;
 use warnings;
 
 use IO::Interface::Simple;
-use pf::log;
 use Readonly;
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
-use pf::constants;
-use pf::config::cluster;
 use URI ();
 use Sys::Hostname;
 use Template;
@@ -106,6 +103,9 @@ use pf::config qw(
     %mark_type_to_str
 );
 
+use pf::log;
+use pf::constants;
+use pf::config::cluster;
 use pf::file_paths qw($generated_conf_dir $conf_dir $generated_iptables_conf_dir);
 use pf::util;
 use pf::security_event qw(security_event_view_open_uniq security_event_count);
