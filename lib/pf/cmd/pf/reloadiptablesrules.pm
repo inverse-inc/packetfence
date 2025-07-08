@@ -42,7 +42,7 @@ sub action_hard {
 
 sub configreload {
   my ($self,$force)  = @_;
-  pf::firewalld::iptables_configreload($force);
+  pf::iptables::iptables_configreload($force);
   return $EXIT_SUCCESS;
 }
 
