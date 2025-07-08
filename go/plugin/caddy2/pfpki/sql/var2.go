@@ -151,7 +151,7 @@ func VarsFromHttpRequest(req *http.Request) (*Vars2, error) {
 	err := jsonv2.UnmarshalRead(
 		req.Body,
 		&vars,
-		jsonv2.WithUnmarshalers(SearchOpUnmarshalers),
+		jsonv2.WithUnmarshalers(SearchOpFromUnmarshalers),
 	)
 
 	if err != nil {
