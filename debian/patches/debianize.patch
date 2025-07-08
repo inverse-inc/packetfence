@@ -494,7 +494,7 @@ index 16524507dd..8773106fa3 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-pfipset.service b/conf/systemd/packetfence-pfipset.service
-index 6e70f47f3e..1f5132c7ef 100644
+index 67328ef811..59fea16fae 100644
 --- a/conf/systemd/packetfence-pfipset.service
 +++ b/conf/systemd/packetfence-pfipset.service
 @@ -10,13 +10,13 @@ StartLimitBurst=3
@@ -507,10 +507,10 @@ index 6e70f47f3e..1f5132c7ef 100644
  Restart=on-failure
  Slice=packetfence.slice
  # Iptable
--ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("add")'
--ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("REMOVE")'
-+ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("add")'
-+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::firewalld -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("REMOVE")'
+-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("add")'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("REMOVE")'
++ExecStartPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("add")'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_pfipset_rules("REMOVE")'
  
  [Install]
  WantedBy=packetfence.target
