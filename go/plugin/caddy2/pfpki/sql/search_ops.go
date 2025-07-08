@@ -50,13 +50,13 @@ func logicalOp(class interface{}, ops []SearchOp, op string) (Where, error) {
 }
 
 func betweenOp(op string, class interface{}, field string, values []interface{}) (Where, error) {
-	cleanField, err := checkField(class, field)
+	cleanedField, err := checkField(class, field)
 	if err != nil {
 		return Where{}, err
 	}
 
 	return Where{
-		Query:  fmt.Sprintf("`%s` %s ? AND ?", op, cleanField),
+		Query:  fmt.Sprintf("`%s` %s ? AND ?", cleanedField, op),
 		Values: append([]interface{}{}, values...),
 	}, nil
 }
@@ -299,7 +299,7 @@ func typeUnmarshal[T any](data []byte, opts ...jsontext.Options) (*T, error) {
 	return &t, nil
 }
 
-func (w *SearchOpWrapper) UnmarshmalSearchOp(opts ...jsontext.Options) (SearchOp, error) {
+func (w *SearchOpWrapper) UnmarshalSearchOp(opts ...jsontext.Options) (SearchOp, error) {
 	if simpleOp, found := simpleOps[w.Op]; found {
 		t, err := typeUnmarshal[SearchSimpleOP](w.Val, opts...)
 		if err != nil {
@@ -336,7 +336,7 @@ func SearchOpUnmarshalFromFunc(d *jsontext.Decoder, val *SearchOp) error {
 		return err
 	}
 
-	if t, err := w.UnmarshmalSearchOp(d.Options()); err != nil {
+	if t, err := w.UnmarshalSearchOp(d.Options()); err != nil {
 		return err
 	} else {
 		*val = t
