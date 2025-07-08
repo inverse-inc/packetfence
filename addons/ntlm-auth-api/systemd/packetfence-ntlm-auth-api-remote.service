@@ -13,6 +13,7 @@ ExecStart=/usr/local/ntlm-auth-api/sbin/ntlm-auth-api-docker-wrapper start
 ExecStop=/usr/local/ntlm-auth-api/sbin/ntlm-auth-api-docker-wrapper stop
 Restart=on-failure
 PIDFile=/usr/local/ntlm-auth-api/var/run/ntlm-auth-api.pid
+PartOf=packetfence-pfconnector-remote.service
 
 [Install]
 WantedBy=multi-user.target
