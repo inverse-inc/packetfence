@@ -78,7 +78,7 @@ testcases:
 
 - name: reload_iptables_rules
   steps:
-  - type: reloadiptablesrules
+  - type: pfcmd_reloadiptablesrules
     extra: hard
 
 - name: restart_pfdns_service
