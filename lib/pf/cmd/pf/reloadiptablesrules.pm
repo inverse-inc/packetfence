@@ -1,12 +1,12 @@
-package pf::cmd::pf::generateiptablesconfig;
+package pf::cmd::pf::reloadiptablesrules;
 
 =head1 NAME
 
-pf::cmd::pf::generateiptablesconfig
+pf::cmd::pf::reloadiptablesrules
 
 =head1 SYNOPSIS
 
- pfcmd generateiptablesconfig  [soft|hard]
+ pfcmd reloadiptablesrules  [soft|hard]
 
   Commands:
 
@@ -17,7 +17,7 @@ pf::cmd::pf::generateiptablesconfig
 
 =head1 DESCRIPTION
 
-Generates and apply firewalld rules
+Generates and apply dynamic iptables rules
 
 =cut
 
