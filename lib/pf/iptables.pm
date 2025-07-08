@@ -283,10 +283,10 @@ sub iptables_generate_config {
             custom  => $custom,
             merged  => \%merged
         },
-        "$generated_conf_dir/generated.iptables.conf"
+        "$generated_conf_dir/iptables_generated_rules.conf"
     ) or die $tt->error();
 
-    iptables_restore("$generated_conf_dir/generated.iptables.conf");
+    iptables_restore("$generated_conf_dir/iptables_generated_rules.conf");
 }
 
 sub iptables_restore {
