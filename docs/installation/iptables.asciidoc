@@ -1,0 +1,93 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+===== Dynamic Iptables rules
+
+Iptables are dynamic and each service is adding or removing port(s) according to their needs.
+
+===== Starting Service
+
+[source,bash]
+---
+systemctl start packetfence-iptables
+---
+
+Restarting the service should be done only when there is a modification on /usr/local/pf/lib/pf/iptables.pm.
+Once started, the service is checking modifications on the directory /usr/local/pf/var/conf/iptables/ and on the file /usr/local/pf/conf/iptables-custom.conf.inc.
+
+Any modification will result in a restart of iptables configuration rules.
+
+Each service generated rules can be find in the directory /usr/local/pf/var/conf/iptables/.
+
+===== Reload Iptables rules
+
+/usr/local/pf/bin/pfcmd is offering two ways to reload iptables configuration.
+The soft reload will trigger rebuild iptables rules according to running services.
+The hard reload will trigger a flush of all tables, a remove of all config files from the directory /usr/local/pf/var/conf/iptables/ and then do the same a soft reload.
+
+[source,bash]
+---
+/usr/local/pf/bin/pfcmd reloadiptablesrules
+/usr/local/pf/bin/pfcmd reloadiptablesrules hard
+---
+
+===== Setting custom Iptables rules
+
+It is possible to create custom iptables entry from a json file located in /usr/local/pf/conf/iptables-custom.conf.inc.
+
+An example of the file is available here /usr/local/pf/conf/iptables-custom.conf.inc.example.
+That file is a json file will add rules on top of all other Packetfence rules for each tables or chains. The entry should only contain the rule without the "-A", the table and the chain.
+For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT, the file will be:
+[source,bash]
+---
+{
+   "filter" : {
+      "FORWARD" : [],
+      "INPUT" :   [
+        "# allow tcp port 123 and udp port 234 on eth0 interface",
+         "-i eth0 --protocol tcp --match tcp --dport 123 --jump ACCEPT",
+         "-i eth0 -p udp -m udp --dport 234  --jump ACCEPT"
+      ],
+      "OUTPUT" :  []
+   },
+   "mangle" : {
+      "PREROUTING" : [],
+      "INPUT" : [],
+      "FORWARD" : [],
+      "OUTPUT" : [],
+      "POSTROUTING" : []
+   },
+   "nat" : {
+      "POSTROUTING" : [],
+      "OUTPUT" : [],
+      "PREROUTING" : []
+   }
+}
+---
+
+===== Check Iptables applied rules
+
+Generated and applied iptables rules are available in /usr/local/pf/var/conf/iptables_generated_rules.conf
+
+It is also possible to check rules with the following command lines:
+[source,bash]
+---
+iptables -L -n -v -t filter
+iptables -L -n -v -t mangle
+iptables -L -n -v -t nat
+---
