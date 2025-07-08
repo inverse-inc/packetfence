@@ -799,9 +799,10 @@ follow the upgrade instructions <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_st
 
 === Custom Iptables Rules
 
-The new version provide a dynamic iptables rules creations. If files /usr/local/pf/conf/iptables-input.conf.inc or /usr/local/pf/conf/iptables-input-management.conf.inc contain lines, it should be manually translated in a new json file: /usr/local/pf/conf/iptables-custom.conf.inc.
+The new version provide a dynamic iptables rules creations.
+Before restarting all services and if files [filename]`/usr/local/pf/conf/iptables-input.conf.inc` or [filename]`/usr/local/pf/conf/iptables-input-management.conf.inc` contain lines, it should be manually translated in a new json file: [filename]`/usr/local/pf/conf/iptables-custom.conf.inc`.
 
-An example of the file is available here /usr/local/pf/conf/iptables-custom.conf.inc.example.
+An example of the file is available here [filename]`/usr/local/pf/conf/iptables-custom.conf.inc.example`.
 That file is a json file will add rules on top of all other Packetfence rules for each tables or chains. The entry should only contain the rule without the "-A", the table and the chain.
 For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT, the file will be:
 [source,bash]

@@ -27,18 +27,19 @@ Iptables are dynamic and each service is adding or removing port(s) according to
 systemctl start packetfence-iptables
 ---
 
-Restarting the service should be done only when there is a modification on /usr/local/pf/lib/pf/iptables.pm.
-Once started, the service is checking modifications on the directory /usr/local/pf/var/conf/iptables/ and on the file /usr/local/pf/conf/iptables-custom.conf.inc.
+Restarting the service should be done only when there is a modification on [filename]`/usr/local/pf/lib/pf/iptables.pm`.
+Once started, the service is checking modifications on the directory [filename]`/usr/local/pf/var/conf/iptables/` and on the file [filename]`/usr/local/pf/conf/iptables-custom.conf.inc`.
 
 Any modification will result in a restart of iptables configuration rules.
 
-Each service generated rules can be find in the directory /usr/local/pf/var/conf/iptables/.
+Each service generated rules can be find in the directory [filename]`/usr/local/pf/var/conf/iptables/`.
 
 ===== Reload Iptables rules
 
-/usr/local/pf/bin/pfcmd is offering two ways to reload iptables configuration.
+`/usr/local/pf/bin/pfcmd` is offering two ways to reload iptables configuration.
 The soft reload will trigger rebuild iptables rules according to running services.
-The hard reload will trigger a flush of all tables, a remove of all config files from the directory /usr/local/pf/var/conf/iptables/ and then do the same a soft reload.
+The hard reload will trigger a flush of all tables, a remove of all config files
+from the directory [filename]`/usr/local/pf/var/conf/iptables/` and then do the same a soft reload.
 
 [source,bash]
 ---
@@ -48,9 +49,9 @@ The hard reload will trigger a flush of all tables, a remove of all config files
 
 ===== Setting custom Iptables rules
 
-It is possible to create custom iptables entry from a json file located in /usr/local/pf/conf/iptables-custom.conf.inc.
+It is possible to create custom iptables entry from a json file located in [filename]`/usr/local/pf/conf/iptables-custom.conf.inc`.
 
-An example of the file is available here /usr/local/pf/conf/iptables-custom.conf.inc.example.
+An example of the file is available here [filename]`/usr/local/pf/conf/iptables-custom.conf.inc.example`.
 That file is a json file will add rules on top of all other Packetfence rules for each tables or chains. The entry should only contain the rule without the "-A", the table and the chain.
 For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT, the file will be:
 [source,bash]
@@ -82,7 +83,7 @@ For example: to open tcp port 123, and udp port 234 with interface the eth0 on f
 
 ===== Check Iptables applied rules
 
-Generated and applied iptables rules are available in /usr/local/pf/var/conf/iptables_generated_rules.conf
+Generated and applied iptables rules are available in [filename]`/usr/local/pf/var/conf/iptables_generated_rules.conf`.
 
 It is also possible to check rules with the following command lines:
 [source,bash]
