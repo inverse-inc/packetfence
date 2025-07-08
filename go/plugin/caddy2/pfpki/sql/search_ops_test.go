@@ -28,10 +28,11 @@ func TestQuery(t *testing.T) {
 }
 	 `
 	var query Vars2
+
 	err := jsonv2.Unmarshal(
 		[]byte(data),
 		&query,
-		jsonv2.WithUnmarshalers(SearchOpUnmarshalers),
+		jsonv2.WithUnmarshalers(jsonv2.UnmarshalFromFunc(SearchOpUnmarshalFromFunc)),
 	)
 	if err != nil {
 		t.Fatalf("Unable to marshal %s", err.Error())

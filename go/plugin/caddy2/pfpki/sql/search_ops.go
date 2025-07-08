@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -233,49 +234,40 @@ func (t *SearchOpWrapper) UnmarshalJSONFrom(d *jsontext.Decoder) error {
 		return fmt.Errorf("Invalid kind: %s", k.String())
 	}
 
-	buf := d.UnreadBuffer()
-	if err := t.Val.UnmarshalJSON(buf); err != nil {
-		return err
-	}
-
 	if _, err := d.ReadToken(); err != nil {
 		return err
 	}
 
+	value := make([]byte, 0, len(d.UnreadBuffer()))
+	value = append(value, '{')
+
 	typeFound := false
+	fields := 0
 	for d.PeekKind() != '}' {
-		if typeFound {
-			err := d.SkipValue()
-			if err != nil {
-				return err
-			}
-
-			err = d.SkipValue()
-			if err != nil {
-				return err
-			}
-			continue
-		}
-
-		tok, err := d.ReadToken()
+		fields++
+		name, err := d.ReadValue()
 		if err != nil {
 			return err
 		}
 
-		name := tok.String()
-		if name == "op" {
-			if k := d.PeekKind(); k != '"' {
-				return fmt.Errorf("Invalid kind: %s", k.String())
-			}
+		value = append(value, name...)
+		value = append(value, ':')
+		val, err := d.ReadValue()
+		if err != nil {
+			return err
+		}
 
-			tok, err := d.ReadToken()
-			if err != nil {
+		value = append(value, val...)
+		value = append(value, ',')
+		if typeFound {
+			continue
+		}
+
+		if bytes.Compare(name, []byte(`"op"`)) == 0 {
+			if err := jsonv2.Unmarshal(val, &t.Op); err != nil {
 				return err
 			}
-
-			t.Op = tok.String()
 			typeFound = true
-			continue
 		}
 	}
 
@@ -283,16 +275,21 @@ func (t *SearchOpWrapper) UnmarshalJSONFrom(d *jsontext.Decoder) error {
 		return err
 	}
 
+	if fields > 0 {
+		value[len(value)-1] = '}'
+	} else {
+		value = append(value, '}')
+	}
+
+	t.Val = jsontext.Value(value)
 	return nil
 }
 
-func typeUnmarshal[T any](data []byte) (*T, error) {
+func typeUnmarshal[T any](data []byte, opts ...jsontext.Options) (*T, error) {
 	var t T
 	err := jsonv2.Unmarshal(data,
 		&t,
-		jsonv2.WithUnmarshalers(
-			SearchOpUnmarshalers,
-		),
+		opts...,
 	)
 	if err != nil {
 		return nil, err
@@ -301,9 +298,9 @@ func typeUnmarshal[T any](data []byte) (*T, error) {
 	return &t, nil
 }
 
-func (w *SearchOpWrapper) Unmarshmal() (SearchOp, error) {
+func (w *SearchOpWrapper) UnmarshmalSearchOp(opts ...jsontext.Options) (SearchOp, error) {
 	if simpleOp, found := simpleOps[w.Op]; found {
-		t, err := typeUnmarshal[SearchSimpleOP](w.Val)
+		t, err := typeUnmarshal[SearchSimpleOP](w.Val, opts...)
 		if err != nil {
 			return nil, err
 		}
@@ -313,32 +310,32 @@ func (w *SearchOpWrapper) Unmarshmal() (SearchOp, error) {
 
 	switch w.Op {
 	case "and":
-		return typeUnmarshal[SearchAndOp](w.Val)
+		return typeUnmarshal[SearchAndOp](w.Val, opts...)
 	case "or":
-		return typeUnmarshal[SearchOr](w.Val)
+		return typeUnmarshal[SearchOr](w.Val, opts...)
 	case "starts_with":
-		return typeUnmarshal[SearchStartsWithOp](w.Val)
+		return typeUnmarshal[SearchStartsWithOp](w.Val, opts...)
 	case "ends_with":
-		return typeUnmarshal[SearchEndsWithOp](w.Val)
+		return typeUnmarshal[SearchEndsWithOp](w.Val, opts...)
 	case "contains":
-		return typeUnmarshal[SearchContainsOp](w.Val)
+		return typeUnmarshal[SearchContainsOp](w.Val, opts...)
 	case "between":
-		return typeUnmarshal[SearchBetweenOp](w.Val)
+		return typeUnmarshal[SearchBetweenOp](w.Val, opts...)
 	case "not_between":
-		return typeUnmarshal[SearchNotBetweenOp](w.Val)
+		return typeUnmarshal[SearchNotBetweenOp](w.Val, opts...)
 	default:
 		return nil, fmt.Errorf("Unknown type '%s'", w.Op)
 	}
 
 }
 
-func SearchOpUnmarshalFunc(data []byte, val *SearchOp) error {
+func SearchOpUnmarshalFromFunc(d *jsontext.Decoder, val *SearchOp) error {
 	w := SearchOpWrapper{}
-	if err := jsonv2.Unmarshal(data, &w); err != nil {
+	if err := w.UnmarshalJSONFrom(d); err != nil {
 		return err
 	}
 
-	if t, err := w.Unmarshmal(); err != nil {
+	if t, err := w.UnmarshmalSearchOp(d.Options()); err != nil {
 		return err
 	} else {
 		*val = t
@@ -347,8 +344,8 @@ func SearchOpUnmarshalFunc(data []byte, val *SearchOp) error {
 	return nil
 }
 
-var SearchOpUnmarshalers *jsonv2.Unmarshalers
+var SearchOpFromUnmarshalers *jsonv2.Unmarshalers
 
 func init() {
-	SearchOpUnmarshalers = jsonv2.UnmarshalFunc(SearchOpUnmarshalFunc)
+	SearchOpFromUnmarshalers = jsonv2.UnmarshalFromFunc(SearchOpUnmarshalFromFunc)
 }
