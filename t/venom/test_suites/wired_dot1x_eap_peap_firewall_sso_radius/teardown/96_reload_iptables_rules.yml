@@ -1,6 +1,6 @@
 name: Reload iptables rules
 testcases:
+# temp, as a workaround
 - name: reload_iptables_rules
   steps:
   - type: pfcmd_reloadiptablesrules
-    extra: hard

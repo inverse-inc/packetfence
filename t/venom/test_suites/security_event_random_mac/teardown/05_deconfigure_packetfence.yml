@@ -76,9 +76,10 @@ testcases:
     url: 'config/security_event/{{.security_event_random_mac.event.id}}'
     body: '{"id":"{{.security_event_random_mac.event.id}}","enabled":"N","quiet":true}'
 
-- name: restart_iptables
+- name: reload_iptables_rules
   steps:
-  - type: perl_iptables_restart
+  - type: reloadiptablesrules
+    extra: hard
 
 - name: restart_pfdns_service
   steps:
