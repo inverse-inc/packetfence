@@ -1276,8 +1276,6 @@ fi
 %config                 /usr/local/pf/conf/iptables.conf
 %config                 /usr/local/pf/conf/iptables.conf.tt
 %config(noreplace)      /usr/local/pf/conf/iptables-custom.conf.inc
-%config(noreplace)      /usr/local/pf/conf/iptables-input.conf.inc
-%config(noreplace)      /usr/local/pf/conf/iptables-input-management.conf.inc
 %config                 /usr/local/pf/conf/ip6tables.conf
 %config(noreplace)      /usr/local/pf/conf/ip6tables-input-management.conf.inc
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
