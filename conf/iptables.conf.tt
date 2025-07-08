@@ -81,7 +81,7 @@
 :OUTPUT ACCEPT [0:0]
 
 [% IF custom.filter.OUTPUT && custom.filter.OUTPUT.size %]
-[% INCLUDE chain_rules chain='OUTPUT' rules=custom.filter.INPUT %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=custom.filter.OUTPUT %]
 [% END %]
 
 [% IF merged.filter.OUTPUT && merged.filter.OUTPUT.size %]
