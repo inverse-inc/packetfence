@@ -239,7 +239,7 @@ generate_kafka_rules
 
 sub generate_kafka_rules {
     my ($self, $rule) = @_;
-    return if !exists $ConfigKafka{hostname()};
+    #return if !exists $ConfigKafka{hostname()};
 
     $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 9092 --jump ACCEPT\n";
     $$rule .= "-A input-management-if --protocol tcp --match tcp --dport 9093 --jump ACCEPT\n";
