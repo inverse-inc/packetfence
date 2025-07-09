@@ -56,7 +56,6 @@ sub _stop {
 =head2 isAlive
 
 Check if iptables is alive.
-Since it's never really stopped then we check if the fake PID exists
 
 =cut
 
