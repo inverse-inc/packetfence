@@ -23,7 +23,9 @@ our (
     #Directories
     $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir, $run_dir,
     $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir, $domains_ntlm_cache_users_dir, $systemd_unit_dir, $acme_challenge_dir,
-    $conf_uploads,$generated_iptables_conf_dir,
+    $conf_uploads,
+    $generated_iptables_conf_dir, $generated_ip6tables_conf_dir,
+
 
     #Config files
     #pf.conf.default
@@ -148,7 +150,8 @@ BEGIN {
     @EXPORT_OK = qw(
         $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir $run_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir $acme_challenge_dir
-	$conf_uploads $generated_iptables_conf_dir
+	$conf_uploads
+        $generated_iptables_conf_dir $generated_ip6tables_conf_dir
         $pf_default_file
         $pf_config_file
         $network_config_file
@@ -271,6 +274,7 @@ $kafka_config_dir = catdir($conf_dir, "kafka");
 
 $generated_conf_dir   = catdir($var_dir, "conf");
 $generated_iptables_conf_dir   = catdir($generated_conf_dir, "iptables");
+$generated_ip6tables_conf_dir   = catdir($generated_conf_dir, "ip6tables");
 $tt_compile_cache_dir = catdir($var_dir, "tt_compile_cache");
 $control_dir  = catdir( $var_dir, "control");
 $switch_control_dir  = catdir($var_dir, "switch_control");
