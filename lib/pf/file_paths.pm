@@ -118,8 +118,6 @@ our (
     $api_i18n_dir,
     $iptable_config_file,
     $iptable_custom_config_file,
-    $iptable_input_config_file,
-    $iptable_input_management_config_file,
     $ip6table_config_file,
     $ip6table_custom_config_file,
     $ssl_config_file, $ssl_default_config_file,
@@ -231,8 +229,6 @@ BEGIN {
         $api_i18n_dir
         $iptable_config_file
 	$iptable_custom_config_file
-        $iptable_input_config_file
-        $iptable_input_management_config_file
         $ip6table_config_file
         $ip6table_custom_config_file
         $ssl_config_file $ssl_default_config_file
