@@ -33,6 +33,11 @@
           :text="$i18n.t('List of roles available to the admin user to assign to a user. If none are provided then all roles are available.')"
         />
 
+        <form-group-allowed-roles namespace="allowed_bypass_roles"
+          :column-label="$i18n.t('Allowed user bypass roles')"
+          :text="$i18n.t('List of bypass roles available to the admin user to assign to a user. If none are provided then all roles are available.')"
+        />
+
         <form-group-allowed-access-durations namespace="allowed_access_durations"
           :column-label="$i18n.t('Allowed user access durations')"
           :text="$i18n.t('A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used.')"
@@ -53,6 +58,12 @@
           :column-label="$i18n.t('Allowed node roles')"
           :text="$i18n.t('List of roles available to the admin user to assign to a node. If none are provided then all roles are available.')"
         />
+
+        <form-group-allowed-node-roles namespace="allowed_node_bypass_roles"
+          :column-label="$i18n.t('Allowed node bypass roles')"
+          :text="$i18n.t('List of bypass roles available to the admin user to assign to as the node bypass role. If none are provided then all roles are available.')"
+        />
+
       </base-form-tab>
     </b-tabs>
   </base-form>
