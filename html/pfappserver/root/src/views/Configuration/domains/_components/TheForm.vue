@@ -80,6 +80,13 @@
                                           :text="$i18n.t(`Domain administrator's password, PacketFence will only use this to update machine account in Active Directory, this will not be saved into config file.`)"
         />
 
+        <form-group-use-connector namespace="use_connector"
+                              :column-label="$i18n.t('Use Connector')"
+                              :text="$i18n.t('Use the available PacketFence connectors to connect to this domain.')"
+                              enabled-value="1"
+                              disabled-value="0"
+    />
+
         <form-group-registration namespace="registration"
                                  :column-label="$i18n.t('Allow on registration')"
                                  :text="$i18n.t('If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.')"
@@ -211,6 +218,7 @@ import {
   FormGroupBindDn,
   FormGroupBindPass,
   FormGroupNtlmv2Only,
+  FormGroupUseConnector,
   FormGroupRegistration,
 
   FormGroupNtlmCache,
@@ -253,6 +261,7 @@ const components = {
   FormGroupBindDn,
   FormGroupBindPass,
   FormGroupNtlmv2Only,
+  FormGroupUseConnector,
   FormGroupRegistration,
 
   FormGroupNtlmCache,

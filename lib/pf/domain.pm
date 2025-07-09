@@ -46,7 +46,7 @@ sub run {
     return ($code, $result);
 }
 
-=head2 test_join
+=head2 add_computer
 
 Executes the command in the OS to test the domain join
 

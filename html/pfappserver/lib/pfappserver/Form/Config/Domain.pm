@@ -299,9 +299,18 @@ has_field 'ntlm_auth_port' =>
             help => 'The listening port of NTLM auth API.' },
     );
 
+has_field 'use_connector',
+    (
+        type => 'Toggle',
+        checkbox_value => '1',
+        unchecked_value => '0',
+        default => '0',
+    );
+
+
 has_block definition =>
   (
-   render_list => [ qw(workgroup dns_name server_name sticky_dc ad_fqdn ad_server dns_servers bind_dn bind_pass ou registration machine_account machine_account_password password_is_nt_hash) ],
+   render_list => [ qw(workgroup dns_name server_name sticky_dc ad_fqdn ad_server dns_servers bind_dn bind_pass ou registration machine_account machine_account_password password_is_nt_hash use_connector) ],
   );
 
 has_block ntlm_cache =>
