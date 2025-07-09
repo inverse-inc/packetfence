@@ -24,6 +24,7 @@ use Readonly;
 use File::Slurp qw(read_file);
 use File::Path qw(make_path);
 use File::Basename;
+use Switch;
 
 use pf::log;
 use pf::constants;
