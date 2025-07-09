@@ -114,7 +114,7 @@ sub ip6tables_generate_config {
     my ($self) = @_;
     my $logger = get_logger();
 
-    if ( ! util_management_network_is_set("generate_config") ) ) {
+    if ( ! util_management_network_is_set("generate_config") ) {
         return 0;
     }
 
