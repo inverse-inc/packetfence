@@ -27,10 +27,9 @@ use pf::file_paths qw(
     $radius_ca_cert
     $conf_dir
     $iptable_config_file
-    $iptable_input_config_file
-    $iptable_input_management_config_file
+    $iptable_custom_config_file
     $ip6table_config_file
-    $ip6table_input_management_config_file
+    $ip6table_custom_config_file
     $local_secret_file
     $unified_api_system_pass_file
     $system_init_key_file
@@ -52,10 +51,9 @@ our @FILES_TO_SYNC = (
     $network_behavior_policy_config_file,
     $pfconfig::constants::CONFIG_FILE_PATH,
     $iptable_config_file,
-    $iptable_input_config_file,
-    $iptable_input_management_config_file,
+    $iptable_custom_config_file,
     $ip6table_config_file,
-    $ip6table_input_management_config_file,
+    $ip6table_custom_config_file,
     $fingerbank::FilePath::CONF_FILE, 
     $fingerbank::FilePath::LOCAL_DB_FILE
 );
