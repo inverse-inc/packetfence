@@ -1,0 +1,12 @@
+{
+   "filter" : {
+      "FORWARD" :      [],
+      "INPUT" :        [],
+      "OUTPUT" :       [],
+      "RFC3964_IPv4" : []
+   },
+   "raw" : {
+      "PREROUTING" : [],
+      "OUTPUT" : []
+   }
+}

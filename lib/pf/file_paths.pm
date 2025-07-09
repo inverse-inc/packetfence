@@ -119,7 +119,7 @@ our (
     $iptable_input_config_file,
     $iptable_input_management_config_file,
     $ip6table_config_file,
-    $ip6table_input_management_config_file,
+    $ip6table_custom_config_file,
     $ssl_config_file, $ssl_default_config_file,
     $tls_config_file, $tls_default_config_file,
     $ocsp_config_file, $ocsp_default_config_file,
@@ -231,7 +231,7 @@ BEGIN {
         $iptable_input_config_file
         $iptable_input_management_config_file
         $ip6table_config_file
-        $ip6table_input_management_config_file
+        $ip6table_custom_config_file
         $ssl_config_file $ssl_default_config_file
         $tls_config_file $tls_default_config_file
         $ocsp_config_file $ocsp_default_config_file
@@ -374,7 +374,7 @@ $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
 $iptable_custom_config_file = catfile($conf_dir, "iptables-custom.conf.inc");
 $ip6table_config_file = catfile($conf_dir, "ip6tables.conf");
-$ip6table_input_management_config_file = catfile($conf_dir, "ip6tables-input-management.conf.inc");
+$ip6table_custom_config_file = catfile($conf_dir, "ip6tables-custom.conf.inc");
 $ssl_config_file = catfile($conf_dir,"ssl.conf");
 $ssl_default_config_file = catfile($conf_dir,"ssl.conf.defaults");
 $tls_config_file = catfile($conf_dir,"radiusd/tls.conf");

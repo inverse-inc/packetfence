@@ -23,6 +23,7 @@ use JSON;
 use Readonly;
 use File::Slurp qw(read_file);
 use File::Path qw(make_path);
+use File::Basename;
 
 use pf::log;
 use pf::constants;
@@ -31,7 +32,12 @@ use pf::config qw(
     $management_network
     @portal_ints
 );
-use pf::file_paths qw($generated_conf_dir $conf_dir);
+use pf::file_paths qw(
+    $generated_conf_dir
+    $conf_dir
+    $ip6table_custom_config_file
+    $generated_ip6tables_conf_dir
+);
 
 BEGIN {
   use Exporter ();
@@ -107,25 +113,24 @@ sub ip6tables_generate_config {
 
     if (!ref($management_network || ! exists $management_network->{Tint} || $management_network->{Tint} eq "" ) ) {
         $logger->warn( "Management network is not defined" );
-        return;
+        return 0;
     }
 
     # Check for and load content from custom specific file if it exists
-    my $custom_file = "ip6tables-custom.conf.inc";
-    my $custom = util_add_custom_config_from_file( $custom_file );
+    my $custom = util_add_custom_config_from_file( $ip6table_custom_config_file );
     if ($custom) {
-        $logger->info( "Successfully loaded custom configuration from $conf_dir/$custom_file" );
+        $logger->info( "Successfully loaded custom configuration from $ip6table_custom_config_file" );
     } else {
-        $logger->info( "No custom configuration file ($conf_dir/$custom_file) found" );
+        $logger->info( "No custom configuration file ($ip6table_custom_config_file) found" );
     }
 
     util_generated_iptables_fix_dir_permissions();
     my %configs;
     # Get content from service generated json config files
-    my @config_files = read_dir_recursive($generated_iptables_conf_dir);
+    my @config_files = read_dir_recursive($generated_ip6tables_conf_dir);
     if (@config_files) {
         foreach my $conf ( @config_files ) {
-            my $json_text = read_file($generated_iptables_conf_dir."/".$conf);
+            my $json_text = read_file($generated_ip6tables_conf_dir."/".$conf);
             my $data = decode_json($json_text);
             my $conf_name = $data->{name};
             $configs{$conf_name} = $data;
@@ -181,7 +186,7 @@ sub ip6tables_generate_config {
         "$generated_conf_dir/ip6tables_generated_rules.conf"
     ) or die $tt->error();
 
-    iptables_restore("$generated_conf_dir/ip6tables_generated_rules.conf");
+    ip6tables_restore("$generated_conf_dir/ip6tables_generated_rules.conf");
 }
 
 =item ip6tables_services_rules
@@ -196,7 +201,7 @@ sub ip6tables_services_rules {
   my $action = shift;
   my $services = [qw(
       packetfence-haproxy-portal.service
-    )];
+  )];
   my $states = util_getServiveState($services,[qw(Id ActiveState)]);
   foreach my $state ( @{ $states } ) {
     if ( $state->{"ActiveState"} eq "active" ) {
@@ -274,14 +279,14 @@ Function to load and validate custom config from file
 =cut
 
 sub util_add_custom_config_from_file {
-    my ( $filename , $configs_ref ) = @_;
+    my ( $file , $configs_ref ) = @_;
     my $logger = get_logger();
-    my $file = "".$conf_dir."/".$filename;
 
     return 0 unless -e $file;
 
     my %empty_hash;
     try {
+        my $filename = fileparse($file);
         my $json_content = read_file($file);
         my $custom_config = decode_json($json_content);
 
@@ -313,18 +318,18 @@ sub util_add_custom_config_from_file {
         }
 
         if ($has_rules) {
-            $logger->info("Rules available  in $filename");
+            $logger->info("Rules available  in $file");
             return $custom_config;
         } else {
-            $logger->warn("No rules available in $filename");
+            $logger->warn("No rules available in $file");
         }
 
-        $logger->warn("Config in $filename contains no rules");
+        $logger->warn("Config in $file contains no rules");
         return \%empty_hash;
     } catch {
         my $error = shift;
-        printf("Failed to process $filename: $error");
-        $logger->warn("Failed to process $filename: $error");
+        printf("Failed to process $file: $error");
+        $logger->warn("Failed to process $file: $error");
         return \%empty_hash;
     };
 }
