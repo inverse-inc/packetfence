@@ -127,7 +127,7 @@ sub ip6tables_generate_config {
         $logger->info( "No custom configuration file ($ip6table_custom_config_file) found" );
     }
 
-    util_generated_iptables_fix_dir_permissions();
+    util_generated_ip6tables_fix_dir_permissions();
     my %configs;
     # Get content from service generated json config files
     my @config_files = read_dir_recursive($generated_ip6tables_conf_dir);
@@ -410,7 +410,7 @@ sub util_create_service_rules {
     unless (-e $filename) {
         die $logger->error("Failed to create JSON file $filename");
     }
-    util_generated_iptables_fix_dir_permissions();
+    util_generated_ip6tables_fix_dir_permissions();
     $logger->info("Successfully saved chains to $filename");
 }
 
@@ -462,8 +462,8 @@ Fix generated_ip6tables_conf_dir permissions
 =cut
 
 sub util_generated_ip6tables_fix_dir_permissions {
-    safe_pf_run('sudo', 'chmod', '02770', $generated_conf_dir."/ip6tables/");
-    safe_pf_run('sudo', 'chown', 'root:pf', '-R', $generated_conf_dir."/ip6tables/");
+    safe_pf_run('sudo', 'chmod', '02770', $generated_ip6tables_conf_dir);
+    safe_pf_run('sudo', 'chown', 'root:pf', '-R', $generated_ip6tables_conf_dir);
 }
 
 =head1 AUTHOR
