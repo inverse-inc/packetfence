@@ -25,6 +25,8 @@ use File::Slurp qw(read_file);
 use File::Path qw(make_path);
 use File::Basename;
 use Switch;
+use Symbol qw(gensym);
+use IPC::Open3 qw(open3);
 
 use pf::log;
 use pf::constants;
