@@ -40,54 +40,6 @@ sub generateConfig {
     return 1;
 }
 
-=head2 start
-
-Wrapper around systemctl. systemctl should in turn call the actuall _start.
-
-=cut
-
-sub start {
-    my ($self,$quick) = @_;
-    system('sudo systemctl start packetfence-iptables');
-    return $? == 0;
-}
-
-=head2 _start
-
-start the service (called from systemd)
-
-=cut
-
-sub _start {
-    my ($self) = @_;
-    my $result = 0;
-    unless ( $self->isAlive() ) {
-        $result = $self->startService();
-    }
-    return $result;
-}
-
-sub startAndCheck {
-    my ($self) = @_;
-
-    while(1) {
-        $self->_start() unless($self->isAlive());
-        sleep 60;
-    }
-}
-
-=head2 stop
-
-Wrapper around systemctl. systemctl should in turn call the actual _stop.
-
-=cut
-
-sub stop {
-    my ($self) = @_;
-    system('sudo systemctl stop packetfence-iptables');
-    return 1;
-}
-
 =head2 _stop
 
 stop iptables (called from systemd)
@@ -111,9 +63,6 @@ Since it's never really stopped then we check if the fake PID exists
 sub isAlive {
     my ($self) = @_;
     my $logger = get_logger();
-    my $result;
-    my $pid = $self->pid;
-    my $_EXIT_CODE_EXISTS = "0";
     my $rules = safe_pf_run('sudo', 'iptables', '-S') // '';
     return ($rules =~ /-p tcp -m tcp --dport 1443 -j ACCEPT/ ? 1: 0);
 }
