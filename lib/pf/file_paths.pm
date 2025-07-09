@@ -116,9 +116,7 @@ our (
     $fingerbank_default_config_file,
     $fingerbank_doc_file,
     $api_i18n_dir,
-    $iptable_config_file,
     $iptable_custom_config_file,
-    $ip6table_config_file,
     $ip6table_custom_config_file,
     $ssl_config_file, $ssl_default_config_file,
     $tls_config_file, $tls_default_config_file,
@@ -227,9 +225,7 @@ BEGIN {
         $fingerbank_default_config_file
         $fingerbank_doc_file
         $api_i18n_dir
-        $iptable_config_file
 	$iptable_custom_config_file
-        $ip6table_config_file
         $ip6table_custom_config_file
         $ssl_config_file $ssl_default_config_file
         $tls_config_file $tls_default_config_file
@@ -373,7 +369,6 @@ $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf");
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
 $iptable_custom_config_file = catfile($conf_dir, "iptables-custom.conf.inc");
-$ip6table_config_file = catfile($conf_dir, "ip6tables.conf");
 $ip6table_custom_config_file = catfile($conf_dir, "ip6tables-custom.conf.inc");
 $ssl_config_file = catfile($conf_dir,"ssl.conf");
 $ssl_default_config_file = catfile($conf_dir,"ssl.conf.defaults");
