@@ -598,7 +598,6 @@ sub iptables_haproxy_admin_rules {
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{'name'} = $service_name;
-        my $tint = $management_network->{Tint};
         my $web_admin_port = $Config{'ports'}{'admin'};
         util_safe_push( "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
