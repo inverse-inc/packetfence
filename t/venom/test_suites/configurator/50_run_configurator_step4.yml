@@ -41,6 +41,10 @@ testcases:
     service: 'packetfence-pfperl-api'
     time_to_sleep: 10
 
+- name: check_if_admin_is_available
+  steps:
+  - type: get_login_token
+
 - name: start_pf_services
   steps:
   - type: pf_api_service_pf_start_async
