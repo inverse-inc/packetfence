@@ -16,25 +16,31 @@ endif::[]
 
 ////
 
-===== Dynamic Iptables rules
+===== Dynamic iptables adn ip6tables rules
 
-Iptables are dynamic and each service is adding or removing port(s) according to their needs.
+Iptables and ip6tables are dynamic and each service is adding or removing port(s) according to their needs.
+
+/!\ Packetfence is NOT fully compatible with ipv6 /!\
+
+Default ipv6 rules are set to protect Packetfence server and for convenient usage.
 
 ===== Starting Service
 
 [source,bash]
 ---
 systemctl start packetfence-iptables
+systemctl start packetfence-ip6tables
 ---
 
-Restarting the service should be done only when there is a modification on [filename]`/usr/local/pf/lib/pf/iptables.pm`.
-Once started, the service is checking modifications on the directory [filename]`/usr/local/pf/var/conf/iptables/` and on the file [filename]`/usr/local/pf/conf/iptables-custom.conf.inc`.
+Restarting the service should be done only when there is a modification on [filename]`/usr/local/pf/lib/pf/iptables.pm` or on [filename]`/usr/local/pf/lib/pf/ip6tables.pm`.
+Once started, the iptable service is checking modifications on the directory [filename]`/usr/local/pf/var/conf/iptables/` and on the file [filename]`/usr/local/pf/conf/iptables-custom.conf.inc`.
+Once started, the ip6table service is checking modifications on the directory [filename]`/usr/local/pf/var/conf/ip6tables/` and on the file [filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc`.
 
-Any modification will result in a restart of iptables configuration rules.
+Any modification will result in a restart of iptables and ip6tables configuration rules.
 
-Each service generated rules can be find in the directory [filename]`/usr/local/pf/var/conf/iptables/`.
+Each service generated rules can be find in the directory [filename]`/usr/local/pf/var/conf/iptables/` and [filename]`/usr/local/pf/var/conf/ip6tables/`.
 
-===== Reload Iptables rules
+===== Reload iptables rules
 
 `/usr/local/pf/bin/pfcmd` is offering two ways to reload iptables configuration.
 The soft reload will trigger rebuild iptables rules according to running services.
@@ -47,7 +53,20 @@ from the directory [filename]`/usr/local/pf/var/conf/iptables/` and then do the 
 /usr/local/pf/bin/pfcmd reloadiptablesrules hard
 ---
 
-===== Setting custom Iptables rules
+===== Reload ip6tables rules
+
+`/usr/local/pf/bin/pfcmd` is offering two ways to reload ip6tables configuration.
+The soft reload will trigger rebuild ip6tables rules according to running services.
+The hard reload will trigger a flush of all tables, a remove of all config files
+from the directory [filename]`/usr/local/pf/var/conf/ip6tables/` and then do the same a soft reload.
+
+[source,bash]
+---
+/usr/local/pf/bin/pfcmd reloadip6tablesrules
+/usr/local/pf/bin/pfcmd reloadip6tablesrules hard
+---
+
+===== Setting custom iptables rules
 
 It is possible to create custom iptables entry from a json file located in [filename]`/usr/local/pf/conf/iptables-custom.conf.inc`.
 
@@ -81,14 +100,46 @@ For example: to open tcp port 123, and udp port 234 with interface the eth0 on f
 }
 ---
 
-===== Check Iptables applied rules
+===== Setting custom ip6tables rules
+
+It is possible to create custom ip6tables entry from a json file located in [filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc`.
+
+An example of the file is available here [filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc.example`.
+That file is a json file will add rules on top of all other Packetfence rules for each tables or chains. The entry should only contain the rule without the "-A", the table and the chain.
+For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT, the file will be:
+[source,bash]
+---
+{
+   "filter" : {
+      "FORWARD" : [],
+      "INPUT" :   [
+        "# allow tcp port 123 and udp port 234 on eth0 interface",
+         "-i eth0 --protocol tcp --match tcp --dport 123 --jump ACCEPT",
+         "-i eth0 -p udp -m udp --dport 234  --jump ACCEPT"
+      ],
+      "OUTPUT" :  [],
+      "RFC3964_IPv4" => []
+   },
+   "raw" : {
+      "PREROUTING" : [],
+      "OUTPUT" : []
+   }
+}
+---
+
+===== Check iptables or ip6tables applied rules
 
 Generated and applied iptables rules are available in [filename]`/usr/local/pf/var/conf/iptables_generated_rules.conf`.
+Generated and applied ip6tables rules are available in [filename]`/usr/local/pf/var/conf/ip6tables_generated_rules.conf`.
 
 It is also possible to check rules with the following command lines:
 [source,bash]
 ---
+# iptables ipv4
 iptables -L -n -v -t filter
 iptables -L -n -v -t mangle
 iptables -L -n -v -t nat
+# ip6tables ipv6
+ip6tables -L -n -v -t filter
+ip6tables -L -n -v -t raw
 ---
