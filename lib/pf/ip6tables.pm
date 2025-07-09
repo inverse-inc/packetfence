@@ -114,8 +114,7 @@ sub ip6tables_generate_config {
     my ($self) = @_;
     my $logger = get_logger();
 
-    if (!ref($management_network || ! exists $management_network->{Tint} || $management_network->{Tint} eq "" ) ) {
-        $logger->warn( "Management network is not defined" );
+    if ( ! util_management_network_is_set("generate_config") ) ) {
         return 0;
     }
 
@@ -226,6 +225,7 @@ Iptable rules for haproxy portal service
 sub ip6tables_haproxy_portal_rules {
     my $service_name = "haproxy_portal_rules";
     my $action = shift;
+
     if ( $action eq "REMOVE" ) {
        util_remove_service_rules($service_name);
        return;
@@ -233,16 +233,13 @@ sub ip6tables_haproxy_portal_rules {
 
     my $logger = get_logger();
     my $chains = util_create_ip6_chains();
-    if (ref($management_network) && exists $management_network->{Tint} ) {
+    if ( util_management_network_is_set($service_name) ) ) {
         my $tint = $management_network->{Tint};
-        if ( $tint ne "" ) {
-            $chains->{'name'} = $service_name;
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        }
-    } else {
-        $logger->warn("Service $service_name: Management interface is not set.");
+        $chains->{'name'} = $service_name;
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
     }
+
     if ( @portal_ints ) {
         # 'portal' interfaces handling
         $chains->{'name'} = $service_name;
@@ -254,6 +251,7 @@ sub ip6tables_haproxy_portal_rules {
     } else {
         $logger->warn("Service $service_name: Portal Ints are not set.");
     }
+
     if ($chains->{'name'} ne "") {
         # Convert to JSON and save to file
         util_create_service_rules($chains);
@@ -315,6 +313,22 @@ sub util_create_ip6_chains {
         raw => { PREROUTING => [], OUTPUT => [] }
     );
     return \%chains;
+}
+
+=item util_is_management_network_set
+
+Function to check if management interface is set
+
+=cut
+
+sub util_management_network_is_set {
+    my ( $service_name ) = @_ ;
+    my $logger = get_logger();
+    if (!ref($management_network || ! exists $management_network->{Tint} || $management_network->{Tint} eq "" ) ) {
+        $logger->warn("Service $service_name: Management Interface is not set.");
+        return 0;
+    }
+    return 1;
 }
 
 =item util_add_custom_config_from_file
