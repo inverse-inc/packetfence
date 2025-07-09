@@ -34,6 +34,7 @@ use Switch;
 use Symbol qw(gensym);
 use File::Path qw(make_path);
 use IPC::Open3 qw(open3);
+use File::Basename;
 
 BEGIN {
   use Exporter ();
@@ -106,7 +107,12 @@ use pf::config qw(
 use pf::log;
 use pf::constants;
 use pf::config::cluster;
-use pf::file_paths qw($generated_conf_dir $conf_dir $generated_iptables_conf_dir);
+use pf::file_paths qw(
+    $generated_conf_dir
+    $conf_dir
+    $generated_iptables_conf_dir
+    $iptable_custom_config_file
+);
 use pf::util;
 use pf::security_event qw(security_event_view_open_uniq security_event_count);
 use pf::authentication;
@@ -209,12 +215,11 @@ sub iptables_generate_config {
     }
 
     # Check for and load content from custom specific file if it exists
-    my $custom_file = "iptables-custom.conf.inc";
-    my $custom = util_add_custom_config_from_file( $custom_file );
+    my $custom = util_add_custom_config_from_file( $iptable_custom_config_file );
     if ($custom) {
-        $logger->info( "Successfully loaded custom configuration from $conf_dir/$custom_file" );
+        $logger->info( "Successfully loaded custom configuration from $iptable_custom_config_file" );
     } else {
-        $logger->info( "No custom configuration file ($conf_dir/$custom_file) found" );
+        $logger->info( "No custom configuration file ($iptable_custom_config_file) found" );
     }
 
     util_generated_iptables_fix_dir_permissions();
@@ -2172,14 +2177,14 @@ Function to load and validate custom config from file
 =cut
 
 sub util_add_custom_config_from_file {
-    my ( $filename , $configs_ref ) = @_;
+    my ( $file , $configs_ref ) = @_;
     my $logger = get_logger();
-    my $file = "".$conf_dir."/".$filename;
 
     return 0 unless -e $file;
 
     my %empty_hash;
     try {
+        my $filename = fileparse($file);
         my $json_content = read_file($file);
         my $custom_config = decode_json($json_content);
         
