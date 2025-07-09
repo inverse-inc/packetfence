@@ -96,7 +96,7 @@ sub ip6tables_save {
 }
 
 sub ip6tables_restore {
-    my ($class, $restore_file) = @_;
+    my ($restore_file) = @_;
     my $logger = get_logger();
     if ( -r $restore_file ) {
         $logger->info( "restoring ip6tables from " . $restore_file );
