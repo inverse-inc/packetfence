@@ -63,7 +63,7 @@ sub isAlive {
     my ($self) = @_;
     my $logger = get_logger();
     my $rules = safe_pf_run('sudo', $Config{'services'}{"ip6tables_binary"}, '-S') // '';
-    return ($pid && $rules =~ /\Q$pf::ip6tables::FW_FILTER_INPUT_MGMT\E/m) ? 1 : 0;
+    return ($rules =~ /\Q$pf::ip6tables::FW_FILTER_INPUT_MGMT\E/m) ? 1 : 0;
 }
 
 =head1 AUTHOR
