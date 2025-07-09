@@ -22,7 +22,7 @@ sub is_management_network_set {
             return 1;
         }
     }
-    return 0
+    return 0;
 }
 
 sub generate_iptables_configuration {
