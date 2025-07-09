@@ -2217,18 +2217,18 @@ sub util_add_custom_config_from_file {
         }
         
         if ($has_rules) {
-            $logger->info("Rules available  in $filename");
+            $logger->info("Rules available  in $file");
             return $custom_config;
         } else {
-            $logger->warn("No rules available in $filename");
+            $logger->warn("No rules available in $file");
         }
         
         $logger->warn("Config in $filename contains no rules");
         return \%empty_hash;
     } catch {
         my $error = shift;
-        printf("Failed to process $filename: $error");
-        $logger->warn("Failed to process $filename: $error");
+        printf("Failed to process $file: $error");
+        $logger->warn("Failed to process $file: $error");
         return \%empty_hash;
     };
 }
