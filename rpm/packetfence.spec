@@ -1013,6 +1013,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfldapexplorer-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/iptables_monitor.pl
+%attr(0755, pf, pf)     /usr/local/pf/sbin/ip6tables_monitor.pl
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
@@ -1274,9 +1275,9 @@ fi
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config                 /usr/local/pf/conf/iptables.conf.tt
+%config                 /usr/local/pf/conf/ip6tables.conf.tt
 %config(noreplace)      /usr/local/pf/conf/iptables-custom.conf.inc
-%config                 /usr/local/pf/conf/ip6tables.conf
-%config(noreplace)      /usr/local/pf/conf/ip6tables-input-management.conf.inc
+%config(noreplace)      /usr/local/pf/conf/ip6tables-custom.conf.inc
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
 %config(noreplace)      /usr/local/pf/conf/cluster.conf
