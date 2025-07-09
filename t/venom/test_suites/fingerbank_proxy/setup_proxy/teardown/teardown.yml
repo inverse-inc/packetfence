@@ -25,7 +25,7 @@ testcases:
 
 - name: reset_iptables_rules
   steps:
-  - type: pfcmd_generateiptablesconfig
+  - type: pfcmd_reloadiptablesrules
     extra: hard
 
 - name: ping_to_wan_should_work
