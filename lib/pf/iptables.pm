@@ -404,8 +404,7 @@ sub iptables_haproxy_portal_rules {
     my $action = shift;
 
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return 0;
+       return util_remove_service_rules($service_name);
     }
 
     my $logger = get_logger();
@@ -471,8 +470,7 @@ sub iptables_radiusd_lb_rules {
     my $action = shift;
 
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
 
     my $logger = get_logger();
@@ -511,8 +509,7 @@ sub iptables_keepalived_rules {
     my $service_name = "keepalived_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
@@ -563,8 +560,7 @@ sub iptables_proxysql_rules {
     my $action = shift;
 
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
 
     my $logger = get_logger();
@@ -589,8 +585,7 @@ sub iptables_haproxy_admin_rules {
     my $action = shift;
 
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
 
     my $logger = get_logger();
@@ -616,8 +611,7 @@ sub iptables_httpd_webservices_rules {
     my $action = shift;
 
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
 
     my $logger = get_logger();
@@ -643,8 +637,7 @@ sub iptables_snmptrapd_rules {
     my $action = shift;
 
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
 
     my $logger = get_logger();
@@ -669,8 +662,7 @@ sub iptables_httpd_aaa_rules {
     my $action = shift;
 
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
 
     my $logger = get_logger();
@@ -697,8 +689,7 @@ sub iptables_httpd_dispatcher_rules {
     my $action = shift;
 
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
@@ -735,8 +726,7 @@ sub iptables_api_frontend_rules {
     my $service_name = "api_frontend_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
@@ -760,8 +750,7 @@ sub iptables_httpd_portal_rules {
     my $service_name = "httpd_portal_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
@@ -797,8 +786,7 @@ sub iptables_haproxy_db_rules {
     my $service_name = "haproxy_db_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
@@ -822,8 +810,7 @@ sub iptables_radiusd_acct_rules {
     my $service_name = "haproxy_db_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( @radius_ints ) {
@@ -850,8 +837,7 @@ sub iptables_pfacct_rules {
     my $service_name = "pfacct_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( @radius_ints ) {
@@ -878,8 +864,7 @@ sub iptables_radiusd_auth_rules {
     my $service_name = "radiusd_auth_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( @radius_ints ) {
@@ -908,8 +893,7 @@ sub iptables_radiusd_cli_rules {
     my $service_name = "radiusd_cli_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( @radius_ints ) {
@@ -936,8 +920,7 @@ sub iptables_pfdns_rules {
     my $service_name = "pfdns_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
@@ -1151,8 +1134,7 @@ sub iptables_pfdhcp_rules {
     my $service_name = "pfdhcp_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
@@ -1269,8 +1251,7 @@ sub iptables_netdata_rules {
     my $service_name = "netdata_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
@@ -1300,8 +1281,7 @@ sub iptables_pfconnector_server_rules {
     my $service_name = "pfconnector_server_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
@@ -1331,8 +1311,7 @@ sub iptables_galera_autofix_rules {
     my $service_name = "galera_autofix_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
@@ -1368,8 +1347,7 @@ sub iptables_mariadb_rules {
     my $service_name = "mariadb_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
@@ -1400,8 +1378,7 @@ sub iptables_mysql_prob_rules {
     my $service_name = "mysql_prob_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
@@ -1425,8 +1402,7 @@ sub iptables_kafka_rules {
     my $service_name = "kafka_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
@@ -1473,8 +1449,7 @@ sub iptables_docker_dnat_rules {
     my $service_name = "docker_dnat_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
@@ -1499,8 +1474,7 @@ sub iptables_fingerbank_collector_rules {
     my $service_name = "fingerbank_collector_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     if (netflow_enabled()) {
@@ -1524,8 +1498,7 @@ sub iptables_radiusd_eduroam_rules {
     my $service_name = "radiusd_eduroam_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     # eduroam RADIUS virtual-server
@@ -1568,8 +1541,7 @@ sub iptables_pfipset_rules {
     my $service_name = "pfipset_rules";
     my $action = shift;
     if ( $action eq "REMOVE" ) {
-       util_remove_service_rules($service_name);
-       return;
+       return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
     pf::ipset->new()->iptables_generate();
@@ -2114,7 +2086,7 @@ sub util_create_service_rules {
     $logger->info("Successfully saved chains to $filename");
 }
 
-=item util_remove_service_rules
+=item return util_remove_service_rules
 
 Remove service rules JSON file
 
