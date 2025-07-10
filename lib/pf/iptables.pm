@@ -1981,6 +1981,31 @@ sub get_network_snat_interface {
     }
 }
 
+=item get_network_type_and_chain
+
+iptables return vlan type and related chain according to node ip
+
+=cut
+
+sub get_network_type_and_chain {
+    my $ip = shift;
+    my $type = $pf::config::NET_TYPE_VLAN_REG;
+    my $chain = "input-internal-vlan-if";
+    foreach my $network ( keys %ConfigNetworks ) {
+        # We skip inline networks/interfaces
+        next if ( pf::config::is_network_type_inline($network) );
+        if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_VLAN_ISOL ) {
+            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+            my $ip_test = new NetAddr::IP::Lite clean_ip($ip);
+            if ($net_addr->contains($ip_test)) {
+                $type = $pf::config::NET_TYPE_VLAN_ISOL;
+                $chain = "input-internal-isol_vlan-if";
+            }
+        }
+    }
+    return ($type,$chain);
+}
+
 ###################
 # UTILS
 ###################
