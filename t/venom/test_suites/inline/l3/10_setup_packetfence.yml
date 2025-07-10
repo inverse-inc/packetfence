@@ -251,11 +251,6 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: reload_iptables_rules
-  steps:
-  - type: pfcmd_reloadiptablesrules
-    extra: hard
-
 - name: restart_pfdns_service
   steps:
   - type: exec
@@ -300,4 +295,10 @@ testcases:
 
   - type: systemctl_service_restart
     service: packetfence-pfqueue-go
+    time_to_sleep: 5
+
+- name: restart_pfipset_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfipset
     time_to_sleep: 5
