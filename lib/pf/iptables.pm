@@ -739,7 +739,7 @@ sub iptables_api_frontend_rules {
        return;
     }
     my $logger = get_logger();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
@@ -747,8 +747,6 @@ sub iptables_api_frontend_rules {
         util_safe_push( "-i $tint -p tcp -m tcp --dport $unifiedapi_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -767,13 +765,11 @@ sub iptables_httpd_portal_rules {
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
         $chains->{name} = $service_name;
         my $httpd_portal_modstatus = $Config{'ports'}{'httpd_portal_modstatus'};
         util_safe_push( "-i $tint -p tcp -m tcp --dport $httpd_portal_modstatus -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 
     if ( @portal_ints ) {
@@ -805,7 +801,7 @@ sub iptables_haproxy_db_rules {
        return;
     }
     my $logger = get_logger();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
@@ -813,8 +809,6 @@ sub iptables_haproxy_db_rules {
         util_safe_push( "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -947,13 +941,11 @@ sub iptables_pfdns_rules {
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
         $chains->{name} = $service_name;
         util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    } else {
-        $logger->warn("Service $service_name: Management interface is not set.");
     }
     if ( @dns_ints ) {
         $chains->{name} = $service_name;
@@ -1164,12 +1156,10 @@ sub iptables_pfdhcp_rules {
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
         $chains->{name} = $service_name;
         util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 
     if ( @dhcp_ints ) {
@@ -1283,7 +1273,7 @@ sub iptables_netdata_rules {
        return;
     }
     my $logger = get_logger();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
@@ -1297,8 +1287,6 @@ sub iptables_netdata_rules {
         util_safe_push( "-i $tint -p tcp -m tcp --dport 19999 -j DROP", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -1316,7 +1304,7 @@ sub iptables_pfconnector_server_rules {
        return;
     }
     my $logger = get_logger();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
@@ -1330,8 +1318,6 @@ sub iptables_pfconnector_server_rules {
         }
         # Convert to JSON and save to file
         util_create_service_rules($chains);
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -1349,7 +1335,7 @@ sub iptables_galera_autofix_rules {
        return;
     }
     my $logger = get_logger();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
@@ -1369,8 +1355,6 @@ sub iptables_galera_autofix_rules {
         }
         # Convert to JSON and save to file
         util_create_service_rules($chains);
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -1388,7 +1372,7 @@ sub iptables_mariadb_rules {
        return;
     }
     my $logger = get_logger();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
@@ -1403,8 +1387,6 @@ sub iptables_mariadb_rules {
         }
         # Convert to JSON and save to file
         util_create_service_rules($chains);
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -1422,7 +1404,7 @@ sub iptables_mysql_prob_rules {
        return;
     }
     my $logger = get_logger();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "" ) {
+    if ( util_management_network_is_set($service_name) ){
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
@@ -1430,8 +1412,6 @@ sub iptables_mysql_prob_rules {
         util_safe_push( "-i $tint -p tcp -m tcp --dport 3307 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -1450,7 +1430,8 @@ sub iptables_kafka_rules {
     }
     my $logger = get_logger();
     my $chains = util_create_chains();
-    if (ref($management_network) && exists $management_network->{Tint} && $management_network->{Tint} ne "") {
+
+    if ( util_management_network_is_set($service_name) ){
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         util_safe_push( "-i $tint -p tcp -m tcp --dport 9092 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -1479,8 +1460,6 @@ sub iptables_kafka_rules {
             # Convert to JSON and save to file
             util_create_service_rules($chains);
         }
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
@@ -1498,16 +1477,15 @@ sub iptables_docker_dnat_rules {
        return;
     }
     my $logger = get_logger();
-    # 100.64.0.0/10 is docker ip range.
-    my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
-    if ( $mgmt_ip ne "" ) {
-        my $chains = util_create_chains();
-        $chains->{name} = $service_name;
-        util_safe_push( "-p udp -s 100.64.0.0/10 -d $mgmt_ip -j DNAT --to 100.64.0.1", $chains->{'nat'}{'PREROUTING'} );
-        # Convert to JSON and save to file
-        util_create_service_rules($chains);
-    } else {
-        $logger->warn("Service $service_name: Management Interface is not set.");
+    if ( util_management_network_is_set($service_name) ){
+       # 100.64.0.0/10 is docker ip range.
+       my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
+       my $chains = util_create_chains();
+       $chains->{name} = $service_name;
+       util_safe_push( "-p udp -s 100.64.0.0/10 -d $mgmt_ip -j DNAT --to 100.64.0.1", $chains->{'nat'}{'PREROUTING'} );
+       # Convert to JSON and save to file
+       util_create_service_rules($chains);
+       $logger->warn("Service $service_name: Management Interface is not set.");
     }
 }
 
