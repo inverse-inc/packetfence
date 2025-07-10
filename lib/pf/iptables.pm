@@ -1607,7 +1607,7 @@ sub iptables_pfipset_rules {
         }
     }
     pfipset_provisioning_passthroughs();
-    pfipset_inline_rules($chains,$service_name);
+    pfipset_inline_rules($service_name,$chains);
     if ($chains->{name} ne "") {
         # Convert to JSON and save to file
         util_create_service_rules($chains);
@@ -1665,19 +1665,19 @@ sub pfipset_provisioning_passthroughs {
 }
 
 sub pfipset_inline_rules {
-    my ($chains , $service_name) = @_;
-    inline_nat_back_rules($chains, $service_name);
+    my ($service_name, $chains) = @_;
+    inline_nat_back_rules($service_name, $chains);
     # Note: I'm giving references to this guy here so he can directly mess with the tables
-    inline_generate_rules($chains, $service_name);
+    inline_generate_rules($service_name, $chains);
     # NAT
-    inline_nat_if_src_rules($chains, $service_name);
-    inline_nat_redirect_rules($chains, $service_name);
+    inline_nat_if_src_rules($service_name, $chains);
+    inline_nat_redirect_rules($service_name, $chains);
     # Mangle
-    inline_mangle_rules($chains, $service_name);
+    inline_mangle_rules($service_name, $chains);
 }
 
 sub inline_nat_back_rules {
-    my ($chains , $service_name) = @_;
+    my ($service_name, $chains) = @_;
     my $logger = get_logger();
 
     # Allow the NAT back inside through the forwarding table if inline is enabled
@@ -1709,7 +1709,7 @@ sub inline_nat_back_rules {
 }
 
 sub inline_generate_rules {
-    my ($chains , $service_name) = @_;
+    my ($service_name, $chains) = @_;
     my $logger = get_logger();
 
     if ( is_inline_enforcement_enabled() ) {
@@ -1762,7 +1762,7 @@ sub inline_generate_rules {
 }
 
 sub inline_nat_if_src_rules {
-    my ($chains , $service_name) = @_;
+    my ($service_name, $chains) = @_;
     my $logger = get_logger();
 
     if ( is_inline_enforcement_enabled() ) {
@@ -1806,7 +1806,7 @@ sub inline_nat_if_src_rules {
 }
 
 sub inline_mangle_rules {
-    my ($chains , $service_name) = @_;
+    my ($service_name, $chains) = @_;
     my $logger = get_logger();
 
     if ( is_inline_enforcement_enabled() ) {
@@ -1909,7 +1909,7 @@ sub inline_mangle_rules {
 }
 
 sub inline_nat_redirect_rules {
-    my ($chains , $service_name) = @_;
+    my ($service_name, $chains) = @_;
     my $logger = get_logger();
     if ( is_inline_enforcement_enabled() ) {
         $logger->info("Nat redirect rules are starting.");
