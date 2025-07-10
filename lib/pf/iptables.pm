@@ -35,6 +35,8 @@ use Symbol qw(gensym);
 use File::Path qw(make_path);
 use IPC::Open3 qw(open3);
 use File::Basename;
+use Scalar::Util 'reftype';
+use Data::Dumper;
 
 BEGIN {
   use Exporter ();
@@ -1579,7 +1581,7 @@ sub iptables_pfipset_rules {
         }
     }
     pfipset_provisioning_passthroughs();
-    pfipset_inline_rules($service_name,$chains);
+    pfipset_inline_rules($service_name, $chains);
     if ($chains->{name} ne "") {
         # Convert to JSON and save to file
         util_create_service_rules($chains);
@@ -1950,6 +1952,8 @@ sub get_network_snat_interface {
     my $logger = get_logger();
     if (defined ($Config{'network'}{'interfaceSNAT'}) && $Config{'network'}{'interfaceSNAT'} ne '') {
         return $Config{'network'}{'interfaceSNAT'};
+    } else {
+        $logger->warn("Nothing in config for network interfaceSNAT");
     }
 }
 
@@ -2044,10 +2048,15 @@ Add value only if not other equal value are in array
 
 sub util_safe_push {
     my ($value, $array_ref) = @_;
+    my $logger = get_logger();
     foreach my $item (@$array_ref) {
         return if $item eq $value;
     }
-    push @$array_ref, $value;
+    if (defined $array_ref && reftype($array_ref) eq 'ARRAY') {
+        push @$array_ref, $value;
+    } else {
+        $logger->war("Debug \$array_ref: " . Dumper($array_ref) );
+    }
 }
 
 
