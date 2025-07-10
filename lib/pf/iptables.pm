@@ -2049,10 +2049,10 @@ Add value only if not other equal value are in array
 sub util_safe_push {
     my ($value, $array_ref) = @_;
     my $logger = get_logger();
-    foreach my $item (@$array_ref) {
-        return if $item eq $value;
-    }
     if (defined $array_ref && reftype($array_ref) eq 'ARRAY') {
+        foreach my $item (@$array_ref) {
+            return if $item eq $value;
+        }
         push @$array_ref, $value;
     } else {
         $logger->war("Debug \$array_ref: " . Dumper($array_ref) );
