@@ -776,7 +776,7 @@ sub iptables_httpd_portal_rules {
         $chains->{name} = $service_name;
         foreach my $network ( @portal_ints ) {
             my $tint =  $network->{Tint};
-            util_direct_rule( "-i $tint -p tcp -m tcp --dport 8080 -j ACCEPT" );
+            util_safe_push( "-i $tint -p tcp -m tcp --dport 8080 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
         $logger->warn("Service $service_name: No Portal Ints are not set.");
