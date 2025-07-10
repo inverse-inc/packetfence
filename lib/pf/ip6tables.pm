@@ -324,7 +324,7 @@ Function to check if management interface is set
 sub util_management_network_is_set {
     my ( $service_name ) = @_ ;
     my $logger = get_logger();
-    if (!ref($management_network || ! exists $management_network->{Tint} || $management_network->{Tint} eq "" ) ) {
+    if ( !ref($management_network) || !exists $management_network->{Tint} || $management_network->{Tint} eq "" ) {
         $logger->warn("Service $service_name: Management Interface is not set.");
         return 0;
     }
