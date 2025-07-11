@@ -30,7 +30,10 @@ sub init {
     my ($self, $host_id) = @_;
     $self->{host_id} = $host_id;
     $self->{file} = $domain_config_file;
-    $self->{child_resources} = [ 'resource::domain_dns_servers' ];
+    $self->{child_resources} = [
+        'resource::domain_dns_servers'
+        'resource::pfconnector_static_connections',
+   ];
 }
 
 sub build_child {

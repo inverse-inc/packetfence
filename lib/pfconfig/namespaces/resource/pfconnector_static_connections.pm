@@ -15,6 +15,7 @@ use warnings;
 use base 'pfconfig::namespaces::resource';
 use NetAddr::IP;
 use pf::util qw(listify);
+use pf::util qw(isenabled);
 
 sub init {
     my ($self) = @_;
@@ -26,6 +27,8 @@ sub init {
       $self->{cache}->get_cache('resource::connectors_ordered');
     $self->{_dns_connectors_config} =
       $self->{cache}->get_cache('config::DnsConnectors');
+    $self->{_domain_config} =
+      $self->{cache}->get_cache('config::Domain');
 }
 
 sub find_connector {
@@ -78,6 +81,16 @@ sub build {
         next unless defined $port;
         my $connector = $self->find_connector( $data->{ip} );
         my $r         = "100.64.0.1:${port}:$data->{ip}:$data->{port}/udp";
+        push @{ $hash{$connector} }, $r;
+    }
+    while ( ( $id, $data ) =
+        each %{ $self->{_domain_config} } )
+    {
+        next unless isenabled($data->{'use_connector'});
+        my $port = $data->{'ntlm_auth_port'};
+        next unless defined $port;
+        my $connector = $self->find_connector( $data->{ad_server} );
+        my $r         = "${port}:127.0.0.1:$data->{port}/tcp";
         push @{ $hash{$connector} }, $r;
     }
     return \%hash;
