@@ -38,9 +38,11 @@ done
 
 output_ini="/usr/local/ntlm-auth-api/conf/domain.conf"
 
-> "output_ini"
+hostname=`hostname`
 
-jq -r 'to_entries[] |
-       "[\(.key)]",
+> $output_ini
+
+jq -r --arg hostname "$hostname"  'to_entries[] |
+        "[\($hostname) \(.key)]",
        (.value | to_entries[] | "\(.key)=\(.value)"),
        ""' "$INPUT_FILE" >> "$output_ini"
