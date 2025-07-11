@@ -1668,7 +1668,7 @@ sub inline_nat_back_rules {
                   util_safe_push( "-d $network/$inline_obj->{BITS} -i $tint -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
                 }
             }
-            util_safe_push( "-m state --state ESTABLISHED,RELATED -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+            util_safe_push( "-i $tint -m state --state ESTABLISHED,RELATED -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
         }
         if($management_network) {
             my $mgmt_int = $management_network->tag("int");
@@ -2055,7 +2055,7 @@ sub util_safe_push {
         }
         push @$array_ref, $value;
     } else {
-        $logger->war("Debug \$array_ref: " . Dumper($array_ref) );
+        $logger->warn("Debug \$array_ref: " . Dumper($array_ref) );
     }
 }
 
