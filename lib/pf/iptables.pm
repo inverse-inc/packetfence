@@ -121,6 +121,13 @@ use pf::authentication;
 use pf::cluster;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::Domain;
+use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
+use pf::nodecategory;
+use pf::ip4log;
+use pf::authentication;
+use pf::api::unifiedapiclient;
+use pf::constants;
+use pf::config::cluster;
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
