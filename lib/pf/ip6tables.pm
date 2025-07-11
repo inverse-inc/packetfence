@@ -469,14 +469,25 @@ Add value only if not other equal value are in array
 sub util_safe_push {
     my ($value, $array_ref) = @_;
     my $logger = get_logger();
+
     if (defined $array_ref && reftype($array_ref) eq 'ARRAY') {
+        my $normalized_value = _normalize_rule($value);
+
         foreach my $item (@$array_ref) {
-            return if $item eq $value;
+            return if _normalize_rule($item) eq $normalized_value;
         }
         push @$array_ref, $value;
     } else {
-        $logger->warn("Debug \$array_ref: \n" . Dumper($array_ref) . "\n\nand the value is \n". Dumper($value)  );
+        $logger->warn("Debug \$array_ref: \n" . Dumper($array_ref) . "\n\nand the value is \n". Dumper($value));
     }
+}
+
+sub _normalize_rule {
+    my $rule = shift;
+    $rule =~ s/\s*,\s*/,/g;
+    $rule =~ s/\s+/ /g;
+    $rule =~ s/^\s+|\s+$//g;
+    return $rule;
 }
 
 =item util_generated_ip6tables_fix_dir_permissions
