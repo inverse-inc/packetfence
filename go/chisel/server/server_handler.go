@@ -585,7 +585,7 @@ func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Requ
 			User:       dbConfig.User,
 			Password:   dbConfig.Pass.String(),
 			Name:       dbConfig.Db,
-			UnixSocket: "/var/lib/mysql/mysql.sock",
+			UnixSocket: "",
 		},
 		Cache: CacheConfig{
 			Host: "127.0.0.1",
