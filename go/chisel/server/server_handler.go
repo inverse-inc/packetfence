@@ -94,6 +94,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-ntlm-auth-api-env":
 		s.handleRemoteNtlmAuthAPIEnv(w, r)
 		return
+	case apiPrefix + "/remote-ntlm-auth-api-db":
+		s.handleRemoteNtlmAuthAPIDB(w, r)
+		return
 	}
 	//missing :O
 	w.WriteHeader(404)
@@ -450,6 +453,8 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp|radius", managementIP))),
 			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp|radius", managementIP))),
 			fmt.Sprintf("9096:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9096", fmt.Sprintf("%s:9096", managementIP))),
+			fmt.Sprintf("127.0.0.1:6379:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_6379", fmt.Sprintf("%s:6379", managementIP))),
+			fmt.Sprintf("127.0.0.1:3306:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_3306", fmt.Sprintf("%s:3306", managementIP))),
 		}})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
@@ -548,6 +553,54 @@ func (s *Server) handleRemoteNtlmAuthAPIEnv(w http.ResponseWriter, req *http.Req
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
+}
+
+func (s *Server) handleRemoteNtlmAuthAPIDB(w http.ResponseWriter, req *http.Request) {
+	type DatabaseConfig struct {
+		Host       string `json:"DB_HOST"`
+		Port       string `json:"DB_PORT"`
+		User       string `json:"DB_USER"`
+		Password   string `json:"DB_PASS"`
+		Name       string `json:"DB"`
+		UnixSocket string `json:"DB_UNIX_SOCKET"`
+	}
+
+	type CacheConfig struct {
+		Host string `json:"CACHE_HOST"`
+		Port string `json:"CACHE_PORT"`
+	}
+
+	type AppConfig struct {
+		DB    DatabaseConfig `json:"DB"`
+		Cache CacheConfig    `json:"CACHE"`
+	}
+
+	dbConfig := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](req.Context())
+
+	appConfig := AppConfig{
+		DB: DatabaseConfig{
+			Host:       "127.0.0.1̈́",
+			Port:       "3306",
+			User:       dbConfig.User,
+			Password:   dbConfig.Pass.String(),
+			Name:       dbConfig.Db,
+			UnixSocket: "/var/lib/mysql/mysql.sock",
+		},
+		Cache: CacheConfig{
+			Host: "127.0.0.1",
+			Port: "6379",
+		},
+	}
+	jsonData, err := json.Marshal(appConfig)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Error while marshalling appConfig: %s", err)})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+
 }
 
 func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *http.Request) {

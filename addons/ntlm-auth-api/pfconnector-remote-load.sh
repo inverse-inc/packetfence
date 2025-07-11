@@ -46,3 +46,27 @@ jq -r --arg hostname "$hostname"  'to_entries[] |
         "[\($hostname) \(.key)]",
        (.value | to_entries[] | "\(.key)=\(.value)"),
        ""' "$INPUT_FILE" >> "$output_ini"
+
+
+# Generate db.ini
+
+curl --fail "localhost:22226/api/v1/pfconnector/remote-ntlm-auth-api-db" > /usr/local/ntlm-auth-api/conf/db.env
+
+
+# JSON File
+DB_FILE="/usr/local/ntlm-auth-api/conf/db.env"
+if [ ! -f "$DB_FILE" ]; then
+    echo "Error: File $DB_FILE doesn't exists"
+    exit 1
+fi
+
+db_ini="/usr/local/ntlm-auth-api/var/conf/ntlm-auth-api.d/db.ini"
+
+
+> $db_ini
+
+jq -r 'to_entries[] |
+        "[\(.key)]",
+       (.value | to_entries[] | "\(.key)=\(.value)"),
+       ""' "$DB_FILE" >> "$db_ini"
+

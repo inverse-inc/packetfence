@@ -337,6 +337,7 @@ ntlm_auth_api_remote_install:
 	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)
 	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)
 	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/conf
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/conf/ntlm-auth-api.d
 	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/run
 
 	@echo "install $(SRC_NTLM_AUTH_APIDIR) files"
