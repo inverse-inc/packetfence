@@ -83,14 +83,14 @@ sub build {
         my $r         = "100.64.0.1:${port}:$data->{ip}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
     }
-    while ( ( $id, $data ) =
+    while ( my ( $id, $data ) =
         each %{ $self->{_domain_config} } )
     {
         next unless isenabled($data->{'use_connector'});
         my $port = $data->{'ntlm_auth_port'};
         next unless defined $port;
         my $connector = $self->find_connector( $data->{ad_server} );
-        my $r         = "${port}:127.0.0.1:$data->{port}/tcp";
+        my $r         = "${port}:127.0.0.1:$data->{ntlm_auth_port}/tcp";
         push @{ $hash{$connector} }, $r;
     }
     return \%hash;
