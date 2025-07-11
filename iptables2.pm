@@ -428,7 +428,7 @@ sub iptables_haproxy_portal_rules {
 
     if ( @portal_ints ) {
         # 'portal' interfaces handling
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         foreach my $portal_interface ( @portal_ints ) {
             my $tint = $portal_interface->tag("int");
             util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -440,7 +440,7 @@ sub iptables_haproxy_portal_rules {
 
     if ( @inline_enforcement_nets ) {
         # 'portal' interfaces handling
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         foreach my $network ( @inline_enforcement_nets ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -452,7 +452,7 @@ sub iptables_haproxy_portal_rules {
 
     if ( @vlan_enforcement_nets ) {
         # 'portal' interfaces handling
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -487,13 +487,13 @@ sub iptables_radiusd_lb_rules {
 
     if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
     }
 
     if ( @radius_ints ) {
         # 'radius' interfaces handling
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -785,7 +785,7 @@ sub iptables_httpd_portal_rules {
     }
 }
 
-=item iptables_haproxy_db_rules
+item iptables_haproxy_db_rules
 
 Iptable rules for haproxy db service
 
@@ -879,7 +879,7 @@ sub iptables_radiusd_auth_rules {
     if ( @radius_ints ) {
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-	foreach my $network ( @radius_ints ) {
+        foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p udp -m udp --dport 1812 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             util_safe_push( "-i $tint -p tcp -m tcp --dport 2083 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -908,7 +908,7 @@ sub iptables_radiusd_cli_rules {
     if ( @radius_ints ) {
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-	foreach my $network ( @radius_ints ) {
+        foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p udp -m udp --dport 1815 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             util_safe_push( "-i $tint -p udp -m udp --dport 1825 -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
@@ -1004,7 +1004,7 @@ sub iptables_pfdns_rules {
 sub dns_interception_rules {
     my $chains = shift;
     my $logger = get_logger();
-  
+
     $logger->info("Service $chains->name: Interception rules are starting.");
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
@@ -1734,7 +1734,7 @@ sub inline_generate_rules {
                 util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
                 util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_ISOLATION -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
             }
-            util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_REG -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
+            util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_REG -j ACCEPT", @{$chains->{'filter'}{'FORWARD'}} );
         }
         $logger->info("Inline rules are done.");
     } else {
@@ -2171,7 +2171,7 @@ sub util_add_custom_config_from_file {
         my $filename = fileparse($file);
         my $json_content = read_file($file);
         my $custom_config = decode_json($json_content);
-        
+
         $custom_config->{'name'}=$filename;
 
         my %allowed_structure = (
@@ -2183,30 +2183,30 @@ sub util_add_custom_config_from_file {
         my $has_rules = 0;
         foreach my $table (keys %$custom_config) {
             next if $table eq 'name';
-            
+
             unless (exists $allowed_structure{$table}) {
                 printf ("Invalid table '$table' in $filename");
                 $logger->warn("Invalid table '$table' in $filename");
                 return \%empty_hash;
             }
-            
+
             foreach my $chain (keys %{$custom_config->{$table}}) {
                 unless (exists $allowed_structure{$table}{$chain}) {
                     $logger->warn("Invalid chain '$chain' in table '$table' in $filename");
                     return \%empty_hash;
                 }
-                
+
                 $has_rules = 1 if @{$custom_config->{$table}{$chain}};
             }
         }
-        
+
         if ($has_rules) {
             $logger->info("Rules available  in $file");
             return $custom_config;
         } else {
             $logger->warn("No rules available in $file");
         }
-        
+
         $logger->warn("Config in $filename contains no rules");
         return \%empty_hash;
     } catch {
@@ -2238,7 +2238,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2025 Inverse inc.
+Copyright (C) 2005-2024 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
@@ -2264,3 +2264,5 @@ USA.
 =cut
 
 1;
+
+
