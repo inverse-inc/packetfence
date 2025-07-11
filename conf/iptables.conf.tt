@@ -29,6 +29,11 @@
 ## filter table ##
 *filter
 
+-N DOCKER
+-N DOCKER-ISOLATION-STAGE-1
+-N DOCKER-ISOLATION-STAGE-2
+-N DOCKER-USER
+
 ### filter INPUT chain ###
 :INPUT DROP [0:0]
 
@@ -42,16 +47,6 @@
 -A INPUT --protocol icmp --icmp-type echo-request --jump ACCEPT
 
 # Docker related rules
--N DOCKER
--N DOCKER-ISOLATION-STAGE-1
--N DOCKER-ISOLATION-STAGE-2
--N DOCKER-USER
--A FORWARD -j DOCKER-USER
--A FORWARD -j DOCKER-ISOLATION-STAGE-1
--A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A FORWARD -o docker0 -j DOCKER
--A FORWARD -i docker0 ! -o docker0 -j ACCEPT
--A FORWARD -i docker0 -o docker0 -j ACCEPT
 -A DOCKER-ISOLATION-STAGE-1 -i docker0 ! -o docker0 -j DOCKER-ISOLATION-STAGE-2
 -A DOCKER-ISOLATION-STAGE-1 -j RETURN
 -A DOCKER-ISOLATION-STAGE-2 -o docker0 -j DROP
@@ -68,6 +63,13 @@
 
 ### filter FORWARD chain ###
 :FORWARD DROP [0:0]
+
+-A FORWARD -j DOCKER-USER
+-A FORWARD -j DOCKER-ISOLATION-STAGE-1
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
 
 [% IF custom.filter.FORWARD && custom.filter.FORWARD.size %]
 [% INCLUDE chain_rules chain='FORWARD' rules=custom.filter.FORWARD %]
@@ -154,6 +156,8 @@ COMMIT
 ## nat table ##
 *nat
 
+-N DOCKER
+
 ### nat PREROUTING chain ###
 :PREROUTING ACCEPT [0:0]
 
@@ -164,6 +168,8 @@ COMMIT
 [% IF merged.nat.PREROUTING && merged.nat.PREROUTING.size %]
 [% INCLUDE chain_rules chain='PREROUTING' rules=merged.nat.PREROUTING %]
 [% END %]
+
+-A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER
 
 ### nat OUTPUT chain ###
 :OUTPUT ACCEPT [0:0]
@@ -176,6 +182,8 @@ COMMIT
 [% INCLUDE chain_rules chain='OUTPUT' rules=merged.nat.OUTPUT %]
 [% END %]
 
+-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER
+
 ### nat POSTROUTING chain ###
 :POSTROUTING ACCEPT [0:0]
 
@@ -187,9 +195,6 @@ COMMIT
 [% INCLUDE chain_rules chain='POSTROUTING' rules=merged.nat.POSTROUTING %]
 [% END %]
 
--N DOCKER
--A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER
--A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER
 -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE
 -A DOCKER -i docker0 -j RETURN
 
