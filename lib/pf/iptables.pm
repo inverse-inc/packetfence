@@ -1028,13 +1028,13 @@ sub dns_interception_rules {
                     my $destination = $Config{"interface $tint"}{'vip'} || $Config{"interface $tint"}{'ip'};
                     if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
                         foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-                            my $rule = "-p tcp -dport $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
+                            my $rule = "-p tcp --dport $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
                             util_safe_push( "-i $tint $rule -j DNAT --to $destination", $chains->{'nat'}{'PREROUTING'} );
                         }
                     }
-                    my $rule = "-p udp -dport 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+                    my $rule = "-p udp --dport 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
                     util_safe_push( "-i $tint $rule -j DNAT --to $destination", $chains->{'nat'}{'PREROUTING'} );
-                    $rule    = "-p tcp -dport 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+                    $rule    = "-p tcp --dport 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
                     util_safe_push( "-i $tint $rule -j DNAT --to $destination", $chains->{'nat'}{'PREROUTING'} );
                 }
             }
@@ -1047,7 +1047,7 @@ sub dns_interception_rules {
                 my $tint = $interface->tag("int");
                 my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
                 if (is_type_inline($enforcement_type)) {
-                    my $rule = "-p tcp -dport $intercept_port";
+                    my $rule = "-p tcp --dport $intercept_port";
                     util_safe_push( "-i $tint -d $internal_portal_ip $rule -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 }
             }
@@ -1703,12 +1703,12 @@ sub inline_generate_rules {
             my $tint = $NetworkConfig{$network}{'interface'}{'int'};
             my $gateway = $Config{"interface $tint"}{'ip'};
 
-            my $rule = "-p udp -dport 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+            my $rule = "-p udp --dport 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
             util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
             util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
 
             if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
-                $rule = "-p udp -dport 53 -s $ConfigNetworks{$network}{'reg_network'}";
+                $rule = "-p udp --dport 53 -s $ConfigNetworks{$network}{'reg_network'}";
                 util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
                 util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
             }
@@ -1716,7 +1716,7 @@ sub inline_generate_rules {
             if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
                 $logger->info("Adding Proxy interception rules");
                 foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-                    my $rule = "-p tcp -dport $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
+                    my $rule = "-p tcp --dport $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
                     util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
                     util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
                 }
@@ -1904,9 +1904,9 @@ sub inline_nat_redirect_rules {
             my $tint = $NetworkConfig{$network}{'interface'}{'int'};
             if ($passthrough_enabled) {
                 $rule = " -m set --match-set pfsession_passthrough dst,dst -m mark --mark 0x$IPTABLES_MARK_UNREG -j ACCEPT";
-                util_safe_push( "-i $tint $rule", $chains->{'mangle'}{'PREROUTING'} );
+                util_safe_push( "-i $tint $rule", $chains->{'nat'}{'PREROUTING'} );
                 $rule = " -m set --match-set pfsession_isol_passthrough dst,dst -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j ACCEPT";
-                util_safe_push( "-i $tint $rule", $chains->{'mangle'}{'PREROUTING'} );
+                util_safe_push( "-i $tint $rule", $chains->{'nat'}{'PREROUTING'} );
             }
         }
         # Now, do your magic
@@ -1921,9 +1921,9 @@ sub inline_nat_redirect_rules {
 
                 # Destination NAT to the portal on the ISOLATION mark
                 $rule =
-                " -p $protocol -dport $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
+                " -p $protocol --dport $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
                 " -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway";
-                util_safe_push( "-i $tint $rule", $chains->{'mangle'}{'PREROUTING'} );
+                util_safe_push( "-i $tint $rule", $chains->{'nat'}{'PREROUTING'} );
             }
         }
         $logger->info("Nat redirect rules are done.");
