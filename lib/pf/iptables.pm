@@ -2055,7 +2055,7 @@ sub util_safe_push {
         }
         push @$array_ref, $value;
     } else {
-        $logger->warn("Debug \$array_ref: " . Dumper($array_ref) );
+        $logger->warn("Debug \$array_ref: \n" . Dumper($array_ref) . "\n\nand the value is \n". Dumper($value)  );
     }
 }
 
