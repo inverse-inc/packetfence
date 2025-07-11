@@ -27,6 +27,11 @@ use File::Basename;
 use Switch;
 use Symbol qw(gensym);
 use IPC::Open3 qw(open3);
+use Data::Dumper;
+use Template;
+use Scalar::Util 'reftype';
+use Try::Tiny;
+use Sys::Hostname;
 
 use pf::log;
 use pf::constants;
@@ -408,11 +413,11 @@ sub util_create_service_rules {
     my $json = JSON->new->pretty->canonical->encode($chains_ref);
 
     # Add .json extension if not present
-    my $filename = $generated_conf_dir."/ip6tables/".$chains_ref->{'name'}.'.json';
+    my $filename = $generated_ip6tables_conf_dir."/".$chains_ref->{'name'}.'.json';
 
     # Create directory if it doesn't exist
-    unless (-d $generated_conf_dir."/ip6tables") {
-        make_path($generated_conf_dir."/ip6tables") or die $logger->error("Could not create directory $generated_conf_dir/ip6tables: $!");
+    unless (-d $generated_ip6tables_conf_dir) {
+        make_path($generated_ip6tables_conf_dir) or die $logger->error("Could not create directory $generated_ip6tables_conf_dir: $!");
     }
 
     # Write to file
@@ -440,7 +445,7 @@ sub util_remove_service_rules {
     my $logger = get_logger();
 
     # Add .json extension if not present
-    my $filename = $generated_conf_dir."/ip6tables/".$service_name.'.json';
+    my $filename = $generated_ip6tables_conf_dir."/".$service_name.'.json';
     if (-e $filename) {
         if (unlink $filename) {
             $logger->info("Successfully removed $filename");
@@ -470,7 +475,7 @@ sub util_safe_push {
         }
         push @$array_ref, $value;
     } else {
-        $logger->war("Debug \$array_ref: " . Dumper($array_ref) );
+        $logger->warn("Debug \$array_ref: \n" . Dumper($array_ref) . "\n\nand the value is \n". Dumper($value)  );
     }
 }
 
