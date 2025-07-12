@@ -23,6 +23,7 @@ use pfconfig::namespaces::config;
 use pf::log;
 use pf::file_paths qw($domain_config_file);
 use Sys::Hostname;
+use pf::util qw(isenabled);
 
 use base 'pfconfig::namespaces::config';
 
@@ -48,6 +49,14 @@ sub build_child {
         if(exists($cfg->{server_name}) && lc($cfg->{server_name}) =~ /%h/) {
             my $name = [split(/\./,( $self->{host_id} // hostname() ) )]->[0];
             $cfg->{server_name} =~ s/%h/$name/;
+        }
+        if (exists($cfg->{use_connector}) && isenabled($cfg->{use_connector})) {
+            $cfg->{ntlm_auth_port} += 100;
+            if (exists $ENV{'PFCONNECTOR_PORT_22226_TCP_ADDR'}) {
+                $cfg->{ntlm_auth_host} = $ENV{'PFCONNECTOR_PORT_22226_TCP_ADDR'};
+            } else {
+                $cfg->{ntlm_auth_host} = "containers-gateway.internal";
+            }
         }
     }
 
