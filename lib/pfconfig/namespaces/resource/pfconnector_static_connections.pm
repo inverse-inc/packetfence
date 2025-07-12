@@ -89,6 +89,7 @@ sub build {
         next unless isenabled($data->{'use_connector'});
         my $port = $data->{'ntlm_auth_port'};
         next unless defined $port;
+        $port += 100;
         my $connector = $self->find_connector( $data->{ad_server} );
         my $r         = "${port}:127.0.0.1:$data->{ntlm_auth_port}/tcp";
         push @{ $hash{$connector} }, $r;
