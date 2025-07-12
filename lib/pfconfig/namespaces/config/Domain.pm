@@ -52,6 +52,7 @@ sub build_child {
         }
         if (exists($cfg->{use_connector}) && isenabled($cfg->{use_connector})) {
             $cfg->{ntlm_auth_port} += 100;
+            $cfg->{ntlm_auth_port} = '' . $cfg->{ntlm_auth_port};
             if (exists $ENV{'PFCONNECTOR_PORT_22226_TCP_ADDR'}) {
                 $cfg->{ntlm_auth_host} = $ENV{'PFCONNECTOR_PORT_22226_TCP_ADDR'};
             } else {
