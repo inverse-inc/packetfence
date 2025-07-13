@@ -87,10 +87,13 @@ sub authorize {
     if( defined($realm_config) && defined($realm_config->{domain}) ) {
         # We have found this realm in PacketFence. We use the domain associated with it for the authentication
         $RAD_REQUEST{"PacketFence-Domain"} = $realm_config->{domain};
+        if ($multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{use_connector} eq '1') {
+            $RAD_REQUEST{"PacketFence-NTLM-Auth-Port"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlm_auth_port} + 100;
+        } else {
+            $RAD_REQUEST{"PacketFence-NTLM-Auth-Port"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlm_auth_port};
+        }
         $RAD_REQUEST{"PacketFence-NTLM-Auth-Host"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlm_auth_host};
-        $RAD_REQUEST{"PacketFence-NTLM-Auth-Port"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlm_auth_port};
     }
-
 
     # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)
     return $RADIUS::RLM_MODULE_UPDATED;
