@@ -1106,7 +1106,13 @@ sub validate {
         next if !$nc;
         my $name = $nc->{name};
         if (!check_allowed_options($roles, 'allowed_node_roles', $name)) {
-            push @errors, { field => 'category_id', message => "$name is not allowed" };
+            push @errors, { field => $f, message => "$name is not allowed" };
+        }
+
+        if ($f eq 'bypass_role_id') {
+            if (!check_allowed_options($roles, 'allowed_node_bypass_roles', $name)) {
+                push @errors, { field => $f, message => "$name is not allowed" };
+            }
         }
     }
 
@@ -1121,6 +1127,13 @@ sub validate {
 
     if (exists $json->{bypass_acls}) {
         push @errors, $self->validate_bypass_acls($json->{bypass_acls});
+    }
+
+    if ($json->{bypass_vlan}) {
+        my $bypass_vlan = $json->{bypass_vlan};
+        if (!check_allowed_options($roles, 'allowed_node_bypass_vlans', $bypass_vlan)) {
+            push @errors, { field => 'bypass_vlan', message => "$bypass_vlan is not allowed" };
+        }
     }
 
     if (@errors) {
