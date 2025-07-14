@@ -59,14 +59,15 @@
           :text="$i18n.t('List of roles available to the admin user to assign to a node. If none are provided then all roles are available.')"
         />
 
-        <form-group-allowed-node-roles namespace="allowed_node_bypass_roles"
+        <form-group-allowed-node-bypass-roles namespace="allowed_node_bypass_roles"
           :column-label="$i18n.t('Allowed node bypass roles')"
           :text="$i18n.t('List of bypass roles available to the admin user to assign to as the node bypass role. If none are provided then all roles are available.')"
         />
 
-        <form-group-allowed-node-roles namespace="allowed_node_bypass_vlans"
+        <form-group-allowed-node-bypass-vlans namespace="allowed_node_bypass_vlans"
           :column-label="$i18n.t('Allowed node bypass vlans')"
           :text="$i18n.t('List of bypass vlans available to the admin user to assign to as the node bypass vlan. If none are provided then any vlan can be placed.')"
+          taggable
         />
 
       </base-form-tab>
@@ -89,7 +90,9 @@ import {
   FormGroupAllowedAccessDurations,
   FormGroupAllowedUnregDate,
   FormGroupAllowedActions,
-  FormGroupAllowedNodeRoles
+  FormGroupAllowedNodeRoles,
+  FormGroupAllowedNodeBypassRoles,
+  FormGroupAllowedNodeBypassVlans,
 } from './'
 
 const components = {
@@ -104,7 +107,9 @@ const components = {
   FormGroupAllowedAccessDurations,
   FormGroupAllowedUnregDate,
   FormGroupAllowedActions,
-  FormGroupAllowedNodeRoles
+  FormGroupAllowedNodeRoles,
+  FormGroupAllowedNodeBypassRoles,
+  FormGroupAllowedNodeBypassVlans,
 }
 
 export const props = {

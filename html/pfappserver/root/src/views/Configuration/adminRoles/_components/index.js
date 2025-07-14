@@ -6,6 +6,7 @@ import {
   BaseFormGroupInputDate
 } from '@/components/new/'
 import BaseFormGroupAclAllowedActions from './BaseFormGroupAclAllowedActions'
+import BaseFormGroupAllowedNodeBypassVlans from './BaseFormGroupAllowedNodeBypassVlans'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -22,7 +23,8 @@ export {
   BaseFormGroupInputDate              as FormGroupAllowedUnregDate,
   BaseFormGroupAclAllowedActions      as FormGroupAllowedActions,
   BaseFormGroupChosenMultiple         as FormGroupAllowedNodeRoles,
-
+  BaseFormGroupChosenMultiple         as FormGroupAllowedNodeBypassRoles,
+  BaseFormGroupAllowedNodeBypassVlans as FormGroupAllowedNodeBypassVlans,
   TheForm,
   TheView
 }
