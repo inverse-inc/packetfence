@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -17,9 +17,9 @@ func GetDomainConfig(ctx context.Context) (pfconfigdriver.ResourceDomains, error
 	var domain pfconfigdriver.ResourceDomains
 	err := pfconfigdriver.FetchDecodeSocket(ctx, &domain)
 	if err != nil {
-		return domain, nil
+		return domain, err
 	}
-	return domain, err
+	return domain, nil
 }
 
 func CheckMachineAccountPassword(ctx context.Context, backendHostPort string) (bool, error) {
@@ -35,7 +35,7 @@ func CheckMachineAccountPassword(ctx context.Context, backendHostPort string) (b
 
 	defer response.Body.Close()
 	statusCode := response.StatusCode
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, err
 	}
@@ -65,7 +65,7 @@ func CheckMachineAccountWithGivenPassword(ctx context.Context, backendHostPort s
 
 	defer response.Body.Close()
 	statusCode := response.StatusCode
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, err
 	}
@@ -92,7 +92,7 @@ func ReportMSEvent(ctx context.Context, backendHostPort string, jsonData any) er
 
 	defer response.Body.Close()
 	statusCode := response.StatusCode
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return err
 	}
