@@ -94,6 +94,11 @@ sub allowed_node_bypass_roles {
     return $self->_allowed_roles('allowed_node_bypass_roles');
 }
 
+sub allowed_node_bypass_vlans {
+    my ($self) = @_;
+    return $self->_allowed_options('allowed_node_bypass_vlans', 'vlans', sub {});
+}
+
 sub render_items {
     my ($self, $key, @items) = @_;
     return $self->render(
