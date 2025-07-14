@@ -102,6 +102,23 @@ has_field 'allowed_node_bypass_roles' =>
              help => 'List of roles available to the admin user to assign to a node. If none are provided then all roles are available' },
   );
 
+has_field 'allowed_node_bypass_vlans' =>
+  (
+   type => 'Repeatable',
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add a vlan' },
+   tags => { after_element => \&help,
+             help => 'Allowed list of' },
+  );
+
+has_field 'allowed_node_bypass_vlans.contains' =>
+  (
+   type => 'Text',
+   element_class => ['chzn-select'],
+   tags => { after_element => \&help,
+             help => 'Allow' },
+  );
+
 has_field 'allowed_access_levels' =>
   (
    type => 'Select',
