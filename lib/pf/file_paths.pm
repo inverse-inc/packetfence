@@ -146,7 +146,7 @@ BEGIN {
     @EXPORT_OK = qw(
         $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir $run_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir $acme_challenge_dir
-	$conf_uploads
+        $conf_uploads
         $generated_iptables_conf_dir $generated_ip6tables_conf_dir
         $pf_default_file
         $pf_config_file
@@ -225,7 +225,7 @@ BEGIN {
         $fingerbank_default_config_file
         $fingerbank_doc_file
         $api_i18n_dir
-	$iptable_custom_config_file
+        $iptable_custom_config_file
         $ip6table_custom_config_file
         $ssl_config_file $ssl_default_config_file
         $tls_config_file $tls_default_config_file

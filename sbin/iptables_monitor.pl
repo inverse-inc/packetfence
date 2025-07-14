@@ -42,7 +42,7 @@ if ( $managed ) {
     $inotify->watch( $generated_iptables_conf_dir, IN_CREATE | IN_DELETE | IN_MODIFY | IN_CLOSE_WRITE, sub {
         my $event = shift;
         my $file = $event->fullname;
-	generate_iptables_configuration($file);
+        generate_iptables_configuration($file);
     });
     $inotify->watch( $conf_dir."/iptables-custom.conf.inc", IN_CREATE | IN_DELETE | IN_MODIFY | IN_CLOSE_WRITE, sub {
         my $event = shift;

@@ -428,7 +428,7 @@ sub iptables_haproxy_portal_rules {
 
     if ( @portal_ints ) {
         # 'portal' interfaces handling
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         foreach my $portal_interface ( @portal_ints ) {
             my $tint = $portal_interface->tag("int");
             util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -440,7 +440,7 @@ sub iptables_haproxy_portal_rules {
 
     if ( @inline_enforcement_nets ) {
         # 'portal' interfaces handling
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         foreach my $network ( @inline_enforcement_nets ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -452,7 +452,7 @@ sub iptables_haproxy_portal_rules {
 
     if ( @vlan_enforcement_nets ) {
         # 'portal' interfaces handling
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         foreach my $network ( @vlan_enforcement_nets ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -487,13 +487,13 @@ sub iptables_radiusd_lb_rules {
 
     if ( util_management_network_is_set($service_name) ){
         my $tint = $management_network->{Tint};
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
     }
 
     if ( @radius_ints ) {
         # 'radius' interfaces handling
-	$chains->{'name'} = $service_name;
+        $chains->{'name'} = $service_name;
         foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p udp -m udp --dport 1814 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -879,7 +879,7 @@ sub iptables_radiusd_auth_rules {
     if ( @radius_ints ) {
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-	foreach my $network ( @radius_ints ) {
+        foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p udp -m udp --dport 1812 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             util_safe_push( "-i $tint -p tcp -m tcp --dport 2083 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -908,7 +908,7 @@ sub iptables_radiusd_cli_rules {
     if ( @radius_ints ) {
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-	foreach my $network ( @radius_ints ) {
+        foreach my $network ( @radius_ints ) {
             my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p udp -m udp --dport 1815 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             util_safe_push( "-i $tint -p udp -m udp --dport 1825 -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
