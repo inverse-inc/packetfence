@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/inverse-inc/packetfence/go/ntlm"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -61,7 +63,7 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 		return
 	}
 
-	var sectionConf interface{}
+	var sectionConf pfconfigdriver.Domain
 	var exists bool
 
 	hostname, _ := os.Hostname()
@@ -80,8 +82,9 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 		return
 	}
 
-	ntlmAuthPort, exists := sectionConf.(map[string]interface{})["ntlm_auth_port"]
-	if !exists {
+	ntlmAuthPort := sectionConf.NtlmAuthPort
+	ntlmAuthHost := sectionConf.NtlmAuthHost
+	if ntlmAuthPort == "" {
 		w.WriteHeader(http.StatusInternalServerError)
 		res := &response{
 			Status:  http.StatusInternalServerError,
@@ -92,7 +95,24 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 		return
 	}
 
-	err = ntlm.ReportMSEvent(ctx, ntlmAuthPort.(string), req)
+	if sectionConf.UseConnector == "1" {
+		AuthPort, err := strconv.Atoi(ntlmAuthPort)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			res := &response{
+				Status:  http.StatusInternalServerError,
+				Message: "Invalid NTLM auth port for domain " + req.Domain,
+			}
+			j, _ := json.Marshal(res)
+			w.Write(j)
+			return
+		}
+		// Use connector for NTLM auth
+		ntlmAuthPort = strconv.Itoa(AuthPort + 100)
+	}
+	ntlmAuthHostPort := ntlmAuthHost + ":" + ntlmAuthPort
+
+	err = ntlm.ReportMSEvent(ctx, ntlmAuthHostPort, req)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		res := &response{
@@ -152,7 +172,7 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 		return
 	}
 
-	var sectionConf interface{}
+	var sectionConf pfconfigdriver.Domain
 	var exists bool
 	hostname, _ := os.Hostname()
 
@@ -170,9 +190,9 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 		w.Write(j)
 		return
 	}
-
-	ntlmAuthPort, exists := sectionConf.(map[string]interface{})["ntlm_auth_port"]
-	if !exists {
+	ntlmAuthPort := sectionConf.NtlmAuthPort
+	ntlmAuthHost := sectionConf.NtlmAuthHost
+	if ntlmAuthPort == "" {
 		w.WriteHeader(http.StatusInternalServerError)
 		res := &response{
 			Status:  http.StatusInternalServerError,
@@ -182,8 +202,23 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 		w.Write(j)
 		return
 	}
-
-	passed, err := ntlm.CheckMachineAccountWithGivenPassword(ctx, ntlmAuthPort.(string), req.Password)
+	if sectionConf.UseConnector == "1" {
+		AuthPort, err := strconv.Atoi(ntlmAuthPort)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			res := &response{
+				Status:  http.StatusInternalServerError,
+				Message: "Invalid NTLM auth port for domain " + req.Id,
+			}
+			j, _ := json.Marshal(res)
+			w.Write(j)
+			return
+		}
+		// Use connector for NTLM auth
+		ntlmAuthPort = strconv.Itoa(AuthPort + 100)
+	}
+	ntlmAuthHostPort := ntlmAuthHost + ":" + ntlmAuthPort
+	passed, err := ntlm.CheckMachineAccountWithGivenPassword(ctx, ntlmAuthHostPort, req.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		res := &response{

@@ -13,8 +13,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
-func GetDomainConfig(ctx context.Context) (pfconfigdriver.Domains, error) {
-	var domain pfconfigdriver.Domains
+func GetDomainConfig(ctx context.Context) (pfconfigdriver.ResourceDomains, error) {
+	var domain pfconfigdriver.ResourceDomains
 	err := pfconfigdriver.FetchDecodeSocket(ctx, &domain)
 	if err != nil {
 		return domain, nil
@@ -22,8 +22,8 @@ func GetDomainConfig(ctx context.Context) (pfconfigdriver.Domains, error) {
 	return domain, err
 }
 
-func CheckMachineAccountPassword(ctx context.Context, backendPort string) (bool, error) {
-	url := "http://containers-gateway.internal:" + backendPort + "/ntlm/connect"
+func CheckMachineAccountPassword(ctx context.Context, backendHostPort string) (bool, error) {
+	url := "http://" + backendHostPort + "/ntlm/connect"
 
 	client := &http.Client{
 		Timeout: 16 * time.Second,
@@ -45,8 +45,8 @@ func CheckMachineAccountPassword(ctx context.Context, backendPort string) (bool,
 	return true, nil
 }
 
-func CheckMachineAccountWithGivenPassword(ctx context.Context, backendPort string, password string) (bool, error) {
-	url := "http://containers-gateway.internal:" + backendPort + "/ntlm/connect"
+func CheckMachineAccountWithGivenPassword(ctx context.Context, backendHostPort string, password string) (bool, error) {
+	url := "http://" + backendHostPort + "/ntlm/connect"
 
 	client := &http.Client{
 		Timeout: 16 * time.Second,
@@ -75,8 +75,8 @@ func CheckMachineAccountWithGivenPassword(ctx context.Context, backendPort strin
 	return true, nil
 }
 
-func ReportMSEvent(ctx context.Context, backendPort string, jsonData any) error {
-	url := "http://containers-gateway.internal:" + backendPort + "/event/report"
+func ReportMSEvent(ctx context.Context, backendHostPort string, jsonData any) error {
+	url := "http://" + backendHostPort + "/event/report"
 
 	client := &http.Client{
 		Timeout: 5 * time.Second,

@@ -842,6 +842,14 @@ type Domains struct {
 	Element                 map[string]Domain
 }
 
+type ResourceDomains struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::domains"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]Domain
+}
+
 type Domain struct {
 	NtKeyCacheEnabled                   string `json:"nt_key_cache_enabled"`
 	AdaccountLockoutDuration            string `json:"ad_account_lockout_duration"`
@@ -865,6 +873,7 @@ type Domain struct {
 	ServerName                          string `json:"server_name"`
 	AdResetAccountLockoutCounterAfter   string `json:"ad_reset_account_lockout_counter_after"`
 	AdAccountLockoutThreshold           string `json:"ad_account_lockout_threshold"`
+	UseConnector                        string `json:"use_connector"`
 }
 
 type FleetDM struct {
