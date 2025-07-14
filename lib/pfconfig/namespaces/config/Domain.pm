@@ -34,7 +34,7 @@ sub init {
     $self->{child_resources} = [
         'resource::domain_dns_servers',
         'resource::pfconnector_static_connections',
-        'resource::domain',
+        'resource::domains',
     ];
 }
 
