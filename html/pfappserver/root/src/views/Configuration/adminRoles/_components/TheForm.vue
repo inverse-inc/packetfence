@@ -64,6 +64,11 @@
           :text="$i18n.t('List of bypass roles available to the admin user to assign to as the node bypass role. If none are provided then all roles are available.')"
         />
 
+        <form-group-allowed-node-roles namespace="allowed_node_bypass_vlans"
+          :column-label="$i18n.t('Allowed node bypass vlans')"
+          :text="$i18n.t('List of bypass vlans available to the admin user to assign to as the node bypass vlan. If none are provided then any vlan can be placed.')"
+        />
+
       </base-form-tab>
     </b-tabs>
   </base-form>
