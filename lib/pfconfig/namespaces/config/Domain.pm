@@ -34,7 +34,8 @@ sub init {
     $self->{child_resources} = [
         'resource::domain_dns_servers',
         'resource::pfconnector_static_connections',
-   ];
+        'resource::domain',
+    ];
 }
 
 sub build_child {
@@ -49,13 +50,6 @@ sub build_child {
         if(exists($cfg->{server_name}) && lc($cfg->{server_name}) =~ /%h/) {
             my $name = [split(/\./,( $self->{host_id} // hostname() ) )]->[0];
             $cfg->{server_name} =~ s/%h/$name/;
-        }
-        if (exists($cfg->{use_connector}) && isenabled($cfg->{use_connector})) {
-            if (exists $ENV{'PFCONNECTOR_PORT_22226_TCP_ADDR'}) {
-                $cfg->{ntlm_auth_host} = $ENV{'PFCONNECTOR_PORT_22226_TCP_ADDR'};
-            } else {
-                $cfg->{ntlm_auth_host} = "containers-gateway.internal";
-            }
         }
     }
 

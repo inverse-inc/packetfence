@@ -143,6 +143,7 @@ our (
     %ConfigConnector,
 #domain.conf
     %ConfigDomain,
+    %ConfigDomains,
 #scan.conf
     %ConfigScan,
 
@@ -234,6 +235,7 @@ BEGIN {
         %ConfigProvisioning
         %ConfigConnector
         %ConfigDomain
+        %ConfigDomains
         $default_pid
         %ConfigScan
         %ConfigPKI_Provider
@@ -280,6 +282,7 @@ tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolat
 tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
 tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
 tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
+tie %ConfigDomains, 'pfconfig::cached_hash', "resource::domains";
 tie %ConfigNetworks, 'pfconfig::cached_hash', "config::Network($host_id)";
 
 tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
