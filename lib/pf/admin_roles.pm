@@ -23,7 +23,7 @@ use pf::db qw(db_check_readonly);
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS %ADMIN_NOT_IN_READONLY);
 use DateTime::Format::Strptime;
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date check_allowed_options);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date check_allowed_options check_allowed_all_options);
 our %ADMIN_ROLES;
 tie %ADMIN_ROLES, 'pfconfig::cached_hash', 'config::AdminRoles';
 
@@ -133,6 +133,23 @@ sub check_allowed_options {
     return all { exists $valid{$_} } @check;
 }
 
+=head2 check_allowed_all_options
+
+check_allowed_all_options
+
+=cut
+
+sub check_allowed_all_options {
+    my ($roles, $option, @check) = @_;
+    my @options = admin_allowed_options_all($roles, $option);
+    if (@options == 0) {
+        return 1;
+    }
+
+    my %valid = map { $_ => undef } @options;
+    return all { exists $valid{$_} } @check;
+}
+
 =head2 check_allowed_unreg_date
 
 Check if the unreg date can be assigned by the user
@@ -211,4 +228,3 @@ USA.
 =cut
 
 1;
-

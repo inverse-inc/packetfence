@@ -30,7 +30,7 @@ use pf::dal::locationlog;
 
 #insert known data
 #run tests
-use Test::More tests => 134;
+use Test::More tests => 137;
 use Test::Mojo;
 use Test::NoWarnings;
 use Utils;
@@ -110,10 +110,16 @@ $t->post_ok('/api/v1/nodes/bulk_apply_bypass_vlan' => json => { bypass_vlan => 1
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'skipped');
 
-$t->post_ok('/api/v1/nodes/bulk_apply_bypass_vlan' => json => { bypass_vlan => undef,  items => [$mac] })
+my $header = 'X-PacketFence-Admin-Roles';
+
+$t->post_ok('/api/v1/nodes/bulk_apply_bypass_vlan' => {$header => 'Node Manager Allowed Bypass Vlans'} => json => { bypass_vlan => 89,  items => [$mac] })
   ->status_is(200)
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'success');
+
+$t->post_ok('/api/v1/nodes/bulk_apply_bypass_vlan' => {$header => 'Node Manager Allowed Bypass Vlans'} => json => { bypass_vlan => 91,  items => [$mac] })
+  ->status_is(422)
+  ->json_is({'status' => 422,'errors' => [],'message' => 'bypass_vlan 91 not allowed'});
 
 $t->post_ok('/api/v1/nodes/bulk_apply_bypass_acls' => json => { bypass_acls => "permit ip any any",  items => [$mac] })
   ->status_is(200)

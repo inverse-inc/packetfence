@@ -498,6 +498,16 @@ sub validate_bulk_bypass_acls {
     return (200, undef);
 }
 
+sub validate_bypass_vlan {
+    my ($self, $value) = @_;
+    my $roles = $self->stash->{admin_roles};
+    if (!check_allowed_options($roles, 'allowed_node_bypass_vlans', $value)) {
+        return (422,  "bypass_vlan $value not allowed" );
+    }
+
+    return (200, undef);
+}
+
 =head2 bulk_apply_bypass_acls
 
 bulk update bypass_acls
@@ -517,7 +527,7 @@ bulk update bypass_vlan
 
 sub bulk_apply_bypass_vlan {
     my ($self) = @_;
-    return $self->do_bulk_update_field('bypass_vlan');
+    return $self->do_bulk_update_field('bypass_vlan', \&validate_bypass_vlan);
 }
 
 =head2 do_bulk_update_field

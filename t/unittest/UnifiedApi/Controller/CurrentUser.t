@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 #This test will running last
 use Test::NoWarnings;
@@ -60,6 +60,8 @@ $t->get_ok('/api/v1/current_user/allowed_node_bypass_roles' => {$header => 'Node
                     }
             ],
     });
+
+$t->get_ok('/api/v1/current_user/allowed_node_bypass_vlans' => {$header => 'Node Manager Allowed Bypass Vlans'})->json_is({items=>[{vlan => "89"},{vlan => "90"}] , status => 200});
 
 =head1 AUTHOR
 

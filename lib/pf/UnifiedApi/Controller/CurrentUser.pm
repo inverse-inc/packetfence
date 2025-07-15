@@ -13,7 +13,7 @@ pf::UnifiedApi::Controller::CurrentUser
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES);
+use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES admin_allowed_options_all);
 use pf::Authentication::constants;
 use pf::nodecategory;
 use pf::config qw(%Config %ConfigRoles);
@@ -23,6 +23,17 @@ sub _allowed_options {
     my ($self, $option, $key, $standard_options) = @_;
     my $roles = $self->stash->{admin_roles};
     my @options = admin_allowed_options($roles, $option);
+    if (@options == 0) {
+        @options = $standard_options->($self, $option);
+    }
+
+    return $self->render_items($key, @options);
+}
+
+sub _allowed_options_all {
+    my ($self, $option, $key, $standard_options) = @_;
+    my $roles = $self->stash->{admin_roles};
+    my @options = admin_allowed_options_all($roles, $option);
     if (@options == 0) {
         @options = $standard_options->($self, $option);
     }
@@ -98,7 +109,7 @@ sub allowed_node_bypass_roles {
 
 sub allowed_node_bypass_vlans {
     my ($self) = @_;
-    return $self->_allowed_options('allowed_node_bypass_vlans', 'vlans', sub {});
+    return $self->_allowed_options_all('allowed_node_bypass_vlans', 'vlan', sub {});
 }
 
 sub render_items {
