@@ -97,6 +97,7 @@ Will return empty if any role allows all the values
 
 sub admin_allowed_options {
     my ($roles,$option) = @_;
+    return unless defined $option;
     #return an empty value if any of the roles are all
     return unless all { $_ ne 'ALL' } @$roles;
 
