@@ -42,10 +42,14 @@ sub _allowed_options_all {
 }
 
 sub _allowed_roles {
-    my ($self, $option, $disallowed_option) = @_;
+    my ($self, $option, @disallowed_options) = @_;
     my $admin_roles = $self->stash->{admin_roles};
     my @options = admin_allowed_options($admin_roles, $option);
-    my @disallowed = admin_allowed_options($admin_roles, $disallowed_option);
+    my @disallowed;
+    for my $disallowed_option (@disallowed_options) {
+        push @disallowed, admin_allowed_options($admin_roles, $disallowed_option);
+    }
+
     my @roles;
     if (@options == 0) {
         @roles = @disallowed ? nodecategory_view_by_not_in_names(@disallowed): nodecategory_view_all();
@@ -109,7 +113,7 @@ sub allowed_node_bypass_roles {
         return $self->render(json => {items => \@roles});
     }
 
-    return $self->_allowed_roles('allowed_node_roles');
+    return $self->_allowed_roles('allowed_node_roles', 'disallowed_node_roles', 'allowed_node_bypass_roles');
 }
 
 sub allowed_node_bypass_vlans {
