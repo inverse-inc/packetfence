@@ -54,6 +54,11 @@
           :text="$i18n.t('List of roles available to the admin user to assign to a node. If none are provided then all roles are available.')"
         />
 
+        <form-group-disallowed-node-roles namespace="disallowed_node_roles"
+          :column-label="$i18n.t('Disallowed node roles')"
+          :text="$i18n.t('List of roles not available to the admin user to assign to a node. If none are provided then all roles are available.')"
+        />
+
         <form-group-allowed-node-bypass-roles namespace="allowed_node_bypass_roles"
           :column-label="$i18n.t('Allowed node bypass roles')"
           :text="$i18n.t('List of bypass roles available to the admin user to assign to as the node bypass role. If none are provided then all roles are available.')"
@@ -88,6 +93,7 @@ import {
   FormGroupAllowedNodeRoles,
   FormGroupAllowedNodeBypassRoles,
   FormGroupAllowedNodeBypassVlans,
+  FormGroupDisallowedNodeRoles,
 } from './'
 
 const components = {
@@ -105,6 +111,7 @@ const components = {
   FormGroupAllowedNodeRoles,
   FormGroupAllowedNodeBypassRoles,
   FormGroupAllowedNodeBypassVlans,
+  FormGroupDisallowedNodeRoles,
 }
 
 export const props = {
