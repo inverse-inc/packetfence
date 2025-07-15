@@ -22,9 +22,10 @@ type Service struct {
 	name string
 }
 
-func NewApi() API {
+func NewApi(ctx context.Context) API {
 	var Api = API{}
 	Api.Router = chi.NewRouter()
+	Api.Ctx = &ctx
 	Api.setupRoutes()
 	return Api
 }
@@ -56,10 +57,6 @@ func (api *API) setupRoutes() {
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	// Set the context in the API handler
-	*api.Ctx = ctx
-
 	// Serve the request using the chi router
 	api.Router.ServeHTTP(w, r)
 }
@@ -67,14 +64,25 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // status handles the status endpoint
 func status(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-
-		service := chi.URLParam(req, "service")
-		if service == "" {
+		serviceParam := chi.URLParam(req, "service")
+		if serviceParam == "" {
 			http.Error(res, "Service name is required", http.StatusBadRequest)
 			return
 		}
+
+		allowed := []string{"packetfence-fingerbank-collector", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote.service"}
+		for _, service := range allowed {
+			if serviceParam == service {
+				err := api.ServiceStatus(service)
+				if err != nil {
+					http.Error(res, fmt.Sprintf("Failed to get service status: %v", err), http.StatusInternalServerError)
+					return
+				}
+			}
+		}
+
 		// Here you would typically check the status of the service
-		err := api.ServiceStatus(service)
+		err := api.ServiceStatus(serviceParam)
 		if err != nil {
 			http.Error(res, fmt.Sprintf("Failed to get service status: %v", err), http.StatusInternalServerError)
 			return
@@ -82,7 +90,7 @@ func status(api *API) http.HandlerFunc {
 		status := "running" // Placeholder for actual service status check
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
-		res.Write([]byte(`{"service": "` + service + `", "status": "` + status + `"}`))
+		res.Write([]byte(`{"service": "` + serviceParam + `", "status": "` + status + `"}`))
 
 	})
 }
