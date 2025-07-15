@@ -112,6 +112,7 @@ sub admin_allowed_options {
 
         push @options, split /\s*,\s*/, $allowed_options;
     }
+
     return uniq @options;
 }
 

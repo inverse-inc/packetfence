@@ -86,7 +86,14 @@ sub allowed_node_roles {
 
 sub allowed_node_bypass_roles {
     my ($self) = @_;
-    return $self->_allowed_roles('allowed_node_bypass_roles');
+    my $admin_roles = $self->stash->{admin_roles};
+    my @options = admin_allowed_options($admin_roles, 'allowed_node_bypass_roles');
+    if (@options) {
+        my @roles = nodecategory_view_by_names(@options);
+        return $self->render(json => {items => \@roles});
+    }
+
+    return $self->_allowed_roles('allowed_node_roles');
 }
 
 sub allowed_node_bypass_vlans {
