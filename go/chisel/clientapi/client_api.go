@@ -2,14 +2,13 @@ package clientapi
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/coreos/go-systemd/v22/dbus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	systemdmanager "github.com/inverse-inc/packetfence/go/systemdmanager"
 )
 
 // Handler struct
@@ -19,7 +18,7 @@ type API struct {
 }
 
 type Service struct {
-	name string
+	Name string `json:"service"`
 }
 
 func NewApi(ctx context.Context) API {
@@ -39,7 +38,8 @@ func (api *API) setupRoutes() {
 	api.Router.Route("/api/v1", func(r chi.Router) {
 		// CAS api endpoint
 		r.Route("/service", func(r chi.Router) {
-			r.Get("/status", status(api))
+			r.Post("/all", statusAll(api))
+			r.Post("/status", status(api))
 			r.Post("/start", start(api))
 			r.Post("/stop", stop(api))
 		})
@@ -64,34 +64,77 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // status handles the status endpoint
 func status(api *API) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		serviceParam := chi.URLParam(req, "service")
-		if serviceParam == "" {
-			http.Error(res, "Service name is required", http.StatusBadRequest)
+
+		var srv Service
+		if err := json.NewDecoder(req.Body).Decode(&srv); err != nil {
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		allowed := []string{"packetfence-fingerbank-collector", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote.service"}
+		if srv.Name == "" {
+			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote.service)", http.StatusBadRequest)
+			return
+		}
+
+		systemd, err := systemdmanager.NewSystemdManager()
+
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
+			return
+		}
+		defer systemd.Close()
+		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote.service"}
 		for _, service := range allowed {
-			if serviceParam == service {
-				err := api.ServiceStatus(service)
+			if srv.Name == service {
+				status, substatus, err := systemd.Status(service)
 				if err != nil {
-					http.Error(res, fmt.Sprintf("Failed to get service status: %v", err), http.StatusInternalServerError)
+					http.Error(res, fmt.Sprintf("Failed to get service status: %v", err), http.StatusNotFound)
 					return
 				}
+				res.Header().Set("Content-Type", "application/json")
+				res.WriteHeader(http.StatusOK)
+				res.Write([]byte(`{"service": "` + srv.Name + `", "status": "` + status + `" "substatus": "` + substatus + `"}`))
+				return
+
 			}
 		}
+	})
+}
 
-		// Here you would typically check the status of the service
-		err := api.ServiceStatus(serviceParam)
+func statusAll(api *API) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+
+		systemd, err := systemdmanager.NewSystemdManager()
+
 		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to get service status: %v", err), http.StatusInternalServerError)
+			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
 			return
 		}
-		status := "running" // Placeholder for actual service status check
+		defer systemd.Close()
+		services, err := systemd.ListSystemdServices()
+
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to list services: %v", err), http.StatusInternalServerError)
+			return
+		}
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
-		res.Write([]byte(`{"service": "` + serviceParam + `", "status": "` + status + `"}`))
-
+		response := make([]map[string]string, len(services))
+		for i, service := range services {
+			response[i] = map[string]string{
+				"name":         service.Name,
+				"description":  service.Description,
+				"load_state":   service.LoadState,
+				"active_state": service.ActiveState,
+				"sub_state":    service.SubState,
+			}
+		}
+		jsonResponse, err := json.Marshal(response)
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to marshal response: %v", err), http.StatusInternalServerError)
+			return
+		}
+		res.Write(jsonResponse)
 	})
 }
 
@@ -155,57 +198,4 @@ func (api *API) Start(ctx context.Context, addr string) error {
 
 	// Shutdown the server gracefully
 	return server.Shutdown(ctx)
-}
-
-func (api *API) ServiceStatus(targetSystemdUnit string) error {
-
-	systemdConnection, err := dbus.NewSystemConnectionContext(*api.Ctx)
-
-	if err != nil {
-		fmt.Printf("Failed to connect to systemd: %v\n", err)
-		panic(err)
-	}
-	defer systemdConnection.Close()
-
-	filterUnits := func(unit string) bool {
-		return unit != targetSystemdUnit
-	}
-
-	// Configure which changes we care about
-	isRelevantChangeFunc := func(before *dbus.UnitStatus, after *dbus.UnitStatus) bool {
-		if before.ActiveState != after.ActiveState {
-			fmt.Printf("Active state changed from %s to %s\n", before.ActiveState, after.ActiveState)
-			return true
-		}
-		if before.SubState != after.SubState {
-			fmt.Printf("Sub state changed from %s to %s\n", before.SubState, after.SubState)
-			return true
-		}
-		return false
-	}
-
-	// Subscribe to the changes
-	channelBuffer := 10
-
-	changeCh, errorCh := systemdConnection.SubscribeUnitsCustom(time.Millisecond*10, channelBuffer, isRelevantChangeFunc, filterUnits)
-
-	// Wait for the service to be active and running or give up
-	for {
-		select {
-		case changedUnits := <-changeCh:
-			unitStatus := changedUnits[targetSystemdUnit]
-			fmt.Printf("Unit %s has changed\n", targetSystemdUnit)
-			fmt.Printf("UnitStatus dump: %+v \n", unitStatus)
-			if unitStatus.ActiveState == "active" && unitStatus.SubState == "running" {
-				fmt.Printf("Unit %s is now active and running\n", targetSystemdUnit)
-				return nil
-			}
-		case <-errorCh:
-			fmt.Printf("Error while waiting for unit %s to change\n", targetSystemdUnit)
-			return errors.New("Error while waiting for unit to change")
-		case <-time.After(30 * time.Second):
-			fmt.Printf("Timed out waiting for restart job to complete for unit: %s\n", targetSystemdUnit)
-			return errors.New("Timed out waiting for unit to change")
-		}
-	}
 }
