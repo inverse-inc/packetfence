@@ -290,10 +290,10 @@ const actions = {
     })
   },
   getAllowedNodeBypassVlans: ({ state, commit }) => {
-    if (state.allowedNodeBypassVlans``) {
+    if (state.allowedNodeBypassVlans) {
       return Promise.resolve(state.allowedNodeBypassVlans)
     }
-    commit('ALLOWED_NODE_BYPASS_BYPASS_REQUEST')
+    commit('ALLOWED_NODE_BYPASS_VLANS_REQUEST')
     return api.getAllowedNodeBypassVlans().then(response => {
       commit('ALLOWED_NODE_BYPASS_VLANS_UPDATED', response.data.items)
       return state.allowedNodeBypassVlans
@@ -472,15 +472,15 @@ const mutations = {
   ALLOWED_NODE_BYPASS_ROLES_DELETED: (state) => {
     state.allowedNodeBypassRoles = false
   },
-  ALLOWED_NODE_BYPASS_BYPASSS_REQUEST: (state) => {
-    state.allowedNodeBypassBypassStatus = types.LOADING
+  ALLOWED_NODE_BYPASS_VLANS_REQUEST: (state) => {
+    state.allowedNodeBypassVlansStatus = types.LOADING
   },
-  ALLOWED_NODE_BYPASS_BYPASSS_UPDATED: (state, data) => {
-    state.allowedNodeBypassBypassStatus = types.SUCCESS
-    state.allowedNodeBypassBypass = data
+  ALLOWED_NODE_BYPASS_VLANS_UPDATED: (state, data) => {
+    state.allowedNodeBypassVlansStatus = types.SUCCESS
+    state.allowedNodeBypassVlans = data
   },
-  ALLOWED_NODE_BYPASS_BYPASSS_DELETED: (state) => {
-    state.allowedNodeBypassBypass = false
+  ALLOWED_NODE_BYPASS_VLANS_DELETED: (state) => {
+    state.allowedNodeBypassVlans = false
   },
   ALLOWED_USER_ACCESS_DURATIONS_REQUEST: (state) => {
     state.allowedUserAccessDurationsStatus = types.LOADING

@@ -41,7 +41,7 @@
     </b-dropdown-item>
     <b-dropdown-divider />
     <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-    <b-dropdown-item v-for="role in roles" :key="`role-${role.category_id}`" @click="onBulkRole(role)">
+    <b-dropdown-item v-for="role in allowedNodeRoles" :key="`role-${role.category_id}`" @click="onBulkRole(role)">
       <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
     </b-dropdown-item>
     <b-dropdown-item @click="onBulkRole({category_id: null})">
@@ -52,7 +52,7 @@
     </b-dropdown-item>
     <b-dropdown-divider />
     <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-    <b-dropdown-item v-for="role in roles" :key="`bypass_role-${role.category_id}`" @click="onBulkBypassRole(role)">
+    <b-dropdown-item v-for="role in allowedBypassRoles" :key="`bypass_role-${role.category_id}`" @click="onBulkBypassRole(role)">
       <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
     </b-dropdown-item>
     <b-dropdown-item @click="onBulkBypassRole({category_id: null})">
@@ -85,11 +85,14 @@
       size="sm" centered id="bypassVlanModal" :title="$t('Bulk Apply Bypass VLAN')">
       <b-form-group>
         <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')" />
-        <b-form-text v-t="'Leave empty to clear bypass VLAN.'" />
+        <div v-show="bypassVlanError"
+          class="d-block invalid-feedback" v-t="bypassVlanError" />
+        <b-form-text v-t="$t('Leave empty to clear bypass VLAN.')" />
       </b-form-group>
       <template #modal-footer>
         <b-button variant="secondary" class="mr-1" @click="showBypassVlanModal=false">{{ $t('Cancel') }}</b-button>
-        <b-button variant="primary" @click="onBulkBypassVlan">{{ $t('Apply') }}</b-button>
+        <b-button variant="primary" @click="onBulkBypassVlan"
+          :disabled="bypassVlanError">{{ $t('Apply') }}</b-button>
       </template>
     </b-modal>
 
@@ -122,8 +125,13 @@ const setup = (props, context) => {
   onMounted(() => {
     $store.dispatch('config/getRoles')
     $store.dispatch('config/getSecurityEvents')
+    $store.dispatch('session/getAllowedNodeRoles')
+    $store.dispatch('session/getAllowedNodeBypassRoles')
+    $store.dispatch('session/getAllowedNodeBypassVlans')
   })
-  const roles = computed(() => $store.state.config.roles)
+  const roles = computed(() => $store.state.config.roles || [])
+  const allowedNodeRoles = computed(() =>  $store.state.session.allowedNodeRoles || [])
+  const allowedBypassRoles = computed(() => $store.state.session.allowedNodeBypassRoles || [])
   const security_events = computed(() => $store.getters['config/sortedSecurityEvents'].filter(securityEvent => securityEvent.enabled === 'Y'))
 
   const onBulkExport = () => {
@@ -285,9 +293,24 @@ const setup = (props, context) => {
         })
       })
   }
+  const bypassVlanError = computed(() => {
+    const value = (bypassVlanString.value) ? bypassVlanString.value.trim() : null
+/*
+//eslint-disable-next-line
+console.log(($store.state.session.allowedNodeBypassVlans || []).map(({vlans}) => vlans), value)
+*/
+    return (value && (($store.state.session.allowedNodeBypassVlans || []).map(({vlans}) => vlans).includes(value)))
+      ? null
+      : 'error'
+  })
+
+//    ($store.state.session.allowedNodeBypassVlans || []).map(({vlans}) => vlans).includes(value)
+
 
   return {
     roles,
+    allowedNodeRoles,
+    allowedBypassRoles,
     security_events,
 
     onBulkExport,
@@ -304,6 +327,7 @@ const setup = (props, context) => {
     onBulkBypassVlan,
     showBypassVlanModal,
     bypassVlanString,
+    bypassVlanError,
 
     onBulkBypassAcls,
     showBypassAclsModal,
