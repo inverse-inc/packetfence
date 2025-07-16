@@ -20,25 +20,25 @@ use pf::config qw(%Config %ConfigRoles);
 use List::Util qw(maxstr);
 
 sub _allowed_options {
-    my ($self, $option, $key, $standard_options) = @_;
+    my ($self, $option, $key, $standard_options, $attributes) = @_;
     my $roles = $self->stash->{admin_roles};
     my @options = admin_allowed_options($roles, $option);
     if (@options == 0) {
         @options = $standard_options->($self, $option);
     }
 
-    return $self->render_items($key, @options);
+    return $self->render_items($key, $attributes, @options);
 }
 
 sub _allowed_options_all {
-    my ($self, $option, $key, $standard_options) = @_;
+    my ($self, $option, $key, $standard_options, $attributes) = @_;
     my $roles = $self->stash->{admin_roles};
     my @options = admin_allowed_options_all($roles, $option);
     if (@options == 0) {
         @options = $standard_options->($self, $option);
     }
 
-    return $self->render_items($key, @options);
+    return $self->render_items($key, $attributes, @options);
 }
 
 sub _allowed_roles {
@@ -118,7 +118,10 @@ sub allowed_node_bypass_roles {
 
 sub allowed_node_bypass_vlans {
     my ($self) = @_;
-    return $self->_allowed_options_all('allowed_node_bypass_vlans', 'vlan', sub {});
+    my %attributes = (
+        disable_bypass_vlan => admin_isdisabled_option($self->stash->{admin_roles}, "disable_bypass_vlan") ? $self->json_true: $self->json_false,
+    );
+    return $self->_allowed_options_all('allowed_node_bypass_vlans', 'vlan', sub {}, \%attributes);
 }
 
 sub disable_bypass_vlan {
@@ -129,9 +132,10 @@ sub disable_bypass_vlan {
 }
 
 sub render_items {
-    my ($self, $key, @items) = @_;
+    my ($self, $key, $attributes, @items) = @_;
     return $self->render(
         json => {
+            %{$attributes // {}},
             items => [ map {  { $key => $_ } } @items]
         }
     );
