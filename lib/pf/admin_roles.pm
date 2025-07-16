@@ -22,8 +22,9 @@ use pf::constants;
 use pf::db qw(db_check_readonly);
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS %ADMIN_NOT_IN_READONLY);
 use DateTime::Format::Strptime;
+use pf::util qw(isenabled);
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date check_allowed_options check_allowed_all_options);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date check_allowed_options check_allowed_all_options admin_isdisabled_option);
 our %ADMIN_ROLES;
 tie %ADMIN_ROLES, 'pfconfig::cached_hash', 'config::AdminRoles';
 
@@ -115,6 +116,28 @@ sub admin_allowed_options {
     }
 
     return uniq @options;
+}
+
+sub admin_isdisabled_option {
+    my ($roles, $option) = @_;
+    return $FALSE unless defined $option;
+    #return an empty value if any of the roles are all
+    return $FALSE unless all { $_ ne 'ALL' } @$roles;
+
+    my @options;
+    foreach my $role (@$roles) {
+        next unless exists $ADMIN_ROLES{$role};
+        my $options = $ADMIN_ROLES{$role};
+        #If no option is defined then all are allowed
+        next unless exists $options->{$option};
+
+        my $allowed_options = $options->{$option};
+        #If the allowed options is empty the all are allowed
+        next unless defined $allowed_options && length $allowed_options;
+        return $TRUE if isenabled($allowed_options);
+    }
+
+    return $FALSE;
 }
 
 =head2 check_allowed_options

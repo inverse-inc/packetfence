@@ -13,7 +13,7 @@ pf::UnifiedApi::Controller::CurrentUser
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES admin_allowed_options_all);
+use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES admin_allowed_options_all admin_isdisabled_option);
 use pf::Authentication::constants;
 use pf::nodecategory;
 use pf::config qw(%Config %ConfigRoles);
@@ -47,7 +47,7 @@ sub _allowed_roles {
     my @options = admin_allowed_options($admin_roles, $option);
     my @disallowed;
     for my $disallowed_option (@disallowed_options) {
-        push @disallowed, admin_allowed_options($admin_roles, $disallowed_option);
+        push @disallowed, admin_allowed_options_all($admin_roles, $disallowed_option);
     }
 
     my @roles;
@@ -119,6 +119,13 @@ sub allowed_node_bypass_roles {
 sub allowed_node_bypass_vlans {
     my ($self) = @_;
     return $self->_allowed_options_all('allowed_node_bypass_vlans', 'vlan', sub {});
+}
+
+sub disable_bypass_vlan {
+    my ($self) = @_;
+    return $self->render(json => {
+        disable_bypass_vlan => admin_isdisabled_option($self->stash->{admin_roles}, "disable_bypass_vlan") ? $self->json_true: $self->json_false,
+    });
 }
 
 sub render_items {
