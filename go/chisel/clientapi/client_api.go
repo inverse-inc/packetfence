@@ -36,20 +36,19 @@ func (api *API) setupRoutes() {
 	api.Router.Use(middleware.Recoverer)
 
 	api.Router.Route("/api/v1", func(r chi.Router) {
-		// CAS api endpoint
 		r.Route("/service", func(r chi.Router) {
 			r.Post("/all", statusAll(api))
 			r.Post("/status", status(api))
-			r.Post("/start", start(api))
-			r.Post("/stop", stop(api))
+			r.Post("/start", manageService(api, "start"))
+			r.Post("/stop", manageService(api, "stop"))
+			r.Post("/restart", manageService(api, "restart"))
+
 		})
-		// CA api endpoint
 		r.Route("/logs", func(r chi.Router) {
 			r.Get("/collector", collector(api))
 			r.Get("/connector", connector(api))
 			r.Get("/ntlm-auth", ntlmAuth(api))
 		})
-		// Profiles api endpoint
 		r.Route("/status", func(r chi.Router) {
 			r.Get("/", connectorStatus(api))
 		})
@@ -140,16 +139,63 @@ func statusAll(api *API) http.HandlerFunc {
 }
 
 // start handles the start endpoint
-func start(api *API) http.HandlerFunc {
+func manageService(api *API, action string) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		var srv Service
+		if err := json.NewDecoder(req.Body).Decode(&srv); err != nil {
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
 
-	})
-}
+		if srv.Name == "" {
+			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote.service)", http.StatusBadRequest)
+			return
+		}
 
-// stop handles the stop endpoint
-func stop(api *API) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		systemd, err := systemdmanager.NewSystemdManager()
 
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
+			return
+		}
+		defer systemd.Close()
+		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote.service"}
+		for _, service := range allowed {
+			if srv.Name == service {
+
+				switch action {
+				case "start":
+					if err := systemd.Start(srv.Name); err != nil {
+						http.Error(res, fmt.Sprintf("Failed to start service %s: %v", srv.Name, err), http.StatusInternalServerError)
+						return
+					}
+					res.WriteHeader(http.StatusOK)
+					res.Write([]byte(fmt.Sprintf("Service %s started successfully", srv.Name)))
+					return
+				case "stop":
+					if err := systemd.Stop(srv.Name); err != nil {
+						http.Error(res, fmt.Sprintf("Failed to stop service %s: %v", srv.Name, err), http.StatusInternalServerError)
+						return
+					}
+					res.WriteHeader(http.StatusOK)
+					res.Write([]byte(fmt.Sprintf("Service %s stopped successfully", srv.Name)))
+					return
+				case "restart":
+					if err := systemd.Restart(srv.Name); err != nil {
+						http.Error(res, fmt.Sprintf("Failed to restart service %s: %v", srv.Name, err), http.StatusInternalServerError)
+						return
+					}
+					res.WriteHeader(http.StatusOK)
+					res.Write([]byte(fmt.Sprintf("Service %s restarted successfully", srv.Name)))
+					return
+				default:
+					http.Error(res, "Invalid action specified", http.StatusBadRequest)
+					return
+
+				}
+			}
+		}
+		return
 	})
 }
 
