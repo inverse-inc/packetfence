@@ -66,6 +66,18 @@ has_field 'allowed_roles' =>
              help => 'List of roles available to the admin user to assign to a user. If none are provided then all roles are available' },
   );
 
+has_field 'disallowed_roles' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Disallowed user roles',
+   options_method => \&options_roles,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add a role' },
+   tags => { after_element => \&help,
+             help => 'List of roles not available to the admin user to assign to a node. If none are provided then all roles are available' },
+  );
+
 has_field 'allowed_node_roles' =>
   (
    type => 'Select',
@@ -100,6 +112,18 @@ has_field 'allowed_node_bypass_roles' =>
    element_attr => {'data-placeholder' => 'Click to add a role' },
    tags => { after_element => \&help,
              help => 'List of roles available to the admin user to assign to a node. If none are provided then all roles are available' },
+  );
+
+has_field 'disallowed_node_bypass_roles' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Disallowed node bypass roles',
+   options_method => \&options_roles,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add a role' },
+   tags => { after_element => \&help,
+             help => 'List of roles not available to the admin user to assign to a node. If none are provided then all roles are available' },
   );
 
 has_field 'allowed_node_bypass_vlans' =>
@@ -149,6 +173,13 @@ has_field 'allowed_unreg_date' =>
    label => 'Maximum allowed unregistration date',
    tags => { after_element => \&help,
              help => 'The maximal unregistration date that can be set.' },
+  );
+
+has_field 'disable_bypass_vlan' =>
+  (
+   type => 'Toggle',
+   tags => { after_element => \&help,
+             help => 'Disable the ability to set a bypass vlan' },
   );
 
 has_field 'allowed_access_durations' =>
