@@ -17,6 +17,10 @@ yup.addMethod(yup.string, 'provisionerIdExistsExcept', function (exceptId = '', 
   })
 })
 
+const schemaRule = yup.string().nullable().required(i18n.t('Rule required.'))
+
+const schemaRules = yup.array().ensure().of(schemaRule)
+
 export const schema = (props) => {
   const {
     id,
@@ -77,6 +81,7 @@ export const schema = (props) => {
     query_mobiledevices: yup.string().nullable(),
     refresh_token: yup.string().nullable().label(i18n.t('Token')),
     role_to_apply: yup.string().nullable(),
+    rules: schemaRules,
     security_type: yup.string().nullable(),
     server_certificate_path: yup.string().nullable().required(i18n.t('Certificate required.')),
     service_account: yup.string().nullable().label(i18n.t('Data')),
