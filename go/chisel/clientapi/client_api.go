@@ -44,11 +44,7 @@ func (api *API) setupRoutes() {
 			r.Post("/restart", manageService(api, "restart"))
 
 		})
-		r.Route("/logs", func(r chi.Router) {
-			r.Get("/collector", collector(api))
-			r.Get("/connector", connector(api))
-			r.Get("/ntlm-auth", ntlmAuth(api))
-		})
+		r.Handle("/logs", handleWebSocketConnection())
 		r.Route("/status", func(r chi.Router) {
 			r.Get("/", connectorStatus(api))
 		})
@@ -195,7 +191,6 @@ func manageService(api *API, action string) http.HandlerFunc {
 				}
 			}
 		}
-		return
 	})
 }
 
