@@ -90,6 +90,7 @@ const initialState = () => {
     allowedNodeBypassRoles: false,
     allowedNodeBypassRolesStatus: '',
     allowedNodeBypassVlans: false,
+    allowedNodeBypassVlansDisabledForUser: false,
     allowedNodeBypassVlansStatus: '',
     allowedUserAccessDurations: false,
     allowedUserAccessDurationsStatus: '',
@@ -295,7 +296,9 @@ const actions = {
     }
     commit('ALLOWED_NODE_BYPASS_VLANS_REQUEST')
     return api.getAllowedNodeBypassVlans().then(response => {
-      commit('ALLOWED_NODE_BYPASS_VLANS_UPDATED', response.data.items)
+      const { data: { items = [], disable_bypass_vlan = false } = {} } = response
+      commit('ALLOWED_NODE_BYPASS_VLANS_DISABLED', disable_bypass_vlan)
+      commit('ALLOWED_NODE_BYPASS_VLANS_UPDATED', items)
       return state.allowedNodeBypassVlans
     })
   },
@@ -474,6 +477,9 @@ const mutations = {
   },
   ALLOWED_NODE_BYPASS_VLANS_REQUEST: (state) => {
     state.allowedNodeBypassVlansStatus = types.LOADING
+  },
+  ALLOWED_NODE_BYPASS_VLANS_DISABLED: (state, data) => {
+    state.allowedNodeBypassVlansDisabledForUser = data
   },
   ALLOWED_NODE_BYPASS_VLANS_UPDATED: (state, data) => {
     state.allowedNodeBypassVlansStatus = types.SUCCESS

@@ -35,7 +35,8 @@
       <icon class="position-absolute mt-1" name="shield-alt" />
       <span class="ml-4">{{ $t('Apply Bypass ACLs') }}</span>
     </b-dropdown-item>
-    <b-dropdown-item @click="showBypassVlanModal = true">
+    <b-dropdown-item v-if="!bypassVlansDisabledForUser"
+      @click="showBypassVlanModal = true">
       <icon class="position-absolute mt-1" name="project-diagram" />
       <span class="ml-4">{{ $t('Apply Bypass VLAN') }}</span>
     </b-dropdown-item>
@@ -304,6 +305,7 @@ const setup = (props, context) => {
       })
   }
   const bypassVlanOptions = computed(() => $store.getters['session/allowedNodeBypassVlansList'])
+  const bypassVlansDisabledForUser = computed(() => $store.state.session.allowedNodeBypassVlansDisabledForUser)
 
   return {
     roles,
@@ -326,6 +328,7 @@ const setup = (props, context) => {
     showBypassVlanModal,
     bypassVlanString,
     bypassVlanOptions,
+    bypassVlansDisabledForUser,
 
     onBulkBypassAcls,
     showBypassAclsModal,
