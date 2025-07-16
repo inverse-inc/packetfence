@@ -111,6 +111,7 @@ func statusAll(api *API) http.HandlerFunc {
 			return
 		}
 		defer systemd.Close()
+
 		services, err := systemd.ListSystemdServices()
 
 		if err != nil {

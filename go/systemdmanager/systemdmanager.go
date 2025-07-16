@@ -140,7 +140,7 @@ func (sm *SystemdManager) Disable(serviceName string) error {
 	return nil
 }
 
-func (sm *SystemdManager) listSystemdServices() ([]SystemdService, error) {
+func (sm *SystemdManager) ListSystemdServices() ([]SystemdService, error) {
 	systemd := sm.conn.Object("org.freedesktop.systemd1", "/org/freedesktop/systemd1")
 
 	call := systemd.Call("org.freedesktop.systemd1.Manager.ListUnits", 0)
