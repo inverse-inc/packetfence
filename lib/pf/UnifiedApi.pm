@@ -425,7 +425,7 @@ sub setup_api_v1_current_user_routes {
             actions => [
                 qw(
                   allowed_user_unreg_date allowed_user_roles allowed_node_roles allowed_node_bypass_roles allowed_node_bypass_vlans
-                  allowed_user_access_levels allowed_user_actions allowed_user_access_durations disable_bypass_vlan
+                  allowed_user_access_levels allowed_user_actions allowed_user_access_durations
                 )
             ],
             method => 'GET'

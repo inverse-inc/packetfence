@@ -124,13 +124,6 @@ sub allowed_node_bypass_vlans {
     return $self->_allowed_options_all('allowed_node_bypass_vlans', 'vlan', sub {}, \%attributes);
 }
 
-sub disable_bypass_vlan {
-    my ($self) = @_;
-    return $self->render(json => {
-        disable_bypass_vlan => admin_isdisabled_option($self->stash->{admin_roles}, "disable_bypass_vlan") ? $self->json_true: $self->json_false,
-    });
-}
-
 sub render_items {
     my ($self, $key, $attributes, @items) = @_;
     return $self->render(
