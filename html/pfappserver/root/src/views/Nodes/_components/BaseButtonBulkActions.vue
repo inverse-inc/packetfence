@@ -83,22 +83,32 @@
 
     <b-modal v-model="showBypassVlanModal" @shown="$refs.bypassVlanInput.focus()"
       size="sm" centered id="bypassVlanModal" :title="$t('Bulk Apply Bypass VLAN')">
-      <b-form-group>
+      <b-form-group v-if="bypassVlanOptions.length === 0">
         <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')" />
-        <div v-show="bypassVlanError"
-          class="d-block invalid-feedback" v-t="bypassVlanError" />
         <b-form-text v-t="$t('Leave empty to clear bypass VLAN.')" />
+      </b-form-group>
+      <b-form-group v-else>
+        <base-input-chosen-one
+          v-model="bypassVlanString"
+          :options="bypassVlanOptions"
+          :placeholder="$t('Choose a VLAN')"
+        />
       </b-form-group>
       <template #modal-footer>
         <b-button variant="secondary" class="mr-1" @click="showBypassVlanModal=false">{{ $t('Cancel') }}</b-button>
-        <b-button variant="primary" @click="onBulkBypassVlan"
-          :disabled="bypassVlanError">{{ $t('Apply') }}</b-button>
+        <b-button variant="primary" @click="onBulkBypassVlan">{{ $t('Apply') }}</b-button>
       </template>
     </b-modal>
 
   </b-dropdown>
 </template>
 <script>
+import { BaseInputChosenOne } from '@/components/new/'
+
+const components = {
+  BaseInputChosenOne
+}
+
 const props = {
   selectedItems: {
     type: Array
@@ -293,19 +303,7 @@ const setup = (props, context) => {
         })
       })
   }
-  const bypassVlanError = computed(() => {
-    const value = (bypassVlanString.value) ? bypassVlanString.value.trim() : null
-/*
-//eslint-disable-next-line
-console.log(($store.state.session.allowedNodeBypassVlans || []).map(({vlans}) => vlans), value)
-*/
-    return (value && (($store.state.session.allowedNodeBypassVlans || []).map(({vlans}) => vlans).includes(value)))
-      ? null
-      : 'error'
-  })
-
-//    ($store.state.session.allowedNodeBypassVlans || []).map(({vlans}) => vlans).includes(value)
-
+  const bypassVlanOptions = computed(() => $store.getters['session/allowedNodeBypassVlansList'])
 
   return {
     roles,
@@ -327,7 +325,7 @@ console.log(($store.state.session.allowedNodeBypassVlans || []).map(({vlans}) =>
     onBulkBypassVlan,
     showBypassVlanModal,
     bypassVlanString,
-    bypassVlanError,
+    bypassVlanOptions,
 
     onBulkBypassAcls,
     showBypassAclsModal,
@@ -339,6 +337,7 @@ console.log(($store.state.session.allowedNodeBypassVlans || []).map(({vlans}) =>
 export default {
   name: 'base-button-bulk-actions',
   inheritAttrs: false,
+  components,
   props,
   setup
 }
