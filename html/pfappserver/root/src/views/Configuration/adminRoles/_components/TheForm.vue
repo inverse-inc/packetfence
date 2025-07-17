@@ -64,7 +64,18 @@
           :text="$i18n.t('List of bypass roles available to the admin user to assign to as the node bypass role. If none are provided then all roles are available.')"
         />
 
+        <form-group-disallowed-node-roles namespace="disallowed_node_bypass_roles"
+          :column-label="$i18n.t('Disallowed node roles')"
+          :text="$i18n.t('List of roles not available to the admin user to assign to a node. If none are provided then all roles are available.')"
+        />
+
         <form-group-allowed-node-bypass-vlans namespace="allowed_node_bypass_vlans"
+          :column-label="$i18n.t('Allowed node bypass vlans')"
+          :text="$i18n.t('List of bypass vlans available to the admin user to assign to as the node bypass vlan. If none are provided then any vlan can be placed.')"
+          taggable
+        />
+
+        <form-group-disable-bypass-vlans namespace="disable_bypass_vlans"
           :column-label="$i18n.t('Allowed node bypass vlans')"
           :text="$i18n.t('List of bypass vlans available to the admin user to assign to as the node bypass vlan. If none are provided then any vlan can be placed.')"
           taggable
@@ -94,6 +105,7 @@ import {
   FormGroupAllowedNodeBypassRoles,
   FormGroupAllowedNodeBypassVlans,
   FormGroupDisallowedNodeRoles,
+  FormGroupDisallowedNodeBypassRoles,
 } from './'
 
 const components = {

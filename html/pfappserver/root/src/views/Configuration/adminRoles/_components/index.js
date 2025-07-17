@@ -26,6 +26,8 @@ export {
   BaseFormGroupChosenMultiple         as FormGroupAllowedNodeBypassRoles,
   BaseFormGroupAllowedNodeBypassVlans as FormGroupAllowedNodeBypassVlans,
   BaseFormGroupChosenMultiple         as FormGroupDisallowedRoles,
+  BaseFormGroupChosenMultiple         as FormGroupDisallowedNodeBypassRoles,
+  BaseFormGroupChosenMultiple         as FormGroupDisallowedNodeRoles,
   TheForm,
   TheView
 }
