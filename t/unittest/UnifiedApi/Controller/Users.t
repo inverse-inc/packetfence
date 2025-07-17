@@ -32,7 +32,7 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 #This test will running last
 use Test::NoWarnings;
 my $batch = 5;
-plan tests => $batch * (2 + 2 * $batch) + 47;
+plan tests => $batch * (2 + 2 * $batch) + 48;
 my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
 
 my $base_url = "/api/v1/user";
@@ -43,7 +43,7 @@ my $base_url = "/api/v1/user";
     my $id = $pid;
     $id =~ s#/#~#g;
     my $url = "$base_url/$id";
-    $t->post_ok("/api/v1/users/" => json => { pid => $pid })
+    $t->post_ok("/api/v1/users/" => json => { pid => $pid, psk => "" })
       ->status_is(201)
       ->header_is(Location => $url)
       ->json_is("/id", $pid);
@@ -52,6 +52,7 @@ my $base_url = "/api/v1/user";
     $t->get_ok($location)
       ->status_is(200)
       ->json_is("/item/has_password", $false)
+      ->json_is("/item/psk", undef)
       ->json_hasnt("/item/password");
 
     $t->post_ok("$url/password" => json => { })

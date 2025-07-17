@@ -68,6 +68,15 @@ sub to_hash_fields {
     return [@pf::dal::_person::FIELD_NAMES, @PASSWORD_FIELDS, qw(can_sponsor nodes category category_id)];
 }
 
+sub pre_save {
+    my ($self) = @_;
+    if (exists $self->{psk}) {
+        my $psk = $self->{psk};
+        $self->{psk} = undef if defined $psk && $psk eq "";
+    }
+    return $STATUS::OK;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

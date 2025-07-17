@@ -376,12 +376,18 @@ sub insert {
         $self->logger->error("Trying to insert duplicate row into $table");
         return $STATUS::FORBIDDEN;
     }
+
+    my $status = $self->pre_save;
+    if (is_error($status)) {
+        return $status;
+    }
+
     my $insert_data = $self->_insert_data;
     return $STATUS::BAD_REQUEST unless defined $insert_data;
     if (keys %$insert_data == 0 ) {
        return $STATUS::BAD_REQUEST;
     }
-    my ($status, $sth) = $self->do_insert(
+    ($status, my $sth) = $self->do_insert(
         -into => $self->table,
         -values   => $insert_data,
         @args,
