@@ -37,11 +37,6 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type LogFile struct {
-	Path string `json:"logfile"`
-	N    int    `json:"n"`
-}
-
 var LogFiles = map[string]string{
 	"fingerbank-collector": "/usr/local/collector-remote/logs/fingerbank-collector.log",
 	"ntlm-auth-api":        "/usr/local/collector-remote/logs/ntlm-auth-api.log",
@@ -100,7 +95,7 @@ func (b *Broadcaster) initialRead(client *Client, filePath string, n int) {
 		case <-client.done:
 			return
 		case <-time.After(5 * time.Second):
-			log.Println("Timeout lors de l'envoi des lignes initiales")
+			log.Println("Timeout on initial lines")
 			return
 		}
 	}
@@ -152,15 +147,27 @@ func handleWebSocketConnection() http.HandlerFunc {
 			return
 		}
 
-		n := req.URL.Query().Get("line")
-		Line, err := strconv.Atoi(n)
+		// Check mode : "tailf" or "tailn" (defaut)
+		mode := req.URL.Query().Get("mode")
+		if mode == "" {
+			mode = "tailn" // Default mode
+		}
 
-		if err != nil || Line <= 0 {
-			Line = 10 // Default to last 10 lines if not specified
+		var Line int
+		if mode == "tailn" {
+			// tail -n mode : read latest N lines then follow
+			n := req.URL.Query().Get("line")
+			var err error
+			Line, err = strconv.Atoi(n)
+
+			if err != nil || Line <= 0 {
+				Line = 10 // Default to last 10 lines if not specified
+			}
+			if Line > 1000 {
+				Line = 1000 // Limit to last 1000 lines
+			}
 		}
-		if Line > 1000 {
-			Line = 1000 // Limit to last 1000 lines
-		}
+		// tail -f mode: Directly follow new lines without initial read
 
 		broadcaster := newBroadcaster()
 		go broadcaster.run()
@@ -183,7 +190,10 @@ func handleWebSocketConnection() http.HandlerFunc {
 
 		time.Sleep(10 * time.Millisecond)
 
-		go broadcaster.initialRead(client, targetFile, Line)
+		// Initial read of the last N lines if mode is "tailn"
+		if mode == "tailn" {
+			go broadcaster.initialRead(client, targetFile, Line)
+		}
 
 		go func() {
 			defer func() {
@@ -245,14 +255,14 @@ func (b *Broadcaster) run() {
 			b.mu.Lock()
 			b.clients[client] = true
 			b.mu.Unlock()
-			log.Printf("Client enregistré. Total: %d", len(b.clients))
+			log.Printf("Client registered. Total: %d", len(b.clients))
 
 		case client := <-b.unregister:
 			b.mu.Lock()
 			if _, ok := b.clients[client]; ok {
 				delete(b.clients, client)
 				close(client.send)
-				log.Printf("Client désenregistré. Total: %d", len(b.clients))
+				log.Printf("Client de-registered. Total: %d", len(b.clients))
 			}
 			b.mu.Unlock()
 
