@@ -104,8 +104,9 @@ import {
   FormGroupAllowedNodeRoles,
   FormGroupAllowedNodeBypassRoles,
   FormGroupAllowedNodeBypassVlans,
-  FormGroupDisallowedNodeRoles,
   FormGroupDisallowedNodeBypassRoles,
+  FormGroupDisallowedNodeRoles,
+  FormGroupDisableBypassVlans,
 } from './'
 
 const components = {
@@ -124,6 +125,8 @@ const components = {
   FormGroupAllowedNodeBypassRoles,
   FormGroupAllowedNodeBypassVlans,
   FormGroupDisallowedNodeRoles,
+  FormGroupDisallowedNodeBypassRoles,
+  FormGroupDisableBypassVlans,
 }
 
 export const props = {
