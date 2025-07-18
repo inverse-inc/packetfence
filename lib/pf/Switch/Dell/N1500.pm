@@ -498,7 +498,9 @@ sub returnRadiusAdvanced {
     my ($self, $args, $options) = @_;
     my $logger = $self->logger;
     my $status = $RADIUS::RLM_MODULE_OK;
-    my ($mac, $session_id) = split('-', $args->{'user_name'});
+    my @parts = split('-', $args->{'user_name'});
+    my $session_id = pop @parts;
+    my $mac = join('-', @parts);
     my $radius_reply_ref = ();
     my @av_pairs;
     $radius_reply_ref->{'control:Proxy-To-Realm'} = 'LOCAL';
@@ -507,7 +509,7 @@ sub returnRadiusAdvanced {
         my $session = $cache->get($session_id);
         $session->{'id_session'} = $session_id;
         # Need to send back a challenge since there is still acl to download
-        if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence.authorize' && scalar @{$session->{'acl'}} > 1 ) {
+        if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence.authorize' && scalar @{$session->{'acl'} // []} > 1 ) {
             $status = $RADIUS::RLM_MODULE_HANDLED;
             $radius_reply_ref->{'control:Response-Packet-Type'} = 11;
             $radius_reply_ref->{'state'} = $session_id;
