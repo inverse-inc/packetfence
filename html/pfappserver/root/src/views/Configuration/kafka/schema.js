@@ -22,14 +22,6 @@ const schemaHostConfigConfigItem = yup.object({
 
 const schemaHostConfigConfig = yup.array().ensure().of(schemaHostConfigConfigItem)
 
-const schemaHostConfig = yup.object({
-  host: yup.string().nullable().required().label(i18n.t('Host'))
-    .isCommonNameOrFQDN(i18n.t('Invalid Hostname.')),
-  config: yup.array().ensure().of(schemaHostConfigConfig)
-})
-
-const schemaHostConfigs = yup.array().ensure().of(schemaHostConfig)
-
 const schemaIpv4 = yup.string().nullable().required().label(i18n.t('IPv4'))
   .isIpv4()
 
@@ -44,9 +36,7 @@ export const schema = () => yup.object({
   admin: schemaAuth,
   auths: schemaAuths,
   cluster: schemaClusters,
-  host_configs: schemaHostConfigs,
   iptables: schemaIptables,
 })
 
 export default schema
-
