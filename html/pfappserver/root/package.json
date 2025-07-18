@@ -33,7 +33,7 @@
     "vue-awesome": "^4.5.0",
     "vue-browser-acl": "^0.15.4",
     "vue-eslint-parser": "^9.4.3",
-    "vue-i18n": "^8.28.2",
+    "vue-i18n": "^9.14.5",
     "vue-loading-overlay": "3.4.2",
     "vue-multiselect": "2.1.9",
     "vue-router": "3.6.5",
