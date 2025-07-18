@@ -14,6 +14,7 @@ args+=" -v /usr/local/pf/conf/kafka:/usr/local/pf/conf/kafka"
 args+=" -p 9092:9092"
 args+=" -p 29092:29092"
 args+=" -p 9093:9093"
+args+=" -p 9095:9095"
 args+=" --env-file /usr/local/pf/var/conf/$name.env"
 
 run $name "$args"
