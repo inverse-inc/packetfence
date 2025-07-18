@@ -417,7 +417,7 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp|radius", managementIP))),
 			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp|radius", managementIP))),
 			fmt.Sprintf("9096:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9096", fmt.Sprintf("%s:9096", managementIP))),
-			fmt.Sprintf("127.0.0.1:9090:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9090", fmt.Sprintf("%s:9090", managementIP))),
+			fmt.Sprintf("127.0.0.1:9096:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9096", fmt.Sprintf("%s:9096", managementIP))),
 		}})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
