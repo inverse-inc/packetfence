@@ -75,8 +75,8 @@
           taggable
         />
 
-        <form-group-disable-bypass-vlans namespace="disable_bypass_vlans"
-          :column-label="$i18n.t('Allowed node bypass vlans')"
+        <form-group-disable-bypass-vlan namespace="disable_bypass_vlan"
+          :column-label="$i18n.t('Allowed node bypass vlan')"
           :text="$i18n.t('List of bypass vlans available to the admin user to assign to as the node bypass vlan. If none are provided then any vlan can be placed.')"
           taggable
         />
@@ -106,7 +106,7 @@ import {
   FormGroupAllowedNodeBypassVlans,
   FormGroupDisallowedNodeBypassRoles,
   FormGroupDisallowedNodeRoles,
-  FormGroupDisableBypassVlans,
+  FormGroupDisableBypassVlan,
 } from './'
 
 const components = {
@@ -126,7 +126,7 @@ const components = {
   FormGroupAllowedNodeBypassVlans,
   FormGroupDisallowedNodeRoles,
   FormGroupDisallowedNodeBypassRoles,
-  FormGroupDisableBypassVlans,
+  FormGroupDisableBypassVlan,
 }
 
 export const props = {

@@ -29,7 +29,7 @@ export {
   BaseFormGroupChosenMultiple         as FormGroupDisallowedRoles,
   BaseFormGroupChosenMultiple         as FormGroupDisallowedNodeBypassRoles,
   BaseFormGroupChosenMultiple         as FormGroupDisallowedNodeRoles,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupDisableBypassVlans,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupDisableBypassVlan,
   TheForm,
   TheView
 }

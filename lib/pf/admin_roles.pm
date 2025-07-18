@@ -123,21 +123,21 @@ sub admin_isdisabled_option {
     return $FALSE unless defined $option;
     #return an empty value if any of the roles are all
     return $FALSE unless all { $_ ne 'ALL' } @$roles;
-
+    my $found = 0;
     my @options;
     foreach my $role (@$roles) {
         next unless exists $ADMIN_ROLES{$role};
         my $options = $ADMIN_ROLES{$role};
         #If no option is defined then all are allowed
-        next unless exists $options->{$option};
+        return $FALSE unless exists $options->{$option};
 
         my $allowed_options = $options->{$option};
         #If the allowed options is empty the all are allowed
-        next unless defined $allowed_options && length $allowed_options;
-        return $TRUE if isenabled($allowed_options);
+        return $FALSE unless defined $allowed_options && length $allowed_options;
+        $found |= 1 if isenabled($allowed_options);
     }
 
-    return $FALSE;
+    return $found ? $TRUE : $FALSE;
 }
 
 =head2 check_allowed_options

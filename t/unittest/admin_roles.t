@@ -19,7 +19,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;                      # last test to print
+use Test::More tests => 14;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -67,6 +67,9 @@ ok(
     !check_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels', 'User Manager2'),
     "'User Manager2' is not valid option"
 );
+
+ok(admin_isdisabled_option(["User Manager"], "disable_bypass_vlan"), "disable_bypass_vlan is set");
+ok(!admin_isdisabled_option(["User Manager", "Alt User Manager"], "disable_bypass_vlan"), "disable_bypass_vlan is set for only one role");
  
 =head1 AUTHOR
 

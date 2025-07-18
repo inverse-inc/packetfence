@@ -62,7 +62,7 @@ $t->get_ok('/api/v1/current_user/allowed_node_bypass_roles' => {$header => 'Node
     });
 
 
-$t->get_ok('/api/v1/current_user/allowed_node_bypass_vlans' => {$header => 'Node Manager Allowed Bypass Vlans'})->json_is({items=>[{vlan => "89"},{vlan => "90"}] , status => 200});
+$t->get_ok('/api/v1/current_user/allowed_node_bypass_vlans' => {$header => 'Node Manager Allowed Bypass Vlans'})->json_is({items=>[{vlan => "89"},{vlan => "90"}] , status => 200, disable_bypass_vlan => 0});
 
 $t->get_ok('/api/v1/current_user/allowed_node_roles' => {$header => 'Node Manager Disallowed Roles'})
     ->status_is(200)
