@@ -119,6 +119,9 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 				dnsServer = dstIp.String() + ":" + port // Append the DNS port
 			}
 			log.Printf("OpenConnectionTo: using DNS server %s", dnsServer)
+			if len(toIP) == 0 || toIP[len(toIP)-1] != '.' {
+				toIP = toIP + "."
+			}
 
 			ips, err := resolveDNSWithCustomResolver(toIP, dnsServer)
 			if err != nil {
