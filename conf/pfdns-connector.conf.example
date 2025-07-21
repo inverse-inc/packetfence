@@ -16,5 +16,6 @@
     forward . [% FOREACH dns IN domain.value %][% PFCONNECTOR_SERVICE_HOST %]:[% dns.value.pfconnector_port %] [% END %]
     cache
     errors
+    log
 }
 [% END %][% END %]
