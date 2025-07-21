@@ -66,6 +66,7 @@ sub resolve {
     my ($class, $ip) = @_;
     # Check if the IP is valid if not then it's a hostname
     if (!Net::IP::ip_is_ipv4($ip)) {
+        my $fqdn = $ip;
         # If the IP is not valid, we assume it's a hostname and resolve it
         if (substr($ip, -1) ne '.') {
             $ip = $ip.".";
@@ -76,6 +77,7 @@ sub resolve {
         }
         # If we have multiple IPs, we take the first one
         $ip = NetAddr::IP->new($resolved_ips->[0]);
+        get_logger->warn("Resolved ".$fqdn." to ip ".$resolved_ips->[0]." through pfdns-connector");
     } else {
         $ip = NetAddr::IP->new($ip);
     }
