@@ -14,8 +14,7 @@ use strict;
 use warnings;
 use base 'pfconfig::namespaces::resource';
 use NetAddr::IP;
-use pf::util qw(listify);
-use pf::util qw(isenabled);
+use pf::util qw(listify isenabled);
 
 sub init {
     my ($self) = @_;
