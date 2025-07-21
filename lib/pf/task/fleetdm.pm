@@ -39,24 +39,25 @@ sub checkConfig() {
         return $FALSE;
     }
 
-    unless (exists($Config{fleetdm}->{host}) &&
-        exists($Config{fleetdm}->{email}) &&
-        exists($Config{fleetdm}->{password}) &&
-        exists($Config{fleetdm}->{token})
+    my $fleetdm = $Config{fleetdm};
+    unless (exists($fleetdm->{host}) &&
+        exists($fleetdm->{email}) &&
+        exists($fleetdm->{password}) &&
+        exists($fleetdm->{token})
     ) {
         $msg = "Invalid fleetdm config: 'host', 'email', 'password', 'token' should be defined in pf.conf. Did you manually changed the config file ?";
         $logger->error($msg);
         return $FALSE;
     }
 
-    if ($Config{fleetdm}->{host} eq "") {
+    if ($fleetdm->{host} eq "") {
         $msg = "Unable to find a valid 'host' value in FleetDM config.";
         $logger->error($msg);
         return $FALSE;
     }
 
-    if ($Config{fleetdm}->{token} eq "" &&
-        ($Config{fleetdm}->{email} eq "" || $Config{fleetdm}->{password} eq "")
+    if ($fleetdm->{token} eq "" &&
+        ($fleetdm->{email} eq "" || $fleetdm->{password} eq "")
     ) {
         $msg = "Unable to obtain credentials for FleetDM. Either 'token' or 'email+password' is required.";
         $logger->error($msg);
@@ -188,13 +189,14 @@ sub triggerPolicy() {
 }
 
 sub login {
+    my $fleetdm = $Config{fleetdm};
     my $http = HTTP::Tiny->new(verify_SSL => 0,);
 
-    my $url = $Config{fleetdm}->{host} . "/api/v1/fleet/login";
+    my $url = $fleetdm->{host} . "/api/v1/fleet/login";
 
     my $post_data = {
-        email    => $Config{fleetdm}->{email},
-        password => $Config{fleetdm}->{password},
+        email    => $fleetdm->{email},
+        password => $fleetdm->{password},
     };
     my $json_post_data = encode_json($post_data);
 
@@ -227,17 +229,18 @@ sub login {
 }
 
 sub refreshToken {
-    if ($Config{fleetdm}->{token} ne "") {
-        $fleetdm_token = $Config{fleetdm}->{token};
+    my $fleetdm = $Config{fleetdm};
+    if ($fleetdm->{token} ne "") {
+        $fleetdm_token = $fleetdm->{token};
         return 0;
     }
 
-    if ($fleetdm_email ne $Config{fleetdm}->{email} ||
-        $fleetdm_password ne $Config{fleetdm}->{password}
+    if ($fleetdm_email ne $fleetdm->{email} ||
+        $fleetdm_password ne $fleetdm->{password}
     ) {
         $cache->remove("fleetdm_api_token");
-        $fleetdm_email = $Config{fleetdm}->{email};
-        $fleetdm_password = $Config{fleetdm}->{password};
+        $fleetdm_email = $fleetdm->{email};
+        $fleetdm_password = $fleetdm->{password};
     }
 
     my $token = $cache->get("fleetdm_api_token");
