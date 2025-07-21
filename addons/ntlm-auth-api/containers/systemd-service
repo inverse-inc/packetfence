@@ -109,7 +109,7 @@ function run_img {
   args="$3"
   cmd="$4"
   cd /usr/local/ntlm-auth-api/
-  docker container rm -f $name 1&2> /dev/null
+  docker container rm -f $name &> /dev/null
   echo "Running with args $args"
   if ! [ -z $NOTIFY_SOCKET ]; then
     sdproxy $name $args --name=$name $img $cmd
