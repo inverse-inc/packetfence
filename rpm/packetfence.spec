@@ -659,6 +659,9 @@ if [ "$1" = "2" ]; then
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 fi
 
+echo "Generate values in kafka.conf"
+/usr/local/pf/addons/upgrade/to-15.0-replace-kafka-values.sh
+
 /usr/bin/mkdir -p /var/log/journal/
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
