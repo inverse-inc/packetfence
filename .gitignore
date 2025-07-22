@@ -56,6 +56,7 @@ db/upgrade-tenant-11.2-12.0.sql
 bin/ntlm_auth_wrapper
 bin/pfcmd
 bin/pfcrypt
+bin/pfkafka
 src/mariadb_udf/*.o
 src/mariadb_udf/*.so
 src/mariadb_udf/test_pf_udf
