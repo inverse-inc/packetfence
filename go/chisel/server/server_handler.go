@@ -200,7 +200,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			port, _ := strconv.ParseUint(remote.LocalPort, 10, 16)
 			patchPorts.Spec.Ports = append(
 				patchPorts.Spec.Ports,
-				pfk8s.PatchPort{Port: int(port), TargetPort: int(port), Protocol: strings.ToUpper(remote.LocalProto), Name: "port-" + remote.LocalPort},
+				pfk8s.PatchPort{Port: int(port), TargetPort: int(port), Protocol: strings.ToUpper(remote.LocalProto), Name: "port-" + strings.ToUpper(remote.LocalProto) + "-" + remote.LocalPort},
 			)
 		}
 
