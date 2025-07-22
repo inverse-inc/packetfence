@@ -119,8 +119,12 @@ sub resolve_dns_with_custom_resolver {
         }
     }
     return (undef, "DNS server not configured and K8S_DNS_SERVER is not defined") unless $dns_server_str;
-    return resolve_dns($fqdn, $dns_server_str, $dns_port_default) if Net::IP::ip_is_ipv4($dns_server_str->[0]);
-    return (undef, "Invalid DNS server format: $dns_server_str") unless $dns_server_str =~ /^(.*?)(?::(\d+))?$/;
+    if (ref($dns_server_str) eq 'ARRAY') {
+        return resolve_dns($fqdn, $dns_server_str, $dns_port_default) if Net::IP::ip_is_ipv4($dns_server_str->[0]);
+    } else {
+        return resolve_dns($fqdn, $dns_server_str, $dns_port_default) if Net::IP::ip_is_ipv4($dns_host);
+    }
+    return (undef, "No usable dns servers to resolve");
 }
 
 sub resolve_dns {
