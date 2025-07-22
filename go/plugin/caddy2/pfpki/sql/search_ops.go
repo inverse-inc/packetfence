@@ -102,12 +102,12 @@ func (s *SearchAndOp) SqlWhere(class interface{}) (Where, error) {
 	return logicalOp(class, s.Values, " AND ")
 }
 
-type SearchOr struct {
+type SearchOrOp struct {
 	Op     string     `json:"op"`
 	Values []SearchOp `json:"values"`
 }
 
-func (s *SearchOr) SqlOp() string {
+func (s *SearchOrOp) SqlOp() string {
 	return s.Op
 }
 
@@ -197,7 +197,7 @@ func checkField(class interface{}, field string) (string, error) {
 
 }
 
-func (s *SearchOr) SqlWhere(class interface{}) (Where, error) {
+func (s *SearchOrOp) SqlWhere(class interface{}) (Where, error) {
 	return logicalOp(class, s.Values, " OR ")
 }
 
@@ -313,7 +313,7 @@ func (w *SearchOpWrapper) UnmarshalSearchOp(opts ...jsontext.Options) (SearchOp,
 	case "and":
 		return typeUnmarshal[SearchAndOp](w.Val, opts...)
 	case "or":
-		return typeUnmarshal[SearchOr](w.Val, opts...)
+		return typeUnmarshal[SearchOrOp](w.Val, opts...)
 	case "starts_with":
 		return typeUnmarshal[SearchStartsWithOp](w.Val, opts...)
 	case "ends_with":
