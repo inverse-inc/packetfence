@@ -68,6 +68,8 @@ sub build {
         my $connector = $self->find_connector( $data->{ip} );
         my $r         = "${port}:$data->{ip}:$data->{port}/udp";
         push @{ $hash{$connector} }, $r;
+        $r         = "${port}:$data->{ip}:$data->{port}";
+        push @{ $hash{$connector} }, $r;
     }
     return \%hash;
 }
