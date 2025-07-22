@@ -328,6 +328,10 @@ backend=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "") %]
 # database_proxysql.scheduler
 #
 scheduler=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "default") %]
+#
+# database_proxysql.port
+#
+port=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND_PORT", "3306") %]
 
 [database_advanced]
 #
