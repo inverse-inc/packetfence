@@ -28,13 +28,18 @@
                        disabled-value="default"
     />
 
+    <form-group-port namespace="port"
+                       :column-label="$i18n.t('Backend port')"
+                       :text="$i18n.t('Port to use in order to connect to the database.')"
+    />
+
   </base-form>
 </template>
 <script>
 import {computed} from '@vue/composition-api'
 import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
-import {FormGroupBackend, FormGroupCacert, FormGroupStatus, FormGroupScheduler} from './'
+import {FormGroupBackend, FormGroupCacert, FormGroupStatus, FormGroupScheduler, FormGroupPort} from './'
 
 const components = {
   BaseForm,
@@ -43,6 +48,7 @@ const components = {
   FormGroupBackend,
   FormGroupStatus,
   FormGroupScheduler,
+  FormGroupPort,
 }
 
 export const props = {
