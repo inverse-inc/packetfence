@@ -34,16 +34,21 @@ import (
 //   1.1.1.1:53/udp
 //     local  127.0.0.1:53/udp
 //     remote 1.1.1.1:53/udp
+//   1.1.1.1:53/dual
+//     local  127.0.0.1:53/dual (both TCP and UDP)
+//     remote 1.1.1.1:53/dual (both TCP and UDP)
 
 type Remote struct {
 	sync.Mutex
-	LastTouched                         time.Time
-	LocalHost, LocalPort, LocalProto    string
-	RemoteHost, RemotePort, RemoteProto string
-	Handler                             string
-	ReusedTcpListener                   *net.TCPListener
-	ReusedUdpConn                       *net.UDPConn
-	Dynamic, Socks, Reverse, Stdio      bool
+	LastTouched                     time.Time
+	LocalHost, LocalPort            string
+	RemoteHost, RemotePort          string
+	LocalProtocols, RemoteProtocols []string // Support multiple protocols
+	Handler                         string
+	ReusedTcpListener               *net.TCPListener
+	ReusedUdpConn                   *net.UDPConn
+	Dynamic, Socks, Reverse, Stdio  bool
+	DualStack                       bool // New field to indicate dual stack mode
 }
 
 const revPrefix = "R:"
@@ -60,7 +65,13 @@ func DecodeRemote(s string) (*Remote, error) {
 		return nil, errors.New("Invalid remote")
 	}
 
-	r := &Remote{Reverse: reverse, Handler: "raw"}
+	r := &Remote{
+		Reverse:         reverse,
+		Handler:         "raw",
+		LocalProtocols:  []string{},
+		RemoteProtocols: []string{},
+	}
+
 	//parse from back to front, to set 'remote' fields first,
 	//then to set 'local' fields second (allows the 'remote' side
 	//to provide the defaults)
@@ -77,15 +88,19 @@ func DecodeRemote(s string) (*Remote, error) {
 			continue
 		}
 
-		p, proto, handler := L4Proto(p)
-		if proto != "" {
-			if r.RemotePort == "" {
-				r.RemoteProto = proto
-			} else if r.LocalProto == "" {
-				r.LocalProto = proto
+		p, protocols, handler := L4Proto(p)
+		if len(protocols) > 0 {
+			if len(r.RemoteProtocols) == 0 {
+				r.RemoteProtocols = protocols
+			} else if len(r.LocalProtocols) == 0 {
+				r.LocalProtocols = protocols
 			}
-
 			r.Handler = handler
+
+			// Check if dual stack is requested
+			if len(protocols) > 1 || (len(protocols) == 1 && protocols[0] == "dual") {
+				r.DualStack = true
+			}
 		}
 
 		if isPort(p) {
@@ -113,6 +128,7 @@ func DecodeRemote(s string) (*Remote, error) {
 			r.LocalHost = p
 		}
 	}
+
 	//remote string parsed, apply defaults...
 	if r.Socks {
 		//socks defaults
@@ -131,19 +147,37 @@ func DecodeRemote(s string) (*Remote, error) {
 			r.RemoteHost = "127.0.0.1"
 		}
 	}
-	if r.RemoteProto == "" {
-		r.RemoteProto = "tcp"
+
+	// Set default protocols
+	if len(r.RemoteProtocols) == 0 {
+		if r.DualStack {
+			r.RemoteProtocols = []string{"tcp", "udp"}
+		} else {
+			r.RemoteProtocols = []string{"tcp"}
+		}
 	}
-	if r.LocalProto == "" {
-		r.LocalProto = r.RemoteProto
+	if len(r.LocalProtocols) == 0 {
+		r.LocalProtocols = r.RemoteProtocols
 	}
-	if r.LocalProto != r.RemoteProto {
-		//TODO support cross protocol
-		//tcp <-> udp, is faily straight forward
-		//udp <-> tcp, is trickier since udp is stateless and tcp is not
-		return nil, errors.New("cross-protocol remotes are not supported yet")
+
+	// Handle dual stack protocol expansion
+	for i, proto := range r.RemoteProtocols {
+		if proto == "dual" {
+			r.RemoteProtocols = append(r.RemoteProtocols[:i], append([]string{"tcp", "udp"}, r.RemoteProtocols[i+1:]...)...)
+			r.DualStack = true
+			break
+		}
 	}
-	if r.Socks && r.RemoteProto != "tcp" {
+	for i, proto := range r.LocalProtocols {
+		if proto == "dual" {
+			r.LocalProtocols = append(r.LocalProtocols[:i], append([]string{"tcp", "udp"}, r.LocalProtocols[i+1:]...)...)
+			r.DualStack = true
+			break
+		}
+	}
+
+	// Validate protocol compatibility
+	if r.Socks && !contains(r.RemoteProtocols, "tcp") {
 		return nil, errors.New("only TCP SOCKS is supported")
 	}
 	if r.Stdio && r.Reverse {
@@ -160,10 +194,10 @@ func DecodeRemote(s string) (*Remote, error) {
 }
 
 func (r *Remote) setupLocalPort() error {
-	if r.LocalProto == "tcp" {
+	if contains(r.LocalProtocols, "tcp") {
 		addr, err := net.ResolveTCPAddr("tcp", r.Local())
 		if err != nil {
-			return fmt.Errorf("resolve: %w", err)
+			return fmt.Errorf("resolve TCP: %w", err)
 		}
 
 		tl, err := net.ListenTCP("tcp", addr)
@@ -174,13 +208,12 @@ func (r *Remote) setupLocalPort() error {
 		r.LocalPort = strconv.Itoa(tl.Addr().(*net.TCPAddr).Port)
 		r.ReusedTcpListener = tl
 		r.Dynamic = true
-		return nil
 	}
 
-	if r.LocalProto == "udp" {
+	if contains(r.LocalProtocols, "udp") {
 		addr, err := net.ResolveUDPAddr("udp", r.Local())
 		if err != nil {
-			return fmt.Errorf("resolve: %w", err)
+			return fmt.Errorf("resolve UDP: %w", err)
 		}
 
 		conn, err := net.ListenUDP("udp", addr)
@@ -188,13 +221,19 @@ func (r *Remote) setupLocalPort() error {
 			return fmt.Errorf("net.ListenUDP: %w", err)
 		}
 
-		r.LocalPort = strconv.Itoa(conn.LocalAddr().(*net.UDPAddr).Port)
+		// Only set LocalPort if not already set by TCP
+		if r.LocalPort == "" || r.LocalPort == "0" {
+			r.LocalPort = strconv.Itoa(conn.LocalAddr().(*net.UDPAddr).Port)
+		}
 		r.ReusedUdpConn = conn
 		r.Dynamic = true
-		return nil
 	}
 
-	return errors.New("Proto not supported")
+	if len(r.LocalProtocols) == 0 {
+		return errors.New("No protocols specified")
+	}
+
+	return nil
 }
 
 func isPort(s string) bool {
@@ -216,10 +255,10 @@ func isHost(s string) bool {
 	return true
 }
 
-var l4Proto = regexp.MustCompile(`(?i)\/(tcp|udp)(|.*)?$`)
+var l4Proto = regexp.MustCompile(`(?i)\/(tcp|udp|dual)(|.*)?$`)
 
-// L4Proto extacts the layer-4 protocol from the given string
-func L4Proto(s string) (string, string, string) {
+// L4Proto extracts the layer-4 protocol(s) from the given string
+func L4Proto(s string) (string, []string, string) {
 	handler := "raw"
 	if l4Proto.MatchString(s) {
 		split := strings.SplitN(s, "|", 2)
@@ -229,10 +268,25 @@ func L4Proto(s string) (string, string, string) {
 		}
 
 		l := len(s)
-		return strings.ToLower(s[:l-4]), s[l-3:], handler
+		protoStr := strings.ToLower(s[len(s)-3:])
+		if strings.HasSuffix(s, "/dual") {
+			protoStr = "dual"
+			l = len(s) - 5 // "/dual" is 5 characters
+		} else {
+			l = l - 4 // "/tcp" or "/udp" is 4 characters
+		}
+
+		var protocols []string
+		if protoStr == "dual" {
+			protocols = []string{"tcp", "udp"}
+		} else {
+			protocols = []string{protoStr}
+		}
+
+		return s[:l], protocols, handler
 	}
 
-	return s, "", handler
+	return s, []string{}, handler
 }
 
 // implement Stringer
@@ -244,9 +298,13 @@ func (r *Remote) String() string {
 	sb.WriteString(strings.TrimPrefix(r.Local(), "0.0.0.0:"))
 	sb.WriteString("=>")
 	sb.WriteString(strings.TrimPrefix(r.Remote(), "127.0.0.1:"))
-	if r.RemoteProto == "udp" {
+
+	if r.DualStack {
+		sb.WriteString("/dual")
+	} else if len(r.RemoteProtocols) == 1 && r.RemoteProtocols[0] == "udp" {
 		sb.WriteString("/udp")
 	}
+
 	return sb.String()
 }
 
@@ -257,9 +315,13 @@ func (r *Remote) Encode() string {
 	}
 	local := r.Local()
 	remote := r.Remote()
-	if r.RemoteProto == "udp" {
+
+	if r.DualStack {
+		remote += "/dual"
+	} else if len(r.RemoteProtocols) == 1 && r.RemoteProtocols[0] == "udp" {
 		remote += "/udp"
 	}
+
 	if r.Reverse {
 		return "R:" + local + ":" + remote
 	}
@@ -299,29 +361,65 @@ func (r *Remote) UserAddr() string {
 
 // CanListen checks if the port can be listened on
 func (r *Remote) CanListen() bool {
-	//valid protocols
-	switch r.LocalProto {
-	case "tcp":
+	canListenTCP := false
+	canListenUDP := false
+
+	// Check TCP if it's one of the protocols
+	if contains(r.LocalProtocols, "tcp") {
 		conn, err := net.Listen("tcp", r.Local())
 		if err == nil {
 			conn.Close()
-			return true
+			canListenTCP = true
 		}
-		return false
-	case "udp":
-		addr, err := net.ResolveUDPAddr("udp", r.Local())
-		if err != nil {
-			return false
-		}
-		conn, err := net.ListenUDP(r.LocalProto, addr)
-		if err == nil {
-			conn.Close()
-			return true
-		}
-		return false
+	} else {
+		canListenTCP = true // Not required, so consider it "OK"
 	}
-	//invalid
+
+	// Check UDP if it's one of the protocols
+	if contains(r.LocalProtocols, "udp") {
+		addr, err := net.ResolveUDPAddr("udp", r.Local())
+		if err == nil {
+			conn, err := net.ListenUDP("udp", addr)
+			if err == nil {
+				conn.Close()
+				canListenUDP = true
+			}
+		}
+	} else {
+		canListenUDP = true // Not required, so consider it "OK"
+	}
+
+	// For dual stack, both must be available
+	if r.DualStack {
+		return canListenTCP && canListenUDP
+	}
+
+	// For single protocol, just that one needs to work
+	return canListenTCP && canListenUDP
+}
+
+// Helper function to check if a slice contains a string
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
 	return false
+}
+
+// GetProtocols returns the protocols for local and remote
+func (r *Remote) GetLocalProtocols() []string {
+	return r.LocalProtocols
+}
+
+func (r *Remote) GetRemoteProtocols() []string {
+	return r.RemoteProtocols
+}
+
+// IsDualStack returns whether this remote uses dual stack
+func (r *Remote) IsDualStack() bool {
+	return r.DualStack
 }
 
 type Remotes []*Remote

@@ -1,7 +1,6 @@
 package tunnel
 
 import (
-	"encoding/gob"
 	"fmt"
 	"io"
 	"net"
@@ -17,33 +16,33 @@ import (
 
 var udpCloseOnReply = sharedutils.IsEnabled(sharedutils.EnvOrDefault("PFCONNECTOR_UDP_CLOSE_ON_REPLY", "disabled"))
 
-func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort string, handler string) error {
-	conns := &udpConns{
-		Logger: l,
-		m:      map[string]*udpConn{},
-		srcIP:  t.Config.SrcIP,
-	}
-	defer conns.closeAll()
-	h := &udpHandler{
-		connectorID: t.ConnectorID,
-		Logger:      l,
-		hostPort:    hostPort,
-		handler:     handler,
-		udpChannel: &udpChannel{
-			r: gob.NewDecoder(rwc),
-			w: gob.NewEncoder(rwc),
-			c: rwc,
-		},
-		radiusProxy: t.radiusProxy,
-		udpConns:    conns,
-	}
-	for {
-		p := udpPacket{}
-		if err := h.handleWrite(&p); err != nil {
-			return err
-		}
-	}
-}
+// func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort string, handler string) error {
+// 	conns := &udpConns{
+// 		Logger: l,
+// 		m:      map[string]*udpConn{},
+// 		srcIP:  t.Config.SrcIP,
+// 	}
+// 	defer conns.closeAll()
+// 	h := &udpHandler{
+// 		connectorID: t.ConnectorID,
+// 		Logger:      l,
+// 		hostPort:    hostPort,
+// 		handler:     handler,
+// 		udpChannel: &udpChannel{
+// 			r: gob.NewDecoder(rwc),
+// 			w: gob.NewEncoder(rwc),
+// 			c: rwc,
+// 		},
+// 		radiusProxy: t.radiusProxy,
+// 		udpConns:    conns,
+// 	}
+// 	for {
+// 		p := udpPacket{}
+// 		if err := h.handleWrite(&p); err != nil {
+// 			return err
+// 		}
+// 	}
+// }
 
 type udpHandler struct {
 	connectorID string

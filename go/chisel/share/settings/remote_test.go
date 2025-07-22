@@ -10,18 +10,58 @@ func testString(t *testing.T, name, got, expected string) {
 	}
 }
 
+func testArrayString(t *testing.T, name string, got []string, expected []string) {
+
+	if len(got) != len(expected) {
+		t.Fatalf("%s got %v : expected %v", name, got, expected)
+		return
+	}
+
+	if len(got) == 0 && len(expected) == 0 {
+		return
+	}
+	if len(got) == 0 && len(expected) > 0 {
+		t.Fatalf("%s got %v : expected %v", name, got, expected)
+		return
+	}
+
+	for i, v := range got {
+		if i >= len(expected) {
+			t.Fatalf("%s got %s at index %d : expected %s", name,
+				v, i, expected)
+			return
+		}
+		if expected[i] == "" {
+			t.Fatalf("%s expected empty string at index %d", name, i)
+			return
+		}
+		if v == "" {
+			t.Fatalf("%s got empty string at index %d", name, i)
+			return
+		}
+		if v != expected[i] {
+			t.Fatalf("%s got %s at index %d : expected %s", name,
+				v, i, expected[i])
+			return
+		}
+	}
+}
+
 func TestL4Proto(t *testing.T) {
-	tests := []struct{ l4proto, head, proto, handler string }{
+	tests := []struct {
+		l4proto, head, handler string
+		proto                  []string
+	}{
 		{
 			l4proto: "1813/udp",
 			head:    "1813",
-			proto:   "udp",
+			proto:   []string{"udp"},
 			handler: "raw",
 		},
 		{
 			l4proto: "1813/udp|radius",
 			head:    "1813",
-			proto:   "udp",
+			proto:   []string{"udp"},
 			handler: "radius",
 		},
 	}
@@ -29,7 +69,8 @@ func TestL4Proto(t *testing.T) {
 	for _, test := range tests {
 		head, proto, handler := L4Proto(test.l4proto)
 		testString(t, "head", head, test.head)
-		testString(t, "proto", proto, test.proto)
+		testArrayString(t, "proto", proto, test.proto)
+
 		testString(t, "handler", handler, test.handler)
 	}
 }

@@ -58,12 +58,15 @@ func listenUDP(l *cio.Logger, sshTun sshTunnel, remote *settings.Remote) (*udpLi
 
 type udpListener struct {
 	*cio.Logger
+	conn        *net.UDPConn // inbound udp connection
+	logger      *cio.Logger
 	sshTun      sshTunnel
 	remote      *settings.Remote
 	inbound     *net.UDPConn
 	outboundMut sync.Mutex
 	outbound    *udpChannel
 	sent, recv  int64
+	close       func() // close function to call when closing the listener
 }
 
 func (u *udpListener) run(ctx context.Context) error {
@@ -223,6 +226,18 @@ func (u *udpListener) unsetUDPChan(sshConn ssh.Conn) {
 	u.outboundMut.Lock()
 	u.outbound = nil
 	u.outboundMut.Unlock()
+}
+
+func (u *udpListener) Close() error {
+	u.Debugf("Closing udp listener")
+	if u.close != nil {
+		u.close()
+	}
+	u.inbound.Close()
+	if u.outbound != nil && u.outbound.c != nil {
+		u.outbound.c.Close()
+	}
+	return nil
 }
 
 func (u *udpListener) monitorInactivity(ctx context.Context, cancel func()) error {
