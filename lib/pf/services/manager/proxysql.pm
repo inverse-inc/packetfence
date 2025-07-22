@@ -77,6 +77,7 @@ EOT
 
     my $i = 100;
     my $database_proxysql = $pf::config::Config{database_proxysql};
+    my $port = $database_proxysql->{port} || 3306;  # Use configured port or default to 3306
 
     if (isenabled($database_proxysql->{status})) {
         my $cacert = $database_proxysql->{cacert};
@@ -88,7 +89,6 @@ EOT
 
         $single_server = 1;
         my $backend = $database_proxysql->{backend};
-        my $port = $database_proxysql->{port} || 3306;  # Use configured port or default to 3306
         my $ssl = $cacert ? 1 : 0;
         $tags{mysql_servers} .= << "EOT";
     { address="$backend" , port=$port , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
@@ -99,7 +99,6 @@ EOT
         my @mysql_read_backend = pf::cluster::getReadDB();
         
         # Get port from database_proxysql config or default to 3306
-        my $port = $database_proxysql->{port} || 3306;
 
         foreach my $mysql_back (@mysql_write_backend) {
             $tags{'mysql_servers'} .= << "EOT";
@@ -122,7 +121,6 @@ EOT
         @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
         
         # Get port from database_proxysql config or default to 3306
-        my $port = $database_proxysql->{port} || 3306;
 
         foreach my $mysql_back (@mysql_backend) {
         $tags{'mysql_servers'} .= << "EOT";
@@ -135,9 +133,6 @@ EOT
 
         @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
         
-        # Get port from database_proxysql config or default to 3306
-        my $port = $database_proxysql->{port} || 3306;
-
         foreach my $mysql_back (@mysql_backend) {
         $tags{'mysql_servers'} .= << "EOT";
     { address="$mysql_back" , port=$port , hostgroup=10, max_connections=1000, weight=$i },
