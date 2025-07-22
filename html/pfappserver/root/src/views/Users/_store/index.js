@@ -162,6 +162,7 @@ const actions = {
     }
     commit('USER_REQUEST')
     return api.user({ quiet: true, ...body }).then(data => {
+
       inflateActions(data)
       commit('USER_REPLACED', data)
       return state.users[pid]

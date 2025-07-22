@@ -86,6 +86,7 @@ export const pfFieldTypeComponent = {
   [pfFieldType.GENDER]:                pfComponentType.SELECTONE,
   [pfFieldType.LDAPATTRIBUTE]:         pfComponentType.SUBSTRING,
   [pfFieldType.LDAPFILTER]:            pfComponentType.SUBSTRING,
+  [pfFieldType.MFA]:                   pfComponentType.SELECTONE,
   [pfFieldType.NODE_STATUS]:           pfComponentType.SELECTONE,
   [pfFieldType.OPTIONS]:               pfComponentType.SELECTONE,
   [pfFieldType.RADIUSATTRIBUTE]:       pfComponentType.SUBSTRING,
@@ -286,7 +287,6 @@ export const pfFieldTypeValues = {
 
   [pfFieldType.MFA]: () =>
     store.dispatch('config/getMfas').then(items => [
-      { value: null, text: i18n.t('empty - None') },
       ...items.map((item) => {
         return { value: item.id, text: item.id }
       })
