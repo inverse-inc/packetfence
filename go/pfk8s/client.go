@@ -176,7 +176,7 @@ func (c *Client) PatchPorts(p PatchPorts) error {
 		return fmt.Errorf("PatchPorts, failed to create the request: %w", err)
 	}
 
-	req.Header.Add("Content-Type", "application/strategic-merge-patch+json")
+	req.Header.Add("Content-Type", "application/json-patch+json")
 	resp, err := c.getHttpClient().Do(req)
 	if err != nil {
 		return fmt.Errorf("PatchPorts, failed request: %w", err)
