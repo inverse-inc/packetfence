@@ -189,7 +189,6 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
-
 	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
 		patchPorts := pfk8s.PatchPorts{
 			Spec: pfk8s.PatchPortsSpec{
@@ -203,6 +202,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 				pfk8s.PatchPort{Port: int(port), TargetPort: int(port), Protocol: strings.ToUpper(remote.LocalProto), Name: "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort},
 			)
 		}
+		l.Printf("Trying to open kube port: %s", patchPorts)
 
 		if err := client.PatchPorts(patchPorts); err != nil {
 			l.Printf("Error patching ports: %v", err)
