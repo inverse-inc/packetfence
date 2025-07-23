@@ -15,13 +15,6 @@ const schemaCluster = yup.object({
 
 const schemaClusters = yup.array().ensure().unique(i18n.t('Duplicate key'), ({ name }) => name).of(schemaCluster)
 
-const schemaHostConfigConfigItem = yup.object({
-  name: yup.string().nullable().required().label(i18n.t('Key')),
-  value: yup.string().nullable().required().label(i18n.t('Value'))
-})
-
-const schemaHostConfigConfig = yup.array().ensure().of(schemaHostConfigConfigItem)
-
 const schemaIpv4 = yup.string().nullable().required().label(i18n.t('IPv4'))
   .isIpv4()
 

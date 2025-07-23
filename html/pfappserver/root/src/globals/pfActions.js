@@ -185,6 +185,9 @@ const pfActionSchema = yup.object({
   type: yup.string().nullable().required(i18n.t('Type required.')),
   value: yup.string()
     .when('type', type => {
+      if (!type) {
+        return yup.string().nullable().required(i18n.t('Value required.'))
+      }
       switch (true) {
         case type === 'set_role':
         case pfActions[type].types.includes(fieldType.NONE):

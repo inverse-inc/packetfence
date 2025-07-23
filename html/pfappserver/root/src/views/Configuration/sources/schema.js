@@ -2,10 +2,6 @@ import store from '@/store'
 import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
-import {
-  connectThroughPortMin,
-  connectThroughPortMax
-} from './config'
 
 yup.addMethod(yup.string, 'sourceIdExists', function (message) {
   return this.test({
@@ -113,11 +109,6 @@ export const schema = (props) => {
     sp_key_path_upload,
   } = form || {}
 
-  //eslint-disable-next-line
-  console.log({connectThroughPortMin, connectThroughPortMax})
-
-  const connectThroughPortRangeMessage = i18n.t('Port out of range ({min}-{max}).', { min: connectThroughPortMin, max: connectThroughPortMax } )
-
   return yup.object({
     id: yup.string()
       .nullable()
@@ -159,7 +150,7 @@ export const schema = (props) => {
     hash_passwords: yup.string().nullable().label(i18n.t('Hash')),
     host: schemaHosts,
     identity_token: yup.string().label(i18n.t('Token')),
-    idp_ca_cert_path: yup.string() .isPort()
+    idp_ca_cert_path: yup.string()
       .when('idp_ca_cert_path_upload', () => {
         return (!idp_ca_cert_path_upload)
           ? yup.string().nullable().required(i18n.t('Certificate required.'))
@@ -200,7 +191,8 @@ export const schema = (props) => {
           : yup.string().nullable()
       }),
     person_mappings: schemaPersonMappings,
-    port: yup.string().label(i18n.t('Port')).isPort(),
+    port: yup.string().label(i18n.t('Port'))
+      .isPort(),
     protected_resource_url: yup.string().label(i18n.t('URL')),
     proxy_addresses: yup.string().label(i18n.t('Addresses')),
     public_client_key: yup.string().label(i18n.t('Key')),
