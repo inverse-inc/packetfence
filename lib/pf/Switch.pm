@@ -3961,7 +3961,7 @@ sub getCiscoAvPairAttribute {
     my $avpair = listify($radius_request->{'Cisco-AVPair'} // []);
     foreach my $ciscoAVPair (@{$avpair}) {
         $logger->trace("Cisco-AVPair: $ciscoAVPair $attr");
-        if ($ciscoAVPair =~ /^\Q$attr\E=(.*)$/ig) {
+        if ($ciscoAVPair =~ /^\Q$attr\E=([\s\S]*)/ig) {
             return $1;
         } else {
             $logger->info("Unable to extract $attr of Cisco-AVPair: $ciscoAVPair");

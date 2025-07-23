@@ -452,6 +452,17 @@ image::wlc-9800-pf-switch-roles-1.jpg[scaledwidth="100%",alt="PF Switch Role con
 
 image::wlc-9800-pf-switch-roles-2.jpg[scaledwidth="100%",alt="PF Switch Role configuration"]
 
+====== PF-Easy-PSK SSID
+
+Go to Configuration -> Tags & Profiles -> WLANs, click add
+
+image::wlc-9800-wlan-pf-easy-psk.jpg[scaledwidth="100%",alt="Add pf-easy-psk WLAN"]
+
+In security Layer2 tab select MAC Filtering, select in AUthorization List the radius server created above.
+In Auth Key Mgmt (AKM) section select PSK and Easy-PSK.
+
+image::wlc-9800-wlan-pf-easy-psk-security.jpg[scaledwidth="100%",alt="pf-easy-psk security"]
+
 ==== Troubleshooting ignored RADIUS replies
 
 In the event the WLC ignores the RADIUS replies from PacketFence (you receive multiple requests but access is never granted), validate the following elements : 
