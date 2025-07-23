@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -37,17 +36,21 @@ type PodList struct {
 	}
 }
 
-type PatchPort struct {
+type PatchPortAdd struct {
 	Port       int    `json:"port"`
 	TargetPort int    `json:"targetPort"`
 	Protocol   string `json:"protocol"`
 	Name       string `json:"name"`
 }
 
-type PatchPortsAdd struct {
-	Op    string    `json:"op"`
-	Path  string    `json:"path"`
-	Value PatchPort `json:"value"`
+type PatchPortDel struct {
+	Name string `json:"name"`
+}
+
+type PatchPorts struct {
+	Op    string      `json:"op"`
+	Path  string      `json:"path"`
+	Value interface{} `json:"value"`
 }
 
 type Client struct {
@@ -142,7 +145,7 @@ func (c *Client) ListPods(appSelector string) (PodList, error) {
 	}
 
 	defer res.Body.Close()
-	b, err := ioutil.ReadAll(res.Body)
+	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return PodList{}, err
 	}
@@ -161,7 +164,7 @@ func (c *Client) ListPods(appSelector string) (PodList, error) {
 	return pods, nil
 }
 
-func (c *Client) PatchPorts(p []PatchPortsAdd) error {
+func (c *Client) PatchPorts(p []PatchPorts) error {
 	data, err := json.Marshal(p)
 	if err != nil {
 		return fmt.Errorf("PatchPorts, failed to encode to JSON: %w", err)
