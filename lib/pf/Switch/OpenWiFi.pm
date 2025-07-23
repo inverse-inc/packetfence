@@ -66,12 +66,12 @@ sub find_user_by_psk {
     my @parts = split(":", $radius_request->{"Called-Station-Id"});
     my $ssid = pop @parts;
     my $bssid = join("", @parts);
+    $bssid =~ s/-//g;
     $bssid = pack("H*", $bssid);
     my $username = pack("H*", $radius_request->{'User-Name'});
     my $anonce = pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"FreeRADIUS-802.1X-Anonce"}));
     my $snonce = pf::util::wpa::snonce_from_eapol_key_frame(pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"FreeRADIUS-802.1X-EAPoL-Key-Msg"})));
     my $eapol_key_frame = pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"FreeRADIUS-802.1X-EAPoL-Key-Msg"}));
-    $bssid =~ s/-//g;
 
     return $self->iterate_user_by_psk($args, $radius_request, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key);
 }
