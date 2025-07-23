@@ -189,28 +189,30 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
+
 	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
-		patchPorts := []pfk8s.PatchPortsAdd{
-			{
-				Op:    "add",
-				Path:  "/spec/ports/-",
-				Value: pfk8s.PatchPort{},
-			},
-		}
+		patchPorts := []pfk8s.PatchPorts{}
 
 		for _, remote := range additionalRemotes {
 			port, _ := strconv.ParseUint(remote.LocalPort, 10, 16)
-			patchPorts = append(patchPorts, pfk8s.PatchPortsAdd{
+			patchPorts = append(patchPorts, pfk8s.PatchPorts{
+				Op:   "remove",
+				Path: "/spec/ports",
+				Value: pfk8s.PatchPortDel{
+					Name: "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort,
+				},
+			})
+
+			patchPorts = append(patchPorts, pfk8s.PatchPorts{
 				Op:   "add",
 				Path: "/spec/ports/-",
-				Value: pfk8s.PatchPort{
+				Value: pfk8s.PatchPortAdd{
 					Port:       int(port),
 					TargetPort: int(port),
 					Protocol:   strings.ToUpper(remote.LocalProto),
 					Name:       "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort,
 				},
 			})
-
 		}
 		if err := client.PatchPorts(patchPorts); err != nil {
 			l.Printf("Error patching ports: %v", err)
