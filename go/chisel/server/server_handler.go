@@ -190,18 +190,17 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
-		patchPorts := pfk8s.PatchPorts{
-			Items: []pfk8s.PatchPortsAdd{
-				{
-					Op:    "add",
-					Path:  "/spec/ports/-",
-					Value: pfk8s.PatchPort{},
-				},
+		patchPorts := []pfk8s.PatchPortsAdd{
+			{
+				Op:    "add",
+				Path:  "/spec/ports/-",
+				Value: pfk8s.PatchPort{},
 			},
 		}
+
 		for _, remote := range additionalRemotes {
 			port, _ := strconv.ParseUint(remote.LocalPort, 10, 16)
-			patchPorts.Items = append(patchPorts.Items, pfk8s.PatchPortsAdd{
+			patchPorts = append(patchPorts, pfk8s.PatchPortsAdd{
 				Op:   "add",
 				Path: "/spec/ports/-",
 				Value: pfk8s.PatchPort{
@@ -217,6 +216,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			l.Printf("Error patching ports: %v", err)
 		}
 	}
+
 	//successfuly validated config!
 	r.Reply(true, nil)
 	//tunnel per ssh connection
