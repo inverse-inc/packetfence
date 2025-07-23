@@ -60,59 +60,20 @@ sub returnRadiusAccessAccept {
 
 sub find_user_by_psk {
     my ($self, $radius_request, $args) = @_;
+
+    my $cache_key = "OpenWiFi::check_if_radius_request_psk_matches::PMK::";
+
     my @parts = split(":", $radius_request->{"Called-Station-Id"});
     my $ssid = pop @parts;
     my $bssid = join("", @parts);
     $bssid =~ s/-//g;
-    my $cache = $self->cache;
-    if (exists $args->{'owner'} && $args->{'owner'}->{'pid'} ne "" && exists $args->{'owner'}->{'psk'} && defined $args->{'owner'}->{'psk'} && $args->{'owner'}->{'psk'} ne "") {
-        if(check_if_radius_request_psk_matches($cache, $radius_request, $args->{'owner'}->{'psk'}, $ssid, $bssid)) {
-            get_logger->info("PSK matches the pid associated with the mac ".$args->{'owner'}->{'pid'});
-            return $args->{'owner'}->{'pid'};
-        }
-    }
+    $bssid = pack("H*", $bssid);
+    my $username = pack("H*", $radius_request->{'User-Name'});
+    my $anonce = pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"FreeRADIUS-802.1X-Anonce"}));
+    my $snonce = pf::util::wpa::snonce_from_eapol_key_frame(pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"FreeRADIUS-802.1X-EAPoL-Key-Msg"})));
+    my $eapol_key_frame = pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"FreeRADIUS-802.1X-EAPoL-Key-Msg"}));
 
-    my ($status, $iter) = pf::dal::person->search(
-        -where => {
-            psk => {'!=' => [-and => '', undef]},
-        },
-        -columns => [qw(pid psk)],
-        -no_default_join => 1,
-    );
-
-    my $matched = 0;
-    my $pid;
-    # Try first the pid of the mac address
-    while(my $person = $iter->next) {
-        get_logger->debug("User ".$person->{pid}." has a PSK. Checking if it matches the one in the packet");
-        if(check_if_radius_request_psk_matches($cache, $radius_request, $person->{psk}, $ssid, $bssid)) {
-            get_logger->info("PSK matches the one of ".$person->{pid});
-            $pid = $person->{pid};
-            last;
-        }
-    }
-    return $pid;
-}
-
-sub check_if_radius_request_psk_matches {
-    my ($cache, $radius_request, $psk, $ssid, $bssid) = @_;
-
-    my $pmk = $cache->compute(
-        "OpenWiFi::check_if_radius_request_psk_matches::PMK::$ssid+$psk", 
-        "1 month",
-        sub { pf::util::wpa::calculate_pmk($ssid, $psk) },
-    );
-
-    return pf::util::wpa::match_mic(
-      pf::util::wpa::calculate_ptk(
-        $pmk,
-        pack("H*", $bssid),
-        pack("H*", $radius_request->{"User-Name"}),
-        pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"FreeRADIUS-802.1X-Anonce"})),
-        pf::util::wpa::snonce_from_eapol_key_frame(pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"FreeRADIUS-802.1X-EAPoL-Key-Msg"}))),
-      ),
-      pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"FreeRADIUS-802.1X-EAPoL-Key-Msg"})),
-    );
+    return $self->iterate_user_by_psk($args, $radius_request, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key);
 }
 
 =back

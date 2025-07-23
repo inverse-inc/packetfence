@@ -268,60 +268,15 @@ sub find_user_by_psk {
         get_logger->error("Ruckus-DPSK-Cipher isn't for WPA2 that uses AES and HMAC-SHA1. This isn't supported by this module.");
         return $pid;
     }
-
+    my $cache_key =  "Ruckus::Unleashed::check_if_radius_request_psk_matches::PMK::";
     my $ssid = $radius_request->{'Ruckus-SSID'};
     my $bssid = pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-BSSID"}));
     my $username = pack("H*", $radius_request->{'User-Name'});
     my $anonce = pack('H*', pf::util::wpa::strip_hex_prefix($radius_request->{'Ruckus-DPSK-Anonce'}));
     my $snonce = pf::util::wpa::snonce_from_eapol_key_frame(pack("H*",pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"})));
     my $eapol_key_frame = pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"}));
-    my $cache = $self->cache;
-    # Try first the pid of the mac address
-    if (exists $args->{'owner'} && $args->{'owner'}->{'pid'} ne "" && exists $args->{'owner'}->{'psk'} && defined $args->{'owner'}->{'psk'} && $args->{'owner'}->{'psk'} ne "") {
-        if (check_if_radius_request_psk_matches($cache, $radius_request, $args->{'owner'}->{'psk'}, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame)) {
-            get_logger->info("PSK matches the pid associated with the mac ".$args->{'owner'}->{'pid'});
-            return $args->{'owner'}->{'pid'};
-        }
-    }
 
-    my ($status, $iter) = pf::dal::person->search(
-        -where => {
-            psk => {'!=' => [-and => '', undef]},
-        },
-        -columns => [qw(pid psk)],
-        -no_default_join => 1,
-    );
-
-    while (my $person = $iter->next) {
-        get_logger->debug("User ".$person->{pid}." has a PSK. Checking if it matches the one in the packet");
-        if (check_if_radius_request_psk_matches($cache, $radius_request, $person->{psk}, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame)) {
-            get_logger->info("PSK matches the one of ".$person->{pid});
-            $pid = $person->{pid};
-            last;
-        }
-    }
-    return $pid;
-}
-
-sub check_if_radius_request_psk_matches {
-    my ($cache, $radius_request, $psk, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame) = @_;
-
-    my $pmk = $cache->compute(
-        "Ruckus::Unleashed::check_if_radius_request_psk_matches::PMK::$ssid+$psk",
-        {expires_in => '1 month', expires_variance => '.20'},
-        sub { pf::util::wpa::calculate_pmk($ssid, $psk) },
-    );
-
-    return pf::util::wpa::match_mic(
-      pf::util::wpa::calculate_ptk(
-        $pmk,
-        $bssid,
-        $username,
-        $anonce,
-        $snonce,
-      ),
-      $eapol_key_frame,
-    );
+    return $self->iterate_user_by_psk($args, $radius_request, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key);
 }
 
 =back

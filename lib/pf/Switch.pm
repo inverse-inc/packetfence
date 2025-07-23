@@ -95,6 +95,7 @@ use pf::SwitchSupports qw(
      RadiusDynamicVlanAssignment
 );
 use pf::api::queue_cluster;
+use pf::util::wpa;
 use File::Find;
 use Digest::SHA qw(sha512_hex);
 
@@ -4492,6 +4493,59 @@ sub populateAccessPointMACIP {
 
     return $FALSE;
 }
+
+sub iterate_user_by_psk {
+    my ($self, $args, $radius_request, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key) = @_;
+    my $pid;
+    my $cache = $self->cache;
+    # Try first the pid of the mac address
+    if (exists $args->{'owner'} && $args->{'owner'}->{'pid'} ne "" && exists $args->{'owner'}->{'psk'} && defined $args->{'owner'}->{'psk'} && $args->{'owner'}->{'psk'} ne "") {
+        if (check_if_radius_request_psk_matches($cache, $radius_request, $args->{'owner'}->{'psk'}, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key)) {
+            get_logger->info("PSK matches the pid associated with the mac ".$args->{'owner'}->{'pid'});
+            return $args->{'owner'}->{'pid'};
+        }
+    }
+
+    my ($status, $iter) = pf::dal::person->search(
+        -where => {
+            psk => {'!=' => [-and => '', undef]},
+        },
+        -columns => [qw(pid psk)],
+        -no_default_join => 1,
+    );
+
+    while (my $person = $iter->next) {
+        get_logger->debug("User ".$person->{pid}." has a PSK. Checking if it matches the one in the packet");
+        if (check_if_radius_request_psk_matches($cache, $radius_request, $person->{psk}, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key)) {
+            get_logger->info("PSK matches the one of ".$person->{pid});
+            $pid = $person->{pid};
+            last;
+        }
+    }
+    return $pid;
+}
+
+sub check_if_radius_request_psk_matches {
+    my ($cache, $radius_request, $psk, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key) = @_;
+
+    my $pmk = $cache->compute(
+        $cache_key."$ssid+$psk",
+        {expires_in => '1 month', expires_variance => '.20'},
+        sub { pf::util::wpa::calculate_pmk($ssid, $psk) },
+    );
+
+    return pf::util::wpa::match_mic(
+      pf::util::wpa::calculate_ptk(
+        $pmk,
+        $bssid,
+        $username,
+        $anonce,
+        $snonce,
+      ),
+      $eapol_key_frame,
+    );
+}
+
 
 =back
 
