@@ -191,11 +191,12 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if client := pfk8s.NewAdminClientFromEnv(); client != nil {
-		patchPorts := []pfk8s.PatchPorts{}
+		patchPortsAdd := []pfk8s.PatchPorts{}
+		patchPortsDel := []pfk8s.PatchPorts{}
 
 		for _, remote := range additionalRemotes {
 			port, _ := strconv.ParseUint(remote.LocalPort, 10, 16)
-			patchPorts = append(patchPorts, pfk8s.PatchPorts{
+			patchPortsDel = append(patchPortsDel, pfk8s.PatchPorts{
 				Op:   "remove",
 				Path: "/spec/ports",
 				Value: pfk8s.PatchPortDel{
@@ -203,7 +204,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 				},
 			})
 
-			patchPorts = append(patchPorts, pfk8s.PatchPorts{
+			patchPortsAdd = append(patchPortsAdd, pfk8s.PatchPorts{
 				Op:   "add",
 				Path: "/spec/ports/-",
 				Value: pfk8s.PatchPortAdd{
@@ -214,8 +215,11 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 				},
 			})
 		}
-		if err := client.PatchPorts(patchPorts); err != nil {
-			l.Printf("Error patching ports: %v", err)
+		if err := client.PatchPorts(patchPortsDel); err != nil {
+			l.Printf("Error deleting ports: %v", err)
+		}
+		if err := client.PatchPorts(patchPortsAdd); err != nil {
+			l.Printf("Error adding ports: %v", err)
 		}
 	}
 
