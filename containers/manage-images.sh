@@ -92,6 +92,9 @@ configure_and_check() {
                            -not -path "*/pfconnector-*/*" \
                            -not -path "*/kaniko-build/*" \
                            -not -path "*/packetfence-perl/*" \
+                           -not -path "*/git-sync/*" \
+                           -not -path "*/caddy-l4/*" \
+                           -not -path "*/github-apps-token/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do
