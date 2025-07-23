@@ -141,6 +141,41 @@ func (a RadiusAuditLog) Search(vars sql.Vars) (DBRes, error) {
 	return res, nil
 }
 
+func (a RadiusAuditLog) Search2(vars *sql.Vars2) (DBRes, error) {
+	res := DBRes{}
+	sqls, err := vars.Sql(a)
+	if err != nil {
+		return res, err
+	}
+
+	var count int64
+	var items []RadiusAuditLog
+	a.DB.Model(&RadiusAuditLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
+
+	if count == 0 {
+		return res, errors.New("entries not found")
+	}
+
+	counter := int(count)
+	res.Total = &counter
+	res.PrevCursor = &vars.Cursor
+	nextCursor := vars.Cursor + vars.Limit
+	res.NextCursor = &nextCursor
+
+	if vars.Cursor < counter {
+		db := a.DB.Select(sqls.Select).Where(sqls.Where.Query, sqls.Where.Values...).Order(sqls.Order).Offset(sqls.Offset).Limit(sqls.Limit).Find(&items)
+		if db.Error != nil {
+			return DBRes{}, db.Error
+		}
+		for k, item := range items {
+			items[k].RadiusRequest = urldecode(item.RadiusRequest)
+			items[k].RadiusReply = urldecode(item.RadiusReply)
+		}
+		res.Items = items
+	}
+	return res, nil
+}
+
 func (a RadiusAuditLog) GetByID(id string) (DBRes, error) {
 	res := DBRes{}
 	var item RadiusAuditLog
