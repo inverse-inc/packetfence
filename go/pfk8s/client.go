@@ -38,7 +38,7 @@ type PodList struct {
 }
 
 type PatchPorts struct {
-	Spec PatchPortsSpec `json:"spec"`
+	Items []PatchPortsAdd
 }
 
 type PatchPort struct {
@@ -48,8 +48,10 @@ type PatchPort struct {
 	Name       string `json:"name"`
 }
 
-type PatchPortsSpec struct {
-	Ports []PatchPort `json:"ports"`
+type PatchPortsAdd struct {
+	Op    string    `json:"op"`
+	Path  string    `json:"path"`
+	Value PatchPort `json:"value"`
 }
 
 type Client struct {
