@@ -37,10 +37,6 @@ type PodList struct {
 	}
 }
 
-type PatchPorts struct {
-	Items []PatchPortsAdd
-}
-
 type PatchPort struct {
 	Port       int    `json:"port"`
 	TargetPort int    `json:"targetPort"`
@@ -165,7 +161,7 @@ func (c *Client) ListPods(appSelector string) (PodList, error) {
 	return pods, nil
 }
 
-func (c *Client) PatchPorts(p PatchPorts) error {
+func (c *Client) PatchPorts(p []PatchPortsAdd) error {
 	data, err := json.Marshal(p)
 	if err != nil {
 		return fmt.Errorf("PatchPorts, failed to encode to JSON: %w", err)
