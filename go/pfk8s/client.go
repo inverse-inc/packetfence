@@ -37,23 +37,6 @@ type PodList struct {
 	}
 }
 
-type PatchPortAdd struct {
-	Port       int    `json:"port"`
-	TargetPort int    `json:"targetPort"`
-	Protocol   string `json:"protocol"`
-	Name       string `json:"name"`
-}
-
-type PatchPortDel struct {
-	Name string `json:"name"`
-}
-
-type PatchPorts struct {
-	Op    string      `json:"op"`
-	Path  string      `json:"path"`
-	Value interface{} `json:"value,omitempty"`
-}
-
 type Client struct {
 	Token      string
 	BaseURI    string
