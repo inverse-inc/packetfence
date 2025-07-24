@@ -215,6 +215,9 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 				},
 			})
 		}
+		if err := client.GetService("pfconnector"); err != nil {
+			l.Printf("Error getting pfconnector service: %v", err)
+		}
 		if err := client.PatchPorts(patchPortsDel); err != nil {
 			l.Printf("Error deleting ports: %v", err)
 		}
