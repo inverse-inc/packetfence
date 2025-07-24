@@ -194,15 +194,24 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		patchPortsAdd := []pfk8s.PatchPorts{}
 		patchPortsDel := []pfk8s.PatchPorts{}
 
+		services, err := client.GetService("pfconnector")
+		if err != nil {
+			l.Printf("Error getting pfconnector service: %v", err)
+			// If we can't get the service, we can't patch it, so we just return
+		}
+
 		for _, remote := range additionalRemotes {
 			port, _ := strconv.ParseUint(remote.LocalPort, 10, 16)
-			patchPortsDel = append(patchPortsDel, pfk8s.PatchPorts{
-				Op:   "remove",
-				Path: "/spec/ports",
-				Value: pfk8s.PatchPortDel{
-					Name: "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort,
-				},
-			})
+			for index, port := range services.Spec.Ports {
+				if port.Name == "port-"+strings.ToLower(remote.LocalProto)+"-"+remote.LocalPort {
+					// If the port already exists, we need to remove it first
+
+					patchPortsDel = append(patchPortsDel, pfk8s.PatchPorts{
+						Op:   "remove",
+						Path: "/spec/ports/" + strconv.Itoa(index),
+					})
+				}
+			}
 
 			patchPortsAdd = append(patchPortsAdd, pfk8s.PatchPorts{
 				Op:   "add",
@@ -214,9 +223,6 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 					Name:       "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort,
 				},
 			})
-		}
-		if err := client.GetService("pfconnector"); err != nil {
-			l.Printf("Error getting pfconnector service: %v", err)
 		}
 		if err := client.PatchPorts(patchPortsDel); err != nil {
 			l.Printf("Error deleting ports: %v", err)
