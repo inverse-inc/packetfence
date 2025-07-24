@@ -218,7 +218,9 @@ func (c *Client) GetService(serviceName string) error {
 		return fmt.Errorf("GetService, request error returned: %d %s", resp.StatusCode, string(body))
 	}
 	var data map[string]interface{}
-	err = json.Unmarshal(body, &data)
+
+	_ = json.Unmarshal(body, &data)
+	fmt.Println("GetService response:" + spew.Sdump(data))
 	spew.Dump(data)
 	_ = body
 
