@@ -51,7 +51,7 @@ type PatchPortDel struct {
 type PatchPorts struct {
 	Op    string      `json:"op"`
 	Path  string      `json:"path"`
-	Value interface{} `json:"value"`
+	Value interface{} `json:"value,omitempty"`
 }
 
 type Client struct {
@@ -196,35 +196,37 @@ func (c *Client) PatchPorts(p []PatchPorts) error {
 	return nil
 }
 
-func (c *Client) GetService(serviceName string) error {
-
+func (c *Client) GetService(serviceName string) (Service, error) {
+	service := Service{}
 	req, err := c.newRequest("GET", "/api/v1/namespaces/"+c.Namespace+"/services/"+serviceName, nil)
 	if err != nil {
-		return fmt.Errorf("GetService, failed to create the request: %w", err)
+		return service, fmt.Errorf("GetService, failed to create the request: %w", err)
 	}
 
 	resp, err := c.getHttpClient().Do(req)
 	if err != nil {
-		return fmt.Errorf("GetService, failed request: %w", err)
+		return service, fmt.Errorf("GetService, failed request: %w", err)
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("GetService, failed to read the body: %w", err)
+		return service, fmt.Errorf("GetService, failed to read the body: %w", err)
 	}
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("GetService, request error returned: %d %s", resp.StatusCode, string(body))
+		return service, fmt.Errorf("GetService, request error returned: %d %s", resp.StatusCode, string(body))
 	}
-	var data map[string]interface{}
 
-	_ = json.Unmarshal(body, &data)
-	fmt.Println("GetService response:" + spew.Sdump(data))
-	spew.Dump(data)
+	err = json.Unmarshal(body, &service)
+
+	if err != nil {
+		return service, fmt.Errorf("GetService, failed to decode JSON: %w", err)
+	}
+	fmt.Println("GetService response:" + spew.Sdump(service))
 	_ = body
 
-	return nil
+	return service, nil
 }
 
 func (c *Client) UnifiedAPICallDeployment(ctx context.Context, useTLS bool, appSelector, method, path string, createResponseStructPtr func(serverId string) interface{}) map[string]error {
