@@ -14,7 +14,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
@@ -206,7 +205,7 @@ func (c *Client) GetService(serviceName string) (Service, error) {
 	if err != nil {
 		return service, fmt.Errorf("GetService, failed to decode JSON: %w", err)
 	}
-	fmt.Println("GetService response:" + spew.Sdump(service))
+
 	_ = body
 
 	return service, nil
