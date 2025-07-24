@@ -14,6 +14,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
@@ -190,6 +191,35 @@ func (c *Client) PatchPorts(p []PatchPorts) error {
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("PatchPorts, request error returned: %d %s", resp.StatusCode, string(body))
 	}
+	_ = body
+
+	return nil
+}
+
+func (c *Client) GetService(serviceName string) error {
+
+	req, err := c.newRequest("GET", "/api/v1/namespaces/"+c.Namespace+"/services/"+serviceName, nil)
+	if err != nil {
+		return fmt.Errorf("GetService, failed to create the request: %w", err)
+	}
+
+	resp, err := c.getHttpClient().Do(req)
+	if err != nil {
+		return fmt.Errorf("GetService, failed request: %w", err)
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("GetService, failed to read the body: %w", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("GetService, request error returned: %d %s", resp.StatusCode, string(body))
+	}
+	var data map[string]interface{}
+	err = json.Unmarshal(body, &data)
+	spew.Dump(data)
 	_ = body
 
 	return nil
