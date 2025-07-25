@@ -72,7 +72,7 @@ sub for_ip {
 }
 
 sub ip_part_of {
-    my ( $class, $ip ) = @_;
+    my ( $ip ) = @_;
     $ip = NetAddr::IP->new($ip);
     for my $connector_id (@connectors_ordered) {
         my @sorted_networks = sort { get_mask($a) <=> get_mask($b) } @{$ConfigConnector{$connector_id}{networks}};
