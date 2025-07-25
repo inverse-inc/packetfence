@@ -60,6 +60,18 @@ func (cc *ConnectorsContainer) ForIP(ctx context.Context, ip net.IP) *Connector 
 	return cc.Get(ctx, "local_connector")
 }
 
+func (cc *ConnectorsContainer) IpPartOf(ctx context.Context, ip net.IP) bool {
+	for _, id := range cc.Keys(ctx) {
+		c := cc.Get(ctx, id)
+		for _, network := range c.NetworksObjects {
+			if network.Contains(ip) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 const connectorsContainerContextKey = "ConnectorsContainerContextKey"
 
 func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort string, localPort string) (string, error) {
@@ -132,8 +144,22 @@ func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort str
 				log.Printf("OpenConnectionTo: no IPs resolved for %s", toIP)
 				return "", fmt.Errorf("no IPs resolved for %s", toIP)
 			}
+			found := false
+			for _, ip := range ips {
+				if cc.IpPartOf(ctx, net.ParseIP(ip)) {
+					log.Printf("OpenConnectionTo: %s is part of the connector networks", ip)
+					dstIp = net.ParseIP(ip)
+					found = true
+					break
+				} else {
+					log.Printf("OpenConnectionTo: %s is not part of the connector networks", ip)
+				}
+			}
+			if !found {
+				log.Printf("OpenConnectionTo: %s is not part of the connector networks, using the first resolved IP", toIP)
+				dstIp = net.ParseIP(ips[0])
+			}
 
-			dstIp = net.ParseIP(ips[0])
 			log.Printf("OpenConnectionTo: resolved %s to %s", toIP, dstIp.String())
 
 			if dstIp == nil {
