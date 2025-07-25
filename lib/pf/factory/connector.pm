@@ -21,6 +21,7 @@ use NetAddr::IP;
 use Net::IP;
 use Net::DNS;
 use pf::log;
+use pf::constants qw($FALSE $TRUE);
 
 tie my @connectors_ordered, 'pfconfig::cached_array',
   'resource::connectors_ordered';
@@ -48,11 +49,19 @@ sub local_connector {
     my ($class) = @_;
     return $class->new("local_connector");
 }
+
+sub get_mask {
+    my ($network) = @_;
+    my ($ip, $mask) = split('/', $network);
+    return $mask;
+}
+
 sub for_ip {
     my ( $class, $ip ) = @_;
     $ip = NetAddr::IP->new($ip);
     for my $connector_id (@connectors_ordered) {
-        for my $net (@{$ConfigConnector{$connector_id}{networks}}) {
+        my @sorted_networks = sort { get_mask($a) <=> get_mask($b) } @{$ConfigConnector{$connector_id}{networks}};
+        for my $net (@sorted_networks) {
             $net = NetAddr::IP->new($net);
             if($net->contains($ip)) {
                 return $class->new($connector_id);
@@ -60,6 +69,21 @@ sub for_ip {
         }
     }
     return $class->local_connector();
+}
+
+sub ip_part_of {
+    my ( $class, $ip ) = @_;
+    $ip = NetAddr::IP->new($ip);
+    for my $connector_id (@connectors_ordered) {
+        my @sorted_networks = sort { get_mask($a) <=> get_mask($b) } @{$ConfigConnector{$connector_id}{networks}};
+        for my $net (@sorted_networks) {
+            $net = NetAddr::IP->new($net);
+            if($net->contains($ip)) {
+                return $TRUE;
+            }
+        }
+    }
+    return $FALSE;
 }
 
 sub resolve {
@@ -76,8 +100,20 @@ sub resolve {
             return undef; # No valid IPs resolved
         }
         # If we have multiple IPs, we take the first one
-        $ip = NetAddr::IP->new($resolved_ips->[0]);
-        get_logger->warn("Resolved ".$fqdn." to ip ".$resolved_ips->[0]." through pfdns-connector");
+        my $found = $FALSE;
+        for my $resolved_ip (@{$resolved_ips}) {
+            if (ip_part_of($resolved_ip)) {
+                $ip = NetAddr::IP->new($resolved_ip);
+                get_logger->warn("Resolved ".$fqdn." to ip ".$resolved_ip." through pfdns-connector");
+                $found =$TRUE;
+                last;
+            } else {
+                get_logger->error("Resolved ".$fqdn." to ip ".$resolved_ip." through pfdns-connector is not part of any pfconnector networks");
+	    }
+        }
+        if (!$found) {
+            return undef;
+        }
     } else {
         $ip = NetAddr::IP->new($ip);
     }
