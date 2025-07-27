@@ -1,0 +1,117 @@
+package clientapi
+
+import (
+	"context"
+	"log"
+	"os"
+	"os/exec"
+	"os/user"
+	"strings"
+	"syscall"
+
+	"github.com/creack/pty"
+	"github.com/sorenisanerd/gotty/server"
+)
+
+type BashFactory struct{}
+
+func (factory *BashFactory) Name() string {
+	return "bash"
+}
+
+func (factory *BashFactory) New(params map[string][]string) (server.Slave, error) {
+	argv := []string{"bash"}
+	if _, exists := params["arg"]; exists {
+		argv = append(argv, params["arg"]...)
+	}
+
+	cmd := exec.Command(argv[0], argv[1:]...)
+	cmd.Env = append(os.Environ(), "TERM=xterm-256color")
+
+	if usr, err := user.Current(); err == nil {
+		cmd.Dir = usr.HomeDir
+	}
+
+	ptmx, err := pty.Start(cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return &BashSlave{
+		command: cmd,
+		pty:     ptmx,
+	}, nil
+}
+
+type BashSlave struct {
+	command *exec.Cmd
+	pty     *os.File
+}
+
+func (slave *BashSlave) WindowTitleVariables() map[string]interface{} {
+	return map[string]interface{}{
+		"command": strings.Join(slave.command.Args, " "),
+		"pid":     slave.command.Process.Pid,
+	}
+}
+
+func (slave *BashSlave) ResizeTerminal(width int, height int) error {
+	return pty.Setsize(slave.pty, &pty.Winsize{
+		Rows: uint16(height),
+		Cols: uint16(width),
+	})
+}
+
+func (slave *BashSlave) Write(data []byte) (int, error) {
+	return slave.pty.Write(data)
+}
+
+func (slave *BashSlave) Read(data []byte) (int, error) {
+	return slave.pty.Read(data)
+}
+
+func (slave *BashSlave) Close() error {
+	if slave.command != nil && slave.command.Process != nil {
+		slave.command.Process.Signal(syscall.SIGTERM)
+	}
+	return slave.pty.Close()
+}
+
+func (api *API) terminal() {
+	// Configuration des options GoTTY
+	options := &server.Options{
+		PermitWrite:     true,
+		Address:         "127.0.0.1",
+		Port:            "8080",
+		EnableReconnect: true,
+		ReconnectTime:   10,
+		MaxConnection:   0, // pas de limite
+		EnableBasicAuth: false,
+		Credential:      "",
+		EnableTLS:       false,
+		TitleFormat:     "GoTTY - {{ .Command }} ({{ .Hostname }})",
+		Once:            false,
+		PermitArguments: false,
+		Width:           0,
+		Height:          0,
+		WSOrigin:        ".*", // Expression régulière pour accepter toutes les origines
+	}
+
+	// Création de la factory personnalisée
+	factory := &BashFactory{}
+
+	// Création du serveur GoTTY
+	gottyServer, err := server.New(factory, options)
+	if err != nil {
+		log.Fatal("Erreur création serveur GoTTY:", err)
+	}
+
+	// Démarrer GoTTY dans une goroutine
+	go func() {
+		log.Println("Démarrage du serveur GoTTY sur localhost:8080")
+		if err := gottyServer.Run(context.Background()); err != nil {
+			log.Printf("Erreur serveur GoTTY: %v", err)
+		}
+	}()
+
+}
