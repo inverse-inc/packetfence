@@ -78,14 +78,14 @@ func (slave *BashSlave) Close() error {
 }
 
 func (api *API) terminal() {
-	// Configuration des options GoTTY
+	// Options for the GoTTY server
 	options := &server.Options{
 		PermitWrite:     true,
 		Address:         "127.0.0.1",
 		Port:            "8022",
 		EnableReconnect: true,
 		ReconnectTime:   10,
-		MaxConnection:   0, // pas de limite
+		MaxConnection:   0,
 		EnableBasicAuth: false,
 		Credential:      "",
 		EnableTLS:       false,
@@ -94,23 +94,23 @@ func (api *API) terminal() {
 		PermitArguments: false,
 		Width:           0,
 		Height:          0,
-		WSOrigin:        ".*", // Expression régulière pour accepter toutes les origines
+		WSOrigin:        ".*", // Regular expression to accept all origins
 	}
 
-	// Création de la factory personnalisée
+	// Create the custom factory
 	factory := &BashFactory{}
 
-	// Création du serveur GoTTY
+	// Create the GoTTY server
 	gottyServer, err := server.New(factory, options)
 	if err != nil {
-		log.Fatal("Erreur création serveur GoTTY:", err)
+		log.Fatal("Error creating GoTTY server:", err)
 	}
 
-	// Démarrer GoTTY dans une goroutine
+	// Start GoTTY in a goroutine
 	go func() {
-		log.Println("Démarrage du serveur GoTTY sur localhost:8080")
+		log.Println("Starting GoTTY server on localhost:8022")
 		if err := gottyServer.Run(context.Background()); err != nil {
-			log.Printf("Erreur serveur GoTTY: %v", err)
+			log.Printf("Error starting GoTTY server: %v", err)
 		}
 	}()
 

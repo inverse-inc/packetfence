@@ -100,14 +100,15 @@ func (api *API) setupRoutes() {
 	}
 
 	api.Router.Route("/api/v1", func(r chi.Router) {
+
 		r.HandleFunc("/terminal/*", func(w http.ResponseWriter, r *http.Request) {
-			r.URL.Path = strings.TrimPrefix(r.URL.Path, "/terminal")
+			r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal")
 			if r.URL.Path == "" {
 				r.URL.Path = "/"
 			}
-
 			proxy.ServeHTTP(w, r)
 		})
+
 		r.HandleFunc("/terminal", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/api/v1/terminal/", http.StatusMovedPermanently)
 		})
