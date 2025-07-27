@@ -4,7 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -25,7 +29,9 @@ func NewApi(ctx context.Context) API {
 	var Api = API{}
 	Api.Router = chi.NewRouter()
 	Api.Ctx = &ctx
+	Api.terminal()
 	Api.setupRoutes()
+
 	return Api
 }
 
@@ -35,7 +41,76 @@ func (api *API) setupRoutes() {
 	api.Router.Use(middleware.Logger)
 	api.Router.Use(middleware.Recoverer)
 
+	api.Router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, Upgrade, Connection, Sec-WebSocket-Key, Sec-WebSocket-Version, Sec-WebSocket-Protocol")
+
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	})
+
+	// Configure GoTTY reverse proxy
+	gottyURL, err := url.Parse("http://localhost:8080")
+	if err != nil {
+		log.Fatal("Error parsing URL GoTTY:", err)
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(gottyURL)
+
+	originalDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		originalDirector(req)
+		req.Host = gottyURL.Host
+
+		if strings.ToLower(req.Header.Get("Upgrade")) == "websocket" {
+			req.Header.Set("X-Forwarded-Proto", "http")
+			req.Header.Set("X-Forwarded-Host", req.Host)
+			req.Header.Set("Origin", "http://"+gottyURL.Host)
+		}
+	}
+
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.Printf("Erreur proxy: %v", err)
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusBadGateway)
+		w.Write([]byte(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Service Unavailable</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 100px; }
+        .error { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <h1 class="error">⚠️ Service Terminal Unavailable</h1>
+    <p>The terminal is temporarily unavailable. Please try again in a few moments.</p>
+    <p><a href="/">← Back to home</a></p>
+</body>
+</html>
+		`))
+	}
+
 	api.Router.Route("/api/v1", func(r chi.Router) {
+		r.HandleFunc("/terminal/*", func(w http.ResponseWriter, r *http.Request) {
+			r.URL.Path = strings.TrimPrefix(r.URL.Path, "/terminal")
+			if r.URL.Path == "" {
+				r.URL.Path = "/"
+			}
+
+			proxy.ServeHTTP(w, r)
+		})
+		r.HandleFunc("/terminal", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/api/v1/terminal/", http.StatusMovedPermanently)
+		})
 		r.Route("/service", func(r chi.Router) {
 			r.Post("/all", statusAll(api))
 			r.Post("/status", status(api))
