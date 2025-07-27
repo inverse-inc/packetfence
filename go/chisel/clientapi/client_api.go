@@ -57,7 +57,7 @@ func (api *API) setupRoutes() {
 	})
 
 	// Configure GoTTY reverse proxy
-	gottyURL, err := url.Parse("http://localhost:8080")
+	gottyURL, err := url.Parse("http://localhost:8022")
 	if err != nil {
 		log.Fatal("Error parsing URL GoTTY:", err)
 	}

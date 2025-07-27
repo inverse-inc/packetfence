@@ -82,7 +82,7 @@ func (api *API) terminal() {
 	options := &server.Options{
 		PermitWrite:     true,
 		Address:         "127.0.0.1",
-		Port:            "8080",
+		Port:            "8022",
 		EnableReconnect: true,
 		ReconnectTime:   10,
 		MaxConnection:   0, // pas de limite
