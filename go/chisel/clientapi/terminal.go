@@ -2,6 +2,7 @@ package clientapi
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"os/exec"
@@ -10,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/creack/pty"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/sorenisanerd/gotty/server"
 )
 
@@ -77,7 +79,11 @@ func (slave *BashSlave) Close() error {
 	return slave.pty.Close()
 }
 
-func (api *API) terminal() {
+func (api *API) terminal() (bool, error) {
+	PFCONNECTOR_TERMINAL := os.Getenv("PFCONNECTOR_TERMINAL")
+	if !sharedutils.IsEnabled(PFCONNECTOR_TERMINAL) {
+		return false, errors.New("PFCONNECTOR_TERMINAL is not enabled")
+	}
 	// Options for the GoTTY server
 	options := &server.Options{
 		PermitWrite:     true,
@@ -89,7 +95,7 @@ func (api *API) terminal() {
 		EnableBasicAuth: false,
 		Credential:      "",
 		EnableTLS:       false,
-		TitleFormat:     "GoTTY - {{ .Command }} ({{ .Hostname }})",
+		TitleFormat:     "pfconnector-remote",
 		Once:            false,
 		PermitArguments: false,
 		Width:           0,
@@ -113,5 +119,5 @@ func (api *API) terminal() {
 			log.Printf("Error starting GoTTY server: %v", err)
 		}
 	}()
-
+	return true, nil
 }

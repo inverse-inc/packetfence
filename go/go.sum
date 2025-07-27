@@ -567,6 +567,12 @@ github.com/inverse-inc/go-radius v0.0.0-20221114145510-67bfba021ae4 h1:KvA38U6G6
 github.com/inverse-inc/go-radius v0.0.0-20221114145510-67bfba021ae4/go.mod h1:jqa4WeuHe2MvT63YlmHj1Yz+bXxqZah3/YC0aI73I+Q=
 github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4 h1:gjF5yMG/zW1TCyNq+wD+glRWYLO8NXelWtYxG2St0A4=
 github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4/go.mod h1:B89ocJt+mdgvXbYGP2Rvh0e6ZoMJQ1j09lQFGqE2D/Y=
+github.com/inverse-inc/go-utils v0.0.0-20250727203829-8b4ff166e8e7 h1:bB7ZRbYJhWgfLN2YbY/eT/6HCCxTYH4do5wAq/KkozM=
+github.com/inverse-inc/go-utils v0.0.0-20250727203829-8b4ff166e8e7/go.mod h1:B89ocJt+mdgvXbYGP2Rvh0e6ZoMJQ1j09lQFGqE2D/Y=
+github.com/inverse-inc/go-utils v0.0.0-20250727204143-817efe7e2059 h1:CN9+dypf0sit7Ti6anCIv3waIUt6dg2yCEYU083urzA=
+github.com/inverse-inc/go-utils v0.0.0-20250727204143-817efe7e2059/go.mod h1:B89ocJt+mdgvXbYGP2Rvh0e6ZoMJQ1j09lQFGqE2D/Y=
+github.com/inverse-inc/go-utils v0.0.0-20250727205724-7039a5d995be h1:vUmw9+rB1KQi7ifTWYDxzbiCI6Zb1xuBLduZlJgjOrk=
+github.com/inverse-inc/go-utils v0.0.0-20250727205724-7039a5d995be/go.mod h1:B89ocJt+mdgvXbYGP2Rvh0e6ZoMJQ1j09lQFGqE2D/Y=
 github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7 h1:1wjwpitH5JfZ4cAwRqGvB2Affb61SlGvROBzJla25dM=
 github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7/go.mod h1:adBgAyadl5D9Mz9rhkQyzZpwcUK9eXdKslXH4oImbB0=
 github.com/inverse-inc/scep v0.0.0-20250502184807-8e146f44db98 h1:eElVghardRGWCcHFk1/MAJjh+38Sm8Cv2ZHF/EqSRdk=

@@ -17,8 +17,9 @@ import (
 
 // Handler struct
 type API struct {
-	Router *chi.Mux
-	Ctx    *context.Context
+	Router          *chi.Mux
+	Ctx             *context.Context
+	TerminalEnabled bool
 }
 
 type Service struct {
@@ -29,7 +30,11 @@ func NewApi(ctx context.Context) API {
 	var Api = API{}
 	Api.Router = chi.NewRouter()
 	Api.Ctx = &ctx
-	Api.terminal()
+	var err error
+	Api.TerminalEnabled, err = Api.terminal()
+	if err != nil {
+		log.Printf("Error initializing terminal: %v", err)
+	}
 	Api.setupRoutes()
 
 	return Api
@@ -125,6 +130,7 @@ func (api *API) setupRoutes() {
 			r.Get("/", connectorStatus(api))
 		})
 	})
+
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {

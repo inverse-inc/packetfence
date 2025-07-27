@@ -42,3 +42,4 @@ fi
 
 echo "FETCH_REMOTES_VIA_API=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
 echo "PFCONNECTOR_REMOTE=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+echo "PFCONNECTOR_TERMINAL=false" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env

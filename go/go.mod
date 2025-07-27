@@ -40,7 +40,7 @@ require (
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20220811032638-9fee2fa31606
-	github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4
+	github.com/inverse-inc/go-utils v0.0.0-20250727205724-7039a5d995be
 	github.com/inverse-inc/scep v0.0.0-20250502184807-8e146f44db98
 	github.com/jcuga/golongpoll v1.3.1
 	github.com/jpillora/backoff v1.0.0
