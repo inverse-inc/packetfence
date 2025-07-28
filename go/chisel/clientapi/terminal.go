@@ -2,13 +2,15 @@ package clientapi
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"os/user"
 	"strings"
+	"sync/atomic"
 	"syscall"
+	"time"
 
 	"github.com/creack/pty"
 	"github.com/inverse-inc/go-utils/sharedutils"
@@ -80,10 +82,7 @@ func (slave *BashSlave) Close() error {
 }
 
 func (api *API) terminal() (bool, error) {
-	PFCONNECTOR_TERMINAL := os.Getenv("PFCONNECTOR_TERMINAL")
-	if !sharedutils.IsEnabled(PFCONNECTOR_TERMINAL) {
-		return false, errors.New("PFCONNECTOR_TERMINAL is not enabled")
-	}
+
 	// Options for the GoTTY server
 	options := &server.Options{
 		PermitWrite:     true,
@@ -111,23 +110,77 @@ func (api *API) terminal() (bool, error) {
 	if err != nil {
 		log.Fatal("Error creating GoTTY server:", err)
 	}
+
+	var serverCtx context.Context
+	var serverCancel context.CancelFunc
+
 	go func() {
+		defer log.Println("Command handler stopped")
+
 		for {
 			select {
 			case msg := <-api.commandChan:
 				switch msg.Type {
 				case StartProcessing:
+					if atomic.LoadInt32(&api.serverRunning) == 1 {
+						log.Println("GoTTY server is already running")
+						break
+					}
+
+					atomic.StoreInt32(&api.serverRunning, 1)
+
+					serverCtx, serverCancel = context.WithCancel(api.ctx)
+
 					go func() {
+						defer func() {
+							atomic.StoreInt32(&api.serverRunning, 0)
+							log.Println("GoTTY server stopped")
+						}()
+
 						log.Println("Starting GoTTY server on localhost:8022")
-						if err := gottyServer.Run(context.Background()); err != nil {
-							log.Printf("Error starting GoTTY server: %v", err)
+						if err := gottyServer.Run(serverCtx); err != nil {
+							log.Printf("Error running GoTTY server: %v", err)
 						}
 					}()
-				case StopProcessing:
 
+				case StopProcessing:
+					if atomic.LoadInt32(&api.serverRunning) == 0 {
+						log.Println("GoTTY server is not running")
+						break
+					}
+
+					log.Println("Stopping GoTTY server...")
+					if serverCancel != nil {
+						serverCancel()
+					}
 				}
+
+			case <-api.ctx.Done():
+				log.Println("Command handler shutting down...")
+				if serverCancel != nil {
+					serverCancel()
+				}
+				return
 			}
 		}
 	}()
+
+	time.Sleep(time.Millisecond * 100)
+
+	PFCONNECTOR_TERMINAL := os.Getenv("PFCONNECTOR_TERMINAL")
+	if !sharedutils.IsEnabled(PFCONNECTOR_TERMINAL) {
+		log.Println("PFCONNECTOR_TERMINAL is not enabled")
+		return false, nil
+	}
+
+	log.Println("PFCONNECTOR_TERMINAL is enabled")
+
+	select {
+	case api.commandChan <- Message{Type: StartProcessing}:
+		log.Println("Start command sent successfully")
+	case <-time.After(time.Second * 5):
+		return false, fmt.Errorf("timeout sending start command")
+	}
+
 	return true, nil
 }

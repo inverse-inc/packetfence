@@ -9,6 +9,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -18,10 +19,12 @@ import (
 // Handler struct
 type API struct {
 	Router          *chi.Mux
-	Ctx             *context.Context
 	TerminalEnabled bool
 	ConnectorId     string
 	commandChan     chan Message
+	ctx             context.Context
+	cancel          context.CancelFunc
+	serverRunning   int32
 }
 
 type MessageType int
@@ -44,14 +47,15 @@ type Service struct {
 func NewApi(ctx context.Context, ConnectorID string) API {
 	var Api = API{}
 	Api.Router = chi.NewRouter()
-	Api.Ctx = &ctx
+	Api.ctx = ctx
 	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
 	var err error
-	Api.TerminalEnabled, err = Api.terminal()
 	Api.commandChan = make(chan Message)
 	if err != nil {
 		log.Printf("Error initializing terminal: %v", err)
 	}
+	Api.TerminalEnabled, err = Api.terminal()
+
 	Api.setupRoutes()
 
 	return Api
@@ -183,6 +187,14 @@ func enableTerminal(api *API) http.HandlerFunc {
 		}
 		if j["authorized"] == nil || j["authorized"] != true {
 			http.Error(res, "Terminal not authorized", http.StatusForbidden)
+			return
+		}
+
+		select {
+		case api.commandChan <- Message{Type: StartProcessing}:
+			log.Println("Start command sent successfully")
+		case <-time.After(time.Second * 5):
+			http.Error(res, "Timeout sending start command", http.StatusForbidden)
 			return
 		}
 
