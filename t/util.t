@@ -20,6 +20,7 @@ our (
     @MAC2DEC,
     @NODE_ID_TESTS,
     @UNPRETTY_BANDWIDTH_TESTS,
+    @SPLITR2
 );
 
 BEGIN {
@@ -310,6 +311,40 @@ BEGIN {
             msg => '10 petabytes 2 args',
         },
     );
+    @SPLITR2 = (
+        {
+            in => ['start-middle-end', '-'],
+            out => ['start-middle', 'end'],
+        },
+        {
+            in => ['start-end', '-'],
+            out => ['start', 'end'],
+        },
+        {
+            in => ['start-', '-'],
+            out => ['start', ''],
+        },
+        {
+            in => ['start-', '-'],
+            out => ['start', ''],
+        },
+        {
+            in => ['start:middle:end', ':'],
+            out => ['start:middle', 'end'],
+        },
+        {
+            in => ['start:end', ':'],
+            out => ['start', 'end'],
+        },
+        {
+            in => ['start:', ':'],
+            out => ['start', ''],
+        },
+        {
+            in => ['start:', ':'],
+            out => ['start', ''],
+        },
+    );
 }
 
 use Test::More;
@@ -324,7 +359,9 @@ BEGIN {
       scalar @EXPAND_CSV_TESTS +
       scalar @VALID_UNREG_DATE_TESTS +
       scalar @UNPRETTY_BANDWIDTH_TESTS +
-      scalar @MAC2DEC;
+      scalar @MAC2DEC +
+      scalar @SPLITR2
+      ;
 }
 
 BEGIN {
@@ -514,6 +551,18 @@ for my $test (@MAC2DEC) {
     ok(ends_with("dog", ""), "ends_with");
     ok(!ends_with("cat", "og"), "ends_with");
     ok(!ends_with("cat", "catt"), "ends_with");
+}
+
+{
+
+    for my $test (@SPLITR2) {
+        my $in = $test->{in};
+        is_deeply(
+            [splitr2(@{$in})],
+            $test->{out},
+            "splitting of '$in->[0]' '$in->[1]'",
+        );
+    }
 }
 
 =head1 AUTHOR

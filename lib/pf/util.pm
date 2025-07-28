@@ -125,6 +125,7 @@ BEGIN {
         norm_net_mask
         safe_pf_run
         starts_with
+        splitr2
     );
 }
 
@@ -1979,6 +1980,16 @@ sub starts_with {
 
 sub ends_with {
     return index($_[0], $_[1], -length($_[1])) != -1;
+}
+
+sub splitr2 {
+    my ($str, $sep) = @_;
+    my $index = rindex($str, $sep);
+    if ($index == -1 ) {
+        return $str, "";
+    }
+
+    return substr($str, 0, $index), substr($str, $index+1);
 }
 
 =back
