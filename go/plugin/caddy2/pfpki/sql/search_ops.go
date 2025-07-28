@@ -202,10 +202,10 @@ func (s *SearchOrOp) SqlWhere(class interface{}) (Where, error) {
 }
 
 type SearchSimpleOP struct {
-	Op    string      `json:"op"`
-	Field string      `json:"field"`
-	sqlOp string      `json:"-"`
-	Value interface{} `json:"value"`
+	Op        string      `json:"op"`
+	Field     string      `json:"field"`
+	RealSqlOp string      `json:"-"`
+	Value     interface{} `json:"value"`
 }
 
 func (s *SearchSimpleOP) SqlOp() string {
@@ -219,7 +219,7 @@ func (s *SearchSimpleOP) SqlWhere(class interface{}) (Where, error) {
 	}
 
 	return Where{
-		Query:  fmt.Sprintf("`%s` %s ?", field, s.sqlOp),
+		Query:  fmt.Sprintf("`%s` %s ?", field, s.RealSqlOp),
 		Values: []interface{}{s.Value},
 	}, nil
 }
@@ -305,7 +305,7 @@ func (w *SearchOpWrapper) UnmarshalSearchOp(opts ...jsontext.Options) (SearchOp,
 		if err != nil {
 			return nil, err
 		}
-		t.sqlOp = simpleOp
+		t.RealSqlOp = simpleOp
 		return t, nil
 	}
 
