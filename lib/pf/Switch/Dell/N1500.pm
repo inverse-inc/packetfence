@@ -500,9 +500,7 @@ sub returnRadiusAdvanced {
     my ($self, $args, $options) = @_;
     my $logger = $self->logger;
     my $status = $RADIUS::RLM_MODULE_OK;
-    my @parts = split('-', $args->{'user_name'});
-    my $session_id = pop @parts;
-    my $mac = join('-', @parts);
+    my ($mac, $session_id) = splitr2($args->{'user_name'}, '-');
     my $radius_reply_ref = ();
     my @av_pairs;
     $radius_reply_ref->{'control:Proxy-To-Realm'} = 'LOCAL';
