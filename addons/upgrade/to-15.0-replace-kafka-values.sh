@@ -10,8 +10,8 @@ fi
 NEW_UUID=$(uuidgen | tr -d '-' | base64 | cut -b 1-22)
 
 # Generate password
-NEW_ADMIN_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12)
-NEW_CLIENT_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12)
+NEW_ADMIN_PASSWORD=$(openssl rand -hex 16)
+NEW_CLIENT_PASSWORD=$(openssl rand -hex 16)
 
 # Update kafka.conf
 sed -i.bak \
