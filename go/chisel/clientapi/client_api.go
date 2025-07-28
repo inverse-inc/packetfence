@@ -20,18 +20,35 @@ type API struct {
 	Router          *chi.Mux
 	Ctx             *context.Context
 	TerminalEnabled bool
+	ConnectorId     string
+	commandChan     chan Message
+}
+
+type MessageType int
+
+const (
+	StartProcessing MessageType = iota
+	StopProcessing
+	EmergencyShutdown
+)
+
+// Message contient le type et des données optionnelles
+type Message struct {
+	Type MessageType
 }
 
 type Service struct {
 	Name string `json:"service"`
 }
 
-func NewApi(ctx context.Context) API {
+func NewApi(ctx context.Context, ConnectorID string) API {
 	var Api = API{}
 	Api.Router = chi.NewRouter()
 	Api.Ctx = &ctx
+	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
 	var err error
 	Api.TerminalEnabled, err = Api.terminal()
+	Api.commandChan = make(chan Message)
 	if err != nil {
 		log.Printf("Error initializing terminal: %v", err)
 	}
@@ -117,13 +134,13 @@ func (api *API) setupRoutes() {
 		r.HandleFunc("/terminal", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/api/v1/terminal/", http.StatusMovedPermanently)
 		})
+		r.Get("/authorize/{id}", enableTerminal(api))
 		r.Route("/service", func(r chi.Router) {
 			r.Post("/all", statusAll(api))
 			r.Post("/status", status(api))
 			r.Post("/start", manageService(api, "start"))
 			r.Post("/stop", manageService(api, "stop"))
 			r.Post("/restart", manageService(api, "restart"))
-
 		})
 		r.Handle("/logs", handleWebSocketConnection())
 		r.Route("/status", func(r chi.Router) {
@@ -136,6 +153,43 @@ func (api *API) setupRoutes() {
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Serve the request using the chi router
 	api.Router.ServeHTTP(w, r)
+}
+
+func enableTerminal(api *API) http.HandlerFunc {
+
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		id := chi.URLParam(req, "id")
+		if id == "" {
+			http.Error(res, "Missing terminal ID", http.StatusBadRequest)
+			return
+		}
+
+		r, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?connectorid=%s&id=%s", api.ConnectorId, id))
+
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %v", err), http.StatusInternalServerError)
+			return
+		}
+		defer r.Body.Close()
+		if r.StatusCode != http.StatusOK {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %s", r.Status), http.StatusInternalServerError)
+			return
+		}
+		var j map[string]interface{}
+		json.NewDecoder(r.Body).Decode(&j)
+		if j["authorized"] == false {
+			http.Error(res, "Terminal not authorized", http.StatusForbidden)
+			return
+		}
+		if j["authorized"] == nil || j["authorized"] != true {
+			http.Error(res, "Terminal not authorized", http.StatusForbidden)
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+		res.WriteHeader(http.StatusOK)
+		res.Write([]byte(`{"message": "Terminal is enabled"}`))
+	})
 }
 
 // status handles the status endpoint

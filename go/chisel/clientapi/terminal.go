@@ -111,12 +111,22 @@ func (api *API) terminal() (bool, error) {
 	if err != nil {
 		log.Fatal("Error creating GoTTY server:", err)
 	}
-
-	// Start GoTTY in a goroutine
 	go func() {
-		log.Println("Starting GoTTY server on localhost:8022")
-		if err := gottyServer.Run(context.Background()); err != nil {
-			log.Printf("Error starting GoTTY server: %v", err)
+		for {
+			select {
+			case msg := <-api.commandChan:
+				switch msg.Type {
+				case StartProcessing:
+					go func() {
+						log.Println("Starting GoTTY server on localhost:8022")
+						if err := gottyServer.Run(context.Background()); err != nil {
+							log.Printf("Error starting GoTTY server: %v", err)
+						}
+					}()
+				case StopProcessing:
+
+				}
+			}
 		}
 	}()
 	return true, nil
