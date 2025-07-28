@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -126,32 +127,52 @@ func (api *API) setupRoutes() {
 	}
 
 	api.Router.Route("/api/v1", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(localhostOnly)
+			r.HandleFunc("/terminal/*", func(w http.ResponseWriter, r *http.Request) {
+				r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal")
+				if r.URL.Path == "" {
+					r.URL.Path = "/"
+				}
+				proxy.ServeHTTP(w, r)
+			})
 
-		r.HandleFunc("/terminal/*", func(w http.ResponseWriter, r *http.Request) {
-			r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal")
-			if r.URL.Path == "" {
-				r.URL.Path = "/"
-			}
-			proxy.ServeHTTP(w, r)
-		})
+			r.HandleFunc("/terminal", func(w http.ResponseWriter, r *http.Request) {
+				http.Redirect(w, r, "/api/v1/terminal/", http.StatusMovedPermanently)
+			})
 
-		r.HandleFunc("/terminal", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/api/v1/terminal/", http.StatusMovedPermanently)
+			r.Route("/service", func(r chi.Router) {
+				r.Post("/all", statusAll(api))
+				r.Post("/status", status(api))
+				r.Post("/start", manageService(api, "start"))
+				r.Post("/stop", manageService(api, "stop"))
+				r.Post("/restart", manageService(api, "restart"))
+			})
+			r.Handle("/logs", handleWebSocketConnection())
+			r.Route("/status", func(r chi.Router) {
+				r.Get("/", connectorStatus(api))
+			})
 		})
 		r.Get("/authorize/{id}", enableTerminal(api))
-		r.Route("/service", func(r chi.Router) {
-			r.Post("/all", statusAll(api))
-			r.Post("/status", status(api))
-			r.Post("/start", manageService(api, "start"))
-			r.Post("/stop", manageService(api, "stop"))
-			r.Post("/restart", manageService(api, "restart"))
-		})
-		r.Handle("/logs", handleWebSocketConnection())
-		r.Route("/status", func(r chi.Router) {
-			r.Get("/", connectorStatus(api))
-		})
 	})
+}
 
+func localhostOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Extraire l'IP de la requête
+		ip := r.RemoteAddr
+		if host, _, err := net.SplitHostPort(ip); err == nil {
+			ip = host
+		}
+
+		// Vérifier si c'est localhost
+		if ip != "127.0.0.1" && ip != "::1" {
+			http.Error(w, "Access denied", http.StatusForbidden)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
