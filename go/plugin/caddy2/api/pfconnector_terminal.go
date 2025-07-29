@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/google/uuid"
@@ -57,12 +56,16 @@ func (h APIHandler) pfconnectorTerminalGet(w http.ResponseWriter, r *http.Reques
 	}
 	newUUID := uuid.New()
 	// Store the new UUID in Redis
-	if err := redis.Set("terminal:"+newUUID.String(), req.PFconnectorID, 60*time.Second).Err(); err != nil {
+	if err := redis.Set("terminal:"+newUUID.String(), req.PFconnectorID, 0).Err(); err != nil {
 		http.Error(w, "Failed to store PFconnector ID", http.StatusInternalServerError)
 		return
 	}
+
+	ips := redis.Get("ips:" + req.PFconnectorID).Val()
+	ipList := strings.Split(ips, ",")
+
 	redirect := reply{
-		RedirectURL: "http://10.0.0.250:8081/api/v1/authorize/" + newUUID.String(),
+		RedirectURL: "http://" + ipList[0] + ":8081/api/v1/authorize/" + newUUID.String(),
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -70,5 +73,4 @@ func (h APIHandler) pfconnectorTerminalGet(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
 	}
-
 }

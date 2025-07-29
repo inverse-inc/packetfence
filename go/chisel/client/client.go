@@ -1,6 +1,8 @@
 package chclient
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"crypto/md5"
 	"crypto/tls"
@@ -300,8 +302,76 @@ func (c *Client) Start(ctx context.Context) error {
 			}
 		}()
 	}
+	type clientInfo struct {
+		IP          []string `json:"ips"`
+		ConnectorID string   `json:"connector_id"`
+	}
 
+	Client := &clientInfo{}
+	// Get the default interface IPs
+	defaultIPs, err := getDefaultInterfaceIPs()
+	if err != nil {
+		return fmt.Errorf("failed to get default interface IPs: %w", err)
+	}
+	for _, ip := range defaultIPs {
+		Client.IP = append(Client.IP, ip.String())
+	}
+	Client.ConnectorID = strings.Split(c.config.Auth, ":")[0]
+	// Convert the clientInfo struct to JSON
+	clientInfoJSON, err := json.Marshal(Client)
+	if err != nil {
+		return fmt.Errorf("failed to marshal client info: %w", err)
+	}
+
+	// Send information about the client
+	res, err := http.Post("http://127.0.0.1:22226/api/v1/pfconnector/pfconnector-info", "application/json", bytes.NewBuffer(clientInfoJSON))
+
+	if err != nil {
+		return fmt.Errorf("failed to send client info: %w", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code %d", res.StatusCode)
+	}
 	return nil
+}
+
+func getDefaultInterfaceIPs() ([]net.IP, error) {
+	file, err := os.Open("/proc/net/route")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		fields := strings.Fields(line)
+		if len(fields) >= 2 && fields[1] == "00000000" { // Destination 0.0.0.0
+			net.InterfaceByName(fields[0])
+			iface, err := net.InterfaceByName(fields[0])
+			if err != nil {
+				return nil, fmt.Errorf("failed to get interface %s: %w", fields[0], err)
+			}
+			// Get the IP addresses of the interface
+			ifaceIPs, err := iface.Addrs()
+			if err != nil {
+				return nil, fmt.Errorf("failed to get addresses for interface %s: %w",
+					fields[0], err)
+			}
+			ips := make([]net.IP, 0, len(ifaceIPs))
+			for _, addr := range ifaceIPs {
+				if ipnet, ok := addr.(*net.IPNet); ok {
+					ips = append(ips, ipnet.IP)
+				}
+			}
+			if len(ips) == 0 {
+				return nil, fmt.Errorf("no IP addresses found for interface %s", fields[0])
+			}
+			return ips, nil
+		}
+	}
+	return nil, fmt.Errorf("No default route found")
 }
 
 func (c *Client) setProxy(u *url.URL, d *websocket.Dialer) error {

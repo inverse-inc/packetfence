@@ -82,6 +82,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-terminal":
 		s.handleRemoteTerm(w, r)
 		return
+	case apiPrefix + "/pfconnector-info":
+		s.handlePfconnectorInfo(w, r)
+		return
 	case apiPrefix + "/all-fingerbank-collector-endpoints":
 		s.handleAllFingerbankCollectorEndpoints(w, r)
 		return
@@ -622,6 +625,12 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 
 	resolvedConnectorID := s.redis.Get(s.baseCtx, "terminal:"+id)
 
+	if resolvedConnectorID == nil {
+		log.LoggerWContext(s.ctx).Error(fmt.Sprintf("No connector ID found for %s", id))
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	if id == "" {
 		log.LoggerWContext(s.baseCtx).Error("Missing id query parameter")
 		http.Error(w, "Missing id query parameter", http.StatusBadRequest)
@@ -652,6 +661,9 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if resolvedConnectorID.Val() == connectorID {
+		// Remove the terminal session from Redis
+		s.redis.Del(s.ctx, "terminal:"+id)
+		log.LoggerWContext(s.ctx).Info(fmt.Sprintf("Authorized terminal session for connector ID %s", connectorID))
 		response := map[string]interface{}{
 			"authorized": true,
 		}
@@ -661,6 +673,38 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
+}
+
+func (s *Server) handlePfconnectorInfo(w http.ResponseWriter, req *http.Request) {
+
+	clientInfo := struct {
+		IPs         []string `json:"ips"`
+		ConnectorID string   `json:"connector_id"`
+	}{}
+
+	err := json.NewDecoder(req.Body).Decode(&clientInfo)
+	if err != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error decoding client info: %s", err))
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+	ips := strings.Join(clientInfo.IPs, ", ")
+	status := s.redis.Set(req.Context(), "ips:"+clientInfo.ConnectorID, ips, 0)
+	if status.Err() != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error storing client info in Redis: %s", status.Err()))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]interface{}{
+		"status":       "success",
+		"connector_id": clientInfo.ConnectorID,
+		"ips":          clientInfo.IPs,
+		"message":      "Connector information received successfully",
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
 
 func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *http.Request) {
