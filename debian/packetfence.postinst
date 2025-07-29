@@ -141,6 +141,8 @@ case "$1" in
 
         perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 
+        /usr/local/pf/addons/upgrade/to-15.0-replace-kafka-values.sh
+
         #Starting PacketFence.
         #removing old cache
         rm -rf /usr/local/pf/var/cache/

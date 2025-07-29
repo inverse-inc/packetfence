@@ -16,7 +16,12 @@ query_cache_time=1440
 db_persistence_interval=60
 cluster_resync_interval=120
 network_behavior_analysis=disabled
-additional_env=
+additional_env=<<EOT
+COLLECTOR_DISABLE_KAFKA=true
+COLLECTOR_KAFKA_HOSTS=containers-gateway.internal:9095
+COLLECTOR_DISABLE_IPFIX_SERVICE=true
+COLLECTOR_DISABLE_SFLOW_SERVICE=true
+EOT
 
 [query]
 record_unmatched = disabled
