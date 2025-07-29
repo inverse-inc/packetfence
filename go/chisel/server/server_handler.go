@@ -626,7 +626,7 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 	resolvedConnectorID := s.redis.Get(s.baseCtx, "terminal:"+id)
 
 	if resolvedConnectorID == nil {
-		log.LoggerWContext(s.ctx).Error(fmt.Sprintf("No connector ID found for %s", id))
+		log.LoggerWContext(s.baseCtx).Error(fmt.Sprintf("No connector ID found for %s", id))
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -662,8 +662,8 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 
 	if resolvedConnectorID.Val() == connectorID {
 		// Remove the terminal session from Redis
-		s.redis.Del(s.ctx, "terminal:"+id)
-		log.LoggerWContext(s.ctx).Info(fmt.Sprintf("Authorized terminal session for connector ID %s", connectorID))
+		s.redis.Del(s.baseCtx, "terminal:"+id)
+		log.LoggerWContext(s.baseCtx).Info(fmt.Sprintf("Authorized terminal session for connector ID %s", connectorID))
 		response := map[string]interface{}{
 			"authorized": true,
 		}
