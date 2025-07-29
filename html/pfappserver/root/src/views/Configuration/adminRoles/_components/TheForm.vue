@@ -66,7 +66,7 @@
 
         <form-group-disallowed-node-bypass-roles namespace="disallowed_node_bypass_roles"
           :column-label="$i18n.t('Disallowed node roles')"
-          :text="$i18n.t('List of roles not available to the admin user to assign to a node. If none are provided then all roles are available.')"
+          :text="$i18n.t('List of bypass roles not available to the admin user to assign to a node. If none are provided then all bypass roles are available.')"
         />
 
         <form-group-allowed-node-bypass-vlans namespace="allowed_node_bypass_vlans"
