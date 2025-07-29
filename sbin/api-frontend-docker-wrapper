@@ -10,5 +10,6 @@ args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
 args="$args -v /usr/share/freeradius:/usr/share/freeradius"
 args="$args -v /var/log:/var/log:ro"
 args="$args -p 9999:9999"
+args="$args -p 2019:2019"
 
 run $name "$args"

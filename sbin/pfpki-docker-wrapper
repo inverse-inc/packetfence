@@ -6,5 +6,6 @@ name=pfpki
 
 args=`base_args $name`
 args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -p 22225:22225"
+args="$args -p 2024:2024"
 
 run $name "$args"
