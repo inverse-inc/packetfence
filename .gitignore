@@ -29,6 +29,7 @@ conf/log.conf.d/*.conf
 conf/nessus/
 conf/pfdns-connector.conf
 conf/dns_connectors.conf
+conf/domains_connectors.conf
 conf/currently-at
 conf/caddy-services/*.conf
 conf/pfdns.conf
