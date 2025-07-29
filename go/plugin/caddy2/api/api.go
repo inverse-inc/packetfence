@@ -77,6 +77,8 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	router.POST("/api/v1/fleetdm-events/cve", m.CVE)
 	router.GET("/api/v1/elasticsearch", m.handleElasticsearch)
 
+	router.POST("/api/v1/terminal", m.pfconnectorTerminalGet)
+
 	var DBP **gorm.DB
 	var DB *gorm.DB
 	var sqlDB *sql.DB
