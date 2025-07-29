@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -119,7 +118,7 @@ func NewClient(c *Config) (*Client, error) {
 			tc.InsecureSkipVerify = true
 		} else if c.TLS.CA != "" {
 			rootCAs := x509.NewCertPool()
-			if b, err := ioutil.ReadFile(c.TLS.CA); err != nil {
+			if b, err := os.ReadFile(c.TLS.CA); err != nil {
 				return nil, fmt.Errorf("Failed to load file: %s", c.TLS.CA)
 			} else if ok := rootCAs.AppendCertsFromPEM(b); !ok {
 				return nil, fmt.Errorf("Failed to decode PEM: %s", c.TLS.CA)
@@ -316,7 +315,9 @@ func (c *Client) Start(ctx context.Context) error {
 	for _, ip := range defaultIPs {
 		Client.IP = append(Client.IP, ip.String())
 	}
+
 	Client.ConnectorID = strings.Split(c.config.Auth, ":")[0]
+
 	// Convert the clientInfo struct to JSON
 	clientInfoJSON, err := json.Marshal(Client)
 	if err != nil {

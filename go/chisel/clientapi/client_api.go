@@ -104,7 +104,7 @@ func (api *API) setupRoutes() {
 	}
 
 	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		log.Printf("Erreur proxy: %v", err)
+		log.Printf("Proxy error: %v", err)
 		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusBadGateway)
 		w.Write([]byte(`
