@@ -35,9 +35,7 @@ func (h APIHandler) pfconnectorTerminalGet(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	var PfconnectorConfiguration pfconfigdriver.PfConfPfconnector
-	pfconfigdriver.FetchDecodeSocket(r.Context(), &PfconnectorConfiguration)
-
+	PfconnectorConfiguration := pfconfigdriver.GetType[pfconfigdriver.PfConfPfconnector](r.Context())
 	var network string
 	if strings.HasPrefix(PfconnectorConfiguration.RedisServer, "/") {
 		network = "unix"
@@ -49,8 +47,9 @@ func (h APIHandler) pfconnectorTerminalGet(w http.ResponseWriter, r *http.Reques
 		Addr:    PfconnectorConfiguration.RedisServer,
 		Network: network,
 	})
-
+	// Ensure the Redis client is closed after use
 	defer redis.Close()
+
 	// Check if the Redis server is reachable
 	if err := redis.Ping().Err(); err != nil {
 		http.Error(w, "Redis server is not reachable", http.StatusInternalServerError)
@@ -63,7 +62,7 @@ func (h APIHandler) pfconnectorTerminalGet(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	redirect := reply{
-		RedirectURL: "http://10.0.0.250:8081/api/v1//authorize/" + newUUID.String(),
+		RedirectURL: "http://10.0.0.250:8081/api/v1/authorize/" + newUUID.String(),
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
