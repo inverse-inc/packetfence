@@ -33,7 +33,7 @@ after execute => sub {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2025 Inverse inc.
 
 =head1 LICENSE
 
