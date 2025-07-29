@@ -70,7 +70,7 @@ sub authenticate {
         if($self->create_account && person_exist($pid)) {
             if (!single_person_cleanup($pid)) {
                 pf::auth_log::record_auth($self->source->id, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
-                $self->app->flash->{error} = "Trying to create a local account that already exist and still valid";
+                $self->app->flash->{error} = "Trying to create a local account that already exists and is still valid";
                 $self->prompt_fields();
                 return;
             }
