@@ -42,6 +42,7 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 
 type APIHandler struct {
 	router *chi.Mux
+	ctx    context.Context
 }
 
 // Setup the api middleware
@@ -64,6 +65,7 @@ func (m *APIHandler) Provision(_ caddy.Context) error {
 
 // Build the Handler which will initialize the routes
 func (m *APIHandler) buildHandler(ctx context.Context) error {
+	m.ctx = ctx
 	router := chi.NewRouter()
 	m.router = router
 
@@ -85,6 +87,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		})
 		r.Get("/elasticsearch", m.handleElasticsearch())
 		r.Post("/terminal", m.pfconnectorTerminalGet())
+		r.HandleFunc("/terminal/{connectorID}/*", m.proxyTerminal())
 	})
 
 	var DBP **gorm.DB
@@ -165,9 +168,6 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 
 	routeContext := chi.NewRouteContext()
 	if h.router.Match(routeContext, r.Method, r.URL.Path) {
-
-		ctx = context.WithValue(ctx, chi.RouteCtxKey, routeContext)
-		r = r.WithContext(ctx)
 
 		w.Header().Set("Content-Type", "application/json")
 		h.router.ServeHTTP(w, r)

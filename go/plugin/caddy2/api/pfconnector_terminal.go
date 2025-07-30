@@ -2,18 +2,54 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"strings"
 
 	"github.com/go-redis/redis"
 	"github.com/google/uuid"
+	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
+
+func (h APIHandler) proxyTerminal() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal")
+		if r.URL.Path == "" {
+			r.URL.Path = "/"
+		}
+		connectorID := r.URL.Query().Get("connectorID")
+		if connectorID == "" {
+			http.Error(w, "PFconnector ID is required", http.StatusBadRequest)
+			return
+		}
+
+		conn := connector.NewConnectorsContainer(h.ctx)
+
+		remoteCon, err := conn.Get(h.ctx, connectorID).DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
+		if err != nil {
+			http.Error(w, "Failed to connect to PFconnector", http.StatusInternalServerError)
+			return
+		}
+		port := string(remoteCon.Port)
+
+		TerminalURL, err := url.Parse("http://" + remoteCon.Host + ":" + port)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		proxy := httputil.NewSingleHostReverseProxy(TerminalURL)
+		proxy.ServeHTTP(w, r)
+	})
+}
 
 func (h APIHandler) pfconnectorTerminalGet() http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		type request struct {
 			PFconnectorID string `json:"pfconnector_id"`
 		}

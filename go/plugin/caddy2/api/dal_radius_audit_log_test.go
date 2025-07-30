@@ -81,9 +81,6 @@ func dalRadiusAuditLog() http.HandlerFunc {
 		routeContext := chi.NewRouteContext()
 		if router.Match(routeContext, r.Method, r.URL.Path) {
 
-			ctx = context.WithValue(ctx, chi.RouteCtxKey, routeContext)
-			r = r.WithContext(ctx)
-
 			w.Header().Set("Content-Type", "application/json")
 			router.ServeHTTP(w, r)
 			return
