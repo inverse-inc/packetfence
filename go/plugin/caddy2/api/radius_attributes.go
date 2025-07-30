@@ -56,25 +56,27 @@ type searchRequest struct {
 	Query *Query `json:"query,omitempty"`
 }
 
-func (h APIHandler) searchRadiusAttributes(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (h APIHandler) searchRadiusAttributes() http.HandlerFunc {
 
-	w.WriteHeader(http.StatusOK)
-	b := bytes.NewBuffer(nil)
-	b.ReadFrom(r.Body)
-	search := &searchRequest{}
-	json.Unmarshal(b.Bytes(), &search)
-	var out []byte
-	f, err := makeRadiusAttributeFilter(search.Query)
-	searchResults := RadiusAttributesResults{ApiError: ApiError{Status: 200}}
-	if err != nil {
-		out, _ = json.Marshal(err)
-		searchResults.ApiError = *err.(*ApiError)
-	} else {
-		searchResults.Items = radisAttributesFilter(radiusAttributes, f)
-	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		b := bytes.NewBuffer(nil)
+		b.ReadFrom(r.Body)
+		search := &searchRequest{}
+		json.Unmarshal(b.Bytes(), &search)
+		var out []byte
+		f, err := makeRadiusAttributeFilter(search.Query)
+		searchResults := RadiusAttributesResults{ApiError: ApiError{Status: 200}}
+		if err != nil {
+			out, _ = json.Marshal(err)
+			searchResults.ApiError = *err.(*ApiError)
+		} else {
+			searchResults.Items = radisAttributesFilter(radiusAttributes, f)
+		}
 
-	out, _ = json.Marshal(&searchResults)
-	w.Write(out)
+		out, _ = json.Marshal(&searchResults)
+		w.Write(out)
+	})
 }
 
 func setupRadiusDictionary() {

@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/inverse-inc/packetfence/go/dal/models"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -70,7 +70,7 @@ func removeDBTestEntriesRadiusAuditLog(t *testing.T, id int64) error {
 }
 
 func dalRadiusAuditLog() http.HandlerFunc {
-	router := httprouter.New()
+	router := chi.NewRouter()
 	ctx := context.Background()
 	dbs, err := gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
 	if err != nil {
@@ -79,11 +79,16 @@ func dalRadiusAuditLog() http.HandlerFunc {
 
 	NewRadiusAuditLog(ctx, &dbs).AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
-			// We always default to application/json
+		routeContext := chi.NewRouteContext()
+		if router.Match(routeContext, r.Method, r.URL.Path) {
+
+			ctx = context.WithValue(ctx, chi.RouteCtxKey, routeContext)
+			r = r.WithContext(ctx)
+
 			w.Header().Set("Content-Type", "application/json")
-			handle(w, r, params)
+			router.ServeHTTP(w, r)
 			return
+
 		}
 		w.WriteHeader(500)
 		io.WriteString(w, "{}")

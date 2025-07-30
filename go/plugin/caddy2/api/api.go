@@ -12,13 +12,14 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
-	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -40,7 +41,7 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 }
 
 type APIHandler struct {
-	router *httprouter.Router
+	router *chi.Mux
 }
 
 // Setup the api middleware
@@ -63,21 +64,28 @@ func (m *APIHandler) Provision(_ caddy.Context) error {
 
 // Build the Handler which will initialize the routes
 func (m *APIHandler) buildHandler(ctx context.Context) error {
-	router := httprouter.New()
+	router := chi.NewRouter()
 	m.router = router
 
-	router.POST("/api/v1/radius_attributes", m.searchRadiusAttributes)
+	m.router.Use(middleware.RequestID)
+	m.router.Use(middleware.RealIP)
+	m.router.Use(middleware.Logger)
+	m.router.Use(middleware.Recoverer)
 
-	router.POST("/api/v1/nodes/fingerbank_communications", m.nodeFingerbankCommunications)
-
-	router.POST("/api/v1/ntlm/test", m.ntlmTest)
-	router.POST("/api/v1/ntlm/event-report", m.eventReport)
-
-	router.POST("/api/v1/fleetdm-events/policy", m.Policy)
-	router.POST("/api/v1/fleetdm-events/cve", m.CVE)
-	router.GET("/api/v1/elasticsearch", m.handleElasticsearch)
-
-	router.POST("/api/v1/terminal", m.pfconnectorTerminalGet)
+	m.router.Route("/api/v1", func(r chi.Router) {
+		r.Post("/radius_attributes", m.searchRadiusAttributes())
+		r.Post("/nodes/fingerbank_communications", m.nodeFingerbankCommunications())
+		r.Route("/ntlm", func(r chi.Router) {
+			r.Post("/test", m.ntlmTest())
+			r.Post("/event-report", m.eventReport())
+		})
+		r.Route("/fleetdm-events", func(r chi.Router) {
+			r.Post("/policy", m.Policy())
+			r.Post("/cve", m.CVE())
+		})
+		r.Get("/elasticsearch", m.handleElasticsearch())
+		r.Post("/terminal", m.pfconnectorTerminalGet())
+	})
 
 	var DBP **gorm.DB
 	var DB *gorm.DB
@@ -155,15 +163,19 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 
 	defer panichandler.Http(ctx, w)
 
-	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
-		// We always default to application/json
+	routeContext := chi.NewRouteContext()
+	if h.router.Match(routeContext, r.Method, r.URL.Path) {
+
+		ctx = context.WithValue(ctx, chi.RouteCtxKey, routeContext)
+		r = r.WithContext(ctx)
+
 		w.Header().Set("Content-Type", "application/json")
-		handle(w, r, params)
+		h.router.ServeHTTP(w, r)
 		return nil
-	} else {
-		return next.ServeHTTP(w, r)
+
 	}
 
+	return next.ServeHTTP(w, r)
 }
 
 func (p *APIHandler) Validate() error {
