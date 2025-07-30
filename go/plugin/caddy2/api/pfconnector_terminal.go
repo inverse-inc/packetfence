@@ -47,6 +47,7 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
+		w.Header().Del("Content-Type")
 		proxy := httputil.NewSingleHostReverseProxy(TerminalURL)
 
 		proxy.ServeHTTP(w, r)
