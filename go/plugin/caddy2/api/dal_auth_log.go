@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -165,7 +165,7 @@ func (a *AuthLog) UpdateItem() http.HandlerFunc {
 			return
 		}
 
-		payload, err := ioutil.ReadAll(r.Body)
+		payload, err := io.ReadAll(r.Body)
 		if err != nil {
 			setError(&body, err, http.StatusBadRequest)
 			outputResult(w, body)
@@ -194,5 +194,5 @@ func (a *AuthLog) UpdateItem() http.HandlerFunc {
 func (a *AuthLog) AddToRouter(r *chi.Mux) {
 	r.Get("/api/v1/auth_logs", a.List())
 	r.Post("/api/v1/auth_logs/search", a.Search())
-	r.Get("/api/v1/auth_log/:id", a.GetItem())
+	r.Get("/api/v1/auth_log/{id}", a.GetItem())
 }

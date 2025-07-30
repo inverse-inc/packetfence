@@ -194,5 +194,5 @@ func (a *RadacctLog) UpdateItem() http.HandlerFunc {
 func (a *RadacctLog) AddToRouter(r *chi.Mux) {
 	r.Get("/api/v1/radacct_logs", a.List())
 	r.Post("/api/v1/radacct_logs/search", a.Search())
-	r.Get("/api/v1/radacct_log/:id", a.GetItem())
+	r.Get("/api/v1/radacct_log/{id}", a.GetItem())
 }

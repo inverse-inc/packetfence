@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -106,7 +105,7 @@ func TestListRadacctLog(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())
 	} else {
@@ -176,7 +175,7 @@ func TestSearchRadacctLog(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())
 	} else {
@@ -235,7 +234,7 @@ func TestGetRadacctLog(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())

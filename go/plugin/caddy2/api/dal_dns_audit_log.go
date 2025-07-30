@@ -194,5 +194,5 @@ func (a *DnsAuditLog) UpdateItem() http.HandlerFunc {
 func (a *DnsAuditLog) AddToRouter(r *chi.Mux) {
 	r.Get("/api/v1/dns_audit_logs", a.List())
 	r.Post("/api/v1/dns_audit_logs/search", a.Search())
-	r.Get("/api/v1/dns_audit_log/:id", a.GetItem())
+	r.Get("/api/v1/dns_audit_log/{id}", a.GetItem())
 }

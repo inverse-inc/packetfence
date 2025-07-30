@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -115,7 +114,7 @@ func TestList(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())
 	} else {
@@ -185,7 +184,7 @@ func TestSearch(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())
 	} else {
@@ -245,7 +244,7 @@ func TestGet(t *testing.T) {
 	handler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 
 	if err != nil {
 		t.Fatalf("Error: %s", err.Error())

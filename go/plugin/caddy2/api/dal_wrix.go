@@ -174,7 +174,7 @@ func (a *Wrix) UpdateItem() http.HandlerFunc {
 func (a *Wrix) AddToRouter(r *chi.Mux) {
 	r.Get("/api/v1/wrixes", a.List())
 	r.Post("/api/v1/wrixes/search", a.Search())
-	r.Get("/api/v1/wrix/:id", a.GetItem())
-	r.Delete("/api/v1/wrix/:id", a.DeleteItem())
-	r.Patch("/api/v1/wrix/:id", a.UpdateItem())
+	r.Get("/api/v1/wrix/{id}", a.GetItem())
+	r.Delete("/api/v1/wrix/{id}", a.DeleteItem())
+	r.Patch("/api/v1/wrix/{id}", a.UpdateItem())
 }
