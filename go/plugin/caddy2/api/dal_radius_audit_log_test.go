@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/packetfence/go/dal/models"
 	"github.com/inverse-inc/packetfence/go/db"
 	"gorm.io/driver/mysql"

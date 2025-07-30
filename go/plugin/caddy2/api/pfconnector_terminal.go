@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/connector"
@@ -17,19 +18,24 @@ import (
 
 func (h APIHandler) proxyTerminal() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal")
-		if r.URL.Path == "" {
-			r.URL.Path = "/"
-		}
-		connectorID := r.URL.Query().Get("connectorID")
+
+		connectorID := chi.URLParam(r, "connectorID")
 		if connectorID == "" {
 			http.Error(w, "PFconnector ID is required", http.StatusBadRequest)
 			return
 		}
 
-		conn := connector.NewConnectorsContainer(h.ctx)
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal/"+connectorID)
 
+		r.Host = "127.0.0.1:8081"
+		r.URL.Path = "api/v1/terminal" + r.URL.Path
+		r.Header.Set("X-Forwarded-For", "127.0.0.1")
+
+		// Todo - retrieve from redis
+		// Open to the remote API
+		conn := connector.NewConnectorsContainer(h.ctx)
 		remoteCon, err := conn.Get(h.ctx, connectorID).DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
+
 		if err != nil {
 			http.Error(w, "Failed to connect to PFconnector", http.StatusInternalServerError)
 			return
@@ -42,6 +48,7 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 			return
 		}
 		proxy := httputil.NewSingleHostReverseProxy(TerminalURL)
+
 		proxy.ServeHTTP(w, r)
 	})
 }

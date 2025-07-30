@@ -12,8 +12,8 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
@@ -74,6 +74,14 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	m.router.Use(middleware.Logger)
 	m.router.Use(middleware.Recoverer)
 
+	m.router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Wrap the response writer to preserve interfaces
+			fw := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+			next.ServeHTTP(fw, r)
+		})
+	})
+
 	m.router.Route("/api/v1", func(r chi.Router) {
 		r.Post("/radius_attributes", m.searchRadiusAttributes())
 		r.Post("/nodes/fingerbank_communications", m.nodeFingerbankCommunications())
@@ -87,7 +95,9 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		})
 		r.Get("/elasticsearch", m.handleElasticsearch())
 		r.Post("/terminal", m.pfconnectorTerminalGet())
+		r.HandleFunc("/terminal/{connectorID}/", m.proxyTerminal())
 		r.HandleFunc("/terminal/{connectorID}/*", m.proxyTerminal())
+
 	})
 
 	var DBP **gorm.DB

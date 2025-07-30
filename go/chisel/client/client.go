@@ -260,9 +260,9 @@ func (c *Client) Start(ctx context.Context) error {
 		}
 		return c.tunnel.BindRemotes(ctx, clientInbound)
 	})
-	Ready := false
+
 	if os.Getenv("FETCH_REMOTES_VIA_API") == "true" {
-		go func(Ready *bool) {
+		go func() {
 			for {
 				time.Sleep(5 * time.Second)
 				func() {
@@ -299,50 +299,45 @@ func (c *Client) Start(ctx context.Context) error {
 						fmt.Println("Error binding remotes obtained from the pfconnector server", err)
 					}
 				}()
+
+				func() {
+					type clientInfo struct {
+						IP          []string `json:"ips"`
+						ConnectorID string   `json:"connector_id"`
+					}
+
+					Client := &clientInfo{}
+					// Get the default interface IPs
+					defaultIPs, err := getDefaultInterfaceIPs()
+					if err != nil {
+						fmt.Printf("failed to get default interface IPs: %w", err)
+					}
+					for _, ip := range defaultIPs {
+						Client.IP = append(Client.IP, ip.String())
+					}
+
+					Client.ConnectorID = strings.Split(c.config.Auth, ":")[0]
+
+					// Convert the clientInfo struct to JSON
+					clientInfoJSON, err := json.Marshal(Client)
+					if err != nil {
+						fmt.Printf("failed to marshal client info: %w", err)
+					}
+
+					// Send information about the client
+					res, err := http.Post("http://127.0.0.1:22226/api/v1/pfconnector/pfconnector-info", "application/json", bytes.NewBuffer(clientInfoJSON))
+
+					if err != nil {
+						fmt.Printf("failed to send client info: %w", err)
+					}
+					defer res.Body.Close()
+					if res.StatusCode != http.StatusOK {
+						fmt.Printf("unexpected status code %d", res.StatusCode)
+					}
+				}()
 			}
-		}(&Ready)
+		}()
 	}
-	go func(Ready *bool) {
-		for {
-			time.Sleep(5 * time.Second)
-			if !*Ready {
-				continue
-			}
-			type clientInfo struct {
-				IP          []string `json:"ips"`
-				ConnectorID string   `json:"connector_id"`
-			}
-
-			Client := &clientInfo{}
-			// Get the default interface IPs
-			defaultIPs, err := getDefaultInterfaceIPs()
-			if err != nil {
-				fmt.Printf("failed to get default interface IPs: %w", err)
-			}
-			for _, ip := range defaultIPs {
-				Client.IP = append(Client.IP, ip.String())
-			}
-
-			Client.ConnectorID = strings.Split(c.config.Auth, ":")[0]
-
-			// Convert the clientInfo struct to JSON
-			clientInfoJSON, err := json.Marshal(Client)
-			if err != nil {
-				fmt.Printf("failed to marshal client info: %w", err)
-			}
-
-			// Send information about the client
-			res, err := http.Post("http://127.0.0.1:22226/api/v1/pfconnector/pfconnector-info", "application/json", bytes.NewBuffer(clientInfoJSON))
-
-			if err != nil {
-				fmt.Printf("failed to send client info: %w", err)
-			}
-			defer res.Body.Close()
-			if res.StatusCode != http.StatusOK {
-				fmt.Printf("unexpected status code %d", res.StatusCode)
-			}
-		}
-	}(&Ready)
 	return nil
 }
 
