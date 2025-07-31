@@ -118,9 +118,9 @@ func (api *API) setupRoutes() {
     </style>
 </head>
 <body>
-    <h1 class="error">⚠️ Service Terminal Unavailable</h1>
+    <h1 class="error">Service Terminal Unavailable</h1>
     <p>The terminal is temporarily unavailable. Please try again in a few moments.</p>
-    <p><a href="/">← Back to home</a></p>
+    <p><a href="/">Back to home</a></p>
 </body>
 </html>
 		`))
