@@ -329,6 +329,7 @@ func (c *Client) Start(ctx context.Context) error {
 
 					if err != nil {
 						fmt.Printf("failed to send client info: %w", err)
+						return
 					}
 					defer res.Body.Close()
 					if res.StatusCode != http.StatusOK {
