@@ -1952,6 +1952,10 @@ sub random_mac {
     return clean_mac(unpack("h*", pack("S", int(rand(65536)))) . unpack("h*", pack("N", $$ + rand(2147352576))));
 }
 
+sub random_mac2 {
+    return clean_mac(unpack("h*", pack("S", int(rand(65536)))) . unpack("h*", pack("N", $$ + rand(2147352576))));
+}
+
 sub strip_path_for_git_storage {
     my ($path) = @_;
     $path =~ s|^$install_dir||g;

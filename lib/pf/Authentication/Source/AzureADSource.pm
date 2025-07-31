@@ -16,7 +16,7 @@ use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use JSON::MaybeXS qw(decode_json encode_json);
 use List::Util qw(first);
-use URI::Escape;
+use URI::Escape qw();
 extends 'pf::Authentication::Source';
 with qw(pf::Authentication::InternalRole);
 
