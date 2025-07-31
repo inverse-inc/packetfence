@@ -210,19 +210,21 @@ func enableTerminal(api *API) http.HandlerFunc {
 			http.Error(res, "Terminal not authorized", http.StatusForbidden)
 			return
 		}
-		if j["timeout"] != nil {
-			go func(timeout string) {
-				// Convert timeout to time.Duration
-				d, err := time.ParseDuration(timeout)
-				if err != nil {
-					log.Printf("Error parsing timeout duration: %v", err)
-					return
-				}
-				// Wait for the specified duration before sending the stop command
-				time.Sleep(d)
-				api.commandChan <- Message{Type: StopProcessing}
-			}(j["timeout"].(string))
+		timeout := "360" // Default timeout
+		if j["timeout"] != nil && j["timeout"].(string) != "" {
+			timeout = j["timeout"].(string)
 		}
+		go func(timeout string) {
+			// Convert timeout to time.Duration
+			d, err := time.ParseDuration(timeout)
+			if err != nil {
+				log.Printf("Error parsing timeout duration: %v", err)
+				return
+			}
+			// Wait for the specified duration before sending the stop command
+			time.Sleep(d)
+			api.commandChan <- Message{Type: StopProcessing}
+		}(timeout)
 		select {
 		case api.commandChan <- Message{Type: StartProcessing}:
 			log.Println("Start command sent successfully")
