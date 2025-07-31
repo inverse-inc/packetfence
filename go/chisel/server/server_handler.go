@@ -667,7 +667,7 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 		response := map[string]interface{}{
 			"authorized": true,
 			"message":    fmt.Sprintf("Authorized terminal session for connector ID %s", connectorID),
-			"timeout":    timeOut,
+			"timeout":    "360",
 		}
 
 		w.Header().Set("Content-Type", "application/json")
