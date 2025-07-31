@@ -16,6 +16,7 @@ use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use JSON::MaybeXS qw(decode_json encode_json);
 use List::Util qw(first);
+use URI::Escape qw(uri_escape);
 extends 'pf::Authentication::Source';
 with qw(pf::Authentication::InternalRole);
 
@@ -81,8 +82,9 @@ sub build_token_url {
 
 sub build_user_groups_url {
     my ($self, $username) = @_;
+    my $encoded_username = uri_escape($username);
     my $url = $self->user_groups_url;
-    $url =~ s/%USERNAME/$username/g;
+    $url =~ s/%USERNAME/$encoded_username/g;
     return $url;
 }
 
