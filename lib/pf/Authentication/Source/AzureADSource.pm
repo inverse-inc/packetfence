@@ -102,7 +102,7 @@ sub _get_admin_token {
     my $r = $ua->post($self->build_token_url, [
         client_id => $self->client_id,
         client_secret => $self->client_secret,
-        scope => $self->scope_url,
+        scope => $self->build_scope_url(),
         grant_type => "client_credentials",
     ]);
     if($r->is_success) {
