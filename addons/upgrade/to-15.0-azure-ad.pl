@@ -6,7 +6,7 @@ firewallsso_to_update -
 
 =head1 DESCRIPTION
 
-firewallsso_to_update
+This script migrates Azure AD configurations in the authentication INI file. It updates sections where the 'type' is set to 'AzureAD' by modifying the 'user_groups_url' field and adding a new 'graph_url' field if necessary. The script ensures compatibility with updated Azure AD endpoints.
 
 =cut
 
