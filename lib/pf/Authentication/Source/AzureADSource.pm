@@ -75,8 +75,8 @@ sub dynamic_routing_module { 'Authentication::Login' }
 sub build_token_url {
     my ($self) = @_;
     my $url = $self->oauth_url;
+    $url =~ s#/*$##;
     my $tenant_id = $self->tenant_id;
-    $url =~ s/%TENANT_ID/$tenant_id/g;
     return "$url/$tenant_id/oauth2/v2.0/token";
 }
 
@@ -84,8 +84,8 @@ sub build_user_groups_url {
     my ($self, $username) = @_;
     my $encoded_username = uri_escape($username);
     my $url = $self->graph_url;
-    $url =~ s/%USERNAME/$encoded_username/g;
-    return $url;
+    $url =~ s#/*$##;
+    return "$url/v1.0/users/$encoded_username/memberOf";
 }
 
 sub build_scope_url {
