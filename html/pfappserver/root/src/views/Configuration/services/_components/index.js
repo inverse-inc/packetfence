@@ -23,8 +23,6 @@ export {
   BaseFormGroupSwitch                 as FormGroupHttpdDispatcher,
   BaseFormGroupSwitch                 as FormGroupHttpdPortal,
   BaseFormGroupSwitch                 as FormGroupHttpdWebservices,
-  BaseFormGroupSwitch                 as FormGroupIptables,
-  BaseFormGroupSwitch                 as FormGroupIp6tables,
   BaseFormGroupSwitch                 as FormGroupKeepalived,
   BaseFormGroupInput                  as FormGroupNetflowAddress,
   BaseFormGroupSwitch                 as FormGroupNetdata,
