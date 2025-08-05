@@ -3523,49 +3523,19 @@
             "properties" : {
                "meta" : {
                   "properties" : {
+                     "device_class_whitelist" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "enable" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
                      "id" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
-                     "innodb_buffer_pool_size" : {
+                     "trigger_on_device_class_change" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
-                     "key_buffer_size" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "masterslave" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "max_allowed_packet" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "max_connect_errors" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "max_connections" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "net_read_timeout" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "net_write_timeout" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "other_members" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "performance_schema" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "query_cache_size" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "table_cache" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "thread_cache_size" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
-                     "thread_concurrency" : {
+                     "triggers" : {
                         "$ref" : "#/components/schemas/Meta"
                      }
                   },
@@ -4830,28 +4800,28 @@
                   "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeRegex"
                },
                {
+                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeFortianalyser"
+               },
+               {
                   "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeFortigateDhcp"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeDhcp"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeSuricata"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeNexpose"
                },
                {
                   "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeSnort"
                },
                {
                   "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeSecurityOnion"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeSuricataMd5"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeNexpose"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeDhcp"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeFortianalyser"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigEventHandlerMetaSubTypeSuricata"
                }
             ]
          },
@@ -5952,25 +5922,7 @@
             },
             "oneOf" : [
                {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeWindows"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAndroid"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDeny"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeSentinelone"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeGoogleWorkspaceChromebook"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeIntune"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeLookup"
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeKandji"
                },
                {
                   "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeJamf"
@@ -5979,19 +5931,37 @@
                   "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileconfig"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileiron"
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeSentinelone"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDeny"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAndroid"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeWindows"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeIntune"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeGoogleWorkspaceChromebook"
                },
                {
                   "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeDpsk"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAccept"
-               },
-               {
                   "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAirwatch"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeKandji"
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeLookup"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeAccept"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFilterEnginesProvisioningFilterMetaSubTypeMobileiron"
                }
             ]
          },
@@ -8397,40 +8367,40 @@
             },
             "oneOf" : [
                {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeJunipersrx"
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeFamilyzone"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeFortigate"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeWatchguard"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeContentkeeper"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeCheckpoint"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeBarracudang"
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeJsonrpc"
                },
                {
                   "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeIboss"
                },
                {
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeFortigate"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeContentkeeper"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeJunipersrx"
+               },
+               {
                   "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeLightspeedrocket"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeFamilyzone"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeSmoothwall"
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeWatchguard"
                },
                {
                   "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypePaloalto"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeJsonrpc"
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeBarracudang"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeSmoothwall"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigFirewallMetaSubTypeCheckpoint"
                }
             ]
          },
@@ -10823,6 +10793,7 @@
                   "purge_binary_logs" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePurgeBinaryLogs",
                   "radius_audit_log_cleanup" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup",
                   "security_event_maintenance" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance",
+                  "security_event_purge" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge",
                   "switch_cache_lldpLocalPort_description" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription",
                   "ubiquiti_ap_mac_to_ip" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp"
                },
@@ -10830,91 +10801,94 @@
             },
             "oneOf" : [
                {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCertificatesCheck"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePfflow"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodesMaintenance"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCleanup"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCurrentSessionCleanup"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctMaintenance"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeBandwidthMaintenance"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCleanupChiDatabaseCache"
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePkiCertificatesCheck"
                },
                {
                   "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp6logCleanup"
                },
                {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCurrentSessionCleanup"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodeCleanup"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCertificatesCheck"
+               },
+               {
                   "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFingerbankDataUpdate"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAuthLogCleanup"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushRadiusAuditLog"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePkiCertificatesCheck"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeDnsAuditLogCleanup"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeClusterCheck"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAdminApiAuditLogCleanup"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp4logCleanup"
                },
                {
                   "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctCleanup"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePasswordOfTheDay"
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeIp4logCleanup"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushDnsAuditLog"
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePurgeBinaryLogs"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeOption82Query"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePersonCleanup"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeLocationlogCleanup"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup"
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAcctMaintenance"
                },
                {
                   "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeProvisioningCompliancePoll"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePurgeBinaryLogs"
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushRadiusAuditLog"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeCleanupChiDatabaseCache"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeBandwidthMaintenance"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeClusterCheck"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeOption82Query"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAuthLogCleanup"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeDnsAuditLogCleanup"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeNodesMaintenance"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeFlushDnsAuditLog"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePersonCleanup"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePfflow"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeAdminApiAuditLogCleanup"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeLocationlogCleanup"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypePasswordOfTheDay"
                }
             ]
          },
@@ -11549,6 +11523,15 @@
                      "filter_events" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
+                     "fingerprint" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "fingerprint_cache_expiration" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "fingerprint_networks" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
                      "group_id" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
@@ -11573,9 +11556,6 @@
                      "schedule" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
-                     "send_topic" : {
-                        "$ref" : "#/components/schemas/Meta"
-                     },
                      "status" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
@@ -11586,6 +11566,9 @@
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "uuid" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "write_topic" : {
                         "$ref" : "#/components/schemas/Meta"
                      }
                   },
@@ -11714,6 +11697,37 @@
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "type" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     }
+                  },
+                  "type" : "object"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge" : {
+            "properties" : {
+               "meta" : {
+                  "properties" : {
+                     "batch" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "id" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "schedule" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "status" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "timeout" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "type" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "window" : {
                         "$ref" : "#/components/schemas/Meta"
                      }
                   },
@@ -12867,6 +12881,28 @@
                   "description" : "Filter incoming events",
                   "type" : "string"
                },
+               "fingerprint" : {
+                  "description" : "Fingerprint nodes",
+                  "type" : "string"
+               },
+               "fingerprint_cache_expiration" : {
+                  "description" : "Fingerprint cache expiration",
+                  "properties" : {
+                     "interval" : {
+                        "description" : "Interval",
+                        "type" : "integer"
+                     },
+                     "unit" : {
+                        "description" : "Unit",
+                        "type" : "string"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "fingerprint_networks" : {
+                  "description" : "Fingerprint networks",
+                  "type" : "string"
+               },
                "group_id" : {
                   "description" : "The Kafka Consumer Group ID ",
                   "type" : "string"
@@ -12899,10 +12935,6 @@
                   "description" : "The schedule for maintenance task (cron like spec).",
                   "type" : "string"
                },
-               "send_topic" : {
-                  "description" : "The Kafka topic to write network events to",
-                  "type" : "string"
-               },
                "status" : {
                   "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
                   "type" : "string"
@@ -12918,6 +12950,10 @@
                },
                "uuid" : {
                   "description" : "UUID  ",
+                  "type" : "string"
+               },
+               "write_topic" : {
+                  "description" : "The Kafka topic to write network events to",
                   "type" : "string"
                }
             },
@@ -13113,6 +13149,64 @@
                   "default" : "security_event_maintenance",
                   "description" : "Discriminator `security_event_maintenance`",
                   "type" : "string"
+               }
+            },
+            "required" : [
+               "id",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigMaintenanceTaskSubTypeSecurityEventPurge" : {
+            "properties" : {
+               "batch" : {
+                  "description" : "Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.",
+                  "type" : "integer"
+               },
+               "id" : {
+                  "description" : "Pfcron Name",
+                  "type" : "string"
+               },
+               "schedule" : {
+                  "description" : "The schedule for maintenance task (cron like spec).",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
+                  "type" : "string"
+               },
+               "timeout" : {
+                  "description" : "Maximum amount of time this task can run.",
+                  "properties" : {
+                     "interval" : {
+                        "description" : "Interval",
+                        "type" : "integer"
+                     },
+                     "unit" : {
+                        "description" : "Unit",
+                        "type" : "string"
+                     }
+                  },
+                  "type" : "object"
+               },
+               "type" : {
+                  "default" : "security_event_purge",
+                  "description" : "Discriminator `security_event_purge`",
+                  "type" : "string"
+               },
+               "window" : {
+                  "description" : "Window",
+                  "properties" : {
+                     "interval" : {
+                        "description" : "Interval",
+                        "type" : "integer"
+                     },
+                     "unit" : {
+                        "description" : "Unit",
+                        "type" : "string"
+                     }
+                  },
+                  "type" : "object"
                }
             },
             "required" : [
@@ -13681,10 +13775,10 @@
                   "$ref" : "#/components/schemas/ConfigPkiProviderMetaSubTypeScep"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPkiProviderMetaSubTypePacketfenceLocal"
+                  "$ref" : "#/components/schemas/ConfigPkiProviderMetaSubTypePacketfencePki"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPkiProviderMetaSubTypePacketfencePki"
+                  "$ref" : "#/components/schemas/ConfigPkiProviderMetaSubTypePacketfenceLocal"
                }
             ]
          },
@@ -14152,55 +14246,49 @@
             },
             "oneOf" : [
                {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGoogle"
-               },
-               {
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthWindowslive"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthLinkedin"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationChoice"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBlackhole"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationNull"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeSelectrole"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeSurvey"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeFixedrole"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeMfa"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeChained"
                },
                {
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSaml"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauth"
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSms"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSponsor"
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeSurvey"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeUrl"
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeShowlocalaccount"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso"
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGoogle"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeProvisioning"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthFacebook"
                },
                {
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationEmail"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationNull"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthentication"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauth"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGithub"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeMfa"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeUrl"
                },
                {
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeChoice"
@@ -14209,40 +14297,46 @@
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthOpenid"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationLogin"
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeRoot"
                },
                {
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationPassword"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthGithub"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSms"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthentication"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthFacebook"
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeChained"
                },
                {
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBilling"
                },
                {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeFixedrole"
+               },
+               {
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeMessage"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeRoot"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeShowlocalaccount"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeProvisioning"
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationSponsor"
                },
                {
                   "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeSslInspection"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationLogin"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationBlackhole"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeRootsso"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationChoice"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeAuthenticationOauthLinkedin"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigPortalModuleMetaSubTypeSelectrole"
                }
             ]
          },
@@ -17470,46 +17564,46 @@
             },
             "oneOf" : [
                {
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeAccept"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeMobileiron"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeJamfcloud"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeAirwatch"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeGoogleWorkspaceChromebook"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeDpsk"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeWindows"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeIntune"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeKandji"
+               },
+               {
                   "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeJamf"
                },
                {
                   "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeMobileconfig"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeMobileiron"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeDpsk"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeJamfcloud"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeAccept"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeAirwatch"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeKandji"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeWindows"
-               },
-               {
                   "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeAndroid"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeDeny"
                },
                {
                   "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeSentinelone"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeGoogleWorkspaceChromebook"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeIntune"
+                  "$ref" : "#/components/schemas/ConfigProvisioningMetaSubTypeDeny"
                }
             ]
          },
@@ -21190,7 +21284,7 @@
             },
             "oneOf" : [
                {
-                  "$ref" : "#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7"
+                  "$ref" : "#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus6"
                },
                {
                   "$ref" : "#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus"
@@ -21199,7 +21293,7 @@
                   "$ref" : "#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanOpenvas"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanNessus6"
+                  "$ref" : "#/components/schemas/ConfigScanMetaSubTypePfappserverFormConfigScanRapid7"
                }
             ]
          },
@@ -22223,100 +22317,100 @@
             },
             "oneOf" : [
                {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeGoogle"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeSaml"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeHtpasswd"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeWindowslive"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeKerberos"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeOpenid"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeFacebook"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeGoogleworkspaceldap"
-               },
-               {
                   "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeStripe"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEduroam"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeNull"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEmail"
                },
                {
                   "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeLdap"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAd"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeSponsoremail"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeSql"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeLinkedin"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypePotd"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAdminproxy"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeClickatell"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeRadius"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeKickbox"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeHttp"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEdir"
-               },
-               {
                   "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAzuread"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeGithub"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeSms"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEaptls"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAuthorization"
-               },
-               {
-                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypePaypal"
                },
                {
                   "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeBlackhole"
                },
                {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeNull"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeHtpasswd"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEmail"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeOpenid"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeSponsoremail"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeGithub"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAd"
+               },
+               {
                   "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeTwilio"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypePotd"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeHttp"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAuthorization"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeLinkedin"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeClickatell"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeGoogle"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEduroam"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeWindowslive"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypePaypal"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeFacebook"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEdir"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeSms"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeSql"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeRadius"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeAdminproxy"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeKerberos"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeSaml"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeGoogleworkspaceldap"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeKickbox"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigSourceMetaSubTypeEaptls"
                }
             ]
          },
@@ -23690,6 +23784,9 @@
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "authentication_rules" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "connect_through_port" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "description" : {
@@ -29077,6 +29174,10 @@
                   },
                   "type" : "array"
                },
+               "connect_through_port" : {
+                  "description" : "Connect through port",
+                  "type" : "integer"
+               },
                "description" : {
                   "description" : "Description",
                   "type" : "string"
@@ -31879,10 +31980,10 @@
             },
             "oneOf" : [
                {
-                  "$ref" : "#/components/schemas/ConfigSyslogForwarderMetaSubTypeServer"
+                  "$ref" : "#/components/schemas/ConfigSyslogForwarderMetaSubTypeFile"
                },
                {
-                  "$ref" : "#/components/schemas/ConfigSyslogForwarderMetaSubTypeFile"
+                  "$ref" : "#/components/schemas/ConfigSyslogForwarderMetaSubTypeServer"
                }
             ]
          },
@@ -39806,6 +39907,14 @@
                },
                "sponsor" : {
                   "type" : "integer"
+               },
+               "trigger_portal_mfa" : {
+                  "nullable" : true,
+                  "type" : "string"
+               },
+               "trigger_radius_mfa" : {
+                  "nullable" : true,
+                  "type" : "string"
                },
                "unregdate" : {
                   "example" : "1970-01-01 00:00:00",
@@ -52391,6 +52500,7 @@
                         "purge_binary_logs",
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
+                        "security_event_purge",
                         "switch_cache_lldpLocalPort_description",
                         "ubiquiti_ap_mac_to_ip"
                      ],
@@ -52452,6 +52562,7 @@
                         "purge_binary_logs",
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
+                        "security_event_purge",
                         "switch_cache_lldpLocalPort_description",
                         "ubiquiti_ap_mac_to_ip"
                      ],
@@ -52519,6 +52630,7 @@
                         "purge_binary_logs",
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
+                        "security_event_purge",
                         "switch_cache_lldpLocalPort_description",
                         "ubiquiti_ap_mac_to_ip"
                      ],
@@ -52586,6 +52698,7 @@
                         "purge_binary_logs",
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
+                        "security_event_purge",
                         "switch_cache_lldpLocalPort_description",
                         "ubiquiti_ap_mac_to_ip"
                      ],
@@ -52661,6 +52774,7 @@
                         "purge_binary_logs",
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
+                        "security_event_purge",
                         "switch_cache_lldpLocalPort_description",
                         "ubiquiti_ap_mac_to_ip"
                      ],
