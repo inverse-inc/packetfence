@@ -58,6 +58,9 @@ BEGIN {
     ip6tables_save
     ip6tables_restore
     ip6tables_services_rules
+    ip6tables_flush_to_default
+    ip6tables_services_rules
+    ip6tables_haproxy_portal_rules
   );
 }
 

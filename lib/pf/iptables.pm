@@ -47,6 +47,7 @@ BEGIN {
     iptables_configreload
     iptables_docker_dnat_rules
     iptables_fingerbank_collector_rules
+    iptables_flush_to_default
     iptables_galera_autofix_rules
     iptables_generate_config
     iptables_haproxy_admin_rules
