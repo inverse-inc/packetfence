@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 14.1.0\n"
+"Project-Id-Version: 15.0.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2025-02-11 19:14-0400\n"
+"PO-Revision-Date: 2025-02-28 16:18-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1866,4 +1866,8 @@ msgstr ""
 # lib/pf/web.pm
 msgid "system scan in progress"
 msgstr "Your system is being scanned - this process will take approximately %s seconds."
+
+# pf::web::constants (Locales)
+msgid "tr_TR"
+msgstr ""
 

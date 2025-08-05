@@ -23,8 +23,8 @@
             <template v-slot:button-content>
               <icon name="ellipsis-v"></icon>
             </template>
-            <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
-            <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
+            <b-dropdown-item-button v-for="language in languages" v-show="$i18n.locale !== language.language" :key="`debug-${language.language}`"
+              @click="setLanguage(language.language)">{{ $t(language.label, language.language) }}</b-dropdown-item-button>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/login">{{ $t('Login to Administration') }}</b-dropdown-item>
           </b-nav-item-dropdown>
@@ -34,8 +34,9 @@
             <template v-slot:button-content>
               <icon name="user-circle"></icon> {{ username }}
             </template>
-            <b-dropdown-item-button v-if="isDebug && $i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
-            <b-dropdown-item-button v-else-if="isDebug" @click="setLanguage('en')">English</b-dropdown-item-button>
+            <b-dropdown-item-button v-for="language in languages" v-show="$i18n.locale !== language.language" :key="`auth-${language.language}`"
+              @click="setLanguage(language.language)">{{ $t(language.label, language.language) }}</b-dropdown-item-button>
+            <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/preferences">{{ $t('Preferences') }}</b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
@@ -95,7 +96,7 @@ const components = {
 
 import { computed, ref, watch } from '@vue/composition-api'
 import useEvent from '@/composables/useEvent'
-import i18n from '@/utils/locale'
+import i18n, { languages } from '@/utils/locale'
 
 const setup = (props, context) => {
 
@@ -254,6 +255,7 @@ const setup = (props, context) => {
     // user preferences
     settings,
     setLanguage,
+    languages,
 
     // documentation
     documentationViewerClass,

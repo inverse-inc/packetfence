@@ -45,7 +45,7 @@ is(pf::I18N::pfappserver->get_handle('fr')->maketext("work_phone"), "Téléphone
 
 is_deeply(pf::I18N::pfappserver->languages_from_http_header('fr'), ['fr', 'i-default'], 'Extracting languages from header');
 
-is_deeply(pf::I18N::pfappserver->languages_list(), {en => 'English', fr => 'French'}, "The lanaguage list from the filesystem");
+is_deeply(pf::I18N::pfappserver->languages_list(), {en => 'English', fr => 'French', tr => 'Turkish'}, "The lanaguage list from the filesystem");
 
 =head1 AUTHOR
 

@@ -1,18 +1,49 @@
 export const pfLocales = [
-  'en_US',
-  'de_DE',
-  'es_ES',
-  'fr_CA',
-  'fr_FR',
-  'he_IL',
-  'it_IT',
-  'nb_NO',
-  'nl_NL',
-  'pl_PL',
-  'pt_BR'
+  {
+    label: 'English', // i18n defer
+    locale: 'en_US', is_ui: true
+  },
+  {
+    label: 'German', // i18n defer
+    locale: 'de_DE'
+  },
+  {
+    label: 'Spanish', // i18n defer
+    locale: 'es_ES'
+  },
+  {
+    label: 'French', // i18n defer
+    locale: 'fr_FR', is_ui: true
+  },
+  {
+    label: 'Hebrew', // i18n defer
+    locale: 'he_IL'
+  },
+  {
+    label: 'Italian', // i18n defer
+    locale: 'it_IT'
+  },
+  {
+    label: 'Norwegian', // i18n defer
+    locale: 'nb_NO'
+  },
+  {
+    label: 'Dutch', // i18n defer
+    locale: 'nl_NL'
+  },
+  {
+    label: 'Polish', // i18n defer
+    locale: 'pl_PL'
+  },
+  {
+    label: 'Portuguese', // i18n defer
+    locale: 'pt_BR'
+  },
+  {
+    label: 'Turkish', // i18n defer
+    locale: 'tr_TR', is_ui: true
+  },
 ]
-
-export const pfLocalesList = pfLocales.map(locale => { return { text: locale, value: locale } })
 
 export const localeStrings = {
   SERVICES_DISABLED_SUCCESS: 'Disabled services {services}.', // i18n defer

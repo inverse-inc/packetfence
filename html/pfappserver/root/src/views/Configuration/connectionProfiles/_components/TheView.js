@@ -1,4 +1,7 @@
 import {
+  BaseServices
+} from '@/components/new/'
+import {
   ButtonPreviewPortal,
   BaseView,
   FormButtonBar,
@@ -6,6 +9,7 @@ import {
 } from './'
 
 const components = {
+  BaseServices,
   FormButtonBar,
   TheForm
 }

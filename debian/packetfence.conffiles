@@ -67,6 +67,7 @@
 /usr/local/pf/conf/locale/nb_NO/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+/usr/local/pf/conf/locale/tr_TR/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/nessus/remotescan.nessus
 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt
 /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
