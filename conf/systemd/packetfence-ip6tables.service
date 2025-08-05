@@ -6,15 +6,15 @@ After=packetfence-base.target packetfence-config.service
 
 [Service]
 Type=simple
-ExecStart=/usr/local/pf/sbin/iptables_monitor.pl
+ExecStart=/usr/local/pf/sbin/ip6tables_monitor.pl
 ExecStop=/usr/bin/kill -TERM $MAINPID
-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::ip6tables->new()->_stop()'
 KillSignal=TERM
 Restart=always
 RestartSec=5
 Slice=packetfence.slice
 # iptables rules
-ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_services_rules("add")'
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::ip6tables -Mpf::config -e 'pf::ip6tables::ip6tables_services_rules("add")'
 
 [Install]
 WantedBy=packetfence.target
