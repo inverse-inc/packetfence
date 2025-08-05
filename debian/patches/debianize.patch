@@ -252,15 +252,15 @@ index cb8f01c0c5..dca05ec908 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-ip6tables.service b/conf/systemd/packetfence-ip6tables.service
-index f7aa969ba4..32dda1eee7 100644
+index 2f5c0768e6..0711a18d12 100644
 --- a/conf/systemd/packetfence-ip6tables.service
 +++ b/conf/systemd/packetfence-ip6tables.service
 @@ -8,13 +8,13 @@ After=packetfence-base.target packetfence-config.service
  Type=simple
  ExecStart=/usr/local/pf/sbin/ip6tables_monitor.pl
  ExecStop=/usr/bin/kill -TERM $MAINPID
--ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::ip6tables->new()->_stop()'
-+ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::ip6tables->new()->_stop()'
+-ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ip6tables' -e 'pf::services::manager::ip6tables->new()->_stop()'
++ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ip6tables' -e 'pf::services::manager::ip6tables->new()->_stop()'
  KillSignal=TERM
  Restart=always
  RestartSec=5
