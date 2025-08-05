@@ -55,10 +55,15 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 -- UPGRADE STATEMENTS GO HERE
 --
 
-\! echo "updating password";
+\! echo "Updating password";
 ALTER TABLE `password`
     ADD COLUMN IF NOT EXISTS `trigger_radius_mfa` varchar(255) default NULL,
     ADD COLUMN IF NOT EXISTS `trigger_portal_mfa` varchar(255) default NULL;
+
+\! echo "Updating PKI Certs";
+ALTER TABLE `pki_certs`
+  DROP INDEX `cn_serial`,
+  ADD UNIQUE KEY `cn_serial` (`cn`(127),`serial_number`(127)) USING HASH;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
