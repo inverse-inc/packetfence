@@ -3,6 +3,8 @@ testcases:
 - name: get_login_token
   steps:
   - type: get_login_token
+    retry: 5
+    delay: 1
 
 - name: search_user_in_db
   steps:
@@ -39,4 +41,5 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.items.items0.pid ShouldEqual "{{.backup_db_and_restore.user}}"
-
+    retry: 5
+    delay: 1
