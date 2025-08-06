@@ -425,7 +425,14 @@ sub iptables_haproxy_portal_rules {
         $chains->{'name'} = $service_name;
         util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-	#util_safe_push( "-i $tint -p tcp -m tcp --dport 1025 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 1025 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        if ($cluster_enabled) {
+            push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+            foreach my $mgmt_back (uniq(@mgmt_backend)) {
+                util_safe_push( "-i $tint -p tcp -m tcp -s $mgmt_back --dport 1025 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            }
+        }
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 1025 -j DROP", $chains->{'filter'}{'INPUT'} );
     }
 
     if ( @portal_ints ) {
@@ -606,6 +613,14 @@ sub iptables_haproxy_admin_rules {
         $chains->{'name'} = $service_name;
         my $web_admin_port = $Config{'ports'}{'admin'};
         util_safe_push( "-i $tint -p tcp -m tcp --dport $web_admin_port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 1027 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        if ($cluster_enabled) {
+            push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+            foreach my $mgmt_back (uniq(@mgmt_backend)) {
+                util_safe_push( "-i $tint -p tcp -m tcp -s $mgmt_back --dport 1027 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            }
+        }
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 1027 -j DROP", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     }
@@ -804,7 +819,14 @@ sub iptables_haproxy_db_rules {
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-	#util_safe_push( "-i $tint -p tcp -m tcp --dport 1026 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p tcp -m tcp -s 127.0.0.1 --dport 1026 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        if ($cluster_enabled) {
+            push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+            foreach my $mgmt_back (uniq(@mgmt_backend)) {
+                util_safe_push( "-i $tint -p tcp -m tcp -s $mgmt_back --dport 1026 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            }
+        }
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 1026 -j DROP", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
