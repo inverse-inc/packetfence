@@ -20,7 +20,8 @@ endif::[]
 
 === IPTables
 
-IPTables is now entirely managed by PacketFence. However, if you need to perform some custom rules, you can modify [filename]`/usr/local/pf/conf/iptables.conf` to your own needs. However, the default template should work for most users.
+IPTables is now entirely managed by PacketFence. However, if you need to perform some custom rules, you can create custom iptables entry from a json file located in [filename]`/usr/local/pf/conf/iptables-custom.conf.inc` or modify [filename]`/usr/local/pf/conf/iptables.conf.tt` to your own needs. However, the default template should work for most users.
+More informations are available on Advanced topics -> Iptables.
 
 === Log Rotations
 

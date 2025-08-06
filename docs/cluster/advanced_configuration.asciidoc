@@ -86,19 +86,18 @@ listen stats
 
 NOTE: We strongly advise you change the username and password to something else than admin/packetfence although access to this dashboard doesn't compromise the server.
 
-Next, uncomment the following line from `/usr/local/pf/conf/iptables.conf`
+Next, uncomment the following line from `/usr/local/pf/lib/pf/iptables.pm`
 
 CAUTION: If you're upgrading from a version prior to 5.0, the line may not be there. Add it close to the other management rules:
 
 ----
--A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
+util_safe_push( "-i $tint -p tcp -m tcp --dport 1025 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
 ----
 
-Now restart `haproxy-portal` and `iptables` in all nodes in order to complete the configuration: 
+Now restart `haproxy-portal` in all nodes in order to complete the configuration: 
 
 ----
 # /usr/local/pf/bin/pfcmd service haproxy-portal restart
-# /usr/local/pf/bin/pfcmd service iptables restart
 ----
 
 You should now be able to connect to the dashboard on each node using following URL : http://NODE_MANAGEMENT_IP:1025/stats
