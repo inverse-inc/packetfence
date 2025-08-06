@@ -425,6 +425,7 @@ sub iptables_haproxy_portal_rules {
         $chains->{'name'} = $service_name;
         util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+	#util_safe_push( "-i $tint -p tcp -m tcp --dport 1025 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
     }
 
     if ( @portal_ints ) {
@@ -803,7 +804,7 @@ sub iptables_haproxy_db_rules {
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-        util_safe_push( "-i $tint -p tcp -m tcp --dport 1025 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+	#util_safe_push( "-i $tint -p tcp -m tcp --dport 1026 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp --dport 3306 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
