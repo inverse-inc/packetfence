@@ -1,0 +1,18 @@
+name: Restore
+testcases:
+- name: get_backup_name
+  steps:
+  - type: exec
+    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-exportable-backup-*.tgz" -newermt "-10 minute" | head -n 1'
+    assertions:
+      - result.systemout ShouldNotBeEmpty
+
+- name: import_previous_exportation
+  steps:
+  - type: exec
+    script: '/usr/local/pf/addons/full-import/import.sh --db-restore -f {{.get_backup_name.result.systemout}}'
+
+- name: sleep_for_iptables_to_restart
+  steps:
+  - type: exec
+    script: sleep 10

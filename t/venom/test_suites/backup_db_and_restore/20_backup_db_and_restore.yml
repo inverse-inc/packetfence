@@ -1,0 +1,42 @@
+name: Backup DB and restore
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: search_user_in_db
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/users/search'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "pid"
+        ],
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "pid",
+                  "op": "equals",
+                  "value": "{{.backup_db_and_restore.user}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0.pid ShouldEqual "{{.backup_db_and_restore.user}}"
+
