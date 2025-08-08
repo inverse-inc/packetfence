@@ -539,15 +539,28 @@ sub iptables_keepalived_rules {
         util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
     }
 
-    if ( @vlan_enforcement_nets ) {
-        foreach my $network ( @vlan_enforcement_nets ) {
-            my $tint =  $network->{Tint};
-            $chains->{name} = $service_name;
-            util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-            util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
+    if ( @internal_nets ) {
+        # internal interfaces handling
+        foreach my $interface (@internal_nets) {
+            my $tint = $interface->tag("int");
+            my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
+            # VLAN enforcement
+            if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
+                if ($tint =~ m/(\w+):\d+/) {
+                    $tint = $1;
+                }
+                $chains->{name} = $service_name;
+                util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
+            # inline enforcement
+            } elsif (is_type_inline($enforcement_type)) {
+                $chains->{name} = $service_name;
+                util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
+            }
         }
     } else {
-        $logger->warn("Service $service_name: No Vlan Enforcement Nets is not set.");
+        $logger->warn("Service $service_name: No Internal Nets is not set.");
     }
 
     if ( @portal_ints ) {
