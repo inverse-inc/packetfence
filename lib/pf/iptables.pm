@@ -539,6 +539,17 @@ sub iptables_keepalived_rules {
         util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
     }
 
+    if ( @vlan_enforcement_nets ) {
+        foreach my $network ( @vlan_enforcement_nets ) {
+            my $tint =  $network->{Tint};
+            $chains->{name} = $service_name;
+            util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+            util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
+        }
+    } else {
+        $logger->warn("Service $service_name: No Vlan Enforcement Nets is not set.");
+    }
+
     if ( @portal_ints ) {
         # 'portal' interfaces handling
         $chains->{'name'} = $service_name;
@@ -550,6 +561,7 @@ sub iptables_keepalived_rules {
     } else {
         $logger->warn("Service $service_name: Portal Ints are not set.");
     }
+
     if ( @radius_ints ) {
         # 'radius' interfaces handling
         $chains->{'name'} = $service_name;
@@ -561,6 +573,7 @@ sub iptables_keepalived_rules {
     } else {
         $logger->warn("Service $service_name: Radius Ints are not set.");
     }
+
     if ($chains->{'name'} ne "") {
         # Convert to JSON and save to file
         util_create_service_rules($chains);
