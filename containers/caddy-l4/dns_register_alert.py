@@ -6,15 +6,16 @@ import smtplib
 from email.mime.text import MIMEText
 import re
 import os.path
+from os import getenv
 
 app = Flask(__name__)
 
-def send_mail(client_id, client_email, domain ):
+def send_mail(client_id, sender_email, client_email, inverse_admin_email, domain ):
     subject = f"[ PFaaS: {client_id} ] Error DNS resolution for {domain}"
-    sender = "packetfenceaas@gmail.com"
+    sender = sender_email
     if client_email == None:
-        client_email = "dl-Inverse-All@akamai.com"
-    recipients = [client_email, "dl-Inverse-All@akamai.com"]
+        client_email = inverse_admin_email
+    recipients = [client_email, inverse_admin_email]
 
     gmail_smtp_password=os.environ.get('GMAIL_SMTP_PASSWORD')
     body = """
@@ -138,7 +139,9 @@ def check_domain():
     else:
         client_email=find_email(domain)
         client_id = find_id_by_fqdn_recursive(load_data_from_json(), domain)
-        send_mail(client_id, client_email, domain)
+        inverse_admin_email = getenv('INVERSE_ADMIN_EMAIL', 'dl-Inverse-All@akamai.com')
+        sender_email = getenv('SENDER_EMAIL', 'packetfenceaas@gmail.com')
+        send_mail(client_id, sender_email,client_email, inverse_admin_email, domain)
         return jsonify({"domain": domain, "status": "not allowed"}), 404
 
 
