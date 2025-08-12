@@ -106,7 +106,7 @@ def api(path='', method='GET', string=None, data=None):
 def find_id_by_fqdn_recursive(data, fqdn_to_find):
     if isinstance(data, dict):
         for key, value in data.items():
-            if key == 'fqdn' and value == fqdn_to_find:
+            if key == 'fqdn' and value in fqdn_to_find:
                 return data.get('id', None)
             result = find_id_by_fqdn_recursive(value, fqdn_to_find)
             if result:
