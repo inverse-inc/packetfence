@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 import os.path
+from os import getenv
 import argparse
 from subprocess import run, CalledProcessError
 from jwt import JWT, jwk_from_pem
@@ -110,10 +111,10 @@ def  generate_token(jwt_token, org_github_apps_id, github_client_repository_name
 
 
 
-def send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name ):
+def send_mail( gmail_smtp_password, error, client_name, sender_email, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name ):
     subject = f"[ PFaaS: {client_id} ] Error token update"
-    sender = "packetfenceaas@gmail.com"
-    recipients = [client_email, "dl-Inverse-All@akamai.com"]
+    sender = sender_email
+    recipients = [client_email, inverse_admin_email]
     body = """
     <html>
     <body>
@@ -152,9 +153,11 @@ def main():
     parser.add_argument("--github_client_repository_name", default=os.environ.get('GITHUB_CLIENT_REPOSITORY_NAME'), help="GitHub client repostory name")
     parser.add_argument("--k8s_namespace_name", default=os.environ.get('K8S_NAMESPACE_NAME'), help="Kubernetes namespace name")
     parser.add_argument("--k8s_secret_name", default=os.environ.get('K8S_SECRET_NAME'), help="Kubernetes secret name")
-    parser.add_argument("--gmail_smtp_password", default=os.environ.get('GMAIL_SMTP_PASSWORD'), help="Gmail SMTP secret")
-    parser.add_argument("--client_name", default=os.environ.get('CLIENT_NAME'), help="Client Name")
-    parser.add_argument("--client_email", default=os.environ.get('CLIENT_EMAIL'), type=email_type,  help="Client email")
+    parser.add_argument("--gmail_smtp_password", default=getenv('GMAIL_SMTP_PASSWORD'), help="Gmail SMTP secret")
+    parser.add_argument("--client_name", default=getenv('CLIENT_NAME'), help="Client Name")
+    parser.add_argument("--client_email", default=getenv('CLIENT_EMAIL'), type=email_type,  help="Client email")
+    parser.add_argument("--inverse_admin_email", default=getenv('INVERSE_ADMIN_EMAIL', 'dl-Inverse-All@akamai.com'), help="Inverse Admin email")
+    parser.add_argument("--sender_email", default=getenv('SENDER_EMAIL', 'packetfenceaas@gmail.com'), help="Sender email")
     args =  parser.parse_args()
 
     private_key_file=args.private_key_file
@@ -166,6 +169,8 @@ def main():
     gmail_smtp_password=args.gmail_smtp_password
     client_name=args.client_name
     client_email=args.client_email
+    inverse_admin_email=args.inverse_admin_email
+    sender_email=args.sender_email
 
     if not private_key_file or not github_org_apps_id or not github_installed_apps_id or not k8s_namespace_name or not k8s_secret_name or not github_client_repository_name:
         exit(parser.print_usage())
@@ -175,7 +180,7 @@ def main():
     except Exception as e:
         error=f"Error: {e}"
         print(error)
-        send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name )
+        send_mail( gmail_smtp_password, error, client_name, sender_email, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 
 
@@ -184,7 +189,7 @@ def main():
     except RuntimeError as e:
         error=f"Error: {e}"
         print(error)
-        send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name )
+        send_mail( gmail_smtp_password, error, client_name, sender_email,client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 # update the github_token
     try:
@@ -193,7 +198,7 @@ def main():
     except Exception as e:
         error=f"Error update k8s secret on { k8s_namespace_name }: {e}"
         print(error)
-        send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name )
+        send_mail( gmail_smtp_password, error, client_name, sender_email, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 
 # update the github_token
@@ -204,7 +209,7 @@ def main():
     except Exception as e:
         error=f"Error update k8s secret on { k8s_namespace_name }: {e}"
         print(error)
-        send_mail( gmail_smtp_password, error, client_name, client_email, k8s_namespace_name, k8s_secret_name )
+        send_mail( gmail_smtp_password, error, client_name, sender_email, client_email, inverse_admin_email, k8s_namespace_name, k8s_secret_name )
         exit(1)
 
 if __name__ == '__main__':
