@@ -27,7 +27,7 @@ endif::[]
 
 === Database via ProxySQL or haproxy-db
 
-In PacketFence 12.0, proxysql became the default way for PacketFence services to obtain their connection to a database member. ProxySQL has the ability to split reads and writes to different members which offers greater performance and scalability.
+Since PacketFence 12.0, proxysql became the default way for PacketFence services to obtain their connection to a database member. ProxySQL has the ability to split reads and writes to different members which offers greater performance and scalability.
 
 If you suspect that using ProxySQL causes issues in your deployment, you can revert back to using haproxy-db by changing `database.port` in `conf/pf.conf` to `3306`. 
 
@@ -445,3 +445,13 @@ You can have an overview of all the current connections using the following Mari
 And if you would like to see only the connections with an active query:
 
   MariaDB> select * from information_schema.processlist where Command!='Sleep';
+
+=== From Cluster to Standalone
+
+Since packetfence v14.1, going from a cluster to a standlone can be done by
+using the exportable backup script and/or a backup file in [filename]`/root/backup`.
+
+Once the importation is done on the new standalone server, it is important:
+ - to remove the file [filename]`/var/lib/mysql/grastate.dat` because this file is used to
+do or not the backup on a cluster member. If the file is still there, the backup script will fail.
+ - to check if all references to cluster have been removed and the VIP has been well transfered to the server in the configuration.
