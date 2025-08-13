@@ -163,7 +163,7 @@ sub getSources : Private {
     }
 
     my $realm_source = get_realm_authentication_source($stripped_username, $realm, \@sources);
-    if (ref($realm_source) eq 'ARRAY') {
+    if (ref($realm_source) eq 'ARRAY' && scalar @{$realm_source}) {
         $c->log->info("Realm source is part of the connection profile sources. Using it as the only auth source.");
         return ($realm_source);
     }
