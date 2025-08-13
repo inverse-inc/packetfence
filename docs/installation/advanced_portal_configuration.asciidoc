@@ -365,9 +365,10 @@ Passthroughs can be done with either _DNS resolution and iptables_, or with _Apa
 
 In _Configuration -> Network Configuration -> Networks -> Fencing_, enable _"Passthrough"_, then click Save.
 
-Restart the [command]`iptables` service:
+Then run the following commands so that passthroughs become effective:
 
- /usr/local/pf/bin/pfcmd service iptables restart
+ /usr/local/pf/bin/pfcmd configreload hard
+ /usr/local/pf/bin/pfcmd service pfdns restart
 
 ==== DNS passthroughs
 

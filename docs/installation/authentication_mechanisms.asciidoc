@@ -529,7 +529,7 @@ In order for your users to be able to access the Identity Provider login page, y
 
 To do so, go in _Configuration -> Network Configuration -> Networks -> Fencing_, then check `Passthroughs` and add the Identity Provider domain name to the `Passthroughs` list.
 
-Next, restart `iptables` and `pfdns` services to apply your new passthroughs.
+Next, restart `pfdns` services to apply your new passthroughs.
 
 === Billing Engine
 

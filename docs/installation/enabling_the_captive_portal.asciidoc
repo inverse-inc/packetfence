@@ -81,7 +81,6 @@ You must then restart the following services from _Status -> Services_:
 [options="compact"]
  * haproxy-portal
  * httpd.portal
- * iptables
 
 === Configuring the Connection Profile
 
