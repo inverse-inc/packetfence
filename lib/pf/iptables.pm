@@ -1042,7 +1042,7 @@ sub iptables_pfdns_rules {
         dns_interception_rules($chains);
         dns_oauth_passthrough_rules($chains);
     } else {
-        $logger->warn("Service $service_name: No Interna Nets defined.");
+        $logger->warn("Service $service_name: No Internal Nets defined.");
     }
 
     if ($chains->{name} ne "") {
