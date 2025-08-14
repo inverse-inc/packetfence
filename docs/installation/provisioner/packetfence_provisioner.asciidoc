@@ -60,7 +60,6 @@ In the administation inferface, go in _Configuration -> Network Configuration ->
 Then run the following commands so that passthroughs become effective:
 
  /usr/local/pf/bin/pfcmd configreload hard
- /usr/local/pf/bin/pfcmd service iptables restart
  /usr/local/pf/bin/pfcmd service pfdns restart
  
 Next, make sure you are using a valid SSL certificate on your captive portal since Android devices will only be able to be provisioned on a captive portal that uses valid HTTPS

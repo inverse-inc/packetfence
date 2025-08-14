@@ -317,12 +317,6 @@ sub _doUpdateSystemd {
     print "$service\t${color}${command}$COLORS->{reset}\n" if $show;
 }
 
-sub getIptablesTechnique {
-    require pf::inline::custom;
-    my $iptables = pf::inline::custom->new();
-    return $iptables->{_technique};
-}
-
 sub stopService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
@@ -335,22 +329,7 @@ sub stopService {
             $manager->print_status;
         }
     }
-    if(isIptablesManaged($service)) {
-        my $count = true { $_->status eq '0'  } @managers;
-        if( $count ) {
-            getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
-        } else {
-            $logger->error(
-                "Even though 'service pf stop' was called, there are still $count services running. "
-                 . "Can't restore iptables from var/iptables.bak"
-            );
-        }
-    }
     return $EXIT_SUCCESS;
-}
-
-sub isIptablesManaged {
-   return $_[0] eq 'pf' && isenabled($Config{services}{iptables})
 }
 
 sub statusOfService {

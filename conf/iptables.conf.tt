@@ -1,0 +1,202 @@
+[%- BLOCK chain_rules -%]
+[% FOREACH rule IN rules -%]
+[% IF rule -%]
+[% IF rule.match('^#') -%]
+[% rule %]
+[% ELSE -%]
+-A [% chain %] [% rule %][% IF comment %] /* [% comment %] */[% END %]
+[% END -%]
+[% END -%]
+[% END -%]
+[%- END -%]
+# Copyright (C) Inverse inc.
+# iptables template
+# This file is manipulated on PacketFence's startup before being given to iptables
+
+# ========================================
+# Merged Firewall Configurations
+# ========================================
+# Includes rules from:
+[% FOREACH name IN configs.keys.sort -%]
+# - [% name %]
+[% END -%]
+[%- IF custom.name -%]
+# - [% custom.name %]
+[% END -%]
+# Generated on [% USE date; date.format(date.now, '%Y-%m-%d %H:%M:%S') %]
+
+
+## filter table ##
+*filter
+
+-N DOCKER
+-N DOCKER-ISOLATION-STAGE-1
+-N DOCKER-ISOLATION-STAGE-2
+-N DOCKER-USER
+
+### filter INPUT chain ###
+:INPUT DROP [0:0]
+
+# accept loopback stuff
+-A INPUT --in-interface lo --jump ACCEPT
+# accept packets from the docker containers as if they were on lo
+-A INPUT --in-interface docker0 --jump ACCEPT
+# accept anything related
+-A INPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT
+# Accept Ping (easier troubleshooting)
+-A INPUT --protocol icmp --icmp-type echo-request --jump ACCEPT
+
+# Docker related rules
+-A DOCKER-ISOLATION-STAGE-1 -i docker0 ! -o docker0 -j DOCKER-ISOLATION-STAGE-2
+-A DOCKER-ISOLATION-STAGE-1 -j RETURN
+-A DOCKER-ISOLATION-STAGE-2 -o docker0 -j DROP
+-A DOCKER-ISOLATION-STAGE-2 -j RETURN
+-A DOCKER-USER -j RETURN
+
+[% IF custom.filter.INPUT && custom.filter.INPUT.size %]
+[% INCLUDE chain_rules chain='INPUT' rules=custom.filter.INPUT %]
+[% END %]
+
+[% IF merged.filter.INPUT && merged.filter.INPUT.size %]
+[% INCLUDE chain_rules chain='INPUT' rules=merged.filter.INPUT %]
+[% END %]
+
+### filter FORWARD chain ###
+:FORWARD DROP [0:0]
+
+-A FORWARD -j DOCKER-USER
+-A FORWARD -j DOCKER-ISOLATION-STAGE-1
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+
+[% IF custom.filter.FORWARD && custom.filter.FORWARD.size %]
+[% INCLUDE chain_rules chain='FORWARD' rules=custom.filter.FORWARD %]
+[% END %]
+
+[% IF merged.filter.FORWARD && merged.filter.FORWARD.size %]
+[% INCLUDE chain_rules chain='FORWARD' rules=merged.filter.FORWARD %]
+[% END %]
+
+### filter OUTPUT chain ###
+:OUTPUT ACCEPT [0:0]
+
+[% IF custom.filter.OUTPUT && custom.filter.OUTPUT.size %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=custom.filter.OUTPUT %]
+[% END %]
+
+[% IF merged.filter.OUTPUT && merged.filter.OUTPUT.size %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=merged.filter.OUTPUT %]
+[% END %]
+
+COMMIT
+
+
+## mangle table ##
+*mangle
+
+### mangle PREROUTING chain ###
+:PREROUTING ACCEPT [0:0]
+
+[% IF custom.mangle.PREROUTING && custom.mangle.PREROUTING.size %]
+[% INCLUDE chain_rules chain='PREROUTING' rules=custom.mangle.PREROUTING %]
+[% END %]
+
+[% IF merged.mangle.PREROUTING && merged.mangle.PREROUTING.size %]
+[% INCLUDE chain_rules chain='PREROUTING' rules=merged.mangle.PREROUTING %]
+[% END %]
+
+### mangle INPUT chain ###
+:INPUT ACCEPT [0:0]
+
+[% IF custom.mangle.INPUT && custom.mangle.INPUT.size %]
+[% INCLUDE chain_rules chain='INPUT' rules=custom.mangle.INPUT %]
+[% END %]
+
+[% IF merged.mangle.INPUT && merged.mangle.INPUT.size %]
+[% INCLUDE chain_rules chain='INPUT' rules=merged.mangle.INPUT %]
+[% END %]
+
+### mangle FORWARD chain ###
+:FORWARD ACCEPT [0:0]
+
+[% IF custom.mangle.FORWARD && custom.mangle.FORWARD.size %]
+[% INCLUDE chain_rules chain='FORWARD' rules=custom.mangle.FORWARD %]
+[% END %]
+
+[% IF merged.mangle.FORWARD && merged.mangle.FORWARD.size %]
+[% INCLUDE chain_rules chain='FORWARD' rules=merged.mangle.FORWARD %]
+[% END %]
+
+### mangle OUTPUT chain ###
+:OUTPUT ACCEPT [0:0]
+
+[% IF custom.mangle.OUTPUT && custom.mangle.OUTPUT.size %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=custom.mangle.OUTPUT %]
+[% END %]
+
+[% IF merged.mangle.OUTPUT && merged.mangle.OUTPUT.size %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=merged.mangle.OUTPUT %]
+[% END %]
+
+### mangle POSTROUTING chain ###
+:POSTROUTING ACCEPT [0:0]
+
+[% IF custom.mangle.POSTROUTING && custom.mangle.POSTROUTING.size %]
+[% INCLUDE chain_rules chain='POSTROUTING' rules=custom.mangle.POSTROUTING %]
+[% END %]
+
+[% IF merged.mangle.POSTROUTING && merged.mangle.POSTROUTING.size %]
+[% INCLUDE chain_rules chain='POSTROUTING' rules=merged.mangle.POSTROUTING %]
+[% END %]
+
+COMMIT
+
+## nat table ##
+*nat
+
+-N DOCKER
+
+### nat PREROUTING chain ###
+:PREROUTING ACCEPT [0:0]
+
+[% IF custom.nat.PREROUTING && custom.nat.PREROUTING.size %]
+[% INCLUDE chain_rules chain='PREROUTING' rules=custom.nat.PREROUTING %]
+[% END %]
+
+[% IF merged.nat.PREROUTING && merged.nat.PREROUTING.size %]
+[% INCLUDE chain_rules chain='PREROUTING' rules=merged.nat.PREROUTING %]
+[% END %]
+
+-A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER
+
+### nat OUTPUT chain ###
+:OUTPUT ACCEPT [0:0]
+
+[% IF custom.nat.OUTPUT && custom.nat.OUTPUT.size %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=custom.nat.OUTPUT %]
+[% END %]
+
+[% IF merged.nat.OUTPUT && merged.nat.OUTPUT.size %]
+[% INCLUDE chain_rules chain='OUTPUT' rules=merged.nat.OUTPUT %]
+[% END %]
+
+-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER
+
+### nat POSTROUTING chain ###
+:POSTROUTING ACCEPT [0:0]
+
+[% IF custom.nat.POSTROUTING && custom.nat.POSTROUTING.size %]
+[% INCLUDE chain_rules chain='POSTROUTING' rules=custom.nat.POSTROUTING %]
+[% END %]
+
+[% IF merged.nat.POSTROUTING && merged.nat.POSTROUTING.size %]
+[% INCLUDE chain_rules chain='POSTROUTING' rules=merged.nat.POSTROUTING %]
+[% END %]
+
+-A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE
+-A DOCKER -i docker0 -j RETURN
+
+COMMIT
+

@@ -24,6 +24,8 @@ our (
     $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir, $run_dir,
     $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir, $domains_ntlm_cache_users_dir, $systemd_unit_dir, $acme_challenge_dir,
     $conf_uploads,
+    $generated_iptables_conf_dir, $generated_ip6tables_conf_dir,
+
 
     #Config files
     #pf.conf.default
@@ -114,11 +116,8 @@ our (
     $fingerbank_default_config_file,
     $fingerbank_doc_file,
     $api_i18n_dir,
-    $iptable_config_file,
-    $iptable_input_config_file,
-    $iptable_input_management_config_file,
-    $ip6table_config_file,
-    $ip6table_input_management_config_file,
+    $iptable_custom_config_file,
+    $ip6table_custom_config_file,
     $ssl_config_file, $ssl_default_config_file,
     $tls_config_file, $tls_default_config_file,
     $ocsp_config_file, $ocsp_default_config_file,
@@ -146,7 +145,9 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT_OK = qw(
         $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir $run_dir
-        $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir $acme_challenge_dir $conf_uploads
+        $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir $acme_challenge_dir
+        $conf_uploads
+        $generated_iptables_conf_dir $generated_ip6tables_conf_dir
         $pf_default_file
         $pf_config_file
         $network_config_file
@@ -224,11 +225,8 @@ BEGIN {
         $fingerbank_default_config_file
         $fingerbank_doc_file
         $api_i18n_dir
-        $iptable_config_file
-        $iptable_input_config_file
-        $iptable_input_management_config_file
-        $ip6table_config_file
-        $ip6table_input_management_config_file
+        $iptable_custom_config_file
+        $ip6table_custom_config_file
         $ssl_config_file $ssl_default_config_file
         $tls_config_file $tls_default_config_file
         $ocsp_config_file $ocsp_default_config_file
@@ -267,6 +265,8 @@ $log_conf_dir  = catdir($conf_dir,"log.conf.d");
 $kafka_config_dir = catdir($conf_dir, "kafka");
 
 $generated_conf_dir   = catdir($var_dir, "conf");
+$generated_iptables_conf_dir   = catdir($generated_conf_dir, "iptables");
+$generated_ip6tables_conf_dir   = catdir($generated_conf_dir, "ip6tables");
 $tt_compile_cache_dir = catdir($var_dir, "tt_compile_cache");
 $control_dir  = catdir( $var_dir, "control");
 $switch_control_dir  = catdir($var_dir, "switch_control");
@@ -368,11 +368,8 @@ $cron_default_config_file = catfile($conf_dir,"pfcron.conf.defaults");
 $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
-$iptable_config_file = catfile($conf_dir, "iptables.conf");
-$iptable_input_config_file = catfile($conf_dir, "iptables-input.conf.inc");
-$iptable_input_management_config_file = catfile($conf_dir, "iptables-input-management.conf.inc");
-$ip6table_config_file = catfile($conf_dir, "ip6tables.conf");
-$ip6table_input_management_config_file = catfile($conf_dir, "ip6tables-input-management.conf.inc");
+$iptable_custom_config_file = catfile($conf_dir, "iptables-custom.conf.inc");
+$ip6table_custom_config_file = catfile($conf_dir, "ip6tables-custom.conf.inc");
 $ssl_config_file = catfile($conf_dir,"ssl.conf");
 $ssl_default_config_file = catfile($conf_dir,"ssl.conf.defaults");
 $tls_config_file = catfile($conf_dir,"radiusd/tls.conf");

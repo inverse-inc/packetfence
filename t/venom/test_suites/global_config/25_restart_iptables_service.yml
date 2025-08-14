@@ -1,1 +1,6 @@
-../common/restart_iptables_service.yml
+name: Reload iptables rules
+testcases:
+- name: reload_iptables_rules
+  steps:
+  - type: pfcmd_reloadiptablesrules
+    extra: hard

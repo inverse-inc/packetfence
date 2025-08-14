@@ -5,5 +5,7 @@ testcases:
   - type: pf_api_service_restart
     service: radiusd-auth
 
+- name: restart_pfacct_services
+  steps:
   - type: pf_api_service_restart
     service: pfacct

@@ -1,13 +1,9 @@
 name: Restart services
 testcases:
-- name: get_login_token
+- name: reload_iptables_rules
   steps:
-  - type: get_login_token
-
-- name: restart_iptables
-  steps:
-    - type: pf_api_service_restart
-      service: iptables
+    - type: pfcmd_reloadiptablesrules
+      extra: hard
 
 - name: restart_pfdns
   steps:

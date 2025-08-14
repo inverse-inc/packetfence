@@ -14,7 +14,7 @@ export const useStore = $store => {
 
 export const useServices = () => computed(() => {
   return {
-    message: i18n.t('Creating or modifying the fencing requires to restart the rsyslog system service.'),
-    services: ['pfdns', 'iptables'],
+    message: i18n.t('Creating or modifying the fencing requires to restart the pfdns system service.'),
+    services: ['pfdns'],
   }
 })

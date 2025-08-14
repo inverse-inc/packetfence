@@ -1,0 +1,6 @@
+executor: pfcmd_reloadiptablesrules
+input:
+  extra: ""
+steps:
+  - type: pfcmd_run_command
+    command: "reloadiptablesrules {{.input.extra}}"

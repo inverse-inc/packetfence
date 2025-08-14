@@ -17,6 +17,9 @@ ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -Cxm -lstdout
 ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 
 Restart=on-failure
 Slice=packetfence.slice
+# iptables rules
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_auth_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_auth_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence.target

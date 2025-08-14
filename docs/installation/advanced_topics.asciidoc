@@ -378,7 +378,7 @@ You need to:
   traffic using `netflow_address` setting in _Configuration -> System configuration -> Services_ menu
 * enable _NetFlow on all networks_ in _Configuration -> System configuration -> Advanced_ menu
 
-Then restart `packetfence-iptables` and `packetfence-pfacct` services for it to take effect.
+Then restart `packetfence-pfacct` services for it to take effect.
 
 ===== NetFlow traffic from inline L2/L3 networks
 
@@ -389,9 +389,10 @@ If you enable _NetFlow on all networks_ in _Configuration -> System
 configuration -> Advanced_ menu, `pfacct` will collect NetFlow bandwidth usage
 for all networks instead of the ones defined in [filename]`/usr/local/pf/conf/networks.conf`.
 
-Then restart `packetfence-iptables` and `packetfence-pfacct` services for it
-to take effect.
+Then restart `packetfence-pfacct` services for it to take effect.
 
 include::kafka.asciidoc[]
 
 include::monitoring.asciidoc[]
+
+include::iptables.asciidoc[]

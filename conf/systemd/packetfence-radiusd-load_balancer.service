@@ -6,9 +6,6 @@ Wants=packetfence-radiusd-auth.service
 After=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetfence-radiusd-eduroam.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
 
 [Service]
 Type=notify
@@ -22,6 +19,9 @@ ExecStop=/bin/bash -c "docker stop radiusd-load-balancer ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/radiusd-load-balancer-systemd-notify.pid
+# iptables rules
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_lb_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_radiusd_lb_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence-cluster.target
