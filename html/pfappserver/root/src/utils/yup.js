@@ -328,7 +328,7 @@ export const isFQDN = (value, allowWildCard = false) => {
     return true
   const parts = value.split('.')
   const tld = parts.pop()
-  if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
+  if (!parts.length || !/^([a-z\u00a1-\uffff0-9]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
     return false
   }
   for (let i = 0; i < parts.length; i++) {
