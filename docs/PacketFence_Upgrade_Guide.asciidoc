@@ -835,6 +835,21 @@ For example: to open tcp port 123, and udp port 234 with interface the eth0 on f
 
 An example file is available [filename]`/usr/local/pf/conf/iptables-custom.conf.inc.example`.
 
+It is the same process for ip6tables.
+
+=== Get iptables and ip6tables custom code
+
+The following script will validate if custom template is used in iptables and ip6tables configurations.
+
+If a difference is found the current configuration will be saved in [filename]`/usr/local/pf/conf/iptables.conf.backup` and [filename]`/usr/local/pf/conf/ip6tables.conf.backup`.
+
+[source,bash]
+
+----
+/usr/local/pf/addons/upgrade/to-15.0-check-custom-iptables-configurations.sh
+----
+
+
 
 == Archived upgrade notes
 
