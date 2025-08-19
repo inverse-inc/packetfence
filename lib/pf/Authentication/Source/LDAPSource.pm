@@ -550,7 +550,7 @@ sub _match_in_subclass {
             # - posixGroup         => memberUid (uid)
             my $dn_search = escape_filter_value($dn);
             $filter = "(|(member=${dn_search})(uniqueMember=${dn_search})(memberUid=${attribute}))";
-            $logger->debug("[$self->{'id'} $rule->{'id'}] Searching is_member filter $filter");
+            $logger->info("[$self->{'id'} $rule->{'id'}] Searching is_member filter $filter");
             $result = $connection->search
               (
                base => $value,
