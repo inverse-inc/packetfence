@@ -16,7 +16,7 @@ BACKUP_DB_FILENAME='packetfence-db-dump-*'
 BACKUP_CONF_FILENAME='packetfence-conf-dump-*'
 
 echo "Search last database dump available."
-last_db_dump=`find /root/backup -name $BACKUP_DB_FILENAME -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+last_db_dump=`find /root/backup -name "$BACKUP_DB_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
 
 if [ -z "$last_db_dump" ]; then
   echo "Unable to find a database dump."
@@ -24,7 +24,7 @@ if [ -z "$last_db_dump" ]; then
 fi
 
 echo "Search last config dump available."
-last_conf_dump=`find /root/backup -name $BACKUP_CONF_FILENAME -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+last_conf_dump=`find /root/backup -name "$BACKUP_CONF_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
 
 if [ -z "$last_conf_dump" ]; then
   echo "Unable to find a config dump."
