@@ -991,7 +991,8 @@ sub iptables_pfdns_rules {
     }
     if ( @dns_ints ) {
         $chains->{name} = $service_name;
-        foreach my $tint ( @dns_ints ) {
+        foreach my $network ( @dns_ints ) {
+            my $tint =  $network->{Tint};
             util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
