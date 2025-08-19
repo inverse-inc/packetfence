@@ -19,6 +19,7 @@ export const internalTypes = {
 
 export const externalTypes = {
   Clickatell:     'Clickatell',
+  AllMySMS:       'AllMySMS',
   Email:          i18n.t('Email'),
   Facebook:       'Facebook',
   Github:         'Github',

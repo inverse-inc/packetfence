@@ -30,6 +30,7 @@ use pfappserver::Form::Config::Source::AzureAD;
 use pfappserver::Form::Config::Source::Blackhole;
 use pfappserver::Form::Config::Source::Authorization;
 use pfappserver::Form::Config::Source::Clickatell;
+use pfappserver::Form::Config::Source::AllMySMS;
 use pfappserver::Form::Config::Source::EAPTLS;
 use pfappserver::Form::Config::Source::Eduroam;
 use pfappserver::Form::Config::Source::EDIR;
@@ -65,6 +66,7 @@ our %TYPES_TO_FORMS = (
       AzureAD
       Blackhole
       Clickatell
+      AllMySMS
       EAPTLS
       Eduroam
       EDIR
