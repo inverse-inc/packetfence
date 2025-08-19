@@ -25,11 +25,8 @@ testcases:
 
 - name: reset_iptables_rules
   steps:
-  - type: exec
-    script: /usr/local/pf/addons/reset-iptables-rules-and-policies.sh
-  
-  - type: exec
-    script: systemctl restart packetfence-iptables
+  - type: pfcmd_reloadiptablesrules
+    extra: hard
 
 - name: ping_to_wan_should_work
   steps:
@@ -37,7 +34,6 @@ testcases:
     script: ping -c 1 -W 5 {{.fingerbank_proxy_test_wan_ip}}
     assertions:
     - result.code ShouldEqual 0
-
 
 - name: restart_collector_and_clear_cache
   steps:

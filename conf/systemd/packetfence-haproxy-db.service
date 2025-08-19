@@ -14,6 +14,9 @@ ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mp
 ExecReload=/bin/kill -USR2 $MAINPID
 Restart=on-failure
 SuccessExitStatus=143
+# iptables rules
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_haproxy_db_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_haproxy_db_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence-cluster.target

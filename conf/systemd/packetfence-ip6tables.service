@@ -1,16 +1,20 @@
 # Copyright (C) Inverse inc.
 [Unit]
-Description=PacketFence ip6tables configuration
+Description=PacketFence Iptables configuration
 Wants=packetfence-base.target packetfence-config.service
 After=packetfence-base.target packetfence-config.service
 
 [Service]
-StartLimitBurst=3
-StartLimitInterval=10
-ExecStart=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::ip6tables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::ip6tables->new()->startAndCheck()'
-ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ip6tables' -e 'pf::services::manager::ip6tables->new()->_stop()'
+Type=simple
+ExecStart=/usr/local/pf/sbin/ip6tables_monitor.pl
+ExecStop=/usr/bin/kill -TERM $MAINPID
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::ip6tables' -e 'pf::services::manager::ip6tables->new()->_stop()'
+KillSignal=TERM
+Restart=always
+RestartSec=5
 Slice=packetfence.slice
+# iptables rules
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::ip6tables -Mpf::config -e 'pf::ip6tables::ip6tables_services_rules("add")'
 
 [Install]
 WantedBy=packetfence.target
-

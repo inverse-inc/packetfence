@@ -3,9 +3,6 @@
 Description=PacketFence ProxySQL Load Balancer for connecting to clustered databases
 Before=packetfence-httpd.portal.service packetfence-api-frontend.service
 Wants=packetfence-config.service 
-Before=packetfence-docker-iptables.service
-Requires=packetfence-docker-iptables.service
-PartOf=packetfence-docker-iptables.service
 
 [Service]
 Type=notify
@@ -17,6 +14,9 @@ ExecStart=/usr/local/pf/sbin/proxysql-docker-wrapper
 ExecStop=/bin/bash -c "docker stop proxysql ; docker container rm proxysql -f ; echo Stopped"
 TimeoutStopSec=60
 Restart=on-failure
+# iptables rules
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_proxysql_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_proxysql_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence-cluster.target

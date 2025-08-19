@@ -1,0 +1,22 @@
+name: Do the backup and remove the test user
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_exportable_backup
+  steps:
+  - type: exec
+    script: /usr/local/pf/addons/exportable-backup.sh
+
+- name: delete_user_in_db
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/user/{{.backup_db_and_restore.user}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

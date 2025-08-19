@@ -17,7 +17,7 @@
 
     <form-group-passthrough namespace="passthrough"
                             :column-label="$i18n.t('Passthrough')"
-                            :text="$i18n.t('When enabled, PacketFence uses pfdns if you defined Passthroughs or Apache mod-proxy if you defined Proxy passthroughs to allow trapped devices to reach web sites. Modifying this parameter requires to restart pfdns and iptables to be fully effective.')"
+                            :text="$i18n.t('When enabled, PacketFence uses pfdns if you defined Passthroughs or Apache mod-proxy if you defined Proxy passthroughs to allow trapped devices to reach web sites. Modifying this parameter requires to restart pfdns to be fully effective.')"
                             enabled-value="enabled"
                             disabled-value="disabled"
     />
@@ -44,7 +44,7 @@
 
     <form-group-isolation-passthrough namespace="isolation_passthrough"
                                       :column-label="$i18n.t('Isolation Passthrough')"
-                                      :text="$i18n.t('When enabled, PacketFence uses pfdns if you defined Isolation Passthroughs to allow trapped devices in isolation state to reach web sites. Modifying this parameter requires to restart pfdns and iptables to be fully effective.')"
+                                      :text="$i18n.t('When enabled, PacketFence uses pfdns if you defined Isolation Passthroughs to allow trapped devices in isolation state to reach web sites. Modifying this parameter requires to restart pfdns to be fully effective.')"
                                       enabled-value="enabled"
                                       disabled-value="disabled"
     />

@@ -20,8 +20,6 @@ use pf::log;
 use pf::util;
 use pf::ip6tables;
 use pf::config qw(%Config);
-use pf::constants;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
 
 extends 'pf::services::manager';
 
@@ -31,22 +29,6 @@ has '+shouldCheckup' => ( default => sub { 1 }  );
 
 has 'runningServices' => (is => 'rw', default => sub { 0 } );
 
-
-=head2 start
-
-start ip6tables
-
-=cut
-
-sub startService {
-    my ($self) = @_;
-    unless ($self->isAlive()) {
-        pf::ip6tables->save($install_dir . '/var/ip6tables.bak');
-    }
-    pf::ip6tables->generate();
-    return $TRUE;
-}
-
 =head2
 
 generateConfig
@@ -54,56 +36,8 @@ generateConfig
 =cut
 
 sub generateConfig {
-    pf::ip6tables->generate();
-    return $TRUE;
-}
-
-=head2 start
-
-Wrapper around systemctl. systemctl should in turn call the actuall _start.
-
-=cut
-
-sub start {
-    my ($self,$quick) = @_;
-    system('sudo systemctl start packetfence-ip6tables');
-    return $? == $EXIT_SUCCESS;
-}
-
-=head2 _start
-
-start the service (called from systemd)
-
-=cut
-
-sub _start {
-    my ($self) = @_;
-    my $result = 0;
-    unless ( $self->isAlive() ) {
-        $result = $self->startService();
-    }
-    return $result;
-}
-
-sub startAndCheck {
-    my ($self) = @_;
-
-    while($TRUE) {
-        $self->_start() unless($self->isAlive());
-        sleep 60;
-    }
-}
-
-=head2 stop
-
-Wrapper around systemctl. systemctl should in turn call the actual _stop.
-
-=cut
-
-sub stop {
-    my ($self) = @_;
-    system('sudo systemctl stop packetfence-ip6tables');
-    return $TRUE;
+    pf::ip6tables::ip6tables_generate_config();
+    return 1;
 }
 
 =head2 _stop
@@ -115,25 +49,21 @@ stop ip6tables (called from systemd)
 sub _stop {
     my ($self) = @_;
     my $logger = get_logger();
-    pf::ip6tables->restore( $install_dir . '/var/ip6tables.bak' );
-    return $TRUE;
+    pf::ip6tables::ip6tables_flush_to_default();
+    return 1;
 }
 
 =head2 isAlive
 
 Check if ip6tables is alive.
-Since it's never really stopped then we check if the fake PID exists
 
 =cut
 
 sub isAlive {
     my ($self) = @_;
     my $logger = get_logger();
-    my $result;
-    my $pid = $self->pid;
-    my $_EXIT_CODE_EXISTS = "$EXIT_SUCCESS";
     my $rules = safe_pf_run('sudo', $Config{'services'}{"ip6tables_binary"}, '-S') // '';
-    return ($pid && $rules =~ /\Q$pf::ip6tables::FW_FILTER_INPUT_MGMT\E/m) ? $TRUE : $FALSE;
+    return ($rules =~ /\Q$pf::ip6tables::FW_FILTER_INPUT_MGMT\E/m) ? 1 : 0;
 }
 
 =head1 AUTHOR

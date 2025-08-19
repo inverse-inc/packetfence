@@ -111,9 +111,10 @@ Check the 'Passthrough' box above the field and add the following domains to the
 
 ===== Restart PacketFence
 
-In order to enable the boarding passthrough for the device enrollment, you will need to restart the iptables service of PacketFence.
-
-You can do this using the command line by doing '/usr/local/pf/bin/pfcmd service iptables restart' or in the administration interface under 'Status / Services'.
+Then run the following commands so that passthroughs become effective:
+ 
+ /usr/local/pf/bin/pfcmd configreload hard
+ /usr/local/pf/bin/pfcmd service pfdns restart
 
 ==== Testing
 
