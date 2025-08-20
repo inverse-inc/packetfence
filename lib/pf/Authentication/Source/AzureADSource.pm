@@ -89,7 +89,7 @@ sub build_user_groups_url {
 }
 
 sub build_scope_url {
-    my ($self, $username) = @_;
+    my ($self) = @_;
     my $url = $self->graph_url;
     return "$url/.default";
 }
