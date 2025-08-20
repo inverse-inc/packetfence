@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-azure ad -
+Azure AD Configuration Migration Script - Migrates and updates Azure AD authentication configuration entries
 
 =head1 DESCRIPTION
 
