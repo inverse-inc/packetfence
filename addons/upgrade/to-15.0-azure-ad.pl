@@ -42,7 +42,7 @@ for my $section ($ini->Sections) {
 if ($changed) {
     $ini->RewriteConfig();
 } else {
-    print "Nothing to do\n"
+    print "Nothing to do\n";
 }
 
 =head1 AUTHOR
