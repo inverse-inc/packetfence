@@ -495,8 +495,8 @@ cp -r addons/AD/* %{buildroot}/usr/local/pf/addons/AD/
 cp -r addons/monit/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/stress-tester/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/ntlm-auth-api/ %{buildroot}/usr/local/pf/addons/
-cp addons/full-import/*.sh %{buildroot}/usr/local/pf/addons/full-import/
-cp addons/full-import/*.pl %{buildroot}/usr/local/pf/addons/full-import/
+#cp addons/full-import/*.sh %{buildroot}/usr/local/pf/addons/full-import/
+#cp addons/full-import/*.pl %{buildroot}/usr/local/pf/addons/full-import/
 cp addons/functions/*.functions %{buildroot}/usr/local/pf/addons/functions/
 cp addons/*.pl %{buildroot}/usr/local/pf/addons/
 cp addons/*.sh %{buildroot}/usr/local/pf/addons/
