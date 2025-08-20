@@ -797,6 +797,10 @@ follow the upgrade instructions <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_st
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Pre-upgrade
+
+Due to mariadb upgrade on PacketFence 14.x, upgrading to Packetfence version 14.1 is mandatory before upgrading to 15.0.
+
 === Custom Iptables Rules
 
 The hosts iptables rules are dynamically created, and custom rules should be migrated before resarting any services.
