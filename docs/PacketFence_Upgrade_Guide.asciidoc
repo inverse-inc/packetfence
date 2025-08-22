@@ -799,7 +799,7 @@ follow the upgrade instructions <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_st
 
 === Pre-upgrade
 
-Due to mariadb upgrade on PacketFence 14.x, upgrading to Packetfence version 14.1 is mandatory before upgrading to 15.0.
+Due to OS (from Debian 11 to Debian 12) and mariadb upgrades on PacketFence 14.x, upgrading to Packetfence version 14.1 is mandatory before upgrading to 15.0.
 
 === Custom Iptables Rules
 
