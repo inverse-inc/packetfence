@@ -22,7 +22,7 @@ export default class CustomFormatter {
     let fn = this._caches[escaped]
     if (!fn) {
       // no cache, compile once
-      fn = this._formatter.compile(escaped, this._locale)
+      fn = this._formatter.compile(message, this._locale)
       // cache
       this._caches[escaped] = fn
     }
