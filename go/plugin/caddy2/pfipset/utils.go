@@ -128,41 +128,65 @@ func listAll() ([]ipset.SetPolicy, error) {
 // initIPSet fetch the database to remove already assigned ip addresses
 func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	logger := log.LoggerWContext(ctx)
-
-	IPSET.ListALL, _ = listAll()
-	rows, err := db.Query("select distinct n.mac, i.ip, n.category_id as node_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW() ")
+	macCursor := "00:00:00:00:00:00"
+	stmt, err := db.PrepareContext(
+		ctx,
+		`
+		SELECT DISTINCT n.mac, i.ip, n.category_id AS role_id
+		FROM node AS n LEFT JOIN locationlog AS l ON n.mac=l.mac LEFT JOIN ip4log AS i ON n.mac=i.mac
+		WHERE l.connection_type = "inline" and n.status="reg" and n.mac=i.mac and i.end_time > NOW() and mac > ?
+		ORDER BY n.mac
+		LIMIT 100
+		`,
+	)
 	if err != nil {
 		// Log here
-		logger.Error("Error while fetching the inline nodes in the database: " + err.Error())
+		logger.Error("Error while preparing statemen : " + err.Error())
 		return
 	}
-	defer rows.Close()
-	var (
-		IpStr  string
-		Mac    string
-		NodeId string
-	)
-	for rows.Next() {
-		err := rows.Scan(&Mac, &IpStr, &NodeId)
+
+	IPSET.ListALL, _ = listAll()
+	for {
+		rows, err := stmt.QueryContext(ctx, macCursor)
 		if err != nil {
 			// Log here
-			logger.Error(err.Error())
+			logger.Error("Error while fetching the inline nodes in the database: " + err.Error())
 			return
 		}
-		mac, _ := mac.NewFromString(Mac)
-		for k, v := range IPSET.Network {
-			ip := net.ParseIP(IpStr)
-			if k.Contains(ip) {
-				if v == "inlinel2" {
-					IPSET.IPSEThandleLayer2(ctx, ip, mac, k.IP.String(), "Reg", NodeId)
-					IPSET.IPSEThandleMarkIpL2(ctx, ip, k.IP.String(), NodeId)
-				}
-				if v == "inlinel3" {
-					IPSET.IPSEThandleLayer3(ctx, ip, k.IP.String(), "Reg", NodeId)
-					IPSET.IPSEThandleMarkIpL3(ctx, ip, k.IP.String(), NodeId)
-				}
-				break
+		defer rows.Close()
+		var (
+			IpStr  string
+			Mac    string
+			RoleId string
+		)
+		count := 0
+		for rows.Next() {
+			count++
+			err := rows.Scan(&Mac, &IpStr, &RoleId)
+			if err != nil {
+				// Log here
+				logger.Error(err.Error())
+				return
 			}
+			macCursor = Mac
+			mac, _ := mac.NewFromString(Mac)
+			for k, v := range IPSET.Network {
+				ip := net.ParseIP(IpStr)
+				if k.Contains(ip) {
+					switch v {
+					case "inlinel2":
+						IPSET.IPSEThandleLayer2(ctx, ip, mac, k.IP.String(), "Reg", RoleId)
+						IPSET.IPSEThandleMarkIpL2(ctx, ip, k.IP.String(), RoleId)
+					case "inlinel3":
+						IPSET.IPSEThandleLayer3(ctx, ip, k.IP.String(), "Reg", RoleId)
+						IPSET.IPSEThandleMarkIpL3(ctx, ip, k.IP.String(), RoleId)
+					}
+					break
+				}
+			}
+		}
+		if count == 0 {
+			break
 		}
 	}
 }
