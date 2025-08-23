@@ -21,7 +21,7 @@
     "lodash": "^4.17.21",
     "messageformat": "^2.3.0",
     "mime-types": "^2.1.35",
-    "mixpanel-browser": "^2.56.0",
+    "mixpanel-browser": "^2.69.0",
     "papaparse": "5.4.1",
     "pinia": "^2.2.6",
     "plotly.js-locales": "^2.35.2",
