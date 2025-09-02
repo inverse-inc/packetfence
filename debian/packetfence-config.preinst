@@ -93,7 +93,6 @@ case "$1" in
         if [ -d "/usr/local/pf/var/cache/pfconfig" ] ; then
                 rm -fr /usr/local/pf/var/cache/pfconfig/
         fi
-        set_uid_gid "pf" 2025
         exit 0
     ;;
     abort-upgrade)

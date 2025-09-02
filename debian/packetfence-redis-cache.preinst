@@ -91,7 +91,6 @@ case "$1" in
         set +e 
         /usr/sbin/update-rc.d -f packetfence-redis-cache remove
         set -e 
-        set_uid_gid "pf" 2025
         exit 0
     ;;
     abort-upgrade)

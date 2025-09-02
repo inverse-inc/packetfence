@@ -86,7 +86,6 @@ case "$1" in
         for i in `find $FINGERBANK -type d`; do \
             chmod 2775 $i; \
         done
-        set_uid_gid "fingerbank" 2026
     ;;
     abort-upgrade)
     ;;
