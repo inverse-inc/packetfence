@@ -215,7 +215,7 @@ There are two use cases:
 
 If you have lost your CSR, you will need to restart the process from the bottom, please restart from here <<_you_need_a_certificate>> 
 
-=== Renewal of your certificate when its signed by the PF_PKI
+=== Renew a certificate signed by the PF_PKI
 
 The following steps explains how to renew HTTP/Radius certificates in PacketFence when they are signed by **PF-PKI**.
 
