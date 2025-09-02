@@ -65,6 +65,8 @@ case "$1" in
                 echo "pf user already exist"
         fi
         usermod pf -a -G fingerbank
+        usermod -u 2025 pf
+        groupmod -g 2025 pf
         usermod -aG pf mysql
 
         # prevent conflicting mariadb service from starting
@@ -112,6 +114,8 @@ case "$1" in
 
         #Change the uid/gid
         set +e
+        usermod -u 2025 pf
+        groupmod -g 2025 pf
         id=$(/usr/bin/id -g pf)
         find /usr/local/pf/ -group $id -exec chgrp -h pf {} \;
         id=$(/usr/bin/id -u pf)

@@ -20,6 +20,55 @@ stop_service_if_exists() {
     fi
 }
 
+stop_user_processes() {
+    local username="$1"
+    local running_processes=$(pgrep -u "$username" 2>/dev/null)
+
+    if [[ -z "$running_processes" ]]; then
+        echo "No processes found running as user '$username'"
+        return 0
+    fi
+
+    ps -u "$username" -o pid,comm,args
+    echo "Stopping processes gracefully..."
+    pkill -TERM -u "$username" 2>/dev/null
+    sleep 2
+
+    remaining_processes=$(pgrep -u "$username" 2>/dev/null)
+    if [[ -n "$remaining_processes" ]]; then
+        echo "Force stopping remaining processes..."
+        pkill -KILL -u "$username" 2>/dev/null
+        sleep 2
+    fi
+
+    if pgrep -u "$username" &>/dev/null; then
+        echo "Error: Could not stop all processes for user '$username'"
+        return 1
+    fi
+
+    echo "All processes for user '$username' have been stopped"
+    return 0
+}
+
+set_uid_gid() {
+    local username="$1"
+    local pgid="$2"
+
+    stop_user_processes "$username"
+
+    local user_uid=$(id -u "$username")
+    local user_gid=$(id -g "$username")
+
+    if [[ "$user_uid" -eq $pgid && "$user_gid" -eq $pgid ]]; then
+        echo "User '$username' has both UID and GID equal to $pgid"
+        return 0
+    else
+        usermod  -u $pgid $username
+        groupmod -g $pgid $username
+        return 1
+    fi
+}
+
 case "$1" in
     install)
         if [ -z "$(getent passwd fingerbank)" ]; then
@@ -28,6 +77,7 @@ case "$1" in
         else
                 echo "fingerbank user already exist"
         fi
+        set_uid_gid "fingerbank" 2026
         exit 0
     ;;
     
@@ -36,6 +86,7 @@ case "$1" in
         for i in `find $FINGERBANK -type d`; do \
             chmod 2775 $i; \
         done
+        set_uid_gid "fingerbank" 2026
     ;;
     abort-upgrade)
     ;;

@@ -21,6 +21,55 @@ stop_service_if_exists() {
     fi
 }
 
+stop_user_processes() {
+    local username="$1"
+    local running_processes=$(pgrep -u "$username" 2>/dev/null)
+
+    if [[ -z "$running_processes" ]]; then
+        echo "No processes found running as user '$username'"
+        return 0
+    fi
+
+    ps -u "$username" -o pid,comm,args
+    echo "Stopping processes gracefully..."
+    pkill -TERM -u "$username" 2>/dev/null
+    sleep 2
+
+    remaining_processes=$(pgrep -u "$username" 2>/dev/null)
+    if [[ -n "$remaining_processes" ]]; then
+        echo "Force stopping remaining processes..."
+        pkill -KILL -u "$username" 2>/dev/null
+        sleep 2
+    fi
+
+    if pgrep -u "$username" &>/dev/null; then
+        echo "Error: Could not stop all processes for user '$username'"
+        return 1
+    fi
+
+    echo "All processes for user '$username' have been stopped"
+    return 0
+}
+
+set_uid_gid() {
+    local username="$1"
+    local pgid="$2"
+
+    stop_user_processes "$username"
+
+    local user_uid=$(id -u "$username")
+    local user_gid=$(id -g "$username")
+
+    if [[ "$user_uid" -eq $pgid && "$user_gid" -eq $pgid ]]; then
+        echo "User '$username' has both UID and GID equal to $pgid"
+        return 0
+    else
+        usermod  -u $pgid $username
+        groupmod -g $pgid $username
+        return 1
+    fi
+}
+
 
 case "$1" in
     install)
@@ -34,6 +83,7 @@ case "$1" in
             fi
             echo "create pf user"
         fi
+        set_uid_gid "pf" 2025
         exit 0
     ;;
     upgrade)
@@ -41,6 +91,7 @@ case "$1" in
         set +e 
         /usr/sbin/update-rc.d -f packetfence-redis-cache remove
         set -e 
+        set_uid_gid "pf" 2025
         exit 0
     ;;
     abort-upgrade)
