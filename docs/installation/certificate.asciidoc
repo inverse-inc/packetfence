@@ -215,6 +215,51 @@ There are two use cases:
 
 If you have lost your CSR, you will need to restart the process from the bottom, please restart from here <<_you_need_a_certificate>> 
 
+=== Renewal of your certificate when its signed by the PF_PKI
+
+The following steps explains how to renew HTTP/Radius certificates in PacketFence when they are signed by **PF-PKI**.
+
+- Locate the Certificate:
+       *  Go to **Configuration → Integration → PKI → Certificates**.  
+       *  Search using the **Common Name (CN)** of the certificate.  
+
+image::certificate/31_Host_cert.jpg[scaledwidth="100%",alt="Host Serach in PKI"]
+
+
+- Open and Resign the Certificate:
+      *  Open the certificate entry.  
+      *  Click **Resign**.  
+
+image::certificate/32_Resign_Option.jpg[scaledwidth="100%",alt="Click on Resign"]
+
+
+- Fill the Resign Form:
+       *  Keep the same details (CN, Email, etc.) as the existing certificate.  
+       *  Click **Resign** to generate a renewed certificate.  
+
+image::certificate/33_Resign_Form.jpg[scaledwidth="100%",alt="Resign Form"]
+
+
+- Copy the Renewed Certificate:
+       * After resigning, copy the updated certificate.  
+
+image::certificate/34_Copy_Renewed_cert.jpg[scaledwidth="100%",alt="Copy the renewed Cert"]
+
+
+- To Apply the Certificate:
+       * Go to **Configuration → System Configuration → SSL Certificates**, paste the renewed certificate into the HTTP or RADIUS section, and save.
+
+image::certificate/35_Paste_cert_SSL_Certificate.jpg[scaledwidth="100%",alt="Paste the new Cert"]
+
+NOTE: If the previous certificate was signed by the same **PF-PKI**, you do **not** need to replace the **Private Key** or **Intermediate CA Certificate.
+
+
+- Restart the appropriate services for the changes to take effect from the PacketFence UI:  
+      *  Restart **haproxy-admin** and **haproxy-portal** if it’s the HTTP certificate.  
+      *  Restart **radiusd-auth** if it’s the Radius certificate.
+
+---
+
 === Useful commands
 
 If you have created your own certificate without using PacketFence for the CSR, you may need to extract the key and the certificate from the file.
