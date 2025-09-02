@@ -47,6 +47,11 @@
         state: replaced[% END %]
       when: ansible_network_os == 'arista.eos.eos'
 
+    - name: Load new acl into Aruba Controler
+      community.network.aruba_command:
+         src: "{{ acl_config }}"
+      when: ansible_network_os == 'community.network.aruba_command'
+
 [% FOREACH role IN interfaces_delete.keys %]
 [% FOREACH interface IN interfaces_delete.$role %]
     - name: remove acl on interface
