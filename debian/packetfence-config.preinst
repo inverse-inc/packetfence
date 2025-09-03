@@ -60,7 +60,7 @@ set_uid_gid() {
     local user_uid=$(id -u "$username")
     local user_gid=$(id -g "$username")
 
-    if [ "$user_uid" -eq $pgid && "$user_gid" -eq $pgid ]; then
+    if [ "$user_uid" -eq $pgid ] && [ "$user_gid" -eq $pgid ]; then
         echo "User '$username' has both UID and GID equal to $pgid"
         return 0
     else
