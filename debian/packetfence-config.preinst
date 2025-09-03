@@ -49,16 +49,16 @@ set_uid_gid() {
     local username="$1"
     local pgid="$2"
 
-    stop_user_processes "$username"
-
     local user_uid=$(id -u "$username")
     local user_gid=$(id -g "$username")
 
     if [ "$user_uid" -eq $pgid ] && [ "$user_gid" -eq $pgid ]; then
         echo "User '$username' has both UID and GID equal to $pgid"
     else
+        stop_user_processes "$username"
         usermod  -u $pgid $username
         groupmod -g $pgid $username
+        echo "User '$username' has NOW both UID and GID equal to $pgid"
     fi
     return 0
 }
