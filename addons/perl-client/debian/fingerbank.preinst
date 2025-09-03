@@ -26,27 +26,21 @@ stop_user_processes() {
 
     if [ -z "$running_processes" ]; then
         echo "No processes found running as user '$username'"
-        return 0
-    fi
-
-    ps -u "$username" -o pid,comm,args
-    echo "Stopping processes gracefully..."
-    pkill -TERM -u "$username" 2>/dev/null
-    sleep 2
-
-    remaining_processes=$(pgrep -u "$username" 2>/dev/null)
-    if [ -n "$remaining_processes" ]; then
-        echo "Force stopping remaining processes..."
-        pkill -KILL -u "$username" 2>/dev/null
+    else
+        echo "Stopping processes gracefully..."
+        pkill -TERM -u "$username" 2>/dev/null
         sleep 2
+        remaining_processes=$(pgrep -u "$username" 2>/dev/null)
+        if [ -n "$remaining_processes" ]; then
+            echo "Force stopping remaining processes..."
+            pkill -KILL -u "$username" 2>/dev/null
+            sleep 2
+        fi
+        if pgrep -u "$username" &>/dev/null; then
+            echo "Error: Could not stop all processes for user '$username'"
+        fi
+        echo "All processes for user '$username' have been stopped"
     fi
-
-    if pgrep -u "$username" &>/dev/null; then
-        echo "Error: Could not stop all processes for user '$username'"
-        return 1
-    fi
-
-    echo "All processes for user '$username' have been stopped"
     return 0
 }
 
@@ -61,12 +55,11 @@ set_uid_gid() {
 
     if [ "$user_uid" -eq $pgid ] && [ "$user_gid" -eq $pgid ]; then
         echo "User '$username' has both UID and GID equal to $pgid"
-        return 0
     else
         usermod  -u $pgid $username
         groupmod -g $pgid $username
-        return 1
     fi
+    return 0
 }
 
 case "$1" in
