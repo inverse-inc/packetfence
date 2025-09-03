@@ -73,7 +73,7 @@ if [ "$PF_NEEDED" = true ] || [ "$FB_NEEDED" = true ]; then
     else
         echo "No -f argument provided."
         read -p "Do you want to continue with -f mode? (yes/no): " user_response
-    
+
         case $(echo "$user_response" | tr '[:upper:]' '[:lower:]') in
             yes|y)
                 USE_F_MODE=true
