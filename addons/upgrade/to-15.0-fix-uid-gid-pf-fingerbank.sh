@@ -3,8 +3,8 @@
 USE_F_MODE=false
 PF_ID=2025
 FB_ID=2026
-PF_NEEDED=true
-FB_NEEDED=true
+PF_NEEDED=false
+FB_NEEDED=false
 
 stop_user_processes() {
     local username="$1"
