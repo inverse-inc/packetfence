@@ -6,6 +6,18 @@ FB_ID=2026
 PF_NEEDED=false
 FB_NEEDED=false
 
+wait_for_service() {
+    local service=$1
+    local max_attempts=10
+    for i in $(seq 1 $max_attempts); do
+        if systemctl is-active --quiet "$service"; then
+            return 0
+        fi
+        sleep 1
+    done
+    return 1
+}
+
 stop_user_processes() {
     local username="$1"
     local running_processes=$(pgrep -u "$username" 2>/dev/null)
@@ -54,7 +66,7 @@ check_uid_gid() {
         echo "User '$username' has both UID and GID equal to $pgid"
         return 1
     else
-        echo "Not the good uid/gid, need to be modified"
+        echo "User '$username' does not have the good uid/gid, it will be modified."
         return 0
     fi
 }
@@ -68,11 +80,12 @@ if check_uid_gid "fingerbank" $FB_ID; then
 fi
 
 if [ "$PF_NEEDED" = true ] || [ "$FB_NEEDED" = true ]; then
-    if [[ " $@ " =~ " -f " ]]; then
+    if [[ " $@ " =~ " -y " ]]; then
         USE_F_MODE=true
     else
-        echo "No -f argument provided."
-        read -p "Do you want to continue with -f mode? (yes/no): " user_response
+        echo "No -y argument provided. The -y argument will bypass that question."
+        echo -e "Script steps will be:\n\t1) stopping services\n\t2) apply new uid and gid\n\t3) restart services."
+        read -p "Do you want to continue the script? (yes/no):" user_response
 
         case $(echo "$user_response" | tr '[:upper:]' '[:lower:]') in
             yes|y)
@@ -115,12 +128,18 @@ if [ "$FB_NEEDED" = true ]; then
     echo "uid and gid for fingerbank have been applied."
 fi
 
-systemctl start packetfence-config
-echo "Service packetfence-config have been restarted"
-
 /usr/local/pf/bin/pfcmd fixpermissions
 chown pf:pf /usr/local/pf/logs/*
 echo "Permissions with new uid and gid are fixed"
+
+systemctl start packetfence-config
+if wait_for_service "packetfence-config" ; then
+    echo "Service packetfence-config have been restarted"
+else
+    echo "Service packetfence-config is not active."
+    echo "A manual restart and perhaps fix is needed."
+    exit 1
+fi
 
 /usr/local/pf/bin/pfcmd service pf restart
 echo "Services have been restarted. Packetfence should be back online."
