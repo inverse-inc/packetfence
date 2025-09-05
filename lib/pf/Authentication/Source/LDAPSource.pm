@@ -731,7 +731,7 @@ sub search_attributes_in_subclass {
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 6});
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (!defined($connection)) {
-      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+      return $FALSE;
     }
 
     my $searchresult = $connection->search(
@@ -740,11 +740,11 @@ sub search_attributes_in_subclass {
     );
     if ($searchresult->is_error()) {
       $logger->error("Unable to locate user '$username'");
-      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+      return $FALSE;
     }
     if ($searchresult->count == 0) {
       $logger->error("Unable to locate user '$username'");
-      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+      return $FALSE;
     }
     my $entry = $searchresult->entry();
 
