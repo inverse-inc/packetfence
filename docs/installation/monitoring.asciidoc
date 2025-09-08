@@ -39,6 +39,7 @@ vi /usr/local/pf/conf/monitoring/netdata.conf
 The dashboard diplays the metrics collected by pfstats for the unregistration/registration status of all nodes managed by PacketFence. These metrics are common across all cluster members, therefore a complete view is displayed from any host that is a member of the same cluster.
 
 [#netdata-cloud-dashboard-monitoring]
+[open]
 .Monitoring
 
 ====
