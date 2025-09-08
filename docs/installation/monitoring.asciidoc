@@ -41,11 +41,9 @@ vi /usr/local/pf/conf/monitoring/netdata.conf
 The dashboard diplays the metrics collected by pfstats for the unregistration/registration status of all nodes managed by PacketFence. These metrics are common across all cluster members, therefore a complete view is displayed from any host that is a member of the same cluster.
 
 [#netdata-cloud-dashboard-monitoring]
-[open]
-.Monitoring
-
+[NOTE]
 ====
-The monitoring section displays the metrics collected by netdata for the health of the system. Wether the setup is standalone, or a cluster, a section is dedicated to each host in the deployment. When using one host to view metrics from another, the external host must be up and running.
+Monitoring: The monitoring section displays the metrics collected by netdata for the health of the system. Wether the setup is standalone, or a cluster, a section is dedicated to each host in the deployment. When using one host to view metrics from another, the external host must be up and running.
 ====
 
 The User Interface (Web Admin) now includes:
