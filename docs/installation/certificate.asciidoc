@@ -38,17 +38,16 @@ Before addressing the implementation and management of SSL/TLS certificates, it 
 - Private key: an encryption key used to protect confidential information, known only to the certificate owner.
 - Public key: an encryption key used to decrypt information encrypted using the private key, known to all users.
 
-By understanding these basic concepts, you will be better tooled to understand and implement SSL/TLS certificates for the captive web portal and RADIUS.
+These basic concepts will help to understand and implement SSL/TLS certificates for the captive web portal and RADIUS.
 
 ==== Important notes before starting
 
 This documentation concerns PacketFence v11.2 and later.
 
-Wildcard certificate is strictly restricted to HTTP, you can't use this type of certificate for RADIUS. 
-If you plan to implement certificate for HTTP and RADIUS, we recommend you to use only one certificate to facilitate management of these.
+Wildcard certificate is strictly restricted to HTTP. Note: this type of certificate can not be used for RADIUS.
+To implement certificate for HTTP and RADIUS, it is recommended to use only one certificate for both of them in order to facilitate their management.
 
-
-=== You need a certificate
+=== Why a certificate
 
 ==== Generate a Certificate Signing Request (CSR)
 
@@ -56,9 +55,9 @@ To implement an SSL/TLS certificate for HTTP (captive web portal + web admin) an
 
 [NOTE]
 ====
-Generating a CSR from HTTP or RADIUS is strictly the same. If you intend to add a certificate for both HTTP and RADIUS, you only need one CSR. In this case, you will need to use the same private key for both HTTP and RADIUS.
+Generating a CSR from HTTP or RADIUS is strictly the same. One CSR is needed to add a certificate for both HTTP and RADIUS. In this case, the same private key can be used for HTTP and RADIUS.
 
-Example: If you generate the CSR through HTTP, copy the HTTPs server private key to the RADIUS server private key. You will find the private key on the web admin _Configuration -> System Configuration -> SSL Certificates -> Edit HTTP Certificates_
+Example: If the CSR is generated through HTTP, copy the HTTPs server private key to the RADIUS server private key. The private key can be found on the web admin _Configuration -> System Configuration -> SSL Certificates -> Edit HTTP Certificates_
 ====
 
 - Log on the admin web interface (GUI)
@@ -69,18 +68,20 @@ image::certificate/14-HTTP-CSR.png[scaledwidth="100%",alt="CSR"]
 
 - Click on “Generate Signing Request (CSR)
 
-- Complete the following using your own information
+- Complete the following using personal information
 
 image::certificate/16-CSR.png[scaledwidth="100%",alt="CSR"]
 
-WARNING: This capture have been made on PacketFence v13. If you are using a lower version (not under v11.2) Subject Alternative Names will be automatically generated from Common Name field.
+[WARNING]
+====
+This capture have been made on PacketFence v13. If Packetfence Version is a lower version (not under v11.2), Subject Alternative Names will be automatically generated from Common Name field.
+====
 
-
-- Save the CSR to a secure location, you will need it to renew your certificate.
+- Save the CSR to a secure location, it is a requierement to renew a certificate.
 
 ==== Submit the CSR to a Certificate Authority (CA)
 
-Once you have generated the CSR, the next step is to submit it to a Certificate Authority (CA) for validation and issuance of the SSL/TLS certificate. There are many CAs to choose from, and it is important to select a reputable one that is trusted by major web browsers.
+Once the CSR is generated, the next step is to submit it to a Certificate Authority (CA) for validation and issuance of the SSL/TLS certificate. There are many CAs to choose from, and it is important to select a reputable one that is trusted by major web browsers.
 
 To submit the CSR to a CA, follow these steps:
 
@@ -88,7 +89,7 @@ To submit the CSR to a CA, follow these steps:
 
 - The Subject Alternative Name must exactly match the captive portal FQDN in _Configuration -> System Configuration -> General Configuration_.
 
-- Ensure that your CA supports X509 in base 64 format.
+- Ensure that the selected Certificate Authority (CA) supports X509 in base 64 format.
 
 - Provide the CSR and any other required information, such as payment and proof of identity.
 
@@ -96,17 +97,20 @@ To submit the CSR to a CA, follow these steps:
 
 - Download the certificate in Apache format (base 64).
 
-In the event that you have a choice between several types of certificates, like in the following example:
+In the event that several types of certificates are offered, like in the following example:
 
 image::certificate/18-Choice.png[scalewidth="100%",alt="Choice"]
 
 Choose `as Certificate (w/ issuer after), PEM encoded:`
 
-Note that it can be different from one issuer to another.
+[Note]
+====
+It can be different from one issuer to another.
+====
 
 ==== Install the SSL/TLS HTTP Certificate on the Server
 
-Once you have received the SSL/TLS certificate from the CA, the final step is to install it on PacketFence. This involves configuring the web server to use the SSL/TLS certificate for encrypted communications.
+Once the SSL/TLS certificate is received from the Certificate Authority (CA), the final step is to install it on PacketFence. This involves configuring the web server to use the SSL/TLS certificate for encrypted communications.
 
 To install the SSL/TLS certificate, follow these steps:
 
@@ -116,7 +120,7 @@ To install the SSL/TLS certificate, follow these steps:
 
 image::certificate/1-HTTP.png[scaledwidth="100%",alt="HTTP"]
 
-- Import or open your certificate file (.crt) with a text editor and copy/paste the content into the "HTTPs Server Certificate" field.
+- Import or open the certificate file (.crt) with a text editor and copy/paste the content into the "HTTPs Server Certificate" field.
 
 image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Certificate"]
 
@@ -124,24 +128,27 @@ image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Certificate"]
 
 image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Intermediate chain"]
 
-- Restart `haproxy-admin` and `haproxy-portal`, one server at a time. You can do this through the web admin page: _Status -> Services_ .
+- Restart `haproxy-admin` and `haproxy-portal`, one server at a time. This can be done through the web admin page: _Status -> Services_ .
 
 image::certificate/5-Services.png[scaledwidth="100%",alt="Services"]
 
-Alternatively, you can use the CLI with the following commands:
+Alternatively, one server at a time, the following CLI commands can be run on each servers:
 [source, shell]
 ----
 systemctl restart packetfence-haproxy-admin
 systemctl restart packetfence-haproxy-portal
 ----
 
-By following these steps, you can implement an SSL/TLS certificate for HTTP (captive web portal + web admin) and provide a secure connection for user authentication.
+By following these steps, a SSL/TLS certificate for HTTP (captive web portal + web admin) has been implemented and provide a secure connection for user authentication.
 
 ==== Install the SSL/TLS RADIUS Certificate on the Server
 
-Once you have received the SSL/TLS certificate from the Certificate Authority (CA), the final step is to install it on the RADIUS server. This involves configuring the RADIUS server to use the SSL/TLS certificate for encrypted communications.
+Once the SSL/TLS certificate is received from the Certificate Authority (CA), the final step is to install it on the RADIUS server. This involves configuring the RADIUS server to use the SSL/TLS certificate for encrypted communications.
 
-WARNING: Wildcard certificate is strictly restricted to HTTP, you can’t use this type of certificate for RADIUS.
+[WARNING]
+====
+Wildcard certificate is strictly restricted to HTTP, it can’t be used for RADIUS.
+====
 
 To install the SSL/TLS certificate on the RADIUS server, follow these steps:
 
@@ -151,7 +158,7 @@ To install the SSL/TLS certificate on the RADIUS server, follow these steps:
 
 image::certificate/7-Radius-edit.png[scaledwidth="100%",alt="Radius edit"]
 
-- Import or open your certificate file (.crt) with a text editor, then copy and paste the key into the "RADIUS Server Certificate" field.
+- Import or open the certificate file (.crt) with a text editor, then copy and paste the key into the "RADIUS Server Certificate" field.
 
 image::certificate/8-Radius-certificate.png[scaledwidth="100%",alt="Radius certificate"]
 
@@ -159,32 +166,34 @@ image::certificate/8-Radius-certificate.png[scaledwidth="100%",alt="Radius certi
 
 image::certificate/13-Radius-intermediate-chain.png[scaledwidth="100%",alt="Radius chain"]
 
-NOTE: If you are using a private certificate that is not signed by a public certification authority, disable "Find RADIUS Server intermediate CA(s) automatically" and add manually your "Intermediate CA certificate(s)"  
+[NOTE]
+====
+If a private certificate (that is not signed by a public Certification Authority CA) is used, disable "Find RADIUS Server intermediate CA(s) automatically" and add manually all needed "Intermediate CA certificate(s)"
+====
 
 - Restart all `radiusd` services that are running, including `radius-auth`, `radiusd-load-balancer`, `radiusd-acct`, `radiusd-eduroam`, and `radiusd-cli`. Restart them one server at a time. On the web admin page, go to _Status -> Services_.
 
 image::certificate/11-Services.png[scaledwidth="100%",alt="Services"]
 
-Alternatively, you can use the following commands in the command-line interface (CLI):
+Alternatively, one server at a time, the following CLI commands can be run on each servers:
 
 [source, shell]
 ----
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
-=== You already have an existing certificate
+=== From an existing certificate
 
-If you already have an existing certificate, you need to have two
-dedicated files: a certificate in base64 and a private key. If you
-only have one file which contains certificate and private key, you
-need to extract them using command you can find here
-<<_useful_commands>>.
+If an existing certificate is already used, then there is already two dedicated files:
+ - a certificate in base64
+ - a private key
+If the certificate and the private key are in one file, it is possible to extract them with command lines avaiable here: <<_useful_commands>>.
 
 ==== Install the SSL/TLS HTTP Certificate on the server
 
 Follow the same step of <<_install_the_ssltls_http_certificate_on_the_server>> but before saving the configuration and restarting the services  add this step:
 
-- Import or open your private key file (.key) and copy/paste the content into the `HTTP Server Private Key` field.
+- Import or open the private key file (.key) and copy/paste the content into the `RADIUS Server Private Key` field.
 
 image::certificate/3-HTTP-Private-key.png[scaledwidth="100%",alt="Private key"]
 
@@ -198,22 +207,22 @@ Follow the same step of <<_install_the_ssltls_radius_certificate_on_the_server>>
 image::certificate/9-Radius-key.png[scaledwidth="100%",alt="Radius key"]
 
 
-=== Renewal of your certificate if you already have your CSR
+=== Renewal certificate with a CSR
 
-When you renew your certificate, you can reuse an existing CSR.
+When it is time to renew a certificate, it is possible to reuse an existing CSR.
+
 There are two use cases:
 
- * You generated your CSR using PacketFence web admin, you need to follow these instructions under *You need a certificate* section:
+ * The CSR has been generated from PacketFence web admin, then follow these instructions under *Why a certificate* section:
  ** <<_install_the_ssltls_http_certificate_on_the_server>>
  ** <<_install_the_ssltls_radius_certificate_on_the_server>>
- * You generated your CSR using another tool, you need to follow these instructions under *You already have an existing certificate* section:
+ * The CSR has been generated from another tool, then follow these instructions under *From an existing certificate* section:
  ** <<_install_the_ssltls_http_certificate_on_the_server_2>>
  ** <<_install_the_ssltls_radius_certificate_on_the_server_2>>
 
+=== Renew a certificate without the CSR
 
-=== Renewal of your certificate without the CSR
-
-If you have lost your CSR, you will need to restart the process from the bottom, please restart from here <<_you_need_a_certificate>> 
+If no CSR is available, please restart from here <<_why_a_certificate>>.
 
 === Renew a certificate signed by the PF_PKI
 
@@ -225,13 +234,11 @@ The following steps explains how to renew HTTP/Radius certificates in PacketFenc
 
 image::certificate/31_Host_cert.jpg[scaledwidth="100%",alt="Host Serach in PKI"]
 
-
 - Open and Resign the Certificate:
       *  Open the certificate entry.  
       *  Click **Resign**.  
 
 image::certificate/32_Resign_Option.jpg[scaledwidth="100%",alt="Click on Resign"]
-
 
 - Fill the Resign Form:
        *  Keep the same details (CN, Email, etc.) as the existing certificate.  
@@ -239,12 +246,10 @@ image::certificate/32_Resign_Option.jpg[scaledwidth="100%",alt="Click on Resign"
 
 image::certificate/33_Resign_Form.jpg[scaledwidth="100%",alt="Resign Form"]
 
-
 - Copy the Renewed Certificate:
        * After resigning, copy the updated certificate.  
 
 image::certificate/34_Copy_Renewed_cert.jpg[scaledwidth="100%",alt="Copy the renewed Cert"]
-
 
 - To Apply the Certificate:
        * Go to **Configuration → System Configuration → SSL Certificates**, paste the renewed certificate into the HTTP or RADIUS section, and save.
@@ -253,7 +258,6 @@ image::certificate/35_Paste_cert_SSL_Certificate.jpg[scaledwidth="100%",alt="Pas
 
 NOTE: If the previous certificate was signed by the same **PF-PKI**, you do **not** need to replace the **Private Key** or **Intermediate CA Certificate.
 
-
 - Restart the appropriate services for the changes to take effect from the PacketFence UI:  
       *  Restart **haproxy-admin** and **haproxy-portal** if it’s the HTTP certificate.  
       *  Restart **radiusd-auth** if it’s the Radius certificate.
@@ -261,9 +265,7 @@ NOTE: If the previous certificate was signed by the same **PF-PKI**, you do **no
 
 === Useful commands
 
-If you have created your own certificate without using PacketFence for the CSR, you may need to extract the key and the certificate from the file.
-
-In the case your file have the extension .p12
+If a certificate has been created without using PacketFence for the CSR, the key and the certificate can be extracted from the .p12 file (or file with the .p12 extension).
 
 .Extract certificate
 [source, shell]
