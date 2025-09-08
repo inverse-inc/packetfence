@@ -258,7 +258,6 @@ NOTE: If the previous certificate was signed by the same **PF-PKI**, you do **no
       *  Restart **haproxy-admin** and **haproxy-portal** if it’s the HTTP certificate.  
       *  Restart **radiusd-auth** if it’s the Radius certificate.
 
----
 
 === Useful commands
 
