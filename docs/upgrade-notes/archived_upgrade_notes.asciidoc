@@ -2527,7 +2527,7 @@ https://www.packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.st
 
 ======= Maintenance patches (on node C)
 
-include::common/maintenance_patches.asciidoc[][]
+include::../common/maintenance_patches.asciidoc[]
 
 ======= Configuration migration and database schema updates (on node C)
 
@@ -2755,7 +2755,7 @@ https://www.packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.st
 
 ======= Maintenance patches (on nodes A and B)
 
-include::common/maintenance_patches.asciidoc[]
+include::../common/maintenance_patches.asciidoc[]
 
 ======= Configuration synchronisation
 
