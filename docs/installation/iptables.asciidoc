@@ -27,10 +27,10 @@ Default ipv6 rules are set to protect Packetfence server and for convenient usag
 ===== Starting Service
 
 [source,bash]
----
+----
 systemctl start packetfence-iptables
 systemctl start packetfence-ip6tables
----
+----
 
 Restarting the service should be done only when there is a modification on [filename]`/usr/local/pf/lib/pf/iptables.pm` or on [filename]`/usr/local/pf/lib/pf/ip6tables.pm`.
 Once started, the iptable service is checking modifications on the directory [filename]`/usr/local/pf/var/conf/iptables/` and on the file [filename]`/usr/local/pf/conf/iptables-custom.conf.inc`.
@@ -48,10 +48,10 @@ The hard reload will trigger a flush of all tables, a remove of all config files
 from the directory [filename]`/usr/local/pf/var/conf/iptables/` and then do the same a soft reload.
 
 [source,bash]
----
+----
 /usr/local/pf/bin/pfcmd reloadiptablesrules
 /usr/local/pf/bin/pfcmd reloadiptablesrules hard
----
+----
 
 ===== Reload ip6tables rules
 
@@ -61,10 +61,10 @@ The hard reload will trigger a flush of all tables, a remove of all config files
 from the directory [filename]`/usr/local/pf/var/conf/ip6tables/` and then do the same a soft reload.
 
 [source,bash]
----
+----
 /usr/local/pf/bin/pfcmd reloadip6tablesrules
 /usr/local/pf/bin/pfcmd reloadip6tablesrules hard
----
+----
 
 ===== Setting custom iptables rules
 
@@ -74,7 +74,7 @@ An example of the file is available here [filename]`/usr/local/pf/conf/iptables-
 That file is a json file will add rules on top of all other Packetfence rules for each tables or chains. The entry should only contain the rule without the "-A", the table and the chain.
 For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT, the file will be:
 [source,bash]
----
+----
 {
    "filter" : {
       "FORWARD" : [],
@@ -98,7 +98,7 @@ For example: to open tcp port 123, and udp port 234 with interface the eth0 on f
       "PREROUTING" : []
    }
 }
----
+----
 
 ===== Setting custom ip6tables rules
 
@@ -108,7 +108,7 @@ An example of the file is available here [filename]`/usr/local/pf/conf/ip6tables
 That file is a json file will add rules on top of all other Packetfence rules for each tables or chains. The entry should only contain the rule without the "-A", the table and the chain.
 For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT, the file will be:
 [source,bash]
----
+----
 {
    "filter" : {
       "FORWARD" : [],
@@ -125,7 +125,7 @@ For example: to open tcp port 123, and udp port 234 with interface the eth0 on f
       "OUTPUT" : []
    }
 }
----
+----
 
 ===== Check iptables or ip6tables applied rules
 
@@ -134,7 +134,7 @@ Generated and applied ip6tables rules are available in [filename]`/usr/local/pf/
 
 It is also possible to check rules with the following command lines:
 [source,bash]
----
+----
 # iptables ipv4
 iptables -L -n -v -t filter
 iptables -L -n -v -t mangle
@@ -142,4 +142,4 @@ iptables -L -n -v -t nat
 # ip6tables ipv6
 ip6tables -L -n -v -t filter
 ip6tables -L -n -v -t raw
----
+----
