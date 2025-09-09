@@ -15,6 +15,7 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Aruba');
+
 use pf::util;
 
 use NetAddr::IP;
