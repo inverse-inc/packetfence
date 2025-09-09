@@ -79,7 +79,18 @@ sub acl_chewer {
         }
         my $j = $i + 1;
         if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "")." ".(($self->usePushACLs) ? $src : "any")." $dest ". $acl->{'protocol'} ." ".( defined($dest_port) ? $dest_port : '' )." ". $acl->{'action'} ."\n";
+            my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
+            my $src_val    = ($self->usePushACLs) ? $src : "any";
+            my $dest_port_val = defined($dest_port) ? $dest_port : '';
+            my $line = sprintf("%s %s %s %s %s %s\n",
+                $dir_prefix,
+                $src_val,
+                $dest,
+                $acl->{'protocol'},
+                $dest_port_val,
+                $acl->{'action'}
+            );
+            $acl_chewed .= $line;
         } else {
             $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )."\n";
         }
