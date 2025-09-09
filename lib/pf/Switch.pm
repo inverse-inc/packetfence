@@ -4938,7 +4938,6 @@ sub compute_action {
     $$args->{'compute_vpn'} = (exists($$args->{'compute_vpn'}) ? $$args->{'compute_vpn'} : $TRUE );
     $$args->{'compute_dpsk'} = (exists($$args->{'compute_dpsk'}) ? $$args->{'compute_dpsk'} : $TRUE );
 }
-
 =head2
 
 Generate Ansible configuration to push ACLs
@@ -4991,7 +4990,7 @@ sub generateAnsibleConfiguration {
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
             case /Arista::AristaSwitch/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arista.eos.eos" }
             case /NEC::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "packetfence.comware.comware" }
-            case /Aruba::Controller_200/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "community.network.aruba_command" }
+            case /Aruba::Controller_200/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aruba" }
     }
 
     foreach my $role (keys %ConfigRoles) {
@@ -5049,11 +5048,15 @@ sub generateAnsibleConfiguration {
                 my $name = $self->pushAclsName($role, $dir);
                 $vars{'switches'}{$switch_id}{'acls'}{$name} = $dir_acls if defined($name);
             }
+            my %roleacls;
+            $roleacls{'acls'}{$role} = $vars{'switches'}{$switch_id}{'acls'}{$role};
+            $roleacls{'type'} = $vars{'switches'}{$switch_id}{'type'};
+            $tt->process("$conf_dir/pfsetacls/acl.cfg", \%roleacls, "$var_dir/conf/pfsetacls/$switch_id/$role-$switch_id.cfg") or die $tt->error();
         }
     }
 
     $tt->process("$conf_dir/pfsetacls/acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/$switch_id.cfg") or die $tt->error();
-
+    $tt->process("$conf_dir/pfsetacls/del-acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/del-$switch_id.cfg") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/inventory.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/ansible.cfg") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/switch_acls.yml", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
