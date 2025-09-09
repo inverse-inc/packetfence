@@ -33,6 +33,11 @@
           :text="$i18n.t('List of roles available to the admin user to assign to a user. If none are provided then all roles are available.')"
         />
 
+        <form-group-disallowed-roles namespace="disallowed_roles"
+          :column-label="$i18n.t('Disallowed user roles')"
+          :text="$i18n.t('List of disallowed roles available to the admin user to assign to a user. If none are provided then all roles are available.')"
+        />
+
         <form-group-allowed-access-durations namespace="allowed_access_durations"
           :column-label="$i18n.t('Allowed user access durations')"
           :text="$i18n.t('A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used.')"
@@ -104,6 +109,7 @@ import {
   FormGroupAllowedNodeRoles,
   FormGroupAllowedNodeBypassRoles,
   FormGroupAllowedNodeBypassVlans,
+  FormGroupDisallowedRoles,
   FormGroupDisallowedNodeBypassRoles,
   FormGroupDisallowedNodeRoles,
   FormGroupDisableBypassVlan,
@@ -125,6 +131,7 @@ const components = {
   FormGroupAllowedNodeBypassRoles,
   FormGroupAllowedNodeBypassVlans,
   FormGroupDisallowedNodeRoles,
+  FormGroupDisallowedRoles,
   FormGroupDisallowedNodeBypassRoles,
   FormGroupDisableBypassVlan,
 }
