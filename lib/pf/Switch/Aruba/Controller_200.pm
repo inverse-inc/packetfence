@@ -92,7 +92,13 @@ sub acl_chewer {
             );
             $acl_chewed .= $line;
         } else {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )."\n";
+            my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
+            my $action     = $acl->{'action'};
+            my $dir        = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in";
+            my $protocol   = $acl->{'protocol'};
+            my $dest_str   = $dest;
+            my $port_str   = defined($dest_port) ? $dest_port : '';
+            $acl_chewed .= "${dir_prefix}${action} ${dir} ${protocol} from any to ${dest_str} ${port_str}\n";
         }
         $i++;
     }
