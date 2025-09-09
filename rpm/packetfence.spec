@@ -808,6 +808,7 @@ if /usr/local/pf/containers/manage-images.sh; then
 
     # Empty root password in order to allow other user to connect as root.
     /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
+    /usr/bin/mysql -uroot -e "DELETE FROM mysql.user WHERE User=\"PUBLIC\"';"
 
     echo Installation complete
     echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
