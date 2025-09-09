@@ -47,10 +47,18 @@
         state: replaced[% END %]
       when: ansible_network_os == 'arista.eos.eos'
 
-    - name: Load new acl into Aruba Controler
-      community.network.aruba_command:
-         src: "{{ acl_config }}"
-      when: ansible_network_os == 'community.network.aruba_command'
+    - name: Delete acl into Aruba Controler
+      community.network.aruba_config:
+        src: "{{ acl_deconfig }}"
+      when: ansible_network_os == 'aruba'
+
+[% FOREACH role IN acls.keys %]
+    - name: Load new acl [% role %] into Aruba Controler
+      community.network.aruba_config:
+        src: "{{ [% role %]acl_config }}"
+      when: ansible_network_os == 'aruba'
+
+[% END %]
 
 [% FOREACH role IN interfaces_delete.keys %]
 [% FOREACH interface IN interfaces_delete.$role %]

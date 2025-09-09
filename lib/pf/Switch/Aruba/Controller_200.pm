@@ -15,12 +15,16 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Aruba');
-
 use pf::util;
+
 use NetAddr::IP;
 
 sub description { 'Aruba 200 Controller' }
 
+use pf::SwitchSupports qw(
+    PushACLs
+    AccessListBasedEnforcement
+);
 
 =head2 acl_chewer
 
@@ -55,10 +59,10 @@ sub acl_chewer {
         } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
             if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
                 my $net_addr = NetAddr::IP->new($acl->{'destination'}->{'ipv4_addr'}, norm_net_mask($acl->{'destination'}->{'wildcard'}));
-                my $cidr = $net_addr->cidr();
+                my $cidr = "network ".$net_addr->cidr();
                 $dest = $cidr;
             } else {
-                $dest = $acl->{'destination'}->{'ipv4_addr'};
+                $dest = "host ".$acl->{'destination'}->{'ipv4_addr'};
             }
         }
         my $src;
@@ -75,7 +79,7 @@ sub acl_chewer {
         }
         my $j = $i + 1;
         if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' )."\n";
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "")." ".(($self->usePushACLs) ? $src : "any")." $dest ". $acl->{'protocol'} ." ".( defined($dest_port) ? $dest_port : '' )." ". $acl->{'action'} ."\n";
         } else {
             $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )."\n";
         }
@@ -84,6 +88,16 @@ sub acl_chewer {
     return $acl_chewed;
 }
 
+=head2 implicit_acl
+
+Return implicit acl
+
+=cut
+
+sub implicit_acl {
+    my ($self) = @_;
+    return "permit any";
+}
 
 =head1 AUTHOR
 
