@@ -363,6 +363,55 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
       button.classList.remove('copied');
     }, 2000);
   }
+
+  // Enhanced hover behavior - show button when cursor is near the top
+  document.addEventListener('DOMContentLoaded', function() {
+    const codeBlocks = document.querySelectorAll('.listingblock, .literalblock');
+
+    codeBlocks.forEach(block => {
+      const copyButton = block.querySelector('.copy-button');
+      if (!copyButton) return;
+
+      let hoverTimeout;
+
+      block.addEventListener('mouseenter', function(e) {
+        clearTimeout(hoverTimeout);
+        const rect = block.getBoundingClientRect();
+        const topThird = rect.height * 0.4; // Show when in top 40% of block
+        const relativeY = e.clientY - rect.top;
+
+        if (relativeY <= topThird || rect.height < 100) {
+          copyButton.style.opacity = '1';
+          copyButton.style.visibility = 'visible';
+          copyButton.style.transform = 'translateY(0)';
+        }
+      });
+
+      block.addEventListener('mousemove', function(e) {
+        const rect = block.getBoundingClientRect();
+        const topThird = rect.height * 0.4;
+        const relativeY = e.clientY - rect.top;
+
+        if (relativeY <= topThird || rect.height < 100) {
+          copyButton.style.opacity = '1';
+          copyButton.style.visibility = 'visible';
+          copyButton.style.transform = 'translateY(0)';
+        } else {
+          copyButton.style.opacity = '0';
+          copyButton.style.visibility = 'hidden';
+          copyButton.style.transform = 'translateY(-4px)';
+        }
+      });
+
+      block.addEventListener('mouseleave', function() {
+        hoverTimeout = setTimeout(() => {
+          copyButton.style.opacity = '0';
+          copyButton.style.visibility = 'hidden';
+          copyButton.style.transform = 'translateY(-4px)';
+        }, 100);
+      });
+    });
+  });
   </script>)
 
     result << '</body>'
