@@ -16,6 +16,7 @@ use warnings;
 
 use base ('pf::Switch::Aruba');
 
+use pf::util;
 use NetAddr::IP;
 
 sub description { 'Aruba 200 Controller' }
