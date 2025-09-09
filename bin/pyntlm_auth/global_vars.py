@@ -47,6 +47,8 @@ c_domain = None
 c_username = None
 c_server_name = None
 c_ad_server = None
+c_ad_server_port = None
+c_encryption = None
 c_listen_port = None
 c_domain_identifier = None
 c_dns_servers = None
@@ -73,6 +75,8 @@ c_ad_reset_account_lockout_counter_after = None  # Default not set
 c_ad_old_password_allowed_period = None  # Windows 2003+, Default not set, if not set, 60
 
 c_max_allowed_password_attempts_per_device = None
+c_client_key_file = None
+c_ca_file = None
 
 
 def _debug():
