@@ -93,7 +93,7 @@ func (tam *TokenAuthenticationMiddleware) TouchTokenInfo(ctx context.Context, w 
 	tam.tokenBackend.TouchTokenInfo(token)
 
 	expire := time.Now().Add(15 * time.Minute)
-	cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, MaxAge: 90000}
+	cookie := http.Cookie{Name: "token", Value: token, Path: "/", Expires: expire, MaxAge: 90000, SameSite: 4}
 	http.SetCookie(w, &cookie)
 }
 
