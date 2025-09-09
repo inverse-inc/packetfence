@@ -18,4 +18,147 @@ The Makefile at the root of the repository will call those tools:
 
   make html
 
+# Using Copy Buttons in PacketFence AsciiDoc Documentation
+
+## How Copy Buttons Work
+
+The copy button functionality is now **automatically added** to all code blocks (`[source]` blocks and literal blocks) in your AsciiDoc files.
+
+## Standard Usage Examples
+
+### 1. Source Code Blocks (Recommended)
+
+```asciidoc
+[source,bash]
+----
+sudo systemctl start packetfence
+sudo systemctl enable packetfence
+pfcmd service pf status
+----
+```
+
+```asciidoc
+[source,perl]
+----
+use pf::config;
+use pf::util;
+
+my $logger = get_logger();
+$logger->info("PacketFence configuration loaded");
+----
+```
+
+```asciidoc
+[source,sql]
+----
+SELECT * FROM node 
+WHERE status = 'reg' 
+AND category_id = 1;
+----
+```
+
+### 2. Shell/Terminal Commands
+
+```asciidoc
+[source,console]
+----
+$ sudo /usr/local/pf/bin/pfcmd configreload hard
+$ sudo /usr/local/pf/bin/pfcmd service pf restart
+----
+```
+
+### 3. Configuration Files
+
+```asciidoc
+.PacketFence Configuration
+[source,ini]
+----
+[general]
+domain=packetfence.local
+hostname=pf.packetfence.local
+
+[database]
+host=127.0.0.1
+port=3306
+----
+```
+
+### 4. Literal Blocks (Plain Text)
+
+```asciidoc
+....
+This is a literal block
+All copy buttons work here too
+No syntax highlighting but still copyable
+....
+```
+
+## Advanced Usage
+
+### Disable Copy Button for Specific Blocks
+
+If you want to disable the copy button for a specific block, add the `no-copy` role:
+
+```asciidoc
+[source,bash,role="no-copy"]
+----
+# This block won't have a copy button
+echo "This is just for display"
+----
+```
+
+### Titled Code Blocks
+
+```asciidoc
+.Installing PacketFence Dependencies
+[source,bash]
+----
+sudo apt update
+sudo apt install -y mysql-server apache2 make
+----
+```
+
+### Numbered Lines
+
+```asciidoc
+[source,bash,linenums]
+----
+#!/bin/bash
+echo "Starting PacketFence setup..."
+cd /usr/local/pf
+./bin/pfcmd configreload
+----
+```
+
+## Integration with Existing Blocks
+
+### NOTE Blocks (Copy button won't appear here)
+
+```asciidoc
+[NOTE]
+====
+This is a note block. Copy buttons only appear on code/literal blocks.
+If you want copyable content in a note, use a nested source block:
+
+[source,bash]
+----
+sudo systemctl status packetfence
+----
+====
+```
+
+### WARNING Blocks with Code
+
+```asciidoc
+[WARNING]
+====
+Be careful when running this command:
+
+[source,bash]
+----
+sudo rm -rf /usr/local/pf/logs/*
+----
+====
+```
+
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
