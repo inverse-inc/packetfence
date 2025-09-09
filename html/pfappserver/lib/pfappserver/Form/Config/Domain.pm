@@ -76,6 +76,14 @@ has_field 'ad_server' =>
              help => 'The IPv4 of the Active Directory server' },
   );
 
+has_field 'ad_server_port' =>
+  (
+   type => 'Port',
+   element_class => ['input-mini'],
+   element_attr => {'placeholder' => '389'},
+   default => 389,
+  );
+
 has_field 'bind_pass' =>
   (
    type => 'ObfuscatedText',
@@ -327,6 +335,62 @@ sub options_ntlm_cache_source {
     unshift @sources, ("" => "");
     return @sources;
 }
+
+has_field 'encryption' =>
+  (
+   type => 'Select',
+   options =>
+   [
+    { value => 'none', label => 'None' },
+    { value => 'ssl', label => 'SSL' },
+    { value => 'starttls', label => 'Start TLS' },
+   ],
+   required => 1,
+   element_class => ['input-small'],
+   default => 'none',
+  );
+
+has_field 'client_cert_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'client_cert_file',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
+has_field client_key_file => (
+    type => 'Path',
+    file_type => 'file',
+);
+
+has_field 'client_key_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'client_key_file',
+   config_prefix => '.key',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
+has_field ca_file => (
+    type => 'Path',
+    file_type => 'file',
+);
+
+has_field 'ca_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'ca_file',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
+has '+dependency' => (
+    default => sub {
+        [
+            [ 'client_cert_file', 'client_key_file' ]
+        ];
+    },
+);
 
 =head2 validate
 
