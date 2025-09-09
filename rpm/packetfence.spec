@@ -1382,6 +1382,7 @@ fi
                         /usr/local/pf/conf/pfsetacls/ansible.cfg
                         /usr/local/pf/conf/pfsetacls/inventory.cfg
                         /usr/local/pf/conf/pfsetacls/switch_acls.yml
+                        /usr/local/pf/conf/pfsetacls/del-acl.cfg
 %dir                    /usr/local/pf/conf/pfsetacls/collections
                         /usr/local/pf/conf/pfsetacls/collections/requirements.yml
                         /usr/local/pf/conf/pfsetacls/ansible_collections
