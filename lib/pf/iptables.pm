@@ -1345,7 +1345,6 @@ sub iptables_pfconnector_server_rules {
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
-        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
@@ -1375,7 +1374,6 @@ sub iptables_galera_autofix_rules {
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
-        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         if ($cluster_enabled) {
@@ -1411,7 +1409,6 @@ sub iptables_mariadb_rules {
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
-        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
@@ -1442,7 +1439,6 @@ sub iptables_mysql_prob_rules {
     }
     my $logger = get_logger();
     if ( util_management_network_is_set($service_name) ){
-        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
@@ -1468,7 +1464,6 @@ sub iptables_kafka_rules {
     my $chains = util_create_chains();
 
     if ( util_management_network_is_set($service_name) ){
-        # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
         util_safe_push( "-i $tint -p tcp -m tcp --dport 9092 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp --dport 9093 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
@@ -1537,10 +1532,17 @@ sub iptables_fingerbank_collector_rules {
        return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
-    if (netflow_enabled()) {
+    if ( util_management_network_is_set($service_name) ){
         my $chains = util_create_chains();
         $chains->{name} = $service_name;
-        util_safe_push( "-j NETFLOW", $chains->{'filter'}{'FORWARD'} );
+        if (netflow_enabled()) {
+            util_safe_push( "-j NETFLOW", $chains->{'filter'}{'FORWARD'} );
+        }
+        my $tint = $management_network->{Tint};
+        util_safe_push( "-i $tint -p udp -m udp --dport 1192 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p udp -m udp --dport 2055 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p tcp -m tcp --dport 4723 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
+        util_safe_push( "-i $tint -p udp -m udp --dport 6343 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         # Convert to JSON and save to file
         util_create_service_rules($chains);
     } else {
