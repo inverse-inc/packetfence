@@ -516,23 +516,6 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
 
   def convert_listing node
     nowrap = (node.option? 'nowrap') || !(node.document.attr? 'prewrap')
-    if node.style == 'source'
-      lang = node.attr 'language'
-      numbered = node.attr 'linenums'
-      if (syntax_hl = node.document.syntax_highlighter)
-        opts = syntax_hl.highlight? ? {
-          css_mode: ((doc_attrs = node.document.attributes)[%(#{syntax_hl.name}-css)] || :class).to_sym,
-          style: doc_attrs[%(#{syntax_hl.name}-style)]
-        } : {}
-        opts[:nowrap] = nowrap
-      else
-        pre_open = %(<pre class="highlight#{nowrap ? ' nowrap' : ''} bg-secondary text-white #{node.title? ? 'rounded-bottom': 'rounded'} p-3"><code class="#{numbered ? 'numbered ' : ''}#{lang ? %[language-#{lang}" data-lang="#{lang}] : ''}">)
-        pre_close = '</code></pre>'
-      end
-    else
-      pre_open = %(<pre class="bg-secondary text-white rounded p-3#{nowrap ? 'nowrap' : ''}"">)
-      pre_close = '</pre>'
-    end
     id_attribute = node.id ? %( id="#{node.id}") : ''
     title_element = node.title? ? %(<div class="bg-dark text-white rounded-top p-1 pl-3">#{node.captioned_title}</div>\n) : ''
 
@@ -541,8 +524,8 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
 
     lines = node.content.lines.map { |line| %(<div>#{line}</div>) }
     %(<div#{id_attribute} class="listingblock#{(role = node.role) ? " #{role}" : ''}">
-  #{title_element}<div class="content bg-secondary text-white rounded p-3">
-  #{syntax_hl ? (syntax_hl.format node, lang, opts) : pre_open + (lines.join || '') + pre_close}
+  #{title_element}<div class="content">
+  <pre class="bg-secondary text-white #{node.title? ? 'rounded-bottom': 'rounded'} p-3 #{nowrap ? 'nowrap' : ''}">#{lines.join}</pre>
   </div>
   </div>)
   end
