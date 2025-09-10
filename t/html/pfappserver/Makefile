@@ -36,16 +36,21 @@ all:
 
 install-rhel:
 	yum install -y xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib
-	yum install -y firefox
+	wget -O- "https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US" | tar -Jx -C /usr/local/
+	ln -sf /usr/local/firefox/firefox /usr/bin/firefox
+	firefox --version
 
 install-debian:
 	apt-get update -y
 	apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-	apt-get install -y firefox-esr
+	wget -O- "https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US" | tar -Jx -C /usr/local/
+	ln -sf /usr/local/firefox/firefox /usr/bin/firefox
+	firefox --version
 
 install:
 	npm install -g npm
-	npm install cypress -g --allow-root --unsafe-perm=true
+	# Cypress >= 15.0.0 requires glibc-2.29
+	npm install cypress@14.5.4 -g --allow-root --unsafe-perm=true
 	npm install --legacy-peer-deps
 
 test:
