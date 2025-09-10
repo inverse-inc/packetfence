@@ -44,7 +44,9 @@ install-debian:
 	apt-get install -y firefox-esr
 
 install:
-	npm install cypress -g --allow-root --unsafe-perm=true
+	npm install -g npm
+	# Cypress >= 15.0.0 requires glibc-2.29
+	npm install cypress@14.5.4 -g --allow-root --unsafe-perm=true
 	npm ci --legacy-peer-deps
 
 test:
