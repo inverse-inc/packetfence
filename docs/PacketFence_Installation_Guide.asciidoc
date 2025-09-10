@@ -11,30 +11,28 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide will walk you through PacketFence installation and day-to-day administration.
+This guide covers PacketFence installation and day-to-day administration.
 
-The latest version of this guide is available at https://packetfence.org/documentation/
+Find the latest version at https://packetfence.org/documentation/
 
 === Other sources of information
 
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Covers installation in a clustered environment.
 <<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
-  Covers API, captive portal customization, application code customizations and
-  instructions for supporting new equipment.
+  Covers API, captive portal customization, application code customizations and support for new equipment.
 <<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access points configuration.
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility related changes, manual instructions and general notes
-  about upgrading.
+  Covers compatibility changes, manual instructions and upgrade notes.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
 
-These files are included in the package and release tarballs.
+Package and release tarballs include these files.
 
 == Introduction
 
-PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with IDS, vulnerability scanners and firewalls; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks. For a more detailed presentation on PacketFence please visit https://packetfence.org.
+PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. It features a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, and integration with IDS, vulnerability scanners and firewalls. PacketFence effectively secures networks from small to very large heterogeneous environments. Visit https://packetfence.org for more details.
 
 == System Requirements
 
@@ -160,6 +158,134 @@ include::includes/additional-info.asciidoc[]
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
+
+[appendix]
+== Quick Reference
+
+=== Terms and Technologies
+
+802.1X::
+  <<#_authentication_mechanisms,Authentication Mechanisms>>, <<#_advanced_radius_configuration,Advanced RADIUS Configuration>>
+
+AAA::
+  <<#_authentication_sources,Authentication Sources>>, <<#_advanced_radius_configuration,Advanced RADIUS Configuration>>
+
+ACL::
+  <<#_introduction_to_role_based_access_control,Introduction to Role-based Access Control>>
+
+AD::
+  <<#_authentication_sources,Authentication Sources>>
+
+API::
+  <<#_advanced_topics,Advanced Topics>>
+
+Authentication::
+  <<#_authentication_sources,Authentication Sources>>, <<#_authentication_mechanisms,Authentication Mechanisms>>
+
+Certificate::
+  <<#_packetfence_certificates_for_v11_2_and_later,PacketFence Certificates (for v11.2 and later)>>
+
+Compliance::
+  <<#_performing_compliance_checks,Performing Compliance Checks>>
+
+DHCP::
+  <<#_advanced_network_topics,Advanced Network Topics>>
+
+DNS::
+  <<#_advanced_network_topics,Advanced Network Topics>>
+
+EAP::
+  <<#_authentication_mechanisms,Authentication Mechanisms>>, <<#_advanced_radius_configuration,Advanced RADIUS Configuration>>
+
+Enforcement::
+  <<#_supported_enforcement_modes,Supported Enforcement Modes>>, <<#_adding_inline_enforcement_to_existing_installation,Adding Inline Enforcement to Existing Installation>>
+
+Fingerbank::
+  <<#_fingerbank_integration,Fingerbank Integration>>
+
+Firewall::
+  <<#_firewall_sso_integration,Firewall SSO Integration>>
+
+HTTP::
+  <<#_advanced_portal_configuration,Advanced Portal Configuration>>
+
+HTTPS::
+  <<#_advanced_portal_configuration,Advanced Portal Configuration>>, <<#_packetfence_certificates_for_v11_2_and_later,PacketFence Certificates (for v11.2 and later)>>
+
+IDS::
+  <<#_intrusion_detection_system_integration,Intrusion Detection System Integration>>
+
+Inline::
+  <<#_adding_inline_enforcement_to_existing_installation,Adding Inline Enforcement to Existing Installation>>
+
+LDAP::
+  <<#_authentication_sources,Authentication Sources>>
+
+MAC::
+  <<#_authentication_mechanisms,Authentication Mechanisms>>
+
+MFA::
+  <<#_mfa_integration,MFA Integration>>
+
+NAC::
+  <<#_introduction,Introduction>>
+
+Network::
+  <<#_advanced_network_topics,Advanced Network Topics>>, <<#_network_devices_anomaly_detection,Network Devices Anomaly Detection>>
+
+PEAP::
+  <<#_authentication_mechanisms,Authentication Mechanisms>>, <<#_advanced_radius_configuration,Advanced RADIUS Configuration>>
+
+PKI::
+  <<#_pki_integration,PKI Integration>>
+
+Portal::
+  <<#_enabling_the_captive_portal,Enabling the Captive Portal>>, <<#_advanced_portal_configuration,Advanced Portal Configuration>>
+
+Provisioning::
+  <<#_integrating_provisioning_agents,Integrating Provisioning Agents>>
+
+QoS::
+  <<#_advanced_network_topics,Advanced Network Topics>>
+
+RADIUS::
+  <<#_advanced_radius_configuration,Advanced RADIUS Configuration>>, <<#_authentication_mechanisms,Authentication Mechanisms>>
+
+RBAC::
+  <<#_introduction_to_role_based_access_control,Introduction to Role-based Access Control>>
+
+SAML::
+  <<#_authentication_sources,Authentication Sources>>
+
+SNMP::
+  <<#_advanced_network_topics,Advanced Network Topics>>
+
+SQL::
+  <<#_advanced_topics,Advanced Topics>>
+
+SSH::
+  <<#_advanced_topics,Advanced Topics>>
+
+SSL::
+  <<#_packetfence_certificates_for_v11_2_and_later,PacketFence Certificates (for v11.2 and later)>>
+
+SSO::
+  <<#_firewall_sso_integration,Firewall SSO Integration>>
+
+TLS::
+  <<#_packetfence_certificates_for_v11_2_and_later,PacketFence Certificates (for v11.2 and later)>>, <<#_advanced_radius_configuration,Advanced RADIUS Configuration>>
+
+TTLS::
+  <<#_authentication_mechanisms,Authentication Mechanisms>>, <<#_advanced_radius_configuration,Advanced RADIUS Configuration>>
+
+VLAN::
+  <<#_adding_vlan_enforcement_to_existing_installation,Adding VLAN Enforcement to Existing Installation>>, <<#_supported_enforcement_modes,Supported Enforcement Modes>>
+
+VPN::
+  <<#_advanced_network_topics,Advanced Network Topics>>
+
+WiFi::
+  <<#_authentication_mechanisms,Authentication Mechanisms>>
 
 == Appendix
 

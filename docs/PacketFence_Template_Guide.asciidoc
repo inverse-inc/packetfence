@@ -1,4 +1,4 @@
-=  Guide name
+= Template Guide
 ////
 
     This file is part of the PacketFence project.
@@ -11,26 +11,24 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide covers FIXME
+This guide covers the template structure for PacketFence documentation.
 
 === Other sources of information
 
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Covers installation in a clustered environment.
 <<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
-  Covers API, captive portal customization, application code customizations and
-  instructions for supporting new equipment.
+  Covers API, captive portal customization, application code customizations and support for new equipment.
 <<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
   Covers installation and configuration of PacketFence.
 <<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access points configuration.
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility related changes, manual instructions and general notes
-  about upgrading.
-link:https://packetfence.org/news.html[PacketFence News]
+  Covers compatibility changes, manual instructions and upgrade notes.
+https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
 
-These files are included in the package and release tarballs.
+Package and release tarballs include these files.
 
 
 // at end of document, *before* appendix
