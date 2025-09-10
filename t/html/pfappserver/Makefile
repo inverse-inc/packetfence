@@ -49,8 +49,8 @@ install-debian:
 
 install:
 	npm install -g npm
-	# Cypress v15.1.0 requires glibc-2.29
-	npm install cypress@15.0.0 -g --allow-root --unsafe-perm=true
+	# Cypress >= 15.0.0 requires glibc-2.29
+	npm install cypress@14.5.4 -g --allow-root --unsafe-perm=true
 	npm install --legacy-peer-deps
 
 test:
