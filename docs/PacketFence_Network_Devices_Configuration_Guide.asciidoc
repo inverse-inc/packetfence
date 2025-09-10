@@ -11,39 +11,34 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide covers the configuration of network devices in order to integrate
-them with PacketFence in VLAN enforcement. Switches, wireless controllers and
-wireless access points are all considered network devices in PacketFence's
-terms.
+This guide covers network device configuration for VLAN enforcement with PacketFence. Switches, wireless controllers and wireless access points are considered network devices in PacketFence.
 
-The latest version of this guide is available at https://packetfence.org/documentation/
+Find the latest version at https://packetfence.org/documentation/
 
 === Other sources of information
 
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Covers installation in a clustered environment.
 <<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
-  Covers API, captive portal customization, application code customizations and
-  instructions for supporting new equipment.
+  Covers API, captive portal customization, application code customizations and support for new equipment.
 <<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
   Covers installation and configuration of PacketFence.
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility related changes, manual instructions and general notes
-  about upgrading.
+  Covers compatibility changes, manual instructions and upgrade notes.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
 
-These files are included in the package and release tarballs.
+Package and release tarballs include these files.
 
 == Note on Inline enforcement support
 
-There is no need to follow this guide with inline enforcement, except RADIUS inline. In this case, a flat layer-2 network is used on PacketFence's inline interface with no other gateway available for devices to reach out to the Internet.
+Inline enforcement does not require this guide, except for RADIUS inline. RADIUS inline uses a flat layer-2 network on PacketFence's inline interface with no other gateway for Internet access.
 
-This technique is usually used when the network hardware does not support VLAN enforcement.
+Use this technique when network hardware does not support VLAN enforcement.
 
 == Note on RADIUS accounting
 
-Enabling RADIUS accounting on the network devices will significantly increase the database size and may cause performance issues. Only use RADIUS accounting if it is absolutely required.
+Enabling RADIUS accounting on network devices significantly increases database size and may cause performance issues. Use RADIUS accounting only if absolutely required.
 
 == List of supported Network Devices
 
@@ -72,5 +67,67 @@ include::includes/additional-info.asciidoc[]
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
+
+[appendix]
+== Quick Reference
+
+=== Terms and Technologies
+
+802.1X::
+  <<#_switch_configuration,Switch Configuration>>, <<#_wireless_controllers_and_access_point_configuration,Wireless Controllers and Access Point Configuration>>
+
+Access::
+  <<#_wireless_controllers_and_access_point_configuration,Wireless Controllers and Access Point Configuration>>
+
+Authentication::
+  <<#_switch_configuration,Switch Configuration>>, <<#_wireless_controllers_and_access_point_configuration,Wireless Controllers and Access Point Configuration>>
+
+Controller::
+  <<#_wireless_controllers_and_access_point_configuration,Wireless Controllers and Access Point Configuration>>
+
+DHCP::
+  <<#_switch_configuration,Switch Configuration>>
+
+Enforcement::
+  <<#_note_on_inline_enforcement_support,Note on Inline Enforcement Support>>
+
+Firewall::
+  <<#_firewall_configuration,Firewall Configuration>>
+
+Inline::
+  <<#_note_on_inline_enforcement_support,Note on Inline Enforcement Support>>
+
+MAC::
+  <<#_switch_configuration,Switch Configuration>>
+
+Network::
+  <<#_list_of_supported_network_devices,List of Supported Network Devices>>
+
+Point::
+  <<#_wireless_controllers_and_access_point_configuration,Wireless Controllers and Access Point Configuration>>
+
+Port::
+  <<#_switch_configuration,Switch Configuration>>
+
+RADIUS::
+  <<#_note_on_radius_accounting,Note on RADIUS Accounting>>, <<#_switch_configuration,Switch Configuration>>, <<#_wireless_controllers_and_access_point_configuration,Wireless Controllers and Access Point Configuration>>
+
+SNMP::
+  <<#_switch_configuration,Switch Configuration>>
+
+Switch::
+  <<#_switch_configuration,Switch Configuration>>, <<#_list_of_supported_network_devices,List of Supported Network Devices>>
+
+VLAN::
+  <<#_switch_configuration,Switch Configuration>>, <<#_wireless_controllers_and_access_point_configuration,Wireless Controllers and Access Point Configuration>>
+
+VPN::
+  <<#_vpn_configuration,VPN Configuration>>
+
+WiFi::
+  <<#_wireless_controllers_and_access_point_configuration,Wireless Controllers and Access Point Configuration>>
+
+Wireless::
+  <<#_wireless_controllers_and_access_point_configuration,Wireless Controllers and Access Point Configuration>>
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

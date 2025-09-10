@@ -11,9 +11,9 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide will help modify PacketFence to your specific needs and contains information on how to add support for new switches.
+This guide helps modify PacketFence for specific needs and covers adding support for new switches.
 
-The latest version of this guide is available at https://packetfence.org/documentation/.
+Find the latest version at https://packetfence.org/documentation/.
 
 === Other sources of information
 
@@ -24,12 +24,11 @@ The latest version of this guide is available at https://packetfence.org/documen
 <<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access points configuration.
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility related changes, manual instructions and general notes
-  about upgrading.
+  Covers compatibility changes, manual instructions and upgrade notes.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
 
-These files are included in the package and release tarballs.
+Package and release tarballs include these files.
 
 == Creating a new Switch via a Template
 
@@ -103,5 +102,76 @@ include::includes/additional-info.asciidoc[]
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
+
+[appendix]
+== Quick Reference
+
+=== Terms and Technologies
+
+API::
+  <<#_http_json_api,HTTP JSON API>>
+
+Authentication::
+  <<#_customizing_packetfence,Customizing PacketFence>>
+
+CLI::
+  <<#_code_conventions,Code Conventions>>
+
+Code::
+  <<#_code_conventions,Code Conventions>>, <<#_customizing_packetfence,Customizing PacketFence>>
+
+Containers::
+  <<#_containers_recipes,Containers Recipes>>
+
+Development::
+  <<#_development_environment_setup,Development Environment Setup>>
+
+Documentation::
+  <<#_documentation,Documentation>>
+
+Environment::
+  <<#_development_environment_setup,Development Environment Setup>>, <<#_golang_environment,Golang Environment>>
+
+Git::
+  <<#_contributing,Contributing>>
+
+Golang::
+  <<#_golang_environment,Golang Environment>>
+
+GUI::
+  <<#_administration_gui_development_setup,Administration GUI Development Setup>>
+
+Hardware::
+  <<#_supporting_new_network_hardware,Supporting New Network Hardware>>
+
+HTTP::
+  <<#_http_json_api,HTTP JSON API>>
+
+Integration::
+  <<#_running_tests,Running Tests>>
+
+JSON::
+  <<#_http_json_api,HTTP JSON API>>
+
+Network::
+  <<#_supporting_new_network_hardware,Supporting New Network Hardware>>
+
+Perl::
+  <<#_code_conventions,Code Conventions>>, <<#_development_environment_setup,Development Environment Setup>>
+
+REST::
+  <<#_http_json_api,HTTP JSON API>>
+
+SNMP::
+  <<#_snmp,SNMP>>, <<#_supporting_new_network_hardware,Supporting New Network Hardware>>
+
+Switch::
+  <<#_creating_a_new_switch_via_a_template,Creating a New Switch via a Template>>, <<#_supporting_new_network_hardware,Supporting New Network Hardware>>
+
+Template::
+  <<#_creating_a_new_switch_via_a_template,Creating a New Switch via a Template>>
+
+Testing::
+  <<#_running_tests,Running Tests>>
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
