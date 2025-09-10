@@ -33,6 +33,8 @@ my @extra_files_to_export = (
     $pf::file_paths::iptable_input_management_config_file,
     $pf::file_paths::ip6table_input_management_config_file,
     $pf::file_paths::report_config_file,
+    $pf::file_paths::system_init_key_file,
+    $pf::file_paths::unified_api_system_pass_file,
 );
 
 
@@ -47,7 +49,12 @@ for my $file (@pf::file_paths::stored_config_files) {
         for my $param ($c->Parameters($section)) {
             next if $local_ignored_params->{$param};
             if($param =~ /(_file|_path)$/ || $param eq "file" || $param eq "path") {
-                print $c->val($section, $param) . "\n";
+                my $f = $c->val($section, $param);
+                unless (-e $f) {
+                    #print STDERR "IGNORING $f from '$file' ${section}.$param\n";
+                    next;
+                }
+                print "$f\n";
             }
             elsif($param eq "logo") {
                 my $logo_path = $c->val($section, $param);
