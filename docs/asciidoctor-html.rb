@@ -524,7 +524,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
 
     lines = node.content.lines.map { |line| %(<div>#{line}</div>) }
     %(<div#{id_attribute} class="listingblock#{(role = node.role) ? " #{role}" : ''}">
-  #{title_element}<div class="content">
+  #{copy_button}#{title_element}<div class="content">
   <pre class="bg-secondary text-white #{node.title? ? 'rounded-bottom': 'rounded'} p-3 #{nowrap ? 'nowrap' : ''}">#{lines.join}</pre>
   </div>
   </div>)
