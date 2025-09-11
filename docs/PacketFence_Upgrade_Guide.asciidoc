@@ -617,9 +617,9 @@ Then follow the standard <<PacketFence_Upgrade_Guide.asciidoc#_full_upgrade_for_
 
 === Pre-automation Upgrade Cluster RedHat EL8
 
-It is the same as <<PacketFence_Upgrade_Guide.asciidoc#_performing_an_upgrade_on_a_cluster>>
-when at the step <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_node_c>> for node C,
-follow the upgrade instructions <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_standalone_redhat_el8>>.
+The first steps are the same as in <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+but at the step <<PacketFence_Clustering_Guide.asciidoc#_upgrade_node_c>> for node C,
+follow the upgrade instructions <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>.
 
 == Upgrading from a version prior to X.Y.Z
 
