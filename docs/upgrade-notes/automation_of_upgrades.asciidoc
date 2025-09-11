@@ -18,12 +18,9 @@ endif::[]
 
 //== Automation of upgrades
 
-This section covers base automation of upgrades on the same operating system available since PacketFence 11.0.0.
+This section covers base automation of upgrades on the same operating system available.
 
-Note that on Packetfence 14.0.0, we change the OS from Debian 11 to Debian 12.
-To use PacketFence 14.0 on Debian 12, a new Debian 12 VM will need to be created,
-then <<PacketFence_Installation_Guide.html#_exportimport_mechanism,import/export>>
-from the previous installation to the new one.
+Please, check if there is a "Specific Automation Upgrade" defined between the current version to the choosen version, it may contain specific steps like changing the OS updating database version etc.
 
 === Assumptions and limitations
 
@@ -32,39 +29,10 @@ from the previous installation to the new one.
   upgrades must use the procedure described in the
   <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Clustering
   Guide>>
-* Perform automated upgrades starting:
-** from PacketFence 11.0.0 to PacketFence 13.2.0 on Debian 11
-** after PacketFence 14.0.0 on Debian 12
-** after PacketFence 11.0.0 on RedHat 8
+* Check "Specific Automation Upgrade" (or "Specific Upgrade") in Upgrading to the needed PacketFence version.
 * An exportable backup of the configuration is performed before upgrading
 
-=== Full upgrade (for PacketFence version 11.0.0 only - see next section for 11.1.0 and above)
-
-==== Preliminary steps
-
-On PacketFence version 11.0.0, install the `packetfence-upgrade` package using following instructions:
-
-.RHEL / CentOS based systems **only**
-[source,bash]
-----
-yum install packetfence-upgrade --enablerepo=packetfence
-----
-
-.Debian systems **only**
-[source,bash]
-----
-apt update
-apt install packetfence-upgrade
-----
-
-Then perform a full upgrade using following command:
-
-[source,bash]
-----
-/usr/local/pf/addons/full-upgrade/run-upgrade.sh
-----
-
-=== Full upgrade (for PacketFence versions 11.1.0 and later)
+=== Full upgrade
 
 Run following script to perform a full upgrade:
 

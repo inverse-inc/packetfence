@@ -2888,3 +2888,222 @@ systemctl restart packetfence-mariadb
 ----
 
 
+
+
+=== Upgrading from a version prior to 11.0.0
+
+==== Specific upgrade
+
+Starting from PacketFence 11.0.0, Debian 9 and CentOS 7 support are dropped in benefit of Debian 11 and RHEL 8.
+In place upgrades are not supported. Provision new operating system(s) in order to migrate.
+
+To simplify upgrade process to PacketFence 11.0.0 and future versions, we now
+rely on an export/import mechanism.
+
+Before doing anything else, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> of this mechanism.
+
+=== Specific automation upgrade
+
+==== Full upgrade (for PacketFence version 11.0.0 only)
+
+===== Preliminary steps
+
+On PacketFence version 11.0.0, install the `packetfence-upgrade` package using following instructions:
+
+.RHEL / CentOS based systems **only**
+[source,bash]
+----
+yum install packetfence-upgrade --enablerepo=packetfence
+----
+
+.Debian systems **only**
+[source,bash]
+----
+apt update
+apt install packetfence-upgrade
+----
+
+Then perform a full upgrade using following command:
+
+[source,bash]
+----
+/usr/local/pf/addons/full-upgrade/run-upgrade.sh
+----
+
+==== Export (on current installation)
+
+===== PacketFence version before 10.3.0
+
+. Follow upgrade path to PacketFence 10.3.0
+. Go to next section
+
+===== PacketFence version 10.3.0 or later
+
+Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export process>>.
+
+==== Import (on new installation)
+
+Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,import process>>.
+
+==== Instructions for upgrades without import
+
+If the import mechanism is not used to upgrade the previous PacketFence installation,
+follow the instructions in this section to upgrade the configuration and database schema.
+
+===== Configuration upgrade
+
+[source,bash]
+----
+# Only run if the previous configuration is not imported
+/usr/local/pf/addons/upgrade/to-11.0-firewall_sso-conf.pl
+/usr/local/pf/addons/upgrade/to-11.0-no-slash-32-switches.pl
+/usr/local/pf/addons/upgrade/to-11.0-openid-username_attribute.pl
+----
+
+===== Database schema
+
+Changes have been made to the database schema.
+An SQL upgrade script has been provided to upgrade the database schema from 10.3 to 11.0.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+# Only run if the previous configuration is not imported
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.3-11.0.sql
+----
+
+
+==== NTLM cache background job deprecated in Active Directory Domains
+
+The option `NTLM cache background job` and its associated parameters have been deprecated. If this option was previously used on at least one of the domains, it will automatically use the `NTLM cache on connection` method.
+
+==== pf-maint.pl script deprecated
+
+The `pf-maint.pl` script used to get maintenance patches has been deprecated. Get maintenance patches using the package manager, see <<#_apply_maintenance_patches,Apply maintenance patches section>>.
+
+
+==== TLS 1.0 and 1.1 are disabled by default in FreeRADIUS
+
+TLS 1.0 and TLS 1.1 are now disabled by default. If supplicants are currently
+using theses protocols, move to TLS 1.2. If TLS 1.2 is not possible adjust
+`TLS Minimum version` in _Configuration -> System configuration -> RADIUS -> TLS profiles_.
+
+
+=== Upgrading from a version prior to 11.1.0
+
+
+==== Automation of upgrades for standalone servers
+
+Upgrades are now automated for standalone servers starting from PacketFence 11.0.0.
+Follow instructions related to
+<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation
+of upgrades>>.
+
+==== Support of custom rules in iptables.conf
+
+PacketFence now provides a way to add custom rules in [filename]`/usr/local/pf/conf/iptables.conf` using two files:
+
+* [filename]`/usr/local/pf/conf/iptables-input.conf.inc` for all input traffic
+* [filename]`/usr/local/pf/conf/iptables-input-management.conf.inc` for all input traffic related to management interface
+
+If custom rules in `iptables.conf` were previously created, we recommend moving these rules into these files.
+
+==== Support of local authentication for 802.1X in web admin
+
+PacketFence now allow to enable or disable local authentication for 802.1X directly in web admin.
+
+If `packetfence-local-auth` has been previously enabled in
+[filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`, we recommend
+enabling this feature in PacketFence web admin (see
+<<PacketFence_Installation_Guide.asciidoc#_eap_local_user_authentication,EAP
+local user authentication>>).
+
+
+==== Support of Monit configuration in pf.conf
+
+Monit configuration is now managed directly in
+[filename]`/usr/local/pf/conf/pf.conf`. An upgrade script will be used during
+upgrade process to automatically migrate existing Monit configuration into
+[filename]`/usr/local/pf/conf/pf.conf`.
+
+
+==== Note for cluster upgrades
+
+Cluster upgrades are not automated, follow the instructions in this section to upgrade the configuration and database schema.
+
+===== Configuration upgrade
+
+[source,bash]
+----
+# Only run this for cluster upgrades
+/usr/local/pf/addons/upgrade/to-11.1-cleanup-ntlm-cache-batch-fields.pl
+/usr/local/pf/addons/upgrade/to-11.1-migrate-monit-configuration-to-pf-conf.pl
+/usr/local/pf/addons/upgrade/to-11.1-remove-unused-sources.pl
+/usr/local/pf/addons/upgrade/to-11.1-update-reports.pl
+----
+
+===== Database schema
+
+Changes have been made to the database schema.
+An SQL upgrade script has been provided to upgrade the database from the 11.0 schema to 11.1.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+# Only run this for cluster upgrades
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-11.0-11.1.sql
+----
+
+=== Upgrading from a version prior to 11.2.0
+
+==== Automation of upgrades for standalone servers
+
+Upgrades are now automated for standalone servers starting from PacketFence 11.0.0.
+Follow instructions related to
+<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation
+of upgrades>>.
+
+==== Note for cluster upgrades
+
+Cluster upgrades are not automated, follow the instructions in this section to upgrade the configuration and database schema.
+
+===== Configuration upgrade
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-11.2-pfcron.pl
+/usr/local/pf/addons/upgrade/to-11.2-pfcron-populate_ntlm_redis_cache.pl
+/usr/local/pf/addons/upgrade/to-11.2-upgrade-pf-privileges.sh
+----
+
+===== Database schema
+
+Changes have been made to the database schema.
+An SQL upgrade script has been provided to upgrade the database from the 11.1 schema to 11.2.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+# Only run this for cluster upgrades
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-11.1-11.2.sql
+----
+
+==== Change of behavior for filter engines not_equals operator
+
+If any condition for filters (VLAN, RADIUS, Switch, DNS, DHCP, and Profile) uses a ```not equals`` operator.
+Check if the logic is still ok if the value is null/undef.
+
+If a filter must ensure a value is defined, add an additional defined condition to the filter.
+
+==== Notification on certificates expiration in pfpki
+
+If `pfpki` is used, and PKI templates were created without email attribute, we
+recommend setting a value for this attribute.
+
+By doing this, `pfpki` will use email addresses defined in PKI templates to
+notify about next certificates expirations for certificates without emails.
+
+
