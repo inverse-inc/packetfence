@@ -129,7 +129,7 @@ if [ "$FB_NEEDED" = true ]; then
 fi
 
 /usr/local/pf/bin/pfcmd fixpermissions
-find /usr/local/pf/logs/ -mindepth 1 -exec chown pf:pf {} +
+find /usr/local/pf/logs/ -mindepth 1 -print0 | xargs -0 echo chown pf:pf
 echo "Permissions with new uid and gid are fixed"
 
 systemctl start packetfence-config
