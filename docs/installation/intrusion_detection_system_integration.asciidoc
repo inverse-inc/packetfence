@@ -382,7 +382,7 @@ gpg --export --armor 19CDA6A9810273C4 | sudo apt-key add -
 
   * Modify network file (/etc/network/inferfaces) so that eth2 has an IP and a proper MTU. Decapsulated traffic will be injected on mon1. Make sure that the configuration is similar to the following:
 
-[source,ini,numbered]
+[source,ini]
 ----
 auto eth2
 iface eth2 inet static

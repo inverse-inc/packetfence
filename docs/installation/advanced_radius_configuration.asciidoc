@@ -35,7 +35,7 @@ To perform EAP-PEAP authentication using Microsoft Active Directory, please refe
 To authenticate 802.1X connection against OpenLDAP you need to define the LDAP connection in [filename]`/usr/local/pf/raddb/modules/ldap` and
 be sure that the user password is define as a NTHASH or as clear text.
 
-[source,radius,numbered]
+[source,radius]
 ----
   ldap openldap {
     server = "ldap.acme.com"
@@ -67,7 +67,7 @@ be sure that the user password is define as a NTHASH or as clear text.
 
 Next in [filename]`/usr/local/pf/raddb/sites-available/packetfence-tunnel` add in the authorize section:
 
-[source,radius,numbered]
+[source,radius]
 ----
 authorize {
         suffix
@@ -110,7 +110,7 @@ This section will allow you to limit a brute force attack and prevent the lockin
 
 Edit [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`
 
-[source,radius,numbered]
+[source,radius]
 ----
 # Uncomment the following lines to enable this feature
 packetfence-control-ntlm-failure
@@ -124,7 +124,7 @@ Fell free to change the default values in `raddb/policy.d/packetfence` and in `r
 
 Test your setup with `radtest` using the following command and make sure you get an `Access-Accept` answer:
 
-[source,radius,numbered]
+[source,radius]
 ----
 # radtest dd9999 Abcd1234 localhost:18120 12 testing123
 Sending Access-Request of id 74 to 127.0.0.1 port 18120

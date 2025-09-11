@@ -37,7 +37,7 @@ When configured, connection profiles will override default values. When no value
 Below the different configuration parameters for each connection profile are provided. The only mandatory parameter is "filter", otherwise, PacketFence will not be able to correctly apply the connection profile. The parameters are set in [filename]`/usr/local/pf/conf/profiles.conf`:
 
 ./usr/local/pf/conf/profiles.conf
-[source,ini,numbered]
+[source,ini]
 ----
 [profilename1]
 description = the description of the connection profile
@@ -169,7 +169,7 @@ machine_account == \\__NULL__
 ----
 
 Example of attributes that can be filtered:
-[source,perl,numbered]
+[source,perl]
 ----
 'radius_request' => {
   'NAS-Port-Type' => 15,
