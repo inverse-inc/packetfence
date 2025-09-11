@@ -20,7 +20,7 @@ endif::[]
 
 This section covers base automation of upgrades on the same operating system available.
 
-Please, check if there is a "Specific Automation Upgrade" defined between the current version to the choosen version, it may contain specific steps like changing the OS updating database version etc.
+Please, check if there is a "Specific Automation Upgrade" defined between the current version to the chosen version, it may contain specific steps like changing the OS, updating database version, etc.
 
 === Assumptions and limitations
 
