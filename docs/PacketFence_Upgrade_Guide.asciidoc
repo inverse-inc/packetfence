@@ -360,7 +360,7 @@ Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch modules
 
 Packetfence 14.0.0, we change the OS from Debian 11 to Debian 12.
 
-To use PacketFence 14.0 on Debian 12, a new Debian 12 VM will need to be created, then <<PacketFence_Installation_Guide.html#_exportimport_mechanism,import/export>> from the previous installation to the new one.
+To use PacketFence 14.0 on Debian 12, a new Debian 12 VM will need to be created, then <<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,import/export>> from the previous installation to the new one.
 
 ==== RedHat 8
 
