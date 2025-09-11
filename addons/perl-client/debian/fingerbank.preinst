@@ -14,12 +14,12 @@ stop_user_processes() {
     else
         echo "Stopping processes gracefully..."
         pkill -TERM -u "$username" 2>/dev/null
-        sleep 2
+        sleep 10
         remaining_processes=$(pgrep -u "$username" 2>/dev/null)
         if [ -n "$remaining_processes" ]; then
             echo "Force stopping remaining processes..."
             pkill -KILL -u "$username" 2>/dev/null
-            sleep 2
+            sleep 5
         fi
         if pgrep -u "$username" &>/dev/null; then
             echo "Error: Could not stop all processes for user '$username'"

@@ -24,26 +24,21 @@ stop_user_processes() {
 
     if [ -z "$running_processes" ]; then
         echo "No processes found running as user '$username'"
-        return 0
+    else
+        echo "Stopping processes gracefully..."
+        pkill -TERM -u "$username" 2>/dev/null
+        sleep 10
+        remaining_processes=$(pgrep -u "$username" 2>/dev/null)
+        if [ -n "$remaining_processes" ]; then
+            echo "Force stopping remaining processes..."
+            pkill -KILL -u "$username" 2>/dev/null
+            sleep 5
+        fi
+        if pgrep -u "$username" &>/dev/null; then
+            echo "Error: Could not stop all processes for user '$username'"
+        fi
+        echo "All processes for user '$username' have been stopped"
     fi
-
-    echo "Stopping processes gracefully..."
-    pkill -TERM -u "$username" 2>/dev/null
-    sleep 2
-
-    remaining_processes=$(pgrep -u "$username" 2>/dev/null)
-    if [ -n "$remaining_processes" ]; then
-        echo "Force stopping remaining processes..."
-        pkill -KILL -u "$username" 2>/dev/null
-        sleep 2
-    fi
-
-    if pgrep -u "$username" &>/dev/null; then
-        echo "Error: Could not stop all processes for user '$username'"
-        return 1
-    fi
-
-    echo "All processes for user '$username' have been stopped"
     return 0
 }
 
