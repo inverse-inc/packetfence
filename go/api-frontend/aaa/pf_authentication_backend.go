@@ -44,13 +44,17 @@ func NewPfAuthenticationBackend(ctx context.Context, url *url.URL, checkCert boo
 }
 
 func (pfab *PfAuthenticationBackend) Authenticate(ctx context.Context, username, password string) (bool, *TokenInfo, error) {
+	// Add a 30-second timeout to the context if not already set
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
 	body, err := json.Marshal(map[string]string{
 		"username": username,
 		"password": password,
 	})
 	sharedutils.CheckError(err)
 
-	req, err := http.NewRequest("POST", pfab.url.String(), bytes.NewBuffer(body))
+	req, err := http.NewRequestWithContext(ctxWithTimeout, "POST", pfab.url.String(), bytes.NewBuffer(body))
 	sharedutils.CheckError(err)
 	resp, err := pfab.httpClient.Do(req)
 	if err != nil {
