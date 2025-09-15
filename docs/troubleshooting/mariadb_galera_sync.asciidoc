@@ -1,0 +1,16 @@
+=== Checking the MariaDB sync
+
+Check MariaDB sync by examining `wsrep` status values in MariaDB:
+
+----
+MariaDB> show status like 'wsrep%';
+----
+
+Important variables:
+
+  * `wsrep_cluster_status`: Shows if node is part of primary view. Healthy clusters show 'primary'
+  * `wsrep_incoming_addresses`: Current cluster members. All cluster nodes should be listed
+  * `wsrep_last_committed`: Most recent committed transaction sequence number. Identifies most advanced node
+  * `wsrep_local_state_comment`: Cluster sync state. Healthy state is 'Synced'. See Galera documentation for other values
+
+Healthy cluster requires: all nodes listed in `wsrep_incoming_addresses` and `wsrep_local_state_comment` as `Synced`. Otherwise check MariaDB log (`/usr/local/pf/logs/mariadb.log`).

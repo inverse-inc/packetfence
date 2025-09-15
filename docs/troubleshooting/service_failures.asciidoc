@@ -1,0 +1,57 @@
+=== Service Startup Failures
+
+If services fail to start after upgrade or configuration changes:
+
+1. Check service status using:
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf status
+----
+
+2. Examine log files in `/usr/local/pf/logs` for specific service error messages
+
+3. Verify database connectivity before starting services
+
+4. Check configuration syntax using:
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd checkup
+----
+
+5. For network-related service failures, verify interface configuration and IP addresses
+
+6. If httpd services fail, check Apache error logs and verify SSL certificate validity
+
+**Common Service Issues:**
+
+7. **Admin Interface Access Issues**: If admin interface shows "Internet Explorer cannot display the webpage":
+   - Check if admin interface is started: `/usr/local/pf/bin/pfcmd service httpd.admin start`
+   - For IE 8-10: Enable TLS v1.2 in browser settings (Tools -> Internet Options -> Advanced)
+   - Verify SSL certificate matches hostname
+
+8. **MariaDB Service Issues**: If MariaDB fails to start, check:
+[source,bash]
+----
+tail -f /usr/local/pf/logs/mariadb.log
+----
+
+9. **Service Restart Commands**: For specific service troubleshooting:
+[source,bash]
+----
+# Restart RADIUS services
+/usr/local/pf/bin/pfcmd service radiusd restart
+
+# Restart NTLM authentication API
+systemctl restart packetfence-ntlm-auth-api
+
+# Restart specific detection services
+/usr/local/pf/bin/pfcmd service pfdetect restart
+/usr/local/pf/bin/pfcmd service pfqueue restart
+----
+
+10. **Monitoring Service Logs**: Use journalctl for real-time log monitoring:
+[source,bash]
+----
+journalctl -f -u packetfence-mariadb
+journalctl -f  # Monitor all system logs
+----

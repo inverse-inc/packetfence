@@ -58,3 +58,7 @@ include::firewall/junipersrx.asciidoc[]
 
 include::firewall/paloalto.asciidoc[]
 
+=== Troubleshooting SSO Integration
+
+For SSO integration issues, verify firewall API connectivity and check integration logs as described in <<#_log_files,Log Files>> and <<#_network_connectivity_issues,Network Connectivity Issues>> in the Troubleshooting section.
+

@@ -18,59 +18,21 @@ endif::[]
 
 //== Troubleshooting PacketFence
 
-=== RADIUS Audit Log
+include::../troubleshooting/radius_audit_log.asciidoc[]
 
-PacketFence RADIUS auditing module tracks all incoming RADIUS requests/responses. Access via _Auditing -> RADIUS Audit Log_. Advanced search criteria create complex, savable search expressions. Click log entries to view endpoint information, request origin, and RADIUS payload between NAS and PacketFence.
+include::../troubleshooting/log_files.asciidoc[]
 
-=== Log files
+include::../troubleshooting/radius_debugging.asciidoc[]
 
-Log files are in `/usr/local/pf/logs`. Each service has its own log file, except `packetfence.log` which contains logs from multiple services. View complete log file list via _Audit -> Live logs_ menu in web admin.
+include::../troubleshooting/authentication_failures.asciidoc[]
 
-Main logging configuration is in `/usr/local/pf/conf/log.conf`. Contains `packetfence.log` configuration (`Log::Log4Perl`) - normally no modification needed. Service-specific logging configurations are in `/usr/local/pf/conf/log.conf.d/`.
+include::../troubleshooting/network_connectivity.asciidoc[]
 
-=== RADIUS Debugging
+include::../troubleshooting/service_failures.asciidoc[]
 
-Check FreeRADIUS logs at `/usr/local/pf/logs/radius.log`.
+include::../troubleshooting/database_connectivity.asciidoc[]
 
-If needed, run FreeRADIUS in debug mode using these commands:
+include::../troubleshooting/performance_issues.asciidoc[]
 
-For the authentication radius process:
-
-[source,bash]
-----
-radiusd -X -d /usr/local/pf/raddb -n auth
-----
-
-For the accounting radius process:
-
-[source,bash]
-----
-radiusd -X -d /usr/local/pf/raddb -n acct
-----
-
-Additionally there is a `raddebug` tool that can extract debug logs from a
-running FreeRADIUS daemon. PacketFence's FreeRADIUS is pre-configured with such support.
-
-In order to have an output from `raddebug`, you need to either:
-
-a. Make sure user `pf` has a shell in `/etc/passwd`, add `/usr/sbin` to PATH (`export PATH=/usr/sbin:$PATH`) and execute `raddebug` as `pf`
-b. Run `raddebug` as root (less secure!)
-
-Now you can run `raddebug` easily:
-
-[source,bash]
-----
-raddebug -t 300 -f /usr/local/pf/var/run/radiusd.sock
-----
-
-The above will output FreeRADIUS' authentication debug logs for 5 minutes.
-
-Use the following to debug radius accounting:
-
-[source,bash]
-----
-raddebug -t 300 -f /usr/local/pf/var/run/radiusd-acct.sock
-----
-
-See `man raddebug` for all the options.
+include::../troubleshooting/captive_portal_issues.asciidoc[]
 

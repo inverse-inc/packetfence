@@ -34,6 +34,8 @@ The Galera cluster stack will continuously check that it has a quorum. Should on
 
 Once the server that is in read-only mode joins a quorum, it will go back in read-write mode and the system will go back to its normal behavior automatically.
 
+If nodes fail to rejoin the cluster or remain in read-only mode unexpectedly, see <<#_checking_the_mariadb_sync,Checking the MariaDB sync>> and <<#_cluster_database_recovery,Cluster Database Recovery>> in the Troubleshooting section for Galera synchronization issues.
+
 === Graceful shutdown behavior
 
 When you are gracefully shutting down servers for a planned maintenance, you should always aim to leave a quorum alive so that once the server joins its peers again, it will always re-join the cluster gracefully. You can also leave only one of the nodes alive but keep in mind it will fall in read-only mode until all the nodes that were part of the last healthy quorum rejoin the cluster.

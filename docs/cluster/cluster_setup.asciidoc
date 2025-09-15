@@ -132,6 +132,8 @@ Now, on *the first server* of your cluster, you should go through the configurat
 
 NOTE: When configuring the network interfaces, ensure that you mark the management interface as *high-availability*. Otherwise, you will not be able to perform the database synchronization.
 
+If the configurator fails or cluster setup encounters issues, see <<#_service_startup_failures,Service Startup Failures>> and <<#_checking_the_mariadb_sync,Checking the MariaDB sync>> in the Troubleshooting section.
+
 Then restart PacketFence's mariadb on *the first server*:
 
 [source,bash]
@@ -207,6 +209,8 @@ port=6033
 ----
 
 Now, restart `packetfence-config` and reload the configuration. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because `packetfence-config` cannot connect to the database yet.
+
+If database connectivity issues persist beyond expected, see <<#_database_connectivity_issues,Database Connectivity Issues>> and <<#_checking_the_mariadb_sync,Checking the MariaDB sync>> in the Troubleshooting section.
 
 [source,bash]
 ----
@@ -472,7 +476,7 @@ After each reboot, ensure the database sync is fine by performing the checks out
 NOTE: It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks.
 
 From the admin interface (using virtual IP address of
-your cluster), go in _Configuration -> System Configuration -> Cluster_ and
+your cluster), go to _Configuration -> System Configuration -> Cluster_ and
 change the `Shared KEY`.
 
 Make sure you restart `keepalived` on *all your
@@ -487,6 +491,8 @@ If you already use VRRP protocol on your network, you can also change the defaul
 
 ==== Domain join
 
-Next, make sure to join domains through _Configuration -> Policies And Access Control -> Domains -> Active Directory Domains_ on *each node*.
+Next, make sure to join domains through _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ on *each node*.
 Please refer to <<../PacketFence_Installation_Guide.asciidoc#_domain_joining_on_a_packetfence_cluster_v14_x, Domain joining on a PacketFence cluster v14.x>> for detailed steps.
+
+If domain joining fails on cluster nodes, see <<#_network_connectivity_issues,Network Connectivity Issues>>, <<#_authentication_failures,Authentication Failures>>, and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section.
 

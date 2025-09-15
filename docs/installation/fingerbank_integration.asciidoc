@@ -66,3 +66,5 @@ The easiest detection method triggers on any device class change, firing securit
 
 Instead of detecting all transitions, trigger security events on specific device class transitions. Declare transitions in "Manual device class change triggers".
 
+If device profiling isn't working, check fingerbank logs as described in <<#_log_files,Log Files>> in the Troubleshooting section.
+

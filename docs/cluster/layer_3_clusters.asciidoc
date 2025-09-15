@@ -305,7 +305,7 @@ For this configuration at least 3 servers are needed at the main site and at lea
 
 ==== Prepare the configuration
 
-To configure PacketFence first turn ON "Master/Slave mode" in Configuration -> System Configuration -> Database -> Advanced.
+To configure PacketFence first turn ON "Master/Slave mode" in _Configuration -> System Configuration -> Database -> Advanced_.
 
 Next configure cluster.conf during the initial cluster setup, refer to the example below.
 

@@ -128,6 +128,8 @@ include::common/reboot.asciidoc[]
 
 include::common/restart.asciidoc[]
 
+If services fail to start after upgrade, see <<#_service_startup_failures,Service Startup Failures>> and <<#_log_files,Log Files>> in the Troubleshooting section.
+
 == Upgrade to another version (major or minor)
 
 === For a standalone server
@@ -158,12 +160,12 @@ If ProxySQL causes issues in the deployment, revert back to haproxy-db by follow
 
 Tracking the bandwidth accounting information is now disabled by default.
 If bandwidth reports or security events are required then enable it by following
-Go to _Configuration -> System Configuration -> RADIUS -> General_
+In the admin interface, go to _Configuration -> System Configuration -> RADIUS -> General_
 Then enable 'Process Bandwidth Accounting'. The `pfacct` service has to be restarted to apply any changes.
 
 === Fix permissions and checkups deprecated
 
-API calls used to fix permissions and to perform checkups from web admin have been deprecated.
+API calls used to fix permissions and to perform checkups from the admin interface have been deprecated.
 With the containerization of several services, it didn't make sense to keep them available.
 
 However, it's still possible to perform these commands on a PacketFence server using `pfcmd fixpermissions` and `pfcmd checkup`.
@@ -319,6 +321,8 @@ For each remaining server in the cluster:
 3. The Machine account password will be a hash or the original password. Retype the password used above.
 
 4. Click Save
+
+If domain joining fails during upgrade, see <<#_authentication_failures,Authentication Failures>> and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section.
 
 
 == Upgrading from a version prior to 13.2.0
@@ -477,10 +481,10 @@ Hostnames using the `%h` prefix or suffix must still be used when upgrading from
 unless specifying individual machine account names for each node.
 
  . Do a configuration sync after upgrade - so all the slave nodes lost their domain config.
- . Open PacketFence Admin UI, go to "configuration" -> "Policies and Access Control" -> "Active Directory Domains"
+ . Open the admin interface, go to _Configuration -> Policies and Access Control -> Active Directory Domains_
  . Take a note of the configuration for later, the entire configuration will need to be replicated on the slave nodes.
  . Use "API redirect" to switch between nodes or directly access the API using node's IP.
-   .. Using API redirect: Visit the API redirect in "Admin UI" -> "Status" -> "Services" -> "API redirect", then select the node to handle API request.
+   .. Using API redirect: Visit the API redirect in _Status -> Services -> API redirect_, then select the node to handle API request.
    .. Directly access the node using IP address: use "https://node_ip:1443/" to select the node to handle API request.
    .. Then select a specific node to handle the API requests, the "Domain Joining" operation will be only be performed on the selected node.
  . Using either API redirect or manually selection to switch across all the nodes
@@ -593,6 +597,8 @@ The configuration and database is now migrated to the new host.
 
 If all goes well, restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
 
+If migration fails, verify database backup integrity and check available disk space. For troubleshooting import/export issues, see <<#_log_files,Log Files>> and <<#_database_connectivity_issues,Database Connectivity Issues>> in the Troubleshooting section.
+
 
 ===== Additional steps to build or rebuild a cluster
 
@@ -675,7 +681,21 @@ If a difference is found the current configuration will be saved in [filename]`/
 /usr/local/pf/addons/upgrade/to-15.0-check-custom-iptables-configurations.sh
 ----
 
+== Troubleshooting Upgrades
 
+include::troubleshooting/service_failures.asciidoc[]
+
+include::troubleshooting/database_upgrade_issues.asciidoc[]
+
+include::troubleshooting/database_connectivity.asciidoc[]
+
+include::troubleshooting/authentication_failures.asciidoc[]
+
+include::troubleshooting/radius_debugging.asciidoc[]
+
+include::troubleshooting/log_files.asciidoc[]
+
+include::troubleshooting/performance_issues.asciidoc[]
 
 == Archived upgrade notes
 

@@ -368,3 +368,5 @@ If you need to add domains to passthroughs, we advise you to capture the traffic
  tcpdump -i $REGISTRATION_INTERFACE -n dst port 53 and src host @IP_Device
 
 This will output any DNS requests from the device to PacketFence. You will need to find *google* related domain and add them to your passthroughs list.
+
+For certificate-related issues, check logs in `/usr/local/pf/logs/` as described in <<#_log_files,Log Files>> in the Troubleshooting section.

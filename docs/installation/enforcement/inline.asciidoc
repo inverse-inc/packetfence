@@ -128,3 +128,5 @@ Once a computer has been registered:
 * make sure PacketFence changes the firewall (`ipset -L`) rules so that the user is authorized through. Look into PacketFence log file: `/usr/local/pf/logs/packetfence.log`
 * from the web administrative interface, go under Nodes and make sure you see the computer as 'Registered'.
 * the computer has access to the network and the Internet.
+
+For inline enforcement issues, check iptables rules and logs as described in <<#_log_files,Log Files>> and <<#_network_connectivity_issues,Network Connectivity Issues>> in the Troubleshooting section.

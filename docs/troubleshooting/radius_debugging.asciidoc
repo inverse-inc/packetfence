@@ -1,0 +1,45 @@
+=== RADIUS Debugging
+
+Check FreeRADIUS logs at `/usr/local/pf/logs/radius.log`.
+
+If needed, run FreeRADIUS in debug mode using these commands:
+
+For the authentication radius process:
+
+[source,bash]
+----
+radiusd -X -d /usr/local/pf/raddb -n auth
+----
+
+For the accounting radius process:
+
+[source,bash]
+----
+radiusd -X -d /usr/local/pf/raddb -n acct
+----
+
+Additionally there is a `raddebug` tool that can extract debug logs from a
+running FreeRADIUS daemon. PacketFence's FreeRADIUS is pre-configured with such support.
+
+In order to have an output from `raddebug`, you need to either:
+
+a. Make sure user `pf` has a shell in `/etc/passwd`, add `/usr/sbin` to PATH (`export PATH=/usr/sbin:$PATH`) and execute `raddebug` as `pf`
+b. Run `raddebug` as root (less secure!)
+
+Now you can run `raddebug` easily:
+
+[source,bash]
+----
+raddebug -t 300 -f /usr/local/pf/var/run/radiusd.sock
+----
+
+The above will output FreeRADIUS' authentication debug logs for 5 minutes.
+
+Use the following to debug radius accounting:
+
+[source,bash]
+----
+raddebug -t 300 -f /usr/local/pf/var/run/radiusd-acct.sock
+----
+
+See `man raddebug` for all the options.
