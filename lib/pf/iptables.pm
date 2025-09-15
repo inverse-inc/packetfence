@@ -2248,7 +2248,6 @@ sub util_add_custom_config_from_file {
                     $logger->warn("Invalid chain '$chain' in table '$table' in $filename");
                     return \%empty_hash;
                 }
-                
                 $has_rules = 1 if @{$custom_config->{$table}{$chain}};
             }
         }
@@ -2264,7 +2263,6 @@ sub util_add_custom_config_from_file {
         return \%empty_hash;
     } catch {
         my $error = shift;
-        printf("Failed to process $file: $error");
         $logger->warn("Failed to process $file: $error");
         return \%empty_hash;
     };
