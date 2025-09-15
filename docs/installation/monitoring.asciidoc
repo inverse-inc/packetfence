@@ -27,20 +27,24 @@ The metrics are displayed in 2 separate sections
 
 All metrics are retained for a maximum of 28 days. Older metrics are automatically pruned to limit disk usage. To increase the retention rate edit the configuration and restart the service:
 
-```
+[source,bash]
+----
 vi /usr/local/pf/conf/monitoring/netdata.conf
 
 [db]
     retention = 2419200 # 28 days (seconds)
-```
+----
+
 
 ====== Dashboard
 
 The dashboard diplays the metrics collected by pfstats for the unregistration/registration status of all nodes managed by PacketFence. These metrics are common across all cluster members, therefore a complete view is displayed from any host that is a member of the same cluster.
 
-======= Monitoring
-
-The monitoring section displays the metrics collected by netdata for the health of the system. Wether the setup is standalone, or a cluster, a section is dedicated to each host in the deployment. When using one host to view metrics from another, the external host must be up and running.
+[#netdata-cloud-dashboard-monitoring]
+[NOTE]
+====
+Monitoring: The monitoring section displays the metrics collected by netdata for the health of the system. Wether the setup is standalone, or a cluster, a section is dedicated to each host in the deployment. When using one host to view metrics from another, the external host must be up and running.
+====
 
 The User Interface (Web Admin) now includes:
 
@@ -50,9 +54,10 @@ The User Interface (Web Admin) now includes:
 
 To obtain the local Netdata random session identifier:
 
-```
+[source,bash]
+----
 cat /usr/local/pf/var/netdata-lib/netdata_random_session_id
-```
+----
 
 Once connected to Netdata Cloud, Netdata alerts will be sent to the email address used to register the Netdata Cloud account.
 
@@ -61,6 +66,7 @@ To attach all members of a cluster, each member has its own unique session id; w
 
 ===== Restarting Service
 
-```
+[source,bash]
+----
 systemctl restart packetfence-netdata
-```
+----

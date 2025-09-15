@@ -540,7 +540,7 @@ image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS AC
 
 ==== Cisco IOS 15.5
 
-CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS,this section below>>.
+CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS_2,this section below>>.
 
 ===== Port­Security for IOS 12.2(46)SE or greater
 
@@ -592,7 +592,7 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 * Gi0/1...Gi0/48 -> 10101...10148 
 ===========================================================================
 
-[[Catalyst_RADIUS]]
+[[Catalyst_RADIUS_2]]
 ===== 2960, 2970, 3560, 3750
 
 NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC Authentication. This can cause unexpected behavior.

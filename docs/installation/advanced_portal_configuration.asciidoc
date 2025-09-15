@@ -199,7 +199,7 @@ NOTE: The MySQL `root` password was only provided during Configuration and not s
 
 Configure the survey in [filename]`/usr/local/pf/conf/survey.conf`. Here is an example of a survey:
 
-[source,ini,numbered]
+[source,ini]
 ----
 [survey1]
 description=Mustard Turkey Sandwich Brothers
@@ -298,7 +298,7 @@ In _"Policies and Access Control -> Connection Profiles -> Name of the profile"_
 
 The data collected from the example survey is stored in the `survey_survey1` database table. Create a _Report_ for the survey in [filename]`/usr/local/pf/conf/report.conf` and add the following parameters:
 
-[source,ini,numbered]
+[source,ini]
 ----
 [survey1]
 description=My first survey report

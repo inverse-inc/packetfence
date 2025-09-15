@@ -94,7 +94,7 @@ link:
   font_color: 428BCA
   font_color: 007BFF
 # literal is currently used for inline monospaced in prose and table cells
-literal:
+codespan:
   font_color: 333333
   font_color: B12146
   font_color: E83E8C
@@ -102,7 +102,7 @@ literal:
 button:
   content: "[\u2009%s\u2009]"
   font_style: bold
-key:
+kbd:
   background_color: F5F5F5
   background_color: F8F8F8
   border_color: CCCCCC
@@ -196,7 +196,7 @@ admonition:
     font_style: bold
     # caution:
     #   font_color: F77D05
-blockquote:
+quote:
   font_size: $base_font_size_large
   border_color: $base_border_color
   border_width: 0
@@ -271,7 +271,7 @@ description_list:
   term_font_style: bold
   term_spacing: $vertical_rhythm / 4
   description_indent: $horizontal_rhythm * 1.25
-outline_list:
+list:
   indent: $horizontal_rhythm * 1.5
   #marker_font_color: 404040
   # NOTE outline_list_item_spacing applies to list items that do not have complex content
