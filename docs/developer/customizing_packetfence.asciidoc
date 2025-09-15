@@ -55,7 +55,7 @@ The easiest way to customize CSS is to override default CSS using a `<style>` ta
 
 `<style>` tag must be inserted just before `<\head>` in [filename]`layout.html`.
 
-You also need to disable Content-Security-Policy (CSP) headers on captive portal (see <<../PacketFence_Installation_Guide.asciidoc#_content_security_policy_csp,instructions>>).
+You also need to disable Content-Security-Policy (CSP) headers on captive portal (see https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#content_security_policy_csp[instructions]).
 
 ===== Workflow
 

@@ -23,14 +23,14 @@ This guide covers procedures to upgrade PacketFence servers.
 
 === Other sources of information
 
-<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
+https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html[Clustering Guide]::
   Covers installation in a clustered environment.
-<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+https://www.packetfence.org/doc/PacketFence_Developers_Guide.html[Developer's Guide]::
   Covers API, captive portal customization, application code customizations and
   instructions for supporting new equipment.
-<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
+https://www.packetfence.org/doc/PacketFence_Installation_Guide.html[Installation Guide]::
   Covers installation and configuration of PacketFence.
-<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
+https://www.packetfence.org/doc/PacketFence_Network_Devices_Configuration_Guide.html[Network Devices Configuration Guide]::
   Covers switches, WiFi controllers and access points configuration.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
@@ -47,7 +47,7 @@ The MariaDB root password that was provided during the initial configuration is 
 
 NOTE: Starting from PacketFence 11.0.0, this step is not necessary for
 doing an
-<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automated
+<<#_automation_of_upgrades,automated
 upgrade>>.
 
 Taking a complete backup of the current installation is strongly recommended.
@@ -69,7 +69,7 @@ Perform a backup using:
 
 NOTE: Starting from PacketFence 11.0.0, this step is not necessary for
 doing an
-<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automated
+<<#_automation_of_upgrades,automated
 upgrade>>.
 
 If `monit` is installed and running, stop and disable it with:
@@ -180,7 +180,7 @@ If services fail to start after upgrade, see <<#_service_startup_failures,Servic
 
 **Automated Process Available** (PacketFence 11.0+):
 1. **Check current version**: Confirm you're upgrading to the next sequential version
-2. **Follow automation**: Use <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>
+2. **Follow automation**: Use <<#_automation_of_upgrades,automation of upgrades>>
 3. **Verify success**: Confirm services start correctly before proceeding to next version
 
 If upgrading across multiple versions, **repeat the process for each intermediate version**.
@@ -191,7 +191,7 @@ If upgrading across multiple versions, **repeat the process for each intermediat
 
 **Process**:
 1. **Plan downtime**: Cluster upgrades require coordination across all nodes
-2. **Follow cluster guide**: See <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+2. **Follow cluster guide**: See https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html#performing_an_upgrade_on_a_cluster[Performing an upgrade on a cluster]
 3. **Upgrade all nodes**: Ensure all nodes reach the same version before proceeding to next version
 
 **Critical**: Never have cluster nodes running different major versions simultaneously.
@@ -210,7 +210,7 @@ The code used to manage tenants in PacketFence has been removed. If tenants are 
 
 PacketFence previously used haproxy (via the haproxy-db service) to load balance and failover database connections from the PacketFence services to the database servers. This is now performed by ProxySQL which allows for splitting reads and writes to different members which offers greater performance and scalability.
 
-If ProxySQL causes issues in the deployment, revert back to haproxy-db by following <<PacketFence_Clustering_Guide.asciidoc#_database_via_proxysql_or_haproxy_db,these instructions>>
+If ProxySQL causes issues in the deployment, revert back to haproxy-db by following https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html#database_via_proxysql_or_haproxy_db[these instructions]
 
 === Bandwidth accounting is now disabled by default.
 
@@ -559,7 +559,7 @@ PacketFence 14.0.0 introduces changes to supported operating systems:
 
 **In-place upgrades supported** - Follow standard upgrade procedures:
 
-1. Use the automated upgrade process: <<PacketFence_Upgrade_Guide.asciidoc#_sequential_version_upgrades_major_and_minor,Sequential Version Upgrades (major or minor)>>
+1. Use the automated upgrade process: <<#_sequential_version_upgrades_major_and_minor,Sequential Version Upgrades (major or minor)>>
 2. No OS migration required - PacketFence continues supporting EL8
 
 ==== Migration to Debian 12
@@ -588,9 +588,9 @@ Expected versions:
 - **Debian 12**: MariaDB server 10.11.6-MariaDB  
 - **RedHat EL8**: Version varies by repository
 
-If mariadb-backup is not installed, follow the standard export process at <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export on current installation>>.
+If mariadb-backup is not installed, follow the standard export process at https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#export_on_current_installation[export on current installation].
 
-**Prerequisites**: Read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> before proceeding.
+**Prerequisites**: Read https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#assumptions_and_limitations[assumptions and limitations] before proceeding.
 
 ===== Debian 12 Migration Procedure
 
@@ -687,7 +687,7 @@ If migration fails, verify database backup integrity and check available disk sp
 
 ===== Additional steps to build or rebuild a cluster
 
-To build a new cluster or rebuild an existing cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
+To build a new cluster or rebuild an existing cluster, follow instructions in https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html#cluster_setup[Cluster setup section].
 
 If the previous installation was a cluster, some steps may not be required.  The export archive will contain the previous [filename]`cluster.conf` file.
 
@@ -711,11 +711,11 @@ yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetf
 
 **Standard Upgrade Process:**
 
-Follow the automated upgrade: <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>
+Follow the automated upgrade: <<#_automation_of_upgrades,automation of upgrades>>
 
 === EL8 Cluster Upgrade 
 
-**Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+**Cluster-specific procedure** - Follow the cluster upgrade guide: https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html#performing_an_upgrade_on_a_cluster[Performing an upgrade on a cluster]
 
 **EL8-specific step**: When upgrading node C, install the EL8 upgrade package first <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>, then proceed with standard cluster node upgrade procedures.
 

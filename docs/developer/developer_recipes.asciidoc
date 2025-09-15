@@ -110,7 +110,7 @@ To keep your machine up-to-date, you can run the following commands:
 vagrant provision --provision-with=install VM_NAME
 ----
 
-Make sure you read the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>> after every upgrades to avoid any surprises.
+Make sure you read the https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html[Upgrade Guide] after every upgrades to avoid any surprises.
 
 ===== Running an Ansible playbook against Vagrant virtual machines
 
