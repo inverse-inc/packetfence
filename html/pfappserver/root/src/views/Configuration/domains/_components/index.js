@@ -6,6 +6,7 @@ import {
   BaseFormGroupInputTest,
   BaseFormGroupSwitch,
   BaseFormGroupInputPassword,
+  BaseFormGroupToggleDisabledEnabled,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -42,6 +43,8 @@ export {
   BaseFormGroupInput                  as FormGroupAdResetAccountLockoutCounterAfter,
   BaseFormGroupInput                  as FormGroupAdOldPasswordAllowedPeriod,
   BaseFormGroupInput                  as FormGroupMaxAllowedPasswordAttemptsPerDevice,
+
+  BaseFormGroupToggleDisabledEnabled  as FormGroupChannelBinding,
 
   TheForm,
   TheView
