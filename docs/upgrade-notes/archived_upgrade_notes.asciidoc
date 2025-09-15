@@ -2251,7 +2251,7 @@ PacketFence.
 
 In order to be able to work on the server, we first need to stop all the
 PacketFence application services on it, see
-https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html#stop_all_packetfence_services[Stop all
+<<#_stop_all_packetfence_services,Stop all
 PacketFence services section>>.
 
 Now stop `packetfence-mariadb`:
@@ -2343,7 +2343,7 @@ In this procedure, the 3 nodes will be named A, B and C and they are in this ord
 
 ====== Backups
 
-First, ensure you have taken backups of your data. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade. You should also take a backup of the database and the `/usr/local/pf` directory using https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html#database_and_configurations_backup[database and configurations backup instructions]
+First, ensure you have taken backups of your data. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade. You should also take a backup of the database and the `/usr/local/pf` directory using <<#_database_and_configurations_backup,database and configurations backup instructions>>
 
 ====== Disabling the auto-correction of configuration
 
@@ -2523,7 +2523,7 @@ Upgrading node C
 
 Next, you can upgrade your operating system and/or PacketFence on node C by
 following instructions of
-https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html#packages_upgrades[Packages upgrades
+<<#_upgrade_packages,Packages upgrades
 section>>.
 
 IMPORTANT: If you are on a RHEL/CentOS based systems, the command to install
@@ -2546,7 +2546,7 @@ include::../common/maintenance_patches.asciidoc[]
 Configuration migration and database schema updates (on node C)
 ====
 
-Now, ensure you follow the directives in the https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html[upgrade guide] as you would on a standalone server **including** the database schema updates.
+Now, ensure you follow the directives in the <<#,upgrade guide>> as you would on a standalone server **including** the database schema updates.
 
 [NOTE]
 ====
@@ -2783,7 +2783,7 @@ Upgrading nodes A and B
 
 Next, you can upgrade your operating system and/or PacketFence on nodes A and B by
 following instructions of
-https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html#packages_upgrades[Packages upgrades
+<<#_upgrade_packages,Packages upgrades
 section>>.
 
 WARNING: You only need to merge changes of new configuration files that will not be synced by `/usr/local/pf/bin/cluster/sync` command described below.
