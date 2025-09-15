@@ -3457,7 +3457,9 @@ sub setRadiusSession {
     }
     my $chi = $self->radius_cache_distributed;
     $chi->set($session_id,{
-        client_mac => $args->{'mac'} // $args->{'client_mac'},
+        client_mac => (defined $args->{'mac'} ? $args->{'mac'}
+                       : defined $args->{'client_mac'} ? $args->{'client_mac'}
+                       : ''),
         wlan => $args->{'ssid'},
         switch_id => $args->{'switch'}->{'_id'} // $args->{'switch_id'},
         acl => exists($args->{'acl'}) ? $args->{acl} : (),
