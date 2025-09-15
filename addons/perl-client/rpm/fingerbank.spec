@@ -46,6 +46,8 @@ Fingerbank
 %pre
 /usr/bin/getent group fingerbank || /usr/sbin/groupadd -r fingerbank
 /usr/bin/getent passwd fingerbank || /usr/sbin/useradd -r -d /usr/local/fingerbank -s /sbin/nologin -g fingerbank fingerbank
+/usr/sbin/usermod -u 2026 fingerbank
+/usr/sbin/groupmod -g 2026 fingerbank
 
 %prep
 %setup -q -n %{name}-%{version}

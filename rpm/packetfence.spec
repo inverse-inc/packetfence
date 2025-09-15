@@ -618,6 +618,13 @@ if ! /usr/bin/id pf &>/dev/null; then
     fi
 fi
 
+if [ "$1" = "1" ]; then
+    # Change uid and gid on fresh installation
+    echo "Set uid and gid for pf user to app groups"
+    /usr/sbin/usermod -u 2025 pf
+    /usr/sbin/groupmod -g 2025 pf
+fi
+
 echo "Adding pf user to app groups"
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
 /usr/sbin/usermod -aG pf mysql
