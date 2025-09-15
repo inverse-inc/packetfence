@@ -7,7 +7,7 @@
       - Inverse inc. <info@inverse.ca>
 
     Copyright (C) 2005-2025 Inverse inc.
-    License: GFDL 1.2 or later. http://www.gnu.org/licenses/fdl.html
+    License: GFDL 1.2 or later. https://www.gnu.org/licenses/fdl.html
 
 ////
 // no need to provide defaults values

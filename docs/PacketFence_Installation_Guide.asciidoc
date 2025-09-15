@@ -1,4 +1,4 @@
-= Installation Guide
+= PacketFence Installation Guide
 ////
 
     This file is part of the PacketFence project.

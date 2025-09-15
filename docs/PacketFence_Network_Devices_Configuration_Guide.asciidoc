@@ -1,4 +1,4 @@
-= Network Devices Configuration Guide
+= PacketFence Network Devices Configuration Guide
 ////
 
     This file is part of the PacketFence project.

@@ -1,4 +1,4 @@
-= Clustering Quick Installation Guide
+= PacketFence Clustering Guide
 ////
 
     This file is part of the PacketFence project.

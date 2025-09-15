@@ -30,7 +30,7 @@ Please visit https://www.tenable.com/downloads/nessus to download Nessus v7 and 
 
 After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server, and to create a user for PacketFence.
 
-NOTE: You may run into some issue while using Nessus with the Net::Nessus::XMLRPC module (which is the default behavior in PacketFence). Please refer to the http://packetfence.org/bugs/view.php?id=1841[bug tracking system] for more information.
+NOTE: You may run into some issue while using Nessus with the Net::Nessus::XMLRPC module (which is the default behavior in PacketFence). Please refer to the https://packetfence.org/bugs/view.php?id=1841[bug tracking system] for more information.
 
 ==== OpenVAS
 
