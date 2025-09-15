@@ -541,7 +541,7 @@ sub returnRadiusAdvanced {
             }
             $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
             $self->setRadiusSession($session_state);
-            push(@av_pairs, "ACS:CiscoSecure-Defined-ACL="$args->{'user_role'}."-".$session_id);
+            push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_role'}."-".$session_id);
             return [$status, %$radius_reply_ref];
         }
         if (scalar @{$session_state->{'acl'}} == 1) {
@@ -552,7 +552,7 @@ sub returnRadiusAdvanced {
                     push(@av_pairs, $formated_acl);
                     $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                     $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL="$args->{'user_role'}."-".$session_id);
+                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_role'}."-".$session_id);
                 } else {
                     $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
                 }
