@@ -156,6 +156,11 @@
         />
 
       </base-form-tab>
+
+      <base-form-tab :title="$i18n.t('LDAP Connection')">
+        <form-group-channel-binding namespace="channel_binding" :text="$i18n.t('Use channel binding')"/>
+      </base-form-tab>
+
     </b-tabs>
   </base-form>
 </template>
@@ -197,6 +202,8 @@ import {
   FormGroupAdOldPasswordAllowedPeriod,
   FormGroupMaxAllowedPasswordAttemptsPerDevice,
 
+  FormGroupChannelBinding,
+
 } from './'
 
 const components = {
@@ -231,6 +238,8 @@ const components = {
   FormGroupAdResetAccountLockoutCounterAfter,
   FormGroupAdOldPasswordAllowedPeriod,
   FormGroupMaxAllowedPasswordAttemptsPerDevice,
+
+  FormGroupChannelBinding,
 }
 
 export const props = {
