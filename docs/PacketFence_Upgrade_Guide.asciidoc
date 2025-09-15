@@ -492,108 +492,137 @@ unless specifying individual machine account names for each node.
  . repeat the joining steps on all the nodes to make sure all the nodes are having the same domain profile.
 
 
-=== Upgrade on RedHat EL8
+=== Operating System Migration to PacketFence 14.0+
 
-In place upgrades are supported for Redhat EL8. Follow up the current <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>.
+PacketFence 14.0.0 introduces changes to supported operating systems:
+- **Dropped**: Debian 11 (bullseye) 
+- **Added**: Debian 12 (bookworm)
+- **Continued**: RedHat EL8 support
 
-=== Pre-automation Upgrade on Debian 12
+==== RedHat EL8 Systems
 
-PacketFence 14.0.0 has removed support for Debian 11 (bullseye) and added support for Debian 12 (bookworm). In place upgrades from Debian 11 to Debian 12 are not supported. A new operating system will need to be provisioned in order to migrate from either Debian 11 or RedHat EL8, to Debian 12.
+**In-place upgrades supported** - Follow standard upgrade procedures:
+
+1. Use the automated upgrade process: <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>
+2. No OS migration required - PacketFence continues supporting EL8
+
+==== Migration to Debian 12
+
+**New OS installation required** - In-place OS upgrades not supported:
+
+1. **Source Systems**: Debian 11 or RedHat EL8 installations
+2. **Target System**: Fresh Debian 12 installation 
+3. **Migration Method**: Export/import procedure (detailed below)
 
 To simplify the upgrade process to PacketFence 14.0.0 and future versions, we utilize a custom export/import procedure.
 
 The mariadb-backup package is installed with a PacketFence cluster and can also be used with standalone. The mariadb-backup package should have the same major version as the mariadb-server package.
 
-To know which package version of mariadb-backup is installed:
+**MariaDB Version Compatibility**
 
+Verify mariadb-backup package version matches your MariaDB server version:
+
+[source,bash]
 ----
-# Debian 11
-# /usr/bin/mariabackup --version
-/usr/bin/mariabackup based on MariaDB server 10.5.24-MariaDB debian-linux-gnu (x86_64)
-
-# Debian 12
-# /usr/bin/mariabackup --version
-/usr/bin/mariabackup based on MariaDB server 10.11.6-MariaDB debian-linux-gnu (x86_64)
+/usr/bin/mariabackup --version
 ----
 
-If it is not installed follow the default export process at <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export on current installation>>.
+Expected versions:
+- **Debian 11**: MariaDB server 10.5.24-MariaDB
+- **Debian 12**: MariaDB server 10.11.6-MariaDB  
+- **RedHat EL8**: Version varies by repository
 
-Before continuing, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>>.
+If mariadb-backup is not installed, follow the standard export process at <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export on current installation>>.
 
-==== Export database with mariadb-backup and Import to PacketFence 14.0 on Debian 12
+**Prerequisites**: Read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> before proceeding.
+
+===== Debian 12 Migration Procedure
 
 PacketFence versions < 11.1 must upgrade to 11.1 before continuing.
 
 
-===== Backup database locally
+**Step 1: Export from Source System** (Debian 11 or EL8)
 
-Backup using the following script where the database export is created using mariadb-backup (10.5). This backup is used to Import the database in the new host.
+Create database and configuration backups on your current PacketFence system:
 
+[source,bash]
 ----
+# Create database backup
 /usr/local/pf/addons/backup-and-maintenance.sh
-----
 
-Ensure the backup exists in /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream.gz
+# Verify backup creation
+ls -la /root/backup/packetfence-db-dump-innobackup-*.xbstream.gz
 
-
-===== Prepare the configuration for exportation
-
-This export is only used to Import the configuration files in the new host.
-
-----
+# Export configuration
 /usr/local/pf/addons/full-import/export.sh /tmp/export.tgz
 ----
 
+**Step 2: Prepare Migration Files** (Source System)
 
-===== Prepare the database on Debian 11 or EL8
+Process the database backup for migration:
 
-Restore locally the database backup into a new copy for mariabackup.
-
+[source,bash]
 ----
+# Decompress and prepare database backup
 gunzip /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream.gz
 mkdir -p /root/backup/restore/
-pushd /root/backup/restore/
-mv /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream /root/backup/restore/
+cd /root/backup/restore/
+mv /root/backup/packetfence-db-dump-innobackup-YYYY-MM-DD_HHhmm.xbstream ./
 mbstream -x < packetfence-db-dump-innobackup-*.xbstream
 rm packetfence-db-dump-innobackup-*.xbstream
 mariabackup --prepare --target-dir=./
 ----
 
-=> SCP (copy) the restored files and the export.tgz to the Debian 12 server
+**Step 3: Transfer to Target System**
 
+Copy prepared files to your new Debian 12 server:
+
+[source,bash]
 ----
-# create the restore directory
-ssh root@PacketFence_Debian_12 mkdir -p /root/backup/restore/
-scp -r /root/backup/restore/* root@PacketFence_Debian_12:/root/backup/restore/
-scp /tmp/export.tgz root@PacketFence_Debian_12:/tmp/export.tgz
+# Transfer database and configuration files
+ssh root@NEW_DEBIAN12_SERVER mkdir -p /root/backup/restore/
+scp -r /root/backup/restore/* root@NEW_DEBIAN12_SERVER:/root/backup/restore/
+scp /tmp/export.tgz root@NEW_DEBIAN12_SERVER:/tmp/export.tgz
 ----
 
 
-===== Import the database on Debian 12
+**Step 4: Import Database** (Debian 12 Target System)
 
+Restore the database on your new Debian 12 PacketFence installation:
+
+[source,bash]
 ----
+# Stop database services
 systemctl stop packetfence-mariadb
 pkill -9 -f mariadbd || echo 1 > /dev/null
-mv /var/lib/mysql/ "/var/lib/mysql-`date +%s`"
+
+# Backup existing data and restore from migration
+mv /var/lib/mysql/ "/var/lib/mysql-backup-$(date +%s)"
 mkdir /var/lib/mysql
 cd /root/backup/restore/
-mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf --move-back --force-non-empty-directories ./
+
+# Restore database files
+mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf \
+  --move-back --force-non-empty-directories ./
 chown -R mysql: /var/lib/mysql
+
+# Start database and upgrade schema
 systemctl start packetfence-mariadb
 mysql_upgrade -p
 systemctl restart packetfence-mariadb
 ----
 
+**Step 5: Import Configuration** (Debian 12 Target System)
 
-===== Import the configuration files on Debian 12
+Restore PacketFence configuration from source system:
 
-Import only the configuration files, do not import the database.
-
+[source,bash]
 ----
+# Import configuration only (database already restored above)
 /usr/local/pf/addons/full-import/import.sh --conf -f /tmp/export.tgz
 ----
 
-The configuration and database is now migrated to the new host.
+**Migration Complete** - Configuration and database are now migrated to Debian 12.
 
 If all goes well, restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
 
@@ -609,23 +638,30 @@ If the previous installation was a cluster, some steps may not be required.  The
 
 == Upgrading from a version prior to 14.1.0
 
-=== Pre-automation Upgrade Standalone RedHat EL8
+== RedHat EL8 Upgrade Procedures
 
-Please follow these command line BEFORE starting the full automation upgrade.
+RedHat EL8 systems support **in-place PacketFence upgrades** without OS migration.
 
-.RHEL / CentOS based systems **only**
+=== EL8 Standalone Server Upgrade
+
+**Prerequisites for PacketFence 14.1+ on EL8:**
+
+Install the upgrade package before running automated upgrade:
+
 [source,bash]
 ----
 yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1.el8.noarch.rpm
 ----
 
-Then follow the standard <<PacketFence_Upgrade_Guide.asciidoc#_full_upgrade_for_packetfence_versions_11_1_0_and_later,Full upgrade>>.
+**Standard Upgrade Process:**
 
-=== Pre-automation Upgrade Cluster RedHat EL8
+Follow the automated upgrade: <<PacketFence_Upgrade_Guide.asciidoc#_full_upgrade_for_packetfence_versions_11_1_0_and_later,Full upgrade>>
 
-The first steps are the same as in <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
-but at the step <<PacketFence_Clustering_Guide.asciidoc#_upgrade_node_c>> for node C,
-follow the upgrade instructions <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>.
+=== EL8 Cluster Upgrade 
+
+**Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Upgrade_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+
+**EL8-specific step**: When upgrading node C, install the EL8 upgrade package first <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>, then proceed with standard cluster node upgrade procedures.
 
 == Upgrading from a version prior to X.Y.Z
 
