@@ -3461,7 +3461,10 @@ sub setRadiusSession {
                        : defined $args->{'client_mac'} ? $args->{'client_mac'}
                        : ''),
         wlan => $args->{'ssid'},
-        switch_id => $args->{'switch'}->{'_id'} // $args->{'switch_id'},
+        switch_id => (
+            defined($args->{'switch'}->{'_id'}) ? $args->{'switch'}->{'_id'}
+            : defined($args->{'switch_id'}) ? $args->{'switch_id'}
+            : ''),
         acl => exists($args->{'acl'}) ? $args->{acl} : (),
         acl_num => exists($args->{'acl_num'}) ? $args->{'acl_num'} : (),
         id_session => $session_id,
