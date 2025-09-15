@@ -54,11 +54,21 @@ Executes the command in the OS to test the domain join
 
 sub add_computer {
     my $option = shift;
-    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass) = @_;
-
+    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $ssl_options) = @_;
+    $ssl_options //= {};
     if (!defined($ou)) {
         $ou = ""
     }
+
+    my @additional_options;
+    my $client_cert_file = $ssl_options->{client_cert_file};
+    my $client_key_file = $ssl_options->{client_key_file};
+    my $ca_file = $ssl_options->{ca_file};
+    push @additional_options, '-start-tls' if ($ssl_options->{encryption} // "") eq "TLS";
+    push @additional_options, '-client-cert', $client_cert_file if defined $client_cert_file;
+    push @additional_options, '-client-key', $client_key_file if defined $client_key_file;
+    push @additional_options, '-ca-cert', $ca_file if defined $ca_file;
+    push @additional_options, '-channel-binding' if $ssl_options->{channel_binding};
 
     $ou =~ s/^\s+|\s+$//g;
     $ou =~ s/^['"]|['"]$//g;
@@ -85,6 +95,7 @@ sub add_computer {
                 "-baseDN", "$baseDN",
                 "-computer-group", "$computer_group",
                 "-method=$method",
+                @additional_options,
                 "$domain_auth",
                 { accepted_exit_status => [ 0 ] }
             );
@@ -101,6 +112,7 @@ sub add_computer {
                 "-baseDN", "$baseDN",
                 "-computer-group", "$computer_group",
                 "-method=$method",
+                @additional_options,
                 "$domain_auth",
                 "$option",
                 { accepted_exit_status => [ 0 ] }

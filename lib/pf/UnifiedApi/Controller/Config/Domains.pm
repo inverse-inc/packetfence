@@ -157,6 +157,13 @@ sub create {
     my $real_computer_name = $item->{server_name};
     my $ou = $item->{ou};
     my $additional_machine_accounts = $item->{additional_machine_accounts};
+    my %ssl_options = (
+        client_cert_file => $item->{client_cert_file},
+        client_key_file => $item->{client_key_file},
+        encryption => $item->{encryption},
+        ca_file => $item->{ca_file},
+        channel_binding => isenabled($item->{channel_binding}),
+    );
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
@@ -209,15 +216,15 @@ sub create {
         for (my $i = 0; $i < @real_computer_names; $i++) {
             $real_computer_name = $real_computer_names[$i];
 
-            my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+            my ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, \%ssl_options);
             if ($add_status == $FALSE) {
                 if ($add_result =~ /already exists(.+)use \-no\-add/) {
-                    ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+                    ($add_status, $add_result) = pf::domain::add_computer("-delete", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, \%ssl_options);
                     if ($add_status == $FALSE) {
                         $self->render_error(422, "Unable to add machine account: removing existing machine account failed with following error: $add_result");
                         return 0;
                     }
-                    ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass);
+                    ($add_status, $add_result) = pf::domain::add_computer(" ", $real_computer_name, $computer_password, $ad_server_ip, $ad_server_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, \%ssl_options);
                     if ($add_status == $FALSE) {
                         $self->render_error(422, "Unable to add machine account: recreating machine account with following error: $add_result");
                         return 0;
@@ -282,6 +289,13 @@ sub update {
     my $real_computer_name = $old_item->{server_name};
     my $ou = $new_item->{ou};
     my $additional_machine_accounts = $new_item->{additional_machine_accounts};
+    my %ssl_options = (
+        client_cert_file => $new_item->{client_cert_file},
+        client_key_file => $new_item->{client_key_file},
+        encryption => $new_item->{encryption},
+        ca_file => $new_item->{ca_file},
+        channel_binding => isenabled($new_item->{channel_binding}),
+    );
 
     if ($computer_name eq "%h") {
         $real_computer_name = hostname();
