@@ -72,42 +72,56 @@ The installer will open and you will simply have to follow the instructions on s
 
 === Installing PacketFence on existing Linux
 
-PacketFence provides packages repository for RHEL 8 as well as packages repository fo Debian.
+PacketFence provides repositories for **RHEL 8** and **Debian 12** (bookworm) with all required dependencies.
 
-These repositories contain all required dependencies to install PacketFence. This provides numerous advantages. Among them, there are:
+**Repository Benefits:**
+* Streamlined installation with dependency management
+* Pre-built RPM (EL8) and DEB (Debian 12) packages  
+* Simplified upgrade process
 
-[options="compact"]
-* easy installation
-* everything is packaged as RPM and Debian packages
-* easy upgrade
+== OS-Specific Preparation
 
-First install your supported distribution with minimal installation and no additional packages. Then:
+=== Common Prerequisites
 
-On Red Hat-based systems
-[options="compact"]
-* Disable firewall
-* Disable SELinux
+**All Systems:**
+- Minimal OS installation (no additional packages)
+- UEFI Secure Boot **disabled** (if applicable)
+- System updated to latest patches
 
-On Debian
-[options="compact"]
-* Disable AppArmor
-* Disable resolvconf
+=== RHEL 8 System Preparation
 
-*NOTE*: If running *UEFI mode*, make sure *secureboot* is *disabled*.
-
-Make sure your system is up to date and your yum or apt-get database is updated. On a RHEL-based system, do:
-
+**Security Configuration:**
 [source,bash]
 ----
+# Disable firewall and SELinux (required)
+systemctl disable --now firewalld
+sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
+
+# Update system
 yum update
+
+# Reboot to apply SELinux changes
+reboot
 ----
 
-On a Debian system, do:
+=== Debian 12 System Preparation  
 
+**Security Configuration:**
 [source,bash]
 ----
-apt-get update
-apt-get upgrade
+# Update system first
+apt-get update && apt-get upgrade
+
+# Disable AppArmor (required)
+systemctl disable --now apparmor
+# Follow: https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor
+
+# Disable resolvconf and create static resolv.conf
+rm /etc/resolv.conf
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+# Reboot to apply changes
+reboot
 ----
 
 Regarding SELinux or AppArmor, even if they may be wanted by some
@@ -119,87 +133,67 @@ link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
 
 Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
-==== RHEL-based systems
+== Kernel and Development Tools
 
-Install kernel development package:
+=== RHEL 8 Development Setup
+
+**Prerequisites:**
+- Valid RHEL subscription for dependency installation
+- Latest kernel running
 
 [source,bash]
 ----
+# Install kernel development package for current kernel
 yum install kernel-devel-$(uname -r)
-----
 
-Ensure `runc` and `podman` are uninstalled (PacketFence uses docker+containerd.io)
-
-[source,bash]
-----
+# Remove conflicting container tools (PacketFence uses docker)
 yum remove runc podman
+
+# Import PacketFence GPG key (required for EL8)
+rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY
 ----
 
+=== Debian 12 Development Setup
 
-NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
-
-===== RHEL 8.x
-
-You need to have a valid subscription to be able to install PacketFence dependencies.
-
-==== Debian-based systems
-
-Install kernel development package:
+**Prerequisites:**  
+- Fresh Debian 12 (bookworm) installation
+- Latest kernel running
 
 [source,bash]
 ----
+# Install kernel headers for current kernel
 apt install linux-headers-$(uname -r)
 ----
 
-NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
+**Important**: Ensure you're running the latest kernel before installing development packages. Reboot if kernel was updated.
 
-==== Software Installation
+== PacketFence Software Installation
 
-===== RHEL-based systems
+=== RHEL 8 Installation
 
-NOTE: On RHEL 8.x systems, as a preliminary step, you need to run: `rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY` before installing `packetfence-release` package.
-
-In order to use the PacketFence repository:
-
-// subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
+# Install PacketFence repository
 yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
-----
 
-Once the repository is defined, you can install PacketFence with all its dependencies, and the required external services (database server, DHCP server, RADIUS server) using:
-
-[source,bash]
-----
+# Install PacketFence with all dependencies
+# Includes: MariaDB, FreeRADIUS, DHCP server
 yum install --enablerepo=packetfence packetfence
 ----
 
-===== Debian-based systems
+=== Debian 12 Installation
 
-In order to use the repository, you have to install the GPG key of the PacketFence repository:
-
-[source,bash]
+[source,bash,subs="attributes"]  
 ----
-apt-get update
+# Install repository tools and GPG key
 apt install gnupg sudo curl
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
-----
 
-Create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
+# Add PacketFence repository (Debian 12 bookworm)
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
 
-// subs=attributes allow to substitute {release_minor} in code block
-[source,bash,subs="attributes"]
-----
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
-/etc/apt/sources.list.d/packetfence.list
-----
-
-Once the repository is defined, you can install PacketFence with all its
-dependencies, and the required external services (Database
-server, DHCP server, RADIUS server) using:
-
-[source,bash]
-----
+# Install PacketFence with all dependencies  
+# Includes: MariaDB, FreeRADIUS, DHCP server
 apt-get update
 apt-get install packetfence
 ----

@@ -18,20 +18,38 @@ endif::[]
 
 //== Automation of upgrades
 
-Basic upgrade automation on same operating system available since PacketFence 11.0.0.
+Upgrade automation available since PacketFence 11.0.0 for **same-OS upgrades**.
 
-PacketFence 14.0.0 changes OS from Debian 11 to Debian 12.
-For PacketFence 14.0 on Debian 12, create new Debian 12 VM then use <<PacketFence_Installation_Guide.html#_exportimport_mechanism,import/export>> from previous installation.
+## OS Support Matrix
 
-=== Assumptions and limitations
+**PacketFence 14.0.0+ OS Changes:**
+- **Discontinued**: Debian 11 (bullseye) support
+- **New**: Debian 12 (bookworm) support  
+- **Continued**: RedHat EL8 support
 
-* Automation may contain **pre-upgrade steps** defined in this document.
-* Perform automated upgrades on **standalone** servers only. Cluster upgrades use the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Clustering Guide>> procedure.
-* Automated upgrades supported:
-** PacketFence 11.0.0 to 13.2.0 on Debian 11
-** PacketFence 14.0.0+ on Debian 12
-** PacketFence 11.0.0+ on RedHat 8
-* Exportable configuration backup performed before upgrading
+## Upgrade Paths by Operating System
+
+### RHEL 8 Systems
+- **In-place automated upgrades**: **SUPPORTED**
+- **Versions**: PacketFence 11.0.0+ → latest
+- **Method**: Standard automation process
+
+### Debian Systems
+- **Debian 11**: **NOT SUPPORTED** (end-of-life)
+- **Debian 12**: **SUPPORTED** for PacketFence 14.0.0+
+- **Migration required**: Debian 11 → fresh Debian 12 install + import/export
+
+=== Automation Scope and Limitations
+
+**Supported Configurations:**
+* **Standalone servers only** - Clusters use manual procedures
+* Exportable configuration backup created automatically
+* Pre-upgrade steps executed per upgrade documentation
+
+**Current Automation Support:**
+* **RHEL 8**: PacketFence 11.0.0+ → latest version **SUPPORTED**
+* **Debian 12**: PacketFence 14.0.0+ → latest version **SUPPORTED**
+* **OS Migration**: Requires fresh installation + export/import **NOT AUTOMATED**
 
 === Full upgrade (for PacketFence version 11.0.0 only - see next section for 11.1.0 and above)
 
