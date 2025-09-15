@@ -336,19 +336,32 @@ sub options_ntlm_cache_source {
     return @sources;
 }
 
+has_field 'channel_binding' => (
+    type            => 'Toggle',
+    label           => 'Enabled',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+);
+
+
 has_field 'encryption' =>
   (
    type => 'Select',
    options =>
    [
-    { value => 'none', label => 'None' },
     { value => 'ssl', label => 'SSL' },
     { value => 'starttls', label => 'Start TLS' },
    ],
    required => 1,
    element_class => ['input-small'],
-   default => 'none',
+   default => 'SSL',
   );
+
+has_field client_cert_file => (
+    type => 'Path',
+    file_type => 'file',
+);
 
 has_field 'client_cert_file_upload' => (
    type => 'PathUpload',
