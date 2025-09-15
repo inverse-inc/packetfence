@@ -17,13 +17,13 @@ Find the latest version at https://packetfence.org/documentation/
 
 === Other sources of information
 
-<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
+https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html[Clustering Guide]::
   Covers installation in a clustered environment.
-<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+https://www.packetfence.org/doc/PacketFence_Developers_Guide.html[Developer's Guide]::
   Covers API, captive portal customization, application code customizations and support for new equipment.
-<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
+https://www.packetfence.org/doc/PacketFence_Network_Devices_Configuration_Guide.html[Network Devices Configuration Guide]::
   Covers switches, WiFi controllers and access points configuration.
-<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
+https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html[Upgrade Guide]::
   Covers compatibility changes, manual instructions and upgrade notes.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.

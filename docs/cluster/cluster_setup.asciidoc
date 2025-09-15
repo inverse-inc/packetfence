@@ -56,7 +56,7 @@ NOTE: If you plan to use Postfix to send emails, you need to set `inet_protocols
 
 Before starting cluster setup, you need to install
 PacketFence on each cluster member by following instructions in
-<<../PacketFence_Installation_Guide.asciidoc#_installation,PacketFence
+https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#installation[PacketFence
 Installation Guide>>.
 
 ==== Install the database replication tools
@@ -492,7 +492,7 @@ If you already use VRRP protocol on your network, you can also change the defaul
 ==== Domain join
 
 Next, make sure to join domains through _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ on *each node*.
-Please refer to <<../PacketFence_Installation_Guide.asciidoc#_domain_joining_on_a_packetfence_cluster_v14_x, Domain joining on a PacketFence cluster v14.x>> for detailed steps.
+Please refer to https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#domain_joining_on_a_packetfence_cluster_v14_x[Domain joining on a PacketFence cluster v14.x] for detailed steps.
 
 If domain joining fails on cluster nodes, see <<#_network_connectivity_issues,Network Connectivity Issues>>, <<#_authentication_failures,Authentication Failures>>, and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section.
 

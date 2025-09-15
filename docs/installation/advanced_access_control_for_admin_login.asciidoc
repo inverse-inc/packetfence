@@ -22,5 +22,5 @@ Any portal authentication mechanism (SAML, Akamai MFA, TOTP, etc) can authentica
 
 ==== Advanced Configuration
 
-Adjust captive portal policy configuration for administrator authentication as needed. Portal modules provide flexibility and customization. Modify 'Default admin SSO policy' in _Configuration -> Advanced Access Configuration -> Portal Modules_ or create custom policy for administrator authentication connection profile. See <<PacketFence_Installation_Guide.asciidoc#_portal_modules,Portal Modules>> section for captive portal customization. 
+Adjust captive portal policy configuration for administrator authentication as needed. Portal modules provide flexibility and customization. Modify 'Default admin SSO policy' in _Configuration -> Advanced Access Configuration -> Portal Modules_ or create custom policy for administrator authentication connection profile. See https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#portal_modules[Portal Modules] section for captive portal customization. 
 
