@@ -1,0 +1,39 @@
+=== Authentication Failures
+
+If authentication fails for users or devices:
+
+1. Check RADIUS audit log via _Auditing -> RADIUS Audit Log_ to trace authentication flow
+
+2. Verify authentication source configuration in _Configuration -> Policies and Access Control -> Authentication Sources_
+
+3. For Active Directory issues:
+   * Verify domain join status: `realm list`
+   * Check domain controller connectivity: `kinit username@DOMAIN.COM`
+   * Test LDAP connectivity from PacketFence server
+
+4. For external authentication sources (LDAP, RADIUS), verify network connectivity and credentials
+
+5. Check that user/device exists in authentication source and has proper permissions
+
+6. For certificate-based authentication (802.1X), verify:
+   * Certificate Authority (CA) configuration
+   * Certificate validity and expiration
+   * EAP-TLS profile settings
+
+**Advanced Active Directory Troubleshooting:**
+
+7. **Domain Controller Failover**: For multiple AD servers, ensure:
+   - Set 'Sticky DC' parameter to `*` in domain configuration
+   - Specify multiple DNS servers alternating between availability zones
+   - Example: `10.0.1.100,10.0.2.100,10.0.1.101,10.0.2.101`
+
+8. **Winbindd Failover Issues**: Some samba/winbindd versions don't failover correctly:
+   - Enable monit to automatically restart winbindd on DC failures
+   - Monitor authentication failures and restart services when needed
+
+9. **Individual Machine Accounts**: For cluster deployments, use individual machine accounts for each node to avoid secure connection binding issues
+
+10. **Certificate Issues**: For ADCS/PKI integration:
+    - Apply required hotfixes before configuration
+    - Check for "The RPC Server is unavailable" errors after ADCS service restart
+    - Verify SSL certificate validity and hostname matching

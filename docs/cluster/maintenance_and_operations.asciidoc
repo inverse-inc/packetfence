@@ -167,3 +167,5 @@ As the daily automatic backups, you will find the file in:
 ----
 
 Two files will be available, tagged with the Date and Time of your backup.
+
+For cluster maintenance issues or service failures, see <<#_service_startup_failures,Service Startup Failures>>, <<#_checking_the_mariadb_sync,Checking the MariaDB sync>>, and <<#_cluster_database_recovery,Cluster Database Recovery>> in the Troubleshooting section.

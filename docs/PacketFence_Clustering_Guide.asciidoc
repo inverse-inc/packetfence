@@ -59,6 +59,25 @@ include::cluster/layer_3_clusters.asciidoc[]
 
 include::cluster/advanced_configuration.asciidoc[]
 
+== Troubleshooting Clusters
+
+include::troubleshooting/mariadb_galera_sync.asciidoc[]
+
+include::troubleshooting/cluster_recovery.asciidoc[]
+
+include::troubleshooting/service_failures.asciidoc[]
+
+include::troubleshooting/database_connectivity.asciidoc[]
+
+include::troubleshooting/network_connectivity.asciidoc[]
+
+include::troubleshooting/authentication_failures.asciidoc[]
+
+include::troubleshooting/radius_debugging.asciidoc[]
+
+include::troubleshooting/log_files.asciidoc[]
+
+include::troubleshooting/performance_issues.asciidoc[]
 
 // INCLUDES
 

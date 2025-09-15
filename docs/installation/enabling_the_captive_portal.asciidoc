@@ -102,3 +102,5 @@ Next, we need to disable 802.1X from the network configuration card from the Mic
 
 Next, connect the endpoint in the Cisco Catalyst 2960 switch. After a few second, open a web browser and try to open any website - say http://packetfence.org. You should now see the captive portal. You should only need to accept the terms and conditions for gaining network access.
 
+If the captive portal doesn't appear or redirects fail, check portal-related logs as described in <<#_log_files,Log Files>> and <<#_network_connectivity_issues,Network Connectivity Issues>> in the Troubleshooting section.
+

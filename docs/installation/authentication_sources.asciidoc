@@ -125,3 +125,7 @@ NOTE: You can preview at any time the portal associated with connection profile 
 
 First unplug and unregister again the Microsoft Windows 7 endpoint. Then, connect the endpoint in switch port no. 10 - you should see the captive portal with the new SMS-based registration option. Note that the Null option will also be offered.
 
+=== Troubleshooting Authentication Issues
+
+For authentication troubleshooting, see <<#_authentication_failures,Authentication Failures>>, <<#_log_files,Log Files>>, and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section.
+

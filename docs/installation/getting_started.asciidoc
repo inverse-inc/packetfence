@@ -141,6 +141,8 @@ Connect the Microsoft Windows 7 endpoint on port no. 10 from the Cisco Catalyst 
 
 To see what's going on from PacketFence, click on the _Auditing_ tab from PacketFence's admin interface. You should see an entry for the MAC address of your Microsoft Windows 7 endpoint. Click on the line with the right MAC address to see the RADIUS exchanges. If the 802.1X authentication is successful, you should have 'Accept' as an 'Auth Status'.
 
+If authentication fails or you don't see RADIUS entries, see <<#_radius_debugging,RADIUS Debugging>> and <<#_radius_audit_log,RADIUS Audit Log>> in the Troubleshooting section.
+
 === Alerting
 
 PacketFence can send emails to administrators, users and guests. So, it is important to properly configure the mail sending functionality of PacketFence. From _Configuration -> System Configuration -> Alerting_, set at least the following fields:

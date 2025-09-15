@@ -199,3 +199,5 @@ Once a computer has been registered, make sure:
 
 * PacketFence puts the switch port into the normal VLAN (VLAN 104)
 * The computer has access to the network and the Internet.
+
+For VLAN assignment issues, verify switch configuration and trace RADIUS attributes as described in <<#_radius_debugging,RADIUS Debugging>> and <<#_network_connectivity_issues,Network Connectivity Issues>> in the Troubleshooting section.
