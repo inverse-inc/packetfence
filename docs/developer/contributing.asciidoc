@@ -18,30 +18,24 @@ endif::[]
 
 //== Contributing
 
-Here are some golden rules of contributing to PacketFence:
+PacketFence contribution guidelines:
 
 * Be active on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[developer mailing list]
 
-The place to be if you want to contribute to the PacketFence project is our developers mailing list:
-https://lists.sourceforge.net/lists/listinfo/packetfence-devel. Let us know your issues, what you are
-working on and how you want to solve your problems. The more you collaborate the greater the chances that
-your work will be incorporated in a timely fashion.
+Join our developers mailing list for PacketFence contributions:
+https://lists.sourceforge.net/lists/listinfo/packetfence-devel. Share your issues, work, and solutions. Active collaboration increases chances of timely work incorporation.
 
 * Use the issue tracker: https://packetfence.org/bugs/
 
-Good chances that the bug you want to fix or the feature you want to implement is already filed and
-that information in the ticket will help you.
+Check existing tickets - your bug/feature may be filed already with helpful information.
 
 * Please provide small, focused and manageable patches or pull-requests
 
-If you plan on doing a lot of code, use `git` and track our current stable branch called `stable`. Develop the
-feature in small chunks and stay in touch with us. This way it'll be merged quickly in our code base. Ideally
-there would be no big code dumps after finishing a feature.
+For extensive coding: use `git` and track `stable` branch. Develop features in small chunks while staying in touch. This enables quick merging; avoid large code dumps.
 
 === Creating patches
 
-NOTE: Since we migrated to git / github, using these tools is recommended
-over sending patches by hand.
+NOTE: Use git/github tools instead of manual patch sending.
 
 Patches should be sent in unified diff format. This can be obtained from the
 `diff` or `git` tools.

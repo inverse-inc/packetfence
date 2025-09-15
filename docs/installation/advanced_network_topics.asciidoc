@@ -58,7 +58,7 @@ Each floating network device has to be identified. There are two ways to do this
 
 [options="compact"]
 * by editing [filename]`/usr/local/pf/conf/floating_network_device.conf`
-* through the Web GUI, in _Configuration -> Network Configuration -> Floating Device_
+* through the admin interface, in _Configuration -> Network Configuration -> Floating Device_
 
 Available settings:
 
@@ -161,7 +161,7 @@ Considering the network architecture illustrated above, [filename]`/usr/local/pf
 
 NOTE: PacketFence will not start unless at least one 'internal' interface is detected, thus local Registration and Isolation VLANs will need to be created even if they are not needed. The [command]`dhcpd` daemon only listens on the 'internal' interfaces, therefore the remote Registration and Isolation subnets need to point their DHCP helper-address to those particular IP addresses.
 
-Provide the routed networks to PacketFence through the GUI in _Configuration -> Network Configuration -> Networks_ or manually in [filename]`/usr/local/pf/conf/networks.conf`.
+Provide the routed networks to PacketFence through the admin interface in _Configuration -> Network Configuration -> Networks_ or manually in [filename]`/usr/local/pf/conf/networks.conf`.
 
 Example `/usr/local/pf/conf/networks.conf`:
 
@@ -248,7 +248,7 @@ This has the advantage of preventing machines in Isolation from attacking each o
 
 Used only for VLAN enforcement. Inline enforcement can skip this section.
 
-PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. You can modify this configuration directly in [filename]`/usr/local/pf/conf/switches.conf` or from the Web Administration GUI in _Configuration -> Policies and Access Control -> Switches_ (recommended).
+PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. You can modify this configuration directly in [filename]`/usr/local/pf/conf/switches.conf` or from the admin interface in _Configuration -> Policies and Access Control -> Switches_ (recommended).
 
 .The [filename]`/usr/local/pf/conf/switches.conf` configuration file contains a default section including:
 
@@ -361,7 +361,7 @@ PacketFence can occasionally establish an interactive command-line session with 
   cliPwd = admin_pwd
   cliEnablePwd =
 
-This can also be configured with the Web Administration GUI in _Configuration -> Policies and Access Control -> Switches_.
+This can also be configured with the admin interface in _Configuration -> Policies and Access Control -> Switches_.
 
 ==== Web Services Interface
 
@@ -371,7 +371,7 @@ PacketFence can occasionally establish a Web Services dialog with a switch. Edit
   wsUser = admin
   wsPwd = admin_pwd
 
-This can also be configured with the Web Administration GUI in _Configuration -> Policies and Access Control -> Switches_.
+This can also be configured with the admin interface in _Configuration -> Policies and Access Control -> Switches_.
 
 ==== Role-based Enforcement
 
@@ -387,7 +387,7 @@ Example that returns the `full-access` role to the nodes categorized as admin or
   engineeringRole=full-access
   salesRole=little-access
 
-This can also be configured with the Web Administration GUI in _Configuration -> Policies and Access Control -> Switches_.
+This can also be configured with the admin interface in _Configuration -> Policies and Access Control -> Switches_.
 
 CAUTION: Ensure the roles are defined in the network devices prior to configuring role-based assignment.
 

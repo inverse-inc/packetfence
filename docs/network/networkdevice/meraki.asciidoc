@@ -25,9 +25,9 @@ The 'Disconnect port' field must be set to '1700'.
 
 ==== WebAuth
 
-In this section, we will cover the configuration of the Meraki controller to use Web authentication.
+Configure Meraki controller for Web authentication.
 
-NOTE: While using the WebAuth mode on the Meraki controller, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab 'Roles' from the switch configuration.
+NOTE: WebAuth mode on Meraki controller requires "Role mapping by Switch Role" and "Role by Web Auth URL" in switch configuration 'Roles' tab.
 
 Configure your SSID as shown below:
 
@@ -35,11 +35,11 @@ image::Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration
 
 image::Meraki-V2-2.png[scaledwidth="100%",alt="Network configuration"]
 
-NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute specifying group policy name".
+NOTE: Must use Airespace-ACL-Name as "RADIUS attribute specifying group policy name".
 
-The switch module to use for this configuration is "Meraki cloud controller V2".
+Use switch module "Meraki cloud controller V2" for this configuration.
 
-Next, configure the roles for the devices on your network. Go in 'Network-wide->Group policies', then you will be able to create policies that can be configured as roles in the switch configuration of PacketFence. Creation of the policy `Guest`:
+Configure device roles for your network. Go to 'Network-wide->Group policies' to create policies configurable as roles in PacketFence switch configuration. Creating policy `Guest`:
 
 image::Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
 

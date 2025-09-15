@@ -19,15 +19,15 @@ endif::[]
 
 //=== Cisco Small Business (SMB)
 
-The Cisco Small Business switches support MAC based authentication (MAB) as well as 802.1X and VoIP. Both technologies can be combined and will work correctly together on the same switchport.
+Cisco Small Business switches support MAC authentication (MAB), 802.1X, and VoIP. Both technologies can be combined on the same switchport.
 
-Nothing is required to activate VoIP on the switch, you must simply configure the voice VLAN you want PacketFence to assign in the PacketFence switch configuration as well as enabling VoIP there. Note that your phones must *not* tag their packets on the network and should send their traffic untagged when connected into a PacketFence enabled port. This means you should not have the voice VLAN capabilities enabled on the switch itself as they might conflict with the authorization attributes returned by PacketFence.
+VoIP activation requires no switch configuration; configure voice VLAN in PacketFence switch configuration and enable VoIP there. Phones must send untagged traffic when connected to PacketFence-enabled ports. Do not enable voice VLAN capabilities on switch as they may conflict with PacketFence authorization attributes.
 
 ==== Global configuration
 
-CAUTION: Before executing these steps, make sure you have a local account configured to login on the switch or are pointing to a RADIUS server for management. Otherwise, you will not be able to login into the switch anymore.
+CAUTION: Configure local account or RADIUS server for management before executing these steps to maintain switch login access.
 
-You must first define your RADIUS server and point it to PacketFence:
+Define RADIUS server pointing to PacketFence:
 
   dot1x system-auth-control 
   radius-server key useStrongerSecret
@@ -45,7 +45,7 @@ SNMP configuration for the Cisco SG300:
 
 ==== MAC Authentication
 
-In order to configure MAC authentication, you must enable it on each interface
+Configure MAC authentication on each interface:
 
   interface x/y/z
    dot1x host-mode multi-sessions 
@@ -63,7 +63,7 @@ In order to configure MAC authentication, you must enable it on each interface
 
 ==== 802.1X with MAB
 
-In order to configure 802.1X with a fall-back to MAC authentication, you must enable it on each interface
+Configure 802.1X with MAC authentication fallback on each interface:
 
   interface x/y/z
    dot1x host-mode multi-sessions 
@@ -78,7 +78,7 @@ In order to configure 802.1X with a fall-back to MAC authentication, you must en
    switchport mode general 
    switchport general pvid 2 
 
-Once you have configured your switchports, you must configure the switch in PacketFence with the following information:
+Configure switch in PacketFence with following information:
 
 * *Definition -> Type*: `Cisco SG500`
 * *Definition -> Mode*: `production`

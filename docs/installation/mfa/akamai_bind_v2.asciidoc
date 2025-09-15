@@ -32,7 +32,7 @@ use the "Default portal policy" Root Portal Module (There is already the MFA pol
 
 ====== Akamai Bind V2 portal
 
-Once you are able to hit the portal and register with your credentials, the portal will forward you to the Akamai Bind V2 web interface.
+Once you are able to hit the portal and register with your credentials, the portal will forward you to the Akamai Bind V2 interface.
 From this page you will be able to onboard your device and also trigger any type of MFA.
 Once done and authenticated, Akamai Bind V2 portal will forward you back to PacketFence's portal and will grant you the access.
 

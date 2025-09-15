@@ -27,9 +27,9 @@ You have a phone where you have an MFA application compatible with TOTP (Akamai 
 
 ===== Create the Multi-Factor configuration
 
-In this section we will configure the OTP MFA from the administration GUI.
+In this section we will configure the OTP MFA from the admin interface.
 
-Go in "Configuration->Integration->Multi-Factor Authentication" then click on new MFA and select TOTP.
+Go in "Configuration -> Integration->Multi-Factor Authentication" then click on new MFA and select TOTP.
 
 In the form you have the following information to fill:
 

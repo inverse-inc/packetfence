@@ -22,17 +22,17 @@ endif::[]
 
 ===== Create a SSO role
 
-You will first need to create an SSO role on the web interface on the PaloAlto firewall.
+Create SSO role on PaloAlto firewall web interface.
 
 Go to *Device -> Admin Roles -> Add*.
 
-Create the role name 'SSO_Role', under the 'XML API' tab, enable everything and validate it with 'OK'.
+Create role 'SSO_Role', under 'XML API' tab enable everything, validate with 'OK'.
 
 image::doc-paloalto-SSO_Role.png[scaledwidth="100%",alt="Create a SSO Role in the PanOS"]
 
 ===== Create the account in PAN-OS
 
-Now you have created the role, you will associate an user with it.
+Associate user with created role.
 
 Go to *Device -> Administrators -> Add*.
 

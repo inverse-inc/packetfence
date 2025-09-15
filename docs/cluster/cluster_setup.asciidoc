@@ -20,24 +20,20 @@ endif::[]
 
 === Setup on all servers
 
-Following actions need to be run on *all cluster members*.
+Run these actions on *all cluster members*.
 
 ==== Interfaces names
 
-You need to make sure the interfaces names will be the same on *all
-servers*. You can follow these guides to have predictable network interface
-names on distribution you used:
+Ensure interface names are identical on *all servers*. Use these guides for predictable network interface names:
 
 * link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_networking/consistent-network-interface-device-naming_configuring-and-managing-networking[RHEL-based systems]
 * link:https://wiki.debian.org/NetworkInterfaceNames[Debian-based systems]
 
 ==== sysctl.conf
 
-You will need to configure each server so the services can bind on IP
-addresses they don't currently have configured. This allows faster failover of
-the services.
+Configure each server to allow services to bind on IP addresses not currently configured. This enables faster service failover.
 
-You also need to disable IPv6.
+Disable IPv6.
 
 On *all your servers*, add following lines in [filename]`/etc/sysctl.conf`:
 
@@ -60,7 +56,7 @@ NOTE: If you plan to use Postfix to send emails, you need to set `inet_protocols
 
 Before starting cluster setup, you need to install
 PacketFence on each cluster member by following instructions in
-<<PacketFence_Installation_Guide.asciidoc#_installation,PacketFence
+<<../PacketFence_Installation_Guide.asciidoc#_installation,PacketFence
 Installation Guide>>.
 
 ==== Install the database replication tools
@@ -475,7 +471,7 @@ After each reboot, ensure the database sync is fine by performing the checks out
 
 NOTE: It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks.
 
-From the PacketFence web administration interface (using virtual IP address of
+From the admin interface (using virtual IP address of
 your cluster), go in _Configuration -> System Configuration -> Cluster_ and
 change the `Shared KEY`.
 
@@ -492,5 +488,5 @@ If you already use VRRP protocol on your network, you can also change the defaul
 ==== Domain join
 
 Next, make sure to join domains through _Configuration -> Policies And Access Control -> Domains -> Active Directory Domains_ on *each node*.
-Please refer to <<PacketFence_Installation_Guide.asciidoc#_domain_joining_on_a_packetfence_cluster_v14_x, Domain joining on a PacketFence cluster v14.x>> for detailed steps.
+Please refer to <<../PacketFence_Installation_Guide.asciidoc#_domain_joining_on_a_packetfence_cluster_v14_x, Domain joining on a PacketFence cluster v14.x>> for detailed steps.
 

@@ -21,10 +21,10 @@ endif::[]
 
 === Assumptions
 
-Throughout this configuration example we use the following assumptions for our network infrastructure:
+Network infrastructure assumptions for this configuration:
 
 [options="compact"]
-* PacketFence is fully configured with FreeRADIUS running
+* PacketFence fully configured with FreeRADIUS running
 * PacketFence IP address: 192.168.1.5
 * Normal VLAN: 1
 * Registration VLAN: 2
@@ -41,11 +41,11 @@ Throughout this configuration example we use the following assumptions for our n
 
 === Unsupported Equipment
 
-Wireless network access configuration is a lot more consistent between vendors. This is due to the fact that the situation is a lot more standardized than the wired side: VLAN assignment is done centrally with RADIUS and that the client protocol is consistent (MAC-Authentication or 802.1X).
+Wireless network access configuration is more consistent between vendors due to standardization compared to wired side: VLAN assignment done centrally with RADIUS and consistent client protocol (MAC-Authentication or 802.1X).
 
-This consistency has the benefit that a lot of the wireless network devices tend to work out-of-the-box with PacketFence. The only missing piece being, in most cases, remote deauthentication of the client which is used for VLAN assignment (deauth user so it'll reconnect and get new VLAN).
+This consistency means most wireless network devices work out-of-the-box with PacketFence. Only missing piece typically: remote client deauthentication for VLAN assignment (deauth user to reconnect and get new VLAN).
 
-So, even if your wireless equipment is not explicitly supported by PacketFence, it's recommended that you give it a try. The next section covers the objectives that you want to accomplish for trying out your equipment even if we don't have configuration for it.
+Even if your wireless equipment isn't explicitly supported by PacketFence, try it. Next section covers objectives for testing equipment without existing configuration.
 
 Here are the high-level requirements for proper wireless integration with PacketFence
 

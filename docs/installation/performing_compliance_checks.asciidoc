@@ -320,7 +320,7 @@ TIP: You can see if the Nexpose server is sending to the right server by monitor
 
 ===== Creating the event handler
 
-In the Packetfence administration interface, go to _Configuration -> Integration -> Event Handlers_ and add a new Nexpose event handler
+In the PacketFence admin interface, go to _Configuration -> Integration -> Event Handlers_ and add a new Nexpose event handler
 
 image::rapid7/rapid7-syslog-parser.png[scaledwidth="100%",alt="Rapid7 event handler"]
 
@@ -333,7 +333,7 @@ Once done, restart the following services
   /usr/local/pf/pfcmd service pfdetect restart
   /usr/local/pf/pfcmd service pfqueue restart
 
-Now that PacketFence is properly configured to receive information from Nexpose, we can configure it to perform some actions on the alerts it receives. In the PacketFence GUI, go to _Configuration -> Compliance -> Security Events_ and create a new security event.
+Now that PacketFence is properly configured to receive information from Nexpose, we can configure it to perform some actions on the alerts it receives. In the PacketFence admin interface, go to _Configuration -> Compliance -> Security Events_ and create a new security event.
 
 Make sure you set the following parameters in the 'Definition' tab:
 [options="compact"]

@@ -333,7 +333,7 @@ Validate with Ok and provide the account that will run this task (usually _DOMAI
 === Switch Login Access
 
 PacketFence is able to provide an authentication and authorization service on port 1815 for granting command-line interface (CLI) access to switches.
-PacketFence currently supports Cisco switches which must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html. From the PacketFence web admin interface, configure an Admin Access role (_Configuration -> System Configuration -> Admin Access_) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or with an Administration rule in an internal source.
+PacketFence currently supports Cisco switches which must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html. From the PacketFence admin interface, configure an Admin Access role (_Configuration -> System Configuration -> Admin Access_) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or with an Administration rule in an internal source.
 
 Then enable `_CLI Access Enabled_` setting on the switch(s) to manage in _Configuration -> Network devices -> Switches_.
 

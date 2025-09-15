@@ -18,15 +18,15 @@ endif::[]
 
 //== Authentication Mechanisms
 
-This section details most of the authentication mechanisms supported by PacketFence. It walks you through the required steps to properly use an authentication mechanism on your captive portal, for example. For Public Key Infrastructure (PKI) integration, please refer to the PKI Integration section from this document.
+This section covers authentication mechanisms supported by PacketFence. Follow these steps to configure authentication for your captive portal. For PKI integration, refer to the PKI Integration section.
 
 === Microsoft Active Directory (AD)
 
 Go in the Administration interface under _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_.
 
-NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
+NOTE: If this section is inaccessible and you previously configured domain binding outside PacketFence, run `/usr/local/pf/addons/AD/migrate.pl`
 
-NOTE: If you are running a windows server earlier than *Windows Server 2008* as a domain controller, you'll need to upgrade your windows server. From PacketFence 13.1, we use secure channel to perform ntlm authentication, it is only supported in windows server 2008 and later.
+NOTE: Windows Server 2008 or later required as domain controller. PacketFence 13.1+ uses secure channel for NTLM authentication, supported only in Windows Server 2008 and later.
 
 Click *New Domain* and fill in the information about your domain.
 
@@ -188,7 +188,7 @@ Where :
 * *Eduroam RADIUS Acct* is the RADIUS Eduroam accounting server to proxy the request to
 * *Type* is the home server pool type
 * *Strip on the portal* Should the usernames matching this realm be stripped when used on the captive portal
-* *Strip on the admin* Should the usernames matching this realm be stripped when used on the administration interface
+* *Strip on the admin* Should the usernames matching this realm be stripped when used on the admin interface
 * *Strip in RADIUS authorization* Should the usernames matching this realm be stripped when used in the authorization phase of 802.1X
 * *Custom attributes* Allow to use custom attributes to authenticate 802.1X users (attributes are defined in the source)
 * *LDAP source* The LDAP Server to query the custom attributes
@@ -381,7 +381,7 @@ image::internal-eduroam-authentication.png[scaledwidth="100%",alt="Internal Edur
 
 ==== Configure the Eduroam source
 
-Open the PacketFence administration web interface and go to _Configuration -> Policies and Access Control -> Authentication Sources_.
+Open the admin interface and go to _Configuration -> Policies and Access Control -> Authentication Sources_.
 
 First create RADIUS sources for each Eduroam servers you want to define.
 
@@ -521,7 +521,7 @@ Where :
 * *Path to Identity Provider cert* Upload the certificate you previously downloaded from Azure.
 * *Path to Identity Provider CA cert* Upload the certificate you previously downloaded from Azure (the same as the section above).
 * *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The one that can be used with Azure is this one http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name who return the "Unique User Identifier" (Edit the section 2 of the Azure SAML configuration detail to see which attribute you can use).
-* *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user or also the access level of the PacketFence's administration GUI (if you have configured the "Advanced Access Control For Admin Login"). The 'Authentication' section of this document contains explanations on how to configure an Azure source which can then be used here.
+* *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user or also the access level of the admin interface (if you have configured the "Advanced Access Control For Admin Login"). The 'Authentication' section of this document contains explanations on how to configure an Azure source which can then be used here.
 
 ==== Passthroughs
 
@@ -602,7 +602,7 @@ CAUTION: The certificate will *NOT* be the same if you use a sandbox account or 
 
 *Configuring PacketFence*
 
-Now, in the PacketFence administration interface, go in _Configuration -> Policies and Access Control -> Sources_ and create a new source of type 'Billing -> Paypal'.
+Now, in the admin interface, go to _Configuration -> Policies and Access Control -> Authentication Sources_ and create a new source of type 'Billing -> Paypal'.
 
 image::billing/paypal-packetfence-configuration.png[scaledwidth="100%",alt="Paypal PacketFence configuration"]
 
@@ -634,7 +634,7 @@ image::billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe API keys"]
 
 *Configuring PacketFence*
 
-Now, in the PacketFence administration interface, go in _Configuration -> Policies and Access Control -> Sources_ and create a new source of type _Billing -> Stripe_
+Now, in the admin interface, go to _Configuration -> Policies and Access Control -> Authentication Sources_ and create a new source of type _Billing -> Stripe_
 
 image::billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
 
@@ -671,7 +671,7 @@ Now when your users will visit the status page (https://PF_DOMAIN_NAME/status), 
 
 Once you have configured one or more billing source, you need to define billing tiers which will define the price and target authentication rules for the user.
 
-In the PacketFence administration interface, go in _Configuration -> Advanced Access Configuration -> Billing tiers_
+In the admin interface, go to _Configuration -> Advanced Access Configuration -> Billing tiers_
 
 Then click `Add billing tier` and configure it.
 

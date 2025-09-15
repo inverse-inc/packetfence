@@ -19,33 +19,33 @@ endif::[]
 
 //=== PacketFence Apple, Android and Windows Wireless Provisioning
 
-Provisioners allow devices to automatically configure themselves to connect to the proper SSID (if applicable), use the proper authentication method (e.g. EAP-TLS) and trust the CA certificate and any certificate signed by it.
+Provisioners enable automatic device configuration for proper SSID connection, authentication method (e.g., EAP-TLS), and CA certificate trust.
 
-Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
+Apple devices (iPhones, iPads, iPods, Mac OS X 10.7+) support wireless profile importation via mobileconfig XML format. Android supports this through Android PacketFence Agent profile import. Installing files automatically configures wireless settings for given SSID, simplifying manual configuration for hidden SSIDs. PacketFence generates profiles per administrator preferences, pre-populating user credentials (excluding password). Users install generated file to use new SSID.
 
-The Windows agent will import and apply the provisioned profile so that the user only needs to enter his username and password.
+Windows agent imports and applies provisioned profile; users only enter username and password.
 
 ==== Configure the feature
 
 NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two sections exists to assist you: <<pf-pki,PacketFence PKI>>, which covers PacketFence's implementation, or <<ms-pki,PacketFence MSPKI>> which covers Microsoft's.
 
-First of all, you need to configure the SSID that your devices will use after they go through the authentication process.
+Configure SSID for devices after authentication.
 
-In the administration interface, go in _Configuration -> Advanced Access Configuration -> Provisioners_. Then select 'android' / 'ios' / 'Windows' provisioner. Enter the SSID information and roles for which the provisioner applies. Repeat for all desired provisioners. Note that the default RADIUS certificate path is [filename]`/usr/local/pf/raddb/certs/server.crt`.
+In administration interface: _Configuration -> Advanced Access Configuration -> Provisioners_. Select 'android'/'ios'/'Windows' provisioner. Enter SSID information and applicable roles. Repeat for desired provisioners. Default RADIUS certificate path: [filename]`/usr/local/pf/raddb/certs/server.crt`.
 
-After, you simply need to add the 'Android', 'iOS' and 'Windows' provisioners to your 'Connection Profile' configuration. If no connection profile is defined, configure the 'default' connection profile to use the provisioners created.
+Add 'Android', 'iOS' and 'Windows' provisioners to 'Connection Profile' configuration. If no profile defined, configure 'default' connection profile with created provisioners.
 
-NOTE: If you use two different connection profiles for the open and secure networks, make sure you configure the provisioners on both profiles.
+NOTE: For different connection profiles (open/secure networks), configure provisioners on both profiles.
 
-To add a new provisioner for another class of devices to be supported, click on the `Add Provisioner` button, and fill out the form, choosing a different Provisioning ID per provisioner.
+Add provisioner for other device classes: click `Add Provisioner`, complete form with different Provisioning ID per provisioner.
 
-* *Roles*: this field defines which devices will be affected by the provisioning item. If empty, all devices for this class will be affected.
-* *SSID*: this field defines which SSID will be configured on the device using the authentication profile.
-* *EAP-Type*: this field defines the authentication method supported and should be set to EAP-TLS to integrate with the PacketFence PKI.
-* *Security type*: this field should be set to WPA2-Entreprise to integrate with the PacketFence PKI.
-* *PKI Provider*: this field should match the provider you configured in the PKI provider section.
+* *Roles*: Defines affected devices; if empty, affects all devices for this class.
+* *SSID*: Defines SSID configured on device using authentication profile.
+* *EAP-Type*: Authentication method; set to EAP-TLS for PacketFence PKI integration.
+* *Security type*: Set to WPA2-Enterprise for PacketFence PKI integration.
+* *PKI Provider*: Must match provider configured in PKI provider section.
 
-We also advise you to configure a SSID for provisioning, for instance: `OnBoarding-PF`, open with MAC Authentication, pointing to PacketFence. Create a `New Portal Profile`, add a *filter SSID* with this *SSID name*, add the source you want the users to authenticate from and add your provisioners to this Portal Profile. From there, users who logged in will have to follow the captive portal instruction to get provided their certificate.
+Configure provisioning SSID (e.g., `OnBoarding-PF`) open with MAC Authentication pointing to PacketFence. Create `New Portal Profile`, add *filter SSID* with SSID name, add authentication source and provisioners. Logged-in users follow captive portal instructions to receive certificates.
 
 ===== Android specifications
 

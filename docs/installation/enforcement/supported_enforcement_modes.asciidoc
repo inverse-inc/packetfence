@@ -18,7 +18,7 @@ endif::[]
 
 //== Supported Enforcement Modes
 
-Prior configuring PacketFence, you must chose an appropriate enforcement mode to be used by PacketFence with your networking equipment. The enforcement mode is the technique used to enforce registration and any subsequent access of devices on your network. PacketFence supports the following enforcement modes:
+Choose appropriate enforcement mode before configuring PacketFence. Enforcement mode is the technique used to enforce device registration and network access. PacketFence supports these enforcement modes:
 
 [options="compact"]
 * Inline
@@ -27,27 +27,27 @@ Prior configuring PacketFence, you must chose an appropriate enforcement mode to
 * RADIUS only
 * DNS
 
-It is also possible to combine enforcement modes. For example, you could use the out-of-band mode on your wired switches, while using the inline mode on your old WiFi access points.
+Enforcement modes can be combined. For example, use out-of-band mode on wired switches and inline mode on older WiFi access points.
 
-The following sections will explain these enforcement modes. It will also explain how to properly configure PacketFence to use each enforcement mode.
+Following sections explain these enforcement modes and PacketFence configuration for each.
 
 === Technical Introduction to Inline Enforcement
 
 ==== Introduction
 
-In many other NAC solutions, it is not possible to support unmanageable devices such as entry-level consumer switches or access-points. Using PacketFence, with the new inline mode, it can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables/IPSet to the Internet (or to another section of the network). Let see how it works.
+Many NAC solutions cannot support unmanageable devices like entry-level consumer switches or access-points. PacketFence inline mode supports these devices in-band. PacketFence becomes the gateway for the inline network, using IPTables/IPSet to NAT or route traffic to the Internet or other network sections.
 
 ==== Device Configuration
 
-No special configuration is needed on the unmanageable device. That's the beauty. You only need to ensure that the device is "talking" on the inline VLAN. At this point, all the traffic will be passing through PacketFence since it is the gateway for this VLAN.
+No special configuration needed on unmanageable devices. Simply ensure the device communicates on the inline VLAN. All traffic passes through PacketFence as it serves as the VLAN gateway.
 
 ==== Access Control
 
-The access control relies entirely on IPTables/IPSet. When a user is not registered, and connects in the inline VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the ipset session, and all the Web traffic will be redirected to the captive portal and other traffic blocked. The user will have to register through the captive portal as in VLAN enforcement. When he registers, PacketFence changes the device's ipset session to allow the user's mac address to go through it.
+Access control relies entirely on IPTables/IPSet. When unregistered users connect to inline VLAN, PacketFence assigns IP addresses. Users are marked as unregistered in ipset session - web traffic redirects to captive portal, other traffic is blocked. After registration through captive portal (like VLAN enforcement), PacketFence updates the device's ipset session to allow the user's MAC address through.
 
 ==== Limitations
 
-Inline enforcement, because of it's nature, has several limitations that you must be aware of.
+Inline enforcement has several limitations due to its nature:
 
 [options="compact"]
 * Everyone behind an inline interface is on the same Layer 2 LAN
@@ -110,7 +110,7 @@ Some vendor support it, like Cisco Switches (IOS 15.2) and Dell (n1500 fw 6.8)
 
 The RADIUS flow is something close to the normal one but in the Access-Accept reply there is an extra RADIUS attribute that tell the equipment to trigger another RADIUS request to retreive the ACL.
 
-A second RADIUS request is made with the ACL name as a value of the username and multiples Access-Challenge are made in order to retreive the complete ACL.
+A second RADIUS request is made with the ACL name as a value of the username and multiples Access-Challenge are made to retreive the complete ACL.
 
 To enable it you need first to enable the RADIUS filter in the PacketFence authorize section. To do that go in Configuration -> System Configuration -> RADIUS -> General and enable "Use RADIUS filters in packetfence authorize" then restart the `radiusd-auth` service.
 
@@ -219,9 +219,9 @@ The first can be prevented using an ACL on your routing equipment, the second ca
 
 In order to configure DNS enforcement, you first need to go in _Configuration -> Network Configuration -> Networks -> Interface_ then select one of your interfaces and set it in DNS enforcement mode.
 
-After, you need to configure a routed network for this interface by clicking `New routed network`. See the 'Routed Networks' section of this document for details on how to configure it.
+After, you must configure a routed network for this interface by clicking `New routed network`. See the 'Routed Networks' section of this document for details on how to configure it.
 
-NOTE: If you are not using a routed network, you need to use Inline enforcement as DNS enforcement can only be used for routed networks.
+NOTE: If you are not using a routed network, you must use Inline enforcement as DNS enforcement can only be used for routed networks.
 
-Once this is done, you need to restart the `pfdhcp` and `pfdns` services.
+Once this is done, you must restart the `pfdhcp` and `pfdns` services.
 

@@ -18,17 +18,17 @@ endif::[]
 
 //== Development environment setup
 
-This section will guide you through the setup of your development environment and once done, you will have an environment running the sources in `/usr/local/pf`.
+Set up your development environment to run sources from `/usr/local/pf`.
 
-First, you will need to deploy an RHEL 8 or Rocky 8 machine. No other operating systems are currently supported for a development environment.
+Deploy RHEL 8 or Rocky 8 machine. Other operating systems are not supported for development environments.
 
 NOTE: If you're running on Linode, disable Network helper: https://www.linode.com/docs/guides/network-helper/
 
-Now, you need to figure out what is the current devel version number, you can obtain it from here: https://github.com/inverse-inc/packetfence/blob/devel/conf/pf-release
+Find current devel version number at: https://github.com/inverse-inc/packetfence/blob/devel/conf/pf-release
 
 IMPORTANT: This example will use version `99.9` as the example version number.
 
-Next, install PacketFence from the RPM repository:
+Install PacketFence from RPM repository:
 
 [source,bash]
 ----

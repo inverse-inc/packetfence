@@ -45,7 +45,7 @@ filter = the name of the SSID or the VLAN to apply the profile
 sources = a comma-separated list of authentications sources (IDs) to use
 ----
 
-Connection profiles should be managed from PacketFence's Web administration GUI - from the _Configuration -> Policies and Access Control -> Connection Profiles_ section. Adding a new connection profile will make a copy of the default templates - which can then be modified as desired.
+Connection profiles should be managed from the admin interface - from the _Configuration -> Policies and Access Control -> Connection Profiles_ section. Adding a new connection profile will make a copy of the default templates - which can then be modified as desired.
 
 * Filters under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Filters_
 

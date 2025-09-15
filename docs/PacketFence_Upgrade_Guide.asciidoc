@@ -42,8 +42,8 @@ doing an
 <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automated
 upgrade>>.
 
-Take a complete backup before upgrading.
-Run the backup script:
+Taking a complete backup of the current installation is strongly recommended.
+Perform a backup using:
 
 .For PacketFence versions prior to 9.0.0:
 [source,bash]
@@ -92,7 +92,7 @@ services have been restarted correctly before moving to the next node.
 
 === Disable monit alerts (only if monit is installed)
 
-Stop monit if installed:
+If `monit` is installed and running, shut it down with:
 
 [source,bash]
 ----
@@ -102,7 +102,7 @@ systemctl disable monit
 
 === Stop all PacketFence services
 
-Stop all running PacketFence services:
+It is recommended to stop all PacketFence services that are currently running before proceeding any further:
 
 [source,bash]
 ----
@@ -132,11 +132,11 @@ include::common/restart.asciidoc[]
 
 === For a standalone server
 
-Follow the <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>> instructions.
+Follow instructions related to <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>.
 
 === For a cluster
 
-Refer to the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>> section in the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>.
+Please refer to the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>.
 
 == Automation of upgrades
 
@@ -146,7 +146,7 @@ include::upgrade-notes/automation_of_upgrades.asciidoc[]
 
 === Tenant code deprecated
 
-PacketFence tenant management code has been removed. Stay on releases prior to 12.0 if tenants are required.
+The code used to manage tenants in PacketFence has been removed. If tenants are required, consider staying on any release prior to 12.0.
 
 === Clusters now use ProxySQL to load balance the DB connections
 
@@ -156,28 +156,27 @@ If ProxySQL causes issues in the deployment, revert back to haproxy-db by follow
 
 === Bandwidth accounting is now disabled by default.
 
-Bandwidth accounting tracking is disabled by default.
-To enable bandwidth reports or security events:
-1. Go to _Configuration -> System Configuration -> RADIUS -> General_
-2. Enable 'Process Bandwidth Accounting'
-3. Restart the `pfacct` service to apply changes.
+Tracking the bandwidth accounting information is now disabled by default.
+If bandwidth reports or security events are required then enable it by following
+Go to _Configuration -> System Configuration -> RADIUS -> General_
+Then enable 'Process Bandwidth Accounting'. The `pfacct` service has to be restarted to apply any changes.
 
 === Fix permissions and checkups deprecated
 
-API calls for fixing permissions and performing checkups from web admin are deprecated.
-Containerization of services made these calls obsolete.
+API calls used to fix permissions and to perform checkups from web admin have been deprecated.
+With the containerization of several services, it didn't make sense to keep them available.
 
 However, it's still possible to perform these commands on a PacketFence server using `pfcmd fixpermissions` and `pfcmd checkup`.
 
 === Change of behavior for the RADIUS source NAS-IP-Address
 
-NOTE: This applies when a RADIUS authentication source is configured in PacketFence. Ignore this section if PacketFence is used as a RADIUS server without a RADIUS authentication source.
+NOTE: This applies to administrators that have a RADIUS authentication source configured in PacketFence. If PacketFence is used as a RADIUS server, but no RADIUS authentication source is configured, this section can be ignored.
 
-RADIUS authentication sources previously used the packet source IP in the NAS-IP-Address field. This behavior is deprecated in favor of using the management IP address (or VIP in clusters). Configure alternative NAS-IP-Address values directly in the RADIUS authentication source if needed.
+RADIUS authentication sources previously used the source IP of the packet in the NAS-IP-Address field when communicating with the RADIUS server. This behavior has been deprecated in favor of using the management IP address (or VIP in a cluster) in the NAS-IP-Address. If another value in the NAS-IP-Address attribute is required, it is configurable in the RADIUS authentication source directly.
 
 === Log files names updated
 
-Some log file names have changed:
+The name of some log files have changed:
 
 .Mapping between old and new log files
 |===
@@ -592,12 +591,12 @@ Import only the configuration files, do not import the database.
 
 The configuration and database is now migrated to the new host.
 
-If successful, restart services using the <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,restart PacketFence services>> instructions.
+If all goes well, restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
 
 
 ===== Additional steps to build or rebuild a cluster
 
-To build or rebuild a cluster, follow the <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup>> instructions.
+To build a new cluster or rebuild an existing cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
 
 If the previous installation was a cluster, some steps may not be required.  The export archive will contain the previous [filename]`cluster.conf` file.
 
@@ -687,110 +686,3 @@ include::includes/additional-info.asciidoc[]
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
-
-[appendix]
-== Quick Reference
-
-=== Terms and Technologies
-
-API::
-  <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-Authentication::
-  <<#_upgrading_from_a_version_prior_to_11_1_0,Upgrading from a version prior to 11.1.0>>, <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-Automation::
-  <<#_automation_of_upgrades,Automation of Upgrades>>
-
-Backup::
-  <<#_general_upgrade_tips,General Upgrade Tips>>, <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-Bandwidth::
-  <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-Certificate::
-  <<#_upgrading_from_a_version_prior_to_12_1_0,Upgrading from a version prior to 12.1.0>>
-
-Cluster::
-  <<#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>, <<#_upgrading_from_a_version_prior_to_11_1_0,Upgrading from a version prior to 11.1.0>>
-
-Database::
-  <<#_general_upgrade_tips,General Upgrade Tips>>, <<#_upgrading_from_a_version_prior_to_11_1_0,Upgrading from a version prior to 11.1.0>>
-
-DHCP::
-  <<#_upgrading_from_a_version_prior_to_13_0_0,Upgrading from a version prior to 13.0.0>>
-
-EAP::
-  <<#_upgrading_from_a_version_prior_to_11_1_0,Upgrading from a version prior to 11.1.0>>
-
-Filters::
-  <<#_upgrading_from_a_version_prior_to_11_2_0,Upgrading from a version prior to 11.2.0>>
-
-Firewall::
-  <<#_upgrading_from_a_version_prior_to_13_1_0,Upgrading from a version prior to 13.1.0>>
-
-HAProxy::
-  <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-HTTP::
-  <<#_upgrading_from_a_version_prior_to_13_0_0,Upgrading from a version prior to 13.0.0>>
-
-HTTPS::
-  <<#_upgrading_from_a_version_prior_to_13_0_0,Upgrading from a version prior to 13.0.0>>
-
-IP::
-  <<#_upgrading_from_a_version_prior_to_12_1_0,Upgrading from a version prior to 12.1.0>>
-
-LDAP::
-  <<#_upgrading_from_a_version_prior_to_13_0_0,Upgrading from a version prior to 13.0.0>>
-
-Logs::
-  <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-MariaDB::
-  <<#_general_upgrade_tips,General Upgrade Tips>>, <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-Monit::
-  <<#_general_upgrade_tips,General Upgrade Tips>>, <<#_upgrading_from_a_version_prior_to_11_1_0,Upgrading from a version prior to 11.1.0>>
-
-MySQL::
-  <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-NAS::
-  <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-NTLM::
-  <<#_upgrading_from_a_version_prior_to_11_0_0,Upgrading from a version prior to 11.0.0>>
-
-Packages::
-  <<#_general_upgrade_tips,General Upgrade Tips>>
-
-PKI::
-  <<#_upgrading_from_a_version_prior_to_11_2_0,Upgrading from a version prior to 11.2.0>>
-
-ProxySQL::
-  <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-RADIUS::
-  <<#_upgrading_from_a_version_prior_to_11_1_0,Upgrading from a version prior to 11.1.0>>, <<#_upgrading_from_a_version_prior_to_12_0_0,Upgrading from a version prior to 12.0.0>>
-
-RedHat::
-  <<#_upgrading_from_a_version_prior_to_12_1_0,Upgrading from a version prior to 12.1.0>>
-
-Schema::
-  <<#_upgrading_from_a_version_prior_to_11_1_0,Upgrading from a version prior to 11.1.0>>, <<#_upgrading_from_a_version_prior_to_11_2_0,Upgrading from a version prior to 11.2.0>>
-
-Services::
-  <<#_general_upgrade_tips,General Upgrade Tips>>
-
-SQL::
-  <<#_upgrading_from_a_version_prior_to_11_1_0,Upgrading from a version prior to 11.1.0>>, <<#_upgrading_from_a_version_prior_to_11_2_0,Upgrading from a version prior to 11.2.0>>
-
-TLS::
-  <<#_upgrading_from_a_version_prior_to_11_0_0,Upgrading from a version prior to 11.0.0>>
-
-Upgrade::
-  <<#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>
-
-VLAN::
-  <<#_upgrading_from_a_version_prior_to_11_2_0,Upgrading from a version prior to 11.2.0>>

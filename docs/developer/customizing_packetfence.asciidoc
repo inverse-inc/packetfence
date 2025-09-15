@@ -25,28 +25,25 @@ endif::[]
 ===== XHTML Templates
 
 
-Captive portal content use http://template-toolkit.org/[Template Toolkit]
-templates. The default template files are located in `/usr/local/pf/html/captive-portal/templates`.
-You can freely edit the `HTML` code in these files.
+Captive portal content uses http://template-toolkit.org/[Template Toolkit] templates. Default template files located in `/usr/local/pf/html/captive-portal/templates`. Edit HTML code freely in these files.
 
 Each template relies on `layout.html` for the common top and bottom portions of the page.
 
 ===== Internationalized AUP
 
-In the event that you need an Acceptable Usage Policy that should be translated in different languages in the captive portal, you can create specially named templates that will be used for different languages.
+For Acceptable Usage Policy translations in different captive portal languages, create specially named templates for different languages.
 
-For example, if the browser locale is `es_ES`, creating a template named `aup_text.es.html` will display this AUP when it detects this locale.
-Same goes for a browser with locale `en_US`, where creating a template named `aup_text.en.html` will be used for English browsers.
+Example: browser locale `es_ES` uses template `aup_text.es.html` when detected. Browser locale `en_US` uses template `aup_text.en.html` for English browsers.
 
 The template `aup_text.html` is used as the final fallback for all locales.
 
-Note that you cannot use the full locale in the template name (i.e. `aup_text.en_US.html`) as only the two letter prefix should be used.
+Cannot use full locale in template name (`aup_text.en_US.html`); use only two-letter prefix.
 
 ===== Logo
 
-In order to customize the default logo that is shown on the captive portal, go in _Configuration->Policies And Access Control->Connection Profiles->default->Files_. Next, upload your logo at the root of the files. Once it has been uploaded, go in the _Captive Portal_ section of the connection profile and change the 'Logo' field value to `/profile-templates/default/filename-of-your-logo.png`.
+Customize captive portal logo: go to _Configuration->Policies And Access Control->Connection Profiles->default->Files_. Upload logo at root of files. After upload, go to _Captive Portal_ section of connection profile and change 'Logo' field value to `/profile-templates/default/filename-of-your-logo.png`.
 
-Alternatively, you could also delete the existing `logo.png` in the files, then upload your logo and rename it to `logo.png`. Doing so will not require to alter the value of 'Logo' in the connection profile.
+Alternative: delete existing `logo.png`, upload your logo and rename to `logo.png`. This avoids altering 'Logo' value in connection profile.
 
 You can also have a different logo per connection profile. In order to do so, upload your logo in the appropriate connection profile, then edit it's 'Logo' value to be `/profile-templates/CONNECTION_PROFILE_ID/filename-of-your-logo.png`.
 
@@ -58,7 +55,7 @@ The easiest way to customize CSS is to override default CSS using a `<style>` ta
 
 `<style>` tag must be inserted just before `<\head>` in [filename]`layout.html`.
 
-You also need to disable Content-Security-Policy (CSP) headers on captive portal (see <<PacketFence_Installation_Guide.asciidoc#_content_security_policy_csp,instructions>>).
+You also need to disable Content-Security-Policy (CSP) headers on captive portal (see <<../PacketFence_Installation_Guide.asciidoc#_content_security_policy_csp,instructions>>).
 
 ===== Workflow
 

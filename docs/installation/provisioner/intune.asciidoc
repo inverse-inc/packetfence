@@ -20,29 +20,29 @@ endif::[]
 
 ==== Configure from the Azure portal
 
-You will first need to connect to the Azure portal and be sure that you have the Intune licenses.
+Connect to Azure portal and verify Intune licenses.
 
 ===== Creating the application
 
-Once you are logged in the portal you need to create an application to allow the access to the Graph API.
+After portal login, create application to allow Graph API access.
 
-Click on 'Azure Active Directory' and on 'App registrations' and on 'New registration'
+Click 'Azure Active Directory' > 'App registrations' > 'New registration'
 
 image::Azure_Application_1.png[scaledwidth="100%",alt="Azure add application"]
 
-Set a name for the application (in this case PacketFence) and choose as 'Supported account types' : 'Accounts in this organizational directory only' and click 'Register'
+Set application name (e.g., PacketFence), choose 'Supported account types': 'Accounts in this organizational directory only', click 'Register'
 
 image::Azure_Application_2.png[scaledwidth="100%",alt="Azure define application"]
 
-On the next page you will be able to configure the application, first copy the 'Application (client ID)' and the 'Directory (tenant ID)', you will need them to define your provisioner.
+On next page, copy 'Application (client ID)' and 'Directory (tenant ID)' (needed for provisioner definition).
 
 image::Azure_Application_3.png[scaledwidth="100%",alt="Azure ID"]
 
-Next click on 'Certificates & secrets' and 'New client secret' , this will provide you the password to use for the application (Save it right now because you won't be able to have it after).
+Click 'Certificates & secrets' > 'New client secret' for application password (save immediately; won't be available later).
 
 image::Azure_Application_4.png[scaledwidth="100%",alt="Azure Password"]
 
-The last thing, you need to add permissions on the API, to do that click on 'API permissions' and 'Microsoft Graph' then on the right pane select 'Application permissions' and add:
+Add API permissions: click 'API permissions' > 'Microsoft Graph', select 'Application permissions', add:
 
  Device.ReadWrite.All
  DeviceManagementManagedDevices.Read.All
@@ -53,7 +53,7 @@ And click on 'Grant admin consent for (Name of your app)'
 
 ===== Create a new provisioner
 
-Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
+Login to the admin interface, then go to _Configuration -> Advanced Access Configuration -> Provisioners_.
 Click 'Add provisioner' then select Microsoft Intune.
 
 image::intune-pf-config.png[scaledwidth="100%",alt="Intune PacketFence configuration"]

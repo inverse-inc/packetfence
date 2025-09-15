@@ -101,7 +101,7 @@ NOTE: The same principle can be applied to `haproxy-admin` with port 1027 in `ha
 
 NOTE: It is not recommended to perform configuration while one or more node of the cluster is experiencing issues. Still, should that be the case, this section will explain the conflict resolution that will occur when the nodes will reattach together.
 
-When modifying the configuration through the administration interface, the configuration will be automatically synchronized to all the nodes that are online. In the event that one or more nodes cannot be updated, an error message will be displayed with affected nodes.
+When modifying the configuration through the admin interface, the configuration will be automatically synchronized to all the nodes that are online. In the event that one or more nodes cannot be updated, an error message will be displayed with affected nodes.
 
 A scheduled check runs on the management server (controlled through maintenance.cluster_check_interval) in order to validate if all servers are running the same configuration version.
 When the failed node(s) will come back online, that scheduled check will ensure that the new configuration is pushed on the new node(s).

@@ -53,7 +53,7 @@ Global config settings without Voice over IP (VoIP):
   configure ports <portlist> vlan registration lock-learning
   disable snmp traps port-up-down ports <portlist>
 
-where `<portlist>` are ports you want to secure. It can be an individual port or a port-range with a dash.
+`<portlist>` = ports to secure (individual port or port-range with dash).
 
 Global config settings with Voice over IP (VoIP):
 
@@ -67,7 +67,7 @@ Global config settings with Voice over IP (VoIP):
   configure ports <portlist> vlan voice limit-learning 1
   disable snmp traps port-up-down ports <portlist>
 
-where `<portlist>` are ports you want to secure. It can be an individual port or a port-range with a dash.
+`<portlist>` = ports to secure (individual port or port-range with dash).
 
 ===== CoA configuration
 
@@ -139,18 +139,18 @@ Configure the MAC Authentication and 802.1x like the section above and add this 
 
 ===== Policy based access
 
-You can assign policies defined on the switch via PacketFence.
+Assign switch-defined policies via PacketFence.
 
-First define your policy in the switch:
+Define switch policy:
 
   configure policy profile 1 name "gaming" pvid-status "enable" pvid 3521 untagged-vlans 3521
   configure policy profile 2 name "guest" pvid-status "enable" pvid 3522 untagged-vlans 3522
   configure policy maptable response both
   configure policy vlanauthorization enable
 
-Next, in PacketFence, enable 'Role by Switch Role' in your switch configuration and assign the policies to the roles there. They will be returned inside the Filter-Id attribute.
+Enable 'Role by Switch Role' in PacketFence switch configuration; assign policies to roles. Policies returned in Filter-Id attribute.
 
-Make sure you use the 'Extreme EXOS' type for your switch to use this feature.
+Use 'Extreme EXOS' switch type for this feature.
 
 ===== Web authentication
 
@@ -179,13 +179,13 @@ Web-auth profile
   configure policy captive-portal listening 80
   configure policy captive-portal listening 443
 
-Next, in the switch configuration in PacketFence, enable 'External Portal Enforcement' and 'Role by Switch Role'. Under the 'registration' role, put 'Unregistered'
+Enable 'External Portal Enforcement' and 'Role by Switch Role' in PacketFence switch configuration. Set 'registration' role to 'Unregistered'.
 
-Make sure you use the 'Extreme EXOS' type for your switch to use this feature.
+Use 'Extreme EXOS' switch type for this feature.
 
 ===== RADIUS authentication for CLI access
 
-Configure RADIUS server IP address as primary server and the switch IP address as the client-ip.  Be sure to specify the correct virtual router
+Configure RADIUS server IP as primary server and switch IP as client-ip. Specify correct virtual router:
 
   configure radius mgmt-access primary server <SERVER_IP> 1815 client-ip <CLIENT_IP> vr <VR>
 

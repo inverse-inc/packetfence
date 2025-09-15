@@ -19,17 +19,17 @@ endif::[]
 
 //=== PacketFence PKI
 
-This section has been created to give a quick start to configure the PacketFence PKI in PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features. The PKI comes installed by default since PacketFence version 10. All certificates would be saved in the database. If you want to migrate your certificate from the old PacketFence PKI please see the upgrade section.
+This section provides quick start configuration for PacketFence PKI. For advanced EAP-TLS troubleshooting, refer to EAP-TLS, RADIUS and OpenSSL documentation. PKI comes installed by default since PacketFence version 10. All certificates are saved in database. To migrate certificates from old PacketFence PKI, see upgrade section.
 
 ==== Certificate Authority creation
 
-You will need to create a new certificate authority. Go to the PacketFence web administration under the section Configuration -> Integration -> PKI -> Certificate Authorities and click on *New Certificate Authority*
+Create new certificate authority. In PacketFence web administration, go to Configuration -> Integration -> PKI -> Certificate Authorities and click *New Certificate Authority*.
 
 image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification authority creation"]
 
-Optionally if you want the CA to be a sub-CA of another PKI then you can click on 'Generate CSR' (top right of the CA form), modify the information (if needed) and click 'Generate CSR'. On the next page copy the CSR and provide it to the external CA to be able to retrieve a Signed Certficate. On the last page provide the Signed Certificate and click 'Save'.
+For sub-CA configuration: click 'Generate CSR' (top right of CA form), modify information if needed, click 'Generate CSR'. Copy CSR and provide to external CA for signed certificate retrieval. Provide signed certificate and click 'Save'.
 
-If the CA certificate is about to expire, generate a new CSR or click on Resign CA Certificate (self-signed).
+For expiring CA certificate: generate new CSR or click Resign CA Certificate (self-signed).
 
 ===== Here's a CA example:
 

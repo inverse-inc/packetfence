@@ -19,23 +19,23 @@ endif::[]
 //=== Microsoft PKI
 
 
-This section has been created to give a quick start to configure the Microsoft PKI with PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features.
+This section provides quick start configuration for Microsoft PKI with PacketFence. For advanced EAP-TLS troubleshooting, refer to EAP-TLS, RADIUS and OpenSSL documentation.
 
 ==== Assumptions
 
-* You have at least one server with PacketFence 5.4 or later.
-* The server already has a properly configured switch or access point with 802.1X support.
-* The PacketFence RADIUS server is working in your environment.
-* You have a Microsoft Windows 2008 R2 Enterprise server installed.
-* The PacketFence management IP will be 192.168.1.5.
-* The RADIUS shared secret is "useStrongerSecret".
-* In this guide you will see a lot of use of <ServerDNSName>, most of the MSPKI services requires in their configuration to use the FQDN of the server and not his IP.
+* PacketFence 5.4 or later server
+* Properly configured switch or access point with 802.1X support
+* Working PacketFence RADIUS server
+* Microsoft Windows 2008 R2 Enterprise server
+* PacketFence management IP: 192.168.1.5
+* RADIUS shared secret: "useStrongerSecret"
+* <ServerDNSName> indicates FQDN requirement for MSPKI services (not IP address)
 
 ==== Installation
 
 ===== Install Active Directory Certificate Service (ADCS)
 
-NOTE: This section will cover the configuration for Active Directory Certificate Services (ADCS) on Microsoft Windows 2008 R2 Enterprise. The installation of ADCS is not covered by this guide, refer to the Microsoft documentation about it for more information (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
+NOTE: This section covers ADCS configuration on Microsoft Windows 2008 R2 Enterprise. ADCS installation is not covered - refer to Microsoft documentation (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
 
 For the integration with PacketFence, the following subroles need to be installed in ADCS:
 
@@ -43,21 +43,21 @@ For the integration with PacketFence, the following subroles need to be installe
 * Network Device Enrollment Service
 * Online Responder
 
-Before you start the configuration, a hotfix is necessary due to a Microsoft issue. After restarting the ADCS service, the server cannot enroll new certificates and display the following error message: "The RPC Server is unavailable". The hotfix is available here: https://support.microsoft.com/en-us/kb/2633200
+Apply required hotfix before configuration. After ADCS service restart, servers cannot enroll certificates and display "The RPC Server is unavailable" error. Hotfix: https://support.microsoft.com/en-us/kb/2633200
 
 Communication between the MSPKI and PacketFence will be using port 80.
 
 ===== Configuring Network Device Enrollment Service (NDES)
 
-For the deployment of ADCS you will need to configure Network Device Enrollment Service (NDES). This subrole will allow us to exchange certificates with the MSPKI server via Simple Certificate Exchange Protocol (SCEP).
+Configure Network Device Enrollment Service (NDES) for ADCS deployment. NDES enables certificate exchange with MSPKI server via Simple Certificate Exchange Protocol (SCEP).
 
-Every configuration change has to be done by an account with administrative privileges.
+All configuration changes require administrative privileges.
 
 ===== Challenge Password
 
-Microsoft SCEP (MSCEP) includes by default a challenge password, which is unique and dynamically generated for each device which wants to enroll. In a BYOD deployment, this can be a barrier as a user cannot register a device by himself without the intervention of an administrator. Since we use NDES with PacketFence, our security to obtain a certificate would be the credentials necessary to access the enrollment system.
+Microsoft SCEP (MSCEP) includes default challenge passwords, unique and dynamically generated for each enrolling device. In BYOD deployments, this creates barriers as users cannot self-register without administrator intervention. With NDES and PacketFence, certificate security relies on credentials for enrollment system access.
 
-To disable the challenge password you need to modify the following key in the Windows registry. 
+Disable challenge password by modifying Windows registry key: 
 
 Click `Start` and enter `regedit`.
 
@@ -67,54 +67,54 @@ Change the value of `EnforcePassword` to `0` (default is `1`).
 
 ===== Extend URL length for the request
 
-Best practices recommends to extend the URL length to avoid issue with longer request. 
+Best practices recommend extending URL length to avoid longer request issues. 
 
-To do so, enter the following command in the CLI on the NDES server:
+Enter this command in NDES server CLI:
 
  %systemroot%\system32\inetsrv\appcmd.exe set config /section:system.webServer/
  security/requestFiltering /requestLimits.maxQueryString:"16384" /commit:apphost
 
 ===== Certificate Template
 
-CAUTION: Remember that the validity of your CA can impact your whole certificate architecture.
+CAUTION: CA validity impacts entire certificate architecture.
 
-The goal is to deliver certificates for `user Authentication`, this means you will need to setup a specific template.
+Deliver certificates for `user Authentication` using specific template setup.
 
-First, the certificate template needs at least the following `Enhanced Key Usage` and `Key Usage`:
+Certificate template requires these minimum `Enhanced Key Usage` and `Key Usage` settings:
 
 image::scep-ms-pki-en-key-usage.png[scaledwidth="100%",alt="Mandatory Enhanced Key Usage"]
 
 image::scep-ms-pki-key-usage.png[scaledwidth="100%",alt="Mandatory Key Usage"]
 
-The next step is to duplicate a template where those `Key Usage`, and `Enhanced Key Usage` are already configured. We advise to duplicate the template `User` and change the necessary settings.
+Duplicate template with configured `Key Usage` and `Enhanced Key Usage`. Duplicate `User` template and modify necessary settings.
 
-To duplicate the template, you need to navigate through `Server Manager->Roles->Active Directory Certificates Services->Certificate templates`. Now right click the template `User` and select `Duplicate this template`.
+Navigate to `Server Manager->Roles->Active Directory Certificates Services->Certificate templates`. Right-click `User` template and select `Duplicate this template`.
 
-Once duplicated, right click your new template, go to `Properties`. Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, otherwise the requested CN will be overwritten by NDES.
+Right-click new template, select `Properties`. In `Subject Name` tab, select `Supplied in the request` over `Built from information in Active Directory` to prevent NDES from overwriting requested CN.
 
-To allow NDES to use this template you need to navigate to `Server Manager->Roles->Active Directory Certificates Services`, expand `<ServerDNSName>`, right click `Certificate template` and choose `New template to issue`, in the list select your newly created template.
+Allow NDES template usage: navigate to `Server Manager->Roles->Active Directory Certificates Services`, expand `<ServerDNSName>`, right-click `Certificate template`, choose `New template to issue`, select your created template.
 
-Now that you choose the template to deliver you need to configure it in the registry.
+Configure selected template in registry:
 
-To access the registry editor, press `Start` and type `regedit`.
+Access registry editor: press `Start` and type `regedit`.
 
-While in the registry navigate to `Computer->HKEY_LOCAL_MACHINE->SOFTWARE->Microsoft->Cryptography->MSCEP`.
+Navigate to `Computer->HKEY_LOCAL_MACHINE->SOFTWARE->Microsoft->Cryptography->MSCEP`.
 
-You should have a list of three keys entries: 
+Three key entries should exist: 
 
 * EncryptionTemplate,
 * GeneralPurposeTemplate,
 * SignatureTemplate.
 
-The default value should be `IPSECIntermediateOffline`. Replace each value with your newly created template name.
+Default value: `IPSECIntermediateOffline`. Replace each value with your created template name.
 
-At this point, you need to reboot the NDES server to apply changes to the registry.
+Reboot NDES server to apply registry changes.
 
 ===== IIS configuration
 
-The use of SCEP with PacketFence also require a change in the IIS configuration.
+SCEP with PacketFence requires IIS configuration changes.
 
-Navigate to `Server Manager->Web(IIS)`, expand `Default web site` then select `CertSrv->mscep`. Select `Authentication`, and double click `Anonymous Authentication`. Make sure that `Application pool identity` is selected.
+Navigate to `Server Manager->Web(IIS)`, expand `Default web site`, select `CertSrv->mscep`. Select `Authentication`, double-click `Anonymous Authentication`. Ensure `Application pool identity` is selected.
 
 ===== Online Certificate Status Protocol (OCSP)
 
@@ -226,7 +226,7 @@ Restart radiusd to regenerate the new configuration files and enable EAP-TLS usi
 
 ===== PacketFence PKI Provider Configuration
 
-Using the PKI requires configuring the PKI providers section in the PacketFence GUI under _Configuration->Advanced Access Configuration->PKI Providers_. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
+Using the PKI requires configuring the PKI providers section in the admin interface under _Configuration -> Advanced Access Configuration -> PKI Providers_. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
 
 Add a new PKI provider and select SCEP.
 
@@ -250,7 +250,7 @@ If you select 'Username', a certificate will be generated using his login name o
 
 Provisioners allow devices to automatically configure themselves to connect to the proper SSID (if applicable), use the proper authentication method (e.g. EAP-TLS) and trust the CA certificate and any certificate signed by it.
 
-Provisioners are configured in the PacketFence administration GUI under _Configuration->Advanced Access Configuration->Provisioners_.
+Provisioners are configured in the admin interface under _Configuration -> Advanced Access Configuration -> Provisioners_.
 
 Add a new provisioner for each of the classes of devices to be supported amongst Android, Apple Devices and Windows.
 Fill out the form, choosing a different Provisioning Id per provisioner.
@@ -294,9 +294,9 @@ zxcvbnmqwertyuiop78
 
 ===== Connection Profiles Configuration
 
-Provisioners have to be enabled on the Connection Profiles configuration in the PacketFence GUI.
+Provisioners must be enabled in the Connection Profiles configuration in the admin interface.
 
-Under _Configuration->Policies and Access control->Connection Profiles_, select each of the provisioners created above which should be active for the profile.
+In the admin interface, go to _Configuration -> Policies and Access Control -> Connection Profiles_, and select each of the provisioners created above which should be active for the profile.
 If no connection profile is defined, configure the "default" profile to use the provisioners created.
 
 ===== Passthroughs Required for Android
@@ -305,7 +305,7 @@ Android devices require passthroughs to be created to allow them to fetch the co
 
 IMPORTANT: Passthroughs will vary depending on the location where your Google account was created. You will need to add some extra passthroughs for the store of your country. In the section debug there is a how-to determine which address you need to add.
 
-Add the following to the "Fencing" section of the Configuration tab in the PacketFence GUI.
+Add the following to the "Fencing" section in the admin interface Configuration tab.
 
 ----
 passthrough=enabled

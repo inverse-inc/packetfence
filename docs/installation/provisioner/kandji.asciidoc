@@ -52,7 +52,7 @@ This will walk you through adding Kandji as a provisioner.
 
 ===== Create the provisioner
 
-Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
+Login to the admin interface, then go to _Configuration -> Advanced Access Configuration -> Provisioners_.
 Click 'Add provisioner' then select 'Kandji'.
 
 Now configure this new provisioner with the information you got above.

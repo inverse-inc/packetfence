@@ -20,33 +20,33 @@ endif::[]
 
 === Portal Modules
 
-The PacketFence captive portal flow is highly customizable. This section covers _Portal Modules_ which define the behavior of the captive portal.
+PacketFence captive portal flow is highly customizable. _Portal Modules_ define captive portal behavior.
 
-NOTE: When upgrading from a previous version that does not include portal modules, defaults are included that fit most cases with the same behavior as previous version, i.e. authentication uses the configured Connection Profile sources, and then the provisioners.
+NOTE: Upgrades from versions without portal modules include defaults that maintain previous behavior: authentication uses configured Connection Profile sources, then provisioners.
 
 Available Portal Modules:
 
-* `Root`: a simple container that defines all the modules that need to be applied in a chain to the user. Once the user has completed all modules contained in the Root module, the device is released on the network.
-* `Choice`: a choice between multiple modules for the user. See 'default_registration_policy' for a good example.
-* `Chained`: a list of ordered modules for the user to complete. One example is for users to register with Google+ and pay for network access with PayPal.
-* `Authentication`: many different types are available. Define one of these modules to override the required fields, the source to use, the template or any other module attribute.
-** `Billing`: one or more billing sources.
-** `Choice`: multiple sources and modules with advanced filtering options. See _Authentication Choice module_ below for a detailed explanation.
-** `Login`: username/password for multiple internal sources (Active Directory, LDAP, ...).
-* `Other`: The other modules are all based on the source type they are assigned to, they allow to select the source, the AUP acceptance, and mandatory fields if applicable.
-** `Message`: display a message to the user. An example is available below in _Displaying a message to the user after the registration_
-** `SelectRole`: override the role when a device is registered. For example an admin user is trying to register a device using the normal registration process, with this module the admin can choose which role to apply to the device while registering. This will bypass authentication rules.
-** `URL`: redirect the user to a local or external URL which may return the user back to the portal to continue. An example is available below in _Calling an external website_.
+* `Root`: Container defining modules applied in chain to user. Device is released after completing all Root modules.
+* `Choice`: Choice between multiple modules. See 'default_registration_policy' example.
+* `Chained`: Ordered modules for user completion. Example: Google+ registration then PayPal payment.
+* `Authentication`: Multiple types available. Define modules to override required fields, source, template or other attributes.
+** `Billing`: One or more billing sources.
+** `Choice`: Multiple sources and modules with advanced filtering. See _Authentication Choice module_ below.
+** `Login`: Username/password for multiple internal sources (Active Directory, LDAP, etc.).
+* `Other`: Modules based on assigned source type, allowing source selection, AUP acceptance, and mandatory fields.
+** `Message`: Display message to user. Example in _Displaying a message to the user after registration_.
+** `SelectRole`: Override role during device registration. Admin users can choose device role during registration, bypassing authentication rules.
+** `URL`: Redirect to local or external URL that may return to portal. Example in _Calling an external website_.
 
 ==== Examples
 
 ===== Creating a custom root module
 
-First in _Configuration ->  Advanced Access Configuration -> Portal Modules_. Create a _New Root Module_ which will not affect the default policy. Give it the name `my_first_root_module` and the description _"My first root module"_, then click Save.
+In _Configuration -> Advanced Access Configuration -> Portal Modules_, create a _New Root Module_ that won't affect default policy. Name it `my_first_root_module` with description _"My first root module"_, then click Save.
 
-Next in _Configuration -> Policies and Access Control -> Connection Profiles_. Select the connection profile (most probably `default`) and set the _Root Portal Module_ by selecting `my_first_root_module`, then click Save.
+In _Configuration -> Policies and Access Control -> Connection Profiles_, select the connection profile (likely `default`) and set _Root Portal Module_ to `my_first_root_module`, then click Save.
 
-NOTE: Accessing the captive portal now will display an error since the _Root module_ is empty. Add some pre-configured modules to the new _Root module_ to suppress the error.
+NOTE: Captive portal will show error since _Root module_ is empty. Add pre-configured modules to new _Root module_ to suppress error.
 
 ===== Prompting for fields without authentication
 

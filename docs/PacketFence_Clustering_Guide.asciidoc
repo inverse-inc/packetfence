@@ -68,67 +68,6 @@ include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
 
-[appendix]
-== Quick Reference
-
-=== Terms and Technologies
-
-API::
-  <<#_advanced_configuration,Advanced Configuration>>
-
-Cluster::
-  <<#_cluster_setup,Cluster Setup>>, <<#_troubleshooting_a_cluster,Troubleshooting a Cluster>>
-
-Database::
-  <<#_understanding_the_galera_cluster_synchronization,Understanding the Galera Cluster Synchronization>>
-
-Failover::
-  <<#_advanced_configuration,Advanced Configuration>>, <<#_troubleshooting_a_cluster,Troubleshooting a Cluster>>
-
-Galera::
-  <<#_understanding_the_galera_cluster_synchronization,Understanding the Galera Cluster Synchronization>>
-
-HA::
-  <<#_cluster_setup,Cluster Setup>>, <<#_advanced_configuration,Advanced Configuration>>
-
-HAProxy::
-  <<#_advanced_configuration,Advanced Configuration>>, <<#_layer_3_clusters,Layer 3 Clusters>>
-
-IP::
-  <<#_cluster_setup,Cluster Setup>>, <<#_layer_3_clusters,Layer 3 Clusters>>
-
-Keepalived::
-  <<#_advanced_configuration,Advanced Configuration>>, <<#_layer_3_clusters,Layer 3 Clusters>>
-
-LoadBalancer::
-  <<#_advanced_configuration,Advanced Configuration>>
-
-MariaDB::
-  <<#_understanding_the_galera_cluster_synchronization,Understanding the Galera Cluster Synchronization>>
-
-MySQL::
-  <<#_understanding_the_galera_cluster_synchronization,Understanding the Galera Cluster Synchronization>>
-
-Network::
-  <<#_layer_3_clusters,Layer 3 Clusters>>
-
-Node::
-  <<#_cluster_setup,Cluster Setup>>, <<#_maintenance_and_operations,Maintenance and Operations>>
-
-ProxySQL::
-  <<#_advanced_configuration,Advanced Configuration>>
-
-Replication::
-  <<#_understanding_the_galera_cluster_synchronization,Understanding the Galera Cluster Synchronization>>
-
-SQL::
-  <<#_understanding_the_galera_cluster_synchronization,Understanding the Galera Cluster Synchronization>>
-
-Synchronization::
-  <<#_understanding_the_galera_cluster_synchronization,Understanding the Galera Cluster Synchronization>>
-
-VIP::
-  <<#_cluster_setup,Cluster Setup>>, <<#_layer_3_clusters,Layer 3 Clusters>>
 
 == Appendix
 
