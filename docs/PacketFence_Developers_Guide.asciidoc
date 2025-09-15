@@ -1,4 +1,4 @@
-= Developer's Guide
+= PacketFence Developer's Guide
 ////
 
     This file is part of the PacketFence project.
@@ -92,8 +92,6 @@ include::developer/integration_tests/README.asciidoc[]
 
 include::developer/contributing.asciidoc[]
 
-//TODO: process the rest. I found quickest way to be:
-// paste from docbook then use vim(:1,9s#<\_.\{-1,}>##g) and reformat by hand
 
 // INCLUDES
 

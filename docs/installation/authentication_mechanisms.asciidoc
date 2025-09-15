@@ -238,7 +238,7 @@ You must enable the passthrough option in your PacketFence configuration (fencin
 
 ==== Google
 
-In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.
+In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : https://code.google.com/apis/console.
 In the Google APIs Console, go into 'Credentials -> Create Credentials -> OAuth client ID -> Web Application', then enter a name and make sure you use this URI for the "Authorized redirect URIs" field : https://YOUR_PORTAL_HOSTNAME/oauth2/callback.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 Save to get the Client ID and Client secret.
 

@@ -72,9 +72,9 @@ The installer will open and you will simply have to follow the instructions on s
 
 === Installing PacketFence on existing Linux
 
-PacketFence provides repositories for **RHEL 8** and **Debian 12** (bookworm) with all required dependencies.
+PacketFence provides repositories for *RHEL 8* and *Debian 12* (bookworm) with all required dependencies.
 
-**Repository Benefits:**
+*Repository Benefits:*
 * Streamlined installation with dependency management
 * Pre-built RPM (EL8) and DEB (Debian 12) packages  
 * Simplified upgrade process
@@ -83,14 +83,14 @@ PacketFence provides repositories for **RHEL 8** and **Debian 12** (bookworm) wi
 
 === Common Prerequisites
 
-**All Systems:**
+*All Systems:*
 - Minimal OS installation (no additional packages)
-- UEFI Secure Boot **disabled** (if applicable)
+- UEFI Secure Boot *disabled* (if applicable)
 - System updated to latest patches
 
 === RHEL 8 System Preparation
 
-**Security Configuration:**
+*Security Configuration:*
 [source,bash]
 ----
 # Disable firewall and SELinux (required)
@@ -106,7 +106,7 @@ reboot
 
 === Debian 12 System Preparation  
 
-**Security Configuration:**
+*Security Configuration:*
 [source,bash]
 ----
 # Update system first
@@ -137,7 +137,7 @@ Regarding resolvconf, you can remove the symlink to that file and simply create 
 
 === RHEL 8 Development Setup
 
-**Prerequisites:**
+*Prerequisites:*
 - Valid RHEL subscription for dependency installation
 - Latest kernel running
 
@@ -155,7 +155,7 @@ rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY
 
 === Debian 12 Development Setup
 
-**Prerequisites:**  
+*Prerequisites:*  
 - Fresh Debian 12 (bookworm) installation
 - Latest kernel running
 
@@ -165,7 +165,7 @@ rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY
 apt install linux-headers-$(uname -r)
 ----
 
-**Important**: Ensure you're running the latest kernel before installing development packages. Reboot if kernel was updated.
+*Important*: Ensure you're running the latest kernel before installing development packages. Reboot if kernel was updated.
 
 == PacketFence Software Installation
 

@@ -13,13 +13,13 @@ include::includes/global-attributes.asciidoc[]
 
 This guide covers procedures to upgrade PacketFence servers.
 
-**CRITICAL UPGRADE REQUIREMENT**: PacketFence upgrades **MUST** be performed one major version at a time. Direct upgrades across multiple major versions (e.g., 11.x to 14.x) are **NOT SUPPORTED** and will result in configuration corruption and service failures.
+*CRITICAL UPGRADE REQUIREMENT*: PacketFence upgrades *MUST* be performed one major version at a time. Direct upgrades across multiple major versions (e.g., 11.x to 14.x) are *NOT SUPPORTED* and will result in configuration corruption and service failures.
 
-**Required Upgrade Path Example**:
+*Required Upgrade Path Example*:
 - From 11.x → 12.x → 13.x → 14.x (correct)
 - From 11.x → 14.x (incorrect - will fail)
 
-**Always upgrade incrementally**: 11.0 → 11.1 → 11.2 → 12.0 → 12.1 → 12.2 → 13.0 → 13.1 → 13.2 → 14.0 → 14.1 → latest
+*Always upgrade incrementally*: 11.0 → 11.1 → 11.2 → 12.0 → 12.1 → 12.2 → 13.0 → 13.1 → 13.2 → 14.0 → 14.1 → latest
 
 === Other sources of information
 

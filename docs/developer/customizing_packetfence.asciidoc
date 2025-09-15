@@ -81,7 +81,6 @@ in the directory `/usr/local/pf/html/captive-portal/templates/security_events` a
 to everything mentioned in the <<_presentation,Presentation>> section.
 
 
-// TODO: should move in admin guide under advanced topics
 ===== Translations
 
 The language of the user registration pages is selected through the
