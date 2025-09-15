@@ -13,6 +13,14 @@ include::includes/global-attributes.asciidoc[]
 
 This guide covers procedures to upgrade PacketFence servers.
 
+**CRITICAL UPGRADE REQUIREMENT**: PacketFence upgrades **MUST** be performed one major version at a time. Direct upgrades across multiple major versions (e.g., 11.x to 14.x) are **NOT SUPPORTED** and will result in configuration corruption and service failures.
+
+**Required Upgrade Path Example**:
+- From 11.x → 12.x → 13.x → 14.x (correct)
+- From 11.x → 14.x (incorrect - will fail)
+
+**Always upgrade incrementally**: 11.0 → 11.1 → 11.2 → 12.0 → 12.1 → 12.2 → 13.0 → 13.1 → 13.2 → 14.0 → 14.1 → latest
+
 === Other sources of information
 
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
@@ -72,14 +80,36 @@ systemctl stop monit
 systemctl disable monit
 ----
 
-== Type of upgrades
+== Upgrade Types and Version Requirements
 
-PacketFence installation can be upgraded in two ways:
+**Version Stepping Requirement**: All PacketFence upgrades must proceed one major version at a time to ensure database schema integrity and configuration compatibility.
 
-* <<#_apply_maintenance_patches,Apply maintenance patches>>
-* <<#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>
+=== Supported Upgrade Paths
 
-For all PacketFence versions prior to 12.0.0, upgrading steps are described in the <<_archived_upgrade_notes,Archived upgrade notes>>.
+Starting from PacketFence 11.0.0, choose the appropriate upgrade method:
+
+**1. Maintenance Patches** (within same major.minor version)
+- Example: 14.0.0 → 14.0.1 → 14.0.2
+- Method: <<#_apply_maintenance_patches,Apply maintenance patches>>
+- **Safe to skip patch versions**: You can upgrade directly from 14.0.0 → 14.0.5
+
+**2. Minor Version Upgrades** (within same major version)
+- Example: 14.0.x → 14.1.x → 14.2.x
+- Method: <<#_sequential_version_upgrades_major_and_minor,Sequential Version Upgrades>>
+- **Must upgrade sequentially**: Each minor version must be installed in order
+
+**3. Major Version Upgrades** (cross-version upgrades)
+- Example: 13.x → 14.x → 15.x
+- Method: <<#_sequential_version_upgrades_major_and_minor,Sequential Version Upgrades>>
+- **CRITICAL**: Must be performed one major version at a time
+- **Never skip major versions**: Attempting to upgrade from 11.x directly to 14.x will fail
+
+=== Pre-11.0.0 Systems
+
+For PacketFence versions prior to 11.0.0:
+1. **Upgrade to 10.3.0** first (if not already)
+2. **Export/import to 11.0.0** (OS migration required)
+3. **Continue sequential upgrades**: 11.0 → 11.1 → 11.2 → 12.0 → etc.
 
 == Apply maintenance patches
 
@@ -130,15 +160,41 @@ include::common/restart.asciidoc[]
 
 If services fail to start after upgrade, see <<#_service_startup_failures,Service Startup Failures>> and <<#_log_files,Log Files>> in the Troubleshooting section.
 
-== Upgrade to another version (major or minor)
+== Sequential Version Upgrades (Major and Minor)
 
-=== For a standalone server
+**IMPORTANT**: This section covers upgrading between different PacketFence versions. All upgrades must follow sequential version order - never skip major versions.
 
-Follow instructions related to <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>.
+**Before Starting**:
+1. **Verify current version**: Run `/usr/local/pf/bin/pfcmd version` to confirm your starting version
+2. **Plan upgrade path**: Determine all intermediate versions needed to reach your target
+3. **Review breaking changes**: Check upgrade notes for each version in your path
 
-=== For a cluster
+**Example Upgrade Sequence** (13.1 → 14.1):
+1. Upgrade 13.1 → 13.2 (complete all 13.2 steps)
+2. Upgrade 13.2 → 14.0 (complete all 14.0 steps) 
+3. Upgrade 14.0 → 14.1 (complete all 14.1 steps)
 
-Please refer to the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>.
+**Never attempt**: 13.1 → 14.1 directly
+
+=== Standalone Server Upgrades
+
+**Automated Process Available** (PacketFence 11.0+):
+1. **Check current version**: Confirm you're upgrading to the next sequential version
+2. **Follow automation**: Use <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>
+3. **Verify success**: Confirm services start correctly before proceeding to next version
+
+If upgrading across multiple versions, **repeat the process for each intermediate version**.
+
+=== Cluster Upgrades
+
+**Sequential Upgrade Required**: Each cluster node must be upgraded through the same version sequence.
+
+**Process**:
+1. **Plan downtime**: Cluster upgrades require coordination across all nodes
+2. **Follow cluster guide**: See <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+3. **Upgrade all nodes**: Ensure all nodes reach the same version before proceeding to next version
+
+**Critical**: Never have cluster nodes running different major versions simultaneously.
 
 == Automation of upgrades
 
@@ -503,7 +559,7 @@ PacketFence 14.0.0 introduces changes to supported operating systems:
 
 **In-place upgrades supported** - Follow standard upgrade procedures:
 
-1. Use the automated upgrade process: <<PacketFence_Upgrade_Guide.asciidoc#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>
+1. Use the automated upgrade process: <<PacketFence_Upgrade_Guide.asciidoc#_sequential_version_upgrades_major_and_minor,Sequential Version Upgrades (major or minor)>>
 2. No OS migration required - PacketFence continues supporting EL8
 
 ==== Migration to Debian 12
@@ -624,7 +680,7 @@ Restore PacketFence configuration from source system:
 
 **Migration Complete** - Configuration and database are now migrated to Debian 12.
 
-If all goes well, restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
+If all goes well, restart services using <<#_restart_packetfence_services,following instructions>>.
 
 If migration fails, verify database backup integrity and check available disk space. For troubleshooting import/export issues, see <<#_log_files,Log Files>> and <<#_database_connectivity_issues,Database Connectivity Issues>> in the Troubleshooting section.
 
@@ -655,11 +711,11 @@ yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetf
 
 **Standard Upgrade Process:**
 
-Follow the automated upgrade: <<PacketFence_Upgrade_Guide.asciidoc#_full_upgrade_for_packetfence_versions_11_1_0_and_later,Full upgrade>>
+Follow the automated upgrade: <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>
 
 === EL8 Cluster Upgrade 
 
-**Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Upgrade_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+**Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
 
 **EL8-specific step**: When upgrading node C, install the EL8 upgrade package first <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>, then proceed with standard cluster node upgrade procedures.
 
