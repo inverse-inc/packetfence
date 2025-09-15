@@ -281,7 +281,7 @@ sub returnRadiusAdvanced {
         if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence-cli.authorize' && scalar @{$session_state->{'acl'} // []} > 1 ) {
             $status = $RADIUS::RLM_MODULE_HANDLED;
             $radius_reply_ref->{'control:Response-Packet-Type'} = 11;
-            $radius_reply_ref->{'state'} = $session_id;
+            $radius_reply_ref->{'state'} = $session_state_id;
             for ( my $loops = 0; $loops < $self->ACLsLimit; $loops++ ) {
                 last if (scalar @{$session_state->{'acl'}} == 1);
                 my $acl = shift @{$session_state->{'acl'}};
