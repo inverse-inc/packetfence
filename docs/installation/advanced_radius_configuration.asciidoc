@@ -18,22 +18,21 @@ endif::[]
 
 //== Advanced RADIUS Configuration
 
-This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all require a RADIUS server to authenticate the users and the devices, and then to push the proper roles or VLAN attributes to the network equipment.
+FreeRADIUS configuration steps. RADIUS server is required for network access in WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X. RADIUS authenticates users and devices, then pushes roles or VLAN attributes to network equipment.
 
 === Local Authentication
 
-Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with the following format:
+Add user entries to `/usr/local/pf/raddb/users` file:
 
   username Cleartext-Password := "password"
 
 === Authentication against Active Directory (AD)
 
-To perform EAP-PEAP authentication using Microsoft Active Directory, please refer to the Active Directory documentation from the Authentication Mechanism section.
+For EAP-PEAP authentication with Microsoft Active Directory, refer to Active Directory documentation in Authentication Mechanism section.
 
 === EAP Authentication against OpenLDAP
 
-To authenticate 802.1X connection against OpenLDAP you need to define the LDAP connection in [filename]`/usr/local/pf/raddb/modules/ldap` and
-be sure that the user password is define as a NTHASH or as clear text.
+For 802.1X authentication against OpenLDAP, define LDAP connection in `/usr/local/pf/raddb/modules/ldap` and ensure user password is NTHASH or clear text.
 
 [source,radius,numbered]
 ----
@@ -94,13 +93,13 @@ At the end of the guest registration, PacketFence will send an email with the cr
 
 NOTE: This option doesn't currently work with the *Reuse dot1x credentials* option of the captive portal.
 
-To enable this feature, go in 'Configuration->System Configuration->RADIUS->General' and enable 'Authenticate against local users database'. Once saved, restart the radiusd service.
+To enable this feature, in the admin interface go to _Configuration -> System Configuration -> RADIUS -> General_ and enable 'Authenticate against local users database'. Once saved, restart the radiusd service.
 
 === EAP Local User Authentication
 
 The goal here is to use the local user to authenticate 802.1X device.
 
-To enable this feature, go in 'Configuration->System Configuration->RADIUS->General' and enable 'Authenticate against local users database'. Once saved, restart the radiusd service.
+To enable this feature, in the admin interface go to _Configuration -> System Configuration -> RADIUS -> General_ and enable 'Authenticate against local users database'. Once saved, restart the radiusd service.
 
 CAUTION: Take care of the "Database passwords hashing method" that has been configured in _Configuration -> System Configuration -> Main Configuration -> Advanced_ or in the authentication source configuration (when you enabled "create local account") , the hash method must be `plaintext` or `ntlm` to be able to work.
 

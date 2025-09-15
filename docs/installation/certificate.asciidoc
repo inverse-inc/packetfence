@@ -23,13 +23,13 @@ endif::[]
 
 ==== Context and Objectives of the Documentation
 
-This documentation PacketFence v11.2 and later aims to provide information and instructions on the implementation and renewal of SSL/TLS certificates for HTTP (captive web portal + web admin) and RADIUS.
+This documentation for PacketFence v11.2+ provides implementation and renewal instructions for SSL/TLS certificates for HTTP (captive web portal + web admin) and RADIUS.
 
-The captive portal is a common method of user authentication on a wireless or wired network. It allows controlling user access by redirecting them to an authentication page where they must provide login information. The RADIUS protocol, on the other hand, is used for user authentication and authorization on a network.
+Captive portal provides user authentication on wireless/wired networks by redirecting users to authentication pages for login information. RADIUS protocol handles user authentication and authorization on networks.
 
 ==== Definitions and Basic Concepts
 
-Before addressing the implementation and management of SSL/TLS certificates, it is important to understand the basic concepts related to security and certificates. The following definitions will be used throughout this documentation:
+Understanding basic security and certificate concepts is essential for SSL/TLS certificate implementation and management:
 
 - SSL/TLS: Secure Sockets Layer/Transport Layer Security, a security protocol that allows encrypting communications between a client and a server.
 - SSL/TLS certificate: an electronic file that contains information to verify the identity of a server and establish a secure connection.
@@ -38,14 +38,14 @@ Before addressing the implementation and management of SSL/TLS certificates, it 
 - Private key: an encryption key used to protect confidential information, known only to the certificate owner.
 - Public key: an encryption key used to decrypt information encrypted using the private key, known to all users.
 
-These basic concepts will help to understand and implement SSL/TLS certificates for the captive web portal and RADIUS.
+These concepts aid SSL/TLS certificate understanding and implementation for captive web portal and RADIUS.
 
 ==== Important notes before starting
 
-This documentation concerns PacketFence v11.2 and later.
+This documentation covers PacketFence v11.2+.
 
-Wildcard certificate is strictly restricted to HTTP. Note: this type of certificate can not be used for RADIUS.
-To implement certificate for HTTP and RADIUS, it is recommended to use only one certificate for both of them in order to facilitate their management.
+Wildcard certificates restricted to HTTP only; cannot be used for RADIUS.
+Recommend using single certificate for both HTTP and RADIUS to simplify management.
 
 === Why a certificate
 
@@ -77,7 +77,7 @@ image::certificate/16-CSR.png[scaledwidth="100%",alt="CSR"]
 This capture have been made on PacketFence v13. If Packetfence Version is a lower version (not under v11.2), Subject Alternative Names will be automatically generated from Common Name field.
 ====
 
-- Save the CSR to a secure location, it is a requierement to renew a certificate.
+- Save CSR to secure location; required for certificate renewal.
 
 ==== Submit the CSR to a Certificate Authority (CA)
 
@@ -133,7 +133,7 @@ image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Interme
 image::certificate/5-Services.png[scaledwidth="100%",alt="Services"]
 
 Alternatively, one server at a time, the following CLI commands can be run on each servers:
-[source, shell]
+[source,bash]
 ----
 systemctl restart packetfence-haproxy-admin
 systemctl restart packetfence-haproxy-portal
@@ -177,7 +177,7 @@ image::certificate/11-Services.png[scaledwidth="100%",alt="Services"]
 
 Alternatively, one server at a time, the following CLI commands can be run on each servers:
 
-[source, shell]
+[source,bash]
 ----
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
@@ -268,19 +268,19 @@ NOTE: If the previous certificate was signed by the same **PF-PKI**, you do **no
 If a certificate has been created without using PacketFence for the CSR, the key and the certificate can be extracted from the .p12 file (or file with the .p12 extension).
 
 .Extract certificate
-[source, shell]
+[source,bash]
 ----
 openssl pkcs12 -in certificate_bundle.p12 -clcerts -nokeys -out /usr/local/pf/conf/ssl/server.crt -passin pass:secret
 ----
 
 .Extract private key
-[source, shell]
+[source,bash]
 ----
 openssl pkcs12 -in certificate_bundle.p12 -nocerts -nodes -out /usr/local/pf/conf/ssl/server.key -passin pass:secret
 ----
 
 .Check content of a CSR
-[source, shell]
+[source,bash]
 ----
 openssl req -in mycsr.csr -noout -text
 ----

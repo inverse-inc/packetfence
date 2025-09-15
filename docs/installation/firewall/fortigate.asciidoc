@@ -20,20 +20,20 @@ endif::[]
 
 ==== Configuration of the RSSO Agent
 
-Go to your FortiGate administration webpage in *User & Device -> User -> User Groups -> Create New*.
+In FortiGate administration: *User & Device -> User -> User Groups -> Create New*.
 
 [options="compact"]
 * *Name*: RSSO_group
 * *Type*: RADIUS Single Sign-On (RSSO)
-* *RADIUS Attribute Value*: RSSO_Student (use the rolename of PacketFence, it's case sensitive)
+* *RADIUS Attribute Value*: RSSO_Student (use PacketFence rolename, case-sensitive)
 
 image::doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Create the SSO agent in FortiGate"]
 
-You can also see that in the webpage at *User & Device -> Monitor -> Firewall*
+View at *User & Device -> Monitor -> Firewall*.
 
 ==== Configure the endpoint attribute
 
-The default endpoint attribute is the Calling-Station-Id so the MAC address shows up under User Name, we can change that in CLI:
+Default endpoint attribute is Calling-Station-Id (MAC address shows as User Name). Change via CLI:
 
 ----
 config user radius
@@ -46,7 +46,7 @@ end
 
 Go to *System -> Network -> Interfaces*.
 
-Select the interface that will communicate with PacketFence and check 'Listen for RADIUS Accounting Messages' then confirm.
+Select PacketFence communication interface, check 'Listen for RADIUS Accounting Messages', confirm.
 
 image::doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Configure the accounting listening in the FortiGate"]
 

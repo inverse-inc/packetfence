@@ -20,21 +20,19 @@ endif::[]
 
 === RADIUS Audit Log
 
-PacketFence provides a RADIUS auditing module which allows you to be aware of all the incoming RADIUS requests/responses handled by PacketFence. The RADIUS auditing module is available from _Auditing -> RADIUS Audit Log_. Advanced search criterias can be specified to create complex search expressions - which can be saved for later use. Clicking on a RADIUS log entry will display the endpoint information, where the RADIUS request originated from and the RADIUS payload exchanged between the NAS and PacketFence.
+PacketFence RADIUS auditing module tracks all incoming RADIUS requests/responses. Access via _Auditing -> RADIUS Audit Log_. Advanced search criteria create complex, savable search expressions. Click log entries to view endpoint information, request origin, and RADIUS payload between NAS and PacketFence.
 
 === Log files
 
-Log files are located under [filename]`/usr/local/pf/logs`. Except
-[filename]`packetfence.log` which contains logs from different services, each
-service has its own log file. You can see full list of log files available when using _Audit -> Live logs_ menu in web admin.
+Log files are in `/usr/local/pf/logs`. Each service has its own log file, except `packetfence.log` which contains logs from multiple services. View complete log file list via _Audit -> Live logs_ menu in web admin.
 
-The main logging configuration file is [filename]`/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it. The logging configuration files for every service are located under [filename]`/usr/local/pf/conf/log.conf.d/`.
+Main logging configuration is in `/usr/local/pf/conf/log.conf`. Contains `packetfence.log` configuration (`Log::Log4Perl`) - normally no modification needed. Service-specific logging configurations are in `/usr/local/pf/conf/log.conf.d/`.
 
 === RADIUS Debugging
 
-First, check the FreeRADIUS logs. The file is located at [filename]`/usr/local/pf/logs/radius.log`.
+Check FreeRADIUS logs at `/usr/local/pf/logs/radius.log`.
 
-If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the following commands.
+If needed, run FreeRADIUS in debug mode using these commands:
 
 For the authentication radius process:
 

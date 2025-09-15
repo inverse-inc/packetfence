@@ -64,7 +64,7 @@ This will walk you through adding MobileIron as a provisioner.
 
 ===== Create the provisioner
 
-Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
+Login to the admin interface, then go to _Configuration -> Advanced Access Configuration -> Provisioners_.
 Click 'Add provisioner' then select 'mobileiron'.
 
 image::mobile-iron-pf-config.png[scaledwidth="100%",alt="MobileIron configuration"]

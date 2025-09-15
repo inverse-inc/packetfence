@@ -56,7 +56,7 @@ WARNING: This will disable common recommended settings from Microsoft. Using Azu
 
 ==== Configuring PacketFence
 
-. Under 'Configuration->Policies and Access Control->Authentication Sources', create a new 'Azure Active Directory' internal source
+. In the admin interface, go to _Configuration -> Policies and Access Control -> Authentication Sources_, and create a new 'Azure Active Directory' internal source
  .. Client ID: the 'Client ID' that was displayed while configuring the 'PacketFence' app inside Azure
  .. Client Secret: the secret you created inside the 'PacketFence' app in Azure AD
  .. Tenant ID: the 'Tenant ID' that was displayed while configuring the 'PacketFence' app inside Azure
@@ -69,7 +69,7 @@ With this configuration, you can now use this source in your connection profiles
 
 You can perform 802.1X authentication of users using Azure AD but this will only work with supplicants configured to perform EAP-TTLS PAP which provides the RADIUS server with the plain-text password of the user. Support for this type of authentication is not as broad as EAP-PEAP MSCHAPv2 in the 802.1X supplicants but unfortunately Azure AD doesn't support MSCHAP authentication. Refer to the documentation of your operating system on how to configure EAP-TTLS PAP. This section will only focus on enabling EAP-TTLS PAP for your Azure AD users in PacketFence.
 
-. Under 'Configuration->Policies and Access Control->Realms', create a new realm
+. In the admin interface, go to _Configuration -> Policies and Access Control -> Realms_, and create a new realm
  .. Realm: enter the realm of your Azure AD users. Example, if the usernames have the following format `bob@inverseinc.onmicrosoft.com`, then your realm is `inverseinc.onmicrosoft.com`
  .. Go in the 'Stripping' tab of the realm and select your Azure AD source under 'Azure AD Source for TTLS PAP'
  .. Still in the 'Stripping' tab, disable (uncheck), the following settings:

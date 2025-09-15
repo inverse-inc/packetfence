@@ -18,36 +18,33 @@ endif::[]
 
 //== Advanced Topics
 
-This section covers advanced topics in PacketFence. Note that it is also possible to configure PacketFence manually using its configuration files instead of its Web administrative interface. It is still recommended to use the Web interface.
+Advanced PacketFence topics. PacketFence can be configured manually using configuration files instead of the admin interface (admin interface recommended).
 
-In any case, the [filename]`/usr/local/pf/conf/pf.conf` file contains the PacketFence general configuration. For example, this is the place where we inform PacketFence it will work in VLAN isolation mode.
+`/usr/local/pf/conf/pf.conf` contains PacketFence general configuration, including VLAN isolation mode settings.
 
-All the default parameters and their descriptions are stored in [filename]`/usr/local/pf/conf/pf.conf.defaults`.
+Default parameters and descriptions are in `/usr/local/pf/conf/pf.conf.defaults`.
 
-In order to override a default parameter, define it and set it in [filename]`/usr/local/pf/conf/pf.conf`.
+Override default parameters by defining them in `/usr/local/pf/conf/pf.conf`.
 
 [filename]`/usr/local/pf/conf/documentation.conf` holds the complete list of all available parameters.
 
-All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
+All parameters accessible via admin interface Configuration tab. Web interface highly recommended for configuration changes.
 
 === Reports
 
-Using the `report.conf` configuration file, you can define reports that create
-SQL queries to view tables in the PacketFence database. These reports will
-appear under the _Reports_ menu of the administration
-interface.
+Define reports in `report.conf` creating SQL queries to view PacketFence database tables. Reports appear under _Reports_ menu in admin interface.
 
-PacketFence comes preloaded with several reports that are optimized for most common production use-cases in `reports.conf.defaults`. This file should not be modified, but can be used to provide working examples.
+PacketFence includes preloaded reports optimized for common production use-cases in `reports.conf.defaults`. Don't modify this file; use for working examples.
 
-NOTE: Improperly formed reports can consume significant resources on the server. All queries should be profiled and optimized to avoid service outages when executed. Using `type=sql` (script/batch mode) allows increased query and transaction control.
+NOTE: Improperly formed reports consume significant server resources. Profile and optimize all queries to avoid service outages. Using `type=sql` (script/batch mode) increases query and transaction control.
 
-TIP: Master/Slave replication can be used to offload query execution to a read-only database that is not an active member of the cluster. This will ensure that reporting does not degrade the production environment and will provide increased resources to generate the reports.
+TIP: Use Master/Slave replication to offload query execution to read-only database outside cluster. Prevents reporting from degrading production environment; provides more resources for report generation.
 
 ==== Configuration Attributes
 
-In order to configure a report, you need to edit [filename]`/usr/local/pf/conf/report.conf` and add a section that will define the report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
+Configure reports by editing `/usr/local/pf/conf/report.conf` and adding a report section. Run `/usr/local/pf/bin/pfcmd configreload hard`.
 
-The administration interface builds the structured menu by splitting and separating all the section identifier's by double colons _"::"_. Identifiers without this separator are shown at the top level. Up to a maximum of 2 sets of double colons can be used for a maximum menu depth of 3 levels. All identifiers must be unique and any identifier partially reused by another sibling will make it inaccessible. (ex: [A::B] will lose its place as a report and become a parent category for [A::B::*] if it is also defined. Either rename the former to include a 3rd part, or rename the latter to use a different 1st or 2nd part.
+The admin interface builds the structured menu by splitting and separating all the section identifier's by double colons _"::"_. Identifiers without this separator are shown at the top level. Up to a maximum of 2 sets of double colons can be used for a maximum menu depth of 3 levels. All identifiers must be unique and any identifier partially reused by another sibling will make it inaccessible. (ex: [A::B] will lose its place as a report and become a parent category for [A::B::*] if it is also defined. Either rename the former to include a 3rd part, or rename the latter to use a different 1st or 2nd part.
 
   [Top Category::Sub Category::Report]
 
@@ -157,7 +154,7 @@ The following attributes are available when using `type=sql`:
 
 [options="compact"]
 * `bindings`: A comma delimited list of ordered bindings to send to the SQL script (ex: `bindings=tenant_id,start_date,end_date,cursor,limit`). See Bindings below.
-* `cursor_type`: _[node|field_multi_field]_ Adds a cursor binding to the sql script that implements pagination of the results. The cursor is automatically handled in the administration interface, but its use in the `sql` requires special attention. If omitted the default `none` is used. More information about cursors is provided below. There are 2 types of cursors:
+* `cursor_type`: _[node|field_multi_field]_ Adds a cursor binding to the sql script that implements pagination of the results. The cursor is automatically handled in the admin interface, but its use in the `sql` requires special attention. If omitted the default `none` is used. More information about cursors is provided below. There are 2 types of cursors:
  ** `cursor_type=field`: Use a single field (column or alias) for the cursor.
  ** `cursor_type=multi_field`: Use multiple fields (columns or aliases) for the cursor.
  ** `cursor_type=offset`: Use integer based offset for the cursor.
@@ -298,7 +295,7 @@ The `joins` and `sql` attribute support multi line block statements. All whitesp
 
 * If the API request returns an error or an empty response refer to the `packetfence.log` to obtain the full MySQL error message.
 * SQL scripts are transactional. After the script is run any variables or stored procedures created or temporary tables created are destroyed. Any locks obtained are released.
-* Modification to the configuration file only requires a `/usr/local/pf/bin/pfcmd configreload hard` for the changes to take effect. The administration interface will begin using the new script on its next request.
+* Modification to the configuration file only requires a `/usr/local/pf/bin/pfcmd configreload hard` for the changes to take effect. The admin interface will begin using the new script on its next request.
 
 === Admin Access
 
@@ -327,7 +324,7 @@ CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emai
 
 CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
 
-NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
+NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the admin interface.
 
 
 === Content-Security-Policy (CSP)
@@ -342,7 +339,7 @@ Starting from v10, `pfacct` daemon is used to track bandwidth usage of nodes
 using <<_radius_accounting>> or NetFlow v5 traffic. It is enabled by default and
 replaced `packetfence-radiusd-acct` service. `pfacct` will store data into
 `bandwidth_accounting` table. Using a security event with a bandwidth limit
-trigger, you can limit data usage of your nodes. GUI also use
+trigger, you can limit data usage of your nodes. The admin interface also uses
 `bandwidth_accounting` table informations to display online/offline status of
 nodes.  Bandwidth usage reports are available in _Reports_ menu under
 _Accounting_ section.
@@ -375,8 +372,8 @@ You need to adjust `pfacct` configuration based on your NetFlow traffic source.
 You need to:
 
 * make `pfacct` listens on IP address where you want to receive NetFlow
-  traffic using `netflow_address` setting in _Configuration -> System configuration -> Services_ menu
-* enable _NetFlow on all networks_ in _Configuration -> System configuration -> Advanced_ menu
+  traffic using `netflow_address` setting in _Configuration -> System Configuration -> Services_ menu
+* enable _NetFlow on all networks_ in _Configuration -> System Configuration -> Advanced_ menu
 
 Then restart `packetfence-pfacct` services for it to take effect.
 

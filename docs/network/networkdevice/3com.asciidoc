@@ -267,4 +267,4 @@ where `xx` stands for the interface index
 
 This switch does not support port-security. 
 
-To configure: use web interface to send the linkUp/linkDown traps to the PacketFence server. 
+To configure: use the switch web interface to send the linkUp/linkDown traps to the PacketFence server. 

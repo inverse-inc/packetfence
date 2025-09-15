@@ -143,7 +143,7 @@ aaa server radius dynamic-author
 
 ==== Wireless LAN Controller (AireOS)
 
-In this section, we cover the basic configuration of the WLC for PacketFence using the web interface.
+In this section, we cover the basic configuration of the WLC for PacketFence using the WLC web interface.
 
 * First, globally define the FreeRADIUS server running on PacketFence
   (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support for CoA_) is enabled. When the option is missing from your WLC, it is enabled by default.
@@ -199,17 +199,17 @@ You are good to go!
 
 ===== Wireless LAN Controller (AireOS) Web Auth
 
-In this section, we cover the basic configuration of the WLC AireOS Web Auth for PacketFence using the web interface.
+In this section, we cover the basic configuration of the WLC AireOS Web Auth for PacketFence using the WLC web interface.
 The idea is to forward the device to the captive portal with an ACL if the device is in an unreg state and 
 allow the device to reach Internet (or the normal network) by changing the ACL once registered.
 In the unreg state, the WLC will intercept the HTTP traffic and forward the device to the captive portal.
 
-In this sample configuration, the captive portal uses the IP address 172.16.0.250, the administration interface
+In this sample configuration, the captive portal uses the IP address 172.16.0.250, the management interface
 uses the IP address 172.16.0.249 and the WLC uses the IP address 172.16.0.248.
 The DHCP and DNS servers are not managed by PacketFence (WLC DHCP Server, Production DHCP Server)
 
 * First, globally define the FreeRADIUS server running on PacketFence
-  (PacketFence's Administration Interface) and make sure _Support for RFC 3576_ is enabled (if not present it is enabled by default)
+  (PacketFence's management interface) and make sure _Support for RFC 3576_ is enabled (if not present it is enabled by default)
 
 * Then we create a SSID:
 [options="compact"]

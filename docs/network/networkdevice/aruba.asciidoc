@@ -21,9 +21,9 @@ endif::[]
 
 ==== All Aruba OS
 
-In this section, we cover the basic configuration of the Aruba wireless controller for PacketFence via the web GUI. It was done on an Aruba Controller 200 software version ArubaOS 5.0.3.3, tested on a Controller 600 with ArubaOS 6.0 but it should apply to all Aruba models.
+Basic Aruba wireless controller configuration for PacketFence via the controller web interface. Tested on Aruba Controller 200 (ArubaOS 5.0.3.3) and Controller 600 (ArubaOS 6.0) - applies to all Aruba models.
 
-CAUTION: If you are already using your Aruba controllers and don't want to impact your users you should create new AAA profiles and apply them to new SSIDs instead of modifying the default ones.
+CAUTION: For existing Aruba controller users, create new AAA profiles and apply to new SSIDs instead of modifying default ones to avoid user impact.
 
 NOTE: Starting with PacketFence 3.3, Aruba supports role-based access control. Read the Administration Guide under "Role-based enforcement support" for more information about how to configure it on the PacketFence side.
 
@@ -221,7 +221,7 @@ aaa authentication mgmt
 
 ==== Aruba Controller 200
 
-In this section, we cover the basic configuration of the Aruba Controller 200 for PacketFence using the command line interface. We suggest you to use the instructions above for the Web GUI instead.
+In this section, we cover the basic configuration of the Aruba Controller 200 for PacketFence using the command line interface. We suggest you use the instructions above for the controller web interface instead.
 
 [float]
 ===== VLAN definition

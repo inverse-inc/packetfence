@@ -18,12 +18,11 @@ endif::[]
 
 //== MFA Integration
 
-This section has been created to give a quick overview on how to configure MFA integration with PacketFence.
+This section provides quick overview for MFA integration with PacketFence.
 
 === Assumptions
 
-You have a fonctional PacketFence server and you configured an Internal Source (like Active Directory Source) associated to a "Connection Profile"
-You also have a radius client that is doing PAP (like a VPN server or a switch with CLI access enabled to use RADIUS). 
+Functional PacketFence server with configured Internal Source (e.g., Active Directory Source) associated to Connection Profile. RADIUS client performing PAP (e.g., VPN server or switch with CLI access using RADIUS). 
 
 === Create the MFA Configuration
 
@@ -40,17 +39,16 @@ include::mfa/totp.asciidoc[]
 
 ==== Associate the source 
 
-The MFA is triggered by a authentication rule in the Internal Source.
-You have to create a rule with a condition like "memberof equals cn=otp_user,dc=acme,dc=com" and assign an Action:
+MFA is triggered by authentication rule in Internal Source. Create rule with condition like "memberof equals cn=otp_user,dc=acme,dc=com" and assign Action:
 
-"Trigger RADIUS MFA" if you want to be triggered in RADIUS
-"Trigger Portal MFA" if you want to be triggered in the Portal.
+"Trigger RADIUS MFA" for RADIUS triggering
+"Trigger Portal MFA" for Portal triggering.
 
 image::mfa_rule.png[scaledwidth="100%",alt="MFA Authentication rule"]
 
 ==== Portal Flow
 
-Depending of the MFA provider you use, the portal flow will be different.
+Portal flow varies by MFA provider.
 
 ===== Akamai Bind v2
 
@@ -62,7 +60,7 @@ include::mfa/totp_portal.asciidoc[]
 
 ==== RADIUS Flow
 
-The RADIUS flow depends of the feature of the MFA provider and also depends of the RADIUS client.
+RADIUS flow depends on MFA provider features and RADIUS client capabilities.
 
 ===== Simple RADIUS client
 
@@ -75,7 +73,7 @@ In this user scenario the username and password is sent but the password can be 
 
 OTP code (123456):
 
-The code is the OTP code you will read on your device (the one who change every 30s)
+OTP code from device (changes every 30s).
 
 push code (push):
 
@@ -104,7 +102,7 @@ In this 2nd password field you can set multiples things like:
 
 OTP code (123456):
 
-The code is the OTP code you will read on your device (the one who change every 30s)
+OTP code from device (changes every 30s).
 
 push code (push):
 

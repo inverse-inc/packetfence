@@ -21,40 +21,31 @@ endif::[]
 
 === Multi Machine Account Support ===
 
-Starting from PacketFence 14.1, we brought new feature to ntlm-auth-api that allows the backend API to be able to process NTLM
-requests in a multi-processes model.
-Previously, only one machine account will be created and new NTLM auth request has to wait until the previous one was done.
-The single thread model can slow down the performance in some extreme heavy loaded scenarios: e.g., a huge enterprise with
-a giant windows AD database and devices.
+PacketFence 14.1+ includes ntlm-auth-api multi-process support for NTLM requests.
+Previously, single machine account creation meant new NTLM auth requests waited for completion of previous requests.
+Single thread model slows performance in heavy load scenarios like large enterprises with extensive Windows AD databases and devices.
 
-Now we are able to create multiple machine accounts and register each machine account with a dedicate process when NTLM auth API
-starts.
+Multiple machine accounts can now be created, each registered with a dedicated process when NTLM auth API starts.
 
-To enable this feature, you'll have to set the `additional_machine_accounts` to a non-zero value, and corresponding machine
-account will be created based on the previous machine account name.
+Enable by setting `additional_machine_accounts` to non-zero value. Machine accounts will be created based on the previous machine account name.
 
 The name pattern of additional machine account is: "base_machine_account_name"-N, N will be 0..9
-E.g., the machine account you created before was NODE-PF, and the additional machine accounts is set to 2,
-then 2 additional accounts will be created on Windows AD with the names of `NODE-PF-0` and `NODE-PF-1`.
+Example: Previous machine account NODE-PF with additional_machine_accounts set to 2 creates `NODE-PF-0` and `NODE-PF-1` in Windows AD.
 
-NOTE: There's a hard limitation of how many characters can we use for a machine account name. On windows system, the
-limit is 14, if you want to enable this feature, you'll have to make sure the machine account name has a length less than
-12. So PacketFence can create additional accounts with a "-N" suffix.
+NOTE: Windows systems limit machine account names to 14 characters. To enable this feature, ensure machine account name length is under 12 characters so PacketFence can add "-N" suffix.
 
 
 ==== How does this work ====
-PacketFence will re-generate the config file load the configuration file, determine how many sub-processes will be needed
-to use all those machine accounts, then gunicorn master process will launch the X sub processes to handle the requests.
-each of the sub process will take a dedicate machine account to perform the authentication.
+PacketFence regenerates config file, determines required sub-processes for machine accounts, then gunicorn master process launches sub-processes to handle requests. Each sub-process uses dedicated machine account for authentication.
 
 ==== Limitations ====
 
-1. You can not create more than 10 additional machine accounts for each domain.
-2. The machine account name can not exceed 12 chars if you want to enable `additional_machine_accounts`.
-3. If you use %h as machine account name, the parsed value of %h also need to be less than 12 to enable additional machine accounts.
+1. Maximum 10 additional machine accounts per domain.
+2. Machine account name cannot exceed 12 characters for `additional_machine_accounts`.
+3. Using %h as machine account name requires parsed %h value under 12 characters.
 
 ==== Benchmarks and suggested settings ====
-We did a benchmark on this feature, here's some results for reference:
+Benchmark results for reference:
 All the tests are done on VMs by ESXi 7.0 hosted on a SuperMicro server with 1 CPU of Intel D2123-IT (4C8T @2.2G), 128 G DDR4 RDIMM.
 
 we are testing this using ab (apache benchmark) to directly test against NTLM auth API with:
@@ -63,7 +54,7 @@ we are testing this using ab (apache benchmark) to directly test against NTLM au
 2. The PacketFence is hosted on a 4 vCPU 32 Gig VM on ESXi.
 3. The Windows AD is hosted on a 2 vCPU 8 Gig VM on ESXi in the same local network with PacketFence.
 
-```
+----
 ab -n 20000 -c 1 -p ~/eapol_test/payload.admin-akam.json -T 'application/json'  http://127.0.0.1:5002/ntlm/auth
 
 Requests per second:    448.22 [#/sec] (mean)
@@ -84,7 +75,7 @@ Requests per second:    932.21 [#/sec] (mean)
 Time per request:       3.218 [ms] (mean)
 Time per request:       1.073 [ms] (mean, across all concurrent requests)
 
-```
+----
 
 Based on the test results, with a single machine account created on Windows AD, the backend API is possible to handle around
 400 requests/s, with 3 machine accounts, the capacity will raise up to around 1000 req/s, which is a quite busy and
@@ -133,9 +124,9 @@ NOTE: Cache expiration time: a value longer than reauth period settings on the s
 
 Restart the PacketFence NTLM Auth API to commit the changes.
 
-```
+----
 systemctl restart packetfence-ntlm-auth-api
-```
+----
 
 ===== Windows Account Policies
 
@@ -230,11 +221,11 @@ Manually reset a user password in *Active Directory Users and Computers* and che
 
 On the PacketFence server, use the cache query below and replace the [domainID] with the Domain ID from _Create Domain_ above, and the [username] of the account user.
 
-```
+----
 mysql pf
 
 mysql> SELECT value from chi_cache WHERE key='nt_key_cache:[domainID]:[username]';
-```
+----
 
 === NTLM Authentication Caching
 
@@ -292,7 +283,7 @@ Here's the default config for the SNMP traps limit feature. As you can see, by d
   trap_limit_threshold = 100
   trap_limit_action =
 
-Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the _Configuration -> Network Configuration -> SNMP_ section.
+Alternatively, you can configure these parameters from the admin interface, in the _Configuration -> Network Configuration -> SNMP_ section.
 
 === MariaDB optimizations
 
@@ -335,7 +326,7 @@ As you can see, the load-average is 1.25 and iowait is peaking at 20% - this is 
 
 PacketFence relies heavily on InnoDB, so you should increase the `buffer_pool` size from the default values.
 
-Go in the administration GUI , in _Configuration -> System Configuration -> Database -> Advanced_ and raise the value of *InnoDB buffer pool size*.
+Go in the admin interface , in _Configuration -> System Configuration -> Database -> Advanced_ and raise the value of *InnoDB buffer pool size*.
 
 Then restart packetfence-mariadb
 
@@ -420,11 +411,11 @@ This section will address specific problems and known solutions.
 
 ==== "Internet Explorer cannot display the webpage"
 
-Problem: Internet Explorer 8-10 may raise an "Internet Explorer cannot display the webpage" error while attempting to access PacketFence administration interface because TLSv1.2 is not activated but required since PacketFence 7.
+Problem: Internet Explorer 8-10 may raise an "Internet Explorer cannot display the webpage" error while attempting to access PacketFence admin interface because TLSv1.2 is not activated but required since PacketFence 7.
 
 Solution:
 
- * PacketFence administration interface is not started:
+ * PacketFence admin interface is not started:
 
   # cd /usr/local/pf
   # bin/pfcmd service httpd.admin start

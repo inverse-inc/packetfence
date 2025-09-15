@@ -25,15 +25,14 @@ PacketFence supports Cisco switches with VoIP using three different trap types:
 * MAC Notification 
 * Port Security (with static MACs) 
 
-You also need to make sure that lldp or cdp notification is configured on all ports that will handle VoIP.
+Ensure LLDP or CDP notification is configured on all VoIP ports.
 
-On some recent models, we can also use more secure and robust features like: 
+Recent models support more secure features: 
 
 * MAC Authentication (Cisco's MAC Authentication Bypass or MAB) 
 * 802.1X (Multi-Host or Multi-Domain) 
 
-Depending of the switch model, we recommend the use of the most secure and reliable feature 
-first. In other words, you should consider the following order:
+Use most secure feature available for your switch model in this order:
 
 . 802.1X/MAB
 . Port-Security
@@ -71,7 +70,7 @@ On each interface _with VoIP_:
 
 ==== Cisco IOS
 
-This switch module is built for switches using Cisco IOS versions earlier than 12.2(46)SE. This provides support for PortSecurity for networks with or without VoIP. 
+Switch module for Cisco IOS versions before 12.2(46)SE. Supports PortSecurity with/without VoIP. 
 
 ===== Port­Security for IOS earlier than 12.2(46)SE  
 
@@ -230,7 +229,7 @@ On each interface _with VoIP_:
 
 CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can only support 802.1X with MAB using Multi-Host, MAB, and port security. 
 
-CAUTION: The Catalyst 3550 does *not* support CoA. https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_55_se/release/notes/OL23054.html[Minimal IOS required for CoA is 12.2(52)SE]. Latest available IOS for 3550 is 12.2(46)SE. Set "Deauthentication Method" to "SNMP" in PacketFence Administration GUI under _Configuration -> Policies and Access Control -> Network Devices ->  Switches_ for the switch IP configured below.
+CAUTION: The Catalyst 3550 does *not* support CoA. https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_55_se/release/notes/OL23054.html[Minimal IOS required for CoA is 12.2(52)SE]. Latest available IOS for 3550 is 12.2(46)SE. Set "Deauthentication Method" to "SNMP" in the admin interface under _Configuration -> Policies and Access Control -> Network Devices -> Switches_ for the switch IP configured below.
 
 ===== Global settings:
 

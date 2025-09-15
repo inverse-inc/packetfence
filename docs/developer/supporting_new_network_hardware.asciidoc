@@ -18,23 +18,18 @@ endif::[]
 
 //== Supporting new network hardware
 
-PacketFence is designed to ease the addition of support for new network hardware referred to as Network
-Devices. All supported network devices are represented through Perl objects with an extensive use of inheritance.
-Adding support for a new product comes down to extending the `pf::Switch` class (in `/usr/local/pf/lib/pf`).
+PacketFence supports new network hardware (Network Devices) through Perl objects using extensive inheritance.
+Add new product support by extending the `pf::Switch` class in `/usr/local/pf/lib/pf`.
 
-The starting point to adding support for a new network device should be the vendor's documentation! First
-of all, you'll have to figure out the exact capabilities of the switch and how these capabilities will fit into
-PacketFence. Is it a Switch, an Access-Point or a Wireless Controller?
+Start with vendor documentation when adding network device support. Determine exact switch capabilities and PacketFence compatibility. Identify device type: Switch, Access-Point or Wireless Controller.
 
 === Switch
 
-Will you be able to use only link change traps? Does your switch allow you to use MAC notification traps?
-Port Security? MAC Authentication? 802.1X?
+Determine available capabilities: link change traps only? MAC notification traps? Port Security? MAC Authentication? 802.1X?
 
 ==== Link change capabilities
 
-You need to define a new class which inherits from `pf::Switch` and defines
-at least the following functions:
+Define new class inheriting from `pf::Switch` with at least these functions:
 
 [options="compact"]
 * `getMacAddrVlan`
@@ -46,11 +41,7 @@ at least the following functions:
 * `_getMacAtIfIndex`
 * `_setVlan`
 
-The `parseTrap` function will need to return an hash with keys `trapType` and
-`trapIfIndex`.  The associated values must be `up` or `down` for `trapType`
-and the traps' `ifIndex` for `trapIfIndex`.  See a similar switch's
-implementation for inspiration. Usually recent modules are better coded than
-older ones.
+`parseTrap` function must return hash with keys `trapType` and `trapIfIndex`. Values: `up` or `down` for `trapType`, trap's `ifIndex` for `trapIfIndex`. See similar switch implementation for inspiration. Recent modules typically better coded than older ones.
 
 ==== MAC notification capabilities
 

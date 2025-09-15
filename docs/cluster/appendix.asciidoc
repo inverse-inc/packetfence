@@ -88,7 +88,7 @@ Re-importable backups will be taken during the upgrade process. We highly encour
 
 The PacketFence clustering stack has a mechanism that allows configuration conflicts to be handled accross the servers. This will come in conflict with your upgrade, so you should disable it.
 
-In order to do so, go in _Configuration->System Configuration->Maintenance_ and disable the _Cluster Check_ task.
+In order to do so, go in _Configuration -> System Configuration->Maintenance_ and disable the _Cluster Check_ task.
 
 Once this is done, restart `pfcron` on all nodes using:
 
@@ -101,7 +101,7 @@ Once this is done, restart `pfcron` on all nodes using:
 
 You should disable the `galera-autofix` service in the configuration to disable the automated resolution of cluster issues during the upgrade.
 
-In order to do so, go in _Configuration->System Configuration->Services_ and disable the `galera-autofix` service.
+In order to do so, go in _Configuration -> System Configuration->Services_ and disable the `galera-autofix` service.
 
 Once this is done, stop `galera-autofix` service on *all* nodes using:
 
@@ -171,7 +171,7 @@ The commands above will make sure that nodes A and B will not be forwarding requ
 ===== Upgrade node C
 
 From that moment node C is in standalone for its database. We can proceed to update the packages, configuration and database schema.
-In order to do so, <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,apply the upgrade process described here>> **on node C only**.
+In order to do so, <<../PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,apply the upgrade process described here>> **on node C only**.
 
 ===== Check upgrade on node C
 
@@ -208,7 +208,7 @@ IMPORTANT: `packetfence-config` should stay started in order to run `/usr/local/
 
 Now, start the application service on node C using the instructions provided
 in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart PacketFence services section>>.
+<<../PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart PacketFence services section>>.
 
 ==== Validate migration
 
@@ -257,7 +257,7 @@ export UPGRADE_CLUSTER_SECONDARY=yes
 systemctl restart packetfence-mariadb
 ----
 
-Then, <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,apply the upgrade process described here>> **on nodes A and B**.
+Then, <<../PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,apply the upgrade process described here>> **on nodes A and B**.
 
 NOTE: It is important that you run the upgrade commands in the same shell you ran your `export` so that the environment variable is properly taken into consideration when the upgrade script executes.
 
@@ -274,8 +274,8 @@ You should now sync the configuration by running the following **on nodes A and 
 Where:
 
 * `_192.168.1.5_` is the management IP of node C
-* `_packet_` is the webservices username (_Configuration->Webservices_)
-* `_anotherMoreSecurePassword_` is the webservices password (_Configuration->Webservices_)
+* `_packet_` is the webservices username (_Configuration -> Webservices_)
+* `_anotherMoreSecurePassword_` is the webservices password (_Configuration -> Webservices_)
 
 
 ==== Reintegrating nodes A and B
@@ -370,7 +370,7 @@ systemctl start packetfence-mariadb
 
 You can now safely start PacketFence on nodes A and B using the instructions
 provided in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart
+<<../PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart
 PacketFence services section>>.
 
 `haproxy-admin` service need to be restarted manually on both nodes
@@ -386,7 +386,7 @@ after all services have been restarted:
 
 Now, you should restart PacketFence on node C using the instructions provided
 in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart
+<<../PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart
 PacketFence services section>>.  So it becomes aware of its peers again.
 
 You should now have full service on all 3 nodes using the latest version of PacketFence.
@@ -395,7 +395,7 @@ You should now have full service on all 3 nodes using the latest version of Pack
 
 Now that your cluster is back to a healthy state, you should reactivate the configuration conflict resolution.
 
-In order to do so, go in _Configuration->System Configuration->Maintenance_ and re-enable the _Cluster Check_ task.
+In order to do so, go in _Configuration -> System Configuration->Maintenance_ and re-enable the _Cluster Check_ task.
 
 Once this is done, restart `pfcron` on all nodes using:
 
@@ -408,7 +408,7 @@ Once this is done, restart `pfcron` on all nodes using:
 
 You now need to reactivate and restart the `galera-autofix` service so that it's aware that all the members of the cluster are online again.
 
-In order to do so, go in _Configuration->System Configuration->Services_ and re-enable the `galera-autofix` service.
+In order to do so, go in _Configuration -> System Configuration->Services_ and re-enable the `galera-autofix` service.
 
 Once this is done, restart `galera-autofix` service on *all* nodes using:
 

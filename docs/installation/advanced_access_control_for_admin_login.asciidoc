@@ -1,26 +1,26 @@
 === Advanced Access Control For Admin Login
 
-By default, the PacketFence admin interface will allow username/password login via any Internal authentication source (local database, LDAP, etc).
+PacketFence admin interface allows username/password login via any Internal authentication source (local database, LDAP, etc) by default.
 
-If you need to perform other types of authentication for the admin interface (ex: SAML, multi-factor auth, etc), then you can leverage all the capabilities of the captive portal for authenticating administrators.
+For other admin interface authentication types (SAML, multi-factor auth, etc), leverage captive portal capabilities for administrator authentication.
 
 ==== Basic Configuration
 
-First, head to 'Configuration->System Configuration->Admin Login' and set 'SSO Status' to enabled. If you want to enforce the usage of your SSO policy for login (i.e. disable the username/password), you should disable 'Allow username/password authentication' in this page.
+In the admin interface, go to _Configuration -> System Configuration -> Admin Login_ and enable 'SSO Status'. To enforce SSO policy for login (disable username/password), disable 'Allow username/password authentication'.
 
-Optionally, you may need to configure the 'SSO Base URL' if your PacketFence captive portal must be accessed under a different named than what is defined in the 'Hostname' and 'Domain' values that are in 'General Configuration'.
+Configure 'SSO Base URL' if PacketFence captive portal uses different name than 'Hostname' and 'Domain' values in 'General Configuration'.
 
-Next, you will need to configure a connnection profile for authenticating administrators. Go in 'Configuration->Policies and Access Control->Connection Profiles' and create a new connection profile with these values:
+Configure connection profile for administrator authentication. In the admin interface, go to _Configuration -> Policies and Access Control -> Connection Profiles_ and create new connection profile:
 
  * Root Portal Module: 'Default admin SSO policy'
  * Filter: URI with value '/admin-sso'
  * Sources: The authentication sources that should be used for the login.
 
-After this, restart `api-frontend` and `httpd.portal` and when accessing the admin interface login page, you should see a new option named 'Single Sign On'. This text can be changed in the 'Admin Login' configuration section.
+Restart `api-frontend` and `httpd.portal`. Admin interface login page shows new 'Single Sign On' option (text changeable in 'Admin Login' configuration).
 
-Any authentication mechanism that can be used on the portal (SAML, Akamai MFA, TOTP, etc) can be used for authenticating administrators using this process. Refer to the appropriate section for each feature in this guide in order to configure them on your connection profile used for authenticating administrators. 
+Any portal authentication mechanism (SAML, Akamai MFA, TOTP, etc) can authenticate administrators. Refer to appropriate sections in this guide to configure features on administrator authentication connection profile. 
 
 ==== Advanced Configuration
 
-Depending on your needs, you may want to adjust the configuration of the policy on the captive portal when authenticating administrators. The portal modules make this process highly flexible and customizable. You can modify the 'Default admin SSO policy' in 'Configuration->Advanced Access Configuration->Portal Modules' or create your own policy that you can then configure in your connection profile that authenticates administrators. Refer to the <<PacketFence_Installation_Guide.asciidoc#_portal_modules,Portal Modules>> section of this documentation on how to customize the captive portal for your needs. 
+Adjust captive portal policy configuration for administrator authentication as needed. Portal modules provide flexibility and customization. Modify 'Default admin SSO policy' in _Configuration -> Advanced Access Configuration -> Portal Modules_ or create custom policy for administrator authentication connection profile. See <<PacketFence_Installation_Guide.asciidoc#_portal_modules,Portal Modules>> section for captive portal customization. 
 

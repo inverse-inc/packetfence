@@ -20,7 +20,7 @@ endif::[]
 
 === Checking the MariaDB sync
 
-In order to check the MariaDB sync, you can look at the status of the `wsrep` status values inside MariaDB.
+Check MariaDB sync by examining `wsrep` status values in MariaDB:
 
 ----
 MariaDB> show status like 'wsrep%';
@@ -28,23 +28,23 @@ MariaDB> show status like 'wsrep%';
 
 Important variables:
 
-  * `wsrep_cluster_status`: Display whether or not the node is part of a primary view or not. A healthy cluster should always show as primary
-  * `wsrep_incoming_addresses`: The current members of the cluster. All the nodes of your cluster should be listed there.
-  * `wsrep_last_committed`: Sequence number of the most recently committed transaction. You can identify the most advanced node with this value.
-  * `wsrep_local_state_comment`: Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
+  * `wsrep_cluster_status`: Shows if node is part of primary view. Healthy clusters show 'primary'
+  * `wsrep_incoming_addresses`: Current cluster members. All cluster nodes should be listed
+  * `wsrep_last_committed`: Most recent committed transaction sequence number. Identifies most advanced node
+  * `wsrep_local_state_comment`: Cluster sync state. Healthy state is 'Synced'. See Galera documentation for other values
 
-In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb.log`)
+Healthy cluster requires: all nodes listed in `wsrep_incoming_addresses` and `wsrep_local_state_comment` as `Synced`. Otherwise check MariaDB log ([filename]`/usr/local/pf/logs/mariadb.log`).
 
 === Automatic clustering resolution service: galera-autofix
 
 Since v10, the <<_the_galera_autofix_service,`galera-autofix`>> service will try to resolve automatically issues on Galera clusters.
 
-On a cluster which has an issue, once all nodes are back online, you should wait:
+For problematic clusters, once all nodes are online, wait:
 
-* around 10 minutes when at least one of the nodes of the cluster is able to offer database service
-* around 20 minutes when there is no database service available
+* ~10 minutes when at least one node offers database service
+* ~20 minutes when no database service available
 
-If your cluster still has issues after that time, you can try to resolve the issue by looking at sections below.
+If issues persist, see resolution sections below.
 
 === Manual resolution
 

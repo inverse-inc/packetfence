@@ -30,7 +30,7 @@ The Galera cluster stack will continuously check that it has a quorum. Should on
  * RADIUS 802.1X: Will continue working and if 'Dot1x recompute role from portal' is enabled, it will compute the role using the available authentication sources but will not save it in the database at the end of the request. If this parameter is disabled, it will behave like MAC Authentication. VLAN and RADIUS filters will still apply for the connections. If any of your sources are external (LDAP, AD, RADIUS, ...), they must be available for the request to complete successfully.
  * Captive portal: The captive portal will be disabled and display a message stating the system is currently experiencing an issue.
  * DHCP listeners: The DHCP listeners will be disabled and packets will not be saved in the database. This also means Firewall SSO will not work during that time.
- * Web administration interface: It will still be available in read-only mode for all sections and in read-write mode for the configuration section.
+ * Admin interface: It will still be available in read-only mode for all sections and in read-write mode for the configuration section.
 
 Once the server that is in read-only mode joins a quorum, it will go back in read-write mode and the system will go back to its normal behavior automatically.
 

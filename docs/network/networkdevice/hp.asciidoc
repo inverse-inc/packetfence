@@ -21,12 +21,12 @@ endif::[]
 
 ==== HPE 1910 Serie
 
-The HP 1910 Serie is based on the 3Com OS and most of the configuration will be done from the GUI.
+HP 1910 Series uses 3Com OS with most configuration done via GUI.
 
 VLAN creation:
-* go to *Network*, *VLAN*,
-* click on the _Create_ tab
-* create the VLANs
+* Go to *Network* > *VLAN*
+* Click _Create_ tab
+* Create VLANs
 
 
 Configure PacketFence as a RADIUS server:

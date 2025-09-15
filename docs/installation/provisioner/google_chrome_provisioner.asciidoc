@@ -69,7 +69,7 @@ These instructions have been adapted from https://developers.google.com/identity
 
 ==== Create a new provisioner
 
-Login in the PacketFence administration interface, then go to 'Configuration' > 'Advanced Access Configuration' > 'Provisioners' > 'New provisioner' > 'Google Workspace Chromebook'.
+Login to the admin interface, then go to _Configuration -> Advanced Access Configuration -> Provisioners -> New provisioner -> Google Workspace Chromebook_.
 
 image::google-workspace-chromebook-config.png[scaledwidth="100%",alt="Google Workspace Chromebook portal configuration"]
 

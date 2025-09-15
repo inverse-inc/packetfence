@@ -18,25 +18,19 @@ endif::[]
 
 //== Installation
 
-This section will guide you through the installation of PacketFence from the Zero Effort NAC (ZEN) appliance and from the standard repository of packages we provide - which can be used to install PacketFence on top of a vanilla GNU/Linux installation.
+Install PacketFence using the Zero Effort NAC (ZEN) appliance or standard package repository on GNU/Linux installations.
 
 === Installing PacketFence from the ZEN
 
-The ZEN (Zero Effort NAC) edition of PacketFence allows you to rapidly get PacketFence running in your network environment. It consists of a fully installed and preconfigured version of PacketFence distributed as a virtual appliance. It can be deployed on VMware ESX/ESXi, Microsoft Hyper-V and other products. This section covers the deployment of the virtual appliance on VMware-based products. We are not supporting any Xen-based hypervisors yet.
+ZEN (Zero Effort NAC) edition enables rapid PacketFence deployment. It's a fully installed, preconfigured virtual appliance compatible with VMware ESX/ESXi, Microsoft Hyper-V and other products. This section covers VMware-based deployment. Xen-based hypervisors are not supported.
 
 You can download the ZEN here: https://www.packetfence.org/download.html#/zen
 
 ==== Virtual Machine
 
-This setup has been tested using VMware ESXi, Fusion and Workstation products
-with 16 GB of RAM dedicated to the virtual machine. It might work using other
-VMware products.  To properly run the PacketFence virtual appliance, you need
-a CPU that supports long mode. In other words, you need to have a 64-bit
-capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk
-(OVF). If you are using an ESX type hypervisor, you need to import the OVF
-using vSphere Client (or vCenter).
+Tested with VMware ESXi, Fusion and Workstation with 16 GB RAM dedicated to the VM. May work with other VMware products. Requires 64-bit CPU host for long mode support. PacketFence ZEN comes as a pre-built OVF virtual disk. Import the OVF using vSphere Client or vCenter for ESX hypervisors.
 
-First network card of virtual machine is configured to receive an IP through DHCP.
+The VM's first network card receives IP through DHCP.
 
 The virtual appliance passwords are:
 

@@ -20,10 +20,10 @@ endif::[]
 
 === Assumptions
 
-Throughout this configuration example we use the following assumptions for our network infrastructure: 
+Network infrastructure assumptions for this configuration: 
 
 [options="compact"]
-* PacketFence is fully configured with FreeRADIUS running (if you want 802.1X or MAC Auth) 
+* PacketFence fully configured with FreeRADIUS running (for 802.1X or MAC Auth) 
 * PacketFence IP address: 192.168.1.5 
 * Normal VLAN: 1 
 * Registration VLAN: 2 

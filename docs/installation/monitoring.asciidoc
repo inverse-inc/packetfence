@@ -27,12 +27,12 @@ The metrics are displayed in 2 separate sections
 
 All metrics are retained for a maximum of 28 days. Older metrics are automatically pruned to limit disk usage. To increase the retention rate edit the configuration and restart the service:
 
-```
+----
 vi /usr/local/pf/conf/monitoring/netdata.conf
 
 [db]
     retention = 2419200 # 28 days (seconds)
-```
+----
 
 ====== Dashboard
 
@@ -50,9 +50,9 @@ The User Interface (Web Admin) now includes:
 
 To obtain the local Netdata random session identifier:
 
-```
+----
 cat /usr/local/pf/var/netdata-lib/netdata_random_session_id
-```
+----
 
 Once connected to Netdata Cloud, Netdata alerts will be sent to the email address used to register the Netdata Cloud account.
 
@@ -61,6 +61,6 @@ To attach all members of a cluster, each member has its own unique session id; w
 
 ===== Restarting Service
 
-```
+----
 systemctl restart packetfence-netdata
-```
+----

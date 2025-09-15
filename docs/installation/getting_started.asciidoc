@@ -18,34 +18,32 @@ endif::[]
 
 //== Getting Started
 
-Now that PacketFence is installed, it needs to be configured. The PacketFence web-based configuration interface will automatically be started.
+Configure PacketFence after installation. The web-based configurator starts automatically.
 
-This section will guide you through configuring PacketFence as a simple RADIUS server. PacketFence will provide 802.1X support through Microsoft Active Directory and a Cisco 2960 access switch will be configured to integrate with PacketFence. The 802.1X client will be a Microsoft Windows 7 computer, connected of course on the wired network in the Cisco 2960 access switch. The following architecture diagram shows the interconnection of all components for our example:
+This section configures PacketFence as a RADIUS server with 802.1X support through Microsoft Active Directory and a Cisco 2960 access switch. The 802.1X client is a Microsoft Windows 7 computer connected to the Cisco 2960 switch. The architecture diagram shows component interconnections:
 
 image::getting-started.png["Getting Started",width="50%",scaledwidth="65%"]
 
-NOTE: If you use another access switch, you must refer to PacketFence Network Devices Configuration Guide to adapt your configuration.
+NOTE: For other access switches, refer to PacketFence Network Devices Configuration Guide.
 
 === Going Through the Configurator
 
-First open PacketFence's configurator - you can access it from https://@ip_of_packetfence:1443. If you are unsure what IP address you have, run `ip a` in your Linux shell. Perform the following actions:
+Open PacketFence's configurator at https://@ip_of_packetfence:1443. If unsure of your IP address, run `ip a` in Linux shell. Complete these steps:
 
- * Step 1 - *Configure Network* - make sure you define only one interface with the "Management" type. That network interface will be the one to which the Cisco 2960 access switch will talk to. The management interface of PacketFence and the Cisco 2960 should normally be in the same network. To set the interface to the "Management" type, click on the logical name to edit it
- * Step 2 - *Configure PacketFence* - provide the required information to properly create the PacketFence database and also provide your domain name, hostname and other required information. Make you sure to provide the PacketFence's admin username and password to be used
- * Step 3 - *Fingerbank* - provide your Fingerbank API key. Fingerbank is used to accurately identify Internet of Things (IoT) devices, medical devices, industrial and robotics equipment and more on your network. It is recommended to have a key for your PacketFence deployment. Without a Fingerbank API key, device profiling will not be available in PacketFence
+ * Step 1 - *Configure Network* - Define one interface with "Management" type. This interface connects to the Cisco 2960 access switch. The management interface and Cisco 2960 should be on the same network. Click the logical name to edit interface type
+ * Step 2 - *Configure PacketFence* - Provide required information for PacketFence database creation, domain name, hostname and admin credentials
+ * Step 3 - *Fingerbank* - Provide Fingerbank API key. Fingerbank identifies IoT devices, medical devices, industrial and robotics equipment. An API key is recommended for device profiling
  * Step 4 - *Confirmation* - save the passwords in a secure location and start PacketFence!
 
-Once all services are started, you will automatically be redirected to the
-PacketFence's web admin interface. It is located at
-https://@ip_of_packetfence:1443/. Open that link and log in using the username/password specified in Step 2.
+After services start, you'll be redirected to PacketFence's admin interface at https://@ip_of_packetfence:1443/. Log in using credentials from Step 2.
 
 === Connecting PacketFence to Microsoft Active Directory
 
-Next, we join the PacketFence server to your existing Microsoft Active Directory domain controller. From PacketFence's web admin interface, go in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domain_ and click on the `New domain` button. Provide the required fields. You will need an Active Directory administrative username and password (member of the domain admins) to join the PacketFence server to your domain. Once all the information has been provided, click on the `Create & Join` button.
+Join PacketFence to your Microsoft Active Directory domain. From the admin interface, go to _Configuration -> Policies and Access Control -> Domains -> Active Directory Domain_ and click `New domain`. Provide required fields including domain admin credentials. Click `Create & Join`.
 
-Once the domain join succeeds, click on the `REALMS` tab. Click on the `Default` realm and set the domain to the Active Directory domain you have just created. That will instruct PacketFence to use that newly created Active Directory for the default authentication realm. Next, do the same thing for the 'NULL' realm.
+After successful domain join, click the `REALMS` tab. Set the `Default` realm to use your new Active Directory domain. Repeat for the 'NULL' realm.
 
-Next, we add the Microsoft Active Directory domain controller as an authentication source in PacketFence. To do so, from _Configuration -> Policies and Access Control -> Authentication Sources_, click on `New internal source -> AD`. Specify all the required fields. If you need help identifying fields relevant to your Active Directory environment, please use the Active Directory Explorer (AD Explorer) or AdsiEdit.mmc tools from your Active Directory server.
+Add Microsoft Active Directory as an authentication source. From _Configuration -> Policies and Access Control -> Authentication Sources_, click `New internal source -> AD`. Specify required fields. Use Active Directory Explorer or AdsiEdit.mmc tools for field identification.
 
 In this new 'Authentication Source', add an 'Authentication Rules' with name 'catchall' with no condition and with the following actions:
 

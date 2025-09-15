@@ -29,7 +29,7 @@ The full API specification for:
 The API is exposed on 127.0.0.1 (localhost) as well as the management interface of the server for remote calls.
 Users access the API on TCP port 9999 over a secure connection (HTTPS).
 
-Authentication can be done using either the webservices credentials or any credentials that are valid on the web admin interface.
+Authentication can be done using either the webservices credentials or any credentials that are valid on the admin interface.
 
 === How to use the API
 

@@ -21,7 +21,7 @@ endif::[]
 
 ==== Meru Controllers (MC)
 
-In this section, we cover the basic configuration of the Meru wireless controller for PacketFence via the web GUI.
+In this section, we cover the basic configuration of the Meru wireless controller for PacketFence via the controller web interface.
 
 [float]
 ===== Disable PMK Caching
