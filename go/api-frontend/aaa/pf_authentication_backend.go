@@ -49,7 +49,6 @@ func (pfab *PfAuthenticationBackend) Authenticate(ctx context.Context, username,
 		"password": password,
 	})
 	sharedutils.CheckError(err)
-
 	req, err := http.NewRequest("POST", pfab.url.String(), bytes.NewBuffer(body))
 	sharedutils.CheckError(err)
 	resp, err := pfab.httpClient.Do(req)
