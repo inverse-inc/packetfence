@@ -158,12 +158,30 @@
       </base-form-tab>
 
       <base-form-tab :title="$i18n.t('LDAP Connection')">
-        <form-group-force-ldap namespace="force_ldap" :text="$i18n.t('Force Ldap')" />
-        <form-group-encryption namespace="encryption" :text="$i18n.t('Encryption')"/>
-        <form-group-channel-binding namespace="channel_binding" :text="$i18n.t('Use channel binding')"/>
-        <form-group-client-cert-file namespace="client_cert_file" :text="$i18n.t('Client Cert File')" />
-        <form-group-client-key-file namespace="client_key_file" :text="$i18n.t('Client Key File')" />
-        <form-group-ca-file namespace="ca_file" :text="$i18n.t('Ca File')" />
+        <form-group-force-ldap namespace="force_ldap"
+                            :column-label="$i18n.t('Force Ldap')"
+                            :text="$i18n.t('Force Ldap')"
+          />
+        <form-group-encryption namespace="encryption"
+                            :column-label="$i18n.t('Encryption')"
+                            :text="$i18n.t('Encryption')"
+         />
+        <form-group-channel-binding namespace="channel_binding"
+                            :column-label="$i18n.t('Use channel binding')"
+                            :text="$i18n.t('Use channel binding')"
+         />
+        <form-group-client-cert-file namespace="client_cert_file"
+                            :column-label="$i18n.t('Client Cert File')"
+                            :text="$i18n.t('Client Cert File')"
+         />
+        <form-group-client-key-file namespace="client_key_file"
+                            :column-label="$i18n.t('Client Key File')"
+                            :text="$i18n.t('Client Key File')"
+         />
+        <form-group-ca-file namespace="ca_file"
+                            :column-label="$i18n.t('Ca File')"
+                            :text="$i18n.t('Ca File')"
+         />
       </base-form-tab>
 
     </b-tabs>
