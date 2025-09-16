@@ -46,6 +46,7 @@ export {
   BaseFormGroupInput                  as FormGroupMaxAllowedPasswordAttemptsPerDevice,
 
   BaseFormGroupToggleDisabledEnabled  as FormGroupChannelBinding,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupForceLdap,
   BaseFormGroupChosenOne              as FormGroupEncryption,
   BaseFormGroupFileUpload             as FormGroupClientCertFile,
   BaseFormGroupFileUpload             as FormGroupClientKeyFile,
