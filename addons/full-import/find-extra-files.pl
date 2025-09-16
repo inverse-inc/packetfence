@@ -35,6 +35,8 @@ my @extra_files_to_export = (
     $pf::file_paths::system_init_key_file,
     $pf::file_paths::unified_api_system_pass_file,
     $pf::file_paths::network_behavior_policy_config_file,
+    $pf::file_paths::iptable_custom_config_file,
+    $pf::file_paths::ip6table_custom_config_file,
 );
 
 
