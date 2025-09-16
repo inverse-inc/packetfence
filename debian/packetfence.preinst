@@ -107,6 +107,8 @@ case "$1" in
         stop_service_if_exists pfappserver
         /usr/sbin/update-rc.d -f pfappserver remove
         set -e
+        # only packetfence-config, packetfence-redis-cache and packetfence-mariadb
+        # services are running after the following command:
         /bin/systemctl isolate packetfence-base.target
         # prevent conflicting mariadb service from starting
         /bin/systemctl mask mariadb

@@ -201,7 +201,8 @@ case "$1" in
             echo "MariaDB config will be generated at next boot"
         fi
 
-        # only packetfence-config is running after this command
+        # only packetfence-config, packetfence-redis-cache and packetfence-mariadb
+        # services are running after the following command:
         systemctl isolate packetfence-base.target
 
         # Override the MySQL socket location to match our standard

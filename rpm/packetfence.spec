@@ -789,7 +789,8 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl start packetfence-config
     # next command need packetfence-config started
     /usr/local/pf/bin/pfcmd generatemariadbconfig --force
-    # only packetfence-config is running after this command
+    # only packetfence-config, packetfence-redis-cache and packetfence-mariadb
+    # services are running after the following command:
     /bin/systemctl isolate packetfence-base
 
     /bin/systemctl enable packetfence-httpd.admin_dispatcher
