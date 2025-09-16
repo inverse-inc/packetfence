@@ -56,7 +56,7 @@ if echo "$last_db_dump" | grep '\.sql.gz$' >/dev/null; then
   fi
 
   echo "Database dump uses mysqldump. Exporting the grants from the database. Enter the MariaDB root password if prompted to"
-  mysql $mariadb_args --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''" | mysql $mariadb_args --skip-column-names -A | sed 's/$/;/g' > grants.sql
+  mysql $mariadb_args --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>'' AND user<>'PUBLIC'" | mysql $mariadb_args --skip-column-names -A | sed 's/$/;/g' > grants.sql
 fi
 
 main_splitter
