@@ -54,7 +54,7 @@ Executes the command in the OS to test the domain join
 
 sub add_computer {
     my $option = shift;
-    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $ssl_options) = @_;
+    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, $ssl_options) = @_;
     $ssl_options //= {};
     if (!defined($ou)) {
         $ou = ""
@@ -74,7 +74,7 @@ sub add_computer {
     $ou =~ s/^['"]|['"]$//g;
 
     my $method = "LDAPS";
-    if (uc($ou) eq "COMPUTERS" || $ou eq "") {
+    if (!$force_ldap && (uc($ou) eq "COMPUTERS" || $ou eq "")) {
         $method = "SAMR"
     }
 

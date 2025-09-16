@@ -158,8 +158,9 @@
       </base-form-tab>
 
       <base-form-tab :title="$i18n.t('LDAP Connection')">
+        <form-group-force-ldap namespace="force_ldap" :text="$i18n.t('Force Ldap')" />
+        <form-group-encryption namespace="encryption" :text="$i18n.t('Encryption')"/>
         <form-group-channel-binding namespace="channel_binding" :text="$i18n.t('Use channel binding')"/>
-        <form-group-encryption namespace="encryption" :text="$i18n.t('Use channel binding')"/>
         <form-group-client-cert-file namespace="client_cert_file" :text="$i18n.t('Client Cert File')" />
         <form-group-client-key-file namespace="client_key_file" :text="$i18n.t('Client Key File')" />
         <form-group-ca-file namespace="ca_file" :text="$i18n.t('Ca File')" />
@@ -208,6 +209,7 @@ import {
 
   FormGroupCaFile,
   FormGroupChannelBinding,
+  FormGroupForceLdap,
   FormGroupClientCertFile,
   FormGroupClientKeyFile,
   FormGroupEncryption,
@@ -249,6 +251,7 @@ const components = {
 
   FormGroupCaFile,
   FormGroupChannelBinding,
+  FormGroupForceLdap,
   FormGroupClientCertFile,
   FormGroupClientKeyFile,
   FormGroupEncryption,
