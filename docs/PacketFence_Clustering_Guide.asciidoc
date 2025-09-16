@@ -11,19 +11,22 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide provides quick installation steps for active/active clustering in PacketFence 7+. Advanced troubleshooting is not covered. Refer to HAProxy and Keepalived documentation for advanced features.
+This guide provides quick installation steps for active/active clustering in
+PacketFence 7+. Advanced troubleshooting is not covered. Refer to HAProxy and
+Keepalived documentation for advanced features.
 
 Find the latest version at https://packetfence.org/documentation/
 
 === Other sources of information
 
-https://www.packetfence.org/doc/PacketFence_Developers_Guide.html[Developer's Guide]::
-  Covers API, captive portal customization, application code customizations and instructions for supporting new equipment.
-https://www.packetfence.org/doc/PacketFence_Installation_Guide.html[Installation Guide]::
+<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+  Covers API, captive portal customization, application code customizations and
+  instructions for supporting new equipment.
+<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
   Covers installation and configuration of PacketFence.
-https://www.packetfence.org/doc/PacketFence_Network_Devices_Configuration_Guide.html[Network Devices Configuration Guide]::
+<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access point configuration.
-https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html[Upgrade Guide]::
+<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility changes, manual instructions and general upgrade notes.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.

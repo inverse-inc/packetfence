@@ -26,5 +26,6 @@ endif::[]
 ** Larger deployments: 50ms maximum latency between nodes
 // * PacketFence does support external MySQL primary/replicas to allow deployments which are geo distributed (see 'Geo Distributed Database' in this document for details)
 
-NOTE: Appended to this guide is a glossary on specialized terms used in this document.
+NOTE: Appended to this guide is a glossary on specialized terms used in this
+document.
 

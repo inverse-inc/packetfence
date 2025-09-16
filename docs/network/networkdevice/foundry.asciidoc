@@ -21,7 +21,8 @@ endif::[]
 
 ==== FastIron 4802
 
-PacketFence support this switch with optional VoIP using two different trap types:
+PacketFence support this switch with optional VoIP using two different trap
+types:
 
 * linkUp/linkDown
 * Port Security (with static MACs)
@@ -30,9 +31,11 @@ PacketFence support this switch with optional VoIP using two different trap type
 
 Don't forget to update the startup config!
 
-Those switches support port-security with static MAC address and allow us to secure a MAC on the data VLAN so we enable it whether there is VoIP or not.
+Those switches support port-security with static MAC address and allow us to
+secure a MAC on the data VLAN so we enable it whether there is VoIP or not.
 
-We need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+We need to secure bogus MAC addresses on ports in order for the switch to send a
+trap when a new MAC appears on a port.
 
 Global config settings
 
@@ -51,7 +54,8 @@ On each interface _without VoIP_:
 
 where `xx` stands for the interface `ifIndex`.
 
-With VoIP a little more work needs to be performed. Instead of the no-VoIP, put in the following config:
+With VoIP a little more work needs to be performed. Instead of the no-VoIP, put
+in the following config:
 
 ----
 conf t
@@ -70,4 +74,6 @@ int eth xx
     enable
 ----
 
-where `xxxxxx` stands for the interface number (filled with zeros), `<voice-vlan>` with your voice-VLAN number and `<mac-detection-vlan>` with your mac-detection VLAN number.
+where `xxxxxx` stands for the interface number (filled with zeros),
+`<voice-vlan>` with your voice-VLAN number and `<mac-detection-vlan>` with your
+mac-detection VLAN number.

@@ -11,19 +11,22 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide covers network device configuration for VLAN enforcement with PacketFence. Switches, wireless controllers and wireless access points are considered network devices in PacketFence.
+This guide covers network device configuration for VLAN enforcement with
+PacketFence. Switches, wireless controllers and wireless access points are
+considered network devices in PacketFence.
 
 Find the latest version at https://packetfence.org/documentation/
 
 === Other sources of information
 
-https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html[Clustering Guide]::
+<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Covers installation in a clustered environment.
-https://www.packetfence.org/doc/PacketFence_Developers_Guide.html[Developer's Guide]::
-  Covers API, captive portal customization, application code customizations and support for new equipment.
-https://www.packetfence.org/doc/PacketFence_Installation_Guide.html[Installation Guide]::
+<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+  Covers API, captive portal customization, application code customizations and
+  support for new equipment.
+<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
   Covers installation and configuration of PacketFence.
-https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html[Upgrade Guide]::
+<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility changes, manual instructions and upgrade notes.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
@@ -32,13 +35,17 @@ Package and release tarballs include these files.
 
 == Note on Inline enforcement support
 
-Inline enforcement does not require this guide, except for RADIUS inline. RADIUS inline uses a flat layer-2 network on PacketFence's inline interface with no other gateway for Internet access.
+Inline enforcement does not require this guide, except for RADIUS inline. RADIUS
+inline uses a flat layer-2 network on PacketFence's inline interface with no
+other gateway for Internet access.
 
 Use this technique when network hardware does not support VLAN enforcement.
 
 == Note on RADIUS accounting
 
-Enabling RADIUS accounting on network devices significantly increases database size and may cause performance issues. Use RADIUS accounting only if absolutely required.
+Enabling RADIUS accounting on network devices significantly increases database
+size and may cause performance issues. Use RADIUS accounting only if absolutely
+required.
 
 == List of supported Network Devices
 

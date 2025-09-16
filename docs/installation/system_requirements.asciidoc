@@ -20,7 +20,8 @@ endif::[]
 
 === Assumptions
 
-PacketFence reuses many components in an infrastructure. Nonetheless, it will install the following ones and manage them itself:
+PacketFence reuses many components in an infrastructure. Nonetheless, it will
+install the following ones and manage them itself:
 
 [options="compact"]
 * database server (MariaDB)
@@ -31,7 +32,9 @@ PacketFence reuses many components in an infrastructure. Nonetheless, it will in
 
 This guide assumes all components run on the same server as PacketFence.
 
-Understanding these components and GNU/Linux is required. PacketFence installs and manages these services. Ensure other services start automatically with your operating system.
+Understanding these components and GNU/Linux is required. PacketFence installs
+and manages these services. Ensure other services start automatically with your
+operating system.
 
 === Minimum Hardware Requirements
 
@@ -55,6 +58,8 @@ PacketFence supports the following operating systems on the x86_64 architecture:
 * Red Hat Enterprise Linux 8.x Server
 * Debian 12.x (Bookworm)
 
-Ensure you can install additional packages from your distribution. Red Hat Enterprise Linux requires Red Hat Network subscription.
+Ensure you can install additional packages from your distribution. Red Hat
+Enterprise Linux requires Red Hat Network subscription.
 
-Other distributions like RHEL or Debian derivatives may work but are not officially supported or documented.
+Other distributions like RHEL or Debian derivatives may work but are not
+officially supported or documented.

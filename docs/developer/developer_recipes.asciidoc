@@ -20,7 +20,8 @@ endif::[]
 
 === Virtual environment
 
-To test PacketFence on several distributions, we used Vagrant virtual machines. You can set up
+To test PacketFence on several distributions, we used Vagrant virtual machines.
+You can set up
 a similar environment to develop.
 
 ==== Virtual environment: prerequisites
@@ -29,7 +30,7 @@ Install following softwares:
 
 * link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 2.2.10) provided by Hashicorp
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
-* pywinrm > 0.3.0 if you want to use `ad` virtual machine
+* pywinrm > 0.3 if you want to use `ad` virtual machine
 * Ansible = 2.10.X
 
 ==== Virtual environment: initial setup
@@ -95,7 +96,8 @@ following commands:
 
 [source,bash]
 ----
-CI_PROJECT_NAME="ppa" CI_PAGES_URL="http://inverse-inc.gitlab.io/packetfence" vagrant up VM_NAME
+CI_PROJECT_NAME="ppa" CI_PAGES_URL="http://inverse-inc.gitlab.io/packetfence"
+vagrant up VM_NAME
 ----
 
 WARNING: Packages available here could be build on other branches than devel.
@@ -110,7 +112,7 @@ To keep your machine up-to-date, you can run the following commands:
 vagrant provision --provision-with=install VM_NAME
 ----
 
-Make sure you read the https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html[Upgrade Guide] after every upgrades to avoid any surprises.
+Make sure you read the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>> after every upgrades to avoid any surprises.
 
 ===== Running an Ansible playbook against Vagrant virtual machines
 
@@ -133,7 +135,7 @@ file that override default inventory, for example:
 ----
 cat >> extra.yml << EOF
 packetfence_install__centos_packages:
-  - packetfence-9.2.0-20191126180126.98740132.0007.el7
+  - packetfence-9.2-20191126180126.98740132.0007.el7
 EOF
 ansible-playbook site.yml --limit VM_NAME -e @extra.yml
 ----

@@ -91,7 +91,8 @@ Those switches are supported using 802.1X for networks with or without VoIP.
 
 * RADIUS server configuration
 
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default key useStrongerSecret dot1x mac-auth no-login
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default key
+  useStrongerSecret dot1x mac-auth no-login
 
 * Authentication configuration
 
@@ -109,7 +110,8 @@ Those switches are supported using 802.1X for networks with or without VoIP.
     mac-authentication enable
     mac-authentication enable ethe 1/1/1
 
-The configuration above enables authentication on port 1/1/1 - make sure you change this to the ports where you want to perform enforcement.
+The configuration above enables authentication on port 1/1/1 - make sure you
+change this to the ports where you want to perform enforcement.
 
 * SNMP configuration
 
@@ -118,7 +120,8 @@ The configuration above enables authentication on port 1/1/1 - make sure you cha
 
 * PacketFence configuration
 
-While configuring the switch in PacketFence, ensure you set at least the following values:
+While configuring the switch in PacketFence, ensure you set at least the
+following values:
  * Definition, Type: Brocade Switches
  * RADIUS, Secret Passphrase: useStrongerSecret
  * SNMP, Version: v2c
@@ -127,26 +130,31 @@ While configuring the switch in PacketFence, ensure you set at least the followi
 
 ===== VoIP
 
-In order to enable VoIP, you first need to enable LLDP then define the network policy for tagging VoIP traffic on the ports where PacketFence is enabled.
+In order to enable VoIP, you first need to enable LLDP then define the network
+policy for tagging VoIP traffic on the ports where PacketFence is enabled.
 
   lldp run
-  lldp med network-policy application voice tagged vlan 5 priority 5 dscp 46 ports ethe 1/1/1 
+  lldp med network-policy application voice tagged vlan 5 priority 5 dscp 46
+  ports ethe 1/1/1
 
 NOTE: Make sure you change VLAN 5 to the VLAN you use for VoIP
 
 * PacketFence configuration
 
-While configuring the switch in PacketFence, ensure you set at least the following values:
+While configuring the switch in PacketFence, ensure you set at least the
+following values:
  * Roles, voice VLAN: 5
  * Definition, VoIP: enabled
 
 ==== Radius CLI Login
 
-If you want to use the server PacketFence to authenticate users on the Brocade switch.
+If you want to use the server PacketFence to authenticate users on the Brocade
+switch.
 
  * Configure the radius server to send user authentication request to PacketFence
    
    aaa authentication login default radius local
 
-NOTE: Make sure to have a local account in case the switch can not reach the PacketFence server
+NOTE: Make sure to have a local account in case the switch can not reach the
+PacketFence server
 

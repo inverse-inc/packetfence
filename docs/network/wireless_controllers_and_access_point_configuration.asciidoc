@@ -41,13 +41,20 @@ Network infrastructure assumptions for this configuration:
 
 === Unsupported Equipment
 
-Wireless network access configuration is more consistent between vendors due to standardization compared to wired side: VLAN assignment done centrally with RADIUS and consistent client protocol (MAC-Authentication or 802.1X).
+Wireless network access configuration is more consistent between vendors due to
+standardization compared to wired side: VLAN assignment done centrally with
+RADIUS and consistent client protocol (MAC-Authentication or 802.1X).
 
-This consistency means most wireless network devices work out-of-the-box with PacketFence. Only missing piece typically: remote client deauthentication for VLAN assignment (deauth user to reconnect and get new VLAN).
+This consistency means most wireless network devices work out-of-the-box with
+PacketFence. Only missing piece typically: remote client deauthentication for
+VLAN assignment (deauth user to reconnect and get new VLAN).
 
-Even if your wireless equipment isn't explicitly supported by PacketFence, try it. Next section covers objectives for testing equipment without existing configuration.
+Even if your wireless equipment isn't explicitly supported by PacketFence, try
+it. Next section covers objectives for testing equipment without existing
+configuration.
 
-Here are the high-level requirements for proper wireless integration with PacketFence
+Here are the high-level requirements for proper wireless integration with
+PacketFence
 
 * The appropriate VLANs must exist
 * Allow controller to honor VLAN assignments from AAA (sometimes called AAA override)
@@ -56,11 +63,22 @@ Here are the high-level requirements for proper wireless integration with Packet
 * On registration / isolation VLANs the DHCP traffic must reach the PacketFence server
 * On your production VLANs a copy of the DHCP traffic must reach PacketFence where a pfdhcplistener listens (configurable in `pf.conf` under `interfaces`)
 
-At this point, user registration with the captive-portal is possible and registered users should have access to the appropriate VLANs. However, VLAN changes (like after a registration) won't automatically happen, you will need to disconnect / reconnect. An explanation is provided in introduction section above about this behavior.
+At this point, user registration with the captive-portal is possible and
+registered users should have access to the appropriate VLANs. However, VLAN
+changes (like after a registration) won't automatically happen, you will need to
+disconnect / reconnect. An explanation is provided in introduction section above
+about this behavior.
 
-You can try modules similar to your equipment if any (read appropriate instructions) or you can try to see if RFC3576 is supported. RFC3576 covers RADIUS Packet of Disconnect (PoD) also known as Disconnect Messages (DM) or Change of Authorization (CoA). You can try the Aruba module if you want to verify if RFC3576 is supported by your hardware.
+You can try modules similar to your equipment if any (read appropriate
+instructions) or you can try to see if RFC3576 is supported. RFC3576 covers
+RADIUS Packet of Disconnect (PoD) also known as Disconnect Messages (DM) or
+Change of Authorization (CoA). You can try the Aruba module if you want to
+verify if RFC3576 is supported by your hardware.
 
-If none of the above worked then you can fallback to inline enforcement or let us know what equipment you are using on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
+If none of the above worked then you can fallback to inline enforcement or let
+us know what equipment you are using on the
+https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel
+mailing list].
 
 === Aerohive Networks
 
@@ -69,8 +87,11 @@ include::networkdevice/aerohive.asciidoc[]
 [float]
 ===== Roles (User Profiles)
 
-Since PacketFence 3.3.0, we now support user profiles on the AeroHIVE hardware.  To build a User Profile, go to _Configuration -> User Profiles_, and create what you need.  When you define the switch
-definition in PacketFence, the role will match the User Profile attribute number.  Example
+Since PacketFence 3.3, we now support user profiles on the AeroHIVE hardware.
+To build a User Profile, go to _Configuration -> User Profiles_, and create what
+you need. When you define the switch
+definition in PacketFence, the role will match the User Profile attribute
+number. Example
 
    roles=CategoryStudent=1;CategoryStaff=2
 
@@ -79,10 +100,15 @@ And in the AeroHIVE configuration, you have :
    StudentProfile attribute number 1
    StaffProfile attribute number 2
 
-Last step is to allow the User Profile to be returned for a particular SSID.  Go to _Configuration -> SSIDs -> Your_SSID -> User Profiles_ for Traffic Management*, and select the User Profiles you will
+Last step is to allow the User Profile to be returned for a particular SSID. Go
+to _Configuration -> SSIDs -> Your_SSID -> User Profiles_ for Traffic
+Management*, and select the User Profiles you will
 return for the devices.
 
-In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* has. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
+In version 6 or later of the HiveOS, we do return VLAN ID matching the number
+that the *User Profile* has. Create your *User Profile* in the HiveManager as
+usual, assign the matching VLAN, and in PacketFence configuration add the wanted
+VLAN ID in the section *Roles by VLAN*.
 
 === Anyfi Networks
 

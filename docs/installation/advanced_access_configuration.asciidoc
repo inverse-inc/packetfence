@@ -20,21 +20,38 @@ endif::[]
 
 === Connection Profiles
 
-PacketFence provides a default connection profile. The follow parameters are important to configure whether the default connection profile is used or a new one is created:
+PacketFence provides a default connection profile. The follow parameters are
+important to configure whether the default connection profile is used or a new
+one is created:
 
 * Redirect URL under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name_
 
-For some browsers, it is preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be where the user is redirected. Affected browsers are Firefox 3 and later.
+For some browsers, it is preferable to redirect the user to a specific URL
+instead of the URL the user originally intended to visit. For these browsers,
+the URL defined in `redirecturl` will be where the user is redirected. Affected
+browsers are Firefox 3 and later.
 
 * IP under _Configuration -> Advanced Access Configuration -> Captive portal_.
 
-This IP is used as the web server that hosts the [filename]`common/network-access-detection.gif` which is a pixel-gif used to detect network access. The IP cannot be a domain name since it is used during Registration and Isolation where DNS is black-holed. It is recommended to allow users to reach the PacketFence server with the PacketFence LAN IP.
+This IP is used as the web server that hosts the
+[filename]`common/network-access-detection.gif` which is a pixel-gif used to
+detect network access. The IP cannot be a domain name since it is used during
+Registration and Isolation where DNS is black-holed. It is recommended to allow
+users to reach the PacketFence server with the PacketFence LAN IP.
 
-In some cases, a different captive portal may be presented (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence uses the concept of connection profiles to provide this possibility.
+In some cases, a different captive portal may be presented (see below for the
+available customizations) according to the SSID, the VLAN, the switch IP/MAC or
+the URI the client connects to. To do so, PacketFence uses the concept of
+connection profiles to provide this possibility.
 
-When configured, connection profiles will override default values. When no values are configured in the profile, PacketFence will use the values from the "default" connection profile.
+When configured, connection profiles will override default values. When no
+values are configured in the profile, PacketFence will use the values from the
+"default" connection profile.
 
-Below the different configuration parameters for each connection profile are provided. The only mandatory parameter is "filter", otherwise, PacketFence will not be able to correctly apply the connection profile. The parameters are set in [filename]`/usr/local/pf/conf/profiles.conf`:
+Below the different configuration parameters for each connection profile are
+provided. The only mandatory parameter is "filter", otherwise, PacketFence will
+not be able to correctly apply the connection profile. The parameters are set in
+[filename]`/usr/local/pf/conf/profiles.conf`:
 
 ./usr/local/pf/conf/profiles.conf
 [source,ini]
@@ -153,13 +170,15 @@ machine_account != "" && ssid == Secure
 Match user authentication and machine authentication on a secure ssid:
 [source]
 ----
-last_connection_type == "Wireless-802.11-EAP" && machine_account != "" && last_dot1x_username !~ "^host/"
+last_connection_type == "Wireless-802.11-EAP" && machine_account != "" &&
+last_dot1x_username !~ "^host/"
 ----
 
 Match user authentication without machine authentication on a secure ssid:
 [source]
 ----
-last_connection_type == "Wireless-802.11-EAP" && ( machine_account == "" || machine_account == \\__NULL__ ) && last_dot1x_username !~ "^host/"
+last_connection_type == "Wireless-802.11-EAP" && ( machine_account == "" ||
+machine_account == \\__NULL__ ) && last_dot1x_username !~ "^host/"
 ----
 
 Match without machine authentication (BYOD):

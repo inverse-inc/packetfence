@@ -20,9 +20,12 @@ endif::[]
 
 === Portal Modules
 
-PacketFence captive portal flow is highly customizable. _Portal Modules_ define captive portal behavior.
+PacketFence captive portal flow is highly customizable. _Portal Modules_ define
+captive portal behavior.
 
-NOTE: Upgrades from versions without portal modules include defaults that maintain previous behavior: authentication uses configured Connection Profile sources, then provisioners.
+NOTE: Upgrades from versions without portal modules include defaults that
+maintain previous behavior: authentication uses configured Connection Profile
+sources, then provisioners.
 
 Available Portal Modules:
 
@@ -31,157 +34,270 @@ Available Portal Modules:
 * `Chained`: Ordered modules for user completion. Example: Google+ registration then PayPal payment.
 * `Authentication`: Multiple types available. Define modules to override required fields, source, template or other attributes.
 ** `Billing`: One or more billing sources.
-** `Choice`: Multiple sources and modules with advanced filtering. See _Authentication Choice module_ below.
-** `Login`: Username/password for multiple internal sources (Active Directory, LDAP, etc.).
+** `Choice`: Multiple sources and modules with advanced filtering. See
+_Authentication Choice module_ below.
+** `Login`: Username/password for multiple internal sources (Active Directory,
+LDAP, etc.).
 * `Other`: Modules based on assigned source type, allowing source selection, AUP acceptance, and mandatory fields.
-** `Message`: Display message to user. Example in _Displaying a message to the user after registration_.
-** `SelectRole`: Override role during device registration. Admin users can choose device role during registration, bypassing authentication rules.
-** `URL`: Redirect to local or external URL that may return to portal. Example in _Calling an external website_.
+** `Message`: Display message to user. Example in _Displaying a message to the
+user after registration_.
+** `SelectRole`: Override role during device registration. Admin users can
+choose device role during registration, bypassing authentication rules.
+** `URL`: Redirect to local or external URL that may return to portal. Example
+in _Calling an external website_.
 
 ==== Examples
 
 ===== Creating a custom root module
 
-In _Configuration -> Advanced Access Configuration -> Portal Modules_, create a _New Root Module_ that won't affect default policy. Name it `my_first_root_module` with description _"My first root module"_, then click Save.
+In _Configuration -> Advanced Access Configuration -> Portal Modules_, create a
+_New Root Module_ that won't affect default policy. Name it
+`my_first_root_module` with description _"My first root module"_, then click
+Save.
 
-In _Configuration -> Policies and Access Control -> Connection Profiles_, select the connection profile (likely `default`) and set _Root Portal Module_ to `my_first_root_module`, then click Save.
+In _Configuration -> Policies and Access Control -> Connection Profiles_, select
+the connection profile (likely `default`) and set _Root Portal Module_ to
+`my_first_root_module`, then click Save.
 
-NOTE: Captive portal will show error since _Root module_ is empty. Add pre-configured modules to new _Root module_ to suppress error.
+NOTE: Captive portal will show error since _Root module_ is empty. Add
+pre-configured modules to new _Root module_ to suppress error.
 
 ===== Prompting for fields without authentication
 
-To prompt fields to the user without authentication, use the _Null source_ with the _Null Portal Module_.
+To prompt fields to the user without authentication, use the _Null source_ with
+the _Null Portal Module_.
 
-A pre-configured _Null source_ is included. If it has not been modified or deleted it can be used for this example. Otherwise, in _Configuration -> Policies and Access Control -> Sources_, create a new _Null source_ with a _catchall rule_ that assigns a role and access duration.
+A pre-configured _Null source_ is included. If it has not been modified or
+deleted it can be used for this example. Otherwise, in _Configuration ->
+Policies and Access Control -> Sources_, create a new _Null source_ with a
+_catchall rule_ that assigns a role and access duration.
 
-In _Configuration -> Advanced Access Configuration -> Portal Modules_, click _"New Module"_ and select _"Authentication -> Authentication::Null"_. Set the _"Identifier"_ to `prompt_fields` and configure the Portal Module with the desired _"Mandatory fields"_ and uncheck _"Require AUP"_ so the user does not have to accept the AUP before submitting the form.
+In _Configuration -> Advanced Access Configuration -> Portal Modules_, click
+_"New Module"_ and select _"Authentication -> Authentication::Null"_. Set the
+_"Identifier"_ to `prompt_fields` and configure the Portal Module with the
+desired _"Mandatory fields"_ and uncheck _"Require AUP"_ so the user does not
+have to accept the AUP before submitting the form.
 
-image::portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
+image::portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields
+module"]
 
-In `my_first_root_module` add the `prompt_fields` module (remove all previous modules), then click Save. The portal will now prompt the user for the fields defined in the module. Once submitted these fields are used to assign the role and access duration that is defined in the _"Null source"_.
+In `my_first_root_module` add the `prompt_fields` module (remove all previous
+modules), then click Save. The portal will now prompt the user for the fields
+defined in the module. Once submitted these fields are used to assign the role
+and access duration that is defined in the _"Null source"_.
 
 ===== Prompting additional fields with authentication
 
-To prompt additional fields to the user during authentication, define a Module based on the source which specifies additional mandatory fields.
+To prompt additional fields to the user during authentication, define a Module
+based on the source which specifies additional mandatory fields.
 
 Additional mandatory fields can be added to the default pre-configured policies.
 
-Example requiring the user to enter a value for "first name", "last name" and "address" before registering:
+Example requiring the user to enter a value for "first name", "last name" and
+"address" before registering:
 
-In _Configuration -> Advanced Access Configuration -> Portal Modules_, choose _"Authentication::Choice -> Guest Signup"_ (`default_guest_policy`). Add `firstname`, `lastname` and `address` to _"Mandatory fields"_, then click Save.
+In _Configuration -> Advanced Access Configuration -> Portal Modules_, choose
+_"Authentication::Choice -> Guest Signup"_ (`default_guest_policy`). Add
+`firstname`, `lastname` and `address` to _"Mandatory fields"_, then click Save.
 
-In `my_first_root_module` add the `default_guest_policy` module (removing any previous modules). Any guest sources configured in connection profiles now require the user to enter the mandatory fields of the source (ex: phone + mobile provider) *AND* the mandatory fields defined in the `default_guest_policy`.
+In `my_first_root_module` add the `default_guest_policy` module (removing any
+previous modules). Any guest sources configured in connection profiles now
+require the user to enter the mandatory fields of the source (ex: phone + mobile
+provider) *AND* the mandatory fields defined in the `default_guest_policy`.
 
-NOTE: Not all sources support additional mandatory fields (ex: OAuth sources like Google, Facebook, ...).
+NOTE: Not all sources support additional mandatory fields (ex: OAuth sources
+like Google, Facebook, ...).
 
 ===== Chained authentication
 
-Two or more modules may be chained together in order to make the user accomplish all of the actions of each module in the desired order.
+Two or more modules may be chained together in order to make the user accomplish
+all of the actions of each module in the desired order.
 
-Example requiring the user to login using any configured OAuth source (Github, Google+, ...) and then validate their phone number with SMS registration:
+Example requiring the user to login using any configured OAuth source (Github,
+Google+, ...) and then validate their phone number with SMS registration:
 
-Use the `default_oauth_policy` for OAuth login, and ensure an OAuth source is configured and available in Connection Profiles.
+Use the `default_oauth_policy` for OAuth login, and ensure an OAuth source is
+configured and available in Connection Profiles.
 
 Create a Portal Module that will contain the SMS registration definition.
 
-In _Configuration -> Advanced Access Configuration -> Portal Modules_, click _"New Module"_ and select type _"Authentication -> SMS"_. Set the _"Identifier"_ to `prompt_sms` and configure the Portal Module with with `sms` Authentication Source, and uncheck _"Require AUP"_ since the user will already have accepted the AUP earlier when registering with OAuth.
+In _Configuration -> Advanced Access Configuration -> Portal Modules_, click
+_"New Module"_ and select type _"Authentication -> SMS"_. Set the _"Identifier"_
+to `prompt_sms` and configure the Portal Module with with `sms` Authentication
+Source, and uncheck _"Require AUP"_ since the user will already have accepted
+the AUP earlier when registering with OAuth.
 
 image::portal-modules/sms.png[scaledwidth="100%",alt="SMS module"]
 
-Add another _"New Module"_ of type _" Multiple -> Chained"_, name it `chained_oauth_sms`, provide a relevant description, add `default_oauth_policy` and `prompt_sms` to the _"Modules"_, then click Create.
+Add another _"New Module"_ of type _" Multiple -> Chained"_, name it
+`chained_oauth_sms`, provide a relevant description, add `default_oauth_policy`
+and `prompt_sms` to the _"Modules"_, then click Create.
 
-image::portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="Chained OAuth + SMS module"]
+image::portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="Chained
+OAuth + SMS module"]
 
-In `my_first_root_module` add the `chained_oauth_sms` module (removing any previous modules), then click Save. The portal will now prompt the user for authentication using an OAuth source and then with SMS.
+In `my_first_root_module` add the `chained_oauth_sms` module (removing any
+previous modules), then click Save. The portal will now prompt the user for
+authentication using an OAuth source and then with SMS.
 
-NOTE: Portal Module _"Saved Fields"_ save and persist user responses. Adding `telephone` to the first module's _"Saved Fields"_ will persist through all subsequent modules in the chain, and subsequent modules will not prompt the user again for a field that is already saved.
+NOTE: Portal Module _"Saved Fields"_ save and persist user responses. Adding
+`telephone` to the first module's _"Saved Fields"_ will persist through all
+subsequent modules in the chain, and subsequent modules will not prompt the user
+again for a field that is already saved.
 
 ===== Mixing login and Secure SSID on-boarding on the portal
 
-Devices can access an open SSID with LDAP username/password, and then a Provisioner handles the remainder of the device on-boarding.
+Devices can access an open SSID with LDAP username/password, and then a
+Provisioner handles the remainder of the device on-boarding.
 
-Configure the Provisioners for Secure SSID onboarding. Refer to the _Apple and Android Wireless Provisioning_ section of this guide to configure the provisioners and add them to the Connection Profile.
+Configure the Provisioners for Secure SSID onboarding. Refer to the _Apple and
+Android Wireless Provisioning_ section of this guide to configure the
+provisioners and add them to the Connection Profile.
 
-Create a new provisioner with type Deny at the bottom of the list with the existing provisioners. This ensures the device is not allowed if no other provisioner is matched.
+Create a new provisioner with type Deny at the bottom of the list with the
+existing provisioners. This ensures the device is not allowed if no other
+provisioner is matched.
 
-In the Connection Profile set the Sources to only the LDAP source, removing any other sources.
+In the Connection Profile set the Sources to only the LDAP source, removing any
+other sources.
 
-In _Configuration -> Advanced Access Configuration -> Portal Modules_, click _"New Module"_ and select type  _"Other -> Provisioning"_. Set the _"Identifier"_ to `secure_boarding`, provide a relevant description, and uncheck _"Skippable"_ so the user is forced to board the SSID if this option is chosen.
+In _Configuration -> Advanced Access Configuration -> Portal Modules_, click
+_"New Module"_ and select type _"Other -> Provisioning"_. Set the _"Identifier"_
+to `secure_boarding`, provide a relevant description, and uncheck _"Skippable"_
+so the user is forced to board the SSID if this option is chosen.
 
-In _Configuration -> Advanced Access Configuration -> Portal Modules_, click _"New Module"_ and select type  _"Multiple -> Choice"_ .  Set the _"Identifier"_ to `login_or_boarding`, and provide a relevant description. Add `secure_boarding` and `default_login_policy` to the _"Modules"_, then click Create.
+In _Configuration -> Advanced Access Configuration -> Portal Modules_, click
+_"New Module"_ and select type _"Multiple -> Choice"_ . Set the _"Identifier"_
+to `login_or_boarding`, and provide a relevant description. Add
+`secure_boarding` and `default_login_policy` to the _"Modules"_, then click
+Create.
 
-image::portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or Boarding Secure SSID"]
+image::portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or
+Boarding Secure SSID"]
 
-In `my_first_root_module` add the `login_or_boarding` module (removing any previous modules), then click Save. The portal will now prompt the user with a choice to either login to the network directly with the LDAP source, or use provisioning to configure the device for a Secure SSID.
+In `my_first_root_module` add the `login_or_boarding` module (removing any
+previous modules), then click Save. The portal will now prompt the user with a
+choice to either login to the network directly with the LDAP source, or use
+provisioning to configure the device for a Secure SSID.
 
 ===== Display a message to the user after registration
 
 A custom message can be displayed to the user using the Message Portal Module.
 
-In _Configuration -> Advanced Access Configuration -> Portal Modules_, click _"New Module"_ and select type  _"Other -> Message"_.  Set the _"Identifier"_ to `hello_world`, provide a relevant description.
+In _Configuration -> Advanced Access Configuration -> Portal Modules_, click
+_"New Module"_ and select type _"Other -> Message"_. Set the _"Identifier"_ to
+`hello_world`, provide a relevant description.
 
 Add the following text in the _"Message"_ field, then click Create:
 
   Hello World !
-  <a href="www.packetfence.org">Click here to access the PacketFence website!</a>
+  <a href="www.packetfence.org">Click here to access the PacketFence
+  website!</a>
 
 image::portal-modules/hello_world.png[scaledwidth="100%",alt="Hello World"]
 
-In `my_first_root_module` add the `default_registration_policy` and `hello_world` modules (removing any previous modules), then click Save. The portal will now prompt the user for authentication using the Sources defined in the Connection Profile, and once registered the Hello World Message is displayed.
+In `my_first_root_module` add the `default_registration_policy` and
+`hello_world` modules (removing any previous modules), then click Save. The
+portal will now prompt the user for authentication using the Sources defined in
+the Connection Profile, and once registered the Hello World Message is
+displayed.
 
-image::portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello World in my_first_root_module"]
+image::portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello
+World in my_first_root_module"]
 
 ===== Redirect to an external website
 
-The user can be redirected to either a local or external URL (if included in passthroughs) using the _"URL"_ Portal Module. In order for the Portal flow to continue the Module must accept a callback, otherwise users are redirected without the possibility to continue with the registration process.
+The user can be redirected to either a local or external URL (if included in
+passthroughs) using the _"URL"_ Portal Module. In order for the Portal flow to
+continue the Module must accept a callback, otherwise users are redirected
+without the possibility to continue with the registration process.
 
-An example script redirecting the user to an externally hosted PHP script that provides a random token and performs a callback to the portal in order to complete the registration process is located in [filename]`/usr/local/pf/addons/example_external_auth/token.php` including a README to help set it up.
+An example script redirecting the user to an externally hosted PHP script that
+provides a random token and performs a callback to the portal in order to
+complete the registration process is located in
+[filename]`/usr/local/pf/addons/example_external_auth/token.php` including a
+README to help set it up.
 
-Once the script is installed and working at the URL: `http://YOUR_PORTAL_HOSTNAME:10000/token.php`, in _Configuration -> Advanced Access Configuration -> Portal Modules_, click _"New Module"_ and select type _"Other -> URL"_. Set the _"Identifier"_ to `token_system`, provide a relevant description, and set the _"URL"_ to `http://YOUR_PORTAL_HOSTNAME:10000/token.php`.
+Once the script is installed and working at the URL:
+`http://YOUR_PORTAL_HOSTNAME:10000/token.php`, in _Configuration -> Advanced
+Access Configuration -> Portal Modules_, click _"New Module"_ and select type
+_"Other -> URL"_. Set the _"Identifier"_ to `token_system`, provide a relevant
+description, and set the _"URL"_ to
+`http://YOUR_PORTAL_HOSTNAME:10000/token.php`.
 
 image::portal-modules/token_system.png[scaledwidth="100%",alt="Token system"]
 
-In `my_first_root_module` add the `token_system` module (removing any previous modules), then click Save. The portal will now prompt the user for authentication using the Sources defined in the Connection Profile, and then the user is redirected to the `token_system` URL. From there, once the user continues they are redirected back to the Portal in order to complete the registration process.
+In `my_first_root_module` add the `token_system` module (removing any previous
+modules), then click Save. The portal will now prompt the user for
+authentication using the Sources defined in the Connection Profile, and then the
+user is redirected to the `token_system` URL. From there, once the user
+continues they are redirected back to the Portal in order to complete the
+registration process.
 
 ==== Authentication Choice module (Advanced)
 
-Provides the user a choice between multiple sources using advanced filtering rules, manual selection of the Sources and selection of the Portal Modules.
+Provides the user a choice between multiple sources using advanced filtering
+rules, manual selection of the Sources and selection of the Portal Modules.
 
-NOTE: The `default_guest_policy` and `default_oauth_policy` provide good examples.
+NOTE: The `default_guest_policy` and `default_oauth_policy` provide good
+examples.
 
-All the defined _"Sources"_ and _"Modules"_ are available for use. Mandatory fields can be defined in the module, but they will only be shown if applicable to the Source.
+All the defined _"Sources"_ and _"Modules"_ are available for use. Mandatory
+fields can be defined in the module, but they will only be shown if applicable
+to the Source.
 
-Dynamically select a Source from the Connection Profile based on an object attribute (Object Class, Authentication Type, Authentication Class).
+Dynamically select a Source from the Connection Profile based on an object
+attribute (Object Class, Authentication Type, Authentication Class).
 
 * `Source(s) by Class`: Specify the perl class name of the available source(s).
 ** ex: `pf::Authentication::Source::SMSSource` selects all the SMS source(s).
-** ex: `pf::Authentication::Source::BillingSource` selects all the billing sources (Paypal, Stripe, ...).
+** ex: `pf::Authentication::Source::BillingSource` selects all the billing
+sources (Paypal, Stripe, ...).
 * `Source(s) by Type`: Filter sources with the `type` attribute of the Authentication object.
 * `Source(s) by Auth Class`: Filter sources with the `class` attribute of the Authentication object.
 
-NOTE: All authentication objects are found in [filename]`/usr/local/pf/lib/pf/Authentication/Source`.
+NOTE: All authentication objects are found in
+[filename]`/usr/local/pf/lib/pf/Authentication/Source`.
 
 ==== SelectRole
 
-Manually define specific roles when registering a device. This is useful for a technical crew to register new devices.
+Manually define specific roles when registering a device. This is useful for a
+technical crew to register new devices.
 
-In _Configuration -> Advanced Access Configuration -> Portal Modules_, click _"New Module"_ and select type  _"Other -> Select Role"_.  In _"Admin Roles"_ chose the user role(s) that is required to use this module. In _"Roles"_ choose the user role(s) that can then be assigned.
+In _Configuration -> Advanced Access Configuration -> Portal Modules_, click
+_"New Module"_ and select type _"Other -> Select Role"_. In _"Admin Roles"_
+chose the user role(s) that is required to use this module. In _"Roles"_ choose
+the user role(s) that can then be assigned.
 
-For example; technicians in the AD group technical support will have the role `technical support` while registering. In _"Admin Roles"_ add `technical support`, then in _"Roles"_ add `default`, `voice` and `guest`. Technicians that have the `technical support` role will be prompted to assign either the `default`, `voice` or `guest` role when registering a new device.
+For example; technicians in the AD group technical support will have the role
+`technical support` while registering. In _"Admin Roles"_ add `technical
+support`, then in _"Roles"_ add `default`, `voice` and `guest`. Technicians that
+have the `technical support` role will be prompted to assign either the
+`default`, `voice` or `guest` role when registering a new device.
 
 ==== Actions on_failure and on_success
 
-The `on_failure` and `on_success` _"Actions"_ allow the creation of a more complex workflow and permit the root portal module change based on the result of authentication.
+The `on_failure` and `on_success` _"Actions"_ allow the creation of a more
+complex workflow and permit the root portal module change based on the result of
+authentication.
 
-Consider that a root portal module is linked to an `Authentication::Login` module and associated with a Connection Profile. In order to present a Guest authentication if the login failed, configure a New Root Module called "Guest portal policy" with the _"Module"_ set to `Authentication::SMS`, and in the previous _"Authentication::Login"_ module add the _"Action"_ `on_failure => Guest portal policy`.
+Consider that a root portal module is linked to an `Authentication::Login`
+module and associated with a Connection Profile. In order to present a Guest
+authentication if the login failed, configure a New Root Module called "Guest
+portal policy" with the _"Module"_ set to `Authentication::SMS`, and in the
+previous _"Authentication::Login"_ module add the _"Action"_ `on_failure =>
+Guest portal policy`.
 
 === Portal Surveys
 
-Surveys can be presented on the Captive Portal where results are stored in a dedicated database.
+Surveys can be presented on the Captive Portal where results are stored in a
+dedicated database.
 
 ==== Database Setup
 
-To automatically create the database tables required by the Survey, the MySQL `pf` user must be granted the CREATE and ALTER privileges. The MySQL `root` user must be used to GRANT these privileges.
+To automatically create the database tables required by the Survey, the MySQL
+`pf` user must be granted the CREATE and ALTER privileges. The MySQL `root` user
+must be used to GRANT these privileges.
 
 Access the MYSQL CLI as the `root` user:
 
@@ -193,11 +309,13 @@ From the MySQL CLI grant the privileges:
  GRANT CREATE,ALTER ON pf.* TO 'pf'@'localhost';
  FLUSH PRIVILEGES;
 
-NOTE: The MySQL `root` password was only provided during Configuration and not stored on disk.
+NOTE: The MySQL `root` password was only provided during Configuration and not
+stored on disk.
 
 ==== Configuring the survey
 
-Configure the survey in [filename]`/usr/local/pf/conf/survey.conf`. Here is an example of a survey:
+Configure the survey in [filename]`/usr/local/pf/conf/survey.conf`. Here is an
+example of a survey:
 
 [source,ini]
 ----
@@ -303,7 +421,12 @@ The data collected from the example survey is stored in the `survey_survey1` dat
 [survey1]
 description=My first survey report
 base_table=survey_survey1
+<<<<<<< HEAD
 columns=firstname as "Firstname", lastname as "Lastname", preferred_sandwich as "Preferred Sandwich", gender as "Gender"
+=======
+columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as
+"Prefered Sandwich", gender as "Gender"
+>>>>>>> cfece8ead3 (fix layout CRLF)
 ----
 
 NOTE: Once saved, reload the configuration to apply the changes with [command]`/usr/local/pf/bin/pfcmd configreload hard`

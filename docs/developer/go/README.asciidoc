@@ -132,7 +132,8 @@ You can start `pfhttpd` with your [filename]`Caddyfile` using the following comm
 
 [source,bash]
 ----
-/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
+/usr/local/pf/sbin/pfhttpd -conf
+/usr/local/pf/conf/caddy-services/pfexample.conf
 ----
 
 Once you have ascertained that the service is working correctly, you need to
@@ -142,13 +143,16 @@ create a unitfile for it in [filename]`conf/systemd` like the following:
 ----
 [Unit]
 Description=PacketFence Example Service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service
+packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service
+packetfence-iptables.service
 Before=packetfence-pfexample.service
 
 [Service]
 PIDFile=/usr/local/pf/var/run/pfexample.pid
-ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf
+/usr/local/pf/conf/caddy-services/pfexample.conf
 Restart=on-failure
 Slice=packetfence.slice
 

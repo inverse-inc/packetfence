@@ -18,53 +18,90 @@ endif::[]
 
 //== Fingerbank Integration
 
-Fingerbank device profiling tool integrates with PacketFence, enabling administrators to trigger security events based on device types, device parents, DHCP fingerprints, DHCP vendor IDs, MAC vendors and browser user agents.
+Fingerbank device profiling tool integrates with PacketFence, enabling
+administrators to trigger security events based on device types, device parents,
+DHCP fingerprints, DHCP vendor IDs, MAC vendors and browser user agents.
 
-Core integration enables PacketFence to interact with Fingerbank upstream project for daily fingerprint database updates, sharing unknown data for complex algorithm processing, global database integration, and upstream database queries for unknown matches.
+Core integration enables PacketFence to interact with Fingerbank upstream
+project for daily fingerprint database updates, sharing unknown data for complex
+algorithm processing, global database integration, and upstream database queries
+for unknown matches.
 
-Fingerbank is PacketFence's primary device profiling tool, designed for simple configuration and use. Working PacketFence systems have Fingerbank ready in "local" mode (no upstream interaction).
+Fingerbank is PacketFence's primary device profiling tool, designed for simple
+configuration and use. Working PacketFence systems have Fingerbank ready in
+"local" mode (no upstream interaction).
 
 === Onboarding
 
-Onboarding creates API key for upstream project interaction. Go to "Settings" under "Fingerbank" in PacketFence "Configuration" tab. Follow the process to create and save user/organization-specific API key. Once completed, full Fingerbank features are available.
+Onboarding creates API key for upstream project interaction. Go to "Settings"
+under "Fingerbank" in PacketFence "Configuration" tab. Follow the process to
+create and save user/organization-specific API key. Once completed, full
+Fingerbank features are available.
 
 === Update Fingerbank Database
 
-Updating Fingerbank data is simple. Requires onboarding for upstream interaction. "Update Fingerbank DB" option appears at top of "Fingerbank" menu sections. Process takes 1-2 minutes depending on database size and internet connectivity. Success or error message displayed afterward. "Local" records remain unmodified.
+Updating Fingerbank data is simple. Requires onboarding for upstream
+interaction. "Update Fingerbank DB" option appears at top of "Fingerbank" menu
+sections. Process takes 1-2 minutes depending on database size and internet
+connectivity. Success or error message displayed afterward. "Local" records
+remain unmodified.
 
 === Submit Unknown Data
 
-The "Submit Unknown/Unmatched Fingerprints" option (available after onboarding) submits unknown fingerprinting data from your network to the upstream Fingerbank project for analysis and global database integration.
+The "Submit Unknown/Unmatched Fingerprints" option (available after onboarding)
+submits unknown fingerprinting data from your network to the upstream Fingerbank
+project for analysis and global database integration.
 
 === Upstream Interrogation
 
-By default, PacketFence interrogates the upstream Fingerbank project (after onboarding) to fulfill queries with unmatched local results. Unmatched local results may indicate older database version or requirement for complex algorithm processing. This behavior is transparent and configurable via "Settings" under "Fingerbank" in the PacketFence "Configuration" tab.
+By default, PacketFence interrogates the upstream Fingerbank project (after
+onboarding) to fulfill queries with unmatched local results. Unmatched local
+results may indicate older database version or requirement for complex algorithm
+processing. This behavior is transparent and configurable via "Settings" under
+"Fingerbank" in the PacketFence "Configuration" tab.
 
 === Local Entries
 
-Administrators can customize or create records using "Local" entries. Upstream records (DHCP Fingerprint, DHCP Vendor, MAC Vendor, User Agent, Device type, Combination) can be cloned and modified locally. Local records are matched first to override existing ones. Local combinations can match "Local", "Upstream", or both entries for device identification.
+Administrators can customize or create records using "Local" entries. Upstream
+records (DHCP Fingerprint, DHCP Vendor, MAC Vendor, User Agent, Device type,
+Combination) can be cloned and modified locally. Local records are matched first
+to override existing ones. Local combinations can match "Local", "Upstream", or
+both entries for device identification.
 
 === Settings
 
-Fingerbank settings are accessible via "Settings" under "Fingerbank" in the PacketFence "Configuration" tab. Each parameter includes documentation for easier understanding.
+Fingerbank settings are accessible via "Settings" under "Fingerbank" in the
+PacketFence "Configuration" tab. Each parameter includes documentation for
+easier understanding.
 
 === Device change detection
 
-Fingerbank detects potential MAC spoofing when devices change device class (e.g., Windows to printer), triggering security events and potentially isolating endpoints. Example security event ID 1300006 ("Fingerbank device class change") demonstrates this trigger.
+Fingerbank detects potential MAC spoofing when devices change device class
+(e.g., Windows to printer), triggering security events and potentially isolating
+endpoints. Example security event ID 1300006 ("Fingerbank device class change")
+demonstrates this trigger.
 
-This feature is disabled by default. Configure it in _Configuration -> Compliance -> Fingerbank Profiling -> Device Change Detection_.
+This feature is disabled by default. Configure it in _Configuration ->
+Compliance -> Fingerbank Profiling -> Device Change Detection_.
 
-Check *Enabled* to activate this feature. Choose between triggering security events on any device class change or specific changes.
+Check *Enabled* to activate this feature. Choose between triggering security
+events on any device class change or specific changes.
 
 ==== Triggering on any device class change
 
-NOTE: Perform non-enforcing actions initially to identify corner cases requiring device class transition whitelisting.
+NOTE: Perform non-enforcing actions initially to identify corner cases requiring
+device class transition whitelisting.
 
-The easiest detection method triggers on any device class change, firing security events when devices transition between classes. Since some transitions may be normal, add whitelisting via "Device class change whitelist" parameter (e.g., "Windows OS" to "Mac OS X or macOS").
+The easiest detection method triggers on any device class change, firing
+security events when devices transition between classes. Since some transitions
+may be normal, add whitelisting via "Device class change whitelist" parameter
+(e.g., "Windows OS" to "Mac OS X or macOS").
 
 ==== Manual triggers
 
-Instead of detecting all transitions, trigger security events on specific device class transitions. Declare transitions in "Manual device class change triggers".
+Instead of detecting all transitions, trigger security events on specific device
+class transitions. Declare transitions in "Manual device class change triggers".
 
-If device profiling isn't working, check fingerbank logs as described in <<#_log_files,Log Files>> in the Troubleshooting section.
+If device profiling isn't working, check fingerbank logs as described in
+<<#_log_files,Log Files>> in the Troubleshooting section.
 

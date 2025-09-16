@@ -24,7 +24,8 @@ endif::[]
 
 We need to define the RADIUS and RADIUS accounting (mandatory):
 
-Under _Configuration -> AAA Servers_, click on the *Create New* button.  Enter the proper configuration:
+Under _Configuration -> AAA Servers_, click on the *Create New* button. Enter
+the proper configuration:
 
 * Enter a server name
 * Select either RADIUS or RADIUS accounting as the type
@@ -32,12 +33,14 @@ Under _Configuration -> AAA Servers_, click on the *Create New* button.  Enter t
 * Enter the IP address, and shared secret.
 * Hit OK
 
-Repeat the steps for the RADIUS and RADIUS accounting types.  We need 1 definition for each otherwise RADIUS dynamic authorization won't work.
+Repeat the steps for the RADIUS and RADIUS accounting types. We need 1
+definition for each otherwise RADIUS dynamic authorization won't work.
 
 [float]
 ==== WLAN Definitions
 
-Under _Configuration -> WLAN_, click on the *Create New* button.  Enter the proper configuration:
+Under _Configuration -> WLAN_, click on the *Create New* button. Enter the
+proper configuration:
 
 .Open SSID
 * Enter a Name/SSID
@@ -47,7 +50,9 @@ Under _Configuration -> WLAN_, click on the *Create New* button.  Enter the prop
 * Select the proper RADIUS server as the authentication server
 * Select the proper RADIUS server as the accounting server
 
-NOTE: The Open SSID does *NOT* support dynamic VLAN assignments on older versions of ZoneDirector (Firmware 9.3.0.0.83) but newer versions (Firmware 9.10.0.0.218 or newer) do support it.
+NOTE: The Open SSID does *NOT* support dynamic VLAN assignments on older
+versions of ZoneDirector (Firmware 9.3.0.0.83) but newer versions (Firmware
+9.10.0.0.218 or newer) do support it.
 
 .Secure SSID
 * Enter a Name/SSID
@@ -61,41 +66,53 @@ NOTE: The Open SSID does *NOT* support dynamic VLAN assignments on older version
 [float]
 ==== WIPS
 
-To enable the WIPS feature of the Ruckus in order to send SNMP traps to PacketFence, the setup is fairly simple.  
+To enable the WIPS feature of the Ruckus in order to send SNMP traps to
+PacketFence, the setup is fairly simple.
 
-First, configure the controller to send the traps to PacketFence.  Under _Configure -> System -> Network Management -> SNMP Trap_:
+First, configure the controller to send the traps to PacketFence. Under
+_Configure -> System -> Network Management -> SNMP Trap_:
 
 *Select "Enable SNMP Trap"
 *Put the PacketFence Management IP in the Trap Server IP field
 
 NOTE: The traps will arrive with the "public" community string
 
-Next, you need to configure the Alarm Settings.  Under _Configure -> Alarm Settings_, make sure the following are selected:
+Next, you need to configure the Alarm Settings. Under _Configure -> Alarm
+Settings_, make sure the following are selected:
 
 *Rogue AP Detected
 *SSID-Spoofing AP Detected
 *MAC-Spoofing AP Detected
 *LAN Rogue AP Detected
 
-Finally, enable the WIPS feature on the controller.  Under _Configure -> WIPS -> Intrusion Detection and Prevention_, make sure both box are selected, click Apply. 
+Finally, enable the WIPS feature on the controller. Under _Configure -> WIPS ->
+Intrusion Detection and Prevention_, make sure both box are selected, click
+Apply.
 
 ==== Web Authentication
 
-In order to use PacketFence as an external captive portal for web authentication, you will need to configure first your RADIUS authentication and accounting server (see steps above).
+In order to use PacketFence as an external captive portal for web
+authentication, you will need to configure first your RADIUS authentication and
+accounting server (see steps above).
 
 [float]
 ===== Hotspot configuration
 
-Configure the Hotspot service profile to redirect devices to your PacketFence portal. Go on the ZoneDirector administration web page to the section _Configure->Hotspot Services->Create New_
+Configure the Hotspot service profile to redirect devices to your PacketFence
+portal. Go on the ZoneDirector administration web page to the section
+_Configure->Hotspot Services->Create New_
 
 image::ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotspot Service"]
 
  1 - Name of your Hotspot service
  2 - Login Page: Url of PacketFence portal interface (http://192.168.1.5/Ruckus)
  3 - Start Page: redirect to the following URL: http://192.168.1.5
- 4 - Authentication Server: Select the PacketFence authentication RADIUS server (default port 1812)
- 5 - Accounting Server: Select the PacketFence accounting RADIUS server (default 1813)
- 6 - Click on the Walled Garden and authorize the IP of PacketFence management interface
+ 4 - Authentication Server: Select the PacketFence authentication RADIUS server
+ (default port 1812)
+ 5 - Accounting Server: Select the PacketFence accounting RADIUS server (default
+ 1813)
+ 6 - Click on the Walled Garden and authorize the IP of PacketFence management
+ interface
 
 Save your configuration.
 
@@ -111,18 +128,23 @@ image::ruckus_create_ssid.png[scaledwidth="100%",alt="Hotspot Service"]
  3 - Authentication Method: Open
  4 - Encryption Method: None
  5 - Hotspot Services: Your hotspot service name that you configured
- 6 - Access VLAN: The VLAN ID that should be assigned to devices after authentication
+ 6 - Access VLAN: The VLAN ID that should be assigned to devices after
+ authentication
 
 Save your configuration.
 
 [float]
 ===== PacketFence configuration
 
-On the ZoneDirector configuration in PacketFence, you will need to specify -1 as the registration VLAN in order to display the captive portal to the end device. 
+On the ZoneDirector configuration in PacketFence, you will need to specify -1 as
+the registration VLAN in order to display the captive portal to the end device.
 
-You will need to deactivate the force secure redirect on the captive portal under _Configuration -> Captive Portal -> Secure redirect -> Unchecked_
+You will need to deactivate the force secure redirect on the captive portal
+under _Configuration -> Captive Portal -> Secure redirect -> Unchecked_
 
-The captive portal needs to listen on the management interface, so you will need to add the portal daemon to the management interface under _Configuration -> Interfaces -> Management Interface_
+The captive portal needs to listen on the management interface, so you will need
+to add the portal daemon to the management interface under _Configuration ->
+Interfaces -> Management Interface_
 
 
 Example:
@@ -132,24 +154,35 @@ Example:
  type=management,portal
  mask=255.255.255.0
 
-To apply the configuration, restart PacketFence using the following command: `service packetfence restart`
+To apply the configuration, restart PacketFence using the following command:
+`service packetfence restart`
 
 ==== Ruckus Roles
 
 [float]
 ===== Roles Configuration
 
-Ruckus allows you to define roles. These roles link all users to the internal WLAN and permit access to all WLAN by default. You can still limit access to certain WLAN.
-Additionally, these roles can be used to apply per-user rate-limits and ACLs in newer versions of the Zone Director firmware, specifying also advanced options like Application Recognition Policies, URL filtering profiles, Etc.
+Ruckus allows you to define roles. These roles link all users to the internal
+WLAN and permit access to all WLAN by default. You can still limit access to
+certain WLAN.
+Additionally, these roles can be used to apply per-user rate-limits and ACLs in
+newer versions of the Zone Director firmware, specifying also advanced options
+like Application Recognition Policies, URL filtering profiles, Etc.
 
 To create a new user Role:
 
- 1 - Go to _Admin & Services -> System -> Roles_. The Roles page appears, displaying a Default role in the Roles table.
+ 1 - Go to _Admin & Services -> System -> Roles_. The Roles page appears,
+ displaying a Default role in the Roles table.
  2 - Click Create New.
  3 - Enter a Name and a short Description for this role.
  4 - Choose the options for this role from the following:
-    Group Attributes: Fill in this field only if you are creating a user role based on Group attributes extracted from an Active Directory server. Enter the User Group name here. Active Directory/LDAP users with the same group attributes are automatically mapped to this user role.
-    Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2) Specify WLAN Access. If you select the second option, you must specify the WLANs by clicking the check box next to each one.
+    Group Attributes: Fill in this field only if you are creating a user role
+    based on Group attributes extracted from an Active Directory server. Enter
+    the User Group name here. Active Directory/LDAP users with the same group
+    attributes are automatically mapped to this user role.
+    Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2)
+    Specify WLAN Access. If you select the second option, you must specify the
+    WLANs by clicking the check box next to each one.
 
 The images below show the steps needed for Ruckus Unleashed.
 
@@ -160,37 +193,57 @@ If using ZoneDirector, then the steps are very similar as shown below:
 
 To create a new user Role:
 
- 1 - Go to _Services & Profiles -> Roles_. The Roles and Policies page appears, displaying a Default role in the Roles table.
+ 1 - Go to _Services & Profiles -> Roles_. The Roles and Policies page appears,
+ displaying a Default role in the Roles table.
  2 - Click Create New.
  3 - Enter a Name and a short Description for this role.
  4 - Choose the options for this role from the following:
-    Group Attributes: Fill in this field only if you are creating a user role based on Group attributes extracted from an Active Directory server.
-    Enter the User Group name here. Active Directory/LDAP users with the same group attributes are automatically mapped to this user role.
-    Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2) Specify WLAN Access. If you select the second option, you
-    must specify the WLANs by clicking the check box next to each one. Don't enable the "Guest Pass"  or "Administration" options as these
-    allow users with the given Roles to get administrative access to the ZoneDirector console.
- 5 - Additionally, you can enable the "Role Based Access Control Policy" option which is the most interesting one from PacketFence's point of view,
-    since this allows specific PF roles to receive specific ACLs, Different rate limits, thus further enhancing the value of Packetfence.
+    Group Attributes: Fill in this field only if you are creating a user role
+    based on Group attributes extracted from an Active Directory server.
+    Enter the User Group name here. Active Directory/LDAP users with the same
+    group attributes are automatically mapped to this user role.
+    Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2)
+    Specify WLAN Access. If you select the second option, you
+    must specify the WLANs by clicking the check box next to each one. Don't
+    enable the "Guest Pass" or "Administration" options as these
+    allow users with the given Roles to get administrative access to the
+    ZoneDirector console.
+ 5 - Additionally, you can enable the "Role Based Access Control Policy" option
+ which is the most interesting one from PacketFence's point of view,
+    since this allows specific PF roles to receive specific ACLs, Different rate
+    limits, thus further enhancing the value of Packetfence.
  6 - Looking at the RBAC Policy options one can define the following:
     OS type: Limit access based on operating system/device type.
-    VLAN: Assign a VLAN ID to this role. (This can be overriden directly from PacketFence if using the _Role by VLAN ID_ option)
+    VLAN: Assign a VLAN ID to this role. (This can be overriden directly from
+    PacketFence if using the _Role by VLAN ID_ option)
     Rate Limiting: Limit per-station uplink and downlink speeds.
     L3/L4/IP address ACL: Apply a Layer 3/Layer 4/IP address ACL to this role.
     Application Recognition & Control: Apply an application policy to this role.
-    Time Range: Limit the time range during which this role will be allowed to access the WLAN.
- 7 - Finally, if using the RBAC feature in ZoneDirector, make sure to enable the RBAC functionality for the WLAN created before:
-    To do this, edit the WLAN, expand the Advanced Options, and enable the check box next to Enable Role Based Access Control Policy in the Access Control section.
+    Time Range: Limit the time range during which this role will be allowed to
+    access the WLAN.
+ 7 - Finally, if using the RBAC feature in ZoneDirector, make sure to enable the
+ RBAC functionality for the WLAN created before:
+    To do this, edit the WLAN, expand the Advanced Options, and enable the check
+    box next to Enable Role Based Access Control Policy in the Access Control
+    section.
 
 image::Ruckus_Roles_ZD.png[scaledwidth="100%",alt="Ruckus Roles creation"] 
-image::Ruckus_Roles_RBAC.png[scaledwidth="100%",alt="Ruckus Roles RBAC configuration"]
-image::Ruckus_Roles_ZD_WLAN_RBAC.png[scaledwidth="100%",alt="Ruckus WLAN RBAC settings"]
+image::Ruckus_Roles_RBAC.png[scaledwidth="100%",alt="Ruckus Roles RBAC
+configuration"]
+image::Ruckus_Roles_ZD_WLAN_RBAC.png[scaledwidth="100%",alt="Ruckus WLAN RBAC
+settings"]
 
 [float]
 ===== PacketFence Configuration
 
-On the PacketFence side you need to use _role by switch role_ and add the same name as in the _Group Attribute_ you created on the Ruckus side.
+On the PacketFence side you need to use _role by switch role_ and add the same
+name as in the _Group Attribute_ you created on the Ruckus side.
 
-When a device connects to the SSID, PacketFence will return a VLAN identifier and a RuckusUserGroup attribute and if the role is allowed
-on the WLAN then the device will be authorized on the WLAN. Additionally, if RBAC is in use, the specific upstream/downstream rate limits, L2/L3 ACLS
-and Application Recognition Policies will be applied to the specific user, having the possibility of, for instance, giving different user Roles
-different access speeds. In case that the role is not allowed on the WLAN then the device will not be allowed to connect.
+When a device connects to the SSID, PacketFence will return a VLAN identifier
+and a RuckusUserGroup attribute and if the role is allowed
+on the WLAN then the device will be authorized on the WLAN. Additionally, if
+RBAC is in use, the specific upstream/downstream rate limits, L2/L3 ACLS
+and Application Recognition Policies will be applied to the specific user,
+having the possibility of, for instance, giving different user Roles
+different access speeds. In case that the role is not allowed on the WLAN then
+the device will not be allowed to connect.

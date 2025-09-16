@@ -18,15 +18,26 @@ endif::[]
 
 //== Layer 3 clusters
 
-PacketFence supports having clusters where servers are located in multiple layer 3 networks which we will also refer as cluster zones.
+PacketFence supports having clusters where servers are located in multiple layer
+3 networks which we will also refer as cluster zones.
 
-Simple RADIUS only clusters are more simple and can be configured without too much in-depth knowledge, but if you want to use the captive portal with a layer 3 cluster, this will definitely make your setup more complex and will certainly require a lot of thinking and understanding on how PacketFence works to be able to know how to properly design a cluster like this.
+Simple RADIUS only clusters are more simple and can be configured without too
+much in-depth knowledge, but if you want to use the captive portal with a layer
+3 cluster, this will definitely make your setup more complex and will certainly
+require a lot of thinking and understanding on how PacketFence works to be able
+to know how to properly design a cluster like this.
 
-This section will describe the changes to do on your [filename]`cluster.conf` when dealing with layer 3 clusters but doesn't cover all the cluster installation. In order to install your cluster, follow the instructions in <<_cluster_setup>> and refer to this section when reaching the step to configure your [filename]`cluster.conf`.
+This section will describe the changes to do on your [filename]`cluster.conf`
+when dealing with layer 3 clusters but doesn't cover all the cluster
+installation. In order to install your cluster, follow the instructions in
+<<_cluster_setup>> and refer to this section when reaching the step to configure
+your [filename]`cluster.conf`.
 
 === Simple RADIUS only cluster
 
-In order to configure a RADIUS only layer 3 cluster, you will need at least 3 servers (5 are used in this example) with a single interface (used for management).
+In order to configure a RADIUS only layer 3 cluster, you will need at least 3
+servers (5 are used in this example) with a single interface (used for
+management).
 
 Cluster design and behavior:
 
@@ -42,7 +53,8 @@ Things to take into consideration while performing the cluster setup:
 
 ==== Cluster configuration
 
-When you are at the step where you need to configure your cluster.conf during the cluster setup, refer to the example below to build your cluster.conf.
+When you are at the step where you need to configure your cluster.conf during
+the cluster setup, refer to the example below to build your cluster.conf.
 
 ----
 [general]
@@ -103,11 +115,16 @@ Notes on the configuration:
 
 === RADIUS server with captive-portal
 
-WARNING: As shortly explained above, deploying a captive-portal across a layer 3 network using the cluster zones is complex and requires in-depth knowledge of networking and how PacketFence works.
+WARNING: As shortly explained above, deploying a captive-portal across a layer 3
+network using the cluster zones is complex and requires in-depth knowledge of
+networking and how PacketFence works.
 
-In order to configure a RADIUS server with a captive-portal on a layer 3 cluster, you will need at least 3 servers (5 are used in this example) with 2 interfaces (one for management and one for registration).
+In order to configure a RADIUS server with a captive-portal on a layer 3
+cluster, you will need at least 3 servers (5 are used in this example) with 2
+interfaces (one for management and one for registration).
 
-NOTE: Isolation is omitted in this example for brevity and should be configured the same way as registration if needed
+NOTE: Isolation is omitted in this example for brevity and should be configured
+the same way as registration if needed
 
 Cluster design and behavior:
 
@@ -117,9 +134,11 @@ Cluster design and behavior:
 * In the event of the loss of DC1 or a network split between DC1 and DC2, the databases on DC2 will go in read-only and will exhibit the behavior described in "Quorum behavior".
 * All the servers will share the same configuration and same cluster.conf. The data in cluster.conf will serve as an overlay to the data in pf.conf and networks.conf to perform changes specific to each layer 3 zone.
 
-The schema below presents the routing that needs to be setup in your network in order to deploy this example:
+The schema below presents the routing that needs to be setup in your network in
+order to deploy this example:
 
-image::cluster-zones-registration.png[scaledwidth="100%",alt="Cluster zones with registration network"]
+image::cluster-zones-registration.png[scaledwidth="100%",alt="Cluster zones with
+registration network"]
 
 Notes on the schema:
 
@@ -136,7 +155,8 @@ Things to take into consideration while performing the cluster setup:
 
 ==== Cluster configuration
 
-When you are at the step where you need to configure your cluster.conf during the cluster setup, refer to the example below to build your cluster.conf.
+When you are at the step where you need to configure your cluster.conf during
+the cluster setup, refer to the example below to build your cluster.conf.
 
 ----
 [general]
@@ -216,11 +236,15 @@ Notes on the configuration:
 * RFC3576 servers (CoA and RADIUS disconnect) should be declared on your network equipment (if supported) for both virtual IPs (192.168.1.10 and 192.168.2.10 in this example)
 * You can use any virtual IP you want to update configuration: it will be sync between cluster zones
 
-NOTE: You should use the configuration above to perform the cluster setup and complete all the steps required to build your cluster. You should only continue these steps after it is fully setup and running.
+NOTE: You should use the configuration above to perform the cluster setup and
+complete all the steps required to build your cluster. You should only continue
+these steps after it is fully setup and running.
 
 ==== Servers network configuration
 
-After you've finished configuring your cluster, on one of the servers, add the following in cluster.conf in order to configure both zones registration networks:
+After you've finished configuring your cluster, on one of the servers, add the
+following in cluster.conf in order to configure both zones registration
+networks:
 
   [DC1 CLUSTER network 192.168.11.0]
   dns=192.168.11.10
@@ -256,7 +280,8 @@ After you've finished configuring your cluster, on one of the servers, add the f
 
 ==== Client network configuration
 
-Now, add the following in networks.conf in order to declare the common parameters for the clients in both zones
+Now, add the following in networks.conf in order to declare the common
+parameters for the clients in both zones
 
   [192.168.100.0]
   gateway=192.168.100.1
@@ -272,7 +297,9 @@ Now, add the following in networks.conf in order to declare the common parameter
   dhcp_end=192.168.100.254
   dhcp_default_lease_time=30
 
-Then, to complete the client network configuration, you will need to override the next hop (route to reach the network) and DNS server in cluster.conf by adding the following:
+Then, to complete the client network configuration, you will need to override
+the next hop (route to reach the network) and DNS server in cluster.conf by
+adding the following:
 
   [DC1 CLUSTER network 192.168.100.0]
   next_hop=192.168.11.1
@@ -284,7 +311,8 @@ Then, to complete the client network configuration, you will need to override th
 
 ==== Synchronization and wrapping-up
 
-Then, reload the configuration and sync the cluster from the server on which you've performed the configuration:
+Then, reload the configuration and sync the cluster from the server on which
+you've performed the configuration:
 
   /usr/local/pf/bin/cluster/sync --as-master
   /usr/local/pf/bin/pfcmd configreload hard
@@ -297,17 +325,25 @@ You should now restart PacketFence on all servers using:
 
 === Remote MariaDB slave server
 
-In cluster layer3 configuration you can configure a remote MariaDB server in slave mode. This will allow the primary database to be replicated from the central DC to the remote site.
-In normal operation the remote server will use the main sites database. However, when the link is broken the remote server will fallback and use its own local database in read-only mode.
-`packetfence-haproxy-db` service is responsible to detect when link between DC2 and DC1 is down.
+In cluster layer3 configuration you can configure a remote MariaDB server in
+slave mode. This will allow the primary database to be replicated from the
+central DC to the remote site.
+In normal operation the remote server will use the main sites database. However,
+when the link is broken the remote server will fallback and use its own local
+database in read-only mode.
+`packetfence-haproxy-db` service is responsible to detect when link between DC2
+and DC1 is down.
 
-For this configuration at least 3 servers are needed at the main site and at least 1 server is needed at the remote site.
+For this configuration at least 3 servers are needed at the main site and at
+least 1 server is needed at the remote site.
 
 ==== Prepare the configuration
 
-To configure PacketFence first turn ON "Master/Slave mode" in _Configuration -> System Configuration -> Database -> Advanced_.
+To configure PacketFence first turn ON "Master/Slave mode" in _Configuration ->
+System Configuration -> Database -> Advanced_.
 
-Next configure cluster.conf during the initial cluster setup, refer to the example below.
+Next configure cluster.conf during the initial cluster setup, refer to the
+example below.
 
 ----
 [general]
@@ -405,55 +441,70 @@ Note that in the DC2 CLUSTER section we defined this 2 values:
  masterslavemode=SLAVE
  masterdb=DC1
 
-This mean that the cluster will be in SLAVE mode and will use the db of the DC1 cluster.
+This mean that the cluster will be in SLAVE mode and will use the db of the DC1
+cluster.
 
 And we MUST defined the type and the enforcement on all the interfaces.
 
 ==== Prepare and start the master/slave replication
 
-In order to setup the master a recent backup is required. Backups created prior to the inclusion
-of this feature will not work. Recent backups now include the replication runtime position of the binary logfile.
+In order to setup the master a recent backup is required. Backups created prior
+to the inclusion
+of this feature will not work. Recent backups now include the replication
+runtime position of the binary logfile.
 First restart packetfence-mariadb on all of the servers in the main cluster.
 
  systemctl restart packetfence-mariadb
 
-Run the /usr/local/pf/addons/exportable-backup.sh script on the master node of the main cluster. If you do not know which server is
-the master, run this command on all nodes in the main cluster and, thanks to the database backup size,
-the master will have the bigger backup file (eg: /root/backup/packetfence-exportable-backup-YYYY-MM-DD_HHhss.tgz)
+Run the /usr/local/pf/addons/exportable-backup.sh script on the master node of
+the main cluster. If you do not know which server is
+the master, run this command on all nodes in the main cluster and, thanks to the
+database backup size,
+the master will have the bigger backup file (eg:
+/root/backup/packetfence-exportable-backup-YYYY-MM-DD_HHhss.tgz)
 that contains files and database.
 Transfer this file to the remote server (eg: /root/backup/)
 
-Connect to the remote server and perform the following to sync the configuration from the master cluster:
+Connect to the remote server and perform the following to sync the configuration
+from the master cluster:
 
- /usr/local/pf/bin/cluster/sync --from=192.168.1.11 --api-user=packet --api-password=anotherMoreSecurePassword
+ /usr/local/pf/bin/cluster/sync --from=192.168.1.11 --api-user=packet
+ --api-password=anotherMoreSecurePassword
  /usr/local/pf/bin/pfcmd configreload hard
 
 Then the following command to import the backup:
  
- /usr/local/pf/addons/full-import/import.sh --db -f /root/backup/packetfence-exportable-backup-YYYY-MM-DD_HHhss.tgz
+ /usr/local/pf/addons/full-import/import.sh --db -f
+ /root/backup/packetfence-exportable-backup-YYYY-MM-DD_HHhss.tgz
  systemctl start packetfence-mariadb
 
-On the master node of the main cluster, grant replication for the replication user:
+On the master node of the main cluster, grant replication for the replication
+user:
 
  mysql -uroot -p
  MariaDB [(none)]> GRANT REPLICATION SLAVE ON *.* TO  'pfcluster'@'%';
  MariaDB [(none)]> FLUSH PRIVILEGES;
 
-Lastly, run the following script on the remote server to start the slave replication.
+Lastly, run the following script on the remote server to start the slave
+replication.
 
  /usr/local/pf/addons/makeslave.pl
 
  Enter the MySQL root password: password
  Enter the MySQL master ip address: 192.168.1.11
 
-The "MySQL master ip address" is the ip address of the master server where you created the backup file. Not the VIP of the primary cluster.
+The "MySQL master ip address" is the ip address of the master server where you
+created the backup file. Not the VIP of the primary cluster.
 
 In the case when you run the script you have the following message:
 
- ERROR 1045 (28000) at line 1: Access denied for user 'root'@'%' (using password: YES)
- Unable to grant replication on user pfcluster at ./addons/makeslave.pl line 42, <STDIN> line 2.
+ ERROR 1045 (28000) at line 1: Access denied for user 'root'@'%' (using
+ password: YES)
+ Unable to grant replication on user pfcluster at ./addons/makeslave.pl line 42,
+ <STDIN> line 2.
 
-Then you need to be sure that the root user exist in the remote database and have the correct permissions (SELECT and GRANT):
+Then you need to be sure that the root user exist in the remote database and
+have the correct permissions (SELECT and GRANT):
 
  SELECT * FROM mysql.user WHERE User='root' and host ='%'\G
  GRANT GRANT OPTION  ON *.* TO root@'%' identified by 'password';
@@ -462,11 +513,13 @@ Then you need to be sure that the root user exist in the remote database and hav
 
 Alternatively, to start the slave manually refer to the following:
 
-Edit the file /root/backup/restore/xtrabackup_binlog_info and note the file name and the position:
+Edit the file /root/backup/restore/xtrabackup_binlog_info and note the file name
+and the position:
 
  mariadb-bin.000014      7473
 
-On the master server of the main cluster - where the backup was created - run the following command:
+On the master server of the main cluster - where the backup was created - run
+the following command:
 
  mysql -uroot -p -e "SELECT BINLOG_GTID_POS('mariadb-bin.000014', 7473)"
 
@@ -483,12 +536,17 @@ On the master server of the main cluster - where the backup was created - run th
 On the remote site master server run the following MySQL command as root:
 
  SET GLOBAL gtid_slave_pos = '22-2-10459';
- CHANGE MASTER TO MASTER_HOST='192.168.1.11', MASTER_PORT=3306, MASTER_USER='pfcluster', MASTER_PASSWORD='clusterpf', MASTER_USE_GTID=slave_pos;
+ CHANGE MASTER TO MASTER_HOST='192.168.1.11', MASTER_PORT=3306,
+ MASTER_USER='pfcluster', MASTER_PASSWORD='clusterpf',
+ MASTER_USE_GTID=slave_pos;
  START SLAVE;
 
-The replication MASTER_USER and MASTER_PASSWORD can be found in the main sites pf.conf. The MASTER_HOST is the ip address of the master server on the main site - where the backup was created. Do not use the VIP.
+The replication MASTER_USER and MASTER_PASSWORD can be found in the main sites
+pf.conf. The MASTER_HOST is the ip address of the master server on the main site
+- where the backup was created. Do not use the VIP.
 
-At the end it you want to check the status of the slave server for debug purposes you can run the follwing command:
+At the end it you want to check the status of the slave server for debug
+purposes you can run the follwing command:
 
  SHOW SLAVE STATUS;
 

@@ -17,13 +17,14 @@ Find the latest version at https://packetfence.org/documentation/
 
 === Other sources of information
 
-https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html[Clustering Guide]::
+<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Covers installation in a clustered environment.
-https://www.packetfence.org/doc/PacketFence_Developers_Guide.html[Developer's Guide]::
-  Covers API, captive portal customization, application code customizations and support for new equipment.
-https://www.packetfence.org/doc/PacketFence_Network_Devices_Configuration_Guide.html[Network Devices Configuration Guide]::
+<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+  Covers API, captive portal customization, application code customizations and
+  support for new equipment.
+<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access points configuration.
-https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html[Upgrade Guide]::
+<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility changes, manual instructions and upgrade notes.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
@@ -32,7 +33,13 @@ Package and release tarballs include these files.
 
 == Introduction
 
-PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. It features a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, and integration with IDS, vulnerability scanners and firewalls. PacketFence effectively secures networks from small to very large heterogeneous environments. Visit https://packetfence.org for more details.
+PacketFence is a fully supported, trusted, Free and Open Source network access
+control (NAC) system. It features a captive portal for registration and
+remediation, centralized wired and wireless management, 802.1X support, layer-2
+isolation of problematic devices, and integration with IDS, vulnerability
+scanners and firewalls. PacketFence effectively secures networks from small to
+very large heterogeneous environments. Visit https://packetfence.org for more
+details.
 
 == System Requirements
 

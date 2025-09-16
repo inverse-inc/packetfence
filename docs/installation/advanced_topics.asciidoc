@@ -18,37 +18,58 @@ endif::[]
 
 //== Advanced Topics
 
-Advanced PacketFence topics. PacketFence can be configured manually using configuration files instead of the admin interface (admin interface recommended).
+Advanced PacketFence topics. PacketFence can be configured manually using
+configuration files instead of the admin interface (admin interface
+recommended).
 
-`/usr/local/pf/conf/pf.conf` contains PacketFence general configuration, including VLAN isolation mode settings.
+`/usr/local/pf/conf/pf.conf` contains PacketFence general configuration,
+including VLAN isolation mode settings.
 
-Default parameters and descriptions are in `/usr/local/pf/conf/pf.conf.defaults`.
+Default parameters and descriptions are in
+`/usr/local/pf/conf/pf.conf.defaults`.
 
 Override default parameters by defining them in `/usr/local/pf/conf/pf.conf`.
 
-[filename]`/usr/local/pf/conf/documentation.conf` holds the complete list of all available parameters.
+[filename]`/usr/local/pf/conf/documentation.conf` holds the complete list of all
+available parameters.
 
-All parameters accessible via admin interface Configuration tab. Web interface highly recommended for configuration changes.
+All parameters accessible via admin interface Configuration tab. Web interface
+highly recommended for configuration changes.
 
 === Reports
 
-Define reports in `report.conf` creating SQL queries to view PacketFence database tables. Reports appear under _Reports_ menu in admin interface.
+Define reports in `report.conf` creating SQL queries to view PacketFence
+database tables. Reports appear under _Reports_ menu in admin interface.
 
-PacketFence includes preloaded reports optimized for common production use-cases in `reports.conf.defaults`. Don't modify this file; use for working examples.
+PacketFence includes preloaded reports optimized for common production use-cases
+in `reports.conf.defaults`. Don't modify this file; use for working examples.
 
-NOTE: Improperly formed reports consume significant server resources. Profile and optimize all queries to avoid service outages. Using `type=sql` (script/batch mode) increases query and transaction control.
+NOTE: Improperly formed reports consume significant server resources. Profile
+and optimize all queries to avoid service outages. Using `type=sql`
+(script/batch mode) increases query and transaction control.
 
-TIP: Use Master/Slave replication to offload query execution to read-only database outside cluster. Prevents reporting from degrading production environment; provides more resources for report generation.
+TIP: Use Master/Slave replication to offload query execution to read-only
+database outside cluster. Prevents reporting from degrading production
+environment; provides more resources for report generation.
 
 ==== Configuration Attributes
 
-Configure reports by editing `/usr/local/pf/conf/report.conf` and adding a report section. Run `/usr/local/pf/bin/pfcmd configreload hard`.
+Configure reports by editing `/usr/local/pf/conf/report.conf` and adding a
+report section. Run `/usr/local/pf/bin/pfcmd configreload hard`.
 
-The admin interface builds the structured menu by splitting and separating all the section identifier's by double colons _"::"_. Identifiers without this separator are shown at the top level. Up to a maximum of 2 sets of double colons can be used for a maximum menu depth of 3 levels. All identifiers must be unique and any identifier partially reused by another sibling will make it inaccessible. (ex: [A::B] will lose its place as a report and become a parent category for [A::B::*] if it is also defined. Either rename the former to include a 3rd part, or rename the latter to use a different 1st or 2nd part.
+The admin interface builds the structured menu by splitting and separating all
+the section identifier's by double colons _"::"_. Identifiers without this
+separator are shown at the top level. Up to a maximum of 2 sets of double colons
+can be used for a maximum menu depth of 3 levels. All identifiers must be unique
+and any identifier partially reused by another sibling will make it
+inaccessible. (ex: [A::B] will lose its place as a report and become a parent
+category for [A::B::*] if it is also defined. Either rename the former to
+include a 3rd part, or rename the latter to use a different 1st or 2nd part.
 
   [Top Category::Sub Category::Report]
 
-The following attributes are available to define a report (* mandatory attributes are marked with an asterisk):
+The following attributes are available to define a report (* mandatory
+attributes are marked with an asterisk):
 
 [options="compact"]
 * `type`*: The type of report. Use `type=abstract` to use SQL Abstract and `type=sql` to use MySQL script/batch mode. Each of these types have their own additional attributes which are explained in more detail below.
@@ -71,13 +92,20 @@ The following attributes are available to define a report (* mandatory attribute
 * `person_fields`: A comma delimited list of fields (columns or aliases) that will be clickable from the table of the Report and linked to the specific User - only clickable if the reports' user has the _"User - View"_ admin role. All fields must be a valid PacketFence user identifier _(pid)_`.
 * `role_fields`: A comma delimited list of fields (columns or aliases) that will be clickable from the table of the Report and linked to the specific Role. All fields must be a valid PacketFence role identifier _(category_id)_.
 
-NOTE: Configuration attributes can optionally use a `columnName` reference with simple queries that use a single table (ex: `attribute=columnA,columnB`). The attributes must use `tableName.columnName` reference when using `joins` with 2+ tables (ex: `attribute=tableA.columnA,tableB.columnB`). Aliased `columns` can be used with the table reference (ex: `attribute=tableA.Alias A,tableB.Alias B`).
+NOTE: Configuration attributes can optionally use a `columnName` reference with
+simple queries that use a single table (ex: `attribute=columnA,columnB`). The
+attributes must use `tableName.columnName` reference when using `joins` with 2+
+tables (ex: `attribute=tableA.columnA,tableB.columnB`). Aliased `columns` can be
+used with the table reference (ex: `attribute=tableA.Alias A,tableB.Alias B`).
 
 ==== SQL Abstract
 
-When `type=abstract` PacketFence uses Perl https://metacpan.org/pod/SQL::Abstract::More[SQL::Abstract::More] to automatically build the SQL query.
+When `type=abstract` PacketFence uses Perl
+https://metacpan.org/pod/SQL::Abstract::More[SQL::Abstract::More] to
+automatically build the SQL query.
 
-The following attributes are available when using `type=abstract`(* mandatory attributes are marked with an asterisk):
+The following attributes are available when using `type=abstract`(* mandatory
+attributes are marked with an asterisk):
 
 [options="compact"]
 * `base_conditions`: A comma delimited list of conditions that is applied to the SQL query. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
@@ -88,13 +116,17 @@ The following attributes are available when using `type=abstract`(* mandatory at
 * `joins` : The table(s), columns and aliases used to join on the `base_table`. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join-specifications[the following documentation]. This attribute supports multi line blocks (heredoc), see below.
 * `order_fields`: A comma delimited list of fields (columns) used to order the SQL query. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
 * `searches`: A comma delimited list of searchable fields (columns) that are presented to the reports' user. This allows the user to optionally include additional criteria for the query. Each item is defined as `type:Friendly Name:tableName.columnName` (ex: `searches=string:Owner:person.pid,string:Node:node.mac`). Currently only the type _string_ is supported.
-** `type` defines the type of the search, the only one currently supported is `string`.
+** `type` defines the type of the search, the only one currently supported is
+`string`.
 ** `Display Name` is the user-friendly name of the field for display.
 ** `field` is the SQL name of the field to search
 
 WARNING: Replace operators `IS` and `<>` by `=` and `!=`, respectively.
 
-NOTE: Prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Wrap table names and column names with backticks "``" to avoid naming issues with current and future MySQL reserved words.
+NOTE: Prefix the fields with the table name and a dot (ex: `node.mac`,
+`locationlog.role`, ...) so that they are not ambiguous. Wrap table names and
+column names with backticks "``" to avoid naming issues with current and future
+MySQL reserved words.
 
 ===== Examples
 
@@ -113,7 +145,9 @@ View of the auth_log table:
   # Allow searching on the PID displayed as Username
   searches=string:Username:auth_log.pid
 
-In this simple example, you will be able to select the whole content of the `auth_log` table and use the date range on the `attempted_at` field as well as search on the `pid` field when viewing the report.
+In this simple example, you will be able to select the whole content of the
+`auth_log` table and use the date range on the `attempted_at` field as well as
+search on the `pid` field when viewing the report.
 
 View of the opened security events:
 
@@ -122,15 +156,21 @@ View of the opened security events:
   # The table to search from
   base_table=security_event
   # The columns to select
-  columns=security_event.security_event_id as "Security event ID", security_event.mac as "MAC Address", class.description as "Security event description", node.computername as "Hostname", node.pid as "Username", node.notes as "Notes", locationlog.switch_ip as "Last switch IP", security_event.start_date as "Opened on"
-  # Left join node, locationlog on the MAC address and class on the security event ID
+  columns=security_event.security_event_id as "Security event ID",
+  security_event.mac as "MAC Address", class.description as "Security event
+  description", node.computername as "Hostname", node.pid as "Username",
+  node.notes as "Notes", locationlog.switch_ip as "Last switch IP",
+  security_event.start_date as "Opened on"
+  # Left join node, locationlog on the MAC address and class on the security
+  event ID
   joins=<<EOT
   =>{security_event.mac=node.mac} node|node
   =>{security_event.mac=locationlog.mac} locationlog|locationlog
   =>{security_event.security_event_id=class.security_event_id} class|class
   EOT
   date_field=start_date
-  # filter on open locationlog entries or null locationlog entries via the end_date field
+  # filter on open locationlog entries or null locationlog entries via the
+  end_date field
   base_conditions_operator=any
   base_conditions=locationlog.end_time:=:0000-00-00,locationlog.end_time:IS:
   # The MAC Address field represents a node
@@ -138,17 +178,30 @@ View of the opened security events:
   # The Username field represents a user
   person_fields=Username
 
-In the example above, you can see that the security_event table is _left joined_ to the class, node and locationlog tables. Using that strategy we make sure all the security events are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
+In the example above, you can see that the security_event table is _left joined_
+to the class, node and locationlog tables. Using that strategy we make sure all
+the security events are listed even on deleted nodes. Then, base conditions are
+added to filter out outdated locationlog entries as well as include devices
+without locationlog entries. Removing those conditions would lead to duplicate
+entries being shown since the report would reflect all the historical
+locationlog entries.
 
 ==== SQL
 
-When `type=sql` PacketFence uses MySQL script/batch mode to manually build the SQL query including the execution of multiple statements. This provides complete query control as well as the ability to manage the SQL session and the SQL transaction. This is the preferred mode where SQL optimization is needed to execute complex queries, or for those more comfortable with raw (non-abstract) SQL.
+When `type=sql` PacketFence uses MySQL script/batch mode to manually build the
+SQL query including the execution of multiple statements. This provides complete
+query control as well as the ability to manage the SQL session and the SQL
+transaction. This is the preferred mode where SQL optimization is needed to
+execute complex queries, or for those more comfortable with raw (non-abstract)
+SQL.
 
   sql=SELECT * FROM sponsors;
 
-Multiline block (heredoc) is required when executing multiple statements. Each statement should be terminated with a semi-color ";".
+Multiline block (heredoc) is required when executing multiple statements. Each
+statement should be terminated with a semi-color ";".
 
-NOTE: SQL execution exits on the first error and returns the result set of the last successful statement.
+NOTE: SQL execution exits on the first error and returns the result set of the
+last successful statement.
 
 The following attributes are available when using `type=sql`:
 
@@ -156,7 +209,8 @@ The following attributes are available when using `type=sql`:
 * `bindings`: A comma delimited list of ordered bindings to send to the SQL script (ex: `bindings=tenant_id,start_date,end_date,cursor,limit`). See Bindings below.
 * `cursor_type`: _[node|field_multi_field]_ Adds a cursor binding to the sql script that implements pagination of the results. The cursor is automatically handled in the admin interface, but its use in the `sql` requires special attention. If omitted the default `none` is used. More information about cursors is provided below. There are 2 types of cursors:
  ** `cursor_type=field`: Use a single field (column or alias) for the cursor.
- ** `cursor_type=multi_field`: Use multiple fields (columns or aliases) for the cursor.
+ ** `cursor_type=multi_field`: Use multiple fields (columns or aliases) for the
+ cursor.
  ** `cursor_type=offset`: Use integer based offset for the cursor.
  ** `cursor_type=none`: No cursor is used.
 * `cursor_default`: The default cursor used to conditionally query the results for the first page. On subsequent pages this is replaced with the results from N+1 row of the previous page, meaning the cursor for page 2 (with `default_limit=25`) will contain the value from the column of the 26th row from the previous page.
@@ -166,17 +220,25 @@ The following attributes are available when using `type=sql`:
 
 ==== Bindings
 
-The `bindings` attribute defines an ordered comma delimited list of columns (or aliases) that are made available to the `sql` script. There is no limit with the number of bindings that can used and a binding can be repeated more than once.
+The `bindings` attribute defines an ordered comma delimited list of columns (or
+aliases) that are made available to the `sql` script. There is no limit with the
+number of bindings that can used and a binding can be repeated more than once.
 
 The available bindings are:
 
 [options="compact"]
  ** `tenant_id`: The scoped tenant identifier of the reports' session.
- ** `start_date`, `end_date`: The start and end datetime. Formatted as _"YYYY-MM-DD HH:mm:ss"_. Use native MySQL date functions to reformat it.
- ** `cursor`: On the first page this value is the `cursor_default`. On subsequent pages this value is taken from the `cursor_field` column of the last result row from the previous page. When using `cursor_type=multi_field` the cursor is split into the bindings as `cursor.0`, `cursor.1`, etc.
- ** `limit`: Uses `default_limit` (+1, see pagination) unless overridden by the user.
+ ** `start_date`, `end_date`: The start and end datetime. Formatted as
+ _"YYYY-MM-DD HH:mm:ss"_. Use native MySQL date functions to reformat it.
+ ** `cursor`: On the first page this value is the `cursor_default`. On
+ subsequent pages this value is taken from the `cursor_field` column of the last
+ result row from the previous page. When using `cursor_type=multi_field` the
+ cursor is split into the bindings as `cursor.0`, `cursor.1`, etc.
+ ** `limit`: Uses `default_limit` (+1, see pagination) unless overridden by the
+ user.
 
-Bindings are consumed in the `sql` using "?" in the same order that they are defined.
+Bindings are consumed in the `sql` using "?" in the same order that they are
+defined.
 
   [single binding]
   type=sql
@@ -185,7 +247,8 @@ Bindings are consumed in the `sql` using "?" in the same order that they are def
   default_limit=100
   has_limit=enabled
 
-If a binding is needed more than once within the `sql`, it can either be defined multiple times, or defined once and consumed to SET a MySQL variable.
+If a binding is needed more than once within the `sql`, it can either be defined
+multiple times, or defined once and consumed to SET a MySQL variable.
 
   [many bindings]
   type=sql
@@ -206,9 +269,18 @@ If a binding is needed more than once within the `sql`, it can either be defined
 
 ==== Pagination
 
-Pagination is supported through the use of the `cursor_type`, `cursor_default`, `cursor_field`, `bindings` and `sql` attributes. Pagination supports the use of one to many columns. Special attention must be given to the order of the final result set in order to utilize the cursor properly. Symptoms of too few pages, or infinite loops through subsequent pages are signs of a mismatched cursor and/or query results order.
+Pagination is supported through the use of the `cursor_type`, `cursor_default`,
+`cursor_field`, `bindings` and `sql` attributes. Pagination supports the use of
+one to many columns. Special attention must be given to the order of the final
+result set in order to utilize the cursor properly. Symptoms of too few pages,
+or infinite loops through subsequent pages are signs of a mismatched cursor
+and/or query results order.
 
-The `limit` binding always has +1 added to it as PacketFence always consumes an extra row to determine the cursor for the following page. Due to this all conditional statements must be inclusive (ex: Bad operators "<, >", Good operators: "<=, >="). If the column value is not unique then `cursor_type=multi_field` should be used instead to avoid infinite loops.
+The `limit` binding always has +1 added to it as PacketFence always consumes an
+extra row to determine the cursor for the following page. Due to this all
+conditional statements must be inclusive (ex: Bad operators "<, >", Good
+operators: "<=, >="). If the column value is not unique then
+`cursor_type=multi_field` should be used instead to avoid infinite loops.
 
 Examples of a single column cursor:
 
@@ -258,7 +330,11 @@ Example of a multi column cursor:
 
 ==== Charts
 
-Charts are defined as a comma delimited list using the `chart` attribute. An optional "@" symbol can be used to delimit a chart name. A mandatory pipe (vertical-bar) `|` is used to delimit the chart type and the fields. Within the fields a colon ":" is used to delimit each of the fields (if more than one field is necessary). The general syntax is:
+Charts are defined as a comma delimited list using the `chart` attribute. An
+optional "@" symbol can be used to delimit a chart name. A mandatory pipe
+(vertical-bar) `|` is used to delimit the chart type and the fields. Within the
+fields a colon ":" is used to delimit each of the fields (if more than one field
+is necessary). The general syntax is:
 
   charts=[pie,bar,parallel,scatter] [@ Chart Name] | field1 [:fieldN:...]
 
@@ -272,18 +348,28 @@ There are 4 types of charts available:
   ** `field0`: The dimensions label.
   ** `field1`: The dimensions value.
 * `parallel`: A parallel category (sankey) diagram with 2+ dimensions. Must contain 3+ fields (`charts=parallel|field1:field2:field3[...:fieldN]`):
-  ** `fieldN`: The N dimensions label of 2+ fields. A category is created for each field and order is maintained. The palette is applied to the last field (right-most).
+  ** `fieldN`: The N dimensions label of 2+ fields. A category is created for
+  each field and order is maintained. The palette is applied to the last field
+  (right-most).
   ** `fieldLast`: The last field always contains the dimensions value.
 * `scatter`: A date/time based line graph with 1+ dimensions. The date/time column is always defined in the first field and the query should return this using the _"YYYY-MM-DD HH:mm:ss"_ format.
-  ** When only one field is defined (`charts=scatter|field1`) then a value of 1 is implied for each row.
-  ** When 2 fields are defined (`charts=scatter|field1:field2`) then the 2nd field is used as the dimensions value. The query results are automatically aggregated to produce dimensions for several terms (year/month/week/day/hour/minute).
-  ** When 3+ fields are defined (`charts=scatter|field1:field2:field3[...:fieldN]`) the automatic aggregation is disabled and a dimension is used for each field.
+  ** When only one field is defined (`charts=scatter|field1`) then a value of 1
+  is implied for each row.
+  ** When 2 fields are defined (`charts=scatter|field1:field2`) then the 2nd
+  field is used as the dimensions value. The query results are automatically
+  aggregated to produce dimensions for several terms
+  (year/month/week/day/hour/minute).
+  ** When 3+ fields are defined
+  (`charts=scatter|field1:field2:field3[...:fieldN]`) the automatic aggregation
+  is disabled and a dimension is used for each field.
 
 NOTE: All charts use the same color palette to provide a visual continuity.
 
 ==== Heredoc
 
-The `joins` and `sql` attribute support multi line block statements. All whitespace characters are preserved. All multi line statements are pure SQL, thus the `--` prefix can be used as a remark.
+The `joins` and `sql` attribute support multi line block statements. All
+whitespace characters are preserved. All multi line statements are pure SQL,
+thus the `--` prefix can be used as a remark.
 
   attribute= <<EOT
     -- multi-line
@@ -299,7 +385,11 @@ The `joins` and `sql` attribute support multi line block statements. All whitesp
 
 === Admin Access
 
-You can manage which access you give to PacketFence administrators. To do that go through _Configuration -> System Configuration -> Admin Access_. Then go to your source which authenticate administrator and create an _administration_ rule and assign the wanted Admin role. This functionality allows you to have a granular control on which section of the admin interface is available to whom.
+You can manage which access you give to PacketFence administrators. To do that
+go through _Configuration -> System Configuration -> Admin Access_. Then go to
+your source which authenticate administrator and create an _administration_ rule
+and assign the wanted Admin role. This functionality allows you to have a
+granular control on which section of the admin interface is available to whom.
 
 ==== Built-in roles
 
@@ -311,27 +401,49 @@ You can manage which access you give to PacketFence administrators. To do that g
 
 === Guest pre-registration
 
-Pre-registration is disabled by default. Once enabled, PacketFence's firewall and Apache ACLs allow access to the `/signup` page on the portal even from a remote location. All that should be required from the administrators is to open up their perimeter firewall to allow access to PacketFence's management interface IP on port 443 and make sure a domain name to reach said IP is configured (and that the SSL cert matches it). Then you can promote the pre-registration link from your extranet web site: https://<hostname>/signup.
+Pre-registration is disabled by default. Once enabled, PacketFence's firewall
+and Apache ACLs allow access to the `/signup` page on the portal even from a
+remote location. All that should be required from the administrators is to open
+up their perimeter firewall to allow access to PacketFence's management
+interface IP on port 443 and make sure a domain name to reach said IP is
+configured (and that the SSL cert matches it). Then you can promote the
+pre-registration link from your extranet web site: https://<hostname>/signup.
 
-To minimally configure guest pre-registration, you must make sure that the following statement is set under `[guests_self_registration]` in [filename]`/usr/local/pf/conf/pf.conf`:
+To minimally configure guest pre-registration, you must make sure that the
+following statement is set under `[guests_self_registration]` in
+[filename]`/usr/local/pf/conf/pf.conf`:
 
   [guests_self_registration]
   preregistration=enabled
 
-This parameter should be configured from the _Configuration -> Policies and Access Control -> Connection Profiles -> Profile Name_ section.
+This parameter should be configured from the _Configuration -> Policies and
+Access Control -> Connection Profiles -> Profile Name_ section.
 
-CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
+CAUTION: A valid MTA configured in PacketFence is needed to correctly relay
+emails related to the guest module. If _localhost_ is used as smtpserver, make
+sure that a MTA is installed and configured on the server.
 
-CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
+CAUTION: Pre-registration increases the attack surface of the PacketFence system
+since a subset of it's functionality is exposed on the Internet. Make sure you
+understand the risks, apply the critical operating system updates and apply
+PacketFence's security fixes.
 
-NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the admin interface.
+NOTE: A 'portal' interface type is required to use this feature. A 'portal'
+interface type can be added to any network interface using the admin interface.
 
 
 === Content-Security-Policy (CSP)
 
-The Content-Security-Policy HTTP response header tells modern browsers what can be accessed from a generated web page. The default policy is pushed for the captive portal and enforces that everything the browser executes comes from within PacketFence, with the exception of the configured network detection host that is by default the Inverse IP address.
+The Content-Security-Policy HTTP response header tells modern browsers what can
+be accessed from a generated web page. The default policy is pushed for the
+captive portal and enforces that everything the browser executes comes from
+within PacketFence, with the exception of the configured network detection host
+that is by default the Inverse IP address.
 
-If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through _Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP headers for Captive Portal_.
+If, for some reason the portal is modified with content that needs to be
+accessed from PacketFence generated web pages, CSP can be deactivated through
+_Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP
+headers for Captive Portal_.
 
 === `pfacct`: track bandwidth usage
 
@@ -346,7 +458,7 @@ _Accounting_ section.
 
 If you want to get bandwidth reports, security events or online/offline
 features, you need to enable 'Process Bandwidth Accounting' in _Configuration
--> System Configuration -> RADIUS -> General_ menu.  `pfacct` service needs to be
+-> System Configuration -> RADIUS -> General_ menu. `pfacct` service needs to be
 restarted to apply changes.
 
 ==== NetFlow traffic
@@ -372,7 +484,8 @@ You need to adjust `pfacct` configuration based on your NetFlow traffic source.
 You need to:
 
 * make `pfacct` listens on IP address where you want to receive NetFlow
-  traffic using `netflow_address` setting in _Configuration -> System Configuration -> Services_ menu
+  traffic using `netflow_address` setting in _Configuration -> System
+  Configuration -> Services_ menu
 * enable _NetFlow on all networks_ in _Configuration -> System Configuration -> Advanced_ menu
 
 Then restart `packetfence-pfacct` services for it to take effect.
@@ -384,7 +497,8 @@ inline network.
 
 If you enable _NetFlow on all networks_ in _Configuration -> System
 configuration -> Advanced_ menu, `pfacct` will collect NetFlow bandwidth usage
-for all networks instead of the ones defined in [filename]`/usr/local/pf/conf/networks.conf`.
+for all networks instead of the ones defined in
+[filename]`/usr/local/pf/conf/networks.conf`.
 
 Then restart `packetfence-pfacct` services for it to take effect.
 

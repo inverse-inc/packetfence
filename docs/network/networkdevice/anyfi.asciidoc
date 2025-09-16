@@ -19,18 +19,23 @@ endif::[]
 
 //=== Anyfi Networks
 
-This section will discuss about the configuration of your Anyfi Gateway and Controller in order to use it with our configured PacketFence environment.
+This section will discuss about the configuration of your Anyfi Gateway and
+Controller in order to use it with our configured PacketFence environment.
 
 ==== Deploy Anyfi Controller and Gateway
 
-First thing, you will need to deploy the Anyfi Gateway and Controller on your network and configure basic connectivity between both of them.
+First thing, you will need to deploy the Anyfi Gateway and Controller on your
+network and configure basic connectivity between both of them.
 
-When installing the Anyfi Gateway, have one interface in trunk mode for the packet bridge. In this example it will be `eth2` which is the last card on the machine.
+When installing the Anyfi Gateway, have one interface in trunk mode for the
+packet bridge. In this example it will be `eth2` which is the last card on the
+machine.
 
 ==== Anyfi Gateway Basic Configuration
 
 Connect to the gateway using SSH and enter configuration mode.
-Now you need to add the configuration for `br0 which will link the access point traffic to your network.
+Now you need to add the configuration for `br0 which will link the access point
+traffic to your network.
     
     interfaces {
         bridge br0 {
@@ -42,7 +47,8 @@ Now you need to add the configuration for `br0 which will link the access point 
         }
     }
 
-In this example `eth1` will be the management interface of the Anyfi Gateway and `eth2` will be the interface that will contain the outbound WiFi traffic.
+In this example `eth1` will be the management interface of the Anyfi Gateway and
+`eth2` will be the interface that will contain the outbound WiFi traffic.
 
     interfaces {
         ethernet eth1 {
@@ -93,7 +99,8 @@ Still in configuration mode, configure the RADIUS server and SSID security.
 
 ==== Secure SSID Configuration
 
-Still in configuration mode, configure the Anyfi Gateway to broadcast a WPA2 enterprise SSID.
+Still in configuration mode, configure the Anyfi Gateway to broadcast a WPA2
+enterprise SSID.
 
     service {
         anyfi{
@@ -119,7 +126,9 @@ Still in configuration mode, configure the Anyfi Gateway to broadcast a WPA2 ent
 
 ==== Deploy Access Point
 
-You will now need to install CarrierWRT on a compatible access point and configure the Anyfi Controller in it. 
-Depending on the access point you're using, the method to install CarrierWRT will vary.
+You will now need to install CarrierWRT on a compatible access point and
+configure the Anyfi Controller in it.
+Depending on the access point you're using, the method to install CarrierWRT
+will vary.
 For specifics about the CarrierWRT installation, refer to Anyfi's documentation.
 Once this step is done, the SSID should be broadcasted.

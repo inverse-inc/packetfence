@@ -18,14 +18,17 @@ endif::[]
 
 ===== Monitoring with Netdata Cloud
 
-PacketFence includes Netdata that is pre-installed and configured for most use-cases.
+PacketFence includes Netdata that is pre-installed and configured for most
+use-cases.
 
 The metrics are displayed in 2 separate sections
 
 * Dashboard: This section displays the metrics collected by pfstats for the unregistration/registration status of all nodes managed by PacketFence.
 * Monitoring: This section displays system metrics collected by Netdata for the local host (standalone), or all hosts in a cluster.
 
-All metrics are retained for a maximum of 28 days. Older metrics are automatically pruned to limit disk usage. To increase the retention rate edit the configuration and restart the service:
+All metrics are retained for a maximum of 28 days. Older metrics are
+automatically pruned to limit disk usage. To increase the retention rate edit
+the configuration and restart the service:
 
 [source,bash]
 ----
@@ -37,7 +40,10 @@ vi /usr/local/pf/conf/monitoring/netdata.conf
 
 ====== Dashboard
 
-The dashboard diplays the metrics collected by pfstats for the unregistration/registration status of all nodes managed by PacketFence. These metrics are common across all cluster members, therefore a complete view is displayed from any host that is a member of the same cluster.
+The dashboard diplays the metrics collected by pfstats for the
+unregistration/registration status of all nodes managed by PacketFence. These
+metrics are common across all cluster members, therefore a complete view is
+displayed from any host that is a member of the same cluster.
 
 [#netdata-cloud-dashboard-monitoring]
 [NOTE]
@@ -58,9 +64,11 @@ To obtain the local Netdata random session identifier:
 cat /usr/local/pf/var/netdata-lib/netdata_random_session_id
 ----
 
-Once connected to Netdata Cloud, Netdata alerts will be sent to the email address used to register the Netdata Cloud account.
+Once connected to Netdata Cloud, Netdata alerts will be sent to the email
+address used to register the Netdata Cloud account.
 
-To attach all members of a cluster, each member has its own unique session id; where each must be used to login to Netdata Cloud manually.
+To attach all members of a cluster, each member has its own unique session id;
+where each must be used to login to Netdata Cloud manually.
 
 
 ===== Restarting Service

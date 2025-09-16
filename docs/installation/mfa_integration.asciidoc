@@ -22,7 +22,9 @@ This section provides quick overview for MFA integration with PacketFence.
 
 === Assumptions
 
-Functional PacketFence server with configured Internal Source (e.g., Active Directory Source) associated to Connection Profile. RADIUS client performing PAP (e.g., VPN server or switch with CLI access using RADIUS). 
+Functional PacketFence server with configured Internal Source (e.g., Active
+Directory Source) associated to Connection Profile. RADIUS client performing PAP
+(e.g., VPN server or switch with CLI access using RADIUS).
 
 === Create the MFA Configuration
 
@@ -39,7 +41,8 @@ include::mfa/totp.asciidoc[]
 
 ==== Associate the source 
 
-MFA is triggered by authentication rule in Internal Source. Create rule with condition like "memberof equals cn=otp_user,dc=acme,dc=com" and assign Action:
+MFA is triggered by authentication rule in Internal Source. Create rule with
+condition like "memberof equals cn=otp_user,dc=acme,dc=com" and assign Action:
 
 "Trigger RADIUS MFA" for RADIUS triggering
 "Trigger Portal MFA" for Portal triggering.
@@ -64,12 +67,15 @@ RADIUS flow depends on MFA provider features and RADIUS client capabilities.
 
 ===== Simple RADIUS client
 
-In this use case only the username and password is sent in the RADIUS request, the only method available is the "push" notification.
-Once the user authenticated, a push notification will be sent on his phone and the user will have to validate in order to be granted.
+In this use case only the username and password is sent in the RADIUS request,
+the only method available is the "push" notification.
+Once the user authenticated, a push notification will be sent on his phone and
+the user will have to validate in order to be granted.
 
 ===== Simple RADIUS client with password,<code>
 
-In this user scenario the username and password is sent but the password can be splitted with a special character to obtain the code.
+In this user scenario the username and password is sent but the password can be
+splitted with a special character to obtain the code.
 
 OTP code (123456):
 
@@ -77,27 +83,38 @@ OTP code from device (changes every 30s).
 
 push code (push):
 
-The code can be "push" to use the default phone or "pushx" (x represent the telephone index in the list if you have multiples one), push1 will trigger a push on the first phone, push2 on the second one.
+The code can be "push" to use the default phone or "pushx" (x represent the
+telephone index in the list if you have multiples one), push1 will trigger a
+push on the first phone, push2 on the second one.
 The user needs to validate on his phone in order to grant the access.
 
 sms code (sms):
 
-The code can be "sms" to use the default phone or "smsx" (x represent the telephone index in the list if you have multiples one), sms1 will trigger a push on the first phone, sms2 on the second one.
-The RADIUS request will be rejected and the RADIUS client will prompt again for the credentials.
+The code can be "sms" to use the default phone or "smsx" (x represent the
+telephone index in the list if you have multiples one), sms1 will trigger a push
+on the first phone, sms2 on the second one.
+The RADIUS request will be rejected and the RADIUS client will prompt again for
+the credentials.
 
-Once the user receives the code by SMS he will need to reauthenticate with his username and password and append the SMS code. (like password,smscode)
+Once the user receives the code by SMS he will need to reauthenticate with his
+username and password and append the SMS code. (like password,smscode)
 
 phone code (phone):
 
-The code can be "phone" to use the default phone or "phonex" (x represent the telephone index in the list if you have multiples one), phone1 will trigger a push on the first phone, phone2 on the second one.
-The RADIUS request will be rejected and the RADIUS client will prompt again for the credentials.
+The code can be "phone" to use the default phone or "phonex" (x represent the
+telephone index in the list if you have multiples one), phone1 will trigger a
+push on the first phone, phone2 on the second one.
+The RADIUS request will be rejected and the RADIUS client will prompt again for
+the credentials.
 
-Once the user receives the code by phone call he will need to reauthenticate with his username and password and append the code. (like password,smscode)
+Once the user receives the code by phone call he will need to reauthenticate
+with his username and password and append the code. (like password,smscode)
 
 
 ===== Simple RADIUS client with 2nd password
 
-In this user scenario the VPN client presents a login page with one username, password and a second password field.
+In this user scenario the VPN client presents a login page with one username,
+password and a second password field.
 In this 2nd password field you can set multiples things like:
 
 OTP code (123456):
@@ -106,20 +123,32 @@ OTP code from device (changes every 30s).
 
 push code (push):
 
-The code can be "push" to use the default phone or "pushx" (x represent the telephone index in the list if you have multiples one), push1 will trigger a push on the first phone, push2 on the second one.
+The code can be "push" to use the default phone or "pushx" (x represent the
+telephone index in the list if you have multiples one), push1 will trigger a
+push on the first phone, push2 on the second one.
 The user needs to validate on his phone in order to grant the access.
 
 sms code (sms):
 
-The code can be "sms" to use the default phone or "smsx" (x represent the telephone index in the list if you have multiples one), sms1 will trigger a push on the first phone, sms2 on the second one.
-The RADIUS request will be rejected and the RADIUS client will prompt again for the credentials.
+The code can be "sms" to use the default phone or "smsx" (x represent the
+telephone index in the list if you have multiples one), sms1 will trigger a push
+on the first phone, sms2 on the second one.
+The RADIUS request will be rejected and the RADIUS client will prompt again for
+the credentials.
 
-Once the user receives the code by SMS he will need to reauthenticate with his username and password and set the code received by SMS in the 2nd password field.
+Once the user receives the code by SMS he will need to reauthenticate with his
+username and password and set the code received by SMS in the 2nd password
+field.
 
 phone code (phone):
 
-The code can be "phone" to use the default phone or "phonex" (x represent the telephone index in the list if you have multiples one), phone1 will trigger a push on the first phone, phone2 on the second one.
-The RADIUS request will be rejected and the RADIUS client will prompt again for the credentials.
+The code can be "phone" to use the default phone or "phonex" (x represent the
+telephone index in the list if you have multiples one), phone1 will trigger a
+push on the first phone, phone2 on the second one.
+The RADIUS request will be rejected and the RADIUS client will prompt again for
+the credentials.
 
-Once the user receives the code by phone call he will need to reauthenticate with his username and password and set the code received by phone in the 2nd password field.
+Once the user receives the code by phone call he will need to reauthenticate
+with his username and password and set the code received by phone in the 2nd
+password field.
 

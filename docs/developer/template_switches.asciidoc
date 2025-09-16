@@ -20,18 +20,25 @@ endif::[]
 
 === Using web admin
 
-You can directly create or edit switch templates in `_Configuration -> Integration -> Switch Templates_` menu.
+You can directly create or edit switch templates in `_Configuration ->
+Integration -> Switch Templates_` menu.
 
 === Using CLI
 
-To create a new Switch Template you must create a template file in the [filename]`/usr/local/pf/lib/pf/Switch` directory.
-The file must have the following pattern [filename]`/usr/local/pf/lib/pf/Switch/_<Vendor>_/_<SwitchName>_.def`.
+To create a new Switch Template you must create a template file in the
+[filename]`/usr/local/pf/lib/pf/Switch` directory.
+The file must have the following pattern
+[filename]`/usr/local/pf/lib/pf/Switch/_<Vendor>_/_<SwitchName>_.def`.
 
-For example to create a template for the vendor `Cyberdyne` and switch `Switchinator 800`.
-The file name is [filename]`/usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def`
-The file name must must only consist of alphanumeric characters and under scores and must begin with a letter.
+For example to create a template for the vendor `Cyberdyne` and switch
+`Switchinator 800`.
+The file name is
+[filename]`/usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def`
+The file name must must only consist of alphanumeric characters and under scores
+and must begin with a letter.
 
-Once you have completed your switch template, you will need to perform the following commands so it can be used:
+Once you have completed your switch template, you will need to perform the
+following commands so it can be used:
 
 [source,bash]
 ----

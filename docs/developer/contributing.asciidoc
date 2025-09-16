@@ -27,11 +27,14 @@ https://lists.sourceforge.net/lists/listinfo/packetfence-devel. Share your issue
 
 * Use the issue tracker: https://packetfence.org/bugs/
 
-Check existing tickets - your bug/feature may be filed already with helpful information.
+Check existing tickets - your bug/feature may be filed already with helpful
+information.
 
 * Please provide small, focused and manageable patches or pull-requests
 
-For extensive coding: use `git` and track `stable` branch. Develop features in small chunks while staying in touch. This enables quick merging; avoid large code dumps.
+For extensive coding: use `git` and track `stable` branch. Develop features in
+small chunks while staying in touch. This enables quick merging; avoid large
+code dumps.
 
 === Creating patches
 
@@ -48,24 +51,30 @@ or from a checkout of the PacketFence source code from `git`:
 
 === Translations
 
-The internationalization process uses `gettext`. If you are new to `gettext`, please consult
+The internationalization process uses `gettext`. If you are new to `gettext`,
+please consult
 http://www.gnu.org/software/gettext/manual/gettext.html#Overview for a quick introduction.
 
-The PO files are stored in `/usr/local/pf/conf/locale`. List that directory to see the languages
+The PO files are stored in `/usr/local/pf/conf/locale`. List that directory to
+see the languages
 we currently have translations for.
 
 ==== Online using Transifex
 
-We use the hosted service Transifex to translate PacketFence's PO files. It offers the
-possibility to translate all the strings online as well as providing a command-line tool to push your
+We use the hosted service Transifex to translate PacketFence's PO files. It
+offers the
+possibility to translate all the strings online as well as providing a
+command-line tool to push your
 changes. It's very convenient.
 
-To use Transifex, you must first sign up for a free account here: https://www.transifex.net/plans/signup/free/
+To use Transifex, you must first sign up for a free account here:
+https://www.transifex.net/plans/signup/free/
 
 * Once registered, https://www.transifex.net/projects/p/packetfence/teams[request a new team for your language]
 * Once authorized, you'll be able to start/continue translating PacketFence in your language
 
-If you need further help about using Transifex, you might want to have http://help.transifex.com/[a look here].
+If you need further help about using Transifex, you might want to have
+http://help.transifex.com/[a look here].
 
 ==== Using traditional method
 
@@ -76,11 +85,13 @@ If you want to add support for a new language, please follow these steps:
 . change into your newly created directory
 . create a new subdirectory `LC_MESSAGES`
 . change into your newly created directory
-. copy the file `/usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po` into your directory
+. copy the file `/usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po` into
+your directory
 . translate the message strings in `packetfence.po`
 . create the MO file by executing:
 
   /usr/bin/msgfmt packetfence.po
 
-Submit your new translation to the PacketFence project by contacting us at packetfence-devel@lists.sourceforge.net.
+Submit your new translation to the PacketFence project by contacting us at
+packetfence-devel@lists.sourceforge.net.
 

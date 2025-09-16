@@ -18,7 +18,10 @@ endif::[]
 
 //== Advanced RADIUS Configuration
 
-FreeRADIUS configuration steps. RADIUS server is required for network access in WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X. RADIUS authenticates users and devices, then pushes roles or VLAN attributes to network equipment.
+FreeRADIUS configuration steps. RADIUS server is required for network access in
+WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X. RADIUS
+authenticates users and devices, then pushes roles or VLAN attributes to network
+equipment.
 
 === Local Authentication
 
@@ -26,15 +29,19 @@ Add user entries to `/usr/local/pf/raddb/users` file:
 
   username Cleartext-Password := "password"
 
-For RADIUS authentication issues, see <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section for debug commands and log analysis.
+For RADIUS authentication issues, see <<#_radius_debugging,RADIUS Debugging>> in
+the Troubleshooting section for debug commands and log analysis.
 
 === Authentication against Active Directory (AD)
 
-For EAP-PEAP authentication with Microsoft Active Directory, refer to Active Directory documentation in Authentication Mechanism section.
+For EAP-PEAP authentication with Microsoft Active Directory, refer to Active
+Directory documentation in Authentication Mechanism section.
 
 === EAP Authentication against OpenLDAP
 
-For 802.1X authentication against OpenLDAP, define LDAP connection in `/usr/local/pf/raddb/modules/ldap` and ensure user password is NTHASH or clear text.
+For 802.1X authentication against OpenLDAP, define LDAP connection in
+`/usr/local/pf/raddb/modules/ldap` and ensure user password is NTHASH or clear
+text.
 
 [source,radius]
 ----

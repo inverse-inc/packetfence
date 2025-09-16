@@ -10,7 +10,8 @@
 ==== Wired network topology
 
 .Wired network topology
-image::integration_tests/wired_topology.png[scaledwidth="100%",alt="Wired topology"]
+image::integration_tests/wired_topology.png[scaledwidth="100%",alt="Wired
+topology"]
 
 ===== Initial Provisioning
 
@@ -20,7 +21,8 @@ image::integration_tests/wired_topology.png[scaledwidth="100%",alt="Wired topolo
 * a second boot that handles interface remap
 * an Ansible provisioning
 
-Provisioning is deliberately minimalist to make the most during integration tests.
+Provisioning is deliberately minimalist to make the most during integration
+tests.
 
 ===== Inventory Information
 

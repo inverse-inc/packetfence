@@ -18,7 +18,7 @@ endif::[]
 
 //== Automation of upgrades
 
-This section covers base automation of upgrades on the same operating system available.
+Upgrade automation available since PacketFence 11.0 for **same-OS upgrades**.
 
 Please, check if there is a "Specific Automation Upgrade" defined between the current version to the chosen version, it may contain specific steps like changing the OS, updating database version, etc.
 

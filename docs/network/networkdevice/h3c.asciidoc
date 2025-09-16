@@ -21,9 +21,12 @@ endif::[]
 
 ==== Comware v5
 
-This switch version module is built for H3C switch series S5120 using Comware versions v5.
+This switch version module is built for H3C switch series S5120 using Comware
+versions v5.
 
-Note: "Comware v5" module is developed for the H3C S5120 Series switches using Comware v5 and also this module inherits all its capabilities from the old "S5120" module.
+Note: "Comware v5" module is developed for the H3C S5120 Series switches using
+Comware v5 and also this module inherits all its capabilities from the old
+"S5120" module.
 
 ==== S5120 (Comware v5) Switch series
 
@@ -98,7 +101,8 @@ Add the following to the previous interfaces configuration.
 
 ===== 802.1X with MAC Authentication fallback
 
-Since using MAC Authentication as a fallback of 802.1X, use the previous 802.1X configuration and add the followings.
+Since using MAC Authentication as a fallback of 802.1X, use the previous 802.1X
+configuration and add the followings.
 
 This configuration is the same with or without VoIP.
 

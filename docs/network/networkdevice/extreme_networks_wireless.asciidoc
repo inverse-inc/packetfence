@@ -29,7 +29,8 @@ access points in a central place.
 
 ====== Extreme Cloud IQ Controller
 
-On the Extreme Cloud IQ Controller, there should already be two built-in IP Firewall policies:
+On the Extreme Cloud IQ Controller, there should already be two built-in IP
+Firewall policies:
 
 * Redirect-only policy: this policy must have "redirect" rules
 * Internet-access-only policy
@@ -46,7 +47,8 @@ On the Extreme Cloud IQ Controller, create two user profiles:
 ** Firewall rules: Enabled
 ** IP Firewall Name: Internet-access-only policy
 
-Still, on the Extreme Cloud IQ Controller, create a wireless network with the following configuration:
+Still, on the Extreme Cloud IQ Controller, create a wireless network with the
+following configuration:
 
 * SSID Authentication: Open
 ** Enable Captive Web Portal: No
@@ -58,7 +60,8 @@ Still, on the Extreme Cloud IQ Controller, create a wireless network with the fo
 **** Permit Dynamic Change Of Authorization Messages (RFC 3576): Enabled
 ** User access settings
 *** Apply a different user profile to various clients and user groups: Enabled
-**** Allow user profile assignment using RADIUS attributes in addition to the three tunnel RADIUS attributes: Enabled
+**** Allow user profile assignment using RADIUS attributes in addition to the
+three tunnel RADIUS attributes: Enabled
 ***** Standard RADIUS Attribute: Filter-Id
 
 Under User access settings, you need to create following rules:

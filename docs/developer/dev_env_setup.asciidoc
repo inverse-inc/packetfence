@@ -20,11 +20,14 @@ endif::[]
 
 Set up your development environment to run sources from `/usr/local/pf`.
 
-Deploy RHEL 8 or Rocky 8 machine. Other operating systems are not supported for development environments.
+Deploy RHEL 8 or Rocky 8 machine. Other operating systems are not supported for
+development environments.
 
-NOTE: If you're running on Linode, disable Network helper: https://www.linode.com/docs/guides/network-helper/
+NOTE: If you're running on Linode, disable Network helper:
+https://www.linode.com/docs/guides/network-helper/
 
-Find current devel version number at: https://github.com/inverse-inc/packetfence/blob/devel/conf/pf-release
+Find current devel version number at:
+https://github.com/inverse-inc/packetfence/blob/devel/conf/pf-release
 
 IMPORTANT: This example will use version `99.9` as the example version number.
 
@@ -32,7 +35,9 @@ Install PacketFence from RPM repository:
 
 [source,bash]
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-99.9.el8.noarch.rpm -y
+yum localinstall
+http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-99.9.el8.noarch.rpm
+-y
 yum install kernel-devel-$(uname -r) -y
 yum install packetfence --enablerepo=packetfence --allowerasing
 git config --global --add safe.directory /usr/local/pf

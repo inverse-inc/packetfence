@@ -21,25 +21,30 @@ endif::[]
 
 ==== Configure Kandji
 
-First of all you will need to configure the basic functionality of Kandji using their documentation and enable a blueprint to apply on your devices.
+First of all you will need to configure the basic functionality of Kandji using
+their documentation and enable a blueprint to apply on your devices.
 
 ==== Create an API token
 
-Next, we will need a user that has the rights to access the Kandji API in order to verify the state of the devices directly from PacketFence.
+Next, we will need a user that has the rights to access the Kandji API in order
+to verify the state of the devices directly from PacketFence.
 
 In the Kandji admin panel, first go in the 'Settings' tab and then in 'Access'.
 
-Note down the value of `Your organization’s API URL` for usage in the PacketFence configuration.
+Note down the value of `Your organization’s API URL` for usage in the
+PacketFence configuration.
 
 Now, click 'Add token' under 'API token'.
 
-Create your API token by giving it a meaningful name and you will then be presented the API token
+Create your API token by giving it a meaningful name and you will then be
+presented the API token
 
 Note the API token for usage in the PacketFence configuration, then hit 'Next'.
 
 ==== Configure the API permissions
 
-After creating your API token, you will be offered the option to configure the API permissions for the token, you should select the following permissions:
+After creating your API token, you will be offered the option to configure the
+API permissions for the token, you should select the following permissions:
 
 [options="compact"]
 * Device list (`/devices`)
@@ -52,7 +57,8 @@ This will walk you through adding Kandji as a provisioner.
 
 ===== Create the provisioner
 
-Login to the admin interface, then go to _Configuration -> Advanced Access Configuration -> Provisioners_.
+Login to the admin interface, then go to _Configuration -> Advanced Access
+Configuration -> Provisioners_.
 Click 'Add provisioner' then select 'Kandji'.
 
 Now configure this new provisioner with the information you got above.
@@ -64,16 +70,22 @@ Now configure this new provisioner with the information you got above.
 
 ===== Add the provisioner to the connection profile
 
-In order for the provisioner to be used by your captive portal you need to add it in its configuration.
-Go in 'Connection Profiles', then select the portal you want to modify and add your new provisioner in the list.
+In order for the provisioner to be used by your captive portal you need to add
+it in its configuration.
+Go in 'Connection Profiles', then select the portal you want to modify and add
+your new provisioner in the list.
 
 ==== Add the necessary passthroughs
 
-NOTE: This step is only necessary if you wish to enroll devices via the PacketFence captive-portal. Adding these passthroughs may prevent the Apple CNA (Captive-Network Assistant) from opening when the user is unregistered.
+NOTE: This step is only necessary if you wish to enroll devices via the
+PacketFence captive-portal. Adding these passthroughs may prevent the Apple CNA
+(Captive-Network Assistant) from opening when the user is unregistered.
 
-Next, still in the PacketFence administration console, go in 'Fencing' in the left menu, then scroll then to 'Passthroughs'.
+Next, still in the PacketFence administration console, go in 'Fencing' in the
+left menu, then scroll then to 'Passthroughs'.
 
-Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
+Check the 'Passthrough' box above the field and add the following domains to the
+passthrough list.
 
 [options="compact"]
 * `<your instance>.<your region>.kandji.io` (this is your API URL)
@@ -118,8 +130,11 @@ Then run the following commands so that passthroughs become effective:
 
 ==== Testing
 
-You can now test that Kandji enrollment is mandatory after the device registration.
+You can now test that Kandji enrollment is mandatory after the device
+registration.
 Connect a device to your test network and register like you normally would.
-At the end of the registration process you will be presented a page asking you to install the Kandji MDM on your device.
-After you install the agent click 'Continue'. If your access is enabled than this means the connectivity between PacketFence and Kandji is good.
+At the end of the registration process you will be presented a page asking you
+to install the Kandji MDM on your device.
+After you install the agent click 'Continue'. If your access is enabled than
+this means the connectivity between PacketFence and Kandji is good.
 

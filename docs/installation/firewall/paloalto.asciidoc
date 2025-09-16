@@ -26,9 +26,11 @@ Create SSO role on PaloAlto firewall web interface.
 
 Go to *Device -> Admin Roles -> Add*.
 
-Create role 'SSO_Role', under 'XML API' tab enable everything, validate with 'OK'.
+Create role 'SSO_Role', under 'XML API' tab enable everything, validate with
+'OK'.
 
-image::doc-paloalto-SSO_Role.png[scaledwidth="100%",alt="Create a SSO Role in the PanOS"]
+image::doc-paloalto-SSO_Role.png[scaledwidth="100%",alt="Create a SSO Role in
+the PanOS"]
 
 ===== Create the account in PAN-OS
 
@@ -44,11 +46,13 @@ Go to *Device -> Administrators -> Add*.
 * *Profile*: SSO_Role (Previously created)
 * *Password Profile*: None
 
-image::doc-paloalto-create_xml_user.png[scaledwidth="100%",alt="Create a XML user in the PanOS"]
+image::doc-paloalto-create_xml_user.png[scaledwidth="100%",alt="Create a XML
+user in the PanOS"]
 
 ===== Get the XML Key
 
-Go on this URL: `https://@IP-of-PaloAlto/api/?type=keygen&user=xmluser&password=xmluser`.
+Go on this URL:
+`https://@IP-of-PaloAlto/api/?type=keygen&user=xmluser&password=xmluser`.
 
 It should display:
 
@@ -64,9 +68,11 @@ LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVlj0=
 
 ===== SSO Configuration in PacketFence
 
-Now that we have the key, we will configure the PaloAlto firewall in PacketFence.
+Now that we have the key, we will configure the PaloAlto firewall in
+PacketFence.
 
-Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*.
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall ->
+PaloAlto*.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your firewall
@@ -75,11 +81,14 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*
 * *Port of the service*: 443
 * *Roles*: add the roles that you want to do SSO with
 
-image::doc-paloalto-cfg_sso_pf.png[scaledwidth="100%",alt="Add a PaloAlto Firewall in PacketFence"]
+image::doc-paloalto-cfg_sso_pf.png[scaledwidth="100%",alt="Add a PaloAlto
+Firewall in PacketFence"]
 
 ===== Verification
 
-Now we will check that PacketFence is sending information when a user registers on the portal. If the process worked, you will see the entry in the PaloAlto database.
+Now we will check that PacketFence is sending information when a user registers
+on the portal. If the process worked, you will see the entry in the PaloAlto
+database.
 
 Use SSH on the PaloAlto firewall and run this command:
 
@@ -93,25 +102,34 @@ IP              Vsys   From    User                             IdleTimeout(s) M
 
 ==== Installation using syslog
 
-NOTE: This installation mode is not suggested unless you use the SSO for informational purposes (no enforcement). PacketFence will use easily spoofable UDP packets to communicate with the Palo Alto firewall. If you require encryption and origin validation of the SSO messages, please use the XML API.
+NOTE: This installation mode is not suggested unless you use the SSO for
+informational purposes (no enforcement). PacketFence will use easily spoofable
+UDP packets to communicate with the Palo Alto firewall. If you require
+encryption and origin validation of the SSO messages, please use the XML API.
 
 ===== Create a filter
 
-You will first need to create a filter to parse the SSO line that PacketFence will send. This can be done in 'User Identification->User Mapping'
+You will first need to create a filter to parse the SSO line that PacketFence
+will send. This can be done in 'User Identification->User Mapping'
 
-image::doc-paloalto-syslog-parse.png[scaledwidth="100%",alt="Syslog filter for Palo Alto SSO"]
+image::doc-paloalto-syslog-parse.png[scaledwidth="100%",alt="Syslog filter for
+Palo Alto SSO"]
 
 ===== Assign the filter to a 'Monitored Server'
 
-Next, configure the filter to be used in a syslog receiver on the Palo Alto. In order to do so, go in 'User Identification->User Mapping' and configure a syslog sender.
+Next, configure the filter to be used in a syslog receiver on the Palo Alto. In
+order to do so, go in 'User Identification->User Mapping' and configure a syslog
+sender.
 
-image::doc-paloalto-syslog-user-identification.png[scaledwidth="100%",alt="Syslog sender configuration"]
+image::doc-paloalto-syslog-user-identification.png[scaledwidth="100%",alt="Syslog
+sender configuration"]
 
 ===== SSO Configuration in PacketFence
 
 Next you need to configure the firewall in PacketFence.
 
-Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*.
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall ->
+PaloAlto*.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your firewall
@@ -122,7 +140,9 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*
 
 ===== Verification
 
-Now we will check that PacketFence is sending information when a user registers on the portal. If the process worked, you will see the entry in the PaloAlto database.
+Now we will check that PacketFence is sending information when a user registers
+on the portal. If the process worked, you will see the entry in the PaloAlto
+database.
 
 Use SSH on the PaloAlto firewall and run this command:
 
@@ -134,4 +154,7 @@ IP              Vsys   From    User                             IdleTimeout(s) M
 192.168.100.10  vsys1  syslog  domain\user1                     Never          Never     
 ----
 
-NOTE: If the process is not working and you get the following error `Usage: Socket::inet_ntoa(ip_address_sv)`, check that the hostname of your PacketFence server can be resolved correctly on the server itself. If its not, make sure you adjust your hosts file or your DNS server.
+NOTE: If the process is not working and you get the following error `Usage:
+Socket::inet_ntoa(ip_address_sv)`, check that the hostname of your PacketFence
+server can be resolved correctly on the server itself. If its not, make sure you
+adjust your hosts file or your DNS server.

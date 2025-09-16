@@ -13,4 +13,6 @@ Important variables:
   * `wsrep_last_committed`: Most recent committed transaction sequence number. Identifies most advanced node
   * `wsrep_local_state_comment`: Cluster sync state. Healthy state is 'Synced'. See Galera documentation for other values
 
-Healthy cluster requires: all nodes listed in `wsrep_incoming_addresses` and `wsrep_local_state_comment` as `Synced`. Otherwise check MariaDB log (`/usr/local/pf/logs/mariadb.log`).
+Healthy cluster requires: all nodes listed in `wsrep_incoming_addresses` and
+`wsrep_local_state_comment` as `Synced`. Otherwise check MariaDB log
+(`/usr/local/pf/logs/mariadb.log`).

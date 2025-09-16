@@ -1,8 +1,10 @@
 = Documentation README
 
-The documentation of PacketFence is formatted in http://www.methods.co.nz/asciidoc/[AsciiDoc].
+The documentation of PacketFence is formatted in
+http://www.methods.co.nz/asciidoc/[AsciiDoc].
 
-To convert the documentation to the PDF or HTML format, the following tools are required:
+To convert the documentation to the PDF or HTML format, the following tools are
+required:
 
 * https://asciidoctor.org/[asciidoctor] (.asciidoc to .html)
 * https://asciidoctor.org/docs/asciidoctor-pdf/[asciidoctor-pdf] (.asciidoc to .pdf)

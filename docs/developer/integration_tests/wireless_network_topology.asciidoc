@@ -10,7 +10,8 @@
 ==== Wireless network topology
 
 .Wireless network topology
-image::integration_tests/wireless_topology.png[scaledwidth="100%",alt="Wireless topology"]
+image::integration_tests/wireless_topology.png[scaledwidth="100%",alt="Wireless
+topology"]
 
 ===== Inventory Information
 

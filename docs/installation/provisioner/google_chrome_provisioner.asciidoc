@@ -19,9 +19,12 @@ endif::[]
 
 ==== Creating a service account JSON config
 
-In order to communicate with the Google API you must configure a service account, and download JSON security keys, and create a user to impersonate with the proper permissions.
+In order to communicate with the Google API you must configure a service
+account, and download JSON security keys, and create a user to impersonate with
+the proper permissions.
 
-These instructions have been adapted from https://developers.google.com/identity/protocols/oauth2/service-account.
+These instructions have been adapted from
+https://developers.google.com/identity/protocols/oauth2/service-account.
 
 * Open the Service accounts page https://console.developers.google.com/iam-admin/serviceaccounts.
 * If prompted, select a project, or create a new one.
@@ -69,9 +72,12 @@ These instructions have been adapted from https://developers.google.com/identity
 
 ==== Create a new provisioner
 
-Login to the admin interface, then go to _Configuration -> Advanced Access Configuration -> Provisioners -> New provisioner -> Google Workspace Chromebook_.
+Login to the admin interface, then go to _Configuration -> Advanced Access
+Configuration -> Provisioners -> New provisioner -> Google Workspace
+Chromebook_.
 
-image::google-workspace-chromebook-config.png[scaledwidth="100%",alt="Google Workspace Chromebook portal configuration"]
+image::google-workspace-chromebook-config.png[scaledwidth="100%",alt="Google
+Workspace Chromebook portal configuration"]
 
 Now configure this new provisioner with the information you got above.
 

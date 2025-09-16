@@ -13,24 +13,28 @@ include::includes/global-attributes.asciidoc[]
 
 This guide covers procedures to upgrade PacketFence servers.
 
-*CRITICAL UPGRADE REQUIREMENT*: PacketFence upgrades *MUST* be performed one major version at a time. Direct upgrades across multiple major versions (e.g., 11.x to 14.x) are *NOT SUPPORTED* and will result in configuration corruption and service failures.
+*CRITICAL UPGRADE REQUIREMENT*: PacketFence upgrades *MUST* be performed
+incrementally through minor versions only. Major version upgrades (e.g., 13.x to
+14.x) are *NOT SUPPORTED* and will result in configuration corruption and
+service failures.
 
-*Required Upgrade Path Example*:
-- From 11.x → 12.x → 13.x → 14.x (correct)
-- From 11.x → 14.x (incorrect - will fail)
+*Supported Upgrade Path Example*:
+- Within major version: 13.0 → 13.1 → 13.2 (correct)
+- Across major versions: 13.x → 14.x (NOT SUPPORTED - will fail)
 
-*Always upgrade incrementally*: 11.0 → 11.1 → 11.2 → 12.0 → 12.1 → 12.2 → 13.0 → 13.1 → 13.2 → 14.0 → 14.1 → latest
+*Always upgrade incrementally within the same major version*: 13.0 → 13.1 → 13.2
+→ latest 13.x version
 
 === Other sources of information
 
-https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html[Clustering Guide]::
+<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Covers installation in a clustered environment.
-https://www.packetfence.org/doc/PacketFence_Developers_Guide.html[Developer's Guide]::
+<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
   Covers API, captive portal customization, application code customizations and
   instructions for supporting new equipment.
-https://www.packetfence.org/doc/PacketFence_Installation_Guide.html[Installation Guide]::
+<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
   Covers installation and configuration of PacketFence.
-https://www.packetfence.org/doc/PacketFence_Network_Devices_Configuration_Guide.html[Network Devices Configuration Guide]::
+<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access points configuration.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
@@ -41,11 +45,12 @@ These files are included in the package and release tarballs.
 
 === Prerequisites
 
-The MariaDB root password that was provided during the initial configuration is required.
+The MariaDB root password that was provided during the initial configuration is
+required.
 
 === Database and configurations backup
 
-NOTE: Starting from PacketFence 11.0.0, this step is not necessary for
+NOTE: Starting from PacketFence 11.0, this step is not necessary for
 doing an
 <<#_automation_of_upgrades,automated
 upgrade>>.
@@ -53,13 +58,13 @@ upgrade>>.
 Taking a complete backup of the current installation is strongly recommended.
 Perform a backup using:
 
-.For PacketFence versions prior to 9.0.0:
+.For PacketFence versions prior to 9.0:
 [source,bash]
 ----
 /usr/local/pf/addons/database-backup-and-maintenance.sh
 ----
 
-.For PacketFence versions 9.0.0 and later:
+.For PacketFence versions 9.0 and later:
 [source,bash]
 ----
 /usr/local/pf/addons/backup-and-maintenance.sh
@@ -67,7 +72,7 @@ Perform a backup using:
 
 === Disable monit alerts (only if monit is installed)
 
-NOTE: Starting from PacketFence 11.0.0, this step is not necessary for
+NOTE: Starting from PacketFence 11.0, this step is not necessary for
 doing an
 <<#_automation_of_upgrades,automated
 upgrade>>.
@@ -82,34 +87,33 @@ systemctl disable monit
 
 == Upgrade Types and Version Requirements
 
-**Version Stepping Requirement**: All PacketFence upgrades must proceed one major version at a time to ensure database schema integrity and configuration compatibility.
+**Version Stepping Requirement**: All PacketFence upgrades must proceed incrementally through minor versions within the same major version to ensure database schema integrity and configuration compatibility.
 
 === Supported Upgrade Paths
 
-Starting from PacketFence 11.0.0, choose the appropriate upgrade method:
+Starting from PacketFence 11.0, choose the appropriate upgrade method:
 
 **1. Maintenance Patches** (within same major.minor version)
-- Example: 14.0.0 → 14.0.1 → 14.0.2
+- Example: 14.0 → 14.0.1 → 14.0.2
 - Method: <<#_apply_maintenance_patches,Apply maintenance patches>>
-- **Safe to skip patch versions**: You can upgrade directly from 14.0.0 → 14.0.5
+- **Safe to skip patch versions**: You can upgrade directly from 14.0 → 14.0.5
 
 **2. Minor Version Upgrades** (within same major version)
 - Example: 14.0.x → 14.1.x → 14.2.x
-- Method: <<#_sequential_version_upgrades_major_and_minor,Sequential Version Upgrades>>
+- Method: <<#_sequential_version_upgrades_minor_versions_only,Sequential Version Upgrades>>
 - **Must upgrade sequentially**: Each minor version must be installed in order
 
 **3. Major Version Upgrades** (cross-version upgrades)
-- Example: 13.x → 14.x → 15.x
-- Method: <<#_sequential_version_upgrades_major_and_minor,Sequential Version Upgrades>>
-- **CRITICAL**: Must be performed one major version at a time
-- **Never skip major versions**: Attempting to upgrade from 11.x directly to 14.x will fail
+- **NOT SUPPORTED**: Major version upgrades (e.g., 13.x → 14.x) are not supported
+- **Migration Required**: For major version changes, use the migration procedure described in the documentation
+- **Never attempt major version upgrades**: Direct upgrades across major versions will fail and corrupt your installation
 
-=== Pre-11.0.0 Systems
+=== Pre-11.0 Systems
 
-For PacketFence versions prior to 11.0.0:
-1. **Upgrade to 10.3.0** first (if not already)
-2. **Export/import to 11.0.0** (OS migration required)
-3. **Continue sequential upgrades**: 11.0 → 11.1 → 11.2 → 12.0 → etc.
+For PacketFence versions prior to 11.0:
+1. **Upgrade to 10.3** first (if not already)
+2. **Export/import to 11.0** (OS migration required)
+3. **Continue sequential upgrades within major version**: 11.0 → 11.1 → 11.2 → 11.x (latest). For major version changes, use export/import migration.
 
 == Apply maintenance patches
 
@@ -160,21 +164,20 @@ include::common/restart.asciidoc[]
 
 If services fail to start after upgrade, see <<#_service_startup_failures,Service Startup Failures>> and <<#_log_files,Log Files>> in the Troubleshooting section.
 
-== Sequential Version Upgrades (Major and Minor)
+== Sequential Version Upgrades (Minor Versions Only)
 
-**IMPORTANT**: This section covers upgrading between different PacketFence versions. All upgrades must follow sequential version order - never skip major versions.
+**IMPORTANT**: This section covers upgrading between minor versions within the same major version. Major version upgrades are not supported - use migration procedures instead.
 
 **Before Starting**:
 1. **Verify current version**: Run `/usr/local/pf/bin/pfcmd version` to confirm your starting version
 2. **Plan upgrade path**: Determine all intermediate versions needed to reach your target
 3. **Review breaking changes**: Check upgrade notes for each version in your path
 
-**Example Upgrade Sequence** (13.1 → 14.1):
+**Example Upgrade Sequence** (13.1 → 13.2):
 1. Upgrade 13.1 → 13.2 (complete all 13.2 steps)
-2. Upgrade 13.2 → 14.0 (complete all 14.0 steps) 
-3. Upgrade 14.0 → 14.1 (complete all 14.1 steps)
 
-**Never attempt**: 13.1 → 14.1 directly
+**Never attempt**: Skipping minor versions within a major version
+**Never attempt**: Major version upgrades like 13.x → 14.x (not supported)
 
 === Standalone Server Upgrades
 
@@ -191,7 +194,7 @@ If upgrading across multiple versions, **repeat the process for each intermediat
 
 **Process**:
 1. **Plan downtime**: Cluster upgrades require coordination across all nodes
-2. **Follow cluster guide**: See https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html#performing_an_upgrade_on_a_cluster[Performing an upgrade on a cluster]
+2. **Follow cluster guide**: See <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
 3. **Upgrade all nodes**: Ensure all nodes reach the same version before proceeding to next version
 
 **Critical**: Never have cluster nodes running different major versions simultaneously.
@@ -200,7 +203,7 @@ If upgrading across multiple versions, **repeat the process for each intermediat
 
 include::upgrade-notes/automation_of_upgrades.asciidoc[]
 
-== Upgrading from a version prior to 12.0.0
+== Upgrading from a version prior to 12.0
 
 === Tenant code deprecated
 
@@ -210,7 +213,7 @@ The code used to manage tenants in PacketFence has been removed. If tenants are 
 
 PacketFence previously used haproxy (via the haproxy-db service) to load balance and failover database connections from the PacketFence services to the database servers. This is now performed by ProxySQL which allows for splitting reads and writes to different members which offers greater performance and scalability.
 
-If ProxySQL causes issues in the deployment, revert back to haproxy-db by following https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html#database_via_proxysql_or_haproxy_db[these instructions]
+If ProxySQL causes issues in the deployment, revert back to haproxy-db by following <<PacketFence_Clustering_Guide.asciidoc#database_via_proxysql_or_haproxy_db,these instructions>>
 
 === Bandwidth accounting is now disabled by default.
 
@@ -279,7 +282,7 @@ The ability to backup a remote database configured in PacketFence has been depre
 From now on, a dedicated tool on the database server itself must be used to backup the external database.
 If the database is hosted on the PacketFence server (default behavior), then no adjustment is required.
 
-== Upgrading from a version prior to 12.1.0
+== Upgrading from a version prior to 12.1
 
 === configreload deprecated on pfcmd service pf restart
 
@@ -291,7 +294,7 @@ If a config file is modified directly on the filesystem then a manual `configrel
 /usr/local/pf/bin/pfcmd configreload hard
 ----
 
-== Upgrading from a version prior to 12.2.0
+== Upgrading from a version prior to 12.2
 
 === Changed dynamic ACL attribute for Aruba modules
 
@@ -318,7 +321,7 @@ patch /etc/rc.local /tmp/rc-local.patch
 ----
 
 
-== Upgrading from a version prior to 13.0.0
+== Upgrading from a version prior to 13.0
 
 === Adding the LDAP search attributes
 
@@ -333,7 +336,7 @@ Two switch types will be converted to the new way of defining a switch. Now, a s
 The following provisioners will be removed from Packetfence configuration IBM, ServiceNow, SEPM, Symantec, Opswat
 
 
-== Upgrading from a version prior to 13.1.0
+== Upgrading from a version prior to 13.1
 
 === Domain join
 
@@ -381,7 +384,7 @@ For each remaining server in the cluster:
 If domain joining fails during upgrade, see <<#_authentication_failures,Authentication Failures>> and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section.
 
 
-== Upgrading from a version prior to 13.2.0
+== Upgrading from a version prior to 13.2
 
 === Domain Config
 
@@ -412,7 +415,7 @@ Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch modules
 /usr/local/pf/addons/upgrade/to-13.2-convert-merakiswitch-types.pl
 ----
 
-== Upgrading from a version prior to 14.0.0
+== Upgrading from a version prior to 14.0
 
 === Specific automation upgrade
 
@@ -441,7 +444,7 @@ Since 14.0 PacketFence is able to receive events from the FleetDM servers, which
 Since 14.0, we've changed the structure of `domain.conf`, added a `host identifier` prefix to each domain profile. +
 Here is an example of a node joined both domain "a.com" and "b.com". The hostname of the node is `pfv14`.
 
-`domain.conf` structure prior to v14.0.0:
+`domain.conf` structure prior to v14.0:
 ----
 [domainA]
 ntlm_auth_port=5000
@@ -456,7 +459,7 @@ dns_name=b.com
 ....
 ----
 
-`domain.conf` structure after v14.0.0:
+`domain.conf` structure after v14.0:
 ----
 [pfv14 domainA]
 ntlm_auth_port=5000
@@ -503,16 +506,19 @@ dns_name=a.com
 ....
 ----
 
-A node will try to find their configuration from the section starts with its hostname.
+A node will try to find their configuration from the section starts with its
+hostname.
 
-During the upgrading process, the following script will be executed on each node. It will add the hostname prefix to each of the domain sections to match the new `domain.conf` structure.
+During the upgrading process, the following script will be executed on each
+node. It will add the hostname prefix to each of the domain sections to match
+the new `domain.conf` structure.
 
 [source,bash]
 ----
 /usr/local/pf/addons/upgrade/to-14.0-update-domain-config-section.pl
 ----
 
-Upgrading a PacketFence standalone installation prior to v14.0.0, nothing more is required after the
+Upgrading a PacketFence standalone installation prior to v14.0, nothing more is required after the
 upgrade script has completed.
 
 However, upgrading a PacketFence cluster, there are additional steps required:
@@ -550,7 +556,7 @@ unless specifying individual machine account names for each node.
 
 === Operating System Migration to PacketFence 14.0+
 
-PacketFence 14.0.0 introduces changes to supported operating systems:
+PacketFence 14.0 introduces changes to supported operating systems:
 - **Dropped**: Debian 11 (bullseye) 
 - **Added**: Debian 12 (bookworm)
 - **Continued**: RedHat EL8 support
@@ -559,7 +565,7 @@ PacketFence 14.0.0 introduces changes to supported operating systems:
 
 **In-place upgrades supported** - Follow standard upgrade procedures:
 
-1. Use the automated upgrade process: <<#_sequential_version_upgrades_major_and_minor,Sequential Version Upgrades (major or minor)>>
+1. Use the automated upgrade process: <<#_sequential_version_upgrades_minor_versions_only,Sequential Version Upgrades (minor versions only)>>
 2. No OS migration required - PacketFence continues supporting EL8
 
 ==== Migration to Debian 12
@@ -570,7 +576,7 @@ PacketFence 14.0.0 introduces changes to supported operating systems:
 2. **Target System**: Fresh Debian 12 installation 
 3. **Migration Method**: Export/import procedure (detailed below)
 
-To simplify the upgrade process to PacketFence 14.0.0 and future versions, we utilize a custom export/import procedure.
+To simplify the upgrade process to PacketFence 14.0 and future versions, we utilize a custom export/import procedure.
 
 The mariadb-backup package is installed with a PacketFence cluster and can also be used with standalone. The mariadb-backup package should have the same major version as the mariadb-server package.
 
@@ -588,9 +594,9 @@ Expected versions:
 - **Debian 12**: MariaDB server 10.11.6-MariaDB  
 - **RedHat EL8**: Version varies by repository
 
-If mariadb-backup is not installed, follow the standard export process at https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#export_on_current_installation[export on current installation].
+If mariadb-backup is not installed, follow the standard export process at <<PacketFence_Installation_Guide.asciidoc#export_on_current_installation,export on current installation>>.
 
-**Prerequisites**: Read https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#assumptions_and_limitations[assumptions and limitations] before proceeding.
+**Prerequisites**: Read <<PacketFence_Installation_Guide.asciidoc#assumptions_and_limitations,assumptions and limitations>> before proceeding.
 
 ===== Debian 12 Migration Procedure
 
@@ -687,12 +693,12 @@ If migration fails, verify database backup integrity and check available disk sp
 
 ===== Additional steps to build or rebuild a cluster
 
-To build a new cluster or rebuild an existing cluster, follow instructions in https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html#cluster_setup[Cluster setup section].
+To build a new cluster or rebuild an existing cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#cluster_setup,Cluster setup section>>.
 
 If the previous installation was a cluster, some steps may not be required.  The export archive will contain the previous [filename]`cluster.conf` file.
 
 
-== Upgrading from a version prior to 14.1.0
+== Upgrading from a version prior to 14.1
 
 == RedHat EL8 Upgrade Procedures
 
@@ -706,7 +712,8 @@ Install the upgrade package before running automated upgrade:
 
 [source,bash]
 ----
-yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1.el8.noarch.rpm
+yum localinstall
+https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1.el8.noarch.rpm
 ----
 
 **Standard Upgrade Process:**
@@ -715,7 +722,7 @@ Follow the automated upgrade: <<#_automation_of_upgrades,automation of upgrades>
 
 === EL8 Cluster Upgrade 
 
-**Cluster-specific procedure** - Follow the cluster upgrade guide: https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html#performing_an_upgrade_on_a_cluster[Performing an upgrade on a cluster]
+**Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
 
 **EL8-specific step**: When upgrading node C, install the EL8 upgrade package first <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>, then proceed with standard cluster node upgrade procedures.
 

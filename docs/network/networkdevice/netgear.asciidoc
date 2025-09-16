@@ -19,40 +19,58 @@ endif::[]
 
 //=== Netgear
 
-The "web-managed smart switch" models GS108Tv2/GS110/GS110TP are supported with Link up/down traps only.
+The "web-managed smart switch" models GS108Tv2/GS110/GS110TP are supported with
+Link up/down traps only.
 
-Higher-end "fully managed" switches including FSM726v1 are supported in Port Security mode.
+Higher-end "fully managed" switches including FSM726v1 are supported in Port
+Security mode.
 
 ==== FSM726 / FSM726S version 1
 
-PacketFence supports FSM726 / FSM726S version 1 switches _without VoIP_ in Port Security mode (with static MACs) – called Trusted MAC table on Netgear's hardware.
+PacketFence supports FSM726 / FSM726S version 1 switches _without VoIP_ in Port
+Security mode (with static MACs) – called Trusted MAC table on Netgear's
+hardware.
 
-Using the HTTP GUI, follow the steps below to configure such feature. Of course, you must create all your VLANs on the switch as well.
+Using the HTTP GUI, follow the steps below to configure such feature. Of course,
+you must create all your VLANs on the switch as well.
 
 [float]
 ===== SNMP Settings
 
-In _Advanced -> SNMP -> Community Table_, create a read-write community string and a trap community string. You can use the same community for all the 3 functions (Get, Set, Trap).
+In _Advanced -> SNMP -> Community Table_, create a read-write community string
+and a trap community string. You can use the same community for all the 3
+functions (Get, Set, Trap).
   
-Next, under _Advanced -> SNMP -> Host Table_, enable the Host Authorization feature and add the PacketFence server into the allowed host list.
+Next, under _Advanced -> SNMP -> Host Table_, enable the Host Authorization
+feature and add the PacketFence server into the allowed host list.
 
-Finally, under _Advanced -> SNMP -> Trap Setting_, enable the authentication trap.
+Finally, under _Advanced -> SNMP -> Trap Setting_, enable the authentication
+trap.
 
 [float]
 ===== Trusted MAC Security
 
-Under _Advanced -> Advanced Security -> Trusted MAC Address_, create a fake MAC address per port (ie. 02:00:00:00:00:xx where `xx` is the port number). This will have the effect of sending a security trap to PacketFence when a new device plugs on the port.
+Under _Advanced -> Advanced Security -> Trusted MAC Address_, create a fake MAC
+address per port (ie. 02:00:00:00:00:xx where `xx` is the port number). This
+will have the effect of sending a security trap to PacketFence when a new device
+plugs on the port.
   
 Don't forget to save the configuration!
 
 ==== GS108Tv2 / GS110T / GS110TP
 
-PacketFence supports certain lower-end Netgear switches in Link Up/Link Down traps. These "web-managed" switches have no command-line interface and only a subset of the port security and 802.1X functionality needed to interoperate with PacketFence in these more advanced modes. There is no way to send a trap upon port security violation, and there is only pure 802.1X, no MAC Address Bypass.
+PacketFence supports certain lower-end Netgear switches in Link Up/Link Down
+traps. These "web-managed" switches have no command-line interface and only a
+subset of the port security and 802.1X functionality needed to interoperate with
+PacketFence in these more advanced modes. There is no way to send a trap upon
+port security violation, and there is only pure 802.1X, no MAC Address Bypass.
 
 [float]
 ===== Switch Configuration
 
-It can be difficult to find the advanced features in the web GUI. We recommend using the GUI "Maintenance" tab to Upload the configuration to a file, and then edit it there.
+It can be difficult to find the advanced features in the web GUI. We recommend
+using the GUI "Maintenance" tab to Upload the configuration to a file, and then
+edit it there.
 
 Hints on file upload/download:
 
@@ -71,7 +89,8 @@ At the top of the config file, you need:
   vlan name 5 "Guest"
   exit
 
-In the same section as "users passwd", you need to specify your PacketFence server's management address:
+In the same section as "users passwd", you need to specify your PacketFence
+server's management address:
 
   snmptrap useStrongerSecret ipaddr 192.168.1.5
 
@@ -85,7 +104,10 @@ In the same section as the "voip oui" lines, you need to allow your SNMP server:
   snmp-server community ipmask 255.255.255.0 useStrongerSecret
   no voip vlan
 
-You should use port 1 as the uplink. If you connect port 1 of a GS108Tv2 switch into a Power over Ethernet switch, then the GS108Tv2 does not need AC power. If you bought GS110T(P) switches, presumably it's for the SFP uplink option. You'll want to configure both port 1 and the SFP ports 9-10 as trunks:
+You should use port 1 as the uplink. If you connect port 1 of a GS108Tv2 switch
+into a Power over Ethernet switch, then the GS108Tv2 does not need AC power. If
+you bought GS110T(P) switches, presumably it's for the SFP uplink option. You'll
+want to configure both port 1 and the SFP ports 9-10 as trunks:
 
   interface 0/1
   no snmp trap link-status
@@ -108,7 +130,8 @@ Each user-facing, PacketFence-managed port should be configured like:
 
 ==== M Series
 
-PacketFence supports the Netgear M series in wired MAC authentication without VoIP.
+PacketFence supports the Netgear M series in wired MAC authentication without
+VoIP.
 
 ===== Switch configuration
 
@@ -157,7 +180,10 @@ PacketFence supports Nortel switches with VoIP using one trap type:
 
 Don't forget to update the startup config!
 
-NOTE: if you are using a 5500 series with a firmware version of 6 or above, you must use a different module called Nortel::BayStack5500_6x in your `/usr/local/pf/conf/switches.conf`. Indeed, Nortel introduced an incompatible change of behavior in this firmware.
+NOTE: if you are using a 5500 series with a firmware version of 6 or above, you
+must use a different module called Nortel::BayStack5500_6x in your
+`/usr/local/pf/conf/switches.conf`. Indeed, Nortel introduced an incompatible
+change of behavior in this firmware.
 
 ==== BayStack 470, ERS2500 Series, ERS4500 Series, 4550, 5500 Series and ES325
 
@@ -185,7 +211,8 @@ NOTE: if you are using a 5500 series with a firmware version of 6 or above, you 
 [float]
 ===== VoIP support
 
-You need to ensure that all your ports are tagged with the voice VLAN. The switch should do the rest for you.
+You need to ensure that all your ports are tagged with the voice VLAN. The
+switch should do the rest for you.
 
   vlan create 6 name "Telephone" type port learning ivl
   vlan members 6 1-20,23-24

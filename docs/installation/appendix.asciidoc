@@ -25,13 +25,15 @@ endif::[]
 
 `pfcmd` is the command line interface to most PacketFence functionalities.
 
-When executed without any arguments `pfcmd` returns a basic help message with all main options:
+When executed without any arguments `pfcmd` returns a basic help message with
+all main options:
 
 ----
 include::pfcmd.help[]
 ----
 
-The node view option shows all information contained in the node database table for a specified MAC address
+The node view option shows all information contained in the node database table
+for a specified MAC address
 
   # /usr/local/pf/bin/pfcmd node view 52:54:00:12:35:02
   mac|pid|detect_date|regdate|unregdate|status|user_agent|computername|notes|last_arp|last_dhcp|switch|port|vlan|dhcp_fingerprint
@@ -40,7 +42,10 @@ The node view option shows all information contained in the node database table 
 [appendix]
 === Restoring a Percona XtraBackup or Mariabackup dump
 
-If you enabled Percona XtraBackup or Mariabackup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
+If you enabled Percona XtraBackup or Mariabackup for your nightly backup, you
+can use the following instructions to restore it. In this example we will be
+restoring
+`/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
 
 First, create a restore directory, move the backup to it and gunzip the backup:
 
@@ -57,7 +62,8 @@ Then extract the xbstream data (for Mariabackup):
 
   # mbstream -x < packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream
 
-Once done, you should have a lot of files that were extracted in the restore dir. Now, lets place the xbstream back in the backup directory
+Once done, you should have a lot of files that were extracted in the restore
+dir. Now, lets place the xbstream back in the backup directory
 
   # mv packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream ../
 
@@ -70,7 +76,8 @@ Next, apply the innodb log (for Mariabackup):
   # mariabackup --prepare --target-dir=./
 
 
-We will now stop MariaDB, move the existing data directory and replace it by the data that was extracted:
+We will now stop MariaDB, move the existing data directory and replace it by the
+data that was extracted:
 
 NOTE: Make sure you adjust the commands above to your environment.
 
@@ -89,7 +96,9 @@ For Mariabackup:
   # service packetfence-mariadb stop
   # mv /var/lib/mysql /var/lib/mysql.bak
   # mkdir /var/lib/mysql
-  # mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf      --move-back --force-non-empty-directories ./
+  # mariabackup --innobackupex
+  --defaults-file=/usr/local/pf/var/conf/mariadb.conf --move-back
+  --force-non-empty-directories ./
   # chown -R mysql: /var/lib/mysql
   # service packetfence-mariadb start
 
@@ -98,7 +107,8 @@ Should the service fail to start, make sure you look into the MariaDB logs.
 [appendix]
 === How to restore a standalone PacketFence server ?
 
-Starting from PacketFence 11.0.0, you can use <<#_exportimport_mechanism,the export/import mechanism>>.
+Starting from PacketFence 11.0, you can use <<#_exportimport_mechanism,the
+export/import mechanism>>.
 
 [appendix]
 === How to deploy PacketFence on Linode ?

@@ -21,7 +21,8 @@ endif::[]
 
 ==== OS6250, OS6450 
 
-PacketFence supports this switch using 802.1X, Mac authentication and also supports VoIP.
+PacketFence supports this switch using 802.1X, Mac authentication and also
+supports VoIP.
 
 ===== Global configuration
 
@@ -38,13 +39,16 @@ Next, configure the RADIUS server to be PacketFence
     aaa authentication mac packetfence
     aaa authentication 802.1X packetfence
 
-You now need to configure a user profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
+You now need to configure a user profile (equivalent of a role) that will
+determine which VLAN is assigned to the device. In this case the profile names
+are 'unreg', 'employee' and 'guest'.
 
     aaa user-network-profile name unreg vlan 2
     aaa user-network-profile name guest vlan 5
     aaa user-network-profile name employee vlan 20
 
-Next, configure the switch in PacketFence. In the case of this example, the uplink is port 1/1.
+Next, configure the switch in PacketFence. In the case of this example, the
+uplink is port 1/1.
  
     [192.168.1.10]
     mode=production
@@ -68,12 +72,15 @@ You will need to configure the ports you want to do authentication on.
 
     vlan port mobile 1/2
     vlan port 1/2 802.1X enable
-    802.1X 1/2 supplicant policy authentication pass group-mobility block fail block
-    802.1X 1/2 non-supplicant policy authentication pass group-mobility block fail block
+    802.1X 1/2 supplicant policy authentication pass group-mobility block fail
+    block
+    802.1X 1/2 non-supplicant policy authentication pass group-mobility block
+    fail block
 
 ===== MAC Authentication
 
-First, make sure you followed the steps above in 'Global configuration' and '802.1X'
+First, make sure you followed the steps above in 'Global configuration' and
+'802.1X'
 
 Next configure the interface to bypass 802.1X authentication
 
@@ -81,13 +88,16 @@ Next configure the interface to bypass 802.1X authentication
 
 ===== VoIP
 
-PacketFence supports VoIP on Alcatel by having multiple devices using multiple untagged VLANs on the same port.
+PacketFence supports VoIP on Alcatel by having multiple devices using multiple
+untagged VLANs on the same port.
 
-First configure the user profile for voice. In this example it is only isolating it on another VLAN but any user profile attributes can be added to the profile.
+First configure the user profile for voice. In this example it is only isolating
+it on another VLAN but any user profile attributes can be added to the profile.
 
     aaa user-network-profile name voice vlan 3
 
-Next, make sure you enable VoIP in the switch configuration in PacketFence and configure the voiceRole.
+Next, make sure you enable VoIP in the switch configuration in PacketFence and
+configure the voiceRole.
 
     [192.168.1.10]
     VoIPEnabled=Y
@@ -96,9 +106,11 @@ Next, make sure you enable VoIP in the switch configuration in PacketFence and c
 
 ==== OS6860
 
-PacketFence supports this switch using 802.1X, Mac authentication and also supports VoIP.
+PacketFence supports this switch using 802.1X, Mac authentication and also
+supports VoIP.
 
-NOTE: This documentation is made for Alcatel OS 8.1+. Lower versions do not support this configuration.
+NOTE: This documentation is made for Alcatel OS 8.1+. Lower versions do not
+support this configuration.
 
 ===== Global configuration
 
@@ -115,7 +127,9 @@ Next, configure the RADIUS server to be PacketFence
     aaa device-authentication mac packetfence
     aaa device-authentication 802.1X packetfence
 
-You now need to configure an edge profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
+You now need to configure an edge profile (equivalent of a role) that will
+determine which VLAN is assigned to the device. In this case the profile names
+are 'unreg', 'employee' and 'guest'.
 
     unp edge-profile unreg
     unp edge-profile unreg redirect enable
@@ -132,9 +146,11 @@ You now need to configure an edge profile (equivalent of a role) that will deter
     unp edge-profile employee authentication-flag enable
     unp vlan-mapping edge-profile employee vlan 20
 
-CAUTION: Make sure you enable the redirect on *all* your roles as the access reevaluation will not work without it.
+CAUTION: Make sure you enable the redirect on *all* your roles as the access
+reevaluation will not work without it.
 
-Next, configure the switch in PacketFence. In the case of this example, the uplink is port 1/1/1.
+Next, configure the switch in PacketFence. In the case of this example, the
+uplink is port 1/1/1.
  
     [192.168.1.10]
     mode=production
@@ -154,7 +170,8 @@ Next, configure the switch in PacketFence. In the case of this example, the upli
 
 First, make sure you followed the steps above in 'Global configuration'
 
-You will need to create an edge template and apply it on the ports you want to do authentication on.
+You will need to create an edge template and apply it on the ports you want to
+do authentication on.
 
     unp edge-template pf_mab
     unp edge-template pf_mab mac-authentication enable
@@ -166,27 +183,32 @@ You will need to create an edge template and apply it on the ports you want to d
 
 First, make sure you followed the steps above in 'Global configuration'
 
-You will need to create an edge template and apply it on the ports you want to do authentication on.
+You will need to create an edge template and apply it on the ports you want to
+do authentication on.
 
     unp edge-template pf_dot1x
     unp edge-template pf_dot1x 802.1X-authentication enable
     unp edge-template pf_dot1x mac-authentication enable
-    unp edge-template pf_dot1x 802.1X-authentication failure-policy mac-authentication
+    unp edge-template pf_dot1x 802.1X-authentication failure-policy
+    mac-authentication
     unp port 1/1/2 port-type edge
     unp port 1/1/2 edge-template pf_dot1x
 
 ===== VoIP
 
-PacketFence supports VoIP on Alcatel by having multiple devices using multiple untagged VLANs on the same port.
+PacketFence supports VoIP on Alcatel by having multiple devices using multiple
+untagged VLANs on the same port.
 
-First configure the edge profile for voice. In this example it is only isolating it on another VLAN but any edge profile attributes can be added to the profile.
+First configure the edge profile for voice. In this example it is only isolating
+it on another VLAN but any edge profile attributes can be added to the profile.
 
     unp edge-profile voice
     unp edge-profile voice redirect enable
     unp edge-profile voice authentication-flag enable
     unp vlan-mapping edge-profile voice vlan 100
 
-Next, make sure you enable VoIP in the switch configuration in PacketFence and configure the voiceRole.
+Next, make sure you enable VoIP in the switch configuration in PacketFence and
+configure the voiceRole.
 
     [192.168.1.10]
     VoIPEnabled=Y
