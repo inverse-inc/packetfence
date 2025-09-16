@@ -355,7 +355,7 @@ has_field 'encryption' =>
    ],
    required => 1,
    element_class => ['input-small'],
-   default => 'SSL',
+   default => 'ssl',
   );
 
 has_field client_cert_file => (
