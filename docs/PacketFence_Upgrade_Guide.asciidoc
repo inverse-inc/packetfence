@@ -25,6 +25,45 @@ service failures.
 *Always upgrade incrementally within the same major version*: 13.0 → 13.1 → 13.2
 → latest 13.x version
 
+=== Operating System Compatibility
+
+PacketFence versions have specific operating system requirements. **Operating
+system migrations require export/import procedures** - in-place upgrades are not
+supported when changing operating systems.
+
+[cols="2,2,3",options="header"]
+|===
+|PacketFence Version |Supported Operating Systems |Migration Required
+
+|14.0 and later
+|Debian 12 (bookworm), RHEL 8
+|**Yes** - from Debian 11 to Debian 12
+
+|11.0 - 13.x
+|Debian 11 (bullseye), RHEL 8
+|**Yes** - from Debian 9/CentOS 7
+
+|Prior to 11.0
+|Debian 9, CentOS 7 (deprecated)
+|**Yes** - to continue receiving updates
+|===
+
+*RHEL 8 Continuity*: Systems already on RHEL 8 can perform in-place PacketFence
+upgrades through all supported versions without OS migration.
+
+=== MariaDB Incremental Upgrade Requirement
+
+PacketFence **requires sequential version upgrades** because MariaDB must be
+upgraded incrementally through major versions. Each PacketFence version is
+tested with specific MariaDB versions, and skipping PacketFence versions can
+result in incompatible MariaDB schema changes.
+
+*Why Sequential Upgrades are Mandatory*:
+- MariaDB cannot safely skip major version upgrades
+- Database schema changes are cumulative and version-dependent
+- Configuration changes may depend on specific MariaDB features
+- Skipping versions can cause irreversible database corruption
+
 === Other sources of information
 
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
@@ -43,10 +82,52 @@ These files are included in the package and release tarballs.
 
 == General Upgrade Tips
 
+[IMPORTANT]
+====
+**Sequential Upgrades Required**: All PacketFence upgrades must be performed
+sequentially. See <<#_mariadb_incremental_upgrade_requirement,MariaDB Incremental Upgrade Requirement>>
+for the technical reasons why skipping versions will cause database corruption.
+====
+
 === Prerequisites
 
 The MariaDB root password that was provided during the initial configuration is
 required.
+
+==== Update Operating System Packages
+
+*MANDATORY*: Before every PacketFence upgrade, update all operating system
+packages to ensure compatibility and security.
+
+.Debian-based systems:
+[source,bash]
+----
+# Update package repositories and upgrade all packages
+apt update && apt upgrade -y
+
+# Check if reboot is required after kernel/core updates
+if [ -f /var/run/reboot-required ]; then
+    echo "Reboot required after OS updates"
+    # Reboot and continue upgrade process after restart
+fi
+----
+
+.RHEL/CentOS-based systems:
+[source,bash]
+----
+# Update all packages
+yum update -y
+# OR for newer systems:
+# dnf update -y
+
+# Check if reboot is required
+needs-restarting -r
+# If reboot needed, restart system before continuing
+----
+
+*Critical Components Updated*: OS package updates ensure MariaDB, Apache,
+FreeRADIUS, and other system dependencies are current and compatible with the
+PacketFence version being installed.
 
 === Database and configurations backup
 
@@ -166,12 +247,23 @@ If services fail to start after upgrade, see <<#_service_startup_failures,Servic
 
 == Sequential Version Upgrades (Minor Versions Only)
 
-**IMPORTANT**: This section covers upgrading between minor versions within the same major version. Major version upgrades are not supported - use migration procedures instead.
+**IMPORTANT**: This section covers upgrading between minor versions within the
+same major version. Major version upgrades are not supported - use migration
+procedures instead.
+
+[TIP]
+====
+**OS Migration Required?** Check the <<#_operating_system_compatibility,Operating System Compatibility>>
+matrix first. If your target version requires a different operating system,
+use <<#_upgrading_from_packetfence_10x_to_110,export/import migration>> instead
+of these in-place upgrade procedures.
+====
 
 **Before Starting**:
-1. **Verify current version**: Run `/usr/local/pf/bin/pfcmd version` to confirm your starting version
-2. **Plan upgrade path**: Determine all intermediate versions needed to reach your target
-3. **Review breaking changes**: Check upgrade notes for each version in your path
+1. **Update OS packages**: Follow <<#_update_operating_system_packages,OS package update procedures>>
+2. **Verify current version**: Run `/usr/local/pf/bin/pfcmd version` to confirm your starting version
+3. **Plan upgrade path**: Determine all intermediate versions needed to reach your target
+4. **Review breaking changes**: Check upgrade notes for each version in your path
 
 **Example Upgrade Sequence** (13.1 → 13.2):
 1. Upgrade 13.1 → 13.2 (complete all 13.2 steps)
@@ -201,11 +293,32 @@ If upgrading across multiple versions, **repeat the process for each intermediat
 
 == Automation of upgrades
 
+[NOTE]
+====
+**Before Using Automation**: Review the <<#_operating_system_compatibility,Operating System Compatibility>>
+matrix to determine if your upgrade requires OS migration via export/import
+procedures instead of automated in-place upgrades.
+====
+
 include::upgrade-notes/automation_of_upgrades.asciidoc[]
 
 == Upgrading from PacketFence 10.x to 11.0+
 
 **OS Migration Required**: PacketFence 11.0+ requires newer operating systems and cannot be upgraded in-place from 10.x systems.
+
+[WARNING]
+====
+**CLUSTER ENVIRONMENTS**: Export/import procedures on clusters require
+**additional coordination steps** beyond standalone systems. **Data loss can
+occur** if cluster-specific procedures are not followed correctly. All cluster
+nodes must be properly synchronized during the migration process.
+
+**Cluster-Specific Requirements**:
+- All nodes must be stopped in correct sequence
+- Database synchronization must be verified before export
+- Import must be performed on primary node first
+- Additional cluster reconfiguration required after import
+====
 
 **Supported Migration Paths**:
 - **From**: Debian 9, CentOS 7, PacketFence 10.x
@@ -217,6 +330,7 @@ include::upgrade-notes/automation_of_upgrades.asciidoc[]
 1. **Source system**: Must be PacketFence 10.3 or later
 2. **Target system**: Fresh OS installation (Debian 11+ or RHEL 8+)
 3. **Review limitations**: Read <<PacketFence_Installation_Guide.asciidoc#assumptions_and_limitations,assumptions and limitations>>
+4. **For clusters**: Review <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,cluster upgrade procedures>>
 
 **After 11.0 Migration**: Continue with sequential upgrades (11.0 → 11.1 → 11.2 → etc.)
 
@@ -611,44 +725,88 @@ If domain joining fails during upgrade, see <<#_authentication_failures,Authenti
 
 == Upgrading from a version prior to 13.2
 
-=== Domain Config
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
+**Upgrade Type**: Minor version upgrade (configuration + database changes)
 
-Since 13.2 PacketFence implements a local NT Key cache to track failed login attempts to prevent the account from being locked on the AD. To implement the NT Key cache perform the following steps:
+=== Configuration Upgrades
+
+==== Domain Config
+
+Since 13.2 PacketFence implements a local NT Key cache to track failed login
+attempts to prevent the account from being locked on the AD. To implement the
+NT Key cache perform the following steps:
 
 [source,bash]
 ----
+# Update domain configuration for NT Key cache support
 /usr/local/pf/addons/upgrade/to-13.2-update-domain-config.pl
 ----
 
-=== Admin Role
+==== Admin Role
 
-Since 13.2 PacketFence is able to receive events from the AD to report password changes, which allows PacketFence to reset failed login attempts in the NT Key cache. To add a new admin role to receive these events through the PacketFence API perform the following steps:
+Since 13.2 PacketFence is able to receive events from the AD to report password
+changes, which allows PacketFence to reset failed login attempts in the NT Key
+cache. To add a new admin role to receive these events through the PacketFence
+API perform the following steps:
 
 [source,bash]
 ----
+# Add admin roles for AD password change events
 /usr/local/pf/addons/upgrade/to-13.2-adds-new-admin-roles.pl
 ----
 
-=== Switches
+==== Switches
 
-Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch modules to use OS versions rather than hardware versions. To update the current switch configurations to the new OS versions perform the following:
+Since 13.2 PacketFence has reworked the Cisco, Juniper and Meraki switch
+modules to use OS versions rather than hardware versions. To update the current
+switch configurations to the new OS versions perform the following:
 
 [source,bash]
 ----
+# Convert switch configurations to new OS-based modules
 /usr/local/pf/addons/upgrade/to-13.2-convert-switch-types.pl
 /usr/local/pf/addons/upgrade/to-13.2-convert-juniper-switch-types.pl
 /usr/local/pf/addons/upgrade/to-13.2-convert-merakiswitch-types.pl
 ----
 
-== Upgrading from a version prior to 14.0
+=== Database Schema Upgrade
 
-=== Admin Role
+Changes have been made to the database schema. An SQL upgrade script is provided
+to upgrade the database from the 13.1 schema to 13.2.
 
-Since 14.0 PacketFence is able to receive events from the FleetDM servers, which allows PacketFence to detect policy violations or CVEs of devices managed by FleetDM. To add a new admin role to receive these events through the PacketFence API perform the following steps:
+To upgrade the database schema, run the following command:
 
 [source,bash]
-
 ----
+# Upgrade database schema from 13.1 to 13.2
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-13.1-13.2.sql
+----
+
+== Upgrading from a version prior to 14.0
+
+**OS Requirements**: Debian 12 (bookworm) or RHEL 8
+**Upgrade Type**: Major version upgrade (may require OS migration)
+
+[NOTE]
+====
+**OS Migration Alert**: PacketFence 14.0 dropped support for Debian 11. Systems
+running Debian 11 **must migrate to Debian 12** using export/import procedures.
+See <<#_operating_system_migration_to_packetfence_140,OS Migration to PacketFence 14.0+>>
+for complete migration procedures.
+====
+
+=== Configuration Upgrades
+
+==== Admin Role
+
+Since 14.0 PacketFence is able to receive events from the FleetDM servers,
+which allows PacketFence to detect policy violations or CVEs of devices managed
+by FleetDM. To add a new admin role to receive these events through the
+PacketFence API perform the following steps:
+
+[source,bash]
+----
+# Add FleetDM admin roles for API event handling
 /usr/local/pf/addons/upgrade/to-14.0-adds-admin-roles-fleetdm.pl
 ----
 
@@ -785,31 +943,64 @@ PacketFence 14.0 introduces changes to supported operating systems:
 
 **New OS installation required** - In-place OS upgrades not supported:
 
+[WARNING]
+====
+**CLUSTER ENVIRONMENTS**: Debian 12 migration on clusters requires **careful
+coordination** to prevent data loss. Export/import procedures must include
+**cluster-specific steps** that are not required for standalone installations.
+
+**Critical Cluster Considerations**:
+- Complete cluster shutdown required before export
+- Database cluster state must be verified as synchronized
+- Primary node selection for import process
+- Cluster reconfiguration and rejoining procedures after import
+====
+
 1. **Source Systems**: Debian 11 or RedHat EL8 installations
-2. **Target System**: Fresh Debian 12 installation 
+2. **Target System**: Fresh Debian 12 installation
 3. **Migration Method**: Export/import procedure (detailed below)
+4. **For clusters**: Additional cluster-specific procedures required
 
-To simplify the upgrade process to PacketFence 14.0 and future versions, we utilize a custom export/import procedure.
+To simplify the upgrade process to PacketFence 14.0 and future versions, we
+utilize a custom export/import procedure that handles MariaDB version
+differences automatically.
 
-The mariadb-backup package is installed with a PacketFence cluster and can also be used with standalone. The mariadb-backup package should have the same major version as the mariadb-server package.
+**CRITICAL MariaDB Pre-Requisites for Export/Import**
 
-**MariaDB Version Compatibility**
+The export/import procedure handles MariaDB version differences between source
+and target systems automatically. However, specific pre-requisites must be met:
 
-Verify mariadb-backup package version matches your MariaDB server version:
+[IMPORTANT]
+====
+**MariaDB Backup Package Requirement**:
+- The `mariadb-backup` package is **required** for cluster installations
+- Can also be used for standalone installations for better reliability
+- **Must match major version** of the `mariadb-server` package
+- Different OS versions use different MariaDB versions automatically
+====
+
+**Verify MariaDB Backup Compatibility**
+
+Check that mariadb-backup matches your MariaDB server version:
 
 [source,bash]
 ----
+# Verify mariadb-backup is available and compatible
 /usr/bin/mariabackup --version
+
+# This should show version matching your MariaDB server
+# No manual intervention required - versions handled automatically
 ----
 
-Expected versions:
+**Expected MariaDB Versions by OS**:
 - **Debian 11**: MariaDB server 10.5.24-MariaDB
-- **Debian 12**: MariaDB server 10.11.6-MariaDB  
-- **RedHat EL8**: Version varies by repository
+- **Debian 12**: MariaDB server 10.11.6-MariaDB
+- **RedHat EL8**: Version varies by repository (typically 10.3 or 10.5)
 
-If mariadb-backup is not installed, follow the standard export process at <<PacketFence_Installation_Guide.asciidoc#export_on_current_installation,export on current installation>>.
+**Alternative Export Method**: If mariadb-backup is not installed, use the
+standard export process at <<PacketFence_Installation_Guide.asciidoc#export_on_current_installation,export on current installation>>.
 
-**Prerequisites**: Read <<PacketFence_Installation_Guide.asciidoc#assumptions_and_limitations,assumptions and limitations>> before proceeding.
+**Additional Prerequisites**: Review <<PacketFence_Installation_Guide.asciidoc#assumptions_and_limitations,assumptions and limitations>> before proceeding.
 
 ===== Debian 12 Migration Procedure
 
@@ -909,6 +1100,25 @@ If migration fails, verify database backup integrity and check available disk sp
 To build a new cluster or rebuild an existing cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#cluster_setup,Cluster setup section>>.
 
 If the previous installation was a cluster, some steps may not be required.  The export archive will contain the previous [filename]`cluster.conf` file.
+
+=== Database Schema Upgrade (In-Place Upgrades Only)
+
+For systems performing in-place upgrades (RHEL 8 systems not migrating OS),
+the database schema must be upgraded:
+
+[source,bash]
+----
+# Upgrade database schema from 13.2 to 14.0 (in-place upgrades only)
+# Note: OS migration procedures handle database changes automatically
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-13.2-14.0.sql
+----
+
+[NOTE]
+====
+**Migration vs In-Place**: Database schema upgrades are **only needed for
+in-place upgrades**. The export/import migration procedure handles database
+schema changes automatically during the migration process.
+====
 
 
 == Upgrading from a version prior to 14.1
