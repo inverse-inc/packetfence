@@ -20,21 +20,35 @@ endif::[]
 
 === DHCP Remote Sensor
 
-The DHCP remote sensor consists of a lightweight binary installed on the production DHCP server to replicate all DHCP traffic (1-to-1) to the PacketFence server. This solution is more reliable than DHCP relaying since PacketFence receives a copy of all the DHCP traffic including broadcast traffic. Supported DHCP servers include Microsoft DHCP server and CentOS 6 and 7.
+The DHCP remote sensor consists of a lightweight binary installed on the
+production DHCP server to replicate all DHCP traffic (1-to-1) to the PacketFence
+server. This solution is more reliable than DHCP relaying since PacketFence
+receives a copy of all the DHCP traffic including broadcast traffic. Supported
+DHCP servers include Microsoft DHCP server and CentOS 6 and 7.
 
-These sensors capture low-level packets on the DHCP server and forwards them to the PacketFence management interface.
+These sensors capture low-level packets on the DHCP server and forwards them to
+the PacketFence management interface.
 
 ==== Microsoft Remote Sensor
 
-The PacketFence-Forwarder is an optimized version of the udp-reflector, which installs easily and only forwards DHCPREQUESTS and DHCPACK packets from the source to the destination as well optionally mirroring DNS traffic for integration with the Fingerbank Collector
+The PacketFence-Forwarder is an optimized version of the udp-reflector, which
+installs easily and only forwards DHCPREQUESTS and DHCPACK packets from the
+source to the destination as well optionally mirroring DNS traffic for
+integration with the Fingerbank Collector
 
-Download the http://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[DHCP Forwarder installer].
+Download the
+http://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[DHCP
+Forwarder installer].
 
-This installs `nPCAP`, `nssm`, launches a configurator for the interface, IP and port, saves the configuration, and finally installs and launches the DHCP-Forwarder service.
+This installs `nPCAP`, `nssm`, launches a configurator for the interface, IP and
+port, saves the configuration, and finally installs and launches the
+DHCP-Forwarder service.
 
-When asked for a host IP and UDP port for DHCP mirroring provide the PacketFence management IP and 767 respectively.
+When asked for a host IP and UDP port for DHCP mirroring provide the PacketFence
+management IP and 767 respectively.
 
-Visit the https://github.com/inverse-inc/packetfence-dhcp-forwarder[PacketFence Forwarder project page].
+Visit the https://github.com/inverse-inc/packetfence-dhcp-forwarder[PacketFence
+Forwarder project page].
 
 ==== Linux-based Sensor
 
@@ -46,14 +60,16 @@ For CentOS 6 (x86_64):
 
 [source,bash]
 ----
-wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+wget
+http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
 For CentOS 7 (x86_64):
 
 [source,bash]
 ----
-wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+wget
+http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
 Install the sensor with [command]`rpm`:
@@ -109,7 +125,8 @@ Create the script `unreg_node_deleted_account.ps1` on the Windows Server with th
 
 ----
 #########################################################################################
-#Powershell script to unregister deleted Active Directory account based on the UserName.#
+#Powershell script to unregister deleted Active Directory account based on the
+UserName.#
 #########################################################################################
 
 Get-EventLog -LogName Security -InstanceId 4726 |
@@ -118,20 +135,24 @@ Get-EventLog -LogName Security -InstanceId 4726 |
     $url = "https://@IP_PACKETFENCE:9090/"
     $username = "admin" # Username for the webservices
     $password = "admin" # Password for the webservices
-    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback =
+    {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params":
+    ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
     $web.Method = "POST"
     $web.ContentLength = $bytes.Length
     $web.ContentType = "application/json-rpc"
-    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $web.Credentials = new-object System.Net.NetworkCredential($username,
+    $password)
     $stream = $web.GetRequestStream()
     $stream.Write($bytes,0,$bytes.Length)
     $stream.close()
 
-    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader = New-Object System.IO.Streamreader -ArgumentList
+    $web.GetResponse().GetResponseStream()
     $reader.ReadToEnd()
     $reader.Close()
    }
@@ -173,7 +194,8 @@ Add arguments (optional): C:\scripts\unreg_node_deleted_account.ps1
 Settings:
 
 ----
-At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
+At the bottom, select in the list "Run a new instance in parallel" in order to
+unregister multiple nodes at the same time.
 ----
 
 Validate with Ok and provide the account that will run this task (usually _DOMAIN\Administrator_).
@@ -184,7 +206,8 @@ Create the script `unreg_node_disabled_account.ps1` on the Windows Server with t
 
 ----
 ##########################################################################################
-#Powershell script to unregister disabled Active Directory account based on the UserName.#
+#Powershell script to unregister disabled Active Directory account based on the
+UserName.#
 ##########################################################################################
 
 Get-EventLog -LogName Security -InstanceId 4725 |
@@ -193,20 +216,24 @@ Get-EventLog -LogName Security -InstanceId 4725 |
     $url = "https://@IP_PACKETFENCE:9090/"
     $username = "admin" # Username for the webservices
     $password = "admin" # Password for the webservices
-    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback =
+    {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params":
+    ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
     $web.Method = "POST"
     $web.ContentLength = $bytes.Length
     $web.ContentType = "application/json-rpc"
-    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $web.Credentials = new-object System.Net.NetworkCredential($username,
+    $password)
     $stream = $web.GetRequestStream()
     $stream.Write($bytes,0,$bytes.Length)
     $stream.close()
 
-    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader = New-Object System.IO.Streamreader -ArgumentList
+    $web.GetResponse().GetResponseStream()
     $reader.ReadToEnd()
     $reader.Close()
 
@@ -260,7 +287,8 @@ Create the script `unreg_node_locked_account.ps1` on the Windows Server with the
 
 ----
 #########################################################################################
-#Powershell script to unregister locked Active Directory account based on the UserName.#
+#Powershell script to unregister locked Active Directory account based on the
+UserName.#
 #########################################################################################
 
 Get-EventLog -LogName Security -InstanceId 4740 |
@@ -269,20 +297,24 @@ Get-EventLog -LogName Security -InstanceId 4740 |
     $url = "https://@IP_PACKETFENCE:9090/"
     $username = "admin" # Username for the webservices
     $password = "admin" # Password for the webservices
-    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback =
+    {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params":
+    ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
     $web.Method = "POST"
     $web.ContentLength = $bytes.Length
     $web.ContentType = "application/json-rpc"
-    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $web.Credentials = new-object System.Net.NetworkCredential($username,
+    $password)
     $stream = $web.GetRequestStream()
     $stream.Write($bytes,0,$bytes.Length)
     $stream.close()
 
-    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader = New-Object System.IO.Streamreader -ArgumentList
+    $web.GetResponse().GetResponseStream()
     $reader.ReadToEnd()
     $reader.Close()
 
@@ -410,7 +442,10 @@ For example, to ignore the script that generated the following output add [filen
 ------------------------------------------
 /usr/local/pf/var/monitoring-scripts/.check-epel.sh failed
 Result of /usr/local/pf/var/monitoring-scripts/.check-epel.sh
-The EPEL repository is enabled. This can cause disastrous issues by having the wrong versions of certain packages installed. It is recommended to disable it using the following command: sed -i 's/enabled\s*=\s*1/enabled = 0/g' /etc/yum.repos.d/epel.repo
+The EPEL repository is enabled. This can cause disastrous issues by having the
+wrong versions of certain packages installed. It is recommended to disable it
+using the following command: sed -i 's/enabled\s*=\s*1/enabled = 0/g'
+/etc/yum.repos.d/epel.repo
 ------------------------------------------
 ----
 

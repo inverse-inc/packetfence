@@ -21,7 +21,9 @@ endif::[]
 
 ==== Aironet 1121, 1130, 1242, 1250, 1600
 
-CAUTION: With this equipment, the same VLAN cannot be shared between two SSIDs. Have this in mind in your design. For example, you need two isolation VLAN if you want to isolate hosts on the public and secure SSIDs.
+CAUTION: With this equipment, the same VLAN cannot be shared between two SSIDs.
+Have this in mind in your design. For example, you need two isolation VLAN if
+you want to isolate hosts on the public and secure SSIDs.
 
 [float]
 ===== MAC-Authentication + 802.1X configuration
@@ -110,7 +112,8 @@ dot11 ssid PacketFence-Public
   mbssid guest-mode
 ----
 
-Configure the RADIUS server (we assume here that the FreeRADIUS server and the PacketFence server are located on the same box):
+Configure the RADIUS server (we assume here that the FreeRADIUS server and the
+PacketFence server are located on the same box):
 
 ----
 radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 key useStrongerSecret
@@ -143,10 +146,13 @@ aaa server radius dynamic-author
 
 ==== Wireless LAN Controller (AireOS)
 
-In this section, we cover the basic configuration of the WLC for PacketFence using the WLC web interface.
+In this section, we cover the basic configuration of the WLC for PacketFence
+using the WLC web interface.
 
 * First, globally define the FreeRADIUS server running on PacketFence
-  (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support for CoA_) is enabled. When the option is missing from your WLC, it is enabled by default.
+  (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support
+  for CoA_) is enabled. When the option is missing from your WLC, it is enabled
+  by default.
 
 image::cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
@@ -171,7 +177,8 @@ image::cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
 
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
-image::cisco-wlc-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced secure"]
+image::cisco-wlc-secure-radius-advance.png[scaledwidth="100%",alt="Radius
+advanced secure"]
 
 * Edit the non-secure SSID: Enable MAC authentication at level 2
 
@@ -187,29 +194,38 @@ image::cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
 
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
-image::cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
+image::cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius
+advanced non secure"]
 
 * Finally, in _Controller -> Interfaces_ tab, create an interface per VLAN that could be assigned
 
 image::cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
 
-WARNING: When creating interfaces, it's important to configure DHCP servers. Otherwise, WLC will block DHCP requests.
+WARNING: When creating interfaces, it's important to configure DHCP servers.
+Otherwise, WLC will block DHCP requests.
 
 You are good to go!
 
 ===== Wireless LAN Controller (AireOS) Web Auth
 
-In this section, we cover the basic configuration of the WLC AireOS Web Auth for PacketFence using the WLC web interface.
-The idea is to forward the device to the captive portal with an ACL if the device is in an unreg state and 
-allow the device to reach Internet (or the normal network) by changing the ACL once registered.
-In the unreg state, the WLC will intercept the HTTP traffic and forward the device to the captive portal.
+In this section, we cover the basic configuration of the WLC AireOS Web Auth for
+PacketFence using the WLC web interface.
+The idea is to forward the device to the captive portal with an ACL if the
+device is in an unreg state and
+allow the device to reach Internet (or the normal network) by changing the ACL
+once registered.
+In the unreg state, the WLC will intercept the HTTP traffic and forward the
+device to the captive portal.
 
-In this sample configuration, the captive portal uses the IP address 172.16.0.250, the management interface
+In this sample configuration, the captive portal uses the IP address
+172.16.0.250, the management interface
 uses the IP address 172.16.0.249 and the WLC uses the IP address 172.16.0.248.
-The DHCP and DNS servers are not managed by PacketFence (WLC DHCP Server, Production DHCP Server)
+The DHCP and DNS servers are not managed by PacketFence (WLC DHCP Server,
+Production DHCP Server)
 
 * First, globally define the FreeRADIUS server running on PacketFence
-  (PacketFence's management interface) and make sure _Support for RFC 3576_ is enabled (if not present it is enabled by default)
+  (PacketFence's management interface) and make sure _Support for RFC 3576_ is
+  enabled (if not present it is enabled by default)
 
 * Then we create a SSID:
 [options="compact"]
@@ -227,7 +243,8 @@ image::SSID_5.png[scaledwidth="100%",alt="SSID step 5"]
 
 image::SSID_6.png[scaledwidth="100%",alt="SSID step 6"]
 
-NOTE: On more recent controllers, the value 'Radius NAC' in the 'NAC State' setting will be called 'ISE NAC'.
+NOTE: On more recent controllers, the value 'Radius NAC' in the 'NAC State'
+setting will be called 'ISE NAC'.
 
 image::SSID_7.png[scaledwidth="100%",alt="SSID step 7"]
 
@@ -247,17 +264,22 @@ image::wlc_packetfence2.png[scaledwidth="100%",alt="ACL"]
 
 ===== Wireless LAN Controller (AireOS) IPSK
 
-In this section, we cover the basic configuration of the WLC AireOS IPSK feature.
+In this section, we cover the basic configuration of the WLC AireOS IPSK
+feature.
 Starting from WLC AireOS 8.5 release, Cisco introduces the IPSK feature.
-Identity PSKs are unique pre-shared keys created for individuals or groups of users on the same SSID.
+Identity PSKs are unique pre-shared keys created for individuals or groups of
+users on the same SSID.
 
-In this section we will cover the WLC configuration and the PacketFence configuration.
+In this section we will cover the WLC configuration and the PacketFence
+configuration.
 
 WLC Configuration:
 
 
 * First, globally define the RADIUS server running on PacketFence
-  (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support for CoA_) is enabled. When the option is missing from your WLC, it is enabled by default.
+  (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support
+  for CoA_) is enabled. When the option is missing from your WLC, it is enabled
+  by default.
 
 * Next, configure a new SSID like in the following screenshots
 
@@ -272,13 +294,18 @@ image::ipsk_advanced.png[scaledwidth="100%",alt="SSID step 4"]
 PacketFence Configuration:
 
 * First because there is no way to detect in the RADIUS request that the request is for an SSID configured for IPSK, you need to configure PacketFence to trigger IPSK on a connection profile.
-  To do that, create a new connection profile, set a Filter based on the SSID (Example SSID PSK_SSID), enable IPSK and set a default PSK key.
-  So each time a device will connect on this specific SSID PacketFence will know that it has to answer with specific VSA attributes.
+  To do that, create a new connection profile, set a Filter based on the SSID
+  (Example SSID PSK_SSID), enable IPSK and set a default PSK key.
+  So each time a device will connect on this specific SSID PacketFence will know
+  that it has to answer with specific VSA attributes.
 
 * Second step is to associate the device to a user, you have two ways to do it, the first one is to manually edit an user and in Miscellaneous tab fill the PSK entry (8 characters minimum) then edit
   a node and change the owner with the one you just edit before.
-  The second way to associate the device is to use a provisioner. There are also 2 ways to do it, use the "IPSK" provisioner (it will show you a page on the portal with the PSK key to use and the 
-  SSID to connect to, or use the "Windows/Apple Devices/Android" provisioner and configure it to do IPSK.
+  The second way to associate the device is to use a provisioner. There are also
+  2 ways to do it, use the "IPSK" provisioner (it will show you a page on the
+  portal with the PSK key to use and the
+  SSID to connect to, or use the "Windows/Apple Devices/Android" provisioner and
+  configure it to do IPSK.
 
 image::dpsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
 
@@ -288,23 +315,31 @@ image::dpsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
 
 Go to Configuration -> Security -> AAA -> Servers / Groups -> Servers, click add
 
-image::wlc-9800-radius_server.jpg[scaledwidth="100%",alt="Create AAA Radius Server"]
+image::wlc-9800-radius_server.jpg[scaledwidth="100%",alt="Create AAA Radius
+Server"]
 
 Click Server Groups, click add
 
-image::wlc-9800-aaa-pf-group.jpg[scaledwidth="100%",alt="Create AAA Radius Server Group"]
+image::wlc-9800-aaa-pf-group.jpg[scaledwidth="100%",alt="Create AAA Radius
+Server Group"]
 
-Go to Configuration -> Security -> AAA -> AAA Method List -> Authentication, click add
+Go to Configuration -> Security -> AAA -> AAA Method List -> Authentication,
+click add
 
-image::wlc-9800-aaa-method-list-authentication.jpg[scaledwidth="100%",alt="AAA Authentication"]
+image::wlc-9800-aaa-method-list-authentication.jpg[scaledwidth="100%",alt="AAA
+Authentication"]
 
-Go to Configuration -> Security -> AAA -> AAA Method List -> Authorization, click add
+Go to Configuration -> Security -> AAA -> AAA Method List -> Authorization,
+click add
 
-image::wlc-9800-aaa-method-list-authorization.jpg[scaledwidth="100%",alt="AAA Authorization"]
+image::wlc-9800-aaa-method-list-authorization.jpg[scaledwidth="100%",alt="AAA
+Authorization"]
 
-Go to Configuration -> Security -> AAA -> AAA Method List -> Accounting, click add
+Go to Configuration -> Security -> AAA -> AAA Method List -> Accounting, click
+add
 
-image::wlc-9800-aaa-method-list-accounting.jpg[scaledwidth="100%",alt="AAA Accouting"]
+image::wlc-9800-aaa-method-list-accounting.jpg[scaledwidth="100%",alt="AAA
+Accouting"]
 
 ===== Create WLANs
 
@@ -312,21 +347,27 @@ image::wlc-9800-aaa-method-list-accounting.jpg[scaledwidth="100%",alt="AAA Accou
 
 Go to Configuration -> Tags & Profiles -> WLANs, click add
 
-image::wlc-9800-wlan-pf-open-general.jpg[scaledwidth="100%",alt="Add PF-Open WLAN"]
+image::wlc-9800-wlan-pf-open-general.jpg[scaledwidth="100%",alt="Add PF-Open
+WLAN"]
 
-image::wlc-9800-wlan-pf-open-security-l2.jpg[scaledwidth="100%",alt="Add PF-Open WLAN"]
+image::wlc-9800-wlan-pf-open-security-l2.jpg[scaledwidth="100%",alt="Add PF-Open
+WLAN"]
 
-image::wlc-9800-wlan-pf-open-security-aaa.jpg[scaledwidth="100%",alt="Add PF-Open WLAN"]
+image::wlc-9800-wlan-pf-open-security-aaa.jpg[scaledwidth="100%",alt="Add
+PF-Open WLAN"]
 
 Create Policy Profiles PF-Open
 
 Go to Configuration -> Tags & Profiles -> Policy, click add
 
-image::wlc-9800-policy-pf-open-general.jpg[scaledwidth="100%",alt="Add PF-Open Policy Profile"]
+image::wlc-9800-policy-pf-open-general.jpg[scaledwidth="100%",alt="Add PF-Open
+Policy Profile"]
 
-image::wlc-9800-policy-pf-open-access-pol.jpg[scaledwidth="100%",alt="Add PF-Open Policy Profile"]
+image::wlc-9800-policy-pf-open-access-pol.jpg[scaledwidth="100%",alt="Add
+PF-Open Policy Profile"]
 
-image::wlc-9800-policy-pf-open-advanced.jpg[scaledwidth="100%",alt="Add PF-Open Policy Profile"]
+image::wlc-9800-policy-pf-open-advanced.jpg[scaledwidth="100%",alt="Add PF-Open
+Policy Profile"]
 
 Go to Configuration -> Tags & Profiles -> Tags, under Policy click add
 
@@ -338,33 +379,42 @@ Click on the AP Name or MAC address
 
 Under General -> Tags, Select 'PF Enabled'
 
-image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on the AP"]
+image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on
+the AP"]
 
 ====== PF-Secure SSID
 
 Go to Configuration -> Tags & Profiles -> WLANs, click add
 
-image::wlc-9800-wlan-pf-secure-general.jpg[scaledwidth="100%",alt="Add PF-Secure WLAN"]
+image::wlc-9800-wlan-pf-secure-general.jpg[scaledwidth="100%",alt="Add PF-Secure
+WLAN"]
 
-image::wlc-9800-wlan-pf-secure-security-l2-1.jpg[scaledwidth="100%",alt="Add PF-Secure WLAN"]
+image::wlc-9800-wlan-pf-secure-security-l2-1.jpg[scaledwidth="100%",alt="Add
+PF-Secure WLAN"]
 
-image::wlc-9800-wlan-pf-secure-security-l2-2.jpg[scaledwidth="100%",alt="Add PF-Secure WLAN"]
+image::wlc-9800-wlan-pf-secure-security-l2-2.jpg[scaledwidth="100%",alt="Add
+PF-Secure WLAN"]
 
-image::wlc-9800-wlan-pf-secure-security-aaa.jpg[scaledwidth="100%",alt="Add PF-Secure WLAN"]
+image::wlc-9800-wlan-pf-secure-security-aaa.jpg[scaledwidth="100%",alt="Add
+PF-Secure WLAN"]
 
 Create Policy Profiles PF-Secure
 
 Go to Configuration -> Tags & Profiles -> Policy, click add
 
-image::wlc-9800-policy-pf-secure-general.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Profile"]
+image::wlc-9800-policy-pf-secure-general.jpg[scaledwidth="100%",alt="Add
+PF-Secure Policy Profile"]
 
-image::wlc-9800-policy-pf-secure-access-pol.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Profile"]
+image::wlc-9800-policy-pf-secure-access-pol.jpg[scaledwidth="100%",alt="Add
+PF-Secure Policy Profile"]
 
-image::wlc-9800-policy-pf-secure-advanced.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Profile"]
+image::wlc-9800-policy-pf-secure-advanced.jpg[scaledwidth="100%",alt="Add
+PF-Secure Policy Profile"]
 
 Go to Configuration -> Tags & Profiles -> Tags, under Policy click add
 
-image::wlc-9800-tag-pf-secure.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Tag"]
+image::wlc-9800-tag-pf-secure.jpg[scaledwidth="100%",alt="Add PF-Secure Policy
+Tag"]
 
 Go to Configuration -> Wireless -> Access Points
 
@@ -372,7 +422,8 @@ Click on the AP Name or MAC address
 
 Under General -> Tags, Select 'PF Enabled'
 
-image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on the AP"]
+image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on
+the AP"]
 
 ====== PF-WebAuth SSID
 
@@ -385,7 +436,8 @@ Use ACL Name: Pre-Auth-For-WebRedirect
 For ACL Type, select IPv4 Extended
 ----
 
-image::wlc-9800-acl-pre-auth-for-webredirect-v2.jpg[scaledwidth="100%",alt="Pre-Auth-For-WebRedirect Access List"]
+image::wlc-9800-acl-pre-auth-for-webredirect-v2.jpg[scaledwidth="100%",alt="Pre-Auth-For-WebRedirect
+Access List"]
 
 Go to Configuration -> Security -> ACL, click add
 
@@ -394,43 +446,53 @@ Use ACL Name: Authorize_any
 For ACL Type, select IPv4 Extended
 ----
 
-image::wlc-9800-acl-authorize_any.jpg[scaledwidth="100%",alt="Authorize_any Access List"]
+image::wlc-9800-acl-authorize_any.jpg[scaledwidth="100%",alt="Authorize_any
+Access List"]
 
 
 For FlexConnect you will need to enable Central Web Auth
 
-image::wlc-9800-acl-pre-auth-flex.jpg[scaledwidth="100%",alt="Authorize_any Access List"]
+image::wlc-9800-acl-pre-auth-flex.jpg[scaledwidth="100%",alt="Authorize_any
+Access List"]
 
 Go to Configuration -> Security -> Web Auth
 
 Select Type Webauth and enable Web Auth Intercept HTTPs
 
-image::wlc-9800-acl-pre-webauth.jpg[scaledwidth="100%",alt="Authorize_any Access List"]
+image::wlc-9800-acl-pre-webauth.jpg[scaledwidth="100%",alt="Authorize_any Access
+List"]
 
 
 PF-WebAuth SSID creation
 
 Go to Configuration -> Tags & Profiles -> WLANs, click add
 
-image::wlc-9800-wlan-pf-webauth-general.jpg[scaledwidth="100%",alt="Add PF-WebAuth WLAN"]
+image::wlc-9800-wlan-pf-webauth-general.jpg[scaledwidth="100%",alt="Add
+PF-WebAuth WLAN"]
 
-image::wlc-9800-wlan-pf-webauth-security-l2.jpg[scaledwidth="100%",alt="Add PF-WebAuth WLAN"]
+image::wlc-9800-wlan-pf-webauth-security-l2.jpg[scaledwidth="100%",alt="Add
+PF-WebAuth WLAN"]
 
-image::wlc-9800-wlan-pf-webauth-security-aaa.jpg[scaledwidth="100%",alt="Add PF-WebAuth WLAN"]
+image::wlc-9800-wlan-pf-webauth-security-aaa.jpg[scaledwidth="100%",alt="Add
+PF-WebAuth WLAN"]
 
 Create Policy Profiles PF-WebAuth
 
 Go to Configuration -> Tags & Profiles -> Policy, click add
 
-image::wlc-9800-policy-pf-webauth-general.jpg[scaledwidth="100%",alt="Add PF-WebAuth Policy Profile"]
+image::wlc-9800-policy-pf-webauth-general.jpg[scaledwidth="100%",alt="Add
+PF-WebAuth Policy Profile"]
 
-image::wlc-9800-policy-pf-webauth-access-pol.jpg[scaledwidth="100%",alt="Add PF-WebAuth Policy Profile"]
+image::wlc-9800-policy-pf-webauth-access-pol.jpg[scaledwidth="100%",alt="Add
+PF-WebAuth Policy Profile"]
 
-image::wlc-9800-policy-pf-webAuth-advanced.jpg[scaledwidth="100%",alt="Add PF-WebAuth Policy Profile"]
+image::wlc-9800-policy-pf-webAuth-advanced.jpg[scaledwidth="100%",alt="Add
+PF-WebAuth Policy Profile"]
 
 Go to Configuration -> Tags & Profiles -> Tags, under Policy click add
 
-image::wlc-9800-tag-pf-webauth.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Tag"]
+image::wlc-9800-tag-pf-webauth.jpg[scaledwidth="100%",alt="Add PF-Secure Policy
+Tag"]
 
 Go to Configuration -> Wireless -> Access Points
 
@@ -438,44 +500,56 @@ Click on the AP Name or MAC address
 
 Under General -> Tags, Select 'PF Enabled'
 
-image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on the AP"]
+image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on
+the AP"]
 
 ====== PacketFence switch configuration
 
 Now you will to create a new switch in PacketFence
 
-Go to Configuration -> Policies and Access Control -> Switches -> New Switch -> default
+Go to Configuration -> Policies and Access Control -> Switches -> New Switch ->
+default
 
-image::wlc-9800-pf-switch-definition.jpg[scaledwidth="100%",alt="PF Switch configuration"]
+image::wlc-9800-pf-switch-definition.jpg[scaledwidth="100%",alt="PF Switch
+configuration"]
 
-image::wlc-9800-pf-switch-roles-1.jpg[scaledwidth="100%",alt="PF Switch Role configuration"]
+image::wlc-9800-pf-switch-roles-1.jpg[scaledwidth="100%",alt="PF Switch Role
+configuration"]
 
-image::wlc-9800-pf-switch-roles-2.jpg[scaledwidth="100%",alt="PF Switch Role configuration"]
+image::wlc-9800-pf-switch-roles-2.jpg[scaledwidth="100%",alt="PF Switch Role
+configuration"]
 
 ====== PF-Easy-PSK SSID
 
 Go to Configuration -> Tags & Profiles -> WLANs, click add
 
-image::wlc-9800-wlan-pf-easy-psk.jpg[scaledwidth="100%",alt="Add pf-easy-psk WLAN"]
+image::wlc-9800-wlan-pf-easy-psk.jpg[scaledwidth="100%",alt="Add pf-easy-psk
+WLAN"]
 
-In security Layer2 tab select MAC Filtering, select in AUthorization List the radius server created above.
+In security Layer2 tab select MAC Filtering, select in AUthorization List the
+radius server created above.
 In Auth Key Mgmt (AKM) section select PSK and Easy-PSK.
 
-image::wlc-9800-wlan-pf-easy-psk-security.jpg[scaledwidth="100%",alt="pf-easy-psk security"]
+image::wlc-9800-wlan-pf-easy-psk-security.jpg[scaledwidth="100%",alt="pf-easy-psk
+security"]
 
 ==== Troubleshooting ignored RADIUS replies
 
-In the event the WLC ignores the RADIUS replies from PacketFence (you receive multiple requests but access is never granted), validate the following elements : 
+In the event the WLC ignores the RADIUS replies from PacketFence (you receive
+multiple requests but access is never granted), validate the following elements
+:
 
 * RADIUS secret is properly configured in PacketFence and the WLC controller.
 * The SSL certificate used by PacketFence is not expired.
 
 ==== Device Sensor
 
-When using a Cisco WLC, you can enable device sensor by making sure the configuration looks like the following screenshot:
+When using a Cisco WLC, you can enable device sensor by making sure the
+configuration looks like the following screenshot:
 
 image::wlc-device-sensor.png[scaledwidth="100%",alt="Device Sensor"]
 
-NOTE: Please refer to the wired configuration of Cisco equipment to learn more about device sensor.
+NOTE: Please refer to the wired configuration of Cisco equipment to learn more
+about device sensor.
 
 

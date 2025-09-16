@@ -20,20 +20,23 @@ endif::[]
 
 ==== Configuration of the RSSO Agent
 
-In FortiGate administration: *User & Device -> User -> User Groups -> Create New*.
+In FortiGate administration: *User & Device -> User -> User Groups -> Create
+New*.
 
 [options="compact"]
 * *Name*: RSSO_group
 * *Type*: RADIUS Single Sign-On (RSSO)
 * *RADIUS Attribute Value*: RSSO_Student (use PacketFence rolename, case-sensitive)
 
-image::doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Create the SSO agent in FortiGate"]
+image::doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Create the SSO agent
+in FortiGate"]
 
 View at *User & Device -> Monitor -> Firewall*.
 
 ==== Configure the endpoint attribute
 
-Default endpoint attribute is Calling-Station-Id (MAC address shows as User Name). Change via CLI:
+Default endpoint attribute is Calling-Station-Id (MAC address shows as User
+Name). Change via CLI:
 
 ----
 config user radius
@@ -46,13 +49,16 @@ end
 
 Go to *System -> Network -> Interfaces*.
 
-Select PacketFence communication interface, check 'Listen for RADIUS Accounting Messages', confirm.
+Select PacketFence communication interface, check 'Listen for RADIUS Accounting
+Messages', confirm.
 
-image::doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Configure the accounting listening in the FortiGate"]
+image::doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Configure the
+accounting listening in the FortiGate"]
 
 ==== SSO Configuration in PacketFence
 
-Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> FortiGate*.
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall ->
+FortiGate*.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your firewall
@@ -60,11 +66,13 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> FortiGate
 * *Port*: 1813
 * *Roles*: add the roles that you want to do SSO
 
-image::doc-fortigate-cfg_sso_pf.png[scaledwidth="100%",alt="Configure the FortiGate SSO in PacketFence"]
+image::doc-fortigate-cfg_sso_pf.png[scaledwidth="100%",alt="Configure the
+FortiGate SSO in PacketFence"]
 
 ==== Verification
 
-If you want to see if it's working, you can log into the firewall over SSH and run these following commands:
+If you want to see if it's working, you can log into the firewall over SSH and
+run these following commands:
 
 ----
 di debug enable

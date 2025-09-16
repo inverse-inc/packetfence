@@ -19,17 +19,20 @@ endif::[]
 
 //=== TOTP MFA
 
-This section has been created to give a quick overview on how to configure TOTP MFA in PacketFence.
+This section has been created to give a quick overview on how to configure TOTP
+MFA in PacketFence.
 
 ==== Assumptions
 
-You have a phone where you have an MFA application compatible with TOTP (Akamai MFA, Google Authenticator, Microsoft Authenticator, DUO).
+You have a phone where you have an MFA application compatible with TOTP (Akamai
+MFA, Google Authenticator, Microsoft Authenticator, DUO).
 
 ===== Create the Multi-Factor configuration
 
 In this section we will configure the OTP MFA from the admin interface.
 
-Go in "Configuration -> Integration->Multi-Factor Authentication" then click on new MFA and select TOTP.
+Go in "Configuration -> Integration->Multi-Factor Authentication" then click on
+new MFA and select TOTP.
 
 In the form you have the following information to fill:
 
@@ -37,15 +40,21 @@ Name:
 Define a name
 
 RADIUS OTP Method:
-It is where you define which method you want to use in RADIUS (Explaination are covered in the next section)
+It is where you define which method you want to use in RADIUS (Explaination are
+covered in the next section)
 
 Character separator:
-The character used to split the password and OTP when "Strip OTP" RADIUS method is selected.
+The character used to split the password and OTP when "Strip OTP" RADIUS method
+is selected.
 
 Cache duration:
-The amount of time PacketFence will store the MFA information of the user (used for "Strip OTP" and "Second Password Field" since PacketFence deal with multiples RADIUS reuqest)
+The amount of time PacketFence will store the MFA information of the user (used
+for "Strip OTP" and "Second Password Field" since PacketFence deal with
+multiples RADIUS reuqest)
 
-image::TOTP_mfa_config.png[scaledwidth="100%",alt="Create OTP MFA Configuration"]
+image::TOTP_mfa_config.png[scaledwidth="100%",alt="Create OTP MFA
+Configuration"]
 
-If MFA authentication fails, verify configuration and check <<#_radius_audit_log,RADIUS Audit Log>> to trace authentication flow.
+If MFA authentication fails, verify configuration and check
+<<#_radius_audit_log,RADIUS Audit Log>> to trace authentication flow.
 

@@ -18,15 +18,21 @@ endif::[]
 
 //== Authentication Mechanisms
 
-This section covers authentication mechanisms supported by PacketFence. Follow these steps to configure authentication for your captive portal. For PKI integration, refer to the PKI Integration section.
+This section covers authentication mechanisms supported by PacketFence. Follow
+these steps to configure authentication for your captive portal. For PKI
+integration, refer to the PKI Integration section.
 
 === Microsoft Active Directory (AD)
 
-Go in the Administration interface under _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_.
+Go in the Administration interface under _Configuration -> Policies and Access
+Control -> Domains -> Active Directory Domains_.
 
-NOTE: If this section is inaccessible and you previously configured domain binding outside PacketFence, run `/usr/local/pf/addons/AD/migrate.pl`
+NOTE: If this section is inaccessible and you previously configured domain
+binding outside PacketFence, run `/usr/local/pf/addons/AD/migrate.pl`
 
-NOTE: Windows Server 2008 or later required as domain controller. PacketFence 13.1+ uses secure channel for NTLM authentication, supported only in Windows Server 2008 and later.
+NOTE: Windows Server 2008 or later required as domain controller. PacketFence
+13.1+ uses secure channel for NTLM authentication, supported only in Windows
+Server 2008 and later.
 
 Click *New Domain* and fill in the information about your domain.
 
@@ -47,7 +53,8 @@ Where :
 * *Allow on registration* would allow devices in the registration network to communicate with the DC.
 * *additional machine accounts* How many *additional* machine accounts will be created to handle NTLM authentication. By default 0. Means only 1 machine account will be created. Maximum is 10, you can only create 10 additional machine accounts.
 
-You can always check your domain settings by running `net config workstation` on your domain controller.
+You can always check your domain settings by running `net config workstation` on
+your domain controller.
 form the output,
 
 * _Full Computer Name_ is for *Active Directory FQDN*,
@@ -55,52 +62,80 @@ form the output,
 * _Workstation domain_ is for *Workgroup*
 
 
-NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
+NOTE: If you are using an Active/Active cluster, each member of the cluster must
+be joined separately. Please follow the instructions in the PacketFence
+Clustering Guide.
 
-NOTE: If you are using PacketFence in cluster mode, you must save the domain settings on *each* of the nodes by given the same *clear-text* machine account password. By default, PacketFence will only save the NT hash of the machine account password, and it will be shown in Admin UI. However, PacketFence won't be able to create a machine account using a password hash. In order to keep the domain settings identical on all the nodes, you'll have to type in the same clear-text machine account password on each of the node and save them.
+NOTE: If you are using PacketFence in cluster mode, you must save the domain
+settings on *each* of the nodes by given the same *clear-text* machine account
+password. By default, PacketFence will only save the NT hash of the machine
+account password, and it will be shown in Admin UI. However, PacketFence won't
+be able to create a machine account using a password hash. In order to keep the
+domain settings identical on all the nodes, you'll have to type in the same
+clear-text machine account password on each of the node and save them.
 
-NOTE: after version 14.0, the PacketFence domain.conf will be updated, domain identifier is changed from previously single identifier to "hostname + identifier". If you are running PacketFence in a cluster, please check the corresponding sections for each node.
+NOTE: after version 14.0, the PacketFence domain.conf will be updated, domain
+identifier is changed from previously single identifier to "hostname +
+identifier". If you are running PacketFence in a cluster, please check the
+corresponding sections for each node.
 
 [#_domain_joining_on_a_packetfence_cluster_v14_x]
 ==== Domain Joining on A PacketFence cluster (v14.x)
 
 We've updated the structure of `domain.conf` file since v14.0,
-the section name stored in `domain.conf` file has been changed from `domain identifier` to `hostname + domain identifier` combination.
-This change causes a node in a cluster to read domain settings from its own individual section identified by its unique hostname.
-Therefore, it is not required to use `%h` as (or as a prefix / suffix of) the machine account anymore.
-Now it's technically possible to have fully customized domain settings for a specific node.
+the section name stored in `domain.conf` file has been changed from `domain
+identifier` to `hostname + domain identifier` combination.
+This change causes a node in a cluster to read domain settings from its own
+individual section identified by its unique hostname.
+Therefore, it is not required to use `%h` as (or as a prefix / suffix of) the
+machine account anymore.
+Now it's technically possible to have fully customized domain settings for a
+specific node.
 
 ===== Setting up a new cluster
-There's a difference in domain profile creation for PacketFence cluster running PacketFence v14.x: +
-When you create the domain profile from Admin UI for a PacketFence cluster, The profile is actually created *only* on the node that handles the API request.
-Therefore, you'll have to go through all the nodes and create a domain profile for each of them.
+There's a difference in domain profile creation for PacketFence cluster running
+PacketFence v14.x: +
+When you create the domain profile from Admin UI for a PacketFence cluster, The
+profile is actually created *only* on the node that handles the API request.
+Therefore, you'll have to go through all the nodes and create a domain profile
+for each of them.
 
-During the domain profile creation, a machine account used for NTLM authentication is also created in Windows domain controller.
-Due to the limitation of secure connection binding, we are not able to establish multiple secure connections using a shared machine account.
-Please make sure the machine account names are unique if you are not using `%h` as (or as part of) the machine account name.
+During the domain profile creation, a machine account used for NTLM
+authentication is also created in Windows domain controller.
+Due to the limitation of secure connection binding, we are not able to establish
+multiple secure connections using a shared machine account.
+Please make sure the machine account names are unique if you are not using `%h`
+as (or as part of) the machine account name.
 
 There are 2 ways of creating the domain profile on a selected node:
 
 . Using API Redirect
 . Login into Admin Panel using real IP
 
-To use API Redirect, login into *PacketFence Admin Panel*, navigate to *"Status"* -> *"Services"* -> *"API redirect"*, choose a node that handles the API request.
+To use API Redirect, login into *PacketFence Admin Panel*, navigate to
+*"Status"* -> *"Services"* -> *"API redirect"*, choose a node that handles the
+API request.
 And you will create the domain profile for the node you selected.
 
-Login into Admin Panel using real IP is also simple: Login into *PacketFence Admin Panel* using the node's real management IP instead of virtual IP.
-For example, a cluster consists of 3 nodes with a VIP = 192.168.4.70, and real IP = 192.168.4.71, 192.168.4.72, 192.168.4.73.
+Login into Admin Panel using real IP is also simple: Login into *PacketFence
+Admin Panel* using the node's real management IP instead of virtual IP.
+For example, a cluster consists of 3 nodes with a VIP = 192.168.4.70, and real
+IP = 192.168.4.71, 192.168.4.72, 192.168.4.73.
 simply iterate the 3 real IPs, login into Admin Panel from https://real_ip:1443.
 
 
 ===== Upgrade from a version prior to v14.0
 If you are doing an upgrade, please refer to the upgrade guide section for v14,
-you might need to manually combine the domain configuration file and sync them to all cluster members.
+you might need to manually combine the domain configuration file and sync them
+to all cluster members.
 
-NOTE: It is required to use individual machine account for each node to avoid secure connection binding issues.
+NOTE: It is required to use individual machine account for each node to avoid
+secure connection binding issues.
 
 
 ===== Domain config file structure and example
-Assuming that we have a PacketFence cluster of 3 nodes with hostnames of `pf-node1`, `pf-node2` and `pf-node3` and we joined "domainA"
+Assuming that we have a PacketFence cluster of 3 nodes with hostnames of
+`pf-node1`, `pf-node2` and `pf-node3` and we joined "domainA"
 an example of `domain.conf` for a cluster looks like this:
 
 ----

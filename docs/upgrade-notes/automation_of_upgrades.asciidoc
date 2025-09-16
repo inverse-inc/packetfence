@@ -18,11 +18,11 @@ endif::[]
 
 //== Automation of upgrades
 
-Upgrade automation available since PacketFence 11.0.0 for **same-OS upgrades**.
+Upgrade automation available since PacketFence 11.0 for **same-OS upgrades**.
 
 ## OS Support Matrix
 
-**PacketFence 14.0.0+ OS Changes:**
+**PacketFence 14.0+ OS Changes:**
 - **Discontinued**: Debian 11 (bullseye) support
 - **New**: Debian 12 (bookworm) support  
 - **Continued**: RedHat EL8 support
@@ -31,12 +31,12 @@ Upgrade automation available since PacketFence 11.0.0 for **same-OS upgrades**.
 
 ### RHEL 8 Systems
 - **In-place automated upgrades**: **SUPPORTED**
-- **Versions**: PacketFence 11.0.0+ → latest
+- **Versions**: PacketFence 11.0+ → latest
 - **Method**: Standard automation process
 
 ### Debian Systems
 - **Debian 11**: **NOT SUPPORTED** (end-of-life)
-- **Debian 12**: **SUPPORTED** for PacketFence 14.0.0+
+- **Debian 12**: **SUPPORTED** for PacketFence 14.0+
 - **Migration required**: Debian 11 → fresh Debian 12 install + import/export
 
 === Automation Scope and Limitations
@@ -47,15 +47,16 @@ Upgrade automation available since PacketFence 11.0.0 for **same-OS upgrades**.
 * Pre-upgrade steps executed per upgrade documentation
 
 **Current Automation Support:**
-* **RHEL 8**: PacketFence 11.0.0+ → latest version **SUPPORTED**
-* **Debian 12**: PacketFence 14.0.0+ → latest version **SUPPORTED**
+* **RHEL 8**: PacketFence 11.0+ → latest version **SUPPORTED**
+* **Debian 12**: PacketFence 14.0+ → latest version **SUPPORTED**
 * **OS Migration**: Requires fresh installation + export/import **NOT AUTOMATED**
 
-=== Full upgrade (for PacketFence version 11.0.0 only - see next section for 11.1.0 and above)
+=== Full upgrade (for PacketFence version 11.0 only - see next section for 11.1 and above)
 
 ==== Preliminary steps
 
-On PacketFence version 11.0.0, install the `packetfence-upgrade` package using following instructions:
+On PacketFence version 11.0, install the `packetfence-upgrade` package using
+following instructions:
 
 .RHEL / CentOS based systems **only**
 [source,bash]
@@ -77,7 +78,7 @@ Then perform a full upgrade using following command:
 /usr/local/pf/addons/full-upgrade/run-upgrade.sh
 ----
 
-=== Full upgrade (for PacketFence versions 11.1.0 and later)
+=== Full upgrade (for PacketFence versions 11.1 and later)
 
 Run following script to perform a full upgrade:
 

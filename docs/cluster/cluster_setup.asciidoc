@@ -24,14 +24,16 @@ Run these actions on *all cluster members*.
 
 ==== Interfaces names
 
-Ensure interface names are identical on *all servers*. Use these guides for predictable network interface names:
+Ensure interface names are identical on *all servers*. Use these guides for
+predictable network interface names:
 
 * link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_networking/consistent-network-interface-device-naming_configuring-and-managing-networking[RHEL-based systems]
 * link:https://wiki.debian.org/NetworkInterfaceNames[Debian-based systems]
 
 ==== sysctl.conf
 
-Configure each server to allow services to bind on IP addresses not currently configured. This enables faster service failover.
+Configure each server to allow services to bind on IP addresses not currently
+configured. This enables faster service failover.
 
 Disable IPv6.
 
@@ -56,12 +58,12 @@ NOTE: If you plan to use Postfix to send emails, you need to set `inet_protocols
 
 Before starting cluster setup, you need to install
 PacketFence on each cluster member by following instructions in
-https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#installation[PacketFence
+<<PacketFence_Installation_Guide.asciidoc#installation,PacketFence
 Installation Guide>>.
 
 ==== Install the database replication tools
 
-NOTE: In this example, the database stack uses the native PacketFence https://mariadb.com/kb/en/library/galera-cluster/[MariaDB Galera cluster] integration. Although other MySQL based clustering stacks are supported, they aren't covered in this guide. If you use an external database or want to use another clustering stack for the database, you can ignore this section and jump to Step 2 directly.
+NOTE: In this example, the database stack uses the native PacketFence https://mariadb.com/kb/en/library/galera-cluster/[MariaDB Galera cluster>> integration. Although other MySQL based clustering stacks are supported, they aren't covered in this guide. If you use an external database or want to use another clustering stack for the database, you can ignore this section and jump to Step 2 directly.
 
 CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with an odd number of servers).
 
@@ -73,7 +75,7 @@ First, you will need to install, *on each servers*, Mariabackup for the synchron
 yum install MariaDB-backup socat --enablerepo=packetfence
 ----
 
-.On Debian-based systems (for PacketFence versions 11.0.0 and later)
+.On Debian-based systems (for PacketFence versions 11.0 and later)
 [source,bash]
 ----
 apt-get install lsb-release wget gnupg2 ; \
@@ -81,7 +83,7 @@ apt-get update ; \
 apt-get -y install mariadb-backup
 ----
 
-.On Debian-based systems (for PacketFence versions prior to 11.0.0)
+.On Debian-based systems (for PacketFence versions prior to 11.0)
 [source,bash]
 ----
 apt-get install lsb-release wget gnupg2 ; \
@@ -115,10 +117,12 @@ WARNING: *aMuchMoreSecurePassword* is only for example purpose, you need to defi
 mysql -u root
 
 CREATE USER 'pfcluster'@'%' IDENTIFIED BY 'aMuchMoreSecurePassword';
-GRANT PROCESS, RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'pfcluster'@'%';
+GRANT PROCESS, RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO
+'pfcluster'@'%';
 
 CREATE USER 'pfcluster'@'localhost' IDENTIFIED BY 'aMuchMoreSecurePassword';
-GRANT PROCESS, RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'pfcluster'@'localhost';
+GRANT PROCESS, RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO
+'pfcluster'@'localhost';
 
 FLUSH PRIVILEGES;
 
@@ -184,7 +188,8 @@ host=100.64.0.1
 port=6033
 
 [active_active]
-# Change these 2 values by the credentials you've set when configuring MariaDB above
+# Change these 2 values by the credentials you've set when configuring MariaDB
+above
 galera_replication_username=pfcluster
 galera_replication_password=aMuchMoreSecurePassword
 
@@ -371,7 +376,8 @@ Do (and make sure it completes without any errors):
 
 [source,bash]
 ----
- /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=anotherMoreSecurePassword
+ /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet
+ --api-password=anotherMoreSecurePassword
 ----
 
 NOTE: Space before last command is on purpose to avoid record of password in shell history
@@ -445,7 +451,8 @@ Before starting services on all servers, `galera-autofix` service need to be re-
 
 [source,bash]
 ----
-curl -X PATCH -d '{"galera-autofix":"enabled"}' localhost:22224/api/v1/config/base/services ; echo
+curl -X PATCH -d '{"galera-autofix":"enabled"}'
+localhost:22224/api/v1/config/base/services ; echo
 ----
 
 ==== Wrapping up
@@ -492,7 +499,7 @@ If you already use VRRP protocol on your network, you can also change the defaul
 ==== Domain join
 
 Next, make sure to join domains through _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ on *each node*.
-Please refer to https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#domain_joining_on_a_packetfence_cluster_v14_x[Domain joining on a PacketFence cluster v14.x] for detailed steps.
+Please refer to <<PacketFence_Installation_Guide.asciidoc#domain_joining_on_a_packetfence_cluster_v14_x,Domain joining on a PacketFence cluster v14.x>> for detailed steps.
 
 If domain joining fails on cluster nodes, see <<#_network_connectivity_issues,Network Connectivity Issues>>, <<#_authentication_failures,Authentication Failures>>, and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section.
 

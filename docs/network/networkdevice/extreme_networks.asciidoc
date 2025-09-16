@@ -32,16 +32,22 @@ Don't forget to save the configuration!
 
 ==== All Extreme XOS based switches
 
-In addition to the SNMP and VLANs settings, this switch needs the Web Services to be enabled and an administrative username and password provided in its PacketFence configuration for Web Services.
+In addition to the SNMP and VLANs settings, this switch needs the Web Services
+to be enabled and an administrative username and password provided in its
+PacketFence configuration for Web Services.
 
 ==== Extreme EXOS v30.x
 
-This switch version module is designed for Extreme switch series utilizing Extreme versions v30.x
-Note: "EXOS v30.x" module is tailored for the switch series operating on Extreme versions v30.x. Furthermore, it inherits all functionalities from the existing "EXOS" module, making all the configurations below applicable to EXOS v30.x.
+This switch version module is designed for Extreme switch series utilizing
+Extreme versions v30.x
+Note: "EXOS v30.x" module is tailored for the switch series operating on Extreme
+versions v30.x. Furthermore, it inherits all functionalities from the existing
+"EXOS" module, making all the configurations below applicable to EXOS v30.x.
 
 ===== MAC Address Lockdown (Port-Security)
 
-linkUp/linkDown traps are enabled by default so we disable them and enable MAC Address Lockdown only.
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC
+Address Lockdown only.
 
 Global config settings without Voice over IP (VoIP):
 
@@ -73,7 +79,8 @@ Global config settings with Voice over IP (VoIP):
 
 Starting from version EXOS 22.1 CoA is supported.
 
-  configure radius dynamic-authorization 1 server 192.168.1.5 client-ip 10.0.0.8 vr VR-Default shared-secret useStrongerSecret
+  configure radius dynamic-authorization 1 server 192.168.1.5 client-ip 10.0.0.8
+  vr VR-Default shared-secret useStrongerSecret
   enable radius dynamic-authorization
 
 ===== MAC Authentication
@@ -86,7 +93,8 @@ SNMP configuration
 
 AAA Configuration
 
-  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8
+  vr VR-Default
   configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
@@ -112,7 +120,8 @@ SNMP configuration
 
 AAA Configuration
 
-  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8
+  vr VR-Default
   configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
@@ -125,14 +134,18 @@ Netlogin (802.1X)
   enable netlogin ports 1-48 dot1x 
   configure netlogin ports 1-48 mode port-based-vlans
   configure netlogin ports 1-48 no-restart
-  configure netlogin mac ports 1-48 timers reauth-period 86400 reauthentication on
-  configure netlogin dot1x ports 1-48 timers server-timeout 10 reauth-period 84600
+  configure netlogin mac ports 1-48 timers reauth-period 86400 reauthentication
+  on
+  configure netlogin dot1x ports 1-48 timers server-timeout 10 reauth-period
+  84600
 
 
 ==== MAC Authentication + 802.1x
 
-You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will fallback to the MAC Authentication.
-Configure the MAC Authentication and 802.1x like the section above and add this extra command:
+You can mix the MAC Authentication and 802.1X on the same switchport. If the
+device fails 802.1X authentication, it will fallback to the MAC Authentication.
+Configure the MAC Authentication and 802.1x like the section above and add this
+extra command:
 
   enable netlogin ports 1-48 dot1x mac
 
@@ -143,12 +156,15 @@ Assign switch-defined policies via PacketFence.
 
 Define switch policy:
 
-  configure policy profile 1 name "gaming" pvid-status "enable" pvid 3521 untagged-vlans 3521
-  configure policy profile 2 name "guest" pvid-status "enable" pvid 3522 untagged-vlans 3522
+  configure policy profile 1 name "gaming" pvid-status "enable" pvid 3521
+  untagged-vlans 3521
+  configure policy profile 2 name "guest" pvid-status "enable" pvid 3522
+  untagged-vlans 3522
   configure policy maptable response both
   configure policy vlanauthorization enable
 
-Enable 'Role by Switch Role' in PacketFence switch configuration; assign policies to roles. Policies returned in Filter-Id attribute.
+Enable 'Role by Switch Role' in PacketFence switch configuration; assign
+policies to roles. Policies returned in Filter-Id attribute.
 
 Use 'Extreme EXOS' switch type for this feature.
 
@@ -162,7 +178,8 @@ SNMP configuration
 
 AAA Configuration
 
-  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8
+  vr VR-Default
   configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
@@ -170,8 +187,10 @@ Web-auth profile
 
   configure dns-client add name-server 8.8.8.8 vr VR-Mgmt
   configure dns-client add domain-suffix example.com
-  configure policy captive-portal web-redirect 1 server 1 url http://192.168.1.5:80/Extreme::EXOS enable
-  configure policy profile 4 name "Unregistered" pvid-status "enable" pvid 0 web-redirect 1
+  configure policy captive-portal web-redirect 1 server 1 url
+  http://192.168.1.5:80/Extreme::EXOS enable
+  configure policy profile 4 name "Unregistered" pvid-status "enable" pvid 0
+  web-redirect 1
   configure policy rule 4 ipdestsocket 192.168.1.5 mask 32 forward
   configure policy rule 4 udpdestportIP 53 mask 16 forward
   configure policy rule 4 udpdestportIP 67 mask 16 forward
@@ -179,15 +198,18 @@ Web-auth profile
   configure policy captive-portal listening 80
   configure policy captive-portal listening 443
 
-Enable 'External Portal Enforcement' and 'Role by Switch Role' in PacketFence switch configuration. Set 'registration' role to 'Unregistered'.
+Enable 'External Portal Enforcement' and 'Role by Switch Role' in PacketFence
+switch configuration. Set 'registration' role to 'Unregistered'.
 
 Use 'Extreme EXOS' switch type for this feature.
 
 ===== RADIUS authentication for CLI access
 
-Configure RADIUS server IP as primary server and switch IP as client-ip. Specify correct virtual router:
+Configure RADIUS server IP as primary server and switch IP as client-ip. Specify
+correct virtual router:
 
-  configure radius mgmt-access primary server <SERVER_IP> 1815 client-ip <CLIENT_IP> vr <VR>
+  configure radius mgmt-access primary server <SERVER_IP> 1815 client-ip
+  <CLIENT_IP> vr <VR>
 
 Configure the RADIUS shared-secret
 

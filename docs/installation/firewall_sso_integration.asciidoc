@@ -18,15 +18,20 @@ endif::[]
 
 //== Firewall SSO Integration
 
-PacketFence updates firewalls based on device information like IP address and connected username. Integration guides below show firewall configuration with PacketFence.
-PacketFence uses DHCP traffic by default to trigger firewall updates, but RADIUS accounting traffic is also supported.
+PacketFence updates firewalls based on device information like IP address and
+connected username. Integration guides below show firewall configuration with
+PacketFence.
+PacketFence uses DHCP traffic by default to trigger firewall updates, but RADIUS
+accounting traffic is also supported.
 
-To configure firewall updates, go to _Configuration -> System Configuration -> Main Configuration -> Advanced_:
+To configure firewall updates, go to _Configuration -> System Configuration ->
+Main Configuration -> Advanced_:
 
 * Trigger Single-Sign-On on accounting.
 * Trigger Single-Sign-On on DHCP
 
-Using both methods simultaneously creates duplicate SSO requests when receiving DHCP and accounting for the same device, potentially overloading your firewall.
+Using both methods simultaneously creates duplicate SSO requests when receiving
+DHCP and accounting for the same device, potentially overloading your firewall.
 
 === Barracuda
 
@@ -60,5 +65,8 @@ include::firewall/paloalto.asciidoc[]
 
 === Troubleshooting SSO Integration
 
-For SSO integration issues, verify firewall API connectivity and check integration logs as described in <<#_log_files,Log Files>> and <<#_network_connectivity_issues,Network Connectivity Issues>> in the Troubleshooting section.
+For SSO integration issues, verify firewall API connectivity and check
+integration logs as described in <<#_log_files,Log Files>> and
+<<#_network_connectivity_issues,Network Connectivity Issues>> in the
+Troubleshooting section.
 

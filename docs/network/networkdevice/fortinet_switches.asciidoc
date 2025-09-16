@@ -19,7 +19,8 @@ endif::[]
 
 //=== Fortinet FortiSwitch
 
-This section shows how to configure a Radius, Mac Auth and 802.1x on a FortiSwitch running FortiSwitchOS 7.x.
+This section shows how to configure a Radius, Mac Auth and 802.1x on a
+FortiSwitch running FortiSwitchOS 7.x.
 
 You will need to have the CLI access on the FortiSwitch to do the configuration.
 
@@ -56,11 +57,14 @@ Using the CLI:
      set reauth-period <0-1440>
    end
 
-NOTE: Changes to global settings only take effect when new 802.1X/MAB sessions are created.
+NOTE: Changes to global settings only take effect when new 802.1X/MAB sessions
+are created.
 
 ==== MAB
 
-Starting in FortiSwitchOS 7.2.3, MAB-only authentication is supported. In this mode, the FortiSwitch unit performs MAB authentication without performing EAP authentication. EAP packets are not sent. To enable MAB-only authentication:
+Starting in FortiSwitchOS 7.2.3, MAB-only authentication is supported. In this
+mode, the FortiSwitch unit performs MAB authentication without performing EAP
+authentication. EAP packets are not sent. To enable MAB-only authentication:
 
 ===== Switch Interfance config
 
@@ -76,15 +80,22 @@ Starting in FortiSwitchOS 7.2.3, MAB-only authentication is supported. In this m
 
 ==== 802.1X
 
-Starting in FortiSwitchOS 7.0.0, you can use the CLI to allow an 802.1X client to move between ports that are not directly connected to the FortiSwitch unit without having to delete the 802.1X session. For example, you can move an 802.1X client PC that connects through an IP phone to port1 of the FortiSwitch unit to a port of a third-party switch that connects to port2 of the FortiSwitch unit.
+Starting in FortiSwitchOS 7.0, you can use the CLI to allow an 802.1X client
+to move between ports that are not directly connected to the FortiSwitch unit
+without having to delete the 802.1X session. For example, you can move an 802.1X
+client PC that connects through an IP phone to port1 of the FortiSwitch unit to
+a port of a third-party switch that connects to port2 of the FortiSwitch unit.
 
-This feature is available for 802.1X port-based authentication, 802.1X MAC-based authentication, MAB enabled or disabled, and EAP pass-through mode enabled or disabled.
+This feature is available for 802.1X port-based authentication, 802.1X MAC-based
+authentication, MAB enabled or disabled, and EAP pass-through mode enabled or
+disabled.
 
 ===== Switch Interfance config
 
 Configuring the 802.1X settings on an interface
 
-Using the CLI (for FSR-124D, 200 Series, FS-4xxE, 500 Series, FS-1024D, FS-1024E, FS-T1024E, FS-1048E, and FS-3032E):
+Using the CLI (for FSR-124D, 200 Series, FS-4xxE, 500 Series, FS-1024D,
+FS-1024E, FS-T1024E, FS-1048E, and FS-3032E):
 
  config switch interface
    edit <port>
@@ -110,7 +121,8 @@ Using the CLI (for FSR-124D, 200 Series, FS-4xxE, 500 Series, FS-1024D, FS-1024E
        set security-groups <security-group-name>
      end
 
-Using the CLI (for FS-124F, FS-124F-POE, FS-124F-FPOE, FS-148F, FS-148F-POE, and FS-148F-FPOE):
+Using the CLI (for FS-124F, FS-124F-POE, FS-124F-FPOE, FS-148F, FS-148F-POE, and
+FS-148F-FPOE):
 
  config switch global
    config port-security
@@ -177,7 +189,8 @@ For example:
 	f0:4d:a2:be:a3:31 802.1x 101 101
 
 	Sessions info:
-	f0:4d:a2:be:a3:31 Type=802.1x,TTLS,state=AUTHENTICATED,etime=0,eap_cnt=9 params:reAuth=60
+	f0:4d:a2:be:a3:31 Type=802.1x,TTLS,state=AUTHENTICATED,etime=0,eap_cnt=9
+	params:reAuth=60
 	user="local-RADIUS",security_grp="radiusgrp",fortinet_grp="Radius_Admins"
 
 ===== Clearing Authorized Sessions

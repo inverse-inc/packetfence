@@ -18,17 +18,24 @@ endif::[]
 
 //== Installation
 
-Install PacketFence using the Zero Effort NAC (ZEN) appliance or standard package repository on GNU/Linux installations.
+Install PacketFence using the Zero Effort NAC (ZEN) appliance or standard
+package repository on GNU/Linux installations.
 
 === Installing PacketFence from the ZEN
 
-ZEN (Zero Effort NAC) edition enables rapid PacketFence deployment. It's a fully installed, preconfigured virtual appliance compatible with VMware ESX/ESXi, Microsoft Hyper-V and other products. This section covers VMware-based deployment. Xen-based hypervisors are not supported.
+ZEN (Zero Effort NAC) edition enables rapid PacketFence deployment. It's a fully
+installed, preconfigured virtual appliance compatible with VMware ESX/ESXi,
+Microsoft Hyper-V and other products. This section covers VMware-based
+deployment. Xen-based hypervisors are not supported.
 
 You can download the ZEN here: https://www.packetfence.org/download.html#/zen
 
 ==== Virtual Machine
 
-Tested with VMware ESXi, Fusion and Workstation with 16 GB RAM dedicated to the VM. May work with other VMware products. Requires 64-bit CPU host for long mode support. PacketFence ZEN comes as a pre-built OVF virtual disk. Import the OVF using vSphere Client or vCenter for ESX hypervisors.
+Tested with VMware ESXi, Fusion and Workstation with 16 GB RAM dedicated to the
+VM. May work with other VMware products. Requires 64-bit CPU host for long mode
+support. PacketFence ZEN comes as a pre-built OVF virtual disk. Import the OVF
+using vSphere Client or vCenter for ESX hypervisors.
 
 The VM's first network card receives IP through DHCP.
 
@@ -38,41 +45,60 @@ The virtual appliance passwords are:
 * Login: root
 * Password: p@ck3tf3nc3
 
-WARNING: Be sure to change default passwords if you plan to use this image in production.
+WARNING: Be sure to change default passwords if you plan to use this image in
+production.
 
 ==== Import to ESX
 
-Make sure that there is only one virtual network card created, and also make sure that your vEthernet is connected to a virtual switch (vSwitch). That virtual network card will be used as the PacketFence management interface.
+Make sure that there is only one virtual network card created, and also make
+sure that your vEthernet is connected to a virtual switch (vSwitch). That
+virtual network card will be used as the PacketFence management interface.
 
 ==== Import to VMware Player/Workstation for Linux
 
-Newer versions of VMware Player handle VLAN trunking a lot better. With that in mind,  we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
+Newer versions of VMware Player handle VLAN trunking a lot better. With that in
+mind, we can use a single interface on the VM. So, you need to ensure that your
+VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as
+the allowed VLAN. These VLANs will be used later in configuration examples.
 
 === Installing PacketFence from the ISO
 
-The ISO edition of PacketFence allows you to install PacketFence on Debian 12 with minimal effort. Instead of manually installing Debian 12 and installing PacketFence after, this will perform both tasks and select the optimal parameters and best practices for installing the operating system.
+The ISO edition of PacketFence allows you to install PacketFence on Debian 12
+with minimal effort. Instead of manually installing Debian 12 and installing
+PacketFence after, this will perform both tasks and select the optimal
+parameters and best practices for installing the operating system.
 
-You can download the ISO here: https://www.packetfence.org/download.html#/releases
+You can download the ISO here:
+https://www.packetfence.org/download.html#/releases
 
 ==== Machine specifications
 
-This setup has been tested using VMware ESXi, Proxmox VE and VirtualBox but will also work with any hypervisor PacketFence supports as well as bare-metal servers.
+This setup has been tested using VMware ESXi, Proxmox VE and VirtualBox but will
+also work with any hypervisor PacketFence supports as well as bare-metal
+servers.
 
-You will need a virtual machine or server with 16 GB of RAM dedicated to machine as well as 4 CPUs. Make sure you allocate at least 200GB of disk space for PacketFence.
+You will need a virtual machine or server with 16 GB of RAM dedicated to machine
+as well as 4 CPUs. Make sure you allocate at least 200GB of disk space for
+PacketFence.
 
 ==== Installing the ISO to a virtual machine
 
-Provision a virtual machine with the specifications above, mount the ISO in the CD/DVD drive of the machine and start it.
-The installer will open and you will simply have to follow the instructions on screen to complete the installation.
+Provision a virtual machine with the specifications above, mount the ISO in the
+CD/DVD drive of the machine and start it.
+The installer will open and you will simply have to follow the instructions on
+screen to complete the installation.
 
 ==== Installing the ISO to a bare-metal server
 
-First, make sure your server follows the specifications above and then burn the ISO onto a DVD or USB key and boot it on the server.
-The installer will open and you will simply have to follow the instructions on screen to complete the installation.
+First, make sure your server follows the specifications above and then burn the
+ISO onto a DVD or USB key and boot it on the server.
+The installer will open and you will simply have to follow the instructions on
+screen to complete the installation.
 
 === Installing PacketFence on existing Linux
 
-PacketFence provides repositories for *RHEL 8* and *Debian 12* (bookworm) with all required dependencies.
+PacketFence provides repositories for *RHEL 8* and *Debian 12* (bookworm) with
+all required dependencies.
 
 *Repository Benefits:*
 * Streamlined installation with dependency management
@@ -174,7 +200,8 @@ apt install linux-headers-$(uname -r)
 [source,bash,subs="attributes"]
 ----
 # Install PacketFence repository
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
+yum localinstall
+http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
 
 # Install PacketFence with all dependencies
 # Includes: MariaDB, FreeRADIUS, DHCP server
@@ -187,10 +214,13 @@ yum install --enablerepo=packetfence packetfence
 ----
 # Install repository tools and GPG key
 apt install gnupg sudo curl
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o
+/etc/apt/keyrings/packetfence.gpg
 
 # Add PacketFence repository (Debian 12 bookworm)
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg]
+http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
+bookworm" > /etc/apt/sources.list.d/packetfence.list
 
 # Install PacketFence with all dependencies  
 # Includes: MariaDB, FreeRADIUS, DHCP server

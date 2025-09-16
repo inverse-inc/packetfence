@@ -1,26 +1,41 @@
 === Advanced Access Control For Admin Login
 
-PacketFence admin interface allows username/password login via any Internal authentication source (local database, LDAP, etc) by default.
+PacketFence admin interface allows username/password login via any Internal
+authentication source (local database, LDAP, etc) by default.
 
-For other admin interface authentication types (SAML, multi-factor auth, etc), leverage captive portal capabilities for administrator authentication.
+For other admin interface authentication types (SAML, multi-factor auth, etc),
+leverage captive portal capabilities for administrator authentication.
 
 ==== Basic Configuration
 
-In the admin interface, go to _Configuration -> System Configuration -> Admin Login_ and enable 'SSO Status'. To enforce SSO policy for login (disable username/password), disable 'Allow username/password authentication'.
+In the admin interface, go to _Configuration -> System Configuration -> Admin
+Login_ and enable 'SSO Status'. To enforce SSO policy for login (disable
+username/password), disable 'Allow username/password authentication'.
 
-Configure 'SSO Base URL' if PacketFence captive portal uses different name than 'Hostname' and 'Domain' values in 'General Configuration'.
+Configure 'SSO Base URL' if PacketFence captive portal uses different name than
+'Hostname' and 'Domain' values in 'General Configuration'.
 
-Configure connection profile for administrator authentication. In the admin interface, go to _Configuration -> Policies and Access Control -> Connection Profiles_ and create new connection profile:
+Configure connection profile for administrator authentication. In the admin
+interface, go to _Configuration -> Policies and Access Control -> Connection
+Profiles_ and create new connection profile:
 
  * Root Portal Module: 'Default admin SSO policy'
  * Filter: URI with value '/admin-sso'
  * Sources: The authentication sources that should be used for the login.
 
-Restart `api-frontend` and `httpd.portal`. Admin interface login page shows new 'Single Sign On' option (text changeable in 'Admin Login' configuration).
+Restart `api-frontend` and `httpd.portal`. Admin interface login page shows new
+'Single Sign On' option (text changeable in 'Admin Login' configuration).
 
-Any portal authentication mechanism (SAML, Akamai MFA, TOTP, etc) can authenticate administrators. Refer to appropriate sections in this guide to configure features on administrator authentication connection profile. 
+Any portal authentication mechanism (SAML, Akamai MFA, TOTP, etc) can
+authenticate administrators. Refer to appropriate sections in this guide to
+configure features on administrator authentication connection profile.
 
 ==== Advanced Configuration
 
-Adjust captive portal policy configuration for administrator authentication as needed. Portal modules provide flexibility and customization. Modify 'Default admin SSO policy' in _Configuration -> Advanced Access Configuration -> Portal Modules_ or create custom policy for administrator authentication connection profile. See <<#_portal_modules,Portal Modules>> section for captive portal customization. 
+Adjust captive portal policy configuration for administrator authentication as
+needed. Portal modules provide flexibility and customization. Modify 'Default
+admin SSO policy' in _Configuration -> Advanced Access Configuration -> Portal
+Modules_ or create custom policy for administrator authentication connection
+profile. See <<#_portal_modules,Portal Modules>> section for captive portal
+customization.
 

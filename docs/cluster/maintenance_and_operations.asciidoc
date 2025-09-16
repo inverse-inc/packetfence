@@ -24,12 +24,14 @@ When doing maintenance on a cluster, it is always preferred to set the targeted
 nodes in a maintenance mode so they don't try to join an existing
 cluster. You can achieve this using two methods.
 
-IMPORTANT: In a three nodes cluster, you can offer service with at least one node.
+IMPORTANT: In a three nodes cluster, you can offer service with at least one
+node.
 
 ==== Using a clean shutdown
 
 If you stop the `packetfence-mariadb` service properly on a node or if you
-shutdown your node properly, the cluster will detect this shutdown and continue to
+shutdown your node properly, the cluster will detect this shutdown and continue
+to
 operate.
 
 ==== Using --maintenance flag

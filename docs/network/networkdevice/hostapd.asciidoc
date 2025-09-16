@@ -20,7 +20,11 @@ endif::[]
 
 ==== Introduction
 
-This section will provide an example for the configuration of an open SSID (not encrypted) and a secure SSID (802.1X). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence. You can not have both SSID configured on the same access point at the same time, there is a limitation with the DAE server.
+This section will provide an example for the configuration of an open SSID (not
+encrypted) and a secure SSID (802.1X). You will need to install wpad and
+hostapd. These two SSIDs will do RADIUS authentication against PacketFence. You
+can not have both SSID configured on the same access point at the same time,
+there is a limitation with the DAE server.
 
 ==== Assumptions
 
@@ -37,17 +41,20 @@ You can install the packages from the web interface of OpenWrt.
 
 Go to *System -> Software*
 
-First update the repos by clicking the button Update lists if it's not up to date.
+First update the repos by clicking the button Update lists if it's not up to
+date.
 
 Then you will have to install the packages of Hostapd and wpad.
 
-Go to the tab 'Available packages' and then search for the package hostapd into the 'Filter:' field.
+Go to the tab 'Available packages' and then search for the package hostapd into
+the 'Filter:' field.
 
 Click Install the hostapd-common package, the actual version is 2015-03-25-1.
 
 Do the same process for the wpad package version 2015-03-25-1.
 
-NOTE: You will need the packages hostapd-common and wpad if they are not installed by default.
+NOTE: You will need the packages hostapd-common and wpad if they are not
+installed by default.
 
 ===== Dynamic VLAN Configuration
 
@@ -59,7 +66,8 @@ Connect using SSH to the AP and create the file : /etc/config/hostapd.vlan
 
 ===== Hostapd Configuration
 
-You will need to modify the hostapd script that comes with the package that we previously installed.
+You will need to modify the hostapd script that comes with the package that we
+previously installed.
 
 Connect using SSH to the AP and run these commands:
 
@@ -137,13 +145,17 @@ config wifi-iface
         option ssid 'OpenWRT-Secure'
 ----
 
-In order to apply this configuration, when you are connected using SSH on the AP, run the command 'wifi'. It will reload the configuration and broadcast the SSID. If you want to debug, you can use the command 'logread'.
+In order to apply this configuration, when you are connected using SSH on the
+AP, run the command 'wifi'. It will reload the configuration and broadcast the
+SSID. If you want to debug, you can use the command 'logread'.
 
-NOTE:  It's known that you can't put 2 SSIDs with the same dae server at the same time. The deauthentication will not work on the second SSID.
+NOTE: It's known that you can't put 2 SSIDs with the same dae server at the same
+time. The deauthentication will not work on the second SSID.
 
 ===== PacketFence Configuration
 
-Log in to the PacketFence administration web page and go under *Configuration -> Policies and Access Control -> Switches -> Add switch*.
+Log in to the PacketFence administration web page and go under *Configuration ->
+Policies and Access Control -> Switches -> Add switch*.
 
 Definition:
 [options="compact"]
@@ -169,7 +181,9 @@ Save this configuration by clicking the 'Save' button.
 
 There are few things you can do/check to see if your configuration is working.
 
-To check the wireless configuration: uci show wireless or cat /etc/config/wireless
+To check the wireless configuration: uci show wireless or cat
+/etc/config/wireless
 
-To check if your configuration (depend on the equipment) is correctly set into the Hostapd configuration file: cat /var/run/hostapd-phy0.conf
+To check if your configuration (depend on the equipment) is correctly set into
+the Hostapd configuration file: cat /var/run/hostapd-phy0.conf
 

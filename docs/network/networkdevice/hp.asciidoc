@@ -47,7 +47,8 @@ Create a new authentication domain:
 * go to *Authentication*, *AAA*,
 * click on the _Domain Setup_ tab,
 
-WARNING: We will need to create a specific authentication domain and *not making it as the default domain*.
+WARNING: We will need to create a specific authentication domain and *not making
+it as the default domain*.
 
 Configure the 802.1X and authentication method:
 * go to *Authentication*
@@ -96,5 +97,6 @@ The configuration is done.
 
 ==== E4800G and E5500G Switch series
 
-These are re-branded 3Com switches, see under the <<_3com,3Com section>> for their documentation.
+These are re-branded 3Com switches, see under the <<_3com,3Com section>> for
+their documentation.
 

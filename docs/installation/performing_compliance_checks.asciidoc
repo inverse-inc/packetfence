@@ -18,39 +18,59 @@ endif::[]
 
 //== Performing Compliance Checks
 
-PacketFence supports either Nessus and OpenVAS as a scanning engine for compliance checks.
-Since PacketFence v5.1 you are now able to create multiples scan engines configuration and assign them on specific captive portals.
-It mean per example that you are now able to active a scan for specific Operating System only on a specific SSID.
+PacketFence supports either Nessus and OpenVAS as a scanning engine for
+compliance checks.
+Since PacketFence v5.1 you are now able to create multiples scan engines
+configuration and assign them on specific captive portals.
+It mean per example that you are now able to active a scan for specific
+Operating System only on a specific SSID.
 
 === Installation
 
 ==== Nessus
 
-Please visit https://www.tenable.com/downloads/nessus to download Nessus v7 and install the Nessus package for your operating system. You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
+Please visit https://www.tenable.com/downloads/nessus to download Nessus v7 and
+install the Nessus package for your operating system. You will also need to
+register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
 
-After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server, and to create a user for PacketFence.
+After you installed Nessus, follow the Nessus documentation for the
+configuration of the Nessus Server, and to create a user for PacketFence.
 
-NOTE: You may run into some issue while using Nessus with the Net::Nessus::XMLRPC module (which is the default behavior in PacketFence). Please refer to the https://packetfence.org/bugs/view.php?id=1841[bug tracking system] for more information.
+NOTE: You may run into some issue while using Nessus with the
+Net::Nessus::XMLRPC module (which is the default behavior in PacketFence).
+Please refer to the https://packetfence.org/bugs/view.php?id=1841[bug tracking
+system] for more information.
 
 ==== OpenVAS
 
 ===== Requirements
 
 
-You will first need to install OpenVAS along with XYZ and ABC in order to manage OpenVAS remotely via the `omp` command line.
+You will first need to install OpenVAS along with XYZ and ABC in order to manage
+OpenVAS remotely via the `omp` command line.
 
-In order to validate proper connectivity from PacketFence to OpenVAS for remote management, execute the following command (replacing admin by the user you wish to use for PacketFence to communicate with OpenVAS):
+In order to validate proper connectivity from PacketFence to OpenVAS for remote
+management, execute the following command (replacing admin by the user you wish
+to use for PacketFence to communicate with OpenVAS):
 
   # omp -u admin -p 9390 -X "<get_version/>" 
 
-The output of the above command should provide you the version of OpenVAS. Otherwise, ensure all the necessary components are in place for management through the `omp` command line client and that PacketFence is able to communicate with OpenVAS on port 9390.
+The output of the above command should provide you the version of OpenVAS.
+Otherwise, ensure all the necessary components are in place for management
+through the `omp` command line client and that PacketFence is able to
+communicate with OpenVAS on port 9390.
 
 ===== Configuring the alert
 
 
-You will need to configure an alert policy in OpenVAS to inform PacketFence of the completion of a task. The httpd.portal daemon takes care of handling this callback so you'll want to make sure that you have "portal" in your additionnal listening daemons on your management interface in PacketFence.
+You will need to configure an alert policy in OpenVAS to inform PacketFence of
+the completion of a task. The httpd.portal daemon takes care of handling this
+callback so you'll want to make sure that you have "portal" in your additionnal
+listening daemons on your management interface in PacketFence.
 
-In order to create the alert policy, go in the Greenbone Security Assistant, then in "Configuration -> Alerts" and create a new alert with the following configuration
+In order to create the alert policy, go in the Greenbone Security Assistant,
+then in "Configuration -> Alerts" and create a new alert with the following
+configuration
 
 image::openvas/alert.png[alt="OpenVAS alert"]
 
@@ -61,37 +81,48 @@ Where:
  * Ensure the condition is set to "Always"
  * Method is set to "HTTP Get"
  * HTTP Get URL is set to: http://PF_MANAGEMENT_IP/hook/openvas?task=$n
- ** In the URL above, only change PF_MANAGEMENT_IP to the management IP of your PacketFence server. Leave the rest of the URL untouched as this exact URL and format is expected by PacketFence.
+ ** In the URL above, only change PF_MANAGEMENT_IP to the management IP of your
+ PacketFence server. Leave the rest of the URL untouched as this exact URL and
+ format is expected by PacketFence.
 
 ===== Collecting the identifiers
 
-Once you have connectivity working between PacketFence and OpenVAS, use the Greebone Security Assistant to obtain the following information for configuring PacketFence
+Once you have connectivity working between PacketFence and OpenVAS, use the
+Greebone Security Assistant to obtain the following information for configuring
+PacketFence
 
 *Alert ID*
 
-Navigate to _Configuration -> Alerts_, then click on the alert you've configured above to view it, and note down the ID of the alert.
+Navigate to _Configuration -> Alerts_, then click on the alert you've configured
+above to view it, and note down the ID of the alert.
 
 image::openvas/alert-id.png[alt="OpenVAS alert ID"]
 
 *Scan config ID*
 
-Navigate to _Configuration -> Scan Configs_ and then select the scan configuration you would like to use to scan the hosts. In this scan config view, note down the ID.
+Navigate to _Configuration -> Scan Configs_ and then select the scan
+configuration you would like to use to scan the hosts. In this scan config view,
+note down the ID.
 
 image::openvas/scan-config-id.png[alt="OpenVAS scan config ID"]
 
 *Report format ID* 
 
-Navigate to _Configuration -> Report Formats_ and then select the `CSV Results` report format. In this view, note down the ID.
+Navigate to _Configuration -> Report Formats_ and then select the `CSV Results`
+report format. In this view, note down the ID.
 
 image::openvas/report-format-id.png[alt="OpenVAS report format ID"]
 
 === Configuration
 
-In order for the compliance checks to correctly work with PacketFence (communication and generate security events inside PacketFence), you need to configure these sections:
+In order for the compliance checks to correctly work with PacketFence
+(communication and generate security events inside PacketFence), you need to
+configure these sections:
 
 ==== Scanner Definition
 
-First go in Configuration and Scanner Definition: _Configuration -> Compliance -> Scan Engines_
+First go in Configuration and Scanner Definition: _Configuration -> Compliance
+-> Scan Engines_
 
 Then add a `New Scan Engine`
 
@@ -103,9 +134,12 @@ There are common parameters for each scan engines:
   Roles: Only devices with these role(s) will be affected (Optional)
   OS: Only devices with this Operating System will be affected (Optional)
   Duration: Approximate duration of scan (Progress bar on the captive portal)
-  Scan before registration: Trigger the scan when the device appear on the registration vlan
-  Scan on registration: Trigger the scan just after registration on the captive portal
-  Scan after registration: Trigger the scan on the production network (pfdhcplistener must receive production dhcp traffic)
+  Scan before registration: Trigger the scan when the device appear on the
+  registration vlan
+  Scan on registration: Trigger the scan just after registration on the captive
+  portal
+  Scan after registration: Trigger the scan on the production network
+  (pfdhcplistener must receive production dhcp traffic)
 
 Specific to Nessus:
 
@@ -113,7 +147,8 @@ Specific to Nessus:
   Username: Username to connect to Nessus scan
   Password: Password to connect to Nessus scan
   Port of the service: port to connect (default 8834)
-  Nessus client policy: the name of the policy to use for the scan (Must be define on the Nessus server)
+  Nessus client policy: the name of the policy to use for the scan (Must be
+  define on the Nessus server)
 
 Specific to OpenVAS:
 
@@ -128,7 +163,8 @@ Specific to OpenVAS:
 
 ===== Rules syntax
 
-The syntax of the rules are simple to understand and use same syntax as <<_vlan_filter_definition,VLAN filters>>.
+The syntax of the rules are simple to understand and use same syntax as
+<<_vlan_filter_definition,VLAN filters>>.
 
 * _Request_ is the SQL request you will launch on the remote device, you must know what the request will return to write the test.
 
@@ -152,7 +188,8 @@ You can define multiple test blocs.
 
 The action bloc is where you will define your logic. All actions available are
 identical to <<_vlan_filter_definition,VLAN filters>>. Take a look at
-[filename]`/usr/local/pf/conf/vlan_filters.conf.example` for all available actions.
+[filename]`/usr/local/pf/conf/vlan_filters.conf.example` for all available
+actions.
 
 
 ==== Security Events Definition

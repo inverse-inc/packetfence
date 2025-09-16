@@ -1,8 +1,13 @@
 === Log files
 
-Log files are in `/usr/local/pf/logs`. Each service has its own log file, except `packetfence.log` which contains logs from multiple services. View complete log file list via _Audit -> Live logs_ menu in web admin.
+Log files are in `/usr/local/pf/logs`. Each service has its own log file, except
+`packetfence.log` which contains logs from multiple services. View complete log
+file list via _Audit -> Live logs_ menu in web admin.
 
-Main logging configuration is in `/usr/local/pf/conf/log.conf`. Contains `packetfence.log` configuration (`Log::Log4Perl`) - normally no modification needed. Service-specific logging configurations are in `/usr/local/pf/conf/log.conf.d/`.
+Main logging configuration is in `/usr/local/pf/conf/log.conf`. Contains
+`packetfence.log` configuration (`Log::Log4Perl`) - normally no modification
+needed. Service-specific logging configurations are in
+`/usr/local/pf/conf/log.conf.d/`.
 
 **Key Log Files for Troubleshooting:**
 

@@ -19,25 +19,43 @@ endif::[]
 
 //=== PacketFence Apple, Android and Windows Wireless Provisioning
 
-Provisioners enable automatic device configuration for proper SSID connection, authentication method (e.g., EAP-TLS), and CA certificate trust.
+Provisioners enable automatic device configuration for proper SSID connection,
+authentication method (e.g., EAP-TLS), and CA certificate trust.
 
-Apple devices (iPhones, iPads, iPods, Mac OS X 10.7+) support wireless profile importation via mobileconfig XML format. Android supports this through Android PacketFence Agent profile import. Installing files automatically configures wireless settings for given SSID, simplifying manual configuration for hidden SSIDs. PacketFence generates profiles per administrator preferences, pre-populating user credentials (excluding password). Users install generated file to use new SSID.
+Apple devices (iPhones, iPads, iPods, Mac OS X 10.7+) support wireless profile
+importation via mobileconfig XML format. Android supports this through Android
+PacketFence Agent profile import. Installing files automatically configures
+wireless settings for given SSID, simplifying manual configuration for hidden
+SSIDs. PacketFence generates profiles per administrator preferences,
+pre-populating user credentials (excluding password). Users install generated
+file to use new SSID.
 
-Windows agent imports and applies provisioned profile; users only enter username and password.
+Windows agent imports and applies provisioned profile; users only enter username
+and password.
 
 ==== Configure the feature
 
-NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two sections exists to assist you: <<pf-pki,PacketFence PKI>>, which covers PacketFence's implementation, or <<ms-pki,PacketFence MSPKI>> which covers Microsoft's.
+NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before
+going any further. Two sections exists to assist you: <<pf-pki,PacketFence
+PKI>>, which covers PacketFence's implementation, or <<ms-pki,PacketFence
+MSPKI>> which covers Microsoft's.
 
 Configure SSID for devices after authentication.
 
-In administration interface: _Configuration -> Advanced Access Configuration -> Provisioners_. Select 'android'/'ios'/'Windows' provisioner. Enter SSID information and applicable roles. Repeat for desired provisioners. Default RADIUS certificate path: [filename]`/usr/local/pf/raddb/certs/server.crt`.
+In administration interface: _Configuration -> Advanced Access Configuration ->
+Provisioners_. Select 'android'/'ios'/'Windows' provisioner. Enter SSID
+information and applicable roles. Repeat for desired provisioners. Default
+RADIUS certificate path: [filename]`/usr/local/pf/raddb/certs/server.crt`.
 
-Add 'Android', 'iOS' and 'Windows' provisioners to 'Connection Profile' configuration. If no profile defined, configure 'default' connection profile with created provisioners.
+Add 'Android', 'iOS' and 'Windows' provisioners to 'Connection Profile'
+configuration. If no profile defined, configure 'default' connection profile
+with created provisioners.
 
-NOTE: For different connection profiles (open/secure networks), configure provisioners on both profiles.
+NOTE: For different connection profiles (open/secure networks), configure
+provisioners on both profiles.
 
-Add provisioner for other device classes: click `Add Provisioner`, complete form with different Provisioning ID per provisioner.
+Add provisioner for other device classes: click `Add Provisioner`, complete form
+with different Provisioning ID per provisioner.
 
 * *Roles*: Defines affected devices; if empty, affects all devices for this class.
 * *SSID*: Defines SSID configured on device using authentication profile.
@@ -45,15 +63,21 @@ Add provisioner for other device classes: click `Add Provisioner`, complete form
 * *Security type*: Set to WPA2-Enterprise for PacketFence PKI integration.
 * *PKI Provider*: Must match provider configured in PKI provider section.
 
-Configure provisioning SSID (e.g., `OnBoarding-PF`) open with MAC Authentication pointing to PacketFence. Create `New Portal Profile`, add *filter SSID* with SSID name, add authentication source and provisioners. Logged-in users follow captive portal instructions to receive certificates.
+Configure provisioning SSID (e.g., `OnBoarding-PF`) open with MAC Authentication
+pointing to PacketFence. Create `New Portal Profile`, add *filter SSID* with
+SSID name, add authentication source and provisioners. Logged-in users follow
+captive portal instructions to receive certificates.
 
 ===== Android specifications
 
-For Android provisioning support, you must activate and adjust the passthroughs. You might need to adapt them depending on your geolocality.
+For Android provisioning support, you must activate and adjust the passthroughs.
+You might need to adapt them depending on your geolocality.
 
 NOTE: Please refer to the 'Passthroughs' section of this guide if needed.
 
-In the administation inferface, go in _Configuration -> Network Configuration -> Networks -> Fencing_. Activate 'Passthrough' and make sure the following passthroughs domains are present:
+In the administation inferface, go in _Configuration -> Network Configuration ->
+Networks -> Fencing_. Activate 'Passthrough' and make sure the following
+passthroughs domains are present:
 
   *.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com,*.l.google.com,play.google.com,*.gstatic.com
 
@@ -62,56 +86,93 @@ Then run the following commands so that passthroughs become effective:
  /usr/local/pf/bin/pfcmd configreload hard
  /usr/local/pf/bin/pfcmd service pfdns restart
  
-Next, make sure you are using a valid SSL certificate on your captive portal since Android devices will only be able to be provisioned on a captive portal that uses valid HTTPS
+Next, make sure you are using a valid SSL certificate on your captive portal
+since Android devices will only be able to be provisioned on a captive portal
+that uses valid HTTPS
  
-NOTE: Some Android devices may use their cellular connection when running the PacketFence agent during the onboarding process. If that is the case, enable the airplane mode on the Android device and then only enable WiFi during the onboarding process.
+NOTE: Some Android devices may use their cellular connection when running the
+PacketFence agent during the onboarding process. If that is the case, enable the
+airplane mode on the Android device and then only enable WiFi during the
+onboarding process.
 
 ===== iOS specifications
 
-Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. For more information, please refer to the PKI guides referred earlier in 'Configure the feature' above.
+Mac OS X/iOS require the provisioning profile to be signed if you want to remove
+the `untrusted` warning when installing the profile. For more information,
+please refer to the PKI guides referred earlier in 'Configure the feature'
+above.
 
 ===== Other Corporate Devices
 
-Let's say that you now need to add some 'Linux computers' as 'corporate' devices.
+Let's say that you now need to add some 'Linux computers' as 'corporate'
+devices.
 
-Those devices cannot be authenticated via Machine Authentication, so we will need to use EAP-TLS and provide those devices with a certificate.
+Those devices cannot be authenticated via Machine Authentication, so we will
+need to use EAP-TLS and provide those devices with a certificate.
 
-First of all make sure that your RADIUS certificate from the PacketFence server and the certificates that you will be provided are delivered from the same CA, else your authentication will not work. To enable EAP-TLS you will need to reconfigure the new RADIUS server certificate in the file conf/radiusd/eap.conf.
+First of all make sure that your RADIUS certificate from the PacketFence server
+and the certificates that you will be provided are delivered from the same CA,
+else your authentication will not work. To enable EAP-TLS you will need to
+reconfigure the new RADIUS server certificate in the file conf/radiusd/eap.conf.
 
-While creating the RADIUS server certifcate make sure to have the *Extended key usage: servAuth*.
+While creating the RADIUS server certifcate make sure to have the *Extended key
+usage: servAuth*.
 
-Under the section `tls-config tls-common`, search for `private_key_file', `certificate_file' and `ca_file'. Those should contain respectively the path of:
+Under the section `tls-config tls-common`, search for `private_key_file',
+`certificate_file' and `ca_file'. Those should contain respectively the path of:
 
  * the private key for your PacketFence server,
  * the server certificate issued by your CA for your PacketFence server,
  * the public key of your CA.
 
-If you have an `OCSP` capable PKI you can configure it in the section `OCSP` in the eap.conf file.
+If you have an `OCSP` capable PKI you can configure it in the section `OCSP` in
+the eap.conf file.
 
-Lastely you will need to restart RADIUS to ensure the use of the new configuration and certificates. Please do the following:
+Lastely you will need to restart RADIUS to ensure the use of the new
+configuration and certificates. Please do the following:
 
  /usr/local/pf/bin/pfcmd configreload hard
  /usr/local/pf/bin/pfcmd service radiusd restart
 
 Make sure everything happens without errors.
 
-Now that your RADIUS is ready to handle EAP-TLS, configure your SSID connection profile on the `corporate` device using this method. Generate a client certificate for your device and install it on.  
+Now that your RADIUS is ready to handle EAP-TLS, configure your SSID connection
+profile on the `corporate` device using this method. Generate a client
+certificate for your device and install it on.
 
-Please configure an EAPTLS source which can be found while adding a new sources under _Configuration -> Policies and Access Control -> Authentication Sources_ `New internal Source -> EAPTLS`, simply give it a name, a description and a catch-all rule. This will allow you to validate the authentication via EAP-TLS.
+Please configure an EAPTLS source which can be found while adding a new sources
+under _Configuration -> Policies and Access Control -> Authentication Sources_
+`New internal Source -> EAPTLS`, simply give it a name, a description and a
+catch-all rule. This will allow you to validate the authentication via EAP-TLS.
 
-You can now create a new Portal Profile for EAP-TLS. Under the tab configuration, section _Configuration -> Policies and Access Control -> Connection Profiles_, `New Connexion Profile` and select as a filter the Sub Connection Type as EAP-TLS, add your source EAP-TLS. Check the box "Automatically register devices". 
+You can now create a new Portal Profile for EAP-TLS. Under the tab
+configuration, section _Configuration -> Policies and Access Control ->
+Connection Profiles_, `New Connexion Profile` and select as a filter the Sub
+Connection Type as EAP-TLS, add your source EAP-TLS. Check the box
+"Automatically register devices".
 
 You now have a full flow working for your corporate devices.
 
-The following is an example on how to configure an EAP-TLS connection for Windows/Android/Mac OS X/iOS
+The following is an example on how to configure an EAP-TLS connection for
+Windows/Android/Mac OS X/iOS
 
-image::scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+image::scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner
+EAP-TLS configuration"]
 
-Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. You need to sign it with a Certification Authority already trusted by the device such as e.g. VeriSign.
+Mac OS X/iOS require the provisioning profile to be signed if you want to remove
+the `untrusted` warning when installing the profile. You need to sign it with a
+Certification Authority already trusted by the device such as e.g. VeriSign.
 Configuring this has to be done in the 'Signing' tab in the "Apple devices". 
 
-image::packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
+image::packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing
+provisioner"]
 
 ==== Profile generation
 
-Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, Apple user owner simply need to click on that link, and follow the instructions on their device. Android user owner simply click to the link and will be forwarded to Google Play to install PacketFence agent. Simply launch the application and click to configure will create the secure SSID profile. It is that simple.
+Upon registration, instead of showing the default release page, the user will be
+showing another version of the page saying that the wireless profile has been
+generated with a clickable link on it. To install the profile, Apple user owner
+simply need to click on that link, and follow the instructions on their device.
+Android user owner simply click to the link and will be forwarded to Google Play
+to install PacketFence agent. Simply launch the application and click to
+configure will create the secure SSID profile. It is that simple.

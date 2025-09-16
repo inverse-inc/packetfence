@@ -20,18 +20,27 @@ endif::[]
 
 === IPTables
 
-PacketFence manages IPTables entirely. For custom rules, create entries in `/usr/local/pf/conf/iptables-custom.conf.inc` or modify `/usr/local/pf/conf/iptables.conf.tt`. Default template works for most users.
+PacketFence manages IPTables entirely. For custom rules, create entries in
+`/usr/local/pf/conf/iptables-custom.conf.inc` or modify
+`/usr/local/pf/conf/iptables.conf.tt`. Default template works for most users.
 More information available in Advanced topics -> Iptables.
 
 === Log Rotations
 
-PacketFence generates many log entries in large production environments. Use `logrotate` for periodic log rotation. A working logrotate script is provided in `/etc/logrotate.d/` with daily rotation and compressed old logs. Added during PacketFence installation.
+PacketFence generates many log entries in large production environments. Use
+`logrotate` for periodic log rotation. A working logrotate script is provided in
+`/etc/logrotate.d/` with daily rotation and compressed old logs. Added during
+PacketFence installation.
 
 === Large Registration Network
 
-Inline or VLAN enforcement in large environments may cause ARP table overflows when many devices are on the same layer 2 segment. Symptoms include DHCP not assigning IPs properly or failed pings in registration/quarantine VLANs. Check `dmesg` log for `Neighbour table overflow` messages.
+Inline or VLAN enforcement in large environments may cause ARP table overflows
+when many devices are on the same layer 2 segment. Symptoms include DHCP not
+assigning IPs properly or failed pings in registration/quarantine VLANs. Check
+`dmesg` log for `Neighbour table overflow` messages.
 
-Mitigate by tweaking kernel settings. Enlarge ARP cache table by changing these sysctl.conf values:
+Mitigate by tweaking kernel settings. Enlarge ARP cache table by changing these
+sysctl.conf values:
 
 ----
 net.ipv4.neigh.default.gc_thresh1 = 2048

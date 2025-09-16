@@ -21,9 +21,11 @@ endif::[]
 
 ==== Xirrus WiFi Arrays
 
-Xirrus Access Points can be configured to work with PacketFence quickly since Xirrus supports RADIUS assigned VLANs out of the box.
+Xirrus Access Points can be configured to work with PacketFence quickly since
+Xirrus supports RADIUS assigned VLANs out of the box.
 
-First, RADIUS server configuration. Set the RADIUS server to be PacketFence's IP: 
+First, RADIUS server configuration. Set the RADIUS server to be PacketFence's
+IP:
 
   radius-server  ! (global settings)
     !
@@ -49,7 +51,9 @@ Enable SNMP Agent on the access point:
     !
   exit
 
-Finally, don't forget to create the SSID you want and the proper bindings with the LAN. Open SSID should be configured to perform MAC Authentication and Secure SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
+Finally, don't forget to create the SSID you want and the proper bindings with
+the LAN. Open SSID should be configured to perform MAC Authentication and Secure
+SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
 
 ===== External portal SSID
 

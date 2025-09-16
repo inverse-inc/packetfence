@@ -21,7 +21,8 @@ endif::[]
 
 ==== ArubaOS_CX_10.x and ArubaOS_Switch_16.x
 
-The ArubaOS_CX_10.x and ArubaOS_Switch_16.x are supported by PacketFence and it supports MAC Authentication, 802.1X, Dynamic ACLS and Web Authentication.
+The ArubaOS_CX_10.x and ArubaOS_Switch_16.x are supported by PacketFence and it
+supports MAC Authentication, 802.1X, Dynamic ACLS and Web Authentication.
 
 ===== Global Radius Configuration
 
@@ -65,7 +66,8 @@ The ArubaOS_CX_10.x and ArubaOS_Switch_16.x are supported by PacketFence and it 
   aaa authentication captive-portal enable
 
 
-On the PacketFence side you will need to fill the "Role by Access List" for the registration role:
+On the PacketFence side you will need to fill the "Role by Access List" for the
+registration role:
 
   permit in tcp from any to 192.168.1.5 80
   permit in tcp from any to 192.168.1.5 443
@@ -74,7 +76,8 @@ On the PacketFence side you will need to fill the "Role by Access List" for the 
   permit in udp from any to any 53
   permit in udp from any to any 67
 
-And the "Role by Web Auth URL" for the registration role depending of your switch template:
+And the "Role by Web Auth URL" for the registration role depending of your
+switch template:
 
   http://192.168.1.5/Aruba::ArubaOS_Switch_16_x
 
@@ -86,5 +89,6 @@ or
 ===== Dynamic ACL
 
 The switch needs to be configure to do MAC Authentication and or 802.1x.
-Then on the PacketFence side in the switch roles, enable "Role by Access List" and fill the appropriate role with the acl you want.
+Then on the PacketFence side in the switch roles, enable "Role by Access List"
+and fill the appropriate role with the acl you want.
 

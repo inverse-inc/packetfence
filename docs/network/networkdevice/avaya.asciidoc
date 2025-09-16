@@ -19,12 +19,18 @@ endif::[]
 
 //=== Avaya
 
-Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded 
-Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 
+Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect,
+re-branded
+Nortels. See <<_nortel,Nortel section>> of this document for configuration
+instructions.
 
 ==== 802.1X with MAC Authentication Bypass and VoIP
 
-NOTE: The configuration below requires an ntp server. We use the PacketFence server as the NTP server but any other one will do. If you want to use the PacketFence server for NTP, make sure you install the appropriate service and open port 123 in [filename]`/usr/local/pf/conf/iptables-custom.conf.inc` (more information available on Installation -> Advanced Topics -> Iptables).
+NOTE: The configuration below requires an ntp server. We use the PacketFence
+server as the NTP server but any other one will do. If you want to use the
+PacketFence server for NTP, make sure you install the appropriate service and
+open port 123 in [filename]`/usr/local/pf/conf/iptables-custom.conf.inc` (more
+information available on Installation -> Advanced Topics -> Iptables).
 
 Global config settings:
 
@@ -78,7 +84,9 @@ Port 1 configuration:
   vlan ports 1 tagging tagAll
   vlan members 2,3,4,5 1
   vlan ports 1 pvid 2
-  eapol multihost port 1 enable eap-mac-max 8 allow-non-eap-enable non-eap-mac-max 8 radius-non-eap-enable use-radius-assigned-vlan non-eap-use-radius-assigned-vlan eap-packet-mode unicast adac-non-eap-enable
+  eapol multihost port 1 enable eap-mac-max 8 allow-non-eap-enable
+  non-eap-mac-max 8 radius-non-eap-enable use-radius-assigned-vlan
+  non-eap-use-radius-assigned-vlan eap-packet-mode unicast adac-non-eap-enable
   eapol port 1 status auto traffic-control in re-authentication enable
   eapol port 1 radius-dynamic-server enable
   lldp port 1 vendor-specific avaya dot1q-framing tagged

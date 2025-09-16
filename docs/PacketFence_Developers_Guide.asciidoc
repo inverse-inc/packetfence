@@ -11,19 +11,20 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide helps modify PacketFence for specific needs and covers adding support for new switches.
+This guide helps modify PacketFence for specific needs and covers adding support
+for new switches.
 
 Find the latest version at https://packetfence.org/documentation/.
 
 === Other sources of information
 
-https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html[Clustering Guide]::
+<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Covers installation in a clustered environment.
-https://www.packetfence.org/doc/PacketFence_Installation_Guide.html[Installation Guide]::
+<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
   Covers installation and configuration of PacketFence.
-https://www.packetfence.org/doc/PacketFence_Network_Devices_Configuration_Guide.html[Network Devices Configuration Guide]::
+<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access points configuration.
-https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html[Upgrade Guide]::
+<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility changes, manual instructions and upgrade notes.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.

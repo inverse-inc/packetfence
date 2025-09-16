@@ -19,13 +19,19 @@ endif::[]
 
 //=== Cisco Small Business (SMB)
 
-Cisco Small Business switches support MAC authentication (MAB), 802.1X, and VoIP. Both technologies can be combined on the same switchport.
+Cisco Small Business switches support MAC authentication (MAB), 802.1X, and
+VoIP. Both technologies can be combined on the same switchport.
 
-VoIP activation requires no switch configuration; configure voice VLAN in PacketFence switch configuration and enable VoIP there. Phones must send untagged traffic when connected to PacketFence-enabled ports. Do not enable voice VLAN capabilities on switch as they may conflict with PacketFence authorization attributes.
+VoIP activation requires no switch configuration; configure voice VLAN in
+PacketFence switch configuration and enable VoIP there. Phones must send
+untagged traffic when connected to PacketFence-enabled ports. Do not enable
+voice VLAN capabilities on switch as they may conflict with PacketFence
+authorization attributes.
 
 ==== Global configuration
 
-CAUTION: Configure local account or RADIUS server for management before executing these steps to maintain switch login access.
+CAUTION: Configure local account or RADIUS server for management before
+executing these steps to maintain switch login access.
 
 Define RADIUS server pointing to PacketFence:
 

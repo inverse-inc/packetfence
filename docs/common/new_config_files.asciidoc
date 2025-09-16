@@ -1,4 +1,5 @@
-Once packages are all upgraded, you should take care to review any changes to configuration files and merge them if required.
+Once packages are all upgraded, you should take care to review any changes to
+configuration files and merge them if required.
 
 To find out which configuration files have changed run following command:
 

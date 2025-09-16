@@ -24,15 +24,21 @@ endif::[]
 
 === Applying a custom patch on a server running the packages
 
-When applying a custom patch or adding debug in the code on a PacketFence 12.0+ server, additional steps must be taking for your change to be effective in the service(s) running in container mode.
+When applying a custom patch or adding debug in the code on a PacketFence 12.0+
+server, additional steps must be taking for your change to be effective in the
+service(s) running in container mode.
 
-To know if a service runs in container mode, run `systemctl status` on the service (ex: `systemctl status packetfence-pfpki`) and check if one of the child processes contains `docker run`.
+To know if a service runs in container mode, run `systemctl status` on the
+service (ex: `systemctl status packetfence-pfpki`) and check if one of the child
+processes contains `docker run`.
 
-After you've altered the code on the server and you're satisfied with the changes, run the following command:
+After you've altered the code on the server and you're satisfied with the
+changes, run the following command:
 
 [source,bash]
 ----
-# (pfpki is being used in this example, replace with the appropriate container name)
+# (pfpki is being used in this example, replace with the appropriate container
+name)
 /usr/local/pf/addons/dev-helpers/build-local-container.sh pfpki
 ----
 
@@ -46,7 +52,8 @@ If you alter the code in a running container, your change will be lost the next 
 
 [source,bash]
 ----
-# (pfpki is being used in this example, replace with the appropriate container name)
+# (pfpki is being used in this example, replace with the appropriate container
+name)
 /usr/local/pf/addons/dev-helpers/commit-local-container.sh pfpki
 ----
 

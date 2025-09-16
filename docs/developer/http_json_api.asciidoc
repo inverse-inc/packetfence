@@ -26,17 +26,20 @@ The full API specification for:
 * the latest stable release is available from: https://packetfence.org/doc/api/
 * the latest devel release is available from: https://packetfence.org/doc/api-devel/
 
-The API is exposed on 127.0.0.1 (localhost) as well as the management interface of the server for remote calls.
+The API is exposed on 127.0.0.1 (localhost) as well as the management interface
+of the server for remote calls.
 Users access the API on TCP port 9999 over a secure connection (HTTPS).
 
-Authentication can be done using either the webservices credentials or any credentials that are valid on the admin interface.
+Authentication can be done using either the webservices credentials or any
+credentials that are valid on the admin interface.
 
 === How to use the API
 
 ==== On a PacketFence server
 
 The [command]`pfperl-api` command located in [filename]`/usr/local/pf/sbin/`
-directory can be use directly from a PacketFence server to query the API without having to specify an authentication token
+directory can be use directly from a PacketFence server to query the API without
+having to specify an authentication token
 and extra-parameters.
 
 Example to get your general configuration:

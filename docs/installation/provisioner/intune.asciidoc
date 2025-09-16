@@ -30,19 +30,24 @@ Click 'Azure Active Directory' > 'App registrations' > 'New registration'
 
 image::Azure_Application_1.png[scaledwidth="100%",alt="Azure add application"]
 
-Set application name (e.g., PacketFence), choose 'Supported account types': 'Accounts in this organizational directory only', click 'Register'
+Set application name (e.g., PacketFence), choose 'Supported account types':
+'Accounts in this organizational directory only', click 'Register'
 
-image::Azure_Application_2.png[scaledwidth="100%",alt="Azure define application"]
+image::Azure_Application_2.png[scaledwidth="100%",alt="Azure define
+application"]
 
-On next page, copy 'Application (client ID)' and 'Directory (tenant ID)' (needed for provisioner definition).
+On next page, copy 'Application (client ID)' and 'Directory (tenant ID)' (needed
+for provisioner definition).
 
 image::Azure_Application_3.png[scaledwidth="100%",alt="Azure ID"]
 
-Click 'Certificates & secrets' > 'New client secret' for application password (save immediately; won't be available later).
+Click 'Certificates & secrets' > 'New client secret' for application password
+(save immediately; won't be available later).
 
 image::Azure_Application_4.png[scaledwidth="100%",alt="Azure Password"]
 
-Add API permissions: click 'API permissions' > 'Microsoft Graph', select 'Application permissions', add:
+Add API permissions: click 'API permissions' > 'Microsoft Graph', select
+'Application permissions', add:
 
  Device.ReadWrite.All
  DeviceManagementManagedDevices.Read.All
@@ -53,10 +58,12 @@ And click on 'Grant admin consent for (Name of your app)'
 
 ===== Create a new provisioner
 
-Login to the admin interface, then go to _Configuration -> Advanced Access Configuration -> Provisioners_.
+Login to the admin interface, then go to _Configuration -> Advanced Access
+Configuration -> Provisioners_.
 Click 'Add provisioner' then select Microsoft Intune.
 
-image::intune-pf-config.png[scaledwidth="100%",alt="Intune PacketFence configuration"]
+image::intune-pf-config.png[scaledwidth="100%",alt="Intune PacketFence
+configuration"]
 
 Now configure this new provisioner with the information you got above.
 
@@ -73,15 +80,20 @@ Now configure this new provisioner with the information you got above.
 
 ===== Add the provisioner to the profile
 
-Now that you have created the provisioner, go in the 'Connection Profiles' menu on the left and select the default portal.
-Click 'Add Provisioner' and select the new Microsoft Intune provisioner that was created earlier.
+Now that you have created the provisioner, go in the 'Connection Profiles' menu
+on the left and select the default portal.
+Click 'Add Provisioner' and select the new Microsoft Intune provisioner that was
+created earlier.
 
 image::intune-portal.png[scaledwidth="100%",alt="Intune portal configuration"]
 
 ==== Testing
 
-You can now test that the installation of the Microsoft Intune client is mandatory after the device registration.
+You can now test that the installation of the Microsoft Intune client is
+mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
-At the end of the registration process, you will be presented a page asking you to install the Intune client on your device.
-After you install the client click continue. If your access is enabled then this means the connectivity between PacketFence and Azure is good.
+At the end of the registration process, you will be presented a page asking you
+to install the Intune client on your device.
+After you install the client click continue. If your access is enabled then this
+means the connectivity between PacketFence and Azure is good.
 

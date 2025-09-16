@@ -19,7 +19,8 @@ endif::[]
 
 //=== D-Link
 
-PacketFence supports D-Link switches without VoIP using two different trap types: 
+PacketFence supports D-Link switches without VoIP using two different trap
+types:
 
 * linkUp/linkDown 
 * MAC Notification 
@@ -58,7 +59,8 @@ Add SNMP host:
 Enable MAC base access control:
 
   enable mac_based_access_control
-  config mac_based_access_control authorization attributes radius enable local disable
+  config mac_based_access_control authorization attributes radius enable local
+  disable
   config mac_based_access_control method radius
   config mac_based_access_control password useStrongerSecret
   config mac_based_access_control password_type manual_string

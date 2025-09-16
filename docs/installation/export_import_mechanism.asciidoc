@@ -18,17 +18,19 @@ endif::[]
 
 //== Export/Import mechanism
 
-This section covers export/import mechanism available since PacketFence 11.0.0.
-It can be used to automate parts of upgrades or to restore PacketFence installations.
+This section covers export/import mechanism available since PacketFence 11.0.
+It can be used to automate parts of upgrades or to restore PacketFence
+installations.
 
 === Assumptions and limitations
 
-* You can export on any PacketFence version above 10.3.0
-* With export from 10.3.0, you can import on any PacketFence version after 11.0.0 except if you are using mariadb-backup for mysql backup.
+* You can export on any PacketFence version above 10.3
+* With export from 10.3, you can import on any PacketFence version after 11.0 except if you are using mariadb-backup for mysql backup.
 * If you are using mariabd-backup and want to jump to Debian 12 (packetfence 14.0 or later), you will need to:
-** be at least on Packetfence version 11.0.0
+** be at least on Packetfence version 11.0
 ** follow these steps in order to backup your database with the right
-  <<PacketFence_Installation_Guide.html#_export_db_with_mariadb-backup_installed_to_packetFence_14.0.0_on_debian_12,mariadb-backup version>>.
+  <<PacketFence_Installation_Guide.html#_export_db_with_mariadb-backup_installed_to_packetFence_14.0_on_debian_12,mariadb-backup
+  version>>.
 * The import process needs to be done on a **standalone** server. Restoring directly to clusters is currently unsupported
 ** NOTE: Once you restored to your standalone server, you can make it a
     cluster by joining other machines to it and creating your
@@ -37,12 +39,15 @@ It can be used to automate parts of upgrades or to restore PacketFence installat
 * Restoring on a fresh install of PacketFence is recommended although
    restoring on an existing instance can work but your milleage may vary
 * The import process will not modify network cards configuration of your server: it will
-   only update PacketFence IP configuration. We recommend you to define targeted IP
-   addresses on network cards before running import process even if you can do it at end of import process.
+   only update PacketFence IP configuration. We recommend you to define targeted
+   IP
+   addresses on network cards before running import process even if you can do
+   it at end of import process.
 * The import process will not join automatically server to Active Directory domains. You need to rejoin server manually.
 * The import process will only restore the files that can be edited via the admin interface which include:
 ** Standard configuration files in [filename]`/usr/local/pf/conf/*.conf`
-** Connection profiles HTML templates in [filename]`/usr/local/pf/html/captive-portal/profile-templates/`
+** Connection profiles HTML templates in
+[filename]`/usr/local/pf/html/captive-portal/profile-templates/`
 ** Standard certificates
 *** [filename]`/usr/local/pf/conf/ssl/*`
 *** [filename]`/usr/local/pf/raddb/certs/*`
@@ -50,12 +55,15 @@ It can be used to automate parts of upgrades or to restore PacketFence installat
 ** [filename]`/usr/local/pf/conf/radiusd/*`
 ** [filename]`/usr/local/pf/conf/log.conf`
 ** [filename]`/usr/local/pf/conf/log.conf.d/*`
-** [filename]`/usr/local/pf/conf/iptables.conf.tt` (but [filename]`/usr/local/pf/conf/iptables-custom.conf.inc` and [filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc` are restored)
+** [filename]`/usr/local/pf/conf/iptables.conf.tt` (but
+[filename]`/usr/local/pf/conf/iptables-custom.conf.inc` and
+[filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc` are restored)
 ** [filename]`/usr/local/pf/conf/cluster.conf`
 
 
 WARNING: The import process will never replace a virtual IP address in
-configurations. If your export has been done on a cluster, ensure there is no references to
+configurations. If your export has been done on a cluster, ensure there is no
+references to
 virtual IP address of this cluster after import has been completed.
 
 === Export on current installation
@@ -66,21 +74,24 @@ run `show status like 'wsrep_incoming_addresses';` inside your MariaDB
 instance and the first IP will be the one where you need to perform the export
 process.
 
-==== Installation (for PacketFence version 10.3.0 only)
+==== Installation (for PacketFence version 10.3 only)
 
-On PacketFence version 10.3.0, you need to install `packetfence-export` package using following instructions:
+On PacketFence version 10.3, you need to install `packetfence-export` package
+using following instructions:
 
 .RHEL / CentOS based systems **only**
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-export-{release_minor}.el8.noarch.rpm
+yum localinstall
+http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-export-{release_minor}.el8.noarch.rpm
 ----
 
 .Debian 9 systems **only**
 [source,bash,subs="attributes"]
 ----
-wget http://packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
+wget
+http://packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
 dpkg -i packetfence-export_{release_minor}.deb
 ----
 
@@ -133,18 +144,19 @@ To start the import process using the export archive you made on the current ins
 Once the process is completed, you should see the following:
 
 ----
-Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence
+Completed import of the database and the configuration! Complete any necessary
+adjustments and restart PacketFence
 ----
 
 If that's not the case, check the output above to understand why the process failed.
 
 If you experience any issues during import, you can run it again.
 
-If all goes well, you can restart services using https://www.packetfence.org/doc/PacketFence_Upgrade_Guide.html#restart_packetfence_services[following instructions].
+If all goes well, you can restart services using <<PacketFence_Upgrade_Guide.asciidoc#restart_packetfence_services,following instructions>>.
 
 ===== Additional steps to build or rebuild a cluster
 
-If you want to build or rebuild a cluster, you need to follow instructions in https://www.packetfence.org/doc/PacketFence_Clustering_Guide.html#cluster_setup[Cluster setup section].
+If you want to build or rebuild a cluster, you need to follow instructions in <<PacketFence_Clustering_Guide.asciidoc#cluster_setup,Cluster setup section>>.
 
 If your previous installation was a cluster, some steps may not be necessary
 to do.  Your export archive will contain your previous

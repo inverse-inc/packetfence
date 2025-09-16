@@ -18,11 +18,13 @@ endif::[]
 
 ===== Dynamic iptables adn ip6tables rules
 
-Iptables and ip6tables are dynamic and each service is adding or removing port(s) according to their needs.
+Iptables and ip6tables are dynamic and each service is adding or removing
+port(s) according to their needs.
 
 /!\ Packetfence is NOT fully compatible with ipv6 /!\
 
-Default ipv6 rules are set to protect Packetfence server and for convenient usage.
+Default ipv6 rules are set to protect Packetfence server and for convenient
+usage.
 
 ===== Starting Service
 
@@ -55,10 +57,13 @@ from the directory [filename]`/usr/local/pf/var/conf/iptables/` and then do the 
 
 ===== Reload ip6tables rules
 
-`/usr/local/pf/bin/pfcmd` is offering two ways to reload ip6tables configuration.
-The soft reload will trigger rebuild ip6tables rules according to running services.
+`/usr/local/pf/bin/pfcmd` is offering two ways to reload ip6tables
+configuration.
+The soft reload will trigger rebuild ip6tables rules according to running
+services.
 The hard reload will trigger a flush of all tables, a remove of all config files
-from the directory [filename]`/usr/local/pf/var/conf/ip6tables/` and then do the same a soft reload.
+from the directory [filename]`/usr/local/pf/var/conf/ip6tables/` and then do the
+same a soft reload.
 
 [source,bash]
 ---
@@ -102,11 +107,16 @@ For example: to open tcp port 123, and udp port 234 with interface the eth0 on f
 
 ===== Setting custom ip6tables rules
 
-It is possible to create custom ip6tables entry from a json file located in [filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc`.
+It is possible to create custom ip6tables entry from a json file located in
+[filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc`.
 
-An example of the file is available here [filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc.example`.
-That file is a json file will add rules on top of all other Packetfence rules for each tables or chains. The entry should only contain the rule without the "-A", the table and the chain.
-For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT, the file will be:
+An example of the file is available here
+[filename]`/usr/local/pf/conf/ip6tables-custom.conf.inc.example`.
+That file is a json file will add rules on top of all other Packetfence rules
+for each tables or chains. The entry should only contain the rule without the
+"-A", the table and the chain.
+For example: to open tcp port 123, and udp port 234 with interface the eth0 on
+filter->INPUT, the file will be:
 [source,bash]
 ---
 {

@@ -33,11 +33,14 @@ Important variables:
   * `wsrep_last_committed`: Most recent committed transaction sequence number. Identifies most advanced node
   * `wsrep_local_state_comment`: Cluster sync state. Healthy state is 'Synced'. See Galera documentation for other values
 
-Healthy cluster requires: all nodes listed in `wsrep_incoming_addresses` and `wsrep_local_state_comment` as `Synced`. Otherwise check MariaDB log ([filename]`/usr/local/pf/logs/mariadb.log`).
+Healthy cluster requires: all nodes listed in `wsrep_incoming_addresses` and
+`wsrep_local_state_comment` as `Synced`. Otherwise check MariaDB log
+([filename]`/usr/local/pf/logs/mariadb.log`).
 
 === Automatic clustering resolution service: galera-autofix
 
-Since v10, the <<_the_galera_autofix_service,`galera-autofix`>> service will try to resolve automatically issues on Galera clusters.
+Since v10, the <<_the_galera_autofix_service,`galera-autofix`>> service will try
+to resolve automatically issues on Galera clusters.
 
 For problematic clusters, once all nodes are online, wait:
 
@@ -48,10 +51,13 @@ If issues persist, see resolution sections below.
 
 === Manual resolution
 
-If `galera-autofix` service is not able to solve your issue, you can try to solve it manually.
+If `galera-autofix` service is not able to solve your issue, you can try to
+solve it manually.
 
-First, you need to perform checks. Then you will be able to identify in which situation you are:
-Cluster offers database service without all nodes or None of the nodes is offering database service.
+First, you need to perform checks. Then you will be able to identify in which
+situation you are:
+Cluster offers database service without all nodes or None of the nodes is
+offering database service.
 
 ==== Database checks
 
@@ -99,7 +105,8 @@ SHOW GLOBAL STATUS LIKE 'wsrep_ready';
 # Expected value: ON
 SHOW GLOBAL STATUS LIKE 'wsrep_connected';
 
-# Expected values when node is part of the primary component: Joining, Waiting on SST, Joined, Synced or Donor
+# Expected values when node is part of the primary component: Joining, Waiting
+on SST, Joined, Synced or Donor
 SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';
 ----
 
@@ -111,16 +118,23 @@ If all checks returned expected values, individual nodes are in working order.
 
 In order to emulate how PacketFence connects to the database, you can run following command:
 
-.For PacketFence versions 11.0.0 and later
+.For PacketFence versions 11.0 and later
 [source,bash]
 ----
-mysql -u $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
+mysql -u $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db
+-e 'print $pf::db::DB_Config->{user}') -p$(perl
+-I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print
+$pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib_perl/lib/perl5
+-I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
 ----
 
-.For PacketFence versions prior to 11.0.0
+.For PacketFence versions prior to 11.0
 [source,bash]
 ----
-mysql -u $(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
+mysql -u $(perl -I/usr/local/pf/lib -Mpf::db -e 'print
+$pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib -Mpf::db -e 'print
+$pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib -Mpf::db -e 'print
+$pf::db::DB_Config->{host}') pf
 ----
 
 If you got a prompt, it means PacketFence must be able to connect to the database.

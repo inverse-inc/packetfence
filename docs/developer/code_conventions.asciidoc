@@ -22,7 +22,10 @@ endif::[]
 
 CAUTION: Work in progress.
 
-We are slowly migrating away from an automated `perltidy` code style. The reason we are not doing another pass of tidy is that it messes up code history and makes maintainer's job more complicated than it should be. Every new change uses the new guidelines so over time the old code style will slowly disappear.
+We are slowly migrating away from an automated `perltidy` code style. The reason
+we are not doing another pass of tidy is that it messes up code history and
+makes maintainer's job more complicated than it should be. Every new change uses
+the new guidelines so over time the old code style will slowly disappear.
 
 * Lines of 120 character width maximum
 
