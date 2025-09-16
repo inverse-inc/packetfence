@@ -9,10 +9,10 @@ endif::[]
 
 ////
 
-    This file is part of the PacketFence project.
+This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
-    for authors, copyright and license information.
+See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+for authors, copyright and license information.
 
 ////
 
@@ -44,29 +44,29 @@ Use most secure feature available for your switch model in this order:
 
 Global config settings: 
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps snmp linkdown linkup 
-  snmp-server enable traps mac-notification 
-  snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
-  mac-address-table notification interval 0 
-  mac-address-table notification 
-  mac-address-table aging-time 3600 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps snmp linkdown linkup 
+snmp-server enable traps mac-notification 
+snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
+mac-address-table notification interval 0 
+mac-address-table notification 
+mac-address-table aging-time 3600 
 
 On each interface _without VoIP_: 
 
-  switchport mode access 
-  switchport access vlan 4 
-  snmp trap mac-notification added 
+switchport mode access 
+switchport access vlan 4 
+snmp trap mac-notification added 
 
 On each interface _with VoIP_:
 
-  switchport trunk encapsulation dot1q 
-  switchport trunk native vlan 4 
-  switchport mode trunk 
-  switchport voice vlan 100 
-  snmp trap mac-notification added 
-  snmp trap mac-notification removed 
+switchport trunk encapsulation dot1q 
+switchport trunk native vlan 4 
+switchport mode trunk 
+switchport voice vlan 100 
+snmp trap mac-notification added 
+snmp trap mac-notification removed 
 
 ==== Cisco IOS
 
@@ -77,31 +77,31 @@ with/without VoIP.
 
 Global config settings:
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps port-security 
+snmp-server enable traps port-security trap-rate 1 
+snmp-server host 192.168.1.5 version 2c public port-security 
 
 On each interface _without VoIP_: 
 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security maximum 1 vlan access 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.000x.xxxx 
 
 where `xxxxx` stands for the interface `ifIndex` 
 
 On each interface with VoIP:
 
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 2 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
+switchport voice vlan 100 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security maximum 2 
+switchport port-security maximum 1 vlan access 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.000x.xxxx 
 
 where `xxxxx` stands for the interface `ifIndex` 
 
@@ -134,16 +134,16 @@ Make sure that you have a local account, because enabling 802.1X or MAB will ask
 
 Global config settings:
 
-  dot1x system-auth-control 
+dot1x system-auth-control 
 
 AAA configuration:
 
-  aaa new-model 
-  aaa group server radius packetfence 
-   server 192.168.1.5 auth-port 1812 acct-port 1813 
-  aaa authentication login default local 
-  aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence
+aaa new-model 
+aaa group server radius packetfence 
+server 192.168.1.5 auth-port 1812 acct-port 1813 
+aaa authentication login default local 
+aaa authentication dot1x default group packetfence 
+aaa authorization network default group packetfence
 
 AAA configuration (accounting):
 
@@ -153,26 +153,26 @@ aaa accounting dot1x default start-stop group packetfence
 
 RADIUS server configuration:
 
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 
-  key useStrongerSecret 
-  radius-server vsa send authentication 
+radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 
+key useStrongerSecret 
+radius-server vsa send authentication 
 
 On each interface _without VoIP_:
 
-  switchport access vlan 4 
-  switchport mode access 
-  dot1x port-control auto 
-  dot1x host-mode multi-host 
-  dot1x reauthentication 
+switchport access vlan 4 
+switchport mode access 
+dot1x port-control auto 
+dot1x host-mode multi-host 
+dot1x reauthentication 
 
 On each interface _with VoIP_:
 
-  switchport access vlan 4 
-  switchport mode access 
-  switchport voice vlan 100 
-  dot1x port-control auto 
-  dot1x host-mode multi-host 
-  dot1x reauthentication 
+switchport access vlan 4 
+switchport mode access 
+switchport voice vlan 100 
+dot1x port-control auto 
+dot1x host-mode multi-host 
+dot1x reauthentication 
 
 ===== Port-Security 
 
@@ -188,17 +188,17 @@ lose its connectivity instantly.
 
 Global config settings _without VoIP_:
 
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
+snmp-server enable traps port-security 
+snmp-server enable traps port-security trap-rate 1 
+snmp-server host 192.168.1.5 version 2c public port-security 
 
 On each interface _without VoIP_:
 
-  switchport mode access 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.0000.00xx 
+switchport mode access 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.0000.00xx 
 
 where `xx` stands for the interface `ifIndex`.
 
@@ -214,22 +214,22 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 
 Global config settings _with VoIP_:
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps snmp linkdown linkup 
-  snmp-server enable traps mac-notification 
-  snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
-  mac-address-table notification interval 0 
-  mac-address-table notification 
-  mac-address-table aging-time 3600 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps snmp linkdown linkup 
+snmp-server enable traps mac-notification 
+snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
+mac-address-table notification interval 0 
+mac-address-table notification 
+mac-address-table aging-time 3600 
 
 On each interface _with VoIP_:
 
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport mode access 
-  snmp trap mac-notification added 
-  snmp trap mac-notification removed 
+switchport voice vlan 100 
+switchport access vlan 4 
+switchport mode access 
+snmp trap mac-notification added 
+snmp trap mac-notification removed 
 
 ==== 3550 (802.1X with MAB)
 
@@ -245,36 +245,36 @@ for the switch IP configured below.
 
 ===== Global settings:
 
-  dot1x system-auth-control 
-  aaa new-model 
-  aaa group server radius packetfence 
-   server 192.168.1.5 auth-port 1812 acct-port 1813
-  aaa authentication login default local 
-  aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence 
+dot1x system-auth-control 
+aaa new-model 
+aaa group server radius packetfence 
+server 192.168.1.5 auth-port 1812 acct-port 1813
+aaa authentication login default local 
+aaa authentication dot1x default group packetfence 
+aaa authorization network default group packetfence 
 
 RADIUS server configuration:
 
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key
-  useStrongerSecret
-  radius-server vsa send authentication 
+radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key
+useStrongerSecret
+radius-server vsa send authentication 
 
 Enable SNMP on the switch:
 
-  snmp-server community public RO
-  snmp-server community private RW
+snmp-server community public RO
+snmp-server community private RW
 
 On each interface:
 
-  switchport mode access
-  dot1x mac-auth-bypass
-  dot1x pae authenticator
-  dot1x port-control auto
-  dot1x violation-mode protect
-  dot1x timeout quiet-period 2
-  dot1x timeout reauth-period 7200
-  dot1x timeout tx-period 3
-  dot1x reauthentication
+switchport mode access
+dot1x mac-auth-bypass
+dot1x pae authenticator
+dot1x port-control auto
+dot1x violation-mode protect
+dot1x timeout quiet-period 2
+dot1x timeout reauth-period 7200
+dot1x timeout tx-period 3
+dot1x reauthentication
 
 ==== Cisco IOS 15.0
 
@@ -297,33 +297,33 @@ violation, and then authorize the phone MAC address on the network.
 
 Global config settings:
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps port-security 
+snmp-server enable traps port-security trap-rate 1 
+snmp-server host 192.168.1.5 version 2c public port-security 
 
 On each interface _without VoIP_:
 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security maximum 1 vlan access 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.000x.xxxx 
 
 where `xxxxx` stands for the interface `ifIndex`
 
 On each interface _with VoIP_: 
 
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 2 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security maximum 1 vlan voice 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.010x.xxxx vlan voice 
-  switchport port-security mac-address 0200.000x.xxxx vlan access 
+switchport voice vlan 100 
+switchport access vlan 4 
+switchport port-security 
+switchport port-security maximum 2 
+switchport port-security maximum 1 vlan access 
+switchport port-security maximum 1 vlan voice 
+switchport port-security violation restrict 
+switchport port-security mac-address 0200.010x.xxxx vlan voice 
+switchport port-security mac-address 0200.000x.xxxx vlan access 
 
 where `xxxxx` stands for the interface `ifIndex` 
 
@@ -354,93 +354,93 @@ When doing 802.1X and network interface teaming on the same switch or stack, you
 
 To prevent this behavior, you need to tell the switch to allow MAC address movements between ports. The global command is the following:
 
-  authentication mac-move permit
+authentication mac-move permit
 ====
 
 ===== Global settings:
 
-  dot1x system-auth-control 
-  aaa new-model 
-  aaa group server radius packetfence 
-   server name pfnac
-  aaa authentication login default local 
-  aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence 
+dot1x system-auth-control 
+aaa new-model 
+aaa group server radius packetfence 
+server name pfnac
+aaa authentication login default local 
+aaa authentication dot1x default group packetfence 
+aaa authorization network default group packetfence 
 
 RADIUS server configuration:
 
-  radius server pfnac
-    address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
-    automate-tester username dummy ignore-acct-port idle-time 3
-    key 0 useStrongerSecret
-  
-  radius-server vsa send authentication 
+radius server pfnac
+address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+automate-tester username dummy ignore-acct-port idle-time 3
+key 0 useStrongerSecret
+
+radius-server vsa send authentication 
 
 CoA configuration
 
-  aaa server radius dynamic-author
-   client 192.168.1.5 server-key useStrongerSecret
-   port 3799
+aaa server radius dynamic-author
+client 192.168.1.5 server-key useStrongerSecret
+port 3799
 
 Activate SNMP v1 on the switch:
 
-  snmp-server community public RO
+snmp-server community public RO
 
 ===== 802.1X with MAC Authentication bypass (Multi­Domain) 
 
 On each interface:
 
-  switchport mode access 
-  switchport voice vlan 100
-  authentication host-mode multi-domain 
-  authentication order dot1x mab 
-  authentication priority dot1x mab 
-  authentication port-control auto 
-  authentication periodic 
-  authentication timer restart 10800 
-  authentication timer reauthenticate 10800 
-  authentication violation replace
-  mab 
-  no snmp trap link-status 
-  dot1x pae authenticator 
-  dot1x timeout quiet-period 2 
-  dot1x timeout tx-period 3 
+switchport mode access 
+switchport voice vlan 100
+authentication host-mode multi-domain 
+authentication order dot1x mab 
+authentication priority dot1x mab 
+authentication port-control auto 
+authentication periodic 
+authentication timer restart 10800 
+authentication timer reauthenticate 10800 
+authentication violation replace
+mab 
+no snmp trap link-status 
+dot1x pae authenticator 
+dot1x timeout quiet-period 2 
+dot1x timeout tx-period 3 
 
 ===== 802.1X with MAC Authentication bypass (Multi­Host)
 
 On each interface:
 
-  switchport mode access 
-  authentication order dot1x mab 
-  authentication priority dot1x mab 
-  authentication port-control auto 
-  authentication periodic 
-  authentication timer restart 10800 
-  authentication timer reauthenticate 7200 
-  authentication violation replace
-  mab 
-  no snmp trap link-status 
-  dot1x pae authenticator 
-  dot1x timeout quiet-period 2 
-  dot1x timeout tx-period 3 
+switchport mode access 
+authentication order dot1x mab 
+authentication priority dot1x mab 
+authentication port-control auto 
+authentication periodic 
+authentication timer restart 10800 
+authentication timer reauthenticate 7200 
+authentication violation replace
+mab 
+no snmp trap link-status 
+dot1x pae authenticator 
+dot1x timeout quiet-period 2 
+dot1x timeout tx-period 3 
 
 ===== MAC Authentication bypass only 
 
 On each interface:
 
-  switchport mode access 
-  switchport voice vlan 100 
-  dot1x mac-auth-bypass 
-  dot1x pae authenticator 
-  dot1x port-control auto 
-  dot1x timeout tx-period 5 
-  dot1x reauthentication 
-  authentication periodic 
-  authentication timer restart 10800 
-  authentication timer reauthenticate 7200 
-  authentication violation replace
-  mab 
-  no snmp trap link-status 
+switchport mode access 
+switchport voice vlan 100 
+dot1x mac-auth-bypass 
+dot1x pae authenticator 
+dot1x port-control auto 
+dot1x timeout tx-period 5 
+dot1x reauthentication 
+authentication periodic 
+authentication timer restart 10800 
+authentication timer reauthenticate 7200 
+authentication violation replace
+mab 
+no snmp trap link-status 
 
 [NOTE]
 .802.1X on various models of 2960
@@ -452,11 +452,11 @@ We have found a couple of commands that are working great or MAB:
 
 On each interface
 
-  switchport mode access
-  authentication order mab
-  authentication port-control auto
-  mab
-  dot1x pae authenticator
+switchport mode access
+authentication order mab
+authentication port-control auto
+mab
+dot1x pae authenticator
 
 But, as it is difficult for us to maintain the whole list of commands to 
 configure each and every different model of 2960 with different IOS, 
@@ -476,29 +476,29 @@ Authentication bypass only__ of Cisco IOS 15.0 in this document.
 
 Then add this additional configuration on the global level
 
-  ip device tracking
-  ip http server
-  ip http secure-server
-  snmp-server community public RO
-  snmp-server community private RW
+ip device tracking
+ip http server
+ip http secure-server
+snmp-server community public RO
+snmp-server community private RW
 
 Add the required access lists
 
-  ip access-list extended registration
-   deny ip any host <your captive portal ip> 
-   permit tcp any any eq www
-   permit tcp any any eq 443
+ip access-list extended registration
+deny ip any host <your captive portal ip> 
+permit tcp any any eq www
+permit tcp any any eq 443
 
 Then on each controlled interface
 
-   switchport access vlan <vlan> 
-   switchport mode access
-   authentication priority mab
-   authentication port-control auto
-   authentication periodic
-   authentication violation replace
-   mab
-   spanning-tree portfast
+switchport access vlan <vlan> 
+switchport mode access
+authentication priority mab
+authentication port-control auto
+authentication periodic
+authentication violation replace
+mab
+spanning-tree portfast
 
 PacketFence switch configuration 
 
@@ -519,21 +519,21 @@ different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
 
 Add the following configuration setting on the global level 
 
-   ip device tracking
+ip device tracking
 
 For IOS 12.2, you need to create this acl and assign it to the switch port
 interface:
 
- ip access-list extended Auth-Default-ACL
-  permit udp any range bootps 65347 any range bootpc 65348
-  permit udp any any range bootps 65347
-  permit udp any any eq domain
-  deny   ip any any
+ip access-list extended Auth-Default-ACL
+permit udp any range bootps 65347 any range bootpc 65348
+permit udp any any range bootps 65347
+permit udp any any eq domain
+deny   ip any any
 
- interface GigabitEthernetx/y/z
-  ...
-  ip access-group Auth-Default-ACL in
-  ...
+interface GigabitEthernetx/y/z
+...
+ip access-group Auth-Default-ACL in
+...
 
 Before continuing, configure your switch to be in MAC authentication bypass or
 802.1X.
@@ -575,49 +575,49 @@ ACL"]
 
 ==== Cisco IOS 15.5
 
-CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS,this
+CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS_15_5,this
 section below>>.
 
 ===== Port­Security for IOS 12.2(46)SE or greater
 
-Since version PacketFence 2.2.1, the way to handle VoIP when using 
-port-security dramatically changed. Ensure that you follow the instructions 
-below. To make the story short, instead on relying on the dynamic 
+Since version PacketFence 2.2.1, the way to handle VoIP when using
+port-security dramatically changed. Ensure that you follow the instructions
+below. To make the story short, instead on relying on the dynamic
 MAC learning for VoIP, we use a static entry on the voice VLAN so we can trigger
 a new security
-violation, and then authorize the phone MAC address on the network. 
+violation, and then authorize the phone MAC address on the network.
 
 Global config settings:
 
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
+snmp-server community public RO
+snmp-server community private RW
+snmp-server enable traps port-security
+snmp-server enable traps port-security trap-rate 1
+snmp-server host 192.168.1.5 version 2c public port-security
 
 On each interface _without VoIP_:
 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
+switchport access vlan 4
+switchport port-security
+switchport port-security maximum 1 vlan access
+switchport port-security violation restrict
+switchport port-security mac-address 0200.000x.xxxx
 
 where `xxxxx` stands for the interface `ifIndex`
 
-On each interface _with VoIP_: 
+On each interface _with VoIP_:
 
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 2 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security maximum 1 vlan voice 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.010x.xxxx vlan voice 
-  switchport port-security mac-address 0200.000x.xxxx vlan access 
+switchport voice vlan 100
+switchport access vlan 4
+switchport port-security
+switchport port-security maximum 2
+switchport port-security maximum 1 vlan access
+switchport port-security maximum 1 vlan voice
+switchport port-security violation restrict
+switchport port-security mac-address 0200.010x.xxxx vlan voice
+switchport port-security mac-address 0200.000x.xxxx vlan access
 
-where `xxxxx` stands for the interface `ifIndex` 
+where `xxxxx` stands for the interface `ifIndex`
 
 [NOTE]
 .ifIndex mapping
@@ -625,11 +625,11 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses
 (0200.000x.xxxx):
 
-* Fa0/1...Fa0/48 -> 10001...10048 
-* Gi0/1...Gi0/48 -> 10101...10148 
+* Fa0/1...Fa0/48 -> 10001...10048
+* Gi0/1...Gi0/48 -> 10101...10148
 ===========================================================================
 
-[[Catalyst_RADIUS_2]]
+[[Catalyst_RADIUS_15_5]]
 ===== 2960, 2970, 3560, 3750
 
 NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC
