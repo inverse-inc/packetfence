@@ -575,49 +575,49 @@ ACL"]
 
 ==== Cisco IOS 15.5
 
-CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS,this
+CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS_15_5,this
 section below>>.
 
 ===== Port­Security for IOS 12.2(46)SE or greater
 
-Since version PacketFence 2.2.1, the way to handle VoIP when using 
-port-security dramatically changed. Ensure that you follow the instructions 
-below. To make the story short, instead on relying on the dynamic 
+Since version PacketFence 2.2.1, the way to handle VoIP when using
+port-security dramatically changed. Ensure that you follow the instructions
+below. To make the story short, instead on relying on the dynamic
 MAC learning for VoIP, we use a static entry on the voice VLAN so we can trigger
 a new security
-violation, and then authorize the phone MAC address on the network. 
+violation, and then authorize the phone MAC address on the network.
 
 Global config settings:
 
   snmp-server community public RO
   snmp-server community private RW
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
+  snmp-server enable traps port-security
+  snmp-server enable traps port-security trap-rate 1
+  snmp-server host 192.168.1.5 version 2c public port-security
 
 On each interface _without VoIP_:
 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
+  switchport access vlan 4
+  switchport port-security
+  switchport port-security maximum 1 vlan access
+  switchport port-security violation restrict
+  switchport port-security mac-address 0200.000x.xxxx
 
 where `xxxxx` stands for the interface `ifIndex`
 
-On each interface _with VoIP_: 
+On each interface _with VoIP_:
 
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 2 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security maximum 1 vlan voice 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.010x.xxxx vlan voice 
-  switchport port-security mac-address 0200.000x.xxxx vlan access 
+  switchport voice vlan 100
+  switchport access vlan 4
+  switchport port-security
+  switchport port-security maximum 2
+  switchport port-security maximum 1 vlan access
+  switchport port-security maximum 1 vlan voice
+  switchport port-security violation restrict
+  switchport port-security mac-address 0200.010x.xxxx vlan voice
+  switchport port-security mac-address 0200.000x.xxxx vlan access
 
-where `xxxxx` stands for the interface `ifIndex` 
+where `xxxxx` stands for the interface `ifIndex`
 
 [NOTE]
 .ifIndex mapping
@@ -625,11 +625,11 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses
 (0200.000x.xxxx):
 
-* Fa0/1...Fa0/48 -> 10001...10048 
-* Gi0/1...Gi0/48 -> 10101...10148 
+* Fa0/1...Fa0/48 -> 10001...10048
+* Gi0/1...Gi0/48 -> 10101...10148
 ===========================================================================
 
-[[Catalyst_RADIUS]]
+[[Catalyst_RADIUS_15_5]]
 ===== 2960, 2970, 3560, 3750
 
 NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC

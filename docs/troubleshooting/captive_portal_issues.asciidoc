@@ -8,6 +8,7 @@
    - Test network connectivity from client to PacketFence portal IP
 
 2. **Apache/HTTP Services**: Check portal web services:
++
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service pf status | grep httpd
@@ -19,23 +20,23 @@ systemctl status httpd.portal
    - Verify iptables rules for portal redirection
    - Test with: `nslookup google.com` from unregistered client
 
-**Content Security Policy (CSP) Issues:**
+==== Content Security Policy (CSP) Issues
 
-4. **CSP Blocking Content**: If portal content is blocked by CSP:
+1. **CSP Blocking Content**: If portal content is blocked by CSP:
    - Disable CSP headers via _Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP headers for Captive Portal_
    - Check browser developer tools for CSP violation errors
    - Verify all external content sources are whitelisted
 
-**SSL/TLS Certificate Issues:**
+==== SSL/TLS Certificate Issues
 
-5. **Certificate Problems**: For HTTPS portal access:
+1. **Certificate Problems**: For HTTPS portal access:
    - Verify SSL certificate matches portal hostname
    - Check certificate expiration date
    - For self-signed certificates, ensure proper trust chain
 
-**Pre-registration Security:**
+==== Pre-registration Security
 
-6. **External Access Issues**: When pre-registration is enabled:
+1. **External Access Issues**: When pre-registration is enabled:
    - Verify perimeter firewall allows access to port 443
-   - Check that domain name resolves to management interface IP  
+   - Check that domain name resolves to management interface IP
    - Monitor for security attacks on exposed `/signup` endpoint
