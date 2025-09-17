@@ -20,18 +20,33 @@ Find the latest version at https://packetfence.org/documentation/
 === Other sources of information
 
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
-  Covers installation in a clustered environment.
+  Comprehensive guide for setting up active/active clustering environments with
+  HAProxy load balancing, Keepalived for high availability, and Galera database
+  clustering. Includes advanced configuration for layer-3 clusters and
+  troubleshooting cluster synchronization issues.
 <<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
-  Covers API, captive portal customization, application code customizations and
-  support for new equipment.
+  Technical documentation for customizing PacketFence including REST API usage,
+  captive portal theming and functionality modifications, SNMP module
+  development, supporting new network equipment, and application code
+  customizations. Essential for integrators and developers extending PacketFence.
 <<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
-  Covers installation and configuration of PacketFence.
+  Complete installation and configuration guide covering standalone deployments,
+  system requirements, network planning, authentication integration (Active
+  Directory, LDAP, RADIUS), certificate management, and initial system setup.
+  Includes troubleshooting and advanced configuration topics.
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility changes, manual instructions and upgrade notes.
+  Step-by-step upgrade procedures with version-specific compatibility changes,
+  manual configuration migration steps, database schema updates, and critical
+  upgrade notes. Includes troubleshooting for common upgrade issues and
+  rollback procedures.
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]::
+  Community support forum for installation help, configuration questions,
+  troubleshooting assistance, and best practices discussions. Active community
+  of users and developers providing peer-to-peer support.
 https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
 
-Package and release tarballs include these files.
+Package and release tarballs include the PacketFence guide files.
 
 == Note on Inline enforcement support
 
