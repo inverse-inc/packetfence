@@ -87,20 +87,32 @@ case "$1" in
     ;;
 
     upgrade)
-        # Handle MariaDB version synchronization to prevent conflicts (issue #8757)
-        # When Debian repo updates MariaDB, client and server versions must match
-        if dpkg -l mariadb-client 2>/dev/null | grep -q '^ii'; then
-            CLIENT_VERSION=$(dpkg-query -W -f='${Version}' mariadb-client 2>/dev/null || true)
-            SERVER_VERSION=$(dpkg-query -W -f='${Version}' mariadb-server 2>/dev/null || true)
-            if [ -n "$CLIENT_VERSION" ] && [ -n "$SERVER_VERSION" ] && [ "$CLIENT_VERSION" != "$SERVER_VERSION" ]; then
-                echo "MariaDB client/server version mismatch detected. Synchronizing..."
-                # Stop PacketFence MariaDB service if running
+        # Handle MariaDB upgrade proactively (issue #8757)
+        # Check if MariaDB packages need upgrading and handle them first
+        if dpkg -l mariadb-server mariadb-client 2>/dev/null | grep -q '^ii'; then
+            # Check for available updates for MariaDB packages
+            apt-get update >/dev/null 2>&1 || true
+
+            SERVER_INSTALLED=$(dpkg-query -W -f='${Version}' mariadb-server 2>/dev/null || echo "none")
+            SERVER_CANDIDATE=$(apt-cache policy mariadb-server 2>/dev/null | grep "Candidate:" | awk '{print $2}' || echo "none")
+            CLIENT_INSTALLED=$(dpkg-query -W -f='${Version}' mariadb-client 2>/dev/null || echo "none")
+            CLIENT_CANDIDATE=$(apt-cache policy mariadb-client 2>/dev/null | grep "Candidate:" | awk '{print $2}' || echo "none")
+
+            # If there's an update available for MariaDB packages
+            if [ "$SERVER_INSTALLED" != "$SERVER_CANDIDATE" ] || [ "$CLIENT_INSTALLED" != "$CLIENT_CANDIDATE" ]; then
+                echo "MariaDB package updates detected. Upgrading MariaDB first..."
+
+                # Stop PacketFence MariaDB service before upgrading
                 if systemctl is-active --quiet packetfence-mariadb.service 2>/dev/null; then
+                    echo "Stopping packetfence-mariadb.service..."
                     systemctl stop packetfence-mariadb.service
                 fi
-                # Upgrade both MariaDB packages together
+
+                # Upgrade MariaDB packages together
+                echo "Upgrading MariaDB packages..."
                 DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client
-                echo "MariaDB packages synchronized"
+
+                echo "MariaDB packages upgraded successfully"
             fi
         fi
         # mv the old raddb dir if upgrading from FreeRADIUS 2

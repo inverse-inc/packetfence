@@ -570,22 +570,32 @@ rm -rf %{buildroot}
 #==============================================================================
 %pre
 
-# Handle MariaDB version synchronization to prevent conflicts (issue #8757)
+# Handle MariaDB upgrade proactively (issue #8757)
 # Check if this is an upgrade (not a fresh install)
 if [ $1 -gt 1 ]; then
-    # Check if MariaDB packages are installed and get their versions
+    # Check if MariaDB packages are installed
     if rpm -q MariaDB-client &>/dev/null && rpm -q MariaDB-server &>/dev/null; then
-        CLIENT_VERSION=$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' MariaDB-client 2>/dev/null || true)
-        SERVER_VERSION=$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' MariaDB-server 2>/dev/null || true)
-        if [ -n "$CLIENT_VERSION" ] && [ -n "$SERVER_VERSION" ] && [ "$CLIENT_VERSION" != "$SERVER_VERSION" ]; then
-            echo "MariaDB client/server version mismatch detected. Synchronizing..."
-            # Stop PacketFence MariaDB service if running
+        # Check for available updates for MariaDB packages
+        # Note: yum check-update returns 100 if updates are available, 0 if none, 1 on error
+        set +e
+        yum check-update MariaDB-server MariaDB-client &>/dev/null
+        UPDATE_STATUS=$?
+        set -e
+
+        if [ $UPDATE_STATUS -eq 100 ]; then
+            echo "MariaDB package updates detected. Upgrading MariaDB first..."
+
+            # Stop PacketFence MariaDB service before upgrading
             if systemctl is-active --quiet packetfence-mariadb.service 2>/dev/null; then
+                echo "Stopping packetfence-mariadb.service..."
                 systemctl stop packetfence-mariadb.service
             fi
-            # Upgrade both MariaDB packages together
+
+            # Upgrade MariaDB packages together
+            echo "Upgrading MariaDB packages..."
             yum update -y MariaDB-server MariaDB-client
-            echo "MariaDB packages synchronized"
+
+            echo "MariaDB packages upgraded successfully"
         fi
     fi
 fi
