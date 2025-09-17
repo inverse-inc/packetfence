@@ -4,8 +4,12 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide helps modify PacketFence for specific needs and covers adding support
-for new switches.
+This guide provides technical documentation for customizing and extending
+PacketFence. It covers REST API integration, captive portal theming and
+functionality modifications, SNMP module development, adding support for new
+network equipment, and core application code customizations. Essential for
+integrators, developers extending PacketFence functionality, and organizations
+requiring specialized implementations.
 
 include::includes/latest-version-url.asciidoc[]
 

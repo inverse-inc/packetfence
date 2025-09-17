@@ -4,7 +4,11 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide covers procedures to upgrade PacketFence servers.
+This guide covers step-by-step procedures for upgrading PacketFence servers
+safely and efficiently. It provides version-specific compatibility information,
+manual configuration migration steps, database schema update procedures, and
+critical upgrade notes. The guide includes troubleshooting procedures for
+common upgrade issues and rollback strategies when necessary.
 
 *CRITICAL UPGRADE REQUIREMENT*: PacketFence upgrades *MUST* be performed
 incrementally through minor versions only. Major version upgrades (e.g., 13.x to

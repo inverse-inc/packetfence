@@ -4,9 +4,13 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide covers network device configuration for VLAN enforcement with
-PacketFence. Switches, wireless controllers and wireless access points are
-considered network devices in PacketFence.
+This guide covers network device configuration for VLAN enforcement and access
+control with PacketFence. It provides device-specific configuration
+instructions for over 80 supported network vendors including managed switches,
+wireless controllers, and wireless access points. The guide covers 802.1X
+authentication, MAC authentication bypass, VLAN assignment, RADIUS
+configuration, and SNMP integration with various network equipment
+manufacturers.
 
 include::includes/latest-version-url.asciidoc[]
 

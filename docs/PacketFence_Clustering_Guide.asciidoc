@@ -4,9 +4,13 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide provides quick installation steps for active/active clustering in
-PacketFence 7+. Advanced troubleshooting is not covered. Refer to HAProxy and
-Keepalived documentation for advanced features.
+This guide provides installation and configuration steps for active/active
+clustering in PacketFence 7+. It covers HAProxy load balancing, Keepalived for
+high availability, Galera database clustering, and layer-3 cluster
+configurations. The guide includes essential troubleshooting procedures for
+cluster synchronization issues and performance optimization. For advanced
+HAProxy and Keepalived features beyond PacketFence integration, consult their
+respective documentation.
 
 include::includes/latest-version-url.asciidoc[]
 

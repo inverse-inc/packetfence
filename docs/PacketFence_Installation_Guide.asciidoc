@@ -4,7 +4,12 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide covers PacketFence installation and day-to-day administration.
+This guide covers PacketFence installation and day-to-day administration. It
+provides comprehensive instructions for system requirements assessment, initial
+deployment, network integration, authentication configuration, and ongoing
+maintenance. The guide covers both standalone and distributed deployments,
+including certificate management, database configuration, and integration with
+external authentication systems like Active Directory and LDAP.
 
 include::includes/latest-version-url.asciidoc[]
 
