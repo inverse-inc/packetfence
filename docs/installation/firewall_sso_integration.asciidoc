@@ -20,9 +20,8 @@ endif::[]
 
 PacketFence updates firewalls based on device information like IP address and
 connected username. Integration guides below show firewall configuration with
-PacketFence.
-PacketFence uses DHCP traffic by default to trigger firewall updates, but RADIUS
-accounting traffic is also supported.
+PacketFence. PacketFence uses DHCP traffic by default to trigger firewall
+updates, but RADIUS accounting traffic is also supported.
 
 To configure firewall updates, go to _Configuration -> System Configuration ->
 Main Configuration -> Advanced_:
@@ -31,7 +30,8 @@ Main Configuration -> Advanced_:
 * Trigger Single-Sign-On on DHCP
 
 Using both methods simultaneously creates duplicate SSO requests when receiving
-DHCP and accounting for the same device, potentially overloading your firewall.
+DHCP and accounting for the same device, potentially overloading your
+firewall.
 
 === Barracuda
 
