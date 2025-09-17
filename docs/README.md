@@ -1,12 +1,14 @@
 # PacketFence Documentation Build System
 
-This directory contains the PacketFence documentation written in AsciiDoc format and the build system to generate HTML and PDF versions.
+This directory contains the PacketFence documentation written in [AsciiDoc](https://www.methods.co.nz/asciidoc/) format and the build system to generate HTML and PDF versions.
 
 ## Overview
 
 The PacketFence documentation uses:
 - **AsciiDoc** format for source files
-- **Asciidoctor** for HTML/PDF generation
+- **[Asciidoctor](https://asciidoctor.org/)** for HTML/PDF generation (.asciidoc to .html)
+- **[Asciidoctor-PDF](https://asciidoctor.org/docs/asciidoctor-pdf/)** for PDF generation (.asciidoc to .pdf)
+- **[Rouge](https://github.com/rouge-ruby/rouge)** syntax highlighter
 - **Custom Ruby processor** for HTML styling integration
 - **Custom PDF theme** with Lato and Inconsolata fonts
 - **JSON index generation** for HTML file metadata
