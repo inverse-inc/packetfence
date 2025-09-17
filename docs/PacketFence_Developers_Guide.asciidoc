@@ -1,12 +1,5 @@
 = PacketFence Developer's Guide
-////
-
-    This file is part of the PacketFence project.
-
-    See includes/global-attributes.asciidoc
-    for authors, copyright and license information.
-
-////
+include::includes/file-header.asciidoc[]
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide
@@ -14,40 +7,13 @@ include::includes/global-attributes.asciidoc[]
 This guide helps modify PacketFence for specific needs and covers adding support
 for new switches.
 
-Find the latest version at https://packetfence.org/documentation/.
+include::includes/latest-version-url.asciidoc[]
 
 === Other sources of information
+:current_guide_developers:
+include::includes/other-sources-information.asciidoc[]
 
-<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
-  Comprehensive guide for setting up active/active clustering environments with
-  HAProxy load balancing, Keepalived for high availability, and Galera database
-  clustering. Includes advanced configuration for layer-3 clusters and
-  troubleshooting cluster synchronization issues.
-<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
-  Complete installation and configuration guide covering standalone deployments,
-  system requirements, network planning, authentication integration (Active
-  Directory, LDAP, RADIUS), certificate management, and initial system setup.
-  Includes troubleshooting and advanced configuration topics.
-<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
-  Device-specific configuration instructions for over 80 supported network
-  vendors including switches (802.1X, MAC authentication, VLAN assignment),
-  wireless controllers and access points. Covers RADIUS, SNMP configuration and
-  integration with various network equipment manufacturers.
-<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Step-by-step upgrade procedures with version-specific compatibility changes,
-  manual configuration migration steps, database schema updates, and critical
-  upgrade notes. Includes troubleshooting for common upgrade issues and
-  rollback procedures.
-https://packetfence.org/news.html[PacketFence News]::
-  Release announcements with detailed feature descriptions, performance
-  improvements, security updates, and comprehensive bug fix listings organized
-  by PacketFence version.
-https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]::
-  Community support forum for installation help, configuration questions,
-  troubleshooting assistance, and best practices discussions. Active community
-  of users and developers providing peer-to-peer support.
-
-Package and release tarballs include the PacketFence guide files.
+include::includes/package-tarballs-note.asciidoc[]
 
 == Creating a new Switch via a Template
 
@@ -114,7 +80,6 @@ include::developer/contributing.asciidoc[]
 
 // INCLUDES
 
-include::includes/additional-info.asciidoc[]
 
 include::includes/commercial-support.asciidoc[]
 

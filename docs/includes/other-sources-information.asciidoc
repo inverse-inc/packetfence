@@ -1,47 +1,60 @@
-=  PacketFence Documentation Template Guide
 ////
+
+    Other sources of information section
 
     This file is part of the PacketFence project.
+    Authors:
+      - Inverse inc. <info@inverse.ca>
 
-    See includes/global-attributes.asciidoc
-    for authors, copyright and license information.
+    Copyright (C) 2005-2025 Inverse inc.
+    License: GFDL 1.2 or later. https://www.gnu.org/licenses/fdl.html
 
 ////
-include::includes/global-attributes.asciidoc[]
 
-== About this Guide
-
-This guide serves as a template for creating new PacketFence documentation
-guides. It provides the standard structure, formatting conventions, and include
-patterns used across the PacketFence documentation suite.
-
-=== Other sources of information
-
+ifndef::current_guide_clustering[]
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Comprehensive guide for setting up active/active clustering environments with
   HAProxy load balancing, Keepalived for high availability, and Galera database
   clustering. Includes advanced configuration for layer-3 clusters and
   troubleshooting cluster synchronization issues.
+endif::current_guide_clustering[]
+
+ifndef::current_guide_developers[]
 <<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
   Technical documentation for customizing PacketFence including REST API usage,
   captive portal theming and functionality modifications, SNMP module
   development, supporting new network equipment, and application code
   customizations. Essential for integrators and developers extending PacketFence.
+endif::current_guide_developers[]
+
+ifndef::current_guide_installation[]
 <<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
   Complete installation and configuration guide covering standalone deployments,
   system requirements, network planning, authentication integration (Active
   Directory, LDAP, RADIUS), certificate management, and initial system setup.
   Includes troubleshooting and advanced configuration topics.
+endif::current_guide_installation[]
+
+ifndef::current_guide_network_devices[]
 <<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Device-specific configuration instructions for over 80 supported network
   vendors including switches (802.1X, MAC authentication, VLAN assignment),
   wireless controllers and access points. Covers RADIUS, SNMP configuration and
   integration with various network equipment manufacturers.
+endif::current_guide_network_devices[]
+
+ifndef::current_guide_upgrade[]
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Step-by-step upgrade procedures with version-specific compatibility changes,
   manual configuration migration steps, database schema updates, and critical
   upgrade notes. Includes troubleshooting for common upgrade issues and
   rollback procedures.
+endif::current_guide_upgrade[]
+
+https://packetfence.org/news.html[PacketFence News]::
+  Release announcements with detailed feature descriptions, performance
+  improvements, security updates, and comprehensive bug fix listings organized
+  by PacketFence version.
 https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]::
   Community support forum for installation help, configuration questions,
   troubleshooting assistance, and best practices discussions. Active community
@@ -54,17 +67,5 @@ https://lists.sourceforge.net/lists/listinfo/packetfence-devel[PacketFence Devel
   Discussion of PacketFence development including feature requests, architectural
   discussions, patch submissions and development coordination. For developers
   contributing to PacketFence core.
-https://packetfence.org/news.html[PacketFence News]::
-  Release announcements with detailed feature descriptions, performance
-  improvements, security updates, and comprehensive bug fix listings organized
-  by PacketFence version.
 
-The PacketFence guide files are included in the package and release tarballs.
-
-
-// at end of document, *before* appendix
-// INCLUDES
-include::includes/commercial-support.asciidoc[]
-include::includes/license.asciidoc[]
-
-
+// vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
