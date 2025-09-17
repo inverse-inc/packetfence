@@ -39,7 +39,7 @@ This file contains guidelines for AI assistants working with PacketFence documen
 
 ### Build Testing
 - **Command**: Always run `make clean && make html` from `/usr/local/pf/` after making changes
-- **Dependency Resolution**: When running build commands for first time, resolve any missing dependencies as needed
+- **Dependencies**: See [filename]`docs/README.md` for complete dependency installation instructions for supported operating systems
 - **Error Resolution**: Fix any compilation errors, warnings, or broken references before committing
 - **Link Verification**: Ensure all cross-references and includes resolve correctly
 
