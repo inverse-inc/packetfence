@@ -1,0 +1,1237 @@
+= PacketFence Frequently Asked Questions
+include::includes/file-header.asciidoc[]
+include::includes/global-attributes.asciidoc[]
+
+== About this Guide
+
+This guide provides answers to frequently asked questions about PacketFence
+based on real-world deployment experiences from the PacketFence community.
+The solutions presented here are derived from community discussions, support
+interactions, and developer responses collected over several years of
+PacketFence deployments.
+
+All solutions in this FAQ are sourced from the PacketFence Users mailing list
+discussions. Each answer includes a reference to the community mailing list
+where similar issues are discussed.
+
+NOTE: This FAQ covers PacketFence v{release_version}. Solutions may vary
+between versions, and newer versions may have resolved some issues mentioned
+here. Always consult the latest documentation for current procedures.
+
+include::includes/latest-version-url.asciidoc[]
+
+=== Other sources of information
+:current_guide_faq:
+include::includes/other-sources-information.asciidoc[]
+
+== Introduction
+
+PacketFence is a fully supported, trusted, Free and Open Source network access
+control (NAC) system. As with any complex network infrastructure component,
+administrators encounter various challenges during installation, configuration,
+and daily operations. This FAQ addresses the most common issues reported by
+the PacketFence community, providing practical solutions and troubleshooting
+guidance.
+
+The questions and answers in this guide are organized by topic to help you
+quickly locate information relevant to your specific deployment scenario.
+
+== Version-Specific Issues
+
+=== PacketFence v14.x Problems
+
+[[radius-audit-logs-empty-v14]]
+==== RADIUS audit logs empty after upgrading to v14.0
+
+*Problem:* After upgrading to PacketFence 14.0, RADIUS audit logs show no
+entries despite active authentication attempts.
+
+*Solution:*
+
+*Database timestamp fix:*
+----
+ALTER TABLE radius_audit_log MODIFY created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+----
+
+*Redis cache clearing:*
+----
+redis-cli -p 6379
+FLUSHALL
+exit
+
+redis-cli -p 6380
+FLUSHALL
+exit
+
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+[[ad-nt-error-codes-v14]]
+==== Active Directory authentication fails with NT error codes
+
+*Problem:* Authentication against Active Directory fails with specific NT
+error codes after upgrading to v14.x.
+
+*Common Error Codes:*
+
+*NT Error 3221225762* ("Syntactically invalid computer name")::
+Verify Active Directory FQDN configuration in domain settings. Ensure hostname
+format matches AD requirements.
+
+*NT Error 3221225506* ("Access denied")::
+The account used for domain join lacks sufficient permissions to create machine
+objects in Active Directory.
+
+*Solution:*
+
+. *For FQDN errors:* Check System Configuration → Domain Settings → DNS Name
+. *For access errors:* Use account with "Create Computer Objects" permission
+. *Verify domain join status:* Test with `wbinfo -t`
+. *Check connectivity:* Ensure ports 389, 636, 88, 135 are accessible
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+[[rhel9-compatibility-v14]]
+==== RHEL 9 compatibility with PacketFence v14.0
+
+*Problem:* Installation fails or services don't start properly on RHEL 9.
+
+*Solution:*
+
+PacketFence v14.0 and v14.1 are *not supported* on RHEL 9. Supported platforms:
+
+* Red Hat Enterprise Linux 8.x
+* CentOS 8 (deprecated)
+* Debian 11
+
+*Migration path:* Use RHEL 8.x for PacketFence v14.x deployments.
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+=== PacketFence v13.x Problems
+
+[[domain-config-changes-v13]]
+==== Domain configuration structure changed in cluster
+
+*Problem:* After upgrading to v13.x, domain authentication fails in clustered
+environments.
+
+*Solution:*
+
+PacketFence v13.x introduced hostname-prefixed domain configurations:
+
+. *Check domain config:* Review domain settings on each cluster node
+. *Manual merge required:* Configuration may need manual synchronization
+. *Verify consistency:* Ensure all cluster nodes have identical domain settings
+. *Test authentication:* Use `radtest` to verify each node individually
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+== Certificate & SSL/TLS Management
+
+=== SSL Certificate Management
+
+[[radius-certificate-renewal]]
+==== RADIUS SSL certificate renewal
+
+*Problem:* RADIUS SSL certificate is expiring and needs renewal without
+service interruption.
+
+*Solution:*
+
+*Step-by-step renewal process:*
+
+. *Navigate to PacketFence directory:*
++
+----
+cd /usr/local/pf
+----
+
+. *Backup existing certificate:*
++
+----
+cp conf/ssl/server.crt conf/ssl/server.crt.bak
+cp conf/ssl/server.key conf/ssl/server.key.bak
+----
+
+. *Generate new certificate:*
++
+----
+make conf/ssl/server.crt
+----
+
+. *Restart RADIUS service:*
++
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
+. *Verify certificate:*
++
+----
+openssl x509 -in conf/ssl/server.crt -text -noout | grep "Not After"
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+[[eap-tls-host-prefix]]
+==== Windows machines add "host/" prefix during EAP-TLS
+
+*Problem:* Windows computers prepend "host/" to machine names during
+certificate-based authentication, causing authentication failures.
+
+*Solution:*
+
+*This is normal Windows behavior.* Configure authentication source properly:
+
+*Authentication Source Configuration:*
+
+. *Machine Account Search:* Use `servicePrincipalName` attribute
+. *Username Attribute:* Set to handle "host/computername" format
+. *Advanced Rules:* Create separate rules for users vs machines
+. *Certificate Mapping:* Use `userPrincipalName` for computer objects if needed
+
+*Example Configuration:*
+----
+# In authentication source settings
+Username Attribute: servicePrincipalName
+Search Filter: (&(objectClass=computer)(servicePrincipalName=host/*))
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+== Active Directory Integration
+
+=== Domain Join and Authentication
+
+[[domain-join-no-logon-servers]]
+==== Domain join fails with "No logon servers available"
+
+*Problem:* PacketFence cannot join Active Directory domain, showing "No logon
+servers are currently available" error.
+
+*Solution:*
+
+*Network and DNS troubleshooting:*
+
+. *DNS Resolution Test:*
++
+----
+nslookup domain-controller.domain.com
+dig domain-controller.domain.com
+----
+
+. *Connectivity Test:*
++
+----
+telnet domain-controller.domain.com 389
+telnet domain-controller.domain.com 636
+----
+
+. *Time Synchronization:*
++
+----
+ntpdate domain-controller.domain.com
+# Or configure NTP permanently
+----
+
+*Advanced Solutions:*
+
+* *Use IP addresses* instead of hostnames for domain controllers
+* *Check firewall rules* for ports 389, 636, 88, 135, and high ports (1024-65535)
+* *Verify DNS suffixes* in `/etc/resolv.conf`
+* *Test with different domain controller* if multiple are available
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+[[machine-account-permissions]]
+==== Machine account permissions insufficient
+
+*Problem:* Domain join fails with access denied errors, insufficient
+permissions to create machine accounts.
+
+*Solution:*
+
+*Account Permission Requirements:*
+
+The domain join account needs these permissions:
+
+. *"Create Computer Objects"* in target OU
+. *"Join computers to domain"* user right
+. *Write permissions* on computer objects in AD
+
+*Recommended Solutions:*
+
+*Option 1: Temporary Domain Admin*
+----
+# Use Domain Admin account for initial setup
+# Change to service account after successful join
+----
+
+*Option 2: Delegated Permissions*
+----
+# In Active Directory Users and Computers:
+# 1. Right-click target OU → Delegate Control
+# 2. Add service account
+# 3. Grant "Create Computer Objects" permission
+----
+
+*Option 3: Pre-created Computer Account*
+----
+# Pre-create computer account in AD
+# Grant service account "Reset Password" permission
+----
+
+*Verification Commands:*
+----
+wbinfo -t          # Test secure channel
+wbinfo -P          # Ping domain controllers
+wbinfo -u          # List domain users (test connection)
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+[[username-attribute-config]]
+==== Username attribute configuration issues
+
+*Problem:* Users cannot authenticate, or authentication works inconsistently
+with different username formats.
+
+*Solution:*
+
+*Choose appropriate username attributes:*
+
+*sAMAccountName (Traditional):*
+* Format: `username`
+* Use for: Standard domain authentication
+* Best for: Windows environments
+
+*userPrincipalName (Modern):*
+* Format: `username@domain.com`
+* Use for: Mixed environments, computer accounts
+* Best for: Modern Active Directory setups
+
+*Configuration Examples:*
+
+*For User Authentication:*
+----
+Username Attribute: sAMAccountName
+Search Filter: (&(objectClass=user)(sAMAccountName=%u))
+----
+
+*For Computer Authentication:*
+----
+Username Attribute: userPrincipalName
+Search Filter: (&(objectClass=computer)(userPrincipalName=%u))
+----
+
+*Mixed Environment Setup:*
+----
+# Create two authentication sources:
+# Source 1: Users with sAMAccountName
+# Source 2: Computers with userPrincipalName
+# Bind both to same connection profile
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+== Network Device Integration
+
+=== Aruba Networks
+
+[[aruba-cx-switch-limitations]]
+==== Aruba CX switches authenticate but CoA/SNMP fail
+
+*Problem:* CX switches successfully authenticate users but Change of
+Authorization (CoA) and SNMP functions don't work properly.
+
+*Solution:*
+
+*This is a known limitation with CX switches:*
+
+*What Works:*
+* Initial 802.1X authentication
+* User role assignment
+* Basic RADIUS communication
+
+*What Doesn't Work:*
+* CoA (Change of Authorization) for dynamic role changes
+* SNMP integration for port management
+* Automatic VLAN switching
+
+*Workarounds:*
+
+. *Manual Port Resets:* Physical disconnection/reconnection required
+. *Use AOS-S Switches:* For full PacketFence compatibility
+. *Hybrid Approach:* CX for core, AOS-S for access where CoA is needed
+
+*Alternative Solutions:*
+----
+# Force reauthentication via switch CLI
+switch# aaa authentication port-access interface 1/1/1 client-limit 1
+switch# aaa authentication port-access interface 1/1/1 reauth
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+=== Cisco Networks
+
+[[cisco-wlc-guest-roles]]
+==== WLC captive portal doesn't apply guest roles after social auth
+
+*Problem:* After successful social media authentication (Facebook, Google),
+Cisco WLC doesn't apply the correct guest role or VLAN.
+
+*Solution:*
+
+*WLC Configuration Requirements:*
+
+. *Enable CoA on RADIUS Server:*
+   - WLC → Security → AAA → RADIUS → Authentication
+   - Select PacketFence RADIUS server
+   - Check "Support for CoA" checkbox
+
+. *RADIUS Server Configuration:*
+   - Verify RADIUS shared secret matches
+   - Ensure CoA port 3799 is accessible
+   - Check RADIUS server IP is correctly configured
+
+. *ACL and VLAN Verification:*
++
+----
+# Check ACL assignment in WLC
+(Cisco Controller) > show client detail <client-mac>
+
+# Verify VLAN mapping
+(Cisco Controller) > show interface detail <interface-name>
+----
+
+*PacketFence Side Verification:*
+----
+# Check role assignment in logs
+tail -f /usr/local/pf/logs/packetfence.log | grep -i "role"
+
+# Verify CoA is being sent
+tcpdump -i any port 3799
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+=== Juniper Networks
+
+[[juniper-radius-unreachable]]
+==== Juniper switches report intermittent "RADIUS Server Unreachable"
+
+*Problem:* Juniper switches show alternating RADIUS server status between
+ALIVE and UNREACHABLE, particularly with PacketFence v14.1 clusters.
+
+*Solution:*
+
+*This appears to be cluster scaling related:*
+
+*Immediate Troubleshooting:*
+
+. *Check Cluster Node Health:*
++
+----
+/usr/local/pf/bin/cluster/node
+# Verify all nodes show "alive" status
+----
+
+. *RADIUS Service Status:*
++
+----
+# On each cluster node:
+/usr/local/pf/bin/pfcmd service radiusd status
+----
+
+. *Network Connectivity:*
++
+----
+# From switch to each PacketFence node:
+ping packetfence-node1.domain.com
+ping packetfence-node2.domain.com
+
+# Test RADIUS ports:
+nc -zv packetfence-node1.domain.com 1812
+----
+
+*Long-term Solutions:*
+
+* *Load Balancer Configuration:* Consider RADIUS load balancer between switches and cluster
+* *RADIUS Timeout Tuning:* Increase timeout values on switches
+* *Cluster Optimization:* Review cluster resource allocation
+
+*Switch Configuration Check:*
+----
+# Verify RADIUS configuration on Juniper switch
+user@switch> show configuration system radius-server
+
+# Check RADIUS statistics
+user@switch> show system radius-server
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+=== UniFi/Ubiquiti
+
+[[unifi-controller-v9-compatibility]]
+==== UniFi Controller v9.0 integration challenges
+
+*Problem:* Latest UniFi Controller versions have compatibility issues with
+existing PacketFence network device templates and CoA functionality.
+
+*Solution:*
+
+*Version-Specific Considerations:*
+
+*UniFi Controller v9.0+ Changes:*
+* API modifications affecting device management
+* CoA functionality restrictions
+* Authentication workflow changes
+
+*Current Workarounds:*
+
+. *Template Updates:* Check for updated PacketFence device templates
+. *API Compatibility:* Review authentication source configuration
+. *Alternative Methods:* Consider WebAuth through UniFi external portal
+
+*Multi-Site Configuration:*
+
+For deployments with multiple UniFi sites and offsite PacketFence:
+
+----
+# Network routing requirements:
+# 1. RADIUS traffic: Sites → PacketFence (ports 1812/1813)
+# 2. Management traffic: PacketFence → UniFi Controller
+# 3. VLAN routing: Proper inter-VLAN routing configuration
+
+# Example VLAN configuration per site:
+# Site A: 10.1.0.0/24 (Management), 10.1.100.0/24 (Guest)
+# Site B: 10.1.1.0/24 (Management), 10.1.101.0/24 (Guest)
+----
+
+*Recommended Testing:*
+----
+# Test RADIUS authentication per site:
+radtest username password unifi-site-ip:1812 0 shared-secret
+
+# Verify VLAN assignment:
+# Check client gets correct VLAN after authentication
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+=== Ruckus Networks
+
+[[ruckus-smartzone-deauth-error]]
+==== Ruckus SmartZone deauthentication fails
+
+*Problem:* Device deauthentication through Ruckus SmartZone fails with
+"Error handling desAssociate: must specify key" message.
+
+*Solution:*
+
+*This error occurs in the accounting module during device deauthentication.*
+
+*Configuration Verification:*
+
+. *SmartZone API Settings:*
+   - Verify API credentials in PacketFence
+   - Check API URL format and accessibility
+   - Ensure proper authentication token handling
+
+. *PacketFence Configuration:*
+   - Review Ruckus device template in Network Devices
+   - Verify authentication keys match SmartZone configuration
+   - Check accounting configuration for proper key specification
+
+*Debugging Steps:*
+----
+# Check PacketFence logs during deauth attempt:
+tail -f /usr/local/pf/logs/packetfence.log | grep -i ruckus
+
+# Verify SmartZone connectivity:
+curl -k -X GET https://smartzone-ip/wsg/api/public/v11_0/session
+----
+
+*Alternative Deauthentication:*
+If API deauth fails, consider portal-based or timed session approach.
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+== RADIUS & Authentication
+
+=== RADIUS Configuration Issues
+
+[[dynamic-vlan-assignment-fails]]
+==== Dynamic VLAN assignment works in authentication but fails on network
+
+*Problem:* RADIUS logs show correct VLAN attributes returned, but client
+doesn't get assigned to the proper VLAN.
+
+*Solution:*
+
+*Systematic Troubleshooting Approach:*
+
+. *Verify RADIUS Response:*
++
+----
+# Check RADIUS logs for VLAN attributes:
+tail -f /usr/local/pf/logs/radius.log | grep -i vlan
+
+# Look for these attributes in Access-Accept:
+# Tunnel-Type = VLAN
+# Tunnel-Medium-Type = IEEE-802
+# Tunnel-Private-Group-Id = VLAN-ID
+----
+
+. *Switch Configuration Verification:*
++
+----
+# Ensure switch supports dynamic VLAN assignment:
+# - 802.1X enabled on ports
+# - RADIUS-assigned VLAN support enabled
+# - Proper VLAN configuration and routing
+
+# Example Cisco switch verification:
+switch# show dot1x interface gigabitethernet 1/0/1 details
+switch# show vlan brief
+----
+
+. *PacketFence Role Mapping:*
++
+----
+# Configuration → Policies and Access Control → Roles
+# Verify role contains correct VLAN assignment
+# Check VLAN ID matches network infrastructure
+----
+
+*Common Issues and Solutions:*
+
+*Native VLAN Conflicts:*
+----
+# Switch port native VLAN should not conflict with assigned VLAN
+# Set native VLAN to unused VLAN ID
+interface GigabitEthernet1/0/1
+ switchport mode access
+ switchport access vlan 999  # Default/native VLAN
+ dot1x pae authenticator
+----
+
+*VLAN Routing Problems:*
+----
+# Ensure proper inter-VLAN routing
+# Gateway configuration for assigned VLAN
+# DHCP scope for target VLAN
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+[[eap-session-mismatch-cluster]]
+==== EAP session mismatches in cluster environments
+
+*Problem:* 802.1X authentication fails in clustered PacketFence deployments
+when RADIUS requests hit different cluster nodes during EAP conversation.
+
+*Solution:*
+
+*Root Cause:* EAP authentication requires session consistency. When RADIUS
+requests are load-balanced to different cluster nodes, EAP state is lost.
+
+*Primary Solution - VIP Configuration:*
+
+. *Configure Cluster VIP for RADIUS:*
++
+----
+# Switches should send RADIUS requests to cluster VIP, not individual nodes
+# Example switch configuration:
+radius-server host 10.0.0.100 auth-port 1812 acct-port 1813 key shared-secret
+
+# Where 10.0.0.100 is the cluster VIP address
+----
+
+. *Verify VIP Configuration:*
++
+----
+# Check cluster VIP status:
+/usr/local/pf/bin/cluster/node
+
+# Verify RADIUS service binds to VIP:
+netstat -ulnp | grep :1812
+----
+
+*Alternative Solution - Session Stickiness:*
+
+If VIP isn't possible, configure session persistence based on calling station ID:
+
+----
+# Load balancer configuration (if using external LB):
+# Hash based on source IP + calling station ID
+# Ensures same MAC address always hits same node
+----
+
+*Verification Commands:*
+----
+# Test RADIUS to VIP:
+radtest username password cluster-vip:1812 0 shared-secret
+
+# Monitor EAP sessions:
+raddebug -t 30
+
+# Check cluster synchronization:
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+== Captive Portal Issues
+
+=== Portal Configuration and Compatibility
+
+[[ios16-captive-portal-changes]]
+==== iOS 16+ devices behave differently than iOS 15 with captive portal
+
+*Problem:* iOS 16.0 and later devices have inconsistent captive portal
+detection and presentation compared to iOS 15.x devices.
+
+*Solution:*
+
+*Apple Network Detection Changes:*
+
+*iOS 16.0+ Behavior:*
+* More complex captive portal detection mechanisms
+* Persistent use of previously learned portal URLs
+* DHCP Option 114 can cause unexpected re-detection
+* Enhanced privacy features affecting portal flow
+
+*Configuration Adjustments:*
+
+. *DHCP Option 114 Management:*
++
+----
+# Consider disabling Option 114 on registration VLANs
+# In DHCP server configuration:
+# option captive-portal-url = "";  # Disable option
+----
+
+. *Portal Detection Optimization:*
++
+----
+# Ensure proper DNS interception for Apple's detection URLs:
+# captive.apple.com
+# gsp1.apple.com
+# www.apple.com/library/test/success.html
+----
+
+. *Network Profile Consistency:*
++
+----
+# Maintain consistent portal URLs across sessions
+# Avoid changing portal presentation mid-session
+# Consider portal session persistence
+----
+
+*Testing Approach:*
+
+*Different iOS Versions:*
+* Test with iOS 15.x device (baseline behavior)
+* Test with iOS 16.x device (new behavior)
+* Test with iOS 17.x device (latest behavior)
+
+*Network Conditions:*
+* Test with WiFi network switching
+* Test with cellular → WiFi transitions
+* Test portal behavior after device sleep/wake
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+[[tagged-vlan-portal-fails]]
+==== Captive portal doesn't open on tagged registration VLAN
+
+*Problem:* Captive portal fails to load when using tagged VLANs for device
+registration, clients can't access portal page.
+
+*Solution:*
+
+*Network Configuration Verification:*
+
+. *VLAN Tagging on PacketFence Interface:*
++
+----
+# Verify interface has VLAN tag configured:
+ip link show
+
+# Check for VLAN sub-interface:
+# Should see interface like eth0.102 for VLAN 102
+ifconfig eth0.102
+
+# If missing, create VLAN interface:
+ip link add link eth0 name eth0.102 type vlan id 102
+ip addr add 192.168.102.1/24 dev eth0.102
+ip link set eth0.102 up
+----
+
+. *Traffic Flow Verification:*
++
+----
+# Monitor VLAN traffic on PacketFence interface:
+tcpdump -i eth0 vlan 102
+
+# Check for HTTP requests to portal:
+tcpdump -i eth0.102 port 80
+
+# Verify DHCP on VLAN interface:
+tcpdump -i eth0.102 port 67 or port 68
+----
+
+. *Switch Port Configuration:*
++
+----
+# Switch port must be configured as trunk:
+interface GigabitEthernet1/0/1
+ switchport mode trunk
+ switchport trunk allowed vlan 102
+ spanning-tree portfast trunk
+----
+
+*PacketFence Interface Configuration:*
+
+----
+# Configuration → System Configuration → Network Configuration → Interfaces
+# Ensure interface has:
+# - Correct VLAN ID (102)
+# - Proper IP addressing (192.168.102.1/24)
+# - Registration role enabled
+----
+
+*Testing and Validation:*
+----
+# From client on VLAN 102:
+ping 192.168.102.1          # Should reach PacketFence
+nslookup captive.apple.com  # Should resolve to PacketFence IP
+curl http://captive.apple.com  # Should get portal redirect
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+== Performance & Scalability
+
+=== System Performance Optimization
+
+[[large-deployment-cpu-issues]]
+==== Large deployments cause CPU performance problems
+
+*Problem:* PacketFence deployment with 1000+ devices experiences high CPU
+utilization and performance degradation.
+
+*Solution:*
+
+*Infrastructure Scaling:*
+
+*Hardware Recommendations for Large Deployments:*
+
+*14,000+ Clients:*
+* CPU: 8+ cores minimum
+* RAM: 32GB+ recommended
+* Storage: SSD for database and logs
+* Network: Gigabit minimum, 10Gb preferred for clusters
+
+*Fingerbank Collector Optimization:*
+----
+# Disable TCP packet handling to reduce CPU load:
+# Edit fingerbank-collector service configuration:
+# /etc/systemd/system/fingerbank-collector.service.d/override.conf
+
+[Service]
+Environment=COLLECTOR_DISABLE_TCP_HANDLER=true
+
+# Reload and restart service:
+systemctl daemon-reload
+systemctl restart fingerbank-collector
+----
+
+*Database Performance Tuning:*
+----
+# MariaDB optimization for large deployments:
+# /etc/mysql/mariadb.conf.d/50-server.cnf
+
+[mysqld]
+innodb_buffer_pool_size = 16G      # 50-70% of available RAM
+innodb_log_file_size = 512M
+innodb_log_buffer_size = 64M
+max_connections = 1000
+query_cache_size = 256M
+table_open_cache = 2048
+
+# Apply changes:
+systemctl restart mariadb
+----
+
+*Cluster Architecture Consideration:*
+----
+# For 5000+ concurrent users, consider cluster deployment:
+# - 3+ nodes minimum for high availability
+# - Load balancer for RADIUS requests
+# - Shared database backend (Galera cluster or external MySQL)
+----
+
+*Monitoring and Maintenance:*
+----
+# Regular performance monitoring:
+htop                              # CPU and memory usage
+iostat -x 1                      # Disk I/O monitoring
+mysqladmin processlist           # Database connection monitoring
+/usr/local/pf/bin/pfcmd service pf status  # Service health
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+[[fingerbank-collector-cpu]]
+==== Fingerbank collector causes high CPU usage
+
+*Problem:* The fingerbank-collector service consumes excessive CPU resources,
+impacting overall system performance.
+
+*Solution:*
+
+*Primary Solution - Disable TCP Handler:*
+----
+# Create systemd override configuration:
+mkdir -p /etc/systemd/system/fingerbank-collector.service.d/
+
+cat > /etc/systemd/system/fingerbank-collector.service.d/override.conf << EOF
+[Service]
+Environment=COLLECTOR_DISABLE_TCP_HANDLER=true
+EOF
+
+# Apply changes:
+systemctl daemon-reload
+systemctl restart fingerbank-collector
+
+# Verify service is running with new configuration:
+systemctl status fingerbank-collector
+----
+
+*Alternative Configuration Options:*
+----
+# Additional environment variables for tuning:
+[Service]
+Environment=COLLECTOR_DISABLE_TCP_HANDLER=true
+Environment=COLLECTOR_DISABLE_UDP_HANDLER=false
+Environment=COLLECTOR_WORKERS=2
+
+# Reduce collection frequency:
+Environment=COLLECTOR_INTERVAL=300
+----
+
+*Impact Assessment:*
+* *What you lose:* Advanced TCP-based device fingerprinting
+* *What you keep:* DHCP-based device identification, basic fingerprinting
+* *Performance gain:* 60-80% CPU reduction typical
+
+*Monitoring Results:*
+----
+# Before and after CPU monitoring:
+top -p $(pgrep fingerbank-collector)
+
+# Check fingerprinting still works:
+tail -f /usr/local/pf/logs/fingerbank.log
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+== Advanced Troubleshooting
+
+=== System Configuration Issues
+
+[[user-database-conflicts]]
+==== User management shows "account already exists" errors
+
+*Problem:* Cannot create, modify, or delete users in PacketFence web interface,
+getting "account already exists" errors even for new users.
+
+*Solution:*
+
+*Database Consistency Check:*
+----
+# Check if user exists in database:
+mysql -u root -p pf -e "SELECT * FROM person WHERE pid = 'username';"
+
+# Check for orphaned records:
+mysql -u root -p pf -e "SELECT p.pid, n.mac FROM person p LEFT JOIN node n ON p.pid = n.pid WHERE p.pid = 'username';"
+----
+
+*Browser Session Issues:*
+----
+# Try accessing in private/incognito mode to bypass cache
+# Clear browser cache and cookies for PacketFence domain
+# Test with different browser
+----
+
+*Service Verification:*
+----
+# Ensure all PacketFence services are running:
+/usr/local/pf/bin/pfcmd service pf status
+
+# Restart web services if needed:
+/usr/local/pf/bin/pfcmd service httpd.admin restart
+/usr/local/pf/bin/pfcmd service httpd.portal restart
+----
+
+*Database Cleanup (if needed):*
+----
+# Remove orphaned user record (CAUTION: backup first):
+mysql -u root -p pf -e "DELETE FROM person WHERE pid = 'problematic-username';"
+
+# Check for related records that might need cleanup:
+mysql -u root -p pf -e "SELECT * FROM person_role WHERE pid = 'username';"
+mysql -u root -p pf -e "SELECT * FROM activation WHERE pid = 'username';"
+----
+
+*Session Management:*
+----
+# Clear Redis sessions if using Redis for session storage:
+redis-cli -p 6379 FLUSHALL
+
+# Restart pfconfig to clear configuration cache:
+/usr/local/pf/bin/pfcmd service pfconfig restart
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+[[pfconfig-connectivity-problems]]
+==== Service communication errors with pfconfig
+
+*Problem:* Services fail with "Can't connect to pfconfig on
+containers-gateway.internal:44444" errors, particularly after system changes
+or reboots.
+
+*Solution:*
+
+*Service Dependency Resolution:*
+
+. *Check pfconfig Service Status:*
++
+----
+# Verify pfconfig is running:
+/usr/local/pf/bin/pfcmd service pfconfig status
+
+# If not running, start it:
+/usr/local/pf/bin/pfcmd service pfconfig start
+----
+
+. *Hostname Resolution:*
++
+----
+# Verify containers-gateway.internal resolves:
+nslookup containers-gateway.internal
+ping containers-gateway.internal
+
+# If resolution fails, check /etc/hosts:
+echo "127.0.0.1 containers-gateway.internal" >> /etc/hosts
+----
+
+. *Network Configuration:*
++
+----
+# Check if pfconfig is listening on correct interface:
+netstat -tlnp | grep :44444
+
+# Verify firewall isn't blocking internal communication:
+iptables -L | grep 44444
+----
+
+*Container Environment Issues:*
+----
+# If running in Docker/containers, verify network configuration:
+docker network ls
+docker exec -it packetfence-container ping containers-gateway.internal
+
+# Check container network connectivity:
+docker exec -it packetfence-container netstat -rn
+----
+
+*Service Restart Sequence:*
+----
+# Proper service restart order:
+/usr/local/pf/bin/pfcmd service pfconfig stop
+/usr/local/pf/bin/pfcmd service pfconfig start
+
+# Wait for pfconfig to be ready:
+sleep 5
+
+# Restart dependent services:
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+*Verification:*
+----
+# Test pfconfig connectivity:
+/usr/local/pf/bin/pfcmd pfconfig get config.Configuration.general.hostname
+
+# Check service logs for errors:
+tail -f /usr/local/pf/logs/pfconfig.log
+----
+
+*Community Reference:*
+https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+
+'''
+
+== Diagnostic Commands Reference
+
+=== Service Management
+----
+# Check all service status
+/usr/local/pf/bin/pfcmd service pf status
+
+# Restart all services
+/usr/local/pf/bin/pfcmd service pf restart
+
+# Individual service control
+/usr/local/pf/bin/pfcmd service radiusd restart
+/usr/local/pf/bin/pfcmd service httpd.portal restart
+/usr/local/pf/bin/pfcmd service pfconfig restart
+
+# Check cluster node status
+/usr/local/pf/bin/cluster/node
+----
+
+=== Authentication Testing
+----
+# Test authentication source
+pftest authentication username password
+
+# Test RADIUS authentication
+radtest username password radius-server:1812 0 shared-secret
+
+# Debug RADIUS in real-time
+raddebug -t 30
+
+# Monitor RADIUS logs
+tail -f /usr/local/pf/logs/radius.log
+----
+
+=== Network Analysis
+----
+# Monitor VLAN traffic
+tcpdump -i interface_name vlan 102
+
+# Monitor RADIUS traffic
+tcpdump -i any port 1812
+
+# Check network connectivity
+ping domain-controller.domain.com
+telnet radius-server 1812
+----
+
+=== Configuration Management
+----
+# Reload configuration
+/usr/local/pf/bin/pfcmd configreload hard
+
+# Fix file permissions
+/usr/local/pf/bin/pfcmd fixpermissions
+
+# Clear Redis cache
+redis-cli -p 6379 FLUSHALL
+redis-cli -p 6380 FLUSHALL
+
+# Synchronize cluster configuration
+/usr/local/pf/bin/cluster/sync
+----
+
+=== Database Operations
+----
+# Check user in database
+mysql -u root -p pf -e "SELECT * FROM person WHERE pid = 'username';"
+
+# Check node status
+mysql -u root -p pf -e "SELECT * FROM node WHERE mac = 'aa:bb:cc:dd:ee:ff';"
+
+# Check RADIUS audit logs
+mysql -u root -p pf -e "SELECT * FROM radius_audit_log WHERE username = 'user' ORDER BY created_at DESC LIMIT 10;"
+
+# Database maintenance
+mysql -u root -p pf -e "OPTIMIZE TABLE node;"
+----
+
+== Additional Resources
+
+For issues not covered in this FAQ:
+
+* **Primary Documentation:** PacketFence Installation Guide, Administration Guide
+* **Network Integration:** PacketFence Network Devices Configuration Guide
+* **Community Support:** https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+* **Official Website:** https://packetfence.org
+* **GitHub Issues:** For bug reports and feature requests
+
+*Important Note:* PacketFence is actively developed. Solutions may evolve between
+versions. Always test solutions in a lab environment before implementing in
+production.
