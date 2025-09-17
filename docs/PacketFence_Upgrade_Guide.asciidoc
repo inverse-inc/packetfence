@@ -144,43 +144,6 @@ needs-restarting -r
 FreeRADIUS, and other system dependencies are current and compatible with the
 PacketFence version being installed.
 
-=== Database and configurations backup
-
-NOTE: Starting from PacketFence 11.0, this step is not necessary for
-doing an
-<<#_automation_of_upgrades,automated
-upgrade>>.
-
-Taking a complete backup of the current installation is strongly recommended.
-Perform a backup using:
-
-.For PacketFence versions prior to 9.0:
-[source,bash]
-----
-/usr/local/pf/addons/database-backup-and-maintenance.sh
-----
-
-.For PacketFence versions 9.0 and later:
-[source,bash]
-----
-/usr/local/pf/addons/backup-and-maintenance.sh
-----
-
-=== Disable monit alerts (only if monit is installed)
-
-NOTE: Starting from PacketFence 11.0, this step is not necessary for
-doing an
-<<#_automation_of_upgrades,automated
-upgrade>>.
-
-If `monit` is installed and running, stop and disable it with:
-
-[source,bash]
-----
-systemctl stop monit
-systemctl disable monit
-----
-
 == Upgrade Types and Version Requirements
 
 **Version Stepping Requirement**: All PacketFence upgrades must proceed incrementally through minor versions within the same major version to ensure database schema integrity and configuration compatibility.
