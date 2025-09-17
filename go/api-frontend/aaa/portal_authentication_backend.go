@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
 )
@@ -27,7 +28,10 @@ func NewPortalAuthenticationBackend(ctx context.Context, url *url.URL, checkCert
 }
 
 func (pab *PortalAuthenticationBackend) Authenticate(ctx context.Context, username, password string) (bool, *TokenInfo, error) {
-	req, err := http.NewRequest("GET", pab.url.String()+"?token="+password, nil)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", pab.url.String()+"?token="+password, nil)
 	sharedutils.CheckError(err)
 	resp, err := pab.httpClient.Do(req)
 	if err != nil {
