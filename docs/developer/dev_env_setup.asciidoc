@@ -36,7 +36,7 @@ Install PacketFence from RPM repository:
 [source,bash]
 ----
 yum localinstall
-http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-99.9.el8.noarch.rpm
+https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-99.9.el8.noarch.rpm
 -y
 yum install kernel-devel-$(uname -r) -y
 yum install packetfence --enablerepo=packetfence --allowerasing

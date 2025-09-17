@@ -84,14 +84,14 @@ using following instructions:
 [source,bash,subs="attributes"]
 ----
 yum localinstall
-http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-export-{release_minor}.el8.noarch.rpm
+https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-export-{release_minor}.el8.noarch.rpm
 ----
 
 .Debian 9 systems **only**
 [source,bash,subs="attributes"]
 ----
 wget
-http://packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
+https://www.packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
 dpkg -i packetfence-export_{release_minor}.deb
 ----
 

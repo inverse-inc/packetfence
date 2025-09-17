@@ -83,7 +83,7 @@ Example with common filters:
 
 * *SSID:* Guest-SSID
 * *VLAN:* 100
-* *Time period:* wd {Mon Tue} hr {1pm-3pm} -- See http://search.cpan.org/~pryan/Period-1.20/Period.pm
+* *Time period:* wd {Mon Tue} hr {1pm-3pm} -- See https://metacpan.org/pod/release/PRYAN/Period-1.20/Period.pm
 * *Switch Port:* <SwitchId>-<Port>
 * *Network:* IP address or Network CIDR
 

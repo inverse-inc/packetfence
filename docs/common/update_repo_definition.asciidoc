@@ -5,7 +5,7 @@ PacketFence repository definition before updating packages:
 [source,bash,subs="attributes"]
 ----
 yum localinstall
-http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-NEW_PF_VERSION.el8.noarch.rpm
+https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-NEW_PF_VERSION.el8.noarch.rpm
 yum update --enablerepo=packetfence
 ----
 

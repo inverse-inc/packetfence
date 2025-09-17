@@ -34,25 +34,25 @@ Configuration Guide.
 === Going Through the Configurator
 
 Open PacketFence's configurator at https://@ip_of_packetfence:1443. If unsure of
-your IP address, run `ip a` in Linux shell. Complete these steps:
+the IP address, run `ip a` in Linux shell. Complete these steps:
 
  * Step 1 - *Configure Network* - Define one interface with "Management" type. This interface connects to the Cisco 2960 access switch. The management interface and Cisco 2960 should be on the same network. Click the logical name to edit interface type
  * Step 2 - *Configure PacketFence* - Provide required information for PacketFence database creation, domain name, hostname and admin credentials
  * Step 3 - *Fingerbank* - Provide Fingerbank API key. Fingerbank identifies IoT devices, medical devices, industrial and robotics equipment. An API key is recommended for device profiling
  * Step 4 - *Confirmation* - save the passwords in a secure location and start PacketFence!
 
-After services start, you'll be redirected to PacketFence's admin interface at
+After services start, the system redirects to PacketFence's admin interface at
 https://@ip_of_packetfence:1443/. Log in using credentials from Step 2.
 
 === Connecting PacketFence to Microsoft Active Directory
 
-Join PacketFence to your Microsoft Active Directory domain. From the admin
+Join PacketFence to the Microsoft Active Directory domain. From the admin
 interface, go to _Configuration -> Policies and Access Control -> Domains ->
 Active Directory Domain_ and click `New domain`. Provide required fields
 including domain admin credentials. Click `Create & Join`.
 
 After successful domain join, click the `REALMS` tab. Set the `Default` realm to
-use your new Active Directory domain. Repeat for the 'NULL' realm.
+use the new Active Directory domain. Repeat for the 'NULL' realm.
 
 Add Microsoft Active Directory as an authentication source. From _Configuration
 -> Policies and Access Control -> Authentication Sources_, click `New internal
@@ -67,8 +67,8 @@ In this new 'Authentication Source', add an 'Authentication Rules' with name
 
 Make sure the information you provided are valid. Click on the `Test` button to
 validate the provided information. If you see the message 'Success! LDAP
-connect, bind and search successful' - you have properly configured your
-Microsoft Active Directory authentication source. Save your new authentication
+connect, bind and search successful' - the
+Microsoft Active Directory authentication source has been properly configured. Save the new authentication
 source by clicking on the `Save` button.
 
 === Configuring Cisco Catalyst 2960 Switch
@@ -76,22 +76,22 @@ source by clicking on the `Save` button.
 Next, we configure a switch so that it integrates with PacketFence using 802.1X.
 In our example, we will use a Cisco Catalyst 2960 access switch and its IP
 address will be 172.21.2.3. Our PacketFence's server IP address will be
-172.20.100.2 - you will need to adjust this according to your environment.
+172.20.100.2 - adjust this according to the environment.
 
 Connect to that switch over SSH as an admin.
 
 ==== Enable 802.1X
 
-As a first configuration step, you need to enable 802.1X globally on the switch.
-To do so, use the following:
+As a first configuration step, enable 802.1X globally on the switch.
+Use the following:
 
    dot1x system-auth-control
 
 ==== Configure AAA
 
-The next step is to configure AAA so it will use your newly created PacketFence
-server. Make sure you replace the PF_MANAGEMENT_IP variable with your actual
-PacketFence management IP (172.20.100.2 in our example) in the following
+The next step is to configure AAA so it will use the newly created PacketFence
+server. Replace the PF_MANAGEMENT_IP variable with the actual
+PacketFence management IP (172.20.100.2 in this example) in the following
 commands:
 
    aaa new-model
@@ -108,8 +108,8 @@ commands:
 
 ==== Configure Switchport for 802.1X
 
-Once AAA is ready, we can configure some or all switchports to perform 802.1X.
-In our example, we will only configure port no. 10 to use 802.1X:
+Once AAA is ready, configure some or all switchports to perform 802.1X.
+In this example, only configure port no. 10 to use 802.1X:
 
    interface fastEthernet 0/10
    switchport mode access
@@ -132,11 +132,11 @@ Write the switch configuration to memory.
 
 PacketFence must be aware of the equipment it manages. From _Configuration ->
 Policies and Access Control -> Network Devices -> Switches_, click on `New
-Switch -> default`. Enter your switch IP address (172.21.2.3 in our example). As
+Switch -> default`. Enter the switch IP address (172.21.2.3 in our example). As
 a switch type, select `Cisco Catalyst 2960` and select `Production` as the Mode.
 From the 'Roles' tab, make sure 'Role by VLAN ID' is checked and that the VLAN
-ID associated to the default role is set to your normal VLAN currently in use on
-your network. In our example, it will be VLAN 20. That means that once a 802.1X
+ID associated to the default role is set to the normal VLAN currently in use on
+the network. In our example, it will be VLAN 20. That means that once a 802.1X
 authentication is allowed by PacketFence, access will be properly granted in the
 default role in VLAN 20.
 
@@ -150,11 +150,11 @@ Finally, from the 'SNMP' tab, provide the correct 'Community Read' and
 
 === Configuring the Connection Profile
 
-Next, we need to configure the connection profile in PacketFence. That is
+Next, configure the connection profile in PacketFence. That is
 required so that PacketFence knows how to handle a connection coming from the
-wired network or WiFi network. In our case, we will create a new connection
-profile to use our Microsoft Active Directory authentication source and also to
-let PacketFence know to automatically register any devices that successfully
+wired network or WiFi network. In this case, create a new connection
+profile to use the Microsoft Active Directory authentication source and
+notify PacketFence to automatically register any devices that successfully
 authenticate using 802.1X on the default connection profile.
 
 From _Configuration -> Policies and Access Control -> Connection Profiles_,
@@ -167,14 +167,14 @@ click on on `New Connection Profile`. Specify the following information:
  * Automatically register devices: checked
  * Filters: If any of the following conditions are met:
    - Connection Type: Ethernet-EAP
- * Sources: your newly created Active Directory authentication source
+ * Sources: the newly created Active Directory authentication source
 
 Click on `Create` to save all configuration changes.
 
 === Configuring Microsoft Windows Supplicant
 
-To enable 802.1X on the wired adapter of the Microsoft Windows 7 endpoint, you
-first need to enable the 'Wired AutoConfig' service. To do so, from the
+To enable 802.1X on the wired adapter of the Microsoft Windows 7 endpoint,
+first enable the 'Wired AutoConfig' service. From the
 Microsoft Windows Services control panel, double-click on `Wired AutoConfig`.
 Make sure 'Startup type:' is set to 'Automatic' and click on `Start` to enable
 the service.
@@ -192,22 +192,21 @@ Save all changes.
 
 === Testing
 
-Now, we are ready to do some testing. First make sure you restart the 'radiusd'
-service. That is required since we added a new Active Directory domain
-controller. From _Status -> Services_, click on the `Restart` button for the
+Now, perform the testing. First restart the 'radiusd'
+service. This is required since a new Active Directory domain
+controller was added. From _Status -> Services_, click on the `Restart` button for the
 'radiusd' service. PacketFence will take care of restarting that service and the
 'radiusd-acct' and 'radiusd-auth' sub-services.
 
 Connect the Microsoft Windows 7 endpoint on port no. 10 from the Cisco Catalyst
 2960 switch. From Microsoft Windows, a popup should appear prompting you for a
-username and password. Enter a valid username and password from your Microsoft
+username and password. Enter a valid username and password from the Microsoft
 Active Directory domain - this should trigger 802.1X (EAP-PEAP) authentication.
 
-To see what's going on from PacketFence, click on the _Auditing_ tab from
-PacketFence's admin interface. You should see an entry for the MAC address of
-your Microsoft Windows 7 endpoint. Click on the line with the right MAC address
-to see the RADIUS exchanges. If the 802.1X authentication is successful, you
-should have 'Accept' as an 'Auth Status'.
+To see what's happening in PacketFence, click on the _Auditing_ tab from
+PacketFence's admin interface. An entry should appear for the MAC address of
+the Microsoft Windows 7 endpoint. Click on the line with the correct MAC address
+to see the RADIUS exchanges. If the 802.1X authentication is successful, 'Accept' appears as the 'Auth Status'.
 
 If authentication fails or you don't see RADIUS entries, see
 <<#_radius_debugging,RADIUS Debugging>> and <<#_radius_audit_log,RADIUS Audit
@@ -215,7 +214,7 @@ Log>> in the Troubleshooting section.
 
 === Alerting
 
-PacketFence can send emails to administrators, users and guests. So, it is
+PacketFence can send emails to administrators, users and guests. Therefore, it is
 important to properly configure the mail sending functionality of PacketFence.
 From _Configuration -> System Configuration -> Alerting_, set at least the
 following fields:
@@ -224,7 +223,7 @@ following fields:
  * Sender - the "From" address of emails being sent by PacketFence
  * SMTP server - IP or DNS name of the SMTP server used by PacketFence to send all emails
 
-If your SMTP server requires authentication or encryption to relay emails, you
-will have to properly configure the SMTP encryption, username and password
+If the SMTP server requires authentication or encryption to relay emails,
+properly configure the SMTP encryption, username and password
 parameters.
 

@@ -28,12 +28,12 @@ installed, preconfigured virtual appliance compatible with VMware ESX/ESXi,
 Microsoft Hyper-V and other products. This section covers VMware-based
 deployment. Xen-based hypervisors are not supported.
 
-You can download the ZEN here: https://www.packetfence.org/download.html#/zen
+Download the ZEN here: https://www.packetfence.org/download.html#/zen
 
 ==== Virtual Machine
 
 Tested with VMware ESXi, Fusion and Workstation with 16 GB RAM dedicated to the
-VM. May work with other VMware products. Requires 64-bit CPU host for long mode
+VM. Compatible with other VMware products. Requires 64-bit CPU host for long mode
 support. PacketFence ZEN comes as a pre-built OVF virtual disk. Import the OVF
 using vSphere Client or vCenter for ESX hypervisors.
 
@@ -51,13 +51,13 @@ production.
 ==== Import to ESX
 
 Make sure that there is only one virtual network card created, and also make
-sure that your vEthernet is connected to a virtual switch (vSwitch). That
+sure that the vEthernet is connected to a virtual switch (vSwitch). That
 virtual network card will be used as the PacketFence management interface.
 
 ==== Import to VMware Player/Workstation for Linux
 
 Newer versions of VMware Player handle VLAN trunking a lot better. With that in
-mind, we can use a single interface on the VM. So, you need to ensure that your
+mind, we can use a single interface on the VM. So, ensure that the
 VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as
 the allowed VLAN. These VLANs will be used later in configuration examples.
 
@@ -68,31 +68,31 @@ with minimal effort. Instead of manually installing Debian 12 and installing
 PacketFence after, this will perform both tasks and select the optimal
 parameters and best practices for installing the operating system.
 
-You can download the ISO here:
+Download the ISO here:
 https://www.packetfence.org/download.html#/releases
 
 ==== Machine specifications
 
-This setup has been tested using VMware ESXi, Proxmox VE and VirtualBox but will
-also work with any hypervisor PacketFence supports as well as bare-metal
+This setup has been tested using VMware ESXi, Proxmox VE and VirtualBox and
+works with any hypervisor PacketFence supports as well as bare-metal
 servers.
 
-You will need a virtual machine or server with 16 GB of RAM dedicated to machine
-as well as 4 CPUs. Make sure you allocate at least 200GB of disk space for
+A virtual machine or server with 16 GB of RAM dedicated to machine
+as well as 4 CPUs is required. Allocate at least 200GB of disk space for
 PacketFence.
 
 ==== Installing the ISO to a virtual machine
 
 Provision a virtual machine with the specifications above, mount the ISO in the
 CD/DVD drive of the machine and start it.
-The installer will open and you will simply have to follow the instructions on
+The installer will open. Follow the instructions on
 screen to complete the installation.
 
 ==== Installing the ISO to a bare-metal server
 
-First, make sure your server follows the specifications above and then burn the
+First, ensure the server follows the specifications above, then burn the
 ISO onto a DVD or USB key and boot it on the server.
-The installer will open and you will simply have to follow the instructions on
+The installer will open. Follow the instructions on
 screen to complete the installation.
 
 === Installing PacketFence on existing Linux
@@ -152,12 +152,11 @@ reboot
 
 Regarding SELinux or AppArmor, even if they may be wanted by some
 organizations, PacketFence will not work properly if SELinux or AppArmor are
-enabled. You will need to explicitly disable SELinux from the
-`/etc/selinux/config` file and reboot the machine. For AppArmor, you need to
-follow instructions on
+enabled. Explicitly disable SELinux in the
+`/etc/selinux/config` file and reboot the machine. For AppArmor, follow instructions on the
 link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
 
-Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
+Regarding resolvconf, remove the symlink to that file and create the `/etc/resolv.conf` file with the desired content.
 
 == Kernel and Development Tools
 
@@ -201,7 +200,7 @@ apt install linux-headers-$(uname -r)
 ----
 # Install PacketFence repository
 yum localinstall
-http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
+https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
 
 # Install PacketFence with all dependencies
 # Includes: MariaDB, FreeRADIUS, DHCP server

@@ -37,7 +37,7 @@ configured. This enables faster service failover.
 
 Disable IPv6.
 
-On *all your servers*, add following lines in [filename]`/etc/sysctl.conf`:
+On *all the servers*, add following lines in [filename]`/etc/sysctl.conf`:
 
 ----
 net.ipv4.ip_nonlocal_bind = 1
@@ -95,7 +95,7 @@ For the next steps, you want to make sure that you didn't configure anything
 in [filename]`/usr/local/pf/conf/cluster.conf`. If you already did, comment all the
 configuration in the file and do a configreload ([command]`/usr/local/pf/bin/pfcmd configreload hard`).
 
-=== Setup on the first server of your cluster
+=== Setup on the first server of the cluster
 
 
 First, *on the first server*, ensure `packetfence-mariadb` is running and make sure it was able to start in 'standalone' mode.
@@ -110,7 +110,7 @@ PacketFence will use. You can use any username/password combination. After
 creating the user, keep its information close-by for usage in the
 configuration.
 
-WARNING: *aMuchMoreSecurePassword* is only for example purpose, you need to define your own password. This user should have a password that contains only alphanumeric characters (letters, numbers and importantly, *no spaces*).
+WARNING: *aMuchMoreSecurePassword* is only for example purpose, a custom password needs to be defined. This user should have a password that contains only alphanumeric characters (letters, numbers and importantly, *no spaces*).
 
 [source,bash]
 ----
@@ -132,7 +132,7 @@ FLUSH PRIVILEGES;
 
 ==== First server
 
-Now, on *the first server* of your cluster, you should go through the configurator, until last step. You should leave the services **stopped** at the end of the configurator.
+Now, on *the first server* of the cluster, go through the configurator, until last step. The services should be left **stopped** at the end of the configurator.
 
 NOTE: When configuring the network interfaces, ensure that you mark the management interface as *high-availability*. Otherwise, you will not be able to perform the database synchronization.
 
@@ -147,7 +147,7 @@ systemctl restart packetfence-mariadb
 
 ==== Other servers (optional)
 
-On the *other servers* of your cluster, configure only the network interfaces
+On the *other servers* of the cluster, configure only the network interfaces
 (step 1) without going past that section in the configurator. If the other
 servers already have the right IP addresses configured on their interfaces,
 you can ignore this step.
@@ -158,7 +158,7 @@ interfaces (at OS level). PacketFence configuration of interfaces will be done l
 ==== Current state
 
 At this point, for a VLAN enforcement configuration for example, the network
-interfaces of your servers must be configured, and you must be able to see,
+interfaces of the servers must be configured, and must be able to see,
 for each server:
 
 |===
@@ -177,7 +177,7 @@ for each server:
 
 ==== PacketFence Configuration Modification (first server only)
 
-In order for PacketFence to communicate properly with your MariaDB cluster, you need to change the following.
+In order for PacketFence to communicate properly with the MariaDB cluster, change the following.
 This change only needs to be done on the first server of the cluster. It will be synchronized later.
 
 Add the following to the bottom of [filename]`/usr/local/pf/conf/pf.conf` :
@@ -225,13 +225,13 @@ systemctl restart packetfence-config
 
 ==== Configure cluster.conf (first server only)
 
-In order to create a new cluster, you need to configure [filename]`/usr/local/pf/conf/cluster.conf` *on the first server* of your cluster.
+In order to create a new cluster, configure [filename]`/usr/local/pf/conf/cluster.conf` *on the first server* of the cluster.
 
-You will need to configure it with your server hostname. Use : [command]`hostname` command (without any arguments) to get it.
+Configure it with the server hostname. Use : [command]`hostname` command (without any arguments) to get it.
 
 In the case of this example it will be `pf1.example.com`.
 
-The `CLUSTER` section represents the virtual IP addresses of your cluster that will be shared by your servers.
+The `CLUSTER` section represents the virtual IP addresses of the cluster that will be shared by the servers.
 
 In this example, eth0 is the management interface, eth1.2 is the registration interface and eth1.3 is the isolation interface.
 
@@ -323,7 +323,7 @@ systemctl set-environment MARIADB_ARGS=--force-new-cluster
 systemctl start packetfence-mariadb
 ----
 
-Then, restart PacketFence to apply all your changes:
+Then, restart PacketFence to apply all the changes:
 
 [source,bash]
 ----
@@ -334,9 +334,9 @@ Then, restart PacketFence to apply all your changes:
 
 If no error is found in the previous configuration, the previous restart of
 PacketFence should have started: `keepalived` and `radiusd-loadbalancer` along
-with the other services. If you have set up a mail server on your first
+with the other services. If a mail server has been set up on the first
 server, you should have receive a mail from `keepalived` to inform you that
-your first server got Virtual IP (VIP) addresses.
+the first server got Virtual IP (VIP) adresses.
 
 You should now have service using the first server on the IP addresses defined in the `CLUSTER` sections.
 
@@ -346,7 +346,7 @@ NOTE: You can check with [command]`ip -br a`, on the first server, you need to f
 
 ==== Enable PacketFence clustering services at boot (all servers)
 
-Make sure the PacketFence clustering services will be started at boot by running the following command on *all of your servers*:
+Make sure the PacketFence clustering services will be started at boot by running the following command on *all of the servers*:
 
 [source,bash]
 ----
@@ -359,7 +359,7 @@ WARNING: If you reboot any of the nodes you're joining, you will need to stop al
 
 WARNING: If you reboot the management node (first server), you will need to stop `packetfence-mariadb` (`systemctl stop packetfence-mariadb`) and start it with the new cluster option so the servers can join (`systemctl set-environment MARIADB_ARGS=--force-new-cluster && systemctl restart packetfence-mariadb`)
 
-Now, you will need to integrate your *two other nodes* in your cluster.
+Now, the *two other nodes* will need to be integrated in the cluster.
 
 ==== Stop iptables (all servers)
 

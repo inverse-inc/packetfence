@@ -83,7 +83,7 @@ Then add the required access list:
 
 Next we have to let PacketFence know that Web Auth is to be used on the Cisco
 Catalyst 2960 switch. From _Configuration -> Policies and Access Control ->
-Switches_ and click on your switch's IP to open its configuration options. From
+Switches_ and click on the switch's IP to open its configuration options. From
 the 'Definition' tab, make sure 'Use CoA' and 'External Portal Enforcement' are
 checked and set the 'CoA Port' to 3799. From the 'Roles' tab, make the following
 changes:
@@ -99,7 +99,7 @@ Click on `Save` to save all configuration changes.
 
 By default the PacketFence's captive portal does not listen on the management
 interface. To change this, go in _Configuration -> Network Configuration ->
-Interfaces_ and click on the logical name of your management interface to bring
+Interfaces_ and click on the logical name of the management interface to bring
 the configuration panel. In 'Additionnal listening daemon(s)' - make sure you
 add 'portal'.
 
@@ -143,7 +143,7 @@ authentication' is unchecked. Save all changes.
 
 Next, connect the endpoint in the Cisco Catalyst 2960 switch. After a few
 second, open a web browser and try to open any website - say
-http://packetfence.org. You should now see the captive portal. You should only
+https://www.packetfence.org. You should now see the captive portal. You should only
 need to accept the terms and conditions for gaining network access.
 
 If the captive portal doesn't appear or redirects fail, check portal-related

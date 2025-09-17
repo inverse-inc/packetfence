@@ -32,7 +32,7 @@ Recent models support more secure features:
 * MAC Authentication (Cisco's MAC Authentication Bypass or MAB) 
 * 802.1X (Multi-Host or Multi-Domain) 
 
-Use most secure feature available for your switch model in this order:
+Use most secure feature available for the switch model in this order:
 
 . 802.1X/MAB
 . Port-Security
@@ -484,10 +484,10 @@ snmp-server community private RW
 
 Add the required access lists
 
-ip access-list extended registration
-deny ip any host <your captive portal ip> 
-permit tcp any any eq www
-permit tcp any any eq 443
+  ip access-list extended registration
+   deny ip any host <captive portal ip> 
+   permit tcp any any eq www
+   permit tcp any any eq 443
 
 Then on each controlled interface
 
@@ -511,11 +511,11 @@ PacketFence switch configuration
 ===== Dynamic ACLs
 
 The Cisco IOS 15.5 supports RADIUS pushed ACLs which means that you can define
-the ACLs centrally in PacketFence without configuring them in your switches and
+the ACLs centrally in PacketFence without configuring them in the switches and
 their rules will be applied to the switch during the authentication.
 
 These ACLs are defined by role like the VLANs which means you can define
-different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
+different ACLs for the registration VLAN, production VLAN, guest VLAN, etc.
 
 Add the following configuration setting on the global level 
 
@@ -535,7 +535,7 @@ interface GigabitEthernetx/y/z
 ip access-group Auth-Default-ACL in
 ...
 
-Before continuing, configure your switch to be in MAC authentication bypass or
+Before continuing, configure the switch to be in MAC authentication bypass or
 802.1X.
 
 Now in the PacketFence interface go in the switch configuration and in the Roles
@@ -550,10 +550,10 @@ category.
 
 image::cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
 
-Now if for example, your normal users are placed in the 'default' category and
-your guests in the 'guest' category.
+Now if for example, the normal users are placed in the 'default' category and
+the guests in the 'guest' category.
 
-If for example the 'default' category uses the network 192.168.5.0/24 and your
+If for example the 'default' category uses the network 192.168.5.0/24 and the
 guest network uses the network 192.168.10.0/24.
 
 You can prevent communications between both networks using these access lists
@@ -561,13 +561,13 @@ You can prevent communications between both networks using these access lists
 image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross
 network deny ACL"]
 
-You could also only prevent your guest users from using shared directories
+Could also only prevent the guest users from using shared directories
 
 image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny
 shares ACL"]
 
-Or also you could restrict your users to use only your DNS server where
-192.168.5.2 is your DNS server
+Or also could restrict the users to use only the DNS server where
+192.168.5.2 is the DNS server
 
 image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS
 ACL"]
@@ -777,7 +777,7 @@ Then add this additional configuration on the global level
 Add the required access lists
 
   ip access-list extended registration
-   deny ip any host <your captive portal ip> 
+   deny ip any host <captive portal ip> 
    permit tcp any any eq www
    permit tcp any any eq 443
 
@@ -803,11 +803,11 @@ PacketFence switch configuration
 ===== Dynamic ACLs
 
 The Cisco IOS 15.5 supports RADIUS pushed ACLs which means that you can define
-the ACLs centrally in PacketFence without configuring them in your switches and
+the ACLs centrally in PacketFence without configuring them in the switches and
 their rules will be applied to the switch during the authentication.
 
 These ACLs are defined by role like the VLANs which means you can define
-different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
+different ACLs for the registration VLAN, production VLAN, guest VLAN, etc.
 
 Add the following configuration setting on the global level 
 
@@ -827,7 +827,7 @@ interface:
   ip access-group Auth-Default-ACL in
   ...
 
-Before continuing, configure your switch to be in MAC authentication bypass or
+Before continuing, configure the switch to be in MAC authentication bypass or
 802.1X.
 
 Now in the PacketFence interface go in the switch configuration and in the Roles
@@ -842,10 +842,10 @@ category.
 
 image::cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
 
-Now if for example, your normal users are placed in the 'default' category and
-your guests in the 'guest' category.
+Now if for example, the normal users are placed in the 'default' category and
+the guests in the 'guest' category.
 
-If for example the 'default' category uses the network 192.168.5.0/24 and your
+If for example the 'default' category uses the network 192.168.5.0/24 and the
 guest network uses the network 192.168.10.0/24.
 
 You can prevent communications between both networks using these access lists
@@ -853,13 +853,13 @@ You can prevent communications between both networks using these access lists
 image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross
 network deny ACL"]
 
-You could also only prevent your guest users from using shared directories
+Could also only prevent the guest users from using shared directories
 
 image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny
 shares ACL"]
 
-Or also you could restrict your users to use only your DNS server where
-192.168.5.2 is your DNS server
+Or also could restrict the users to use only the DNS server where
+192.168.5.2 is the DNS server
 
 image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS
 ACL"]

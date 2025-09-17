@@ -117,7 +117,7 @@ attributes are marked with an asterisk):
 * `base_table`*: The base SQL table used in the SQL query.
 * `date_field`*: The table field (column) used to filter by the date range. When used the column will also be used for the default sorting, unless `order_fields` is explicitly defined.
 * `group_field`: The field (column) to group the query results by. No grouping is performed if this field is empty or omitted.
-* `joins` : The table(s), columns and aliases used to join on the `base_table`. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join-specifications[the following documentation]. This attribute supports multi line blocks (heredoc), see below.
+* `joins` : The table(s), columns and aliases used to join on the `base_table`. See example below and https://metacpan.org/pod/release/DAMI/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join-specifications[the following documentation]. This attribute supports multi line blocks (heredoc), see below.
 * `order_fields`: A comma delimited list of fields (columns) used to order the SQL query. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
 * `searches`: A comma delimited list of searchable fields (columns) that are presented to the reports' user. This allows the user to optionally include additional criteria for the query. Each item is defined as `type:Friendly Name:tableName.columnName` (ex: `searches=string:Owner:person.pid,string:Node:node.mac`). Currently only the type _string_ is supported.
 ** `type` defines the type of the search, the only one currently supported is
@@ -149,7 +149,7 @@ View of the auth_log table:
   # Allow searching on the PID displayed as Username
   searches=string:Username:auth_log.pid
 
-In this simple example, you will be able to select the whole content of the
+In this simple example, select the whole content of the
 `auth_log` table and use the date range on the `attempted_at` field as well as
 search on the `pid` field when viewing the report.
 
@@ -182,7 +182,7 @@ View of the opened security events:
   # The Username field represents a user
   person_fields=Username
 
-In the example above, you can see that the security_event table is _left joined_
+In the example above, the security_event table is _left joined_
 to the class, node and locationlog tables. Using that strategy we make sure all
 the security events are listed even on deleted nodes. Then, base conditions are
 added to filter out outdated locationlog entries as well as include devices
@@ -389,10 +389,9 @@ thus the `--` prefix can be used as a remark.
 
 === Admin Access
 
-You can manage which access you give to PacketFence administrators. To do that
-go through _Configuration -> System Configuration -> Admin Access_. Then go to
-your source which authenticate administrator and create an _administration_ rule
-and assign the wanted Admin role. This functionality allows you to have a
+Manage access levels for PacketFence administrators. Go through _Configuration -> System Configuration -> Admin Access_. Then go to
+the source which authenticates administrator and create an _administration_ rule
+and assign the desired Admin role. This functionality allows
 granular control on which section of the admin interface is available to whom.
 
 ==== Built-in roles
@@ -408,12 +407,12 @@ granular control on which section of the admin interface is available to whom.
 Pre-registration is disabled by default. Once enabled, PacketFence's firewall
 and Apache ACLs allow access to the `/signup` page on the portal even from a
 remote location. All that should be required from the administrators is to open
-up their perimeter firewall to allow access to PacketFence's management
-interface IP on port 443 and make sure a domain name to reach said IP is
-configured (and that the SSL cert matches it). Then you can promote the
-pre-registration link from your extranet web site: https://<hostname>/signup.
+the perimeter firewall to allow access to PacketFence's management
+interface IP on port 443 and ensure a domain name to reach said IP is
+configured (and that the SSL cert matches it). Then promote the
+pre-registration link from the extranet web site: https://<hostname>/signup.
 
-To minimally configure guest pre-registration, you must make sure that the
+To minimally configure guest pre-registration, ensure that the
 following statement is set under `[guests_self_registration]` in
 [filename]`/usr/local/pf/conf/pf.conf`:
 
@@ -424,12 +423,12 @@ This parameter should be configured from the _Configuration -> Policies and
 Access Control -> Connection Profiles -> Profile Name_ section.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay
-emails related to the guest module. If _localhost_ is used as smtpserver, make
-sure that a MTA is installed and configured on the server.
+emails related to the guest module. If _localhost_ is used as smtpserver, ensure
+that a MTA is installed and configured on the server.
 
 CAUTION: Pre-registration increases the attack surface of the PacketFence system
-since a subset of it's functionality is exposed on the Internet. Make sure you
-understand the risks, apply the critical operating system updates and apply
+since a subset of it's functionality is exposed on the Internet. Ensure
+understanding of the risks, apply the critical operating system updates and apply
 PacketFence's security fixes.
 
 NOTE: A 'portal' interface type is required to use this feature. A 'portal'
@@ -444,8 +443,8 @@ captive portal and enforces that everything the browser executes comes from
 within PacketFence, with the exception of the configured network detection host
 that is by default the Inverse IP address.
 
-If, for some reason the portal is modified with content that needs to be
-accessed from PacketFence generated web pages, CSP can be deactivated through
+If the portal is modified with content that needs to be
+accessed from PacketFence generated web pages, deactivate CSP through
 _Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP
 headers for Captive Portal_.
 
@@ -455,13 +454,13 @@ Starting from v10, `pfacct` daemon is used to track bandwidth usage of nodes
 using <<_radius_accounting>> or NetFlow v5 traffic. It is enabled by default and
 replaced `packetfence-radiusd-acct` service. `pfacct` will store data into
 `bandwidth_accounting` table. Using a security event with a bandwidth limit
-trigger, you can limit data usage of your nodes. The admin interface also uses
+trigger, you can limit data usage of the nodes. The admin interface also uses
 `bandwidth_accounting` table informations to display online/offline status of
 nodes.  Bandwidth usage reports are available in _Reports_ menu under
 _Accounting_ section.
 
-If you want to get bandwidth reports, security events or online/offline
-features, you need to enable 'Process Bandwidth Accounting' in _Configuration
+To get bandwidth reports, security events or online/offline
+features, enable 'Process Bandwidth Accounting' in _Configuration
 -> System Configuration -> RADIUS -> General_ menu. `pfacct` service needs to be
 restarted to apply changes.
 
@@ -478,14 +477,14 @@ traffic on all interfaces).
 
 `pfacct` must be able to map an IP address to a MAC address (from NetFlow
 traffic) in order to create a record in `bandwidth_accounting` table. It means
-that PacketFence needs to be aware of IP addresses of your nodes (default
+that PacketFence needs to be aware of IP addresses of the nodes (default
 behavior on inline L2/L3 networks).
 
-You need to adjust `pfacct` configuration based on your NetFlow traffic source.
+Adjust `pfacct` configuration based on the NetFlow traffic source.
 
 ===== NetFlow traffic from network devices
 
-You need to:
+Configure the following:
 
 * make `pfacct` listens on IP address where you want to receive NetFlow
   traffic using `netflow_address` setting in _Configuration -> System
@@ -496,10 +495,10 @@ Then restart `packetfence-pfacct` services for it to take effect.
 
 ===== NetFlow traffic from inline L2/L3 networks
 
-You need to enable _Netflow Accounting Enabled_ setting when defining an
+Enable _Netflow Accounting Enabled_ setting when defining an
 inline network.
 
-If you enable _NetFlow on all networks_ in _Configuration -> System
+If _NetFlow on all networks_ is enabled in _Configuration -> System
 configuration -> Advanced_ menu, `pfacct` will collect NetFlow bandwidth usage
 for all networks instead of the ones defined in
 [filename]`/usr/local/pf/conf/networks.conf`.
