@@ -30,7 +30,7 @@ Operating System only on a specific SSID.
 ==== Nessus
 
 Please visit https://www.tenable.com/downloads/nessus to download Nessus v7 and
-install the Nessus package for your operating system. You will also need to
+install the Nessus package for the operating system. You will also need to
 register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
 
 After you installed Nessus, follow the Nessus documentation for the
@@ -65,8 +65,8 @@ communicate with OpenVAS on port 9390.
 
 You will need to configure an alert policy in OpenVAS to inform PacketFence of
 the completion of a task. The httpd.portal daemon takes care of handling this
-callback so you'll want to make sure that you have "portal" in your additionnal
-listening daemons on your management interface in PacketFence.
+callback so ensure that "portal" is in the additional
+listening daemons on the management interface in PacketFence.
 
 In order to create the alert policy, go in the Greenbone Security Assistant,
 then in "Configuration -> Alerts" and create a new alert with the following
@@ -76,12 +76,12 @@ image::openvas/alert.png[alt="OpenVAS alert"]
 
 Where:
 
- * Name is of the value of your choosing
+ * Name is of the value chosen
  * Ensure the event is set to "Task run status changed to: Done"
  * Ensure the condition is set to "Always"
  * Method is set to "HTTP Get"
  * HTTP Get URL is set to: http://PF_MANAGEMENT_IP/hook/openvas?task=$n
- ** In the URL above, only change PF_MANAGEMENT_IP to the management IP of your
+ ** In the URL above, only change PF_MANAGEMENT_IP to the management IP of the
  PacketFence server. Leave the rest of the URL untouched as this exact URL and
  format is expected by PacketFence.
 
@@ -130,7 +130,7 @@ image::scan_type.png[alt="Scanner add"]
 
 There are common parameters for each scan engines:
 
-  Name: the name of your scan engine
+  Name: the name of the scan engine
   Roles: Only devices with these role(s) will be affected (Optional)
   OS: Only devices with this Operating System will be affected (Optional)
   Duration: Approximate duration of scan (Progress bar on the captive portal)
@@ -186,7 +186,7 @@ The test bloc is a simple test based on the result of the request:
 
 You can define multiple test blocs.
 
-The action bloc is where you will define your logic. All actions available are
+The action bloc is where the logic will be defined. All actions available are
 identical to <<_vlan_filter_definition,VLAN filters>>. Take a look at
 [filename]`/usr/local/pf/conf/vlan_filters.conf.example` for all available
 actions.
@@ -232,7 +232,7 @@ If you are using the OpenVAS scanning engine:
 
 [options="compact"]
 * The scanning server need to be able to reach PacketFence's Admin interface (on port 1443 by default) by its DNS entry. Otherwise PacketFence won't be notified of completed scans.
-* You must have a valid SSL certificate on your PacketFence server
+* A valid SSL certificate must be on the PacketFence server
 
 If you are using the Nessus scanning engine:
 
@@ -286,7 +286,7 @@ Once you have the user created, you need to create the scan engine by going in _
 
 Notes on the configuration:
 [options="compact"]
-* 172.20.20.230 is the IP address (hostname can also be configured) of your Rapid7 server
+* 172.20.20.230 is the IP address (hostname can also be configured) of the Rapid7 server
 * Verify Hostname must be disabled unless you have a valid SSL certificate configured for the configured Rapid7 hostname
 * Roles and OS represents the roles and operating systems for which you want to apply this scan engine. Leaving them empty will apply the policy to all devices.
 * Scan before/on/after registration controls when the automated scans are started for the devices PacketFence sees. If you only want to start the scans manually, leave those unchecked.
@@ -296,7 +296,7 @@ image::rapid7/rapid7-pf.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
 
 ===== Assign the engine to a connection profile
 
-With the scan engine now created, you need to assign it to the connection profile that your endpoints use. In order to do so, go in _Configuration -> Connection Profiles_, select your connection profile and add your scan engine there.
+With the scan engine now created, assign it to the connection profile that the endpoints use. In order to do so, go in _Configuration -> Connection Profiles_, select the connection profile and add the scan engine there.
 
 image::rapid7/rapid7-connection-profile.png[scaledwidth="100%",alt="Rapid7 connection profile"]
 
@@ -330,7 +330,7 @@ image::rapid7/rapid7-syslog.png[scaledwidth="100%",alt="Rapid7 syslog"]
 
 ===== Creating the alert pipe on PacketFence
 
-WARNING: If you are using a PacketFence cluster, you will need to do these steps on all your PacketFence servers.
+WARNING: If using a PacketFence cluster, these steps will need to be done on all the PacketFence servers.
 
 First, logon to PacketFence Server with a ssh terminal, then create the fifo pipe file that PacketFence will use to get data from Rapid7.
 
@@ -353,7 +353,7 @@ Restart the 'rsyslog' service
 
 At this point PacketFence must be able to get the Rapid7 audit results via syslog.
 
-TIP: You can see if the Nexpose server is sending to the right server by monitoring the traffic using `tcpdump -i any dst host YOUR_PACKETFENCE_SERVER_IP` on your Rapid7 Nexpose server and `tcpdump -i any src host YOUR_RAPID7_IP` on the PacketFence server.
+TIP: To see if the Nexpose server is sending to the right server, monitor the traffic using `tcpdump -i any dst host PACKETFENCE_SERVER_IP` on the Rapid7 Nexpose server and `tcpdump -i any src host RAPID7_IP` on the PacketFence server.
 
 ===== Creating the event handler
 
@@ -362,7 +362,7 @@ In the PacketFence admin interface, go to _Configuration -> Integration -> Event
 image::rapid7/rapid7-syslog-parser.png[scaledwidth="100%",alt="Rapid7 event handler"]
 
 [options="compact"]
-* As Detector, put the name of your choice for this parser.
+* As Detector, put the name chosen for this parser.
 * In Alert pipe, put the 'absolute' path to our nexpose pipe ([filename]`/usr/local/pf/var/run/nexpose_pipe` if you used the same name as above)
 
 Once done, restart the following services

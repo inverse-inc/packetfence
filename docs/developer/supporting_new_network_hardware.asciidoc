@@ -335,7 +335,7 @@ behavior and modify
 Here's a quick rundown of the several files you need to edit in order to add a
 new switch into
 PacketFence. There's a plan to reduce this amount of work in progress see
-http://packetfence.org/bugs/view.php?id=1085[issue #1085].
+https://www.packetfence.org/bugs/view.php?id=1085[issue #1085].
 
 [options="compact"]
 * Tested model and firmware version should be documented in module's POD
