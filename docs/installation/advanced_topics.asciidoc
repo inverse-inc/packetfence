@@ -22,13 +22,14 @@ Advanced PacketFence topics. PacketFence can be configured manually using
 configuration files instead of the admin interface (admin interface
 recommended).
 
-`/usr/local/pf/conf/pf.conf` contains PacketFence general configuration,
-including VLAN isolation mode settings.
+[filename]`/usr/local/pf/conf/pf.conf` contains PacketFence general
+configuration, including VLAN isolation mode settings.
 
 Default parameters and descriptions are in
-`/usr/local/pf/conf/pf.conf.defaults`.
+[filename]`/usr/local/pf/conf/pf.conf.defaults`.
 
-Override default parameters by defining them in `/usr/local/pf/conf/pf.conf`.
+Override default parameters by defining them in
+[filename]`/usr/local/pf/conf/pf.conf`.
 
 [filename]`/usr/local/pf/conf/documentation.conf` holds the complete list of all
 available parameters.
@@ -38,11 +39,13 @@ highly recommended for configuration changes.
 
 === Reports
 
-Define reports in `report.conf` creating SQL queries to view PacketFence
-database tables. Reports appear under _Reports_ menu in admin interface.
+Define reports in [filename]`report.conf` creating SQL queries to view
+PacketFence database tables. Reports appear under _Reports_ menu in admin
+interface.
 
-PacketFence includes preloaded reports optimized for common production use-cases
-in `reports.conf.defaults`. Don't modify this file; use for working examples.
+PacketFence includes preloaded reports optimized for common production
+use-cases in [filename]`reports.conf.defaults`. Don't modify this file; use for
+working examples.
 
 NOTE: Improperly formed reports consume significant server resources. Profile
 and optimize all queries to avoid service outages. Using `type=sql`
@@ -54,8 +57,9 @@ environment; provides more resources for report generation.
 
 ==== Configuration Attributes
 
-Configure reports by editing `/usr/local/pf/conf/report.conf` and adding a
-report section. Run `/usr/local/pf/bin/pfcmd configreload hard`.
+Configure reports by editing [filename]`/usr/local/pf/conf/report.conf` and
+adding a report section. Run [filename]`/usr/local/pf/bin/pfcmd configreload
+hard`.
 
 The admin interface builds the structured menu by splitting and separating all
 the section identifier's by double colons _"::"_. Identifiers without this

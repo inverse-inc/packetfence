@@ -1,6 +1,6 @@
 === RADIUS Debugging
 
-Check FreeRADIUS logs at `/usr/local/pf/logs/radius.log`.
+Check FreeRADIUS logs at [filename]`/usr/local/pf/logs/radius.log`.
 
 If needed, run FreeRADIUS in debug mode using these commands:
 

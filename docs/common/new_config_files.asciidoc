@@ -16,8 +16,8 @@ find /usr/local/pf -name "*.dpkg-dist"
 ----
 
 The list of files returned are the new versions shipped with PacketFence.
-Compare them with your installed versions and see if there are changes that should
-be merged into your existing configuration.
+Compare them with your installed versions and see if there are changes that
+should be merged into your existing configuration.
 
 NOTE: Debian-based systems should have interactively asked for existing
 modified files.
