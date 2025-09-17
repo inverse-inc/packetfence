@@ -87,6 +87,22 @@ case "$1" in
     ;;
 
     upgrade)
+        # Handle MariaDB version synchronization to prevent conflicts (issue #8757)
+        # When Debian repo updates MariaDB, client and server versions must match
+        if dpkg -l mariadb-client 2>/dev/null | grep -q '^ii'; then
+            CLIENT_VERSION=$(dpkg-query -W -f='${Version}' mariadb-client 2>/dev/null || true)
+            SERVER_VERSION=$(dpkg-query -W -f='${Version}' mariadb-server 2>/dev/null || true)
+            if [ -n "$CLIENT_VERSION" ] && [ -n "$SERVER_VERSION" ] && [ "$CLIENT_VERSION" != "$SERVER_VERSION" ]; then
+                echo "MariaDB client/server version mismatch detected. Synchronizing..."
+                # Stop PacketFence MariaDB service if running
+                if systemctl is-active --quiet packetfence-mariadb.service 2>/dev/null; then
+                    systemctl stop packetfence-mariadb.service
+                fi
+                # Upgrade both MariaDB packages together
+                DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client
+                echo "MariaDB packages synchronized"
+            fi
+        fi
         # mv the old raddb dir if upgrading from FreeRADIUS 2
         echo "Upgrading from $2"
         if dpkg --compare-versions "$2" lt "6"; then

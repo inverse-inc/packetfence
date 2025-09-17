@@ -63,7 +63,9 @@ Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
 Requires: packetfence-perl >= 1.2.4
 Requires: MariaDB-server >= 10.11
+Requires: MariaDB-server < 10.12
 Requires: MariaDB-client >= 10.11
+Requires: MariaDB-client < 10.12
 Requires: perl(DBD::mysql)
 Requires: perl(Sub::Exporter)
 Requires: perl(Cisco::AccessList::Parser)
@@ -567,6 +569,26 @@ rm -rf %{buildroot}
 # Pre-installation
 #==============================================================================
 %pre
+
+# Handle MariaDB version synchronization to prevent conflicts (issue #8757)
+# Check if this is an upgrade (not a fresh install)
+if [ $1 -gt 1 ]; then
+    # Check if MariaDB packages are installed and get their versions
+    if rpm -q MariaDB-client &>/dev/null && rpm -q MariaDB-server &>/dev/null; then
+        CLIENT_VERSION=$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' MariaDB-client 2>/dev/null || true)
+        SERVER_VERSION=$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' MariaDB-server 2>/dev/null || true)
+        if [ -n "$CLIENT_VERSION" ] && [ -n "$SERVER_VERSION" ] && [ "$CLIENT_VERSION" != "$SERVER_VERSION" ]; then
+            echo "MariaDB client/server version mismatch detected. Synchronizing..."
+            # Stop PacketFence MariaDB service if running
+            if systemctl is-active --quiet packetfence-mariadb.service 2>/dev/null; then
+                systemctl stop packetfence-mariadb.service
+            fi
+            # Upgrade both MariaDB packages together
+            yum update -y MariaDB-server MariaDB-client
+            echo "MariaDB packages synchronized"
+        fi
+    fi
+fi
 
 /usr/bin/systemctl --now mask mariadb
 /usr/bin/systemctl --now mask proxysql
