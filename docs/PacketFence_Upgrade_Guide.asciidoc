@@ -10,18 +10,6 @@ manual configuration migration steps, database schema update procedures, and
 critical upgrade notes. The guide includes troubleshooting procedures for
 common upgrade issues and rollback strategies when necessary.
 
-*CRITICAL UPGRADE REQUIREMENT*: PacketFence upgrades *MUST* be performed
-incrementally through minor versions only. Major version upgrades (e.g., 13.x to
-14.x) are *NOT SUPPORTED* and will result in configuration corruption and
-service failures.
-
-*Supported Upgrade Path Example*:
-- Within major version: 13.0 → 13.1 → 13.2 (correct)
-- Across major versions: 13.x → 14.x (NOT SUPPORTED - will fail)
-
-*Always upgrade incrementally within the same major version*: 13.0 → 13.1 → 13.2
-→ latest 13.x version
-
 === Operating System Compatibility
 
 PacketFence versions have specific operating system requirements. **Operating
@@ -38,28 +26,23 @@ supported when changing operating systems.
 
 |11.0 - 13.x
 |Debian 11 (bullseye), RHEL 8
-|**Yes** - from Debian 9/CentOS 7
+|**Yes** - from Debian 9 to 11, from CentOS 7 to RHEL 8
 
-|Prior to 11.0
-|Debian 9, CentOS 7 (deprecated)
-|**Yes** - to continue receiving updates
 |===
 
 *RHEL 8 Continuity*: Systems already on RHEL 8 can perform in-place PacketFence
 upgrades through all supported versions without OS migration.
 
-=== MariaDB Incremental Upgrade Requirement
+=== MariaDB Specific Upgrades
 
-PacketFence **requires sequential version upgrades** because MariaDB must be
-upgraded incrementally through major versions. Each PacketFence version is
-tested with specific MariaDB versions, and skipping PacketFence versions can
-result in incompatible MariaDB schema changes.
+Some PacketFence **requires specific upgrade steps** because MariaDB must be
+upgraded through major versions. Each PacketFence version is tested with
+specific Minor MariaDB versions (like 10.11.x).
 
-*Why Sequential Upgrades are Mandatory*:
-- MariaDB cannot safely skip major version upgrades
-- Database schema changes are cumulative and version-dependent
-- Configuration changes may depend on specific MariaDB features
-- Skipping versions can cause irreversible database corruption
+=== Do NOT
+
+**Never attempt**: Major version upgrades like 13.x → 14.x (not supported if the OS changed)
+**Never attempt**: OS upgrade to reach a new version 
 
 === Other sources of information
 :current_guide_upgrade:
@@ -71,89 +54,14 @@ include::includes/package-tarballs-note.asciidoc[]
 
 [IMPORTANT]
 ====
-**Sequential Upgrades Required**: All PacketFence upgrades must be performed
-sequentially. See <<#_mariadb_incremental_upgrade_requirement,MariaDB Incremental Upgrade Requirement>>
-for the technical reasons why skipping versions will cause database corruption.
+**Specific upgrade steps exists**: All PacketFence upgrades must be performed
+according to general and specific upgrades steps, like <<#_mariadb_specific_upgrades,MariaDB Specific Upgrades>>.
 ====
 
 === Prerequisites
 
 The MariaDB root password that was provided during the initial configuration is
 required.
-
-==== Update Operating System Packages
-
-*MANDATORY*: Before every PacketFence upgrade, update all operating system
-packages to ensure compatibility and security.
-
-.Debian-based systems:
-[source,bash]
-----
-# Update package repositories and upgrade all packages
-apt update && apt upgrade -y
-
-# Check if reboot is required after kernel/core updates
-if [ -f /var/run/reboot-required ]; then
-    echo "Reboot required after OS updates"
-    # Reboot and continue upgrade process after restart
-fi
-----
-
-.RHEL/CentOS-based systems:
-[source,bash]
-----
-# Update all packages
-yum update -y
-# OR for newer systems:
-# dnf update -y
-
-# Check if reboot is required
-needs-restarting -r
-# If reboot needed, restart system before continuing
-----
-
-*Critical Components Updated*: OS package updates ensure MariaDB, Apache,
-FreeRADIUS, and other system dependencies are current and compatible with the
-PacketFence version being installed.
-
-== Upgrade Types and Version Requirements
-
-**Version Stepping Requirement**: All PacketFence upgrades must proceed incrementally through minor versions within the same major version to ensure database schema integrity and configuration compatibility.
-
-=== Supported Upgrade Paths
-
-Starting from PacketFence 11.0, choose the appropriate upgrade method:
-
-**1. Maintenance Patches** (within same major.minor version)
-- Example: 14.0 → 14.0.1 → 14.0.2
-- Method: <<#_apply_maintenance_patches,Apply maintenance patches>>
-- **Safe to skip patch versions**: You can upgrade directly from 14.0 → 14.0.5
-
-**2. Minor Version Upgrades** (within same major version)
-- Example: 14.0.x → 14.1.x → 14.2.x
-- Method: <<#_sequential_version_upgrades_minor_versions_only,Sequential Version Upgrades>>
-- **Must upgrade sequentially**: Each minor version must be installed in order
-
-**3. Major Version Upgrades** (cross-version upgrades)
-- **NOT SUPPORTED**: Major version upgrades (e.g., 13.x → 14.x) are not supported
-- **Migration Required**: For major version changes, use the migration procedure described in the documentation
-- **Never attempt major version upgrades**: Direct upgrades across major versions will fail and corrupt your installation
-
-=== Pre-11.0 Systems
-
-For PacketFence versions prior to 11.0:
-1. **Upgrade to 10.3** first (if not already)
-2. **Export/import to 11.0** (OS migration required)
-3. **Continue sequential upgrades within major version**: 11.0 → 11.1 → 11.2 → 11.x (latest). For major version changes, use export/import migration.
-
-== Apply maintenance patches
-
-=== Important note for cluster environments
-
-In cluster environments, perform following steps on **one server
-at a time**. To avoid multiple moves of the virtual IP addresses, start with
-nodes which don't own any virtual IP addresses first. Ensure all
-services have been restarted correctly before moving to the next node.
 
 === Disable monit alerts (only if monit is installed)
 
@@ -164,6 +72,21 @@ If `monit` is installed and running, shut it down with:
 systemctl stop monit
 systemctl disable monit
 ----
+
+
+
+DO BACKUP
+
+
+
+== Apply maintenance patches
+
+=== Important note for cluster environments
+
+In cluster environments, perform following steps on **one server
+at a time**. To avoid multiple moves of the virtual IP addresses, start with
+nodes which don't own any virtual IP addresses first. Ensure all
+services have been restarted correctly before moving to the next node.
 
 === Stop all PacketFence services
 
@@ -195,57 +118,57 @@ include::common/restart.asciidoc[]
 
 If services fail to start after upgrade, see <<#_service_startup_failures,Service Startup Failures>> and <<#_log_files,Log Files>> in the Troubleshooting section.
 
-== Sequential Version Upgrades (Minor Versions Only)
+== Major/Minor Version Upgrades
 
 **IMPORTANT**: This section covers upgrading between minor versions within the
-same major version. Major version upgrades are not supported - use migration
-procedures instead.
+same major version. Be aware that even minor version upgrade can have specific
+upgrade steps.
+
+*MANDATORY*: Before every PacketFence upgrade, update all operating system
+packages and <<#_apply_maintenance_patches,Apply Packetfence maintenance patches>>
+to ensure compatibility and security.
 
 [TIP]
 ====
 **OS Migration Required?** Check the <<#_operating_system_compatibility,Operating System Compatibility>>
-matrix first. If your target version requires a different operating system,
-use <<#_upgrading_from_packetfence_10x_to_110,export/import migration>> instead
+matrix first. If your target version requires a different operating system, check specific upgrade steps
+and use <<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,export/import migration>> instead
 of these in-place upgrade procedures.
 ====
 
 **Before Starting**:
-1. **Update OS packages**: Follow <<#_update_operating_system_packages,OS package update procedures>>
+1. **Apply maintenance patches**: Follow <<#_apply_maintenance_patches,Apply maintenance patches procedures>>
 2. **Verify current version**: Run `/usr/local/pf/bin/pfcmd version` to confirm your starting version
-3. **Plan upgrade path**: Determine all intermediate versions needed to reach your target
-4. **Review breaking changes**: Check upgrade notes for each version in your path
-
-**Example Upgrade Sequence** (13.1 → 13.2):
-1. Upgrade 13.1 → 13.2 (complete all 13.2 steps)
-
-**Never attempt**: Skipping minor versions within a major version
-**Never attempt**: Major version upgrades like 13.x → 14.x (not supported)
+3. **Plan upgrade path**: Determine if a specifc upgrade steps is neeeded to reach your target
+4. **Review breaking changes**: Check upgrade notes and specific steps for each version in your path
 
 === Standalone Server Upgrades
 
 **Automated Process Available** (PacketFence 11.0+):
-1. **Check current version**: Confirm you're upgrading to the next sequential version
-2. **Follow automation**: Use <<#_automation_of_upgrades,automation of upgrades>>
-3. **Verify success**: Confirm services start correctly before proceeding to next version
+1. **Plan downtime**: Standalone upgrades will imply downtime due to services not available during upgrade
+2. **Check current version**: Confirm you're upgrading to the next sequential version
+3. **Follow automation**: Use <<#_automation_of_upgrades,automation of upgrades>>
+4. **Verify success**: Confirm services start correctly before proceeding to next version
 
-If upgrading across multiple versions, **repeat the process for each intermediate version**.
+**Example Upgrade Sequence** (13.0 → 13.2):
+1. Upgrade 13.0 → 13.2 (check 13.1 and 13.2 specific steps, then do the <<#_automation_of_upgrades,Automation of upgrades>>)
 
 === Cluster Upgrades
 
-**Sequential Upgrade Required**: Each cluster node must be upgraded through the same version sequence.
-
 **Process**:
-1. **Plan downtime**: Cluster upgrades require coordination across all nodes
+1. **Downtime**: Cluster upgrades require coordination across all nodes in order to avoid important downtime
 2. **Follow cluster guide**: See <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
-3. **Upgrade all nodes**: Ensure all nodes reach the same version before proceeding to next version
+3. **Upgrade all nodes**: Ensure all nodes reach the same version
 
-**Critical**: Never have cluster nodes running different major versions simultaneously.
+**Critical**: Never have cluster nodes running different versions simultaneously.
 
 == Automation of upgrades
 
 [NOTE]
 ====
-**Before Using Automation**: Review the <<#_operating_system_compatibility,Operating System Compatibility>>
+**Before Using Automation**:
+- <<#_apply_maintenance_patches,Apply Packetfence maintenance patches>> 
+- Review the <<#_operating_system_compatibility,Operating System Compatibility>>
 matrix to determine if your upgrade requires OS migration via export/import
 procedures instead of automated in-place upgrades.
 ====
@@ -253,6 +176,8 @@ procedures instead of automated in-place upgrades.
 include::upgrade-notes/automation_of_upgrades.asciidoc[]
 
 == Upgrading from a version prior to 12.0
+
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
 
 === Tenant code deprecated
 
@@ -333,6 +258,8 @@ If the database is hosted on the PacketFence server (default behavior), then no 
 
 == Upgrading from a version prior to 12.1
 
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
+
 === configreload deprecated on pfcmd service pf restart
 
 configreload call has been deprecated on pfcmd service pf restart due to a file synchronisation issue on each restart.
@@ -372,6 +299,8 @@ patch /etc/rc.local /tmp/rc-local.patch
 
 == Upgrading from a version prior to 13.0
 
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
+
 === Adding the LDAP search attributes
 
 LDAP conditions added in the LDAP authentication source use a LDAP search to retrieve the values.
@@ -386,6 +315,8 @@ The following provisioners will be removed from Packetfence configuration IBM, S
 
 
 == Upgrading from a version prior to 13.1
+
+**OS Requirements**: Debian 11 (bullseye) or RHEL 8
 
 === Domain join
 
@@ -436,7 +367,6 @@ If domain joining fails during upgrade, see <<#_authentication_failures,Authenti
 == Upgrading from a version prior to 13.2
 
 **OS Requirements**: Debian 11 (bullseye) or RHEL 8
-**Upgrade Type**: Minor version upgrade (configuration + database changes)
 
 === Configuration Upgrades
 
@@ -494,6 +424,9 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-13.1-13.2.sql
 
 == Upgrading from a version prior to 14.0
 
+**OS Requirements**: Debian 12 (bookworm) or RHEL 8
+**Upgrade Type**: Database changed for Debian 12
+
 === Specific automation upgrade
 
 ==== Debian
@@ -505,9 +438,6 @@ To use PacketFence 14.0 on Debian 12, a new Debian 12 VM will need to be created
 ==== RedHat 8
 
 Automated upgrade is available on RedHat 8.
-
-**OS Requirements**: Debian 12 (bookworm) or RHEL 8
-**Upgrade Type**: Major version upgrade (may require OS migration)
 
 [NOTE]
 ====
@@ -717,7 +647,7 @@ Check that mariadb-backup matches your MariaDB server version:
 **Expected MariaDB Versions by OS**:
 - **Debian 11**: MariaDB server 10.5.24-MariaDB
 - **Debian 12**: MariaDB server 10.11.6-MariaDB
-- **RedHat EL8**: Version varies by repository (typically 10.3 or 10.5)
+- **RedHat EL8**: Version server 10.5.24-MariaDB
 
 **Alternative Export Method**: If mariadb-backup is not installed, use the
 standard export process at <<PacketFence_Installation_Guide.asciidoc#export_on_current_installation,export on current installation>>.
@@ -821,7 +751,7 @@ If migration fails, verify database backup integrity and check available disk sp
 
 To build a new cluster or rebuild an existing cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#cluster_setup,Cluster setup section>>.
 
-If the previous installation was a cluster, some steps may not be required.  The export archive will contain the previous [filename]`cluster.conf` file.
+If the previous installation was a cluster, some steps may not be required. The export archive will contain the previous [filename]`cluster.conf` file.
 
 === Database Schema Upgrade (In-Place Upgrades Only)
 
@@ -845,11 +775,18 @@ schema changes automatically during the migration process.
 
 == Upgrading from a version prior to 14.1
 
+**OS Requirements**: Debian 12 (bookworm) or RHEL 8
+**Upgrade Type**: Database changed for RHEL 8
+
+**Expected MariaDB Versions by OS**:
+- **Debian 12**: MariaDB server 10.11.x-MariaDB
+- **RedHat EL8**: Version server 10.11.x-MariaDB
+
 == RedHat EL8 Upgrade Procedures
 
 RedHat EL8 systems support **in-place PacketFence upgrades** without OS migration.
 
-=== EL8 Standalone Server Upgrade
+=== RedHat EL8 Standalone Server Upgrade
 
 **Prerequisites for PacketFence 14.1+ on EL8:**
 
@@ -865,13 +802,20 @@ https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1
 
 Follow the automated upgrade: <<#_automation_of_upgrades,automation of upgrades>>
 
-=== EL8 Cluster Upgrade 
+=== RedHat EL8 Cluster Upgrade 
 
 **Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
 
-**EL8-specific step**: When upgrading node C, install the EL8 upgrade package first <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>, then proceed with standard cluster node upgrade procedures.
+**EL8-specific step**: When upgrading node C, install the RedHat EL8 upgrade package first <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>, then proceed with standard cluster node upgrade procedures.
+
 
 == Upgrading from a version prior to X.Y.Z
+
+**OS Requirements**: Debian 12 (bookworm) or RHEL 8
+
+**Expected MariaDB Versions by OS**:
+- **Debian 12**: MariaDB server 10.11.x-MariaDB
+- **RedHat EL8**: Version server 10.11.x-MariaDB
 
 === Custom Iptables Rules
 
@@ -883,7 +827,7 @@ The custom configuration file appends the iptables rules on top of all other rul
 
 For example: to open tcp port 123, and udp port 234 with interface the eth0 on filter->INPUT:
 [source,json]
----
+----
 {
    "filter" : {
       "FORWARD" : [],
@@ -907,7 +851,7 @@ For example: to open tcp port 123, and udp port 234 with interface the eth0 on f
       "PREROUTING" : []
    }
 }
----
+----
 
 An example file is available [filename]`/usr/local/pf/conf/iptables-custom.conf.inc.example`.
 
