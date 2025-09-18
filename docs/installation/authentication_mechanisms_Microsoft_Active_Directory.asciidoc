@@ -1,0 +1,267 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+=== Microsoft Active Directory (AD)
+
+Go in the Administration interface under _Configuration -> Policies and Access
+Control -> Domains -> Active Directory Domains_.
+
+NOTE: If this section is inaccessible and you previously configured domain
+binding outside PacketFence, run [filename]`/usr/local/pf/addons/AD/migrate.pl`
+
+NOTE: Windows Server 2008 or later required as domain controller. PacketFence
+13.1+ uses secure channel for NTLM authentication, supported only in Windows
+Server 2008 and later.
+
+Click *New Domain* and fill in the information about the domain.
+
+image::domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
+
+Where :
+[options="compact"]
+ * *Identifier* is a unique identifier for the domain. It's purpose is only visual.
+ * *Workgroup* is the workgroup of the domain in the old syntax (like NT4).
+ * *DNS name of the domain* is the FQDN of the domain. The one that suffixes the account names.
+ * *This server's name* is the name that the server's account will have in the Active Directory.
+ * *Sticky DC* is the preferred domain controller to connect to.
+ * *Active Directory FQDN* FQDN of the Domain Controller.
+ * *Active Directory IP* IP Address of the Domain Controller.
+ * *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
+ * *OU* is the OU in the Active Directory where the computer account will be created.
+ * *Machine account password* password of server's account in the Active Directory
+ * *Allow on registration* would allow devices in the registration network to communicate with the DC.
+ * *additional machine accounts* How many *additional* machine accounts will be created to handle NTLM authentication. By default 0. Means only 1 machine account will be created. Maximum is 10, you can only create 10 additional machine accounts.
+
+Always check domain settings by running `net config workstation` on
+the domain controller.
+form the output,
+
+[options="compact"]
+ * _Full Computer Name_ is for *Active Directory FQDN*,
+ * _Workstation Domain DNS Name_ is for *DNS name of the domain*
+ * _Workstation domain_ is for *Workgroup*
+
+
+NOTE: If using an Active/Active cluster, each member of the cluster must
+be joined separately. Follow the instructions in the PacketFence
+Clustering Guide.
+
+NOTE: If using PacketFence in cluster mode, save the domain
+settings on *each* of the nodes by given the same *clear-text* machine account
+password. By default, PacketFence will only save the NT hash of the machine
+account password, and it will be shown in Admin UI. However, PacketFence cannot
+create a machine account using a password hash. To keep the
+domain settings identical on all the nodes, type in the same
+clear-text machine account password on each of the node and save them.
+
+NOTE: after version 14.0, the PacketFence domain.conf will be updated, domain
+identifier is changed from previously single identifier to "hostname +
+identifier". If running PacketFence in a cluster, check the
+corresponding sections for each node.
+
+[#_domain_joining_on_a_packetfence_cluster_v14_x]
+==== Domain Joining on A PacketFence cluster (v14.x)
+
+We've updated the structure of `domain.conf` file since v14.0,
+the section name stored in `domain.conf` file has been changed from `domain
+identifier` to `hostname + domain identifier` combination.
+This change causes a node in a cluster to read domain settings from its own
+individual section identified by its unique hostname.
+Therefore, it is not required to use `%h` as (or as a prefix / suffix of) the
+machine account anymore.
+Now it's technically possible to have fully customized domain settings for a
+specific node.
+
+===== Setting up a new cluster
+There's a difference in domain profile creation for PacketFence cluster running
+PacketFence v14.x: +
+When you create the domain profile from Admin UI for a PacketFence cluster, The
+profile is actually created *only* on the node that handles the API request.
+Therefore, go through all the nodes and create a domain profile
+for each of them.
+
+During the domain profile creation, a machine account used for NTLM
+authentication is also created in Windows domain controller.
+Due to the limitation of secure connection binding, we are not able to establish
+multiple secure connections using a shared machine account.
+Ensure the machine account names are unique if not using `%h`
+as (or as part of) the machine account name.
+
+There are 2 ways of creating the domain profile on a selected node:
+
+[options="compact"]
+ * Using API Redirect
+ * Login into Admin Panel using real IP
+
+To use API Redirect, login into *PacketFence Admin Panel*, navigate to
+_Status -> Services -> API redirect_, choose a node that handles the
+API request.
+And you will create the domain profile for the node you selected.
+
+Login into Admin Panel using real IP is also simple: Login into *PacketFence
+Admin Panel* using the node's real management IP instead of virtual IP.
+For example, a cluster consists of 3 nodes with a VIP = 192.168.4.70, and real
+IP = 192.168.4.71, 192.168.4.72, 192.168.4.73.
+simply iterate the 3 real IPs, login into Admin Panel from https://real_ip:1443.
+
+
+===== Upgrade from a version prior to v14.0
+If you are doing an upgrade, please refer to the upgrade guide section for v14,
+you might need to manually combine the domain configuration file and sync them
+to all cluster members.
+
+NOTE: It is required to use individual machine account for each node to avoid
+secure connection binding issues.
+
+
+===== Domain config file structure and example
+Assuming that we have a PacketFence cluster of 3 nodes with hostnames of
+`pf-node1`, `pf-node2` and `pf-node3` and we joined "domainA"
+an example of `domain.conf` for a cluster looks like this:
+
+[source,bash]
+----
+[pf-node1 domainA]
+ntlm_auth_port=5000
+server_name=node1
+dns_name=a.com
+[....]
+
+[pf-node2 domainA]
+ntlm_auth_port=5000
+server_name=node2
+dns_name=a.com
+[...]
+
+[pf-node3 domainA]
+ntlm_auth_port=5000
+server_name=node3
+dns_name=a.com
+[...]
+----
+
+image::api-redirect.jpg[scaledwidth="100%",alt="API redirect in configuration"]
+
+Either the steps will allow you to create the domain profile on the selected node.
+
+NOTE: Windows does not allow machine account to be shared when initialize secure connection. Therefore, each node in a cluster has to use a unique machine account.
+Either include %h as part of the machine account or use a unique fully customized machine account name for each of the node. For example, if using "A" as
+machine account name in node1's domain profile creation, and continuing to use "A" as machine account name to create a domain profile from another node,
+this will eventually cause node1 and node2 trying to bind the same machine onto its own secure connection, and cause NTLM authentication interruptions and failures.
+
+After changing the node that handles the API request or choosing the node manually (method 2), do the following steps:
+
+[options="compact"]
+ * navigate to "Configuration" -> "Policies and Access Control" -> "Active Directory Domains"
+ * fill in the information required to create the domain profile and then click "Create".
+ * PacketFence will create the domain profile for the node *only* that handles the API request.
+ * switch back to API redirect and select another node in the cluster
+ * back to "Configuration" -> "Policies and Access Control" -> "Active Directory Domains" and create the domain profile for another node.
+ * Repeat the previous steps until all the nodes are done with domain profile creation.
+
+
+==== Troubleshooting
+
+In order to troubleshoot unsuccessful binds, please refer to the following file : [filename]`/usr/local/pf/log/packetfence.log`. Search for `ntlm-auth-api-domain` for all ntlm-auth-api entries.
+[source,bash]
+----
+grep "ntlm-auth-api-domain" /usr/local/pf/log/packetfence.log
+----
+
+To check the service status and journal log, use
+[source,bash]
+----
+journalctl -f -u packetfence-ntlm-auth-api-domain@[domain_id]
+----
+for domain specific logs. Replace [domain_id] with the domain
+
+To test the authentication process, use the following command
+[source,bash]
+----
+/usr/local/pf/bin/ntlm_auth_wrapper --username=administrator
+----
+
+==== Default Domain Configuration
+
+Now define the domain to use as the default one by creating the following realm in _Configuration -> Policies and Access Control -> Domains -> REALMS_.
+
+image::domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
+
+Next, restart PacketFence in _Status -> Services_
+
+==== Multiple Domains Authentication
+
+First configure the domains in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_.
+
+Once they are configured, go in _Configuration -> Policies and Access Control -> Domains -> REALMS_.
+
+Create a new realm that matches the DNS name of the domain *AND* one that matches the workgroup. In the case of this example, it will be DOMAIN.NET tied to mydomain.
+
+image::domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
+
+Where :
+
+[options="compact"]
+ * *Realm* is either the DNS name (FQDN) of the domain or the workgroup
+ * *Domain* is the Active Directory domain where PacketFence sends the NTLM request
+ * *Realm options* are any realm options that you want to add to the FreeRADIUS configuration
+ * *Domain* is the domain which is associated to this realm
+ * *RADIUS Auth* is the RADIUS authentication server to proxy the request to
+ * *Type* is the home server pool type
+ * *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes
+ * *RADIUS Acct* is the RADIUS accounting server to proxy the request to
+ * *Type* is the home server pool type
+ * *Eduroam Realm Options* You can add Eduroam FreeRADIUS options in the realm definition
+ * *Eduroam RADIUS Auth* is the RADIUS Eduroam authentication server to proxy the request to
+ * *Type* is the home server pool type
+ * *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes
+ * *Eduroam RADIUS Acct* is the RADIUS Eduroam accounting server to proxy the request to
+ * *Type* is the home server pool type
+ * *Strip on the portal* Should the usernames matching this realm be stripped when used on the captive portal
+ * *Strip on the admin* Should the usernames matching this realm be stripped when used on the admin interface
+ * *Strip in RADIUS authorization* Should the usernames matching this realm be stripped when used in the authorization phase of 802.1X
+ * *Custom attributes* Allow to use custom attributes to authenticate 802.1X users (attributes are defined in the source)
+ * *LDAP source* The LDAP Server to query the custom attributes
+
+*Now associate DEFAULT and NULL realms to the domain.*
+
+The following realm configuration should now be in place
+
+image::domain-realms-index.png[scaledwidth="100%",alt="Realms"]
+
+==== Windows subdomain joining limitations
+
+PacketFence supports multiple domain authentications as well as authentications performed against domains and subdomains.
+
+But be aware that according to Windows Domain Controller's architecture and implementation,
+PacketFence cannot be joined on a subdomainif the subdomain shares the Domain Controller with the existing parent domain.
+
+The only way to join PacketFence on a subdomain is to join it on a subdomain who has its own Domain Controller that belongs to a parent domain.
+
+Check Microsoft's Learn, FAQ and discussions about subdomain computer joining.
+https://learn.microsoft.com/en-us/answers/questions/342052/can-create-an-sub-domain-and-add-user-uder-the-cre
+
+==== Authenticating using Windows Trusted Domains
+PacketFence supports domain trust relations to be passed to the correct Domain Controller.
+However, there isn't a way to configure the trusted domain settings from the Admin UI.
+
+To authentication resources on a trusted domain, use the "--domain=" option in ntlm_auth_wrapper.
+Manually modify PacketFence's FreeRADIUS mschap module template file located at [filename]`/usr/local/pf/conf/radiusd/mschap.conf`
+Locate the best mschap section that works for the situation and add a `--domain=_DOMAIN_TRUST_SETTINGS_` to the ntlm_auth_wrapper executable path.
+
+After saving the changes, re-generate the FreeRADIUS configuration by restarting radius services and test if it works.
