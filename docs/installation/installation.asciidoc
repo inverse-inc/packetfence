@@ -100,23 +100,23 @@ screen to complete the installation.
 PacketFence provides repositories for *RHEL 8* and *Debian 12* (bookworm) with
 all required dependencies.
 
-*Repository Benefits:*
+.*Repository Benefits:*
 * Streamlined installation with dependency management
 * Pre-built RPM (EL8) and DEB (Debian 12) packages  
 * Simplified upgrade process
 
-== OS-Specific Preparation
+=== Installing PacketFence on existing Linux
 
-=== Common Prerequisites
+==== Common Prerequisites
 
-*All Systems:*
+.*All Systems:*
 - Minimal OS installation (no additional packages)
 - UEFI Secure Boot *disabled* (if applicable)
 - System updated to latest patches
 
-=== RHEL 8 System Preparation
+==== RHEL 8 System Preparation
 
-*Security Configuration:*
+===== Security Configuration
 [source,bash]
 ----
 # Disable firewall and SELinux (required)
@@ -130,9 +130,42 @@ yum update
 reboot
 ----
 
-=== Debian 12 System Preparation  
+PacketFence will not work properly if SELinux is enabled. Explicitly disable SELinux in the `/etc/selinux/config` file and reboot the machine.
 
-*Security Configuration:*
+===== Kernel and Development Tools
+
+.*Prerequisites:*
+- Valid RHEL subscription for dependency installation
+- Latest kernel running
+
+[source,bash]
+----
+# Install kernel development package for current kernel
+yum install kernel-devel-$(uname -r)
+
+# Remove conflicting container tools (PacketFence uses docker)
+yum remove runc podman
+
+# Import PacketFence GPG key (required for EL8)
+rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY
+----
+
+===== PacketFence Software Installation
+
+[source,bash,subs="attributes"]
+----
+# Install PacketFence repository
+yum localinstall
+https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
+
+# Install PacketFence with all dependencies
+# Includes: MariaDB, FreeRADIUS, DHCP server
+yum install --enablerepo=packetfence packetfence
+----
+
+==== Debian 12 System Preparation  
+
+===== Security Configuration:
 [source,bash]
 ----
 # Update system first
@@ -150,37 +183,14 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 reboot
 ----
 
-Regarding SELinux or AppArmor, even if they may be wanted by some
-organizations, PacketFence will not work properly if SELinux or AppArmor are
-enabled. Explicitly disable SELinux in the
-`/etc/selinux/config` file and reboot the machine. For AppArmor, follow instructions on the
+Regarding AppArmor, even if they may be wanted by some organizations, PacketFence will not work properly if AppArmor is enabled. Follow instructions on the
 link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
 
 Regarding resolvconf, remove the symlink to that file and create the `/etc/resolv.conf` file with the desired content.
 
-== Kernel and Development Tools
+===== Kernel and Development Tools
 
-=== RHEL 8 Development Setup
-
-*Prerequisites:*
-- Valid RHEL subscription for dependency installation
-- Latest kernel running
-
-[source,bash]
-----
-# Install kernel development package for current kernel
-yum install kernel-devel-$(uname -r)
-
-# Remove conflicting container tools (PacketFence uses docker)
-yum remove runc podman
-
-# Import PacketFence GPG key (required for EL8)
-rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY
-----
-
-=== Debian 12 Development Setup
-
-*Prerequisites:*  
+.*Prerequisites:*  
 - Fresh Debian 12 (bookworm) installation
 - Latest kernel running
 
@@ -192,22 +202,7 @@ apt install linux-headers-$(uname -r)
 
 *Important*: Ensure you're running the latest kernel before installing development packages. Reboot if kernel was updated.
 
-== PacketFence Software Installation
-
-=== RHEL 8 Installation
-
-[source,bash,subs="attributes"]
-----
-# Install PacketFence repository
-yum localinstall
-https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
-
-# Install PacketFence with all dependencies
-# Includes: MariaDB, FreeRADIUS, DHCP server
-yum install --enablerepo=packetfence packetfence
-----
-
-=== Debian 12 Installation
+===== PacketFence Software Installation
 
 [source,bash,subs="attributes"]  
 ----
