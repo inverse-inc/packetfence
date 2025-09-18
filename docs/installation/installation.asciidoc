@@ -42,6 +42,7 @@ The VM's first network card receives IP through DHCP.
 The virtual appliance passwords are:
 
 .Management (Console/SSH) user
+[options="compact"]
  * Login: root
  * Password: p@ck3tf3nc3
 
@@ -100,7 +101,8 @@ screen to complete the installation.
 PacketFence provides repositories for *RHEL 8* and *Debian 12* (bookworm) with
 all required dependencies.
 
-.*Repository Benefits:*
+*Repository Benefits:*
+[options="compact"]
  * Streamlined installation with dependency management
  * Pre-built RPM (EL8) and DEB (Debian 12) packages  
  * Simplified upgrade process
@@ -109,7 +111,8 @@ all required dependencies.
 
 ==== Common Prerequisites
 
-.*All Systems:*
+*All Systems:*
+[options="compact"]
  * Minimal OS installation (no additional packages)
  * UEFI Secure Boot *disabled* (if applicable)
  * System updated to latest patches
@@ -134,7 +137,8 @@ PacketFence will not work properly if SELinux is enabled. Explicitly disable SEL
 
 ===== Kernel and Development Tools
 
-.*Prerequisites:*
+*Prerequisites:*
+[options="compact"]
  * Valid RHEL subscription for dependency installation
  * Latest kernel running
 
@@ -190,7 +194,8 @@ Regarding resolvconf, remove the symlink to that file and create the `/etc/resol
 
 ===== Kernel and Development Tools
 
-.*Prerequisites:*  
+*Prerequisites:*  
+[options="compact"]
  * Fresh Debian 12 (bookworm) installation
  * Latest kernel running
 
