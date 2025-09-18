@@ -73,11 +73,9 @@ systemctl stop monit
 systemctl disable monit
 ----
 
+=== Backup procedure
 
-
-DO BACKUP
-
-
+include::common/backup_procedure.asciidoc[]
 
 == Apply maintenance patches
 
