@@ -110,9 +110,9 @@ all required dependencies.
 ==== Common Prerequisites
 
 .*All Systems:*
-- Minimal OS installation (no additional packages)
-- UEFI Secure Boot *disabled* (if applicable)
-- System updated to latest patches
+* Minimal OS installation (no additional packages)
+* UEFI Secure Boot *disabled* (if applicable)
+* System updated to latest patches
 
 ==== RHEL 8 System Preparation
 
@@ -135,8 +135,8 @@ PacketFence will not work properly if SELinux is enabled. Explicitly disable SEL
 ===== Kernel and Development Tools
 
 .*Prerequisites:*
-- Valid RHEL subscription for dependency installation
-- Latest kernel running
+* Valid RHEL subscription for dependency installation
+* Latest kernel running
 
 [source,bash]
 ----
@@ -191,8 +191,8 @@ Regarding resolvconf, remove the symlink to that file and create the `/etc/resol
 ===== Kernel and Development Tools
 
 .*Prerequisites:*  
-- Fresh Debian 12 (bookworm) installation
-- Latest kernel running
+* Fresh Debian 12 (bookworm) installation
+* Latest kernel running
 
 [source,bash]
 ----
