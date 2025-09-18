@@ -22,27 +22,27 @@ PacketFence authenticates users registering devices via captive portal using
 various methods:
 
 [options="compact"]
-* Active Directory
-* Apache htpasswd file
-* BlackHole
-* Email
-* External HTTP API
-* Clickatell
-* Facebook (OAuth 2)
-* Github (OAuth 2)
-* Google (OAuth 2)
-* Kerberos
-* Kickbox
-* LDAP
-* LinkedIn (OAuth 2)
-* Null
-* OpenID Connect (OAuth 2)
-* RADIUS
-* SMS
-* Sponsored Email
-* Twilio
-* Windows Live (OAuth 2)
-* Password of the day
+ * Active Directory
+ * Apache htpasswd file
+ * BlackHole
+ * Email
+ * External HTTP API
+ * Clickatell
+ * Facebook (OAuth 2)
+ * Github (OAuth 2)
+ * Google (OAuth 2)
+ * Kerberos
+ * Kickbox
+ * LDAP
+ * LinkedIn (OAuth 2)
+ * Null
+ * OpenID Connect (OAuth 2)
+ * RADIUS
+ * SMS
+ * Sponsored Email
+ * Twilio
+ * Windows Live (OAuth 2)
+ * Password of the day
 
 and many others. PacketFence also authenticates users in its internal SQL
 database. Create authentication sources from the admin interface: _Configuration
@@ -76,19 +76,20 @@ code will then be required to complete the registration process.
 ==== Adding Email Authentication Source
 
 From _Configuration -> Policies and Access Control -> Authentication Sources_,
-click `New external source -> Email`. As 'Name' and 'Description', specify
-'email-source'.
+click `New external source -> Email`. As `Name` and `Description`, specify
+`email-source`.
 
 Additional options available
 
+[options="compact"]
  * *email_activation_timeout* - This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.
  * *allow_localdomain* - Accept self-registration from email address within the local domain
  * *activation_domain* - Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.
  * *allowed_domains* - A comma-separated list of domains that are allowed for email registration. Allowed domains are checked after banned domains.
  * *banned_domains* - A comma-separated list of domains that are banned for email registration. Banned domains are checked before allowed domains.
 
-Then add an 'Authentication Rules' with name 'catchall' with no condition and
-with the following two 'Actions':
+Then add an `Authentication Rules` with name `catchall` with no condition and
+with the following two `Actions`:
 
 [options="compact"]
  * Role - guest
@@ -101,8 +102,8 @@ Click on `Create` to save the new authentication source.
 Now let's add our new Email-based authentication source to our guests captive
 portal. From _Configuration -> Policies and Access Control -> Connection
 Profiles_, click on the `guest` profile that we previously created. In the
-'Sources', click on the `(+)` button and add the newly created Email source,
-'email-source'. Save the changes by clicking on the `Save` button.
+`Sources`, click on the `(+)` button and add the newly created Email source,
+`email-source`. Save the changes by clicking on the `Save` button.
 
 NOTE: You can preview at any time the portal associated with connection profile
 by clicking on the `Preview` button near the Connexion's title.
@@ -129,13 +130,13 @@ Some of the key concepts presented in this section are:
 
 Now that you understand what authentication sources and alerting are, we will
 add an SMS authentication source on our guest portal. We previously used the
-'Null' source but we will add an other source. Portal profiles can provide
+'Null` source but we will add an other source. Portal profiles can provide
 multiple authentication sources.
 
 From _Configuration -> Policies and Access Control -> Authentication Sources_,
-click `New external source -> SMS`. As 'Name' and 'Description', specify
-'sms-source'. Then add an 'Authentication Rules' with name 'catchall' with no
-condition and with the following two 'Actions':
+click `New external source -> SMS`. As `Name` and `Description`, specify
+`sms-source`. Then add an `Authentication Rules` with name `catchall` with no
+condition and with the following two `Actions`:
 
 [options="compact"]
  * Role - guest
@@ -151,17 +152,17 @@ Click on `Create` to save the new authentication source.
 
 To use Clickatell as an SMS source, first register at https://www.clickatell.com
 to get an API Key for the SMS integration. Then add it as an authentication
-source the same way as above, except choosing 'Clickatell' instead of 'SMS' in
-'Add source -> External'. Enter a name, description and your Clickatell API key
+source the same way as above, except choosing `Clickatell` instead of `SMS` in
+`Add source -> External`. Enter a name, description and your Clickatell API key
 in the source configuration, then add the authentication rule.
 
 ==== Configuring the Connection Profile
 
 Now let's add our new SMS-based authentication source to our guests captive
 portal. From _Configuration -> Policies and Access Control -> Connection
-Profiles_, click on the 'guest' profile that we previously created. In the
+Profiles_, click on the `guest` profile that we previously created. In the
 *Sources*, click on the `(+)` button and add the newly created SMS source,
-'sms-source'. Save the changes by clicking on the `Save` button.
+`sms-source`. Save the changes by clicking on the `Save` button.
 
 NOTE: You can preview at any time the portal associated with connection profile
 by clicking on the `Preview` button near the Connexion's title.
