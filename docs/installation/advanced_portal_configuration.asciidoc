@@ -28,22 +28,22 @@ maintain previous behavior: authentication uses configured Connection Profile
 sources, then provisioners.
 
 Available Portal Modules:
-
-* `Root`: Container defining modules applied in chain to user. Device is released after completing all Root modules.
-* `Choice`: Choice between multiple modules. See 'default_registration_policy' example.
-* `Chained`: Ordered modules for user completion. Example: Google+ registration then PayPal payment.
-* `Authentication`: Multiple types available. Define modules to override required fields, source, template or other attributes.
-** `Billing`: One or more billing sources.
-** `Choice`: Multiple sources and modules with advanced filtering. See
-_Authentication Choice module_ below.
-** `Login`: Username/password for multiple internal sources (Active Directory,
-LDAP, etc.).
-* `Other`: Modules based on assigned source type, allowing source selection, AUP acceptance, and mandatory fields.
-** `Message`: Display message to user. Example in _Displaying a message to the
-user after registration_.
-** `SelectRole`: Override role during device registration. Admin users can
-choose device role during registration, bypassing authentication rules.
-** `URL`: Redirect to local or external URL that may return to portal. Example
+[options="compact"]
+  * `Root`: Container defining modules applied in chain to user. Device is released after completing all Root modules.
+  * `Choice`: Choice between multiple modules. See `default_registration_policy` example.
+  * `Chained`: Ordered modules for user completion. Example: Google+ registration then PayPal payment.
+  * `Authentication`: Multiple types available. Define modules to override required fields, source, template or other attributes.
+  ** `Billing`: One or more billing sources.
+  ** `Choice`: Multiple sources and modules with advanced filtering. See
+  _Authentication Choice module_ below.
+  ** `Login`: Username/password for multiple internal sources (Active Directory,
+  LDAP, etc.).
+  * `Other`: Modules based on assigned source type, allowing source selection, AUP acceptance, and mandatory fields.
+  ** `Message`: Display message to user. Example in _Displaying a message to the
+  user after registration_.
+  ** `SelectRole`: Override role during device registration. Admin users can
+  choose device role during registration, bypassing authentication rules.
+  ** `URL`: Redirect to local or external URL that may return to portal. Example
 in _Calling an external website_.
 
 ==== Examples
@@ -78,8 +78,7 @@ _"Identifier"_ to `prompt_fields` and configure the Portal Module with the
 desired _"Mandatory fields"_ and uncheck _"Require AUP"_ so the user does not
 have to accept the AUP before submitting the form.
 
-image::portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields
-module"]
+image::portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
 
 In `my_first_root_module` add the `prompt_fields` module (remove all previous
 modules), then click Save. The portal will now prompt the user for the fields
@@ -172,8 +171,7 @@ to `login_or_boarding`, and provide a relevant description. Add
 `secure_boarding` and `default_login_policy` to the _"Modules"_, then click
 Create.
 
-image::portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or
-Boarding Secure SSID"]
+image::portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or Boarding Secure SSID"]
 
 In `my_first_root_module` add the `login_or_boarding` module (removing any
 previous modules), then click Save. The portal will now prompt the user with a
@@ -190,9 +188,12 @@ _"New Module"_ and select type _"Other -> Message"_. Set the _"Identifier"_ to
 
 Add the following text in the _"Message"_ field, then click Create:
 
+[source,bash]
+----
   Hello World !
   <a href="www.packetfence.org">Click here to access the PacketFence
   website!</a>
+----
 
 image::portal-modules/hello_world.png[scaledwidth="100%",alt="Hello World"]
 
@@ -249,12 +250,12 @@ to the Source.
 Dynamically select a Source from the Connection Profile based on an object
 attribute (Object Class, Authentication Type, Authentication Class).
 
-* `Source(s) by Class`: Specify the perl class name of the available source(s).
-** ex: `pf::Authentication::Source::SMSSource` selects all the SMS source(s).
-** ex: `pf::Authentication::Source::BillingSource` selects all the billing
-sources (Paypal, Stripe, ...).
-* `Source(s) by Type`: Filter sources with the `type` attribute of the Authentication object.
-* `Source(s) by Auth Class`: Filter sources with the `class` attribute of the Authentication object.
+[options="compact"]
+ * `Source(s) by Class`: Specify the perl class name of the available source(s).
+ ** ex: `pf::Authentication::Source::SMSSource` selects all the SMS source(s).
+ ** ex: `pf::Authentication::Source::BillingSource` selects all the billing sources (Paypal, Stripe, ...).
+ * `Source(s) by Type`: Filter sources with the `type` attribute of the Authentication object.
+ * `Source(s) by Auth Class`: Filter sources with the `class` attribute of the Authentication object.
 
 NOTE: All authentication objects are found in
 [filename]`/usr/local/pf/lib/pf/Authentication/Source`.
@@ -301,13 +302,19 @@ must be used to GRANT these privileges.
 
 Access the MYSQL CLI as the `root` user:
 
+[source,bash]
+----
  mysql -uroot -p
+----
 
 From the MySQL CLI grant the privileges:
 
+[source,bash]
+----
  GRANT CREATE,ALTER ON pf.* TO 'pf'@'%';
  GRANT CREATE,ALTER ON pf.* TO 'pf'@'localhost';
  FLUSH PRIVILEGES;
+----
 
 NOTE: The MySQL `root` password was only provided during Configuration and not
 stored on disk.
@@ -376,6 +383,7 @@ The Captive Portal will now collect some data from the user (ex: `survey1 field 
 
 The available parameters to collect user data are defined as:
 
+[options="compact"]
  * `Label`: The input field label.
  * `Table`: The database table to store the data. The ID of the survey will be used if this is empty. Database tables are prefixed with `survey_`.
  * `Type`: The type of input field. The following types are available:
@@ -389,6 +397,7 @@ The available parameters to collect user data are defined as:
 
 The available parameters to use contextual data are defined as:
 
+[options="compact"]
  * `node.last_ssid`: The SSID the device is connected to (if applicable).
  * `node.device_class`: The Fingerbank device class.
  * `node.last_switch`: The switch/controller/access point the device is connected to.
@@ -396,9 +405,17 @@ The available parameters to use contextual data are defined as:
  * `person.email`: The email that was used (if authenticated).
  * `ip`: The IP address of the device.
 
-NOTE: See all available node fields by executing: `perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::node -MData::Dumper -e 'print Dumper(node_view("00:11:22:33:44:55"))'`.
+NOTE: See all available node fields by executing: 
+[source,bash]
+----
+perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::node -MData::Dumper -e 'print Dumper(node_view("00:11:22:33:44:55"))'
+----
 
-NOTE: See all available person fields by executing: `perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::person -MData::Dumper -e 'print Dumper(person_view("admin"))'`.
+NOTE: See all available person fields by executing:
+[source,bash]
+----
+perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::person -MData::Dumper -e 'print Dumper(person_view("admin"))'
+----
 
 ==== Configuring the Captive Portal
 
@@ -429,7 +446,11 @@ columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as
 >>>>>>> cfece8ead3 (fix layout CRLF)
 ----
 
-NOTE: Once saved, reload the configuration to apply the changes with [command]`/usr/local/pf/bin/pfcmd configreload hard`
+NOTE: Once saved, reload the configuration to apply the changes with 
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd configreload hard
+----
 
 Refer to the <<_reports>> section of this document for advanced configuration.
 
@@ -439,13 +460,19 @@ Once configured, optionally for security, it is recommended to revoke the `CREAT
 
 Access the MYSQL CLI as the `root` user:
 
+[source,bash]
+----
  mysql -uroot -p
+----
 
 From the MySQL CLI revoke the privileges:
 
+[source,bash]
+----
  REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'%';
  REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'localhost';
  FLUSH PRIVILEGES;
+----
 
 NOTE: The MySQL `root` password was only provided during Configuration and not stored on disk.
 
@@ -490,8 +517,11 @@ In _Configuration -> Network Configuration -> Networks -> Fencing_, enable _"Pas
 
 Then run the following commands so that passthroughs become effective:
 
+[source,bash]
+----
  /usr/local/pf/bin/pfcmd configreload hard
  /usr/local/pf/bin/pfcmd service pfdns restart
+----
 
 ==== DNS passthroughs
 
@@ -499,6 +529,7 @@ NOTE: In active-active cluster, `pfdns` must listen only on the VIP. In _Configu
 
 In _Configuration -> Network Configuration -> Networks -> Fencing -> Passthroughs_, add passthroughs with the format:
 
+[options="compact"]
  * `example.com`: opens TCP ports 80 and 443 for example.com
  * `example.com:1812`: opens TCP and UDP port 1812 for example.com
  * `example.com:tcp:1812`: opens TCP port 1812 for example.com
@@ -540,7 +571,8 @@ NOTE: Parking is detected when a device requests DHCP and only works if PacketFe
 
 In _Configuration -> Compliance -> Security Events_, choose Security Event 1300003, configure how the event is handled when a device is parked:
 
-* In _"Event Actions"_ add actions with the predefined ones (ex: 'Email administrator' or 'Execute script').
-* In _"Event Actions -> Isolate -> Role while isolated"_ set the destination role (VLAN) of the user. Leave as `registration` unless a dedicated role is needed for parking.
-* In _"Event Actions -> Isolate -> Template to use"_ set the template used in the registration Portal, not the template used for parking. To use the non-parking portal disable _"Show parking portal"_ in _Configuration -> Network Configuration -> Networks -> Device Parking_.
-* In _"Grace"_ set the amount of grace time between two parking security events. Once a device is *unparked*, wait at least this amount of time for the user to register before re-triggering the Security Event.
+[options="compact"]
+ * In _"Event Actions"_ add actions with the predefined ones (ex: `Email administrator` or `Execute script`).
+ * In _"Event Actions -> Isolate -> Role while isolated"_ set the destination role (VLAN) of the user. Leave as `registration` unless a dedicated role is needed for parking.
+ * In _"Event Actions -> Isolate -> Template to use"_ set the template used in the registration Portal, not the template used for parking. To use the non-parking portal disable _"Show parking portal"_ in _Configuration -> Network Configuration -> Networks -> Device Parking_.
+ * In _"Grace"_ set the amount of grace time between two parking security events. Once a device is *unparked*, wait at least this amount of time for the user to register before re-triggering the Security Event.
