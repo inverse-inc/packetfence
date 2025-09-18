@@ -65,10 +65,6 @@ include::installation/enforcement/inline.asciidoc[]
 
 include::installation/enforcement/out-of-band.asciidoc[]
 
-== Troubleshooting PacketFence
-
-include::installation/troubleshooting_packetfence.asciidoc[]
-
 == Authentication Mechanisms
 
 include::installation/authentication_mechanisms.asciidoc[]
@@ -145,6 +141,10 @@ include::installation/export_import_mechanism.asciidoc[]
 == PacketFence Certificates (for v11.2 and later)
 
 include::installation/certificate.asciidoc[]
+
+== Troubleshooting PacketFence
+
+include::installation/troubleshooting_packetfence.asciidoc[]
 
 // INCLUDES
 include::includes/commercial-support.asciidoc[]

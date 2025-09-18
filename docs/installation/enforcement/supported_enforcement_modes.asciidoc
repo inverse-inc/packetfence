@@ -23,11 +23,11 @@ mode is the technique used to enforce device registration and network access.
 PacketFence supports these enforcement modes:
 
 [options="compact"]
-* Inline
-* Out-of-band using SNMP or RADIUS
-* Hostpot-style (or Web Auth)
-* RADIUS only
-* DNS
+ * Inline
+ * Out-of-band using SNMP or RADIUS
+ * Hostpot-style (or Web Auth)
+ * RADIUS only
+ * DNS
 
 Enforcement modes can be combined. For example, use out-of-band mode on wired
 switches and inline mode on older WiFi access points.
@@ -65,10 +65,10 @@ MAC address through.
 Inline enforcement has several limitations due to its nature:
 
 [options="compact"]
-* Everyone behind an inline interface is on the same Layer 2 LAN
-* Every packet of authorized users goes through the PacketFence server increasing the server's load considerably: Plan ahead for capacity
-* Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
-* Ipset can store up to 65536 entries, so it is not possible to have an inline network class greater than a class B
+ * Everyone behind an inline interface is on the same Layer 2 LAN
+ * Every packet of authorized users goes through the PacketFence server increasing the server's load considerably: Plan ahead for capacity
+ * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
+ * Ipset can store up to 65536 entries, so it is not possible to have an inline network class greater than a class B
 
 This is why it is considered a poor man's way of doing access control. We have
 avoided it for a long time because of the above mentioned limitations. That
@@ -149,8 +149,7 @@ portal (which runs in HTTPS).
 The following diagram demonstrates the flow between a mobile endpoint, a WiFi
 access point, a WiFi controller and PacketFence:
 
-image::radius-workflow.png["WiFi RADIUS
-workflow",width="75%",scaledwidth="100%"]
+image::radius-workflow.png["WiFi RADIUS workflow",width="75%",scaledwidth="100%"]
 
 1. User initiates association to WLAN AP and transmits MAC address.  If user accesses network via a registered device in PacketFence, go to step 8.
 2. The WLAN controller transmits MAC address via RADIUS to the PacketFence server to authenticate/authorize that MAC address on the AP.
@@ -185,22 +184,27 @@ A second RADIUS request is made with the ACL name as a value of the username and
 multiples Access-Challenge are made to retreive the complete ACL.
 
 To enable it you need first to enable the RADIUS filter in the PacketFence
-authorize section. To do that go in Configuration -> System Configuration ->
-RADIUS -> General and enable "Use RADIUS filters in packetfence authorize" then
-restart the `radiusd-auth` service.
+authorize section. To do that go in _Configuration -> System Configuration ->
+RADIUS -> General_ and enable `Use RADIUS filters in packetfence authorize` then
+restart service `radiusd-auth`.
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service radiusd-auth restart
+----
 
 ===== Push ACLs
 
 Push ACLs is a method to write directly the ACLs on the equipment if compatible
 (needs ssh credentials and admin privileges on the switch).
 In this senario if the PushACLs is enable on the switch then PacketFence will
-take the ACL defined in each role configuration (Policies and Access Control ->
-Roles, and ACL in Cisco format), format it to be compatible with the equipment
+take the ACL defined in each role configuration (_Policies and Access Control ->
+Roles_, and `ACL in Cisco format`), format it to be compatible with the equipment
 and will use ansible to push them on the switch (User role will create a User
 ACL on the equipment).
 Once this ACL is define on the switch, the RADIUS reply will contain an
 attribute that tell the switch to apply this ACL on the session.
-Per example in the case of Cisco, the attribute used is Filter-ID = User
+Per example in the case of Cisco, the attribute used is `Filter-ID = User`
 
 Role per Switch role needs to be enable and PacketFence will return the role
 name and not the role value.
@@ -267,15 +271,15 @@ switch to learn its MAC address. Then `pfqueue` will send periodical SNMP
 queries to the switch until the switch learns the MAC of the device. When the
 MAC address is known, `pfqueue` checks its status (existing ? registered ? any
 security event?) in the database and puts the port in the appropriate VLAN. When
-a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which
+a device is unplugged, the switch sends a `linkDown` trap to PacketFence which
 puts the port into the Registration VLAN.
 
 When a computer boots, the initialization of the NIC generates several link
 status changes. And every time the switch sends a linkUp and a linkDown trap to
 PacketFence. Since PacketFence has to act on each of these traps, this generates
 unfortunately some unnecessary load on `pfqueue`. In order to optimize the trap
-treatment, PacketFence stops every thread for a 'linkUp trap' when it receives a
-'linkDown' trap on the same port. But using only linkUp/linkDown traps is not
+treatment, PacketFence stops every thread for a `linkUp trap` when it receives a
+'linkDown` trap on the same port. But using only linkUp/linkDown traps is not
 the most scalable option. For example in case of power failure, if hundreds of
 computers boot at the same time, PacketFence would receive a lot of traps almost
 instantly and this could result in network connection latency.
@@ -326,10 +330,13 @@ switch configuration window, "Trigger to enable inline mode". This parameter is
 working like a trigger and you have the possibility to define different sort of
 triggers:
 
+[source, bash]
+----
   ALWAYS::
   PORT::
   MAC::
   SSID::
+----
 
 where ALWAYS means that the device is always in inline mode, PORT specify the
 ifIndex of the port which will use inline enforcement, MAC a mac address that
@@ -337,7 +344,10 @@ will be put in inline enforcement technique rather than VLAN enforcement and
 SSID an ssid name.
 An example:
 
+[source, bash]
+----
   SSID::GuestAccess,MAC::00:11:22:33:44:55
+----
 
 This will trigger all the nodes that connects to the _GuestAccess_ SSID to use
 inline enforcement mode (PacketFence will return a void VLAN or the `inlineVlan`
@@ -389,7 +399,7 @@ Network Configuration -> Networks -> Interface_ then select one of your
 interfaces and set it in DNS enforcement mode.
 
 After, you must configure a routed network for this interface by clicking `New
-routed network`. See the 'Routed Networks' section of this document for details
+routed network`. See the `Routed Networks` section of this document for details
 on how to configure it.
 
 NOTE: If you are not using a routed network, you must use Inline enforcement as

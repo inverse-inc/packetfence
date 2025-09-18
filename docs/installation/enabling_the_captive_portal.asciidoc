@@ -62,25 +62,31 @@ First, we need to enable Change-of-Authorization (CoA) in our Cisco Catalyst
 (172.20.100.2) to send CoA requests to the switch:
 
 [source,bash]
+----
   aaa server radius dynamic-author
    client 172.20.100.2 server-key useStrongerSecret
    port 3799
+----
 
 Then, we must enable Web Authentication on switch port no. 10. Add the following
 configuration to the global section:
 
 [source,bash]
+----
   ip device tracking
   ip http server
   ip http secure-server
+----
 
 Then add the required access list:
 
 [source,bash]
+----
   ip access-list extended registration
    deny ip any host 172.20.100.2
    permit tcp any any eq www
    permit tcp any any eq 443
+----
 
 
 === Adjust Switch Configuration in PacketFence
