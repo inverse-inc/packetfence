@@ -83,25 +83,25 @@ Sources_, we select `New internal source -> AD`. We provide the following
 information:
 
 [options="compact"]
-* *Name:* ad1
-* *Description:* Active Directory for Employees
-* *Host:* 192.168.1.2:389 without SSL/TLS
-* *Base DN:* CN=Users,DC=acme,DC=local
-* *Scope:* subtree
-* *Username Attribute:* sAMAccountName
-* *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
-* *Password:* acme123
+ * *Name:* ad1
+ * *Description:* Active Directory for Employees
+ * *Host:* 192.168.1.2:389 without SSL/TLS
+ * *Base DN:* CN=Users,DC=acme,DC=local
+ * *Scope:* subtree
+ * *Username Attribute:* sAMAccountName
+ * *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
+ * *Password:* acme123
 
 Then, we add an *Authentication rules* by clicking on the `Add rule` button and
 provide the following information:
 
 [options="compact"]
-* *Name:* employees
-* *Description:* Rule for all employees
-* Don't set any condition (as it's a catch-all rule)
-* Set the following *actions:*
-  * Role - employee
-  * Access duration - 7 days
+ * *Name:* employees
+ * *Description:* Rule for all employees
+ * Don't set any condition (as it's a catch-all rule)
+ * Set the following *actions:*
+   * Role - employee
+   * Access duration - 7 days
 
 Test the connection and save everything. Using the newly defined source, any
 username that actually matches in the source (using the *sAMAccountName*) will
@@ -114,24 +114,24 @@ authentication using Active Directory, one way to do it is by creating a second
 authentication sources, for machines:
 
 [options="compact"]
-* *Name:* ad2
-* *Description:* Active Directory for Corporate Machines 
-* *Host:* 192.168.1.2:389 without SSL/TLS
-* *Base DN:* CN=Computers,DC=acme,DC=local
-* *Scope:* One-level
-* *Username Attribute:* servicePrincipalName
-* *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
-* *Password:* acme123
+ * *Name:* ad2
+ * *Description:* Active Directory for Corporate Machines 
+ * *Host:* 192.168.1.2:389 without SSL/TLS
+ * *Base DN:* CN=Computers,DC=acme,DC=local
+ * *Scope:* One-level
+ * *Username Attribute:* servicePrincipalName
+ * *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
+ * *Password:* acme123
 
-Then, we add an 'Authentication rules':
+Then, we add an `Authentication rules`:
 
 [options="compact"]
-* *Name:* machines
-* *Description:* Rule for corporate machines
-* Don't set any condition (as it's a catch-all rule)
-* Set the following *actions:*
-  * Role - corporate_machine
-  * Access duration - 7 days
+ * *Name:* machines
+ * *Description:* Rule for corporate machines
+ * Don't set any condition (as it's a catch-all rule)
+ * Set the following *actions:*
+   * Role - corporate_machine
+   * Access duration - 7 days
 
 Using this configuration, employees can only connect corporate machines, not
 personal devices.
