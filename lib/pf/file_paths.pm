@@ -439,6 +439,7 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $mfa_config_file,
     $kafka_config_file,
     $connectors_config_file,
+    $cluster_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
