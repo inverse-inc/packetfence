@@ -1,0 +1,455 @@
+== Captive Portal Issues
+
+
+[[ios16-captive-portal-changes]]
+=== iOS 16+ devices behave differently than iOS 15 with captive portal
+
+*Problem:* iOS 16.0 and later devices have inconsistent captive portal^[1]^
+detection and presentation compared to iOS 15.x devices.
+
+*Solution:*
+
+*Apple Network Detection Changes:*
+
+*iOS 16.0+ Behavior:*
+* More complex captive portal detection mechanisms
+* Persistent use of previously learned portal URLs
+* DHCP Option 114 can cause unexpected re-detection
+* Enhanced privacy features affecting portal flow
+
+*Configuration Adjustments:*
+
+. *DHCP Option 114 Management:*
++
+----
+# Consider disabling Option 114 on registration VLANs
+# In DHCP server configuration:
+# option captive-portal-url = "";  # Disable option
+----
+
+. *Portal Detection Optimization:*
++
+----
+# Ensure proper DNS interception for Apple's detection URLs:
+# captive.apple.com
+# gsp1.apple.com
+# www.apple.com/library/test/success.html
+----
+
+. *Network Profile Consistency:*
++
+----
+# Maintain consistent portal URLs across sessions
+# Avoid changing portal presentation mid-session
+# Consider portal session persistence
+----
+
+*Testing Approach:*
+
+*Different iOS Versions:*
+* Test with iOS 15.x device (baseline behavior)
+* Test with iOS 16.x device (new behavior)
+* Test with iOS 17.x device (latest behavior)
+
+*Network Conditions:*
+* Test with WiFi network switching
+* Test with cellular → WiFi transitions
+* Test portal behavior after device sleep/wake
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58783252/[Captive Portal - Google (OAuth 2) - iphone error]
+
+'''
+
+[[tagged-vlan-portal-fails]]
+=== Captive portal doesn't open on tagged registration VLAN
+
+*Problem:* Captive portal fails to load when using tagged VLANs for device^[1]^
+registration, clients can't access portal page.
+
+*Solution:*
+
+*Network Configuration Verification:*
+
+. *VLAN Tagging on PacketFence Interface:*
++
+----
+# Verify interface has VLAN tag configured:
+ip link show
+
+# Check for VLAN sub-interface:
+# Should see interface like eth0.102 for VLAN 102
+ifconfig eth0.102
+
+# If missing, create VLAN interface:
+ip link add link eth0 name eth0.102 type vlan id 102
+ip addr add 192.168.102.1/24 dev eth0.102
+ip link set eth0.102 up
+----
+
+. *Traffic Flow Verification:*
++
+----
+# Monitor VLAN traffic on PacketFence interface:
+tcpdump -i eth0 vlan 102
+
+# Check for HTTP requests to portal:
+tcpdump -i eth0.102 port 80
+
+# Verify DHCP on VLAN interface:
+tcpdump -i eth0.102 port 67 or port 68
+----
+
+. *Switch Port Configuration:*
++
+----
+# Switch port must be configured as trunk:
+interface GigabitEthernet1/0/1
+ switchport mode trunk
+ switchport trunk allowed vlan 102
+ spanning-tree portfast trunk
+----
+
+*PacketFence Interface Configuration:*
+
+----
+# Configuration → System Configuration → Network Configuration → Interfaces
+# Ensure interface has:
+# - Correct VLAN ID (102)
+# - Proper IP addressing (192.168.102.1/24)
+# - Registration role enabled
+----
+
+*Testing and Validation:*
+----
+# From client on VLAN 102:
+ping 192.168.102.1          # Should reach PacketFence
+nslookup captive.apple.com  # Should resolve to PacketFence IP
+curl http://captive.apple.com  # Should get portal redirect
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/59215565/[Captive portal won't open on the registration VLAN]
+
+'''
+
+[[captive-portal-redirect-loop]]
+=== Captive portal stuck in redirect loop
+
+*Problem:* Clients get stuck in endless redirect loops when trying to access the captive portal, preventing successful authentication^[1]^
+
+*Symptoms:*
+* Browser shows "too many redirects" error
+* Portal page never loads despite network connectivity
+* Multiple redirect attempts in access logs
+* Users cannot reach authentication page
+* Some browsers work while others fail
+* Portal accessible when iptables is disabled
+
+*Solution:*
+
+*Step 1: Check iptables Configuration*
+
+----
+# Verify portal redirection rules are correct
+iptables -t nat -L PREROUTING -v -n
+
+# Check for conflicting DROP rules
+iptables -L -v -n | grep -i drop
+
+# Ensure portal traffic is allowed
+iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+----
+
+*Step 2: Verify Portal Configuration*
+
+----
+# Check portal configuration settings
+grep -i "portal" /usr/local/pf/conf/pf.conf
+
+# Verify portal services are listening on correct interfaces
+netstat -tlnp | grep :80
+netstat -tlnp | grep :443
+----
+
+*Step 3: Test DNS Resolution*
+
+----
+# From client, test DNS resolution to captive portal hostname
+nslookup captive.packetfence.local
+
+# Ensure DNS points to PacketFence portal interface
+dig captive.packetfence.local
+----
+
+*Step 4: Address Browser Issues*
+
+*Clear Browser State:*
+* Clear browser cache and cookies
+* Disable browser extensions temporarily
+* Try incognito/private browsing mode
+
+*Test Different Browsers:*
+* Chrome, Firefox, Safari behavior comparison
+* Mobile browser testing
+
+*Step 5: Advanced Troubleshooting*
+
+----
+# Monitor redirects in real-time
+tail -f /usr/local/pf/logs/httpd.portal.access
+
+# Check for portal binding conflicts
+ss -tlnp | grep :80
+ss -tlnp | grep :443
+
+# Test portal accessibility directly
+curl -v http://portal-ip/captive-portal
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58745063/[Redirect Captive Portal Loop]
+
+'''
+
+[[captive-portal-interface-configuration]]
+=== Captive portal interface configuration and troubleshooting
+
+*Problem:* Captive portal is not accessible to clients despite proper authentication configuration, preventing user authentication^[1]^
+
+*Symptoms:*
+
+* Clients cannot reach captive portal login page
+* Portal interface appears configured but not functional
+* Browser shows connection timeout to portal address
+* RADIUS authentication is configured but portal step fails
+* HAProxy or portal services may not be responding
+
+*Solution:*
+
+*Step 1: Configure Separate Portal Interface*
+
+Set up dedicated portal interface (recommended):
+
+----
+# Create portal-type interface in the same subnet as management
+# or a separate dedicated subnet for portal access
+# In PacketFence interface configuration:
+# Configuration → System → Interfaces
+# Create interface with Type: Portal
+----
+
+*Step 2: Verify Service Startup Sequence*
+
+Restart services in proper order after interface configuration:
+
+----
+# Restart services in correct sequence
+systemctl restart packetfence-haproxy
+systemctl restart packetfence-httpd.portal
+systemctl restart packetfence-iptables
+
+# According to @inverse.ca developer:
+# "You need to restart the portal, haproxy and iptables to make it available"
+----
+
+*Step 3: Verify Portal Accessibility*
+
+----
+# Test portal accessibility directly
+curl -I https://portal.ip.address/captive-portal
+
+# Check that HAProxy is started after interface configuration
+systemctl status packetfence-haproxy
+
+# Verify iptables rules allow HTTP/HTTPS on input-portal-if chain
+iptables -L input-portal-if -v
+----
+
+*Step 4: Validate Authentication Sources*
+
+----
+# Use pftest to validate authentication source configuration
+/usr/local/pf/bin/pftest authentication <username> <password>
+
+# Review RADIUS debug logs for authentication process
+tail -f /usr/local/pf/logs/radius.log
+----
+
+*Step 5: Verify Network Device Configuration*
+
+Ensure proper VLAN and RADIUS configuration on network switches:
+
+----
+# Verify switch configuration allows portal access
+# Check that registration VLAN routes to portal interface
+# Confirm RADIUS server configuration points to PacketFence
+----
+
+*Important:* HAProxy must be started after interface configuration changes to properly bind to the new portal interface.
+
+*Affected Versions:* All PacketFence versions
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/36222636/[Captive portal configuration basics]
+
+'''
+
+
+[[captive-portal-tagged-vlan-troubleshooting]]
+=== Captive portal won't open on tagged registration VLAN
+
+*Problem:* Captive portal fails to load when registration VLAN is configured as tagged on trunk interface, preventing user registration
+
+*Symptoms:*
+
+* Captive portal page fails to load for clients on registration VLAN
+* Tagged VLAN configured on trunk interface (e.g., VLAN 102 on eth1)
+* Portal works on untagged VLANs but not on tagged configurations
+* Network connectivity exists but portal remains inaccessible
+* Browser shows connection timeout or "page not found" errors
+* VLAN traffic reaches PacketFence but portal doesn't respond
+
+*Solution:*
+
+*Step 1: Verify Trunk Port Configuration*
+
+Ensure proper trunk configuration between switch and PacketFence:
+
+----
+# On switch - verify trunk port configuration
+show interface trunk
+show vlan 102
+
+# Confirm VLAN 102 is allowed on trunk to PacketFence
+# Example Cisco configuration:
+interface GigabitEthernet1/0/1
+ switchport mode trunk
+ switchport trunk allowed vlan 102
+----
+
+*Step 2: Validate VLAN Tagging on PacketFence Interface*
+
+Verify VLAN traffic is properly tagged and received:
+
+----
+# Monitor VLAN traffic on interface
+tcpdump -i eth1 -e -n -v | grep vlan
+
+# Look for VLAN 102 tagged packets:
+# Should see: vlan 102, p 0, ethertype IPv4 (0x0800)
+
+# Verify interface configuration
+ip link show eth1
+cat /proc/net/vlan/config
+----
+
+*Step 3: Restart PacketFence Services After VLAN Changes*
+
+Critical service restart sequence for VLAN configuration changes:
+
+----
+# Restart PacketFence services in proper order
+/usr/local/pf/bin/pfcmd service pf restart
+
+# Or restart individual services:
+systemctl restart packetfence-httpd.portal
+systemctl restart packetfence-haproxy
+systemctl restart packetfence-iptables
+----
+
+*Step 4: Verify Portal Interface Binding*
+
+Ensure portal services bind to correct VLAN interface:
+
+----
+# Check portal service binding
+ss -tlnp | grep :80
+ss -tlnp | grep :443
+
+# Verify haproxy configuration includes VLAN interface
+/usr/local/pf/bin/pfcmd configreload hard
+
+# Test portal accessibility on VLAN interface
+curl -v http://vlan-interface-ip/captive-portal
+----
+
+*Root Cause:*
+
+Tagged VLAN configurations require proper trunk port setup and service restart to ensure portal services bind correctly to the VLAN interface. Without proper configuration, portal traffic cannot reach PacketFence services.
+
+*Prevention:*
+
+Always restart PacketFence services after making VLAN interface changes to ensure proper service binding and traffic handling.
+
+*Affected Versions:* All PacketFence versions with VLAN configurations
+
+*Community Reference:*
+
+1. https://sourceforge.net/p/packetfence/mailman/message/59216646/[Captive portal won't open on registration VLAN]
+
+'''
+
+
+
+[[email-authentication-502-error]]
+=== Captive portal email authentication shows 502 Bad Gateway error
+
+*Problem:* Email authentication on captive portal produces "502 Bad Gateway" errors and inconsistent behavior allowing devices to bypass authentication^[1]^
+
+*Symptoms:*
+
+* "502 Bad Gateway" error during email authentication process
+* Devices sometimes bypass captive portal completely
+* Inconsistent captive portal presentation
+* Devices can register with non-existent email addresses
+* Some devices gain internet access without email verification
+
+*Solution:*
+
+*Step 1: Check Inline Enforcement Configuration*
+
+For inline enforcement setups:
+
+----
+# Check IPSET sessions:
+ipset -L | less
+
+# Verify inline interface configuration:
+# Management interface: e.g., 172.16.0.252
+# Inline interface: e.g., 192.168.1.252
+----
+
+*Step 2: Review Firewall Configuration*
+
+Email authentication provides temporary 10-minute access to reach inbox:
+
+----
+# Check iptables rules for email auth:
+iptables -L -n -v
+
+# Verify email timeout configuration in:
+# Configuration → Policies → Authentication Sources
+----
+
+*Step 3: Consider VLAN Enforcement Alternative*
+
+Switch to VLAN enforcement instead of inline method:
+
+----
+# Configuration → Policies → Enforcement
+# Change from "Inline" to "VLAN"
+# Reconfigure network switches accordingly
+----
+
+*Alternative Solution:*
+Use "Null source" for simple email capture without complex authentication flow.
+
+*Affected Versions:* All PacketFence versions with inline enforcement
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/37067525/[Captive Portal: 502 Bad Gateway]
+
+'''
+

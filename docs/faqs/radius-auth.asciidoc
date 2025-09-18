@@ -1,0 +1,522 @@
+== RADIUS & Authentication
+
+
+[[dynamic-vlan-assignment-fails]]
+=== Dynamic VLAN assignment works in authentication but fails on network
+
+*Problem:* RADIUS logs show correct VLAN attributes returned, but client
+doesn't get assigned to the proper VLAN^[1]^
+
+*Solution:*
+
+*Systematic Troubleshooting Approach:*
+
+. *Verify RADIUS Response:*
++
+----
+# Check RADIUS logs for VLAN attributes:
+tail -f /usr/local/pf/logs/radius.log | grep -i vlan
+
+# Look for these attributes in Access-Accept:
+# Tunnel-Type = VLAN
+# Tunnel-Medium-Type = IEEE-802
+# Tunnel-Private-Group-Id = VLAN-ID
+----
+
+. *Switch Configuration Verification:*
++
+----
+# Ensure switch supports dynamic VLAN assignment:
+# - 802.1X enabled on ports
+# - RADIUS-assigned VLAN support enabled
+# - Proper VLAN configuration and routing
+
+# Example Cisco switch verification:
+switch# show dot1x interface gigabitethernet 1/0/1 details
+switch# show vlan brief
+----
+
+. *PacketFence Role Mapping:*
++
+----
+# Configuration → Policies and Access Control → Roles
+# Verify role contains correct VLAN assignment
+# Check VLAN ID matches network infrastructure
+----
+
+*Common Issues and Solutions:*
+
+*Native VLAN Conflicts:*
+----
+# Switch port native VLAN should not conflict with assigned VLAN
+# Set native VLAN to unused VLAN ID
+interface GigabitEthernet1/0/1
+ switchport mode access
+ switchport access vlan 999  # Default/native VLAN
+ dot1x pae authenticator
+----
+
+*VLAN Routing Problems:*
+----
+# Ensure proper inter-VLAN routing
+# Gateway configuration for assigned VLAN
+# DHCP scope for target VLAN
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58763959/[PacketFence v13 & Role Mapping by VLAN ID]
+
+'''
+
+[[eap-session-mismatch-cluster]]
+=== EAP session mismatches in cluster environments
+
+*Problem:* 802.1X authentication fails in clustered PacketFence deployments
+when RADIUS requests hit different cluster nodes during EAP conversation^[1]^
+
+*Solution:*
+
+*Root Cause:* EAP authentication requires session consistency. When RADIUS
+requests are load-balanced to different cluster nodes, EAP state is lost.
+
+*Primary Solution - VIP Configuration:*
+
+. *Configure Cluster VIP for RADIUS:*
++
+----
+# Switches should send RADIUS requests to cluster VIP, not individual nodes
+# Example switch configuration:
+radius-server host 10.0.0.100 auth-port 1812 acct-port 1813 key shared-secret
+
+# Where 10.0.0.100 is the cluster VIP address
+----
+
+. *Verify VIP Configuration:*
++
+----
+# Check cluster VIP status:
+/usr/local/pf/bin/cluster/node
+
+# Verify RADIUS service binds to VIP:
+netstat -ulnp | grep :1812
+----
+
+*Alternative Solution - Session Stickiness:*
+
+If VIP isn't possible, configure session persistence based on calling station ID:
+
+----
+# Load balancer configuration (if using external LB):
+# Hash based on source IP + calling station ID
+# Ensures same MAC address always hits same node
+----
+
+*Verification Commands:*
+----
+# Test RADIUS to VIP:
+radtest username password cluster-vip:1812 0 shared-secret
+
+# Monitor EAP sessions:
+raddebug -t 30
+
+# Check cluster synchronization:
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/59220987/[Packetfence EAP session mismatch]
+
+'''
+
+[[mab-authentication-source-config]]
+=== MAB (MAC Authentication Bypass) configuration issues
+
+*Problem:* MAC Authentication Bypass fails to work properly with network switches, devices not authenticated via MAC address^[1]^
+
+*Symptoms:*
+
+* Devices with MAC addresses in allowed list still blocked
+* MAB authentication attempts show in RADIUS logs but fail
+* Switches send MAB requests but PacketFence rejects them
+* Mixed 802.1X and MAB environments have authentication conflicts
+* MAC address format mismatches between switch and PacketFence
+
+*Solution:*
+
+*Authentication Source Configuration:*
+
+. *Create MAB Authentication Source:*
++
+----
+# Configuration → Authentication Sources → Add → LDAP
+# Source Name: MAB_Source
+# Host: 127.0.0.1 (local authentication)
+# Port: 389
+# Connection Type: Plain
+# Base DN: ou=people,dc=packetfence,dc=local
+# Bind DN: cn=admin,dc=packetfence,dc=local
+----
+
+. *Configure MAC Address Authentication:*
++
+----
+# Authentication Source → Advanced
+# Username Attribute: uid
+# Email Attribute: mail
+# Search Filter: (uid=%s)
+----
+
+*Switch Configuration for MAB:*
+
+----
+# Cisco switch example:
+interface GigabitEthernet1/0/1
+ authentication order mab dot1x
+ authentication priority dot1x mab
+ authentication port-control auto
+ authentication timer reauthenticate server
+ mab
+ dot1x pae authenticator
+----
+
+*PacketFence Connection Profile:*
+
+----
+# Configuration → Connection Profiles → default
+# Authentication Sources: [MAB_Source, other sources]
+# Enable "Use MAB authentication"
+# MAC address format: lowercase with colons (aa:bb:cc:dd:ee:ff)
+----
+
+*MAC Address Format Standardization:*
+
+----
+# Ensure consistent MAC format across all components
+# PacketFence typically expects: aa:bb:cc:dd:ee:ff
+# Some switches send: AABBCCDDEEFF or aa-bb-cc-dd-ee-ff
+
+# Check current MAC format in database:
+mysql -u root -p pf -e "SELECT mac FROM node LIMIT 5;"
+----
+
+*Troubleshooting Commands:*
+
+----
+# Monitor MAB authentication attempts
+tail -f /usr/local/pf/logs/radius.log | grep -i mab
+
+# Check MAC address entries
+mysql -u root -p pf -e "SELECT mac, status, category_id FROM node WHERE mac = 'aa:bb:cc:dd:ee:ff';"
+
+# Test RADIUS MAB authentication
+radtest -t mab aa:bb:cc:dd:ee:ff aa:bb:cc:dd:ee:ff localhost:1812 0 testing123
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58732890/[MAB and Authentication Sources]
+
+'''
+
+[[linux-peap-vs-ttls-issues]]
+=== Linux PEAP authentication issues vs TTLS
+
+*Problem:* Linux clients using 802.1X PEAP authentication frequently require multiple connection attempts, while TTLS works reliably^[1]^
+
+*Symptoms:*
+
+* Linux clients fail PEAP authentication on first attempt
+* Multiple authentication attempts required for successful connection
+* RADIUS logs show MSCHAP credential errors despite correct credentials
+* Windows clients using PEAP work without issues
+* Ubuntu/Linux desktop clients particularly affected
+
+*Solution:*
+
+Switch from PEAP to TTLS with MSCHAPv2 for Linux clients:
+
+. *Configure TTLS authentication source:*
+  - Authentication Sources → Add → LDAP/AD
+  - Set authentication protocol to TTLS
+  - Use MSCHAPv2 as inner authentication method
+
+. *Update client configuration:*
++
+----
+# For NetworkManager (Ubuntu/Linux):
+# Edit connection settings to use:
+# - EAP method: TTLS
+# - Inner authentication: MSCHAPv2
+# - CA certificate: (same as before)
+----
+
+. *Alternative - Debug PEAP issues:*
++
+----
+# Enable detailed RADIUS logging:
+radiusd -X -d /usr/local/pf/raddb
+
+# Check for specific PEAP/MSCHAP errors in logs
+----
+
+*Note:* This appears to be a Linux PEAP implementation issue rather than a PacketFence problem.
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/59172153/[Issues with Linux Clients and 802.1X PEAP Authentication on Wired and Wireless]
+
+'''
+
+[[mac-authentication-cisco-switch]]
+=== MAC Authentication Bypass not working on Cisco switches
+
+*Problem:* MAC Authentication (MAB) configured on Cisco switches fails to authenticate devices, nothing happens when devices connect despite proper RADIUS configuration^[1]^
+
+*Symptoms:*
+
+* Device MAC address registered in PacketFence node tab
+* Device not placed in registration/isolation VLAN
+* Cisco switch authentication shows no response
+* Switch logs indicate authentication attempts but no RADIUS response
+* Works on some switch models but not others
+
+*Solution:*
+
+*Step 1: Verify Switch Port Configuration*
+
+Ensure proper authentication order and MAB configuration:
+
+----
+interface GigabitEthernet1/0/1
+ authentication order mab dot1x
+ authentication priority mab dot1x
+ authentication port-control auto
+ mab
+ dot1x pae authenticator
+----
+
+*Step 2: Check RADIUS Server Configuration*
+
+Verify PacketFence RADIUS settings:
+
+----
+# Confirm RADIUS is listening:
+netstat -ulnp | grep :1812
+
+# Test RADIUS connectivity from switch:
+radtest test-mac password pf-server 0 shared-secret
+----
+
+*Step 3: Test on Different Hardware*
+
+If configuration fails on specific switch model:
+- Test same configuration on a different Cisco switch model
+- Virtualized switches may have compatibility issues
+- Physical Cisco SMB switches often work reliably
+
+*Affected Versions:* All PacketFence versions
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/37643835/[MAC Authentication help pls]
+
+'''
+
+
+
+[[authentication-success-vlan-undefined]]
+=== Authentication succeeds but VLAN assignment returns "undefined"
+
+*Problem:* User authentication passes successfully but VLAN assignment fails, with logs showing "Returned VLAN: (undefined)" despite proper role configuration^[1]^
+
+*Symptoms:*
+
+* RADIUS authentication succeeds
+* Device remains in default VLAN instead of assigned role VLAN
+* PacketFence logs show "Returned VLAN: (undefined)"
+* Switch receives Access-Accept but without VLAN attributes
+* Role assignment appears correct in PacketFence interface
+
+*Solution:*
+
+*Step 1: Verify RADIUS Attribute Configuration*
+
+Check RADIUS conversation for missing VLAN attributes:
+
+----
+# Use radsniff to trace RADIUS conversation:
+radsniff -X -f 'port 1812'
+
+# Look for missing VLAN attributes in Access-Accept:
+# Tunnel-Type = VLAN
+# Tunnel-Medium-Type = IEEE-802
+# Tunnel-Private-Group-Id = VLAN-ID
+----
+
+*Step 2: Verify Role VLAN Configuration*
+
+Ensure roles have proper VLAN assignments:
+
+----
+# In PacketFence admin interface:
+# Configuration → Policies and Access Control → Roles
+# Verify each role has VLAN ID configured
+# Check VLAN ID matches switch configuration
+
+# Verify VLAN exists on switch:
+show vlan brief | grep VLAN-ID
+----
+
+*Step 3: Check Switch RADIUS Configuration*
+
+Verify switch properly requests and processes VLAN attributes:
+
+----
+# Cisco switch verification:
+show dot1x interface gigabitethernet X/Y details
+
+# Ensure these are configured:
+# - dot1x system-auth-control
+# - RADIUS-assigned VLAN support
+# - Proper RADIUS server configuration with VLAN support
+----
+
+*Step 4: Debug Authentication Source*
+
+Verify authentication source returns role information:
+
+----
+# Test LDAP/AD authentication:
+ldapsearch -x -H ldap://domain-controller -b "DC=domain,DC=com" \
+  -D "username@domain.com" -W "(sAMAccountName=testuser)"
+
+# Verify role mapping rules in authentication source
+# Check connection profile conditions match user attributes
+----
+
+*Affected Versions:* All PacketFence versions
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58816942/[Dynamic VLAN Assignment Issue - Authentication Works, but VLAN Assignment Fails]
+
+'''
+
+
+
+
+[[local-mschap-authentication]]
+=== Local MSCHAP authentication not working with PPP connections
+
+*Problem:* PPP MSCHAP authentication fails when using local PacketFence accounts instead of domain authentication^[1]^
+
+*Symptoms:*
+
+* PPP connections fail MSCHAP authentication
+* Local PacketFence users cannot authenticate via MSCHAP
+* Domain authentication works but local accounts fail
+* RADIUS logs show MSCHAP authentication attempts but no success
+* EAP-PEAP authentication may work but PPP MSCHAP does not
+
+*Solution:*
+
+*Step 1: Modify RADIUS Policy Configuration*
+
+Edit the MSCHAP authentication policy in `/usr/local/pf/raddb/policy.d/packetfence`:
+
+----
+# Replace the existing packetfence-mschap-authenticate function
+packetfence-mschap-authenticate {
+    if(PacketFence-Domain) {
+        # existing domain logic remains unchanged
+    }
+    else {
+        if ( "%{User-Name}" =~ /^host\\/.*/) {
+            mschap_machine
+        }
+        else {
+            # Change from 'mschap' to 'packetfence-local-auth'
+            packetfence-local-auth
+        }
+    }
+}
+----
+
+*Step 2: Restart RADIUS Service*
+
+----
+# Restart RADIUS service to apply changes
+systemctl restart packetfence-radiusd
+----
+
+*Step 3: Verify Local Authentication*
+
+----
+# Test local user authentication
+radtest username password localhost 0 testing123
+
+# Check RADIUS logs for authentication details
+tail -f /usr/local/pf/logs/radius.log
+----
+
+*Note:* PPP MSCHAP with local PacketFence accounts was not fully implemented in earlier versions. This modification provides a workaround to use local authentication.
+
+*Affected Versions:* All PacketFence versions
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/37137666/[MSCHAP local authentication issues]
+
+'''
+
+[[radius-audit-logs-empty-v14]]
+=== RADIUS audit logs empty after upgrading to v14.0
+
+*Problem:* After upgrading to PacketFence 14.0, RADIUS audit logs show no entries despite active authentication attempts^[1]^
+
+*Symptoms:*
+
+* `radius_audit_log` table in database remains empty
+* Reports → RADIUS Audit Log shows "No data available"
+* Authentication appears successful in other logs (radiusd.log, packetfence.log)
+* User devices authenticate and get network access normally
+* Database queries show zero records: `SELECT COUNT(*) FROM radius_audit_log;`
+* MySQL error logs may show timestamp-related warnings
+
+*Solution:*
+
+*Step 1: Fix Database Timestamp Issue*
+
+----
+ALTER TABLE radius_audit_log MODIFY created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+----
+
+*Step 2: Clear Redis Cache and Restart Services*
+
+----
+# Clear Redis cache on port 6379
+redis-cli -p 6379
+FLUSHALL
+exit
+
+# Clear Redis cache on port 6380
+redis-cli -p 6380
+FLUSHALL
+exit
+
+# Restart PacketFence services
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+*Step 3: Verify Fix*
+
+----
+# Test authentication and check if logs appear
+mysql -u root -p pf -e "SELECT COUNT(*) FROM radius_audit_log;"
+
+# Monitor new entries in real-time
+watch -n 5 'mysql -u root -p -e "SELECT COUNT(*) FROM pf.radius_audit_log;"'
+----
+
+*Affected Versions:* PacketFence v14.0
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58850683/[RADIUS Audit Logs are empty after migrating to 14.0 from 13.2]
+
+'''
+

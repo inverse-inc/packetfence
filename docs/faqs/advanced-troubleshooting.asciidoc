@@ -1,0 +1,839 @@
+== Advanced Troubleshooting
+
+
+[[rhel9-repository-404-error]]
+=== PacketFence installation fails on RHEL 9 with repository 404 error
+
+*Problem:* Installation attempt on RHEL 9 fails with "Status code: 404" error when accessing PacketFence repository, preventing package installation^[1]^
+
+*Symptoms:*
+
+* Repository error: "Status code: 404 for http://inverse.ca/downloads/PacketFence/RHEL9/..."
+* Unable to install PacketFence packages on RHEL 9
+* Repository configuration appears correct but packages unavailable
+* Installation works on other supported operating systems
+
+*Solution:*
+
+*RHEL 9 is Not Supported - Use Supported Platforms*
+
+PacketFence does not support RHEL 9. Use supported operating systems:
+
+*Step 1: Use Supported Operating Systems*
+
+Switch to a supported platform:
+
+----
+# Supported Platforms (as of 2024):
+# - Red Hat Enterprise Linux 8 (RHEL 8)
+# - CentOS 8
+# - Debian 11
+
+# For RHEL environments, use RHEL 8:
+yum install centos-release-8
+# or
+dnf config-manager --set-enabled powertools
+----
+
+*Step 2: RHEL 8 Installation Process*
+
+Follow proper installation for RHEL 8:
+
+----
+# Add PacketFence repository for RHEL 8:
+curl https://inverse.ca/downloads/PacketFence/RHEL8/packetfence.repo \
+  -o /etc/yum.repos.d/packetfence.repo
+
+# Install PacketFence:
+yum install packetfence
+----
+
+*Step 3: Alternative - Use Debian 11*
+
+Consider Debian 11 for new deployments:
+
+----
+# Add PacketFence repository for Debian 11:
+echo "deb https://inverse.ca/downloads/PacketFence/debian bullseye bullseye" \
+  > /etc/apt/sources.list.d/packetfence.list
+
+# Install GPG key and update:
+wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
+apt update && apt install packetfence
+----
+
+*Important Note:* This is an official limitation confirmed by PacketFence developers. RHEL 9 support is not currently planned.
+
+*Affected Versions:* All PacketFence versions
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58955244/[Packetfence and RHEL 9]
+
+'''
+
+
+[[syslog-error-accumulation]]
+=== Excessive syslog errors filling system logs
+
+*Problem:* System logs get filled with repetitive PacketFence error messages, causing disk space issues and log rotation problems^[1]^
+
+*Symptoms:*
+
+* /var/log/messages grows rapidly in size
+* Disk space warnings due to large log files
+* Repetitive error messages flooding syslog
+* Log rotation not keeping up with error volume
+* System performance degraded due to excessive logging
+* Specific error patterns repeating constantly
+
+*Solution:*
+
+*Identify Error Sources:*
+
+. *Analyze Current Log Patterns:*
++
+----
+# Check current log size and growth
+ls -lh /var/log/messages*
+du -sh /var/log/
+
+# Identify most frequent error patterns
+tail -1000 /var/log/messages | grep -i "packetfence\|pf" | sort | uniq -c | sort -nr | head -20
+----
+
+. *Find Specific PacketFence Errors:*
++
+----
+# Check PacketFence service logs
+tail -100 /usr/local/pf/logs/packetfence.log
+
+# Look for common error patterns
+grep -i "error\|warn\|fail" /usr/local/pf/logs/packetfence.log | tail -50
+----
+
+*Configure Log Filtering:*
+
+----
+# Create rsyslog filter to reduce PacketFence log noise
+cat >> /etc/rsyslog.conf << 'EOF'
+# Filter out repetitive PacketFence messages
+:msg, contains, "specific_repetitive_message" ~
+# Reduce frequency of specific warnings
+:msg, regex, ".*pattern_to_reduce.*" ~
+EOF
+
+# Restart rsyslog to apply changes
+systemctl restart rsyslog
+----
+
+*Log Rotation Configuration:*
+
+----
+# Configure aggressive log rotation for PacketFence logs
+cat > /etc/logrotate.d/packetfence-custom << 'EOF'
+/usr/local/pf/logs/*.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 664 pf pf
+    postrotate
+        /usr/local/pf/bin/pfcmd service pfconfig restart > /dev/null 2>&1 || true
+    endscript
+}
+EOF
+----
+
+*System Log Management:*
+
+----
+# Configure system log size limits
+cat >> /etc/systemd/journald.conf << 'EOF'
+SystemMaxUse=1G
+RuntimeMaxUse=100M
+MaxFileSec=1week
+MaxRetentionSec=1month
+EOF
+
+# Restart systemd-journald
+systemctl restart systemd-journald
+
+# Clean existing large logs if needed
+journalctl --disk-usage
+journalctl --vacuum-size=500M
+----
+
+*Address Root Causes:*
+
+----
+# Fix common sources of log spam
+# 1. Check service status for failing services
+/usr/local/pf/bin/pfcmd service pf status
+
+# 2. Fix permission issues that cause repeated errors
+/usr/local/pf/bin/pfcmd fixpermissions
+
+# 3. Check configuration for misconfigurations causing repeated failures
+/usr/local/pf/bin/pfcmd checkup
+----
+
+*Monitoring and Maintenance:*
+
+----
+# Set up monitoring for log growth
+echo "# Check log size weekly" >> /etc/crontab
+echo "0 2 * * 1 root du -sh /var/log/ | logger -t logsize" >> /etc/crontab
+
+# Regular cleanup script
+cat > /usr/local/bin/pf-log-cleanup.sh << 'EOF'
+#!/bin/bash
+# Clean old PacketFence logs
+find /usr/local/pf/logs/ -name "*.log.*" -mtime +30 -delete
+# Compress large current logs
+find /usr/local/pf/logs/ -name "*.log" -size +100M -exec gzip {} \;
+EOF
+chmod +x /usr/local/bin/pf-log-cleanup.sh
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58721893/[many syslog errors]
+
+'''
+
+[[security-event-not-triggering]]
+=== Security event configuration not triggering despite proper setup
+
+*Problem:* Configured security event rules fail to trigger despite proper authentication and event configuration, with logs showing authentication but no security event activation^[1]^
+
+*Symptoms:*
+
+* Security event rules properly configured but never activate
+* Authentication succeeds but security event remains inactive
+* PacketFence logs show authentication events but no security event triggers
+* Event conditions appear correct but event never fires
+* pfcmd configreload completed but event still inactive
+
+*Solution:*
+
+*Step 1: Verify Security Event Configuration*
+
+Check security event rule configuration:
+
+----
+# In PacketFence admin interface:
+# Configuration → Policies and Access Control → Security Events
+# Verify event conditions are properly set
+# Check trigger conditions match actual authentication data
+
+# Test event configuration:
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
+*Step 2: Debug Security Event Matching*
+
+Enable detailed logging for security events:
+
+----
+# Check security event logs:
+tail -f /usr/local/pf/logs/packetfence.log | grep -i "security.*event"
+
+# Enable debug logging temporarily:
+# Configuration → System Configuration → Advanced → Debug level: DEBUG
+
+# Monitor authentication and event processing:
+tail -f /usr/local/pf/logs/packetfence.log | grep -E "(auth|security|event)"
+----
+
+*Step 3: Verify Event Trigger Conditions*
+
+Check if authentication data matches event criteria:
+
+----
+# Check user authentication details:
+mysql -u pf -p pf -e "SELECT * FROM person WHERE pid='username' LIMIT 5;"
+
+# Check authentication log for detailed user information:
+mysql -u pf -p pf -e "SELECT * FROM auth_log WHERE username='username' ORDER BY attempted_at DESC LIMIT 5;"
+
+# Verify connection profile conditions:
+# Configuration → Policies and Access Control → Connection Profiles
+# Check if profile conditions match security event requirements
+----
+
+*Step 4: Test Event Manually*
+
+Manually trigger security event for testing:
+
+----
+# Manually trigger security event for testing:
+/usr/local/pf/bin/pfcmd security_event trigger <mac_address> <event_id>
+
+# Check if manual trigger works:
+mysql -u pf -p pf -e "SELECT * FROM security_event WHERE mac='<mac_address>' LIMIT 5;"
+
+# If manual trigger works, issue is with automatic detection logic
+----
+
+*Step 5: Review Integration Setup*
+
+For scanner-based events, verify integration:
+
+----
+# For Nessus integration:
+# Configuration → System Configuration → Scan Engines
+# Verify Nessus scanner configuration and connectivity
+# Test scanner connection
+
+# Check scan triggers:
+tail -f /usr/local/pf/logs/packetfence.log | grep -i "scan\|nessus"
+----
+
+*Affected Versions:* All PacketFence versions
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58801294/[Security Events not Working]
+
+'''
+
+
+[[user-database-conflicts]]
+=== User management shows "account already exists" errors
+
+*Problem:* Cannot create, modify, or delete users in PacketFence web interface^[1]^
+getting "account already exists" errors even for new users.
+
+*Solution:*
+
+*Database Consistency Check:*
+----
+# Check if user exists in database:
+mysql -u root -p pf -e "SELECT * FROM person WHERE pid = 'username';"
+
+# Check for orphaned records:
+mysql -u root -p pf -e "SELECT p.pid, n.mac FROM person p LEFT JOIN node n ON p.pid = n.pid WHERE p.pid = 'username';"
+----
+
+*Browser Session Issues:*
+----
+# Try accessing in private/incognito mode to bypass cache
+# Clear browser cache and cookies for PacketFence domain
+# Test with different browser
+----
+
+*Service Verification:*
+----
+# Ensure all PacketFence services are running:
+/usr/local/pf/bin/pfcmd service pf status
+
+# Restart web services if needed:
+/usr/local/pf/bin/pfcmd service httpd.admin restart
+/usr/local/pf/bin/pfcmd service httpd.portal restart
+----
+
+*Database Cleanup (if needed):*
+----
+# Remove orphaned user record (CAUTION: backup first):
+mysql -u root -p pf -e "DELETE FROM person WHERE pid = 'problematic-username';"
+
+# Check for related records that might need cleanup:
+mysql -u root -p pf -e "SELECT * FROM person_role WHERE pid = 'username';"
+mysql -u root -p pf -e "SELECT * FROM activation WHERE pid = 'username';"
+----
+
+*Session Management:*
+----
+# Clear Redis sessions if using Redis for session storage:
+redis-cli -p 6379 FLUSHALL
+
+# Restart pfconfig to clear configuration cache:
+/usr/local/pf/bin/pfcmd service pfconfig restart
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58728427/[Active Directory Domain Configuration fails]
+2. https://sourceforge.net/p/packetfence/mailman/message/58749360/[DA authentication problems]
+
+'''
+
+[[pfconfig-connectivity-problems]]
+=== Service communication errors with pfconfig
+
+*Problem:* Services fail with "Can't connect to pfconfig on^[1]^
+containers-gateway.internal:44444" errors, particularly after system changes
+or reboots.
+
+*Solution:*
+
+*Service Dependency Resolution:*
+
+. *Check pfconfig Service Status:*
++
+----
+# Verify pfconfig is running:
+/usr/local/pf/bin/pfcmd service pfconfig status
+
+# If not running, start it:
+/usr/local/pf/bin/pfcmd service pfconfig start
+----
+
+. *Hostname Resolution:*
++
+----
+# Verify containers-gateway.internal resolves:
+nslookup containers-gateway.internal
+ping containers-gateway.internal
+
+# If resolution fails, check /etc/hosts:
+echo "127.0.0.1 containers-gateway.internal" >> /etc/hosts
+----
+
+. *Network Configuration:*
++
+----
+# Check if pfconfig is listening on correct interface:
+netstat -tlnp | grep :44444
+
+# Verify firewall isn't blocking internal communication:
+iptables -L | grep 44444
+----
+
+*Container Environment Issues:*
+----
+# If running in Docker/containers, verify network configuration:
+docker network ls
+docker exec -it packetfence-container ping containers-gateway.internal
+
+# Check container network connectivity:
+docker exec -it packetfence-container netstat -rn
+----
+
+*Service Restart Sequence:*
+----
+# Proper service restart order:
+/usr/local/pf/bin/pfcmd service pfconfig stop
+/usr/local/pf/bin/pfcmd service pfconfig start
+
+# Wait for pfconfig to be ready:
+sleep 5
+
+# Restart dependent services:
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+*Verification:*
+----
+# Test pfconfig connectivity:
+/usr/local/pf/bin/pfcmd pfconfig get config.Configuration.general.hostname
+
+# Check service logs for errors:
+tail -f /usr/local/pf/logs/pfconfig.log
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/59210893/[Can't connect to pfconfig on containers-gateway.internal:44444]
+
+'''
+
+
+[[debug-logging-ldap-issues]]
+=== Enable DEBUG logging for LDAP authentication troubleshooting
+
+*Problem:* LDAP authentication issues are difficult to troubleshoot without detailed logging information about LDAP queries and responses^[1]^
+
+*Symptoms:*
+
+* Users authenticate but no role is assigned
+* LDAP authentication works inconsistently
+* Role mapping rules appear correct but don't work
+* Need to see actual LDAP queries being performed
+* Authentication source configuration seems correct but results are unexpected
+
+*Solution:*
+
+*Step 1: Enable DEBUG Logging for AAA Service*
+
+Edit the logging configuration file `/usr/local/pf/conf/log.conf.d/httpd.aaa.conf`:
+
+----
+# Change the log level from INFO to DEBUG
+log4perl.rootLogger = DEBUG, HTTPD_AAA
+----
+
+*Step 2: Restart AAA Service*
+
+----
+# Restart the authentication service
+systemctl restart packetfence-httpd.aaa
+----
+
+*Step 3: Monitor Detailed LDAP Queries*
+
+----
+# Monitor the packetfence.log for detailed LDAP information
+tail -f /usr/local/pf/logs/packetfence.log | grep -i ldap
+
+# Look for specific LDAP query details and responses
+tail -f /usr/local/pf/logs/packetfence.log | grep -E "(LDAP|role|attribute)"
+----
+
+*Step 4: Analyze Debug Output*
+
+The DEBUG logging will show:
+* Exact LDAP queries being sent
+* LDAP server responses
+* Attribute matching logic
+* Role assignment decisions
+* Authentication source processing details
+
+*Step 5: Return to Normal Logging*
+
+After troubleshooting, restore normal logging:
+
+----
+# Change log level back to INFO
+log4perl.rootLogger = INFO, HTTPD_AAA
+
+# Restart service
+systemctl restart packetfence-httpd.aaa
+----
+
+*Affected Versions:* All PacketFence versions
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/36415302/[Need help on domain join (debugging)]
+
+'''
+
+
+[[redis-cluster-configuration-errors]]
+=== Redis cluster configuration errors and permission issues
+
+*Problem:* Redis services fail to start in clustered environments with connection errors and permission denied issues, preventing proper cluster operation
+
+*Symptoms:*
+
+* Redis cluster connection refused errors in logs
+* Permission denied errors for redis_queue.conf
+* Services fail to start after cluster setup
+* Files owned by incorrect user (fingerbank instead of pf)
+* Redis services cannot access configuration files
+* Cluster nodes unable to communicate through Redis
+* Service restart failures during cluster initialization
+
+*Solution:*
+
+*Step 1: Fix File Ownership and Permissions*
+
+Correct ownership of PacketFence files and restart services:
+
+----
+# Fix ownership of all PacketFence files
+chown -R pf:pf /usr/local/pf
+
+# Restart PacketFence services
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+*Step 2: Comprehensive Permission and Configuration Reset*
+
+If basic ownership fix doesn't resolve issues:
+
+----
+# Fix all PacketFence file permissions
+/usr/local/pf/bin/pfcmd fixpermissions
+
+# Clear configuration backend cache
+/usr/local/pf/bin/pfcmd pfconfig clear_backend
+
+# Restart configuration service
+systemctl restart packetfence-config
+
+# Hard reload configuration
+/usr/local/pf/bin/pfcmd configreload hard
+
+# Full service restart
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+*Step 3: Verify Redis Cluster Status*
+
+Confirm Redis services are operational:
+
+----
+# Check Redis service status
+systemctl status packetfence-redis-cache
+systemctl status packetfence-redis-ntlm-cache
+
+# Verify Redis connectivity
+redis-cli -p 6379 ping
+redis-cli -p 6380 ping
+
+# Test cluster configuration
+/usr/local/pf/bin/pfcmd configreload
+----
+
+*Root Cause:*
+
+The issue typically occurs when PacketFence files become owned by incorrect users (commonly 'fingerbank' instead of 'pf'), preventing Redis services from accessing required configuration files like redis_queue.conf.
+
+*Prevention:*
+
+Always ensure proper file ownership during cluster setup and after any service installations or updates that might change file permissions.
+
+*Affected Versions:* All PacketFence clustered deployments
+
+*Community Reference:*
+
+1. https://sourceforge.net/p/packetfence/mailman/message/59157390/[Redis cluster errors on new 3-node cluster]
+
+'''
+
+
+[[fingerprinting-api-configuration-issues]]
+=== Fingerprinting not working - API configuration and connectivity issues
+
+*Problem:* Device fingerprinting fails with API connectivity errors and local database matching failures, preventing proper device identification
+
+*Symptoms:*
+
+* Logs show "Cannot find any combination ID in schemas" errors
+* "Unable to perform a Fingerbank lookup" messages
+* Connection errors to API endpoint or local service
+* "Can't connect to 127.0.0.1:4723" service connection failures
+* Fingerbank database queries consistently fail
+* Device identification remains generic instead of specific
+* Local fingerprinting database appears incomplete or unsynchronized
+
+*Solution:*
+
+*Step 1: Verify Fingerbank API Key Configuration*
+
+Ensure proper API key setup for external fingerbank queries:
+
+----
+# Check Fingerbank configuration in PacketFence web interface:
+# Configuration → System Configuration → Fingerbank Settings
+# Verify API key is properly configured and active
+
+# Test API connectivity manually
+curl -v "https://api.fingerbank.org/api/v2/test" \
+  -H "X-Fingerbank-API-Key: YOUR_API_KEY"
+----
+
+*Step 2: Validate Network Connectivity to Fingerbank*
+
+Confirm server can reach Fingerbank API endpoints:
+
+----
+# Test DNS resolution and connectivity
+nslookup api.fingerbank.org
+ping api.fingerbank.org
+
+# Test HTTPS connectivity
+telnet api.fingerbank.org 443
+curl -I https://api.fingerbank.org
+
+# Check firewall rules allow outbound HTTPS
+iptables -L OUTPUT | grep -i https
+----
+
+*Step 3: Troubleshoot Local Fingerbank Service*
+
+Verify local fingerbank collector service is operational:
+
+----
+# Check fingerbank collector service status
+systemctl status packetfence-fingerbank-collector
+
+# Verify service binding and connectivity
+ss -tlnp | grep 4723
+curl -v http://127.0.0.1:4723/
+
+# Check service logs for errors
+tail -f /usr/local/pf/logs/fingerbank.log
+journalctl -u packetfence-fingerbank-collector -f
+----
+
+*Step 4: Synchronize Local Fingerbank Database*
+
+Ensure local fingerbank database is properly synchronized:
+
+----
+# Force fingerbank database synchronization
+/usr/local/pf/bin/pfcmd fingerbank populate
+
+# Verify database synchronization status
+mysql -u pf -p pf -e "SELECT COUNT(*) FROM fingerbank_device;"
+
+# Check for database errors
+tail -f /usr/local/pf/logs/packetfence.log | grep fingerbank
+----
+
+*Step 5: Test Fingerprinting Functionality*
+
+Validate fingerprinting works with known device signatures:
+
+----
+# Test fingerprinting with known MAC address
+/usr/local/pf/bin/pfcmd fingerbank query <mac_address>
+
+# Monitor fingerprinting during device connection
+tail -f /usr/local/pf/logs/fingerbank.log | grep -i lookup
+
+# Verify device classification results in web interface
+----
+
+*Root Cause Analysis:*
+
+Fingerprinting failures typically result from:
+- Misconfigured or missing API credentials
+- Network connectivity blocking access to api.fingerbank.org
+- Local service not running or accessible on port 4723
+- Incomplete local database synchronization
+
+*Prevention:*
+
+- Ensure API key is valid and network connectivity allows HTTPS to api.fingerbank.org
+- Regularly synchronize local fingerbank database
+- Monitor fingerbank collector service status
+
+*Affected Versions:* All PacketFence versions with Fingerbank integration
+
+*Community Reference:*
+
+1. https://sourceforge.net/p/packetfence/mailman/message/59188415/[Fingerprinting not working - API configuration troubleshooting]
+
+'''
+
+
+[[database-maintenance-optimization]]
+=== Database size management and maintenance optimization
+
+*Problem:* PacketFence database grows over time and requires proper maintenance configuration to prevent performance degradation and storage issues
+
+*Symptoms:*
+
+* Database size continuously increasing without cleanup
+* Slow query performance over time
+* Storage space warnings or disk full errors
+* Old data accumulating in audit logs and history tables
+* System performance degradation during database queries
+* Backup processes taking excessive time due to database size
+
+*Solution:*
+
+*Step 1: Verify Automatic Maintenance Configuration*
+
+Check that PacketFence automatic maintenance is properly configured:
+
+----
+# Navigate to maintenance settings in web interface:
+# Configuration → System Configuration → Maintenance
+# Verify automatic cleanup tasks are enabled
+
+# Check maintenance logs for activity:
+tail -f /usr/local/pf/logs/packetfence.log | grep -i maintenance
+
+# Verify nightly cleanup schedule is active:
+grep -i maintenance /usr/local/pf/conf/pf.conf
+----
+
+*Step 2: Monitor Built-in Cleanup Tasks*
+
+PacketFence performs automatic cleanup at regular intervals:
+
+----
+# Basic cleanup tasks run every minute:
+# - Session cleanup
+# - Temporary data removal
+# - Cache maintenance
+
+# Nightly cleanup tasks run at 00:30:
+# - Database optimization
+# - Log rotation
+# - Historical data cleanup
+----
+
+*Step 3: Verify Cleanup Task Status*
+
+Monitor that maintenance tasks are executing successfully:
+
+----
+# Check for maintenance task execution in logs:
+grep "cleanup" /usr/local/pf/logs/packetfence.log | tail -20
+
+# Monitor database size trends:
+mysql -u pf -p pf -e "
+SELECT
+  table_schema AS 'Database',
+  ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS 'Size (MB)'
+FROM information_schema.tables
+WHERE table_schema = 'pf'
+GROUP BY table_schema;"
+
+# Check specific table sizes:
+mysql -u pf -p pf -e "
+SELECT
+  table_name AS 'Table',
+  ROUND(((data_length + index_length) / 1024 / 1024), 2) AS 'Size (MB)'
+FROM information_schema.TABLES
+WHERE table_schema = 'pf'
+ORDER BY (data_length + index_length) DESC;"
+----
+
+*Step 4: Maintenance Configuration Optimization*
+
+Adjust maintenance settings if needed:
+
+----
+# Review maintenance interval settings
+# Configuration → System Configuration → Maintenance
+
+# Common maintenance settings to verify:
+# - Log cleanup frequency
+# - Database optimization schedule
+# - Audit log retention period
+# - Session cleanup intervals
+----
+
+*Step 5: Manual Maintenance (if required)*
+
+For immediate maintenance needs:
+
+----
+# Force immediate maintenance task execution:
+/usr/local/pf/bin/pfcmd maintenance
+
+# Check maintenance task status:
+/usr/local/pf/bin/pfcmd service maintenance status
+
+# Review configuration after changes:
+/usr/local/pf/bin/pfcmd configreload
+----
+
+*Best Practices:*
+
+- Monitor database size trends regularly
+- Verify nightly maintenance tasks are executing
+- Adjust retention periods based on storage capacity
+- Ensure adequate disk space for database operations
+- Schedule regular backup processes that account for database size
+
+*Performance Benefits:*
+
+Proper maintenance configuration provides:
+- Consistent database performance
+- Controlled storage growth
+- Efficient backup and recovery operations
+- Reduced system resource consumption
+
+*Affected Versions:* All PacketFence versions with built-in maintenance
+
+*Community Reference:*
+
+1. https://sourceforge.net/p/packetfence/mailman/message/37649751/[Controlling the PF Database Size]
+
+'''
+

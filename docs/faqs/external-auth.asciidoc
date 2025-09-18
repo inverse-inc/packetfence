@@ -1,0 +1,113 @@
+== External Authentication Integration
+
+
+[[okta-saml-integration]]
+=== Okta SAML integration configuration issues
+
+*Problem:* Cannot successfully configure Okta SAML authentication with PacketFence, users receive authentication errors^[1]^
+
+*Symptoms:*
+* SAML authentication redirects fail
+* Users redirected to Okta but not returned to PacketFence
+* "Invalid SAML Response" errors in logs
+* Certificate validation failures
+* Attribute mapping problems
+
+*Solution:*
+
+*Step 1: Configure Okta Application*
+
+*Create SAML Application in Okta:*
+* Application Type: Web Application
+* SAML Version: 2.0
+* Single Sign-On URL: `https://pf.domain.com/saml/sp/okta`
+* Audience URI: `https://pf.domain.com/saml/sp/okta`
+
+*Configure Attribute Mapping:*
+* Username: `user.login`
+* Email: `user.email`
+* First Name: `user.firstName`
+* Last Name: `user.lastName`
+
+*PacketFence SAML Source Configuration:*
+
+----
+# Configuration → Authentication Sources → Add → SAML
+# Source Name: okta
+# IdP Entity ID: http://www.okta.com/[okta-id]
+# IdP Single Sign-On URL: https://[org].okta.com/app/[app-id]/sso/saml
+# IdP Single Logout URL: https://[org].okta.com/app/[app-id]/slo/saml
+# IdP X.509 Certificate: [Copy from Okta]
+----
+
+*Certificate Configuration:*
+
+----
+# Ensure proper certificate format
+# Download IdP certificate from Okta
+# Configure SP certificate in PacketFence:
+openssl req -new -x509 -days 3652 -nodes -out /usr/local/pf/conf/ssl/saml.crt \
+    -keyout /usr/local/pf/conf/ssl/saml.key
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58749464/[Connect Okta to PacketFence]
+
+'''
+
+[[google-ldap-oauth-issues]]
+=== Google LDAP OAuth authentication problems
+
+*Problem:* Google LDAP authentication fails with OAuth credential errors or connection timeouts^[1]^
+
+*Symptoms:*
+
+* "Unable to use Google LDAP Logins" error messages
+* OAuth token validation failures
+* LDAP connection timeouts to Google servers
+* Users cannot authenticate despite correct Google Workspace setup
+
+*Solution:*
+
+*Google Workspace LDAP Configuration:*
+
+. *Enable LDAP in Google Admin Console:*
+   - Apps → Additional Google Services → LDAP
+   - Enable LDAP access for organization
+   - Configure access credentials
+
+. *Create LDAP Client Certificate:*
+   - Generate client certificate in Google Admin Console
+   - Download certificate and private key
+   - Install on PacketFence server
+
+*PacketFence Google LDAP Source:*
+
+----
+# Configuration → Authentication Sources → Add → LDAP
+# Host: ldaps://ldap.google.com:636
+# Port: 636
+# Encryption: SSL/TLS
+# Base DN: dc=domain,dc=com
+# Bind DN: [Google service account]
+# Client Certificate: /path/to/google-cert.crt
+# Client Key: /path/to/google-key.key
+----
+
+*Certificate Installation:*
+
+----
+# Install Google LDAP certificate
+cp google-ldap.crt /usr/local/pf/conf/ssl/
+cp google-ldap.key /usr/local/pf/conf/ssl/
+chmod 600 /usr/local/pf/conf/ssl/google-ldap.key
+
+# Test LDAP connectivity
+ldapsearch -H ldaps://ldap.google.com:636 -D "bind-dn" -W
+----
+
+*Community Reference:*
+1. https://sourceforge.net/p/packetfence/mailman/message/58752104/[Unable to use Google LDAP Logins]
+
+'''
+

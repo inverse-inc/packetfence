@@ -1,0 +1,80 @@
+== Diagnostic Commands Reference
+
+=== Service Management
+----
+# Check all service status
+/usr/local/pf/bin/pfcmd service pf status
+
+# Restart all services
+/usr/local/pf/bin/pfcmd service pf restart
+
+# Individual service control
+/usr/local/pf/bin/pfcmd service radiusd restart
+/usr/local/pf/bin/pfcmd service httpd.portal restart
+/usr/local/pf/bin/pfcmd service pfconfig restart
+
+# Check cluster node status
+/usr/local/pf/bin/cluster/node
+----
+
+=== Authentication Testing
+----
+# Test authentication source
+pftest authentication username password
+
+# Test RADIUS authentication
+radtest username password radius-server:1812 0 shared-secret
+
+# Debug RADIUS in real-time
+raddebug -t 30
+
+# Monitor RADIUS logs
+tail -f /usr/local/pf/logs/radius.log
+----
+
+=== Network Analysis
+----
+# Monitor VLAN traffic
+tcpdump -i interface_name vlan 102
+
+# Monitor RADIUS traffic
+tcpdump -i any port 1812
+
+# Check network connectivity
+ping domain-controller.domain.com
+telnet radius-server 1812
+----
+
+=== Configuration Management
+----
+# Reload configuration
+/usr/local/pf/bin/pfcmd configreload hard
+
+# Fix file permissions
+/usr/local/pf/bin/pfcmd fixpermissions
+
+# Clear Redis cache
+redis-cli -p 6379 FLUSHALL
+redis-cli -p 6380 FLUSHALL
+
+# Synchronize cluster configuration
+/usr/local/pf/bin/cluster/sync
+----
+
+=== Database Operations
+----
+# Check user in database
+mysql -u root -p pf -e "SELECT * FROM person WHERE pid = 'username';"
+
+# Check node status
+mysql -u root -p pf -e "SELECT * FROM node WHERE mac = 'aa:bb:cc:dd:ee:ff';"
+
+# Check RADIUS audit logs
+mysql -u root -p pf -e "SELECT * FROM radius_audit_log WHERE username = 'user' ORDER BY created_at DESC LIMIT 10;"
+
+# Database maintenance
+mysql -u root -p pf -e "OPTIMIZE TABLE node;"
+----
+
+'''
+

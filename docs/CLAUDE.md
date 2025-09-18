@@ -10,7 +10,7 @@ This file contains guidelines for AI assistants working with PacketFence documen
 - **Section Prefixing**: Prefix section titles with [filename] for context
 - **AsciiDoc Syntax**: Use proper AsciiDoc formatting for headers, lists, code blocks, and cross-references
 - **Image Lines**: Keep image declarations on single lines without line breaks (e.g., `image::radius-workflow.png["WiFi RADIUS workflow",width="75%",scaledwidth="100%"]`)
-- **Admonition Content**: Never use title markers (=, ==, ===, ====) within NOTE, WARNING, TIP, IMPORTANT, or CAUTION blocks
+- **Admonition Line Endings**: Never use CRLF line endings within NOTE, WARNING, TIP, IMPORTANT, or CAUTION admonition blocks between delimiter markers. Use LF line endings for proper AsciiDoc rendering. The delimiter markers themselves (====, ===, etc.) are acceptable for structuring content within admonitions.
 
 ### Content Organization
 - **Heading Hierarchy**: Use consistent heading levels (=, ==, ===, ====)
@@ -147,6 +147,15 @@ This file contains guidelines for AI assistants working with PacketFence documen
 - **Respectful Disagreement**: Disagree respectfully when necessary rather than agreeing with incorrect assumptions
 - **Ask Clarifying Questions**: When requirements are unclear, scope is ambiguous, or multiple approaches exist, ask specific questions before proceeding
 - **Challenge Assumptions**: If a proposed change seems problematic or goes against established patterns, explain why and suggest alternatives
+
+## **File Operations**
+
+### Error Handling for File Operations
+When writing files, please:
+- Retry failed operations 2-3 times
+- Show the error message and retry attempt
+- Only move on after multiple failures
+- Suggest alternative approaches if retries fail
 
 ## **File Maintenance**
 

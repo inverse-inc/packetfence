@@ -1,0 +1,13 @@
+== Additional Resources
+
+For issues not covered in this FAQ:
+
+* **Primary Documentation:** PacketFence Installation Guide, Administration Guide
+* **Network Integration:** PacketFence Network Devices Configuration Guide
+* **Community Support:** https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]
+* **Official Website:** https://packetfence.org
+* **GitHub Issues:** For bug reports and feature requests
+
+*Important Note:* PacketFence is actively developed. Solutions may evolve between
+versions. Always test solutions in a lab environment before implementing in
+production.
