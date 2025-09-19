@@ -1,8 +1,8 @@
-package pf::Switch::Aruba::Mobility_master;
+package pf::Switch::Aruba::Mobility_Master;
 
 =head1 NAME
 
-pf::Switch::Aruba::Mobility_master - Object oriented module to access Aruba Mobility Master
+pf::Switch::Aruba::Mobility_Master - Object oriented module to access Aruba Mobility Master
 
 =head1 SYNOPSIS
 

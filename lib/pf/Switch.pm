@@ -4991,6 +4991,7 @@ sub generateAnsibleConfiguration {
             case /Arista::AristaSwitch/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arista.eos.eos" }
             case /NEC::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "packetfence.comware.comware" }
             case /Aruba::Controller_200/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aruba" }
+            case /Aruba::Mobility_Master/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aos" }
     }
 
     foreach my $role (keys %ConfigRoles) {
