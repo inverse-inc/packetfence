@@ -11,3 +11,5 @@ collections:
       version: 10.1.1
     - name: ansible.netcommon
       version: 8.2.0
+    - name: arubanetworks.aos_wlan_role
+      version: 0.2.0
