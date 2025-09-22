@@ -38,17 +38,13 @@ operating system.
 
 === Minimum Hardware Requirements
 
-Minimum server hardware recommendations:
+**Minimum server hardware recommendations**
 
 [options="compact"]
 * Intel or AMD CPU 3 GHz, 4 CPU cores
 * 16 GB of RAM
 * 200 GB of disk space (RAID-1 recommended)
 * 1 network card (2 recommended)
-
-==== Recommendations
-
-* Use logical volume management (LVM) to allocate space
 
 === Operating System Requirements
 
@@ -63,3 +59,7 @@ Enterprise Linux requires Red Hat Network subscription.
 
 Other distributions like RHEL or Debian derivatives may work but are not
 officially supported or documented.
+
+**Other Recommendations**
+
+* Use logical volume management (LVM) to allocate space
