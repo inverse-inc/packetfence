@@ -134,7 +134,9 @@ and use <<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,export
 of these in-place upgrade procedures.
 ====
 
-. **Before Starting**:
+**Before Starting**:
+
+[options="compact"]
  . **Apply maintenance patches**: Follow <<#_apply_maintenance_patches,Apply maintenance patches procedures>>
  . **Verify current version**: Run `/usr/local/pf/bin/pfcmd version` to confirm your starting version
  . **Plan upgrade path**: Determine if a specifc upgrade steps is neeeded to reach your target
