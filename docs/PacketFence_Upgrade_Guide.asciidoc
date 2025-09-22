@@ -134,28 +134,28 @@ of these in-place upgrade procedures.
 ====
 
 **Before Starting**:
-1. **Apply maintenance patches**: Follow <<#_apply_maintenance_patches,Apply maintenance patches procedures>>
-2. **Verify current version**: Run `/usr/local/pf/bin/pfcmd version` to confirm your starting version
-3. **Plan upgrade path**: Determine if a specifc upgrade steps is neeeded to reach your target
-4. **Review breaking changes**: Check upgrade notes and specific steps for each version in your path
+ . **Apply maintenance patches**: Follow <<#_apply_maintenance_patches,Apply maintenance patches procedures>>
+ . **Verify current version**: Run `/usr/local/pf/bin/pfcmd version` to confirm your starting version
+ . **Plan upgrade path**: Determine if a specifc upgrade steps is neeeded to reach your target
+ . **Review breaking changes**: Check upgrade notes and specific steps for each version in your path
 
 === Standalone Server Upgrades
 
 **Automated Process Available** (PacketFence 11.0+):
-1. **Plan downtime**: Standalone upgrades will imply downtime due to services not available during upgrade
-2. **Check current version**: Confirm you're upgrading to the next sequential version
-3. **Follow automation**: Use <<#_automation_of_upgrades,automation of upgrades>>
-4. **Verify success**: Confirm services start correctly before proceeding to next version
+ . **Plan downtime**: Standalone upgrades will imply downtime due to services not available during upgrade
+ . **Check current version**: Confirm you're upgrading to the next sequential version
+ . **Follow automation**: Use <<#_automation_of_upgrades,automation of upgrades>>
+ . **Verify success**: Confirm services start correctly before proceeding to next version
 
 **Example Upgrade Sequence** (13.0 → 13.2):
-1. Upgrade 13.0 → 13.2 (check 13.1 and 13.2 specific steps, then do the <<#_automation_of_upgrades,Automation of upgrades>>)
+ . Upgrade 13.0 → 13.2 (check 13.1 and 13.2 specific upgrade steps, then do the <<#_automation_of_upgrades,Automation of upgrades>>)
 
 === Cluster Upgrades
 
 **Process**:
-1. **Downtime**: Cluster upgrades require coordination across all nodes in order to avoid important downtime
-2. **Follow cluster guide**: See <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
-3. **Upgrade all nodes**: Ensure all nodes reach the same version
+ . **Downtime**: Cluster upgrades require coordination across all nodes in order to avoid important downtime
+ . **Follow cluster guide**: See <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+ . **Upgrade all nodes**: Ensure all nodes reach the same version
 
 **Critical**: Never have cluster nodes running different versions simultaneously.
 
