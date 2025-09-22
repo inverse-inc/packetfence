@@ -13,7 +13,6 @@ requiring specialized implementations.
 
 include::includes/latest-version-url.asciidoc[]
 
-=== Other sources of information
 :current_guide_developers:
 include::includes/other-sources-information.asciidoc[]
 

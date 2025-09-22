@@ -32,8 +32,6 @@ mentioned here. Always consult the latest documentation for current procedures.
 
 include::includes/latest-version-url.asciidoc[]
 
-=== Other sources of information
-
 include::includes/other-sources-information.asciidoc[]
 
 == Introduction

@@ -14,8 +14,6 @@ respective documentation.
 
 include::includes/latest-version-url.asciidoc[]
 
-=== Other sources of information
-
 :current_guide_clustering:
 include::includes/other-sources-information.asciidoc[]
 

@@ -13,7 +13,6 @@ external authentication systems like Active Directory and LDAP.
 
 include::includes/latest-version-url.asciidoc[]
 
-=== Other sources of information
 :current_guide_installation:
 include::includes/other-sources-information.asciidoc[]
 
