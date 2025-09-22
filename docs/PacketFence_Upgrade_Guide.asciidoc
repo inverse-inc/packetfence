@@ -17,6 +17,20 @@ include::includes/package-tarballs-note.asciidoc[]
 
 == General Upgrade Tips
 
+**Never attempt**: Major version upgrades like 13.x → 14.x (not supported if the OS changed)
+
+**Never attempt**: OS upgrade to reach a new version
+
+[IMPORTANT]
+====
+**Specific upgrade steps exists** :All PacketFence upgrades must be performed
+according to general and specific upgrades steps, like <<#_mariadb_specific_upgrades,MariaDB Specific Upgrades>>.
+
+**Prerequisites**
+The MariaDB root password that was provided during the initial configuration is
+required.
+====
+
 === Operating System Compatibility
 
 PacketFence versions have specific operating system requirements. **Operating
@@ -40,28 +54,11 @@ supported when changing operating systems.
 *RHEL 8 Continuity*: Systems already on RHEL 8 can perform in-place PacketFence
 upgrades through all supported versions without OS migration.
 
-=== MariaDB Specific Upgrades
+=== Specific Upgrades
 
-Some PacketFence **requires specific upgrade steps** because MariaDB must be
-upgraded through major versions. Each PacketFence version is tested with
-specific Minor MariaDB versions (like 10.11.x).
-
-=== Do NOT
-
-**Never attempt**: Major version upgrades like 13.x → 14.x (not supported if the OS changed)
-
-**Never attempt**: OS upgrade to reach a new version
-
-[IMPORTANT]
-====
-**Specific upgrade steps exists**: All PacketFence upgrades must be performed
-according to general and specific upgrades steps, like <<#_mariadb_specific_upgrades,MariaDB Specific Upgrades>>.
-====
-
-=== Prerequisites
-
-The MariaDB root password that was provided during the initial configuration is
-required.
+Some PacketFence **requires specific upgrade steps** for example because
+MariaDB must be upgraded through major versions. Each PacketFence version is
+tested with specific Minor MariaDB versions (like 10.11.x).
 
 === Disable monit alerts (only if monit is installed)
 
@@ -118,10 +115,6 @@ If services fail to start after upgrade, see <<#_service_startup_failures,Servic
 
 == Major/Minor Version Upgrades
 
-**IMPORTANT**: This section covers upgrading between minor versions within the
-same major version. Be aware that even minor version upgrade can have specific
-upgrade steps.
-
 *MANDATORY*: Before every PacketFence upgrade, update all operating system
 packages and <<#_apply_maintenance_patches,Apply Packetfence maintenance patches>>
 to ensure compatibility and security.
@@ -132,6 +125,10 @@ to ensure compatibility and security.
 matrix first. If your target version requires a different operating system, check specific upgrade steps
 and use <<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,export/import migration>> instead
 of these in-place upgrade procedures.
+
+**IMPORTANT**: This section covers upgrading between minor versions within the
+same major version. Be aware that even minor version upgrade can have specific
+upgrade steps.
 ====
 
 **Before Starting**:
@@ -433,6 +430,7 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-13.1-13.2.sql
 == Upgrading from a version prior to 14.0
 
 **OS Requirements**: Debian 12 (bookworm) or RHEL 8
+
 **Upgrade Type**: Database changed for Debian 12
 
 === Specific automation upgrade
@@ -564,15 +562,18 @@ If a force configuration sync has already been done before merging the `domain.c
 There are 2 ways to do this:
 
 ==== option 1: manually merge the domain.conf
- 1. check the `domain.conf` on each of the node and make sure if all the nodes have both their own section and sections of other cluster members
- 2. If there are missing parts, go to each of the node and copy-paste the corresponding part to master node's `domain.conf`.
- 3. save the changes on master node, do a force configuration sync on other nodes.
+
+[options="compact"]
+ . check the `domain.conf` on each of the node and make sure if all the nodes have both their own section and sections of other cluster members
+ . If there are missing parts, go to each of the node and copy-paste the corresponding part to master node's `domain.conf`.
+ . save the changes on master node, do a force configuration sync on other nodes.
 
 ==== option 2: check and rejoin nodes later
 Note:
 Hostnames using the `%h` prefix or suffix must still be used when upgrading from a previous version
 unless specifying individual machine account names for each node.
 
+[options="compact"]
  . Do a configuration sync after upgrade - so all the slave nodes lost their domain config.
  . Open the admin interface, go to _Configuration -> Policies and Access Control -> Active Directory Domains_
  . Take a note of the configuration for later, the entire configuration will need to be replicated on the slave nodes.
@@ -588,16 +589,19 @@ unless specifying individual machine account names for each node.
 === Operating System Migration to PacketFence 14.0+
 
 PacketFence 14.0 introduces changes to supported operating systems:
-- **Dropped**: Debian 11 (bullseye) 
-- **Added**: Debian 12 (bookworm)
-- **Continued**: RedHat EL8 support
+
+[options="compact"]
+ - **Dropped**: Debian 11 (bullseye) 
+ - **Added**: Debian 12 (bookworm)
+ - **Continued**: RedHat EL8 support
 
 ==== RedHat EL8 Systems
 
 **In-place upgrades supported** - Follow standard upgrade procedures:
 
-1. Use the automated upgrade process: <<#_sequential_version_upgrades_minor_versions_only,Sequential Version Upgrades (minor versions only)>>
-2. No OS migration required - PacketFence continues supporting EL8
+[options="compact"]
+ . Use the automated upgrade process: <<#_sequential_version_upgrades_minor_versions_only,Sequential Version Upgrades (minor versions only)>>
+ . No OS migration required - PacketFence continues supporting EL8
 
 ==== Migration to Debian 12
 
@@ -610,16 +614,18 @@ coordination** to prevent data loss. Export/import procedures must include
 **cluster-specific steps** that are not required for standalone installations.
 
 **Critical Cluster Considerations**:
-- Complete cluster shutdown required before export
-- Database cluster state must be verified as synchronized
-- Primary node selection for import process
-- Cluster reconfiguration and rejoining procedures after import
+[options="compact"]
+ - Complete cluster shutdown required before export
+ - Database cluster state must be verified as synchronized
+ - Primary node selection for import process
+ - Cluster reconfiguration and rejoining procedures after import
 ====
 
-1. **Source Systems**: Debian 11 or RedHat EL8 installations
-2. **Target System**: Fresh Debian 12 installation
-3. **Migration Method**: Export/import procedure (detailed below)
-4. **For clusters**: Additional cluster-specific procedures required
+[options="compact"]
+ . **Source Systems**: Debian 11 or RedHat EL8 installations
+ . **Target System**: Fresh Debian 12 installation
+ . **Migration Method**: Export/import procedure (detailed below)
+ . **For clusters**: Additional cluster-specific procedures required
 
 To simplify the upgrade process to PacketFence 14.0 and future versions, we
 utilize a custom export/import procedure that handles MariaDB version
@@ -633,10 +639,12 @@ and target systems automatically. However, specific pre-requisites must be met:
 [IMPORTANT]
 ====
 **MariaDB Backup Package Requirement**:
-- The `mariadb-backup` package is **required** for cluster installations
-- Can also be used for standalone installations for better reliability
-- **Must match major version** of the `mariadb-server` package
-- Different OS versions use different MariaDB versions automatically
+
+[options="compact"]
+ - The `mariadb-backup` package is **required** for cluster installations
+ - Can also be used for standalone installations for better reliability
+ - **Must match major version** of the `mariadb-server` package
+ - Different OS versions use different MariaDB versions automatically
 ====
 
 **Verify MariaDB Backup Compatibility**
@@ -653,9 +661,11 @@ Check that mariadb-backup matches your MariaDB server version:
 ----
 
 **Expected MariaDB Versions by OS**:
-- **Debian 11**: MariaDB server 10.5.24-MariaDB
-- **Debian 12**: MariaDB server 10.11.6-MariaDB
-- **RedHat EL8**: Version server 10.5.24-MariaDB
+
+[options="compact"]
+ - **Debian 11**: MariaDB server 10.5.24-MariaDB
+ - **Debian 12**: MariaDB server 10.11.6-MariaDB
+ - **RedHat EL8**: Version server 10.5.24-MariaDB
 
 **Alternative Export Method**: If mariadb-backup is not installed, use the
 standard export process at <<PacketFence_Installation_Guide.asciidoc#export_on_current_installation,export on current installation>>.
@@ -665,7 +675,6 @@ standard export process at <<PacketFence_Installation_Guide.asciidoc#export_on_c
 ===== Debian 12 Migration Procedure
 
 PacketFence versions < 11.1 must upgrade to 11.1 before continuing.
-
 
 **Step 1: Export from Source System** (Debian 11 or EL8)
 
@@ -787,8 +796,9 @@ schema changes automatically during the migration process.
 **Upgrade Type**: Database changed for RHEL 8
 
 **Expected MariaDB Versions by OS**:
-- **Debian 12**: MariaDB server 10.11.x-MariaDB
-- **RedHat EL8**: Version server 10.11.x-MariaDB
+[options="compact"]
+ - **Debian 12**: MariaDB server 10.11.x-MariaDB
+ - **RedHat EL8**: Version server 10.11.x-MariaDB
 
 == RedHat EL8 Upgrade Procedures
 
@@ -822,8 +832,10 @@ Follow the automated upgrade: <<#_automation_of_upgrades,automation of upgrades>
 **OS Requirements**: Debian 12 (bookworm) or RHEL 8
 
 **Expected MariaDB Versions by OS**:
-- **Debian 12**: MariaDB server 10.11.x-MariaDB
-- **RedHat EL8**: Version server 10.11.x-MariaDB
+
+[options="compact"]
+ - **Debian 12**: MariaDB server 10.11.x-MariaDB
+ - **RedHat EL8**: Version server 10.11.x-MariaDB
 
 === Custom Iptables Rules
 

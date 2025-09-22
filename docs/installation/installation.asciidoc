@@ -115,10 +115,13 @@ all required dependencies.
  * Minimal OS installation (no additional packages)
  * UEFI Secure Boot *disabled* (if applicable)
  * System updated to latest patches
+ * No SELinux or Apparmor enabled
+ * No firewalld (Iptables is used)
 
 ==== RHEL 8 System Preparation
 
 ===== Security Configuration
+
 [source,bash]
 ----
 # Disable firewall and SELinux (required)
