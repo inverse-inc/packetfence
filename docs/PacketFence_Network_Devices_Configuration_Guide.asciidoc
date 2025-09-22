@@ -20,7 +20,8 @@ include::includes/other-sources-information.asciidoc[]
 
 include::includes/package-tarballs-note.asciidoc[]
 
-== Note on Inline enforcement support
+== Important Notes
+=== Inline enforcement support
 
 Inline enforcement does not require this guide, except for RADIUS inline. RADIUS
 inline uses a flat layer-2 network on PacketFence's inline interface with no
@@ -28,13 +29,13 @@ other gateway for Internet access.
 
 Use this technique when network hardware does not support VLAN enforcement.
 
-== Note on RADIUS accounting
+=== RADIUS accounting
 
 Enabling RADIUS accounting on network devices significantly increases database
 size and may cause performance issues. Use RADIUS accounting only if absolutely
 required.
 
-== List of supported Network Devices
+=== Supported Network Devices
 
 include::network/list_of_supported_network_devices.asciidoc[]
 
