@@ -10,6 +10,13 @@ manual configuration migration steps, database schema update procedures, and
 critical upgrade notes. The guide includes troubleshooting procedures for
 common upgrade issues and rollback strategies when necessary.
 
+:current_guide_upgrade:
+include::includes/other-sources-information.asciidoc[]
+
+include::includes/package-tarballs-note.asciidoc[]
+
+== General Upgrade Tips
+
 === Operating System Compatibility
 
 PacketFence versions have specific operating system requirements. **Operating
@@ -42,15 +49,7 @@ specific Minor MariaDB versions (like 10.11.x).
 === Do NOT
 
 **Never attempt**: Major version upgrades like 13.x → 14.x (not supported if the OS changed)
-**Never attempt**: OS upgrade to reach a new version 
-
-=== Other sources of information
-:current_guide_upgrade:
-include::includes/other-sources-information.asciidoc[]
-
-include::includes/package-tarballs-note.asciidoc[]
-
-== General Upgrade Tips
+**Never attempt**: OS upgrade to reach a new version
 
 [IMPORTANT]
 ====

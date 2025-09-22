@@ -11,6 +11,8 @@
 
 ////
 
+=== Other Guides 
+
 ifndef::current_guide_clustering[]
 <<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Comprehensive guide for setting up active/active clustering environments with
@@ -50,6 +52,8 @@ ifndef::current_guide_upgrade[]
   upgrade notes. Includes troubleshooting for common upgrade issues and
   rollback procedures.
 endif::current_guide_upgrade[]
+
+=== Other sources of information 
 
 https://packetfence.org/news.html[PacketFence News]::
   Release announcements with detailed feature descriptions, performance
