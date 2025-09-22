@@ -14,7 +14,6 @@ manufacturers.
 
 include::includes/latest-version-url.asciidoc[]
 
-=== Other sources of information
 :current_guide_network_devices:
 include::includes/other-sources-information.asciidoc[]
 
