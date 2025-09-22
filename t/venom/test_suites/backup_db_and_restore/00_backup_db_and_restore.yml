@@ -19,8 +19,3 @@ testcases:
         "Content-Type": "application/json"
       assertions:
         - result.statuscode ShouldEqual 201
-
-- name: remove_PUBLIC_user_from_mysql.user
-  steps:
-  - type: exec
-    script: "mysql -e'DELETE FROM mysql.user WHERE User=\"PUBLIC\"';"
