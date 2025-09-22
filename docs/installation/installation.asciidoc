@@ -102,12 +102,11 @@ PacketFence provides repositories for *RHEL 8* and *Debian 12* (bookworm) with
 all required dependencies.
 
 *Repository Benefits:*
+
 [options="compact"]
  * Streamlined installation with dependency management
  * Pre-built RPM (EL8) and DEB (Debian 12) packages  
  * Simplified upgrade process
-
-=== Installing PacketFence on existing Linux
 
 ==== Common Prerequisites
 
@@ -138,6 +137,7 @@ PacketFence will not work properly if SELinux is enabled. Explicitly disable SEL
 ===== Kernel and Development Tools
 
 *Prerequisites:*
+
 [options="compact"]
  * Valid RHEL subscription for dependency installation
  * Latest kernel running
@@ -194,7 +194,8 @@ Regarding resolvconf, remove the symlink to that file and create the `/etc/resol
 
 ===== Kernel and Development Tools
 
-*Prerequisites:*  
+*Prerequisites:*
+
 [options="compact"]
  * Fresh Debian 12 (bookworm) installation
  * Latest kernel running
