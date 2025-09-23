@@ -408,10 +408,12 @@ The monit configuration path is different between EL and Debian systems:
 
 EL based systems:
 
+[options="compact"]
 * [filename]`MONIT_PATH=/etc/monit.d`
 
 Debian based systems:
 
+[options="compact"]
 * [filename]`MONIT_PATH=/etc/monit/conf.d`
 
 To simplify further documentation, `$MONIT_PATH` will be used as a reference to these paths herein.

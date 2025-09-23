@@ -23,6 +23,7 @@ use-cases.
 
 The metrics are displayed in 2 separate sections
 
+[options="compact"]
 * Dashboard: This section displays the metrics collected by pfstats for the unregistration/registration status of all nodes managed by PacketFence.
 * Monitoring: This section displays system metrics collected by Netdata for the local host (standalone), or all hosts in a cluster.
 
@@ -53,6 +54,7 @@ Monitoring: The monitoring section displays the metrics collected by netdata for
 
 The User Interface (Web Admin) now includes:
 
+[options="compact"]
 * A duration selection that can be used to zoom-in/zoom-out the timeline, up to a maximum of 28 days. If the retention rate is increased, these selections will remain the same.
 * A "Netdata Cloud" button that opens a new window with the Netdata UI. Once launched the user can login anonymously (bottom-right), or the session_id can be used to attach the PacketFence instance to the Netdata Cloud.
 * A zoom-able popup that displays and compares a single metric for all members in the cluster. Click any metric title to open this popup.

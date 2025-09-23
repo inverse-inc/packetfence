@@ -59,6 +59,7 @@ To enable Web Authentication, go to your WLAN in _Configure -> WLAN_, create a
 new WLAN with open Security, and click on the tab *Guest Access* to set the
 following:
 
+[options="compact"]
 * Enable: check the box
 * Portal Mode: External Hotspot
 * Access Policy: Radius

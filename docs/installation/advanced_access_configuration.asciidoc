@@ -24,10 +24,11 @@ PacketFence provides a default connection profile. The follow parameters are
 important to configure whether the default connection profile is used or a new
 one is created:
 
-*Redirect URL* under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name_
+*Redirect URL* under _Configuration -> Policies and Access Control ->
+  Connection Profile -> Profile Name_
 
 For some browsers, it is preferable to redirect the user to a specific URL
-instead of the URL the user originally intended to visit. For these browsers,
+instead of the URL originally intended to visit. For these browsers,
 the URL defined in `redirecturl` will be where the user is redirected. Affected
 browsers are Firefox 3 and later.
 
@@ -36,8 +37,7 @@ browsers are Firefox 3 and later.
 This IP is used as the web server that hosts the
 [filename]`common/network-access-detection.gif` which is a pixel-gif used to
 detect network access. The IP cannot be a domain name since it is used during
-Registration and Isolation where DNS is black-holed. It is recommended to allow
-users to reach the PacketFence server with the PacketFence LAN IP.
+Registration and Isolation where DNS is black-holed. Allow users to reach the PacketFence server with the PacketFence LAN IP.
 
 In some cases, a different captive portal may be presented (see below for the
 available customizations) according to the SSID, the VLAN, the switch IP/MAC or
@@ -62,9 +62,13 @@ filter = the name of the SSID or the VLAN to apply the profile
 sources = a comma-separated list of authentications sources (IDs) to use
 ----
 
-Connection profiles should be managed from the admin interface - from the _Configuration -> Policies and Access Control -> Connection Profiles_ section. Adding a new connection profile will make a copy of the default templates - which can then be modified as desired.
+Connection profiles should be managed from the admin interface - from the
+_Configuration -> Policies and Access Control -> Connection Profiles_ section.
+Adding a new connection profile will make a copy of the default templates -
+which can then be modified as desired.
 
-*Filters* under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Filters_
+*Filters* under _Configuration -> Policies and Access Control ->
+  Connection Profile -> Profile Name -> Filters_
 
 .PacketFence offers the following filters:
 [source,ini]
@@ -87,15 +91,18 @@ Example with common filters:
 [options="compact"]
  * *SSID:* Guest-SSID
  * *VLAN:* 100
- * *Time period:* wd {Mon Tue} hr {1pm-3pm} -- See https://metacpan.org/pod/release/PRYAN/Period-1.20/Period.pm
+ * *Time period:* wd {Mon Tue} hr {1pm-3pm} -- See
+   https://metacpan.org/pod/release/PRYAN/Period-1.20/Period.pm
  * *Switch Port:* <SwitchId>-<Port>
  * *Network:* IP address or Network CIDR
 
 CAUTION: Node role is only used with 802.1X connections and VLAN filters.
 
-*Advanced filter* under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Advanced Filter_
+*Advanced filter* under _Configuration -> Policies and Access Control ->
+  Connection Profile -> Profile Name -> Advanced Filter_
 
-This section defines how to create an advanced filter to match specific attributes.
+This section defines how to create an advanced filter to match specific
+attributes.
 
 The following attributes are supported:
 
@@ -177,7 +184,8 @@ Match machine authentication on secure wireless ssid:
 machine_account != "" && connection_type == Wireless-802.11-EAP
 ----
 
-Match machine authentication from a previous connection and is connected on a secure ssid:
+Match machine authentication from a previous connection and is connected on a
+secure ssid:
 [source]
 ----
 machine_account != "" && ssid == Secure
@@ -335,26 +343,49 @@ Example of attributes that can be filtered:
 'last_start_time` => `2019-08-15 16:09:16'
 ----
 
-PacketFence uses Apache for its captive portal, administration interface and Web services. The PacketFence Apache configuration is located in [filename]`/usr/local/pf/conf/httpd.conf.d/`.
+PacketFence uses Apache for its captive portal, administration interface and
+Web services. The PacketFence Apache configuration is located in
+[filename]`/usr/local/pf/conf/httpd.conf.d/`.
 
-.In this directory the following important files are used for different purposes:
+.In this directory the following important files are used for different
+purposes:
 [options="compact"]
  * `httpd.admin`: used to manage PacketFence admin interface
  * `httpd.portal`: used to manage PacketFence captive portal interface
  * `httpd.webservices`: used to manage PacketFence webservices interface
  * `httpd.aaa`: used to manage incoming RADIUS requests
 
-These files are dynamically generated with Perl and services are only activated on the network interfaces needed for each purpose.
+These files are dynamically generated with Perl and services are only
+activated on the network interfaces needed for each purpose.
 
-The other files in this directory are managed by PacketFence using templates, so it is easy to modify these files based on the configuration. SSL is enabled by default to secure access.
+The other files in this directory are managed by PacketFence using templates,
+so it is easy to modify these files based on the configuration. SSL is enabled
+by default to secure access.
 
-During installation self-signed certificates will be created in [filename]`/usr/local/pf/conf/ssl/` (`server.key` and `server.crt`). The certificates can be replaced anytime by either a 3rd-party or existing wildcard certificate without issue. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file [filename]`/usr/local/pf/conf/pf.conf`.
+During installation self-signed certificates will be created in
+[filename]`/usr/local/pf/conf/ssl/` (`server.key` and `server.crt`). The
+certificates can be replaced anytime by either a 3rd-party or existing wildcard
+certificate without issue. Please note that the CN (Common Name) needs to be
+the same as the one defined in the PacketFence configuration file
+[filename]`/usr/local/pf/conf/pf.conf`.
 
 ==== Reuse 802.1X credentials
 
-In certain circumstances - for example to show an AUP after a successful 802.1X connection - "SSO emulation" may be used so that the user does not need to re-enter their credentials on the portal after having entered them during 802.1X EAP. The connection profile option `Reuse 802.1X credentials` can be enabled for this purpose. The username used during the 802.1X connection will be reused with the different authentication sources to recompute the role from the portal.
+In certain circumstances - for example to show an AUP after a successful
+802.1X connection - "SSO emulation" may be used so that users do not need
+to re-enter their credentials on the portal after having entered them during
+802.1X EAP. The connection profile option `Reuse 802.1X credentials` can be
+enabled for this purpose. The username used during the 802.1X connection will
+be reused with the different authentication sources to recompute the role from
+the portal.
 
-As a security precaution, this option will only reuse 802.1X credentials if there is an authentication source matching the provided realm. This means, if users use 802.1X credentials with a domain part (`username@domain`, `domain\username`), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1X credentials with a domain part, only the NULL realm will be matched IF an authentication source is configured for it.
+As a security precaution, this option will only reuse 802.1X credentials if
+there is an authentication source matching the provided realm. This means, when
+users use 802.1X credentials with a domain part (`username@domain`,
+`domain\username`), the domain part needs to be configured as a realm under
+the RADIUS section and an authentication source needs to be configured for that
+realm. When users do not use 802.1X credentials with a domain part, only the NULL
+realm will be matched IF an authentication source is configured for it.
 
 === Filter Engine Macros
 
@@ -388,7 +419,8 @@ assigns the upper case value of Calling-Station-Id to PacketFence-UserName.
 
 [source,ini]
 ----
- Calling-Station-Id = "00:10:7f:38:89:9d" -> PacketFence-UserName = "00:10:7F:38:89:9D"
+ Calling-Station-Id = "00:10:7f:38:89:9d" ->
+   PacketFence-UserName = "00:10:7F:38:89:9D"
 ----
 
 ==== lc
@@ -457,7 +489,8 @@ assigns the EUI48 MAC address to PacketFence-UserName.
 
 [source,ini]
 ----
- Calling-Station-Id = "00:10:7f:38:89:9d" -> PacketFence-UserName = "00-10-7F-38-89-9D"
+ Calling-Station-Id = "00:10:7f:38:89:9d" ->
+   PacketFence-UserName = "00-10-7F-38-89-9D"
 ----
 
 ==== random_from_range
@@ -489,7 +522,8 @@ Example:
  PacketFence-UserName = ${log($radius_request.User-Name." logged")}
 ----
 
-logs the value of the RADIUS request attribute User-Name appended with " logged".
+logs the value of the RADIUS request attribute User-Name appended with
+" logged".
 
 [source,ini]
 ----
@@ -507,7 +541,8 @@ Example:
  PacketFence-UserName = ${replace($radius_request.User-Name,"z","r")}
 ----
 
-replace the character "z" by the character "r" from User-Name and assign it to PacketFence-UserName.
+replace the character "z" by the character "r" from User-Name and assign it
+to PacketFence-UserName.
 
 [source,ini]
 ----
@@ -522,19 +557,25 @@ Example:
 
 [source,ini]
 ----
-  TLS-Stripped-UserName = ${BuildFromMatch($radius_request.TLS-Client-Cert-Common-Name,"^[^@]+","$0")}
+  TLS-Stripped-UserName =
+    ${BuildFromMatch($radius_request.TLS-Client-Cert-Common-Name,"^[^@]+","$0")}
 ----
 
-extract the value from TLS-Client-Cert-Common-Name before the @ sign and assign it to TLS-Stripped-UserName.
+extract the value from TLS-Client-Cert-Common-Name before the @ sign and
+assign it to TLS-Stripped-UserName.
 
 [source,ini]
 ----
- TLS-Client-Cert-Common-Name = "zammit@packetfence.org" -> TLS-Stripped-UserName = "zammit"
+ TLS-Client-Cert-Common-Name = "zammit@packetfence.org" ->
+   TLS-Stripped-UserName = "zammit"
 ----
 
 === VLAN Filters
 
-Filters can be defined directly in the portion of code that re-evaluates the VLAN or performs API calls when a RADIUS request is received. These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
+Filters can be defined directly in the portion of code that re-evaluates the
+VLAN or performs API calls when a RADIUS request is received. These filters
+can be defined in _Configuration -> Advanced Access Configuration -> Filter
+engines_.
 
 These rules are available in different scopes:
 
@@ -564,16 +605,21 @@ And can be defined using different criteria:
   radius_request.attribute (like radius_request.Calling-Station-Id)
 ----
 
-Default VLAN filters are defined in the configuration that can be used to achieve the following goals:
+Default VLAN filters are defined in the configuration that can be used to
+achieve the following goals:
 
 EXAMPLE_Reject_between_11am_2pm::
-  prevent a registered device from connecting when its role is default, the SSID is SECURE, the current time is between 11am and 2pm, from Monday to Friday.
+  prevent a registered device from connecting when its role is default, the
+  SSID is SECURE, the current time is between 11am and 2pm, from Monday to
+  Friday.
 
 EXAMPLE_Trigger_event_if_user::
-  create a security event if the SSID is OPEN and the owner is igmout (the security event needs to have a custom trigger with the value 12345).
+  create a security event if the SSID is OPEN and the owner is igmout (the
+  security event needs to have a custom trigger with the value 12345).
 
 EXAMPLE_Autoregister_if_user::
-  autoregister the device and assign the role staff to each device if the username is igmout.
+  autoregister the device and assign the role staff to each device if the
+  username is igmout.
 
 EXAMPLE_Autoregister_windows_devices::
   autoregister all Windows devices and assign them the default role.
@@ -582,7 +628,8 @@ EXAMPLE_Reject_specific_MAC::
   filter a MAC address and reject it by assigning the REJECT role.
 
 EXAMPLE_Detect_VOIP::
-  set Avaya and Polycom as phones by matching vendor MAC and set to default role.
+  set Avaya and Polycom as phones by matching vendor MAC and set to default
+  role.
 
 EXAMPLE_Reject_User_Unless_Machine::
   refuse user authentication without prior machine authentication.
@@ -590,14 +637,20 @@ EXAMPLE_Reject_User_Unless_Machine::
 EXAMPLE_Autoregister_Printer_Scanner::
   autoregister printers and scanners and add a note.
 
-Several examples on how to use and define filters are included in [filename]`/usr/local/pf/conf/vlan_filters.conf.defaults`.
+Several examples on how to use and define filters are included in
+[filename]`/usr/local/pf/conf/vlan_filters.conf.defaults`.
 
 === RADIUS Filters
 
-Filters can be defined directly in the portion of code that returns RADIUS attributes or performs API calls when a RADIUS request is received. These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
+Filters can be defined directly in the portion of code that returns RADIUS
+attributes or performs API calls when a RADIUS request is received. These
+filters can be defined in _Configuration -> Advanced Access Configuration ->
+Filter engines_.
 
-We added the ability to specify filters directly in the portion of code that return RADIUS attributes or do a call to the API.
-These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
+We added the ability to specify filters directly in the portion of code that
+return RADIUS attributes or do a call to the API.
+These filters can be defined in _Configuration -> Advanced Access
+Configuration -> Filter engines_.
 
 These rules are available in thoses scopes:
 
@@ -607,25 +660,34 @@ These rules are available in thoses scopes:
   returnAuthorizeRead: return the answer for the switch read login access
   returnAuthorizeWrite: return the answer for the switch write login access
   returnAuthorizeVoip: return the answer for a VoIP device
-  preProcess: manipulate the RADIUS context (example: add custom attributes to the request)
+  preProcess: manipulate the RADIUS context (example: add custom attributes
+    to the request)
 ----
 
 [source,ini]
 ----
-  packetfence.authorize: call the RADIUS filter in the packetfence authorize section
-  packetfence.authenticate: call the RADIUS filter in the packetfence authenticate section
-  packetfence.pre-proxy: call the RADIUS filter in the packetfence pre-proxy section
-  packetfence.post-proxy: call the RADIUS filter in the packetfence post-proxy section
-  packetfence-tunnel.authorize: call the RADIUS filter in the packetfence-tunnel authorize section
+  packetfence.authorize: call the RADIUS filter in the packetfence authorize
+    section
+  packetfence.authenticate: call the RADIUS filter in the packetfence
+    authenticate section
+  packetfence.pre-proxy: call the RADIUS filter in the packetfence pre-proxy
+    section
+  packetfence.post-proxy: call the RADIUS filter in the packetfence
+    post-proxy section
+  packetfence-tunnel.authorize: call the RADIUS filter in the
+    packetfence-tunnel authorize section
   packetfence.preacct: call the RADIUS filter in the packetfence preacct section
-  packetfence.accounting: call the RADIUS filter in the packetfence accounting section
+  packetfence.accounting: call the RADIUS filter in the packetfence
+    accounting section
   eduroam.authorize: call the RADIUS filter in the eduroam accounting section
   eduroam.pre-proxy:  call the RADIUS filter in the pre-proxy accounting section
-  eduroam.post-proxy: call the RADIUS filter in the post-proxy accounting section
+  eduroam.post-proxy: call the RADIUS filter in the post-proxy accounting
+    section
   eduroam.preacct: call the RADIUS filter in the eduroam preacct section
 ----
 
-All the `packetfence.*` and `eduroam.*` scopes are explained in [filename]`/user/local/pf/conf/radius_filters.conf`.
+All the `packetfence.*` and `eduroam.*` scopes are explained in
+[filename]`/user/local/pf/conf/radius_filters.conf`.
 
 And can be defined using different criteria like:
 
@@ -646,28 +708,38 @@ And can be defined using different criteria like:
   vlan
 ----
 
-Default RADIUS filters are defined in the configuration that can be used to achieve the following goals:
+Default RADIUS filters are defined in the configuration that can be used to
+achieve the following goals:
 
 EXAMPLE_Ethernet-EAP-Accept::
-  returns Access-Accept (with Cisco-AVPair attribute) when the connection is Ethernet-EAP and no security event exists.
+  returns Access-Accept (with Cisco-AVPair attribute) when the connection is
+  Ethernet-EAP and no security event exists.
 
 EXAMPLE_Session-timeout_Idle-Timeout_Terminate_action::
-  filter on the switch IP addresses and add the Session-Timeout (with a value between 10620 and 12600), the Idle-Timeout and Terminate-Action RADIUS attributes.
+  filter on the switch IP addresses and add the Session-Timeout (with a value
+  between 10620 and 12600), the Idle-Timeout and Terminate-Action RADIUS
+  attributes.
 
 EXAMPLE_ipad_by_name::
-  use Fingerbank to target specific devices (Apple iPad) and add Cisco ACL(s) to them.
+  use Fingerbank to target specific devices (Apple iPad) and add Cisco
+  ACL(s) to them.
 
 EXAMPLE_eap-tls-preProcess::
-  create RADIUS attributes that will be used internally (like authentication rules).
-  Add the TLS-Stripped-UserName RADIUS attribute in the request which can be used in the authentication/administrations rules.
+  create RADIUS attributes that will be used internally (like authentication
+  rules).
+  Add the TLS-Stripped-UserName RADIUS attribute in the request which can be
+  used in the authentication/administrations rules.
 
-Several examples on how to use and define filters are included in [filename]`/usr/local/pf/conf/radius_filters.conf.defaults`.
+Several examples on how to use and define filters are included in
+[filename]`/usr/local/pf/conf/radius_filters.conf.defaults`.
 
 === Advanced LDAP Authentication
 
 ==== LDAPfilter actions
 
-LDAPfilter actions override the internal LDAP filter that PacketFence creates internally (uid=$username) so a custom filter can be created that matches specific needs.
+LDAPfilter actions override the internal LDAP filter that PacketFence
+creates internally (uid=$username) so a custom filter can be created that
+matches specific needs.
 
 Example user search that checks permission based on some criteria:
 
@@ -680,13 +752,19 @@ Example user search that checks permission based on some criteria:
 
 `set_role_on_not_found` defines a role if the rule does not match.
 
-Adding the action `set_role_on_not_found = REJECT` will reject the device if the LDAP filter match returns empty. On the other hand, if a filter match is found then the `set_role` action is applied.
+Adding the action `set_role_on_not_found = REJECT` will reject the device if
+the LDAP filter match returns empty. On the other hand, if a filter match is
+found then the `set_role` action is applied.
 
 ==== Action role_from_source
 
-`role_from_source` checks if the LDAP attribute exists, if so it is added in the `ldap_attribute` context (available in the RADIUS filters).
+`role_from_source` checks if the LDAP attribute exists, if so it is added
+in the `ldap_attribute` context (available in the RADIUS filters).
 
-Example that takes the LDAP attribute `customRadius` value and adds it in the RADIUS answer. In the authentication rule add an action "Role from source" to `customRadius`. Next create a RADIUS filter that will add the custom RADIUS attributes:
+Example that takes the LDAP attribute `customRadius` value and adds it in the
+RADIUS answer. In the authentication rule add an action "Role from source" to
+`customRadius`. Next create a RADIUS filter that will add the custom RADIUS
+attributes:
 
 [source,ini]
 ----
@@ -694,18 +772,22 @@ Example that takes the LDAP attribute `customRadius` value and adds it in the RA
   status=enabled
   answer.0=reply:Packetfence-Raw = $ldap_attribute.customRadius
   top_op=and
-  description=If the role has been computed from the action set_role_from_source then return the value of the role as a RADIUS attribute
+  description=If the role has been computed from the action
+    set_role_from_source then return the value of the role as a RADIUS attribute
   scopes=returnRadiusAccessAccept
   radius_status=RLM_MODULE_OK
   merge_answer=no
   condition=action == "set_role_from_source"
 ----
 
-NOTE: This supports multiple LDAP attributes, like `customRadius:Airespace-Interface-Name=internet` and `customRadius:Aruba-User-Vlan=666`.
+NOTE: This supports multiple LDAP attributes, like
+`customRadius:Airespace-Interface-Name=internet` and
+`customRadius:Aruba-User-Vlan=666`.
 
 ==== Append search attributes LDAP filter
 
-This option will add an AND condition (&) to the LDAP filter generated by PacketFence.
+This option will add an AND condition (&) to the LDAP filter generated by
+PacketFence.
 
 Example of an LDAP filter that is generated by PacketFence:
 
@@ -728,15 +810,18 @@ The filter will be combined and generated as:
   (&(|(sAMAccountName=%{User-Name})(sAMAccountName=%{Stripped-User-Name})(cn=%{User-Name})(cn=%{Stripped-User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))(|(memberOf=CN=Staff,OU=Security Groups,DC=ad,DC=zammitcorp,DC=com)(wifi=enabled)))
 ----
 
-If the "Search Attributes" feature is not required, this will still store the users` DN in the PacketFence-UserDN attribute.
+If the "Search Attributes" feature is not required, this will still store the
+users` DN in the PacketFence-UserDN attribute.
 
 ==== basedn condition
 
-This condition overrides the default `basedn` in the LDAP source and will test if an object is in a specific OU.
+This condition overrides the default `basedn` in the LDAP source and will
+test if an object is in a specific OU.
 
 === Advanced Realm Configuration
 
-Multiple realms can be defined to select which domain is used to authenticate users.
+Multiple realms can be defined to select which domain is used to authenticate
+users.
 
 A Realm is defined with a regex in order to match multiple formats.
 
@@ -747,4 +832,6 @@ For example in the ZAMMITCORP realm we define the regex like this:
   .*\.zammitcorp.com\.com$
 ----
 
-Thus in the case of username mickey@le.zammitcorp.com, the realm is defined as _le.zammitcorp.com_ - which is included in the RADIUS request - and the user is mapped with the _ZAMMITCORP_ realm.
+Thus in the case of username mickey@le.zammitcorp.com, the realm is defined
+as _le.zammitcorp.com_ - which is included in the RADIUS request - and the
+user is mapped with the _ZAMMITCORP_ realm.

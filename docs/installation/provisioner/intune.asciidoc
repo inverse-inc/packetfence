@@ -67,6 +67,7 @@ configuration"]
 
 Now configure this new provisioner with the information you got above.
 
+[options="compact"]
 * The Provisioning ID is the friendly name of the provisioner.
 * The Application ID is the 'Application (client ID)'.
 * The Application Secret is the 'Client secret'.

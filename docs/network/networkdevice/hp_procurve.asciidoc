@@ -22,6 +22,7 @@ endif::[]
 PacketFence supports ProCurve switches _without VoIP_ using two different trap
 types:
 
+[options="compact"]
 * linkUp/linkDown
 * Port Security (with static MACs)
 
@@ -308,16 +309,19 @@ authentication, and MAC authentication. You can configure 802.1X, web-based
 authentication, and/or MAC authentication to operate simultaneously on the same
 ports.
 
+[options="compact"]
 * 802.1X Option:
 
   aaa port-access authenticator <port-list>
   aaa authentication port-access chap-radius
   aaa port-access authenticator active
 
+[options="compact"]
 * MAC Authentication Option:
 
   aaa port-access mac-based <port-list>
 
+[options="compact"]
 * Web Authentication Option:
 
   aaa port-access web-based <port-list>

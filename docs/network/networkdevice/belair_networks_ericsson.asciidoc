@@ -39,6 +39,7 @@ Once you have the VLANs setup, you need to add PacketFence into the AAA Server
 list. Go to _System -> Radius Servers_. Click on *Add server*, and fill out the
 proper information.
 
+[options="compact"]
 * Ensure the Enabled checkbox is selected
 * IP Address: Insert the IP Address of the PacketFence Management Interface
 * Shared Secret: Insert the shared secret for RADIUS communication
@@ -54,6 +55,7 @@ describe how to configure a WPA2-Enterprise SSID. First, we will configure the
 Click on _Wifi-1-1 -> Access SSID Config_. From the *Configuration for SSID*
 dropdown, select the 1 entry. Modify the fields like the following:
 
+[options="compact"]
 * SSID: Put your SSID Name you would like
 * Type: Broadcast
 * Use Privacy Mode: WPA2(AES) with EAP/DOT1x

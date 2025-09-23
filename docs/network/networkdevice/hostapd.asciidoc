@@ -28,6 +28,7 @@ there is a limitation with the DAE server.
 
 ==== Assumptions
 
+[options="compact"]
 * You have a configured PacketFence environment with working test equipment
 * The management IP of PacketFence will be 192.168.1.10 and has s3cr3t as its RADIUS shared secret
 * You have an access point with OpenWrt Chaos Calmer 15.05 installed

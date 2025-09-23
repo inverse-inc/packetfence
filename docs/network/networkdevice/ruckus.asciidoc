@@ -27,6 +27,7 @@ We need to define the RADIUS and RADIUS accounting (mandatory):
 Under _Configuration -> AAA Servers_, click on the *Create New* button. Enter
 the proper configuration:
 
+[options="compact"]
 * Enter a server name
 * Select either RADIUS or RADIUS accounting as the type
 * Use PAP as the Auth Method
@@ -43,6 +44,7 @@ Under _Configuration -> WLAN_, click on the *Create New* button. Enter the
 proper configuration:
 
 .Open SSID
+[options="compact"]
 * Enter a Name/SSID
 * Select *Standard Usage* as the Type
 * Select *MAC Address* as the authentication type
@@ -55,6 +57,7 @@ versions of ZoneDirector (Firmware 9.3.0.0.83) but newer versions (Firmware
 9.10.0.0.218 or newer) do support it.
 
 .Secure SSID
+[options="compact"]
 * Enter a Name/SSID
 * Select *Standard Usage* as the Type
 * Select *WPA2* as the authentication type

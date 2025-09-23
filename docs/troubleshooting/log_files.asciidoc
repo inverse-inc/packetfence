@@ -1,10 +1,12 @@
 === Log files
 
-Log files are in [filename]`/usr/local/pf/logs`. Each service has its own log file, except
+Log files are in [filename]`/usr/local/pf/logs`. Each service has its own log
+file, except
 `packetfence.log` which contains logs from multiple services. View complete log
 file list via _Audit -> Live logs_ menu in web admin.
 
-Main logging configuration is in [filename]`/usr/local/pf/conf/log.conf`. Contains
+Main logging configuration is in [filename]`/usr/local/pf/conf/log.conf`.
+Contains
 `packetfence.log` configuration (`Log::Log4Perl`) - normally no modification
 needed. Service-specific logging configurations are in
 [filename]`/usr/local/pf/conf/log.conf.d/`.
@@ -13,8 +15,10 @@ needed. Service-specific logging configurations are in
 
 - **`packetfence.log`**: General PacketFence application logs
 - **`radius.log`**: FreeRADIUS authentication and accounting logs  
-- **`mariadb.log`**: Database server logs (renamed from mariadb_error.log in v12+)
-- **`httpd.apache`**: Apache web server logs (consolidated from multiple httpd logs in v12+)
+- **`mariadb.log`**: Database server logs (renamed from mariadb_error.log in
+  v12+)
+- **`httpd.apache`**: Apache web server logs (consolidated from multiple httpd
+  logs in v12+)
 
 **Useful Log Monitoring Commands:**
 

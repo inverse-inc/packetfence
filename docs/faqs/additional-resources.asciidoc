@@ -2,6 +2,7 @@
 
 For issues not covered in this FAQ:
 
+[options="compact"]
 * **Primary Documentation:** PacketFence Installation Guide, Administration Guide
 * **Network Integration:** PacketFence Network Devices Configuration Guide
 * **Community Support:** https://sourceforge.net/p/packetfence/mailman/packetfence-users/[PacketFence Users Mailing List]

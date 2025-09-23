@@ -26,6 +26,7 @@ updates, but RADIUS accounting traffic is also supported.
 To configure firewall updates, go to _Configuration -> System Configuration ->
 Main Configuration -> Advanced_:
 
+[options="compact"]
 * Trigger Single-Sign-On on accounting.
 * Trigger Single-Sign-On on DHCP
 

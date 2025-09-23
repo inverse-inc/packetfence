@@ -17,14 +17,16 @@ include::includes/package-tarballs-note.asciidoc[]
 
 == General Upgrade Tips
 
-**Never attempt**: Major version upgrades like 13.x → 14.x (not supported if the OS changed)
+**Never attempt**: Major version upgrades like 13.x → 14.x (not supported if the
+OS changed)
 
 **Never attempt**: OS upgrade to reach a new version
 
 [IMPORTANT]
 ====
 **Specific upgrade steps exists** :All PacketFence upgrades must be performed
-according to general and specific upgrades steps, like <<#_mariadb_specific_upgrades,MariaDB Specific Upgrades>>.
+according to general and specific upgrades steps, like
+<<#_mariadb_specific_upgrades,MariaDB Specific Upgrades>>.
 
 **Prerequisites**
 The MariaDB root password that was provided during the initial configuration is
@@ -56,8 +58,9 @@ upgrades through all supported versions without OS migration.
 
 === Specific Upgrades
 
-Certain PacketFence upgrades **require following specific procedures**, particularly when
-upgrading MariaDB across major versions. Each PacketFence release is validated against
+Certain PacketFence upgrades **require following specific procedures**,
+particularly when upgrading MariaDB across major versions. Each PacketFence release
+is validated against
 specific minor versions of MariaDB (e.g., 10.11.x).
 
 === Disable monit alerts (only if monit is installed)
@@ -85,7 +88,8 @@ services have been restarted correctly before moving to the next node.
 
 === Stop all PacketFence services
 
-It is recommended to stop all PacketFence services that are currently running before proceeding any further:
+It is recommended to stop all PacketFence services that are currently running
+before proceeding any further:
 
 [source,bash]
 ----

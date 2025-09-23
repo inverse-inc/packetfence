@@ -43,12 +43,15 @@ this from _Configuration -> Network Configuration -> Inline_ - by checking or
 not the `Reauthenticate node` checkbox.
 
 By default the inline traffic is forwarded through the management network
-interface but it is possible to specify another one by adding in [filename]`conf/pf.conf` the
-option `interfaceSNAT` in inline section of the [filename]`conf/pf.conf` configuration file.
+interface but it is possible to specify another one by adding in
+[filename]`conf/pf.conf` the
+option `interfaceSNAT` in inline section of the [filename]`conf/pf.conf`
+configuration file.
 Alternatively, you can change this from _Configuration -> Network Configuration
 -> Inline_ in the `SNAT Interface` section. It is a comma delimited list of
 network interfaces like eth0,eth1.2. It's also possible to specify a network
-that will be routed instead of using NAT by adding in [filename]`conf/networks.conf` an
+that will be routed instead of using NAT by adding in
+[filename]`conf/networks.conf` an
 option `nat=no` under one or more network sections (take care of the routing
 table of the PacketFence server).
 
@@ -59,7 +62,9 @@ In order to build an inline deployment of PacketFence setup you need :
 [options="compact"]
  * 2 network interfaces for the VM (1 for the Inline and another one to go out)
  * a switch port in the management network for the PacketFence server
- * a switch port in the inline network for the PacketFence server which needs to be configured in access mode and in the same access VLAN as every switchport on which devices will be connected
+ * a switch port in the inline network for the PacketFence server which needs
+   to be configured in access mode and in the same access VLAN as every
+   switchport on which devices will be connected
 
 === Adding Inline Interface
 
@@ -90,8 +95,13 @@ enforcement are:
 Note that PacketFence will provide these services on its inline interface:
 
 [options="compact"]
- * PacketFence provides its own DHCP service. It will take care of IP address distribution in our Inline network. PacketFence will not provide DHCP services on the management network - this is the responsibility of your own infrastructure.
- * PacketFence provides its own DNS service. However, for the inline mode, you will also need to provide access to the DNS server of your infrastructure.
+ * PacketFence provides its own DHCP service. It will take care of IP address
+   distribution in our Inline network. PacketFence will not provide DHCP
+   services on the management network - this is the responsibility of your own
+   infrastructure.
+ * PacketFence provides its own DNS service. However, for the inline mode,
+   you will also need to provide access to the DNS server of your
+   infrastructure.
 
 In the admin interface, go to _Configuration -> Network Configuration ->
 Interfaces_, and click on the `ens192` logical name. Provide the following
@@ -157,7 +167,8 @@ Next thing we do is to add a new connection profile - for devices coming from
 the inline network. We want to show users the captive portal with our Null
 authentication sources.
 
-From _Configuration -> Policies and Access Control -> Connection Profiles_, click on
+From _Configuration -> Policies and Access Control -> Connection Profiles_,
+click on
 `Add Profile`. Provide the following information:
 
 [options="compact"]
@@ -173,22 +184,28 @@ You can now test the registration process. In order to do so:
 
 [options="compact"]
  * connect an unregistered device into the switch
- * make sure PacketFence provides an IP address to the device. Look into the following log file: [filername]`/usr/local/pf/logs/packetfence.log` or verify on the computer you obtain an IP in the right subnet range
+ * make sure PacketFence provides an IP address to the device. Look into the
+   following log file: [filername]`/usr/local/pf/logs/packetfence.log` or
+   verify on the computer you obtain an IP in the right subnet range
 
 From the computer:
 
 [options="compact"]
  * open a web browser
  * try to connect to a HTTP site (Not HTTPS, eg. https://www.packetfence.org)
- * make sure that whatever site you want to connect to, you have only access to the registration page.
+ * make sure that whatever site you want to connect to, you have only access
+   to the registration page.
 
 Register the computer using using the Null authentication source.
 
 Once a computer has been registered:
 
 [options="compact"]
- * make sure PacketFence changes the firewall (`ipset -L`) rules so that the user is authorized through. Look into PacketFence log file: [filename]`/usr/local/pf/logs/packetfence.log`
- * from the web administrative interface, go under Nodes and make sure you see the computer as `Registered`.
+ * make sure PacketFence changes the firewall (`ipset -L`) rules so that the
+   user is authorized through. Look into PacketFence log file:
+   [filename]`/usr/local/pf/logs/packetfence.log`
+ * from the web administrative interface, go under Nodes and make sure you
+   see the computer as `Registered`.
  * the computer has access to the network and the Internet.
 
 For inline enforcement issues, check iptables rules and logs as described in

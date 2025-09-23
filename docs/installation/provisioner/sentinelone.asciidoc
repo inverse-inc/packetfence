@@ -58,6 +58,7 @@ PacketFence configuration"]
 
 Where:
 
+[options="compact"]
 * 'Provisioning ID' is the user-defined identifier of the provisioner.
 * 'Description' is a user friendly description of the provisioner.
 * 'Host' is the hostname of your SentinelOne instance.

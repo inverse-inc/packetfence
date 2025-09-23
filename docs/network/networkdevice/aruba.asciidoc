@@ -38,6 +38,7 @@ information about how to configure it on the PacketFence side.
 In the Web interface, go to _Configuration -> Authentication -> RADIUS Server_
 and add a RADIUS server named "packetfence" then edit it:
 
+[options="compact"]
 * Set Host to PacketFence's IP (192.168.1.5)
 * Set the Key to your RADIUS shared secret (useStrongerSecret)
 * Click Apply
@@ -74,6 +75,7 @@ In the Web interface, go to _Configuration -> AP Configuration_ then edit the
 "default" AP Group. Go in _Wireless LAN -> Virtual AP_ create a new profile with
 the following:
 
+[options="compact"]
 * AAA Profile: default-mac-auth
 * SSID Profile: Select NEW then add an SSID (PacketFence-Public) and Network authentication set to None
 
@@ -84,6 +86,7 @@ In the Web interface, go to _Configuration -> AP Configuration_ then edit the
 "default" AP Group. Go in _Wireless LAN -> Virtual AP_ create a new profile with
 the following:
 
+[options="compact"]
 * AAA Profile: default-dot1x
 * SSID Profile: Select NEW then add an SSID (PacketFence-Secure) and Network authentication set to WPA2
 

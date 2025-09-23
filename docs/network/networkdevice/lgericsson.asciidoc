@@ -22,11 +22,13 @@ endif::[]
 PacketFence supports iPECS series switches _without VoIP_ using two different
 trap types:
 
+[options="compact"]
 * linkUp / linkDown
 * Port Security (with static MACs)
 
 On some recent models, we can also use more secure and robust features, like:
 
+[options="compact"]
 * MAC Authentication
 * 802.1X
 

@@ -11,6 +11,7 @@ doesn't get assigned to the proper VLAN^[1]^
 
 *Systematic Troubleshooting Approach:*
 
+[options="compact"]
 . *Verify RADIUS Response:*
 +
 ----
@@ -23,6 +24,7 @@ tail -f /usr/local/pf/logs/radius.log | grep -i vlan
 # Tunnel-Private-Group-Id = VLAN-ID
 ----
 
+[options="compact"]
 . *Switch Configuration Verification:*
 +
 ----
@@ -36,6 +38,7 @@ switch# show dot1x interface gigabitethernet 1/0/1 details
 switch# show vlan brief
 ----
 
+[options="compact"]
 . *PacketFence Role Mapping:*
 +
 ----
@@ -81,6 +84,7 @@ requests are load-balanced to different cluster nodes, EAP state is lost.
 
 *Primary Solution - VIP Configuration:*
 
+[options="compact"]
 . *Configure Cluster VIP for RADIUS:*
 +
 ----
@@ -91,6 +95,7 @@ radius-server host 10.0.0.100 auth-port 1812 acct-port 1813 key shared-secret
 # Where 10.0.0.100 is the cluster VIP address
 ----
 
+[options="compact"]
 . *Verify VIP Configuration:*
 +
 ----
@@ -135,6 +140,7 @@ raddebug -t 30
 
 *Symptoms:*
 
+[options="compact"]
 * Devices with MAC addresses in allowed list still blocked
 * MAB authentication attempts show in RADIUS logs but fail
 * Switches send MAB requests but PacketFence rejects them
@@ -145,6 +151,7 @@ raddebug -t 30
 
 *Authentication Source Configuration:*
 
+[options="compact"]
 . *Create MAB Authentication Source:*
 +
 ----
@@ -157,6 +164,7 @@ raddebug -t 30
 # Bind DN: cn=admin,dc=packetfence,dc=local
 ----
 
+[options="compact"]
 . *Configure MAC Address Authentication:*
 +
 ----
@@ -224,6 +232,7 @@ radtest -t mab aa:bb:cc:dd:ee:ff aa:bb:cc:dd:ee:ff localhost:1812 0 testing123
 
 *Symptoms:*
 
+[options="compact"]
 * Linux clients fail PEAP authentication on first attempt
 * Multiple authentication attempts required for successful connection
 * RADIUS logs show MSCHAP credential errors despite correct credentials
@@ -234,11 +243,13 @@ radtest -t mab aa:bb:cc:dd:ee:ff aa:bb:cc:dd:ee:ff localhost:1812 0 testing123
 
 Switch from PEAP to TTLS with MSCHAPv2 for Linux clients:
 
+[options="compact"]
 . *Configure TTLS authentication source:*
   - Authentication Sources → Add → LDAP/AD
   - Set authentication protocol to TTLS
   - Use MSCHAPv2 as inner authentication method
 
+[options="compact"]
 . *Update client configuration:*
 +
 ----
@@ -249,6 +260,7 @@ Switch from PEAP to TTLS with MSCHAPv2 for Linux clients:
 # - CA certificate: (same as before)
 ----
 
+[options="compact"]
 . *Alternative - Debug PEAP issues:*
 +
 ----
@@ -272,6 +284,7 @@ radiusd -X -d /usr/local/pf/raddb
 
 *Symptoms:*
 
+[options="compact"]
 * Device MAC address registered in PacketFence node tab
 * Device not placed in registration/isolation VLAN
 * Cisco switch authentication shows no response
@@ -328,6 +341,7 @@ If configuration fails on specific switch model:
 
 *Symptoms:*
 
+[options="compact"]
 * RADIUS authentication succeeds
 * Device remains in default VLAN instead of assigned role VLAN
 * PacketFence logs show "Returned VLAN: (undefined)"
@@ -408,6 +422,7 @@ ldapsearch -x -H ldap://domain-controller -b "DC=domain,DC=com" \
 
 *Symptoms:*
 
+[options="compact"]
 * PPP connections fail MSCHAP authentication
 * Local PacketFence users cannot authenticate via MSCHAP
 * Domain authentication works but local accounts fail
@@ -471,6 +486,7 @@ tail -f /usr/local/pf/logs/radius.log
 
 *Symptoms:*
 
+[options="compact"]
 * `radius_audit_log` table in database remains empty
 * Reports → RADIUS Audit Log shows "No data available"
 * Authentication appears successful in other logs (radiusd.log, packetfence.log)

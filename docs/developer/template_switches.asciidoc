@@ -57,11 +57,13 @@ You can find a full working example
 
 === Required Parameters
 
+[options="compact"]
 * description      - The description of the switch.
 * radiusDisconnect - The RADIUS disconnect methods to use. Must be one of the following values coa|disconnect|coaOrDisconnect .
 
 === RADIUS scope Parameters
 
+[options="compact"]
 * acceptVlan - Attributes for accept vlan scope
 * acceptRole - Attributes for accept role scope.
 * reject     - Attributes for rejection scope.
@@ -72,6 +74,7 @@ You can find a full working example
 
 === Additional parameters
 
+[options="compact"]
 * snmpDisconnect - If SNMP protocol should be use to disconnect (values: `enabled` or `disabled`)
 
 === Comments
@@ -96,12 +99,14 @@ EOT
 Some values depends on the context of the current request.
 So here is mini templating language to format values.
 
+[options="compact"]
 * Text replacement: `$name`
 * Embedded text replacement:  `start-${name}-end`
 * Functions: `${f1("",$var, f2())}`
 
 ==== Available variables for RADIUS scope
 
+[options="compact"]
 * acceptRole - (Same as acceptVlan)
 
 * reject - (Same as acceptVlan)
@@ -259,6 +264,7 @@ So here is mini templating language to format values.
 ** vlan
 ** wasInline
 
+[options="compact"]
 * coa
 ** last_accounting.acctsessionid
 ** last_accounting.username
@@ -285,6 +291,7 @@ So here is mini templating language to format values.
 ** role
 ** time
 
+[options="compact"]
 * disconnect
 ** disconnectIp
 ** last_accounting.acctsessionid
@@ -311,6 +318,7 @@ So here is mini templating language to format values.
 ** mac
 ** time
 
+[options="compact"]
 * voip
 ** switch._ExternalPortalEnforcement
 ** switch._RoleMap
@@ -366,6 +374,7 @@ So here is mini templating language to format values.
 ** time
 ** vlan
 
+[options="compact"]
 * bounce
 ** disconnectIp
 ** ifIndex
@@ -446,6 +455,7 @@ So here is mini templating language to format values.
 
 ==== Available functions
 
+[options="compact"]
 * `macToEUI48($mac)`            - format a mac to AA-BB-CC-DD-FF-EE format
 * `uc($string)`                 - uppercases a string
 * `lc($string)`                 - lowercases a string

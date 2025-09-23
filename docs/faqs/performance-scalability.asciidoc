@@ -9,6 +9,7 @@ utilization and performance degradation^[1]^
 
 *Symptoms:*
 
+[options="compact"]
 * System CPU usage consistently above 80-90%
 * Slow response times in web interface
 * Authentication delays or timeouts
@@ -25,6 +26,7 @@ utilization and performance degradation^[1]^
 *Hardware Recommendations for Large Deployments:*
 
 *14,000+ Clients:*
+[options="compact"]
 * CPU: 8+ cores minimum
 * RAM: 32GB+ recommended
 * Storage: SSD for database and logs
@@ -90,6 +92,7 @@ mysqladmin processlist           # Database connection monitoring
 
 *Symptoms:*
 
+[options="compact"]
 * `fingerbank-collector` process shows high CPU usage in `top` or `htop`
 * CPU load reaching very high levels (e.g., 15+ on multi-core systems)
 * Fingerbank collector service restarts continuously
@@ -206,6 +209,7 @@ systemctl disable packetfence-fingerbank-collector
 ----
 
 *Performance Impact:*
+[options="compact"]
 * *API Key Solution:* Dramatic improvement in system performance, resolving CPU bottlenecks
 * *TCP Handler Disable:* 60-80% CPU reduction typical
 * *What you lose:* Advanced TCP-based device fingerprinting
@@ -227,6 +231,7 @@ systemctl disable packetfence-fingerbank-collector
 
 *Symptoms:*
 
+[options="compact"]
 * No single command to restart services on all cluster nodes
 * Manual SSH required to each server for service management
 * Certificate updates require individual node synchronization
@@ -293,6 +298,7 @@ This is a known limitation. A cluster-wide service management feature would be v
 
 *Symptoms:*
 
+[options="compact"]
 * CPU usage spikes to 90% during peak hours (school start times)
 * Slow authentication responses during high load periods
 * Current setup: 8 cores, 32GB RAM serving 14,000+ clients

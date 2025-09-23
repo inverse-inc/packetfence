@@ -21,6 +21,7 @@ endif::[]
 
 PacketFence supports Extreme Networks switches using:
 
+[options="compact"]
 * linkUp/linkDown
 * MAC Address Lockdown (Port Security)
 * Netlogin - MAC Authentication

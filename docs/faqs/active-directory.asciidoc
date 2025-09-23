@@ -9,6 +9,7 @@ certificate-based authentication, causing authentication failures^[1]^
 
 *Symptoms:*
 
+[options="compact"]
 * Windows machines fail EAP-TLS authentication
 * RADIUS logs show usernames like "host/COMPUTERNAME"
 * Authentication source configured for plain computer names fails
@@ -22,6 +23,7 @@ certificate-based authentication, causing authentication failures^[1]^
 
 *Authentication Source Configuration:*
 
+[options="compact"]
 . *Machine Account Search:* Use `servicePrincipalName` attribute
 . *Username Attribute:* Set to handle "host/computername" format
 . *Advanced Rules:* Create separate rules for users vs machines
@@ -47,6 +49,7 @@ Search Filter: (&(objectClass=computer)(servicePrincipalName=host/*))
 
 *Symptoms:*
 
+[options="compact"]
 * Domain join appears successful initially but fails later
 * Intermittent authentication failures with AD
 * Trust relationship errors in domain join status
@@ -57,10 +60,12 @@ Search Filter: (&(objectClass=computer)(servicePrincipalName=host/*))
 
 The issue is related to password encryption changes in v14.1. To resolve:
 
+[options="compact"]
 . *Edit crypto password in configuration:*
   - Go to Configuration → System Configuration → Database
   - Edit the crypto password and put it back in clear text
 
+[options="compact"]
 . *Reload configuration and restart services:*
 +
 ----
@@ -68,6 +73,7 @@ The issue is related to password encryption changes in v14.1. To resolve:
 /usr/local/pf/bin/pfcmd service pf restart
 ----
 
+[options="compact"]
 . *Re-join domain if necessary:*
 +
 ----
@@ -89,6 +95,7 @@ servers are currently available" error^[1]^
 
 *Symptoms:*
 
+[options="compact"]
 * Domain join process fails during setup
 * Error message: "No logon servers are currently available"
 * DNS lookup failures for domain controllers
@@ -101,6 +108,7 @@ servers are currently available" error^[1]^
 
 *Network and DNS troubleshooting:*
 
+[options="compact"]
 . *DNS Resolution Test:*
 +
 ----
@@ -108,6 +116,7 @@ nslookup domain-controller.domain.com
 dig domain-controller.domain.com
 ----
 
+[options="compact"]
 . *Connectivity Test:*
 +
 ----
@@ -115,6 +124,7 @@ telnet domain-controller.domain.com 389
 telnet domain-controller.domain.com 636
 ----
 
+[options="compact"]
 . *Time Synchronization:*
 +
 ----
@@ -124,6 +134,7 @@ ntpdate domain-controller.domain.com
 
 *Advanced Solutions:*
 
+[options="compact"]
 * *Use IP addresses* instead of hostnames for domain controllers
 * *Check firewall rules* for ports 389, 636, 88, 135, and high ports (1024-65535)
 * *Verify DNS suffixes* in `/etc/resolv.conf`
@@ -145,6 +156,7 @@ permissions to create machine accounts^[1]^
 
 *Symptoms:*
 
+[options="compact"]
 * Domain join fails with "Access denied" errors
 * Error messages about insufficient permissions
 * Account cannot create computer objects in target OU
@@ -161,6 +173,7 @@ permissions to create machine accounts^[1]^
 
 The domain join account needs these permissions:
 
+[options="compact"]
 . *"Create Computer Objects"* in target OU
 . *"Join computers to domain"* user right
 . *Write permissions* on computer objects in AD
@@ -235,11 +248,13 @@ with different username formats^[1]^
 *Choose appropriate username attributes:*
 
 *sAMAccountName (Traditional):*
+[options="compact"]
 * Format: `username`
 * Use for: Standard domain authentication
 * Best for: Windows environments
 
 *userPrincipalName (Modern):*
+[options="compact"]
 * Format: `username@domain.com`
 * Use for: Mixed environments, computer accounts
 * Best for: Modern Active Directory setups
@@ -303,6 +318,7 @@ ldapsearch -x -H ldap://domain-controller \
 
 *Symptoms:*
 
+[options="compact"]
 * Users cannot authenticate via 802.1X or captive portal
 * RADIUS logs show NT error codes in authentication attempts
 * Domain join appears successful but authentication fails
@@ -320,6 +336,7 @@ The account used for domain join lacks sufficient permissions to create machine 
 
 *Solution:*
 
+[options="compact"]
 . *For FQDN errors:* Check System Configuration → Domain Settings → DNS Name
 . *For access errors:* Use account with "Create Computer Objects" permission
 . *Verify domain join status:* Test with `wbinfo -t`
@@ -339,6 +356,7 @@ The account used for domain join lacks sufficient permissions to create machine 
 
 *Symptoms:*
 
+[options="compact"]
 * New AD user accounts cannot authenticate from Windows login screen
 * Previously used accounts authenticate successfully
 * Computer cannot reach Active Directory during initial authentication
@@ -397,6 +415,7 @@ Allow computer accounts in authentication source:
 
 *Symptoms:*
 
+[options="compact"]
 * "NT_STATUS_INVALID_COMPUTER_NAME" errors in NTLM authentication
 * "ad_server: Please specify the IPv4" configuration warnings
 * Intermittent authentication failures in multi-DC environments

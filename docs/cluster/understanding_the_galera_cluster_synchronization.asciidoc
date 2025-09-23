@@ -36,6 +36,7 @@ cluster, it will put itself in read-only mode and stop the synchronization.
 During that time, your PacketFence installation will continue working but with
 some features disabled.
 
+[options="compact"]
  * RADIUS MAC Authentication: Will continue working and will return RADIUS
    attributes associated with the role that is registered in the database. If
    VLAN or RADIUS filters can apply to this device, they will but any role
@@ -110,6 +111,7 @@ doesn't attempt any automated recovery of the cluster.
 This service will only be able to join a failing node when one of the
 conditions below is met:
 
+[options="compact"]
  * The database is available on at least one of the members of the cluster.
  * All of the nodes of the cluster are online on the network with their
    galera-autofix service started.
@@ -117,6 +119,7 @@ conditions below is met:
 This service will not perform anything when one of the conditions below is
 met:
 
+[options="compact"]
  * One of the cluster nodes is disabled via /usr/local/pf/bin/cluster/node
  * The packetfence-mariadb service is inactive in systemd
  * The database is available on the local UNIX socket
@@ -129,43 +132,46 @@ cluster recovery when necessary
 
 ==== Boot steps
 
-. Cooldown for 10 minutes after starting up so that MariaDB has a chance to
-  join the cluster automatically.
-. Start a thread to report asynchronously the sequence number of this node to
-  its peers.
+[options="compact"]
+ . Cooldown for 10 minutes after starting up so that MariaDB has a chance to
+   join the cluster automatically.
+ . Start a thread to report asynchronously the sequence number of this node to
+   its peers.
 
 ==== Decision steps
 
-. Verify if the database is available on one of the peers (can connect to it
-  and the `wsrep_cluster_status` is `Primary`).
-.. If this succeeds, then we proceed to the 'Reset data and boot steps'
-.. If this fails, we proceed in the next decision steps
-. Verify all nodes are pingable
-.. If this succeeds, then we proceed to the next decision step
-.. If this fails, then we cooldown for 1 minute and restart the decision steps
-   from 'Decision step 2'
-. We wait for all the nodes to report their last recorded sequence number
-.. If this succeeds, then we proceed to the next decision step
-.. If this fails, then we cooldown for 1 minute and restart the decision steps
-   from 'Decision step 2'
-. Selection of the node with the highest sequence number to boot as the new
-  master
-.. If this node has the highest sequence number then it elects itself as the
-   new database master
-.. If more than 1 node have the same sequence number, then the node that
-   appears first in cluster.conf elects itself as the new database master
-.. When the node doesn't meet any of the conditions above, then it isn't the
-   one selected to be the new master, it proceeds to the 'Reset data and boot
-   steps'
+[options="compact"]
+ . Verify if the database is available on one of the peers (can connect to it
+   and the `wsrep_cluster_status` is `Primary`).
+ .. If this succeeds, then we proceed to the 'Reset data and boot steps'
+ .. If this fails, we proceed in the next decision steps
+ . Verify all nodes are pingable
+ .. If this succeeds, then we proceed to the next decision step
+ .. If this fails, then we cooldown for 1 minute and restart the decision steps
+    from 'Decision step 2'
+ . We wait for all the nodes to report their last recorded sequence number
+ .. If this succeeds, then we proceed to the next decision step
+ .. If this fails, then we cooldown for 1 minute and restart the decision steps
+    from 'Decision step 2'
+ . Selection of the node with the highest sequence number to boot as the new
+   master
+ .. If this node has the highest sequence number then it elects itself as the
+    new database master
+ .. If more than 1 node have the same sequence number, then the node that
+    appears first in cluster.conf elects itself as the new database master
+ .. When the node doesn't meet any of the conditions above, then it isn't the
+    one selected to be the new master, it proceeds to the 'Reset data and boot
+    steps'
 
 ==== Reset data and boot steps
 
-. Force stop packetfence-mariadb to prevent any disruption caused by this node
-  in a new cluster that could be forming
-. Wait at most 1 minute for the database to be available on at least one of the
-  cluster nodes
-.. If this succeeds, then we proceed to the next step
-.. If this fails, we stop this process, start back packetfence-mariadb and
-   start back at the beginning of the 'Decision steps'
-. We delete the content of the /var/lib/mysql/ directory
-. We start packetfence-mariadb normally
+[options="compact"]
+ . Force stop packetfence-mariadb to prevent any disruption caused by this node
+   in a new cluster that could be forming
+ . Wait at most 1 minute for the database to be available on at least one of the
+   cluster nodes
+ .. If this succeeds, then we proceed to the next step
+ .. If this fails, we stop this process, start back packetfence-mariadb and
+    start back at the beginning of the 'Decision steps'
+ . We delete the content of the /var/lib/mysql/ directory
+ . We start packetfence-mariadb normally

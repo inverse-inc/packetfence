@@ -144,6 +144,7 @@ To Enable NT key caching, create a valid Domain config entry in _Configuration
 
 In the _NT Key cache_ tab,
 
+[options="compact"]
 * Enable NT Key cache.
 * Specify a cache expiration time. Ranges from 60 to 86400. Default is 12000 (in seconds).
 * Fill in the Windows Group Policy Settings
@@ -201,6 +202,7 @@ clicking "Edit" on domain policies to check its default values.
 Create a dedicated user that receives Windows Events from Domain Controller and
 reports the events to NT Key caching service:
 
+[options="compact"]
 * In the PacketFence Admin UI *Users* section, create a new local user with a unique *username* and a strong *password*. Remember these for _Config Windows Event Notifier_
 * Change *Access Level* to *Windows Event Receiver NTLM*
 
@@ -231,12 +233,14 @@ Copy the powershell script and replace:
 ===== Config Scheduled Tasks
 
 =====
+[options="compact"]
 * Open *Windows Task Scheduler* and in the left-panel expand *Event Viewer Tasks*, on the right-panel, right-click on the blank area and select *Create new task...*.
 * In the popup window, **Name** the task and in *Security options* select *Run whether user is logged on or not*.
 
 image::domain-nt-key-cache-task-scheduler.jpg[scalewidth="100%", alt="Windows
 Task Scheduler"]
 
+[options="compact"]
 * Click on *Trigger* tab, then click *New...*.
 * In the popup window, for *Begin the task* select *On an event*, for *Log* select *Security*, for *Event ID* type in *4723*, click "OK".
 * Repeat these steps to add event trigger(s) for the *Account Password Reset* and optionally *User Account Unlock* events.
@@ -244,6 +248,7 @@ Task Scheduler"]
 image::domain-nt-key-cache-task-scheduler-triggers.jpg[scaledwidth="100%",alt="Windows
 Events Triggers in Task Scheduler"]
 
+[options="compact"]
 * Click on *Action* tab, for *Action* select *Start a program*, in *Program/script* type the full path to powershell.exe (usually `C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe`).
 * In *Add arguments* type the full path to the powershell script (eg: `C:\Users\Administrator\Desktop\event-notifier.ps1`).
 * In *Start in* type the working directory (eg: `C:\Users\Administrator\Desktop`).
@@ -251,18 +256,21 @@ Events Triggers in Task Scheduler"]
 image::domain-nt-key-cache-task-scheduler-actions.jpg[scaledwidth="100%",alt="Windows
 Events Actions"]
 
+[options="compact"]
 * Click "OK" to save the changes, Enter the Administrator password.
 =====
 
 or
 
 =====
+[options="compact"]
 * Open *Windows Event Viewer* and click an event with EventID of *4723* (password change) or *4724* (password reset).
 * Repeat the following steps for each Event ID.
 
 image::domain-windows-events-viewer.png[scaledwidth="100%",alt="Windows Events
 Viewer"]
 
+[options="compact"]
 * Select *Attach tasks to this event* in the right panel, then choose *Launch a program* for action option, fill in the `powershell REAL_ABSOLUTE_PATH_OF_THE_NOTIFIER_SCRIPT`, click "Save".
 * Run the script with *Administrator Privilege* otherwise it will fail to read windows events.
 

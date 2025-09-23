@@ -39,7 +39,9 @@ them accordingly.
 
 Other key changes were done, such as:
 
-* moved remediation templates in `html/captive-portal/templates/violations` and converted them to Template Toolkit
+[options="compact"]
+* moved remediation templates in `html/captive-portal/templates/violations` and
+  converted them to Template Toolkit
 * dropped guests_admin_registration.category
 * dropped guests_self_registration.access_duration
 * dropped guests_self_registration.category
@@ -52,7 +54,8 @@ Other key changes were done, such as:
 * dropped trapping.blacklist
 * dropped support for resetVlanAllPort in `bin/pfcmd_vlan`
 * dropped `sbin/pfredirect` binary
-* splitted the httpd services in three: httpd.admin, httpd.portal and httpd.webservices
+* splitted the httpd services in three: httpd.admin, httpd.portal and
+  httpd.webservices
 * domain-name is no longer required in each section of networks.conf
 
 For all parameters related to authentication (categories, access duration,
@@ -74,16 +77,14 @@ As root, please do:
 
 
 This release only fixes various bugs and doesn't need the database schema to be
-modified. Simply update the file [filename]`/usr/local/pf/conf/currently-at` to match the
-new
-release number.
+modified. Simply update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number.
 === Upgrading from a version prior to 4.0.2
 
 
 This release only fixes various bugs and doesn't need the database schema to be
-modified. Simply update the file [filename]`/usr/local/pf/conf/currently-at` to match the
-new
-release number.
+modified. Simply update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number.
 
 LDAP SSL and STARTTLS is now correctly implemented.
 Make sure the server you specify in authentication.conf supports the encryption
@@ -109,8 +110,8 @@ authentication source is selected (Email, SMS, SponsorEmail, or Oauth2).
 
 
 This release adds a new dependency on the Perl module Apache::SSLLookup. Once
-installed,
-update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number.
+installed, update the file [filename]`/usr/local/pf/conf/currently-at` to match
+the new release number.
 
 === Upgrading from a version prior to 4.0.6
 
@@ -260,7 +261,8 @@ With PacketFence completely stopped do :
 
   rm -fr [filename]`/usr/local/pf/var/cache`/*
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 4.4).
 
 === Upgrading from a version prior to 4.5
@@ -284,7 +286,8 @@ Make sure to add the following to the 'defaults' section of
 
 delay_by=0s
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 4.5).
 
 === Upgrading from a version prior to 4.6
@@ -316,7 +319,8 @@ username like username@acme.com then add the realm acme.com
 in the Radius Realms configuration menu and in your Active Directory source
 select 'Use stripped username'.
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 4.6).
 
 === Upgrading from a version prior to 4.7
@@ -331,7 +335,8 @@ Make sure you run the following to update your schema:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-4.6-4.7.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 4.7).
 
 === Upgrading from a version prior to 5.0
@@ -402,6 +407,7 @@ We highly suggest you copy `conf/violations.conf.example` over
 Also, ensure you adjust the following triggers to their new ID (Can be found
 under 'Configuration->Fingerbank'):
 
+[options="compact"]
 * `USERAGENT` becomes `user_agent`
 * `VENDORMAC` becomes `mac_vendor`
 
@@ -419,7 +425,8 @@ Also a lot of additions were made to the iptables configuration file.
 Make sure you add the new rules in conf/iptables.conf.example to your existing
 iptables file or execute the following command to replace the whole file.
 
-  cp [filename]`/usr/local/pf/conf/iptables.conf.example` [filename]`/usr/local/pf/conf/iptables.conf`
+  cp [filename]`/usr/local/pf/conf/iptables.conf.example` \
+     [filename]`/usr/local/pf/conf/iptables.conf`
 
 ==== Using EAP local authentication
 
@@ -430,7 +437,8 @@ you deactivate password encryption in the database.
 In the administration interface, go in 'Configuration -> Advanced' and set
 'Database passwords hashing method' to `plaintext`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 5.0).
 
 === Upgrading from a version prior to 5.1
@@ -468,7 +476,8 @@ web administrative interface.
 Simply execute the following script and follow its instructions
 `/usr/local/pf/addons/AD/migrate.pl`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 5.1).
 
 === Upgrading from a version prior to 5.2
@@ -514,7 +523,8 @@ type=management,portal
 ----
 
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 5.2).
 
 === Upgrading from a version prior to 5.3
@@ -550,7 +560,8 @@ Run the following commands:
   # apt-get install packetfence packetfence-config packetfence-pfcmd-suid
   libdist-checkconflicts-perl libimport-into-perl
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 5.3).
 
 
@@ -581,16 +592,19 @@ action will be ignored.
 
 Authentication sources rules structure is as follow:
 
+[options="compact"]
 * 'authentication' rule class available actions:
 ** Set role (set_role)
 ** Set access duration (set_access_duration)
 ** Set unregistration date (set_unreg_date)
+[options="compact"]
 * 'administration' rule class available actions:
 ** Set access level of Web admin (set_access_level)
 ** Mark as sponsor (mark_as_sponsor)
 
 For example, if an existing rule is as follow:
 
+[options="compact"]
 * Name: AllAdmins
 * Class: No class defined since the class attribute is new
 * Conditions: ...
@@ -609,6 +623,7 @@ two separate rules, as follow:
 
 Rule for 'administration' purposes
 
+[options="compact"]
 * Name: AllAdmins_admin 
 * Class: administration
 * Conditions: ...
@@ -617,6 +632,7 @@ Rule for 'administration' purposes
 
 Rule for 'authentication' purposes
 
+[options="compact"]
 * Name: AllAdmins_auth
 * Class: authentication
 * Conditions: ...
@@ -647,7 +663,8 @@ pf.conf.
 If you have specified a specific host or port, remove them from your
 configuration and change them in [filename]`/usr/local/pf/lib/pf/StatsD.pm`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 5.4).
 
 === Upgrading from a version prior to 5.5
@@ -722,6 +739,7 @@ To the following
 The following parameters have been removed from pf.conf. Make sure to remove
 them from your file if configured.
 
+[options="compact"]
 * alerting.wins_server
 * alerting.admin_netbiosname
 
@@ -734,11 +752,13 @@ maintain functionnality.
 In violations.conf the following actions have been renamed, please update them
 accordingly.
 
+[options="compact"]
 * trap -> reevaluate_access
 * email -> email_admin
 
 The following action have been removed from the violations :
 
+[options="compact"]
 * popup
 
 Also in violations.conf, the parameter whitelisted_categories has been renamed
@@ -766,7 +786,8 @@ Mod_qos configuration has been moved from "services" to "captive_portal"
 section.
 Make sure to apply the appropriate changes if needed.
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 5.5).
 
 === Upgrading from a version prior to 5.6
@@ -802,9 +823,9 @@ RegistrationVlan    -> RegistrationRole
 ViolationVlan       -> ViolationRole
 InlineVlan          -> InlineRole
 
-If you have defined any filters in [filename]`/usr/local/pf/conf/vlan_filters.conf`, ensure
-to rename all references to the left hand side with the new names on the right
-hand side.
+If you have defined any filters in [filename]`/usr/local/pf/conf/vlan_filters.conf`,
+ensure to rename all references to the left hand side with the new names on the
+right hand side.
 
 ==== Default type for the switches
 
@@ -814,7 +835,8 @@ line in the default section of [filename]`/usr/local/pf/conf/switches.conf`
 
 `type=Generic`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 5.6).
 
 === Upgrading from a version prior to 5.7
@@ -839,7 +861,8 @@ Make sure you run the following to update your schema:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.6-5.7.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 5.7).
 
 === Upgrading from a version prior to 6.0
@@ -935,6 +958,7 @@ fails.
 longer a thing. Make sure to adjust configuration parameter accordingly if
 needed;
  
+[options="compact"]
 * expire.node is now maintenance.node_cleanup_window
 * expire.iplog is now maintenance.iplog_cleanup_window
 * expire.locationlog is now maintenance.locationlog_cleanup_window
@@ -1027,7 +1051,8 @@ When ready, run the following to update your schema:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-5.7-6.0.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 6.0).
 
 You will also want to drop the `radacct2` table from the database as it will no
@@ -1045,7 +1070,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.0-6.1.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 6.1).
 
 
@@ -1078,7 +1104,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.1-6.2.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 6.2.1).
 
 === Upgrading from a version prior to 6.2.1
@@ -1092,7 +1119,8 @@ If you customized that file in any way, you will have to merge the changes.
 Restart the httpd.admin process once that is done by running 
   [filename]`/usr/local/pf/bin/pfcmd` service httpd.admin restart
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 6.2.1).
 
 === Upgrading from a version prior to 6.3
@@ -1107,7 +1135,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.2-6.3.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 6.3).
 
 ==== RADIUS configuration file changes
@@ -1253,7 +1282,8 @@ should ensure you do not invoke the
 [filename]`/usr/local/pf/addons/backup-and-maintenance.sh`
 script from any other cronjob.
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 6.4).
 
 
@@ -1331,7 +1361,8 @@ The "configfile" and "traplog" database tables are now deprecated. If you wish
 to reclaim the disk space used by those two database tables, they should be
 manually removed.
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 6.5).
 
 
@@ -1807,7 +1838,8 @@ Ensure you merge changes in the galera section of
 `conf/mariadb/mariadb.conf.tt.rpmnew` into `conf/mariadb/mariadb.conf.tt`
 
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 7.3).
 
 
@@ -1856,7 +1888,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-7.3-7.4.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new
 release number (PacketFence 7.4).
 
 === Upgrading from a version prior to 8.0
@@ -1951,7 +1984,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-7.4-8.0.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 8.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 8.0).
 
 === Upgrading from a version prior to 8.1
 
@@ -1973,7 +2007,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-8.0-8.1.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 8.1).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 8.1).
 
 === Upgrading from a version prior to 8.2
 
@@ -2035,7 +2070,8 @@ To upgrade the database schema, run the following command:
 
  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-8.1-8.2.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 8.2).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 8.2).
 
 === Upgrading from a version prior to 8.3
 
@@ -2077,7 +2113,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-8.2-8.3.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 8.3).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 8.3).
 
 === Upgrading from a version prior to 9.0
 
@@ -2144,7 +2181,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-8.3-9.0.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 9.0).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 9.0).
 
 
 === Upgrading from a version prior to 9.1
@@ -2221,7 +2259,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-9.0-9.1.0.sql`
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 9.1).
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 9.1).
 
 === Upgrading from a version prior to 9.2
 
@@ -2233,6 +2272,7 @@ NOTE: This step must be done *before* packages upgrade.
 Starting from now, PacketFence will be released as an unique RPM package for
 `x86_64` architectures. To remove properly older RPM packages, you need to follow these steps:
 
+[options="compact"]
 . Follow instructions mentioned in <<_stop_all_packetfence_services,Stop all PacketFence services>> section and stop before starting packages upgrades
 . Uninstall old RPM without running post-uninstallation steps:
 +
@@ -2245,6 +2285,7 @@ rpm -e --nodeps --noscripts packetfence-remote-arp-sensor
 ----
 +
 
+[options="compact"]
 . Recopy previous [filename]`pfconfig.conf` filename to its original location:
 +
 [source,bash]
@@ -2253,6 +2294,7 @@ mv -f /usr/local/pf/conf/pfconfig.conf.rpmsave /usr/local/pf/conf/pfconfig.conf
 ----
 +
 
+[options="compact"]
 . Upgrade PacketFence packages by following instructions in <<_packages_upgrades,Packages upgrades>> section for RHEL / CentOS based systems
 . Continue upgrade procedure
 
@@ -2290,7 +2332,8 @@ To upgrade the database schema, run the following command:
 mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-9.1-9.2.0.sql`
 ----
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 9.2):
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 9.2):
 
 [source,bash]
 ----
@@ -2304,6 +2347,7 @@ cat [filename]`/usr/local/pf/conf/pf-release` > [filename]`/usr/local/pf/conf/cu
 Execute script action in security events doesn't use [command]`sudo` anymore to run scripts.
 Consequently, you must ensure that `pf` user is:
 
+[options="compact"]
 * able to read and execute these scripts
 * able to run commands inside these scripts (without `sudo`)
 
@@ -2319,7 +2363,8 @@ To upgrade the database schema, run the following command:
 mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-9.2-9.3.0.sql`
 ----
 
-Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new release number (PacketFence 9.3):
+Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
+match the new release number (PacketFence 9.3):
 
 [source,bash]
 ----
@@ -2942,6 +2987,7 @@ Stop services on nodes A and B
 
 Next, stop all application services on node A and B:
 
+[options="compact"]
 * Stop all PacketFence services:
 +
 [source,bash]
@@ -2952,6 +2998,7 @@ systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd configreload hard
 /usr/local/pf/bin/pfcmd service pf stop
 ----
+[options="compact"]
 * Stop database:
 +
 [source,bash]
@@ -3060,6 +3107,7 @@ This can take from a few minutes to an hour depending on your database size.
 
 We highly suggest you delete data from the following tables if you don't need it:
 
+[options="compact"]
 * `radius_audit_log`: contains the data in _Auditing->RADIUS Audit Logs_
 * `ip4log_history`: Archiving data for the IPv4 history
 * `ip4log_archive`: Archiving data for the IPv4 history
@@ -3191,6 +3239,7 @@ You do not need to follow the upgrade procedure when upgrading these nodes. You 
 
 Where:
 
+[options="compact"]
 * `_192.168.1.5_` is the management IP of node C
 * `_packet_` is the webservices username (_Configuration->Webservices_)
 * `_fence_` is the webservices password (_Configuration->Webservices_)
@@ -3359,6 +3408,7 @@ Then perform a full upgrade using following command:
 
 ===== PacketFence version before 10.3.0
 
+[options="compact"]
 . Follow upgrade path to PacketFence 10.3
 . Go to next section
 
@@ -3429,6 +3479,7 @@ of upgrades>>.
 
 PacketFence now provides a way to add custom rules in [filename]`/usr/local/pf/conf/iptables.conf` using two files:
 
+[options="compact"]
 * [filename]`/usr/local/pf/conf/iptables-input.conf.inc` for all input traffic
 * [filename]`/usr/local/pf/conf/iptables-input-management.conf.inc` for all input traffic related to management interface
 

@@ -25,6 +25,7 @@ NOTE: By default, all deconnections will be done using SNMP.
 
 Those switches are supported using 802.1X for networks with or without VoIP.
 
+[options="compact"]
 * Global config settings:
 
   aaa authentication dot1x default radius
@@ -41,11 +42,13 @@ enforcement.
 
 ===== MAC-Authentication without VoIP
 
+[options="compact"]
 * Enable MAC-Authentication globally
 
   mac-authentication enable
   mac-authentication mac-vlan-dyn-activation
 
+[options="compact"]
 * Enable MAC-Authentication on each interface you want PacketFence active
 
    mac-authentication enable
@@ -53,10 +56,12 @@ enforcement.
 
 ===== MAC-Authentication with VoIP
 
+[options="compact"]
 * Enable cdp globally
 
   cdp run
 
+[options="compact"]
 * Apply the following configuration on each interface you want PacketFence active
 
    dual-mode
@@ -67,6 +72,7 @@ enforcement.
 
 ===== 802.1X/MAC-Auth
 
+[options="compact"]
 * Enable 802.1X globally
 
   dot1x-enable
@@ -75,6 +81,7 @@ enforcement.
 
 Where `xx` is the switch port number
 
+[options="compact"]
 * Apply the following configuration on each interface you want PacketFence active
 
    dot1x port-control auto
@@ -89,11 +96,13 @@ Where `xx` is the switch port number
 
 Those switches are supported using 802.1X for networks with or without VoIP.
 
+[options="compact"]
 * RADIUS server configuration
 
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default key
   useStrongerSecret dot1x mac-auth no-login
 
+[options="compact"]
 * Authentication configuration
 
   aaa authentication dot1x default radius
@@ -113,11 +122,13 @@ Those switches are supported using 802.1X for networks with or without VoIP.
 The configuration above enables authentication on port 1/1/1 - make sure you
 change this to the ports where you want to perform enforcement.
 
+[options="compact"]
 * SNMP configuration
 
   snmpserver community public ro
   snmpserver community private rw
 
+[options="compact"]
 * PacketFence configuration
 
 While configuring the switch in PacketFence, ensure you set at least the
@@ -139,6 +150,7 @@ policy for tagging VoIP traffic on the ports where PacketFence is enabled.
 
 NOTE: Make sure you change VLAN 5 to the VLAN you use for VoIP
 
+[options="compact"]
 * PacketFence configuration
 
 While configuring the switch in PacketFence, ensure you set at least the

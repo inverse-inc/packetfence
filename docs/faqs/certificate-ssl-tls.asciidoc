@@ -9,6 +9,7 @@ service interruption^[1]^
 
 *Symptoms:*
 
+[options="compact"]
 * Certificate expiration warnings in RADIUS logs
 * EAP-TLS authentication failures
 * Certificate validation errors in client logs
@@ -19,12 +20,14 @@ service interruption^[1]^
 
 *Step-by-step renewal process:*
 
+[options="compact"]
 . *Navigate to PacketFence directory:*
 +
 ----
 cd /usr/local/pf
 ----
 
+[options="compact"]
 . *Backup existing certificate:*
 +
 ----
@@ -32,18 +35,21 @@ cp conf/ssl/server.crt conf/ssl/server.crt.bak
 cp conf/ssl/server.key conf/ssl/server.key.bak
 ----
 
+[options="compact"]
 . *Generate new certificate:*
 +
 ----
 make conf/ssl/server.crt
 ----
 
+[options="compact"]
 . *Restart RADIUS service:*
 +
 ----
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+[options="compact"]
 . *Verify certificate:*
 +
 ----

@@ -23,15 +23,18 @@ endif::[]
 VLAN isolation setup requires:
 
 [options="compact"]
- * Supported switch (consult _Network Devices Configuration Guide_ for vendor types and uplink information)
+ * Supported switch (consult _Network Devices Configuration Guide_ for vendor
+   types and uplink information)
  * Normal, registration and isolation VLANs (VLAN numbers and subnets)
- * Switch port for PacketFence server configured as dot1q trunk (multiple VLANs on port)
+ * Switch port for PacketFence server configured as dot1q trunk (multiple
+   VLANs on port)
 
 Network infrastructure assumptions for this configuration:
 
 [options="compact"]
  * VLAN 20 is the management VLAN
- * VLAN 102 is the registration VLAN (unregistered devices will be put in this VLAN)
+ * VLAN 102 is the registration VLAN (unregistered devices will be put in this
+   VLAN)
  * VLAN 103 is the isolation VLAN (isolated devices will be put in this VLAN)
  * VLAN 104 is the normal VLAN (registered devices will be put in this VLAN)
 
@@ -59,8 +62,12 @@ Note that PacketFence will provide these services on its registration and
 isolation VLANs:
 
 [options="compact"]
- * PacketFence provides its own DHCP services. It will take care of IP address distribution in VLANs 102 and 103. PacketFence will not provide DHCP services on VLAN 104 - this is the responsibility of your own infrastructure
- * PacketFence provides its own DNS service. It will take care of naming resolution in VLANs 102 and 103. PacketFence will not provide DNS services on VLAN 104 - this is the responsibility of your own infrastructure
+ * PacketFence provides its own DHCP services. It will take care of IP address
+   distribution in VLANs 102 and 103. PacketFence will not provide DHCP
+   services on VLAN 104 - this is the responsibility of your own infrastructure
+ * PacketFence provides its own DNS service. It will take care of naming
+   resolution in VLANs 102 and 103. PacketFence will not provide DNS services
+   on VLAN 104 - this is the responsibility of your own infrastructure
 
 === Adding the Registration, Isolation and Other Interface
 
@@ -208,8 +215,7 @@ access to the switch. Make sure you configure the two SNMP communities like:
 ----
 
 NOTE: You can refer to the
-https://www.cisco.com/en/US/docs/switches/lan/catalyst2960/software/release/15.0_1_se/configuration/guide/sw8021x.html[Cisco
-Catalyst documentation] for more options.
+https://www.cisco.com/en/US/docs/switches/lan/catalyst2960/software/release/15.0_1_se/configuration/guide/sw8021x.html[Cisco Catalyst documentation] for more options.
 
 
 ==== Save the Configuration
@@ -241,8 +247,12 @@ You can now test the registration process. In order to do so:
 
 [options="compact"]
  * connect an unregistered device into the switch
- * make sure PacketFence receives the radius authentication request from the switch. Look into the PacketFence log file: [filename]`/usr/local/pf/logs/packetfence.log`
- * make sure PacketFence handles RADIUS requests and sets the switch port to the registration VLAN (VLAN 102). Look again into PacketFence log file: [filename]`/usr/local/pf/logs/packetfence.log`
+ * make sure PacketFence receives the radius authentication request from the
+   switch. Look into the PacketFence log file:
+   [filename]`/usr/local/pf/logs/packetfence.log`
+ * make sure PacketFence handles RADIUS requests and sets the switch port to
+   the registration VLAN (VLAN 102). Look again into PacketFence log file:
+   [filename]`/usr/local/pf/logs/packetfence.log`
 
 On the computer:
 

@@ -32,6 +32,7 @@ Comware v5 and also this module inherits all its capabilities from the old
 
 PacketFence supports these switches with the following technologies:
 
+[options="compact"]
 * 802.1X (with or without VoIP)
 * 802.1X with MAC Authentication fallback (with or without VoIP)
 * MAC Authentication (with or without VoIP)

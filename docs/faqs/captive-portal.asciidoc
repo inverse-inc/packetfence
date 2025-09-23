@@ -12,6 +12,7 @@ detection and presentation compared to iOS 15.x devices.
 *Apple Network Detection Changes:*
 
 *iOS 16.0+ Behavior:*
+[options="compact"]
 * More complex captive portal detection mechanisms
 * Persistent use of previously learned portal URLs
 * DHCP Option 114 can cause unexpected re-detection
@@ -19,6 +20,7 @@ detection and presentation compared to iOS 15.x devices.
 
 *Configuration Adjustments:*
 
+[options="compact"]
 . *DHCP Option 114 Management:*
 +
 ----
@@ -27,6 +29,7 @@ detection and presentation compared to iOS 15.x devices.
 # option captive-portal-url = "";  # Disable option
 ----
 
+[options="compact"]
 . *Portal Detection Optimization:*
 +
 ----
@@ -36,6 +39,7 @@ detection and presentation compared to iOS 15.x devices.
 # www.apple.com/library/test/success.html
 ----
 
+[options="compact"]
 . *Network Profile Consistency:*
 +
 ----
@@ -47,11 +51,13 @@ detection and presentation compared to iOS 15.x devices.
 *Testing Approach:*
 
 *Different iOS Versions:*
+[options="compact"]
 * Test with iOS 15.x device (baseline behavior)
 * Test with iOS 16.x device (new behavior)
 * Test with iOS 17.x device (latest behavior)
 
 *Network Conditions:*
+[options="compact"]
 * Test with WiFi network switching
 * Test with cellular → WiFi transitions
 * Test portal behavior after device sleep/wake
@@ -71,6 +77,7 @@ registration, clients can't access portal page.
 
 *Network Configuration Verification:*
 
+[options="compact"]
 . *VLAN Tagging on PacketFence Interface:*
 +
 ----
@@ -87,6 +94,7 @@ ip addr add 192.168.102.1/24 dev eth0.102
 ip link set eth0.102 up
 ----
 
+[options="compact"]
 . *Traffic Flow Verification:*
 +
 ----
@@ -100,6 +108,7 @@ tcpdump -i eth0.102 port 80
 tcpdump -i eth0.102 port 67 or port 68
 ----
 
+[options="compact"]
 . *Switch Port Configuration:*
 +
 ----
@@ -139,6 +148,7 @@ curl http://captive.apple.com  # Should get portal redirect
 *Problem:* Clients get stuck in endless redirect loops when trying to access the captive portal, preventing successful authentication^[1]^
 
 *Symptoms:*
+[options="compact"]
 * Browser shows "too many redirects" error
 * Portal page never loads despite network connectivity
 * Multiple redirect attempts in access logs
@@ -186,11 +196,13 @@ dig captive.packetfence.local
 *Step 4: Address Browser Issues*
 
 *Clear Browser State:*
+[options="compact"]
 * Clear browser cache and cookies
 * Disable browser extensions temporarily
 * Try incognito/private browsing mode
 
 *Test Different Browsers:*
+[options="compact"]
 * Chrome, Firefox, Safari behavior comparison
 * Mobile browser testing
 
@@ -220,6 +232,7 @@ curl -v http://portal-ip/captive-portal
 
 *Symptoms:*
 
+[options="compact"]
 * Clients cannot reach captive portal login page
 * Portal interface appears configured but not functional
 * Browser shows connection timeout to portal address
@@ -304,6 +317,7 @@ Ensure proper VLAN and RADIUS configuration on network switches:
 
 *Symptoms:*
 
+[options="compact"]
 * Captive portal page fails to load for clients on registration VLAN
 * Tagged VLAN configured on trunk interface (e.g., VLAN 102 on eth1)
 * Portal works on untagged VLANs but not on tagged configurations
@@ -400,6 +414,7 @@ Always restart PacketFence services after making VLAN interface changes to ensur
 
 *Symptoms:*
 
+[options="compact"]
 * "502 Bad Gateway" error during email authentication process
 * Devices sometimes bypass captive portal completely
 * Inconsistent captive portal presentation

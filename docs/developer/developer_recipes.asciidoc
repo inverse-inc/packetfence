@@ -28,6 +28,7 @@ a similar environment to develop.
 
 Install following softwares:
 
+[options="compact"]
 * link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 2.2.10) provided by Hashicorp
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
 * pywinrm > 0.3 if you want to use `ad` virtual machine

@@ -56,6 +56,7 @@ configuration.
 Here are the high-level requirements for proper wireless integration with
 PacketFence
 
+[options="compact"]
 * The appropriate VLANs must exist
 * Allow controller to honor VLAN assignments from AAA (sometimes called AAA override)
 * Put your open SSID (if any) in MAC-Authentication mode and authenticate against the FreeRADIUS hosted on PacketFence

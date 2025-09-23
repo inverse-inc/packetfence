@@ -23,6 +23,7 @@ endif::[]
 
 PacketFence supports these 3Com switches _without VoIP_ using one trap type:
 
+[options="compact"]
 * linkUp===linkDown
 * Port Security (with static MACs)
 
@@ -119,6 +120,7 @@ On each interface with VoIP:
 
 PacketFence supports these 3Com switches with the following techniques:
 
+[options="compact"]
 * 802.1X with MAC Authentication fallback
 * linkUp/linkDown (not recommended)
 
@@ -195,6 +197,7 @@ where `xx` stands for the interface index.
 
 PacketFence supports these 3Com switches with the following techniques: 
 
+[options="compact"]
 * 802.1X with MAC Authentication fallback 
 * linkUp/linkDown (not recommended) 
 

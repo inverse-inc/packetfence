@@ -62,4 +62,5 @@ officially supported or documented.
 
 **Other Recommendations**
 
+[options="compact"]
 * Use logical volume management (LVM) to allocate space

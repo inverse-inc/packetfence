@@ -20,16 +20,19 @@ endif::[]
 
 PacketFence contribution guidelines:
 
+[options="compact"]
 * Be active on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[developer mailing list]
 
 Join our developers mailing list for PacketFence contributions:
 https://lists.sourceforge.net/lists/listinfo/packetfence-devel. Share your issues, work, and solutions. Active collaboration increases chances of timely work incorporation.
 
+[options="compact"]
 * Use the issue tracker: https://packetfence.org/bugs/
 
 Check existing tickets - your bug/feature may be filed already with helpful
 information.
 
+[options="compact"]
 * Please provide small, focused and manageable patches or pull-requests
 
 For extensive coding: use `git` and track `stable` branch. Develop features in
@@ -70,6 +73,7 @@ changes. It's very convenient.
 To use Transifex, you must first sign up for a free account here:
 https://www.transifex.net/plans/signup/free/
 
+[options="compact"]
 * Once registered, https://www.transifex.net/projects/p/packetfence/teams[request a new team for your language]
 * Once authorized, you'll be able to start/continue translating PacketFence in your language
 
@@ -87,6 +91,7 @@ If you want to add support for a new language, please follow these steps:
 . change into your newly created directory
 . copy the file `/usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po` into
 your directory
+[options="compact"]
 . translate the message strings in `packetfence.po`
 . create the MO file by executing:
 

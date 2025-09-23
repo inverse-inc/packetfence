@@ -20,123 +20,221 @@ endif::[]
 
 NOTE: OAuth2 authentication does not work with Webauth enforcement
 
-NOTE: OAuth2 authentication will fail by design when previewed through "Connection Profiles"
+NOTE: OAuth2 authentication will fail by design when previewed through
+"Connection Profiles"
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, OpenID Connect or Github account.
+The captive portal of PacketFence allows a guest/user to register using his
+Google, Facebook, LinkedIn, Windows Live, OpenID Connect or Github account.
 
-For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
+For each providers, we maintain an allowed domain list to punch holes into the
+firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
 
-Enable the passthrough option in the PacketFence configuration (fencing.passthrough in pf.conf).
+Enable the passthrough option in the PacketFence configuration
+(fencing.passthrough in pf.conf).
 
 ==== Google
 
-To use Google as a OAuth2 provider, get an API key to access their services.  Sign up here : https://code.google.com/apis/console.
-In the Google APIs Console, go into _Credentials -> Create Credentials -> OAuth client ID -> Web Application_, then enter a name and use this URI for the `Authorized redirect URIs` field : https://YOUR_PORTAL_HOSTNAME/oauth2/callback.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+To use Google as a OAuth2 provider, get an API key to access their services.
+Sign up here : https://code.google.com/apis/console.
+In the Google APIs Console, go into _Credentials -> Create Credentials -> OAuth
+client ID -> Web Application_, then enter a name and use this URI for the
+`Authorized redirect URIs` field :
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback.  Of course, replace the hostname
+with the values from `general.hostname` and `general.domain`.
 Save to get the Client ID and Client secret.
 
-Keep the default configuration, modify the App ID & App Secret (Given by Google on the developer platform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
+Keep the default configuration, modify the App ID & App Secret (Given by
+Google on the developer platform) and Portal URL
+(https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
 
-Also, add the following Authorized domains : `*.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com` (Ensure to have the google domain from the appropriate country like Canada => *.google.ca, France => *.google.fr, etc...)
+Also, add the following Authorized domains : `*.google.com, *.google.ca,
+*.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com` (Ensure to
+have the google domain from the appropriate country like Canada => *.google.ca,
+France => *.google.fr, etc...)
 
-Once the client id, and API key are available, configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+Once the client id, and API key are available, configure the OAuth2 provider.
+This can be done by adding a Google OAuth2 authentication source from
+_Configuration -> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example:
+Role and Access duration).
 
-Moreover, don't forget to add Google as a *Source* from the connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+Moreover, don't forget to add Google as a *Source* from the connection
+profile definition, available from _Configuration -> Policies and Access
+Control -> Connection Profiles_.
 
 ==== Facebook
 
-To use Facebook as an authentication source, an API code and a secret key are also needed.
-To get one, go here: https://developers.facebook.com/apps.  When creating the App, specify the following as the Website URL:
+To use Facebook as an authentication source, an API code and a secret key
+are also needed.
+To get one, go here: https://developers.facebook.com/apps.  When creating
+the App, specify the following as the Website URL:
 https://YOUR_PORTAL_HOSTNAME/oauth2/callback
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+Of course, replace the hostname with the values from `general.hostname` and
+`general.domain`.
 
-To find the secret, go in the newly created app, and click on _Settings -> Basic_.
+To find the secret, go in the newly created app, and click on _Settings ->
+Basic_.
 
-While in _Settings -> Basic_, add YOUR_PORTAL_HOSTNAME in the *App Domains* field. Next, add the product *Facebook Login*. Click on *Set up*, and choose *Web* platform. Go through the 5 steps, then on the left side of the screen, go in _Settings_ under Facebook Login. For *Valid OAuth Redirect URIs*, enter https://YOUR_PORTAL_HOSTNAME/oauth2/callback and then save changes.
+While in _Settings -> Basic_, add YOUR_PORTAL_HOSTNAME in the *App Domains*
+field. Next, add the product *Facebook Login*. Click on *Set up*, and choose
+*Web* platform. Go through the 5 steps, then on the left side of the screen,
+go in _Settings_ under Facebook Login. For *Valid OAuth Redirect URIs*, enter
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback and then save changes.
 
-Also, add the following Authorized domains : `*.facebook.com, *.fbcdn.net, *.akamaihd.net, *.akamaiedge.net, *.edgekey.net, *.akamai.net` (May change)
+Also, add the following Authorized domains : `*.facebook.com, *.fbcdn.net,
+*.akamaihd.net, *.akamaiedge.net, *.edgekey.net, *.akamai.net` (May change)
 
-Once the information is available, configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+Once the information is available, configure the OAuth2 provider. This can be
+done by adding a Facebook OAuth2 authentication source from _Configuration ->
+Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example:
+Role and Access duration).
 
-Keep the default configuration, modify the App ID & App Secret (Given by Facebook on the developer platform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
+Keep the default configuration, modify the App ID & App Secret (Given by
+Facebook on the developer platform) and Portal URL
+(https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
 
-Moreover, don't forget to add Facebook as a *Source* from the connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+Moreover, don't forget to add Facebook as a *Source* from the connection
+profile definition, available from _Configuration -> Policies and Access
+Control -> Connection Profiles_.
 
-CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
+CAUTION: By allowing OAuth through Facebook, you will give Facebook access
+to the users while they are sitting in the registration VLAN.
 
 ==== Github
 
-To use Github, an API code and a secret key are also needed.  To get one, create an App here: https://github.com/settings/applications/new.  When creating the App, specify the following as the Callback URL
+To use Github, an API code and a secret key are also needed.  To get one,
+create an App here: https://github.com/settings/applications/new.  When
+creating the App, specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+Of course, replace the hostname with the values from `general.hostname` and
+`general.domain`.
 
-Once the information is available, configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+Once the information is available, configure the OAuth2 provider. This can be
+done by adding a GitHub OAuth2 authentication source from _Configuration ->
+Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example:
+Role and Access duration).
 
-Moreover, don't forget to add GitHub as a *Source* from the connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+Moreover, don't forget to add GitHub as a *Source* from the connection
+profile definition, available from _Configuration -> Policies and Access
+Control -> Connection Profiles_.
 
 ==== Kickbox
 
-To use Kickbox, an API key is needed. To get one, first create an account on <https://kickbox.io>, then navigate to <https://app.kickbox.com/settings/keys>. Click on `API Keys -> Create Key`. Pick a name and choose `Production` mode and `Single` verification.
+To use Kickbox, an API key is needed. To get one, first create an account on
+<https://kickbox.io>, then navigate to
+<https://app.kickbox.com/settings/keys>. Click on `API Keys -> Create Key`.
+Pick a name and choose `Production` mode and `Single` verification.
 
-Once the API key is available, configure the OAuth2 provider. This can be done by adding a Kickbox authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+Once the API key is available, configure the OAuth2 provider. This can be
+done by adding a Kickbox authentication source from _Configuration -> Policies
+and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example:
+Role and Access duration).
 
-Moreover, don't forget to add Kickbox as a *Source* from the connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+Moreover, don't forget to add Kickbox as a *Source* from the connection
+profile definition, available from _Configuration -> Policies and Access
+Control -> Connection Profiles_.
 
 ==== LinkedIn
 
-To use LinkedIn, an API code and a secret key are also needed.  To get one, create an App here: https://developer.linkedin.com/.  When creating the App, specify the following as the Callback URL
+To use LinkedIn, an API code and a secret key are also needed.  To get one,
+create an App here: https://developer.linkedin.com/.  When creating the App,
+specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
-Get more details about how to configure the LinkedIn application inside https://docs.microsoft.com/fr-fr/linkedin/shared/authentication/authentication[Microsoft documentation].
+Get more details about how to configure the LinkedIn application inside
+https://docs.microsoft.com/fr-fr/linkedin/shared/authentication/authentication[Microsoft
+documentation].
 
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+Of course, replace the hostname with the values from `general.hostname` and
+`general.domain`.
 
-Once the information is available, configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+Once the information is available, configure the OAuth2 provider. This can be
+done by adding a LinkedIn OAuth2 authentication source from _Configuration ->
+Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example:
+Role and Access duration).
 
-Moreover, don't forget to add LinkedIn as a *Source* from the connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+Moreover, don't forget to add LinkedIn as a *Source* from the connection
+profile definition, available from _Configuration -> Policies and Access
+Control -> Connection Profiles_.
 
-NOTE: When testing LinkedIn OAuth2, use a different LinkedIn account to setup the application and to test the Source in the captive portal.
+NOTE: When testing LinkedIn OAuth2, use a different LinkedIn account to
+setup the application and to test the Source in the captive portal.
 
 ==== OpenID Connect
 
-Using OpenID Connect is a bit different than other OAuth2 sources. The reason behind that is because setting up a custom OpenID Connect source or depending on a provider for it. Configuration like token path, authorize path or API URL are specific to the setup. For more information on how to create one's own or get a host please visit: https://openid.net/connect/.
+Using OpenID Connect is a bit different than other OAuth2 sources. The reason
+behind that is because setting up a custom OpenID Connect source or depending
+on a provider for it. Configuration like token path, authorize path or API URL
+are specific to the setup. For more information on how to create one's own or
+get a host please visit: https://openid.net/connect/.
 
-When creating the App, specify the following as the Callback URL, https://YOUR_PORTAL_HOSTNAME/oauth2/callback.
+When creating the App, specify the following as the Callback URL,
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback.
 
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+Of course, replace the hostname with the values from `general.hostname` and
+`general.domain`.
 
-OpenID connect have different ways to be configured, create a client ID and a client secret to work with PacketFence.
+OpenID connect have different ways to be configured, create a client ID and a
+client secret to work with PacketFence.
 
-Once the information is available, configure the OAuth2 provider. This can be done by adding an OpenID OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+Once the information is available, configure the OAuth2 provider. This can be
+done by adding an OpenID OAuth2 authentication source from _Configuration ->
+Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example:
+Role and Access duration).
 
-Moreover, don't forget to add OpenID as a *Source* from the connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+Moreover, don't forget to add OpenID as a *Source* from the connection
+profile definition, available from _Configuration -> Policies and Access
+Control -> Connection Profiles_.
 
 ==== Twilio
 
-To use Twilio, first create an account on <https://www.twilio.com>. From the console (dashboard) <https://www.twilio.com/console> create a *3rd Party Integration*. Note the *Account SID* and *Auth Token* for later use. From the Phone Manager <https://www.twilio.com/console/phone-numbers/incoming> click the `+` button to *Buy a number* with _SMS_ capability - no payment is needed to start using this phone number right away.
+To use Twilio, first create an account on <https://www.twilio.com>. From the
+console (dashboard) <https://www.twilio.com/console> create a *3rd Party
+Integration*. Note the *Account SID* and *Auth Token* for later use. From the
+Phone Manager <https://www.twilio.com/console/phone-numbers/incoming> click the
+`+` button to *Buy a number* with _SMS_ capability - no payment is needed to
+start using this phone number right away.
 
-Once the information is available, configure the OAuth2 provider. This can be done by adding a Twilio OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_. Enter the `Account SID`, `Auth Token` and `Phone Number (From)` from above.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+Once the information is available, configure the OAuth2 provider. This can be
+done by adding a Twilio OAuth2 authentication source from _Configuration ->
+Policies and Access Control -> Authentication Sources_. Enter the `Account
+SID`, `Auth Token` and `Phone Number (From)` from above.
+Remember to add the Authentication Rules with at least two Actions (example:
+Role and Access duration).
 
-Moreover, don't forget to add Twilio as a *Source* from the connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+Moreover, don't forget to add Twilio as a *Source* from the connection
+profile definition, available from _Configuration -> Policies and Access
+Control -> Connection Profiles_.
 
 ==== Windows Live
 
-To use Windows live, an API code and a secret key are also needed.  To get one, create an App here: .https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade  When creating the App, specify the following as the Callback URL
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback replacing the hostname with the values from `general.hostname` and `general.domain`.
+To use Windows live, an API code and a secret key are also needed.  To get
+one, create an App here:
+.https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
+When creating the App, specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback replacing the hostname with the
+values from `general.hostname` and `general.domain`.
 
-Once the information is available, configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+Once the information is available, configure the OAuth2 provider. This can be
+done by adding a WindowsLive OAuth2 authentication source from _Configuration
+-> Policies and Access Control -> Authentication Sources_.
+Remember to add the Authentication Rules with at least two Actions (example:
+Role and Access duration).
 
-The `App ID` in PacketFence will be `Application (client) ID` in the Azure portal. 
+The `App ID` in PacketFence will be `Application (client) ID` in the Azure
+portal.
 
-The `App secret` must be a client secret created in the `Certificates & secrets` section of the app on Azure AD. Note that Azure AD secrets do expire so set a reminder to update the secret before it expires.
+The `App secret` must be a client secret created in the `Certificates &
+secrets` section of the app on Azure AD. Note that Azure AD secrets do expire
+so set a reminder to update the secret before it expires.
 
-Moreover, don't forget to add WindowsLive as a *Source* from the connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
+Moreover, don't forget to add WindowsLive as a *Source* from the connection
+profile definition, available from _Configuration -> Policies and Access
+Control -> Connection Profiles_.

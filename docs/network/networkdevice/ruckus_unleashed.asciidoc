@@ -60,6 +60,7 @@ Save your configuration.
 ==== MAC Authentication
 
 .Open SSID
+[options="compact"]
 * Enter a Name/SSID
 * Select *Standard* as the Type
 * Select *MAC Address* as the authentication method
@@ -72,6 +73,7 @@ image::ruckus_unleashed_mac_auth.png[scaledwidth="100%",alt="Mac Auth"]
 ==== 802.1X Configuration
 
 .Secure SSID
+[options="compact"]
 * Enter a Name/SSID
 * Select *Standard* as the Type
 * Select *802.1X EAP* as the authentication method

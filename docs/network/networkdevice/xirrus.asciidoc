@@ -57,6 +57,7 @@ SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
 
 ===== External portal SSID
 
+[options="compact"]
 * Set *Encryption / Authentication* to None / Open
 * Then check the WPR checkbox
 * Then in in the section Web Page Redirect Configuration set *Server* to External Login

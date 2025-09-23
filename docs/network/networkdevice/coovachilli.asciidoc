@@ -25,8 +25,12 @@ capabilities along with PacketFence feature set.
 
 ==== Assumptions
 
-* You have a CoovaChilli capable access point running LEDE/OpenWRT, on which CoovaChilli is installed (CoovaChilli installation is not covered in this guide);
-* A working PacketFence server, a CoovaChilli capable access point, and Internet is functional;
+[options="compact"]
+* You have a CoovaChilli capable access point running LEDE/OpenWRT, on which
+  CoovaChilli is installed (CoovaChilli installation is not covered in this
+  guide);
+* A working PacketFence server, a CoovaChilli capable access point, and
+  Internet is functional;
 * A PacketFence WebAuth enforcement setup will be deployed;
 
 ==== Access Point and CoovaChilli Configuration
@@ -59,10 +63,12 @@ chilli configuration might differ from one equipment vendor to an other one.
 Just make sure to follow these configuration guidelines and you should be
 all-set.
 
+[options="compact"]
 * chilli configuration file can be found under
 
     /etc/config/chilli
 
+[options="compact"]
 * Edit the following parameters to integrate with PacketFence
 
     option disabled 1 This should be commented out so that chilli is marked as

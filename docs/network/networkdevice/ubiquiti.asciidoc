@@ -23,6 +23,7 @@ endif::[]
 
 PacketFence supports the EdgeSwitch with the following techniques:
 
+[options="compact"]
 * 802.1X with MAC Authentication fallback
 * 802.1X with MAC Authentication fallback with VoIP
 

@@ -57,6 +57,7 @@ provisioners on both profiles.
 Add provisioner for other device classes: click `Add Provisioner`, complete form
 with different Provisioning ID per provisioner.
 
+[options="compact"]
 * *Roles*: Defines affected devices; if empty, affects all devices for this class.
 * *SSID*: Defines SSID configured on device using authentication profile.
 * *EAP-Type*: Authentication method; set to EAP-TLS for PacketFence PKI integration.

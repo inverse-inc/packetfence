@@ -9,6 +9,7 @@ Authorization (CoA) and SNMP functions don't work properly.
 
 *Symptoms:*
 
+[options="compact"]
 * Initial 802.1X authentication succeeds
 * User gets network access with initial role/VLAN
 * Role changes in PacketFence don't reflect on switch ports
@@ -22,17 +23,20 @@ Authorization (CoA) and SNMP functions don't work properly.
 *This is a known limitation with CX switches:*
 
 *What Works:*
+[options="compact"]
 * Initial 802.1X authentication
 * User role assignment
 * Basic RADIUS communication
 
 *What Doesn't Work:*
+[options="compact"]
 * CoA (Change of Authorization) for dynamic role changes
 * SNMP integration for port management
 * Automatic VLAN switching
 
 *Workarounds:*
 
+[options="compact"]
 . *Manual Port Resets:* Physical disconnection/reconnection required
 . *Use AOS-S Switches:* For full PacketFence compatibility
 . *Hybrid Approach:* CX for core, AOS-S for access where CoA is needed
@@ -58,6 +62,7 @@ Cisco WLC doesn't apply the correct guest role or VLAN.
 
 *Symptoms:*
 
+[options="compact"]
 * Social media authentication completes successfully
 * Guest user receives confirmation but remains in restricted VLAN
 * WLC shows client as authenticated but no role change
@@ -70,16 +75,19 @@ Cisco WLC doesn't apply the correct guest role or VLAN.
 
 *WLC Configuration Requirements:*
 
+[options="compact"]
 . *Enable CoA on RADIUS Server:*
    - WLC → Security → AAA → RADIUS → Authentication
    - Select PacketFence RADIUS server
    - Check "Support for CoA" checkbox
 
+[options="compact"]
 . *RADIUS Server Configuration:*
    - Verify RADIUS shared secret matches
    - Ensure CoA port 3799 is accessible
    - Check RADIUS server IP is correctly configured
 
+[options="compact"]
 . *ACL and VLAN Verification:*
 +
 ----
@@ -119,6 +127,7 @@ ALIVE and UNREACHABLE, particularly with PacketFence v14.1 clusters.
 
 *Immediate Troubleshooting:*
 
+[options="compact"]
 . *Check Cluster Node Health:*
 +
 ----
@@ -126,6 +135,7 @@ ALIVE and UNREACHABLE, particularly with PacketFence v14.1 clusters.
 # Verify all nodes show "alive" status
 ----
 
+[options="compact"]
 . *RADIUS Service Status:*
 +
 ----
@@ -133,6 +143,7 @@ ALIVE and UNREACHABLE, particularly with PacketFence v14.1 clusters.
 /usr/local/pf/bin/pfcmd service radiusd status
 ----
 
+[options="compact"]
 . *Network Connectivity:*
 +
 ----
@@ -146,6 +157,7 @@ nc -zv packetfence-node1.domain.com 1812
 
 *Long-term Solutions:*
 
+[options="compact"]
 * *Load Balancer Configuration:* Consider RADIUS load balancer between switches and cluster
 * *RADIUS Timeout Tuning:* Increase timeout values on switches
 * *Cluster Optimization:* Review cluster resource allocation
@@ -176,12 +188,14 @@ existing PacketFence network device templates and CoA functionality.
 *Version-Specific Considerations:*
 
 *UniFi Controller v9.0+ Changes:*
+[options="compact"]
 * API modifications affecting device management
 * CoA functionality restrictions
 * Authentication workflow changes
 
 *Current Workarounds:*
 
+[options="compact"]
 . *Template Updates:* Check for updated PacketFence device templates
 . *API Compatibility:* Review authentication source configuration
 . *Alternative Methods:* Consider WebAuth through UniFi external portal
@@ -228,11 +242,13 @@ radtest username password unifi-site-ip:1812 0 shared-secret
 
 *Configuration Verification:*
 
+[options="compact"]
 . *SmartZone API Settings:*
    - Verify API credentials in PacketFence
    - Check API URL format and accessibility
    - Ensure proper authentication token handling
 
+[options="compact"]
 . *PacketFence Configuration:*
    - Review Ruckus device template in Network Devices
    - Verify authentication keys match SmartZone configuration
@@ -265,6 +281,7 @@ If API deauth fails, consider portal-based or timed session approach.
 
 *Symptoms:*
 
+[options="compact"]
 * SSL certificate errors on guest WiFi
 * Captive portal webpage won't load despite valid certificates
 * Clicking "connect" opens multiple browser tabs
@@ -344,6 +361,7 @@ openssl x509 -in /usr/local/pf/conf/ssl/server.pem -text -noout
 
 *Symptoms:*
 
+[options="compact"]
 * CoA functionality previously working but stops after UniFi controller update
 * CoA options no longer available for non-Enterprise wireless security types
 * MAC authentication with RADIUS-assigned VLANs fails to change user VLAN
@@ -417,6 +435,7 @@ CoA functionality should not be dependent on wireless security type from a techn
 
 *Symptoms:*
 
+[options="compact"]
 * Uncertainty about whether to use RADIUS or port security for ProCurve integration
 * Port blocking and unblocking not working as expected
 * Node registration and role assignment inconsistencies

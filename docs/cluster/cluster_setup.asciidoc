@@ -27,6 +27,7 @@ Run these actions on *all cluster members*.
 Ensure interface names are identical on *all servers*. Use these guides for
 predictable network interface names:
 
+[options="compact"]
 * link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_networking/consistent-network-interface-device-naming_configuring-and-managing-networking[RHEL-based systems]
 * link:https://wiki.debian.org/NetworkInterfaceNames[Debian-based systems]
 
@@ -52,7 +53,9 @@ sysctl -p
 reboot
 ----
 
-NOTE: If you plan to use Postfix to send emails, you need to set `inet_protocols = ipv4` in [filename]`/etc/postfix/main.cf` to be able to use it.
+NOTE: If you plan to use Postfix to send emails, you need to set
+`inet_protocols = ipv4` in [filename]`/etc/postfix/main.cf` to be able to use
+it.
 
 ==== Installation of PacketFence
 
@@ -63,11 +66,18 @@ Installation Guide>>.
 
 ==== Install the database replication tools
 
-NOTE: In this example, the database stack uses the native PacketFence https://mariadb.com/kb/en/library/galera-cluster/[MariaDB Galera cluster>> integration. Although other MySQL based clustering stacks are supported, they aren't covered in this guide. If you use an external database or want to use another clustering stack for the database, you can ignore this section and jump to Step 2 directly.
+NOTE: In this example, the database stack uses the native PacketFence
+https://mariadb.com/kb/en/library/galera-cluster/[MariaDB Galera cluster>
+integration. Although other MySQL based clustering stacks are supported, they
+aren't covered in this guide. If you use an external database or want to use
+another clustering stack for the database, you can ignore this section and
+jump to Step 2 directly.
 
-CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with an odd number of servers).
+CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with
+an odd number of servers).
 
-First, you will need to install, *on each servers*, Mariabackup for the synchronization to work correctly.
+First, you will need to install, *on each servers*, Mariabackup for the
+synchronization to work correctly.
 
 .On RHEL-based systems
 [source,bash]
@@ -92,13 +102,16 @@ apt-get -y install mariadb-backup-10.2
 ----
 
 For the next steps, you want to make sure that you didn't configure anything
-in [filename]`/usr/local/pf/conf/cluster.conf`. If you already did, comment all the
-configuration in the file and do a configreload ([command]`/usr/local/pf/bin/pfcmd configreload hard`).
+in [filename]`/usr/local/pf/conf/cluster.conf`. If you already did, comment
+all the
+configuration in the file and do a configreload
+([command]`/usr/local/pf/bin/pfcmd configreload hard`).
 
 === Setup on the first server of the cluster
 
 
-First, *on the first server*, ensure `packetfence-mariadb` is running and make sure it was able to start in 'standalone' mode.
+First, *on the first server*, ensure `packetfence-mariadb` is running and
+make sure it was able to start in 'standalone' mode.
 
 [source,bash]
 ----
@@ -110,7 +123,9 @@ PacketFence will use. You can use any username/password combination. After
 creating the user, keep its information close-by for usage in the
 configuration.
 
-WARNING: *aMuchMoreSecurePassword* is only for example purpose, a custom password needs to be defined. This user should have a password that contains only alphanumeric characters (letters, numbers and importantly, *no spaces*).
+WARNING: *aMuchMoreSecurePassword* is only for example purpose, a custom
+password needs to be defined. This user should have a password that contains
+only alphanumeric characters (letters, numbers and importantly, *no spaces*).
 
 [source,bash]
 ----
@@ -132,11 +147,18 @@ FLUSH PRIVILEGES;
 
 ==== First server
 
-Now, on *the first server* of the cluster, go through the configurator, until last step. The services should be left **stopped** at the end of the configurator.
+Now, on *the first server* of the cluster, go through the configurator, until
+last step. The services should be left **stopped** at the end of the
+configurator.
 
-NOTE: When configuring the network interfaces, ensure that you mark the management interface as *high-availability*. Otherwise, you will not be able to perform the database synchronization.
+NOTE: When configuring the network interfaces, ensure that you mark the
+management interface as *high-availability*. Otherwise, you will not be able
+to perform the database synchronization.
 
-If the configurator fails or cluster setup encounters issues, see <<#_service_startup_failures,Service Startup Failures>> and <<#_checking_the_mariadb_sync,Checking the MariaDB sync>> in the Troubleshooting section.
+If the configurator fails or cluster setup encounters issues, see
+<<#_service_startup_failures,Service Startup Failures>> and
+<<#_checking_the_mariadb_sync,Checking the MariaDB sync>> in the
+Troubleshooting section.
 
 Then restart PacketFence's mariadb on *the first server*:
 
@@ -153,7 +175,8 @@ servers already have the right IP addresses configured on their interfaces,
 you can ignore this step.
 
 This step is only necessary to configure IP addresses on
-interfaces (at OS level). PacketFence configuration of interfaces will be done later.
+interfaces (at OS level). PacketFence configuration of interfaces will be
+done later.
 
 ==== Current state
 
@@ -177,8 +200,10 @@ for each server:
 
 ==== PacketFence Configuration Modification (first server only)
 
-In order for PacketFence to communicate properly with the MariaDB cluster, change the following.
-This change only needs to be done on the first server of the cluster. It will be synchronized later.
+In order for PacketFence to communicate properly with the MariaDB cluster,
+change the following.
+This change only needs to be done on the first server of the cluster. It will
+be synchronized later.
 
 Add the following to the bottom of [filename]`/usr/local/pf/conf/pf.conf` :
 
@@ -205,7 +230,8 @@ configurator=disabled
 galera-autofix=disabled
 ----
 
-Then, add the following to the bottom of [filename]`/usr/local/pf/conf/pfconfig.conf` :
+Then, add the following to the bottom of
+[filename]`/usr/local/pf/conf/pfconfig.conf` :
 
 ----
 [mysql]
@@ -213,9 +239,14 @@ host=100.64.0.1
 port=6033
 ----
 
-Now, restart `packetfence-config` and reload the configuration. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because `packetfence-config` cannot connect to the database yet.
+Now, restart `packetfence-config` and reload the configuration. You will see
+errors related to a cache write issue but you can safely ignore it for now.
+These appear because `packetfence-config` cannot connect to the database yet.
 
-If database connectivity issues persist beyond expected, see <<#_database_connectivity_issues,Database Connectivity Issues>> and <<#_checking_the_mariadb_sync,Checking the MariaDB sync>> in the Troubleshooting section.
+If database connectivity issues persist beyond expected, see
+<<#_database_connectivity_issues,Database Connectivity Issues>> and
+<<#_checking_the_mariadb_sync,Checking the MariaDB sync>> in the
+Troubleshooting section.
 
 [source,bash]
 ----
@@ -225,15 +256,20 @@ systemctl restart packetfence-config
 
 ==== Configure cluster.conf (first server only)
 
-In order to create a new cluster, configure [filename]`/usr/local/pf/conf/cluster.conf` *on the first server* of the cluster.
+In order to create a new cluster, configure
+[filename]`/usr/local/pf/conf/cluster.conf` *on the first server* of the
+cluster.
 
-Configure it with the server hostname. Use : [command]`hostname` command (without any arguments) to get it.
+Configure it with the server hostname. Use : [command]`hostname` command
+(without any arguments) to get it.
 
 In the case of this example it will be `pf1.example.com`.
 
-The `CLUSTER` section represents the virtual IP addresses of the cluster that will be shared by the servers.
+The `CLUSTER` section represents the virtual IP addresses of the cluster that
+will be shared by the servers.
 
-In this example, eth0 is the management interface, eth1.2 is the registration interface and eth1.3 is the isolation interface.
+In this example, eth0 is the management interface, eth1.2 is the
+registration interface and eth1.3 is the isolation interface.
 
 Create a configuration similar to this :
 
@@ -313,7 +349,8 @@ systemctl stop packetfence-mariadb
 
 ===== First server
 
-Start MariaDB forcing it to create a new cluster using configuration defined in [filename]`/usr/local/pf/conf/cluster.conf`:
+Start MariaDB forcing it to create a new cluster using configuration defined
+in [filename]`/usr/local/pf/conf/cluster.conf`:
 
 [source,bash]
 ----
@@ -338,15 +375,20 @@ with the other services. If a mail server has been set up on the first
 server, you should have receive a mail from `keepalived` to inform you that
 the first server got Virtual IP (VIP) adresses.
 
-You should now have service using the first server on the IP addresses defined in the `CLUSTER` sections.
+You should now have service using the first server on the IP addresses
+defined in the `CLUSTER` sections.
 
-NOTE: You can check the status of the services using [command]`/usr/local/pf/bin/pfcmd service pf status`
+NOTE: You can check the status of the services using
+[command]`/usr/local/pf/bin/pfcmd service pf status`
 
-NOTE: You can check with [command]`ip -br a`, on the first server, you need to find the *VIP* on the first ethernet interface. On the others server, be sure to have the `interface.VLANID` interfaces with the good IPs.
+NOTE: You can check with [command]`ip -br a`, on the first server, you need
+to find the *VIP* on the first ethernet interface. On the others server, be
+sure to have the `interface.VLANID` interfaces with the good IPs.
 
 ==== Enable PacketFence clustering services at boot (all servers)
 
-Make sure the PacketFence clustering services will be started at boot by running the following command on *all of the servers*:
+Make sure the PacketFence clustering services will be started at boot by
+running the following command on *all of the servers*:
 
 [source,bash]
 ----
@@ -355,9 +397,15 @@ systemctl set-default packetfence-cluster
 
 === Integrating the two other nodes
 
-WARNING: If you reboot any of the nodes you're joining, you will need to stop all the PacketFence services (`/usr/local/pf/bin/pfcmd service pf stop`) and restart the steps from here.
+WARNING: If you reboot any of the nodes you're joining, you will need to
+stop all the PacketFence services (`/usr/local/pf/bin/pfcmd service pf stop`)
+and restart the steps from here.
 
-WARNING: If you reboot the management node (first server), you will need to stop `packetfence-mariadb` (`systemctl stop packetfence-mariadb`) and start it with the new cluster option so the servers can join (`systemctl set-environment MARIADB_ARGS=--force-new-cluster && systemctl restart packetfence-mariadb`)
+WARNING: If you reboot the management node (first server), you will need to
+stop `packetfence-mariadb` (`systemctl stop packetfence-mariadb`) and start it
+with the new cluster option so the servers can join (`systemctl
+set-environment MARIADB_ARGS=--force-new-cluster && systemctl restart
+packetfence-mariadb`)
 
 Now, the *two other nodes* will need to be integrated in the cluster.
 
@@ -370,7 +418,8 @@ On *all your servers*, make sure that `packetfence-iptables` is stopped:
 systemctl stop packetfence-iptables
 ----
 
-==== Sync the PacketFence configuration across the cluster (second and third servers)
+==== Sync the PacketFence configuration across the cluster (second and third
+servers)
 
 Do (and make sure it completes without any errors):
 
@@ -380,15 +429,22 @@ Do (and make sure it completes without any errors):
  --api-password=anotherMoreSecurePassword
 ----
 
-NOTE: Space before last command is on purpose to avoid record of password in shell history
+NOTE: Space before last command is on purpose to avoid record of password in
+shell history
 
 Where :
 
+[options="compact"]
 * '192.168.1.5' is the management IP of the *first server* node
-* 'packet' is the webservices username you have configured on the *first server* node during <<_packetfence_configuration_modification_first_server_only>>
-* 'anotherMoreSecurePassword' is the webservices password you have configured on the *first server* node during <<_packetfence_configuration_modification_first_server_only>>
+* 'packet' is the webservices username you have configured on the *first
+  server* node during
+  <<_packetfence_configuration_modification_first_server_only>>
+* 'anotherMoreSecurePassword' is the webservices password you have
+  configured on the *first server* node during
+  <<_packetfence_configuration_modification_first_server_only>>
 
-Then, reload the configuration and start the webservices on second and third servers:
+Then, reload the configuration and start the webservices on second and third
+servers:
 
 [source,bash]
 ----
@@ -400,14 +456,16 @@ systemctl restart packetfence-config
 
 ==== MariaDB sync (second and third servers)
 
-Ensure `packetfence-mariadb` is still stopped on the two servers that will be joined:
+Ensure `packetfence-mariadb` is still stopped on the two servers that will
+be joined:
 
 [source,bash]
 ----
 systemctl stop packetfence-mariadb
 ----
 
-Now, flush any MariaDB data you have on the two servers and restart `packetfence-mariadb` so that the servers join the cluster.
+Now, flush any MariaDB data you have on the two servers and restart
+`packetfence-mariadb` so that the servers join the cluster.
 
 WARNING: If you have any data in MariaDB on these nodes, this will destroy it.
 
@@ -417,19 +475,24 @@ rm -fr /var/lib/mysql/*
 systemctl restart packetfence-mariadb
 ----
 
-If you see following message when running [command]`systemctl status packetfence-mariadb`, your nodes have successfully joined cluster:
+If you see following message when running [command]`systemctl status
+packetfence-mariadb`, your nodes have successfully joined cluster:
 
 ----
 INFO: Successful clustered connection to the DB
 ----
 
-To be sure your cluster is correctly setup, take a look at <<_checking_the_mariadb_sync>> section.
+To be sure your cluster is correctly setup, take a look at
+<<_checking_the_mariadb_sync>> section.
 
-In case you have some issues, ensure your MariaDB instance running with `--force-new-cluster` is still running on the first server, if its not, start it again.
+In case you have some issues, ensure your MariaDB instance running with
+`--force-new-cluster` is still running on the first server, if its not, start
+it again.
 
 ==== Starting the first server normally
 
-Once all servers are synced, go *on the first server* that should still be running with the `--force-new-cluster` option and run:
+Once all servers are synced, go *on the first server* that should still be
+running with the `--force-new-cluster` option and run:
 
 [source,bash]
 ----
@@ -447,7 +510,8 @@ systemctl restart packetfence-iptables
 
 ===== Enabling galera-autofix service (first server)
 
-Before starting services on all servers, `galera-autofix` service need to be re-enabled and configuration synced across cluster:
+Before starting services on all servers, `galera-autofix` service need to be
+re-enabled and configuration synced across cluster:
 
 [source,bash]
 ----
@@ -473,14 +537,16 @@ rebooted to come back online before proceeding to the next one:
 reboot
 ----
 
-After each reboot, ensure the database sync is fine by performing the checks outlined in
+After each reboot, ensure the database sync is fine by performing the checks
+outlined in
 <<_checking_the_mariadb_sync>> section.
 
 === Additional steps
 
 ==== Securing the cluster: Keepalived secret
 
-NOTE: It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks.
+NOTE: It is highly recommended to modify the keepalived shared secret in
+your cluster to prevent attacks.
 
 From the admin interface (using virtual IP address of
 your cluster), go to _Configuration -> System Configuration -> Cluster_ and
@@ -494,12 +560,19 @@ servers* using:
 /usr/local/pf/bin/pfcmd service keepalived restart
 ----
 
-If you already use VRRP protocol on your network, you can also change the default `Virtual Router ID` and enable `VRRP Unicast`.
+If you already use VRRP protocol on your network, you can also change the
+default `Virtual Router ID` and enable `VRRP Unicast`.
 
 ==== Domain join
 
-Next, make sure to join domains through _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ on *each node*.
-Please refer to <<PacketFence_Installation_Guide.asciidoc#domain_joining_on_a_packetfence_cluster_v14_x,Domain joining on a PacketFence cluster v14.x>> for detailed steps.
+Next, make sure to join domains through _Configuration -> Policies and
+Access Control -> Domains -> Active Directory Domains_ on *each node*.
+Please refer to
+<<PacketFence_Installation_Guide.asciidoc#domain_joining_on_a_packetfence_cluster_v14_x,Domain
+joining on a PacketFence cluster v14.x>> for detailed steps.
 
-If domain joining fails on cluster nodes, see <<#_network_connectivity_issues,Network Connectivity Issues>>, <<#_authentication_failures,Authentication Failures>>, and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section.
+If domain joining fails on cluster nodes, see
+<<#_network_connectivity_issues,Network Connectivity Issues>>,
+<<#_authentication_failures,Authentication Failures>>, and
+<<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting section.
 

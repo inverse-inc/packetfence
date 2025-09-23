@@ -24,12 +24,14 @@ endif::[]
 HP 1910 Series uses 3Com OS with most configuration done via GUI.
 
 VLAN creation:
+[options="compact"]
 * Go to *Network* > *VLAN*
 * Click _Create_ tab
 * Create VLANs
 
 
 Configure PacketFence as a RADIUS server:
+[options="compact"]
 * go to *Authentication*, *RADIUS*
 * click on the _RADIUS Server_ tab
 * from _Server Type_, select *Authentication Server*
@@ -37,6 +39,7 @@ Configure PacketFence as a RADIUS server:
 * click *Apply*
 
 Then:
+[options="compact"]
 * click on the _RADIUS Setup_ tab
 * check the box _Authentication Server Shared Key_
 * give the *shared key*
@@ -44,6 +47,7 @@ Then:
 * click *Apply*
 
 Create a new authentication domain:
+[options="compact"]
 * go to *Authentication*, *AAA*,
 * click on the _Domain Setup_ tab,
 
@@ -51,6 +55,7 @@ WARNING: We will need to create a specific authentication domain and *not making
 it as the default domain*.
 
 Configure the 802.1X and authentication method:
+[options="compact"]
 * go to *Authentication*
 * click on the _802.1X_ tab
 * check the _Enable 802.1X_ box
@@ -60,11 +65,13 @@ Configure the authentication domain:
 
 INFO: Even limited, there is a command line access.
 
+[options="compact"]
 * connect to the switch using ss,
 * type the command:
 
  _cmdline-mode on
 
+[options="compact"]
 * password is: *512900*
 * Type the commands:
 
@@ -72,6 +79,7 @@ INFO: Even limited, there is a command line access.
  Mac-authentication domain YOUR_DOMAIN_NAME
  Mac-authentication user-name-format mac-address with-hyphen
 
+[options="compact"]
 * change the _YOUR_DOMAIN_NAME_ with the one from your environment
 * do not close your terminal, we will come back to this later
 
@@ -85,11 +93,13 @@ INFO: Even limited, there is a command line access.
 
 Enable the MAC Authentication in SSH, as well:
 
+[options="compact"]
 * back on the SSH terminal
 * type the following command:
 
  Mac-authentication interface gX/X/X
 
+[options="compact"]
 * modify the interface name for your environment
 
 The configuration is done.

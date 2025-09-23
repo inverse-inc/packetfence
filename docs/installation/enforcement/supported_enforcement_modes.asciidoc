@@ -66,9 +66,12 @@ Inline enforcement has several limitations due to its nature:
 
 [options="compact"]
  * Everyone behind an inline interface is on the same Layer 2 LAN
- * Every packet of authorized users goes through the PacketFence server increasing the server's load considerably: Plan ahead for capacity
- * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
- * Ipset can store up to 65536 entries, so it is not possible to have an inline network class greater than a class B
+ * Every packet of authorized users goes through the PacketFence server
+   increasing the server's load considerably: Plan ahead for capacity
+ * Every packet of authorized users goes through the PacketFence server: it is
+   a single point of failure for Internet access
+ * Ipset can store up to 65536 entries, so it is not possible to have an
+   inline network class greater than a class B
 
 This is why it is considered a poor man's way of doing access control. We have
 avoided it for a long time because of the above mentioned limitations. That
@@ -379,8 +382,10 @@ the `pfdns` service on PacketFence.
 
 The architecture of DNS enforcement is as following :
 
+[options="compact"]
 * DHCP and DNS are provided by the PacketFence server
   - The PacketFence DHCP server will provide the IP of your network equipment as the gateway and the IP address of the PacketFence DNS server to resolve names.
+[options="compact"]
 * Routing is provided by another equipment on your network (core switch, firewall, router,...)
 * `pfdns` will respond to DNS requests depending on your configuration :
   - user registration on portal : it will return IP address of the captive portal

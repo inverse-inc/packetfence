@@ -44,6 +44,7 @@ to resolve automatically issues on Galera clusters.
 
 For problematic clusters, once all nodes are online, wait:
 
+[options="compact"]
 * ~10 minutes when at least one node offers database service
 * ~20 minutes when no database service available
 

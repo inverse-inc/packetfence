@@ -22,11 +22,13 @@ Upgrade automation available since PacketFence 11.0 for **same-OS upgrades**.
 
 Please, check if there is a "Specific Automation Upgrade" defined between the current version to the chosen version, it may contain specific steps like changing the OS, updating database version, etc.
 
+[options="compact"]
 * Automation may contain **pre-upgrade steps** defined in the following document.
 * Perform automated upgrades on **standalone** servers only. Cluster
   upgrades must use the procedure described in the
   <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Clustering
   Guide>>
+[options="compact"]
 * Check "Specific Automation Upgrade" (or "Specific Upgrade") in Upgrading to the needed PacketFence version.
 * An exportable backup of the configuration is performed before upgrading
 

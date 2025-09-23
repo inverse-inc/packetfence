@@ -32,6 +32,7 @@ First, we need to build the AAA Policy. Under _Configuration -> Wireless -> AAA
 Policy_, click on the *Add* button at the bottom right. Configure the RADIUS
 profile like the following:
 
+[options="compact"]
 * Host: Choose IP Address in the drop down, and put the RADIUS server (PF) IP
 * Insert a RADIUS secret passphrase
 * Select "Through Wireless Controller" Request Mode
@@ -46,6 +47,7 @@ bottom right, and insert the proper values.
 Under _Configuration -> Wireless -> Wireless LANs_, click on the *Add* button at
 the bottom right. Under Basic Configuration:
 
+[options="compact"]
 * Profile Name : Give a convenient name
 * SSID: This is the ESSID name
 * Ensure that the WLAN Status is set to enable
@@ -53,15 +55,18 @@ the bottom right. Under Basic Configuration:
 * Ensure that "Allow RADIUS Override" is selected
 
 .Security configuration:
+[options="compact"]
 * Select MAC as authentication type
 * Select your AAA Policy previously created
 * Ensure that you selected Open as the Encryption
 
 .Accounting configuration:
+[options="compact"]
 * Make sure you select "Enable RADIUS Accounting"
 * Select the previously configured AAA Policy
 
 .Advanced configuration:
+[options="compact"]
 * Make sure you select RADIUS Dynamic Authorization
 
 [float]
@@ -70,6 +75,7 @@ the bottom right. Under Basic Configuration:
 Under _Configuration -> Wireless -> Wireless LANs_, click on the *Add* button at
 the bottom right. Under Basic Configuration:
 
+[options="compact"]
 * Profile Name : Give a convenient name
 * SSID: This is the ESSID name
 * Ensure that the WLAN Status is set to enable
@@ -77,16 +83,19 @@ the bottom right. Under Basic Configuration:
 * Ensure that "Allow RADIUS Override" is selected
 
 .Security configuration:
+[options="compact"]
 * Select EAP as authentication type
 * Select your AAA Policy previously created
 * Ensure that you selected WPA/WPA2-TKIP as the Encryption
 * Unselect everything under Fast Roaming (Disable caching)
 
 .Accounting configuration:
+[options="compact"]
 * Make sure you select "Enable RADIUS Accounting"
 * Select the previously configured AAA Policy
 
 .Advanced configuration:
+[options="compact"]
 * Make sure you select RADIUS Dynamic Authorization
 
 [float]
@@ -212,6 +221,7 @@ Here is an example configuration for a dual-radio AP650:
 ==== Older Firmwares (< 5.0)
 
 .Option for Public Wireless LAN
+[options="compact"]
 * Check the Dynamic Assignment check-box
 * Select "MAC Authentication" under Authentication
 * Click "Config..." choose the Colon delimiter format
@@ -219,6 +229,7 @@ Here is an example configuration for a dual-radio AP650:
 * Under RADIUS put in PacketFence's RADIUS Server information
 
 .Option for Secure Wireless LAN
+[options="compact"]
 * Check the Dynamic Assignment check-box
 * Select "802.1X EAP" under Authentication
 * Check WPA/WPA2-TKIP encryption option

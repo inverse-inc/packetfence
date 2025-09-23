@@ -43,7 +43,8 @@ PS: Don't forget to use the pf account to ssh on the Access Point, to receive
 the ssh key, if you switch back to using SSH.
 
 [float]
-==== WPA2-EAP (WPA2 Enterprise) 802.1X SSID with MAC-based authentication on WPA2-PSK SSID
+==== WPA2-EAP (WPA2 Enterprise) 802.1X SSID with MAC-based authentication on
+WPA2-PSK SSID
 
 In this example the 2.4 and 5 GHz radios are configured to provide wireless
 802.1X with a virtual AP being added to provide MAC-based authentication

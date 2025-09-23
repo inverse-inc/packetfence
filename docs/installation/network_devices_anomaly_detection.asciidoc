@@ -47,6 +47,7 @@ You can use your policy by first adding a new trigger. The network behavior
 policy can be selected after defining an internal event on the following
 attributes:
 
+[options="compact"]
 * *fingerbank_blacklisted_ips_threshold_too_high* - Fingerbank Collector detected traffic to blacklisted IPs
 * *fingerbank_blacklisted_ports* - Fingerbank Collector detected traffic to blacklisted ports
 * *fingerbank_diff_score_too_low* - Fingerbank Collector detected a network behavior that doesn't match the known profile

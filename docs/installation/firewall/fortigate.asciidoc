@@ -26,7 +26,8 @@ New*.
 [options="compact"]
 * *Name*: RSSO_group
 * *Type*: RADIUS Single Sign-On (RSSO)
-* *RADIUS Attribute Value*: RSSO_Student (use PacketFence rolename, case-sensitive)
+* *RADIUS Attribute Value*: RSSO_Student (use PacketFence rolename,
+  case-sensitive)
 
 image::doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Create the SSO agent
 in FortiGate"]

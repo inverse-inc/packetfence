@@ -36,7 +36,9 @@ identical set of parameters provided below.
   - `ip`      _(string)_: IP address of the device
   - `role`    _(string)_: PacketFence role assigned to the device
   - `timeout` _(int)_:    Duration until the registration expires in seconds
-* *Response*: Success must be indicated by `"result": ["OK"]`. Every string other than `OK` is taken as an error message.
+[options="compact"]
+* *Response*: Success must be indicated by `"result": ["OK"]`. Every string
+  other than `OK` is taken as an error message.
 
 A simple JSON-RPC server written in Python that is compatible with this
 specification and creates ipsets based on the SSO information provided by

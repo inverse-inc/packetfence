@@ -26,6 +26,7 @@ the proper permissions.
 These instructions have been adapted from
 https://developers.google.com/identity/protocols/oauth2/service-account.
 
+[options="compact"]
 * Open the Service accounts page https://console.developers.google.com/iam-admin/serviceaccounts.
 * If prompted, select a project, or create a new one.
 * Click add Create service account.
@@ -40,6 +41,7 @@ https://developers.google.com/identity/protocols/oauth2/service-account.
 
 ==== Delegating domain-wide authority to the service account
 
+[options="compact"]
 * Go to https://admin.google.com/ click on the Main Menu > Security > API Controls.
 * Scroll down to the Domain wide delegation pane, select Manage Domain Wide Delegation.
 * Click Add new.
@@ -49,6 +51,7 @@ https://developers.google.com/identity/protocols/oauth2/service-account.
 
 ==== Create Role
 
+[options="compact"]
 * Go to https://admin.google.com/ click on the Main Menu > Account > Admin roles.
 * Click 'Create new role'
 * Enter Name and Description click 'CONTINUE'
@@ -57,12 +60,14 @@ https://developers.google.com/identity/protocols/oauth2/service-account.
 * Click 'CREATE ROLE'
 
 ==== Create a user if needed.
+[options="compact"]
 * Go to https://admin.google.com/ click on the Main Menu > Directory > Users.
 * Click 'Create new user'
 * Enter First Name, Last Name and Primary email. then click 'ADD NEW USER'.
 
 ==== Assign Role to a user.
 
+[options="compact"]
 * Go to https://admin.google.com/ click on the Main Menu > Directory > Users.
 * Select user for service account
 * Click 'Admin roles and privileges'
@@ -81,6 +86,7 @@ Workspace Chromebook portal configuration"]
 
 Now configure this new provisioner with the information you got above.
 
+[options="compact"]
 * The Provisioning ID is the friendly name of the provisioner.
 * User for service account to impersonate.
 * The JSON security keys for Service Account created.

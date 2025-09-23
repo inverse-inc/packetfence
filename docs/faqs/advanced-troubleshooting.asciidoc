@@ -8,6 +8,7 @@
 
 *Symptoms:*
 
+[options="compact"]
 * Repository error: "Status code: 404 for http://inverse.ca/downloads/PacketFence/RHEL9/..."
 * Unable to install PacketFence packages on RHEL 9
 * Repository configuration appears correct but packages unavailable
@@ -79,6 +80,7 @@ apt update && apt install packetfence
 
 *Symptoms:*
 
+[options="compact"]
 * /var/log/messages grows rapidly in size
 * Disk space warnings due to large log files
 * Repetitive error messages flooding syslog
@@ -90,6 +92,7 @@ apt update && apt install packetfence
 
 *Identify Error Sources:*
 
+[options="compact"]
 . *Analyze Current Log Patterns:*
 +
 ----
@@ -101,6 +104,7 @@ du -sh /var/log/
 tail -1000 /var/log/messages | grep -i "packetfence\|pf" | sort | uniq -c | sort -nr | head -20
 ----
 
+[options="compact"]
 . *Find Specific PacketFence Errors:*
 +
 ----
@@ -209,6 +213,7 @@ chmod +x /usr/local/bin/pf-log-cleanup.sh
 
 *Symptoms:*
 
+[options="compact"]
 * Security event rules properly configured but never activate
 * Authentication succeeds but security event remains inactive
 * PacketFence logs show authentication events but no security event triggers
@@ -368,6 +373,7 @@ or reboots.
 
 *Service Dependency Resolution:*
 
+[options="compact"]
 . *Check pfconfig Service Status:*
 +
 ----
@@ -378,6 +384,7 @@ or reboots.
 /usr/local/pf/bin/pfcmd service pfconfig start
 ----
 
+[options="compact"]
 . *Hostname Resolution:*
 +
 ----
@@ -389,6 +396,7 @@ ping containers-gateway.internal
 echo "127.0.0.1 containers-gateway.internal" >> /etc/hosts
 ----
 
+[options="compact"]
 . *Network Configuration:*
 +
 ----
@@ -444,6 +452,7 @@ tail -f /usr/local/pf/logs/pfconfig.log
 
 *Symptoms:*
 
+[options="compact"]
 * Users authenticate but no role is assigned
 * LDAP authentication works inconsistently
 * Role mapping rules appear correct but don't work
@@ -481,6 +490,7 @@ tail -f /usr/local/pf/logs/packetfence.log | grep -E "(LDAP|role|attribute)"
 *Step 4: Analyze Debug Output*
 
 The DEBUG logging will show:
+[options="compact"]
 * Exact LDAP queries being sent
 * LDAP server responses
 * Attribute matching logic
@@ -514,6 +524,7 @@ systemctl restart packetfence-httpd.aaa
 
 *Symptoms:*
 
+[options="compact"]
 * Redis cluster connection refused errors in logs
 * Permission denied errors for redis_queue.conf
 * Services fail to start after cluster setup
@@ -598,6 +609,7 @@ Always ensure proper file ownership during cluster setup and after any service i
 
 *Symptoms:*
 
+[options="compact"]
 * Logs show "Cannot find any combination ID in schemas" errors
 * "Unable to perform a Fingerbank lookup" messages
 * Connection errors to API endpoint or local service
@@ -715,6 +727,7 @@ Fingerprinting failures typically result from:
 
 *Symptoms:*
 
+[options="compact"]
 * Database size continuously increasing without cleanup
 * Slow query performance over time
 * Storage space warnings or disk full errors

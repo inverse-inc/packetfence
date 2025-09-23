@@ -23,6 +23,7 @@ endif::[]
 
 PacketFence supports the AT8000GS switch using :
 
+[options="compact"]
 * MAC Authentication
 * 802.1X
 * 802.1X + VOIP
@@ -132,6 +133,7 @@ Finally, enable the necessary 802.1X and VOIP settings on each interface:
 
 PacketFence supports the GS950 switch using :
 
+[options="compact"]
 * MAC Authentication
 * 802.1X (without fallback to MAC authentication)
 

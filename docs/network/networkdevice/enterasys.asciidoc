@@ -22,6 +22,7 @@ endif::[]
 PacketFence supports Enterasys switches _without VoIP_ using two different trap
 types:
 
+[options="compact"]
 * linkUp/linkDown 
 * MAC Locking (Port Security with static MACs) 
 
@@ -129,7 +130,8 @@ CAUTION: This switch Switch accepts multiple untagged VLAN per port when
 configured
 through SNMP. This is problematic because on some occasions the untagged VLAN
 port list
-can become inconsistent with the switch’s running config. To fix that, clear all
+can become inconsistent with the switch's running config. To fix that, clear
+all
 untagged VLANs
 of a port even if the CLI interface doesn’t show them. 
 To do so, use: `clear vlan egress <vlans> <ports>` 

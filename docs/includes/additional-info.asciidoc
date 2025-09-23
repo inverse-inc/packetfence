@@ -16,9 +16,11 @@
 For more information, please consult the mailing archives or post your 
 questions to it. For details, see:
 
+[options="compact"]
 * packetfence-announce@lists.sourceforge.net: Public announcements (new 
   releases, security warnings etc.) regarding PacketFence
 
+[options="compact"]
 * packetfence-devel@lists.sourceforge.net: Discussion of PacketFence development
 
 * packetfence-users@lists.sourceforge.net: User and usage discussions

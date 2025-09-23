@@ -21,6 +21,7 @@ for authors, copyright and license information.
 
 PacketFence supports Cisco switches with VoIP using three different trap types: 
 
+[options="compact"]
 * linkUp/linkDown 
 * MAC Notification 
 * Port Security (with static MACs) 
@@ -29,11 +30,13 @@ Ensure LLDP or CDP notification is configured on all VoIP ports.
 
 Recent models support more secure features: 
 
+[options="compact"]
 * MAC Authentication (Cisco's MAC Authentication Bypass or MAB) 
 * 802.1X (Multi-Host or Multi-Domain) 
 
 Use most secure feature available for the switch model in this order:
 
+[options="compact"]
 . 802.1X/MAB
 . Port-Security
 . linkUp/linkDown
@@ -111,6 +114,7 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses 
 (0200.000x.xxxx):
 
+[options="compact"]
 * Fa0/1...Fa0/48 -> 10001...10048 
 * Gi0/1...Gi0/48 -> 10101...10148 
 ===========================================================================
@@ -208,6 +212,7 @@ where `xx` stands for the interface `ifIndex`.
 Use the following templates for interface `IfIndex` in bogus MAC addresses 
 (0200.0000.00xx):
 
+[options="compact"]
 * Fa0/1, ..., Fa0/48 => 1, ..., 48 
 * Gi0/1, Gi0/2 => 49, 50 
 ===========================================================================
@@ -237,8 +242,7 @@ CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can
 only support 802.1X with MAB using Multi-Host, MAB, and port security.
 
 CAUTION: The Catalyst 3550 does *not* support CoA.
-https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_55_se/release/notes/OL23054.html[Minimal
-IOS required for CoA is 12.2(52)SE]. Latest available IOS for 3550 is
+https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_55_se/release/notes/OL23054.html[Minimal IOS required for CoA is 12.2(52)SE]. Latest available IOS for 3550 is
 12.2(46)SE. Set "Deauthentication Method" to "SNMP" in the admin interface under
 _Configuration -> Policies and Access Control -> Network Devices -> Switches_
 for the switch IP configured below.
@@ -333,6 +337,7 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses
 (0200.000x.xxxx):
 
+[options="compact"]
 * Fa0/1...Fa0/48 -> 10001...10048 
 * Gi0/1...Gi0/48 -> 10101...10148 
 ===========================================================================
@@ -502,10 +507,14 @@ spanning-tree portfast
 
 PacketFence switch configuration 
 
+[options="compact"]
 * Select the type to 'Cisco IOS 15.0'
-* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
-* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Cisco_IOS_15_0'
-* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
+* Set the 'Registration' role to 'registration' (If left empty then it will
+  use the role name)
+* Set Role by Web Auth URL for registration to
+  'http://<your_captive_portal_ip>/Cisco::Cisco_IOS_15_0'
+* The URL can contain dynamic parameters, like the MAC address ($mac), the
+  switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 ===== Dynamic ACLs
@@ -625,6 +634,7 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses
 (0200.000x.xxxx):
 
+[options="compact"]
 * Fa0/1...Fa0/48 -> 10001...10048
 * Gi0/1...Gi0/48 -> 10101...10148
 ===========================================================================
@@ -794,10 +804,13 @@ Then on each controlled interface
 
 PacketFence switch configuration 
 
+[options="compact"]
 * Select the type to 'Cisco IOS 15.5'
-* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set the 'Registration' role to 'registration' (If left empty then it will
+  use the role name)
 * Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Cisco_IOS_15_5'
-* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
+* The URL can contain dynamic parameters, like the MAC address ($mac), the
+  switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 ===== Dynamic ACLs
@@ -977,6 +990,7 @@ where `xxxxx` stands for the interface `ifIndex`
 Use the following templates for interface `IfIndex` in bogus MAC addresses
 (0200.000x.xxxx):
 
+[options="compact"]
 * Fa1/0/1...Fa1/0/48 -> 10001...10048 
 * Gi1/0/1...Gi1/0/48 -> 10101...10148 
 * Fa2/0/1...Fa2/0/48 -> 10501...10548 
@@ -1078,10 +1092,13 @@ Global config settings:
 
 PacketFence switch configuration:
 
+[options="compact"]
 * Select the type to 'Cisco IOS 15.5'
-* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set the 'Registration' role to 'registration' (If left empty then it will
+  use the role name)
 * Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Cisco_IOS_15_5'
-* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
+* The URL can contain dynamic parameters, like the MAC address ($mac), the
+  switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 NOTE: AAA authentication is slow to come up after a reload of the IOS XE

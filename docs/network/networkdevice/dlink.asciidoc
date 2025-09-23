@@ -22,6 +22,7 @@ endif::[]
 PacketFence supports D-Link switches without VoIP using two different trap
 types:
 
+[options="compact"]
 * linkUp/linkDown 
 * MAC Notification 
 

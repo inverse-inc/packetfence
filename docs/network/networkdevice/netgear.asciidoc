@@ -176,6 +176,7 @@ exit
 
 PacketFence supports Nortel switches with VoIP using one trap type:
 
+[options="compact"]
 * Mac Security
 
 Don't forget to update the startup config!

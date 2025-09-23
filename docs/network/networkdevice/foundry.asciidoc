@@ -24,6 +24,7 @@ endif::[]
 PacketFence support this switch with optional VoIP using two different trap
 types:
 
+[options="compact"]
 * linkUp/linkDown
 * Port Security (with static MACs)
 

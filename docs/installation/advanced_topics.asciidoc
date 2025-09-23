@@ -88,8 +88,10 @@ attributes are marked with an asterisk):
   ** `W`: Week(s)
   ** `M`: Month(s)
   ** `Y`: Year(s)
+[options="compact"]
 * `formatting`: A comma separated list of column or alias formatters. Each column is defined folowed by a colon and the internal PacketFence function used to format the column value for every row (ex: `formatting=vendor:oui_to_vendor`). This is used to format the query result columns using a function to access internal PacketFence memory. The supported formatters:
   ** `oui_to_vendor`: format a MAC OUI to a vendor.
+[options="compact"]
 * `has_date_range`: _[enabled|disabled]_ Display a datetime range and provide `start_date` and `end_date` bindings. See `date_limit` to restrict the maximum date range.
 * `has_limit`: _[enabled|disabled]_  Display a limit selection and provide a `limit` binding.
 * `node_fields`: A comma delimited list of fields (columns or aliases) that will be clickable from the table of the Report and linked to the specific Node - only clickable if the reports' user has the _"Node - View"_ admin role. All fields must be a valid PacketFence node identifier _(mac)_.
@@ -217,6 +219,7 @@ The following attributes are available when using `type=sql`:
  cursor.
  ** `cursor_type=offset`: Use integer based offset for the cursor.
  ** `cursor_type=none`: No cursor is used.
+[options="compact"]
 * `cursor_default`: The default cursor used to conditionally query the results for the first page. On subsequent pages this is replaced with the results from N+1 row of the previous page, meaning the cursor for page 2 (with `default_limit=25`) will contain the value from the column of the 26th row from the previous page.
 * `cursor_field`: A comma delimited list of fields (columns) used for pagination.
 * `default_limit`: The default limit passed into the bindings of the SQL script. When `has_limit=enabled` the reports' user can override the default with a manual selection.
@@ -348,14 +351,17 @@ There are 4 types of charts available:
 * `pie`: A pie chart with 2 dimensions. Must contain 2 fields (`charts=pie|field1:field2`):
   ** `field0`: The dimensions label.
   ** `field1`: The dimensions value.
+[options="compact"]
 * `bar`: A bar chart with 2 dimensions. Must contain 2 fields (`charts=bar|field1:field2`):
   ** `field0`: The dimensions label.
   ** `field1`: The dimensions value.
+[options="compact"]
 * `parallel`: A parallel category (sankey) diagram with 2+ dimensions. Must contain 3+ fields (`charts=parallel|field1:field2:field3[...:fieldN]`):
   ** `fieldN`: The N dimensions label of 2+ fields. A category is created for
   each field and order is maintained. The palette is applied to the last field
   (right-most).
   ** `fieldLast`: The last field always contains the dimensions value.
+[options="compact"]
 * `scatter`: A date/time based line graph with 1+ dimensions. The date/time column is always defined in the first field and the query should return this using the _"YYYY-MM-DD HH:mm:ss"_ format.
   ** When only one field is defined (`charts=scatter|field1`) then a value of 1
   is implied for each row.
@@ -383,6 +389,7 @@ thus the `--` prefix can be used as a remark.
 
 ==== Troubleshooting
 
+[options="compact"]
 * If the API request returns an error or an empty response refer to the `packetfence.log` to obtain the full MySQL error message.
 * SQL scripts are transactional. After the script is run any variables or stored procedures created or temporary tables created are destroyed. Any locks obtained are released.
 * Modification to the configuration file only requires a `/usr/local/pf/bin/pfcmd configreload hard` for the changes to take effect. The admin interface will begin using the new script on its next request.
@@ -468,6 +475,7 @@ restarted to apply changes.
 
 `pfacct` can get NetFlow traffic from two kind of sources:
 
+[options="compact"]
 * network devices which send directly NetFlow traffic to PacketFence
 * inline L2/L3 networks (using NetFlow kernel module)
 
@@ -486,9 +494,11 @@ Adjust `pfacct` configuration based on the NetFlow traffic source.
 
 Configure the following:
 
+[options="compact"]
 * make `pfacct` listens on IP address where you want to receive NetFlow
   traffic using `netflow_address` setting in _Configuration -> System
   Configuration -> Services_ menu
+[options="compact"]
 * enable _NetFlow on all networks_ in _Configuration -> System Configuration -> Advanced_ menu
 
 Then restart `packetfence-pfacct` services for it to take effect.

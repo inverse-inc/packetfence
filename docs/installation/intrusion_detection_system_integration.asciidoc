@@ -159,6 +159,7 @@ Definition:
 
 Triggers:
 
+[options="compact"]
 * Click on the `(+)` button
 * Look for 'detect' in the dropdown list
 * Add the trigger ID: 2000340 and click the `ADD` button

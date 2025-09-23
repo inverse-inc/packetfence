@@ -20,10 +20,18 @@ endif::[]
 
 === Glossary
 
- * 'Alive quorum': An alive quorum is when more than 50% of the servers of the cluster are online and reachable on the network (pingable). This doesn't imply they offer service, but only that they are online on the network.
- * 'Hard-shutdown': A hard shutdown is when a node or a service is stopped without being able to go through a proper exit cleanup. This can occur in the case of a power outage, hard reset of a server or `kill -9` of a service.
- * 'Management node/server': The first server of a PacketFence cluster as defined in `/usr/local/pf/conf/cluster.conf`.
- * 'Node': In the context of this document, a node is a member of the cluster while in other PacketFence documents it may represent an endpoint.
+ * 'Alive quorum': An alive quorum is when more than 50% of the servers of
+   the cluster are online and reachable on the network (pingable). This
+   doesn't imply they offer service, but only that they are online on the
+   network.
+ * 'Hard-shutdown': A hard shutdown is when a node or a service is stopped
+   without being able to go through a proper exit cleanup. This can occur in
+   the case of a power outage, hard reset of a server or `kill -9` of a
+   service.
+ * 'Management node/server': The first server of a PacketFence cluster as
+   defined in `/usr/local/pf/conf/cluster.conf`.
+ * 'Node': In the context of this document, a node is a member of the
+   cluster while in other PacketFence documents it may represent an endpoint.
 
 === Database via ProxySQL or haproxy-db
 
@@ -32,11 +40,11 @@ obtain their connection to a database member. ProxySQL has the ability to split
 reads and writes to different members which offers greater performance and
 scalability.
 
-If you suspect that using ProxySQL causes issues in your deployment, you can
+If using ProxySQL causes issues in the deployment,
 revert back to using haproxy-db by changing `database.port` in `conf/pf.conf` to
 `3306`.
 
-Once that is changed on one of your cluster members, propagate your change
+Once that is changed on one of the cluster members, propagate the change
 using:
 
 [source,bash]
@@ -45,14 +53,19 @@ using:
 /usr/local/pf/bin/pfcmd configreload hard
 ----
 
-And restart PacketFence on all your cluster members:
+And restart PacketFence on all cluster members:
 
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service pf restart
 ----
 
-Additionally, you could change pfconfig's configuration to use haproxy-db as well although its usage of the database is extremelly light. Still, if you want to change it for pfconfig, edit `conf/pconfig.conf` and change `mysql.port` to `3306`. After doing this change, restart pfconfig using `systemctl restart packetfence-config`. Note that this change must be done on all cluster members.
+Additionally, pfconfig's configuration can be changed to use haproxy-db as
+well although its usage of the database is extremelly light. Still, to
+change it for pfconfig, edit `conf/pconfig.conf` and change
+`mysql.port` to `3306`. After doing this change, restart pfconfig using
+`systemctl restart packetfence-config`. Note that this change must be done on
+all cluster members.
 
 === IP addresses in a cluster environment
 
@@ -60,41 +73,50 @@ Additionally, you could change pfconfig's configuration to use haproxy-db as wel
 
 In registration and isolation networks, each cluster member acts as a DHCP
 server.  DNS configuration sent through DHCP contains physical IP address of
-each cluster member unless you enabled the option 'pfdns on VIP only' in
+each cluster member unless the option 'pfdns on VIP only' is enabled in
 _Configuration -> System Configuration -> Cluster_
 
 ==== SNMP clients
 
-If you use SNMP in a cluster environment, you will need to allow physical IP
-addresses of **all** cluster members to query your network devices (switches,
+If SNMP is used in a cluster environment, allow physical IP
+addresses of **all** cluster members to query the network devices (switches,
 WiFi controllers, etc.).
 
-VIP address of the cluster doesn't need to be allowed in your network devices.
+VIP address of the cluster doesn't need to be allowed in the network devices.
 
 ==== Disconnect and Change-of-Authorization (CoA) packets
 
-Disconnect and Change-of-Authorization packets are sent from VIP address of RADIUS load-balancer.
-You only need to allow this IP address in your network devices.
+Disconnect and Change-of-Authorization packets are sent from VIP address of
+RADIUS load-balancer.
+Only allow this IP address in the network devices.
 
 
 === Performing an upgrade on a cluster
 
 NOTE: This guide only covers upgrading from PacketFence 11.0 or above.
 
-CAUTION: Performing a live upgrade on a PacketFence cluster is not a straightforward operation and should be done meticulously.
+CAUTION: Performing a live upgrade on a PacketFence cluster is not a
+straightforward operation and should be done meticulously.
 
-In this procedure, the 3 nodes will be named A, B and C and they are in this order in [filename]`cluster.conf`. When we referenced their hostnames, we speak about hostnames in [filename]`cluster.conf`.
+In this procedure, the 3 nodes will be named A, B and C and they are in this
+order in [filename]`cluster.conf`. When we referenced their hostnames, we
+speak about hostnames in [filename]`cluster.conf`.
 
 ==== Backups
 
-Re-importable backups will be taken during the upgrade process. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade if possible.
+Re-importable backups will be taken during the upgrade process. We highly
+perform snapshots of all the virtual machines prior to the
+upgrade if possible.
 
 ==== Disabling the auto-correction of configuration
 
 
-The PacketFence clustering stack has a mechanism that allows configuration conflicts to be handled accross the servers. This will come in conflict with your upgrade, so you should disable it.
+The PacketFence clustering stack has a mechanism that allows configuration
+conflicts to be handled accross the servers. This will come in conflict with
+the upgrade, so disable it.
 
-In order to do so, go to _Configuration -> System Configuration -> Maintenance_ and disable the _Cluster Check_ task.
+In order to do so, go to _Configuration -> System Configuration ->
+Maintenance_ and disable the _Cluster Check_ task.
 
 Once this is done, restart `pfcron` on all nodes using:
 
@@ -105,9 +127,11 @@ Once this is done, restart `pfcron` on all nodes using:
 
 ==== Disabling galera-autofix
 
-You should disable the `galera-autofix` service in the configuration to disable the automated resolution of cluster issues during the upgrade.
+Disable the `galera-autofix` service in the configuration to
+disable the automated resolution of cluster issues during the upgrade.
 
-In order to do so, go to _Configuration -> System Configuration -> Services_ and disable the `galera-autofix` service.
+In order to do so, go to _Configuration -> System Configuration -> Services_
+and disable the `galera-autofix` service.
 
 Once this is done, stop `galera-autofix` service on *all* nodes using:
 
@@ -128,20 +152,25 @@ PacketFence application services on it:
 /usr/local/pf/bin/pfcmd service pf stop
 ----
 
-IMPORTANT: `packetfence-config` should stay started in order to run `/usr/local/pf/bin/cluster/node` commands.
+IMPORTANT: `packetfence-config` should stay started in order to run
+`/usr/local/pf/bin/cluster/node` commands.
   
-In the next following steps, you will be upgrading PacketFence on node C.
+In the next following steps, upgrade PacketFence on node C.
 
 ===== Detach node C from the cluster
 
-First, we need to tell A and B to ignore C in their cluster configuration. In order to do so, execute the following command **on A and B** while changing `node-C-hostname` with the actual hostname of node C:
+First, we need to tell A and B to ignore C in their cluster configuration.
+In order to do so, execute the following command **on A and B** while changing
+`node-C-hostname` with the actual hostname of node C:
 
 [source,bash]
 ----
 /usr/local/pf/bin/cluster/node node-C-hostname disable
 ----
 
-Once this is done proceed to restart the following services on nodes A and B **one at a time**. This will cause service failure during the restart on node A
+Once this is done proceed to restart the following services on nodes A and B
+**one at a time**. This will cause service failure during the restart on
+node A
 
 [source,bash]
 ----
@@ -155,7 +184,10 @@ Once this is done proceed to restart the following services on nodes A and B **o
 ----
 
 
-Then, we should tell C to ignore A and B in their cluster configuration. In order to do so, execute the following commands on node C while changing `node-A-hostname` and `node-B-hostname` by the hostname of nodes A and B respectively.
+Then, we should tell C to ignore A and B in their cluster configuration. In
+order to do so, execute the following commands on node C while changing
+`node-A-hostname` and `node-B-hostname` by the hostname of nodes A and B
+respectively.
 
 [source,bash]
 ----
@@ -170,18 +202,24 @@ Now restart `packetfence-mariadb` on node C:
 systemctl restart packetfence-mariadb
 ----
 
-NOTE: From this moment on, you will lose the configuration changes and data changes that occur on nodes A and B.
+NOTE: From this moment on, the configuration changes and data
+changes that occur on nodes A and B will be lost.
 
-The commands above will make sure that nodes A and B will not be forwarding requests to C even if it is alive. Same goes for C which won't be sending traffic to A and B. This means A and B will continue to have the same database informations while C will start to diverge from it when it goes live. We'll make sure to reconcile this data afterwards.
+The commands above will make sure that nodes A and B will not be forwarding
+requests to C even if it is alive. Same goes for C which won't be sending
+traffic to A and B. This means A and B will continue to have the same database
+informations while C will start to diverge from it when it goes live. We'll
+make sure to reconcile this data afterwards.
 
 ===== Upgrade node C
 
-From that moment node C is in standalone for its database. We can proceed to update the packages, configuration and database schema.
+From that moment node C is in standalone for its database. We can proceed to
+update the packages, configuration and database schema.
 In order to do so, <<PacketFence_Upgrade_Guide.asciidoc#automation_of_upgrades,apply the upgrade process described here>> **on node C only**.
 
 ===== Check upgrade on node C
 
-Prior to migrating the service on node C, it is advised to run a checkup of your configuration to validate your upgrade. In order to do so, perform:
+Prior to migrating the service on node C, run a checkup of the configuration to validate the upgrade. In order to do so, perform:
 
 [source,bash]
 ----
@@ -195,20 +233,21 @@ Review the checkup output to ensure no errors are shown. Any 'FATAL' error will 
 
 Next, stop all application services on node A and B:
 
-* Stop PacketFence services:
-+
+
+.Stop PacketFence services
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service pf stop
 ----
-* Stop database:
-+
+
+.Stop database
 [source,bash]
 ----
 systemctl stop packetfence-mariadb
 ----
 
-IMPORTANT: `packetfence-config` should stay started in order to run `/usr/local/pf/bin/cluster/node` commands.
+IMPORTANT: `packetfence-config` should stay started in order to run
+`/usr/local/pf/bin/cluster/node` commands.
 
 ===== Start service on node C
 
@@ -218,11 +257,11 @@ in
 
 ==== Validate migration
 
-You should now have full service on node C and should validate that all functionnalities are working as expected. Once you continue past this point, there will be no way to migrate back to nodes A and B in case of issues other than to use the snapshots taken prior to the upgrade.
+Node C should now have full service and all functionnalities should be validated as working as expected. Once continuing past this point, there will be no way to migrate back to nodes A and B in case of issues other than to use the snapshots taken prior to the upgrade.
 
 ===== If all goes wrong
 
-If your migration to node C goes wrong, you can fail back to nodes A and B by stopping all services on node C and starting them on nodes A and B
+If the migration to node C goes wrong, fail back to nodes A and B by stopping all services on node C and starting them on nodes A and B
 
 .On node C
 [source,bash]
@@ -238,11 +277,11 @@ systemctl start packetfence-mariadb
 /usr/local/pf/bin/pfcmd service pf start
 ----
 
-Once you are feeling confident to try your failover to node C again, you can do the exact opposite of the commands above to try your upgrade again.
+Once confident to try the failover to node C again, do the exact opposite of the commands above to try the upgrade again.
 
 ===== If all goes well
 
-If you are happy about the state of your upgrade on node C, you can move on to upgrading the other nodes.
+If the state of the upgrade on node C is satisfactory, move on to upgrading the other nodes.
 
 .On node A
 [source,bash]
@@ -265,11 +304,11 @@ systemctl restart packetfence-mariadb
 
 Then, <<PacketFence_Upgrade_Guide.asciidoc#automation_of_upgrades,apply the upgrade process described here>> **on nodes A and B**.
 
-NOTE: It is important that you run the upgrade commands in the same shell you ran your `export` so that the environment variable is properly taken into consideration when the upgrade script executes.
+NOTE: It is important to run the upgrade commands in the same shell that ran the `export` so that the environment variable is properly taken into consideration when the upgrade script executes.
 
 ===== Configuration synchronisation
 
-You should now sync the configuration by running the following **on nodes A and B**
+Now sync the configuration by running the following **on nodes A and B**
 
 [source,bash]
 ----
@@ -280,9 +319,10 @@ You should now sync the configuration by running the following **on nodes A and 
 
 Where:
 
-* `_192.168.1.5_` is the management IP of node C
-* `_packet_` is the webservices username (_Configuration -> Integration -> Web Services_)
-* `_anotherMoreSecurePassword_` is the webservices password (_Configuration -> Integration -> Web Services_)
+[options="compact"]
+ * `_192.168.1.5_` is the management IP of node C
+ * `_packet_` is the webservices username (_Configuration -> Integration -> Web Services_)
+ * `_anotherMoreSecurePassword_` is the webservices password (_Configuration -> Integration -> Web Services_)
 
 
 ==== Reintegrating nodes A and B
@@ -291,18 +331,19 @@ Where:
 ===== Optional step: Cleaning up data on node C
 
 
-When you will re-establish a cluster using node C in the steps below, your environment will be set in read-only mode for the duration of the database sync (which needs to be done from scratch).
+When re-establishing a cluster using node C in the steps below, the environment will be set in read-only mode for the duration of the database sync (which needs to be done from scratch).
 
-This can take from a few minutes to an hour depending on your database size.
+This can take from a few minutes to an hour depending on the database size.
 
-We highly suggest you delete data from the following tables if you don't need it:
+Highly recommend deleting data from the following tables if not needed:
 
-* `radius_audit_log`: contains the data in _Auditing->RADIUS Audit Logs_
-* `ip4log_history`: Archiving data for the IPv4 history
-* `ip4log_archive`: Archiving data for the IPv4 history
-* `locationlog_history`: Archiving data for the node location history
+[options="compact"]
+ * `radius_audit_log`: contains the data in _Auditing->RADIUS Audit Logs_
+ * `ip4log_history`: Archiving data for the IPv4 history
+ * `ip4log_archive`: Archiving data for the IPv4 history
+ * `locationlog_history`: Archiving data for the node location history
 
-You can safely delete the data from all of these tables without affecting the functionnalities as they are used for reporting and archiving purposes. Deleting the data from these tables can make the sync process considerably faster.
+Data from all of these tables can be safely deleted without affecting the functionnalities as they are used for reporting and archiving purposes. Deleting the data from these tables can make the sync process considerably faster.
 
 In order to truncate a table:
 
@@ -335,7 +376,7 @@ systemctl set-environment MARIADB_ARGS=--force-new-cluster
 systemctl restart packetfence-mariadb
 ----
 
-You should validate that you are able to connect to the MariaDB database even
+Validate that connection to the MariaDB database is possible even
 though it is in read-only mode using the MariaDB command line:
 
 [source,bash]
@@ -343,13 +384,13 @@ though it is in read-only mode using the MariaDB command line:
 mysql -u root -p pf -h localhost
 ----
 
-If its not, make sure you check the MariaDB log
+If not, check the MariaDB log
 ([filename]`/usr/local/pf/logs/mariadb.log`)
 
 ===== Sync nodes A and B
 
 
-On each of the servers you want to discard the data from, stop `packetfence-mariadb`, you must destroy all the data in `/var/lib/mysql` and start `packetfence-mariadb` so it resyncs its data from scratch.
+On each of the servers to discard the data from, stop `packetfence-mariadb`, destroy all the data in `/var/lib/mysql` and start `packetfence-mariadb` so it resyncs its data from scratch.
 
 [source,bash]
 ----
@@ -358,11 +399,11 @@ rm -fr /var/lib/mysql/*
 systemctl start packetfence-mariadb
 ----
 
-Should there be any issues during the sync, make sure you look into the MariaDB log ([filename]`/usr/local/pf/logs/mariadb.log`)
+Should there be any issues during the sync, check the MariaDB log ([filename]`/usr/local/pf/logs/mariadb.log`)
 
 Once both nodes have completely synced (try connecting to it using the MariaDB
 command line).
-Once you have confirmed all members are joined to the MariaDB cluster, perform the following **on node C**
+Once all members are confirmed as joined to the MariaDB cluster, perform the following **on node C**
 
 [source,bash]
 ----
@@ -375,7 +416,7 @@ systemctl start packetfence-mariadb
 ===== Start nodes A and B
 
 
-You can now safely start PacketFence on nodes A and B using the instructions
+Now safely start PacketFence on nodes A and B using the instructions
 provided in
 <<PacketFence_Upgrade_Guide.asciidoc#restart_packetfence_services,Restart
 PacketFence services section>>.
@@ -391,16 +432,16 @@ after all services have been restarted:
 
 ==== Restart node C
 
-Now, you should restart PacketFence on node C using the instructions provided
+Now, restart PacketFence on node C using the instructions provided
 in
 <<PacketFence_Upgrade_Guide.asciidoc#restart_packetfence_services,Restart
 PacketFence services section>>.  So it becomes aware of its peers again.
 
-You should now have full service on all 3 nodes using the latest version of PacketFence.
+All 3 nodes should now have full service using the latest version of PacketFence.
 
 ==== Reactivate the configuration conflict handling
 
-Now that your cluster is back to a healthy state, you should reactivate the configuration conflict resolution.
+Now that the cluster is back to a healthy state, reactivate the configuration conflict resolution.
 
 In order to do so, go to _Configuration -> System Configuration -> Maintenance_ and re-enable the _Cluster Check_ task.
 
@@ -413,7 +454,7 @@ Once this is done, restart `pfcron` on all nodes using:
 
 ==== Reactivate galera-autofix
 
-You now need to reactivate and restart the `galera-autofix` service so that it's aware that all the members of the cluster are online again.
+Now reactivate and restart the `galera-autofix` service so that it's aware that all the members of the cluster are online again.
 
 In order to do so, go to _Configuration -> System Configuration -> Services_ and re-enable the `galera-autofix` service.
 
@@ -431,24 +472,24 @@ Once this is done, restart `galera-autofix` service on *all* nodes using:
 
 In the event that one of the 3 servers reaches the maximum amount of
 connections (defaults to 1000), this will deadlock the Galera cluster
-synchronization. In order to resolve this, you should first increase
+synchronization. In order to resolve this, first increase
 `database_advanced.max_connections`, then stop `packetfence-mariadb` on all 3
 servers, and follow the steps in the section <<_none_of_the_nodes_is_offering_database_service>>
-of this document. Note that you can use any of the database servers as your
+of this document. Note that any of the database servers can be used as the
 source of truth.
 
 ==== Investigating further
 
-The limit of 1000 connections is fairly high already so if you reached the maximum number of connections, this might indicate an issue with your database cluster. If this issue happens often, you should monitor the active connections and their associated queries to find out what is using up your connections.
+The limit of 1000 connections is fairly high already so if the maximum number of connections is reached, this might indicate an issue with the database cluster. If this issue happens often, monitor the active connections and their associated queries to find out what is using up the connections.
 
-You can monitor the active TCP connections to MariaDB using this command and then investigate the processes that are connected to it (last column):
+Monitor the active TCP connections to MariaDB using this command and then investigate the processes that are connected to it (last column):
 
   # netstat -anlp | grep 3306
 
-You can have an overview of all the current connections using the following MariaDB query:
+Get an overview of all the current connections using the following MariaDB query:
 
   MariaDB> select * from information_schema.processlist;
 
-And if you would like to see only the connections with an active query:
+And to see only the connections with an active query:
 
   MariaDB> select * from information_schema.processlist where Command!='Sleep';

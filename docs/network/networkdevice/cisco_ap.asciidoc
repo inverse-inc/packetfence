@@ -149,6 +149,7 @@ aaa server radius dynamic-author
 In this section, we cover the basic configuration of the WLC for PacketFence
 using the WLC web interface.
 
+[options="compact"]
 * First, globally define the FreeRADIUS server running on PacketFence
   (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support
   for CoA_) is enabled. When the option is missing from your WLC, it is enabled
@@ -156,47 +157,56 @@ using the WLC web interface.
 
 image::cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
-* Then we create two SSIDs:
 [options="compact"]
+* Then we create two SSIDs:
 ** PacketFence-Public: non-secure with MAC authentication only
 ** PacketFence-Secure: secure with WPA2 Enterprise PEAP/MSCHAPv2
 
 image::cisco-wlc-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
 
+[options="compact"]
 * In the secure SSID, make sure 802.1X is enabled and select the appropriate encryption for your needs (recommended: WPA + WPA2)
 
 image::cisco-wlc-l2-secu.png[scaledwidth="100%",alt="SSID L2 secure"]
 
+[options="compact"]
 * No layer 3 security
 
 image::cisco-wlc-l3-secu.png[scaledwidth="100%",alt="SSID L3 secure"]
 
+[options="compact"]
 * We set the IP of the FreeRADIUS server
 
 image::cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
 
+[options="compact"]
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
 image::cisco-wlc-secure-radius-advance.png[scaledwidth="100%",alt="Radius
 advanced secure"]
 
+[options="compact"]
 * Edit the non-secure SSID: Enable MAC authentication at level 2
 
 image::cisco-wlc-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 non secure"]
 
+[options="compact"]
 * Nothing at level 3
 
 image::cisco-wlc-l3-non-secure.png[scaledwidth="100%",alt="SSID L3 non secure"]
 
+[options="compact"]
 * We set the IP of the FreeRADIUS server
 
 image::cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
 
+[options="compact"]
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
 image::cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius
 advanced non secure"]
 
+[options="compact"]
 * Finally, in _Controller -> Interfaces_ tab, create an interface per VLAN that could be assigned
 
 image::cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
@@ -223,12 +233,13 @@ uses the IP address 172.16.0.249 and the WLC uses the IP address 172.16.0.248.
 The DHCP and DNS servers are not managed by PacketFence (WLC DHCP Server,
 Production DHCP Server)
 
+[options="compact"]
 * First, globally define the FreeRADIUS server running on PacketFence
   (PacketFence's management interface) and make sure _Support for RFC 3576_ is
   enabled (if not present it is enabled by default)
 
-* Then we create a SSID:
 [options="compact"]
+* Then we create a SSID:
 ** OPEN SSID: non-secure with MAC authentication only
 
 image::SSID_1.png[scaledwidth="100%",alt="SSID step 1"]
@@ -248,11 +259,13 @@ setting will be called 'ISE NAC'.
 
 image::SSID_7.png[scaledwidth="100%",alt="SSID step 7"]
 
+[options="compact"]
 * Then you have to create two ACLs - one to deny all traffic except the required one to hit the portal (Pre-Auth-For-WebRedirect ) and the other
 one to allow anything (Authorize_any) .
 
 image::ACL.png[scaledwidth="100%",alt="ACL"]
 
+[options="compact"]
 * Then the last step is to configure the WLC AireOS in PacketFence.
 Role by Web Auth URL
 
@@ -276,11 +289,13 @@ configuration.
 WLC Configuration:
 
 
+[options="compact"]
 * First, globally define the RADIUS server running on PacketFence
   (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support
   for CoA_) is enabled. When the option is missing from your WLC, it is enabled
   by default.
 
+[options="compact"]
 * Next, configure a new SSID like in the following screenshots
 
 image::ipsk1.png[scaledwidth="100%",alt="SSID step 1"]
@@ -293,12 +308,14 @@ image::ipsk_advanced.png[scaledwidth="100%",alt="SSID step 4"]
 
 PacketFence Configuration:
 
+[options="compact"]
 * First because there is no way to detect in the RADIUS request that the request is for an SSID configured for IPSK, you need to configure PacketFence to trigger IPSK on a connection profile.
   To do that, create a new connection profile, set a Filter based on the SSID
   (Example SSID PSK_SSID), enable IPSK and set a default PSK key.
   So each time a device will connect on this specific SSID PacketFence will know
   that it has to answer with specific VSA attributes.
 
+[options="compact"]
 * Second step is to associate the device to a user, you have two ways to do it, the first one is to manually edit an user and in Miscellaneous tab fill the PSK entry (8 characters minimum) then edit
   a node and change the owner with the one you just edit before.
   The second way to associate the device is to use a provisioner. There are also
@@ -539,6 +556,7 @@ In the event the WLC ignores the RADIUS replies from PacketFence (you receive
 multiple requests but access is never granted), validate the following elements
 :
 
+[options="compact"]
 * RADIUS secret is properly configured in PacketFence and the WLC controller.
 * The SSL certificate used by PacketFence is not expired.
 

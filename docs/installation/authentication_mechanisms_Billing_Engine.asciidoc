@@ -18,9 +18,13 @@ endif::[]
 
 === Billing Engine
 
-PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personal information as well as it's credit card information.
+PacketFence integrates the ability to use a payment gateway to bill users to gain
+access to the network. When configured, the user who wants to access the network /
+Internet is prompted by a page asking for it's personal information as well as
+it's credit card information.
 
-PacketFence currently supports two payment gateways: Authorize.net, Paypal and Stripe.
+PacketFence currently supports two payment gateways: Authorize.net, Paypal and
+Stripe.
 
 To activate the billing, configure the following components :
 
@@ -34,13 +38,18 @@ First select a billing provider and follow the instructions below.
 
 ===== Paypal
 
-NOTE: This provider requires that the PacketFence server is accessible on the public domain. For this the PacketFence portal should be available on a public IP using the DNS server name configured in PacketFence.
+NOTE: This provider requires that the PacketFence server is accessible on the
+public domain. For this the PacketFence portal should be available on a public IP
+using the DNS server name configured in PacketFence.
 
-If having a business account and not wanting to configure a test environment, skip the next section.
+If having a business account and not wanting to configure a test environment,
+skip the next section.
 
 *Sandbox account*
 
-To configure a sandbox paypal account for use in PacketFence, head to https://developer.paypal.com/ and either sign up or login into an existing account.
+To configure a sandbox paypal account for use in PacketFence, head to
+https://developer.paypal.com/ and either sign up or login into an existing
+account.
 
 Then in the Sandbox menu, click `Accounts`
 

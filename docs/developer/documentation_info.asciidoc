@@ -33,6 +33,7 @@ http://perldoc.perl.org/perlpod.html]. To do so, the preferred way is using the
 ==== Shell commands in code blocks
 
 .To ease copy-paste of shell commands:
+[options="compact"]
 * Remove useless characters in code blocks like `#` or `$`
 * Split long lines with `\`
 
@@ -339,12 +340,14 @@ Term B:: description
 
 a|.Ordered list
 
+[options="compact"]
 . First item
 . Second item
 . Third item
 
 .Unordered list
 
+[options="compact"]
 * This
 * That
 * The other
@@ -355,9 +358,11 @@ Term A:: description
 Term B:: description
 
 .Checklist
+[options="compact"]
 * [ ] first step
 ** [ ] first task
 ** [ ] second task
+[options="compact"]
 * [ ] second step
 * [ ] third step
 
@@ -444,6 +449,7 @@ Start the `packetfence-iptables` service.
 
 === Checklist to create a new guide
 
+[options="compact"]
 * [ ] create PacketFence_GUIDENAME.asciidoc based on PacketFence link:PacketFence_Template_Guide.asciidoc[_Template Guide_]
 * [ ] update `all` target in Makefile
 * [ ] update packaging (if necessary)

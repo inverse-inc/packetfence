@@ -25,9 +25,11 @@ PacketFence supports SSIDs configured with 802.1X and Web Authentication
 
 First, create a RADIUS Profile for PacketFence.
 
+[options="compact"]
 * Login to the https://dashboard.mojonetworks.com
 * Go to *Wireless Manager*
-* Then click on _Configuration -> Device Configuration -> RADIUS Profiles -> Add a RADIUS Profile_
+* Then click on _Configuration -> Device Configuration -> RADIUS Profiles ->
+  Add a RADIUS Profile_
 
    Profile Name: NAME_OF_PROFILE_FOR_PACKETFENCE
    IP Address: IP_OF_PACKETFENCE
@@ -42,9 +44,11 @@ Click on 'Save'.
 [float]
 ===== 802.1X Secure
 
+[options="compact"]
 * Login to the https://dashboard.mojonetworks.com
 * Go to *Wireless Manager*
-* Then click on _Configuration -> Device Configuration -> SSID Profiles -> Add a new Profile -> WLAN_ 
+* Then click on _Configuration -> Device Configuration -> SSID Profiles ->
+  Add a new Profile -> WLAN_ 
 
 NOTE: (Leave the default configuration for the other settings)
 
@@ -97,9 +101,12 @@ Save the newly created profile.
 
 ==== Broadcast the SSID on the Access Point:
 
+[options="compact"]
 * Go to _Configuration -> Device Template -> System Template_ 
 * Then _Radio Settings -> Define settings for model -> Chose your AP model_
-* Finally _Radio 1 - 2x2 b/g/n Configuration -> Add SSID Profile -> Select your SSID profile previously created(802.1X or Web authentication profile) -> Ok_
+* Finally _Radio 1 - 2x2 b/g/n Configuration -> Add SSID Profile -> Select
+  your SSID profile previously created(802.1X or Web authentication profile) ->
+  Ok_
 
 Click the 'Save' button to broadcast the PF-Secure SSID.
 
@@ -111,6 +118,7 @@ Click the 'Save' button to broadcast the PF-Secure SSID.
 Add a Switch with the IP address of the Access Point (AP) with the following
 configuration:
 
+[options="compact"]
 * Go to _Configuration -> Network -> Switches -> Add switch to group -> Default_
 
    Definition:
@@ -140,6 +148,7 @@ configuration:
 Add a switch with the IP address fo the Access Point (AP) with the following
 configuration:
 
+[options="compact"]
 * Go to _Configuration -> Network -> Switches -> Add switch to group -> Default_
 
    Definition:

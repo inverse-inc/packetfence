@@ -17,6 +17,7 @@ topology"]
 
 `switch01`, `node01` and `node02` are provisioned using Vagrant like this:
 
+[options="compact"]
 * a first boot with basic shell provisioning to configure interfaces remap and networks
 * a second boot that handles interface remap
 * an Ansible provisioning

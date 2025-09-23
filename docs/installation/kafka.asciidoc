@@ -25,17 +25,20 @@ To setup a Kafka standalone you need the following information.
 Node ID, Hostname and IP addresse. (run the hostname command on the server,
 packetfence is the example)
 
+[options="compact"]
 * hostname 172.16.3.1
 
 The IP addressed of the clients (the server itself and the external IP
 addresses)
 
+[options="compact"]
 * 172.16.3.1 (The server ip)
 
 * 172.16.4.1 (An external IP)
 
 Username of passwords
 
+[options="compact"]
 * admin: admin-pass
 
 * user: pass
@@ -84,6 +87,7 @@ To setup a Kafka cluster you need the following information.
 
 Node ID, Hostname and IP addresse, of each member.
 
+[options="compact"]
 * 1 hostname1 172.16.3.1
 
 * 2 hostname2 172.16.3.2
@@ -92,12 +96,14 @@ Node ID, Hostname and IP addresse, of each member.
 
 The IP addressed of the clients
 
+[options="compact"]
 * 172.16.4.1
 
 * 172.16.4.2
 
 Username of passwords
 
+[options="compact"]
 * admin: admin-pass
 
 * user1: pass1

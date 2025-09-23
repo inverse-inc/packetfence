@@ -86,11 +86,13 @@ Configure 802.1X with MAC authentication fallback on each interface:
 
 Configure switch in PacketFence with following information:
 
+[options="compact"]
 * *Definition -> Type*: `Cisco SG500`
 * *Definition -> Mode*: `production`
 * *Definition -> Deauthentication Method*: `SNMP`
 * *Definition -> VoIP* enabled if you need VoIP on this switch.
-* *Roles -> voice VLAN* set to the VLAN you want to assign to the VoIP devices connecting to this switch.
+* *Roles -> voice VLAN* set to the VLAN you want to assign to the VoIP devices
+  connecting to this switch.
 * *RADIUS -> Secret Passphrase*: `useStrongerSecret`
 * *SNMP -> Version*: `v2c`
 * *SNMP -> Community Read*: `public`

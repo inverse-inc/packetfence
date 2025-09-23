@@ -80,16 +80,14 @@ When a `HTTP` request is received by the Apache web server, the following
 workflow happens:
 
 
-. URL is compared against the redirection instructions in
-  `/usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf`
-
-. Requested CGI script in `/usr/local/pf/html/captive-portal/` is executed
-
-. CGI script calls a `generate_<type>` which is defined in
-`/usr/local/pf/lib/pf/web.pm`
-
-. The `generate_<type>` function populate the proper template in
-  `/usr/local/pf/html/captive-portal/templates` in order to render the page
+[options="compact"]
+ . URL is compared against the redirection instructions in
+   `/usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf`
+ . Requested CGI script in `/usr/local/pf/html/captive-portal/` is executed
+ . CGI script calls a `generate_<type>` which is defined in
+   `/usr/local/pf/lib/pf/web.pm`
+ . The `generate_<type>` function populate the proper template in
+   `/usr/local/pf/html/captive-portal/templates` in order to render the page
 
 ===== Remediation Pages
 
@@ -97,10 +95,8 @@ The remediation page shown to the user during isolation are specified through
 the URL parameter of the given security event in
 `/usr/local/pf/conf/security_events.conf`.
 In its default configuration, PacketFence uses Template Toolkit to render text
-provided
-in the directory `/usr/local/pf/html/captive-portal/templates/security_events`
-and obeys
-to everything mentioned in the <<_presentation,Presentation>> section.
+provided in the directory `/usr/local/pf/html/captive-portal/templates/security_events`
+and obeys to everything mentioned in the <<_presentation,Presentation>> section.
 
 
 ===== Translations
@@ -109,6 +105,7 @@ The language of the user registration pages is selected through the
 `general.locale` configuration parameter. Translatable strings are handled
 differently for the Remediation pages and the rest of the captive portal:
 
+[options="compact"]
 * Remediation pages
 +
 Strings defined in the security event pages (in
@@ -187,6 +184,7 @@ Perl module, as well as the associated functions.
 PacketFence uses the `getRegisteredRole` function defined in `pf::role::custom`
 to determine a node's VLAN. Here's the default function:
 
+[source,bash]
 ----
 sub getRegisteredRole {
     #$switch is the switch object (pf::Switch)

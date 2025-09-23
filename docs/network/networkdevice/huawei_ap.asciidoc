@@ -23,6 +23,7 @@ endif::[]
 
 PacketFence supports this controller with the following technologies:
 
+[options="compact"]
 * Wireless 802.1X
 * Wireless MAC Authentication
 

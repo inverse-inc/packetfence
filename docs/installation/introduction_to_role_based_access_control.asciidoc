@@ -32,8 +32,7 @@ one or all of the following techniques:
  * equipment role
 
 The techniques to use depends on the wired/WiFi equipment itself. A role in
-PacketFence will be eventually mapped to a VLAN, an ACL or an external role. You
-must define the roles to use in your organization for network access.
+PacketFence will be eventually mapped to a VLAN, an ACL or an external role. Define the roles to use in the organization for network access.
 
 In our previous configuration examples, we made use of two roles that come by
 default in PacketFence: default and guest. We will now add two new roles - one
@@ -41,17 +40,13 @@ for consultants and one used to authenticate machines on the network.
 
 === Adding Roles
 
-Roles in PacketFence can be created from _Configuration -> Policies and Access
-Control -> Roles_. From this interface, you can also limit the number of devices
-users belonging to certain roles can register.
+Roles in PacketFence can be created from _Configuration -> Policies and Access Control -> Roles_. From this interface, limit the number of devices users belonging to certain roles can register.
 
 Roles are dynamically computed by PacketFence, based on the rules (ie., a set of
 conditions and actions) from authentication sources, using a first-match wins
 algorithm. Roles are then matched to VLAN or VLAN pool or internal roles or ACL
 on equipment from the _Configuration -> Policies and Access Control -> Switches_
-module. For a VLAN pool instead of defining a VLAN identifier, you can set a
-value like that: 20..23,27..30 - which means that the VLAN returned by
-PacketFence can be 20 to 23 and 27 to 30 (inclusively). There are three
+module. For a VLAN pool instead of defining a VLAN identifier, set a value like that: 20..23,27..30 - which means that the VLAN returned by PacketFence can be 20 to 23 and 27 to 30 (inclusively). There are three
 algorithms: one based on a hash of the username (default one), another one based
 on a round-robin (last registered device +1) and one that selects a VLAN
 randomly in the pool.
@@ -109,9 +104,7 @@ have the employee role and a 7 days Access Duration.
 
 === Using the Corporate_Machine Role
 
-If you would like to differentiate user authentication and machine
-authentication using Active Directory, one way to do it is by creating a second
-authentication sources, for machines:
+To differentiate user authentication and machine authentication using Active Directory, create a second authentication sources, for machines:
 
 [options="compact"]
  * *Name:* ad2
@@ -141,8 +134,5 @@ username attribute matches the queried one. This applies for Active Directory,
 LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true
 catch-all, and accept everything.
 
-NOTE: If you want to use other LDAP attributes in your authentication source,
-add them in _Configuration -> System Configuration -> Main Configuration ->
-Advanced -> Custom LDAP attributes_. They will then be available in the rules
-you define.
+NOTE: To use other LDAP attributes in an authentication source, add them in _Configuration -> System Configuration -> Main Configuration -> Advanced -> Custom LDAP attributes_. They will then be available in the rules defined.
 

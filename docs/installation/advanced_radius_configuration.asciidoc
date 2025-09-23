@@ -43,7 +43,8 @@ Directory documentation in Authentication Mechanism section.
 === EAP Authentication against OpenLDAP
 
 For 802.1X authentication against OpenLDAP, define LDAP connection in
-[filename]`/usr/local/pf/raddb/modules/ldap` and ensure user password is NTHASH or clear
+[filename]`/usr/local/pf/raddb/modules/ldap` and ensure user password is
+NTHASH or clear
 text.
 
 [source,radius]
@@ -76,7 +77,8 @@ text.
   }
 ----
 
-Next in [filename]`/usr/local/pf/raddb/sites-available/packetfence-tunnel` add in the authorize section:
+Next in [filename]`/usr/local/pf/raddb/sites-available/packetfence-tunnel`
+add in the authorize section:
 
 [source,radius]
 ----
@@ -95,29 +97,43 @@ authorize {
 
 === EAP Guest Authentication on Email, Sponsor and SMS Registration
 
-This section will allow local credentials created during guest registration to be used in 802.1X EAP-PEAP connections.
+This section will allow local credentials created during guest registration to
+be used in 802.1X EAP-PEAP connections.
 
-NOTE: Be sure to select `plaintext` or `ntlm` as the "Database passwords hashing method" to make it work.
+NOTE: Be sure to select `plaintext` or `ntlm` as the "Database passwords
+hashing method" to make it work.
 
-First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS, ...) and activate `Create local account` on that source.
+First create a guest SSID with the guest access you want to use (Email,
+Sponsor or SMS, ...) and activate `Create local account` on that source.
 
-At the end of the guest registration, PacketFence will send an email with the credentials for Email and Sponsor and SMS.
+At the end of the guest registration, PacketFence will send an email with the
+credentials for Email and Sponsor and SMS.
 
-NOTE: This option doesn't currently work with the *Reuse dot1x credentials* option of the captive portal.
+NOTE: This option doesn't currently work with the *Reuse dot1x credentials*
+option of the captive portal.
 
-To enable this feature, in the admin interface go to _Configuration -> System Configuration -> RADIUS -> General_ and enable `Authenticate against local users database'. Once saved, restart the radiusd service.
+To enable this feature, in the admin interface go to _Configuration -> System
+Configuration -> RADIUS -> General_ and enable `Authenticate against local
+users database'. Once saved, restart the radiusd service.
 
 === EAP Local User Authentication
 
 The goal here is to use the local user to authenticate 802.1X device.
 
-To enable this feature, in the admin interface go to _Configuration -> System Configuration -> RADIUS -> General_ and enable `Authenticate against local users database'. Once saved, restart the radiusd service.
+To enable this feature, in the admin interface go to _Configuration -> System
+Configuration -> RADIUS -> General_ and enable `Authenticate against local
+users database'. Once saved, restart the radiusd service.
 
-CAUTION: Take care of the "Database passwords hashing method" that has been configured in _Configuration -> System Configuration -> Main Configuration -> Advanced_ or in the authentication source configuration (when you enabled "create local account") , the hash method must be `plaintext` or `ntlm` to be able to work.
+CAUTION: Take care of the "Database passwords hashing method" that has been
+configured in _Configuration -> System Configuration -> Main Configuration ->
+Advanced_ or in the authentication source configuration (when you enabled
+"create local account") , the hash method must be `plaintext` or `ntlm` to be
+able to work.
 
 === Limit Brute Force EAP Authentication
 
-This section will allow you to limit a brute force attack and prevent the locking of Active Directory accounts.
+This section will allow you to limit a brute force attack and prevent the
+locking of Active Directory accounts.
 
 Edit [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`
 
@@ -128,12 +144,15 @@ packetfence-control-ntlm-failure
 packetfence-cache-ntlm-hit
 ----
 
-By default it will reject for 5 minutes a device that has been rejected twice in the last 5 minutes.
-Fell free to change the default values in `raddb/policy.d/packetfence` and in `raddb/mods-enabled/cache_ntlm`
+By default it will reject for 5 minutes a device that has been rejected
+twice in the last 5 minutes.
+Fell free to change the default values in `raddb/policy.d/packetfence` and
+in `raddb/mods-enabled/cache_ntlm`
 
 === Testing
 
-Test your setup with `radtest` using the following command and make sure you get an `Access-Accept` answer:
+Test your setup with `radtest` using the following command and make sure you
+get an `Access-Accept` answer:
 
 [source,radius]
 ----
@@ -148,18 +167,26 @@ rad_recv: Access-Accept packet from host 127.0.0.1:18120, id=74, length=20
 
 === RADIUS Accounting
 
-RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwidth the user consumed.
+RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence,
+we are able to use this information to determine if the node is still
+connected, how much time it has been connected, and how much bandwidth the user
+consumed.
 
-PacketFence uses RADIUS Accounting to display Online/Offline status in webadmin in _Nodes_ menu.
+PacketFence uses RADIUS Accounting to display Online/Offline status in
+webadmin in _Nodes_ menu.
 
 
 ==== IP log updates
 
-If you send the IP address of nodes in accounting data and want to update iplog entries of your nodes, you can enable `Update the iplog using the accounting` setting from _Configuration -> System configuration -> Main configuration -> Advanced_.
+If you send the IP address of nodes in accounting data and want to update
+iplog entries of your nodes, you can enable `Update the iplog using the
+accounting` setting from _Configuration -> System configuration -> Main
+configuration -> Advanced_.
 
 ==== Security Events
 
-Using PacketFence, it is possible to add security events to limit bandwidth abuse.  The format of the trigger is very simple:
+Using PacketFence, it is possible to add security events to limit bandwidth
+abuse.  The format of the trigger is very simple:
 
 [source,bash]
 ----
@@ -169,9 +196,12 @@ Using PacketFence, it is possible to add security events to limit bandwidth abus
 Let's explain each chunk properly:
 
 [options="compact"]
- * `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
- * `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB), gigabytes(GB), or petabytes(PB)
- * `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of days(D), weeks(W), months(M), or years(Y).
+ * `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or
+   total(TOT) bandwidth
+ * `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB),
+   gigabytes(GB), or petabytes(PB)
+ * `INTERVAL`: This is actually the time window we will look for potential
+   abuse.  You can set a number of days(D), weeks(W), months(M), or years(Y).
 
 ===== Example triggers
 
@@ -186,33 +216,48 @@ Look for Total (Download + Upload) traffic with a 200GB limit in the last week::
 
 ===== Grace Period
 
-When using such security event feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
+When using such security event feature, setting the grace period is really
+important.  You don't want to put it too low (ie. A user re-enable his
+network, and get caught after 1 bytes is transmitted!) or too high.  We
+recommend that you set the grace period to one interval window.
 
 
 === RADIUS Proxy
 
-RADIUS Proxy is a way to proxy authentication and accounting requests to other radius server(s) based on the realm.
-Let's say you want to authenticate users on an Active Directory where there is a NPS server running and you don't want to join the PacketFence's server to this domain or in the case you want to integrate
+RADIUS Proxy is a way to proxy authentication and accounting requests to
+other radius server(s) based on the realm.
+Let's say you want to authenticate users on an Active Directory where there is
+a NPS server running and you don't want to join the PacketFence's server to
+this domain or in the case you want to integrate
 PacketFence in a Passpoint setup then this section is for you.
 
-To do that in PacketFence you need first to define the target RADIUS server(s) in _Configuration -> Policies and Access Control -> Authentication Sources_, and create the RADIUS source(s) (ZAMMITCORP1 ZAMMITCORP2).
-In the Source configuration, fill the mandatory fields and add the options to define the home_server in FreeRADIUS. (https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/proxy.conf)
+To do that in PacketFence you need first to define the target RADIUS
+server(s) in _Configuration -> Policies and Access Control -> Authentication
+Sources_, and create the RADIUS source(s) (ZAMMITCORP1 ZAMMITCORP2).
+In the Source configuration, fill the mandatory fields and add the options to
+define the home_server in FreeRADIUS.
+(https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/proxy.conf)
 
 Per example for the RADIUS Source ZAMMITCORP1:
 
 image::ACME1.png[scaledwidth="100%",alt="ZAMMITCORP RADIUS Source"]
 
-$src_ip is a way to dynamically use the correct source ip address of the system in case of multiples network interfaces.
+$src_ip is a way to dynamically use the correct source ip address of the
+system in case of multiples network interfaces.
 
-Next go in _Configuration -> Policies and Access Control -> REALMS_, and add a new realm.
+Next go in _Configuration -> Policies and Access Control -> REALMS_, and add
+a new realm.
 
 image::acme.com.png[scaledwidth="100%",alt="ZAMMITCORP Realm Configuration"]
 
 (type definition can be found here https://wiki.freeradius.org/features/Proxy)
 
-Authorize from PacketFence will send the request to PacketFence to compute the role and access duration of the device.
+Authorize from PacketFence will send the request to PacketFence to compute
+the role and access duration of the device.
 
-In this case the easiest way to achieve that is to create a Authorization source (with rules), assign this source to a connection profile where you enabled "Automatically register devices" and where 
+In this case the easiest way to achieve that is to create a Authorization
+source (with rules), assign this source to a connection profile where you
+enabled "Automatically register devices" and where
 you defined a filter like Realm = zammitcorp.com .
 
 Click on `Save` and restart radiusd service.
@@ -222,48 +267,65 @@ Click on `Save` and restart radiusd service.
   /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
-Now when a device connect with the username bob@zammitcorp.com then the authentication and accounting requests will be forwarded to one of the ZAMMITCORP RADIUS servers.
+Now when a device connect with the username bob@zammitcorp.com then the
+authentication and accounting requests will be forwarded to one of the
+ZAMMITCORP RADIUS servers.
 
 ==== RADIUS Proxy Advanced
 
-In this section we will explain how to proxy RADIUS requests based on an advanced criteria.
+In this section we will explain how to proxy RADIUS requests based on an
+advanced criteria.
 
-First you have to create RADIUS authentication source like above and create for example two realms "to_NPS" and "to_ISE" (associate the RADIUS sources in the REALMs)
+First you have to create RADIUS authentication source like above and create
+for example two realms "to_NPS" and "to_ISE" (associate the RADIUS sources in
+the REALMs)
 
-Next you have to enable the RADIUS filters in the packetfence.authorize and packetfence.post-proxy scope, to do that you have to go in _Configuration -> System Configuration -> RADIUS -> General_ , and enable "Use RADIUS filters in packetfence authorize" and "Use RADIUS filters in packetfence post-proxy".
+Next you have to enable the RADIUS filters in the packetfence.authorize and
+packetfence.post-proxy scope, to do that you have to go in _Configuration ->
+System Configuration -> RADIUS -> General_ , and enable "Use RADIUS filters in
+packetfence authorize" and "Use RADIUS filters in packetfence post-proxy".
 
-After this step restart the packetfence-radiusd-auth service (systemctl restart packetfence-radiusd-auth.service).
+After this step restart the packetfence-radiusd-auth service (systemctl
+restart packetfence-radiusd-auth.service).
 
-Here are some examples of what you can do with the RADIUS filters (the content of the radius_filters.conf file):
+Here are some examples of what you can do with the RADIUS filters (the
+content of the radius_filters.conf file):
 
-Proxy the RADIUS request to the to_NPS realm if the Calling-Station-Id or Colubris-AVPair attribute matches the regex ZAMMITCORP$
+Proxy the RADIUS request to the to_NPS realm if the Calling-Station-Id or
+Colubris-AVPair attribute matches the regex ZAMMITCORP$
 
 [source,bash]
 ----
   [NPS]
   scopes=packetfence.authorize
   description=to_NPS
-  condition=radius_request.Called-Station-Id =~ "ZAMMITCORP$" || radius_request.Colubris-AVPair =~ "ZAMMITCORP$"
+  condition=radius_request.Called-Station-Id =~ "ZAMMITCORP$" ||
+    radius_request.Colubris-AVPair =~ "ZAMMITCORP$"
   status=disabled
   merge_answer=yes
   answer.0=control:Proxy-To-Realm = to_NPS
 ----
 
-Proxy the RADIUS request the to_ISE realm if the Calling-Station-Id or Colubris-AVPair attribute contains ZAMMITCORP_Admin$ and add the attribute Realm with the value to_ISE in the RADIUS request (can be for example used as a filter in a connection profile)
+Proxy the RADIUS request the to_ISE realm if the Calling-Station-Id or
+Colubris-AVPair attribute contains ZAMMITCORP_Admin$ and add the attribute
+Realm with the value to_ISE in the RADIUS request (can be for example used as
+a filter in a connection profile)
 
 [source,bash]
 ----
   [ISE]
   merge_answer=yes
   status=disabled
-  condition=contains(radius_request.Called-Station-Id, "ZAMMITCORP_Admin") || contains(radius_request.Colubris-AVPair, "ZAMMITCORP_Admin")
+  condition=contains(radius_request.Called-Station-Id, "ZAMMITCORP_Admin") ||
+    contains(radius_request.Colubris-AVPair, "ZAMMITCORP_Admin")
   scopes=packetfence.authorize,packetfence.post-proxy
   description=to_ISE
   answer.0=control:Proxy-To-Realm = to_ISE
   answer.1=request:Realm = to_ISE
 ----
 
-Proxy the RADIUS request to the NULL realm if the Calling-Station-Id or Colubris-AVPair attribute matches the regex Guest$
+Proxy the RADIUS request to the NULL realm if the Calling-Station-Id or
+Colubris-AVPair attribute matches the regex Guest$
 
 [source,bash]
 ----
@@ -272,11 +334,13 @@ Proxy the RADIUS request to the NULL realm if the Calling-Station-Id or Colubris
   description=to_null
   status=enabled
   merge_answer=yes
-  condition=radius_request.Called-Station-Id =~ "Guest$" || radius_request.Colubris-AVPair =~ "Guest$"
+  condition=radius_request.Called-Station-Id =~ "Guest$" ||
+    radius_request.Colubris-AVPair =~ "Guest$"
   answer.0=control:Proxy-To-Realm = NULL
 ----
 
-Proxy the RADIUS request to the to_ISE realm if the Calling-Station-Id attribute matches the regex ZAMMITCORP$
+Proxy the RADIUS request to the to_ISE realm if the Calling-Station-Id
+attribute matches the regex ZAMMITCORP$
 
 [source,bash]
 ----
@@ -284,12 +348,15 @@ Proxy the RADIUS request to the to_ISE realm if the Calling-Station-Id attribute
   merge_answer=no
   scopes=packetfence.authorize
   status=enabled
-  condition=radius_request.Called-Station-Id =~ "ZAMMITCORP$" && not_contains(radius_request.User-Name, "@") && not_contains(radius_request.User-Name, "\\")
+  condition=radius_request.Called-Station-Id =~ "ZAMMITCORP$" &&
+    not_contains(radius_request.User-Name, "@") &&
+    not_contains(radius_request.User-Name, "\\")
   description=NO_REALM
   answer.0=control:Proxy-To-Realm = to_ISE
 ----
 
-Proxy the RADIUS request to the to_ISE realm if the device role is Employe and the status is registered
+Proxy the RADIUS request to the to_ISE realm if the device role is Employe
+and the status is registered
 
 [source,bash]
 ----
@@ -303,7 +370,8 @@ Proxy the RADIUS request to the to_ISE realm if the device role is Employe and t
 ----
 
 
-CAUTION: Those examples can be added in [filename]`/usr/local/pf/conf/radius_filters.conf` and after, perform a
+CAUTION: Those examples can be added in
+[filename]`/usr/local/pf/conf/radius_filters.conf` and after, perform a
 
 [source,bash]
 ----
@@ -312,7 +380,8 @@ CAUTION: Those examples can be added in [filename]`/usr/local/pf/conf/radius_fil
 
 === RADIUS EAP Profiles
 
-RADIUS EAP Profiles allow you to select a specific EAP profile in PacketFence based on the realm of the user.
+RADIUS EAP Profiles allow you to select a specific EAP profile in
+PacketFence based on the realm of the user.
 
 In this EAP profile you can define:
 [options="compact"]
@@ -323,13 +392,24 @@ In this EAP profile you can define:
 
 And link all these configuration together.
 
-For example the realm ZAMMITCORP.COM needs to use the CA certificate from ZAMMITCORP CA and the other realms need to use the default one.
+For example the realm ZAMMITCORP.COM needs to use the CA certificate from
+ZAMMITCORP CA and the other realms need to use the default one.
 
-To do that go in _Configuration -> System Configuration -> RADIUS -> SSL Certificates_ and create a new profile.
-Next go in _Configuration -> System Configuration -> RADIUS -> TLS Profiles_ and create a new TLS profile and select the Certificate profile created just before.
-Then create the EAP profile in _Configuration -> System Configuration -> RADIUS -> EAP Profiles_ and create a new EAP profile and select the TLS profile created before (PEAP Profile for exemple)
+To do that go in _Configuration -> System Configuration -> RADIUS -> SSL
+Certificates_ and create a new profile.
+Next go in _Configuration -> System Configuration -> RADIUS -> TLS Profiles_
+and create a new TLS profile and select the Certificate profile created just
+before.
+Then create the EAP profile in _Configuration -> System Configuration ->
+RADIUS -> EAP Profiles_ and create a new EAP profile and select the TLS
+profile created before (PEAP Profile for exemple)
 
-The last thing to do is to link the EAP profile with your realm configuration, to achieve that go in _Configuration -> Policies and Access Control -> Domains -> REALMS_ and edit the ZAMMITCORP.COM realm (create it if it's not already the case) then choose the EAP profile you created before in the EAP configuration parameter.
+The last thing to do is to link the EAP profile with your realm
+configuration, to achieve that go in _Configuration -> Policies and Access
+Control -> Domains -> REALMS_ and edit the ZAMMITCORP.COM realm (create it if
+it's not already the case) then choose the EAP profile you created before in
+the EAP configuration parameter.
 
-Restart packetfence-radiusd-auth.service to generate the new RADIUS configuration. (systemctl restart packetfence-radiusd-auth.service)
+Restart packetfence-radiusd-auth.service to generate the new RADIUS
+configuration. (systemctl restart packetfence-radiusd-auth.service)
 

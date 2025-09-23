@@ -19,11 +19,13 @@ radiusd -X -d /usr/local/pf/raddb -n acct
 ----
 
 Additionally there is a `raddebug` tool that can extract debug logs from a
-running FreeRADIUS daemon. PacketFence's FreeRADIUS is pre-configured with such support.
+running FreeRADIUS daemon. PacketFence's FreeRADIUS is pre-configured with
+such support.
 
 In order to have an output from `raddebug`, you need to either:
 
-a. Make sure user `pf` has a shell in `/etc/passwd`, add `/usr/sbin` to PATH (`export PATH=/usr/sbin:$PATH`) and execute `raddebug` as `pf`
+a. Make sure user `pf` has a shell in `/etc/passwd`, add `/usr/sbin` to PATH
+   (`export PATH=/usr/sbin:$PATH`) and execute `raddebug` as `pf`
 b. Run `raddebug` as root (less secure!)
 
 Now you can run `raddebug` easily:

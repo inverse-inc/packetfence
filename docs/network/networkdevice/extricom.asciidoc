@@ -34,6 +34,7 @@ definitions_. Create the profiles per the following:
 [float]
 ===== Public SSID
 
+[options="compact"]
 * MAC Authentication must be ticked
 * Encryption method needs to be set to None
 * Select PacketFence as the MAC Authentication RADIUS server (previously added)
@@ -41,6 +42,7 @@ definitions_. Create the profiles per the following:
 [float]
 ===== Secure SSID
 
+[options="compact"]
 * Encryption method needs to be set to WPA Enterprise/WPA2 Enterprise
 * AES only needs to be selected
 * Select PacketFence as the RADIUS server (previously added)

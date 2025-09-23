@@ -22,7 +22,7 @@ endif::[]
 
 The PacketFence servers have a daily backup done, each night (0:30AM).
 
-If you need to externalize those backups, they are in:
+To externalize those backups, locate them in:
 
 [source,ini]
 ----
@@ -31,26 +31,27 @@ If you need to externalize those backups, they are in:
 
 File description:
 
+[options="compact"]
 * packetfence-exportable-backup-DATE_00h30.tgz is an exportable packetfence backup that contains:
- * `packetfence-db-dump-innobackup-DATE_00h30.xbstream.gz` are the SQL dump of your MariaDB database.
+ * `packetfence-db-dump-innobackup-DATE_00h30.xbstream.gz` are the SQL dump of the MariaDB database.
  * `packetfence-config-dump-DATE_00h30.tgz` are the dump of the PacketFence files.
 
 ==== Manual backups
 
-In case you need to make a "manual" backup, you can type the following command:
+To make a "manual" backup, execute the following command:
 
 [source,bash]
 ----
 /usr/local/pf/addons/exportable-backup.sh
 ----
 
-As the daily automatic backups, you will find the file in:
+Like the daily automatic backups, the file will be located in:
 
 [source,ini]
 ----
 /root/backup/
 ----
 
-Exportable file will be available, tagged with the Date and Time of your backup.
+Exportable file will be available, tagged with the Date and Time of the backup.
 
 For cluster maintenance issues or service failures, see <<PacketFence_Clustering_Guide.asciidoc#_service_startup_failures,Service Startup Failures>>, <<PacketFence_Clustering_Guide.asciidoc#_checking_the_mariadb_sync,Checking the MariaDB sync>>, and <<PacketFence_Clustering_Guide.asciidoc#_cluster_database_recovery,Cluster Database Recovery>> in the Troubleshooting section.

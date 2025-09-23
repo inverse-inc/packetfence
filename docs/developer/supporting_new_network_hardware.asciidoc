@@ -57,6 +57,7 @@ In addition to the functions mentioned for link change, you need to define the
 following
 function:
 
+[options="compact"]
 * `isLearntTrapsEnabled`
 
 Also, your `parseTrap` function will need to return `trapOperation`, `trapVlan`
@@ -93,6 +94,7 @@ PacketFence to properly shut the port or request re-authentication a
 translation between the two is required. To do so provide an implementation
 of the following interface:
 
+[options="compact"]
 * `NasPortToIfIndex`
 
 ===== MAC Authentication re-evaluation
@@ -109,6 +111,7 @@ port. Otherwise it will do nothing and send an email. If your device has
 specific needs (for example it
 doesn't support RADIUS Dynamic VLAN Assignments) override:
 
+[options="compact"]
 * `handleReAssignVlanTrapForWiredMacAuth`
 
 Please note that the default implementation works 99% of the time. If you
@@ -133,6 +136,7 @@ PacketFence to properly shut the port or request re-authentication a
 translation between the two is required. To do so provide an implementation
 of the following interface:
 
+[options="compact"]
 * `NasPortToIfIndex`
 
 So far the implementation has been the same for MAC Authentication and 802.1X.
@@ -150,6 +154,7 @@ implementation to
 force 802.1X re-authentication doesn't work override:
 
 
+[options="compact"]
 * `dot1xPortReauthenticate`
 
 Proper 802.1X implementations will perform re-authentication while still
@@ -198,31 +203,37 @@ methods:
 
 You might need to implement the following:
 
+[options="compact"]
 * `enablePortConfigAsTrunk($mac, $switch_port, $switch_locker, $taggedVlans)`
 +
 Provided by `pf::Switch` core as the glue between `setModeTrunk()`,
 `setTaggedVlans()` and `removeAllTaggedVlans()`. Override if necessary.
 
+[options="compact"]
 * `disablePortConfigAsTrunk($switch_port)`
 +
 Provided by `pf::Switch` core as the glue between `setModeTrunk()`,
 `setTaggedVlans()` and `removeAllTaggedVlans()`. Override if necessary.
 
+[options="compact"]
 * `enablePortSecurityByIfIndex($ifIndex)`
 +
 Provided by `pf::Switch` core as a slim accessor to
 `setPortSecurityEnableByIfIndex()`. Override if necessary.
 
+[options="compact"]
 * `disablePortSecurityByIfIndex($ifIndex)`
 +
 Provided by `pf::Switch` core as a slim accessor to
 `setPortSecurityEnableByIfIndex()`. Override if necessary.
 
+[options="compact"]
 * `enableIfLinkUpDownTraps($ifIndex)`
 +
 Provided by `pf::Switch` core as a slim accessor to
 `setIfLinkUpDownTrapEnable`. Override if necessary.
 
+[options="compact"]
 * `disableIfLinkUpDownTraps($ifIndex)`
 +
 Provided by `pf::Switch` core as a slim accessor to

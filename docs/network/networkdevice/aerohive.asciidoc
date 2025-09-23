@@ -34,11 +34,11 @@ HiveManager and then pushed to the APs.
 * the network architecture is in order to give acces to the Aerohive Access Point, and has access to Internet
 * the VLANs are defined for registration, isolation and management networks
 * from this documentation, we will assume that the VLANs tags are define like following:
-[options="compact"]
 ** PacketFence Management VLAN: 1 IP address: 192.168.1.5
 ** registration VLAN ID 2, subnet 192.168.2.0/24
 ** isolation VLAN ID 3, subnet 192.168.3.0/24
 ** production VLAN ID 10, subnet 172.16.1.0/24
+[options="compact"]
 * the VLANs are spanned in the switches and switching L2 equipments, from the _Production Network_ to the PacketFence server(s)
 * the VLANs are allowed in the trunks
 * Aerohive Access Point is loaded with HiveOS with version 6 or later
@@ -63,6 +63,7 @@ For an open (no encryption) SSID using MAC-based authentication:
 * click on *New*
 ** SSID Access Security: *Open*
 ** check the box _Enable MAC authentication_
+[options="compact"]
 * click on *Save*
 
 image::pfaerohive02.png[scaledwidth="100%",alt="AerohiveOpenSSIDconfig"]
@@ -103,9 +104,9 @@ We will create the default VLAN to be assign by the AP, when a new endpoint get
 in the SSID:
 [options="compact"]
 * Under _User Profile_, Click on *Add/Remove*,and Click on *New*, in the _Default_ section
-[options="compact"]
 ** You will need to create one _User Profile_ for each VLANs used, for us, we
 will create 3 Users Profiles, Registration, Isolation and Production
+[options="compact"]
 * from name, give the name of a rule to manage the VLANs with PacketFence (Registration ; Isolation ; Production)
 * from _Attribute Name_, give the VLAN ID of the VLAN
 * from _Default VLan_, Click on the (*+*) (New)
@@ -232,6 +233,7 @@ Configure and broadcast your SSID:
 image::pfaerohive15.png[scaledwidth="100%",alt="External portal SSID
 configuration"]
 
+[options="compact"]
 * under Authentication click on _<Captive Web Portal>_ and select the captive portal previously configured
 * once the _<RADIUS Settings>_ appears under the captive portal, click on it
 * on that new window _Choose RADIUS_ click New
@@ -240,30 +242,36 @@ configuration"]
 
 image::pfaerohive17.png[scaledwidth="100%",alt="Radius configuration"]
 
+[options="compact"]
 * click on Apply
 * click on _Optional Settings (not supported by RADIUS Proxy)_ and check *Permit Dynamic Change of Authorization Messages (RFC 3576)*
 
 image::pfaerohive18.png[scaledwidth="100%",alt="CoA configuration"]
 
+[options="compact"]
 * click on the Save button
 
 Configure the User profile:
 
 image::pfaerohive19.png[scaledwidth="100%",alt="CoA configuration"]
 
+[options="compact"]
 * under _User Profile_ , click on *Add/Remove* and click on New
 
 image::pfaerohive20.png[scaledwidth="100%",alt="User Profile configuration"]
 
+[options="compact"]
 * enter the profile name, the VLAN ID and create the default VLAN as the same as the attribute number
 * create a new default VLAN, click on the *+* button
 
 image::pfaerohive21.png[scaledwidth="100%",alt="vlan configuration"]
 
+[options="compact"]
 * click the Save button
 * make sure the new user profile name is selected and then Save
 
 Push the configuration to the Access Point:
+[options="compact"]
 * click on Continue
 * select the AP and click Update - Update Devices
 * under Configuration: select *Perform a complete configuration update for all selected devices*

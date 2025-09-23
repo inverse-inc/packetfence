@@ -123,6 +123,7 @@ include::networkdevice/ibm.asciidoc[]
 
 PacketFence support these switches _without VoIP_ using one trap type:
 
+[options="compact"]
 * linkUp/linkDown
 
 Exact command-line configuration to be contributed...
@@ -139,6 +140,7 @@ include::networkdevice/lgericsson.asciidoc[]
 
 PacketFence supports Linksys switches _without VoIP_ using one trap type:
 
+[options="compact"]
 * linkUp/linkDown
 
 Don't forget to update the startup config!
@@ -164,11 +166,13 @@ include::networkdevice/netgear.asciidoc[]
 
 PacketFence supports Pica8 switches without VoIP using CoA to:
 
+[options="compact"]
 * bounce-host-port
 * reauthenticate-host
 
 Notes
 
+[options="compact"]
 * **SNMP is not supported yet**
 * **Port Security is not supported**
 
@@ -202,11 +206,13 @@ Global configuration:
   set vlans vlan-id 30
   commit
 
+[options="compact"]
 * `10.10.51.169` is the switch IP
 * For interfaces where auth-mode is unknown, use the following command
     set protocols dot1x interface ge-1/1/12 auth-mode dot1x-mac-radius
   This allows the switch to first try 802.1X and if there is no response from
   the client then fallback to MAC Authentication.
+[options="compact"]
 * Create VLAN(s) on the switch as per your requirements
 * Please note that traceoptions are only for debugging
 
@@ -216,6 +222,7 @@ Global configuration:
 
 PacketFence supports these switches without VoIP using two different trap types:
 
+[options="compact"]
 * linkUp/linkDown
 * Port Security (with static MACs)
 

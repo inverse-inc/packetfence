@@ -10,6 +10,7 @@ through Azure AD.
 
 ==== Creating the PacketFence app
 
+[options="compact"]
 . Open the 'Azure Active Directory' in your Azure portal
 . Go in 'Manage->App registrations->New registration'
 . Settings for the app
@@ -18,6 +19,7 @@ through Azure AD.
   (Single tenant)
   .. Redirect URI must be left blank
   .. Save the app
+[options="compact"]
 . Note down the 'Application (client) ID' and 'Directory (tenant) ID' for later
 usage
  .. In your application, go in 'Certificates & secrets' and select 'New client
@@ -46,10 +48,12 @@ premium, this must be disabled for all your users.
 
 ===== Disabling MFA using Azure AD premium
 
+[options="compact"]
 . Open the "Azure Active Directory" in your Azure portal
 . Go in 'Manage->Properties'
  .. Click 'Manage Security defaults'
  .. Disable the toggle 'Enable Security defaults' and save
+[options="compact"]
 . Next, go in 'Manage->Security->Conditional Access'
  .. Click 'New policy' and enter the following settings:
    ... Name: 2FA policy
@@ -67,6 +71,7 @@ WARNING: This will disable common recommended settings from Microsoft. Using
 Azure AD premium is the correct way to perform this. This option is only
 suggested for testing or when its impossible to have access to Azure AD premium.
 
+[options="compact"]
 . Open the "Azure Active Directory" in your Azure portal
 . Under 'Manage', open 'Properties'
  .. Click 'Manage Security defaults'
@@ -74,6 +79,7 @@ suggested for testing or when its impossible to have access to Azure AD premium.
 
 ==== Configuring PacketFence
 
+[options="compact"]
 . In the admin interface, go to _Configuration -> Policies and Access Control ->
 Authentication Sources_, and create a new 'Azure Active Directory' internal
 source
@@ -104,6 +110,7 @@ documentation of your operating system on how to configure EAP-TTLS PAP. This
 section will only focus on enabling EAP-TTLS PAP for your Azure AD users in
 PacketFence.
 
+[options="compact"]
 . In the admin interface, go to _Configuration -> Policies and Access Control ->
 Realms_, and create a new realm
  .. Realm: enter the realm of your Azure AD users. Example, if the usernames
@@ -116,6 +123,7 @@ Realms_, and create a new realm
   ... Strip on the admin
   ... Strip in RADIUS authorization
  .. Save the realm
+[options="compact"]
 . Restart radiusd using `/usr/local/pf/bin/pfcmd service radiusd restart`
 . All the users matching this realm will now authenticate against Azure AD. Make
 sure you also have a connection profile with auto-registration enabled and the

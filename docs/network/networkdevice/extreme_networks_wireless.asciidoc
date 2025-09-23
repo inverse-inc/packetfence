@@ -32,16 +32,19 @@ access points in a central place.
 On the Extreme Cloud IQ Controller, there should already be two built-in IP
 Firewall policies:
 
+[options="compact"]
 * Redirect-only policy: this policy must have "redirect" rules
 * Internet-access-only policy
 
 On the Extreme Cloud IQ Controller, create two user profiles:
 
+[options="compact"]
 * Registration
 ** VLAN: 5
 ** Firewall rules: Enabled
 ** IP Firewall Name: Redirect-only policy
 ** Redirect URL: http://192.168.1.5/Extreme::AP
+[options="compact"]
 * Guest
 ** VLAN: 5
 ** Firewall rules: Enabled
@@ -50,8 +53,10 @@ On the Extreme Cloud IQ Controller, create two user profiles:
 Still, on the Extreme Cloud IQ Controller, create a wireless network with the
 following configuration:
 
+[options="compact"]
 * SSID Authentication: Open
 ** Enable Captive Web Portal: No
+[options="compact"]
 * MAC Authentication tab
 ** Enable MAC authentication: Yes
 ** Authentication protocol: CHAP
@@ -78,10 +83,12 @@ Under User access settings, you need to create following rules:
 
 Create a switch with following configuration:
 
+[options="compact"]
 * Definition tab
 ** Identifier: subnet of your Extreme AP
 ** External portal enforcement: Yes
 ** Deauthentication method: RADIUS
+[options="compact"]
 * Roles tab
 ** Role by Switch Role: Yes
 *** registration: Registration

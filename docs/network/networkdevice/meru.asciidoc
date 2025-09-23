@@ -48,6 +48,7 @@ representative for that part.
 Here, we create our PacketFence VLANs for client use. Go to _Configuration ->
 Wired -> VLAN_, and select Add.
 
+[options="compact"]
 * VLAN Name is the human readable name (ie. RegistrationVLAN)
 * Tag is the VLAN ID
 * Fast Ethernet Interface Index refers to the controller's ethernet interface
@@ -65,6 +66,7 @@ Click *OK* to add the VLAN.
 Here, we create our PacketFence RADIUS server for use. Under _Configuration ->
 Security -> Radius_, select *Add*.
 
+[options="compact"]
 * Give the RADIUS Profile a name
 * Write a description of the profile
 * Give the RADIUS IP, RADIUS Secret and the RADIUS authentication port
@@ -79,6 +81,7 @@ Click *OK* to add the RADIUS profile.
 Here, we create our PacketFence RADIUS server for use. Under _Configuration ->
 Security -> Radius_, select *Add*.
 
+[options="compact"]
 * Give the RADIUS Profile a name
 * Write a description of the profile
 * Give the RADIUS IP, RADIUS Secret and the RADIUS accounting port
@@ -93,6 +96,7 @@ Click *OK* to add the RADIUS accounting profile.
 Here, we create our wireless security profiles for use. 
 Under _Configuration -> Security -> Profile_, select *Add*.
 
+[options="compact"]
 * Give the security profile a name
 * Select Clear as the L2 Modes Allowed
 * Leave Data Encrypt empty
@@ -107,6 +111,7 @@ Click *OK* to save the profile.
 When using the OpenSSID, you need to activate the mac filtering. 
 Under _Configuration -> Mac Filtering_:
 
+[options="compact"]
 * Set ACL Environment State to Permit list enabled
 * Select your RADIUS profile
 
@@ -116,6 +121,7 @@ Under _Configuration -> Mac Filtering_:
 Here, we create our wireless security profiles for use. 
 Under _Configuration -> Security -> Profile_, select *Add*.
 
+[options="compact"]
 * Give the security profile a name
 * Select WPA2 as the L2 Modes Allowed
 * Select CCMP-AES for Data Encrypt
@@ -132,6 +138,7 @@ Click *OK* to save the profile.
 Here, we create our SSID and tie it to a security profile. 
 Under _Configuration -> Wireless -> ESS_, select *Add*.
 
+[options="compact"]
 * Give the ESS profile a name, and enable it
 * Write an SSID name
 * Select your security profile name previously created
@@ -151,6 +158,7 @@ Here, we tie our SSIDs to access points.
 Under _Configuration -> Wireless -> ESS_, select the SSID you want to add to
 your aps. Then, select the *ESS-AP Table*, and click *Add*.
 
+[options="compact"]
 * Select the AP ID from the drop down list
 * Click *OK* to associate the SSID with this AP
 
@@ -162,6 +170,7 @@ Meru hardware. To add firewall rules, go in _Configuration -> QoS System
 Settings -> QoS and Firewall Rules_. When you add a rule, you have to pay
 attention to two things:
 
+[options="compact"]
 * The rule is applied to the controller physical interface right away, so make sure you are not too wide on your ACL to lock you out!
 * The rules are grouped using the Firewall Filter ID (We will use this ID for the roles)
 

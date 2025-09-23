@@ -8,6 +8,7 @@
 PacketFence, users receive authentication errors^[1]^
 
 *Symptoms:*
+[options="compact"]
 * SAML authentication redirects fail
 * Users redirected to Okta but not returned to PacketFence
 * "Invalid SAML Response" errors in logs
@@ -19,12 +20,14 @@ PacketFence, users receive authentication errors^[1]^
 *Step 1: Configure Okta Application*
 
 *Create SAML Application in Okta:*
+[options="compact"]
 * Application Type: Web Application
 * SAML Version: 2.0
 * Single Sign-On URL: `https://pf.domain.com/saml/sp/okta`
 * Audience URI: `https://pf.domain.com/saml/sp/okta`
 
 *Configure Attribute Mapping:*
+[options="compact"]
 * Username: `user.login`
 * Email: `user.email`
 * First Name: `user.firstName`
@@ -64,6 +67,7 @@ connection timeouts^[1]^
 
 *Symptoms:*
 
+[options="compact"]
 * "Unable to use Google LDAP Logins" error messages
 * OAuth token validation failures
 * LDAP connection timeouts to Google servers
@@ -73,11 +77,13 @@ connection timeouts^[1]^
 
 *Google Workspace LDAP Configuration:*
 
+[options="compact"]
 . *Enable LDAP in Google Admin Console:*
    - Apps → Additional Google Services → LDAP
    - Enable LDAP access for organization
    - Configure access credentials
 
+[options="compact"]
 . *Create LDAP Client Certificate:*
    - Generate client certificate in Google Admin Console
    - Download certificate and private key
