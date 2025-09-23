@@ -279,7 +279,7 @@ sub createEnv {
     my $logger = get_logger();
     my $switch_id_path = $self->switch_id;
     $switch_id_path =~ s/\./_/g;
-    my $env_content = encode_json({inventory => "inventory.yml", host_key_checking => "False", timeout => "10", nocows => "1", deprecation_warnings => "False", retry_files_enabled => "False", forks => "10", collections_path => "/opt/semaphore/$switch_id_path/collections/"});
+    my $env_content = encode_json({inventory => "inventory.yml", host_key_checking => "False", timeout => "10", nocows => "1", deprecation_warnings => "False", retry_files_enabled => "False", forks => "10", roles_path => "/opt/semaphore/$switch_id_path/roles/", collections_path => "/opt/semaphore/$switch_id_path/collections/"});
     my $json_content = encode_json({});
     my $content = encode_json({json => $json_content, env => $env_content, project_id => $self->project_id, name => "Switch_ENV_".$self->switch_id});
     my $res = $self->_do_post("environment", $content);
