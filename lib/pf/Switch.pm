@@ -4976,6 +4976,10 @@ sub generateAnsibleConfiguration {
         dircopy("$conf_dir/pfsetacls/ansible_collections", "$var_dir/conf/pfsetacls/$switch_id/pf_collections/ansible_collections")
             or $self->logger->warn("Can't copy bundled ansible_collections: $!");
     }
+    if (! -e "$var_dir/conf/pfsetacls/$switch_id/roles") {
+        mkdir("$var_dir/conf/pfsetacls/$switch_id/roles") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/roles:$!";
+    }
+
     $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
     $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
     $vars{'switches'}{$switch_id}{'cliUser'} = $self->{'_cliUser'};
@@ -5062,6 +5066,7 @@ sub generateAnsibleConfiguration {
     $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/ansible.cfg") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/switch_acls.yml", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/roles/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/roles/requirements.yml") or die $tt->error();
     find(\&pf::util::chown_pf, "$var_dir/conf/pfsetacls/$switch_id/");
     if (-e "$var_dir/conf/pfsetacls/$switch_id/ansible.log") { unlink "$var_dir/conf/pfsetacls/$switch_id/ansible.log" };
     my %args;
