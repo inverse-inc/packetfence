@@ -40,8 +40,8 @@ sub acl_chewer {
 
     my $i = 0;
     my @acl_chewed;
-    my $new_acl;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        my $new_acl;
         #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
         next if (defined($acl->{'tcp_flags'}));
         $acl->{'protocol'} =~ s/\(\d*\)//;
@@ -61,16 +61,18 @@ sub acl_chewer {
             $new_acl->{'dst'} = "any";
         } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
             if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
-                my $net_addr = NetAddr::IP->new($acl->{'destination'}->{'ipv4_addr'}, norm_net_mask($acl->{'destination'}->{'wildcard'}));
-                my $cidr = "network ".$net_addr->cidr();
-                $new_acl->{'dst'} = $cidr;
+                $new_acl->{'dst_network'} = $acl->{'destination'}->{'ipv4_addr'};
+                $new_acl->{'dst_netmask'} = norm_net_mask($acl->{'destination'}->{'wildcard'});
+                $new_acl->{'dst_object'} = "dnetwork";
             } else {
-                $new_acl->{'dst'} = "host ".$acl->{'destination'}->{'ipv4_addr'};
+                $new_acl->{'dst_object'} = "dhost";
+                $new_acl->{'dst_ipaddr'} = $acl->{'destination'}->{'ipv4_addr'};
             }
         }
         my $src;
         if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $new_acl->{'src'} = "any";
+            $new_acl->{'src'} = "suser";
+            $new_acl->{'suser'} = "true";
         } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
             if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
                 my $net_addr = NetAddr::IP->new($acl->{'source'}->{'ipv4_addr'}, norm_net_mask($acl->{'source'}->{'wildcard'}));
@@ -90,7 +92,7 @@ sub acl_chewer {
         }
         $i++;
     }
-    return @acl_chewed;
+    return \@acl_chewed;
 }
 
 =head2 implicit_acl
