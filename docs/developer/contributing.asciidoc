@@ -53,7 +53,7 @@ or from a checkout of the PacketFence source code from `git`:
 
 The internationalization process uses `gettext`. If you are new to `gettext`,
 please consult
-http://www.gnu.org/software/gettext/manual/gettext.html#Overview for a quick introduction.
+https://www.gnu.org/software/gettext/manual/gettext.html#Overview for a quick introduction.
 
 The PO files are stored in `/usr/local/pf/conf/locale`. List that directory to
 see the languages

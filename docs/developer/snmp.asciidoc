@@ -20,8 +20,8 @@ endif::[]
 
 === Introduction
 
-Good places to start reading about SNMP are http://en.wikipedia.org/wiki/SNMP
-and http://www.net-snmp.org/.
+Good places to start reading about SNMP are https://en.wikipedia.org/wiki/SNMP
+and https://www.net-snmp.org/.
 
 When working with SNMP, you'll sooner or later (in fact more sooner than later)
 be confronted with having

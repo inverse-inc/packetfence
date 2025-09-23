@@ -33,9 +33,9 @@ Download the ZEN here: https://www.packetfence.org/download.html#/zen
 ==== Virtual Machine
 
 Tested with VMware ESXi, Fusion and Workstation with 16 GB RAM dedicated to the
-VM. Compatible with other VMware products. Requires 64-bit CPU host for long mode
-support. PacketFence ZEN comes as a pre-built OVF virtual disk. Import the OVF
-using vSphere Client or vCenter for ESX hypervisors.
+VM. Compatible with other VMware products. Requires 64-bit CPU host for long
+mode support. PacketFence ZEN comes as a pre-built OVF virtual disk. Import
+the OVF using vSphere Client or vCenter for ESX hypervisors.
 
 The VM's first network card receives IP through DHCP.
 
@@ -135,7 +135,8 @@ yum update
 reboot
 ----
 
-PacketFence will not work properly if SELinux is enabled. Explicitly disable SELinux in the `/etc/selinux/config` file and reboot the machine.
+PacketFence will not work properly if SELinux is enabled. Explicitly disable
+SELinux in the `/etc/selinux/config` file and reboot the machine.
 
 ===== Kernel and Development Tools
 
@@ -154,7 +155,7 @@ yum install kernel-devel-$(uname -r)
 yum remove runc podman
 
 # Import PacketFence GPG key (required for EL8)
-rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY
+rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY
 ----
 
 ===== PacketFence Software Installation
@@ -190,10 +191,13 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 reboot
 ----
 
-Regarding AppArmor, even if they may be wanted by some organizations, PacketFence will not work properly if AppArmor is enabled. Follow instructions on the
+Regarding AppArmor, even if they may be wanted by some organizations,
+PacketFence will not work properly if AppArmor is enabled. Follow
+instructions on the
 link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
 
-Regarding resolvconf, remove the symlink to that file and create the `/etc/resolv.conf` file with the desired content.
+Regarding resolvconf, remove the symlink to that file and create the
+`/etc/resolv.conf` file with the desired content.
 
 ===== Kernel and Development Tools
 
@@ -209,7 +213,8 @@ Regarding resolvconf, remove the symlink to that file and create the `/etc/resol
 apt install linux-headers-$(uname -r)
 ----
 
-*Important*: Ensure you're running the latest kernel before installing development packages. Reboot if kernel was updated.
+*Important*: Ensure you're running the latest kernel before installing
+development packages. Reboot if kernel was updated.
 
 ===== PacketFence Software Installation
 
@@ -222,7 +227,7 @@ curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o
 
 # Add PacketFence repository (Debian 12 bookworm)
 echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg]
-http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
+https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
 bookworm" > /etc/apt/sources.list.d/packetfence.list
 
 # Install PacketFence with all dependencies  

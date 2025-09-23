@@ -208,7 +208,7 @@ access to the switch. Make sure you configure the two SNMP communities like:
 ----
 
 NOTE: You can refer to the
-http://www.cisco.com/en/US/docs/switches/lan/catalyst2960/software/release/15.0_1_se/configuration/guide/sw8021x.html[Cisco
+https://www.cisco.com/en/US/docs/switches/lan/catalyst2960/software/release/15.0_1_se/configuration/guide/sw8021x.html[Cisco
 Catalyst documentation] for more options.
 
 

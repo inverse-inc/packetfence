@@ -1079,7 +1079,7 @@ To upgrade the database schema, run the following command:
   mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.1-6.2.0.sql`
 
 Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to match the new
-release number (PacketFence 6.2).
+release number (PacketFence 6.2.1).
 
 === Upgrading from a version prior to 6.2.1
 
@@ -3319,10 +3319,10 @@ systemctl restart packetfence-mariadb
 
 ==== Specific upgrade
 
-Starting from PacketFence 11.0.0, Debian 9 and CentOS 7 support are dropped in favor of Debian 11 and RHEL 8.
+Starting from PacketFence 11.0, Debian 9 and CentOS 7 support are dropped in favor of Debian 11 and RHEL 8.
 In place upgrades are not supported. Provision new operating system(s) in order to migrate.
 
-To simplify upgrade process to PacketFence 11.0.0 and future versions, we now
+To simplify upgrade process to PacketFence 11.0 and future versions, we now
 rely on an export/import mechanism.
 
 Before doing anything else, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> of this mechanism.
@@ -3359,7 +3359,7 @@ Then perform a full upgrade using following command:
 
 ===== PacketFence version before 10.3.0
 
-. Follow upgrade path to PacketFence 10.3.0
+. Follow upgrade path to PacketFence 10.3
 . Go to next section
 
 ===== PacketFence version 10.3.0 or later
@@ -3420,7 +3420,7 @@ using theses protocols, move to TLS 1.2. If TLS 1.2 is not possible adjust
 
 ==== Automation of upgrades for standalone servers
 
-Upgrades are now automated for standalone servers starting from PacketFence 11.0.0.
+Upgrades are now automated for standalone servers starting from PacketFence 11.0.
 Follow instructions related to
 <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation
 of upgrades>>.
@@ -3485,7 +3485,7 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-11.0-11.1.sql
 
 ==== Automation of upgrades for standalone servers
 
-Upgrades are now automated for standalone servers starting from PacketFence 11.0.0.
+Upgrades are now automated for standalone servers starting from PacketFence 11.0.
 Follow instructions related to
 <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation
 of upgrades>>.

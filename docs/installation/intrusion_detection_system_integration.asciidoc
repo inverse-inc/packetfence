@@ -435,7 +435,7 @@ On Security Onion:
 [source,bash]
 ----
 sudo bash -c 'cat << EOL >/etc/apt/sources.list.d/securityonion-inverse.list
-deb http://inverse.ca/downloads/PacketFence/securityonion trusty trusty
+deb https://inverse.ca/downloads/PacketFence/securityonion trusty trusty
 EOL'
 
 gpg --keyserver keyserver.ubuntu.com --recv 19CDA6A9810273C4

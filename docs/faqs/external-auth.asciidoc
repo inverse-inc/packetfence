@@ -4,7 +4,8 @@
 [[okta-saml-integration]]
 === Okta SAML integration configuration issues
 
-*Problem:* Cannot successfully configure Okta SAML authentication with PacketFence, users receive authentication errors^[1]^
+*Problem:* Cannot successfully configure Okta SAML authentication with
+PacketFence, users receive authentication errors^[1]^
 
 *Symptoms:*
 * SAML authentication redirects fail
@@ -58,7 +59,8 @@ openssl req -new -x509 -days 3652 -nodes -out /usr/local/pf/conf/ssl/saml.crt \
 [[google-ldap-oauth-issues]]
 === Google LDAP OAuth authentication problems
 
-*Problem:* Google LDAP authentication fails with OAuth credential errors or connection timeouts^[1]^
+*Problem:* Google LDAP authentication fails with OAuth credential errors or
+connection timeouts^[1]^
 
 *Symptoms:*
 

@@ -26,9 +26,9 @@ This file contains guidelines for AI assistants working with PacketFence documen
 ## **Version Reference Guidelines**
 
 ### PacketFence Version Format
-- **Correct Format**: Always use X.Y format (e.g., "13.2", "10.3")
-- **Incorrect Format**: Never use X.Y.Z format (e.g., "13.2.1", "10.3.0")
-- **Consistency**: Maintain this format throughout all documentation references
+- **Version 10.x and newer**: Use X.Y format (e.g., "13.2", "11.0", "10.3")
+- **Version 9.x and older**: Keep X.Y.Z format (e.g., "9.2.0", "6.2.1", "2.2.1")
+- **Consistency**: Maintain the appropriate format based on version throughout all documentation references
 
 ## **Code & Configuration Handling**
 

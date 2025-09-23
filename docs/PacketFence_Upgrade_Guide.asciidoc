@@ -435,7 +435,7 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-13.1-13.2.sql
 
 ==== Debian
 
-Packetfence 14.0.0, we change the OS from Debian 11 to Debian 12.
+Packetfence 14.0, we change the OS from Debian 11 to Debian 12.
 
 To use PacketFence 14.0 on Debian 12, a new Debian 12 VM will need to be created, then <<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,import/export>> from the previous installation to the new one.
 

@@ -141,7 +141,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-r
 [source,bash,subs="attributes"]
 ----
 echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg]
-http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
+https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
 bookworm" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 ----
@@ -199,7 +199,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-r
 [source,bash,subs="attributes"]
 ----
 echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg]
-http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
+https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
 bookworm" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 ----
@@ -240,7 +240,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-r
 [source,bash,subs="attributes"]
 ----
 echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg]
-http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
+https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
 bookworm" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 ----
