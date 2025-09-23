@@ -10,7 +10,6 @@
     License: GFDL 1.2 or later. https://www.gnu.org/licenses/fdl.html
 
 ////
-include::global-attributes.asciidoc[]
 
 === Other Guides 
 
