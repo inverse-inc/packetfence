@@ -757,6 +757,9 @@ sub generate_radiusd_ldap {
             elsif (defined($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap}) && ($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap} eq $ldap) ) {
                 $active = $TRUE;
             }
+            elsif (defined($pf::config::ConfigRealm{$realm}->{edir_source}) && ($pf::config::ConfigRealm{$realm}->{edir_source} eq $ldap) ) {
+                $active = $TRUE;
+            }
         }
         next unless $active;
         my $searchattributes = '';
