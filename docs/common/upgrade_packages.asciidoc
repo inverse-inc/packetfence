@@ -20,7 +20,26 @@ apt upgrade
 
 **Mariadb new version**
 
-See Troubleshooting Upgrades <<PacketFence_Upgrade_Guide.asciidoc#_database_upgrade_issues,Database Upgrade Issues>>
+During a specific PF life version, Mariadb server and client can be updated on the OS version.
+
+When it is happening, the command line `apt upgrade` can fail and with the following error:
+
+[source,bash]
+----
+You might want to run 'apt --fix-broken install' to correct these.
+The following packages have unmet dependencies:
+ mariadb-client : Breaks: mariadb-server (< 1:10.11.14-0+deb12u2) but 1:10.11.11-0+deb12u1 is installed
+E: Unmet dependencies. Try 'apt --fix-broken install' with no packages (or specify a solution).
+----
+
+In order to fix it, just run the following command line:
+
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+apt --fix-broken install
+----
+
 
 **PF 12.0 and 12.1**
 
