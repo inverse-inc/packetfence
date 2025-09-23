@@ -115,10 +115,6 @@ If services fail to start after upgrade, see <<#_service_startup_failures,Servic
 
 == Major/Minor Version Upgrades
 
-*MANDATORY*: Before every PacketFence upgrade, update all operating system
-packages and <<#_apply_maintenance_patches,Apply Packetfence maintenance patches>>
-to ensure compatibility and security.
-
 [TIP]
 ====
 **OS Migration Required?** Check the <<#_operating_system_compatibility,Operating System Compatibility>>
@@ -126,10 +122,12 @@ matrix first. If your target version requires a different operating system, chec
 and use <<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,export/import migration>> instead
 of these in-place upgrade procedures.
 
-**IMPORTANT**: This section covers upgrading between minor versions within the
-same major version. Be aware that even minor version upgrade can have specific
-upgrade steps.
+**IMPORTANT**: Be aware that even minor version upgrade can have specific upgrade procedures.
 ====
+
+*MANDATORY*: Before every PacketFence upgrade, update all operating system
+packages and <<#_apply_maintenance_patches,Apply Packetfence maintenance patches>>
+to ensure compatibility and security.
 
 **Before Starting**:
 
@@ -785,8 +783,9 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-13.2-14.0.sql
 [NOTE]
 ====
 **Migration vs In-Place**: Database schema upgrades are **only needed for
-in-place upgrades**. The export/import migration procedure handles database
-schema changes automatically during the migration process.
+manual in-place upgrades**. The export/import migration procedure and
+Automation of upgrades handle database schema changes automatically during
+the migration process.
 ====
 
 
@@ -800,11 +799,11 @@ schema changes automatically during the migration process.
  - **Debian 12**: MariaDB server 10.11.x-MariaDB
  - **RedHat EL8**: Version server 10.11.x-MariaDB
 
-== RedHat EL8 Upgrade Procedures
+=== RedHat EL8 Upgrade Procedures
 
 RedHat EL8 systems support **in-place PacketFence upgrades** without OS migration.
 
-=== RedHat EL8 Standalone Server Upgrade
+==== RedHat EL8 Standalone Server Upgrade
 
 **Prerequisites for PacketFence 14.1+ on EL8:**
 
@@ -820,7 +819,7 @@ https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1
 
 Follow the automated upgrade: <<#_automation_of_upgrades,automation of upgrades>>
 
-=== RedHat EL8 Cluster Upgrade 
+==== RedHat EL8 Cluster Upgrade 
 
 **Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
 
