@@ -56,9 +56,9 @@ upgrades through all supported versions without OS migration.
 
 === Specific Upgrades
 
-Some PacketFence **requires specific upgrade steps** for example because
-MariaDB must be upgraded through major versions. Each PacketFence version is
-tested with specific Minor MariaDB versions (like 10.11.x).
+Certain PacketFence upgrades **require following specific procedures**, particularly when
+upgrading MariaDB across major versions. Each PacketFence release is validated against
+specific minor versions of MariaDB (e.g., 10.11.x).
 
 === Disable monit alerts (only if monit is installed)
 
