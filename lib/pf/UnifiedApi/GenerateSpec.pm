@@ -82,13 +82,16 @@ sub formsToMetaSchemas {
             };
         }
     }
-    $paths{$item_path} = {
-        discriminator => {
-            mapping => \%mapping,
-            propertyName => 'type'
-        },
-        oneOf => [@$oneOf]
-    };
+    # If we have subtypes, create a discriminator schema at the meta path
+    if (@$oneOf) {
+        $paths{$meta_path} = {
+            discriminator => {
+                mapping => \%mapping,
+                propertyName => 'type'
+            },
+            oneOf => [@$oneOf]
+        };
+    }
     return \%paths;
 }
 
