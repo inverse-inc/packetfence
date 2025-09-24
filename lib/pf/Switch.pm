@@ -4523,7 +4523,10 @@ sub generateAnsibleConfiguration {
 
     foreach my $role (keys %ConfigRoles) {
         my $acls = $self->getRoleAccessListByName($role);
-        if (defined($acls)) {
+        if (ref($acls) eq 'ARRAY') {
+           $vars{'switches'}{$switch_id}{'acls_array'}{$role} = $acls;
+        }
+        elsif (defined($acls)) {
             my $out_acls;
             my $in_acls;
             while($acls =~ /([^\n]+)\n?/g) {
