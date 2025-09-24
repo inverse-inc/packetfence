@@ -53,13 +53,13 @@
         state: replaced[% END %]
       when: ansible_network_os == 'arista.eos.eos'
 
-    - name: Delete acl into Aruba Controler
+    - name: Delete acl into Aruba Controller
       community.network.aruba_config:
         src: "{{ acl_deconfig }}"
       when: ansible_network_os == 'aruba'
 
 [% FOREACH role IN acls.keys %]
-    - name: Load new acl [% role %] into Aruba Controler
+    - name: Load new acl [% role %] into Aruba Controller
       community.network.aruba_config:
         src: "{{ [% role %]acl_config }}"
       when: ansible_network_os == 'aruba'
@@ -74,11 +74,11 @@
         api_object: role
         config_path: /mm
         filter: [ {'OBJECT': { '$eq': [ 'role.rname' ] } } ]
-      register: roless_output
+      register: roles_output
 
     - name: Extract rname with json_query
       set_fact:
-        rname_list: "{{ roless_output.response._data.role | json_query('[].rname') }}"
+        rname_list: "{{ roles_output.response._data.role | json_query('[].rname') }}"
 
     - name: Show roles
       debug:
