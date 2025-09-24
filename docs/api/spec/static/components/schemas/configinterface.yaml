@@ -92,7 +92,8 @@ ConfigInterfaceCreate:
     - $ref: '#/components/schemas/ConfigInterfaceVlan'
 
 ConfigInterfaceUpdate:
-   $ref: '#/components/schemas/ConfigInterfaceBase'
+  allOf:
+    - $ref: '#/components/schemas/ConfigInterfaceBase'
 
 ConfigInterfaceGet:
   allOf:
