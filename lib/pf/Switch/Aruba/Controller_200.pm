@@ -68,7 +68,7 @@ sub acl_chewer {
         }
         my $src;
         if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $src = "any";
+            $src = "user";
         } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
             if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
                 my $net_addr = NetAddr::IP->new($acl->{'source'}->{'ipv4_addr'}, norm_net_mask($acl->{'source'}->{'wildcard'}));
