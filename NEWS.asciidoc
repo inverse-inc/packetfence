@@ -23,17 +23,57 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>.
 
-== Version X.Y.Z released on xxxx-xx-xx
+== Version 15.0.0 released on xxxx-xx-xx
 
 === New Features
 
+  - Support for dACLs on Cisco WLC IOS XE (#8643)
+  - Default kafka configuration (#8711)
+  - pfflow admin UI (#8613)
+  - Security Event Purge feature (#8615)
+  - Move to dynamic iptables (#8688)
+  - Cisco Easy PSK support (#8637)
+  - RADIUS proxy pfconnector feature (#8676)
+  - Base64 JSON decoding for RADIUS (decode strings prefixed with base64:) (#8619)
+
 === Enhancements
 
- * Allow RADIUS sources to define a static port to use when behind a connector. (#8676)
+  - Simplified Unbound DPSK code (#8519)
+  - Reduce CPU and memory usage for pfdhcp and refactored code (#8631)
+  - Move pfsetacl on pfdebian image (#8599)
+  - Update to golang 1.24.1 and update tests to pass go vet (#8589)
+  - Add pprof support for Caddy (#8636)
+  - Added code to force reconnect SSH on the pfconnector (#8656)
+  - Generate key with local path for material artifacts (#8560)
+  - Add upgrade capability to easily download latest upgrade rpm or deb file (#8526)
+  - Make GitLab pipelines create from API like the web (#8752)
+  - KISS EAP TLS tests (#8665)
+  - Updated documentation (#8614, #8748, #8716)
+  - Added additional field for better troubleshooting in NTLM auth API (#8567)
 
 === Bug Fixes
 
+  - Fix validations (#8776)
+  - Fix UGID for PF and Fingerbank (#8749)
+  - Fix Firefox-related issues (#8758)
+  - Add double quotes when searching upgrade files in export (#8731)
+  - Multiple specific bug fixes (#8718, #8693, #8686, #8659, #8652, #8605, #8522)
+  - Fixed dynamic ACL feature for HP_AOS_Switch_v16 (#8583)
+  - Fix pfperl-api manager exit triggered by pfperl-api worker termination (#8629)
+  - Don't check common name (#8606)
+  - Fixes logic when pfacct and radius-acct are enabled (#8175)
+  - Fix skipped entries in RADIUS log (#8621)
+  - Handle VM in paused state, improve test runner cleaning (#8655)
+  - Increase timeout to 10 minutes for cypress (#8558)
+  - Update vbox version in tests (#8568)
+
 === Security Fixes
+
+  - Library dependency updates:
+    - Bump github.com/cloudflare/circl from 1.6.0 to 1.6.1 (#8725)
+    - Bump github.com/go-chi/chi/v5 from 5.0.12 to 5.2.2 (#8679)
+    - Bump golang.org/x/net from 0.28.0 to 0.38.0 (#8626)
+
 
 == Version 14.1.0 released on 2025-02-18
 
