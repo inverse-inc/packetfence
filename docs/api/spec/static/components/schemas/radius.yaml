@@ -16,7 +16,6 @@ RadiusAttributesSearch:
             type: string
           allowed_values:
             type: array
-            nullable: true
             items:
               type: object
               properties:

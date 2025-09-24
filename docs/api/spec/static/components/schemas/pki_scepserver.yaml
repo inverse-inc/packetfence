@@ -28,14 +28,12 @@ PkiScepServersList:
           type: string
         items:
           type: array
-          nullable: true
           items:
             $ref: '#/components/schemas/PkiScepServer'
         password:
           type: string
         raw:
           type: string
-          nullable: true
         serial:
           type: string
         status:

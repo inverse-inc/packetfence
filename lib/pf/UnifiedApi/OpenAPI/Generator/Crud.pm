@@ -171,9 +171,6 @@ sub dalToOpenAPISchemaProperties {
         if ($v->{is_primary_key}) {
             $properties{$k}->{description} = '`PRIMARY KEY`';
         };
-        if ($v->{is_nullable}) {
-            $properties{$k}->{nullable} = JSON::MaybeXS::true;
-        };
         if ($v->{enums_values}) {
             $properties{$k}->{enum} = [ sort { $a cmp $b } keys %{$v->{enums_values}} ];
         };
@@ -265,17 +262,15 @@ sub operationParametersLookup {
     my ($self, $scope, $c, $m, $a) = @_;
 
     my $opFields = $self->dalToOpFields($c->dal);
-    $opFields->{in} = 'query';
 
     my $opSort = $self->dalToOpSort($c->dal);
-    $opSort->{in} = 'query';
 
     return {
         list => [
             $opFields,
             $opSort,
-            { "\$ref" => "#/components/parameters/limit", in => 'query' },
-            { "\$ref" => "#/components/parameters/cursor", in => 'query' },
+            { "\$ref" => "#/components/parameters/limit" },
+            { "\$ref" => "#/components/parameters/cursor" },
         ]
     }
 }

@@ -9,18 +9,15 @@ ConfigInterfaceBase:
       type: string
     coa:
       type: string
-      nullable: true
     dhcpd_enabled:
       description: Whether or not DHCP is enabled for this interface
       type: string
-      nullable: true
       enum:
         - enabled
         - disabled
     dns:
       description: The DNS server of the network tied to the interface.
       type: string
-      nullable: true
     high_availability:
       description: The RSA server key for the resource in PEM encoded format
       type: string
@@ -42,7 +39,6 @@ ConfigInterfaceBase:
       type: boolean
     master:
       type: string
-      nullable: true
     name:
       description: The name of the interface
       type: string
@@ -70,11 +66,9 @@ ConfigInterfaceBase:
     reg_network:
       description: Registration IP Address CIDR format
       type: string
-      nullable: true
     split_network:
       description: Whether or not to perform network split by role
       type: string
-      nullable: true
     type:
       description: The network type of the interface
       type: string

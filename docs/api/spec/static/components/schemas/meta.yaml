@@ -55,7 +55,6 @@ MetaItem:
             type: string
       default:
         description: The default value if not user-defined
-        nullable: true
         oneOf:
          - type: string
          - type: integer
@@ -64,7 +63,6 @@ MetaItem:
       implied:
         description: Fixed built-in values, user-defined values are appended
         type: string
-        nullable: true
       min_length:
         description: Minumum string length
         type: integer
@@ -94,7 +92,6 @@ MetaItem:
          - type: object
          - type: array
         description: String shown for the current value, otherwise value is shown
-        nullable: true
       required:
         description: If the value is manadatory
         type: boolean

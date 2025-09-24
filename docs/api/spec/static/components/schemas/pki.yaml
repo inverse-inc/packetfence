@@ -9,12 +9,10 @@ PkiNull:
           type: string
         items:
           type: array
-          nullable: true
         password:
           type: string
         raw:
           type: string
-          nullable: true
         serial:
           type: string
         status:
