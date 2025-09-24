@@ -1,5 +1,6 @@
 cursor:
   name: cursor
+  in: query
   schema:
     type: string
     example: 0
@@ -7,6 +8,7 @@ cursor:
 
 limit:
   name: limit
+  in: query
   schema:
     type: integer
     minimum: 1
@@ -26,6 +28,7 @@ limit:
 
 sort:
   name: sort
+  in: query
   required: true
   schema:
     type: string
@@ -33,6 +36,7 @@ sort:
 
 fields:
   name: fields
+  in: query
   required: true
   schema:
     type: array
@@ -54,6 +58,7 @@ search_query:
 
 local:
   name: local
+  in: query
   required: true
   schema:
     type: integer
