@@ -45,20 +45,24 @@ sub acl_chewer {
         #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
         next if (defined($acl->{'tcp_flags'}));
         $acl->{'protocol'} =~ s/\(\d*\)//;
-	$new_acl->{'protocol'} = $acl->{'protocol'};
+        $new_acl->{'protocol'} = $acl->{'protocol'};
         my $dest;
         my $dest_port;
         if (defined($acl->{'destination'}->{'port'})) {
             $new_acl->{'dst_port'} = $acl->{'destination'}->{'port'};
             if ($new_acl->{'dst_port'} =~ /range\s+(.*)/) {
+                $new_acl->{'range'} = "true";
                 $new_acl->{'dst_port'} = $1;
                 $new_acl->{'dst_port'} =~ s/\s/-/;
+                ($new_acl->{'dst_port'}, $new_acl->{'dst_port2'}) = split(/-/, $new_acl->{'dst_port'});
             } else {
+                $new_acl->{'range'} = "false";
                 $new_acl->{'dst_port'} =~ s/\w+\s+//;
             }
         }
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $new_acl->{'dst'} = "any";
+           $new_acl->{'dst'} = "any";
+           $new_acl->{'dst_object'} = "dany";
         } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
             if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
                 $new_acl->{'dst_network'} = $acl->{'destination'}->{'ipv4_addr'};
@@ -87,7 +91,7 @@ sub acl_chewer {
             $new_acl->{'dir_prefix'} = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
             $new_acl->{'src'}    = ($self->usePushACLs) ? $new_acl->{'src'} : "any";
             $new_acl->{'dst_port'} = defined($new_acl->{'dst_port'}) ? $new_acl->{'dst_port'} : '';
-	    $new_acl->{'action'} = $acl->{'action'};
+            $new_acl->{'action'} = $acl->{'action'};
             push @acl_chewed , $new_acl;
         }
         $i++;
