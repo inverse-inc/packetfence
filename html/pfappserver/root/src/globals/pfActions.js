@@ -186,7 +186,7 @@ const pfActionSchema = yup.object({
   value: yup.string()
     .when('type', type => {
       if (!type) {
-        return yup.string().nullable().required(i18n.t('Value required.'))
+        return yup.mixed()
       }
       switch (true) {
         case type === 'set_role':
