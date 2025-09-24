@@ -230,8 +230,8 @@ minimum=1
 maximum=5
 required=yes
 
-[survey1 field prefered_sandwich]
-label=What is your prefered sandwich?
+[survey1 field preferred_sandwich]
+label=What is your preferred sandwich?
 type=Select
 choices= <<EOT
 Classic|Classic
@@ -303,7 +303,7 @@ The data collected from the example survey is stored in the `survey_survey1` dat
 [survey1]
 description=My first survey report
 base_table=survey_survey1
-columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as "Prefered Sandwich", gender as "Gender"
+columns=firstname as "Firstname", lastname as "Lastname", preferred_sandwich as "Preferred Sandwich", gender as "Gender"
 ----
 
 NOTE: Once saved, reload the configuration to apply the changes with [command]`/usr/local/pf/bin/pfcmd configreload hard`

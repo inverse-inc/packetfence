@@ -510,7 +510,7 @@ func (I *Interface) handleDiscover(ctx context.Context, p dhcp.Packet, handler D
 	log.LoggerWContext(ctx).Debug("Search in the cache if an IP has already been assigned" + " mac=" + clientMac)
 	if x, found := handler.hwcache.Get(answer.MAC.String()); found {
 		log.LoggerWContext(ctx).Debug("Found in the cache that a IP has already been assigned" + " mac=" + clientMac)
-		// Test if we find the the mac address at the index
+		// Test if we find the mac address at the index
 		_, returnedMac, err := handler.available.GetMACIndex(uint64(x.(int)))
 		if err != nil {
 			log.LoggerWContext(ctx).Error(err.Error() + " mac=" + clientMac)

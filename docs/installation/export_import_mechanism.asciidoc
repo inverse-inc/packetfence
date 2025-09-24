@@ -97,7 +97,7 @@ configuration in your export, run:
 ----
 
 The command above will create your export archive in [filename]`/tmp/export.tgz`. You will
-now need to copy this file to your new server using SCP or your prefered
+now need to copy this file to your new server using SCP or your preferred
 mechanism.
 
 === Import on new installation

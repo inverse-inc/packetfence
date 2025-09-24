@@ -41,7 +41,7 @@ These instructions have been adapted from https://developers.google.com/identity
 * Scroll down to the Domain wide delegation pane, select Manage Domain Wide Delegation.
 * Click Add new.
 * In the Client ID field, enter the newly created service account's Client ID.
-* In the OAuth scopes (comma-delimited) field, enter the the scope https://www.googleapis.com/auth/admin.directory.device.chromeos.readonly
+* In the OAuth scopes (comma-delimited) field, enter the scope https://www.googleapis.com/auth/admin.directory.device.chromeos.readonly
 * Click Authorize.
 
 ==== Create Role

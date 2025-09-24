@@ -5146,7 +5146,7 @@ Date:   Wed Sep 18 15:50:10 2024 -0400
     
     * Allow to create certificate with the same CN in the DB
     
-    * Added option to create multiples certs with teh same CN in the profile.
+    * Added option to create multiples certs with the same CN in the profile.
     
     * AllowDuplicatedCN in DB
     

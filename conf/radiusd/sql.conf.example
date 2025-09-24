@@ -33,7 +33,7 @@ sql {
 
 #
 #	Several drivers accept specific options, to set them, a
-#	config section with the the name as the driver should be added
+#	config section with the name as the driver should be added
 #	to the sql instance.
 #
 #	Driver specific options are:

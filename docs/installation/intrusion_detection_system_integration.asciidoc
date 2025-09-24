@@ -41,7 +41,7 @@ Defining Actions
 An action have two parts
 
 - method - The name of the action you want to take
-- parameter list - The list of parameters you want to provide to the method. Each parameter is seperated by a comma. The parameters that are to be replaced by a named capture.
+- parameter list - The list of parameters you want to provide to the method. Each parameter is separated by a comma. The parameters that are to be replaced by a named capture.
 
 Example Action
 

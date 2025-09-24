@@ -32,7 +32,7 @@ cache {
 
 	#
 	#  Some drivers accept specific options, to set them a
-	#  config section with the the name as the driver should be added
+	#  config section with the name as the driver should be added
 	#  to the cache instance.
 	#
 	#  Driver specific options are:

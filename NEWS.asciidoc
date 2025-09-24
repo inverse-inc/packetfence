@@ -758,7 +758,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Parking security event can now be triggered without limitation
 * Added a way to change the SQL table used by pfconfig
 * Showing the configurator is now configurable (#5121)
-* Node deletion in consistent between the the API and pf::node::node_delete (#5088)
+* Node deletion in consistent between the API and pf::node::node_delete (#5088)
 * Allow VLAN number greater than 1023 for floating devices
 * Improved captive-portal health checks in monit (#5185)
 * Added RADIUS disconnect for wired port on Aruba AP (#5016)
@@ -2382,7 +2382,7 @@ This release is a bug fix only. No new features were introduced.
 * No longer need to repopulate password when updating a LDAP authentication source
 * Added check for profile directory existance
 * Added the ability to login from the status page
-* New pf::MAC class to manage MAC adresses.
+* New pf::MAC class to manage MAC addresses.
 
 === Bug Fixes
 

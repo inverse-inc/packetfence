@@ -516,7 +516,7 @@ PAP and User-Password
 
 From version 3.0 onwards the server no longer supports authenticating
 against a cleartext password in the 'User-Password' attribute. Any
-occurences of this (for instance, in the users file) should now be changed
+occurrences of this (for instance, in the users file) should now be changed
 to 'Cleartext-Password' instead.
 
 e.g. change entries like this::

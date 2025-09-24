@@ -84,7 +84,7 @@ Add the RADIUS parameters created before:
 image::pfaerohive05.png[scaledwidth="100%",alt="AAA Radius config"]
 
 [options="compact"]
-* from _Add a New RADIUS Server_, in _IP Adresse/Domain Name_, put the PacketFence Server IP
+* from _Add a New RADIUS Server_, in _IP Address/Domain Name_, put the PacketFence Server IP
 * hive the _Shared Secret_ (*useStrongerSecret*) and _Confirm_ it
 * and Click on *Apply*
 
