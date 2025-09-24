@@ -75,10 +75,8 @@ if check_uid_gid "fingerbank" $FB_ID; then
 fi
 
 if [ "$PF_NEEDED" = true ] || [ "$FB_NEEDED" = true ]; then
-    if [[ " $@ " =~ " -y " ]]; then
-        USE_F_MODE=true
-    else
-        echo "No -y argument provided. The -y argument will bypass that question."
+    if [[ " $@ " =~ " -w " ]]; then
+        echo "No -w argument provided. The -w argument will wait user's imput."
         echo -e "Script steps will be:\n\t1) stopping services\n\t2) apply new uid and gid\n\t3) restart services."
         read -p "Do you want to continue the script? (yes/no):" user_response
 
@@ -91,6 +89,9 @@ if [ "$PF_NEEDED" = true ] || [ "$FB_NEEDED" = true ]; then
                 exit 0
                 ;;
         esac
+    else
+        echo "No -w (wait) argument provided. Automated script."
+        USE_F_MODE=true
     fi
 fi
 
