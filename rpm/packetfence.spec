@@ -809,8 +809,8 @@ if /usr/local/pf/containers/manage-images.sh; then
 
     # Empty root password in order to allow other user to connect as root.
     /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
-    /usr/bin/mysql -uroot -e "REVOKE privileges ON `test`.* FROM \"PUBLIC\";"
-    /usr/bin/mysql -uroot -e "REVOKE privileges ON `test_%`.* FROM \"PUBLIC\";"
+    /usr/bin/mysql -uroot -e "REVOKE ALL PRIVILEGES ON \`test\`.* FROM \"PUBLIC\";" &> /dev/null
+    /usr/bin/mysql -uroot -e "REVOKE ALL PRIVILEGES ON \`test_%\`.* FROM \"PUBLIC\";" &> /dev/null
     /usr/bin/mysql -uroot -e "FLUSH PRIVILEGES;"
 
     echo Installation complete
