@@ -25,9 +25,25 @@ merge_yaml_into_paths($spec->{paths}, "static/paths");
 my $components = hash_yaml_dir("components");
 my $components_deprecated = hash_yaml_dir("deprecated/components");
 my $components_static = hash_yaml_dir("static/components");
+
+# Check for duplicate schema names before merging
+my %all_schemas;
+for my $comp_set ($components, $components_deprecated, $components_static) {
+    if (exists $comp_set->{schemas}) {
+        for my $name (keys %{$comp_set->{schemas}}) {
+            if (exists $all_schemas{$name}) {
+                warn "WARNING: Duplicate schema '$name' found in multiple component sets\n";
+            }
+            $all_schemas{$name} = 1;
+        }
+    }
+}
+
 $spec->{components} = merge($components, merge($components_deprecated, $components_static));
 
 insert_search_parameters($spec);
+fix_discriminator_mappings($spec);
+add_go_names_for_duplicates($spec);
 
 # insert service paramters
 $spec->{components}->{parameters}->{service} = {
@@ -78,6 +94,83 @@ sub insert_search_parameters {
               { '$ref' => "#/components/parameters/search_query" },
               { '$ref' => "#/components/parameters/fields" },
               { '$ref' => "#/components/parameters/sort" };
+        }
+    }
+}
+
+sub fix_discriminator_mappings {
+    my ($yaml_spec) = @_;
+    # Fix schemas with discriminators that have empty mappings
+    if (exists $yaml_spec->{components} && exists $yaml_spec->{components}->{schemas}) {
+        while (my ($name, $schema) = each %{$yaml_spec->{components}->{schemas}}) {
+            if (exists $schema->{discriminator}) {
+                my $mapping = $schema->{discriminator}->{mapping};
+                # Remove discriminator if mapping is empty or missing
+                if (!defined $mapping || ref($mapping) ne 'HASH' || !keys %$mapping) {
+                    # Check if all oneOf entries are inline objects (no $ref)
+                    my $all_inline = 1;
+                    if (exists $schema->{oneOf} && ref($schema->{oneOf}) eq 'ARRAY') {
+                        for my $item (@{$schema->{oneOf}}) {
+                            if (exists $item->{'$ref'}) {
+                                $all_inline = 0;
+                                last;
+                            }
+                        }
+                    }
+                    # If all are inline objects, remove the discriminator completely
+                    if ($all_inline) {
+                        delete $schema->{discriminator};
+                    }
+                }
+            }
+        }
+    }
+}
+
+sub add_go_names_for_duplicates {
+    my ($yaml_spec) = @_;
+    # Add x-go-name for schemas that oapi-codegen thinks are duplicates
+    # This is a workaround for oapi-codegen limitations
+    
+    # Special schema renames (not part of the duplicate pattern)
+    my %special_schema_renames = (
+        'ConfigCertificateLetsEncrypt' => 'ConfigCertificateLetsEncryptSchema',
+        'Service' => 'ServiceSchema',
+    );
+    
+    if (exists $yaml_spec->{components} && exists $yaml_spec->{components}->{schemas}) {
+        while (my ($name, $replacement) = each %special_schema_renames) {
+            if (exists $yaml_spec->{components}->{schemas}->{$name}) {
+                $yaml_spec->{components}->{schemas}->{$name}->{'x-go-name'} = $replacement;
+            }
+        }
+    }
+    
+    # Automatically handle duplicates across component namespaces
+    # Find all names that appear in multiple sections
+    my %name_appearances;
+    for my $section ('requestBodies', 'responses', 'schemas') {
+        if (exists $yaml_spec->{components} && exists $yaml_spec->{components}->{$section}) {
+            for my $name (keys %{$yaml_spec->{components}->{$section}}) {
+                $name_appearances{$name}{$section} = 1;
+            }
+        }
+    }
+    
+    # Apply x-go-name to duplicates
+    for my $name (keys %name_appearances) {
+        my @sections = keys %{$name_appearances{$name}};
+        if (@sections > 1) {
+            # This name appears in multiple sections, apply x-go-name to disambiguate
+            if (exists $name_appearances{$name}{'schemas'}) {
+                $yaml_spec->{components}->{schemas}->{$name}->{'x-go-name'} = $name . 'Schema';
+            }
+            if (exists $name_appearances{$name}{'requestBodies'}) {
+                $yaml_spec->{components}->{requestBodies}->{$name}->{'x-go-name'} = $name . 'Request';
+            }
+            if (exists $name_appearances{$name}{'responses'}) {
+                $yaml_spec->{components}->{responses}->{$name}->{'x-go-name'} = $name . 'ResponseDef';
+            }
         }
     }
 }

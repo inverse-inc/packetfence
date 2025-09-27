@@ -213,7 +213,7 @@ sub dalToOpFields {
     return {
         name => 'fields',
         required => JSON::MaybeXS::true,
-        in => 'path',
+        in => 'query',
         required => JSON::MaybeXS::true,
         schema => {
             type => 'array',
@@ -235,7 +235,7 @@ sub dalToOpSort {
     my $pk = $self->dalToPK($dal);
     return {
         name => 'sort',
-        in => 'path',
+        in => 'query',
         required => JSON::MaybeXS::true,
         schema => {
             type => 'array',
