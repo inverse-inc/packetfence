@@ -14,7 +14,10 @@ Moreover, an "admin" user is now automatically created. The default password
 is also "admin". Finally, a new table has been added for saved searches in the
 new Web administrative interface.
 
-  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-3.6.1-4.0.0.sql`
+[source,bash]
+----
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-3.6.1-4.0.0.sql
+----
 
 ==== Other important changes
 
@@ -40,23 +43,23 @@ them accordingly.
 Other key changes were done, such as:
 
 [options="compact"]
-* moved remediation templates in `html/captive-portal/templates/violations` and
+ * moved remediation templates in `html/captive-portal/templates/violations` and
   converted them to Template Toolkit
-* dropped guests_admin_registration.category
-* dropped guests_self_registration.access_duration
-* dropped guests_self_registration.category
-* dropped guests_self_registration.sponsor_authentication
-* dropped guests_self_registration.sponsors_only_from_localdomain
-* dropped ports.listeners
-* dropped registration.auth and registration.default_auth
-* dropped registration.maxnodes
-* dropped registration.expire_* and registration.skip_*
-* dropped trapping.blacklist
-* dropped support for resetVlanAllPort in `bin/pfcmd_vlan`
-* dropped `sbin/pfredirect` binary
-* splitted the httpd services in three: httpd.admin, httpd.portal and
+ * dropped guests_admin_registration.category
+ * dropped guests_self_registration.access_duration
+ * dropped guests_self_registration.category
+ * dropped guests_self_registration.sponsor_authentication
+ * dropped guests_self_registration.sponsors_only_from_localdomain
+ * dropped ports.listeners
+ * dropped registration.auth and registration.default_auth
+ * dropped registration.maxnodes
+ * dropped registration.expire_* and registration.skip_*
+ * dropped trapping.blacklist
+ * dropped support for resetVlanAllPort in `bin/pfcmd_vlan`
+ * dropped `sbin/pfredirect` binary
+ * splitted the httpd services in three: httpd.admin, httpd.portal and
   httpd.webservices
-* domain-name is no longer required in each section of networks.conf
+ * domain-name is no longer required in each section of networks.conf
 
 For all parameters related to authentication (categories, access duration,
 sponsor authentication, etc.),
@@ -65,13 +68,10 @@ you must now set proper actions in the `conf/authentication.conf` file.
 Finally, the `pf` must be sudoer access to the `/sbin/ip` (and others) binary.
 As root, please do:
 
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip,
-  /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee,
-  [filename]`/usr/local/pf/sbin/pfdhcplistener`, /bin/kill, /usr/sbin/dhcpd,
-  /usr/sbin/radiusd" >> /etc/sudoers
-
-
-
+[source,bash]
+----
+echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd" >> /etc/sudoers
+----
 
 === Upgrading from a version prior to 4.0.1
 
@@ -1117,11 +1117,10 @@ conf/httpd.conf.d/httpd.admin.tt.
 If you customized that file in any way, you will have to merge the changes.
 
 Restart the httpd.admin process once that is done by running 
-  [filename]`/usr/local/pf/bin/pfcmd` service httpd.admin restart
+`/usr/local/pf/bin/pfcmd service httpd.admin restart`
 
 Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
-match the new
-release number (PacketFence 6.2.1).
+match the new release number (PacketFence 6.2.1).
 
 === Upgrading from a version prior to 6.3
 
@@ -1133,11 +1132,13 @@ schema to 6.3.
 
 To upgrade the database schema, run the following command: 
 
-  mysql -u root -p pf -v < [filename]`/usr/local/pf/db/upgrade-6.2-6.3.0.sql`
+[source.bash]
+----
+  mysql -u root -p pf -v < `/usr/local/pf/db/upgrade-6.2-6.3.0.sql
+----
 
 Once completed, update the file [filename]`/usr/local/pf/conf/currently-at` to
-match the new
-release number (PacketFence 6.3).
+match the new release number (PacketFence 6.3).
 
 ==== RADIUS configuration file changes
 
@@ -1168,6 +1169,7 @@ migrate the configuration. This will output the migrated configuration in
 their content is fine. Once that is done, copy the files over the original ones
 using :
 
+[source,bash]
 ----
 # cp /usr/local/pf/conf/provisioning.conf.new /usr/local/pf/conf/provisioning.conf
 # cp /usr/local/pf/conf/scan.conf.new /usr/local/pf/conf/scan.conf
@@ -1183,6 +1185,7 @@ uses.
 In order to do so, you need to collect the database credentials from the
 PacketFence configuration:
 
+[source, bash]
 ----
 # /usr/local/pf/bin/pfcmd pfconfig show resource::Database
 $VAR1 = {
@@ -1197,6 +1200,7 @@ $VAR1 = {
 Now, you need to create the database and assign the proper rights to the user by
 executing the following commands:
 
+[srouce,bash]
 ----
 # mysql -u root -p -e "CREATE DATABASE pf_fingerbank"
 # mysql -u root -p -e "GRANT ALL PRIVILEGES ON pf_fingerbank.* TO 'pf'@'%' IDENTIFIED BY 'myPassword'"
@@ -3232,8 +3236,7 @@ You do not need to follow the upgrade procedure when upgrading these nodes. You 
 
 [source,bash]
 ----
-/usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet
---api-password=anotherMoreSecurePassword
+/usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=anotherMoreSecurePassword
 /usr/local/pf/bin/pfcmd configreload hard
 ----
 
