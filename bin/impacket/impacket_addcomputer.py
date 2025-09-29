@@ -73,6 +73,7 @@ class ADDCOMPUTER:
         self.__clientKey = cmdLineOptions.client_key
         self.__caCert = cmdLineOptions.ca_cert
         self.__channelBinding = cmdLineOptions.channel_binding
+        self.__startTLS = cmdLineOptions.start_tls
 
         if cmdLineOptions.start_tls:
             self.__autoBind = ldap3.AUTO_BIND_TLS_BEFORE_BIND
