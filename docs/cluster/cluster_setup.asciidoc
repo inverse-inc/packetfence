@@ -507,8 +507,7 @@ re-enabled and configuration synced across cluster:
 
 [source,bash]
 ----
-curl -X PATCH -d '{"galera-autofix":"enabled"}'
-localhost:22224/api/v1/config/base/services ; echo
+curl -X PATCH -d '{"galera-autofix":"enabled"}' localhost:22224/api/v1/config/base/services ; echo
 ----
 
 ==== Wrapping up
