@@ -131,8 +131,7 @@ following commands as root:
 ----
 apt-get update
 apt install gnupg sudo curl
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o
-/etc/apt/keyrings/packetfence.gpg
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 ----
 
 Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-remote.list`:
@@ -140,9 +139,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-r
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg]
-https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
-bookworm" > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 ----
 
@@ -189,8 +186,7 @@ to run following commands:
 ----
 apt-get update
 apt install gnupg sudo curl
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o
-/etc/apt/keyrings/packetfence.gpg
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 ----
 
 Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-remote.list`:
@@ -198,9 +194,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-r
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg]
-https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
-bookworm" > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 ----
 
@@ -230,8 +224,7 @@ In order to upgrade PacketFence Connector, you need to run following commands:
 ----
 apt-get update
 apt install gnupg sudo curl
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o
-/etc/apt/keyrings/packetfence.gpg
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 ----
 
 Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-remote.list`:
@@ -239,9 +232,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence-pfconnector-r
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg]
-https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
-bookworm" > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 ----
 

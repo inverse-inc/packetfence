@@ -222,13 +222,10 @@ development packages. Reboot if kernel was updated.
 ----
 # Install repository tools and GPG key
 apt install gnupg sudo curl
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o
-/etc/apt/keyrings/packetfence.gpg
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 
 # Add PacketFence repository (Debian 12 bookworm)
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg]
-https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm
-bookworm" > /etc/apt/sources.list.d/packetfence.list
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
 
 # Install PacketFence with all dependencies  
 # Includes: MariaDB, FreeRADIUS, DHCP server

@@ -10,13 +10,13 @@ Authorization (CoA) and SNMP functions don't work properly.
 *Symptoms:*
 
 [options="compact"]
-* Initial 802.1X authentication succeeds
-* User gets network access with initial role/VLAN
-* Role changes in PacketFence don't reflect on switch ports
-* SNMP queries to switches timeout or fail
-* Port status changes don't trigger in PacketFence
-* Manual disconnection/reconnection required for role changes
-* PacketFence logs show CoA failures or timeouts
+ * Initial 802.1X authentication succeeds
+ * User gets network access with initial role/VLAN
+ * Role changes in PacketFence don't reflect on switch ports
+ * SNMP queries to switches timeout or fail
+ * Port status changes don't trigger in PacketFence
+ * Manual disconnection/reconnection required for role changes
+ * PacketFence logs show CoA failures or timeouts
 
 *Solution:*
 
@@ -24,24 +24,26 @@ Authorization (CoA) and SNMP functions don't work properly.
 
 *What Works:*
 [options="compact"]
-* Initial 802.1X authentication
-* User role assignment
-* Basic RADIUS communication
+ * Initial 802.1X authentication
+ * User role assignment
+ * Basic RADIUS communication
 
 *What Doesn't Work:*
 [options="compact"]
-* CoA (Change of Authorization) for dynamic role changes
-* SNMP integration for port management
-* Automatic VLAN switching
+ * CoA (Change of Authorization) for dynamic role changes
+ * SNMP integration for port management
+ * Automatic VLAN switching
 
 *Workarounds:*
 
 [options="compact"]
-. *Manual Port Resets:* Physical disconnection/reconnection required
-. *Use AOS-S Switches:* For full PacketFence compatibility
-. *Hybrid Approach:* CX for core, AOS-S for access where CoA is needed
+ . *Manual Port Resets:* Physical disconnection/reconnection required
+ . *Use AOS-S Switches:* For full PacketFence compatibility
+ . *Hybrid Approach:* CX for core, AOS-S for access where CoA is needed
 
 *Alternative Solutions:*
+
+[source,bash]
 ----
 # Force reauthentication via switch CLI
 switch# aaa authentication port-access interface 1/1/1 client-limit 1
@@ -63,33 +65,34 @@ Cisco WLC doesn't apply the correct guest role or VLAN.
 *Symptoms:*
 
 [options="compact"]
-* Social media authentication completes successfully
-* Guest user receives confirmation but remains in restricted VLAN
-* WLC shows client as authenticated but no role change
-* Client cannot access internet despite successful portal completion
-* PacketFence shows user as registered with correct role
-* WLC client detail shows incorrect or no ACL assignment
-* CoA packets may not be reaching WLC or being processed
+ * Social media authentication completes successfully
+ * Guest user receives confirmation but remains in restricted VLAN
+ * WLC shows client as authenticated but no role change
+ * Client cannot access internet despite successful portal completion
+ * PacketFence shows user as registered with correct role
+ * WLC client detail shows incorrect or no ACL assignment
+ * CoA packets may not be reaching WLC or being processed
 
 *Solution:*
 
 *WLC Configuration Requirements:*
 
 [options="compact"]
-. *Enable CoA on RADIUS Server:*
+ . *Enable CoA on RADIUS Server:*
    - WLC → Security → AAA → RADIUS → Authentication
    - Select PacketFence RADIUS server
    - Check "Support for CoA" checkbox
 
 [options="compact"]
-. *RADIUS Server Configuration:*
+ . *RADIUS Server Configuration:*
    - Verify RADIUS shared secret matches
    - Ensure CoA port 3799 is accessible
    - Check RADIUS server IP is correctly configured
 
 [options="compact"]
-. *ACL and VLAN Verification:*
+ . *ACL and VLAN Verification:*
 +
+[source,bash]
 ----
 # Check ACL assignment in WLC
 (Cisco Controller) > show client detail <client-mac>
@@ -99,6 +102,8 @@ Cisco WLC doesn't apply the correct guest role or VLAN.
 ----
 
 *PacketFence Side Verification:*
+
+[source,bash]
 ----
 # Check role assignment in logs
 tail -f /usr/local/pf/logs/packetfence.log | grep -i "role"
@@ -128,24 +133,27 @@ ALIVE and UNREACHABLE, particularly with PacketFence v14.1 clusters.
 *Immediate Troubleshooting:*
 
 [options="compact"]
-. *Check Cluster Node Health:*
+ . *Check Cluster Node Health:*
 +
+[source,bash]
 ----
 /usr/local/pf/bin/cluster/node
 # Verify all nodes show "alive" status
 ----
 
 [options="compact"]
-. *RADIUS Service Status:*
+ . *RADIUS Service Status:*
 +
+[source,bash]
 ----
 # On each cluster node:
 /usr/local/pf/bin/pfcmd service radiusd status
 ----
 
 [options="compact"]
-. *Network Connectivity:*
+ . *Network Connectivity:*
 +
+[source,bash]
 ----
 # From switch to each PacketFence node:
 ping packetfence-node1.domain.com
@@ -158,11 +166,12 @@ nc -zv packetfence-node1.domain.com 1812
 *Long-term Solutions:*
 
 [options="compact"]
-* *Load Balancer Configuration:* Consider RADIUS load balancer between switches and cluster
-* *RADIUS Timeout Tuning:* Increase timeout values on switches
-* *Cluster Optimization:* Review cluster resource allocation
+ * *Load Balancer Configuration:* Consider RADIUS load balancer between switches and cluster
+ * *RADIUS Timeout Tuning:* Increase timeout values on switches
+ * *Cluster Optimization:* Review cluster resource allocation
 
 *Switch Configuration Check:*
+[source,bash]
 ----
 # Verify RADIUS configuration on Juniper switch
 user@switch> show configuration system radius-server
@@ -189,21 +198,21 @@ existing PacketFence network device templates and CoA functionality.
 
 *UniFi Controller v9.0+ Changes:*
 [options="compact"]
-* API modifications affecting device management
-* CoA functionality restrictions
-* Authentication workflow changes
+ * API modifications affecting device management
+ * CoA functionality restrictions
+ * Authentication workflow changes
 
 *Current Workarounds:*
 
 [options="compact"]
-. *Template Updates:* Check for updated PacketFence device templates
-. *API Compatibility:* Review authentication source configuration
-. *Alternative Methods:* Consider WebAuth through UniFi external portal
+ . *Template Updates:* Check for updated PacketFence device templates
+ . *API Compatibility:* Review authentication source configuration
+ . *Alternative Methods:* Consider WebAuth through UniFi external portal
 
 *Multi-Site Configuration:*
 
 For deployments with multiple UniFi sites and offsite PacketFence:
-
+[source,bash]
 ----
 # Network routing requirements:
 # 1. RADIUS traffic: Sites → PacketFence (ports 1812/1813)
@@ -216,6 +225,7 @@ For deployments with multiple UniFi sites and offsite PacketFence:
 ----
 
 *Recommended Testing:*
+[source,bash]
 ----
 # Test RADIUS authentication per site:
 radtest username password unifi-site-ip:1812 0 shared-secret
@@ -243,18 +253,20 @@ radtest username password unifi-site-ip:1812 0 shared-secret
 *Configuration Verification:*
 
 [options="compact"]
-. *SmartZone API Settings:*
+ . *SmartZone API Settings:*
    - Verify API credentials in PacketFence
    - Check API URL format and accessibility
    - Ensure proper authentication token handling
 
 [options="compact"]
-. *PacketFence Configuration:*
+ . *PacketFence Configuration:*
    - Review Ruckus device template in Network Devices
    - Verify authentication keys match SmartZone configuration
    - Check accounting configuration for proper key specification
 
 *Debugging Steps:*
+
+[source,bash]
 ----
 # Check PacketFence logs during deauth attempt:
 tail -f /usr/local/pf/logs/packetfence.log | grep -i ruckus
@@ -282,12 +294,12 @@ If API deauth fails, consider portal-based or timed session approach.
 *Symptoms:*
 
 [options="compact"]
-* SSL certificate errors on guest WiFi
-* Captive portal webpage won't load despite valid certificates
-* Clicking "connect" opens multiple browser tabs
-* Desktop devices have more issues than mobile devices
-* Mobile devices work after multiple connection attempts
-* HTTPS redirection loop or failure
+ * SSL certificate errors on guest WiFi
+ * Captive portal webpage won't load despite valid certificates
+ * Clicking "connect" opens multiple browser tabs
+ * Desktop devices have more issues than mobile devices
+ * Mobile devices work after multiple connection attempts
+ * HTTPS redirection loop or failure
 
 *Solution:*
 
@@ -295,6 +307,7 @@ If API deauth fails, consider portal-based or timed session approach.
 
 Check UniFi controller portal redirection configuration:
 
+[source,bash]
 ----
 # In UniFi controller web interface:
 # Settings → Guest Control → Guest Policies
@@ -309,6 +322,7 @@ Check UniFi controller portal redirection configuration:
 
 Ensure UniFi controller can reach PacketFence portal:
 
+[source,bash]
 ----
 # From UniFi controller server:
 curl -I http://packetfence-portal-ip:80
@@ -324,6 +338,7 @@ traceroute packetfence-portal-ip
 
 Recreate switch configuration after controller migration:
 
+[source,bash]
 ----
 # In PacketFence admin interface:
 # Configuration → Network Configuration → Network Devices
@@ -336,6 +351,7 @@ Recreate switch configuration after controller migration:
 
 Verify SSL certificate chain for captive portal:
 
+[source,bash]
 ----
 # Test SSL certificate:
 openssl s_client -connect packetfence-portal-ip:443 -servername portal-hostname
@@ -362,58 +378,55 @@ openssl x509 -in /usr/local/pf/conf/ssl/server.pem -text -noout
 *Symptoms:*
 
 [options="compact"]
-* CoA functionality previously working but stops after UniFi controller update
-* CoA options no longer available for non-Enterprise wireless security types
-* MAC authentication with RADIUS-assigned VLANs fails to change user VLAN
-* BYOD networks with VLAN assignment based on group membership not functioning
-* Manual CoA configuration required but not sustainable for production
+ * CoA functionality previously working but stops after UniFi controller update
+ * CoA options no longer available for non-Enterprise wireless security types
+ * MAC authentication with RADIUS-assigned VLANs fails to change user VLAN
+ * BYOD networks with VLAN assignment based on group membership not functioning
+ * Manual CoA configuration required but not sustainable for production
 
 *Understanding the Limitation:*
 
 *Controller Behavior Change:*
 
 UniFi controller software versions now restrict CoA functionality:
-- CoA may only be available for WPA2 Enterprise configurations
-- Non-Enterprise security types lose CoA capability after controller updates
-- This affects MAC authentication and RADIUS-assigned VLAN scenarios
+[options="compact"]
+ - CoA may only be available for WPA2 Enterprise configurations
+ - Non-Enterprise security types lose CoA capability after controller updates
+ - This affects MAC authentication and RADIUS-assigned VLAN scenarios
 
 *Affected Network Configurations:*
-- MAC authentication with RADIUS-assigned VLANs
-- BYOD networks using Google LDAP registration
-- VLAN assignment based on user group membership
-- Mixed security environments requiring dynamic VLAN assignment
+[options="compact"]
+ - MAC authentication with RADIUS-assigned VLANs
+ - BYOD networks using Google LDAP registration
+ - VLAN assignment based on user group membership
+ - Mixed security environments requiring dynamic VLAN assignment
 
 *Workarounds and Alternatives:*
 
 *Option 1: Upgrade to WPA2 Enterprise*
-----
-# Configure UniFi network for WPA2 Enterprise
-# Enable RADIUS authentication pointing to PacketFence
-# Verify CoA functionality is restored with Enterprise security
-----
+[options="compact"]
+ * Configure UniFi network for WPA2 Enterprise
+ * Enable RADIUS authentication pointing to PacketFence
+ * Verify CoA functionality is restored with Enterprise security
 
 *Option 2: Manual CoA Configuration*
-----
-# Note: Manual configuration in text files is possible but not recommended
-# for production environments due to maintenance complexity
-# Consult UniFi documentation for controller-specific CoA settings
-----
+[options="compact"]
+ * Note: Manual configuration in text files is possible but not recommended
+ * for production environments due to maintenance complexity
+ * Consult UniFi documentation for controller-specific CoA settings
 
 *Option 3: Alternative VLAN Assignment Methods*
-----
-# Consider switch-based VLAN assignment if UniFi CoA is unavailable
-# Implement static VLAN assignments where dynamic assignment was required
-# Review network architecture to minimize CoA dependency
-----
+[options="compact"]
+ * Consider switch-based VLAN assignment if UniFi CoA is unavailable
+ * Implement static VLAN assignments where dynamic assignment was required
+ * Review network architecture to minimize CoA dependency
 
 *Verification Steps:*
-
-----
-# Check UniFi controller version and CoA availability
-# Test RADIUS authentication with VLAN assignment
-# Monitor RADIUS logs for successful/failed VLAN attribute processing
-# Verify switch configuration supports alternative VLAN assignment methods
-----
+[options="compact"]
+ * Check UniFi controller version and CoA availability
+ * Test RADIUS authentication with VLAN assignment
+ * Monitor RADIUS logs for successful/failed VLAN attribute processing
+ *  Verify switch configuration supports alternative VLAN assignment methods
 
 *Important Notes:*
 
@@ -436,11 +449,11 @@ CoA functionality should not be dependent on wireless security type from a techn
 *Symptoms:*
 
 [options="compact"]
-* Uncertainty about whether to use RADIUS or port security for ProCurve integration
-* Port blocking and unblocking not working as expected
-* Node registration and role assignment inconsistencies
-* Switch authentication method not properly configured
-* RADIUS communication issues between ProCurve and PacketFence
+ * Uncertainty about whether to use RADIUS or port security for ProCurve integration
+ * Port blocking and unblocking not working as expected
+ * Node registration and role assignment inconsistencies
+ * Switch authentication method not properly configured
+ * RADIUS communication issues between ProCurve and PacketFence
 
 *Solution:*
 
@@ -448,21 +461,21 @@ CoA functionality should not be dependent on wireless security type from a techn
 
 Prefer RADIUS over port security when switch supports it:
 
-----
-# Recommended approach for ProCurve switches:
-# Use RADIUS authentication instead of port security
-# RADIUS provides better integration and role management
+[options="compact"]
+ * Recommended approach for ProCurve switches:
+ * Use RADIUS authentication instead of port security
+ * RADIUS provides better integration and role management
 
-# Verify switch RADIUS capabilities:
-# Check ProCurve model documentation for RADIUS support
-# Confirm 802.1X authentication features available
-----
+[options="compact"]
+ * Verify switch RADIUS capabilities:
+ * Check ProCurve model documentation for RADIUS support
+ * Confirm 802.1X authentication features available
 
 *Step 2: Basic Switch Configuration Requirements*
 
 Configure essential ProCurve settings for PacketFence integration:
 
-----
+[options="compact"]
 # Required switch configuration steps:
 
 # 1. Disable Link Up/Down Traps

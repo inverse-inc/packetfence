@@ -29,9 +29,9 @@ there is a limitation with the DAE server.
 ==== Assumptions
 
 [options="compact"]
-* You have a configured PacketFence environment with working test equipment
-* The management IP of PacketFence will be 192.168.1.10 and has s3cr3t as its RADIUS shared secret
-* You have an access point with OpenWrt Chaos Calmer 15.05 installed
+ * You have a configured PacketFence environment with working test equipment
+ * The management IP of PacketFence will be 192.168.1.10 and has s3cr3t as its RADIUS shared secret
+ * You have an access point with OpenWrt Chaos Calmer 15.05 installed
 
 
 ==== Quick installation
@@ -40,15 +40,15 @@ there is a limitation with the DAE server.
 
 You can install the packages from the web interface of OpenWrt.
 
-Go to *System -> Software*
+Go to _System -> Software_
 
 First update the repos by clicking the button Update lists if it's not up to
 date.
 
 Then you will have to install the packages of Hostapd and wpad.
 
-Go to the tab 'Available packages' and then search for the package hostapd into
-the 'Filter:' field.
+Go to the tab `Available packages` and then search for the package hostapd into
+the `Filter:` field.
 
 Click Install the hostapd-common package, the actual version is 2015-03-25-1.
 
@@ -61,6 +61,7 @@ installed by default.
 
 Connect using SSH to the AP and create the file : /etc/config/hostapd.vlan
 
+[source,bash]
 ----
 *           wlan0.#
 ----
@@ -72,6 +73,7 @@ previously installed.
 
 Connect using SSH to the AP and run these commands:
 
+[source,bash]
 ----
 cd /lib/netifd/
 mv hostapd.sh hostapd.sh.old
@@ -84,6 +86,7 @@ wifi
 
 To configure the PF-Open SSID, we will edit the file /etc/config/wireless:
 
+[source,bash]
 ----
 # Definition of the radio
 config wifi-device 'radio0'
@@ -116,6 +119,7 @@ config wifi-device 'radio0'
 
 Configure the PF-Secure SSID:
 
+[source,bash]
 ----
 # Definition of the radio
 config wifi-device 'radio0'
@@ -159,31 +163,34 @@ Log in to the PacketFence administration web page and go under *Configuration ->
 Policies and Access Control -> Switches -> Add switch*.
 
 Definition:
+
 [options="compact"]
-* *IP Address/MAC Address/Range (CIDR)*: IP of your access point
-* *Type*: Hostapd
-* *Mode*: production
-* *Deauthentication Method*: RADIUS
-* *Dynamic Uplinks*: Checked
+ * *IP Address/MAC Address/Range (CIDR)*: IP of your access point
+ * *Type*: Hostapd
+ * *Mode*: production
+ * *Deauthentication Method*: RADIUS
+ * *Dynamic Uplinks*: Checked
 
 Roles:
+
 [options="compact"]
-* *Role by VLAN ID*: Checked
-* *Registration*: Your registration VLAN ID
-* *Isolation*: Your isolation VLAN ID
+ * *Role by VLAN ID*: Checked
+ * *Registration*: Your registration VLAN ID
+ * *Isolation*: Your isolation VLAN ID
 
 RADIUS:
-[options="compact"]
-* *Secret Passphrase*: s3cr3t
 
-Save this configuration by clicking the 'Save' button.
+[options="compact"]
+ * *Secret Passphrase*: s3cr3t
+
+Save this configuration by clicking the `Save` button.
 
 ===== Troubleshoot
 
 There are few things you can do/check to see if your configuration is working.
 
 To check the wireless configuration: uci show wireless or cat
-/etc/config/wireless
+[filename]`/etc/config/wireless`
 
 To check if your configuration (depend on the equipment) is correctly set into
 the Hostapd configuration file: cat /var/run/hostapd-phy0.conf
