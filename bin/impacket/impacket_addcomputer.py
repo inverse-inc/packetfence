@@ -164,7 +164,7 @@ class ADDCOMPUTER:
             user = '%s\\%s' % (self.__domain, self.__username)
 
             tls = ldap3.Tls(validate=ssl.CERT_NONE, version=ssl.PROTOCOL_TLSv1_2, ciphers='ALL:@SECLEVEL=0',
-                            local_private_key=self.__clientKey, local_certificate_file=self.__clientCert,
+                            local_private_key_file=self.__clientKey, local_certificate_file=self.__clientCert,
                             ca_certs_file=self.__caCert)
             try:
                 ldapServer = ldap3.Server(connectTo, use_ssl=True, port=self.__port, get_info=ldap3.ALL, tls=tls)
@@ -186,7 +186,7 @@ class ADDCOMPUTER:
             except ldap3.core.exceptions.LDAPSocketOpenError:
                 #try tlsv1
                 tls = ldap3.Tls(validate=ssl.CERT_NONE, version=ssl.PROTOCOL_TLSv1, ciphers='ALL:@SECLEVEL=0',
-                            local_private_key=self.__clientKey, local_certificate_file=self.__clientCert,
+                            local_private_key_file=self.__clientKey, local_certificate_file=self.__clientCert,
                             ca_certs_file=self.__caCert)
                 ldapServer = ldap3.Server(connectTo, use_ssl=True, port=self.__port, get_info=ldap3.ALL, tls=tls)
                 if self.__doKerberos:
