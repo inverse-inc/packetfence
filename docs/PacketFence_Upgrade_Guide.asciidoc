@@ -162,7 +162,7 @@ to ensure compatibility and security.
 
 [options="compact"]
  . **Downtime**: Cluster upgrades require coordination across all nodes in order to avoid important downtime
- . **Follow cluster guide**: See <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+ . **Follow cluster guide**: See <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
  . **Upgrade all nodes**: Ensure all nodes reach the same version
 
 **Critical**: Never have cluster nodes running different versions simultaneously.
@@ -194,7 +194,7 @@ The code used to manage tenants in PacketFence has been removed. If tenants are 
 
 PacketFence previously used haproxy (via the haproxy-db service) to load balance and failover database connections from the PacketFence services to the database servers. This is now performed by ProxySQL which allows for splitting reads and writes to different members which offers greater performance and scalability.
 
-If ProxySQL causes issues in the deployment, revert back to haproxy-db by following <<PacketFence_Clustering_Guide.asciidoc#database_via_proxysql_or_haproxy_db,these instructions>>
+If ProxySQL causes issues in the deployment, revert back to haproxy-db by following <<PacketFence_Clustering_Guide.asciidoc#_database_via_proxysql_or_haproxy_db,these instructions>>
 
 === Bandwidth accounting is now disabled by default.
 
@@ -670,9 +670,9 @@ Check that mariadb-backup matches your MariaDB server version:
  - **RedHat EL8**: Version server 10.5.24-MariaDB
 
 **Alternative Export Method**: If mariadb-backup is not installed, use the
-standard export process at <<PacketFence_Installation_Guide.asciidoc#export_on_current_installation,export on current installation>>.
+standard export process at <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export on current installation>>.
 
-**Additional Prerequisites**: Review <<PacketFence_Installation_Guide.asciidoc#assumptions_and_limitations,assumptions and limitations>> before proceeding.
+**Additional Prerequisites**: Review <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> before proceeding.
 
 ===== Debian 12 Migration Procedure
 
@@ -768,7 +768,7 @@ If migration fails, verify database backup integrity and check available disk sp
 
 ===== Additional steps to build or rebuild a cluster
 
-To build a new cluster or rebuild an existing cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#cluster_setup,Cluster setup section>>.
+To build a new cluster or rebuild an existing cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
 
 If the previous installation was a cluster, some steps may not be required. The export archive will contain the previous [filename]`cluster.conf` file.
 
@@ -825,7 +825,7 @@ Follow the automated upgrade: <<#_automation_of_upgrades,automation of upgrades>
 
 ==== RedHat EL8 Cluster Upgrade 
 
-**Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Clustering_Guide.asciidoc#performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
+**Cluster-specific procedure** - Follow the cluster upgrade guide: <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>
 
 **EL8-specific step**: When upgrading node C, install the RedHat EL8 upgrade package first <<PacketFence_Upgrade_Guide.html#_pre_automation_upgrade_standalone_redhat_el8>>, then proceed with standard cluster node upgrade procedures.
 

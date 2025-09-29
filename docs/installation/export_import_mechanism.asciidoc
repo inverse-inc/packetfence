@@ -158,11 +158,11 @@ If that's not the case, check the output above to understand why the process fai
 
 If any issues are experienced during import, run it again.
 
-If all goes well, restart services using <<PacketFence_Upgrade_Guide.asciidoc#restart_packetfence_services,following instructions>>.
+If all goes well, restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,following instructions>>.
 
 ===== Additional steps to build or rebuild a cluster
 
-To build or rebuild a cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#cluster_setup,Cluster setup section>>.
+To build or rebuild a cluster, follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
 
 If the previous installation was a cluster, some steps may not be necessary
 to do.  The export archive will contain the previous

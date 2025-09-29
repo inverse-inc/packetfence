@@ -72,7 +72,7 @@ tag inside [filename]`layout.html`.
 
 You also need to disable Content-Security-Policy (CSP) headers on captive portal
 (see
-<<PacketFence_Installation_Guide.asciidoc#content_security_policy_csp,instructions>>).
+<<PacketFence_Installation_Guide.asciidoc#_content_security_policy_csp,instructions>>).
 
 ===== Workflow
 

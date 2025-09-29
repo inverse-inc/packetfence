@@ -215,7 +215,7 @@ make sure to reconcile this data afterwards.
 
 From that moment node C is in standalone for its database. We can proceed to
 update the packages, configuration and database schema.
-In order to do so, <<PacketFence_Upgrade_Guide.asciidoc#automation_of_upgrades,apply the upgrade process described here>> **on node C only**.
+In order to do so, <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,apply the upgrade process described here>> **on node C only**.
 
 ===== Check upgrade on node C
 
@@ -253,7 +253,7 @@ IMPORTANT: `packetfence-config` should stay started in order to run
 
 Now, start the application service on node C using the instructions provided
 in
-<<PacketFence_Upgrade_Guide.asciidoc#restart_packetfence_services,Restart PacketFence services section>>.
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart PacketFence services section>>.
 
 ==== Validate migration
 
@@ -302,7 +302,7 @@ export UPGRADE_CLUSTER_SECONDARY=yes
 systemctl restart packetfence-mariadb
 ----
 
-Then, <<PacketFence_Upgrade_Guide.asciidoc#automation_of_upgrades,apply the upgrade process described here>> **on nodes A and B**.
+Then, <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,apply the upgrade process described here>> **on nodes A and B**.
 
 NOTE: It is important to run the upgrade commands in the same shell that ran the `export` so that the environment variable is properly taken into consideration when the upgrade script executes.
 
@@ -418,7 +418,7 @@ systemctl start packetfence-mariadb
 
 Now safely start PacketFence on nodes A and B using the instructions
 provided in
-<<PacketFence_Upgrade_Guide.asciidoc#restart_packetfence_services,Restart
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart
 PacketFence services section>>.
 
 `haproxy-admin` service need to be restarted manually on both nodes
@@ -434,7 +434,7 @@ after all services have been restarted:
 
 Now, restart PacketFence on node C using the instructions provided
 in
-<<PacketFence_Upgrade_Guide.asciidoc#restart_packetfence_services,Restart
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart
 PacketFence services section>>.  So it becomes aware of its peers again.
 
 All 3 nodes should now have full service using the latest version of PacketFence.
