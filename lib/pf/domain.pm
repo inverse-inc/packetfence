@@ -69,6 +69,7 @@ sub add_computer {
     push @additional_options, '-client-key', $client_key_file if defined $client_key_file;
     push @additional_options, '-ca-cert', $ca_file if defined $ca_file;
     push @additional_options, '-channel-binding' if $ssl_options->{channel_binding};
+    push @additional_options, '-domain-netbios', $workgroup if defined $workgroup && length($workgroup);
 
     $ou =~ s/^\s+|\s+$//g;
     $ou =~ s/^['"]|['"]$//g;
