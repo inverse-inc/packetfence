@@ -561,8 +561,7 @@ Then the following command to import the backup:
  
 [source,bash]
 ----
-/usr/local/pf/addons/full-import/import.sh --db -f
-/root/backup/packetfence-exportable-backup-YYYY-MM-DD_HHhss.tgz
+/usr/local/pf/addons/full-import/import.sh --db -f /root/backup/packetfence-exportable-backup-YYYY-MM-DD_HHhss.tgz
 systemctl start packetfence-mariadb
 ----
 
