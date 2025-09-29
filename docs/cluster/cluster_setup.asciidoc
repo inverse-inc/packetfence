@@ -93,14 +93,6 @@ apt-get update ; \
 apt-get -y install mariadb-backup
 ----
 
-.On Debian-based systems (for PacketFence versions prior to 11.0)
-[source,bash]
-----
-apt-get install lsb-release wget gnupg2 ; \
-apt-get update ; \
-apt-get -y install mariadb-backup-10.2
-----
-
 For the next steps, you want to make sure that you didn't configure anything
 in [filename]`/usr/local/pf/conf/cluster.conf`. If you already did, comment
 all the
