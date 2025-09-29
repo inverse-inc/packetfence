@@ -161,7 +161,7 @@ class ADDCOMPUTER:
         if self.__targetIp is not None:
             connectTo = self.__targetIp
         try:
-            user = '%s\\%s' % (self.__domain, self.__username)
+            user = '%s\\%s' % (self.__domainNetbios, self.__username)
 
             tls = ldap3.Tls(validate=ssl.CERT_NONE, version=ssl.PROTOCOL_TLSv1_2, ciphers='ALL:@SECLEVEL=0',
                             local_private_key_file=self.__clientKey, local_certificate_file=self.__clientCert,
