@@ -67,7 +67,7 @@ Installation Guide>>.
 ==== Install the database replication tools
 
 NOTE: In this example, the database stack uses the native PacketFence
-https://mariadb.com/kb/en/library/galera-cluster/[MariaDB Galera cluster>
+link:https://mariadb.com/kb/en/library/galera-cluster/[MariaDB Galera cluster]
 integration. Although other MySQL based clustering stacks are supported, they
 aren't covered in this guide. If you use an external database or want to use
 another clustering stack for the database, you can ignore this section and
