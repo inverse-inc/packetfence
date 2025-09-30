@@ -109,7 +109,7 @@
       set_fact:
         contains_pf_role_[% cleankey %]: "{{ 'pf-role-[% key %]' in rname_list }}"
 
-    - name: Delete previous role into Aruba Mobility Master
+    - name: Delete previous role pf-role-[% key %] into Aruba Mobility Master
       aos_api_config:
         method: POST
         config_path: /mm
@@ -124,7 +124,7 @@
       set_fact:
         contains_pf_policy_[% cleankey %]: "{{ 'pf-policy-[% key %]' in accname_list }}"
 
-    - name: Delete previous acl into Aruba Mobility Master
+    - name: Delete previous acl pf-policy-[% key %] into Aruba Mobility Master
       aos_api_config:
         method: POST
         config_path: /mm
@@ -137,13 +137,14 @@
 
 [% END %]
 
-    - name: Load new acl into Aruba Mobility Master
+[% FOREACH key IN acls_array.keys %]
+    - name: Load new acl pf-policy-[% key %] into Aruba Mobility Master
       aos_api_config:
         method: POST
         config_path: /mm
         data:
           - acl_sess:
-[% FOREACH key IN acls_array.keys %]              accname: pf-policy-[% key %]
+              accname: pf-policy-[% key %]
               acl_sess__desc:
                 description: PacketFence managed policy for [% key %]
               acl_sess__v4policy:[% FOREACH acl IN acls_array.$key %]
@@ -170,13 +171,14 @@
       when: ansible_network_os == 'aos'
 [% END %]
 
-    - name: Load new roles into Aruba Mobility Master
+[% FOREACH key IN acls_array.keys %]
+    - name: Load new roles pf-role-[% key %] into Aruba Mobility Master
       aos_api_config:
         method: POST
         config_path: /mm
         data:
           - role:
-[% FOREACH key IN acls_array.keys %]              rname: pf-role-[% key %]
+              rname: pf-role-[% key %]
               role__acl:
                 - pname: pf-policy-[% key %]
                   acl_type: session
