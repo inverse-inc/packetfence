@@ -55,7 +55,7 @@ that will be routed instead of using NAT by adding in
 option `nat=no` under one or more network sections (take care of the routing
 table of the PacketFence server).
 
-=== Preparating the Operating System
+=== Preparing the Operating System
 
 
 In order to build an inline deployment of PacketFence setup you need :
