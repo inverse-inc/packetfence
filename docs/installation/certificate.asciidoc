@@ -209,7 +209,7 @@ Alternatively, one server at a time, the following CLI commands can be run on ea
 If an existing certificate is already used, then there is already two dedicated files:
  - a certificate in base64
  - a private key
-If the certificate and the private key are in one file, it is possible to extract them with command lines avaiable here: <<_useful_commands>>.
+If the certificate and the private key are in one file, it is possible to extract them with command lines available here: <<_useful_commands>>.
 
 ==== Install the SSL/TLS HTTP Certificate on the server
 

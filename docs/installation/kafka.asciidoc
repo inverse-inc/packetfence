@@ -28,7 +28,7 @@ packetfence is the example)
 [options="compact"]
 * hostname 172.16.3.1
 
-The IP addressed of the clients (the server itself and the external IP
+The IP addresses of the clients (the server itself and the external IP
 addresses)
 
 [options="compact"]
@@ -85,7 +85,7 @@ KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
 
 To setup a Kafka cluster you need the following information.
 
-Node ID, Hostname and IP addresse, of each member.
+Node ID, Hostname and IP address, of each member.
 
 [options="compact"]
 * 1 hostname1 172.16.3.1
@@ -94,7 +94,7 @@ Node ID, Hostname and IP addresse, of each member.
 
 * 3 hostname3 172.16.3.3
 
-The IP addressed of the clients
+The IP addresses of the clients
 
 [options="compact"]
 * 172.16.4.1

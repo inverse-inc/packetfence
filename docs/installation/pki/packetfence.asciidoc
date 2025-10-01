@@ -322,7 +322,7 @@ is running (you need to enable the portal on the management interface if you
 want to be able to do SCEP on this interface).
 
 The URL of the SCEP server will be available on
-http://ip_addresse/scep/template_name (https too) where template_name is the
+http://ip_address/scep/template_name (https too) where template_name is the
 name of your template in the PKI.
 
 
@@ -336,6 +336,6 @@ For this section you can follow the instruction on the Microsoft web site:
 From the PacketFence server you will need to extract the PKI Ca certificate
 associated to the template and put it in Intune as a "trusted certificate"
 
-Then set the SCEP URL to http://ip_addresse/scep/template_name or
-https://ip_addresse/scep/template_name
+Then set the SCEP URL to http://ip_address/scep/template_name or
+https://ip_address/scep/template_name
 
