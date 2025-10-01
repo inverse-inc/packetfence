@@ -460,7 +460,11 @@ has_field 'wsPwd' =>
    type => 'ObfuscatedText',
    label => 'Password',
   );
-
+has_field 'wsPath' =>
+  (
+   type => 'Text',
+   label => 'Api Path',
+  );
 has_field controllerIp =>
   (
     type => 'IPAddress',
