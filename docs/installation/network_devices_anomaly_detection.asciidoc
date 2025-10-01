@@ -20,7 +20,7 @@ endif::[]
 
 Starting with version 10, PacketFence integrates network devices anomaly
 detection capabilities. This means that PacketFence can detect abnormal network
-activies from devices - that is, if they are talking to a compromised host, if
+activities from devices - that is, if they are talking to a compromised host, if
 they are deviating from their pristine network profile and more. These
 capabilities come from the integration of the Fingerbank technology. That is,
 the Fingerbank Cloud API is responsible for producing pristine network device
