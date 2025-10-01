@@ -4382,7 +4382,7 @@ sub generateAnsibleConfiguration {
     $vars{'switches'}{$switch_id}{'cliPwd'} = $self->{'_cliPwd'};
     $vars{'switches'}{$switch_id}{'wsUser'} = $self->{'_wsUser'};
     $vars{'switches'}{$switch_id}{'wsPwd'} = $self->{'_wsPwd'};
-    $vars{'switches'}{$switch_id}{'wsPath'} = $self->{'_wsPath'};
+    $vars{'switches'}{$switch_id}{'wsPath'} = $self->{'_wsPath'} || "/mm";
     $vars{'switches'}{$switch_id}{'type'} = $self->{'_type'};
     $vars{'switches'}{$switch_id}{'id'} = $switch_ip;
     $vars{'switches'}{$switch_id}{'delete'} = $delete;
