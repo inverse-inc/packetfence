@@ -16,7 +16,7 @@ endif::[]
 
 ////
 
-===== Dynamic iptables adn ip6tables rules
+===== Dynamic iptables and ip6tables rules
 
 Iptables and ip6tables are dynamic and each service is adding or removing
 port(s) according to their needs.
