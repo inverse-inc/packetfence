@@ -89,7 +89,7 @@ Then, make sure you mask keepalived so it does not mount a VIP on your server:
 
 Finally, you must configure a secure way to reach your Cloud-hosted version of
 PacketFence so that your NAS devices can talk to it in a secure way. One
-approach is to use a site-to-site VPN. An other approach is to use the
+approach is to use a site-to-site VPN. Another approach is to use the
 PacketFence Connector.
 
 ==== PacketFence Connector
@@ -172,7 +172,7 @@ Finally, restart the packetfence-pfconnector-remote service:
 ----
 systemctl restart packetfence-pfconnector-remote
 ----
-   
+
 Once your pfconnector is started, you can now point your network equipment to use the pfconnector's IP address for RADIUS and the captive portal like you would do with a typical on-premise PacketFence server. When defining the RADIUS secret in PacketFence and in your network equipment, always use the value inside `/usr/local/pf/conf/local_secret`.
 
 ===== Upgrade (for version prior to 12.1)

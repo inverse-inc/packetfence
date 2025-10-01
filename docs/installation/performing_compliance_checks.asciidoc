@@ -20,8 +20,8 @@ endif::[]
 
 PacketFence supports either Nessus and OpenVAS as a scanning engine for
 compliance checks.
-Since PacketFence v5.1 it is possible to create multiples scan engines
-configuration and assign them on specific captive portals.
+Since PacketFence v5.1 it is possible to create multiple scan engine
+configurations and assign them on specific captive portals.
 It means for example that it is now possible to activate a scan for specific
 Operating System only on a specific SSID.
 
@@ -52,7 +52,7 @@ In order to validate proper connectivity from PacketFence to OpenVAS for remote
 management, execute the following command (replacing admin by the user to
 use for PacketFence to communicate with OpenVAS):
 
-  # omp -u admin -p 9390 -X "<get_version/>" 
+  # omp -u admin -p 9390 -X "<get_version/>"
 
 The output of the above command should provide the version of OpenVAS.
 Otherwise, ensure all the necessary components are in place for management
@@ -105,7 +105,7 @@ note down the ID.
 
 image::openvas/scan-config-id.png[alt="OpenVAS scan config ID"]
 
-*Report format ID* 
+*Report format ID*
 
 Navigate to _Configuration -> Report Formats_ and then select the `CSV Results`
 report format. In this view, note down the ID.
@@ -146,7 +146,7 @@ Specific to Nessus:
   Password: Password to connect to Nessus scan
   Port of the service: port to connect (default 8834)
   Nessus client policy: the name of the policy to use for the scan (Must be
-  define on the Nessus server)
+  defined on the Nessus server)
 
 Specific to OpenVAS:
 
@@ -248,11 +248,11 @@ PacketFence supports integration with Rapid7 to start scans automatically when a
 ==== Rapid7 installation
 
 [options="compact"]
-* Install the InsightVM application 
+* Install the InsightVM application
 ** https://insightvm.help.rapid7.com/docs/installing-in-linux-environments#section-installing-in-red-hat
 
 [options="compact"]
-* Run the application 
+* Run the application
 ** https://insightvm.help.rapid7.com/docs/running-the-application#section-managing-the-application-in-linux
 
 [options="compact"]
@@ -322,7 +322,7 @@ In Rapid7:
 * First select the site to have alerts for and click on __Manage Site__
 * In the site management tabs select *Alerts*, then create a new alert
 
-*Enable*: Must be checked. 
+*Enable*: Must be checked.
 *Alert Name*: Rsyslog to PacketFence or else.
 *Maximum Alerts to send*: blank (none)
 *Scan events*: Check all.
@@ -378,7 +378,7 @@ Now that PacketFence is properly configured to receive information from Nexpose,
 
 Make sure to set the following parameters in the 'Definition' tab:
 [options="compact"]
-* Enable: Set it to *ON* 
+* Enable: Set it to *ON*
 * Action: This is where to put what PacketFence should do, refer to the security events documentation in this guide for details on these.
 
 Next, in the 'Triggers' tab:

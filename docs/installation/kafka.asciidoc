@@ -36,7 +36,7 @@ addresses)
 
 * 172.16.4.1 (An external IP)
 
-Username of passwords
+Username and passwords
 
 [options="compact"]
 * admin: admin-pass
@@ -178,8 +178,8 @@ KAFKA_ADVERTISED_LISTENERS=INTERNAL://172.16.3.3:29092,EXTERNAL://172.16.3.3:909
 
 ==== FingerBank collector kafka configuration
 
-FingerBank collector can be configure to store the netflow sflow ipfix traffic
-to Kafka in order to allow pfflow to compile it.
+FingerBank collector can be configured to store the NetFlow, sFlow, IPFIX traffic
+to Kafka in order to allow pfflow to process it.
 
 Here a sample of configuration that can be use with the Kafka server configured
 above.

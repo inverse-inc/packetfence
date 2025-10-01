@@ -20,7 +20,7 @@ endif::[]
 
 One important key concept from NAC solutions is for segregating network
 accesses. For example, an employee from the finance department might not have
-the same network access level as an other employee from the marketing
+the same network access level as another employee from the marketing
 department. Guests should also not have the same access level as normal
 employees within an organization. PacketFence uses roles internally to identify
 and differentiate users. For segregating network access, PacketFence can use
@@ -31,7 +31,7 @@ one or all of the following techniques:
  * VLAN or VLAN pool
  * equipment role
 
-The techniques to use depends on the wired/WiFi equipment itself. A role in
+The techniques to use depend on the wired/WiFi equipment itself. A role in
 PacketFence will be eventually mapped to a VLAN, an ACL or an external role. Define the roles to use in the organization for network access.
 
 In our previous configuration examples, we made use of two roles that come by
@@ -108,7 +108,7 @@ To differentiate user authentication and machine authentication using Active Dir
 
 [options="compact"]
  * *Name:* ad2
- * *Description:* Active Directory for Corporate Machines 
+ * *Description:* Active Directory for Corporate Machines
  * *Host:* 192.168.1.2:389 without SSL/TLS
  * *Base DN:* CN=Computers,DC=acme,DC=local
  * *Scope:* One-level

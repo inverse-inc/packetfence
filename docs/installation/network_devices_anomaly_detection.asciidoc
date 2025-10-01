@@ -30,7 +30,7 @@ the pristine profiles and does anomaly detection based on its templating engine.
 === Creating Network Behavior Policies
 
 A network behavior policy is a template, used by the Fingerbank Collector, to
-determine if the devices matching the criterias defined in the template
+determine if the devices matching the criteria defined in the template
 ultimately deviate from a normal network usage pattern. You can create new
 templates from _Configuration -> Compliance -> Network Anomaly Detection_.
 
