@@ -83,6 +83,7 @@ wsUser =
 wsPwd =
 # Verify the certificate of the web services peer when wsTransport is https
 wsVerifyCertificate = N
+wsPath =
 #
 # RADIUS NAS Client config
 #

@@ -99,6 +99,7 @@ export {
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
   BaseFormGroupToggleNYDefault            as FormGroupWebServicesVerifyCertificate,
+  BaseFormGroupInput                      as FormGroupWebServicesPath,
 
   BaseInput                               as InputRoleMapNetwork,
   BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,

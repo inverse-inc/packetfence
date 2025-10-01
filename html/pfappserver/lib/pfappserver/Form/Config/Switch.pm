@@ -500,6 +500,11 @@ has_field 'wsVerifyCertificate' =>
              help => 'Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.' },
   );
 
+has_field 'wsPath' =>
+  (
+   type => 'Text',
+   label => 'Api Path',
+  );
 has_field controllerIp =>
   (
     type => 'Text',
