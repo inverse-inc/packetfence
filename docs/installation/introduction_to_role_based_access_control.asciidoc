@@ -18,12 +18,12 @@ endif::[]
 
 //== Introduction to Role-based Access Control
 
-One important key concept from NAC solutions is for seggretating network
+One important key concept from NAC solutions is for segregating network
 accesses. For example, an employee from the finance department might not have
 the same network access level as an other employee from the marketing
 department. Guests should also not have the same access level as normal
 employees within an organization. PacketFence uses roles internally to identify
-and differentiate users. For seggretating network access, PacketFence can use
+and differentiate users. For segregating network access, PacketFence can use
 one or all of the following techniques:
 
 [options="compact"]
