@@ -417,8 +417,7 @@ Do (and make sure it completes without any errors):
 
 [source,bash]
 ----
- /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet
- --api-password=anotherMoreSecurePassword
+ /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=anotherMoreSecurePassword
 ----
 
 NOTE: Space before last command is on purpose to avoid record of password in
