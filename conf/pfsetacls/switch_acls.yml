@@ -81,7 +81,7 @@
       aos_api_config:
         method: GET
         api_object: role
-        config_path: /mm
+        config_path: [% wsPath %]
         filter: [ {'OBJECT': { '$eq': [ 'role.rname' ] } } ]
       register: roles_output
 
@@ -98,7 +98,7 @@
       aos_api_config:
         method: GET
         api_object: acl_sess
-        config_path: /mm
+        config_path: [% wsPath %]
         filter: [ {'OBJECT': { '$eq': [ 'acl_sess.accname' ] } } ]
       register: policies_output
 
@@ -121,7 +121,7 @@
     - name: Delete previous role pf-role-[% key %] into Aruba Mobility Master
       aos_api_config:
         method: POST
-        config_path: /mm
+        config_path: [% wsPath %]
         data:
           - role:
               rname: pf-role-[% key %]
@@ -136,7 +136,7 @@
     - name: Delete previous acl pf-policy-[% key %] into Aruba Mobility Master
       aos_api_config:
         method: POST
-        config_path: /mm
+        config_path: [% wsPath %]
         data:
           - acl_sess:
               accname: pf-policy-[% key %]
@@ -150,7 +150,7 @@
     - name: Load new acl pf-policy-[% key %] into Aruba Mobility Master
       aos_api_config:
         method: POST
-        config_path: /mm
+        config_path: [% wsPath %]
         data:
           - acl_sess:
               accname: pf-policy-[% key %]
@@ -184,7 +184,7 @@
     - name: Load new roles pf-role-[% key %] into Aruba Mobility Master
       aos_api_config:
         method: POST
-        config_path: /mm
+        config_path: [% wsPath %]
         data:
           - role:
               rname: pf-role-[% key %]
