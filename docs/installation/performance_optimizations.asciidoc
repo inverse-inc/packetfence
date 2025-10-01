@@ -133,7 +133,7 @@ caching, _Windows 2012 R2_ or later version is recommended.
 
 CAUTION: The NT key cache uses timestamps to determine the NT key expiration
 time and dirty-status, Timezone settings for PacketFence and the Windows Domain
-Controller must be identical and system clocks should be syncronized using NTP.
+Controller must be identical and system clocks should be synchronized using NTP.
 
 ==== PacketFence Configuration
 
