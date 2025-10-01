@@ -37,7 +37,7 @@ policy defined in it).
 
 Once you are able to hit the portal and register with your credentials, the
 portal will show you a QRcode you will need to scan with your device (Akamai /
-Goggle / Microsoft / DUO Authenticator per example).
+Google / Microsoft / DUO Authenticator per example).
 This will configure an account where you will be able to see
 "username.packetfence" and the OTP PIN code.
 
