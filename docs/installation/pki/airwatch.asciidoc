@@ -29,7 +29,7 @@ upgrade section.
 
 ==== Assumptions
 
-You have a fonctional PacketFence PKI and you already have created a Certificate
+You have a functional PacketFence PKI and you already have created a Certificate
 Authority and its templates with SCEP enabled. The template used here is:
 'airwatch2'
 
