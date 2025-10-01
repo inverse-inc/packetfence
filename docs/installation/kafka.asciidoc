@@ -22,7 +22,7 @@ endif::[]
 
 To setup a Kafka standalone you need the following information.
 
-Node ID, Hostname and IP addresse. (run the hostname command on the server,
+Node ID, Hostname and IP address. (run the hostname command on the server,
 packetfence is the example)
 
 [options="compact"]
