@@ -430,6 +430,10 @@
                                      :column-label="$i18n.t('Password')"
         />
 
+        <form-group-web-services-path namespace="wsPath"
+                                     :column-label="$i18n.t('Api path')"
+        />
+
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
 
@@ -617,6 +621,7 @@ import {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesPath,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
@@ -700,6 +705,7 @@ const components = {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesPath,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,

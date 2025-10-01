@@ -80,6 +80,7 @@ SNMPCommunityTrap = public
 wsTransport = http
 wsUser =
 wsPwd =
+wsPath =
 #
 # RADIUS NAS Client config
 #

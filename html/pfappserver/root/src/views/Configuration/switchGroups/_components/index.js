@@ -93,6 +93,7 @@ export {
   BaseFormGroupInputPassword              as FormGroupWebServicesPwd,
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
+  BaseFormGroupInput                      as FormGroupWebServicesPath,
 
   BaseInput                               as InputRoleMapNetwork,
   BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,

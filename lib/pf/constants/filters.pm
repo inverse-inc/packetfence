@@ -174,6 +174,7 @@ our @SWITCH_FIELDS = qw(
   switch._useCoA
   switch._vlans
   switch._wsPwd
+  switch._wsPath
   switch._wsTransport
   switch._wsUser
   switch._group
