@@ -180,11 +180,11 @@ the size of a RADIUS access-accept paquet.
 Some vendor support it, like Cisco Switches (IOS 15.2) and Dell (n1500 fw 6.8)
 
 The RADIUS flow is something close to the normal one but in the Access-Accept
-reply there is an extra RADIUS attribute that tell the equipment to trigger
-another RADIUS request to retreive the ACL.
+reply there is an extra RADIUS attribute for the equipment to trigger
+another RADIUS request to retrieve the ACL.
 
 A second RADIUS request is made with the ACL name as a value of the username and
-multiples Access-Challenge are made to retreive the complete ACL.
+multiples Access-Challenge are made to retrieve the complete ACL.
 
 To enable it you need first to enable the RADIUS filter in the PacketFence
 authorize section. To do that go in _Configuration -> System Configuration ->
