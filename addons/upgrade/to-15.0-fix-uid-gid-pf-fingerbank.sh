@@ -137,13 +137,5 @@ else
     exit 1
 fi
 
-/usr/local/pf/bin/pfcmd service pf restart
-echo "Services have been restarted. Packetfence should be back online."
-
-if [ "$MONIT_RUNNING" = true ]; then
-    systemctl start monit
-    systemctl enable monit
-    echo "Monit has been restarted."
-fi
 echo "Script is ending."
 exit 0
