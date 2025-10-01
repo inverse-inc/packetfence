@@ -18,7 +18,7 @@ endif::[]
 
 //== Enabling the Captive Portal
 
-In the previous section, we have succesfully configured 802.1X using
+In the previous section, we have successfully configured 802.1X using
 PacketFence, Microsoft Active Directory and a Cisco Catalyst 2960 switch. While
 this demonstrates the fundamental role and capabilities of a NAC solution, most
 organizations are also looking at providing access to guests for example. One
