@@ -317,7 +317,7 @@ authentications per seconds.
 To overcome this limitation, it is possible to use a Redis driven cache inside
 PacketFence to reduce the amount of authentications requiring an external NTLM
 authentication call. Should a user be in the cache, PacketFence will attempt to
-compare the 802.1X credentials with those. In the even that the validation
+compare the 802.1X credentials with those. In the event that the validation
 fails, a call to ntlm_auth is made. In the event of a cache miss, an ntlm_auth
 call is made as well. This ensures that even if a user changes his password, his
 new password is immediately valid for 802.1X EAP-PEAP connections even if the
