@@ -117,6 +117,12 @@ const actions = {
           roleDefaults[`${role}InterfaceEnabled`] = 'enabled'
         })
         item = { ...roleDefaults, ...item }
+        // Ensure Enabled fields default to 'enabled' if null/undefined
+        Object.keys(roleDefaults).forEach(key => {
+          if (key.endsWith('Enabled') && (item[key] === null || item[key] === undefined)) {
+            item[key] = 'enabled'
+          }
+        })
         commit('ITEM_REPLACED', item)
         return JSON.parse(JSON.stringify(state.cache[id]))
       })
