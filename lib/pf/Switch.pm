@@ -639,6 +639,12 @@ sub getRoleByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
+    # Check if RoleEnabled parameter exists and is disabled for this role
+    my $enabled_param = $roleName . 'RoleEnabled';
+    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+        $logger->debug("Role mapping for role $roleName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_roles'}) || !defined($self->{'_roles'}{$roleName})) {
         my $parent = _parentRoleForRole($roleName);
@@ -682,6 +688,13 @@ Input: VLAN name (as in switches.conf)
 sub getVlanByName {
     my ($self, $vlanName) = @_;
     my $logger = $self->logger;
+
+    # Check if VlanEnabled parameter exists and is disabled for this role
+    my $enabled_param = $vlanName . 'VlanEnabled';
+    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+        $logger->debug("VLAN mapping for role $vlanName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_vlans'}) || !defined($self->{'_vlans'}{$vlanName})) {
         my $parent = _parentRoleForVlan($vlanName);
@@ -732,6 +745,14 @@ sub _parentRoleForVlan {
 sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
+    
+    # Check if AccessListEnabled parameter exists and is disabled for this role
+    my $enabled_param = $access_list_name . 'AccessListEnabled';
+    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+        $logger->debug("AccessList mapping for role $access_list_name is disabled");
+        return;
+    }
+    
     my $node = node_view($mac);
     if ($node) {
         my $acls = $node->{bypass_acls};
@@ -768,6 +789,13 @@ sub getRoleAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
 
+    # Check if AccessListEnabled parameter exists and is disabled for this role
+    my $enabled_param = $access_list_name . 'AccessListEnabled';
+    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+        $logger->debug("AccessList mapping for role $access_list_name is disabled");
+        return;
+    }
+
     return if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
     return if !exists $role->{acls};
@@ -795,6 +823,13 @@ Get the switch-specific url of a given global role in switches.conf
 sub getUrlByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
+
+    # Check if UrlEnabled parameter exists and is disabled for this role
+    my $enabled_param = $roleName . 'UrlEnabled';
+    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+        $logger->debug("URL mapping for role $roleName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_urls'}) || !defined($self->{'_urls'}{$roleName})) {
         my $parent = _parentRoleForWebAuthUrl($roleName);
@@ -839,6 +874,12 @@ sub getVpnByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
+    # Check if VpnEnabled parameter exists and is disabled for this role
+    my $enabled_param = $roleName . 'VpnEnabled';
+    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+        $logger->debug("VPN mapping for role $roleName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_vpn'}) || !defined($self->{'_vpn'}{$roleName})) {
         my $parent = _parentRoleForVpn($roleName);
@@ -875,7 +916,6 @@ sub getNetworkByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
-
     if (!defined($self->{'_networks'}) || !defined($self->{'_networks'}{$roleName})) {
         my $parent = _parentRoleForNetwork($roleName);
         if (defined $parent && length($parent)) {
@@ -911,6 +951,12 @@ sub getInterfaceByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
+    # Check if InterfaceEnabled parameter exists and is disabled for this role
+    my $enabled_param = $roleName . 'InterfaceEnabled';
+    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+        $logger->debug("Interface mapping for role $roleName is disabled");
+        return;
+    }
 
     if (!defined($self->{'_interfaces'}) || !defined($self->{'_interfaces'}{$roleName})) {
         my $parent = _parentRoleForInterface($roleName);
