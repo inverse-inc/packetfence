@@ -16,6 +16,7 @@ import BaseFormGroupInlineTrigger from '../../switches/_components/BaseFormGroup
 import BaseFormGroupToggleStaticDynamicDefault from '../../switches/_components/BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from '../../switches/_components/BaseFormGroupType'
 import BaseInputToggleNetworkFrom from '../../switches/_components/BaseInputToggleNetworkFrom'
+import BaseInputToggleEnableDisable from '../../switches/_components/BaseInputToggleEnableDisable'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -97,6 +98,7 @@ export {
 
   BaseInput                               as InputRoleMapNetwork,
   BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,
+  BaseInputToggleEnableDisable            as InputToggleEnableDisable,
 
   BaseViewCollectionItem                  as BaseView,
   TheForm,

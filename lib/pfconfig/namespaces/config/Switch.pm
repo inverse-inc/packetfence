@@ -87,17 +87,45 @@ sub build_child {
         $self->updateReverseLookup($name, $switch, qw(group));
         # transforming vlans and roles to hashes
         my %merged = ( Vlan => {}, Role => {}, AccessList => {} , Url => {} , Vpn => {} , Interface => {}, Network => {}, NetworkFrom => {});
+        my %enabled = ( VlanEnabled => {}, RoleEnabled => {}, AccessListEnabled => {} , UrlEnabled => {} , VpnEnabled => {} , InterfaceEnabled => {});
         my %roles;
-        foreach my $key ( grep {/(Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom)$/} keys %{$switch} ) {
+        foreach my $key ( grep {/(Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/} keys %{$switch} ) {
             next unless my $value = $switch->{$key};
-            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom)$/ ) ) {
-                $merged{$type}{$type_key} = $value;
-                $roles{$type_key} = undef;
+            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/ ) ) {
+                if ($type =~ /Enabled$/) {
+                    $enabled{$type}{$type_key} = $value;
+                } else {
+                    $merged{$type}{$type_key} = $value;
+                    $roles{$type_key} = undef;
+                }
             }
         }
 
         for my $r (keys %roles) {
             push @{$roleReverseLookup{$r}{switch}}, $name;
+        }
+
+        # Filter out disabled mappings based on Enabled settings
+        foreach my $role (keys %roles) {
+            # Check each mapping type and remove if disabled
+            if (exists $enabled{VlanEnabled}{$role} && $enabled{VlanEnabled}{$role} ne 'enabled') {
+                delete $merged{Vlan}{$role};
+            }
+            if (exists $enabled{RoleEnabled}{$role} && $enabled{RoleEnabled}{$role} ne 'enabled') {
+                delete $merged{Role}{$role};
+            }
+            if (exists $enabled{AccessListEnabled}{$role} && $enabled{AccessListEnabled}{$role} ne 'enabled') {
+                delete $merged{AccessList}{$role};
+            }
+            if (exists $enabled{UrlEnabled}{$role} && $enabled{UrlEnabled}{$role} ne 'enabled') {
+                delete $merged{Url}{$role};
+            }
+            if (exists $enabled{VpnEnabled}{$role} && $enabled{VpnEnabled}{$role} ne 'enabled') {
+                delete $merged{Vpn}{$role};
+            }
+            if (exists $enabled{InterfaceEnabled}{$role} && $enabled{InterfaceEnabled}{$role} ne 'enabled') {
+                delete $merged{Interface}{$role};
+            }
         }
 
         $switch->{roles}        = $merged{Role};

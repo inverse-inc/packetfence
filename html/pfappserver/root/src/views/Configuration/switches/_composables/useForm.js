@@ -202,6 +202,43 @@ const useForm = (props, context) => {
     })
   }
 
+  // Toggle all enabled/disabled methods for each mapping type
+  const toggleAllVlanEnabled = (enabled) => {
+    roles.value.forEach(role => {
+      form.value[`${role}VlanEnabled`] = enabled ? 'enabled' : null
+    })
+  }
+
+  const toggleAllRoleEnabled = (enabled) => {
+    roles.value.forEach(role => {
+      form.value[`${role}RoleEnabled`] = enabled ? 'enabled' : null
+    })
+  }
+
+  const toggleAllAccessListEnabled = (enabled) => {
+    roles.value.forEach(role => {
+      form.value[`${role}AccessListEnabled`] = enabled ? 'enabled' : null
+    })
+  }
+
+  const toggleAllUrlEnabled = (enabled) => {
+    roles.value.forEach(role => {
+      form.value[`${role}UrlEnabled`] = enabled ? 'enabled' : null
+    })
+  }
+
+  const toggleAllVpnEnabled = (enabled) => {
+    roles.value.forEach(role => {
+      form.value[`${role}VpnEnabled`] = enabled ? 'enabled' : null
+    })
+  }
+
+  const toggleAllInterfaceEnabled = (enabled) => {
+    roles.value.forEach(role => {
+      form.value[`${role}InterfaceEnabled`] = enabled ? 'enabled' : null
+    })
+  }
+
   return {
     advancedMode,
     schema: metaSchema,
@@ -220,7 +257,14 @@ const useForm = (props, context) => {
 
     isUsePushACLs,
     isUseDownloadableACLs,
-    onPrecreate
+    onPrecreate,
+
+    toggleAllVlanEnabled,
+    toggleAllRoleEnabled,
+    toggleAllAccessListEnabled,
+    toggleAllUrlEnabled,
+    toggleAllVpnEnabled,
+    toggleAllInterfaceEnabled
   }
 }
 

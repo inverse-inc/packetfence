@@ -73,11 +73,33 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     return api.item(id).then(item => {
-      commit('ITEM_REPLACED', item)
-      api.itemMembers(id).then(members => { // Fetch members
-        commit('ITEM_UPDATED', { id, prop: 'members', data: members })
+      // Initialize role mapping enabled defaults
+      return Promise.all([
+        store.dispatch('$_roles/all'),
+        Promise.resolve(item)
+      ]).then(([roles, item]) => {
+        const baseRoles = ['registration', 'isolation', 'macDetection', 'inline', 'voice', 'guest']
+        roles = [
+          ...baseRoles,
+          ...roles.map(role => role.id)
+        ]
+        roles.forEach(role => {
+          item = {
+            [`${role}VlanEnabled`]: 'enabled',
+            [`${role}RoleEnabled`]: 'enabled',
+            [`${role}AccessListEnabled`]: 'enabled',
+            [`${role}UrlEnabled`]: 'enabled',
+            [`${role}VpnEnabled`]: 'enabled',
+            [`${role}InterfaceEnabled`]: 'enabled',
+            ...item
+          }
+        })
+        commit('ITEM_REPLACED', item)
+        api.itemMembers(id).then(members => { // Fetch members
+          commit('ITEM_UPDATED', { id, prop: 'members', data: members })
+        })
+        return JSON.parse(JSON.stringify(state.cache[id]))
       })
-      return JSON.parse(JSON.stringify(state.cache[id]))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
