@@ -106,6 +106,8 @@ const actions = {
               [`${role}Role`]: null,
               [`${role}AccessList`]: null,
               [`${role}Url`]: null,
+              [`${role}Vpn`]: null,
+              [`${role}Interface`]: null,
               [`${role}VlanEnabled`]: 'enabled',
               [`${role}RoleEnabled`]: 'enabled',
               [`${role}AccessListEnabled`]: 'enabled',

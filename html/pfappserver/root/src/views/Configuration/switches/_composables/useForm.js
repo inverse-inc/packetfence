@@ -205,37 +205,37 @@ const useForm = (props, context) => {
   // Toggle all enabled/disabled methods for each mapping type
   const toggleAllVlanEnabled = (enabled) => {
     roles.value.forEach(role => {
-      form.value[`${role}VlanEnabled`] = enabled ? 'enabled' : null
+      form.value[`${role}VlanEnabled`] = enabled ? 'enabled' : 'disabled'
     })
   }
 
   const toggleAllRoleEnabled = (enabled) => {
     roles.value.forEach(role => {
-      form.value[`${role}RoleEnabled`] = enabled ? 'enabled' : null
+      form.value[`${role}RoleEnabled`] = enabled ? 'enabled' : 'disabled'
     })
   }
 
   const toggleAllAccessListEnabled = (enabled) => {
     roles.value.forEach(role => {
-      form.value[`${role}AccessListEnabled`] = enabled ? 'enabled' : null
+      form.value[`${role}AccessListEnabled`] = enabled ? 'enabled' : 'disabled'
     })
   }
 
   const toggleAllUrlEnabled = (enabled) => {
     roles.value.forEach(role => {
-      form.value[`${role}UrlEnabled`] = enabled ? 'enabled' : null
+      form.value[`${role}UrlEnabled`] = enabled ? 'enabled' : 'disabled'
     })
   }
 
   const toggleAllVpnEnabled = (enabled) => {
     roles.value.forEach(role => {
-      form.value[`${role}VpnEnabled`] = enabled ? 'enabled' : null
+      form.value[`${role}VpnEnabled`] = enabled ? 'enabled' : 'disabled'
     })
   }
 
   const toggleAllInterfaceEnabled = (enabled) => {
     roles.value.forEach(role => {
-      form.value[`${role}InterfaceEnabled`] = enabled ? 'enabled' : null
+      form.value[`${role}InterfaceEnabled`] = enabled ? 'enabled' : 'disabled'
     })
   }
 

@@ -175,13 +175,6 @@ sub cleanupBeforeCommit {
 
 sub _flattenRoleMappings {
     my ( $switch ) = @_;
-    # First, preserve any existing Enabled settings
-    my %enabled_settings = ();
-    for my $attr (keys %$switch) {
-        if ($attr =~ /(.*)(VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/) {
-            $enabled_settings{$attr} = $switch->{$attr};
-        }
-    }
     
     for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping))  {
         my $list = $switch->{$namespace} // [];
@@ -191,10 +184,8 @@ sub _flattenRoleMappings {
         }
     }
     
-    # Restore the enabled settings
-    while(my ($attr, $val) = each %enabled_settings) {
-        $switch->{$attr} = $val;
-    }
+    # Don't delete Enabled parameters - they should be preserved
+    # They are separate from the mapping values and should always be kept
 }
 
 sub _deleteRoleMappings {
