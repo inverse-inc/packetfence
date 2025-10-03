@@ -107,6 +107,12 @@ const actions = {
           roleDefaults[`${role}Role`] = null
           roleDefaults[`${role}AccessList`] = null
           roleDefaults[`${role}Url`] = null
+          roleDefaults[`${role}VlanEnabled`] = 'enabled'
+          roleDefaults[`${role}RoleEnabled`] = 'enabled'
+          roleDefaults[`${role}AccessListEnabled`] = 'enabled'
+          roleDefaults[`${role}UrlEnabled`] = 'enabled'
+          roleDefaults[`${role}VpnEnabled`] = 'enabled'
+          roleDefaults[`${role}InterfaceEnabled`] = 'enabled'
         })
         item = { ...roleDefaults, ...item }
         commit('ITEM_REPLACED', item)
