@@ -78,7 +78,7 @@ const actions = {
         store.dispatch('$_roles/all'),
         Promise.resolve(item)
       ]).then(([roles, item]) => {
-        const baseRoles = ['registration', 'isolation', 'macDetection', 'inline', 'voice', 'guest']
+        const baseRoles = ['registration', 'isolation', 'inline', 'voice', 'guest']
         roles = [
           ...baseRoles,
           ...roles.map(role => role.id)
