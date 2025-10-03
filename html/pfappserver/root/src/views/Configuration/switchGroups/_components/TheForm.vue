@@ -142,7 +142,7 @@
                       <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
                         <b-col sm="6" align-self="center">
                           <form-group-role-map-vlan :namespace="`${role}Vlan`"
-                            :disabled="form[`${role}VlanEnabled`] !== 'enabled'" />
+                            :disabled="form[`${role}VlanEnabled`] === 'disabled'" />
                         </b-col>
                         <b-col sm="6" align-self="center" class="pl-1">
                           <input-toggle-enable-disable :namespace="`${role}VlanEnabled`" />
@@ -185,7 +185,7 @@
                       <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
                         <b-col sm="6" align-self="center">
                           <form-group-role-map-role :namespace="`${role}Role`"
-                            :disabled="form[`${role}RoleEnabled`] !== 'enabled'" />
+                            :disabled="form[`${role}RoleEnabled`] === 'disabled'" />
                         </b-col>
                         <b-col sm="6" align-self="center" class="pl-1">
                           <input-toggle-enable-disable :namespace="`${role}RoleEnabled`" />
@@ -228,7 +228,7 @@
                       <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
                         <b-col sm="6" align-self="center">
                           <form-group-role-map-vpn :namespace="`${role}Vpn`"
-                            :disabled="form[`${role}VpnEnabled`] !== 'enabled'" />
+                            :disabled="form[`${role}VpnEnabled`] === 'disabled'" />
                         </b-col>
                         <b-col sm="6" align-self="center" class="pl-1">
                           <input-toggle-enable-disable :namespace="`${role}VpnEnabled`" />
@@ -272,7 +272,7 @@
                       <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
                         <b-col sm="6" align-self="center">
                           <form-group-role-map-access-list :namespace="`${role}AccessList`"
-                            :disabled="form[`${role}AccessListEnabled`] !== 'enabled'" />
+                            :disabled="form[`${role}AccessListEnabled`] === 'disabled'" />
                         </b-col>
                         <b-col sm="6" align-self="center" class="pl-1">
                           <input-toggle-enable-disable :namespace="`${role}AccessListEnabled`" />
@@ -305,7 +305,7 @@
                       <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
                         <b-col sm="6" align-self="center">
                           <form-group-role-map-interface :namespace="`${role}Interface`"
-                            :disabled="form[`${role}InterfaceEnabled`] !== 'enabled'" />
+                            :disabled="form[`${role}InterfaceEnabled`] === 'disabled'" />
                         </b-col>
                         <b-col sm="6" align-self="center" class="pl-1">
                           <input-toggle-enable-disable :namespace="`${role}InterfaceEnabled`" />
@@ -348,7 +348,7 @@
                       <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
                         <b-col sm="6" align-self="center">
                           <form-group-role-map-url :namespace="`${role}Url`"
-                            :disabled="form[`${role}UrlEnabled`] !== 'enabled'" />
+                            :disabled="form[`${role}UrlEnabled`] === 'disabled'" />
                         </b-col>
                         <b-col sm="6" align-self="center" class="pl-1">
                           <input-toggle-enable-disable :namespace="`${role}UrlEnabled`" />
