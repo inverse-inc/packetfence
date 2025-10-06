@@ -141,7 +141,7 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	)
 	if err != nil {
 		// Log here
-		logger.Error("Error while preparing statemen : " + err.Error())
+		logger.Error("Error while preparing statement: " + err.Error())
 		return
 	}
 
