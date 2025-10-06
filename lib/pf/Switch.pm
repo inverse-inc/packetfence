@@ -4492,6 +4492,7 @@ Generate Ansible configuration to push ACLs
 
 sub generateAnsibleConfiguration {
     my ($self,$oldSwitchConfig, $delete) = @_;
+    my $logger = $self->logger;
     # $delete is set when when the switch is deleted
     $delete //= $FALSE;
     my %vars;
