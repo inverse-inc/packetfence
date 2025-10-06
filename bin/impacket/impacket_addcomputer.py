@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/pf/python/bin/python
 # Impacket - Collection of Python classes for working with network protocols.
 #
 # Copyright Fortra, LLC and its affiliated companies 
@@ -68,6 +68,15 @@ class ADDCOMPUTER:
         self.__targetIp = cmdLineOptions.dc_ip
         self.__baseDN = cmdLineOptions.baseDN
         self.__computerGroup = cmdLineOptions.computer_group
+        self.__autoBind = ldap3.AUTO_BIND_DEFAULT
+        self.__clientCert = cmdLineOptions.client_cert
+        self.__clientKey = cmdLineOptions.client_key
+        self.__caCert = cmdLineOptions.ca_cert
+        self.__channelBinding = cmdLineOptions.channel_binding
+        self.__startTLS = cmdLineOptions.start_tls
+
+        if cmdLineOptions.start_tls:
+            self.__autoBind = ldap3.AUTO_BIND_TLS_BEFORE_BIND
 
         if self.__targetIp is not None:
             self.__kdcHost = self.__targetIp
@@ -105,7 +114,10 @@ class ADDCOMPUTER:
             if self.__method == 'SAMR':
                 self.__port = 445
             elif self.__method == 'LDAPS':
-                self.__port = 636
+                if self.__startTLS:
+                     self.__port = 389
+                else:
+                     self.__port = 636
 
         if self.__domainNetbios is None:
             self.__domainNetbios = self.__domain
@@ -149,35 +161,48 @@ class ADDCOMPUTER:
         if self.__targetIp is not None:
             connectTo = self.__targetIp
         try:
-            user = '%s\\%s' % (self.__domain, self.__username)
-            tls = ldap3.Tls(validate=ssl.CERT_NONE, version=ssl.PROTOCOL_TLSv1_2, ciphers='ALL:@SECLEVEL=0')
+            user = '%s\\%s' % (self.__domainNetbios, self.__username)
+
+            tls = ldap3.Tls(validate=ssl.CERT_NONE, version=ssl.PROTOCOL_TLSv1_2, ciphers='ALL:@SECLEVEL=0',
+                            local_private_key_file=self.__clientKey, local_certificate_file=self.__clientCert,
+                            ca_certs_file=self.__caCert)
             try:
                 ldapServer = ldap3.Server(connectTo, use_ssl=True, port=self.__port, get_info=ldap3.ALL, tls=tls)
                 if self.__doKerberos:
-                    ldapConn = ldap3.Connection(ldapServer)
+                    ldapConn = ldap3.Connection(ldapServer, auto_bind=self.__autoBind)
                     self.LDAP3KerberosLogin(ldapConn, self.__username, self.__password, self.__domain, self.__lmhash, self.__nthash,
                                                  self.__aesKey, kdcHost=self.__kdcHost)
                 elif self.__hashes is not None:
-                    ldapConn = ldap3.Connection(ldapServer, user=user, password=self.__hashes, authentication=ldap3.NTLM)
-                    ldapConn.bind()
+                    ldapConn = ldap3.Connection(ldapServer, user=user, password=self.__hashes, authentication=ldap3.NTLM, auto_bind=self.__autoBind,
+                                                channel_binding=self.__channelBinding)
+                    if not ldapConn.bind():
+                        raise Exception("Error in bind %s for user %s", ldapConn.result, user)
                 else:
-                    ldapConn = ldap3.Connection(ldapServer, user=user, password=self.__password, authentication=ldap3.NTLM)
-                    ldapConn.bind()
+                    ldapConn = ldap3.Connection(ldapServer, user=user, password=self.__password, authentication=ldap3.NTLM, auto_bind=self.__autoBind,
+                                                channel_binding=self.__channelBinding)
+                    if not ldapConn.bind():
+                        raise Exception("Error in bind %s for user %s", ldapConn.result, user)
 
             except ldap3.core.exceptions.LDAPSocketOpenError:
                 #try tlsv1
-                tls = ldap3.Tls(validate=ssl.CERT_NONE, version=ssl.PROTOCOL_TLSv1, ciphers='ALL:@SECLEVEL=0')
+                tls = ldap3.Tls(validate=ssl.CERT_NONE, version=ssl.PROTOCOL_TLSv1, ciphers='ALL:@SECLEVEL=0',
+                            local_private_key_file=self.__clientKey, local_certificate_file=self.__clientCert,
+                            ca_certs_file=self.__caCert)
                 ldapServer = ldap3.Server(connectTo, use_ssl=True, port=self.__port, get_info=ldap3.ALL, tls=tls)
                 if self.__doKerberos:
-                    ldapConn = ldap3.Connection(ldapServer)
+                    ldapConn = ldap3.Connection(ldapServer, auto_bind=self.__autoBind)
                     self.LDAP3KerberosLogin(ldapConn, self.__username, self.__password, self.__domain, self.__lmhash, self.__nthash,
                                                  self.__aesKey, kdcHost=self.__kdcHost)
                 elif self.__hashes is not None:
-                    ldapConn = ldap3.Connection(ldapServer, user=user, password=self.__hashes, authentication=ldap3.NTLM)
-                    ldapConn.bind()
+                    ldapConn = ldap3.Connection(ldapServer, user=user, password=self.__hashes, authentication=ldap3.NTLM, auto_bind=self.__autoBind,
+                                                channel_binding=self.__channelBinding)
+                    if not ldapConn.bind():
+                        raise Exception("Error in bind %s for user %s", ldapConn.result, user)
                 else:
-                    ldapConn = ldap3.Connection(ldapServer, user=user, password=self.__password, authentication=ldap3.NTLM)
-                    ldapConn.bind()
+                    ldapConn = ldap3.Connection(ldapServer, user=user, password=self.__password, authentication=ldap3.NTLM, auto_bind=self.__autoBind,
+                                                channel_binding=self.__channelBinding)
+                    if not ldapConn.bind():
+                        raise Exception("Error in bind %s for user %s", ldapConn.result, user)
 
 
 
@@ -553,6 +578,12 @@ if __name__ == '__main__':
     parser.add_argument('-port', type=int, choices=[139, 445, 636],
                        help='Destination port to connect to. SAMR defaults to 445, LDAPS to 636.')
 
+    parser.add_argument('-start-tls', action='store_true', help='Use start tls')
+
+    parser.add_argument('-client-cert', action='store', metavar='CLIENT CERT', help='Client certificate')
+    parser.add_argument('-ca-cert', action='store', help='Client certificate')
+    parser.add_argument('-client-key', action='store', help='Client key')
+
     group = parser.add_argument_group('LDAP')
     group.add_argument('-baseDN', action='store', metavar='DC=test,DC=local', help='Set baseDN for LDAP.'
                                                                                     'If ommited, the domain part (FQDN) '
@@ -576,6 +607,8 @@ if __name__ == '__main__':
     group.add_argument('-dc-ip', action='store',metavar = "ip",  help='IP of the domain controller to use. '
                                                                       'Useful if you can\'t translate the FQDN.'
                                                                       'specified in the account parameter will be used')
+
+    group.add_argument('-channel-binding', action='store_const', const = ldap3.TLS_CHANNEL_BINDING, help='enable TLS Channel Binding')
 
 
     if len(sys.argv)==1:

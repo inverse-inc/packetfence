@@ -19,6 +19,7 @@ ARG PKGS_TO_EXCLUDE
 COPY debian/control /tmp/
 COPY rpm/packetfence.spec /tmp/
 COPY addons/dev-helpers/debian/install-pf-dependencies.sh /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh
+COPY addons/dev-helpers/create-python-venv.sh /usr/local/pf/addons/dev-helpers/create-python-venv.sh
 
 # Prepare Repos
 RUN curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg && \
@@ -30,7 +31,7 @@ RUN curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /e
 # Install Deps
 RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
     rm -f /usr/local/fingerbank/db/fingerbank_*.db && \
-    apt-get -qq --no-install-recommends install -y freeradius-common
+    apt-get -qq --no-install-recommends install -y freeradius-common python3-venv
 
 # Clean
 RUN find /usr/share/doc -depth -type f ! -name copyright -exec rm {} \; && \
@@ -42,5 +43,8 @@ RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
 
 RUN mkdir -p /usr/local/pf/lib/ && \
     ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
+
+# Setup python virtual env
+RUN /usr/local/pf/addons/dev-helpers/create-python-venv.sh
 
 RUN chown -R pf: /usr/local/pf

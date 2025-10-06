@@ -36,6 +36,7 @@ fi
 source /usr/local/pf/conf/build_id
 
 img_name=packetfence/$name:$TAG_OR_BRANCH_NAME
+PF_VERSION=$(egrep -o '[0-9]+\.[0-9]+' /usr/local/pf/conf/pf-release)
 
 echo "Building image $img_name"
 
@@ -43,6 +44,7 @@ sub_splitter
 
 docker build -t $img_name \
   --build-arg=BUILD_PFAPPSERVER_VUE=yes \
+  --build-arg=PF_VERSION="$PF_VERSION" \
   --build-arg=KNK_REGISTRY_URL=ghcr.io/inverse-inc/packetfence \
   --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME \
   -f containers/$name/Dockerfile .

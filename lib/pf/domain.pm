@@ -54,17 +54,28 @@ Executes the command in the OS to test the domain join
 
 sub add_computer {
     my $option = shift;
-    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass) = @_;
-
+    my ($computer_name, $computer_password, $domain_controller_ip, $domain_controller_host, $dns_name, $workgroup, $ou, $bind_dn, $bind_pass, $force_ldap, $ssl_options) = @_;
+    $ssl_options //= {};
     if (!defined($ou)) {
         $ou = ""
     }
+
+    my @additional_options;
+    my $client_cert_file = $ssl_options->{client_cert_file};
+    my $client_key_file = $ssl_options->{client_key_file};
+    my $ca_file = $ssl_options->{ca_file};
+    push @additional_options, '-start-tls' if ($ssl_options->{encryption} // "") eq "TLS";
+    push @additional_options, '-client-cert', $client_cert_file if defined $client_cert_file;
+    push @additional_options, '-client-key', $client_key_file if defined $client_key_file;
+    push @additional_options, '-ca-cert', $ca_file if defined $ca_file;
+    push @additional_options, '-channel-binding' if $ssl_options->{channel_binding};
+    push @additional_options, '-domain-netbios', $workgroup if defined $workgroup && length($workgroup);
 
     $ou =~ s/^\s+|\s+$//g;
     $ou =~ s/^['"]|['"]$//g;
 
     my $method = "LDAPS";
-    if (uc($ou) eq "COMPUTERS" || $ou eq "") {
+    if (!$force_ldap && (uc($ou) eq "COMPUTERS" || $ou eq "")) {
         $method = "SAMR"
     }
 
@@ -76,33 +87,73 @@ sub add_computer {
     my $result;
     if ($option =~ /^\s+$/) {
         # no delete, simply adds the computer account.
+        my @cmd_args = (
+            "-computer-name", "$computer_name",
+            "-computer-pass", "$computer_password",
+            "-dc-ip", "$domain_controller_ip",
+            "-dc-host", "$domain_controller_host",
+            "-baseDN", "$baseDN",
+            "-computer-group", "$computer_group",
+            "-method=$method",
+            @additional_options,
+            "$domain_auth"
+        );
+
+        # Create sanitized version for logging (hide passwords)
+        my @sanitized_args = @cmd_args;
+        for (my $i = 0; $i < @sanitized_args; $i++) {
+            if ($i > 0 && $sanitized_args[$i-1] eq "-computer-pass") {
+                $sanitized_args[$i] = "***HIDDEN***";
+            }
+            # Hide bind password in domain_auth (format: domain/user:password)
+            elsif ($sanitized_args[$i] =~ /^[^:]+:[^:]+$/) {
+                $sanitized_args[$i] =~ s/:.*$/:***HIDDEN***/;
+            }
+        }
+
+        my $sanitized_command = "$ADD_COMPUTERS_BIN " . join(" ", @sanitized_args);
+        get_logger->info("Executing impacket-addcomputer command: $sanitized_command");
+
         eval {
             $result = safe_pf_run($ADD_COMPUTERS_BIN,
-                "-computer-name", "$computer_name",
-                "-computer-pass", "$computer_password",
-                "-dc-ip", "$domain_controller_ip",
-                "-dc-host", "$domain_controller_host",
-                "-baseDN", "$baseDN",
-                "-computer-group", "$computer_group",
-                "-method=$method",
-                "$domain_auth",
+                @cmd_args,
                 { accepted_exit_status => [ 0 ] }
             );
         };
     }
     else {
         # computer account already exists / or other cases.
+        my @cmd_args = (
+            "-computer-name", "$computer_name",
+            "-computer-pass", "$computer_password",
+            "-dc-ip", "$domain_controller_ip",
+            "-dc-host", "$domain_controller_host",
+            "-baseDN", "$baseDN",
+            "-computer-group", "$computer_group",
+            "-method=$method",
+            @additional_options,
+            "$domain_auth",
+            "$option"
+        );
+
+        # Create sanitized version for logging (hide passwords)
+        my @sanitized_args = @cmd_args;
+        for (my $i = 0; $i < @sanitized_args; $i++) {
+            if ($i > 0 && $sanitized_args[$i-1] eq "-computer-pass") {
+                $sanitized_args[$i] = "***HIDDEN***";
+            }
+            # Hide bind password in domain_auth (format: domain/user:password)
+            elsif ($sanitized_args[$i] =~ /^[^:]+:[^:]+$/) {
+                $sanitized_args[$i] =~ s/:.*$/:***HIDDEN***/;
+            }
+        }
+
+        my $sanitized_command = "$ADD_COMPUTERS_BIN " . join(" ", @sanitized_args);
+        get_logger->info("Executing impacket-addcomputer command (with option): $sanitized_command");
+
         eval {
             $result = safe_pf_run($ADD_COMPUTERS_BIN,
-                "-computer-name", "$computer_name",
-                "-computer-pass", "$computer_password",
-                "-dc-ip", "$domain_controller_ip",
-                "-dc-host", "$domain_controller_host",
-                "-baseDN", "$baseDN",
-                "-computer-group", "$computer_group",
-                "-method=$method",
-                "$domain_auth",
-                "$option",
+                @cmd_args,
                 { accepted_exit_status => [ 0 ] }
             );
         };
