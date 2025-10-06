@@ -102,6 +102,41 @@
         var: accname_list
 
 
+[% FOREACH role IN AccessListEnabled.keys %]
+[% cleankey = role.replace('[^a-zA-Z0-9\s]', '', 'g') %]
+
+    - name: Boolean variable if pf-role-[% role %] exists
+      set_fact:
+        contains_pf_role_[% cleankey %]_delete: "{{ 'pf-role-[% role %]' in rname_list }}"
+
+    - name: Delete unused role pf-role-[% role %] into Aruba Mobility Master
+      aos_api_config:
+        method: POST
+        config_path: [% wsPath %]
+        data:
+          - role:
+              rname: pf-role-[% cleankey %]
+              _action: delete
+        commit: True
+      when: contains_pf_role_[% cleankey %]_delete
+
+    - name: Boolean variable if pf-policy-[% key %] exists
+      set_fact:
+        contains_pf_policy_[% cleankey %]_delete: "{{ 'pf-policy-[% key %]' in accname_list }}"
+
+    - name: Delete unused acl pf-policy-[% key %] into Aruba Mobility Master
+      aos_api_config:
+        method: POST
+        config_path: [% wsPath %]
+        data:
+          - acl_sess:
+              accname: pf-policy-[% role %]
+              _action: delete
+        commit: True
+      when: contains_pf_policy_[% cleankey %]_delete
+
+[% END %]
+
 [% FOREACH key IN acls_array.keys %]
 [% cleankey = key.replace('[^a-zA-Z0-9\s]', '', 'g') %]
 

@@ -640,8 +640,8 @@ sub getRoleByName {
     my $logger = $self->logger;
 
     # Check if RoleEnabled parameter exists and is disabled for this role
-    my $enabled_param = $roleName . 'RoleEnabled';
-    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+    my $enabled_param = '_' . $roleName . 'RoleEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
         $logger->debug("Role mapping for role $roleName is disabled");
         return;
     }
@@ -747,8 +747,8 @@ sub getAccessListByName {
     my $logger = $self->logger;
     
     # Check if AccessListEnabled parameter exists and is disabled for this role
-    my $enabled_param = $access_list_name . 'AccessListEnabled';
-    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+    my $enabled_param = '_' . $access_list_name . 'AccessListEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
         $logger->debug("AccessList mapping for role $access_list_name is disabled");
         return;
     }
@@ -790,8 +790,8 @@ sub getRoleAccessListByName {
     my $logger = $self->logger;
 
     # Check if AccessListEnabled parameter exists and is disabled for this role
-    my $enabled_param = $access_list_name . 'AccessListEnabled';
-    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+    my $enabled_param = '_' . $access_list_name . 'AccessListEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
         $logger->debug("AccessList mapping for role $access_list_name is disabled");
         return;
     }
@@ -825,8 +825,8 @@ sub getUrlByName {
     my $logger = $self->logger;
 
     # Check if UrlEnabled parameter exists and is disabled for this role
-    my $enabled_param = $roleName . 'UrlEnabled';
-    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+    my $enabled_param = '_' . $roleName . 'UrlEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
         $logger->debug("URL mapping for role $roleName is disabled");
         return;
     }
@@ -875,8 +875,8 @@ sub getVpnByName {
     my $logger = $self->logger;
 
     # Check if VpnEnabled parameter exists and is disabled for this role
-    my $enabled_param = $roleName . 'VpnEnabled';
-    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+    my $enabled_param = '_' . $roleName . 'VpnEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
         $logger->debug("VPN mapping for role $roleName is disabled");
         return;
     }
@@ -952,8 +952,8 @@ sub getInterfaceByName {
     my $logger = $self->logger;
 
     # Check if InterfaceEnabled parameter exists and is disabled for this role
-    my $enabled_param = $roleName . 'InterfaceEnabled';
-    if (exists $self->{$enabled_param} && defined $self->{$enabled_param} && $self->{$enabled_param} eq 'disabled') {
+    my $enabled_param = '_' . $roleName . 'InterfaceEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
         $logger->debug("Interface mapping for role $roleName is disabled");
         return;
     }
@@ -4395,6 +4395,7 @@ Generate Ansible configuration to push ACLs
 
 sub generateAnsibleConfiguration {
     my ($self,$oldSwitchConfig, $delete) = @_;
+    # $delete is set when when the switch is deleted
     $delete //= $FALSE;
     my %vars;
     umask(0002);
@@ -4442,8 +4443,25 @@ sub generateAnsibleConfiguration {
             case /Aruba::Mobility_Master/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aos" }
     }
 
+    # Track which role features went from enabled to disabled
+    my @disabled_params;
+
     foreach my $role (keys %ConfigRoles) {
-        my $acls = $self->getRoleAccessListByName($role);
+        # Check each type of enabled parameter
+        my @param_types = ('InterfaceEnabled', 'VpnEnabled', 'RoleEnabled', 'UrlEnabled', 'AccessListEnabled');
+
+        foreach my $param_type (@param_types) {
+            my $param_name = '_' . $role . $param_type;
+
+            # Check if parameter went from enabled to disabled
+            my $was_enabled = exists $oldSwitchConfig->{$param_name} && !isdisabled($oldSwitchConfig->{$param_name});
+            my $is_disabled = exists $self->{$param_name} && isdisabled($self->{$param_name});
+
+            if ($was_enabled && $is_disabled) {
+                $vars{'switches'}{$switch_id}{$param_type}{$role} = $TRUE;
+            }
+        }
+
         my $interfaces = $self->getInterfaceByName($role);
         if ($interfaces) {
             my @interfaces = split(',',$interfaces);
@@ -4453,6 +4471,11 @@ sub generateAnsibleConfiguration {
                 $vars{'switches'}{$switch_id}{'interfaces'}{$role} = \@interfaces;
             }
         }
+    }
+
+    # Log the disabled parameters if any were found
+    if (@disabled_params) {
+        $logger->info("Parameters that went from enabled to disabled: " . join(", ", @disabled_params));
     }
     if (!$delete) {
         # Remove useless acl on old interfaces
