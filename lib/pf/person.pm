@@ -40,6 +40,7 @@ BEGIN {
         person_reg_nodes
         person_security_events
         person_cleanup
+        single_person_cleanup
         persons_without_nodes
         person_unassign_nodes
         $PID_RE
@@ -394,6 +395,39 @@ sub person_cleanup {
         }
         # We're all good for deletion
         person_delete($pid);
+    }
+}
+
+=head2 single_person_cleanup
+
+Clean the pid if the local account is not valid anymore
+
+=cut
+
+sub single_person_cleanup {
+    my ($pid) = @_;
+    my $now = DateTime->now(time_zone => 'local');
+
+    if($pf::constants::BUILTIN_USERS{$pid}){
+        get_logger->debug("User $pid is set for deletion but is a built-in user. Not deleting...");
+        return $FALSE
+    }
+    my $password = pf::password::view($pid);
+    if(defined($password)){
+        my $expiration = $password->{expiration};
+        if ($expiration eq $ZERO_DATE) {
+            get_logger->debug("Not deleting $pid because the password is set not to expire");
+            return $FALSE;
+        }
+        $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
+        $expiration->set_time_zone('local');
+        my $cmp = DateTime->compare($now, $expiration);
+        if($cmp < 0){
+            get_logger->debug("Not deleting $pid because the local account is still valid.");
+            return $FALSE;
+        }
+        # We delete the password too
+        pf::password::_delete($pid);
     }
 }
 

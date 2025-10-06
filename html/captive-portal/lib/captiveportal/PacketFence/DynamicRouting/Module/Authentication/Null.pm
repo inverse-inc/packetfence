@@ -20,6 +20,7 @@ use pf::log;
 use pf::auth_log;
 use pf::Authentication::constants;
 use pf::constants::realm;
+use pf::person;
 
 has '+source' => (isa => 'pf::Authentication::Source::NullSource');
 
@@ -64,8 +65,16 @@ sub authenticate {
 
     if($self->requires_email) {
         $pid = $self->request_fields->{$self->pid_field};
-
+        $self->session->{email} = $pid;
         get_logger->info("Validating e-mail for user $pid");
+        if($self->create_account && person_exist($pid)) {
+            if (!single_person_cleanup($pid)) {
+                pf::auth_log::record_auth($self->source->id, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
+                $self->app->flash->{error} = "Trying to create a local account that already exists and is still valid";
+                $self->prompt_fields();
+                return;
+            }
+        }
         my ($return, $message, $source_id, $extra) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH, context => $pf::constants::realm::PORTAL_CONTEXT}, $self->source);
         if(defined($return) && $return == 1){
             pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
@@ -96,6 +105,17 @@ Whether or not the email is required
 sub requires_email {
     my ($self) = @_;
     return isenabled($self->source->{email_required});
+}
+
+=head2 create_account
+
+Whether or not to create a local account
+
+=cut
+
+sub create_account {
+    my ($self) = @_;
+    return isenabled($self->source->{create_local_account});
 }
 
 =head1 AUTHOR
