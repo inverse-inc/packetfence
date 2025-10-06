@@ -113,7 +113,7 @@ fi
 
 /usr/local/pf/bin/pfcmd service pf stop
 systemctl stop packetfence-config
-echo "PacketFence's Services are stopped and Packetfence will not work for few minutes."
+echo "PacketFence's Services are stopped."
 
 if [ "$PF_NEEDED" = true ]; then
     set_uid_gid "pf" $PF_ID
@@ -126,6 +126,11 @@ fi
 
 /usr/local/pf/bin/pfcmd fixpermissions
 find /usr/local/pf/logs/ -mindepth 1 -print0 | xargs -0 chown pf:pf
+find /usr/local/pf -path '/usr/local/pf/var/*' -prune -o -exec chown pf:pf {} +
+chown root:root /usr/local/pf/bin/pfcmd
+chmod ug+s /usr/local/pf/bin/pfcmd
+chown root:root /usr/local/pf/bin/pfcrypt
+chown root:root /usr/local/pf/bin/pfkafka
 echo "Permissions with new uid and gid are fixed"
 
 systemctl start packetfence-config
