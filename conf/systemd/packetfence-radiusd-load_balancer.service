@@ -16,6 +16,7 @@ StartLimitInterval=10
 ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/radiusd-load-balancer-docker-wrapper
 ExecStop=/bin/bash -c "docker stop radiusd-load-balancer ; echo Stopped"
+ExecStopPost=rm -rf /usr/local/pf/var/run/radiusd-load-balancer-systemd-notify.pid ; rm -rf /usr/local/pf/var/run/radiusd-load_balancer.sock
 Restart=on-failure
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/radiusd-load-balancer-systemd-notify.pid
