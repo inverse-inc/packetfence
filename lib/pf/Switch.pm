@@ -4452,14 +4452,14 @@ sub generateAnsibleConfiguration {
         my @param_types = ('InterfaceEnabled', 'VpnEnabled', 'RoleEnabled', 'UrlEnabled', 'AccessListEnabled');
 
         foreach my $param_type (@param_types) {
-            my $param_name = '_' . $role . $param_type;
+            my $param_name = $role . $param_type;
 
             # Check if parameter went from enabled to disabled
             my $was_enabled = exists $oldSwitchConfig->{$param_name} && !isdisabled($oldSwitchConfig->{$param_name});
-            my $is_disabled = exists $self->{$param_name} && isdisabled($self->{$param_name});
-
+            my $is_disabled = exists $self->{"_".$param_name} && isdisabled($self->{"_".$param_name});
             if ($was_enabled && $is_disabled) {
                 $vars{'switches'}{$switch_id}{$param_type}{$role} = $TRUE;
+                push @disabled_params, "$role $param_type";
             }
         }
 
@@ -4478,6 +4478,7 @@ sub generateAnsibleConfiguration {
     if (@disabled_params) {
         $logger->info("Parameters that went from enabled to disabled: " . join(", ", @disabled_params));
     }
+
     if (!$delete) {
         # Remove useless acl on old interfaces
         my %diff;
