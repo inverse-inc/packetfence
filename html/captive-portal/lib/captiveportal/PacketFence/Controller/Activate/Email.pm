@@ -300,11 +300,12 @@ sub add_expiration {
     for my $action (@$actions) {
         if ($action->type eq "set_access_duration") {
             push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => pf::config::access_duration($action->value));
-            next;
+            last;
         }
 
         if ($action->type eq "set_unreg_date") {
             push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => $action->value);
+            last;
         }
     }
 }
