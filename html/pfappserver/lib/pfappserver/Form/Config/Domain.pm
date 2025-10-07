@@ -353,7 +353,6 @@ has_field 'encryption' =>
     { value => 'ssl', label => 'SSL' },
     { value => 'starttls', label => 'Start TLS' },
    ],
-   required => 1,
    element_class => ['input-small'],
    default => 'ssl',
   );
