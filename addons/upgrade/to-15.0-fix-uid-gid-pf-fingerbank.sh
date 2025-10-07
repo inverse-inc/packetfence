@@ -113,7 +113,7 @@ fi
 
 /usr/local/pf/bin/pfcmd service pf stop
 systemctl stop packetfence-config
-echo "PacketFence's Services are stopped and Packetfence will not work for few minutes."
+echo "PacketFence's Services are stopped."
 
 if [ "$PF_NEEDED" = true ]; then
     set_uid_gid "pf" $PF_ID
@@ -124,8 +124,13 @@ if [ "$FB_NEEDED" = true ]; then
     echo "uid and gid for fingerbank have been applied."
 fi
 
+find /usr/local/pf/ '(' -type d -or -type f ')' -not -name pfcmd -not -path "$PACKETFENCE/logs*" -print0 | xargs -0 chown pf:pf
+find /usr/local/pf/logs/ -mindepth 1 -print0 | xargs -0 chown root:pf
+chown root:root /usr/local/pf/bin/pfcmd
+chmod ug+s /usr/local/pf/bin/pfcmd
+chown root:root /usr/local/pf/bin/pfcrypt
+chown root:root /usr/local/pf/bin/pfkafka
 /usr/local/pf/bin/pfcmd fixpermissions
-find /usr/local/pf/logs/ -mindepth 1 -print0 | xargs -0 chown pf:pf
 echo "Permissions with new uid and gid are fixed"
 
 systemctl start packetfence-config
