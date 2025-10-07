@@ -124,13 +124,14 @@ if [ "$FB_NEEDED" = true ]; then
     echo "uid and gid for fingerbank have been applied."
 fi
 
-/usr/local/pf/bin/pfcmd fixpermissions
-find /usr/local/pf/logs/ -mindepth 1 -print0 | xargs -0 chown pf:pf
+find /usr/local/pf/ '(' -type d -or -type f ')' -not -name pfcmd -not -path "$PACKETFENCE/logs*" -print0 | xargs -0 chown pf:pf
+find /usr/local/pf/logs/ -mindepth 1 -print0 | xargs -0 chown root:pf
 find /usr/local/pf -path '/usr/local/pf/var/*' -prune -o -exec chown pf:pf {} +
 chown root:root /usr/local/pf/bin/pfcmd
 chmod ug+s /usr/local/pf/bin/pfcmd
 chown root:root /usr/local/pf/bin/pfcrypt
 chown root:root /usr/local/pf/bin/pfkafka
+/usr/local/pf/bin/pfcmd fixpermissions
 echo "Permissions with new uid and gid are fixed"
 
 systemctl start packetfence-config
