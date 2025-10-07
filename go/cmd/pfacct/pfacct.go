@@ -173,9 +173,7 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	var RadiusConfiguration pfconfigdriver.PfConfRadiusConfiguration
 	pfconfigdriver.FetchDecodeSocket(ctx, &RadiusConfiguration)
 	pfAcct.ProcessBandwidthAcct = sharedutils.IsEnabled(RadiusConfiguration.ProcessBandwidthAccounting)
-	pfAcct.RateLimit = sharedutils.IsEnabled(RadiusConfiguration.PfacctRateLimit)
-	pfAcct.PfacctRateLimitCacheTtl = 5
-	if i, err := strconv.Atoi(RadiusConfiguration.PfacctRateLimitCacheTtl); err != nil {
+	if i, err := strconv.Atoi(RadiusConfiguration.PfacctRateLimitCacheTtl); err == nil {
 		pfAcct.PfacctRateLimitCacheTtl = i
 	}
 	pfAcct.RateLimitCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
