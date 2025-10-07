@@ -38,31 +38,35 @@ type radiusRequest struct {
 
 type PfAcct struct {
 	RadiusStatements
-	TimeDuration         time.Duration
-	Db                   *sql.DB
-	AllowedNetworks      []net.IPNet
-	NetFlowPort          string
-	NetFlowAddress       string
-	Management           pfconfigdriver.ManagementNetwork
-	AAAClient            *jsonrpc2.Client
-	LoggerCtx            context.Context
-	Dispatcher           *Dispatcher
-	SwitchInfoCache      *cache.Cache
-	NodeSessionCache     *cache.Cache
-	AcctSessionCache     *cache.Cache
-	StatsdAddress        string
-	StatsdOption         statsd.Option
-	StatsdClient         *statsd.Client
-	radiusRequests       []chan<- radiusRequest
-	overflows            []atomic.Int64
-	localSecret          string
-	StatsdOnce           tryableonce.TryableOnce
-	isProxied            bool
-	radiusdAcctEnabled   bool
-	AllNetworks          bool
-	ProcessBandwidthAcct bool
-	RadiusWorkers        int
-	RadiusWorkQueueSize  int
+	TimeDuration            time.Duration
+	Db                      *sql.DB
+	AllowedNetworks         []net.IPNet
+	NetFlowPort             string
+	NetFlowAddress          string
+	Management              pfconfigdriver.ManagementNetwork
+	AAAClient               *jsonrpc2.Client
+	LoggerCtx               context.Context
+	Dispatcher              *Dispatcher
+	SwitchInfoCache         *cache.Cache
+	NodeSessionCache        *cache.Cache
+	AcctSessionCache        *cache.Cache
+	RateLimitCache          *cache.Cache
+	MacNasCache             *cache.Cache
+	RateLimit               bool
+	PfacctRateLimitCacheTtl int
+	StatsdAddress           string
+	StatsdOption            statsd.Option
+	StatsdClient            *statsd.Client
+	radiusRequests          []chan<- radiusRequest
+	overflows               []atomic.Int64
+	localSecret             string
+	StatsdOnce              tryableonce.TryableOnce
+	isProxied               bool
+	radiusdAcctEnabled      bool
+	AllNetworks             bool
+	ProcessBandwidthAcct    bool
+	RadiusWorkers           int
+	RadiusWorkQueueSize     int
 }
 
 func NewPfAcct() *PfAcct {
@@ -90,6 +94,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
 	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
+
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 
@@ -168,7 +173,11 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	var RadiusConfiguration pfconfigdriver.PfConfRadiusConfiguration
 	pfconfigdriver.FetchDecodeSocket(ctx, &RadiusConfiguration)
 	pfAcct.ProcessBandwidthAcct = sharedutils.IsEnabled(RadiusConfiguration.ProcessBandwidthAccounting)
-
+	if i, err := strconv.Atoi(RadiusConfiguration.PfacctRateLimitCacheTtl); err == nil {
+		pfAcct.PfacctRateLimitCacheTtl = i
+	}
+	pfAcct.RateLimitCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
+	pfAcct.MacNasCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
 	if !pfAcct.ProcessBandwidthAcct {
 		logInfo(ctx, "Not processing bandwidth accounting records. To enable set radius_configuration.process_bandwidth_accounting = enabled")
 	}

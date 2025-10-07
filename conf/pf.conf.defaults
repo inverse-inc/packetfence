@@ -1391,6 +1391,14 @@ pfacct_workers = 0
 #
 # The size of the queue for each worker.
 pfacct_work_queue_size = 1000
+# radius_configuration.pfacct_rate_limit
+#
+# Enable the rate limiting on pfacct to prevent hammering httpd.aaa
+pfacct_rate_limit=disabled
+# radius_configuration.pfacct_rate_limit_cache_ttl
+#
+# If rate limiting on pfacct is enabled,  the Time to Live value in minutes represent the time of the accounting cache
+pfacct_rate_limit_cache_ttl=5
 
 [dns_configuration]
 #
