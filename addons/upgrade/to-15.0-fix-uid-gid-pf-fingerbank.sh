@@ -113,6 +113,7 @@ fi
 
 /usr/local/pf/bin/pfcmd service pf stop
 systemctl stop packetfence-config
+systemctl stop packetfence-redis_queue.service
 echo "PacketFence's Services are stopped."
 
 if [ "$PF_NEEDED" = true ]; then
