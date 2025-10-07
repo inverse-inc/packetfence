@@ -351,7 +351,7 @@ func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatu
 	NasIp, NasIPExists := attr["NAS-IP-Address"]
 	CalledStationId, CalledStationIdExists := attr["Called-Station-Id"]
 	CallingStationId, CallingStationIdExists := attr["Calling-Station-Id"]
-	FramedIPAddress, FramedIPAddressExists := attr["Framed-IP-Addres"]
+	FramedIPAddress, FramedIPAddressExists := attr["Framed-IP-Address"]
 	var key string
 	var keyStart string
 	var macLocValue string
