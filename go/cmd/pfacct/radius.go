@@ -405,29 +405,24 @@ func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatu
 		}
 	}
 	if rfc2866.AcctStatusType_Strings[status] == "Interim-Update" {
-		// Verify that we already got a start
-		ip, exists := h.RateLimitCache.Get(keyStart)
-		if exists {
-			if FramedIPAddressExists && FramedIPAddress != ip.(string) {
-				h.RateLimitCache.Set(keyStart, FramedIPAddress, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
-				h.MacNasCache.Set(macAddress.String(), macLocValue, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
-				return true
-			} else {
-				return false
-			}
-		}
+		return h.handleInterimOrStop(keyStart, FramedIPAddress, FramedIPAddressExists, macAddress, macLocValue)
 	}
 	if rfc2866.AcctStatusType_Strings[status] == "Stop" {
-		// Verify that we already got a start
-		ip, exists := h.RateLimitCache.Get(keyStart)
-		if exists {
-			if FramedIPAddressExists && FramedIPAddress != ip.(string) {
-				h.RateLimitCache.Set(keyStart, FramedIPAddress, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
-				h.MacNasCache.Set(macAddress.String(), macLocValue, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
-				return true
-			} else {
-				return false
-			}
+		return h.handleInterimOrStop(keyStart, FramedIPAddress, FramedIPAddressExists, macAddress, macLocValue)
+	}
+	return false
+}
+
+// handleInterimOrStop encapsulates the duplicated logic for "Interim-Update" and "Stop" status handling in rateLimit.
+func (h *PfAcct) handleInterimOrStop(keyStart string, FramedIPAddress string, FramedIPAddressExists bool, macAddress net.HardwareAddr, macLocValue interface{}) bool {
+	ip, exists := h.RateLimitCache.Get(keyStart)
+	if exists {
+		if FramedIPAddressExists && FramedIPAddress != ip.(string) {
+			h.RateLimitCache.Set(keyStart, FramedIPAddress, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+			h.MacNasCache.Set(macAddress.String(), macLocValue, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+			return true
+		} else {
+			return false
 		}
 	}
 	return false
