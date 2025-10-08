@@ -67,7 +67,7 @@ sub precreate_acls {
         return $self->render_error(422, "Cannot instantiate switch $switch");
     }
 
-    $switch->generateACL();
+    $switch->generateAnsibleConfiguration();
     return $self->render(status => 200, json => { });
 }
 
