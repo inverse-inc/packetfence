@@ -139,6 +139,7 @@ should_backup_database(){
     # to detect MariaDB remote DB
     if [ "$DB_HOST" != "localhost" ] && [ "$DB_HOST" != "100.64.0.1" ]; then
         echo "Remote database detected: backup should be done on database server itself."
+        BACKUPRC=1
         exit $BACKUPRC
     fi
 
@@ -152,6 +153,7 @@ should_backup_database(){
             MARIADB_DISABLE_GALERA=0
         elif ! ip a | grep $FIRST_SERVER > /dev/null; then
             echo "Not the first server of the cluster: database backup canceled."
+            BACKUPRC=1
             exit $BACKUPRC
         else
             echo -e "First server of the cluster : database backup will start.\n"
