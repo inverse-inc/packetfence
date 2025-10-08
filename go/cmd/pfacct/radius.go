@@ -354,7 +354,7 @@ func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatu
 	FramedIPAddress, FramedIPAddressExists := attr["Framed-IP-Address"]
 	var key string
 	var keyStart string
-	var macLocValue string
+	var macLocValue interface{}
 	var macAddress mac.Mac
 	// No CallingStationId
 	if !CallingStationIdExists {
@@ -383,7 +383,7 @@ func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatu
 		ip, exists := h.RateLimitCache.Get(key)
 		if !exists {
 			if FramedIPAddressExists {
-				h.RateLimitCache.Set(key, FramedIPAddress, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+				h.RateLimitCache.Set(key, FramedIPAddress.(string), time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
 			} else {
 				h.RateLimitCache.Set(key, "0.0.0.0", time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
 			}
@@ -405,10 +405,18 @@ func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatu
 		}
 	}
 	if rfc2866.AcctStatusType_Strings[status] == "Interim-Update" {
-		return h.handleInterimOrStop(keyStart, FramedIPAddress, FramedIPAddressExists, macAddress, macLocValue)
+		framedIP := ""
+		if FramedIPAddressExists {
+			framedIP = FramedIPAddress.(string)
+		}
+		return h.handleInterimOrStop(keyStart, framedIP, FramedIPAddressExists, net.HardwareAddr(macAddress[:]), macLocValue)
 	}
 	if rfc2866.AcctStatusType_Strings[status] == "Stop" {
-		return h.handleInterimOrStop(keyStart, FramedIPAddress, FramedIPAddressExists, macAddress, macLocValue)
+		framedIP := ""
+		if FramedIPAddressExists {
+			framedIP = FramedIPAddress.(string)
+		}
+		return h.handleInterimOrStop(keyStart, framedIP, FramedIPAddressExists, net.HardwareAddr(macAddress[:]), macLocValue)
 	}
 	return false
 }
