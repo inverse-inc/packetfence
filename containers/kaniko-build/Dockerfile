@@ -1,4 +1,4 @@
-FROM gcr.io/kaniko-project/executor:debug
+FROM ghcr.io/inverse-inc/packetfence/kaniko-executor:debug
 
 COPY containers/kanikobuild /bin/kanikobuild
 RUN chmod +x /bin/kanikobuild
