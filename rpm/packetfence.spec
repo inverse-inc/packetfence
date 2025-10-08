@@ -43,6 +43,8 @@ Obsoletes: %{name}-config <= 9.1.0
 
 AutoReqProv: 0
 
+Conflicts: packetfence-export
+
 Requires: firewalld
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
 # for process management
