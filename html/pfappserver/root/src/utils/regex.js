@@ -12,6 +12,8 @@ export const reDomain = value => /^((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]
 
 export const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/.test(value)
 
+export const reEnv = value => /^\[%\s*ENV\.env_or_default\(\s*"[A-Z_]+"\s*,\s*.+\s*\)\s*%\]$/.test(value)
+
 export const reFilename = value => /^[^\\/?%*:|"<>]+$/.test(value)
 
 export const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)

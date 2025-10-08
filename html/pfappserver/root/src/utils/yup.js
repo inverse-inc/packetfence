@@ -9,6 +9,7 @@ import {
   reCommonName,
   reEmail,
   reDomain,
+  reEnv,
   reIpv4,
   reIpv6,
   reFilename,
@@ -278,6 +279,43 @@ yup.addMethod(yup.string, 'isEmailCsv', function (message) {
         if (!['', null, undefined].includes(emails[e].trim()) && !reEmail(emails[e].trim()))
           return false
       }
+      return true
+    }
+  })
+})
+
+yup.addMethod(yup.string, 'isEnv', function (message, fallbackValidator) {
+  return this.test({
+    name: 'isEnv',
+    message: message || i18n.t('Invalid value.'),
+    test: function (value) {
+      if (['', null, undefined].includes(value))
+        return true
+
+      // Try to extract default value from ENV pattern
+      const envMatch = value.match(/^\[%\s*ENV\.env_or_default\(\s*"[A-Z_]+"\s*,\s*(.+)\s*\)\s*%\]$/)
+
+      let testValue = value
+      if (envMatch) {
+        // Extract and clean the default value
+        let defaultValue = envMatch[1].trim()
+        // Remove surrounding quotes if present
+        if (defaultValue.startsWith('"') && defaultValue.endsWith('"')) {
+          defaultValue = defaultValue.slice(1, -1)
+        }
+        testValue = defaultValue
+      }
+
+      // Validate using the fallback validator if provided
+      if (fallbackValidator) {
+        try {
+          fallbackValidator.validateSync(testValue)
+          return true
+        } catch (error) {
+          return this.createError({ message: error.message })
+        }
+      }
+
       return true
     }
   })
