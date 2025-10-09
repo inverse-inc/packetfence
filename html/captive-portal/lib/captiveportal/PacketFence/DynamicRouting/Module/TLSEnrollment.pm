@@ -157,12 +157,12 @@ sub process_form  {
     if ( $self->session->{certificate_email} ){
         $certificate_email = $self->session->{certificate_email};
     }
-    elsif ( defined($self->app->request->param('certificate_email')) && $self->app->request->param('certificate_email') ne '' ){
-        unless( Email::Valid->address($self->app->request->param('certificate_email')) && $self->app->request->param('certificate_email') ne 'not_needed') {
+    elsif ( defined($self->app->request->param('certificate_email')) && $self->app->request->param('certificate_email') ne '' ) {
+        $certificate_email = $self->app->request->param('certificate_email');
+        if ($certificate_email ne 'not_needed' && !Email::Valid->address($certificate_email)) {
             $self->app->flash->{error} = "Wrong e-mail format given";
             return $FALSE;
         }
-        $certificate_email = $self->app->request->param('certificate_email');
     }
     else {
         $self->app->flash->{error} = "No e-mail given";
