@@ -59,6 +59,12 @@ sub acl_chewer {
                 $new_acl->{'range'} = "false";
                 $new_acl->{'dst_port'} =~ s/\w+\s+//;
             }
+        } else {
+            if ($new_acl->{'protocol'} =~ /^(tcp|udp)$/) {
+                $new_acl->{'range'} = "true";
+                $new_acl->{'dst_port'} = "0";
+                $new_acl->{'dst_port2'} = "65535";
+            }
         }
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
            $new_acl->{'dst'} = "any";
