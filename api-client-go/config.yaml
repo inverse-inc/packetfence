@@ -1,0 +1,62 @@
+# PacketFence API Client Configuration
+
+server:
+  base_url: "https://localhost:9999"
+  verify_ssl: false
+  timeout: 30s
+  max_retries: 3
+
+auth:
+  # Choose one authentication method
+  username: "admin"
+  password: "admin"
+  # token: "your_bearer_token_here"
+  # api_key: "your_api_key_here"
+
+testing:
+  save_results: true
+  results_format: "json"  # json or yaml
+  batch_size: 10
+  delay_between_requests: 100ms
+
+endpoints:
+  # Endpoints to test in comprehensive mode
+  read_only_tests:
+    - "/api/v1/status"
+    - "/api/v1/services/status"
+    - "/api/v1/config"
+    - "/api/v1/nodes"
+    - "/api/v1/users"
+    - "/api/v1.1/reports"
+    - "/api/v1/violations"
+    - "/api/v1/dhcp_options"
+    - "/api/v1/config/sources"
+    - "/api/v1/config/switches"
+
+  # Endpoints that modify data (use with caution)
+  write_tests:
+    enabled: false  # Set to true to enable write operations in tests
+    cleanup: true   # Clean up test data after tests
+    endpoints:
+      - "/api/v1/nodes"
+      - "/api/v1/users"
+
+# Sample data for testing (used when creating test objects)
+sample_data:
+  node:
+    mac: "aa:bb:cc:dd:ee:ff"
+    pid: "api_test_user"
+    status: "reg"
+    notes: "Created by Go API test suite"
+  
+  user:
+    pid: "api_test_user_001"
+    firstname: "Test"
+    lastname: "User"
+    email: "test@example.com"
+    notes: "Created by Go API test suite"
+
+# Logging configuration
+logging:
+  level: "info"  # debug, info, warning, error
+  format: "text"  # text or json
