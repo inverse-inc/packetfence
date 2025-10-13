@@ -1,0 +1,62 @@
+{
+  "server": {
+    "base_url": "https://localhost:9999",
+    "verify_ssl": false,
+    "timeout": 30
+  },
+  "auth": {
+    "username": "admin",
+    "password": "admin"
+  },
+  "testing": {
+    "max_retries": 3,
+    "save_results": true,
+    "results_format": "json",
+    "batch_size": 10,
+    "delay_between_requests": 0.1
+  },
+  "endpoints": {
+    "read_only_tests": [
+      "/api/v1/status",
+      "/api/v1/services/status",
+      "/api/v1/config",
+      "/api/v1/nodes",
+      "/api/v1/users",
+      "/api/v1.1/reports",
+      "/api/v1/violations",
+      "/api/v1/dhcp_options",
+      "/api/v1/config/sources",
+      "/api/v1/config/switches"
+    ],
+    "write_tests": {
+      "enabled": false,
+      "cleanup": true,
+      "endpoints": [
+        "/api/v1/nodes",
+        "/api/v1/users"
+      ]
+    }
+  },
+  "sample_data": {
+    "node": {
+      "mac": "aa:bb:cc:dd:ee:ff",
+      "pid": "api_test_user",
+      "status": "reg",
+      "notes": "Created by API test suite"
+    },
+    "user": {
+      "pid": "api_test_user_001",
+      "firstname": "Test",
+      "lastname": "User",
+      "email": "test@example.com",
+      "notes": "Created by API test suite"
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "log_to_file": true,
+    "log_file": "pf_api_client.log",
+    "max_log_size": "10MB",
+    "backup_count": 5
+  }
+}
