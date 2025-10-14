@@ -5,6 +5,7 @@ use namespace::autoclean;
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
 use POSIX;
+use List::Util qw(any);
 
 use pf::constants;
 use pf::config qw(%Config);
@@ -22,6 +23,7 @@ use pf::web::custom;
 
 use pf::authentication;
 use pf::Authentication::constants;
+use pf::Authentication::Action;
 use pf::constants::realm;
 
 =head1 NAME
@@ -245,6 +247,7 @@ sub doSponsorRegistration : Private {
             # NOTE: When sponsoring a network access, the new user will be created (in the password table) using
             # the actions of the sponsor authentication source of the connection profile on which the *sponsor* has landed.
             my $actions = pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid , 'context' => $pf::constants::realm::PORTAL_CONTEXT} );
+            add_expiration($source, $actions);
             $info{'password'} =
               pf::password::generate( $pid, $actions );
 
@@ -282,6 +285,28 @@ sub doSponsorRegistration : Private {
               . $profile->getName
         );
         $self->showError($c, "No active sponsor source for this Connection Profile.");
+    }
+}
+
+sub add_expiration {
+    my ($source, $actions) = @_;
+    return if any {$_->{type} eq "expiration" } @$actions;
+
+    if (pf::config::normalize_time($source->local_account_expiration) != 0) {
+        push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => pf::config::access_duration($source->local_account_expiration));
+        return;
+    }
+
+    for my $action (@$actions) {
+        if ($action->type eq "set_access_duration") {
+            push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => pf::config::access_duration($action->value));
+            last;
+        }
+
+        if ($action->type eq "set_unreg_date") {
+            push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => $action->value);
+            last;
+        }
     }
 }
 
