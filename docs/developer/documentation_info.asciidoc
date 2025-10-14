@@ -80,17 +80,14 @@ backquotes ` for buttons. Ex: Click on \`Save`
 ==== Inter-document cross references
 
 We use
-link:https://asciidoctor.org/docs/user-manual/#inter-document-cross-references[inter-document
-cross references feature] to make links between all PacketFence guides. When we
+link:https://asciidoctor.org/docs/user-manual/#inter-document-cross-references[inter-document cross references feature] to make links between all PacketFence guides. When we
 need to link to a specific section of a document, we use
-link:https://asciidoctor.org/docs/user-manual/#automatic-anchors[automatic
-anchors feature] to have a correct display in PDF.
+link:https://asciidoctor.org/docs/user-manual/#automatic-anchors[automatic anchors feature] to have a correct display in PDF.
 
 ==== List of Asciidoctor tags used
 
 Source:
-link:https://redhat-documentation.github.io/asciidoc-markup-conventions/[AsciiDoc
-Mark-up Quick Reference for Red Hat Documentation]
+link:https://redhat-documentation.github.io/asciidoc-markup-conventions/[AsciiDoc Mark-up Quick Reference for Red Hat Documentation]
 
 [NOTE]
 ====

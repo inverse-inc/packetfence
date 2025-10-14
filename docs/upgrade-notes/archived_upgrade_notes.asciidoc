@@ -2660,8 +2660,7 @@ PacketFence.
 
 In order to be able to work on the server, we first need to stop all the
 PacketFence application services on it, see
-<<#_stop_all_packetfence_services,Stop all
-PacketFence services section>>.
+<<#_stop_all_packetfence_services,Stop all PacketFence services section>>.
 
 Now stop `packetfence-mariadb`:
 
@@ -2936,8 +2935,7 @@ Upgrading node C
 
 Next, you can upgrade your operating system and/or PacketFence on node C by
 following instructions of
-<<#_upgrade_packages,Packages upgrades
-section>>.
+<<#_upgrade_packages,Packages upgrades section>>.
 
 IMPORTANT: If you are on a RHEL/CentOS based systems, the command to install
 `packetfence-release` released with 10.3 version will be:
@@ -3200,8 +3198,7 @@ Upgrading nodes A and B
 
 Next, you can upgrade your operating system and/or PacketFence on nodes A and B by
 following instructions of
-<<#_upgrade_packages,Packages upgrades
-section>>.
+<<#_upgrade_packages,Packages upgrades section>>.
 
 WARNING: You only need to merge changes of new configuration files that will not be synced by `/usr/local/pf/bin/cluster/sync` command described below.
 
@@ -3468,8 +3465,7 @@ using theses protocols, move to TLS 1.2. If TLS 1.2 is not possible adjust
 
 Upgrades are now automated for standalone servers starting from PacketFence 11.0.
 Follow instructions related to
-<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation
-of upgrades>>.
+<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>.
 
 ==== Support of custom rules in iptables.conf
 
@@ -3488,8 +3484,7 @@ PacketFence now allow to enable or disable local authentication for 802.1X direc
 If `packetfence-local-auth` has been previously enabled in
 [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`, we recommend
 enabling this feature in PacketFence web admin (see
-<<PacketFence_Installation_Guide.asciidoc#_eap_local_user_authentication,EAP
-local user authentication>>).
+<<PacketFence_Installation_Guide.asciidoc#_eap_local_user_authentication,EAP local user authentication>>).
 
 
 ==== Support of Monit configuration in pf.conf
@@ -3534,8 +3529,7 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-11.0-11.1.sql
 
 Upgrades are now automated for standalone servers starting from PacketFence 11.0.
 Follow instructions related to
-<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation
-of upgrades>>.
+<<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>.
 
 ==== Note for cluster upgrades
 

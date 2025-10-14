@@ -287,8 +287,7 @@ greater.
 Note: This module is renamed from the old 2960 module and therefore inherits all
 its capabilities.
 
-CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS, this
-section below>>.
+CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS, this section below>>.
 
 ===== Port­Security for IOS 12.2(46)SE or greater
 
@@ -581,8 +580,7 @@ image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS AC
 
 ==== Cisco IOS 15.5
 
-CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS_15_5,this
-section below>>.
+CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS_15_5,this section below>>.
 
 ===== Port­Security for IOS 12.2(46)SE or greater
 

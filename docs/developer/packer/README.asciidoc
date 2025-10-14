@@ -25,8 +25,7 @@ then used in a GitLab pipeline.
 === Anatomy of Packer template
 
 PacketFence rely on
-link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg/[gitlab-buildpkg
-images] to run GitLab pipeline with
+link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg/[gitlab-buildpkg images] to run GitLab pipeline with
 link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg-tools[gitlab-buildpkg-tools].
 Packer
 template ([filename]`pfbuild.json`) use these images as base to build
@@ -44,8 +43,7 @@ like:
 We use Ansible and shell scripts to cover these steps. It's possible because
 Python is already
 installed in
-link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg/[gitlab-buildpkg
-images].
+link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg/[gitlab-buildpkg images].
 
 ==== Build dependencies in packages specs
 

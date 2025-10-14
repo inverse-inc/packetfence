@@ -105,8 +105,7 @@ Should the service fail to start, check the MariaDB logs.
 [appendix]
 === How to restore a standalone PacketFence server ?
 
-Starting from PacketFence 11.0, use <<#_exportimport_mechanism,the
-export/import mechanism>>.
+Starting from PacketFence 11.0, use <<#_exportimport_mechanism,the export/import mechanism>>.
 
 [appendix]
 === How to deploy PacketFence on Linode ?

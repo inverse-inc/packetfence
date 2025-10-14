@@ -78,8 +78,7 @@ verify if RFC3576 is supported by your hardware.
 
 If none of the above worked then you can fallback to inline enforcement or let
 us know what equipment you are using on the
-https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel
-mailing list].
+https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
 
 === Aerohive Networks
 

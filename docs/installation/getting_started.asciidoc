@@ -28,8 +28,7 @@ architecture diagram shows component interconnections:
 
 image::getting-started.png["Getting Started",width="50%",scaledwidth="65%"]
 
-NOTE: For other access switches, refer to <<PacketFence_Network_Devices_Configuration_Guide.asciidoc,PacketFence Network Devices
-Configuration Guide.>>
+NOTE: For other access switches, refer to <<PacketFence_Network_Devices_Configuration_Guide.asciidoc,PacketFence Network Devices Configuration Guide.>>
 
 === Going Through the Configurator
 
@@ -214,8 +213,7 @@ the Microsoft Windows 7 endpoint. Click on the line with the correct MAC address
 to see the RADIUS exchanges. If the 802.1X authentication is successful, `Accept` appears as the `Auth Status`.
 
 If authentication fails or you don't see RADIUS entries, see
-<<#_radius_debugging,RADIUS Debugging>> and <<#_radius_audit_log,RADIUS Audit
-Log>> in the Troubleshooting section.
+<<#_radius_debugging,RADIUS Debugging>> and <<#_radius_audit_log,RADIUS Audit Log>> in the Troubleshooting section.
 
 === Alerting
 

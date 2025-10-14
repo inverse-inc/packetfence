@@ -43,8 +43,7 @@ for ports 80, 443, 1443, 9090 and 9999 as shown in the following screenshot:
 image::linode_lb.png[scaledwidth="100%",alt="Linode load-balancer configuration"]
 
 Once completed, you will have to go through the
-<<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,PacketFence
-Clustering Quick Installation Guide>>. For the IP addresses in the CLUSTER
+<<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,PacketFence Clustering Quick Installation Guide>>. For the IP addresses in the CLUSTER
 sections, use the public IP of the NodeBalancer above. For the IP addresses of
 the servers themselves, use their private IP addresses. No
 registration/isolation VLANs are supported at the moment. If you want to perform

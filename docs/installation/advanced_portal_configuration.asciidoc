@@ -428,12 +428,7 @@ database table. Create a _Report_ for the survey in
 [survey1]
 description=My first survey report
 base_table=survey_survey1
-<<<<<<< HEAD
 columns=firstname as "Firstname", lastname as "Lastname", preferred_sandwich as "Preferred Sandwich", gender as "Gender"
-=======
-columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as
-"Prefered Sandwich", gender as "Gender"
->>>>>>> cfece8ead3 (fix layout CRLF)
 ----
 
 NOTE: Once saved, reload the configuration to apply the changes with 

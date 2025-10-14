@@ -30,8 +30,7 @@ installations.
 * If using mariabd-backup and wanting to jump to Debian 12 (packetfence 14.0 or later), it will be necessary to:
 ** be at least on Packetfence version 11.0
 ** follow these steps in order to backup the database with the right
-  <<PacketFence_Installation_Guide.html#_export_db_with_mariadb-backup_installed_to_packetFence_14.0_on_debian_12,mariadb-backup
-  version>>.
+  <<PacketFence_Installation_Guide.html#_export_db_with_mariadb-backup_installed_to_packetFence_14.0_on_debian_12,mariadb-backup version>>.
 [options="compact"]
 * The import process needs to be done on a **standalone** server. Restoring directly to clusters is currently unsupported
 ** NOTE: Once restored to the standalone server, it can be made a

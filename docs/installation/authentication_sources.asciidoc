@@ -177,7 +177,6 @@ be offered.
 === Troubleshooting Authentication Issues
 
 For authentication troubleshooting, see
-<<#_authentication_failures,Authentication Failures>>, <<#_log_files,Log
-Files>>, and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting
+<<#_authentication_failures,Authentication Failures>>, <<#_log_files,Log Files>>, and <<#_radius_debugging,RADIUS Debugging>> in the Troubleshooting
 section.
 

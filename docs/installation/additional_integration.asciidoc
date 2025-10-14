@@ -37,8 +37,7 @@ source to the destination as well optionally mirroring DNS traffic for
 integration with the Fingerbank Collector
 
 Download the
-https://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[DHCP
-Forwarder installer].
+https://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[DHCP Forwarder installer].
 
 This installs `nPCAP`, `nssm`, launches a configurator for the interface, IP and
 port, saves the configuration, and finally installs and launches the
@@ -47,8 +46,7 @@ DHCP-Forwarder service.
 When asked for a host IP and UDP port for DHCP mirroring provide the PacketFence
 management IP and 767 respectively.
 
-Visit the https://github.com/inverse-inc/packetfence-dhcp-forwarder[PacketFence
-Forwarder project page].
+Visit the https://github.com/inverse-inc/packetfence-dhcp-forwarder[PacketFence Forwarder project page].
 
 ==== Linux-based Sensor
 

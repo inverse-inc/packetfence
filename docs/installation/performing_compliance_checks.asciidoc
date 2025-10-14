@@ -37,8 +37,7 @@ configuration of the Nessus Server, and to create a user for PacketFence.
 
 NOTE: Some issues may occur while using Nessus with the
 Net::Nessus::XMLRPC module (which is the default behavior in PacketFence).
-Please refer to the https://packetfence.org/bugs/view.php?id=1841[bug tracking
-system] for more information.
+Please refer to the https://packetfence.org/bugs/view.php?id=1841[bug tracking system] for more information.
 
 ==== OpenVAS
 

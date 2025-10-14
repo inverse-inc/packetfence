@@ -50,8 +50,7 @@ settings:
 image::ubiquiti-unifi-guest-ssid.png[scaledwidth="100%",alt="Unifi web-auth SSID"]
 
 You need to ensure
-link:https://help.ubnt.com/hc/en-us/articles/115015457668-UniFi-Troubleshooting-STUN-Communication-Errors#whatisstun[STUN
-protocol] is allowed between access points and
+link:https://help.ubnt.com/hc/en-us/articles/115015457668-UniFi-Troubleshooting-STUN-Communication-Errors#whatisstun[STUN protocol] is allowed between access points and
 controller so that controller gets
 link:https://help.ubnt.com/hc/en-us/articles/204976094#1[instant notifications]
 from access points. That's important to have a correct deauthentication

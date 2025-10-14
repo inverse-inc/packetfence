@@ -32,17 +32,14 @@ user) in following files:
 ===== Switch01
 
 `switch01` is a virtual switch that uses
-link:https://docs.cumulusnetworks.com/version/cumulus-linux-37/[Cumulus Linux
-3.7] system.
+link:https://docs.cumulusnetworks.com/version/cumulus-linux-37/[Cumulus Linux 3.7] system.
 
 This switch is configured using a
-link:https://docs.cumulusnetworks.com/cumulus-linux-37/Layer-2/Ethernet-Bridging-VLANs/[VLAN
-aware-bridge] to manage VLAN on interfaces (recommended approach)
+link:https://docs.cumulusnetworks.com/cumulus-linux-37/Layer-2/Ethernet-Bridging-VLANs/[VLAN aware-bridge] to manage VLAN on interfaces (recommended approach)
 
 `hostapd` is the daemon responsible to send 802.1X and MAC Authentication
 requests to RADIUS server (as described in
-link:https://docs.cumulusnetworks.com/version/cumulus-linux-37/Layer-1-and-Switch-Ports/802.1X-Interfaces/[802.1X
-Cumulus Linux documentation]). We configured this daemon using Ansible with
+link:https://docs.cumulusnetworks.com/version/cumulus-linux-37/Layer-1-and-Switch-Ports/802.1X-Interfaces/[802.1X Cumulus Linux documentation]). We configured this daemon using Ansible with
 RADIUS server informations.
 However, daemon will be started during integration tests when switch interfaces
 are involved.
@@ -92,8 +89,7 @@ authentification.
 `hostapd` is the daemon responsible to send 802.1X and MAC Authentication
 requests to RADIUS server. It is using the kernel module mac80211_hwsim, a
 software simulator of 802.11 radio(s) for mac80211 (as described in
-link:https://wireless.wiki.kernel.org/en/users/drivers/mac80211_hwsim[Linux
-Wireless mac80211_hwsim]).
+link:https://wireless.wiki.kernel.org/en/users/drivers/mac80211_hwsim[Linux Wireless mac80211_hwsim]).
 We configured this daemon using Ansible with RADIUS server informations.
 
 Two deamons are available. One for an Open SSID and the other for a Secure SSID.
