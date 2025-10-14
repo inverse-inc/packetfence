@@ -490,3 +490,13 @@ Get an overview of all the current connections using the following MariaDB query
 And to see only the connections with an active query:
 
   MariaDB> select * from information_schema.processlist where Command!='Sleep';
+
+=== From Cluster to Standalone
+
+Since packetfence v14.1, going from a cluster to a standlone can be done by
+using the exportable backup script and/or a backup file in [filename]`/root/backup`.
+
+Once the importation is done on the new standalone server, it is important:
+ - to remove the file [filename]`/var/lib/mysql/grastate.dat` because this file is used to
+do or not the backup on a cluster member. If the file is still there, the backup script will fail.
+ - to check if all references to cluster have been removed and the VIP has been well transfered to the server in the configuration.

@@ -242,9 +242,11 @@ case "$1" in
         if [ ${DIST} = "bookworm" ] && [ "$DEBIAN_ISO_INSTALLER" = "no" ]; then
             set +e
             /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
-            /usr/bin/mysql -uroot -e "REVOKE ALL PRIVILEGES ON \`test\`.* FROM \"PUBLIC\";" &> /dev/null
-            /usr/bin/mysql -uroot -e "REVOKE ALL PRIVILEGES ON \`test_%\`.* FROM \"PUBLIC\";" &> /dev/null
-            /usr/bin/mysql -uroot -e "FLUSH PRIVILEGES;"
+            if /usr/bin/mysql -uroot -ss -e "SHOW GRANTS FOR 'PUBLIC';" > /dev/null 2>&1; then
+                /usr/bin/mysql -uroot -ss -e "REVOKE ALL PRIVILEGES ON \`test\`.* FROM 'PUBLIC';" > /dev/null 2>&1 || true
+                /usr/bin/mysql -uroot -ss -e "REVOKE ALL PRIVILEGES ON \`test_%\`.* FROM 'PUBLIC';" > /dev/null 2>&1 || true
+                /usr/bin/mysql -uroot -e "FLUSH PRIVILEGES;"
+            fi
             set -e
         fi
         # Install the monitoring scripts signing key

@@ -30,6 +30,8 @@ export {
   BaseFormGroupTextarea as FormGroupUsernameAttributes,
   BaseFormGroupInputNumber as FormGroupPfacctWorkers,
   BaseFormGroupInputNumber as FormGroupPfacctWorkQueueSize,
+  BaseFormGroupSwitch as FormGroupPfacctRateLimit,
+  BaseFormGroupInputNumber as FormGroupPfacctRateLimitCacheTtl,
 
   BaseViewResource as BaseView,
   TheForm,

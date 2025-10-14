@@ -809,9 +809,11 @@ if /usr/local/pf/containers/manage-images.sh; then
 
     # Empty root password in order to allow other user to connect as root.
     /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
-    /usr/bin/mysql -uroot -e "REVOKE ALL PRIVILEGES ON \`test\`.* FROM \"PUBLIC\";" &> /dev/null
-    /usr/bin/mysql -uroot -e "REVOKE ALL PRIVILEGES ON \`test_%\`.* FROM \"PUBLIC\";" &> /dev/null
-    /usr/bin/mysql -uroot -e "FLUSH PRIVILEGES;"
+    if /usr/bin/mysql -uroot -ss -e "SHOW GRANTS FOR 'PUBLIC';" > /dev/null 2>&1; then
+        /usr/bin/mysql -uroot -ss -e "REVOKE ALL PRIVILEGES ON \`test\`.* FROM 'PUBLIC';" > /dev/null 2>&1 || true
+        /usr/bin/mysql -uroot -ss -e "REVOKE ALL PRIVILEGES ON \`test_%\`.* FROM 'PUBLIC';" > /dev/null 2>&1 || true
+        /usr/bin/mysql -uroot -e "FLUSH PRIVILEGES;"
+    fi
 
     echo Installation complete
     echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."

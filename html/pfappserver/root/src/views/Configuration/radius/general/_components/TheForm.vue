@@ -104,6 +104,18 @@
                                        :text="$i18n.t('The size of the queue for each worker. Requires a restart of pfacct to be effective')"
     />
 
+    <form-group-pfacct-rate-limit namespace="pfacct_rate_limit"
+                                       :column-label="$i18n.t('Pfacct Rate Limiting')"
+                                       :text="$i18n.t('Enable the rate limiting in pfacct to avoid hammering httpd.aaa. Requires a restart of pfacct to be effective')"
+                                       enabled-value="enabled"
+                                       disabled-value="disabled"
+    />
+
+    <form-group-pfacct-rate-limit-cache-ttl namespace="pfacct_rate_limit_cache_ttl"
+                                       :column-label="$i18n.t('Pfacct Rate Limiting Time to Live')"
+                                       :text="$i18n.t('Time to Live value in minutes, should be a little bit more than the Interim Update value. Requires a restart of pfacct to be effective')"
+    />
+
     <form-group-radius-attributes namespace="radius_attributes"
                                   :column-label="$i18n.t('RADIUS attributes')"
                                   :text="$i18n.t('List of RADIUS attributes that can be used in the sources configuration.')"
@@ -159,6 +171,8 @@ import {
   FormGroupNtlmRedisCache,
   FormGroupPfacctWorkers,
   FormGroupPfacctWorkQueueSize,
+  FormGroupPfacctRateLimit,
+  FormGroupPfacctRateLimitCacheTtl,
   FormGroupProcessBandwidthAccounting,
   FormGroupRadiusAttributes,
   FormGroupRecordAccountingInSql,
@@ -188,7 +202,9 @@ const components = {
   FormGroupProcessBandwidthAccounting,
   FormGroupUsernameAttributes,
   FormGroupPfacctWorkers,
-  FormGroupPfacctWorkQueueSize
+  FormGroupPfacctWorkQueueSize,
+  FormGroupPfacctRateLimit,
+  FormGroupPfacctRateLimitCacheTtl
 }
 
 export const props = {

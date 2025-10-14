@@ -333,9 +333,107 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request) {
 		logWarn(ctx, fmt.Sprintf("Empty NAS-IP-Address, using the source IP address of the packet (%s)", attr["NAS-IP-Address"]))
 	}
 
-	if err := h.AAAClient.Notify(ctx, "radius_accounting", attr); err != nil {
-		logError(ctx, err.Error())
+	status := rfc2866.AcctStatusType_Get(r.Packet)
+
+	if h.RateLimit && h.rateLimit(attr, status) {
+		if err := h.AAAClient.Notify(ctx, "radius_accounting", attr); err != nil {
+			logError(ctx, err.Error())
+		}
+	} else if !h.RateLimit {
+		if err := h.AAAClient.Notify(ctx, "radius_accounting", attr); err != nil {
+			logError(ctx, err.Error())
+		}
 	}
+}
+
+func (h *PfAcct) rateLimit(attr map[string]interface{}, status rfc2866.AcctStatusType) bool {
+
+	NasIp, NasIPExists := attr["NAS-IP-Address"]
+	CalledStationId, CalledStationIdExists := attr["Called-Station-Id"]
+	CallingStationId, CallingStationIdExists := attr["Calling-Station-Id"]
+	FramedIPAddress, FramedIPAddressExists := attr["Framed-IP-Address"]
+	var key string
+	var keyStart string
+	var macLocValue interface{}
+	var macAddress mac.Mac
+	// No CallingStationId
+	if !CallingStationIdExists {
+		return false
+	} else {
+		macAddress, _ = mac.NewFromString(CallingStationId.(string))
+	}
+
+	macOldLocation, macOldLocationExists := h.MacNasCache.Get(macAddress.String())
+
+	// Generate the keys
+	if CalledStationIdExists {
+		key = rfc2866.AcctStatusType_Strings[status] + "-" + CalledStationId.(string) + "-" + CallingStationId.(string)
+		keyStart = "Start" + "-" + CalledStationId.(string) + "-" + CallingStationId.(string)
+		macLocValue = CalledStationId.(string)
+
+	} else if NasIPExists {
+		key = rfc2866.AcctStatusType_Strings[status] + "-" + NasIp.(string) + "-" + CallingStationId.(string)
+		keyStart = "Start" + "-" + NasIp.(string) + "-" + CallingStationId.(string)
+		macLocValue = NasIp.(string)
+	} else {
+		return true
+	}
+
+	if rfc2866.AcctStatusType_Strings[status] == "Start" {
+		ip, exists := h.RateLimitCache.Get(key)
+		if !exists {
+			if FramedIPAddressExists {
+				h.RateLimitCache.Set(key, FramedIPAddress.(string), time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+			} else {
+				h.RateLimitCache.Set(key, "0.0.0.0", time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+			}
+			// Purge old Start entry
+			if macOldLocationExists && macOldLocation != macLocValue {
+				// Replace the location
+				h.MacNasCache.Set(macAddress.String(), macLocValue, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+				h.RateLimitCache.Delete("Start" + "-" + macOldLocation.(string) + "-" + CallingStationId.(string))
+			}
+			return true
+		} else {
+			if FramedIPAddressExists && FramedIPAddress != ip.(string) {
+				h.RateLimitCache.Set(key, FramedIPAddress, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+				h.MacNasCache.Set(macAddress.String(), macLocValue, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+				return true
+			} else {
+				return false
+			}
+		}
+	}
+	if rfc2866.AcctStatusType_Strings[status] == "Interim-Update" {
+		framedIP := ""
+		if FramedIPAddressExists {
+			framedIP = FramedIPAddress.(string)
+		}
+		return h.handleInterimOrStop(keyStart, framedIP, FramedIPAddressExists, net.HardwareAddr(macAddress[:]), macLocValue)
+	}
+	if rfc2866.AcctStatusType_Strings[status] == "Stop" {
+		framedIP := ""
+		if FramedIPAddressExists {
+			framedIP = FramedIPAddress.(string)
+		}
+		return h.handleInterimOrStop(keyStart, framedIP, FramedIPAddressExists, net.HardwareAddr(macAddress[:]), macLocValue)
+	}
+	return false
+}
+
+// handleInterimOrStop encapsulates the duplicated logic for "Interim-Update" and "Stop" status handling in rateLimit.
+func (h *PfAcct) handleInterimOrStop(keyStart string, FramedIPAddress string, FramedIPAddressExists bool, macAddress net.HardwareAddr, macLocValue interface{}) bool {
+	ip, exists := h.RateLimitCache.Get(keyStart)
+	if exists {
+		if FramedIPAddressExists && FramedIPAddress != ip.(string) {
+			h.RateLimitCache.Set(keyStart, FramedIPAddress, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+			h.MacNasCache.Set(macAddress.String(), macLocValue, time.Duration(h.PfacctRateLimitCacheTtl)*time.Minute)
+			return true
+		} else {
+			return false
+		}
+	}
+	return false
 }
 
 func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {

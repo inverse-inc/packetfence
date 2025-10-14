@@ -706,6 +706,8 @@ type PfConfRadiusConfiguration struct {
 	ProcessBandwidthAccounting         string   `json:"process_bandwidth_accounting"`
 	PfacctWorkers                      string   `json:"pfacct_workers"`
 	PfacctWorkQueueSize                string   `json:"pfacct_work_queue_size"`
+	PfacctRateLimit                    string   `json:"pfacct_rate_limit"`
+	PfacctRateLimitCacheTtl            string   `json:"pfacct_rate_limit_cache_ttl"`
 }
 
 type PfQueueConfig struct {

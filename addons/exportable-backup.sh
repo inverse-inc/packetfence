@@ -106,6 +106,8 @@ clean_backup(){
     echo "Old backup cleaned"
     find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_BACKUP -delete
     find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mmin -120 -delete
+    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_BACKUP -delete
+    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.xbstream.gz" -mmin -120 -delete
     echo "Temp db backup cleaned"
     find $BACKUP_DIRECTORY -name "$BACKUP_CONF_FILENAME-*.tgz" -delete
     echo "Temp config backup cleaned"

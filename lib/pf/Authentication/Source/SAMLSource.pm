@@ -155,7 +155,8 @@ sub sso_url {
         $url = $lassoLogin->msg_url;
     };
     if($@){
-        die "Can't create Single-Sign-On URL : ".$@."\n";
+        my $msg = ref($@) && $@->isa("Lasso::Error") ? $@->{message} : $@;
+        die "Can't create Single-Sign-On URL : $msg\n";
     }
     return $url;
 }
