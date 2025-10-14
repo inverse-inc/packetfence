@@ -1465,7 +1465,6 @@ sub iptables_kafka_rules {
        return util_remove_service_rules($service_name);
     }
     my $logger = get_logger();
-    my $chains = util_create_chains();
 
     if ( util_management_network_is_set($service_name) ){
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
