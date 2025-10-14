@@ -93,6 +93,10 @@ include::networkdevice/enterasys.asciidoc[]
 
 include::networkdevice/extreme_networks.asciidoc[]
 
+=== Fortinet FortiSwitch
+
+include::networkdevice/fortinet_switches.asciidoc[]
+
 === Foundry
 
 include::networkdevice/foundry.asciidoc[]

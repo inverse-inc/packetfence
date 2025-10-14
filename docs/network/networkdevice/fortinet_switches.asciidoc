@@ -19,16 +19,14 @@ endif::[]
 
 //=== Fortinet FortiSwitch
 
-This section shows how to configure a Radius, Mac Auth and 802.1x on a
+This section shows how to configure RADIUS, MAC Authentication, and 802.1X on a
 FortiSwitch running FortiSwitchOS 7.x.
 
-You will need to have the CLI access on the FortiSwitch to do the configuration.
+CLI access to the FortiSwitch is required for this configuration.
 
 ==== RADIUS
 
-Define an IPv4 RADIUS server
-
-Using the CLI:
+Define an IPv4 RADIUS server using the CLI:
 
  config user radius
    edit <name>
@@ -45,7 +43,7 @@ Using the CLI:
    end
  end
 
-==== Port Security Global setting
+==== Port Security Global Settings
 
 Using the CLI:
 
@@ -62,11 +60,11 @@ are created.
 
 ==== MAB
 
-Starting in FortiSwitchOS 7.2.3, MAB-only authentication is supported. In this
-mode, the FortiSwitch unit performs MAB authentication without performing EAP
-authentication. EAP packets are not sent. To enable MAB-only authentication:
+FortiSwitchOS 7.2.3+ supports MAB-only authentication. In this mode, the
+FortiSwitch performs MAB authentication without EAP authentication. EAP packets
+are not sent. Enable MAB-only authentication:
 
-===== Switch Interfance config
+===== Switch Interface Configuration
 
  config switch interface
    edit interface_name
@@ -80,19 +78,18 @@ authentication. EAP packets are not sent. To enable MAB-only authentication:
 
 ==== 802.1X
 
-Starting in FortiSwitchOS 7.0, you can use the CLI to allow an 802.1X client
-to move between ports that are not directly connected to the FortiSwitch unit
-without having to delete the 802.1X session. For example, you can move an 802.1X
-client PC that connects through an IP phone to port1 of the FortiSwitch unit to
-a port of a third-party switch that connects to port2 of the FortiSwitch unit.
+FortiSwitchOS 7.0+ supports 802.1X client mobility between ports without
+deleting the 802.1X session. For example, an 802.1X client PC connected through
+an IP phone to port1 can move to a third-party switch connected to port2 without
+session deletion.
 
 This feature is available for 802.1X port-based authentication, 802.1X MAC-based
 authentication, MAB enabled or disabled, and EAP pass-through mode enabled or
 disabled.
 
-===== Switch Interfance config
+===== Switch Interface Configuration
 
-Configuring the 802.1X settings on an interface
+Configure 802.1X settings on an interface:
 
 Using the CLI (for FSR-124D, 200 Series, FS-4xxE, 500 Series, FS-1024D,
 FS-1024E, FS-T1024E, FS-1048E, and FS-3032E):
@@ -153,10 +150,9 @@ FS-148F-FPOE):
        set security-groups <security-group-name>
      end
 
-===== Viewing the 802.1x Details
+===== Viewing 802.1X Details
 
-Using the CLI:
-Use the following command to show diagnostics on one or all ports:
+Show diagnostics for one or all ports using the CLI:
 
  diagnose switch 802-1x status [<port>]
 
@@ -195,18 +191,18 @@ For example:
 
 ===== Clearing Authorized Sessions
 
-To use the CLI to clear the authorized sessions associated with an interface:
+Clear authorized sessions for an interface:
 
  execute 802-1x clear interface {internal | <port_name>}
 
-For example:
+Example:
 
  execute 802-1x clear interface port3
 
-To use the CLI to clear the authorized session associated with a MAC address:
+Clear an authorized session by MAC address:
 
  execute 802-1x clear mac <MAC_address>
 
-For example:
+Example:
 
  execute 802-1x clear mac 00:21:cc:d2:76:72

@@ -483,4 +483,8 @@ monit summary
 
 TIP: More information on the monit command line arguments is available at https://mmonit.com/monit/documentation/monit.html
 
+=== FleetDM Integration
+
+include::fleetdm.asciidoc[]
+
 
