@@ -1485,10 +1485,8 @@ sub iptables_kafka_rules {
         } else {
             $logger->warn("Service $service_name: No ConfigKafka iptables cluster_ips is available.");
         }
-        if ($chains->{name} ne "") {
-            # Convert to JSON and save to file
-            util_create_service_rules($chains);
-        }
+        # Convert to JSON and save to file
+        util_create_service_rules($chains);
     }
 }
 
