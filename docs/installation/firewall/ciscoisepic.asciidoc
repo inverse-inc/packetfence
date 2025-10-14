@@ -27,8 +27,7 @@ https://www.cisco.com/c/en/us/td/docs/security/ise/2-6/pic_admin_guide/PIC_admin
 
 Add a new Template and call it `PacketFence`.  Make it match the following:
 
-image::doc-ise-pic-syslog-template.png[scaledwidth="100%",alt="Configure the
-syslog template in ISE-PIC"]
+image::doc-ise-pic-syslog-template.png[scaledwidth="100%",alt="Configure the syslog template in ISE-PIC"]
 
 [options="compact"]
 * The new mapping should be set to: `assigned to session`
@@ -49,21 +48,18 @@ virtual IP.
 NOTE: In your DNS servers, make sure the FQDN and reverse lookup entries match
 your PacketFence server FQDN.
 
-image::doc-ise-pic-syslog-provider.png[scaledwidth="100%",alt="Configure the
-syslog provider in ISE-PIC"]
+image::doc-ise-pic-syslog-provider.png[scaledwidth="100%",alt="Configure the syslog provider in ISE-PIC"]
 
 Make sure your syslog header configuration matches this:
 
-image::doc-ise-pic-syslog-header.png[scaledwidth="100%",alt="Configure the
-syslog header in ISE-PIC"]
+image::doc-ise-pic-syslog-header.png[scaledwidth="100%",alt="Configure the syslog header in ISE-PIC"]
 
 ==== PacketFence configuration
 
 Add a Cisco ISE-PIC firewall SSO entry in "Configuration->Integration->Firewall
 SSO"
 
-image::doc-ise-pic-pf-configuration.png[scaledwidth="100%",alt="Configure
-ISE-PIC in PacketFence"]
+image::doc-ise-pic-pf-configuration.png[scaledwidth="100%",alt="Configure ISE-PIC in PacketFence"]
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your Cisco ISE-PIC instance

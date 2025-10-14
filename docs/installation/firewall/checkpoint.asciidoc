@@ -53,8 +53,7 @@ To enable RADIUS Accounting for a Security Gateway:
 
 ==== Configuring RADIUS Accounting
 
-image::doc-checkpoint-accounting_settings.png[scaledwidth="50%",alt="Accouting
-settings"]
+image::doc-checkpoint-accounting_settings.png[scaledwidth="50%",alt="Accouting settings"]
 
 1. In the 'Check Point Gateway' window > 'Identity Awareness' panel, click
    'Settings' (to the right of the RADIUS Accounting option).
@@ -96,8 +95,7 @@ Go to *'Configuration' -> 'Firewall SSO' -> 'Add Firewall' -> 'Checkpoint' *.
 * *Port*: 1813
 * *Roles*: add the roles that you want to do SSO with
 
-image::doc-checkpoint-cfg_sso_pf.png[scaledwidth="100%",alt="Configure the
-Checkpoint SSO in PacketFence"]
+image::doc-checkpoint-cfg_sso_pf.png[scaledwidth="100%",alt="Configure the Checkpoint SSO in PacketFence"]
 
 ==== Verification
 

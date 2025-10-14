@@ -187,8 +187,7 @@ value is 60 (in minutes). It can be changed using the following guide:
 
 https://learn.microsoft.com/en-US/troubleshoot/windows-server/windows-security/new-setting-modifies-ntlm-network-authentication
 
-image::domain-windows-account-policy.png[scaledwidth="100%",alt="Windows Account
-Policies"]
+image::domain-windows-account-policy.png[scaledwidth="100%",alt="Windows Account Policies"]
 
 NOTE: Steps may vary on different versions of _Windows_. The steps and
 screenshots above are from _Windows Server 2022_.
@@ -237,24 +236,21 @@ Copy the powershell script and replace:
 * Open *Windows Task Scheduler* and in the left-panel expand *Event Viewer Tasks*, on the right-panel, right-click on the blank area and select *Create new task...*.
 * In the popup window, **Name** the task and in *Security options* select *Run whether user is logged on or not*.
 
-image::domain-nt-key-cache-task-scheduler.jpg[scalewidth="100%", alt="Windows
-Task Scheduler"]
+image::domain-nt-key-cache-task-scheduler.jpg[scalewidth="100%", alt="Windows Task Scheduler"]
 
 [options="compact"]
 * Click on *Trigger* tab, then click *New...*.
 * In the popup window, for *Begin the task* select *On an event*, for *Log* select *Security*, for *Event ID* type in *4723*, click "OK".
 * Repeat these steps to add event trigger(s) for the *Account Password Reset* and optionally *User Account Unlock* events.
 
-image::domain-nt-key-cache-task-scheduler-triggers.jpg[scaledwidth="100%",alt="Windows
-Events Triggers in Task Scheduler"]
+image::domain-nt-key-cache-task-scheduler-triggers.jpg[scaledwidth="100%",alt="Windows Events Triggers in Task Scheduler"]
 
 [options="compact"]
 * Click on *Action* tab, for *Action* select *Start a program*, in *Program/script* type the full path to powershell.exe (usually `C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe`).
 * In *Add arguments* type the full path to the powershell script (eg: `C:\Users\Administrator\Desktop\event-notifier.ps1`).
 * In *Start in* type the working directory (eg: `C:\Users\Administrator\Desktop`).
 
-image::domain-nt-key-cache-task-scheduler-actions.jpg[scaledwidth="100%",alt="Windows
-Events Actions"]
+image::domain-nt-key-cache-task-scheduler-actions.jpg[scaledwidth="100%",alt="Windows Events Actions"]
 
 [options="compact"]
 * Click "OK" to save the changes, Enter the Administrator password.
@@ -267,15 +263,13 @@ or
 * Open *Windows Event Viewer* and click an event with EventID of *4723* (password change) or *4724* (password reset).
 * Repeat the following steps for each Event ID.
 
-image::domain-windows-events-viewer.png[scaledwidth="100%",alt="Windows Events
-Viewer"]
+image::domain-windows-events-viewer.png[scaledwidth="100%",alt="Windows Events Viewer"]
 
 [options="compact"]
 * Select *Attach tasks to this event* in the right panel, then choose *Launch a program* for action option, fill in the `powershell REAL_ABSOLUTE_PATH_OF_THE_NOTIFIER_SCRIPT`, click "Save".
 * Run the script with *Administrator Privilege* otherwise it will fail to read windows events.
 
-image::domain-event-trigger-in-task-scheduler.png[scaledwidth="100%",alt="Windows
-Events Trigger in Task Scheduler"]
+image::domain-event-trigger-in-task-scheduler.png[scaledwidth="100%",alt="Windows Events Trigger in Task Scheduler"]
 
  * After the task is saved it can be modified in *Windows Task Scheduler*.
 =====

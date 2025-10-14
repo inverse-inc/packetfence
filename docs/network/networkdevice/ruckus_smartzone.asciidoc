@@ -90,8 +90,7 @@ with the following information:
 After, create a Hotspot in _Configuration -> AP Zones -> Zone -> Hotspot
 WISPr -> Create New_. Adjust 192.168.1.5 to the IP address of the portal.
 
-image::ruckus-smartzone-webauth-hotspot.png[scaledwidth="100%",alt="Ruckus
-SmartZone Hotspot"]
+image::ruckus-smartzone-webauth-hotspot.png[scaledwidth="100%",alt="Ruckus SmartZone Hotspot"]
 
 Then, still on this page, in the 'Walled Gardens', make sure to add the portal
 IP address in this list.
@@ -99,8 +98,7 @@ IP address in this list.
 Next, configure the WLAN to use the Hotspot authentication and
 point it to PacketFence. Also ensure 'Use the controller as a proxy' is set.
 
-image::ruckus-smartzone-webauth-ssid.png[scaledwidth="100%",alt="Ruckus
-SmartZone SSID"]
+image::ruckus-smartzone-webauth-ssid.png[scaledwidth="100%",alt="Ruckus SmartZone SSID"]
 
 Now, configure the Northbound API of the SmartZone so PacketFence can
 communicate with it. In order to do so, go in
@@ -178,8 +176,7 @@ address of the PacketFence management interface):
 * 'Port': 1812
 * 'Secret': useStrongerSecret
 
-image::Ruckus_SZ_RADIUS_PROXY.png[scaledwidth="100%",alt="Ruckus SmartZone Proxy
-RADIUS Authentication"]
+image::Ruckus_SZ_RADIUS_PROXY.png[scaledwidth="100%",alt="Ruckus SmartZone Proxy RADIUS Authentication"]
 
 Then, in _Service and Profiles -> Accounting_. Then select the "Proxy" tab and
 then select the zone for which to
@@ -203,8 +200,7 @@ the Zone where to create a WLAN and then click _Create_.
 Enter the _name_ and _SSID_, then for _Authentication Type_ select "Standard
 Usage" and for _Method_ select "MAC Address".
 
-image::Ruckus_SZ_Create_MAC_WLAN.png[scaledwidth="100%",alt="Ruckus SmartZone
-Create Open WLAN with MAC authentication"]
+image::Ruckus_SZ_Create_MAC_WLAN.png[scaledwidth="100%",alt="Ruckus SmartZone Create Open WLAN with MAC authentication"]
 
 The rest of the authentication options can be left "as-is" (The default _MAC
 Address Format_ of "aabbccddeeff" should work fine)
@@ -312,8 +308,7 @@ might be needed for that role and
 also select, if needed, an Application Recognition and Control policy and URL
 Filtering Control policies.
 
-image::Ruckus_SZ_Create_UTP.png[scaledwidth="100%",alt="Ruckus SmartZone Create
-a User Traffic Profile"]
+image::Ruckus_SZ_Create_UTP.png[scaledwidth="100%",alt="Ruckus SmartZone Create a User Traffic Profile"]
 
 Next, go to _Clients -> Users & Roles_ menu and select the _User Roles_ tab. On
 this page, optionally select
@@ -324,16 +319,14 @@ Also select the
 User Traffic Profile defined in the previous step as well as, optionally, a
 Firewall Profile.
 
-image::Ruckus_SZ_Create_User_Role.png[scaledwidth="100%",alt="Ruckus SmartZone
-Create a User Role"]
+image::Ruckus_SZ_Create_User_Role.png[scaledwidth="100%",alt="Ruckus SmartZone Create a User Role"]
 
 Finally, under _Configuration -> Service and Profiles -> Authentication_, select
 the RADIUS server created
 previously (Either in Proxy or NON-Proxy mode). Then, under the _User Role
 Mapping_ section, click on _Create_.
 
-image::Ruckus_SZ_Radius_Roles_1.png[scaledwidth="100%",alt="Ruckus SmartZone Add
-User Role Mappings to RADIUS server"]
+image::Ruckus_SZ_Radius_Roles_1.png[scaledwidth="100%",alt="Ruckus SmartZone Add User Role Mappings to RADIUS server"]
 
 A new window will open where we can create a "User Traffic Profile Mapping".
 Under _Group Attribute Value_ enter
@@ -344,8 +337,7 @@ SmartZone and is the string sent
 in the RADIUS reply under the Ruckus-User-Group VSA. Then, under the "User
 Role", select the previously created User Role.
 
-image::Ruckus_SZ_Radius_Roles_2.png[scaledwidth="100%",alt="Ruckus SmartZone Add
-User Role Mappings to RADIUS server"]
+image::Ruckus_SZ_Radius_Roles_2.png[scaledwidth="100%",alt="Ruckus SmartZone Add User Role Mappings to RADIUS server"]
 
 Repeat all the steps above for as many different roles as needed. Keep in mind
 that different roles can be defined

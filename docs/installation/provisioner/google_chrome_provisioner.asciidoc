@@ -81,8 +81,7 @@ Login to the admin interface, then go to _Configuration -> Advanced Access
 Configuration -> Provisioners -> New provisioner -> Google Workspace
 Chromebook_.
 
-image::google-workspace-chromebook-config.png[scaledwidth="100%",alt="Google
-Workspace Chromebook portal configuration"]
+image::google-workspace-chromebook-config.png[scaledwidth="100%",alt="Google Workspace Chromebook portal configuration"]
 
 Now configure this new provisioner with the information you got above.
 

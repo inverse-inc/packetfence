@@ -33,8 +33,7 @@ image::Azure_Application_1.png[scaledwidth="100%",alt="Azure add application"]
 Set application name (e.g., PacketFence), choose 'Supported account types':
 'Accounts in this organizational directory only', click 'Register'
 
-image::Azure_Application_2.png[scaledwidth="100%",alt="Azure define
-application"]
+image::Azure_Application_2.png[scaledwidth="100%",alt="Azure define application"]
 
 On next page, copy 'Application (client ID)' and 'Directory (tenant ID)' (needed
 for provisioner definition).
@@ -62,8 +61,7 @@ Login to the admin interface, then go to _Configuration -> Advanced Access
 Configuration -> Provisioners_.
 Click 'Add provisioner' then select Microsoft Intune.
 
-image::intune-pf-config.png[scaledwidth="100%",alt="Intune PacketFence
-configuration"]
+image::intune-pf-config.png[scaledwidth="100%",alt="Intune PacketFence configuration"]
 
 Now configure this new provisioner with the information you got above.
 

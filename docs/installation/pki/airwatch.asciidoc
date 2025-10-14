@@ -40,13 +40,11 @@ https://support.apple.com/en-ca/HT210176
 
 ===== Create the Certificate Authority (SCEP):
 
-image::airwatch-certificate-auhority.png[scaledwidth="100%",alt="Create the
-Certificate Authority (SCEP)"]
+image::airwatch-certificate-auhority.png[scaledwidth="100%",alt="Create the Certificate Authority (SCEP)"]
 
 ===== Create a Certificate template:
 
-image::airwatch-certificate-template.png[scaledwidth="100%",alt="Create a
-Certificate template"]
+image::airwatch-certificate-template.png[scaledwidth="100%",alt="Create a Certificate template"]
 
 ===== Create the SSID profile:
 
@@ -55,13 +53,11 @@ image::airwatch-wifi3.png[scaledwidth="100%",alt="Create the SSID profile"]
 
 ===== Add the Root CA certificate that issued the PacketFence RADIUS certificate:
 
-image::airwatch-credentials1.png[scaledwidth="100%",alt="Add the Root CA
-certificate that issued the PacketFence RADIUS certificate"]
+image::airwatch-credentials1.png[scaledwidth="100%",alt="Add the Root CA certificate that issued the PacketFence RADIUS certificate"]
 
 ===== Add the PacketFence RADIUS certificate:
 
-image::airwatch-credentials2.png[scaledwidth="100%",alt="Add the PacketFence
-RADIUS certificate"]
+image::airwatch-credentials2.png[scaledwidth="100%",alt="Add the PacketFence RADIUS certificate"]
 
 ===== Create the SCEP profile:
 

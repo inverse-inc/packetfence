@@ -142,21 +142,18 @@ PacketFence supports the GS950 switch using :
 First, ensure that the VLANs you want to assign are part of the VLAN database
 via the following page:
 
-image::allied-telesis-gs950/vlan-config.png[scaledwidth="100%",alt="VLAN
-configuration"]
+image::allied-telesis-gs950/vlan-config.png[scaledwidth="100%",alt="VLAN configuration"]
 
 Note that they only need to be tagged on the trunk and don't need any specific
 configuration for the dynamic VLAN assignment here.
 
 Next, configure the RADIUS server (_Security -> RADIUS_):
 
-image::allied-telesis-gs950/radius-server.png[scaledwidth="100%",alt="RADIUS
-configuration"]
+image::allied-telesis-gs950/radius-server.png[scaledwidth="100%",alt="RADIUS configuration"]
 
 Next, configure an SNMP community (_SNMP -> Community Table_)
 
-image::allied-telesis-gs950/snmp-config.png[scaledwidth="100%",alt="SNMP
-configuration"]
+image::allied-telesis-gs950/snmp-config.png[scaledwidth="100%",alt="SNMP configuration"]
 
 ===== MAC authentication
 
@@ -169,8 +166,7 @@ on, and ensure you set:
 * Supplicant Mode: Single
 * VLAN Assignment: Enabled
 
-image::allied-telesis-gs950/port-control-MAB.png[scaledwidth="100%",alt="MAB
-config"]
+image::allied-telesis-gs950/port-control-MAB.png[scaledwidth="100%",alt="MAB config"]
 
 ===== 802.1x
 
@@ -183,8 +179,7 @@ on, and ensure you set:
 * Supplicant Mode: Multiple
 * VLAN Assignment: Enabled
 
-image::allied-telesis-gs950/port-control-802.1x.png[scaledwidth="100%",alt="802.1x
-configuration"]
+image::allied-telesis-gs950/port-control-802.1x.png[scaledwidth="100%",alt="802.1x configuration"]
 
 ===== PacketFence configuration
 

@@ -143,8 +143,7 @@ image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Certificate"]
 
 - Turn on the options "Find HTTPs intermediate CA(s) automatically" and "Validate certificate chain".
 
-image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Intermediate
-chain"]
+image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Intermediate chain"]
 
 - Restart `haproxy-admin` and `haproxy-portal`, one server at a time. This can be done through the web admin page: _Status -> Services_ .
 

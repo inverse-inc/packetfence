@@ -10,8 +10,7 @@
 ==== Wired network topology
 
 .Wired network topology
-image::integration_tests/wired_topology.png[scaledwidth="100%",alt="Wired
-topology"]
+image::integration_tests/wired_topology.png[scaledwidth="100%",alt="Wired topology"]
 
 ===== Initial Provisioning
 

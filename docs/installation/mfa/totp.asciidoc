@@ -52,8 +52,7 @@ The amount of time PacketFence will store the MFA information of the user (used
 for "Strip OTP" and "Second Password Field" since PacketFence deal with
 multiple RADIUS requests)
 
-image::TOTP_mfa_config.png[scaledwidth="100%",alt="Create OTP MFA
-Configuration"]
+image::TOTP_mfa_config.png[scaledwidth="100%",alt="Create OTP MFA Configuration"]
 
 If MFA authentication fails, verify configuration and check
 <<#_radius_audit_log,RADIUS Audit Log>> to trace authentication flow.

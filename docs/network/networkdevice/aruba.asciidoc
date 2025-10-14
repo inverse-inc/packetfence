@@ -212,8 +212,7 @@ Now add the newly created policy to the Captive Portal Profile, _Security ->
 User Roles_:
 
 image::aruba-config-user-role.png[scaledwidth="100%",alt="User Role"]
-image::aruba-interface-redirection.png[scaledwidth="100%",alt="Interface de
-redirection"]
+image::aruba-interface-redirection.png[scaledwidth="100%",alt="Interface de redirection"]
 
   user-role "packetfence-portal"
   access-list session "packetfence-externalportal" position 1
@@ -244,15 +243,13 @@ image::aruba-ap-config9.png[scaledwidth="100%",alt="Config AP 9"]
 image::aruba-ap-config10.png[scaledwidth="100%",alt="Config AP 10"]
 image::aruba-ap-config11.png[scaledwidth="100%",alt="Config AP 11"]
 
-image::aruba-secondary-controller.png[scaledwidth="100%",alt="Secondary
-controller configuration"]
+image::aruba-secondary-controller.png[scaledwidth="100%",alt="Secondary controller configuration"]
 
 The next step will be to configure the Aruba WiFi controller for WebAuth in
 PacketFence, add the switch with the model choice `Aruba Network`,
 
 image::aruba-wlc1.png[scaledwidth="80%",alt="Add Aruba wireless controller"]
-image::aruba-wlc-roles.png[scaledwidth="80%",alt="Aruba wireless controller
-roles configuration"]
+image::aruba-wlc-roles.png[scaledwidth="80%",alt="Aruba wireless controller roles configuration"]
 
 Check the box `External Portal Enforcement`, in the Roles section, choose `Role
 by Switch Role`, as the registration role, enter your default role:

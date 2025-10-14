@@ -30,8 +30,7 @@ using SCP. This example will use `/usr/local/pf/html/common/SentinelOne.exe` as
 the Windows agent path and `/usr/local/pf/html/common/SentinelOne.pkg` as the
 Mac OSX agent path.
 
-image::sentinelone-agent-download.png[scaledwidth="100%",alt="SentinelOne agent
-download"]
+image::sentinelone-agent-download.png[scaledwidth="100%",alt="SentinelOne agent download"]
 
 NOTE: All files in `/usr/local/pf/html/common/` are accessible to users that are
 on the captive portal. Make sure you put the agents file there or in another
@@ -53,8 +52,7 @@ Login to the admin interface, then go to _Configuration -> Advanced Access
 Configuration -> Provisioners_.
 Click 'Add provisioner' then select `SentinelOne`.
 
-image::sentinelone-packetfence.png[scaledwidth="100%",alt="SentinelOne
-PacketFence configuration"]
+image::sentinelone-packetfence.png[scaledwidth="100%",alt="SentinelOne PacketFence configuration"]
 
 Where:
 

@@ -78,12 +78,10 @@ PacketFence server, then save.
 
 image::cambium-web-auth.png[scaledwidth="100%",alt="Cambium Web Authentication"]
 
-image::cambium-web-auth-whitelist.png[scaledwidth="100%",alt="Cambium Web
-Authentication Whitelist"]
+image::cambium-web-auth-whitelist.png[scaledwidth="100%",alt="Cambium Web Authentication Whitelist"]
 
 On PacketFence web admin, in the Switch configuration for your AP, Roles tab,
 check Role by Web Auth URL box, and enter
 http://_IP_ADDRESS_OF_PACKETFENCE/Cambium in the registration field.
 
-image::cambium-role-web-auth.png[scaledwidth="100%",alt="Cambium Role for Web
-Authentication"]
+image::cambium-role-web-auth.png[scaledwidth="100%",alt="Cambium Role for Web Authentication"]

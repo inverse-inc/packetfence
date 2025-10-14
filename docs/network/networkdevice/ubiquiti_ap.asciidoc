@@ -30,14 +30,12 @@ connected to it.
 First, you must configure the guest policy. Go in _Settings -> hotspot ->
 general_ and configure it as shown below:
 
-image::ubiquiti-unifi-guest-policy.png[scaledwidth="100%",alt="Unifi web-auth
-policy"]
+image::ubiquiti-unifi-guest-policy.png[scaledwidth="100%",alt="Unifi web-auth policy"]
 
 Next, you must allow the device to reach the portal. Go in _Settings -> hotspot
 -> advanced_ and configure it as shown below:
 
-image::ubiquiti-unifi-guest-policy_access.png[scaledwidth="100%",alt="Unifi
-web-auth policy"]
+image::ubiquiti-unifi-guest-policy_access.png[scaledwidth="100%",alt="Unifi web-auth policy"]
 
 Make sure you enabled _Enable Guest Portal_, and that you've set _External
 portal server_.
@@ -49,8 +47,7 @@ that same IP address to the _Pre-Authorization Access_
 Then, still in the settings, create or edit a new SSID with the following
 settings:
 
-image::ubiquiti-unifi-guest-ssid.png[scaledwidth="100%",alt="Unifi web-auth
-SSID"]
+image::ubiquiti-unifi-guest-ssid.png[scaledwidth="100%",alt="Unifi web-auth SSID"]
 
 You need to ensure
 link:https://help.ubnt.com/hc/en-us/articles/115015457668-UniFi-Troubleshooting-STUN-Communication-Errors#whatisstun[STUN

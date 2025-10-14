@@ -212,8 +212,7 @@ Create a new Captive Portal Profile:
 * _Password Encryption_ : *No Encryption (Plaintext Password)*
 * click on *Save*
 
-image::pfaerohive14.png[scaledwidth="100%",alt="Captive Portal SSID
-configuration"]
+image::pfaerohive14.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
 
 Create a SSID to enable Captive Portal functionality:
 [options="compact"]
@@ -230,8 +229,7 @@ Configure and broadcast your SSID:
 * from the HiveManager, go to *CONFIGURATION -> NETWORK POLICIES* 
 * choose Network Policy and click OK, you should see this:
 
-image::pfaerohive15.png[scaledwidth="100%",alt="External portal SSID
-configuration"]
+image::pfaerohive15.png[scaledwidth="100%",alt="External portal SSID configuration"]
 
 [options="compact"]
 * under Authentication click on _<Captive Web Portal>_ and select the captive portal previously configured
@@ -288,8 +286,7 @@ Configure the _Production_ interface to send the _Portal_:
 * _Additionnal listening daemon(s)_, Add *portal*
 * click on *SAVE*
 
-image::pfaerohive13.png[scaledwidth="100%",alt="Captive Portal SSID
-configuration"]
+image::pfaerohive13.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
 
 ==== MAC Authentication/802.1X and Web Auth Configuration 
 

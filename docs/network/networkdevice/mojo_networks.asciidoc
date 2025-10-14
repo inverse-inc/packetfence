@@ -89,8 +89,7 @@ image::mojo-network-vlan.png[scaledwidth="100%",alt="Mojo Network"]
    RADIUS shared secret. Click on *RADIUS Settings* to select PacketFence as
    authentication and accounting server.
 
-image::mojo-external-splash.png[scaledwidth="100%",alt="Mojo External Splash
-Page"]
+image::mojo-external-splash.png[scaledwidth="100%",alt="Mojo External Splash Page"]
 
    On the right, add the IP address or hostname of PacketFence to the Walled
    Garden Sites.

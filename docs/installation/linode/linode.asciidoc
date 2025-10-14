@@ -34,15 +34,13 @@ is enabled for each instance.
 Once done, make sure to configure the firewall policy similar to the following
 screenshot:
 
-image::linode_firewall.png[scaledwidth="100%",alt="Linode firewall
-configuration"]
+image::linode_firewall.png[scaledwidth="100%",alt="Linode firewall configuration"]
 
 Then, perform a standard PacketFence installation on each Linode. Once
 completed, from Linode's cloud management interface, configure a NodeBalancer
 for ports 80, 443, 1443, 9090 and 9999 as shown in the following screenshot:
 
-image::linode_lb.png[scaledwidth="100%",alt="Linode load-balancer
-configuration"]
+image::linode_lb.png[scaledwidth="100%",alt="Linode load-balancer configuration"]
 
 Once completed, you will have to go through the
 <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,PacketFence

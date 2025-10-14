@@ -176,8 +176,7 @@ networks are not reachable locally (at layer 2) on the network, but instead
 routed to the PacketFence server. PacketFence is able to provide DHCP and DNS in
 these routed networks.
 
-image::diagram-routed-net.png[scaledwidth="100%",alt="Routed network example
-diagram"]
+image::diagram-routed-net.png[scaledwidth="100%",alt="Routed network example diagram"]
 
 For dhcpd, ensure the clients DHCP requests are being forwarded correctly (IP
 Helpers in the remote routers) to the PacketFence server.

@@ -99,8 +99,7 @@ Deliver certificates for `user Authentication` using specific template setup.
 Certificate template requires these minimum `Enhanced Key Usage` and `Key Usage`
 settings:
 
-image::scep-ms-pki-en-key-usage.png[scaledwidth="100%",alt="Mandatory Enhanced
-Key Usage"]
+image::scep-ms-pki-en-key-usage.png[scaledwidth="100%",alt="Mandatory Enhanced Key Usage"]
 
 image::scep-ms-pki-key-usage.png[scaledwidth="100%",alt="Mandatory Key Usage"]
 
@@ -357,16 +356,14 @@ Fill out the form, choosing a different Provisioning Id per provisioner.
 The following is an example on how to configure an EAP-TLS connection for
 Windows/Android/Mac OS X/iOS
 
-image::scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner
-EAP-TLS configuration"]
+image::scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
 
 Mac OS X/iOS require the provisioning profile to be signed to remove
 the `untrusted` warning when installing the profile. Sign it with a
 Certification Authority already trusted by the device such as e.g. VeriSign.
 Configuring this has to be done in the 'Signing' tab in the "Apple devices". 
 
-image::packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing
-provisioner"]
+image::packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
 
 Fill out the fields with the contents of the Base64 encoded certificates.
 To extract this information from a pem formatted certificate, copy the file

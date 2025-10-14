@@ -31,8 +31,7 @@ Create new certificate authority. In PacketFence web administration, go to
 Configuration -> Integration -> PKI -> Certificate Authorities and click *New
 Certificate Authority*.
 
-image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification
-authority creation"]
+image::packetfence-pki-ca_menu.png[scaledwidth="100%",alt="Certification authority creation"]
 
 For sub-CA configuration: click 'Generate CSR' (top right of CA form), modify
 information if needed, click 'Generate CSR'. Copy CSR and provide to external CA
@@ -43,14 +42,12 @@ For expiring CA certificate: generate new CSR or click Resign CA Certificate
 
 ===== Here's a CA example:
 
-image::packetfence-pki-ca_creation.png[scaledwidth="100%",alt="Certification
-authority creation"]
+image::packetfence-pki-ca_creation.png[scaledwidth="100%",alt="Certification authority creation"]
 
 
 ===== Once you have created the CA, you should see the Root CA certificate displayed at the bottom of the page:
 
-image::packetfence-pki-ca_created.png[scaledwidth="100%",alt="Certification
-authority config"]
+image::packetfence-pki-ca_created.png[scaledwidth="100%",alt="Certification authority config"]
 
 Once done copy the certificate in the clipboard from the Certificate Authorities
 list (Configuration -> Integration -> PKI -> Certificate Authorities and click
@@ -69,13 +66,11 @@ settings for your certificate like the validity period or the certificate usage.
 
 ===== Select the Certificate Authority previously created:
 
-image::packetfence-pki-template_menu.png[scaledwidth="100%",alt="Template
-configuration"]
+image::packetfence-pki-template_menu.png[scaledwidth="100%",alt="Template configuration"]
 
 ===== Here's a template example:
 
-image::packetfence-pki-template_creation.png[scaledwidth="100%",alt="Template
-configuration"]
+image::packetfence-pki-template_creation.png[scaledwidth="100%",alt="Template configuration"]
 
 Key usage clientAuth: To use your certificate for a client authentication.
 
@@ -83,8 +78,7 @@ Key usage serverAuth: If you want to install your certificate on a server.
 
 ===== P12 mail password emailed to the users:
 
-image::packetfence-pki-template_password_email.png[scaledwidth="100%",alt="Template
-configuration"]
+image::packetfence-pki-template_password_email.png[scaledwidth="100%",alt="Template configuration"]
 
 ===== SCEP
 
@@ -170,16 +164,13 @@ Send the CSR and retreive the certificate:
 
 ==== Certificate creation
 
-image::packetfence-pki-certificate_menu.png[scaledwidth="100%",alt="Certificate
-creation"]
+image::packetfence-pki-certificate_menu.png[scaledwidth="100%",alt="Certificate creation"]
 
-image::packetfence-pki-certificate_creation.png[scaledwidth="100%",alt="Certificate
-creation"]
+image::packetfence-pki-certificate_creation.png[scaledwidth="100%",alt="Certificate creation"]
 
 ===== Once it's created, you can send it to the email user or download the p12 format:
 
-image::packetfence-pki-certificate_download.png[scaledwidth="100%",alt="Certificate
-creation"]
+image::packetfence-pki-certificate_download.png[scaledwidth="100%",alt="Certificate creation"]
 
 ==== PEM format
 
@@ -198,8 +189,7 @@ a new one. You will need to specify a reason of the revokation.
 
 ===== Click on the *Revoke* button on the certificate:
 
-image::packetfence-pki-revoked_certificate.png[scaledwidth="100%",alt="Revoke a
-certificate"]
+image::packetfence-pki-revoked_certificate.png[scaledwidth="100%",alt="Revoke a certificate"]
 
 ==== Resign a certificate
 
@@ -217,13 +207,11 @@ First, you would need to create the PKI provider that will query the PacketFence
 PKI for new certifcate. Go to Configuration -> Advanced Access Configuration ->
 PKI provider
 
-image::packetfence-pki-pki-provider_menu.png[scaledwidth="100%",alt="PKI
-Provider"]
+image::packetfence-pki-pki-provider_menu.png[scaledwidth="100%",alt="PKI Provider"]
 
 ===== Create a certificate per user or per device mac address, this example will cover one certificate per device:
 
-image::packetfence-pki-pki-provider_creation.png[scaledwidth="100%",alt="PKI
-Provider"]
+image::packetfence-pki-pki-provider_creation.png[scaledwidth="100%",alt="PKI Provider"]
 
 
 ==== Intune Integration

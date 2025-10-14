@@ -139,8 +139,7 @@ To do that first you will have to provide to the end device a certificate that
 contains the Device ID, to do this go in the Intune management interface and
 configure the template like this:
 
-image::Intune_SCEP_machine.png[scaledwidth="100%",alt="Intune SCEP machine
-configuration"]
+image::Intune_SCEP_machine.png[scaledwidth="100%",alt="Intune SCEP machine configuration"]
 
 As you can see the CN (Common Name) will contain the Device Identifier, so when
 the device will connects on the secure SSID, the username will be equal to the
@@ -188,5 +187,4 @@ and the reply will be:
 From the "Azure Active Directory" authentication source, create an
 authentication rule like this:"
 
-image::Azure_Group_membership.png[scaledwidth="100%",alt="Azure AD Group
-Membership"]
+image::Azure_Group_membership.png[scaledwidth="100%",alt="Azure AD Group Membership"]

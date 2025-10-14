@@ -67,10 +67,8 @@ click Save.
 select *My Account* -> *Get API Token*
 * To create a permanent API Key in FleetDM, please refer to official documents: https://fleetdm.com/docs/using-fleet/fleetctl-cli?utm_medium=fleetui&utm_campaign=get-api-token#using-fleetctl-with-an-api-only-user
 
-image::fleetdm-fleetdm-api-token-in-packetfence.jpg[scaledwidth="100%",alt="FleetDM
-webhook for Policy Violations"]
-image::fleetdm-fleetdm-api-token.jpg[scaledwidth="100%",alt="FleetDM webhook for
-Policy Violations"]
+image::fleetdm-fleetdm-api-token-in-packetfence.jpg[scaledwidth="100%",alt="FleetDM webhook for Policy Violations"]
+image::fleetdm-fleetdm-api-token.jpg[scaledwidth="100%",alt="FleetDM webhook for Policy Violations"]
 
 ==== Configure FleetDM
 
@@ -89,8 +87,7 @@ individually in the FleetDM admin UI.
 Handler user in PacketFence. Replace `packetfence.fqdn` with the domain name
 or IP address of the PacketFence server.
 
-image::fleetdm-webhook-policy.jpg[scaledwidth="100%",alt="FleetDM webhook for
-Policy Violations"]
+image::fleetdm-webhook-policy.jpg[scaledwidth="100%",alt="FleetDM webhook for Policy Violations"]
 
 ===== CVEs
 [options="compact"]
@@ -102,8 +99,7 @@ Policy Violations"]
 Handler user in PacketFence. Replace `packetfence.fqdn` with the domain name
 or IP address of the PacketFence server.
 
-image::fleetdm-webhook-cve.jpg[scaledwidth="100%",alt="FleetDM webhook for
-CVEs"]
+image::fleetdm-webhook-cve.jpg[scaledwidth="100%",alt="FleetDM webhook for CVEs"]
 
 ==== Test and Validate Webhooks
 

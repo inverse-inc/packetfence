@@ -231,10 +231,8 @@ To create a new user Role:
     section.
 
 image::Ruckus_Roles_ZD.png[scaledwidth="100%",alt="Ruckus Roles creation"] 
-image::Ruckus_Roles_RBAC.png[scaledwidth="100%",alt="Ruckus Roles RBAC
-configuration"]
-image::Ruckus_Roles_ZD_WLAN_RBAC.png[scaledwidth="100%",alt="Ruckus WLAN RBAC
-settings"]
+image::Ruckus_Roles_RBAC.png[scaledwidth="100%",alt="Ruckus Roles RBAC configuration"]
+image::Ruckus_Roles_ZD_WLAN_RBAC.png[scaledwidth="100%",alt="Ruckus WLAN RBAC settings"]
 
 [float]
 ===== PacketFence Configuration

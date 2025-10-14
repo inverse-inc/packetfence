@@ -567,19 +567,16 @@ guest network uses the network 192.168.10.0/24.
 
 You can prevent communications between both networks using these access lists
 
-image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross
-network deny ACL"]
+image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
 
 Could also only prevent the guest users from using shared directories
 
-image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny
-shares ACL"]
+image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
 
 Or also could restrict the users to use only the DNS server where
 192.168.5.2 is the DNS server
 
-image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS
-ACL"]
+image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
 
 
 ==== Cisco IOS 15.5
@@ -863,19 +860,16 @@ guest network uses the network 192.168.10.0/24.
 
 You can prevent communications between both networks using these access lists
 
-image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross
-network deny ACL"]
+image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
 
 Could also only prevent the guest users from using shared directories
 
-image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny
-shares ACL"]
+image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
 
 Or also could restrict the users to use only the DNS server where
 192.168.5.2 is the DNS server
 
-image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS
-ACL"]
+image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
 
 
 ===== Downloadable ACLs

@@ -341,8 +341,7 @@ The 'default' role uses the network 192.168.5.0/24 and 'guest' uses the network
 
 You can prevent communications between both networks using these access lists
 
-image::aruba-acl-default-guest.png[scaledwidth="100%",alt="Cross network deny
-ACL"]
+image::aruba-acl-default-guest.png[scaledwidth="100%",alt="Cross network deny ACL"]
 
 You could also only prevent your guest users from using shared directories
 

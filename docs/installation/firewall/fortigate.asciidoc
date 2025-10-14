@@ -29,8 +29,7 @@ New*.
 * *RADIUS Attribute Value*: RSSO_Student (use PacketFence rolename,
   case-sensitive)
 
-image::doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Create the SSO agent
-in FortiGate"]
+image::doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Create the SSO agent in FortiGate"]
 
 View at *User & Device -> Monitor -> Firewall*.
 
@@ -53,8 +52,7 @@ Go to *System -> Network -> Interfaces*.
 Select PacketFence communication interface, check 'Listen for RADIUS Accounting
 Messages', confirm.
 
-image::doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Configure the
-accounting listening in the FortiGate"]
+image::doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Configure the accounting listening in the FortiGate"]
 
 ==== SSO Configuration in PacketFence
 
@@ -67,8 +65,7 @@ FortiGate*.
 * *Port*: 1813
 * *Roles*: add the roles that you want to do SSO
 
-image::doc-fortigate-cfg_sso_pf.png[scaledwidth="100%",alt="Configure the
-FortiGate SSO in PacketFence"]
+image::doc-fortigate-cfg_sso_pf.png[scaledwidth="100%",alt="Configure the FortiGate SSO in PacketFence"]
 
 ==== Verification
 

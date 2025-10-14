@@ -127,8 +127,7 @@ Add another _"New Module"_ of type _" Multiple -> Chained"_, name it
 `chained_oauth_sms`, provide a relevant description, add `default_oauth_policy`
 and `prompt_sms` to the _"Modules"_, then click Create.
 
-image::portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="Chained
-OAuth + SMS module"]
+image::portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="Chained OAuth + SMS module"]
 
 In `my_first_root_module` add the `chained_oauth_sms` module (removing any
 previous modules), then click Save. The portal will now prompt users for authentication using an OAuth source and then with SMS.
@@ -189,8 +188,7 @@ In `my_first_root_module` add the `default_registration_policy` and
 `hello_world` modules (removing any previous modules), then click Save. The
 portal will now prompt users for authentication using the Sources defined in the Connection Profile, and once registered the Hello World Message is displayed.
 
-image::portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello
-World in my_first_root_module"]
+image::portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello World in my_first_root_module"]
 
 ===== Redirect to an external website
 
