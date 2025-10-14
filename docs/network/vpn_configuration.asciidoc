@@ -124,8 +124,7 @@ and how to configure it.
  openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
  openssl genrsa -out vpn.key 2048
  openssl req -new -key vpn.key -out vpn.csr
- openssl x509 -req -in vpn.csr -out vpn.crt -CA ca.crt -CAkey ca.key
- -CAcreateserial -days 365
+ openssl x509 -req -in vpn.csr -out vpn.crt -CA ca.crt -CAkey ca.key -CAcreateserial -days 365
  openssl dhparam -out dh2048.pem 2048
 
 Edit the server.conf file and paste this following content:
@@ -160,18 +159,15 @@ Edit the server.conf file and paste this following content:
 
 Next you need to compile the radius extention for openvpn:
 
- wget
- https://github.com/ValdikSS/openvpn-radiusplugin/archive/refs/heads/master.zip
+ wget https://github.com/ValdikSS/openvpn-radiusplugin/archive/refs/heads/master.zip
  unzip master.zip
  cd openvpn-radiusplugin-master
 
 Then apply this patch:
 
- diff -ruN openvpn-radiusplugin-master.orig/Config.cpp
- openvpn-radiusplugin-master/Config.cpp
- --- openvpn-radiusplugin-master.orig/Config.cpp 2015-12-23 08:07:19.000000000
- -0500
- +++ openvpn-radiusplugin-master/Config.cpp 2021-11-09 11:17:21.759139003 -0500
+ diff -ruN openvpn-radiusplugin-master.orig/Config.cpp openvpn-radiusplugin-master/Config.cpp
+ --- openvpn-radiusplugin-master.orig/Config.cpp 2015-12-23 08:07:19.000000000 -0500
+ +++ openvpn-radiusplugin-master/Config.cpp      2021-11-09 11:17:21.759139003 -0500
  @@ -240,6 +240,14 @@
                                                            this->clientcertnotrequired=true;
                                                    }

@@ -96,9 +96,7 @@ For Mariabackup:
   # service packetfence-mariadb stop
   # mv /var/lib/mysql /var/lib/mysql.bak
   # mkdir /var/lib/mysql
-  # mariabackup --innobackupex
-  --defaults-file=/usr/local/pf/var/conf/mariadb.conf --move-back
-  --force-non-empty-directories ./
+  # mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf      --move-back --force-non-empty-directories ./
   # chown -R mysql: /var/lib/mysql
   # service packetfence-mariadb start
 

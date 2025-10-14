@@ -432,8 +432,7 @@ command. Type following commands in PacketFence CLI:
 [source,bash]
 ----
 mkdir temp; cd temp
-openssl req -newkey rsa:2048 -nodes -keyout local.key -out local.csr -subj
-'/C=CA/ST=QC/L=Montreal/O=Inverse/OU=IT/CN=www.test.example.com'
+openssl req -newkey rsa:2048 -nodes -keyout local.key -out local.csr -subj '/C=CA/ST=QC/L=Montreal/O=Inverse/OU=IT/CN=www.test.example.com'
 ----
 
 This will create 2 files in the current directory, [filename]`local.csr` and [filename]`local.key`.

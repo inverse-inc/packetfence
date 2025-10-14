@@ -45,8 +45,7 @@ they never do a new DHCP on VLAN change.
 Global config settings 
 
   set snmp community public 
-  set snmp targetparams v2cPF user public security-model v2c message-processing
-  v2c
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c
   set snmp notify entryPF tag TrapPF 
   set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
   set maclock enable 
@@ -71,8 +70,7 @@ only.
 Global config settings 
 
   set snmp community public 
-  set snmp targetparams v2cPF user public security-model v2c message-processing
-  v2c
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c
   set snmp notify entryPF tag TrapPF 
   set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
   set maclock enable 
@@ -103,8 +101,7 @@ only.
 Global config settings 
 
   set snmp community public 
-  set snmp targetparams v2cPF user public security-model v2c message-processing
-  v2c
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c
   set snmp notify entryPF tag TrapPF 
   set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
   set maclock enable 
@@ -139,8 +136,7 @@ To do so, use: `clear vlan egress <vlans> <ports>`
 Global config settings 
 
   set snmp community public 
-  set snmp targetparams v2cPF user public security-model v2c message-processing
-  v2c
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c
   set snmp notify entryPF tag TrapPF 
   set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
   set maclock enable 

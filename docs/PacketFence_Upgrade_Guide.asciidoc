@@ -815,8 +815,7 @@ Install the upgrade package before running automated upgrade:
 
 [source,bash]
 ----
-yum localinstall
-https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1.el8.noarch.rpm
+yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1.el8.noarch.rpm
 ----
 
 **Standard Upgrade Process:**

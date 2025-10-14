@@ -1035,9 +1035,7 @@ Make sure to have plenty of both before running the upgrade script.
 You can estimate the size of the existing `radacct` table by running the
 following command:
 
-    mysql> SELECT table_name AS "Table", round(((data_length + index_length) /
-    1024 / 1024), 2) "Size in MB" FROM information_schema.TABLES WHERE
-    table_schema = "pf" AND table_name = "radacct";
+    mysql> SELECT table_name AS "Table", round(((data_length + index_length) / 1024 / 1024), 2) "Size in MB" FROM information_schema.TABLES WHERE table_schema = "pf" AND table_name = "radacct";
 
 You should have at least twice as much space as that table uses in the
 filesystem on which the MySQL data directory is mounted (usually
@@ -1319,8 +1317,7 @@ You must rename "controllerPort" to "disconnectPort" in your switches.conf
 configuration file. You can automate this using:
 
   cd /usr/local/pf
-  find . -name "switches.conf" -exec sed -i "s/controllerPort/disconnectPort/g"
-  '{}' \;
+  find . -name "switches.conf" -exec sed -i "s/controllerPort/disconnectPort/g" '{}' \;
 
 ==== Eduroam
 
@@ -1399,15 +1396,11 @@ Make sure the apt database is up to date
 Remove the MySQL 5.5 packages (do not purge them, as that would delete the
 database)
 
-    dpkg -r --force-all mysql-client-5.5 mysql-common mysql-server
-    mysql-server-5.5 mysql-server-core-5.5 libmysqlclient18
+    dpkg -r --force-all mysql-client-5.5 mysql-common mysql-server mysql-server-5.5 mysql-server-core-5.5 libmysqlclient18
 
 Install the newer Mariadb-10.1 packages
 
-    apt install libmariadbclient18 libmysqlclient18 mariadb-common
-    mariadb-server-10.1 galera-3 gawk mariadb-client-10.1
-    mariadb-server-core-10.1 rsync socat libmpfr4 mariadb-client-core-10.1
-    mysql-common
+    apt install libmariadbclient18 libmysqlclient18 mariadb-common mariadb-server-10.1 galera-3 gawk mariadb-client-10.1 mariadb-server-core-10.1 rsync socat libmpfr4 mariadb-client-core-10.1 mysql-common
 
 Finally, upgrade the rest of the packages
 

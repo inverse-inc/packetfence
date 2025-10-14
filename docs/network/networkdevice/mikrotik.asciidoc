@@ -235,19 +235,15 @@ Configure your access point with the following configuration:
   add interface=BR-CAPS l2mtu=1594 name=isolation vlan-id=3
   add interface=BR-CAPS l2mtu=1594 name=registration vlan-id=2
   /caps-man datapath
-  add bridge=BR-CAPS client-to-client-forwarding=yes local-forwarding=yes
-  name=datapath1
+  add bridge=BR-CAPS client-to-client-forwarding=yes local-forwarding=yes name=datapath1
   /caps-man interface
   # 
-  add arp=enabled configuration.mode=ap configuration.ssid=OPEN
-  datapath=datapath1 disabled=no l2mtu=1600 mac-address=\
-      D4:CA:6D:05:A6:4D master-interface=none mtu=1500 name=cap1
-      radio-mac=D4:CA:6D:05:A6:4D
+  add arp=enabled configuration.mode=ap configuration.ssid=OPEN datapath=datapath1 disabled=no l2mtu=1600 mac-address=\
+      D4:CA:6D:05:A6:4D master-interface=none mtu=1500 name=cap1 radio-mac=D4:CA:6D:05:A6:4D
   /caps-man aaa
   set interim-update=5m
   /caps-man access-list
-  add action=query-radius interface=cap1 radius-accounting=yes
-  signal-range=-120..120 time=0s-1d,sun,mon,tue,wed,thu,fri,sat
+  add action=query-radius interface=cap1 radius-accounting=yes signal-range=-120..120 time=0s-1d,sun,mon,tue,wed,thu,fri,sat
   /caps-man manager
   set enabled=yes
   /interface bridge port

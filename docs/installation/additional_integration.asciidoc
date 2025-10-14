@@ -60,16 +60,14 @@ For CentOS 6 (x86_64):
 
 [source,bash]
 ----
-wget
-https://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
 For CentOS 7 (x86_64):
 
 [source,bash]
 ----
-wget
-https://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
 Install the sensor with [command]`rpm`:
@@ -92,7 +90,7 @@ Get the sensor source code:
 [source,bash]
 ----
 mkdir -p ~/udp-reflector && cd ~/udp-reflector
-wget https://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
+wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
 g++ udp_reflector.cpp -o /usr/local/bin/udp_reflector -lpcap
 ----
 

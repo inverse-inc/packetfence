@@ -122,20 +122,13 @@ In order to emulate how PacketFence connects to the database, you can run follow
 .For PacketFence versions 11.0 and later
 [source,bash]
 ----
-mysql -u $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db
--e 'print $pf::db::DB_Config->{user}') -p$(perl
--I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print
-$pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib_perl/lib/perl5
--I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
+mysql -u $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
 ----
 
 .For PacketFence versions prior to 11.0
 [source,bash]
 ----
-mysql -u $(perl -I/usr/local/pf/lib -Mpf::db -e 'print
-$pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib -Mpf::db -e 'print
-$pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib -Mpf::db -e 'print
-$pf::db::DB_Config->{host}') pf
+mysql -u $(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
 ----
 
 If you got a prompt, it means PacketFence must be able to connect to the database.

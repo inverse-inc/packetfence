@@ -139,8 +139,7 @@ Create a private key and a csr file:
 
 Get the CA certificate:
 
- sscep getca -u http://ip_address/scep/template_name -c ./ca-prefix -i MyPKI -v
- -d
+ sscep getca -u http://ip_address/scep/template_name -c ./ca-prefix -i MyPKI -v -d
 
  sscep: starting sscep, version 0.6.1
  sscep: new transaction
@@ -167,8 +166,7 @@ Remove the private key passphrase:
 
 Send the CSR and retreive the certificate:
 
- sscep enroll -c ./ca-prefix -k ./private.key -r ./MYCSR.csr -u
- http://ip_address/scep/template_name -S sha1 -l ./cert.crt
+ sscep enroll -c ./ca-prefix  -k ./private.key -r ./MYCSR.csr -u http://ip_address/scep/template_name -S sha1 -l ./cert.crt
 
 ==== Certificate creation
 

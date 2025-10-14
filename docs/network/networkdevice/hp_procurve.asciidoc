@@ -301,8 +301,7 @@ Configure RADIUS network accounting on the switch (optional).
 You can also view ACL counter hits using either of the following commands:
 
   show access-list radius <port-list>
-  show port-access <authenticator|mac-based|web-based> <port-list> clients
-  detailed
+  show port-access <authenticator|mac-based|web-based> <port-list> clients detailed
 
 Configure an authentication method. Options include 802.1X, web-based
 authentication, and MAC authentication. You can configure 802.1X, web-based

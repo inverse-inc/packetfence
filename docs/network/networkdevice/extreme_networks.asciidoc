@@ -80,8 +80,7 @@ Global config settings with Voice over IP (VoIP):
 
 Starting from version EXOS 22.1 CoA is supported.
 
-  configure radius dynamic-authorization 1 server 192.168.1.5 client-ip 10.0.0.8
-  vr VR-Default shared-secret useStrongerSecret
+  configure radius dynamic-authorization 1 server 192.168.1.5 client-ip 10.0.0.8 vr VR-Default shared-secret useStrongerSecret
   enable radius dynamic-authorization
 
 ===== MAC Authentication
@@ -94,8 +93,7 @@ SNMP configuration
 
 AAA Configuration
 
-  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8
-  vr VR-Default
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
   configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
@@ -121,8 +119,7 @@ SNMP configuration
 
 AAA Configuration
 
-  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8
-  vr VR-Default
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
   configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
@@ -135,10 +132,8 @@ Netlogin (802.1X)
   enable netlogin ports 1-48 dot1x 
   configure netlogin ports 1-48 mode port-based-vlans
   configure netlogin ports 1-48 no-restart
-  configure netlogin mac ports 1-48 timers reauth-period 86400 reauthentication
-  on
-  configure netlogin dot1x ports 1-48 timers server-timeout 10 reauth-period
-  84600
+  configure netlogin mac ports 1-48 timers reauth-period 86400 reauthentication on
+  configure netlogin dot1x ports 1-48 timers server-timeout 10 reauth-period 84600
 
 
 ==== MAC Authentication + 802.1x
@@ -157,10 +152,8 @@ Assign switch-defined policies via PacketFence.
 
 Define switch policy:
 
-  configure policy profile 1 name "gaming" pvid-status "enable" pvid 3521
-  untagged-vlans 3521
-  configure policy profile 2 name "guest" pvid-status "enable" pvid 3522
-  untagged-vlans 3522
+  configure policy profile 1 name "gaming" pvid-status "enable" pvid 3521 untagged-vlans 3521
+  configure policy profile 2 name "guest" pvid-status "enable" pvid 3522 untagged-vlans 3522
   configure policy maptable response both
   configure policy vlanauthorization enable
 
@@ -179,8 +172,7 @@ SNMP configuration
 
 AAA Configuration
 
-  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8
-  vr VR-Default
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
   configure radius netlogin primary shared-secret useStrongerSecret
   enable radius netlogin
 
@@ -188,10 +180,8 @@ Web-auth profile
 
   configure dns-client add name-server 8.8.8.8 vr VR-Mgmt
   configure dns-client add domain-suffix example.com
-  configure policy captive-portal web-redirect 1 server 1 url
-  http://192.168.1.5:80/Extreme::EXOS enable
-  configure policy profile 4 name "Unregistered" pvid-status "enable" pvid 0
-  web-redirect 1
+  configure policy captive-portal web-redirect 1 server 1 url http://192.168.1.5:80/Extreme::EXOS enable
+  configure policy profile 4 name "Unregistered" pvid-status "enable" pvid 0 web-redirect 1
   configure policy rule 4 ipdestsocket 192.168.1.5 mask 32 forward
   configure policy rule 4 udpdestportIP 53 mask 16 forward
   configure policy rule 4 udpdestportIP 67 mask 16 forward
@@ -209,8 +199,7 @@ Use 'Extreme EXOS' switch type for this feature.
 Configure RADIUS server IP as primary server and switch IP as client-ip. Specify
 correct virtual router:
 
-  configure radius mgmt-access primary server <SERVER_IP> 1815 client-ip
-  <CLIENT_IP> vr <VR>
+  configure radius mgmt-access primary server <SERVER_IP> 1815 client-ip <CLIENT_IP> vr <VR>
 
 Configure the RADIUS shared-secret
 
