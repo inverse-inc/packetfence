@@ -1469,12 +1469,12 @@ sub iptables_kafka_rules {
     if ( util_management_network_is_set($service_name) ){
         # The dynamic range used to access the fingerbank collector that are connected via a remote connector
         my $tint = $management_network->{Tint};
+        my $chains = util_create_chains();
+        $chains->{name} = $service_name;
         util_safe_push( "-i $tint -p tcp -m tcp --dport 9092 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp --dport 9093 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
         util_safe_push( "-i $tint -p tcp -m tcp --dport 29092 --jump ACCEPT", $chains->{'filter'}{'INPUT'} );
-        my $chains = util_create_chains();
         if ( @{$ConfigKafka{iptables}{clients}} ) {
-            $chains->{name} = $service_name;
             for my $client (@{$ConfigKafka{iptables}{clients}}) {
                 util_safe_push( "-i $tint -p tcp -m tcp -s $client --dport 9092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             }
@@ -1482,7 +1482,6 @@ sub iptables_kafka_rules {
             $logger->warn("Service $service_name: No ConfigKafka iptables clients is available.");
         }
         if ( @{$ConfigKafka{iptables}{cluster_ips}} ) {
-            $chains->{name} = $service_name;
             for my $ip (@{$ConfigKafka{iptables}{cluster_ips}}) {
                 util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 29092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
