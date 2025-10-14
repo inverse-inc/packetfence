@@ -55,8 +55,10 @@ $t->post_ok("$collection_base_url" =>
             }
           ],
           "conditions" =>  []
-        }
+        },
       ],
+      hash_passwords => 'bcrypt',
+      password_length => 8,
     }
   )
   ->status_is(201);
