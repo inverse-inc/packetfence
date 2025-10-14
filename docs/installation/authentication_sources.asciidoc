@@ -130,7 +130,7 @@ Some of the key concepts presented in this section are:
 
 Now that you understand what authentication sources and alerting are, we will
 add an SMS authentication source on our guest portal. We previously used the
-'Null` source but we will add an other source. Portal profiles can provide
+'Null` source but we will add another source. Portal profiles can provide
 multiple authentication sources.
 
 From _Configuration -> Policies and Access Control -> Authentication Sources_,

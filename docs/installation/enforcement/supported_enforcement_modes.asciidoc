@@ -364,7 +364,7 @@ client if it connects on another SSID.
 The concept of having a RADIUS enforcement is to not use registration,
 isolation, nor the portal capabilities of PacketFence. Everything here is for
 RADIUS integration only. By default the management interface will be the RADIUS
-interface. If needed, it is possible to add an other interface from
+interface. If needed, it is possible to add another interface from
 _Configuration -> Network Configuration -> Networks -> Interface_. When doing
 so, you must select `Other` as the type of interface. Moreover, you must select
 `radius` as an additionnal listening daemon.

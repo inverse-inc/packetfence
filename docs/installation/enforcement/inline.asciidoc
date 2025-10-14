@@ -35,7 +35,7 @@ Inline enforcement uses `ipset` to mark nodes as registered, unregistered and
 isolated.
 It is also now possible to use multiple inline interfaces. A node registered on
 the first inline interface is marked with an IP:MAC tuple (for L2, only ip for
-L3), so when the node tries to register on an other inline interface,
+L3), so when the node tries to register on another inline interface,
 PacketFence detects that the node is already registered on the first inline
 network. It is also possible to enable `inline.should_reauth_on_vlan_change` to
 force users to reauthenticate when they change inline network - you can change

@@ -55,11 +55,11 @@ Also note that changes on the OpenWRT access point are done using SSH shell
 access.
 
 Please note that any interface name reference might be different from one
-equipment vendor to an other.
+equipment vendor to another.
 
 ===== Configure chilli
 
-chilli configuration might differ from one equipment vendor to an other one.
+chilli configuration might differ from one equipment vendor to another one.
 Just make sure to follow these configuration guidelines and you should be
 all-set.
 

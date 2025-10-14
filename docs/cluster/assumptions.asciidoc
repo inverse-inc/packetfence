@@ -18,7 +18,7 @@ endif::[]
 
 [options="compact"]
 * At least three installed PacketFence (v7+) servers
-* Servers run RHEL 8 or Debian 11
+* Servers run RHEL 8 or Debian 12
 * Servers have identical network interface identifiers (e.g. eth0) (see next section)
 * Servers have IPv6 disabled (see next section)
 * Servers have fully qualified domain names (FQDN)

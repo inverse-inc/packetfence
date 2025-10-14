@@ -57,7 +57,7 @@ This value should be the FQDN of the portal with /mfa at the end
 (https://portal.acme.com/mfa)
 
 RADIUS OTP Method:
-It is where you define which method you want to use in RADIUS (Explaination are
+It is where you define which method you want to use in RADIUS (Explanation is
 covered in the next section)
 
 Character separator:
