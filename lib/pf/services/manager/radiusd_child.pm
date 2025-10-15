@@ -898,9 +898,10 @@ EOT
             my $source = getAuthenticationSource($pf::config::ConfigRealm{$realm}->{azuread_source_ttls_pap});
             my $client_id = $source->client_id;
             my $client_secret = $source->client_secret;
+            my $oauth_url = $source->oauth_url;
             $tags{'config'} .= <<"EOT";
 oauth2 {
-    discovery = "https://login.microsoftonline.com/%{Realm}/v2.0"
+    discovery = "$oauth_url/%{Realm}/v2.0"
     client_id = "$client_id"
     client_secret = '$client_secret'
     cache_password = yes
